@@ -32,7 +32,7 @@ import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.logging.YawlLogServletInterface;
-import au.edu.qut.yawl.persistence.dao1.PersistableObject;
+import au.edu.qut.yawl.persistence.PersistableObject;
 
 /**
  * 

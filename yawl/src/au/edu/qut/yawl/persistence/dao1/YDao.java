@@ -88,7 +88,7 @@ public abstract class YDao implements Dao, RunnerDao, WorkItemDao, Specification
                     YNetRunner runner = _caseToNetRunnerMap.get(key);
 
                     logger.debug("Entry " + sub + " Key=" + key.getId());
-                    logger.debug(("    CaseID        " + runner.get_caseID()));
+                    logger.debug(("    CaseID        " + runner.getCaseID()));
                     logger.debug("     YNetID        " + runner.getYNetID());
                 }
             }
