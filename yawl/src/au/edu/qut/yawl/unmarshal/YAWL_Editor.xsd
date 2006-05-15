@@ -1,0 +1,3 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:editor="http://www.baloney.org" targetNamespace="http://www.baloney.org" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:element name="point"/>  
+</xs:schema>

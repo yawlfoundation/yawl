@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+ <xs:annotation>
+ <xs:documentation>
+ A Simple Contact XML Schema
+  </xs:documentation>
+ </xs:annotation>
+
+ <xs:element name="configurations">
+ <xs:element name="configuration">
+
+ </xs:element>
+ </xs:element>
+</xs:schema>

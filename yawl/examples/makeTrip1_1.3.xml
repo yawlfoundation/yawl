@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 6" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta6.xsd">
+  <specification uri="makeTrip1_1.3.ywl">
+    <metaData>
+      <title>make trip 1 process</title>
+      <creator>C Ouyang</creator>
+      <description>A simple process that provides a trip booking service with a single leg</description>
+      <version>0.1</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema">
+      <complexType name="tripRegistrationType">
+        <sequence>
+          <element maxOccurs="1" minOccurs="1" name="startDate">
+            <complexType>
+              <sequence maxOccurs="1" minOccurs="1">
+                <element name="year" type="long" />
+                <element name="month" type="long" />
+                <element name="day" type="long" />
+              </sequence>
+            </complexType>
+          </element>
+          <element maxOccurs="1" minOccurs="1" name="endDate">
+            <complexType>
+              <sequence maxOccurs="1" minOccurs="1">
+                <element name="year" type="long" />
+                <element name="month" type="long" />
+                <element name="day" type="long" />
+              </sequence>
+            </complexType>
+          </element>
+          <element name="want_flight" type="boolean" />
+          <element name="want_hotel" type="boolean" />
+          <element name="want_car" type="boolean" />
+          <element name="payAccNumber" type="string" />
+        </sequence>
+      </complexType>
+      <complexType name="dateType">
+        <sequence maxOccurs="1" minOccurs="1">
+          <element name="year" type="long" />
+          <element name="month" type="long" />
+          <element name="day" type="long" />
+        </sequence>
+      </complexType>
+    </schema>
+    <decomposition id="make_trip" isRootNet="true" xsi:type="NetFactsType">
+      <localVariable>
+        <name>carDetails</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>n/a</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>customer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>Type name of customer</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>flightDetails</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>n/a</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>hotelDetails</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>n/a</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>registrInfo</name>
+        <type>tripRegistrationType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <flowsInto>
+            <nextElementRef id="register_7" />
+          </flowsInto>
+        </inputCondition>
+        <task id="register_7">
+          <flowsInto>
+            <nextElementRef id="book_flight_4" />
+            <predicate>/make_trip/registrInfo/want_flight='true'</predicate>
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="book_hotel_5" />
+            <predicate>/make_trip/registrInfo/want_hotel='true'</predicate>
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="book_car_3" />
+            <predicate>/make_trip/registrInfo/want_car='true'</predicate>
+            <isDefaultFlow />
+          </flowsInto>
+          <join code="xor" />
+          <split code="or" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;customer&gt;{/make_trip/customer/text()}&lt;/customer&gt;" />
+              <mapsTo>customer</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;registrInfo&gt;{/register/registrInfo/*}&lt;/registrInfo&gt;" />
+              <mapsTo>registrInfo</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;customer&gt;{/register/customer/text()}&lt;/customer&gt;" />
+              <mapsTo>customer</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="register" />
+        </task>
+        <task id="book_car_3">
+          <flowsInto>
+            <nextElementRef id="pay_6" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;startDate&gt;{/make_trip/registrInfo/startDate/*}&lt;/startDate&gt;" />
+              <mapsTo>startDate</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;customer&gt;{/make_trip/customer/text()}&lt;/customer&gt;" />
+              <mapsTo>customer</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;endDate&gt;{/make_trip/registrInfo/endDate/*}&lt;/endDate&gt;" />
+              <mapsTo>endDate</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;carDetails&gt;{/book_car/carDetails/text()}&lt;/carDetails&gt;" />
+              <mapsTo>carDetails</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="book_car" />
+        </task>
+        <task id="book_flight_4">
+          <flowsInto>
+            <nextElementRef id="pay_6" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;startDate&gt;{/make_trip/registrInfo/startDate/*}&lt;/startDate&gt;" />
+              <mapsTo>startDate</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;customer&gt;{/make_trip/customer/text()}&lt;/customer&gt;" />
+              <mapsTo>customer</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;endDate&gt;{/make_trip/registrInfo/endDate/*}&lt;/endDate&gt;" />
+              <mapsTo>endDate</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;flightDetails&gt;{/book_flight/flightDetails/text()}&lt;/flightDetails&gt;" />
+              <mapsTo>flightDetails</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="book_flight" />
+        </task>
+        <task id="book_hotel_5">
+          <flowsInto>
+            <nextElementRef id="pay_6" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;startDate&gt;{/make_trip/registrInfo/startDate/*}&lt;/startDate&gt;" />
+              <mapsTo>startDate</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;customer&gt;{/make_trip/customer/text()}&lt;/customer&gt;" />
+              <mapsTo>customer</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;endDate&gt;{/make_trip/registrInfo/endDate/*}&lt;/endDate&gt;" />
+              <mapsTo>endDate</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;hotelDetails&gt;{/book_hotel/hotelDetails/text()}&lt;/hotelDetails&gt;" />
+              <mapsTo>hotelDetails</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="book_hotel" />
+        </task>
+        <task id="pay_6">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;flightDetails&gt;{/make_trip/flightDetails/text()}&lt;/flightDetails&gt;" />
+              <mapsTo>flightDetails</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;customer&gt;{/make_trip/customer/text()}&lt;/customer&gt;" />
+              <mapsTo>customer</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;payAccNumber&gt;{/make_trip/registrInfo/payAccNumber/text()}&lt;/payAccNumber&gt;" />
+              <mapsTo>payAccNumber</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;hotelDetails&gt;{/make_trip/hotelDetails/text()}&lt;/hotelDetails&gt;" />
+              <mapsTo>hotelDetails</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;carDetails&gt;{/make_trip/carDetails/text()}&lt;/carDetails&gt;" />
+              <mapsTo>carDetails</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="pay" />
+        </task>
+        <outputCondition id="OutputCondition_2" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="pay" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>flightDetails</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>customer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>payAccNumber</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>hotelDetails</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>carDetails</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+    </decomposition>
+    <decomposition id="book_car" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>startDate</name>
+        <type>dateType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>customer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>endDate</name>
+        <type>dateType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>carDetails</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="book_flight" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>startDate</name>
+        <type>dateType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>customer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>endDate</name>
+        <type>dateType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>flightDetails</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="register" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>customer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>registrInfo</name>
+        <type>tripRegistrationType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>customer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="book_hotel" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>startDate</name>
+        <type>dateType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>customer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>endDate</name>
+        <type>dateType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>hotelDetails</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+

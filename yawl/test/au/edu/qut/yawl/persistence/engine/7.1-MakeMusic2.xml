@@ -1,0 +1,670 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="MakeMusic2.xml">
+    <metaData />
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="MakeMusic" isRootNet="true" xsi:type="NetFactsType">
+      <localVariable>
+        <name>applicant</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>ronan keating</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>auditionResult</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>failed</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>instruments</name>
+        <isUntyped />
+        <initialValue>&lt;instrument&gt;saxophone&lt;/instrument&gt;&lt;instrument&gt;piano&lt;/instrument&gt;</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>numPerformances</name>
+        <type>nonNegativeInteger</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>0</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>songsToWrite</name>
+        <isUntyped />
+      </localVariable>
+      <localVariable>
+        <name>direction</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </localVariable>
+      <localVariable>
+        <name>averageSkillLevel</name>
+        <type>nonNegativeInteger</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </localVariable>
+      <localVariable>
+        <name>writtenSongs</name>
+        <isUntyped />
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="start">
+          <name>Start</name>
+          <flowsInto>
+            <nextElementRef id="decide" />
+          </flowsInto>
+        </inputCondition>
+        <task id="decide">
+          <name>Decide to make Music</name>
+          <flowsInto>
+            <nextElementRef id="learn" />
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="audition" />
+            <predicate ordering="1">/data/direction = 'short cut'</predicate>
+          </flowsInto>
+          <join code="and" />
+          <split code="xor" />
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;direction&gt;{for $d in /data/shortCut/text() where $d = 'true' return 'short cut'}{for $d in /data/shortCut/text() where not($d = 'true') return 'ideal way'}&lt;/direction&gt;" />
+              <mapsTo>direction</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/applicant" />
+              <mapsTo>applicant</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Decide to make music" />
+        </task>
+        <task id="learn" xsi:type="MultipleInstanceExternalTaskFactsType">
+          <name>Learn to play Instruments</name>
+          <flowsInto>
+            <nextElementRef id="deferred1" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Learn to play instrument" />
+          <minimum>1</minimum>
+          <maximum>6</maximum>
+          <threshold>3</threshold>
+          <creationMode code="dynamic" />
+          <miDataInput>
+            <expression query="/data/instruments" />
+            <splittingExpression query="for $d in /instruments/* return $d" />
+            <formalInputParam>instrument</formalInputParam>
+          </miDataInput>
+          <miDataOutput>
+            <formalOutputExpression query="/data/skillLevel" />
+            <outputJoiningExpression query="&lt;averageSkillLevel&gt;{ avg(/data/skillLevel) }&lt;/averageSkillLevel&gt;" />
+            <resultAppliedToLocalVariable>averageSkillLevel</resultAppliedToLocalVariable>
+          </miDataOutput>
+        </task>
+        <task id="audition">
+          <name>Do Audition</name>
+          <flowsInto>
+            <nextElementRef id="failed" />
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="passed" />
+            <predicate ordering="1">/data/auditionResult = 'passed'</predicate>
+          </flowsInto>
+          <join code="xor" />
+          <split code="xor" />
+          <completedMappings>
+            <mapping>
+              <expression query="/data/auditionResult" />
+              <mapsTo>auditionResult</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Do boy/girl band audition" />
+        </task>
+        <condition id="deferred1">
+          <flowsInto>
+            <nextElementRef id="joinBand" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="solo" />
+          </flowsInto>
+        </condition>
+        <condition id="failed">
+          <name>Audiiton failed</name>
+          <flowsInto>
+            <nextElementRef id="audition" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="learn" />
+          </flowsInto>
+        </condition>
+        <condition id="passed">
+          <name>Audition Passed</name>
+          <flowsInto>
+            <nextElementRef id="doAll" />
+          </flowsInto>
+        </condition>
+        <task id="joinBand">
+          <flowsInto>
+            <nextElementRef id="initPerform" />
+            <predicate>true()</predicate>
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="write" />
+            <predicate>count(/data/songsToWrite/*) &gt; 0</predicate>
+          </flowsInto>
+          <join code="and" />
+          <split code="or" />
+          <completedMappings>
+            <mapping>
+              <expression query="/data/songsToWrite" />
+              <mapsTo>songsToWrite</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Join a Band" />
+        </task>
+        <task id="solo">
+          <flowsInto>
+            <nextElementRef id="initPerform" />
+            <predicate>true()</predicate>
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="write" />
+            <predicate>count(/data/songsToWrite/*) &gt; 0</predicate>
+          </flowsInto>
+          <join code="and" />
+          <split code="or" />
+          <completedMappings>
+            <mapping>
+              <expression query="/data/songsToWrite" />
+              <mapsTo>songsToWrite</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Decide to Go Solo" />
+        </task>
+        <task id="doAll">
+          <flowsInto>
+            <nextElementRef id="makeRecord" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="Do everything you are told" />
+        </task>
+        <task id="initPerform">
+          <flowsInto>
+            <nextElementRef id="getContract" />
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="initPerform" />
+            <predicate ordering="1">/data/numPerformances &lt; '2'</predicate>
+          </flowsInto>
+          <join code="xor" />
+          <split code="xor" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/numPerformances" />
+              <mapsTo>numPerformances</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;numPerformances&gt;{/data/numPerformances + 1}&lt;/numPerformances&gt;" />
+              <mapsTo>numPerformances</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Do initial performance" />
+        </task>
+        <task id="write" xsi:type="MultipleInstanceExternalTaskFactsType">
+          <flowsInto>
+            <nextElementRef id="getContract" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Write a Song" />
+          <minimum>1</minimum>
+          <maximum>10</maximum>
+          <threshold>100</threshold>
+          <creationMode code="dynamic" />
+          <miDataInput>
+            <expression query="/data/songsToWrite" />
+            <splittingExpression query="for $d in /songsToWrite/* return $d" />
+            <formalInputParam>song</formalInputParam>
+          </miDataInput>
+          <miDataOutput>
+            <formalOutputExpression query="/data/writtenSong" />
+            <outputJoiningExpression query="&lt;writtenSongs&gt;{ for $d in /data/writtenSong return $d }&lt;/writtenSongs&gt;" />
+            <resultAppliedToLocalVariable>writtenSongs</resultAppliedToLocalVariable>
+          </miDataOutput>
+        </task>
+        <task id="initPerform">
+          <flowsInto>
+            <nextElementRef id="getContract" />
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="initPerform" />
+            <predicate ordering="1">/data/numPerformances &lt; '2'</predicate>
+          </flowsInto>
+          <join code="xor" />
+          <split code="xor" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/numPerformances" />
+              <mapsTo>numPerformances</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;numPerformances&gt;{/data/numPerformances + 1}&lt;/numPerformances&gt;" />
+              <mapsTo>numPerformances</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Do initial performance" />
+        </task>
+        <task id="write" xsi:type="MultipleInstanceExternalTaskFactsType">
+          <flowsInto>
+            <nextElementRef id="getContract" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Write a Song" />
+          <minimum>1</minimum>
+          <maximum>10</maximum>
+          <threshold>100</threshold>
+          <creationMode code="dynamic" />
+          <miDataInput>
+            <expression query="/data/songsToWrite" />
+            <splittingExpression query="for $d in /songsToWrite/* return $d" />
+            <formalInputParam>song</formalInputParam>
+          </miDataInput>
+          <miDataOutput>
+            <formalOutputExpression query="/data/writtenSong" />
+            <outputJoiningExpression query="&lt;writtenSongs&gt;{ for $d in /data/writtenSong return $d }&lt;/writtenSongs&gt;" />
+            <resultAppliedToLocalVariable>writtenSongs</resultAppliedToLocalVariable>
+          </miDataOutput>
+        </task>
+        <task id="makeRecord">
+          <flowsInto>
+            <nextElementRef id="rehearse" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="deferred2" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;recordingArtiste&gt;{ /data/applicant/text() }&lt;/recordingArtiste&gt;" />
+              <mapsTo>recordingArtiste</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;songs&gt;{for $d in /data/writtenSongs/* return $d}&lt;/songs&gt;" />
+              <mapsTo>songs</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="make record" />
+        </task>
+        <condition id="deferred2">
+          <flowsInto>
+            <nextElementRef id="developArt" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="developDrug" />
+          </flowsInto>
+        </condition>
+        <task id="getContract">
+          <flowsInto>
+            <nextElementRef id="makeRecord" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/writtenSongs" />
+              <mapsTo>writtenSongs</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/instruments" />
+              <mapsTo>instruments</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/averageSkillLevel" />
+              <mapsTo>averageSkillLevel</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/applicant" />
+              <mapsTo>applicant</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="Get a Recording Contract" />
+        </task>
+        <task id="getContract">
+          <flowsInto>
+            <nextElementRef id="makeRecord" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/writtenSongs" />
+              <mapsTo>writtenSongs</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/instruments" />
+              <mapsTo>instruments</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/averageSkillLevel" />
+              <mapsTo>averageSkillLevel</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/applicant" />
+              <mapsTo>applicant</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="Get a Recording Contract" />
+        </task>
+        <task id="getContract">
+          <flowsInto>
+            <nextElementRef id="makeRecord" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/writtenSongs" />
+              <mapsTo>writtenSongs</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/instruments" />
+              <mapsTo>instruments</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/averageSkillLevel" />
+              <mapsTo>averageSkillLevel</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/applicant" />
+              <mapsTo>applicant</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="Get a Recording Contract" />
+        </task>
+        <task id="getContract">
+          <flowsInto>
+            <nextElementRef id="makeRecord" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/writtenSongs" />
+              <mapsTo>writtenSongs</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/instruments" />
+              <mapsTo>instruments</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/averageSkillLevel" />
+              <mapsTo>averageSkillLevel</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/applicant" />
+              <mapsTo>applicant</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="Get a Recording Contract" />
+        </task>
+        <task id="rehearse">
+          <flowsInto>
+            <nextElementRef id="tour" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="Rehearse Tour" />
+        </task>
+        <task id="developArt">
+          <flowsInto>
+            <nextElementRef id="finishJoin" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="Develop as artist" />
+        </task>
+        <task id="developDrug">
+          <flowsInto>
+            <nextElementRef id="finishJoin" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="Develop drug habit" />
+        </task>
+        <task id="tour">
+          <flowsInto>
+            <nextElementRef id="finishJoin" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="Do tour" />
+        </task>
+        <task id="finishJoin">
+          <flowsInto>
+            <nextElementRef id="finis" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+        </task>
+        <task id="finishJoin">
+          <flowsInto>
+            <nextElementRef id="finis" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+        </task>
+        <outputCondition id="finis">
+          <name>complete</name>
+        </outputCondition>
+      </processControlElements>
+    </decomposition>
+    <decomposition id="make record" xsi:type="NetFactsType">
+      <inputParam name="songs">
+        <name>songs</name>
+        <isUntyped />
+        <mandatory />
+      </inputParam>
+      <inputParam name="recordingArtiste">
+        <name>recordingArtiste</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <mandatory />
+      </inputParam>
+      <processControlElements>
+        <inputCondition id="startMakeRecord">
+          <flowsInto>
+            <nextElementRef id="choose" />
+          </flowsInto>
+        </inputCondition>
+        <task id="choose">
+          <flowsInto>
+            <nextElementRef id="record" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/recordingArtiste" />
+              <mapsTo>recordingArtiste</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="/data/songs" />
+              <mapsTo>songs</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="/data/songs" />
+              <mapsTo>songs</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Choose Songs" />
+        </task>
+        <task id="record" xsi:type="MultipleInstanceExternalTaskFactsType">
+          <flowsInto>
+            <nextElementRef id="done" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="Record Song" />
+          <minimum>1</minimum>
+          <maximum>5</maximum>
+          <threshold>3</threshold>
+          <creationMode code="dynamic" />
+          <miDataInput>
+            <expression query="/data/songs" />
+            <splittingExpression query="for $d in /songs/* return $d" />
+            <formalInputParam>song</formalInputParam>
+          </miDataInput>
+        </task>
+        <condition id="done">
+          <name>Done</name>
+          <flowsInto>
+            <nextElementRef id="choose" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="market" />
+          </flowsInto>
+        </condition>
+        <task id="market">
+          <flowsInto>
+            <nextElementRef id="finisMakeRecord" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="Send recording to marketing deptartment" />
+        </task>
+        <outputCondition id="finisMakeRecord">
+          <name>Done</name>
+        </outputCondition>
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Decide to make music" xsi:type="WebServiceGatewayFactsType">
+      <outputExpression query="&lt;direction&gt;{for $d in /data/shortCut/text() where $d = 'true' return 'short cut'}{for $d in /data/shortCut/text() where not($d = 'true') return 'ideal way'}&lt;/direction&gt;" />
+      <outputExpression query="/data/applicant" />
+      <outputParam>
+        <name>shortCut</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>applicant</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <mandatory />
+      </outputParam>
+    </decomposition>
+    <decomposition id="Learn to play instrument" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="instrument">
+        <name>instrument</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputExpression query="/data/skillLevel" />
+      <outputParam>
+        <name>skillLevel</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Join a Band" xsi:type="WebServiceGatewayFactsType">
+      <outputExpression query="/data/songsToWrite" />
+      <outputParam>
+        <name>songsToWrite</name>
+        <isUntyped />
+      </outputParam>
+    </decomposition>
+    <decomposition id="Decide to Go Solo" xsi:type="WebServiceGatewayFactsType">
+      <outputExpression query="/data/songsToWrite" />
+      <outputParam>
+        <name>songsToWrite</name>
+        <isUntyped />
+      </outputParam>
+    </decomposition>
+    <decomposition id="Rehearse Tour" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Get a Recording Contract" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="applicant">
+        <name>applicant</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam name="writtenSongs">
+        <name>writtenSongs</name>
+        <isUntyped />
+      </inputParam>
+      <inputParam name="instruments">
+        <name>instruments</name>
+        <isUntyped />
+      </inputParam>
+      <inputParam name="averageSkillLevel">
+        <name>averageSkillLevel</name>
+        <type>nonNegativeInteger</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+    </decomposition>
+    <decomposition id="Do initial performance" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="numPerformances">
+        <name>numPerformances</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputExpression query="&lt;numPerformances&gt;{/data/numPerformances + 1}&lt;/numPerformances&gt;" />
+    </decomposition>
+    <decomposition id="Do boy/girl band audition" xsi:type="WebServiceGatewayFactsType">
+      <outputExpression query="/data/auditionResult" />
+      <outputParam>
+        <name>auditionResult</name>
+        <isUntyped />
+      </outputParam>
+    </decomposition>
+    <decomposition id="Write a Song" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="song">
+        <name>song</name>
+        <isUntyped />
+      </inputParam>
+      <outputExpression query="/data/writtenSong" />
+      <outputParam>
+        <name>writtenSong</name>
+        <isUntyped />
+      </outputParam>
+    </decomposition>
+    <decomposition id="Do tour" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Choose Songs" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="recordingArtiste">
+        <name>recordingArtiste</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam name="songs">
+        <name>songs</name>
+        <isUntyped />
+      </inputParam>
+      <outputExpression query="/data/songs" />
+      <outputParam>
+        <name>songs</name>
+        <isUntyped />
+      </outputParam>
+    </decomposition>
+    <decomposition id="Record Song" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="song">
+        <name>song</name>
+        <isUntyped />
+      </inputParam>
+    </decomposition>
+    <decomposition id="Send recording to marketing deptartment" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Develop drug habit" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Do everything you are told" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Develop as artist" xsi:type="WebServiceGatewayFactsType" />
+  </specification>
+</specificationSet>
+

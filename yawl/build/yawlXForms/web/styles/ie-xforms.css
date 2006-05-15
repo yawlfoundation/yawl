@@ -1,0 +1,88 @@
+/* xforms styles for Internet Explorer */
+
+*{
+	font-size:12pt;
+}
+
+.invalid .alert{
+    position:relative;
+    border:thin solid;
+    background-color:white;
+    color:red;
+    padding:2px;
+    height:14px;
+    margin-left:2px;
+}
+
+.valid .alert{
+    display:none;
+}
+
+.required-symbol{color:red;}
+
+
+.enabled {
+}
+
+.disabled {
+    display:none;
+}
+
+
+/* #################### GROUP STYLES #################### */
+
+/* ### FULL GROUP STYLES ### */
+
+/* ### class for styling complete table ### */
+.full-group{
+    border:none;
+    background-color:#eeeeee;
+    padding:2px;
+    }
+.full-group-label{
+    background-color:#eeeeee;
+    font-size:10pt;
+    border-bottom:thin solid;
+    padding-top:5px;
+}
+
+/* ### COMPACT GROUP STYLES ### */
+.compact-group{
+    }
+.compact-group-label{
+    background-color:#eeeeee;
+    font-size:10pt;
+    border-bottom:thin solid;
+    padding-top:5px;
+}
+
+
+/* ### MINIMAL GROUP STYLES ### */
+.minimal-group{
+    background-color:#eeeeee;
+    padding:5px;
+    }
+.minimal-group-label{
+    background-color:#eeeeee;
+    display:block;
+    font-size:10pt;
+    border-bottom:thin solid;
+    padding-top:5px;
+    }
+.multi-column-group{
+    display:block;
+    background-color:#eeeeee;
+    padding:5px;
+}
+.multi-column-group{
+    background-color:#eeeeee;
+    display:block;
+    font-size:10pt;
+    border-bottom:thin solid;
+    padding-top:5px;
+}
+
+/* #################### Repeat styles #################### */
+
+/* ### XForms pseudo elements for repeat ### */
+.repeat-item{height:25px;}

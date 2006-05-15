@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html xmlns="http://www.w3.org/2002/06/xhtml2" xmlns:xforms="http://www.w3.org/2002/xforms">
+	<head>
+        <title>Usage of XPath Extension Functions</title>
+		<xforms:model>
+			<xforms:instance>
+				<root xmlns="">
+                    <value1/>
+                    <value2/>
+				</root>
+			</xforms:instance>
+            <xforms:bind id="value-bind1" nodeset="value1" constraint="chiba:match(.,'aaa','')"/>
+            <xforms:bind id="value-bind2" nodeset="value2" constraint="chiba:match(.,'AAA','i')"/>
+        </xforms:model>
+	</head>
+	<body>
+        <xforms:group>
+            <xforms:label>Constraints using Regular Expressions.</xforms:label>
+            <xforms:input bind="value-bind1">
+                <xforms:label>must match the string 'aaa' to be valid (case-sensitive)</xforms:label>
+            </xforms:input>
+            <xforms:input bind="value-bind2">
+                <xforms:label>must match the string 'aaa' to be valid (case-insensitive)</xforms:label>
+            </xforms:input>
+            <xforms:trigger>
+                <xforms:label>validate</xforms:label>
+                <xforms:revalidate/>
+            </xforms:trigger>
+        </xforms:group>
+	</body>
+</html>

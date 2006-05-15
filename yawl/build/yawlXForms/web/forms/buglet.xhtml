@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xml:base="http://localhost:8080/chiba-0.9.9/"
+    xmlns="http://www.w3.org/2002/06/xhtml2"
+    xmlns:ev="http://www.w3.org/2001/xml-events"
+    xmlns:chiba="http://chiba.sourceforge.net/2003/08/xforms"
+    xmlns:xforms="http://www.w3.org/2002/xforms">
+    <head>
+        <title>Buglet</title>
+        <xforms:model id="model">
+            <xforms:submission id="debug" action="jsp/debug-instance.jsp" method="post" replace="all"/>
+            <xforms:instance id="buglet-instance" xmlns="">
+                <buglet>
+                    <category>Cisco</category>
+                    <reference>http://somewhere.com</reference>
+                    <subject>don&apos;t know</subject>
+                    <datum>01.01.01</datum>
+                    <risk>3</risk>
+                    <description>what shall i say?</description>
+                    <see-also>
+                        <urls>
+                            <url>http://www.hirnbrand.de</url>
+                            <url>http://world.wide.void</url>
+                            <url>https://www.meintresor.daheim</url>
+                        </urls>
+                    </see-also>
+                </buglet>
+            </xforms:instance>
+            <xforms:bind id="buglet" nodeset="/buglet" type="string"/>
+            <xforms:bind id="category" nodeset="/buglet/category" type="string"/>
+            <xforms:bind id="reference" nodeset="/buglet/reference" type="string"/>
+            <xforms:bind id="subject" nodeset="/buglet/subject" type="string"/>
+            <xforms:bind id="datum" nodeset="/buglet/datum" type="string"/>
+            <xforms:bind id="risk" nodeset="/buglet/risk" type="string"/>
+            <xforms:bind id="description" nodeset="/buglet/description" type="string"/>
+            <xforms:bind id="see-also" nodeset="/buglet/see-also/urls/url">
+                <xforms:bind id="url" nodeset="." type="string"/>
+            </xforms:bind>
+            <xforms:instance id="another" xmlns="">
+                <messages>
+                    <subject/>
+                </messages>
+            </xforms:instance>
+        </xforms:model>
+        <xforms:model id="messages">
+            <xforms:instance id="message-instance" xmlns="">
+                <messages>
+                    <category>Kategorie</category>
+                    <reference>Referenz Url</reference>
+                    <subject>Betrifft</subject>
+                    <date>Datum</date>
+                    <risk>Risiko-Level</risk>
+                    <high>hoch</high>
+                    <medium>mittel</medium>
+                    <low>niedrig</low>
+                    <description>Beschreibung</description>
+                    <see-also>Siehe auch</see-also>
+                    <test>Nur eine Testausgabe, um mehrfache Modelle zu testen</test>
+                </messages>
+            </xforms:instance>
+            <xforms:bind id="output-test" nodeset="/messages/test"/>
+        </xforms:model>
+    </head>
+    <body>
+        <xforms:output bind="output-test"/>
+        <br/>
+        <xforms:group bind="buglet" appearance="full">
+            <xforms:label>Buglet</xforms:label>
+            <xforms:select1 appearance="minimal" bind="category">
+                <xforms:label model="messages" ref="/messages/category">Kategorie</xforms:label>
+                <xforms:help>Select a domain where this bug belongs to.</xforms:help>
+                <xforms:choices>
+                    <xforms:item selected="true">
+                        <xforms:value>Cisco</xforms:value>
+                        <xforms:label>Cisco</xforms:label>
+                    </xforms:item>
+                    <xforms:item selected="false">
+                        <xforms:value>Linux</xforms:value>
+                        <xforms:label>Linux</xforms:label>
+                    </xforms:item>
+                    <xforms:item selected="false">
+                        <xforms:value>Solaris</xforms:value>
+                        <xforms:label>Solaris</xforms:label>
+                    </xforms:item>
+                </xforms:choices>
+                <xforms:alert>The specified value is invalid</xforms:alert>
+            </xforms:select1>
+            <xforms:input bind="reference">
+                <xforms:label model="messages" ref="/messages/reference">Referenz Url</xforms:label>
+                <xforms:help>Points to a resource containing more information to this topic. This item will be linked, if a valid Url is supplied.</xforms:help>
+                <xforms:hint>Enter a reference-url associated to this bug</xforms:hint>
+                <xforms:alert>The specified value is invalid</xforms:alert>
+            </xforms:input>
+            <xforms:input bind="subject">
+                <xforms:label model="messages" ref="/messages/subject">Betrifft</xforms:label>
+                <xforms:alert>The specified value is invalid</xforms:alert>
+            </xforms:input>
+            <xforms:input bind="datum">
+                <xforms:label model="messages" ref="/messages/date">Datum</xforms:label>
+                <xforms:alert>The specified value is invalid</xforms:alert>
+            </xforms:input>
+            <xforms:select1 appearance="full" bind="risk">
+                <xforms:label model="messages" ref="/messages/risk">Risiko-Level</xforms:label>
+                <xforms:hint>Select a risk-level for this bug.</xforms:hint>
+                <xforms:choices>
+                    <xforms:item selected="false">
+                        <xforms:value>1</xforms:value>
+                        <xforms:label model="messages" ref="/messages/low">niedrig</xforms:label>
+                    </xforms:item>
+                    <xforms:item selected="false">
+                        <xforms:value>2</xforms:value>
+                        <xforms:label model="messages" ref="/messages/medium">mittel</xforms:label>
+                    </xforms:item>
+                    <xforms:item selected="true">
+                        <xforms:value>3</xforms:value>
+                        <xforms:label model="messages" ref="/messages/high">hoch</xforms:label>
+                    </xforms:item>
+                </xforms:choices>
+                <xforms:alert>The specified value is invalid</xforms:alert>
+            </xforms:select1>
+            <xforms:input bind="description">
+                <xforms:label model="messages" ref="/messages/description">Beschreibung</xforms:label>
+                <xforms:alert>The specified value is invalid</xforms:alert>
+            </xforms:input>
+            <xforms:group appearance="minimal">
+                <xforms:label model="messages" ref="/messages/see-also">Siehe auch</xforms:label>
+                <xforms:trigger>
+                    <xforms:label>Insert after selected</xforms:label>
+                    <xforms:action>
+                        <xforms:insert at="index('repeat')" nodeset="see-also/urls/url" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete selected</xforms:label>
+                    <xforms:action>
+                        <xforms:delete at="index('repeat')" nodeset="see-also/urls/url"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:repeat id="repeat" bind="see-also" appearance="full">
+                    <xforms:input bind="url">
+                        <xforms:label>Url: </xforms:label>
+                        <xforms:alert>The specified value is invalid</xforms:alert>
+                    </xforms:input>
+                </xforms:repeat>
+            </xforms:group>
+        </xforms:group>
+        <xforms:trigger>
+            <xforms:label>debug</xforms:label>
+            <xforms:send submission="debug"/>
+        </xforms:trigger>
+    </body>
+</html>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1"
+	xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_SchemaBeta7.1.xsd">
+	<specification uri="Blah.xml">
+		<metaData/>
+		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+			attributeFormDefault="unqualified" elementFormDefault="qualified">
+			<xs:simpleType name="FormatType">
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="lp"/>
+					<xs:enumeration value="album"/>
+					<xs:enumeration value="double_album"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:complexType name="SonglistType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" name="song" type="SongType"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="SongType">
+				<xs:sequence>
+					<xs:element name="songName" type="xs:string"/>
+					<xs:element name="songSpecification" type="xs:string"/>
+					<xs:element name="songLength" nillable="true"
+						type="SonglengthType"/>
+					<xs:element name="selected" nillable="true" type="xs:boolean"/>
+					<xs:element name="sequenceNumber" type="xs:positiveInteger"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="SonglengthType">
+				<xs:sequence>
+					<xs:element name="minutes" type="xs:nonNegativeInteger"/>
+					<xs:element name="seconds">
+						<xs:simpleType>
+							<xs:restriction base="xs:nonNegativeInteger">
+								<xs:maxInclusive value="59"/>
+								<xs:minInclusive value="0"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="crewMembers" type="CrewMembersType"/>
+			<xs:element name="nameOfArtist" type="xs:string"/>
+			<xs:element name="nameOfRecord" type="xs:string"/>
+			<xs:complexType name="CrewMembersType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" name="memberName"
+						type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:schema>
+		<decomposition id="OverseeMusic" isRootNet="true" xsi:type="NetFactsType">
+			<name>Oversee Music</name>
+			<outputParam>
+				<name>songLocal</name>
+				<type>SongType</type>
+				<mandatory/>
+			</outputParam>
+			<processControlElements>
+				<inputCondition id="input">
+					<flowsInto>
+						<nextElementRef id="decideName"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="decideName">
+					<flowsInto>
+						<nextElementRef id="finis"/>
+					</flowsInto>
+					<join code="and"/>
+					<split code="and"/>
+				</task>
+				<outputCondition id="finis">
+					<name>Finished case</name>
+				</outputCondition>
+			</processControlElements>
+		</decomposition>
+	</specification>
+</specificationSet>

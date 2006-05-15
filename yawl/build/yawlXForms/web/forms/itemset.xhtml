@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xml:base="http://localhost:8080/chiba-0.9.9/"
+    xmlns="http://www.w3.org/2002/06/xhtml2"
+    xmlns:xf="http://www.w3.org/2002/xforms">
+    <head>
+        <title>Itemset</title>
+
+        <xf:model>
+            <xf:instance id="data" xmlns="">
+                <data>
+                    <select1></select1>
+                    <select></select>
+                    <tmp></tmp>
+                </data>
+            </xf:instance>
+            <xf:bind id="bind-select1" nodeset="select1"/>
+            <xf:bind id="bind-select" nodeset="select"/>
+            <xf:bind id="bind-tmp" nodeset="tmp" required="true()"/>
+
+            <xf:instance id="list" xmlns="">
+                <list>
+                    <entry>first</entry>
+                    <entry>second</entry>
+                    <entry>third</entry>
+                </list>
+            </xf:instance>
+            <xf:bind id="bind-entry" nodeset="instance('list')/entry">
+                <xf:bind id="bind-entry-value" nodeset="." />
+            </xf:bind>
+            <xf:bind id="bind-last-entry" nodeset="instance('list')/entry[last()]"/>
+        </xf:model>
+    </head>
+    <body>
+        <xf:group appearance="full">
+            <xf:label>Dynamic Select1/Select lists with Itemset</xf:label>
+            <!-- todo: binding multiple select controls to the same nodeset currently causes confusion in request handling --> 
+
+<!--
+            <xf:group appearance="full">
+                <xf:label>Minimal appearance</xf:label>
+                <xf:select1 bind="bind-select1" appearance="minimal">
+                    <xf:label>Select1 with Itemset</xf:label>
+                    <xf:itemset bind="bind-entry">
+                        <xf:label bind="bind-entry-value"/>
+                        <xf:value bind="bind-entry-value"/>
+                    </xf:itemset>
+                </xf:select1>
+                <xf:select bind="bind-select" appearance="minimal">
+                    <xf:label>Select with Itemset</xf:label>
+                    <xf:itemset bind="bind-entry">
+                        <xf:label bind="bind-entry-value"/>
+                        <xf:value bind="bind-entry-value"/>
+                    </xf:itemset>
+                </xf:select>
+            </xf:group>
+            <xf:group appearance="full">
+                <xf:label>Compact appearance</xf:label>
+                <xf:select1 bind="bind-select1" appearance="compact">
+                    <xf:label>Select1 with Itemset</xf:label>
+                    <xf:itemset bind="bind-entry">
+                        <xf:label bind="bind-entry-value"/>
+                        <xf:value bind="bind-entry-value"/>
+                    </xf:itemset>
+                </xf:select1>
+                <xf:select bind="bind-select" appearance="compact">
+                    <xf:label>Select with Itemset</xf:label>
+                    <xf:itemset bind="bind-entry">
+                        <xf:label bind="bind-entry-value"/>
+                        <xf:value bind="bind-entry-value"/>
+                    </xf:itemset>
+                </xf:select>
+            </xf:group>
+            <xf:group appearance="full">
+                <xf:label>Full appearance</xf:label>
+-->
+                <xf:select1 bind="bind-select1" appearance="full">
+                    <xf:label>Select1 with Itemset</xf:label>
+                    <xf:itemset bind="bind-entry">
+                        <xf:label bind="bind-entry-value"/>
+                        <xf:value bind="bind-entry-value"/>
+                    </xf:itemset>
+                </xf:select1>
+                <xf:select bind="bind-select" appearance="full">
+                    <xf:label>Select with Itemset</xf:label>
+                    <xf:itemset bind="bind-entry">
+                        <xf:label bind="bind-entry-value"/>
+                        <xf:value bind="bind-entry-value"/>
+                    </xf:itemset>
+                </xf:select>
+<!--
+            </xf:group>
+-->
+            <xf:group appearance="minimal">
+                <xf:label>Modify Itemset list</xf:label>
+                <xf:input bind="bind-tmp">
+                    <xf:alert>Please specify an entry value</xf:alert>
+                </xf:input>
+                <xf:trigger>
+                    <xf:label>Append entry</xf:label>
+                    <xf:action>
+                        <xf:revalidate/>
+                        <xf:insert bind="bind-entry" at="last()" position="after"/>
+                        <xf:setvalue bind="bind-last-entry" value="instance('data')/tmp"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:trigger>
+                    <xf:label>Remove entry</xf:label>
+                    <xf:action>
+                        <xf:delete bind="bind-entry" at="last()"/>
+                    </xf:action>
+                </xf:trigger>
+            </xf:group>
+        </xf:group>
+    </body>
+</html>

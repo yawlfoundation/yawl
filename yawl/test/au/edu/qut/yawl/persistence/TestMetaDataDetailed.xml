@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_SchemaBeta7.1.xsd">
+  <specification uri="Blah.xml">
+    <metaData>
+      <title>blah</title>
+      <creator>John</creator>
+      <creator>Jane</creator>
+      <subject>subject1</subject>
+      <subject>subject2</subject>
+      <subject>subject3</subject>
+      <subject>subject4</subject>
+      <description>blah description</description>
+      <contributor>Mr. Nice Guy</contributor>
+      <coverage>blah blah</coverage>
+      <validFrom>2006-04-26</validFrom>
+      <validUntil>2006-03-26</validUntil>
+      <created>2007-09-22</created>
+      <version>234323</version>
+      <status>blah status</status>
+    </metaData>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+                <decomposition id="OverseeMusic" isRootNet="true" xsi:type="NetFactsType">
+		                        <name>Oversee Music</name>
+					<documentation/>
+                        <processControlElements>
+                                <inputCondition id="input">
+                                        <flowsInto>
+                                                <nextElementRef id="decideName"/>
+                                        </flowsInto>
+                                </inputCondition>
+                               <task id="decideName">
+                                        <flowsInto>
+                                                <nextElementRef id="finis"/>
+                                        </flowsInto>
+									<join code="and"/>
+									<split code="and"/>
+   									<decomposesTo id="G"/>								   
+								</task>
+                                <outputCondition id="finis">
+                                        <name>Finished case</name>
+                                </outputCondition>
+                        </processControlElements>
+		</decomposition>
+		<decomposition id="G" xsi:type="WebServiceGatewayFactsType"/>
+	    </specification>
+</specificationSet>

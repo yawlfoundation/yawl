@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="unnamed.ywl">
+    <metaData />
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="New Net #1" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam name="stub">
+        <name>stub</name>
+        <isUntyped />
+      </inputParam>
+      <localVariable>
+        <name>stubList</name>
+        <isUntyped />
+        <initialValue>&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;</initialValue>
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="0">
+          <flowsInto>
+            <nextElementRef id="4" />
+          </flowsInto>
+        </inputCondition>
+        <task id="4">
+          <flowsInto>
+            <nextElementRef id="2" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="3" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="5" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/stub" />
+              <mapsTo>stub</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="A" />
+        </task>
+        <task id="2">
+          <flowsInto>
+            <nextElementRef id="7" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <removesTokens id="3" />
+          <removesTokens id="6" />
+          <removesTokensFromFlow>
+            <flowSource id="3" />
+            <flowDestination id="6" />
+          </removesTokensFromFlow>
+          <removesTokensFromFlow>
+            <flowSource id="4" />
+            <flowDestination id="3" />
+          </removesTokensFromFlow>
+          <removesTokensFromFlow>
+            <flowSource id="6" />
+            <flowDestination id="7" />
+          </removesTokensFromFlow>
+          <startingMappings>
+            <mapping>
+              <expression query="/data/stub" />
+              <mapsTo>stub</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="D" />
+        </task>
+        <task id="3">
+          <flowsInto>
+            <nextElementRef id="6" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/stub" />
+              <mapsTo>stub</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="B" />
+        </task>
+        <task id="5">
+          <flowsInto>
+            <nextElementRef id="1" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/stub" />
+              <mapsTo>stub</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="F" />
+        </task>
+        <task id="7">
+          <flowsInto>
+            <nextElementRef id="5" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/stub" />
+              <mapsTo>stub</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="E" />
+        </task>
+        <task id="6">
+          <flowsInto>
+            <nextElementRef id="7" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="/data/stub" />
+              <mapsTo>stub</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="C" />
+        </task>
+        <outputCondition id="1" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="D" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="stub">
+        <name>stub</name>
+        <isUntyped />
+      </inputParam>
+    </decomposition>
+    <decomposition id="A" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="stub">
+        <name>stub</name>
+        <isUntyped />
+      </inputParam>
+    </decomposition>
+    <decomposition id="F" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="stub">
+        <name>stub</name>
+        <isUntyped />
+      </inputParam>
+    </decomposition>
+    <decomposition id="C" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="stub">
+        <name>stub</name>
+        <isUntyped />
+      </inputParam>
+    </decomposition>
+    <decomposition id="B" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="stub">
+        <name>stub</name>
+        <isUntyped />
+      </inputParam>
+    </decomposition>
+    <decomposition id="E" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="stub">
+        <name>stub</name>
+        <isUntyped />
+      </inputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+

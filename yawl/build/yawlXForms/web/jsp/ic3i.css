@@ -1,0 +1,95 @@
+body { 
+	font-family: Verdana, Arial, Geneva, Helvetica, Verdana, helvetica, sans-serif;
+	color:black; 
+	background-color: white; 
+	align: left;
+	margin-left:10px; margin-top:20px; 
+}
+
+table {
+    background-color:white;
+}
+
+/* the main table width */
+table.field{
+    width: 100%;
+}
+
+td { 
+    font-family: Verdana, Arial, Geneva, Helvetica, Verdana, helvetica, sans-serif
+}
+
+tr {
+    background-color: white
+}
+
+
+.cursorselector {
+    background-color: white
+}
+
+.repeatgroup {
+    background-color:white
+}
+
+/* group captions */
+.groupCaption {
+	background-color:#dcdccc;
+	text-align: left;
+	padding-left: 4px;
+	vertical-align: middle;
+	FONT-WEIGHT: bold; FONT-SIZE: 14px; COLOR: #000000; FONT-FAMILY: Helvetica, Verdana, Arial, sans-serif
+}
+
+/* individual field captions */
+td.captionCell{
+	vertical-align: middle;
+	width: 40%;
+	padding-left: 10px;
+	padding-right: 20px;
+	text-align: right;
+	FONT-WEIGHT: bold; FONT-SIZE: x-small; COLOR: #000000; FONT-FAMILY: Verdana,Arial, Helvetica, sans-serif
+}
+
+.group,.groupb,.outer,.outerb{
+padding-left:0px;
+padding-top:2px;
+padding-bottom:4px;
+}
+
+/* controls the outer most group with a border */
+table.outerb,table.groupb{
+    border-width:1;
+    width: 40%;
+}
+
+.control {
+text-align: left;
+	FONT-SIZE: small; COLOR: #000000; FONT-FAMILY: Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #ffffff
+}
+
+table.groupb {
+    border-width:1;
+}
+
+table.groupb, table.group{
+    width: 100%;
+}
+
+table.outer {
+width: 40%;
+		border-style: solid;
+		border-width:thin;
+		border-color: black;
+}
+
+div.invalid{
+    color:red;
+    font-size:1pt;
+}
+
+.selectOne, .selectMany {
+	FONT-SIZE: small; COLOR: #000000; FONT-FAMILY: Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #ffffff
+}
+
+

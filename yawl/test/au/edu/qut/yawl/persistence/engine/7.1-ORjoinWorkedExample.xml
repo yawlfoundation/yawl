@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="ORjoinWorkedExampleLatest.ywl">
+    <metaData />
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="New_Net_1" isRootNet="true" xsi:type="NetFactsType">
+      <processControlElements>
+        <inputCondition id="0_InputCondition">
+          <flowsInto>
+            <nextElementRef id="15_A" />
+          </flowsInto>
+        </inputCondition>
+        <task id="15_A">
+          <flowsInto>
+            <nextElementRef id="4_" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="9_" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="A" />
+        </task>
+        <condition id="4_">
+          <flowsInto>
+            <nextElementRef id="10_C" />
+          </flowsInto>
+        </condition>
+        <condition id="9_">
+          <flowsInto>
+            <nextElementRef id="13_B" />
+          </flowsInto>
+        </condition>
+        <task id="10_C">
+          <flowsInto>
+            <nextElementRef id="5_" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="C" />
+        </task>
+        <task id="13_B">
+          <flowsInto>
+            <nextElementRef id="7_cBB" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="8_" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="B" />
+        </task>
+        <condition id="5_">
+          <flowsInto>
+            <nextElementRef id="11_G" />
+          </flowsInto>
+        </condition>
+        <condition id="7_cBB">
+          <flowsInto>
+            <nextElementRef id="13_B" />
+          </flowsInto>
+        </condition>
+        <condition id="8_">
+          <flowsInto>
+            <nextElementRef id="12_D" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="16_E" />
+          </flowsInto>
+        </condition>
+        <task id="11_G">
+          <flowsInto>
+            <nextElementRef id="1_OutputCondition" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <decomposesTo id="G" />
+        </task>
+        <task id="12_D">
+          <flowsInto>
+            <nextElementRef id="6_" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <removesTokens id="7_cBB" />
+          <decomposesTo id="D" />
+        </task>
+        <task id="16_E">
+          <flowsInto>
+            <nextElementRef id="2_" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="E" />
+        </task>
+        <condition id="6_">
+          <flowsInto>
+            <nextElementRef id="14_F" />
+          </flowsInto>
+        </condition>
+        <condition id="2_">
+          <flowsInto>
+            <nextElementRef id="14_F" />
+          </flowsInto>
+        </condition>
+        <task id="14_F">
+          <flowsInto>
+            <nextElementRef id="3_" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="F" />
+        </task>
+        <task id="14_F">
+          <flowsInto>
+            <nextElementRef id="3_" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="F" />
+        </task>
+        <condition id="3_">
+          <flowsInto>
+            <nextElementRef id="11_G" />
+          </flowsInto>
+        </condition>
+        <condition id="3_">
+          <flowsInto>
+            <nextElementRef id="11_G" />
+          </flowsInto>
+        </condition>
+        <outputCondition id="1_OutputCondition" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="D" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="A" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="F" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="C" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="B" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="G" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="E" xsi:type="WebServiceGatewayFactsType" />
+  </specification>
+</specificationSet>
+

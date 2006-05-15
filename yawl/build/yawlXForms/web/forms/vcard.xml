@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- $Id$ -->
+<html xmlns:chiba="http://chiba.sourceforge.net/2003/08/xforms"
+      xmlns:xforms="http://www.w3.org/2002/xforms"
+      chiba:stylesheet="vcard.xsl"
+      xml:base="http://localhost:8080/chiba-0.9.9/">
+    <head>
+        <xforms:model id="vcard-model">
+            <xforms:instance id="vcard-instance">
+                <vcard>
+                    <contact>
+                        <name>
+                            <first/>
+                            <last/>
+                            <display/>
+                            <nickname/>
+                        </name>
+                        <internet>
+                            <email/>
+                            <additional-email/>
+                            <preference/>
+                            <screen-name/>
+                        </internet>
+                        <phones>
+                            <work/>
+                            <home/>
+                            <fax/>
+                            <pager/>
+                            <mobile/>
+                        </phones>
+                    </contact>
+                    <address>
+                        <home>
+                            <address/>
+                            <address/>
+                            <city/>
+                            <state/>
+                            <zip/>
+                            <country/>
+                            <web/>
+                        </home>
+                        <work>
+                            <title/>
+                            <department/>
+                            <organization/>
+                            <address/>
+                            <address/>
+                            <city/>
+                            <state/>
+                            <zip/>
+                            <country/>
+                            <web/>
+                        </work>
+                    </address>
+                    <other>
+                        <custom/>
+                        <custom/>
+                        <custom/>
+                        <custom/>
+                        <notes/>
+                    </other>
+                </vcard>
+            </xforms:instance>
+            <xforms:submission xforms:action="jsp/debug-instance.jsp" xforms:replace="all" id="submission-debug" xforms:method="post"/>
+            <xforms:bind id="bind-vcard" xforms:nodeset="/vcard">
+                <xforms:bind id="bind-contact" xforms:nodeset="contact">
+                    <xforms:bind id="bind-name-first" xforms:nodeset="name/first"/>
+                    <xforms:bind id="bind-name-last" xforms:nodeset="name/last"/>
+                    <xforms:bind id="bind-name-display" xforms:nodeset="name/display"/>
+                    <xforms:bind id="bind-name-nickname" xforms:nodeset="name/nickname"/>
+                    <xforms:bind id="bind-internet-email" xforms:nodeset="internet/email"
+                                 xforms:constraint="(string-length(.) = 0) or (string-length(.) > 2 and contains(., '@') and not(starts-with(., '@')) and not(substring(., string-length(.)) = '@'))"/>
+                    <xforms:bind id="bind-internet-additional-email" xforms:nodeset="internet/additional-email"
+                                 xforms:constraint="(string-length(.) = 0) or (string-length(.) > 2 and contains(., '@') and not(starts-with(., '@')) and not(substring(., string-length(.)) = '@'))"/>
+                    <xforms:bind id="bind-internet-preference" xforms:nodeset="internet/preference"/>
+                    <xforms:bind id="bind-internet-screen-name" xforms:nodeset="internet/screen-name"/>
+                    <xforms:bind id="bind-phones-work" xforms:nodeset="phones/work"/>
+                    <xforms:bind id="bind-phones-home" xforms:nodeset="phones/home"/>
+                    <xforms:bind id="bind-phones-fax" xforms:nodeset="phones/fax"/>
+                    <xforms:bind id="bind-phones-pager" xforms:nodeset="phones/pager"/>
+                    <xforms:bind id="bind-phones-mobile" xforms:nodeset="phones/mobile"/>
+                </xforms:bind>
+                <xforms:bind id="bind-address" xforms:nodeset="address">
+                    <xforms:bind id="bind-home-address-1" xforms:nodeset="home/address[1]"/>
+                    <xforms:bind id="bind-home-address-2" xforms:nodeset="home/address[2]"/>
+                    <xforms:bind id="bind-home-city" xforms:nodeset="home/city"/>
+                    <xforms:bind id="bind-home-state" xforms:nodeset="home/state"/>
+                    <xforms:bind id="bind-home-zip" xforms:nodeset="home/zip"/>
+                    <xforms:bind id="bind-home-country" xforms:nodeset="home/country"/>
+                    <xforms:bind id="bind-home-web" xforms:nodeset="home/web"/>
+                    <xforms:bind id="bind-work-title" xforms:nodeset="work/title"/>
+                    <xforms:bind id="bind-work-department" xforms:nodeset="work/department"/>
+                    <xforms:bind id="bind-work-organization" xforms:nodeset="work/organization"/>
+                    <xforms:bind id="bind-work-address-1" xforms:nodeset="work/address[1]"/>
+                    <xforms:bind id="bind-work-address-2" xforms:nodeset="work/address[2]"/>
+                    <xforms:bind id="bind-work-city" xforms:nodeset="work/city"/>
+                    <xforms:bind id="bind-work-state" xforms:nodeset="work/state"/>
+                    <xforms:bind id="bind-work-zip" xforms:nodeset="work/zip"/>
+                    <xforms:bind id="bind-work-country" xforms:nodeset="work/country"/>
+                    <xforms:bind id="bind-work-web" xforms:nodeset="work/web"/>
+                </xforms:bind>
+                <xforms:bind id="bind-other" xforms:nodeset="other">
+                    <xforms:bind id="bind-other-custom-1" xforms:nodeset="custom[1]"/>
+                    <xforms:bind id="bind-other-custom-2" xforms:nodeset="custom[2]"/>
+                    <xforms:bind id="bind-other-custom-3" xforms:nodeset="custom[3]"/>
+                    <xforms:bind id="bind-other-custom-4" xforms:nodeset="custom[4]"/>
+                    <xforms:bind id="bind-other-notes" xforms:nodeset="notes"/>
+                </xforms:bind>
+            </xforms:bind>
+        </xforms:model>
+        <xforms:model id="vcard-labels">
+            <xforms:instance id="vcard-label-names">
+                <labels>
+                    <vcard>vCard</vcard>
+                    <contact>Contact</contact>
+                    <name>Name</name>
+                    <first>First</first>
+                    <last>Last</last>
+                    <display>Display</display>
+                    <nickname>Nickname</nickname>
+                    <internet>Internet</internet>
+                    <email>Email</email>
+                    <additional-email>Additional Email</additional-email>
+                    <preference>Prefers to receive messages formatted as</preference>
+                    <unknown>Unknown</unknown>
+                    <plain-text>Plain Text</plain-text>
+                    <html>HTML</html>
+                    <screen-name>Screen Name</screen-name>
+                    <phones>Phones</phones>
+                    <fax>Fax</fax>
+                    <pager>Pager</pager>
+                    <mobile>Mobile</mobile>
+                    <address>Address</address>
+                    <home>Home</home>
+                    <work>Work</work>
+                    <title>Title</title>
+                    <department>Department</department>
+                    <organization>Organization</organization>
+                    <city>City</city>
+                    <state>State/Province</state>
+                    <zip>Zip/Postal Code</zip>
+                    <country>Country</country>
+                    <web>Web Page</web>
+                    <other>Other</other>
+                    <custom1>Custom 1</custom1>
+                    <custom2>Custom 2</custom2>
+                    <custom3>Custom 3</custom3>
+                    <custom4>Custom 4</custom4>
+                    <notes>Notes</notes>
+                    <ok>Ok</ok>
+                    <cancel>Cancel</cancel>
+                </labels>
+            </xforms:instance>
+        </xforms:model>
+    </head>
+    <body>
+        <xforms:group id="group-tabsheet">
+            <xforms:trigger id="trigger-contact">
+                <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/contact"/>
+                <xforms:action id="action-contact">
+                    <xforms:revalidate id="revalidate-contact"/>
+                    <xforms:toggle id="toggle-contact" xforms:case="case-contact"/>
+                </xforms:action>
+            </xforms:trigger>
+            <xforms:trigger id="trigger-address">
+                <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/address"/>
+                <xforms:action id="action-address">
+                    <xforms:revalidate id="revalidate-address"/>
+                    <xforms:toggle id="toggle-address" xforms:case="case-address"/>
+                </xforms:action>
+            </xforms:trigger>
+            <xforms:trigger id="trigger-other">
+                <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/other"/>
+                <xforms:action id="action-other">
+                    <xforms:revalidate id="revalidate-other"/>
+                    <xforms:toggle id="toggle-other" xforms:case="case-other"/>
+                </xforms:action>
+            </xforms:trigger>
+            <xforms:switch id="switch">
+                <xforms:case id="case-contact" xforms:selected="true">
+                    <xforms:group id="group-name">
+                        <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/name"/>
+                        <xforms:input id="input-name-first" xforms:bind="bind-name-first">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/first"/>
+                        </xforms:input>
+                        <xforms:input id="input-name-last" xforms:bind="bind-name-last">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/last"/>
+                        </xforms:input>
+                        <xforms:input id="input-name-display" xforms:bind="bind-name-display">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/display"/>
+                        </xforms:input>
+                        <xforms:input id="input-name-nickname" xforms:bind="bind-name-nickname">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/nickname"/>
+                        </xforms:input>
+                    </xforms:group>
+                    <xforms:group id="group-internet">
+                        <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/internet"/>
+                        <xforms:input id="input-internet-email" xforms:bind="bind-internet-email">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/email"/>
+                            <xforms:alert id="alert-internet-email">This is not a valid email address</xforms:alert>
+                        </xforms:input>
+                        <xforms:input id="input-internet-additional-email" xforms:bind="bind-internet-additional-email">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/additional-email"/>
+                            <xforms:alert id="alert-additional-internet-email">This is not a valid email address</xforms:alert>
+                        </xforms:input>
+                        <xforms:select1 id="select1-internet-preference" xforms:bind="bind-internet-preference" xforms:appearance="minimal">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/preference"/>
+                            <xforms:choices>
+                                <xforms:item>
+                                    <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/unknown"/>
+                                    <xforms:value/>
+                                </xforms:item>
+                                <xforms:item>
+                                    <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/plain-text"/>
+                                    <xforms:value>text</xforms:value>
+                                </xforms:item>
+                                <xforms:item>
+                                    <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/html"/>
+                                    <xforms:value>html</xforms:value>
+                                </xforms:item>
+                            </xforms:choices>
+                        </xforms:select1>
+                        <xforms:input id="input-internet-screen-name" xforms:bind="bind-internet-screen-name">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/screen-name"/>
+                        </xforms:input>
+                    </xforms:group>
+                    <xforms:group id="group-phones">
+                        <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/phones"/>
+                        <xforms:input id="input-phones-work" xforms:bind="bind-phones-work">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/work"/>
+                        </xforms:input>
+                        <xforms:input id="input-phones-home" xforms:bind="bind-phones-home">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/home"/>
+                        </xforms:input>
+                        <xforms:input id="input-phones-fax" xforms:bind="bind-phones-fax">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/fax"/>
+                        </xforms:input>
+                        <xforms:input id="input-phones-pager" xforms:bind="bind-phones-pager">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/pager"/>
+                        </xforms:input>
+                        <xforms:input id="input-phones-mobile" xforms:bind="bind-phones-mobile">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/mobile"/>
+                        </xforms:input>
+                    </xforms:group>
+                </xforms:case>
+                <xforms:case id="case-address">
+                    <xforms:group id="group-home">
+                        <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/home"/>
+                        <xforms:input id="input-home-address-1" xforms:bind="bind-home-address-1">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/address"/>
+                        </xforms:input>
+                        <xforms:input id="input-home-address-2" xforms:bind="bind-home-address-2">
+                            <xforms:label/>
+                        </xforms:input>
+                        <xforms:input id="input-home-city" xforms:bind="bind-home-city">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/city"/>
+                        </xforms:input>
+                        <xforms:input id="input-home-state" xforms:bind="bind-home-state">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/state"/>
+                        </xforms:input>
+                        <xforms:input id="input-home-zip" xforms:bind="bind-home-zip">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/zip"/>
+                        </xforms:input>
+                        <xforms:input id="input-home-country" xforms:bind="bind-home-country">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/country"/>
+                        </xforms:input>
+                        <xforms:input id="input-home-web" xforms:bind="bind-home-web">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/web"/>
+                        </xforms:input>
+                    </xforms:group>
+                    <xforms:group id="group-work">
+                        <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/work"/>
+                        <xforms:input id="input-work-title" xforms:bind="bind-work-title">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/title"/>
+                        </xforms:input>
+                        <xforms:input id="input-work-department" xforms:bind="bind-work-department">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/department"/>
+                        </xforms:input>
+                        <xforms:input id="input-work-organization" xforms:bind="bind-work-organization">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/organization"/>
+                        </xforms:input>
+                        <xforms:input id="input-work-address-1" xforms:bind="bind-work-address-1">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/address"/>
+                        </xforms:input>
+                        <xforms:input id="input-work-address-2" xforms:bind="bind-work-address-2">
+                            <xforms:label/>
+                        </xforms:input>
+                        <xforms:input id="input-work-city" xforms:bind="bind-work-city">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/city"/>
+                        </xforms:input>
+                        <xforms:input id="input-work-state" xforms:bind="bind-work-state">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/state"/>
+                        </xforms:input>
+                        <xforms:input id="input-work-zip" xforms:bind="bind-work-zip">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/zip"/>
+                        </xforms:input>
+                        <xforms:input id="input-work-country" xforms:bind="bind-work-country">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/country"/>
+                        </xforms:input>
+                        <xforms:input id="input-work-web" xforms:bind="bind-work-web">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/web"/>
+                        </xforms:input>
+                    </xforms:group>
+                </xforms:case>
+                <xforms:case id="case-other">
+                    <xforms:group id="group-custom">
+                        <xforms:input id="input-other-custom1" xforms:bind="bind-other-custom-1">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/custom1"/>
+                        </xforms:input>
+                        <xforms:input id="input-other-custom2" xforms:bind="bind-other-custom-2">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/custom2"/>
+                        </xforms:input>
+                        <xforms:input id="input-other-custom3" xforms:bind="bind-other-custom-3">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/custom3"/>
+                        </xforms:input>
+                        <xforms:input id="input-other-custom4" xforms:bind="bind-other-custom-4">
+                            <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/custom4"/>
+                        </xforms:input>
+                    </xforms:group>
+                    <xforms:group id="group-notes">
+                        <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/notes"/>
+                        <xforms:textarea id="textarea-other-notes" xforms:bind="bind-other-notes">
+                            <xforms:label/>
+                        </xforms:textarea>
+                    </xforms:group>
+                </xforms:case>
+            </xforms:switch>
+        </xforms:group>
+        <xforms:group id="group-buttons">
+            <xforms:trigger id="trigger-ok">
+                <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/ok"/>
+                <xforms:action id="action-ok">
+                    <xforms:send id="send-debug" xforms:submission="submission-debug"/>
+                </xforms:action>
+            </xforms:trigger>
+            <xforms:trigger id="trigger-cancel">
+                <xforms:label xforms:model="vcard-labels" xforms:ref="/labels/cancel"/>
+                <xforms:action id="action-cancel">
+                    <xforms:reset id="reset-cancel"/>
+                    <xforms:toggle id="toggle-cancel" xforms:case="case-contact"/>
+                </xforms:action>
+            </xforms:trigger>
+        </xforms:group>
+    </body>
+</html>

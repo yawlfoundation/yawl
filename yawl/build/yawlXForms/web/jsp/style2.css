@@ -1,0 +1,252 @@
+/*
+
+*/
+
+
+BODY {
+	background-color : #FAFAD2;
+/*background-image:url(../images/wabenfade.jpg);*/	
+	font-family : "Arial Black";
+}
+
+
+tr,td,table,tbody{
+	
+	font-family : Arial;
+	text-transform : capitalize;
+	letter-spacing : 6;
+	padding-bottom: 0px; /*absoloutely no border .. overkill or what ! */
+	padding-top: 0px;
+	padding-left: 0px;
+	padding-right: 0px;
+	margin-left:0px;
+	margin-right:0px;
+	margin-top:0px;
+	margin-bottom:0px;
+	border : 0px none;
+	border-bottom : 0px none;
+	border-left-width : 0px;
+	border-left-style : none;
+	border-right-width : 0px;
+	border-right-style : none;
+	border-style : none none none none;
+	border-top : 0px none;
+	border-top-width : 0px;
+	border-top-style : none;
+	border-width : 0px 0px 0px 0px;
+	border-left : 0px none;
+	border-right : 0px none;
+	layout-grid : none;
+	margin : 0% 0% 0% 0%;
+	overflow : visible;
+	padding : 0% 0% 0% 0%;
+}
+
+
+td.field{
+	background-color : #5F9EA0;
+	
+	padding-bottom: 0px;
+	padding-top: 0px;
+	padding-left: 8px
+	font-size: 8px;
+}
+tr.field{
+	
+}
+table.field{
+	
+	
+	background : transparent;
+	padding-top: 0px;
+		font-size : 8px;
+	
+}
+
+table.outer,table.outerb{
+	background-color : #FF8C00;
+}
+
+td.outer,td.outerb{
+	background-color : #008B8B;
+	font-size : 10px;
+	padding-bottom: 10px;
+	padding-top: 4px;
+	border-style: none;
+	border : 0 none;
+}
+/* override padding for outer  */
+
+td.outerb{
+	padding-left:32px;	
+	padding-bottom: 10px;
+	padding-top: 16px;
+}
+
+td.groupCaption{
+	height:12px;
+	text-align : left;
+	letter-spacing : 12;
+	vertical-align : top;
+	text-transform : capitalize;
+	text-justify : newspaper;
+	font-weight : bolder;
+	font-size : 8px;
+	font-family : Arial;
+	background-color : #FFD700;
+	border-bottom : solid 1;
+	border-top : 0;
+	border-left : 0;
+	border-right : 0;
+	}
+
+
+table.group,table.groupb{
+	border : 0px none;
+	background-color : #FFD700;
+	padding-bottom: 0px;
+	padding-top: 0px;
+	
+	border-style:none;
+}
+td.group,td.groupb{
+	border : 0px none;
+	padding-bottom: 0px;
+	padding-top: 0px;
+	
+}
+tr.group,tr.groupb{
+	border : 0px none;
+	background-color : #FFDEAD;
+	
+}
+
+/* override to give border  */
+
+table.groupb{
+		border-style: none;
+		border-width:0;
+		border-color : Black;
+		padding-left:0px;
+		padding-right:0px;
+		padding-top:0px;
+		padding-bottom:0px;
+		margin-top:0px;	
+}
+
+
+
+
+
+/** when caption is left or right */
+td.captionCell,tr.captionCell{
+	color: Black;
+	vertical-align : middle;
+	font-size : 10;
+	border: 0px;
+	padding-left: 8px;
+}
+/** when caption is top or bottom */
+td.captionHdr,tr.captionHdr{
+	color: Black;
+	vertical-align : middle;
+	font-size : 10;
+	background : #FFDEBD;
+	border: 0px;
+	padding-left: 8px;
+
+}
+
+/* use with caution effects all captions even groupCaptions */
+div.caption{
+}
+
+/** b signifies that the table has a border*/
+table.outerb{
+		border-style: solid;
+		border-width:2;
+		border-color : White White White White;
+}
+.input,.textarea,.secret {
+	border-width:1 1 1 1;
+	border-color : Black;
+	border-style : solid solid solid solid;
+	background : #FDF5E6;
+}
+
+.textarea{
+	height:64;
+}
+.secret{
+	background : #FFA07A;	
+}
+.selectBoolean{
+	
+	background : #FF4500;
+}
+
+.selectOne,.selectMany,.range{
+	border-width:0 0 0 0;
+	border-color : Black;
+	border-style : none none none none;
+	background : #FDF5E6;
+		font-size : 11px;
+		font-weight: bold;
+	font-family : arial;
+}
+
+.upload{
+	border-width:1 1 1 1;
+	border-color : Black;
+	
+	background : #FDF5E6;	
+			font-size : 14px;
+		font-weight: bold;
+	font-family : arial, sans-serif;
+	
+}
+.selectBoolean{
+	border-width:0 0 0 0;
+	border-color : Black;
+	border-style : none none none none;
+	background : transparent;	
+}
+
+.button,.submit{
+			font-size : 11px;
+		font-weight: bold;
+	font-family : arial, sans-serif;
+}	
+
+/*
+handel the reapet table
+*/
+
+tr.repeat,td.repeat,table.repeat{
+	background : #2F4F4F;
+	padding 0 0 0 0;
+	padding-bottom: 0;
+	padding-left: 0;
+	padding-right: 0;
+	padding-top: 0;
+	border-width:0 0 0 0 ;
+	margin-left: 0;
+	margin-top: 0;
+	border : 0 none;
+}
+/*
+handel s the repeat selector and radiobutton
+*/
+td.repeatselected,td.repeatgroup{
+		margin-left: 0;
+	margin-top: 0;
+		background : #5F9EA0;
+}
+input.repeatselected,input.repeatgroup{
+		background : #5F9EA0;
+}
+
+.invalid{
+    color:red;
+    font-size:1pt;
+}
