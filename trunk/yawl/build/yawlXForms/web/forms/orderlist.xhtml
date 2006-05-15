@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/2002/06/xhtml2"
+    xmlns:xf="http://www.w3.org/2002/xforms"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xml:base="http://localhost:8080/chiba-0.9.9/">
+	<head>
+		<title>Scorecard</title>
+		<xf:model id="C-1">
+			<xf:submission id="save" action="jsp/debug-instance.jsp" method="post" replace="all"/>
+			<xf:submission id="debug" action="jsp/generate-instance.jsp" method="post" replace="instance"/>
+			<xf:submission id="exit" action="jsp/return-instance.jsp" method="post" replace="none"/>
+
+			<xf:instance xmlns="">
+				<data>
+					<order>
+						<item amount="1" price="2.50" itemsum="">article 1</item>
+						<item amount="1" price="5.00" itemsum="">article 2</item>
+						<item amount="1" price="9.95" itemsum="">article 3</item>
+						<item amount="1" price="15.37" itemsum="">article 4</item>
+						<item amount="1" price="12.25" itemsum="">article 5</item>
+					</order>
+					<total>0</total>
+				</data>
+			</xf:instance>
+
+			<xf:bind id="repeat1" nodeset="order/item">
+				<xf:bind id="entry" nodeset="." />
+                <xf:bind id="amount" nodeset="@amount" type="integer"/>
+                <xf:bind id="price" nodeset="@price" type="float" />
+                <xf:bind id="itemsum" nodeset="@itemsum" calculate="../@amount * ../@price" type="float"/>
+			</xf:bind>
+
+			<xf:bind id="total" nodeset="total" calculate="sum(/data/order/item/@itemsum)" />
+
+		</xf:model>
+	</head>
+	<body>
+		<xf:group appearance="full">
+			<xf:label>
+                A calculated list with slightly formatted output.
+            </xf:label>
+
+			<xf:group appearance="minimal">
+                <xf:trigger>
+                    <xf:label>add item</xf:label>
+                    <xf:action>
+                        <xf:insert bind="repeat1" at="count-non-empty(/data/order/item)" position="after"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:trigger>
+                    <xf:label>Delete item</xf:label>
+                    <xf:action>
+                        <xf:delete bind="repeat1" at="index('repeatid')"/>
+                    </xf:action>
+                </xf:trigger>
+				<xf:repeat id="repeatid" bind="repeat1" appearance="compact">
+                    <xf:input bind="entry">
+                        <xf:label>item</xf:label>
+                        <xf:alert>The specified value is invalid</xf:alert>
+                    </xf:input>
+<!--
+                    <xf:select1 bind="entry">
+                        <xf:label>article</xf:label>
+                        <xf:choices>
+                            <xf:item>
+                                <xf:label>article 1</xf:label>
+                                <xf:value>article 1</xf:value>
+                            </xf:item>
+                            <xf:item>
+                                <xf:label>article 2</xf:label>
+                                <xf:value>article 2</xf:value>
+                            </xf:item>
+                            <xf:item>
+                                <xf:label>article 3</xf:label>
+                                <xf:value>article 3</xf:value>
+                            </xf:item>
+                            <xf:item>
+                                <xf:label>article 4</xf:label>
+                                <xf:value>article 4</xf:value>
+                            </xf:item>
+                            <xf:item>
+                                <xf:label>article 5</xf:label>
+                                <xf:value>article 5</xf:value>
+                            </xf:item>
+                            <xf:item>
+                                <xf:label>article 6</xf:label>
+                                <xf:value>article 6</xf:value>
+                            </xf:item>
+                        </xf:choices>
+                    </xf:select1>
+-->
+
+                    <xf:input bind="amount" class="input-amount">
+                        <xf:label>amount</xf:label>
+                    </xf:input>
+                    <xf:input bind="price">
+                        <xf:label>price</xf:label>
+                    </xf:input>
+                    <xf:output value="format-number(@itemsum, '$ #.00')">
+                        <xf:label>sum</xf:label>
+                    </xf:output>
+				</xf:repeat>
+
+                <xf:output id="totalout" value="format-number(total, '$ #.00')" xhtml:class="price" xmlns:xhtml="http://www.w3.org/2002/06/xhtml2">
+                    <xf:label>Total Price: </xf:label>
+                </xf:output>
+
+			</xf:group>
+
+			<xf:group appearance="minimal">
+				<xf:trigger>
+					<xf:label>recalculate</xf:label>
+					<xf:action>
+						<xf:recalculate />
+					</xf:action>
+				</xf:trigger>
+				<xf:trigger>
+					<xf:label>reset</xf:label>
+					<xf:action>
+						<xf:reset />
+					</xf:action>
+				</xf:trigger>
+			</xf:group>
+		</xf:group>
+	</body>
+</html>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="TestImproperCompletion">
+    <name>Invoke Web Service</name>
+    <documentation>Calls the Barnes and Nobel book price web service to retrieve the price of a book.  Takes the book's ISBN as input.</documentation>
+    <metaData />
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="Decompose" isRootNet="true" xsi:type="NetFactsType">
+      <localVariable>
+        <name>isbn</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </localVariable>
+      <localVariable>
+        <name>isbn-fallback</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>0-201-61641-6</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>return</name>
+        <type>float</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="i">
+          <name>i</name>
+          <flowsInto>
+            <nextElementRef id="p" />
+          </flowsInto>
+        </inputCondition>
+        <task id="p">
+          <flowsInto>
+            <nextElementRef id="p" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="q" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="DoAndSplit" />
+        </task>
+        <task id="q">
+          <flowsInto>
+            <nextElementRef id="o" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="DoFinalTask" />
+        </task>
+        <outputCondition id="o">
+          <name>o</name>
+        </outputCondition>
+      </processControlElements>
+    </decomposition>
+    <decomposition id="DoAndSplit" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="DoFinalTask" xsi:type="WebServiceGatewayFactsType" />
+  </specification>
+</specificationSet>
+

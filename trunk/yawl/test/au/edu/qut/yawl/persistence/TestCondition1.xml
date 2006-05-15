@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_SchemaBeta7.1.xsd">
+  <specification uri="Blah.xml">
+    <metaData/>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+                <decomposition id="OverseeMusic" isRootNet="true" xsi:type="NetFactsType">
+		                        <name>Oversee Music</name>
+					<documentation/>
+                        <processControlElements>
+                                <inputCondition id="input">
+                                        <flowsInto>
+                                                <nextElementRef id="decideName"/>
+                                        </flowsInto>
+                                </inputCondition>
+                                <task id="decideName">
+                                        <flowsInto>
+                                                <nextElementRef id="finis"/>
+                                        </flowsInto>
+                                        <join code="and"/>
+                                        <split code="and"/>
+				</task>
+                                <outputCondition id="finis">
+                                        <name>Finished case</name>
+                                </outputCondition>
+                        </processControlElements>
+		</decomposition>
+  </specification>
+</specificationSet>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="UserManualExample1.3.ywl">
+    <metaData>
+      <title>YAWLEditor User Manual Example</title>
+      <creator>Lindsay Bradford</creator>
+      <description>This is the resultant editor save-file that is produced if the instrucions in the Editor User manual is followed.</description>
+      <version>1.0</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema">
+      <complexType name="Geek">
+        <sequence>
+          <element name="Name" type="string" />
+          <element name="Salary" type="double" />
+        </sequence>
+      </complexType>
+      <complexType name="Book">
+        <sequence maxOccurs="1" minOccurs="1">
+          <element name="title" type="string" />
+          <element name="author" type="string" />
+        </sequence>
+      </complexType>
+      <complexType name="BookList">
+        <sequence maxOccurs="5" minOccurs="1">
+          <element name="book" type="string" />
+        </sequence>
+      </complexType>
+    </schema>
+    <decomposition id="My_Career" isRootNet="true" xsi:type="NetFactsType">
+      <processControlElements>
+        <inputCondition id="InputCondition_8">
+          <flowsInto>
+            <nextElementRef id="Begin_My_Career_11" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Begin_My_Career_11">
+          <flowsInto>
+            <nextElementRef id="Attend_University_14" />
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="Study_Privately_13" />
+            <predicate ordering="0">true()</predicate>
+          </flowsInto>
+          <join code="xor" />
+          <split code="xor" />
+          <decomposesTo id="Begin_My_Career" />
+        </task>
+        <task id="Study_Privately_13">
+          <flowsInto>
+            <nextElementRef id="Get_A_Job_12" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Study_Privately" />
+        </task>
+        <task id="Attend_University_14">
+          <flowsInto>
+            <nextElementRef id="Get_A_Job_12" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Attend_University" />
+        </task>
+        <task id="Get_A_Job_12">
+          <flowsInto>
+            <nextElementRef id="Career_Started_10" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Get_A_Job" />
+        </task>
+        <task id="Career_Started_10">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_9" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Career_Started" />
+        </task>
+        <outputCondition id="OutputCondition_9" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Get_A_Job" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Do_Subjects" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Get_Degree" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Pass_All_Subjects" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Study_Privately" xsi:type="NetFactsType">
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <flowsInto>
+            <nextElementRef id="Read_A_Book_4" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Read_A_Book_4">
+          <flowsInto>
+            <nextElementRef id="Knowledge_Gained_3" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Read_A_Book" />
+        </task>
+        <condition id="Knowledge_Gained_3">
+          <flowsInto>
+            <nextElementRef id="Feel_Smarter_5" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="Look_for_an_Easier_Book_6" />
+          </flowsInto>
+        </condition>
+        <task id="Feel_Smarter_5">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Feel_Smarter" />
+        </task>
+        <task id="Look_for_an_Easier_Book_6">
+          <flowsInto>
+            <nextElementRef id="Read_A_Book_4" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Look_for_an_Easier_Book" />
+        </task>
+        <outputCondition id="OutputCondition_2" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Begin_My_Career" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Feel_Smarter" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Look_for_an_Easier_Book" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Attend_University" xsi:type="NetFactsType">
+      <localVariable>
+        <name>StudentNumber</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <name>SubjectCode</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition_20">
+          <flowsInto>
+            <nextElementRef id="Enroll_23" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Enroll_23">
+          <flowsInto>
+            <nextElementRef id="Do_Subjects_25" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;StudentNumber&gt;{/Attend_University/SubjectCode/text()}&lt;/StudentNumber&gt;" />
+              <mapsTo>StudentNumber</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;SubjectCode&gt;{/Attend_University/SubjectCode/text()}&lt;/SubjectCode&gt;" />
+              <mapsTo>SubjectCode</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;StudentNumber&gt;{/Enroll/SubjectCode/text()}&lt;/StudentNumber&gt;" />
+              <mapsTo>StudentNumber</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;SubjectCode&gt;{/Enroll/SubjectCode/text()}&lt;/SubjectCode&gt;" />
+              <mapsTo>SubjectCode</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Enroll" />
+        </task>
+        <task id="Do_Subjects_25">
+          <flowsInto>
+            <nextElementRef id="Pass_All_Subjects_22" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Do_Subjects" />
+        </task>
+        <task id="Pass_All_Subjects_22">
+          <flowsInto>
+            <nextElementRef id="Get_Degree_24" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Pass_All_Subjects" />
+        </task>
+        <task id="Get_Degree_24">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_21" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Get_Degree" />
+        </task>
+        <outputCondition id="OutputCondition_21" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Career_Started" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Enroll" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>StudentNumber</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>SubjectCode</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>StudentNumber</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>SubjectCode</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Read_A_Book" xsi:type="WebServiceGatewayFactsType" />
+  </specification>
+</specificationSet>
+
+

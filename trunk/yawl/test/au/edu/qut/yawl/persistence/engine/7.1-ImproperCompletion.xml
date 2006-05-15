@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="ImproperCompletionForLeafD">
+    <metaData />
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="top" isRootNet="true" xsi:type="NetFactsType">
+      <localVariable>
+        <name>stubList</name>
+        <isUntyped />
+        <initialValue>&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;</initialValue>
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="i-top">
+          <name>i</name>
+          <flowsInto>
+            <nextElementRef id="a-top" />
+          </flowsInto>
+        </inputCondition>
+        <task id="a-top" xsi:type="MultipleInstanceExternalTaskFactsType">
+          <flowsInto>
+            <nextElementRef id="b-top" />
+            <predicate>false()</predicate>
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="c1-top" />
+            <predicate>false()</predicate>
+          </flowsInto>
+          <join code="xor" />
+          <split code="or" />
+          <decomposesTo id="A" />
+          <minimum>3</minimum>
+          <maximum>7</maximum>
+          <threshold>5</threshold>
+          <creationMode code="dynamic" />
+          <miDataInput>
+            <expression query="/data/stubList" />
+            <splittingExpression query="for $d in /stubList/* return $d" />
+            <formalInputParam>stub</formalInputParam>
+          </miDataInput>
+        </task>
+        <condition id="c1-top">
+          <name>c1</name>
+          <flowsInto>
+            <nextElementRef id="c-top" />
+          </flowsInto>
+        </condition>
+        <task id="b-top">
+          <flowsInto>
+            <nextElementRef id="d-top" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="B" />
+        </task>
+        <task id="c-top" xsi:type="MultipleInstanceExternalTaskFactsType">
+          <flowsInto>
+            <nextElementRef id="c2-top" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <removesTokens id="a-top" />
+          <removesTokens id="b-top" />
+          <decomposesTo id="leaf-c" />
+          <minimum>2</minimum>
+          <maximum>7</maximum>
+          <threshold>5</threshold>
+          <creationMode code="dynamic" />
+          <miDataInput>
+            <expression query="/data/stubList" />
+            <splittingExpression query="for $d in /stubList/* return $d" />
+            <formalInputParam>stub</formalInputParam>
+          </miDataInput>
+        </task>
+        <condition id="c2-top">
+          <name>c2</name>
+          <flowsInto>
+            <nextElementRef id="d-top" />
+          </flowsInto>
+        </condition>
+        <task id="d-top" xsi:type="MultipleInstanceExternalTaskFactsType">
+          <flowsInto>
+            <nextElementRef id="o-top" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <decomposesTo id="leaf-d" />
+          <minimum>1</minimum>
+          <maximum>10</maximum>
+          <threshold>3</threshold>
+          <creationMode code="static" />
+          <miDataInput>
+            <expression query="/data/stubList" />
+            <splittingExpression query="for $d in /stubList/* return $d" />
+            <formalInputParam>stub</formalInputParam>
+          </miDataInput>
+        </task>
+        <task id="d-top" xsi:type="MultipleInstanceExternalTaskFactsType">
+          <flowsInto>
+            <nextElementRef id="o-top" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <decomposesTo id="leaf-d" />
+          <minimum>1</minimum>
+          <maximum>10</maximum>
+          <threshold>3</threshold>
+          <creationMode code="static" />
+          <miDataInput>
+            <expression query="/data/stubList" />
+            <splittingExpression query="for $d in /stubList/* return $d" />
+            <formalInputParam>stub</formalInputParam>
+          </miDataInput>
+        </task>
+        <outputCondition id="o-top">
+          <name>o</name>
+        </outputCondition>
+      </processControlElements>
+    </decomposition>
+    <decomposition id="leaf-c" xsi:type="NetFactsType">
+      <inputParam name="stub">
+        <name>stub</name>
+        <isUntyped />
+      </inputParam>
+      <processControlElements>
+        <inputCondition id="i-leaf-c">
+          <name>i</name>
+          <flowsInto>
+            <nextElementRef id="e-leaf-c" />
+          </flowsInto>
+        </inputCondition>
+        <task id="e-leaf-c">
+          <flowsInto>
+            <nextElementRef id="f-leaf-c" />
+            <predicate>true()</predicate>
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="g-leaf-c" />
+            <predicate>true()</predicate>
+          </flowsInto>
+          <join code="xor" />
+          <split code="or" />
+          <decomposesTo id="E" />
+        </task>
+        <task id="f-leaf-c">
+          <flowsInto>
+            <nextElementRef id="h-leaf-c" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="F" />
+        </task>
+        <task id="g-leaf-c">
+          <flowsInto>
+            <nextElementRef id="h-leaf-c" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="G" />
+        </task>
+        <task id="h-leaf-c">
+          <flowsInto>
+            <nextElementRef id="o-leaf-c" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <decomposesTo id="H" />
+        </task>
+        <task id="h-leaf-c">
+          <flowsInto>
+            <nextElementRef id="o-leaf-c" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <decomposesTo id="H" />
+        </task>
+        <outputCondition id="o-leaf-c">
+          <name>o</name>
+        </outputCondition>
+      </processControlElements>
+    </decomposition>
+    <decomposition id="leaf-d" xsi:type="NetFactsType">
+      <inputParam name="stub">
+        <name>stub</name>
+        <isUntyped />
+      </inputParam>
+      <processControlElements>
+        <inputCondition id="i-leaf-d">
+          <name>i</name>
+          <flowsInto>
+            <nextElementRef id="I-leaf-d" />
+          </flowsInto>
+        </inputCondition>
+        <task id="I-leaf-d">
+          <flowsInto>
+            <nextElementRef id="j-leaf-d" />
+            <predicate>true()</predicate>
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="o-leaf-d" />
+            <predicate>true()</predicate>
+          </flowsInto>
+          <join code="xor" />
+          <split code="or" />
+          <decomposesTo id="I" />
+        </task>
+        <task id="j-leaf-d">
+          <flowsInto>
+            <nextElementRef id="o-leaf-d" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="J" />
+        </task>
+        <outputCondition id="o-leaf-d">
+          <name>o</name>
+        </outputCondition>
+      </processControlElements>
+    </decomposition>
+    <decomposition id="A" xsi:type="WebServiceGatewayFactsType">
+      <inputParam name="stub">
+        <name>stub</name>
+        <isUntyped />
+      </inputParam>
+    </decomposition>
+    <decomposition id="B" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="E" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="F" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="G" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="H" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="I" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="J" xsi:type="WebServiceGatewayFactsType" />
+  </specification>
+</specificationSet>
+
