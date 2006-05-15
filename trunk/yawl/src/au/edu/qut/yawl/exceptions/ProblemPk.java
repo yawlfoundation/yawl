@@ -4,7 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Embeddable;
 
-import au.edu.qut.yawl.persistence.dao1.PersistableObject;
+import au.edu.qut.yawl.persistence.PersistableObject;
 
 @Embeddable
 public class ProblemPk implements PersistableObject {
