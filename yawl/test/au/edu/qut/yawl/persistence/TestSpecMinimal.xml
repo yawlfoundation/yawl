@@ -7,11 +7,17 @@
 		<metaData/>
 		<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"/>
 		<decomposition id="OverseeMusic" isRootNet="true" xsi:type="NetFactsType">
+			<configuration id="YAWL Editor">
+				<exten:point x="100" y="100"/>
+			</configuration>
 			<name>Oversee Music</name>
 			<documentation/>
 			<processControlElements>
 				<inputCondition id="input">
 					<flowsInto>
+						<configuration id="YAWL Editor">
+							<exten:point x="100" y="100"/>
+						</configuration>
 						<nextElementRef id="decideName"/>
 					</flowsInto>
 				</inputCondition>
@@ -23,6 +29,9 @@
 						<exten:point x="100" y="100"/>
 					</configuration>
 					<flowsInto>
+						<configuration id="YAWL Editor">
+							<exten:point x="100" y="100"/>
+						</configuration>
 						<nextElementRef id="finis"/>
 					</flowsInto>
 					<join code="and"/>

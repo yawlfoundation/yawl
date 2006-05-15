@@ -116,6 +116,7 @@
 	</xs:complexType>
 	<xs:complexType name="FlowsIntoType">
 		<xs:sequence>
+			<xs:element name="configuration"  type="yawl:ExternalConfigurationType" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="nextElementRef" type="yawl:ExternalNetElementType"/>
 			<xs:element name="predicate" type="yawl:PredicateType" minOccurs="0"/>
 			<xs:element name="isDefaultFlow" type="yawl:NullType" minOccurs="0"/>
@@ -178,6 +179,7 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:DecompositionType">
 				<xs:sequence>
+					<xs:element name="configuration"  type="yawl:ExternalConfigurationType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="name" type="yawl:NameType" minOccurs="0"/>
 					<xs:element name="documentation" type="yawl:DocumentationType" minOccurs="0"/>
 					<xs:element name="inputParam" type="yawl:InputParameterFactsType" minOccurs="0" maxOccurs="unbounded"/>
