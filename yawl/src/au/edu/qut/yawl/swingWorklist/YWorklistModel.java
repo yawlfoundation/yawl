@@ -45,6 +45,7 @@ import java.util.List;
  * 
  */
 public class YWorklistModel {
+    private Logger logger = Logger.getLogger(this.getClass());
     private YWorklistTableModel _availableWork;
     private YWorklistTableModel _myActiveTasks;
     private DateFormat _formatter;
@@ -78,9 +79,6 @@ public class YWorklistModel {
     //                    INTERFACE TO LOCAL WORKLIST
     //####################################################################################
 
-    private void removeUnstartedWorkItem(String caseIDStr, String taskID) {
-        _availableWork.removeRow(caseIDStr + taskID);
-    }
 
 
     private void addEnabledWorkItem(YWorkItem workItem) {
@@ -120,9 +118,6 @@ public class YWorklistModel {
     }
 
 
-    private void removeStartedItem(String caseIDStr, String taskID) {
-        _myActiveTasks.removeRow(caseIDStr + taskID);
-    }
 
 
     private void addStartedWorkItem(YWorkItem item) {
@@ -148,7 +143,7 @@ public class YWorklistModel {
                     _formatter.format(item.getEnablementTime()),
                     _formatter.format(item.getFiringTime()),
                     _formatter.format(item.getStartTime()),
-                    new Boolean(allowsDynamicInstanceCreation),
+                    (allowsDynamicInstanceCreation) ? Boolean.TRUE : Boolean.FALSE,
                     item.getDataString(),
                     getOutputSkeletonXML(caseIDStr, taskID)
                 });
@@ -156,8 +151,7 @@ public class YWorklistModel {
 
 
     Object[] getActiveTableData(String caseIDStr, String taskIDStr) {
-        Object[] result = (Object[]) _myActiveTasks._rows.get(caseIDStr + taskIDStr);
-        return result;
+        return (Object[]) _myActiveTasks._rows.get(caseIDStr + taskIDStr);
     }
 
     void setActiveTableData(Object[] data) {
@@ -182,19 +176,19 @@ public class YWorklistModel {
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
-                    YWorkItem itemResult = _engineClient.startWorkItem(item, _username);
+                    _engineClient.startWorkItem(item, _username);
 
                 } catch (YStateException e) {
-                    e.printStackTrace();
+                    logger.error("State Exception", e);
                     reportGeneralProblem(e);
                 } catch (YDataStateException e) {
-                    e.printStackTrace();
+                    logger.error("Bad Specification");e.printStackTrace();
                     new SpecificationQueryProcessingValidationErrorBox(
                             _frame,
                             item,
                             e);
                 } catch (YQueryException e) {
-                    e.printStackTrace();
+                    logger.error("YQueryException",e);
                     reportGeneralProblem(e);
                 }
             }
@@ -351,11 +345,6 @@ public class YWorklistModel {
                 task.getDecompositionPrototype().getRootDataElementName());
     }
 
-    public List validateData() {
-        List validationMessages = new Vector();
-
-        return validationMessages;
-    }
 
 
     public YParameter getMIUniqueParam(String taskID) {

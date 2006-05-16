@@ -43,7 +43,7 @@ public class TestMarlonsEagerNessExperiment {
                         unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         AbstractEngine engine2 =  EngineFactory.createYEngine();
         engine2.loadSpecification(specification);
-        _idForTopNet = engine2.startCase(specification.getID().toString(), null, null);
+        _idForTopNet = engine2.startCase(null, specification.getID().toString(), null, null);
 
         _worItemRepository = YWorkItemRepository.getInstance();
     }

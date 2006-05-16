@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
 
 
 /**
@@ -79,6 +80,8 @@ public class Marshaller {
         String specificationID = null;
         String taskName = null;
         String taskDocumentation = null;
+	HashMap attributemap = new HashMap();
+	
 
         String decompositionID = null;
         try {
@@ -90,6 +93,18 @@ public class Marshaller {
             taskDocumentation = taskInfo.getChildText("taskDocumentation");
             decompositionID = taskInfo.getChildText("decompositionID");
             Element yawlService = taskInfo.getChild("yawlService");
+
+	    Element attributes = taskInfo.getChild("attributes");
+	    if (attributes!=null) {
+		List attributelist = attributes.getChildren();
+		for (int i = 0; i < attributelist.size(); i++) {
+		    Element attribute = (Element) attributelist.get(i);
+		    attributemap.put(attribute.getName(),attributes.getChildText(attribute.getName()));
+		    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		    System.out.println(attribute.getName() + " " + attributes.getChildText(attribute.getName()));
+		    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		}
+	    }
 
             Element params = taskInfo.getChild("params");
             List paramElementsList = params.getChildren();
@@ -126,6 +141,8 @@ public class Marshaller {
                 taskName,
                 taskDocumentation,
                 decompositionID);
+
+	taskInfo.setAttributes(attributemap);
 
         return taskInfo;
     }
@@ -273,6 +290,7 @@ public class Marshaller {
                     child.detach();
                     //the input data will be removed from the merged doc and
                     //the output data will be added.
+		    System.out.println(child.getName());
                     mergedDoc.getRootElement().removeChild(child.getName());
                     mergedDoc.getRootElement().addContent(child);
                 }
@@ -284,6 +302,7 @@ public class Marshaller {
             return "";
         }
         String result = new XMLOutputter().outputString(mergedDoc.getRootElement()).trim();
+	System.out.println(result);
         return result;
     }
 

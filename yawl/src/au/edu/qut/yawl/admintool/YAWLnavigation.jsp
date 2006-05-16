@@ -60,7 +60,7 @@
 							<td bgcolor="#336699"/>
 
                             <td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="/admintool/overview.jsp" target="_top" class="level3menu">Charts</a>
+								<a href="/admintool/chartview.jsp" target="_top" class="level3menu">Charts</a>
 							</td>
 							<td bgcolor="#336699"/>
                             <td align="center" valign="middle" bgcolor="#ffffff">

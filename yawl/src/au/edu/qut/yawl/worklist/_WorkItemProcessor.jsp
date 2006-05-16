@@ -1,5 +1,9 @@
 <%@ page import="au.edu.qut.yawl.worklist.WorkItemProcessor,
-                 au.edu.qut.yawl.worklist.model.WorkListGUIUtils"%>
+				 au.edu.qut.yawl.worklist.model.WorkItemRecord,
+				 au.edu.qut.yawl.worklist.model.TaskInformation,
+                 au.edu.qut.yawl.worklist.model.WorkListGUIUtils,
+                 org.jdom.Element,
+                 org.jdom.output.XMLOutputter"%>
                  
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -8,28 +12,32 @@
         <%@ include file="head.jsp"  %>        
 	</head>
 	<body>
-        <!-- Include check login code --><%@ include file="checkLogin.jsp" %>
+        <!-- Include check login code -->
+        <%@ include file="checkLogin.jsp" %>
         <!-- Include YAWL Banner Information -->
         <%@ include file="banner.jsp" %>
         <h3>Work Item Processing Page</h3>
         <%
+		Element inputData = null;
+		Element outputData = null;
+        	// TODO check below for redundant getParameter() calls
             String workItemID = request.getParameter("workItemID");
             String submitType = request.getParameter("submit");
-            String outputData = request.getParameter("outputData");
-            String inputData = request.getParameter("inputData");
+            //String outputData = request.getParameter("outputData");
+            //String inputData = request.getParameter("inputData");
             sessionHandle = (String) session.getAttribute("sessionHandle");
 
 			if (submitType == null){
 				sessionHandle = (String) request.getAttribute("sessionHandle");
 				workItemID = (String) request.getAttribute("workItemID");
-				inputData = (String) request.getAttribute("inputData");
-				outputData = (String) request.getAttribute("outputData");
+				inputData = (Element) request.getAttribute("inputData");
+				outputData = (Element) request.getAttribute("outputData");
 				submitType = (String) request.getAttribute("submit");
 			}
 			
             if(submitType != null){
                 if(submitType.equals("Save Work Item") || submitType.equals("Add New Instance")){
-                    _worklistController.saveWorkItem(workItemID, outputData);
+                    _worklistController.saveWorkItem(workItemID, new XMLOutputter().outputString(outputData));
                     if(submitType.equals("Add New Instance")){
                         RequestDispatcher requestDispatcher =
                             application.getRequestDispatcher("/instanceAdder");
@@ -92,20 +100,37 @@
                     }
                 } else if (submitType.equals("Edit Work Item")){
 					try{
+						System.out.println("HERE!!!!!");
 
-						WorkItemProcessor.executeWorkItemPost( getServletContext(), workItemID, 
-							sessionHandle, _worklistController );
-						
 						String userID = (String) session.getAttribute("userid");
+						WorkItemProcessor wip = new WorkItemProcessor();
+						WorkItemRecord item = _worklistController.getCachedWorkItem(workItemID);
+						TaskInformation taskInfo = _worklistController.getTaskInformation(
+			            	        item.getSpecificationID(), item.getTaskID(), sessionHandle);
 
-						String url = WorkItemProcessor.getWorkItemRedirectURL( getServletContext(), 
-							workItemID, sessionHandle, session.getId(), userID );
+						System.out.println(taskInfo.getAttribute("formtype"));
 
-						response.sendRedirect( response.encodeURL(url) );
+						if (taskInfo.getAttribute("formtype")==null || !taskInfo.getAttribute("formtype").equalsIgnoreCase("pdf")) {
+				
+						 	wip.executeWorkItemPost( getServletContext(), workItemID, 
+								sessionHandle, _worklistController, userID );
+						
+							String url = wip.getRedirectURL( getServletContext(), taskInfo );
+						
+							response.sendRedirect( response.encodeURL(url) );						
+						} else {
+ 						 	String filename = wip.executePDFWorkItemPost( getServletContext(), workItemID, taskInfo.getDecompositionID(),
+						  			sessionHandle, _worklistController, userID );
+
+									
+							String url = "http://localhost:8080/PDFforms/complete.jsp?filename="+filename;
+  							response.sendRedirect( response.encodeURL(url) );
+
+						}
+
 
 					} catch(Exception e){
 						// if form generation fails for any reason fall back to XML itemViewer.jsp page
-						e.printStackTrace();
 						RequestDispatcher requestDispatcher = application.getRequestDispatcher("/itemViewer?error=true");
 	                    requestDispatcher.forward(request, response);
 					}

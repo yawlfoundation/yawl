@@ -28,7 +28,7 @@ public class YWorkItemEvent implements PersistableObject {
 	private static final long serialVersionUID = 2006030080l;
 
     public String resource = null;
-    public String time = null;
+    public long time;
     public String event = null;
     public String identifier = null;
     public String taskid = null;
@@ -49,12 +49,12 @@ public class YWorkItemEvent implements PersistableObject {
 		this.id = id;
 	}
 
-    public void setTime(String time) {
+    public void setTime(long time) {
         this.time = time;
     }
 
     @Basic
-    public String getTime() {
+    public long getTime() {
         return this.time;
     }
 

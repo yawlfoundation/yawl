@@ -1,7 +1,7 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
@@ -14,6 +14,8 @@ import au.edu.qut.yawl.worklet.rdr.*;
 
 import org.jdom.*;
 import org.jdom.output.* ;
+
+import org.apache.log4j.Logger;
                              
 import java.util.*;
 import java.io.* ;
@@ -46,7 +48,7 @@ public class CheckedOutChildItem {
 	private String _runningCaseId ;        // the caseid of the running worklet 
 	private String _workletName ;          // name of worklet used
 	private RdrNode[] _searchPair ;        // rule pair returned from search
-    private Logger _log ;                  // log file for debug messages 
+    private static Logger _log ;           // log file for debug messages
 	
 	
 	/** 
@@ -56,8 +58,8 @@ public class CheckedOutChildItem {
 	public CheckedOutChildItem(WorkItemRecord w) {
 		_wir = w ;                              
 		_datalist = w.getWorkItemData();
-	    _log = new Logger("checkedOutChildItem.log");
-	}
+        _log = Logger.getLogger("au.edu.qut.yawl.worklet.selection.CheckedOutChildItem");           
+    }
 	
 //===========================================================================//
 	
@@ -196,8 +198,7 @@ public class CheckedOutChildItem {
      		saveDocument(fPath + fName, doc) ;	    
      	}	
 	    catch (IllegalAddException iae) {
-	    	_log.write("Exception when adding content") ;
-	    	_log.write(iae);
+	    	_log.error("Exception when adding content", iae) ;
 	    }
      }
  
@@ -212,8 +213,7 @@ public class CheckedOutChildItem {
            fos.close();
       }
       catch (IOException ioe){
-      	_log.write("IO Exeception in saving Document to file") ;
-     	_log.write(ioe);
+      	_log.error("IO Exeception in saving Document to file", ioe) ;
       }
    }
    
@@ -223,7 +223,6 @@ public class CheckedOutChildItem {
     public String toString() {
     	StringBuffer s = new StringBuffer("CheckedOutChildItem record:") ;
     	String n = Library.newline ; 	
-    	int i ;
     	
     	s.append(n); 
     	s.append("WORKITEM: ");

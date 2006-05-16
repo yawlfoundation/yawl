@@ -86,6 +86,8 @@ public class EditResourceAction extends HttpServlet {
 
     }
 
+    
+
     private void processPostQuery(HttpServletRequest req, HttpServletResponse res) throws Exception, YAuthenticationException {
 
         String action = req.getParameter("action");

@@ -21,7 +21,7 @@
         String source = request.getParameter("source");
         String workItemID = request.getParameter("workItemID");
         if(source == null){
-            WorkItemRecord item = _worklistController.getRemotelyCachedWorkItem(workItemID);
+            WorkItemRecord item = _worklistController.getCachedWorkItem(workItemID);
 //            sessionHandle = (String)session.getAttribute("sessionHandle");
             String specificationID = item.getSpecificationID();
             String taskID = item.getTaskID();

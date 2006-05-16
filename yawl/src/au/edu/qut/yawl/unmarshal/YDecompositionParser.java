@@ -39,6 +39,10 @@ public class YDecompositionParser {
     Map _removeSetForFlows = new HashMap();
     private String _version;
 
+    private static final String ID = "id";
+    private static final String TYPE = "type";
+    private static final String SKIP_OUTBOUND_VALIDATION = "skipOutboundSchemaValidation";
+
 
     /**
      * gets the built decomposition.
@@ -96,8 +100,12 @@ public class YDecompositionParser {
             String attname = attr.getName();
             boolean isXsiNS = attr.getNamespace() == schemaInstanceNS;
             //don't add the standard YAWL schema attributes to the pass through list.
-            if(!("id".equals(attname) || ("type".equals(attname) && isXsiNS))) {
-                _decomposition.setAttribute(attr.getName(), attr.getValue());
+            if(!(ID.equals(attname) || (TYPE.equals(attname) && isXsiNS))) {
+                _decomposition.setAttribute(attname, attr.getValue());
+            }
+            if(SKIP_OUTBOUND_VALIDATION.equals(attname)) {
+                _decomposition.setSkipOutboundSchemaChecks(
+                        Boolean.getBoolean(attr.getValue()));
             }
         }
         

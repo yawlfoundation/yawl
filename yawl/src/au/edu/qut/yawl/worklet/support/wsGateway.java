@@ -1,7 +1,7 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
@@ -13,7 +13,8 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import au.edu.qut.yawl.worklet.selection.*;
-import au.edu.qut.yawl.worklet.rdr.*;
+
+import org.apache.log4j.Logger;
 
  /**
   *  The wsGateway class acts as a gateway between the Worklet Selection
@@ -30,21 +31,24 @@ import au.edu.qut.yawl.worklet.rdr.*;
 
 public class wsGateway extends HttpServlet {
 
-    public void doGet(HttpServletRequest req, HttpServletResponse res) 
+    private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.support.wsGateway");
+
+
+    public void doGet(HttpServletRequest req, HttpServletResponse res)
                                 throws IOException, ServletException {
 
-    	Logger _log = new Logger("wsGateway.log");
-    	_log.write("Received a request from the RDR Editor to replace " +
+
+    	_log.info("Received a request from the RDR Editor to replace " +
     	           "a running worklet.");
 
     	try {
 
             // workitem id for replacing passed with the request
     		String itemid = req.getQueryString() ;
-    		_log.write("The workitem id passed is: " + itemid);
+    		_log.info("The workitem id passed is: " + itemid);
     		
     		// get the selector instance and call replace                                          
-     	  	WorkletSelector ws = WorkletSelector.getInstance() ;
+     	  	WorkletService ws = WorkletService.getInstance() ;
     	 	String result = ws.replaceWorklet(itemid) ;   	
     	
 	    	// generate the output
@@ -55,8 +59,7 @@ public class wsGateway extends HttpServlet {
 	        out.close();
     	 }
     	 catch (Exception e) {
-    	 	_log.write("Exception in doGet()");
-    	 	_log.write(e) ;
+    	 	_log.error("Exception in doGet()", e);
     	 }
 	}
 

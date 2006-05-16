@@ -54,7 +54,7 @@ public class TestSimpleExecutionUseCases extends TestCase{
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
-        _caseId = _engine.startCase(specification.getID(), null, null);
+        _caseId = _engine.startCase(null, specification.getID(), null, null);
     }
 
 

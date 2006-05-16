@@ -445,11 +445,11 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
         	}
         }
         	
-        if (_name != null) {
-            xml.append("<name>" + _name + "</name>");
-        }
-        if (_documentation != null) {
-            xml.append("<documentation>" + _documentation + "</documentation>");
+        if( _name != null ) {
+			xml.append( "<name>" ).append( _name ).append( "</name>" );
+		}
+        if( _documentation != null ) {
+			xml.append( "<documentation>" ).append( _documentation ).append( "</documentation>" );
         }
         for( YFlow flow:_postsetFlows) {
             String flowsToXML = flow.toXML();
@@ -571,13 +571,12 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
                 dataInput);
 
         if (errors.length() > 0) {
-            YDataValidationException de = new YDataValidationException(
-                    schema,
-                    rawDecompositionData,
-                    errors,
-                    source,
-                    "Problem with process model.  Schema validation failed");
-            throw de;
+        	throw new YDataValidationException(
+                    	schema,
+                    	rawDecompositionData,
+                    	errors,
+                    	source,
+                    	"Problem with process model.  Schema validation failed");
         }
     }
 
@@ -592,10 +591,9 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
 		for (Element e: (List<Element>) _internalConfigurations) {
 			String representation = outputter.outputString(e);
 			buffer.append(representation);
-		}
+}
     	return buffer.toString();
 	}
-
     @Column(name="configs", length=4096)
 	public void setInternalConfigurationsAsString(String configurations) {
 		_internalConfigurations = new ArrayList<Element>();

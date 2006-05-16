@@ -57,18 +57,19 @@ public class WorklistDBConnector {
     /**
      * Executes a query over the organisation model of the YAWL system.
      * @param query
-     * @return
+     * @return a list of hresid that satisfy the query (as strings).
      */
     public List whichUsersForThisQuery(String query) throws SQLException, YQueryException, HibernateException {
         List users = new ArrayList();
 
         ResultSet rs = executeQuery(query);
         while (rs.next()) {
-            String user = rs.getString("id");
+            String user = rs.getString("hresid");
             System.out.println("\tuser = " + user);
             if (null == user) {
                 throw new YQueryException(
-                        "Something went wrong with the query inside the YAWL Process Specification:\n" +
+                        "Something went wrong with the query inside the YAWL Process " +
+                        "Specification:\n" +
                         "The worklist executed query [" + query + "] over the " +
                         "organisational model and this yielded a improperly typed " +
                         "query result.");

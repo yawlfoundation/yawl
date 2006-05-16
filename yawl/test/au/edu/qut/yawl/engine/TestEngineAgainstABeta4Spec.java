@@ -60,7 +60,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
         synchronized (this) {
             EngineClearer.clear(_engine);
             _engine.loadSpecification(_specification);
-            YIdentifier id = _engine.startCase(_specification.getID(), null, null);
+            YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
             _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
             {
                 //execute task "decideName"

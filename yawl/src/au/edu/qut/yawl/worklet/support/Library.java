@@ -1,7 +1,7 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
@@ -10,6 +10,8 @@ package au.edu.qut.yawl.worklet.support;
 
 import java.util.* ;
 import java.io.* ;
+
+import org.apache.log4j.Logger;
 
 /**
  *  The support library class of static methods 
@@ -24,14 +26,17 @@ import java.io.* ;
 public class Library {
 	
 	// various file paths to the service installation & repository files
-	public static String wsHomeDir       = getHomeDir() ;
-    public static String wsRepositoryDir = getRepositoryDir() ;  
-    public static String wsLogsDir       = wsRepositoryDir + "logs/" ;
-    public static String wsWorkletsDir   = wsRepositoryDir + "worklets/" ;
-    public static String wsRulesDir      = wsRepositoryDir + "rules/" ;
-    public static String wsSelectedDir   = wsRepositoryDir + "selected/" ;
+	public static final String wsHomeDir       = getHomeDir() ;
+    public static final String wsRepositoryDir = getRepositoryDir() ;
+    public static final String wsLogsDir       = wsRepositoryDir + "logs/" ;
+    public static final String wsWorkletsDir   = wsRepositoryDir + "worklets/" ;
+    public static final String wsSelRulesDir   = wsRepositoryDir + "selectionRules/" ;
+    public static final String wsExRulesDir    = wsRepositoryDir + "exceptionRules/" ;
+    public static final String wsSelectedDir   = wsRepositoryDir + "selected/" ;
     
-    public static String newline = System.getProperty("line.separator"); 
+    public static final String newline = System.getProperty("line.separator");
+
+    private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.support.Library"); 
     
 
 //===========================================================================//
@@ -40,25 +45,24 @@ public class Library {
      *  returns the file path to the worklet service inside the local 
      *  Tomcat installation
      */
-	public static String getHomeDir() {
+	private static String getHomeDir() {
 		return (getEnvString("catalina_home").replace('\\', '/' ) + 
-	                         "/webapps/workletSelector/") ;
+	                         "/webapps/workletService/") ;
 	}
 	
 //===========================================================================//
 	
 	/** returns the file path to the worklet repository & files */
-	public static String getRepositoryDir() {
+	private static String getRepositoryDir() {
 		Properties prop = new Properties();
-		String fName = wsHomeDir + "workletSelector.properties" ;
+		String fName = wsHomeDir + "workletService.properties" ;
 	    
 	    try {
 	        prop.load(new FileInputStream(fName));
 	        return prop.getProperty("repositoryDir");    // get from prop file
 	    } 
 	    catch (IOException e) {
-  	        Logger _log = new Logger("library.log");
-	    	_log.write(e);
+	    	_log.error("Can't read workletService.properties files" , e);
 	    	return null ;
 	    }
 	}
@@ -90,8 +94,7 @@ public class Library {
 	     	     new InputStreamReader(p.getInputStream())).readLine();
 	   }   	    
 	   catch (Exception e) {
-	   	  Logger _log = new Logger("library.log");
-	      _log.write(e);
+	      _log.error("Can't get env variable " + cmd, e);
 	      return "" ;	
 	   }
 	}
@@ -125,8 +128,7 @@ public class Library {
    	public static String FileToString(String fName) {
        String fLine ;
        StringBuffer result = new StringBuffer();
-       Logger _log = new Logger("library.log");
-    	
+
        try {
        	  if (! fileExists(fName)) return null ;     // don't go further if no file
        	  
@@ -143,13 +145,11 @@ public class Library {
           return result.toString() ; 
        }
        catch( FileNotFoundException fnfe ) {
-          _log.write( "File not found! - " + fName ) ;
-          _log.write(fnfe);         
+          _log.error( "File not found! - " + fName, fnfe ) ;
           return null ;
        }
        catch( IOException ioe ) {
-          _log.write( "IO Exception when reading file - " + fName ) ;
-          _log.write(ioe);         
+          _log.error( "IO Exception when reading file - " + fName, ioe ) ;
           return null ;
        }
    }

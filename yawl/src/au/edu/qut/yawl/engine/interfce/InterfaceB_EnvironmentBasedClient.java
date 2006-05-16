@@ -136,7 +136,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param workItemID the workitem id.
      * @param sessionHandle the sessionhandle
      * @return in case of success returns an XML representation of the created
-     * workitem.  In case of fasilure returns a diagnostic XML message.
+     * workitem.  In case of failure returns a diagnostic XML message.
      * @throws IOException
      */
     public String checkOutWorkItem(String workItemID, String sessionHandle) throws IOException {

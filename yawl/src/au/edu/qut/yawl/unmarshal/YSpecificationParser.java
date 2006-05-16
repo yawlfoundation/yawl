@@ -87,6 +87,14 @@ class YSpecificationParser {
             XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
             _specification.setSchema(outputter.outputString(schemElem));
         }
+
+        // if name and doco fields missing from spec, see if they are in metadata
+        // Added MJA 31/03/2006 
+        if (name == null)
+            name = _specification.getMetaData().getTitle();
+        if (documentation == null)
+            documentation = _specification.getMetaData().getDescription();
+
         _specification.setName(name);
         _specification.setDocumentation(documentation);
 

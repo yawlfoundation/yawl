@@ -304,7 +304,7 @@ public class WSIFInvoker {
             if ("string".equals(s)) {
                 types[i] = String.class;
             } else if ("double".equals(s)) {
-                types[i] = Integer.TYPE;
+                types[i] = Double.TYPE;
             } else if ("float".equals(s)) {
                 types[i] = Float.TYPE;
             } else if ("int".equals(s)) {

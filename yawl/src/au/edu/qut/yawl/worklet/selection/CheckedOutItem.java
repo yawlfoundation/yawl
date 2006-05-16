@@ -1,7 +1,7 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
@@ -10,13 +10,11 @@ package au.edu.qut.yawl.worklet.selection;
 
 import au.edu.qut.yawl.worklist.model.*;
 import au.edu.qut.yawl.worklet.support.*;
-import au.edu.qut.yawl.worklet.rdr.*;
 
-import org.jdom.*;
-import org.jdom.output.* ;
-                             
 import java.util.*;
-import java.io.* ;
+
+// import org.apache.log4j.Logger;
+
 
 
 /** The CheckedOutItem class maintains, for a workitem that has been 
@@ -42,7 +40,7 @@ public class CheckedOutItem {
 	private ArrayList _myChildren ;        // list of checked out children
 //	private ArrayList _runningCases ;      // list of running worklet cases 
 	private String _specId ;               // specification that task is in 
-    private Logger _log ;                  // log file for debug messages 
+ //   private static Logger _log ;                  // log file for debug messages
     private CheckedOutItem _me ;           // reference to self
 	
 	
@@ -53,8 +51,8 @@ public class CheckedOutItem {
 		_wir = w ;                              
 		_myChildren = new ArrayList() ;
 	    _specId = w.getSpecificationID() ;
-	    _log = new Logger("checkedOutItem.log");
-	    _me = this ;
+        //  _log = Logger.getLogger("au.edu.qut.yawl.worklet.selection.CheckedOutItem");
+        _me = this ;
 	}
 	
 //===========================================================================//
@@ -172,7 +170,6 @@ public class CheckedOutItem {
     public String toString() {
     	StringBuffer s = new StringBuffer("CheckedOutItem record:") ;
     	String n = Library.newline ; 	
-    	int i ;
     	
     	s.append(n); 
     	s.append("PARENT: ");

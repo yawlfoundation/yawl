@@ -1,7 +1,7 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
@@ -9,7 +9,11 @@
 package au.edu.qut.yawl.worklet.support;
 
 import java.util.Vector ;
+
 import org.jdom.Element ;
+
+import org.apache.log4j.Logger;
+
 
 /** ConditionEvaluator is a member class of the Worklet Dynamic Selection 
  *  Service. It is used here by the RdrNode class to evaluate the its condition 
@@ -58,8 +62,8 @@ public class ConditionEvaluator {
     private String _condition = null ;        // the condition to be evaluated
     private Element _dataList ;               // the list of variables & values
     
-    private Logger _log = new Logger("conditionEvaluator.log");
-    
+    private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.support.ConditionEvaluator");
+
     
     /**
      * CONSTRUCTORS
@@ -133,8 +137,8 @@ public class ConditionEvaluator {
         _dataList = dlist ;  
         
         // DEBUG: log received items
-        _log.write("received condition: " + cond );                                  	
-        _log.write(dlist) ; 
+        _log.info("received condition: " + cond );
+        _log.info(dlist) ;
                                        	
     	String result = parseAndEvaluate(cond) ;                // evaluate
     	
@@ -211,7 +215,7 @@ public class ConditionEvaluator {
     /** @return true if whole string represents a valid double */
 	private boolean isDouble(String s) {
        try {
-	      double d = Double.parseDouble(s);
+	      Double.parseDouble(s);
 	      return true ;
 	   }
 	   catch (NumberFormatException e) {
@@ -420,7 +424,7 @@ public class ConditionEvaluator {
    
    private int findLeftMostOp(int lowerBound, int upperBound, String[] s) {
      
-      int op, foundPos, leftMostOpPos = 10000 ;
+      int foundPos, leftMostOpPos = 10000 ;
       boolean found = false ;
 
       for (int i = lowerBound; i <= upperBound; i++) {
@@ -474,7 +478,6 @@ public class ConditionEvaluator {
      *       simple values 	
      */
     private String[] tokenize(String s) throws RDRConditionException {
-    	char[] opChar = { '*', '/', '+', '-', '>', '<', '!', '=', '&', '|', '!'};
     	Vector v = new Vector() ;
     	int ix = 0, ln = s.length();
     	String token ;
@@ -597,7 +600,7 @@ public class ConditionEvaluator {
 	/** parses and evaluates expression 's' using operator precedence */
 	private String parseAndEvaluate(String s) throws RDRConditionException {
 	
-	   String subExpr, ans, op ;
+	   String subExpr, ans ;
 	   String[] tokens ;
 	   int opIndex ;
 
@@ -612,7 +615,7 @@ public class ConditionEvaluator {
 	   tokens = tokenize(s.trim()) ;            // ( ) any have been removed
 	   
 	   for (int i=0;i<tokens.length;i++) 
-	      _log.write("token " + i + " = " + tokens[i]) ;         // DEBUG 
+	      _log.debug("token " + i + " = " + tokens[i]) ;         // DEBUG
 	   
 	   opIndex = findNextOperator(tokens) ; 
 
@@ -623,7 +626,7 @@ public class ConditionEvaluator {
 	      tokens = reduceTokens(tokens, opIndex, ans) ; 
 	      
 	      for (int i=0;i<tokens.length;i++) 
-	          _log.write("token " + i + " = " + tokens[i]) ;
+	          _log.debug("token " + i + " = " + tokens[i]) ;
                      
    	      opIndex = findNextOperator(tokens) ; 
 	   }
@@ -645,7 +648,7 @@ public class ConditionEvaluator {
        if (!isLiteralValue(rOp)) rOp = getVarValue(rOp) ;
    
 	   // make sure any data variables used contain valid data
-	   if ((lOp == "undefined") || (rOp == "undefined" ) ||
+	   if ((lOp.equals("undefined")) || (rOp.equals("undefined") ) ||
 	      (lOp.length() == 0 )  || (rOp.length() == 0) ) {
    	      throw new RDRConditionException(getMessage(12)) ;
 	   }

@@ -69,7 +69,7 @@ public class TestEngineSystem2 extends TestCase {
         synchronized(this){
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
-        YIdentifier id = _engine.startCase(_specification.getID(), null, null);
+        YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
         _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
         try {
 //            YNetRunner _netRunner = _basicEngine2.getNetRunner();
@@ -171,7 +171,7 @@ public class TestEngineSystem2 extends TestCase {
         synchronized(this){
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
-        YIdentifier id = _engine.startCase(_specification.getID(), null, null);
+        YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
         _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
         try {
 //            YNetRunner _netRunner = _basicEngine2.getNetRunner();
@@ -269,7 +269,7 @@ public class TestEngineSystem2 extends TestCase {
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
-        YIdentifier caseID = _engine.startCase(specification.getID().toString(), null, null);
+        YIdentifier caseID = _engine.startCase(null, specification.getID().toString(), null, null);
         {
             YWorkItem itemA = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
             _engine.startWorkItem(itemA, "admin");

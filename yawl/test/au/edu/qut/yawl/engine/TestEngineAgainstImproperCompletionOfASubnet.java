@@ -62,7 +62,7 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
     public synchronized void testImproperCompletionSubnet() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
         EngineClearer.clear(engine);
         engine.loadSpecification(_specification);
-        _idForTopNet = engine.startCase(_specification.getID(), null, null);
+        _idForTopNet = engine.startCase(null, _specification.getID(), null, null);
         assertTrue(_workItemRepository.getCompletedWorkItems().size() == 0);
         assertTrue(_workItemRepository.getEnabledWorkItems().size() == 1);
         assertTrue(_workItemRepository.getExecutingWorkItems().size() == 0);

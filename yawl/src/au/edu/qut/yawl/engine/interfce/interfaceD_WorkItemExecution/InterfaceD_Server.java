@@ -28,7 +28,11 @@ import javax.servlet.ServletException;
  * Time: 15:48:08
  */
 public class InterfaceD_Server extends HttpServlet{
-    private InterfaceD_Controller _controller;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private InterfaceD_Controller _controller;
 
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);

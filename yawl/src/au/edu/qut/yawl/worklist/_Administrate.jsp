@@ -177,9 +177,8 @@
 
         <a href="/admintool">Edit Organisational Model</a>
 
-
         <br/>
-        <br/>
+	<br/>
         <br/>
 
         <table bgcolor="lightGrey" border="0" cellspacing="0" cellpadding="10" width="915">
@@ -225,11 +224,26 @@
         </form>
         </table>
 
+        <br/>
+        <br/>
+	<br/>
+	<a href="/PDFforms/generate.jsp">Design Form for Task</a>
+
+        <br/>
+        <br/>
 
         <br/>
         <%
             }
         %>
+
+        <br/>
+        <br/>
+	<br/>
+	<a href="/worklist/createID.jsp">Create Digital ID</a>
+
+        <br/>
+        <br/>
         <%@include file="footer.jsp"%>
     </body>
 </html>

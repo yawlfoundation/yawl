@@ -12,6 +12,8 @@ package au.edu.qut.yawl.worklist.model;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * 
@@ -42,7 +44,37 @@ public class WorkItemRecord {
     private XMLOutputter outPretty = new XMLOutputter(Format.getPrettyFormat());
     private XMLOutputter outCompact = new XMLOutputter(Format.getCompactFormat());
 
+    /*
+      Inserted for the admin tool
+      Required to generate an empty record
+     */
+    private String _completionTime;
+    private Category _logger = Logger.getLogger(getClass());
 
+
+    public void setTaskID(String taskID) {
+    this._taskID = taskID;
+    }
+
+    public void setCaseID(String caseID) {
+        this._caseID = caseID;
+    }
+
+    public void setSpecificationID(String specificationID) {
+    this._specificationID = specificationID;
+    }
+
+    public void setEnablementTime(String enablementTime) {
+    this._enablementTime = enablementTime;
+    }
+
+    public void setStatus(String status) {
+    this._status = status;
+    }
+
+
+    public WorkItemRecord() {
+    }
 
     public WorkItemRecord(String caseID, String taskID, String specificationID,
                           String enablementTime, String status) {
@@ -56,6 +88,9 @@ public class WorkItemRecord {
     public void setFiringTime(String firingTime) {
         this._firingTime = firingTime;
     }
+    public void setCompletionTime(String completionTime) {
+        this._completionTime = completionTime;
+    }
 
     public void setStartTime(String startTime) {
         this._startTime = startTime;
@@ -63,6 +98,10 @@ public class WorkItemRecord {
 
     public void setAssignedTo(String whoStartedMe) {
         this._whoStartedMe = whoStartedMe;
+    }
+
+    public String getAssignedTo() {
+    return this._whoStartedMe;
     }
 
     public void setDataList(Element dataList) {
@@ -83,6 +122,9 @@ public class WorkItemRecord {
 
     public String getFiringTime() {
         return _firingTime;
+    }
+    public String getCompletionTime() {
+        return _completionTime;
     }
 
     public String getStartTime() {

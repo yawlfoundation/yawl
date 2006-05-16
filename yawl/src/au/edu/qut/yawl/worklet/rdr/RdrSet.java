@@ -1,7 +1,7 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
@@ -15,6 +15,8 @@ import java.io.*;
 
 import org.jdom.* ;
 import org.jdom.input.*;
+
+import org.apache.log4j.Logger;
 
 /**
  *  Maintains a set of RdrTrees for a particular specification. There is 
@@ -39,13 +41,28 @@ public class RdrSet {
 	 */
 	private Map _ruleSets ;
 	
-	private Logger _log = new Logger("rdrset.log");
-	
-	
-	/** Default (and only) constructor */
+	private static Logger _log ;
+
+    private int _ruleType ;
+
+    //constants to specify which set of rules to load/use
+    public static final int SELECTION = 0 ;
+    public static final int EXCEPTION = 1 ;
+
+
+    /** Default constructor */
 	public RdrSet() {
-		_ruleSets = new HashMap() ;    
-	}	
+		_ruleSets = new HashMap() ;
+        _ruleType = SELECTION ;
+        _log = Logger.getLogger("au.edu.qut.yawl.worklet.rdr.RdrSet");
+    }
+
+    /** Contructor specifying a ruletype */
+    public RdrSet(int rtype) {
+        _ruleSets = new HashMap() ;
+        _ruleType = rtype ;
+        _log = Logger.getLogger("au.edu.qut.yawl.worklet.rdr.RdrSet");
+    }
 
 //===========================================================================//
 	
@@ -59,7 +76,7 @@ public class RdrSet {
     /**
      *  Retrieves a specified RdrTree 
      *  @param specId - the specification the tree serves
-     *  @param taskID - the task the tree represents
+     *  @param taskId - the task the tree represents
      *  @return the RDRTree for the specified spec and task
      */	
 	public RdrTree getRdrTree(String specId, String taskId) {
@@ -99,11 +116,19 @@ public class RdrSet {
     /** load a tree from file */
 	private boolean loadRulesForSpec(String specId) {
 		String fileName = specId + ".xrs" ;           // xrs = Xml Rule Set
-		String rulepath = Library.wsRulesDir ;        // path for xrs files
+		String rulepath ;                             // path to xrs files
+        Document doc ;                                // doc to hold rules
 
-	    Document doc = loadDocument(rulepath + fileName); 
-	    
-	    if (doc == null) return false ;              // unsuccessful file load
+        if (_ruleType == SELECTION)
+            rulepath = Library.wsSelRulesDir + fileName ;
+        else
+            rulepath = Library.wsExRulesDir + fileName ;
+
+        if (Library.fileExists(rulepath))
+           doc = loadDocument(rulepath);
+        else return false;                           // no such file
+
+        if (doc == null) return false ;              // unsuccessful file load
 	    
         try {
            Element root = doc.getRootElement();      // spec 
@@ -124,8 +149,7 @@ public class RdrSet {
            return true ;
         }   
         catch (Exception e) {
-           _log.write("Exception retrieving Element from rules file");	
-           _log.write(e);
+           _log.error("Exception retrieving Element from rules file", e);
            return false ;
         }
      
@@ -135,27 +159,24 @@ public class RdrSet {
 	
 	/** loads the specified xml file into a JDOM Document */
 	private Document loadDocument(String fileName) {
-	
-	    try {
+
+        try {
  	        SAXBuilder builder = new SAXBuilder();
             return builder.build(new File(fileName));	
 	    } 
 	    catch (JDOMException jdx) {
-		     _log.write("LoadDocument method: JDOM Exception parsing file: " +
-			             fileName); 
-           _log.write(jdx);
+		     _log.error("LoadDocument method: JDOM Exception parsing file: " +
+			             fileName, jdx);
 	        return null ;
 	    } 
 	    catch (FileNotFoundException fnfx) {
-			_log.write("LoadDocument method: File Not Found Exception: " +
-			              fileName); 
-           _log.write(fnfx);
-	        return null ;	    	
+			_log.error("LoadDocument method: File Not Found Exception: " +
+			              fileName, fnfx);
+	        return null ;
 	    }
 	    catch (IOException iox) {
-			_log.write("LoadDocument method: Java IO Exception with file: " +
-			             fileName); 
-           _log.write(iox);
+			_log.error("LoadDocument method: Java IO Exception with file: " +
+			             fileName, iox);
 	        return null ;
 	    } 
 

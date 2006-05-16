@@ -97,9 +97,9 @@ public class YawlLogServletInterface {
         newevent.setDescription(description);
 
         if (time != null) {
-            newevent.setTime(time);
+            newevent.setTime(new Long(time).longValue());
         } else {
-            newevent.setTime(new Long(System.currentTimeMillis()).toString());
+            newevent.setTime(System.currentTimeMillis());
         }
 
 //	YPersistance.getInstance().storeData(newevent);
@@ -163,7 +163,7 @@ public class YawlLogServletInterface {
         ylogid.setIdentifier(caseid);
         ylogid.setCreatedby(resource);
         ylogid.setSpecification(spec);
-        ylogid.setCreated(new Long(System.currentTimeMillis()).toString());
+        ylogid.setCreated(System.currentTimeMillis());
 
 //        YPersistance.getInstance().storeData(ylogid);
 // TODO       if (pmgr != null) {
@@ -181,7 +181,7 @@ public class YawlLogServletInterface {
         YLogIdentifier ylogid = (YLogIdentifier) listofcases.get(caseid);
         if (ylogid != null) {
             ylogid.setIdentifier(caseid);
-            ylogid.setCancelled(new Long(System.currentTimeMillis()).toString());
+            ylogid.setCancelled(System.currentTimeMillis());
 
 //        YPersistance.getInstance().updateData(ylogid);
 // TODO           if (pmgr != null) {
@@ -198,7 +198,7 @@ public class YawlLogServletInterface {
         YLogIdentifier ylogid = (YLogIdentifier) listofcases.get(caseid);
         if (ylogid != null) {
             ylogid.setIdentifier(caseid);
-            ylogid.setCompleted(new Long(System.currentTimeMillis()).toString());
+            ylogid.setCompleted(System.currentTimeMillis());
 
 //	    YPersistance.getInstance().updateData(ylogid);
 //  TODO          if (pmgr != null) {
