@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/2002/06/xhtml2" xmlns:xf="http://www.w3.org/2002/xforms">
+    <head>
+        <title>ToDo List</title>
+        <xf:model>
+            <xf:bind id="list" nodeset="todo">
+                <xf:bind id="description-bind" nodeset="description" type="string" required="true()"/>
+                <xf:bind id="priority-bind" nodeset="priority" type="integer"/>
+                <xf:bind id="target-date-bind" nodeset="target-date" type="date"/>
+                <xf:bind id="status-bind" nodeset="status" type="string"/>
+            </xf:bind>
+            <xf:schema/>
+            <xf:submission id="save" action="todo-data.xml" method="put" replace="none" mediatype="text/xml"/>
+            <xf:instance src="todo-data.xml" xmlns="">
+                <todo-list>
+                    <todo>
+                        <description/>
+                        <target-date/>
+                        <priority/>
+                        <status/>
+                    </todo>
+                </todo-list>
+            </xf:instance>
+        </xf:model>
+    </head>
+    <body>
+        <b>
+            This example will write the list of todos to a local file called 'todo-data.xml' every time you hit the 'save'-button.
+            'todo-data.xml' can be found in the same directory as this form.
+        </b>
+        <xf:group class="todo-list">
+            <xf:label>ToDo List</xf:label>
+            <xf:repeat id="todo" bind="list" appearance="compact">
+                <xf:input bind="description-bind">
+                    <xf:label>Description</xf:label>
+                </xf:input>
+                <xf:select1 bind="priority-bind" appearance="minimal">
+                    <xf:label>Priority</xf:label>
+                    <xf:hint>Priority 1 is highest</xf:hint>
+                    <xf:choices>
+                        <xf:item>
+                            <xf:label>1</xf:label>
+                            <xf:value>1</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>2</xf:label>
+                            <xf:value>2</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>3</xf:label>
+                            <xf:value>3</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>4</xf:label>
+                            <xf:value>4</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>5</xf:label>
+                            <xf:value>5</xf:value>
+                        </xf:item>
+                    </xf:choices>
+                </xf:select1>
+                <xf:input bind="target-date-bind">
+                    <xf:label>Due</xf:label>
+                    <xf:hint>Use yyyy-MM-dd format</xf:hint>
+                </xf:input>
+                <xf:select1 bind="status-bind" appearance="minimal">
+                    <xf:label>Status</xf:label>
+                    <xf:choices>
+                        <xf:item>
+                            <xf:label>Not Started</xf:label>
+                            <xf:value>not started</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>In Progress</xf:label>
+                            <xf:value>in progress</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Finished</xf:label>
+                            <xf:value>finished</xf:value>
+                        </xf:item>
+                    </xf:choices>
+                </xf:select1>
+            </xf:repeat>
+            <xf:group appearance="minimal">
+                <xf:trigger>
+                    <xf:label>Insert</xf:label>
+                    <xf:action>
+                        <xf:insert at="index('todo')" nodeset="todo" position="after"/>
+                        <xf:setvalue ref="todo[index('todo')]/description" value="''"/>
+                        <xf:setvalue ref="todo[index('todo')]/priority" value="''"/>
+                        <xf:setvalue ref="todo[index('todo')]/target-date" value="''"/>
+                        <xf:setvalue ref="todo[index('todo')]/status" value="''"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:trigger>
+                    <xf:label>Delete</xf:label>
+                    <xf:action>
+                        <xf:delete at="index('todo')" nodeset="todo"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:submit submission="save">
+                    <xf:label>Save</xf:label>
+                </xf:submit>
+            </xf:group>
+        </xf:group>
+    </body>
+</html>

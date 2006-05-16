@@ -1,0 +1,46 @@
+Authors:
+Joern Turner <joernt@users.sourceforge.net>
+Gregor Klinke <gck@eyestep.org>
+Mark Dimon <mark@markdimon.com>
+Brian Dueck <b_dueck@hotmail.com>
+Sophie Ramel <soframel@users.sourceforge.net>
+Ulrich Nicolas Lissé <unl@users.sourceforge.net>
+Oliver Charlet <ollix@users.sourceforge.net>
+Péter Varga
+Chris Picton
+Eduardo Millán <emillan@users.sourceforge.net>
+Robert Leftwich
+Ronald van Kuijk
+Peter Mikula <mico@users.sourceforge.net>
+Terence Jacyno
+William Boyd
+
+Contributors:
+Alexander Grosse <alexander.grosse@webman.de>
+Sabine Krach <kracha@users.sourceforge.net>
+Olaf Schreck <chaklx@users.sourceforge.net>
+Stefan Zorn <sz0001@users.sourceforge.net>
+Sebastian Ordyniak <sebastian@webman.de>
+Peter Mikhalenko - for contributing an Chiba article on ZDNet
+Thomas Ziegert
+Eric Hanson
+Torben Vesterager
+Robert Simmons
+Andrzej Jan Taramina
+Daniel Shane
+Suhail Ahmed
+Paul Sterk
+Flavio Costa
+Tanguy Rademakers
+Murata Makoto
+Dario Bahena
+Paul Miniato
+Zach Roberts
+Peter Rodgers
+Anselm Kruis
+Thomas Draier
+Anja Lehmann
+Giota Karadimitriou
+Lawrence McCay
+Karla Smith
+Yien Lie
