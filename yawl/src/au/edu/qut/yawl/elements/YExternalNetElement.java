@@ -95,7 +95,7 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
     private Collection<YFlow> _presetFlows = new TreeSet<YFlow>();
     @Transient
     private Collection<YFlow> _postsetFlows = new TreeSet<YFlow>();
-    private List _internalConfigurations;
+    private List<Element> _internalConfigurations;
     private Long _dbid;
     /**
      * Null constructor for hibernate

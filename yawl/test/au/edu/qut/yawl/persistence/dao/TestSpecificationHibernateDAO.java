@@ -27,7 +27,7 @@ public class TestSpecificationHibernateDAO extends TestCase {
 		DAOFactory fileFactory = DAOFactory.getDAOFactory(DAOFactory.Type.FILE);
 		SpecificationDAO fileDAO = fileFactory.getSpecificationModelDAO();
 		StringProducerXML spx = StringProducerYAWL.getInstance();
-		File f = spx.getTranslatedFile("TestCompletedMappings.xml", true);
+		File f = spx.getTranslatedFile("TestMakeRecordingsBigTest.xml", true);
 		String uri = f.toURI().toString();
 		testSpec = fileDAO.retrieve(uri);
 	}
