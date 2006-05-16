@@ -17,7 +17,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Iterator;
 
 /**
  * 
@@ -85,10 +84,16 @@ public class YApplicationXForm extends JDialog implements ActionListener {
     }
 
     private void storeData() {
-        _model.setActiveTableData(new Object[]{_caseID, _taskID, _description,
-                                               _enableMentTime, _firingTimeTime,
-                                               _startTime, new Boolean(_allowsInstanceCreation),
-                                               _inputData, _outputDataTextPane.getText()});
+        _model.setActiveTableData(new Object[]{
+                _caseID,
+                _taskID,
+                _description,
+                _enableMentTime,
+                _firingTimeTime,
+                _startTime,
+                (_allowsInstanceCreation) ? Boolean.TRUE : Boolean.FALSE,
+                _inputData,
+                _outputDataTextPane.getText()});
     }
 
     private void this_windowClosing() {
@@ -191,38 +196,13 @@ public class YApplicationXForm extends JDialog implements ActionListener {
      */
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
-        if (command == _keepCommand) {
+        if (command.equals(_keepCommand)) {
             storeData();
             this_windowClosing();
-        } else if (command == _releaseCommand) {
+        } else if (command.equals(_releaseCommand)) {
             storeData();
-            java.util.List errorMessages = _model.validateData();
-            if (errorMessages.size() == 0) {
-                this_windowClosing();
-                _worklistGUI.completeWorkItem(_caseID, _taskID);
-            } else {
-                StringBuffer errorMessageStr = new StringBuffer();
-                Iterator iterator = errorMessages.iterator();
-                errorMessageStr.append(iterator.next());
-                while (iterator.hasNext()) {
-                    errorMessageStr.append("\t" + iterator.next() + "\r\n");
-                }
-                JOptionPane.showMessageDialog(this,
-                        "The data provided failed validation:\n " + errorMessages,
-                        "Error during validation",
-                        JOptionPane.ERROR_MESSAGE);
-            }
+            this_windowClosing();
+            _worklistGUI.completeWorkItem(_caseID, _taskID);
         }
     }
-    /*
-        new Object[]{
-            caseIDstr,
-            taskID,
-            description,
-            _formatter.format(enablementTime),
-            _formatter.format(firingTime),
-            _formatter.format(startTime),
-            new Boolean(allowsDynamicInstanceCreation),
-            xmlData
-    */
 }

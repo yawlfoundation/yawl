@@ -1,7 +1,7 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
@@ -10,9 +10,10 @@ package au.edu.qut.yawl.worklet.rdr;
 import au.edu.qut.yawl.worklet.support.*;
 
 import java.lang.*;
-import java.util.*;
 
 import org.jdom.Element ;
+
+import org.apache.log4j.Logger;
 
 
 /** A Ripple Down Rule Node implementation. 
@@ -43,7 +44,8 @@ public class RdrNode {
     private String conclusion;
     private String cornerstone;  
     
-    private Logger _log ;
+    private Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.rdr.RdrNode");
+
      
 
 
@@ -62,7 +64,7 @@ public class RdrNode {
 	 *  @param pConclusion - the conclusion stored in this node
 	 *  @param pCornerStone - the cornertone case data for this node
 	 */
-    public RdrNode(int id, 
+    private RdrNode(int id,
     			   RdrNode pParent, 
     			   RdrNode pTrueChild,
     			   RdrNode pFalseChild,
@@ -77,9 +79,6 @@ public class RdrNode {
        condition     = pCondition;
        conclusion    = pConclusion;
        cornerstone   = pCornerStone;
-       
-   	    _log = new Logger("rdrNode.log");
-
     }
 
 	/** 
@@ -94,9 +93,9 @@ public class RdrNode {
     /**
      *  Construct a node with the basic values provided
 	 *  @param id - the node id of the new node
-	 *  @param Parent - the parent node of this node
-	 *  @param Condition - the condition stored in this node
-	 *  @param Conclusion - the conclusion stored in this node
+	 *  @param parent - the parent node of this node
+	 *  @param condition - the condition stored in this node
+	 *  @param conclusion - the conclusion stored in this node
 	 */
 
     public RdrNode(int id, RdrNode parent, 
@@ -219,7 +218,7 @@ public class RdrNode {
 	        }
 	    }
 	    catch( RDRConditionException rde ) {      // bad condition found
-            _log.write(rde) ;
+            _log.error("Search Exception", rde) ;
             pair[0] = null ;
             pair[1] = null ;
       }

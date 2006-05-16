@@ -25,7 +25,7 @@ xmlns="http://www.w3.org/1999/xhtml">
            	<br><br>
            	<%
            	}
-            WorkItemRecord item = _worklistController.getRemotelyCachedWorkItem(request.getParameter("workItemID"));
+            WorkItemRecord item = _worklistController.getCachedWorkItem(request.getParameter("workItemID"));
 System.out.println("_ItemViewer.jsp:: item = " + item.toXML());
             if(item != null){
                 TaskInformation taskInfo = _worklistController.getTaskInformation(

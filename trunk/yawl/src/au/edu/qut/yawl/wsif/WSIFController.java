@@ -13,7 +13,6 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 import org.jdom.Element;
-import org.jdom.JDOMException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -93,22 +92,18 @@ public class WSIFController extends InterfaceBWebsideController {
                         caseDataBoundForEngine.addContent(content);
                     }
 
-                    _report += "\nResult of item [" +
+                    _logger.debug("\nResult of item [" +
                             itemRecord.getID() + "] checkin is : " +
                             checkInWorkItem(
                                     itemRecord.getID(),
                                     inputData,
                                     caseDataBoundForEngine,
-                                    _sessionHandle);
+                                    _sessionHandle));
                 }
-                System.out.println("\n\nWSIFController " +
-                        "\nResults of engine interactions : " + _report);
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JDOMException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            _logger.error(e.getMessage(), e);
         }
     }
 

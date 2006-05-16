@@ -71,7 +71,7 @@ public interface InterfaceBClient {
      * @throws YDataStateException
      * @throws YSchemaBuildingException
      */
-    String launchCase(String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException;
+    String launchCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException;
 
     void checkElegibilityToAddInstances(String workItemID) throws YStateException;
 

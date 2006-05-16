@@ -36,17 +36,12 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
     private YWorklistModel _worklistModel;
     private JTable _availableTable;
     private JTable _activeTable;
-    private JButton _applyButton;
     private String _applyCommand = "Apply for Task";
-    private JButton _completeButton;
     private String _completionCommand = "Register Completion";
     private JButton _newInstanceButton;
     private String _newInstanceCommand = "Create new Instance";
-    private JButton _cancelTaskButton;
     private String _suspendTaskCommand = "Suspend Task";
-    private JButton _viewDataButton;
     private String _viewDataCommand = "View/edit data";
-    private JButton _updateListsButton;
     private String _updateListsCommand = " Update Lists ";
     private int _rowSelected = -1;
     private String _userName;
@@ -73,18 +68,18 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
         setBackground(YAdminGUI._apiColour);
         JPanel worklistsPanel = new JPanel(new GridLayout(2, 1));
         setLayout(new BorderLayout());
-        _applyButton = new JButton(_applyCommand);
+        JButton _applyButton = new JButton(_applyCommand);
         _applyButton.setBackground(new Color(204, 255, 0));
         _applyButton.setPreferredSize(new Dimension(160, 30));
         _applyButton.addActionListener(this);
-        _completeButton = new JButton(_completionCommand);
+        JButton _completeButton = new JButton(_completionCommand);
         _completeButton.setBackground(new Color(255, 100, 100));
         _completeButton.addActionListener(this);
         _newInstanceButton = new JButton(_newInstanceCommand);
         _newInstanceButton.addActionListener(this);
-        _cancelTaskButton = new JButton(_suspendTaskCommand);
+        JButton _cancelTaskButton = new JButton(_suspendTaskCommand);
         _cancelTaskButton.addActionListener(this);
-        _viewDataButton = new JButton(_viewDataCommand);
+        JButton _viewDataButton = new JButton(_viewDataCommand);
         _viewDataButton.setBackground(new Color(150, 150, 255));
         _viewDataButton.addActionListener(this);
         //do available work panel
@@ -113,7 +108,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
         worklistsPanel.add(activePanel);
         //do bottom panel
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        _updateListsButton = new JButton(_updateListsCommand);
+        JButton _updateListsButton = new JButton(_updateListsCommand);
         bottomPanel.add(_updateListsButton, BorderLayout.EAST);
         bottomPanel.setBackground(YAdminGUI._apiColour);
         bottomPanel.setBorder(
@@ -203,7 +198,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
     public void actionPerformed(final ActionEvent e) {
         String command = e.getActionCommand();
         int rowSel = _availableTable.getSelectedRow();
-        if (command == _applyCommand) {
+        if (command.equals(_applyCommand)) {
             if (rowSel == -1) {
                 rowSel = _rowSelected;
             }
@@ -223,14 +218,14 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
             if (rowSel == -1) {
                 rowSel = _rowSelected;
             }
-            if (command == _completionCommand) {
+            if (command.equals(_completionCommand)) {
                 if (rowSel >= 0) {
                     String caseID = (String) _activeTable.getValueAt(rowSel, 0);
                     String taskID = (String) _activeTable.getValueAt(rowSel, 1);
                     completeWorkItem(caseID, taskID);
                     _worklistModel.refreshLists(_userName);
                 }
-            } else if (command == _newInstanceCommand) {
+            } else if (command.equals(_newInstanceCommand)) {
                 if (rowSel >= 0) {
                     try {
                         String caseID = (String) _activeTable.getValueAt(rowSel, 0);
@@ -248,7 +243,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
                         System.exit(99);
                     }
                 }
-            } else if (command == _suspendTaskCommand) {
+            } else if (command.equals(_suspendTaskCommand)) {
                 try {
                     if (rowSel >= 0) {
                         String caseID = (String) _activeTable.getValueAt(rowSel, 0);
@@ -260,11 +255,11 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
                     logError("Failure to create new instance", e1);
                     System.exit(99);
                 }
-            } else if (command == _viewDataCommand) {
+            } else if (command.equals(_viewDataCommand)) {
                 if (rowSel >= 0) {
                     createApplicationXPage(rowSel);
                 }
-            } else if (command == _updateListsCommand) {
+            } else if (command.equals(_updateListsCommand)) {
                 _worklistModel.refreshLists(_userName);
             }
         }
@@ -392,7 +387,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
     }
 
     public void reportGeneralProblem(Exception e) {
-        String message = null;
+        String message;
         if (e instanceof IOException || e instanceof JDOMParseException) {
             message = "There was a problem parsing your input data.  \n" +
                     "Perhaps check that the XML is well formed.";

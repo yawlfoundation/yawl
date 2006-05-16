@@ -283,7 +283,7 @@ public class TestYAtomicTask extends TestCase {
     		AbstractEngine engine2 = EngineFactory.createYEngine();
             EngineClearer.clear(engine2);
             engine2.loadSpecification(spec);
-            String idString = engine2.launchCase(spec.getID(), null, null);
+            String idString = engine2.launchCase(null, spec.getID(), null, null);
             YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
             Document d = new Document();
             d.setRootElement(new Element("data"));
@@ -338,7 +338,7 @@ public class TestYAtomicTask extends TestCase {
     		AbstractEngine engine2 = EngineFactory.createYEngine();
             EngineClearer.clear(engine2);
             engine2.loadSpecification(spec);
-            String idString = engine2.launchCase(spec.getID(), null, null);
+            String idString = engine2.launchCase(null, spec.getID(), null, null);
             YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
             Document d = new Document();
             d.setRootElement(new Element("data"));
@@ -391,7 +391,7 @@ public class TestYAtomicTask extends TestCase {
     		AbstractEngine engine2 = EngineFactory.createYEngine();
             EngineClearer.clear(engine2);
             engine2.loadSpecification(spec);
-            String idString = engine2.launchCase(spec.getID(), null, null);
+            String idString = engine2.launchCase(null, spec.getID(), null, null);
             YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
             Document d = new Document();
             d.setRootElement(new Element("data"));
@@ -513,7 +513,7 @@ public class TestYAtomicTask extends TestCase {
     		AbstractEngine engine2 = EngineFactory.createYEngine();
             EngineClearer.clear(engine2);
             engine2.loadSpecification(spec);
-            String idString = engine2.launchCase(spec.getID(), null, null);
+            String idString = engine2.launchCase(null, spec.getID(), null, null);
             YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
             Document d = new Document();
             d.setRootElement(new Element("data"));

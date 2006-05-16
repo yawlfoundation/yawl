@@ -3,8 +3,9 @@
                  au.edu.qut.yawl.elements.data.YParameter,
                  au.edu.qut.yawl.worklist.model.Marshaller,
                  au.edu.qut.yawl.elements.YSpecification,
-				 au.edu.qut.yawl.worklist.WorkItemProcessor"
-%><html xmlns="http://www.w3.org/1999/xhtml">
+				 au.edu.qut.yawl.worklist.WorkItemProcessor"%>
+				 
+<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>Launch Case</title>
         <!-- Include file to load init method -->
@@ -19,31 +20,25 @@
         <%
         if(request.getMethod().equals("GET")){
             String specID = request.getParameter("specID");
+            String userID = (String) session.getAttribute("userid");
             SpecificationData specData = _worklistController.getSpecificationData(
                     specID, sessionHandle);
-
-			// create schema & instance
-			// post schema and instance to YAWLXForms
-			// create a form to launch this case
-			// redirect to YAWLXForms
-
-		try{
-			WorkItemProcessor.executeCasePost(getServletContext(), specID, sessionHandle,
-				_worklistController);
-
-			String userID = (String) session.getAttribute("userid");
-
-			String url = WorkItemProcessor.getCaseRedirectURL(getServletContext(), specID,
-				sessionHandle, session.getId(), userID);
-
-			response.sendRedirect( response.encodeURL(url) );
-		}
-
-	catch(Exception e){
-
-			System.out.println(e.toString());
-
-            if(specData != null){
+			WorkItemProcessor wip = new WorkItemProcessor();
+			
+			try{
+				wip.executeCasePost(getServletContext(), specID, sessionHandle,
+					_worklistController, userID);
+				
+				String url = wip.getRedirectURL(getServletContext(), specData);
+				
+				response.sendRedirect( response.encodeURL(url) );
+			}
+	
+			catch(Exception e){
+	
+				System.out.println(e.toString());
+	
+	            if(specData != null){
         %>
         <form method="post" action="" name="caseLauncherForm">
             <table border="0" cellspacing="10" bgColor="LightGrey">

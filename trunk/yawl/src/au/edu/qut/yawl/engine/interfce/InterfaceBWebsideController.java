@@ -11,10 +11,14 @@ package au.edu.qut.yawl.engine.interfce;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.worklist.model.*;
+import au.edu.qut.yawl.exceptions.YAWLException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+
+import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,7 +41,6 @@ public abstract class InterfaceBWebsideController {
     protected InterfaceB_EnvironmentBasedClient _interfaceBClient;
     protected WorklistModel _model;
     private AuthenticationConfig _authConfig4WS;
-    protected String _report;
 
     protected static final String XSD_STRINGTYPE = "string";
     protected static final String XSD_ANYURI_TYPE = "anyURI";
@@ -47,7 +49,17 @@ public abstract class InterfaceBWebsideController {
 
     protected static final String DEFAULT_ENGINE_USERNAME = "admin";
     protected static final String DEFAULT_ENGINE_PASSWORD = "YAWL";
+    protected Category _logger = Logger.getLogger(getClass());
+    protected SAXBuilder _builder = new SAXBuilder();
 
+    /*
+      May be a better way of doing this
+      check with lachlan
+     */
+    protected String username = "";
+    public String getUsername() {
+	return username;
+    }	
 
     /**
      * Constructs a controller.
@@ -170,7 +182,7 @@ public abstract class InterfaceBWebsideController {
      */
     public boolean checkConnection(String sessionHandle) throws IOException {
         String msg = _interfaceBClient.checkConnection(sessionHandle);
-        return _interfaceBClient.successful(msg);
+        return Interface_Client.successful(msg);
     }
 
 
@@ -182,6 +194,7 @@ public abstract class InterfaceBWebsideController {
      * @throws IOException if the engine cannot be connected with.
      */
     public String connect(String userID, String password) throws IOException {
+	this.username = userID;
         return _interfaceBClient.connect(userID, password);
     }
 
@@ -190,31 +203,28 @@ public abstract class InterfaceBWebsideController {
      * Checks a work item out of the engine.  Also stores a local copy of the active item.
      * @param workItemID the work item id.
      * @param sessionHandle the session handle
-     * @return a diagnostic result message.
+     * @return the resultant checked-out workitem.
      * @throws IOException if the engine cannot be connected with.
      */
-    public String checkOut(String workItemID, String sessionHandle) throws IOException {
+    public WorkItemRecord checkOut(String workItemID, String sessionHandle) throws IOException, YAWLException {
+        WorkItemRecord resultItem = null;
         String msg = _interfaceBClient.checkOutWorkItem(workItemID, sessionHandle);
+        _logger.debug("Response message: " + msg);
         if (successful(msg)) {
             try {
-                WorkItemRecord item = getEngineStoredWorkItem(workItemID, sessionHandle);
-                if (item.getStatus().equals(YWorkItem.statusIsParent)) {
-                    List child = getChildren(workItemID, sessionHandle);
-                    WorkItemRecord childRec = (WorkItemRecord) child.iterator().next();
-                    _model.addWorkItem(childRec);
-                } else if (item.getStatus().equals(YWorkItem.statusFired)) {
-                    _model.addWorkItem(item);
-                }
+                Document doc = _builder.build(new StringReader(msg));
+                Element workItemElem = doc.getRootElement().getChild("workItem");
+                resultItem = Marshaller.unmarshalWorkItem(workItemElem);
+                _model.addWorkItem(resultItem);
             } catch (JDOMException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            throw new YAWLException(msg);
         }
-        //todo Ignatius add code here
-
-        //todo End Ignatius add code
-        return msg;
+        return resultItem;
     }
 
 
@@ -233,16 +243,20 @@ public abstract class InterfaceBWebsideController {
         Element inputDataEl = null;
         Element outputDataEl = null;
 
-        SAXBuilder builder = new SAXBuilder();
+	if (!checkConnection(sessionHandle)) {
+	    sessionHandle = connect(DEFAULT_ENGINE_USERNAME,DEFAULT_ENGINE_PASSWORD);
+	}
+
+
         try {
             Document inputDataDoc =
-                    builder.build(
+                    _builder.build(
                             new StringReader(inputData)
                     );
             inputDataEl = inputDataDoc.getRootElement();
 
             Document outputDataDoc =
-                    builder.build(
+                    _builder.build(
                             new StringReader(outputData)
                     );
             outputDataEl = outputDataDoc.getRootElement();
@@ -270,9 +284,14 @@ public abstract class InterfaceBWebsideController {
         //first merge the input and output data together
         String mergedlOutputData = Marshaller.getMergedOutputData(inputData, outputData);
 
+	if (!checkConnection(sessionHandle)) {
+	    sessionHandle = connect(DEFAULT_ENGINE_USERNAME,DEFAULT_ENGINE_PASSWORD);
+	}
+
+
         //Now if this is beta4 or greater then remove all those input only bits of data
         //by first preparing a list of output params to iterate over.
-        WorkItemRecord workitem = this.getRemotelyCachedWorkItem(workItemID);
+        WorkItemRecord workitem = this.getCachedWorkItem(workItemID);
 
         SpecificationData specData = getSpecificationData(
                 workitem.getSpecificationID(), sessionHandle);
@@ -284,12 +303,14 @@ public abstract class InterfaceBWebsideController {
                     workitem.getSpecificationID(),
                     workitem.getTaskID(), sessionHandle);
             List outputParams = taskInfo.getParamSchema().getOutputParams();
-
+	    System.out.println(mergedlOutputData);
             filteredOutputData = Marshaller.filterDataAgainstOutputParams(
                     mergedlOutputData, outputParams);
         } else {
             filteredOutputData = mergedlOutputData;
         }
+	System.out.println(filteredOutputData);
+
         String result = _interfaceBClient.checkInWorkItem(workItemID, filteredOutputData, sessionHandle);
         _model.removeRemotelyCachedWorkItem(workItemID);
         return result;
@@ -299,9 +320,9 @@ public abstract class InterfaceBWebsideController {
     /**
      * Gets a locally stored copy of a work item.
      * @param workItemID
-     * @return
+     * @return a local (to the custom service) cached copy of the workitem.
      */
-    public WorkItemRecord getRemotelyCachedWorkItem(String workItemID) {
+    public WorkItemRecord getCachedWorkItem(String workItemID) {
         return _model.getWorkItem(workItemID);
     }
 
@@ -322,7 +343,8 @@ public abstract class InterfaceBWebsideController {
         if (taskInfo == null) {
             String taskInfoASXML = _interfaceBClient.getTaskInformationStr(
                     specificationID, taskID, sessionHandle);
-            taskInfo = _interfaceBClient.parseTaskInformation(taskInfoASXML);
+	    System.out.println(taskInfoASXML);
+            taskInfo = InterfaceB_EnvironmentBasedClient.parseTaskInformation(taskInfoASXML);
             _model.setTaskInformation(specificationID, taskID, taskInfo);
         }
         return taskInfo;
@@ -335,9 +357,7 @@ public abstract class InterfaceBWebsideController {
 
 
     public List getChildren(String workItemID, String sessionHandle) {
-        List childrenOfWorkItem =
-                _interfaceBClient.getChildrenOfWorkItem(workItemID, sessionHandle);
-        return childrenOfWorkItem;
+        return _interfaceBClient.getChildrenOfWorkItem(workItemID, sessionHandle);
     }
 
 
@@ -367,15 +387,13 @@ public abstract class InterfaceBWebsideController {
      * @param input
      */
     public boolean successful(String input) {
-        return _interfaceBClient.successful(input);
+        return Interface_Client.successful(input);
     }
 
 
     public List getSpecificationPrototypesList(String sessionHandle)
             throws IOException {
-        List specSummaryList =
-                _interfaceBClient.getSpecificationList(sessionHandle);
-        return specSummaryList;
+        return _interfaceBClient.getSpecificationList(sessionHandle);
     }
 
 
@@ -392,10 +410,14 @@ public abstract class InterfaceBWebsideController {
 //        if(_model.getSpecificationData(specID) == null){
             List specs = _interfaceBClient.getSpecificationList(sessionHandle);
             for (int i = 0; i < specs.size(); i++) {
+
                 SpecificationData data = (SpecificationData) specs.get(i);
+
                 if (data.getID().equals(specID)) {
+
                     String specAsXML = data.getAsXML();
                     if (specAsXML == null) {
+
                         specAsXML = _interfaceBClient.getSpecification(specID, sessionHandle);
                         data.setSpecAsXML(specAsXML);
                         _model.setSpecificationData(data);
@@ -421,7 +443,7 @@ public abstract class InterfaceBWebsideController {
      */
     protected List checkOutAllInstancesOfThisTask(
             WorkItemRecord enabledWorkItem, String sessionHandle)
-            throws IOException {
+            throws IOException, YAWLException {
         if (null == enabledWorkItem) {
             throw new IllegalArgumentException("Param enabledWorkItem cannot be null.");
         }
@@ -429,34 +451,28 @@ public abstract class InterfaceBWebsideController {
             throw new IllegalArgumentException("Param enabledWorkItem must be enabled.");
         }
 
-        List executingChildrenOfWorkItem = new ArrayList();
-
         //first of all checkout an enabled work item
-        String result =
+        WorkItemRecord result =
                 checkOut(enabledWorkItem.getID(), sessionHandle);
 
-        _report = "\nResult of item [" +
-                enabledWorkItem.getID() +
-                "] checkout is : " + result;
+        _logger.debug("Result of item [" + enabledWorkItem.getID() +
+                "] checkout is : " + result);
 
-        if (successful(result)) {
-
-            //if the work item has any children
-            List mixedChildren = getChildren(enabledWorkItem.getID(), sessionHandle);
-            for (int i = 0; i < mixedChildren.size(); i++) {
-                WorkItemRecord itemRecord = (WorkItemRecord) mixedChildren.get(i);
-                if (WorkItemRecord.statusFired.equals(itemRecord.getStatus())) {
-
-                    result +=
-                            "\nResult of item [" +
-                            itemRecord.getID() + "] checkout is : " +
-                            checkOut(itemRecord.getID(), sessionHandle);
-                }
+        //if the work item has any children
+        List mixedChildren = getChildren(enabledWorkItem.getID(), sessionHandle);
+        for (int i = 0; i < mixedChildren.size(); i++) {
+            WorkItemRecord itemRecord = (WorkItemRecord) mixedChildren.get(i);
+            if (WorkItemRecord.statusFired.equals(itemRecord.getStatus())) {
+                _logger.debug("Result of item [" +
+                        itemRecord.getID() + "] checkout is : " +
+                        checkOut(itemRecord.getID(), sessionHandle));
             }
-            executingChildrenOfWorkItem = getChildren(
-                    enabledWorkItem.getID(),
-                    sessionHandle);
         }
+        List executingChildrenOfWorkItem;
+        executingChildrenOfWorkItem = getChildren(
+                enabledWorkItem.getID(),
+                sessionHandle);
+
         return executingChildrenOfWorkItem;
     }
 

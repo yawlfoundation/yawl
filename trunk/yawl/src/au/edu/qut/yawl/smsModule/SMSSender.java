@@ -92,8 +92,7 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
                     _outStandingInteractions.add(inter);
                 }
 
-                System.out.println("\n\nSMSSender " +
-                        "\nResults of engine interactions : " + _report +
+                _logger.debug("SMSSender " +
                         "\nResults of SMS invocations : " + resultsFromService);
             }
 

@@ -1,7 +1,7 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
@@ -10,9 +10,9 @@ package au.edu.qut.yawl.worklet.rdr;
 
 import au.edu.qut.yawl.worklet.support.*;
 
-import java.util.*;
-
 import org.jdom.Element ;
+
+// import org.apache.log4j.Logger;
 
 
 /** A Ripple Down Rule tree implementation.
@@ -38,7 +38,8 @@ public class RdrTree {
     private RdrNode _rootNode = null;
     private RdrNode[] _lastPair = new RdrNode[2];     // see search()
     
-    private Logger _log ;                        // log file for debug messages 
+    // private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.rdr.RdrTree");
+
 
     /** Default constructor */
     public RdrTree(){
@@ -53,10 +54,7 @@ public class RdrTree {
      public RdrTree(String specId, String taskId){
     	_taskId = taskId ;                
     	_specId = specId ;
-    	
-    	_log = new Logger("rdrtree.log");
-
-    }	
+    }
 
 //===========================================================================//
 	
@@ -172,7 +170,7 @@ public class RdrTree {
     /**
      * returns the number of nodes in the tree
      */
-    public int nodeCount(){
+    private int nodeCount(){
         return(countNodes(_rootNode));
     }
     

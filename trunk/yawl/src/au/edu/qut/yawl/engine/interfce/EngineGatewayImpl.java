@@ -61,6 +61,8 @@ public class EngineGatewayImpl implements EngineGateway {
     private static final String OPEN_FAILURE = "<failure><reason>";
     private static final String CLOSE_FAILURE = "</reason></failure>";
     private static final String SUCCESS = "<success/>";
+    private static final String OPEN_SUCCESS = "<success>";
+    private static final String CLOSE_SUCCESS = "</success>";
     //todo REFACTOR get all the XML stuff from the engine encapsulated by this class
     /**
      *  Constructor
@@ -175,7 +177,7 @@ public class EngineGatewayImpl implements EngineGateway {
             _userList.checkConnection(sessionHandle);
             String userName = _userList.getUserID(sessionHandle);
             _engine.suspendWorkItem(workItemID, userName);
-            return "<success/>";
+            return SUCCESS;
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
@@ -199,9 +201,11 @@ public class EngineGatewayImpl implements EngineGateway {
             YWorkItem workItem = _engine.getWorkItem(workItemID);
             if (workItem != null) {
                 _engine.completeWorkItem(workItem, data);
-                return "<success/>";
+                return SUCCESS;
             } else {
-                return "<failure>WorkItem with ID [" + workItemID + "] not found.</failure>";
+                return OPEN_FAILURE +
+                        "WorkItem with ID [" + workItemID + "] not found." +
+                        CLOSE_FAILURE;
             }
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
@@ -226,8 +230,8 @@ public class EngineGatewayImpl implements EngineGateway {
             YWorkItem item = _engine.getWorkItem(workItemID);
             if (item != null) {
                 String userID = _userList.getUserID(sessionHandle);
-                _engine.startWorkItem(item, userID);
-                return "<success/>";
+                YWorkItem child = _engine.startWorkItem(item, userID);
+                return OPEN_SUCCESS + child.toXML() + CLOSE_SUCCESS;
             }
             return OPEN_FAILURE + "No work item with id = " + workItemID + CLOSE_FAILURE;
         } catch (YAWLException e) {
@@ -259,7 +263,7 @@ public class EngineGatewayImpl implements EngineGateway {
             _userList.checkConnection(sessionHandle);
             YWorkItem existingItem = _engine.getWorkItem(workItemID);
             YWorkItem newItem = _engine.createNewInstance(existingItem, paramValueForMICreation);
-            return "<success>" + newItem.toXML() + "</success>";
+            return OPEN_SUCCESS + newItem.toXML() + CLOSE_SUCCESS;
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
@@ -343,6 +347,7 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
         }
+	System.out.println("retreiving task information");
         YTask task = _engine.getTaskDefinition(specificationID, taskID);
         if (task != null) {
             return task.getInformation();
@@ -362,7 +367,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
             _engine.checkElegibilityToAddInstances(workItemID);
-            return "<success/>";
+            return SUCCESS;
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
@@ -406,7 +411,8 @@ public class EngineGatewayImpl implements EngineGateway {
     public String launchCase(String specID, String caseParams, URI caseCompletionURI, String sessionHandle) {
         try {
             _userList.checkConnection(sessionHandle);
-            return _engine.launchCase(specID, caseParams, caseCompletionURI);
+	    String username = _userList.getUserID(sessionHandle);
+            return _engine.launchCase(username, specID, caseParams, caseCompletionURI);
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
@@ -485,7 +491,7 @@ public class EngineGatewayImpl implements EngineGateway {
         if (id != null) {
             try {
                 _engine.cancelCase(id);
-                return "<success/>";
+                return SUCCESS;
             } catch (YPersistenceException e) {
                 enginePersistenceFailure = true;
                 return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;

@@ -543,7 +543,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
 
 
     @Transient
-    protected String getPreSplittingMIQuery() {
+    public String getPreSplittingMIQuery() {
         String miVarNameInDecomposition = _multiInstAttr.getMIFormalInputParam();
         for (Iterator iterator = getDataMappingsForTaskStarting().keySet().iterator();
              iterator.hasNext();) {
@@ -691,7 +691,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     }
 
     @Transient
-    protected String getMIOutputAssignmentVar(String query) {
+    public String getMIOutputAssignmentVar(String query) {
         return (String) getDataMappingsForTaskCompletion().get(query);
     }
 
@@ -1565,7 +1565,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     public void setDecomposition(YDecomposition decomposition) {
     	_decompositionPrototype = decomposition;
     }
-
+    
     @OneToOne(cascade={CascadeType.ALL})
     public YDecomposition getDecompositionPrototype() {
         return getDecomposition();
@@ -1587,24 +1587,16 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
          */
         String attrVal = (String)decomposition.getAttributes().get(PERFORM_OUTBOUND_SCHEMA_VALIDATION);
 
-        if (attrVal == null)
-        {
-            setSkipOutboundSchemaChecks(false);
-        }
-        else if(attrVal.equalsIgnoreCase("TRUE"))
+        if("TRUE".equalsIgnoreCase(attrVal))
         {
             setSkipOutboundSchemaChecks(true);
-        }
-        else
-        {
-            setSkipOutboundSchemaChecks(false);
         }
     }
 
     /**
      * Returns the query to a decomposition enablement parameter.
-     * @param the decomposition enablement variable.
-     * @returns the data binding query for that parameter.
+     * @param paramName the decomposition enablement variable.
+     * @return the data binding query for that parameter.
      */
 
     @Transient
@@ -1623,10 +1615,10 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     }
 
     /**
-     * Returns the query to a decomposition input parameter.
-     * @param the decomposition input parameter.
-     * @returns the data binding query for that parameter.
-     */
+	 * Returns the query to a decomposition input parameter.
+	 * @param paramName the decomposition input parameter.
+	 * @return the data binding query for that parameter.
+	 */
 
     @Transient
     public String getDataBindingForInputParam(String paramName) {
@@ -1644,14 +1636,21 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
 
     /**
      * Returns the query to a decomposition output parameter.
-     * @param the decomposition output parameter.
-     * @returns the data binding query for that parameter.
+     * @param paramName the decomposition output parameter.
+     * @return the data binding query for that parameter.
      */
 
     @Transient
-    public String getDataBindingForOutputParam(String paramName) {
-      return (String) getDataMappingsForTaskCompletion().get(paramName);
-    }
+	public String getDataBindingForOutputParam( String paramName ) {
+		Iterator taskCompletionMappingIterator = _dataMappingsForTaskCompletion.keySet().iterator();
+		while( taskCompletionMappingIterator.hasNext() ) {
+			String outputParameterQuery = (String) taskCompletionMappingIterator.next();
+			String outputParameter = (String) _dataMappingsForTaskCompletion.get( outputParameterQuery );
+			if( paramName.equals( outputParameter ) ) { return outputParameterQuery; }
+		}
+		return null;
+	}
+
 
     @Transient
     public String getInformation() {
@@ -1679,11 +1678,24 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
             }
             if (getDecompositionPrototype() != null) {
                 result.append("<decompositionID>");
-                result.append(getDecompositionPrototype().getId());
-                result.append("</decompositionID>");
+                result.append( getDecompositionPrototype().getId() );
+				result.append( "</decompositionID>" );
 
-                YAWLServiceGateway wsgw = (YAWLServiceGateway) getDecompositionPrototype();
-                YAWLServiceReference ys = wsgw.getYawlService();
+				System.out.println( _decompositionPrototype.getAttributes().keySet() );
+
+				for( Iterator atts = _decompositionPrototype.getAttributes().keySet().iterator(); atts.hasNext(); ) {
+					result.append( "<attributes>" );
+
+					String key = (String) atts.next();
+					String value = (String) _decompositionPrototype.getAttributes().get( key );
+					System.out.println( key + " : " + value );
+					result.append( "<" + key + ">" + value + "</" + key + ">" );
+
+					result.append( "</attributes>" );
+				}
+
+				YAWLServiceGateway wsgw = (YAWLServiceGateway) getDecompositionPrototype();
+				YAWLServiceReference ys = wsgw.getYawlService();
                 if (ys != null) {
                     result.append("<yawlService>");
                     String ysID = ys.getURI();
@@ -1969,9 +1981,10 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
      * Defines if schema validation is to be performed when starting the task.
      * @param _performOutboundSchemaChecks
      */
-    private void setSkipOutboundSchemaChecks(boolean _performOutboundSchemaChecks) {
-        this._skipOutboundSchemaChecks = _performOutboundSchemaChecks;
+    private void setSkipOutboundSchemaChecks(boolean performOutboundSchemaChecks) {
+        _skipOutboundSchemaChecks = performOutboundSchemaChecks;
     }
+
 
     @Transient
     private VarMappingSetType getStartingMappings() {

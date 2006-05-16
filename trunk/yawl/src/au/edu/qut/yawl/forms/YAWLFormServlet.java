@@ -19,13 +19,19 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+//import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.StringReader;
 
 /**
  * This is the  servlet  that receives POST  submissions from  3rd-party applications.  If
  * launching a case in YAWL then the servlet sets up a RequestDispatcher to the LaunchCase
- * jsp and sends it the case data along with the spec id. Otherwise if editing a work item
+ * jsp and sends it the case data along with the spec ID. Otherwise if editing a work item
  * then  the servlet sets  up a  RequestDispatcher to the  WorkItemProcessor jsp page  and
  * transfers  the XML in  the  POST  input  stream  into  work item  output  that the YAWL
  * WorkListController can check in.
@@ -33,8 +39,9 @@ import java.io.IOException;
  */
 public class YAWLFormServlet extends HttpServlet {
 
-    private WorklistController _worklistController = null;
-    private boolean debug = false;
+	private static final long serialVersionUID = 1L;
+	private WorklistController _worklistController = null;
+    private boolean debug = false; // TODO log4j 
 
 
     /* (non-Javadoc)
@@ -43,7 +50,9 @@ public class YAWLFormServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession(true);
+    	if (debug) System.out.println("--- YAWLFormServlet ---");
+    	
+        //HttpSession session = request.getSession(true);
         String inputData = null;
         String outputData = null;
 
@@ -70,72 +79,61 @@ public class YAWLFormServlet extends HttpServlet {
                     _worklistController);
         }
 
-        String specID = request.getHeader("specID");
-        String workItemID = request.getHeader("workItemID");
-        String sessionHandle = request.getHeader("sessionHandle");
-        String userid = request.getHeader("userid");
-
-        if (debug) {
-            System.out.println("case specID = '" + specID + "'");
-            System.out.println("workItemID = '" + workItemID + "'");
-            System.out.println("sessionHandle = '" + sessionHandle + "'");
-            System.out.println("userid = '" + userid + "'");
-        }
-
-        if (theInstanceData != null) { // and what if theInstanceData is null?
-
-            // removes the instance header encoding, since it causes problems in the YAWL check-in
-            int headerstart = theInstanceData.indexOf("<?");
-            int headerstop = theInstanceData.indexOf("?>") + 2;
-
-            theInstanceData.delete(headerstart, headerstop);
-
-            // deletes any attributes belonging to the root element that
-            // have been inserted by chiba, assumes that the root tagname has not
-            // been changed by this or any other process in the meantime. --> needs a fix
-            int start = theInstanceData.indexOf("<" + SchemaCreator.getRootTagName()) + SchemaCreator.getRootTagName().length() + 1;
-
-            int stop = theInstanceData.indexOf("/>");
-
-            // in case the root element doesn't end with "/>"
-            if (stop < start) {
-                stop = theInstanceData.indexOf(">");
-            }
-
-            theInstanceData.delete(start, stop);
-
-            if (workItemID.compareTo("") != 0) {
-                WorkItemRecord workitem = _worklistController.getRemotelyCachedWorkItem(workItemID);
-                inputData = workitem.getDataListString();
-                outputData = new String(theInstanceData);
-
-                workitem = null;
-                _worklistController = null;
-            } else if (specID.compareTo("") != 0) {
-                inputData = new String(theInstanceData);
-                if (debug) {
-                    System.out.println("case inputData = " + inputData);
-                }
-            }
-        }
+        String specID = request.getParameter("specID");
+        String workItemID = request.getParameter("workItemID");
+        String sessionHandle = request.getParameter("sessionHandle");
+        String userid = request.getParameter("userID");
 
         request.setAttribute("sessionHandle", sessionHandle);
         request.setAttribute("userid", userid);
+        
+        if (theInstanceData != null) {
+        	if (workItemID.compareTo("null") != 0) {
+	    			
+                WorkItemRecord workitem = _worklistController.getCachedWorkItem(workItemID);
+                
+                if (workitem != null) {
+	                inputData = workitem.getDataListString();
+	                outputData = new String(theInstanceData);
+                }
+                System.out.println("XFormOUTPUT: " + outputData);
+                System.out.println("XFormInput: " + inputData);
+                Element inputDataEl = null;
+                Element outputDataEl = null;
+                SAXBuilder _builder = new SAXBuilder();
+                
+                try {
+                    Document inputDataDoc = _builder.build(new StringReader(inputData));
+                    inputDataEl = inputDataDoc.getRootElement();
 
-        if (specID.compareTo("") != 0) {
-            request.setAttribute("caseData", inputData);
-            request.setAttribute("specID", specID);
-
-            RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/launchCase");
-            rd.forward(request, response);
-        } else if (workItemID.compareTo("") != 0) {
-            request.setAttribute("inputData", inputData);
-            request.setAttribute("outputData", outputData);
-            request.setAttribute("workItemID", workItemID);
-            request.setAttribute("submit", "Submit Work Item");
-
-            RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/workItemProcessor");
-            rd.forward(request, response);
+                    Document outputDataDoc = _builder.build(new StringReader(outputData));
+                    outputDataEl = outputDataDoc.getRootElement();
+                } catch (JDOMException e) {
+                    e.printStackTrace();
+                }
+                
+                workitem = null;
+                _worklistController = null; 
+                request.setAttribute("inputData", inputDataEl);
+                request.setAttribute("outputData", outputDataEl);
+                request.setAttribute("workItemID", workItemID);
+                request.setAttribute("submit", "Submit Work Item");
+                RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/workItemProcessor");
+                rd.forward(request, response);
+            }
+    		else if (specID.compareTo("null") != 0) {
+                inputData = new String(theInstanceData);
+                request.setAttribute("caseData", inputData);
+                request.setAttribute("specID", specID);
+                RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/launchCase");
+                rd.forward(request, response);
+            }
+            else {
+                if (debug) System.out.println("Both workItemID and specID were 'null'. ");
+            }
+        } 
+        else {
+        	if (debug) System.out.println("theInstanceData = " + theInstanceData);
         }
     }
 }

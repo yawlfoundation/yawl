@@ -241,7 +241,7 @@ public class DateTransform {
 	String date = null;
 	
 	Calendar cal = Calendar.getInstance();
-	cal.setTimeZone(TimeZone.getTimeZone("GMT-0"));
+	//cal.setTimeZone(TimeZone.getTimeZone("GMT-0"));
 
 	cal.setTimeInMillis(millis);
 	
@@ -251,9 +251,11 @@ public class DateTransform {
 	String hour = new Integer(cal.get(Calendar.HOUR_OF_DAY)).toString();
 	String min = new Integer(cal.get(Calendar.MINUTE)).toString();
 	String second = new Integer(cal.get(Calendar.SECOND)).toString();
-			
-	year = new Integer(new Integer(year).intValue() - 1970).toString();
-	day = new Integer(new Integer(day).intValue() - 1).toString();
+	
+	year = new Integer(new Integer(year).intValue()).toString();
+	day = new Integer(new Integer(day).intValue()).toString();
+	month = new Integer(new Integer(month).intValue()+1).toString();
+	
 	System.out.println(year + " " + day);
 
 
@@ -273,8 +275,50 @@ public class DateTransform {
 	    min = "0" + min;
 	}
 	 
-	date = year+" - "+month+" - "+day+" T "+hour+" : "+min+" : "+second;
+	date = year+"-"+month+"-"+day+"  "+hour+":"+min+":"+second;
 	    
 	return date;
     }
+
+    public static String convertTime(String time) {
+	Calendar cal = Calendar.getInstance();
+	try {
+	    
+	    StringTokenizer split = new StringTokenizer(time);
+	    String date1 = split.nextToken();
+	    String time1 = split.nextToken();
+
+	    split = new StringTokenizer(date1,"-");
+	    String day = split.nextToken();
+	    String mon = split.nextToken();
+	    String year = split.nextToken();
+	    
+	    split = new StringTokenizer(time1,":");
+	    String hour = split.nextToken();
+	    String min = split.nextToken();
+	    String sec = split.nextToken();
+	    	    
+	    cal.set(new Integer(year).intValue(),
+		    new Integer(mon).intValue()-1,
+		    new Integer(day).intValue(),
+		    new Integer(hour).intValue(),
+		    new Integer(min).intValue(),
+		    new Integer(sec).intValue());
+	    System.out.println(cal.getTimeInMillis());
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}	
+	return new Long(cal.getTimeInMillis()).toString();
+    }
+
+    public static String convertRelativeTime(long timetaken) {
+	String sec = ""+(timetaken/1000)%60;
+	String min = ""+(timetaken/(1000*60))%60;
+	String hrs = ""+(timetaken/(1000*60*60))%24;
+	String days = ""+timetaken/(1000*60*60*24);	
+	String daystime = days + " - " + hrs+":"+min+":"+sec;       
+	//get current time
+	return daystime;
+    }
+
 }

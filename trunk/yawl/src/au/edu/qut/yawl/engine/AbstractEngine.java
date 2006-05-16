@@ -574,7 +574,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
             return false;
     }
 
-    public YIdentifier startCase(String specID, String caseParams, URI completionObserver) throws YStateException, YSchemaBuildingException, YDataStateException, YPersistenceException {
+    public YIdentifier startCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YSchemaBuildingException, YDataStateException, YPersistenceException {
         SAXBuilder builder = new SAXBuilder();
         Element data = null;
         if(caseParams != null && !"".equals(caseParams)) {
@@ -607,7 +607,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
             runner.continueIfPossible();
 
             // LOG CASE EVENT
-            yawllog.logCaseCreated(runner.getCaseID().toString(), "SYSTEM", specID);
+            yawllog.logCaseCreated(runner.getCaseID().toString(), username, specID);
 
             runner.start();
             _caseIDToNetRunnerMap.put(runner.getCaseID(), runner);
@@ -1480,7 +1480,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     }
 
 
-    public String launchCase(String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException {
+    public String launchCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException {
 //            YPersistenceManager pmgr = null;
             String caseIDString;
 
@@ -1492,7 +1492,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                pmgr.startTransactionalSession();
 //            }
 
-            YIdentifier caseID = startCase(specID, caseParams, completionObserver);
+            YIdentifier caseID = startCase(username, specID, caseParams, completionObserver);
 
             if (caseID != null) {
                 caseIDString = caseID.toString();

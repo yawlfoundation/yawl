@@ -553,7 +553,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             try {
                 //todo AJH - IS this where we pass in the input params ???????
 //                String caseIDStr = _engineClient.startCase(specID).toString();
-                String caseIDStr = _engineClient.launchCase(specID, "", null);
+                String caseIDStr = _engineClient.launchCase("",specID, "", null);
             } catch (Exception e) {
                 logError("Failure to start case", e);
             }

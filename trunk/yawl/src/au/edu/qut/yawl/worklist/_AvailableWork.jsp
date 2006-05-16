@@ -1,19 +1,46 @@
 <%@ page import="java.util.Iterator,
-                 au.edu.qut.yawl.worklist.model.WorkItemRecord,
-                 au.edu.qut.yawl.worklist.model.TaskInformation,
                  java.util.List,
-                 au.edu.qut.yawl.worklist.model.WorkListGUIUtils" %><%
+				 au.edu.qut.yawl.worklist.WorkItemProcessor,
+				 au.edu.qut.yawl.worklist.model.*"%>
+<%
     String workItemID  = request.getParameter("workItemID");
-    if(workItemID != null){
-        String msg = "";
-        msg = _worklistController.checkOut(
-                workItemID,
-                (String)session.getAttribute("sessionHandle"));
-//System.out.println("_AvailableWork.jsp:: check out item ["+workItemID+"] msg = " + msg);
-        if(_worklistController.successful(msg)){
-            //application.getRequestDispatcher("/checkedOut").forward(request, response);
+    
+    if(workItemID != null){			
+
+
+        String sessionHandle = (String) session.getAttribute("sessionHandle");
+        String userID = (String) session.getAttribute("userid");
+        WorkItemRecord checkedOutItem = _worklistController.checkOut(
+                workItemID, sessionHandle);
+        WorkItemProcessor wip = new WorkItemProcessor();
+        
+        if(null != checkedOutItem){
+
+            TaskInformation taskInfo = _worklistController.getTaskInformation(
+            	checkedOutItem.getSpecificationID(), checkedOutItem.getTaskID(), 
+            	sessionHandle);
+
+		if (taskInfo.getAttribute("formtype")==null || !taskInfo.getAttribute("formtype").equalsIgnoreCase("pdf")) {
+			 	wip.executeWorkItemPost( getServletContext(), checkedOutItem.getID(), 
+				sessionHandle, _worklistController, userID );
+				
+				String url = wip.getRedirectURL( getServletContext(), taskInfo );
+			
+				response.sendRedirect( response.encodeURL(url) );						
+		} else {
+				System.out.println(checkedOutItem.getDataListString());
+ 			 	String filename = wip.executePDFWorkItemPost( getServletContext(), checkedOutItem.getID(), taskInfo.getDecompositionID(),
+			  			sessionHandle, _worklistController, userID );
+
+								
+				String url = "http://localhost:8080/PDFforms/complete.jsp?filename="+filename;
+					response.sendRedirect( response.encodeURL(url) );
+
+		}
+
+
         } else {
-            request.setAttribute("failure", msg);
+            request.setAttribute("failure", checkedOutItem);
         }
     }
 %><html xmlns="http://www.w3.org/1999/xhtml">
@@ -71,7 +98,6 @@
                 while(iter.hasNext()) {
                     WorkItemRecord item = (WorkItemRecord) iter.next();
                     String id = item.getID();
-                    String uniqueid = item.getUniqueID();
                     TaskInformation taskInfo = _worklistController.getTaskInformation(
                         item.getSpecificationID(),
                         item.getTaskID(),

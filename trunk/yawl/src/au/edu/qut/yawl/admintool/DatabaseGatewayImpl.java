@@ -75,7 +75,6 @@ public class DatabaseGatewayImpl {
         return _self;
     }
 
-
     public void initialise() throws HibernateException {
 
         if (persistenceOn) {
@@ -565,6 +564,41 @@ public class DatabaseGatewayImpl {
         return resultitems;
     }
 
+    public List executeQueryCases(String hql) {
+	List result = new LinkedList();
+	try {
+	    Query query = createQuery(hql);
+	    System.out.println("Executing Query: " + hql);
+	    List items = query.list();
+	    System.out.println("rows: " + items.size());
+	    for (int i = 0; i < items.size(); i++) {
+		YLogIdentifier caseinfo = (YLogIdentifier) items.get(i);
+		result.add(caseinfo);
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}	
+	return result;
+    }
+
+    public List executeQueryWorkItems(String hql) {
+	List result = new LinkedList();
+	try {
+	    Query query = createQuery(hql);
+	    System.out.println("Executing Query: " + hql);
+	    List items = query.list();
+	    System.out.println("rows: " + items.size());
+	    for (int i = 0; i < items.size(); i++) {
+		YWorkItemEvent caseinfo = (YWorkItemEvent) items.get(i);
+		result.add(caseinfo);
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}	
+	return result;
+    }
+
+
     public List getCaseProcessingTime(String specid, int timeformat, int granularity) {
 
         List items = null;
@@ -626,9 +660,29 @@ public class DatabaseGatewayImpl {
 
     public String[] getSpecs() {
         List items = new LinkedList();
-        String[] caseids = null;
+        String[] specids = null;
         try {
             String hql = "Select distinct yawlcase.specification from au.edu.qut.yawl.engine.YLogIdentifier as yawlcase";
+            Query query = createQuery(hql);
+            items = query.list();
+            specids = new String[items.size()];
+            for (int i = 0; i < items.size(); i++) {
+                String s = (String) items.get(i);
+                specids[i] = s;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return specids;
+    }
+
+    public String[] getCases() {
+        List items = new LinkedList();
+        String[] caseids = null;
+        try {
+            String hql = "Select distinct yawlcase.identifier from au.edu.qut.yawl.engine.YLogIdentifier as yawlcase";
             Query query = createQuery(hql);
             items = query.list();
             caseids = new String[items.size()];
@@ -644,5 +698,80 @@ public class DatabaseGatewayImpl {
         return caseids;
     }
 
+    public String[] getLoggedResources() {
+        List items = new LinkedList();
+        List resourceids = null;
+	String[] finallist = null;
+        try {
+	    /*
+	      Need to remove null values from this list
+	     */
+            String hql = "Select distinct yawlevent.resource from au.edu.qut.yawl.engine.YWorkItemEvent as yawlevent";
+            Query query = createQuery(hql);
+            items = query.list();
+            resourceids = new LinkedList();
+            for (int i = 0; i < items.size(); i++) {
+                String s = (String) items.get(i);
+		
+		System.out.println("Found resource -" + s + "- in the database");
+
+		if (s!=null && !s.equals("null")) {
+		    resourceids.add(s);
+		}
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+	finallist = new String[resourceids.size()];
+	for (int i = 0; i < resourceids.size();i++) {
+	    finallist[i] = (String) resourceids.get(i);
+	}	
+	
+        return finallist;
+    }
+
+
+    public String[] getTasks() {
+        List items = new LinkedList();
+        String[] taskids = null;
+        try {
+            String hql = "Select distinct yawlevent.taskid from au.edu.qut.yawl.engine.YWorkItemEvent as yawlevent";
+            Query query = createQuery(hql);
+            items = query.list();
+            taskids = new String[items.size()];
+            for (int i = 0; i < items.size(); i++) {
+                String s = (String) items.get(i);
+                taskids[i] = s;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return taskids;
+    }
+ 
+    public String[] getWorkItems() {
+        List items = new LinkedList();
+        String[] workitemids = null;
+        try {
+            String hql = "Select distinct yawlevent.identifier from au.edu.qut.yawl.engine.YWorkItemEvent as yawlevent";
+            Query query = createQuery(hql);
+            items = query.list();
+            workitemids = new String[items.size()];
+            for (int i = 0; i < items.size(); i++) {
+                String s = (String) items.get(i);
+                workitemids[i] = s;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return workitemids;
+    }
+    
 }
 

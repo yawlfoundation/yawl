@@ -61,7 +61,7 @@ public class TestCaseCancellation extends TestCase {
 
         YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString(), null);
         _engine.addYawlService(service);
-        _idForTopNet = _engine.startCase(_specification.getID(), null, serviceURI);
+        _idForTopNet = _engine.startCase(null, _specification.getID(), null, serviceURI);
 
         ObserverGateway og = new ObserverGateway() {
             public void cancelAllWorkItemsInGroupOf(

@@ -58,7 +58,7 @@ public class TestEngineRestore extends TestCase {
         YEngine engine =  EngineFactory.createYEngine();
         EngineClearer.clear(engine);
         engine.loadSpecification(specification);
-        YIdentifier identifier = engine.startCase(specification.getID().toString(), null, null);
+        YIdentifier identifier = engine.startCase(null, specification.getID().toString(), null, null);
         Set currWorkItems = YWorkItemRepository.getInstance().getEnabledWorkItems();
         System.out.println("blah");
 	}

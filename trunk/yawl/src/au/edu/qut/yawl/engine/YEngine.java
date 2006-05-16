@@ -538,11 +538,16 @@ public class YEngine extends AbstractEngine {
             ys.setDocumentation("This YAWL Service enables suitably declared" +
                     " workflow tasks to invoke RPC style service on the Web.");
             _myInstance.removeYawlService(ys.getURI());
-            _myInstance.addYawlService(ys);
+            _myInstance.addYawlService( ys );
 
-            ys = new YAWLServiceReference("http://localhost:8080/yawlSMSInvoker/ib", null);
-            ys.setDocumentation("SMS Message Module. Works if you have an account.");
-            _myInstance.removeYawlService(ys.getURI());
+			ys = new YAWLServiceReference( "http://localhost:8080/workletService/ib", null );
+			ys.setDocumentation( "Worklet Dynamic Process Selection Service" );
+			_myInstance.removeYawlService( ys.getURI() );
+			_myInstance.addYawlService( ys );
+
+			ys = new YAWLServiceReference( "http://localhost:8080/yawlSMSInvoker/ib", null );
+			ys.setDocumentation( "SMS Message Module. Works if you have an account." );
+			_myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
 
             ys = new YAWLServiceReference("http://localhost:8080/timeService/ib", null);
@@ -932,12 +937,12 @@ public class YEngine extends AbstractEngine {
     }
 
 
-    public String launchCase(String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException {
+    public String launchCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException {
         /**
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.launchCase(specID, caseParams, completionObserver);
+        	return super.launchCase(username, specID, caseParams, completionObserver);
         }
     }
 

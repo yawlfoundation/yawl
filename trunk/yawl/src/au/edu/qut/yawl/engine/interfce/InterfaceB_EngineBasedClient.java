@@ -45,7 +45,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     /**
      * Indicates which protocol this shim services.<P>
      *
-     * @return
+     * @return the scheme
      */
     public String getScheme() {
         return "http";

@@ -55,7 +55,7 @@
 
     <context-param>
         <param-name>YAWLXForms</param-name>
-        <param-value>http://localhost:8080/YAWLXForms</param-value>
+        <param-value>http://localhost:8080/yawlXForms</param-value>
         <description>
             The URL location of YAWLXForms (Chiba). Set to "localhost" by default.
         </description>
@@ -295,6 +295,28 @@
         <servlet-name>SchemaValidationJSP</servlet-name>
         <url-pattern>/validationProblem</url-pattern>
     </servlet-mapping>
+
+	<servlet>
+	  <servlet-name>PDFhandler</servlet-name>
+	  <servlet-class>au.edu.qut.yawl.PDFforms.PDFHandler</servlet-class>
+	  <load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+	  <servlet-name>PDFhandler</servlet-name>
+	  <url-pattern>/handler</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+	  <servlet-name>CreateSignature</servlet-name>
+	  <servlet-class>au.edu.qut.yawl.PDFforms.signature.SignatureProvider</servlet-class>
+	  <load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+	  <servlet-name>CreateSignature</servlet-name>
+	  <url-pattern>/createid</url-pattern>
+	</servlet-mapping>
 
     <session-config>
         <session-timeout>30</session-timeout><!-- 30 minutes -->

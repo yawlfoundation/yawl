@@ -26,13 +26,14 @@ public class YLogIdentifier implements PersistableObject {
 	private static final long serialVersionUID = 2006030080l;
 
     private String identifier = null;
-    private String cancelled = null;
-    private String created = null;
-    private String completed = null;
+    private long cancelled = 0;
+    private long created = 0;
+    private long completed = 0;
     private String createdby = null;
     private String specification = null;
     private String parent = null;
-
+    private long timetaken = 0;
+    private long count = 0;
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
@@ -43,30 +44,30 @@ public class YLogIdentifier implements PersistableObject {
         return this.identifier;
     }
 
-    public void setCancelled(String cancelled) {
+    public void setCancelled(long cancelled) {
         this.cancelled = cancelled;
     }
 
     @Basic
-    public String getCancelled() {
+    public long getCancelled() {
         return this.cancelled;
     }
 
-    public void setCreated(String created) {
+    public void setCreated(long created) {
         this.created = created;
     }
 
     @Basic
-    public String getCreated() {
+    public long getCreated() {
         return this.created;
     }
 
-    public void setCompleted(String completed) {
+    public void setCompleted(long completed) {
         this.completed = completed;
     }
 
     @Basic
-    public String getCompleted() {
+    public long getCompleted() {
         return this.completed;
     }
 
@@ -96,4 +97,24 @@ public class YLogIdentifier implements PersistableObject {
     public String getParent() {
         return this.parent;
     }
+
+	@Basic
+	public long getCount() {
+		return count;
+	}
+
+	
+	public void setCount( long count ) {
+		this.count = count;
+	}
+
+	@Basic
+	public long getTime() {
+		return timetaken;
+	}
+
+	
+	public void setTime( long timetaken ) {
+		this.timetaken = timetaken;
+	}
 }

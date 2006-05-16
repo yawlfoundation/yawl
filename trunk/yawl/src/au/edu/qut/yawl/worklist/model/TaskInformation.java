@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.worklist.model;
 
+import java.util.HashMap;
 
 /**
  * 
@@ -24,8 +25,8 @@ public class TaskInformation {
     private String _taskDocumentation;
     private String _taskName;
     private String _decompositionID;
-
-
+    private HashMap attributes;
+    
     public TaskInformation(YParametersSchema paramSchema, String taskID,
                            String specificationID, String taskName,
                            String taskDocumentation, String decompositionID) {
@@ -35,8 +36,25 @@ public class TaskInformation {
         this._specificationID = specificationID;
         this._taskDocumentation = taskDocumentation;
         this._decompositionID = decompositionID;
+	attributes = new HashMap();
     }
 
+    public void setAttributes(HashMap map) {
+	this.attributes = map;
+    }
+    public void addAttribute(String key, String value) {
+	attributes.put(key,value);
+    }	
+    public HashMap getAttributes() {
+	return attributes;
+    }
+    public String getAttribute(String key) {
+	return (String) attributes.get(key);
+    }
+
+    public String getFormType() {
+	return "";
+    }
 
     public YParametersSchema getParamSchema() {
         return _paramSchema;

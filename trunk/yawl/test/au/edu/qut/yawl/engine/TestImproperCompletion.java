@@ -68,7 +68,7 @@ public class TestImproperCompletion extends TestCase{
     public void testImproperCompletion() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
-        _id = _engine.startCase(_specification.getID().toString(), null, null);
+        _id = _engine.startCase(null, _specification.getID().toString(), null, null);
         int numIter = 0;
         Set s = _engine.getCasesForSpecification("TestImproperCompletion");
 

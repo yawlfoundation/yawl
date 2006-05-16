@@ -65,7 +65,7 @@ public class TestYNetRunner extends TestCase {
         AbstractEngine engine2 = EngineFactory.createYEngine();
         EngineClearer.clear(engine2);
         engine2.loadSpecification(specification);
-        _id1 = engine2.startCase(specification.getID(), null, null);
+        _id1 = engine2.startCase(null, specification.getID(), null, null);
         _netRunner1 = getYNetRunner(engine2, _id1);
         _d = new Document();
         _d.setRootElement(new Element("data"));
@@ -210,7 +210,7 @@ public class TestYNetRunner extends TestCase {
     		AbstractEngine engine2 = EngineFactory.createYEngine();
             EngineClearer.clear(engine2);
             engine2.loadSpecification(spec);
-            String idString = engine2.launchCase(spec.getID(), null, null);
+            String idString = engine2.launchCase("SYSTEM", spec.getID(), null, null);
             YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
             Document d = new Document();
             d.setRootElement(new Element("data"));
