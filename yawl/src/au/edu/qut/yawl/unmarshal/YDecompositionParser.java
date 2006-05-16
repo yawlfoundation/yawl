@@ -180,13 +180,7 @@ public class YDecompositionParser {
     private YTask parseTask(Element taskElem) {
         short[] splitJoinTypes = parseSplitJoinTypes(taskElem);
 
-        List configuration = taskElem.getChildren("configuration");
-//        heres the config stuff for what its worth!
-//    	System.err.println(">>>>configs:" + configuration);
-//        for (Object o: configuration) {
-//        	System.err.println(">>>>" + o.toString());
-//        }     
-        
+        List<Element> configurations = taskElem.getChildren("configuration", _yawlNS);
         Element decomposesToRefElem = taskElem.getChild("decomposesTo", _yawlNS);
         String decomposesToID = null;
         if (decomposesToRefElem != null) {
@@ -211,6 +205,7 @@ public class YDecompositionParser {
         }
         parseExternalTaskRoles(taskElem, task);
         parseNameAndDocumentation(task, taskElem);
+        task.setInternalConfigurations(configurations);
         return task;
     }
 

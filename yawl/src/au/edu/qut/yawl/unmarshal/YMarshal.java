@@ -110,7 +110,6 @@ public class YMarshal {
 
         SAXBuilder builder = new SAXBuilder();
         Document finalDoc = null;
-
         finalDoc = builder.build(new StringReader(xml.toString()));
         XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
         return out.outputString(finalDoc);

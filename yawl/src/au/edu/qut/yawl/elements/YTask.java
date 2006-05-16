@@ -1555,10 +1555,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
         return expression;
     }
 
-    public YDecomposition getDecompositionPrototype() {
-        return getDecomposition();
-    }
-
+    @OneToOne(cascade={CascadeType.ALL})
     public YDecomposition getDecomposition() {
     	return _decompositionPrototype;    	
     }
@@ -1568,7 +1565,13 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     public void setDecomposition(YDecomposition decomposition) {
     	_decompositionPrototype = decomposition;
     }
+
+    @OneToOne(cascade={CascadeType.ALL})
+    public YDecomposition getDecompositionPrototype() {
+        return getDecomposition();
+    }
     
+    @OneToOne(cascade={CascadeType.ALL})
     @XmlTransient
     public void setDecompositionPrototype(YDecomposition decomposition) {
     	/*this (nullcheck) is a kindness to hibernate. We will be adding more

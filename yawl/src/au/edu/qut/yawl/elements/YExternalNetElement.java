@@ -9,6 +9,8 @@
 
 package au.edu.qut.yawl.elements;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -37,10 +39,24 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.jdom.DefaultJDOMFactory;
+import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.filter.ElementFilter;
+import org.jdom.input.DOMBuilder;
+import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
+import org.jdom.output.SAXOutputter;
 import org.jdom.output.XMLOutputter;
+import org.jdom.transform.JDOMResult;
+import org.jdom.transform.JDOMSource;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YDataValidationException;
@@ -79,6 +95,7 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
     private Collection<YFlow> _presetFlows = new TreeSet<YFlow>();
     @Transient
     private Collection<YFlow> _postsetFlows = new TreeSet<YFlow>();
+    private List _internalConfigurations;
     private Long _dbid;
     /**
      * Null constructor for hibernate
@@ -419,6 +436,15 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
 
     public String toXML() {
         StringBuffer xml = new StringBuffer();
+        if (_internalConfigurations != null) {
+    		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
+        	for (Object config: _internalConfigurations) {
+    			String representation = outputter.outputString((Element)config);
+    			System.err.println("rep=" + representation);
+    			xml.append(representation);
+        	}
+        }
+        	
         if (_name != null) {
             xml.append("<name>" + _name + "</name>");
         }
@@ -554,4 +580,56 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
             throw de;
         }
     }
+
+    
+    
+	@XmlTransient
+    @Column(name="configs", length=4096)
+	public String getInternalConfigurationsAsString() {
+		if (_internalConfigurations == null) return "";
+		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
+		StringBuffer buffer = new StringBuffer();
+		for (Element e: (List<Element>) _internalConfigurations) {
+			String representation = outputter.outputString(e);
+			buffer.append(representation);
+		}
+    	return buffer.toString();
+	}
+
+    @Column(name="configs", length=4096)
+	public void setInternalConfigurationsAsString(String configurations) {
+		_internalConfigurations = new ArrayList<Element>();
+		if (configurations == null || configurations.length() == 0) return;
+		if (configurations != null) {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			SAXBuilder sb = new SAXBuilder();
+        	try {
+				Document d = sb.build(new InputSource(new StringReader("<fragment>" + configurations + "</fragment>")));
+				Iterator i = d.getDescendants(); 
+				while(i.hasNext()) {
+					Element element = (Element) i.next();
+					if (element.getAttributeValue("id") != null) {
+					_internalConfigurations.add(element);
+					}
+				}
+			} catch (JDOMException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Transient
+	@XmlTransient
+	public List getInternalConfigurations() {
+		return _internalConfigurations;
+	}
+
+	@Transient
+	public void setInternalConfigurations(List configurations) {
+		_internalConfigurations = configurations;
+	}
 }
