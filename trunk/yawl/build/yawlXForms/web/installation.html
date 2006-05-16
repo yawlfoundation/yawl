@@ -1,0 +1,109 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Chiba Installation</title>
+<link href="styles/chiba-styles.css" type="text/css" rel="stylesheet">
+</head>
+<body bgcolor="#aabbdd">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td width="15%" valign="Top"><a href="http://chiba.sourceforge.net"><img height="39" width="113" alt="Chiba Logo" vspace="0" border="0" src="images/chiba50t.gif"></a>
+<br>
+</td><td valign="Middle"><font face="sans-serif">
+<div align="Right">
+                                        &lt;
+                                        <a href="index.html">Home</a>/&gt;
+                                        &lt;
+                                        <a href="installation.html">Installation</a>/&gt;
+                                        &lt;
+                                        <a href="jsp/forms.jsp">Samples</a>/&gt;
+                                        &lt;
+                                        <a href="features.html">Status</a>/&gt;
+                                        &lt;
+                                        <a href="api/index.html">Javadoc</a>/&gt;
+                                        &lt;
+                                        <a href="http://sourceforge.net/mail?group_id=20274">Mailinglist</a>/&gt;
+                                        &lt;
+                                        <a href="http://sourceforge.net/project/showfiles.php?group_id=20274">Download</a>/&gt;
+                                        <br>
+</div>
+</font></td>
+</tr>
+</tbody>
+</table>
+<hr size="2" width="100%">
+<table border="0">
+<tr>
+<td class="donate" valign="top" align="center"><a href="donate.html"><img src="images/x-click-but04.gif" class="donation-button"></a><span id="donation-text">
+                                    Support Chiba!
+                                    </span></td><td valign="top" class="content-area">
+
+    <span class="subtitle">Requirements</span>
+    
+<ul>
+<li>JDK/JRE 1.4 or higher</li>
+<li>a Servlet 2.2 compatible webcontainer</li>
+</ul>
+    
+<div id="" class="para">
+        The current release was developed and tested with JDK 1.4.2 and Tomcat 4.1.30. When you're using these components installation is easy.
+    </div>
+
+    
+<span class="subtitle">Installation (Tomcat 4.1/5.0)</span>
+    
+<ul>
+<li>
+            download <tt><a href="http://sourceforge.net/project/showfiles.php?group_id=20274">chiba-0.9.9.war</a></tt>
+        
+</li>
+<li>
+            copy the WAR-file to <tt>$CATALINA_HOME/webapps</tt>
+        
+</li>
+<li>
+            
+<b>Important:</b> Extract <tt>WEB-INF/lib/dom3-xercesImpl.jar</tt>
+            and <tt>WEB-INF/lib/dom3-xml-apis.jar</tt> from the WAR-file. Move
+            these libs to <tt>$CATALINA_HOME/common/endorsed</tt>. Make sure to
+            remove/backup any other <tt>xercesImpl.jar</tt> and <tt>xml-apis.jar</tt>
+            possibly residing there. Alternatively you might install the extracted
+            libs as extensions in your $JAVA_HOME.
+        </li>
+<li>
+            the step above is not necessary for Tomcat's LE-jdk14 editions
+        </li>
+<li>start Tomcat</li>
+<li>point your browser to
+            <tt><a href="http://localhost:8080/chiba-0.9.9">http://localhost:8080/chiba-0.9.9</a></tt> to view the sample forms
+        </li>
+</ul>
+
+    
+<div id="" class="para">
+    	In case nothing happens we would be happy if you give us a note with your system configuration and symptom description.
+    </div>
+
+
+</td>
+</tr>
+</table>
+<hr size="2" width="100%">
+<font size="-1" face="sans-serif">
+<center>
+                    Hosted by
+                        <a href="http://sourceforge.net"><img width="88" src="http://sourceforge.net/sflogo.php?group_id=23211&type=1" height="31" border="0" alt="SourceForge Logo"></a>
+</center>
+<div align="right">&copy; 2003, 2004 Chiba Project
+                    </div>
+<div align="right">last update:
+                        28/12/2004 12:02 AM GMT+1
+                    </div>
+<div align="right">author:
+                        <a href="mailto:joernt@users.sourceforge.net">joernt</a>/
+                        <a href="mailto:unl@users.sourceforge.net">unl</a>
+</div>
+</font>
+</body>
+</html>

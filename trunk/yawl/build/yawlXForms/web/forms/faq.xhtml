@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html xmlns="http://www.w3.org/2002/06/xhtml2"
+      xmlns:xf="http://www.w3.org/2002/xforms"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<head>
+        <title>Frequently Asked Questions</title>
+		<xf:model id="C-1">
+			<xf:submission id="debug" action="faq.xml" method="put" replace="none"/>
+			<xf:instance xmlns="" src="faq.xml">
+                <faq>
+                    <questions>
+                        <item>
+                            <question></question>
+                            <answer></answer>
+                        </item>
+                    </questions>
+                </faq>
+			</xf:instance>
+            <xf:bind id="item-bind" nodeset="questions/item">
+                <xf:bind id="q-bind" nodeset="question"/>
+                <xf:bind id="a-bind" nodeset="answer" />
+            </xf:bind>
+		</xf:model>
+	</head>
+	<body>
+		<xf:group appearance="minimal">
+			<xf:label>Frequently Asked Questions</xf:label>
+
+            <xf:trigger accesskey="i">
+                <xf:label>Insert</xf:label>
+                <xf:hint>inserts a new question</xf:hint>
+                <xf:insert bind="item-bind" xf:at="xf:index('items')" position="after"/>
+            </xf:trigger>
+            <xf:trigger accesskey="d">
+                <xf:label>Delete</xf:label>
+                <xf:hint>deletes selected question</xf:hint>
+                <xf:delete bind="item-bind" at="xf:index('items')"/>
+            </xf:trigger>
+
+
+			<xf:repeat id="items" appearance="full" bind="item-bind">
+                <xf:input id="question" bind="q-bind">
+                    <xf:label>Question</xf:label>
+                </xf:input>
+                <xf:textarea id="answer" bind="a-bind">
+                    <xf:label>Answer</xf:label>
+                </xf:textarea>
+			</xf:repeat>
+
+            <xf:submit submission="debug">
+                <xf:label>save</xf:label>
+            </xf:submit>
+		</xf:group>
+	</body>
+</html>

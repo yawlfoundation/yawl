@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html xmlns="http://www.w3.org/2002/06/xhtml2"
+    xmlns:xf="http://www.w3.org/2002/xforms"
+    xmlns:ev="http://www.w3.org/2001/xml-events">
+
+    <head>
+        <title>Event Tester</title>
+        <xf:model id="model1">
+            <xf:instance id="instance1" xmlns="">
+                <top>
+                    <events></events>
+                    <field>field</field>
+                    <constraint>true</constraint>
+                    <readonly>true</readonly>
+                    <required>true</required>
+                    <relevant>true</relevant>
+                </top>
+            </xf:instance>
+
+            <xf:bind id="events1" nodeset="events"/>
+            <xf:bind id="field1" nodeset="field"
+                constraint="../constraint='true'"
+                readonly="../readonly='true'"
+                required="../required='true'"
+                relevant="../relevant='true'"/>
+            <xf:bind id="constraint1" nodeset="constraint"/>
+            <xf:bind id="readonly1" nodeset="readonly"/>
+            <xf:bind id="required1" nodeset="required"/>
+            <xf:bind id="relevant1" nodeset="relevant"/>
+        </xf:model>
+
+    </head>
+
+    <body>
+        <xf:group>
+            <xf:label>Event Tester</xf:label>
+            <xf:input xf:bind="field1">
+                <xf:label>Field</xf:label>
+                <xf:alert>The constraint is now invalid.</xf:alert>
+                <xf:setvalue bind="events1" value="concat(/top/events,' DOMActivate')" ev:event="DOMActivate"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' xforms-value-changed')" ev:event="xforms-value-changed"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' xforms-valid')" ev:event="xforms-valid"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' xforms-invalid')" ev:event="xforms-invalid"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' DOMFocusIn')" ev:event="DOMFocusIn"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' DOMFocusOut')" ev:event="DOMFocusOut"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' xforms-readonly')" ev:event="xforms-readonly"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' xforms-readwrite')" ev:event="xforms-readwrite"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' xforms-required')" ev:event="xforms-required"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' xforms-optional')" ev:event="xforms-optional"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' xforms-enabled')" ev:event="xforms-enabled"/>
+                <xf:setvalue bind="events1" value="concat(/top/events,' xforms-disabled')" ev:event="xforms-disabled"/>
+            </xf:input>
+            <xf:group>
+                <xf:label>These 4 fields control the bind attributes of Field.</xf:label>
+                <xf:select1 bind="constraint1" appearance="full">
+                    <xf:label>Constraint</xf:label>
+                    <xf:choices>
+                        <xf:item>
+                            <xf:label>true</xf:label>
+                            <xf:value>true</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>false</xf:label>
+                            <xf:value>false</xf:value>
+                        </xf:item>
+                    </xf:choices>
+                </xf:select1>
+                <xf:select1 bind="readonly1" appearance="full">
+                    <xf:label>Readonly</xf:label>
+                    <xf:choices>
+                        <xf:item>
+                            <xf:label>true</xf:label>
+                            <xf:value>true</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>false</xf:label>
+                            <xf:value>false</xf:value>
+                        </xf:item>
+                    </xf:choices>
+                </xf:select1>
+                <xf:select1 bind="required1" appearance="full">
+                    <xf:label>Required</xf:label>
+                    <xf:choices>
+                        <xf:item>
+                            <xf:label>true</xf:label>
+                            <xf:value>true</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>false</xf:label>
+                            <xf:value>false</xf:value>
+                        </xf:item>
+                    </xf:choices>
+                </xf:select1>
+                <xf:select1 bind="relevant1" appearance="full">
+                    <xf:label>Relevant</xf:label>
+                    <xf:choices>
+                        <xf:item>
+                            <xf:label>true</xf:label>
+                            <xf:value>true</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>false</xf:label>
+                            <xf:value>false</xf:value>
+                        </xf:item>
+                    </xf:choices>
+                </xf:select1>
+            </xf:group>
+            <xf:trigger>
+                <xf:label>Refresh</xf:label>
+                <xf:refresh ev:event="DOMActivate"/>
+            </xf:trigger>
+            <xf:group>
+                <xf:label>Events fired</xf:label>
+                <xf:output bind="events1"/>
+            </xf:group>
+            <xf:trigger>
+                <xf:label>Clear</xf:label>
+                <xf:setvalue xf:bind="events1" ev:event="DOMActivate"/>
+            </xf:trigger>
+        </xf:group>
+    </body>
+</html>
