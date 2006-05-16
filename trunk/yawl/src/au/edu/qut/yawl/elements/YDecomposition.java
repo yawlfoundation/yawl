@@ -28,6 +28,8 @@ import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -178,8 +180,19 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
 
     /************************************/
 
+    Long _dbid;
+    
     @Id
     @Column(name="decomp_id")
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    public Long getDbID() {
+    	return _dbid;
+    }
+    
+    private void setDbID(Long dbid) {
+    	_dbid = dbid;
+    }
+        
     @XmlAttribute(name="id",required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
