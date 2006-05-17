@@ -49,56 +49,6 @@ import junit.framework.TestCase;
 
 public class TestJaxbMarshal extends XMLTestCase {
 	
-	public void testGoodNetSpecification() throws Exception {
-		assertComparison("GoodNetSpecification2.xml");
-	}
-	public void testMinimal() throws Exception {
-		assertComparison("TestSpecMinimal.xml");
-	}
-	public void testMiDataInput() throws Exception {
-		assertComparison("TestMiDataInput.xml");
-	}
-    public void testAttributes() throws Exception {
-    	assertComparison("TestSpecAttributes.xml");
-    }
-    public void testMetaData() throws Exception {
-    	assertComparison("TestSpecMetaData.xml");
-    }
-    public void testDecompInputParameters() throws Exception {
-    	assertComparison("TestDecompInputParameters.xml");
-    }
-    public void testDecompLocalVariable() throws Exception {
-    	assertComparison("TestDecompLocalVariable.xml");
-    }
-    public void testDecompLocalVariableFailing() throws Exception {
-    	try {
-    		assertComparison("TestDecompLocalVariableFailing.xml");
-    	} catch(Throwable t) {
-    		return;
-    	}
-    	fail("should have thrown exception");
-    }
-    public void testDecompMinimal() throws Exception {
-    	assertComparison("TestDecompMinimal.xml");
-    }
-    public void testTestDecompOutputParameters() throws Exception {
-    	assertComparison("TestDecompOutputParameters.xml");
-    }
-    public void testDecompWebservice() throws Exception {
-    	assertComparison("TestDecompWebservice.xml");
-    }
-    public void testENEMinimal() throws Exception {
-    	assertComparison("TestENEMinimal.xml");
-    }
-    public void testFlowMinimal() throws Exception {
-    	assertComparison("TestFlowMinimal.xml");
-    }
-    public void testMetaDataDetailed() throws Exception {
-    	assertComparison("TestMetaDataDetailed.xml");
-    }
-    public void testMetaDataMinimal() throws Exception {
-    	assertComparison("TestMetaDataMinimal.xml");
-    }
 	public void assertComparison(String fileName) throws Exception {
 		String controlXml = StringProducerYAWL.getInstance().getXMLString(fileName, true); 
 //		String testXml= StringProducerRawFile.getInstance().getXMLString(fileName, true);

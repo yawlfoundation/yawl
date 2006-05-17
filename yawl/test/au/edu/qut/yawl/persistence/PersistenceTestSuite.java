@@ -44,7 +44,7 @@ public class PersistenceTestSuite extends TestSuite{
         suite.addTestSuite(TestYNet.class);
         suite.addTestSuite(TestYSpecification.class);
         suite.addTestSuite(TestHibernateMarshal.class);
-        suite.addTestSuite(TestJaxbMarshal.class);
+//        suite.addTestSuite(TestJaxbMarshal.class);
         //return
         return suite;
     }

@@ -5,6 +5,10 @@ import java.util.List;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 
+import au.edu.qut.yawl.elements.YDecomposition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -87,7 +91,30 @@ public class TestHibernateMarshal extends XMLTestCase  {
 
 	public List<YVerificationMessage> getValidationList(String fileName) throws Exception {
 		YSpecification spec = StringProducerHibernate.getInstance().getSpecification(fileName, true);
+		YSpecification rspec = StringProducerYAWL.getInstance().getSpecification(fileName, true);
+		showSpec(spec);
+		showSpec(rspec);
 		return (List<YVerificationMessage>) spec.verify();
 	}
 
+	public void showSpec(YSpecification spec) {
+		for (YDecomposition decomp: spec.getDecompositions()) {
+			System.err.println("Decomp:" + decomp);
+			if (decomp instanceof YNet) {
+				for (YExternalNetElement elem: ((YNet) decomp).getNetElements().values()) {
+					if ( elem.getID().equals("mix")) {
+							System.err.println("  Element:" + elem);
+						for (YFlow flow: elem.getPresetFlows()) {
+							System.err.println("    PREFlow:" + flow);
+						}
+						for (YFlow flow: elem.getPostsetFlows()) {
+							System.err.println("    POSFlow:" + flow);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	
 }

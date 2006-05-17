@@ -125,7 +125,7 @@ public class YFlow implements Comparable, PersistableObject {
     @Transient
     @XmlElement(name="nextElementRef", namespace="http://www.citi.qut.edu.au/yawl")
     public YExternalNetElement getNextElementXml() {
-    	return new YExternalNetElement(_nextElement.getName(), null);
+    	return new YExternalNetElement(_nextElement.getID(), null);
     }
     
     public void setNextElementXml(YExternalNetElement element) {

@@ -118,6 +118,9 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
     	return _dbid;
     }
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @Column(name="extern_id")
     public void setDbID(Long id) {
     	_dbid = id;
     }
@@ -125,6 +128,7 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
     /**
      * @return the id of this YNetElement
      */
+    @Column(name="net_id")
     public String getID() {
         return super.getID();
     }
@@ -134,6 +138,7 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
      * 
      * @param id
      */
+    @Column(name="net_id")
     protected void setID(String id) {
     	super.setID(id);
     }
@@ -511,15 +516,14 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
     @XmlElement(name="flowsInto", namespace="http://www.citi.qut.edu.au/yawl")
     public void setPostsetFlowsAsList(List<YFlow> flows) {
     	for (YFlow flow: flows) {
-		flow.setPriorElement(this);
-	}
-	_postsetFlows.clear();
-	for (YFlow flow: flows) {
-		if (flow.getPriorElement() != null) {
-			flow.getPriorElement().getPostsetFlows().add(flow);
+			flow.setPriorElement(this);
 		}
-	}
-	_postsetFlows.clear();
+		_postsetFlows.clear();
+		for (YFlow flow: flows) {
+			if (flow.getNextElement() != null) {
+				flow.getNextElement().getPresetFlows().add(flow);
+			}
+		}
     	_postsetFlows.addAll(flows);
     }
 
@@ -591,9 +595,10 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
 		for (Element e: (List<Element>) _internalConfigurations) {
 			String representation = outputter.outputString(e);
 			buffer.append(representation);
-}
+		}
     	return buffer.toString();
 	}
+
     @Column(name="configs", length=4096)
 	public void setInternalConfigurationsAsString(String configurations) {
 		_internalConfigurations = new ArrayList<Element>();
