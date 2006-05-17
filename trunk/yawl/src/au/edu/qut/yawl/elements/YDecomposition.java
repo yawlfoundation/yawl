@@ -185,6 +185,7 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
     @Id
     @Column(name="decomp_id")
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @XmlTransient
     public Long getDbID() {
     	return _dbid;
     }

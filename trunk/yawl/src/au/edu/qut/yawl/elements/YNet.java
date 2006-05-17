@@ -97,7 +97,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     private YInputCondition _inputCondition;
     private YOutputCondition _outputCondition;
     protected ProcessControlElements processControlElements;
-    private Map<String, YExternalNetElement> _netElements = new HashMap<String, YExternalNetElement>();
+    private List<YExternalNetElement> _netElements = new ArrayList<YExternalNetElement>();
     private List<YVariable> _localVariables = new ArrayList<YVariable>();
     private YNet _clone;
     protected Boolean rootNet = false;
@@ -123,49 +123,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
         super(id, specification);
     }
 
-
-    public void setInputCondition(YInputCondition inputCondition) {
-        _inputCondition = inputCondition;
-        _netElements.put(inputCondition.getID(), inputCondition);
-    }
-
-
-    public void setOutputCondition(YOutputCondition outputCondition) {
-        _outputCondition = outputCondition;
-        _netElements.put(outputCondition.getID(), outputCondition);
-    }
-
-
-    public void addNetElement(YExternalNetElement netElement) {
-        _netElements.put(netElement.getID(), netElement);
-    }
-
-
-    /**
-     * 
-     * @return
-	 * @hibernate.map role="netElements" cascade="all-delete-orphan"
-	 * @hibernate.key column="DECOMPOSITION_ID"
-	 * @hibernate.index column="NET_ELEMENT_ID" type="string" length="255" 
-	 *   not-null="true"
-	 * @hibernate.one-to-many 
-	 *   class="au.edu.qut.yawl.elements.YExternalNetElement"
-     */
-    @OneToMany(mappedBy="container", cascade={CascadeType.ALL})
-    @MapKey(name="ID")
-    @XmlTransient
-    public Map<String, YExternalNetElement> getNetElements() {
-        return _netElements;
-    }
-    /**
-     * Inserted for hibernate TODO Set to protected later
-     * @param map
-     */
-    public void setNetElements(Map<String, YExternalNetElement> map) {
-    	_netElements = map;
-    }
-
-
+    
     /**
      * Method getInputCondition.
      * @return YConditionInterface
@@ -189,6 +147,58 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
         return _outputCondition;
     }
 
+    @OneToOne(cascade = {CascadeType.ALL})
+    public void setInputCondition(YInputCondition inputCondition) {
+        _inputCondition = inputCondition;
+        _netElements.add(inputCondition);
+    }
+
+
+    @OneToOne(cascade = {CascadeType.ALL})
+    public void setOutputCondition(YOutputCondition outputCondition) {
+        _outputCondition = outputCondition;
+        _netElements.add(outputCondition);
+    }
+
+
+    public void addNetElement(YExternalNetElement netElement) {
+        _netElements.add(netElement);
+    }
+
+
+    /**
+     * 
+     * @return
+	 * @hibernate.map role="netElements" cascade="all-delete-orphan"
+	 * @hibernate.key column="DECOMPOSITION_ID"
+	 * @hibernate.index column="NET_ELEMENT_ID" type="string" length="255" 
+	 *   not-null="true"
+	 * @hibernate.one-to-many 
+	 *   class="au.edu.qut.yawl.elements.YExternalNetElement"
+     */
+    @OneToMany(mappedBy="container", cascade={CascadeType.ALL})
+    @XmlTransient
+    public List<YExternalNetElement> getNetElementsDB() {
+    	return _netElements;
+    }
+    /**
+     * Inserted for hibernate TODO Set to protected later
+     * @param map
+     */
+    @OneToMany(mappedBy="container", cascade={CascadeType.ALL})
+    public void setNetElementsDB(List<YExternalNetElement> list) {
+    	_netElements = list;
+    }
+
+    @Transient
+    @XmlTransient
+    public Map<String, YExternalNetElement> getNetElements() {
+        HashMap<String, YExternalNetElement> retval = new HashMap<String, YExternalNetElement>();
+    	for (YExternalNetElement element: _netElements) {
+    		retval.put(element.getID(), element);
+    	}
+        return retval;
+    }
 
     /**
      *
@@ -197,7 +207,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
      */
     @Transient
     public YExternalNetElement getNetElement(String id) {
-        return (YExternalNetElement) this._netElements.get(id);
+        return this.getNetElements().get(id);
     }
 
 
@@ -216,7 +226,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
             messages.add(new YVerificationMessage(this, this + " must contain output condition.",
                     YVerificationMessage.ERROR_STATUS));
         }
-        Iterator netEls = this._netElements.values().iterator();
+        Iterator netEls = this._netElements.iterator();
         while (netEls.hasNext()) {
             YExternalNetElement nextElement = (YExternalNetElement) netEls.next();
             if (nextElement instanceof YInputCondition && !_inputCondition.equals(nextElement)) {
@@ -277,7 +287,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
             // returns true iff all t in T are on a directed path from i to o
         END */
         int numElements = _netElements.size();
-        Set allElements = new HashSet(_netElements.values());
+        Set allElements = new HashSet(_netElements);
         allElements.add(_inputCondition);
         allElements.add(_outputCondition);
         if (visitedFw.size() != numElements) {
@@ -331,7 +341,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     public Object clone() {
         try {
             _clone = (YNet) super.clone();
-            _clone._netElements = new HashMap();
+            _clone._netElements = new ArrayList<YExternalNetElement>();
 
             List<YExternalNetElement> visited = new ArrayList<YExternalNetElement>();
             List<YExternalNetElement> visiting = new ArrayList<YExternalNetElement>();
@@ -539,7 +549,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
             visitingFw.removeAll(visitedFw);
             xml.append(produceXMLStringForSet(visitingFw));
         } while (visitingFw.size() > 0);
-        Collection remainingElements = new ArrayList(_netElements.values());
+        Collection remainingElements = new ArrayList(_netElements);
         remainingElements.removeAll(visitedFw);
         xml.append(produceXMLStringForSet(remainingElements));
         xml.append(_outputCondition.toXML());
@@ -647,7 +657,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     @Transient
     public Set getBusyTasks() {
         Set busyTasks = new HashSet();
-        for (Iterator iterator = _netElements.values().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = _netElements.iterator(); iterator.hasNext();) {
             YExternalNetElement element = (YExternalNetElement) iterator.next();
             if (element instanceof YTask) {
                 YTask task = (YTask) element;
@@ -662,7 +672,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     @Transient
     public Set getEnabledTasks(YIdentifier id) {
         Set enabledTasks = new HashSet();
-        for (Iterator iterator = _netElements.values().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = _netElements.iterator(); iterator.hasNext();) {
             YExternalNetElement element = (YExternalNetElement) iterator.next();
             if (element instanceof YTask) {
                 YTask task = (YTask) element;
@@ -730,7 +740,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     	Set<YFlow> flows = new TreeSet();
     	for (YExternalNetElement element : elements.getTaskOrCondition()) {
     		element.setContainer(this);
-    		this._netElements.put(element.getID(), element);
+    		this._netElements.add(element);
     		flows.addAll(element.getPostsetFlows());
     		flows.addAll(element.getPresetFlows());
     		element.getPostsetFlows().clear();
@@ -740,8 +750,8 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     	flows.addAll(elements.outputCondition.getPresetFlows());
     	
     	for (YFlow aflow: flows) {
-    		aflow.setPriorElement(this._netElements.get(aflow.getPriorElement().getID()));
-    		aflow.setNextElement(this._netElements.get(aflow.getNextElement().getID()));
+    		aflow.setPriorElement(this.getNetElements().get(aflow.getPriorElement().getID()));
+    		aflow.setNextElement(this.getNetElements().get(aflow.getNextElement().getID()));
     	}
     	for (YFlow aflow: flows) {
     		aflow.getPriorElement().setPostset(aflow);

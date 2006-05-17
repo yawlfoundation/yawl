@@ -39,7 +39,7 @@ public class StringProducerHibernate extends StringProducerXML {
 	
 	private static SessionFactory sessions;
 	private static AnnotationConfiguration cfg;
-	private static boolean deleteAfterRun = true;
+	private static boolean deleteAfterRun = false;
 	private Session session;
 	
 	private static StringProducerXML INSTANCE = null;
@@ -88,7 +88,7 @@ public class StringProducerHibernate extends StringProducerXML {
 		        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
 		        .setProperty(Environment.USER, "capsela")
 		        .setProperty(Environment.PASS, "capsela")
-				.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
+//				.setProperty(Environment.HBM2DDL_AUTO, "create")
 		        ;
 				setCfg( config );
 		        
