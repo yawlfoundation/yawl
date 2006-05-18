@@ -1,5 +1,8 @@
 package au.edu.qut.yawl.persistence;
 
+import java.awt.Point;
+import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.util.List;
 
 import org.custommonkey.xmlunit.Diff;
@@ -78,42 +81,74 @@ public class TestHibernateMarshal extends XMLTestCase  {
 		YSpecification spec = StringProducerHibernate.getInstance().getSpecification("TestSpecEmbeddedConfigurations.xml", true);
 		YDecomposition decomp = spec.getDecomposition("OverseeMusic");
 		YDecompositionEditorConfiguration decompConfig = new YDecompositionEditorConfiguration(decomp);
-		assertTrue("Configuration must present a value",decompConfig.getCenterPoint().equals("100"));
-		decompConfig.setCenterPoint(200, 200);
-		assertTrue("Configuration must be modifiable",decompConfig.getCenterPoint().equals("200"));
+		assertEquals(
+				"Configuration must present a value",
+				decompConfig.getCenterPoint(), 
+				new Point2D.Double(100, 100)
+		);
+		decompConfig.setCenterPoint(new Point2D.Double(200, 200));
+		assertEquals(
+				"Configuration must be modifiable",
+				decompConfig.getCenterPoint(), 
+				new Point2D.Double(200, 200)
+		);
     }
     
     public static class YawlEditorElementConfiguration extends ElementConfiguration {
-    	public static Namespace namespace = Namespace.getNamespace("http://www.baloney.org");
-    	public String getDomain() {return "YAWL Editor";}
+    	public static Namespace EDITOR_NAMESPACE = Namespace.getNamespace("http://www.baloney.org");
+    	public static String EDITOR_ROOT_ELEMENT = "editinfo"; 
+    	protected static String domainString = "YAWL Editor";
+    	public String getDomain() {return domainString;}
+    	public void ensureRootElementExists() {
+    		super.ensureRootElementExists();
+    		Element root = getRootElement();
+    		Element child = root.getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE);
+    		if (child == null) {
+    			child = new Element(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE);
+    			root.getChildren().add(child);
+    		}
+    	}
     	public YawlEditorElementConfiguration(ConfigurationListContainer t) {
     		super(t);
     	}
     }
     
-    public class YDecompositionEditorConfiguration extends YawlEditorElementConfiguration{
-    	public String getCenterPoint() {
-    		return ((Element) getRootElement().getChildren().get(0)).getAttributeValue("x");
+    public static class YDecompositionEditorConfiguration extends YawlEditorElementConfiguration{
+    	public static String EDITOR_POINT_ELEMENT = "point"; 
+    	public static String X_ATTRIBUTE = "x";
+    	public static String Y_ATTRIBUTE = "y";
+    	public Point2D getCenterPoint() {
+    		double x = java.lang.Double.parseDouble(
+    		 getRootElement()
+    		.getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
+    		.getChild(EDITOR_POINT_ELEMENT, EDITOR_NAMESPACE)
+    		.getAttributeValue(X_ATTRIBUTE));
+    		double y = java.lang.Double.parseDouble(
+    		getRootElement()
+    		.getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
+    		.getChild(EDITOR_POINT_ELEMENT, EDITOR_NAMESPACE)
+    		.getAttributeValue(Y_ATTRIBUTE));
+    		 return new Point2D.Double(x, y);
     	}
-    	public void setCenterPoint(int x, int y) {
-   			this.ensureRootElement();
-   			List list = this.getRootElement().getChildren();
-   			if (list.size() == 0) {
-   				list.add(new Element("point", namespace));
+    	public void setCenterPoint(Point2D inPoint) {
+   			this.ensureRootElementExists();
+   			Element editinfo = getRootElement().getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE);
+  			Element point = editinfo.getChild(EDITOR_POINT_ELEMENT, EDITOR_NAMESPACE);
+   			if (point == null) {
+   				point = new Element(EDITOR_POINT_ELEMENT, EDITOR_NAMESPACE);
+   				editinfo.getChildren().add(point);
    			}
-    		((Element)getRootElement().getChildren().get(0)).setAttribute("x", String.valueOf(x));
-    		((Element)getRootElement().getChildren().get(0)).setAttribute("y", String.valueOf(y));
+   			point.setAttribute(X_ATTRIBUTE, String.valueOf(inPoint.getX()));
+   			point.setAttribute(Y_ATTRIBUTE, String.valueOf(inPoint.getY()));
     	}
     	public YDecompositionEditorConfiguration(YDecomposition t) {super(t);}
     }    
 
     public class YTaskEditorConfiguration extends YawlEditorElementConfiguration{
-    	public String getCenterPoint() {return ((Element) getRootElement().getChildren().get(0)).getAttributeValue("x");}
     	public YTaskEditorConfiguration(YTask t) {super(t);}
     }    
 
     public class YFlowEditorConfiguration extends YawlEditorElementConfiguration{
-    	public String getCenterPoint() {return ((Element) getRootElement().getChildren().get(0)).getAttributeValue("x");}
     	public YFlowEditorConfiguration(YFlow t) {super(t);}
     }    
 
