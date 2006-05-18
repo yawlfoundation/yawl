@@ -82,7 +82,7 @@ public class StringProducerHibernate extends StringProducerXML {
 			try {
 				AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
 		        .setProperty(Environment.USE_SQL_COMMENTS, "true")
-		        .setProperty(Environment.SHOW_SQL, "true")
+//		        .setProperty(Environment.SHOW_SQL, "true")
 		        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
 		        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
 		        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")

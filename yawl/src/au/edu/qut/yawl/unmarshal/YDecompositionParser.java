@@ -89,6 +89,8 @@ public class YDecompositionParser {
                     (YAWLServiceGateway) _decomposition,
                     decompElem);
         }
+        List<Element> configurations = _decompElem.getChildren("configuration", _yawlNS);
+        _decomposition.setInternalConfigurations(configurations);
         /**
          * AJH: Added to support XML attribute pass-thru from specification into task output data doclet.
          * Load element attributes
@@ -103,10 +105,10 @@ public class YDecompositionParser {
             if(!(ID.equals(attname) || (TYPE.equals(attname) && isXsiNS))) {
                 _decomposition.setAttribute(attname, attr.getValue());
             }
-            if(SKIP_OUTBOUND_VALIDATION.equals(attname)) {
-                _decomposition.setSkipOutboundSchemaChecks(
-                        Boolean.getBoolean(attr.getValue()));
-            }
+//            if(SKIP_OUTBOUND_VALIDATION.equals(attname)) {
+//                _decomposition.setSkipOutboundSchemaChecks(
+//                        Boolean.getBoolean(attr.getValue()));
+//            }
         }
         
         parseDecompositionRoles(_decomposition, decompElem);
@@ -370,6 +372,7 @@ public class YDecompositionParser {
         List flowsIntoElems = netElementElem.getChildren("flowsInto", _yawlNS);
         for (int i = 0; i < flowsIntoElems.size(); i++) {
             Element flowsIntoElem = (Element) flowsIntoElems.get(i);
+            List<Element> configurations = flowsIntoElem.getChildren("configuration", _yawlNS);
             String nextElementRef = flowsIntoElem.getChild("nextElementRef", _yawlNS).getAttributeValue("id");
 
             /**
@@ -539,7 +542,7 @@ public class YDecompositionParser {
                         flow.setEvalOrdering(flowStruct._predicateOrdering);
                         flow.setDefaultFlow(flowStruct._isDefaultFlow);
                         flow.setXpathPredicate(flowStruct._flowPredicate);
-
+                        flow.setInternalConfigurations(flowStruct.configurations);
                         /**
                          * AJH: Added to support flow/link labels
                          */
@@ -657,6 +660,7 @@ public class YDecompositionParser {
         String _flowInto;
         String _flowPredicate;
         Integer _predicateOrdering;
+        List<Element> configurations;
         boolean _isDefaultFlow;
 
         /**

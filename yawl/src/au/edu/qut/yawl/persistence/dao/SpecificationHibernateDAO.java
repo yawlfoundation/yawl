@@ -178,7 +178,7 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 //			tx.commit();
 //			tx = session.beginTransaction();
 			session.saveOrUpdate(m);
-			System.out.println("Persisted " + m.getID());
+//			System.out.println("Persisted " + m.getID());
 			tx.commit();
 			session.close();
 			return 0;

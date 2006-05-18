@@ -87,7 +87,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     "documentation",
     "postsetFlowsAsList"
 })
-public class YExternalNetElement extends YNetElement implements YVerifiable, PolymorphicPersistableObject {
+public class YExternalNetElement extends YNetElement implements YVerifiable, PolymorphicPersistableObject, ConfigurationListContainer {
     protected String _name;
     protected String _documentation;
     public YNet _net;
@@ -445,7 +445,6 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
     		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
         	for (Object config: _internalConfigurations) {
     			String representation = outputter.outputString((Element)config);
-    			System.err.println("rep=" + representation);
     			xml.append(representation);
         	}
         }
@@ -583,7 +582,6 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
                     	"Problem with process model.  Schema validation failed");
         }
     }
-
     
     
 	@XmlTransient
@@ -612,7 +610,7 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
 				while(i.hasNext()) {
 					Element element = (Element) i.next();
 					if (element.getAttributeValue("id") != null) {
-					_internalConfigurations.add(element);
+						_internalConfigurations.add(element);
 					}
 				}
 			} catch (JDOMException e) {
@@ -627,12 +625,12 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
 
 	@Transient
 	@XmlTransient
-	public List getInternalConfigurations() {
+	public List<Element> getInternalConfigurations() {
 		return _internalConfigurations;
 	}
 
 	@Transient
-	public void setInternalConfigurations(List configurations) {
+	public void setInternalConfigurations(List<Element> configurations) {
 		_internalConfigurations = configurations;
 	}
 }
