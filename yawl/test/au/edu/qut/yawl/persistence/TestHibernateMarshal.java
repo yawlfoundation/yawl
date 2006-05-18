@@ -77,7 +77,7 @@ public class TestHibernateMarshal extends XMLTestCase  {
     public void testSpecEmbeddedConfigurations() throws Exception {
 		YSpecification spec = StringProducerHibernate.getInstance().getSpecification("TestSpecEmbeddedConfigurations.xml", true);
 		YDecomposition decomp = spec.getDecomposition("OverseeMusic");
-		YDecompositionEditorConfiguration decompConfig = new YDecompositionEditorConfiguration((YDecomposition) decomp);
+		YDecompositionEditorConfiguration decompConfig = new YDecompositionEditorConfiguration(decomp);
 		assertTrue("Configuration must present a value",decompConfig.getCenterPoint().equals("100"));
 		decompConfig.setCenterPoint(200, 200);
 		assertTrue("Configuration must be modifiable",decompConfig.getCenterPoint().equals("200"));
@@ -93,7 +93,6 @@ public class TestHibernateMarshal extends XMLTestCase  {
     
     public class YDecompositionEditorConfiguration extends YawlEditorElementConfiguration{
     	public String getCenterPoint() {
-    		System.out.println("name:" + this.getRootElement().getName());
     		return ((Element) getRootElement().getChildren().get(0)).getAttributeValue("x");
     	}
     	public void setCenterPoint(int x, int y) {
