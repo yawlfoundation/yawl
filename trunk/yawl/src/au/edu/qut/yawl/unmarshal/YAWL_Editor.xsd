@@ -1,3 +1,29 @@
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:editor="http://www.baloney.org" targetNamespace="http://www.baloney.org" elementFormDefault="qualified" attributeFormDefault="unqualified">
-  <xs:element name="point"/>  
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:editor="http://www.baloney.org"
+	targetNamespace="http://www.baloney.org" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	<xs:element name="editinfo" type="editor:ChoiceType"/>
+	<xs:complexType name="ChoiceType">
+		<xs:choice maxOccurs="1">
+			<xs:element name="point" type="editor:PointType"/>
+			<xs:element name="net" type="editor:NetworkType"/>
+			<xs:element name="flow" type="editor:FlowType"/>
+		</xs:choice>		
+	</xs:complexType>
+	<xs:complexType name="PointType">
+		<xs:attribute name="x"></xs:attribute>
+		<xs:attribute name="y"></xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="NetworkType">
+		<xs:attribute name="x"></xs:attribute>
+		<xs:attribute name="y"></xs:attribute>
+		<xs:attribute name="magnification"></xs:attribute>
+		<xs:attribute name="useGrid"></xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="FlowType">
+		<xs:sequence>
+			<xs:element name="point" type="editor:PointType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
 </xs:schema>

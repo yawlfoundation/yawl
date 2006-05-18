@@ -20,7 +20,7 @@ public abstract class ElementConfiguration {
 		}
 		return null;
 	}
-	protected final void ensureRootElement() {
+	protected void ensureRootElementExists() {
 		Element current = getRootElement();
 		if (current == null) {
 			Element e = new Element(ConfigurationListContainer.ELEMENT_NAME

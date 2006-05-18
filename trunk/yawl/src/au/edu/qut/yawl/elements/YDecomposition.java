@@ -628,7 +628,7 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
 	}
 
 	@XmlTransient
-    @Column(name="configs", length=4096)
+    @Column(name="configs", length=32768)
 	public String getInternalConfigurationsAsString() {
 		if (_internalConfigurations == null) return "";
 		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
@@ -640,7 +640,7 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
     	return buffer.toString();
 	}
 
-    @Column(name="configs", length=4096)
+    @Column(name="configs", length=32768)
 	public void setInternalConfigurationsAsString(String configurations) {
 		_internalConfigurations = new ArrayList<Element>();
 		if (configurations == null || configurations.length() == 0) return;
