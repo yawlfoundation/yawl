@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <specificationSet xmlns="http://www.citi.qut.edu.au/yawl"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1"
-	xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_SchemaBeta7.1.xsd">
+	xmlns:exten="http://www.baloney.org"
+	xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_SchemaBeta7.1.xsd http://www.baloney.org YAWL_Editor.xsd">
 	<specification uri="Blah.xml">
 		<metaData/>
 		<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"/>
 		<decomposition id="OverseeMusic" isRootNet="true" xsi:type="NetFactsType">
+			<configuration id="YAWL Editor">
+				<exten:point x="100" y="100"/>
+			</configuration>
 			<name>Oversee Music</name>
 			<documentation/>
 			<processControlElements>
 				<inputCondition id="input">
 					<flowsInto>
+						<configuration id="YAWL Editor">
+							<exten:point x="100" y="100"/>
+						</configuration>
 						<nextElementRef id="decideName"/>
 					</flowsInto>
 				</inputCondition>
 				<task id="decideName">
+					<configuration id="YAWL Editor">
+						<exten:point x="100" y="100"/>
+					</configuration>
+					<configuration id="YAWL Annotator">
+						<exten:point x="100" y="100"/>
+					</configuration>
 					<flowsInto>
+						<configuration id="YAWL Editor">
+							<exten:point x="100" y="100"/>
+						</configuration>
 						<nextElementRef id="finis"/>
 					</flowsInto>
 					<join code="and"/>

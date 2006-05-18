@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.elements;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,13 +51,16 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.hibernate.annotations.CollectionOfElements;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.xml.sax.InputSource;
 
 import au.edu.qut.yawl.elements.data.YInputParameter;
 import au.edu.qut.yawl.elements.data.YOutputParameter;
@@ -97,7 +101,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     "inputParameters",
     "outputParameters"
 })
-public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersistableObject {
+public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersistableObject, ConfigurationListContainer {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -116,6 +120,8 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
     private Set<String> _outputExpressions;
     protected Document _data;
     private Map<String, String> _attribues = new HashMap<String, String>();
+    private List<Element> _internalConfigurations;
+
     /*
   INSERTED FOR PERSISTANCE
  */
@@ -619,6 +625,56 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
 			parm.setParentOutputParameters(this);
 			this._outputParameters.add(parm);
 		}
+	}
+
+	@XmlTransient
+    @Column(name="configs", length=4096)
+	public String getInternalConfigurationsAsString() {
+		if (_internalConfigurations == null) return "";
+		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
+		StringBuffer buffer = new StringBuffer();
+		for (Element e: (List<Element>) _internalConfigurations) {
+			String representation = outputter.outputString(e);
+			buffer.append(representation);
+		}
+    	return buffer.toString();
+	}
+
+    @Column(name="configs", length=4096)
+	public void setInternalConfigurationsAsString(String configurations) {
+		_internalConfigurations = new ArrayList<Element>();
+		if (configurations == null || configurations.length() == 0) return;
+		if (configurations != null) {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			SAXBuilder sb = new SAXBuilder();
+        	try {
+				Document d = sb.build(new InputSource(new StringReader("<fragment>" + configurations + "</fragment>")));
+				Iterator i = d.getDescendants(); 
+				while(i.hasNext()) {
+					Element element = (Element) i.next();
+					if (element.getAttributeValue("id") != null) {
+						_internalConfigurations.add(element);
+					}
+				}
+			} catch (JDOMException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Transient
+	@XmlTransient
+	public List getInternalConfigurations() {
+		return _internalConfigurations;
+	}
+
+	@Transient
+	public void setInternalConfigurations(List configurations) {
+		_internalConfigurations = configurations;
 	}
 
 }

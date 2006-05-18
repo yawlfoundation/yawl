@@ -48,8 +48,7 @@ public class TestSpecificationHibernateDAO extends TestCase {
 		assertNotNull(spec2);
 		myDAO.delete(spec2);
 		YSpecification spec3 = myDAO.retrieve(key);
-		System.out.println("NOTNULL:" + key.toString());
-		assertNull(spec3);
+		assertNull("After deletion, should retrieve a null.",spec3);
 	}
 
 	/*
@@ -70,7 +69,6 @@ public class TestSpecificationHibernateDAO extends TestCase {
 		DAOFactory hibernateFactory = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE);
 		SpecificationDAO hibernateDAO = hibernateFactory.getSpecificationModelDAO();
 		hibernateDAO.save(testSpec);
-		System.out.println("SPECID=" + testSpec.getDbID());
 		YSpecification spec2 = hibernateDAO.retrieve(testSpec.getDbID());
 		assertNotNull(spec2);
 	}
