@@ -21,6 +21,7 @@ import au.edu.qut.yawl.jaxb.NetFactsType;
 import au.edu.qut.yawl.jaxb.SpecificationSetFactsType;
 import au.edu.qut.yawl.jaxb.YAWLSpecificationFactsType;
 import au.edu.qut.yawl.jaxb.NetFactsType.ProcessControlElements;
+import au.edu.qut.yawl.persistence.JAXBIDResolver;
 
 import com.sun.xml.bind.IDResolver;
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;

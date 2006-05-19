@@ -34,13 +34,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -101,7 +98,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     "inputParameters",
     "outputParameters"
 })
-public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersistableObject, ConfigurationListContainer {
+public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -120,7 +117,7 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
     private Set<String> _outputExpressions;
     protected Document _data;
     private Map<String, String> _attribues = new HashMap<String, String>();
-    private List<Element> _internalConfigurations;
+    private List<Element> _internalExtensions;
 
     /*
   INSERTED FOR PERSISTANCE
@@ -342,6 +339,9 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
     public String toXML() {
         StringBuffer xml = new StringBuffer();
         //just do the decomposition facts (not the surrounding element) - to keep life simple
+        if (_internalExtensions != null && !(_internalExtensions.size() == 0)) {
+        	xml.append(getInternalExtensionsAsString());
+        }
         if (_name != null) {
             xml.append("<name>").
                     append(_name).
@@ -628,32 +628,32 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
 	}
 
 	@XmlTransient
-    @Column(name="configs", length=32768)
-	public String getInternalConfigurationsAsString() {
-		if (_internalConfigurations == null) return "";
+    @Column(name="extensions", length=32768)
+	public String getInternalExtensionsAsString() {
+		if (_internalExtensions == null) return "";
 		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
 		StringBuffer buffer = new StringBuffer();
-		for (Element e: (List<Element>) _internalConfigurations) {
+		for (Element e: (List<Element>) _internalExtensions) {
 			String representation = outputter.outputString(e);
 			buffer.append(representation);
 		}
     	return buffer.toString();
 	}
 
-    @Column(name="configs", length=32768)
-	public void setInternalConfigurationsAsString(String configurations) {
-		_internalConfigurations = new ArrayList<Element>();
-		if (configurations == null || configurations.length() == 0) return;
-		if (configurations != null) {
+    @Column(name="extensions", length=32768)
+	public void setInternalExtensionsAsString(String extensions) {
+		_internalExtensions = new ArrayList<Element>();
+		if (extensions == null || extensions.length() == 0) return;
+		if (extensions != null) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			SAXBuilder sb = new SAXBuilder();
         	try {
-				Document d = sb.build(new InputSource(new StringReader("<fragment>" + configurations + "</fragment>")));
+				Document d = sb.build(new InputSource(new StringReader("<fragment>" + extensions + "</fragment>")));
 				Iterator i = d.getDescendants(); 
 				while(i.hasNext()) {
 					Element element = (Element) i.next();
-					if (element.getAttributeValue("id") != null) {
-						_internalConfigurations.add(element);
+					if (element.getAttributeValue(ExtensionListContainer.IDENTIFIER_ATTRIBUTE) != null) {
+						_internalExtensions.add(element);
 					}
 				}
 			} catch (JDOMException e) {
@@ -668,13 +668,13 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
 
 	@Transient
 	@XmlTransient
-	public List getInternalConfigurations() {
-		return _internalConfigurations;
+	public List getInternalExtensions() {
+		return _internalExtensions;
 	}
 
 	@Transient
-	public void setInternalConfigurations(List configurations) {
-		_internalConfigurations = configurations;
+	public void setInternalExtensions(List extensions) {
+		_internalExtensions = extensions;
 	}
 
 }

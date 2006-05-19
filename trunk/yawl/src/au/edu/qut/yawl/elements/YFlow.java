@@ -24,7 +24,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -70,7 +69,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     "isDefaultFlow",
     "documentation"
 })
-public class YFlow implements Comparable, PersistableObject, ConfigurationListContainer {
+public class YFlow implements Comparable, PersistableObject, ExtensionListContainer {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -84,7 +83,7 @@ public class YFlow implements Comparable, PersistableObject, ConfigurationListCo
     private String _xpathPredicate;
     private Integer _evalOrdering;
     private boolean _isDefaultFlow = false;
-    private List<Element> _internalConfigurations;
+    private List<Element> _internalExtensions;
 
     /**
      * AJH: Added to support flow/link labels
@@ -363,8 +362,11 @@ public class YFlow implements Comparable, PersistableObject, ConfigurationListCo
 
     public String toXML() {
         StringBuffer xml = new StringBuffer();
-        xml.append("<flowsInto>" +
-                "<nextElementRef id=\"" + _nextElement.getID() + "\"/>");
+        xml.append("<flowsInto>");
+        if (_internalExtensions != null && !(_internalExtensions.size() == 0)) {
+        	xml.append(getInternalExtensionsAsString());
+        }
+        xml.append("<nextElementRef id=\"" + _nextElement.getID() + "\"/>");
         if (_xpathPredicate != null) {
             xml.append("<predicate");
             if (_evalOrdering != null) {
@@ -507,52 +509,50 @@ public class YFlow implements Comparable, PersistableObject, ConfigurationListCo
     }
 
 	@XmlTransient
-    @Column(name="configs", length=32768)
-	public String getInternalConfigurationsAsString() {
-		if (_internalConfigurations == null) return "";
+    @Column(name="extensions", length=32768)
+	public String getInternalExtensionsAsString() {
+		if (_internalExtensions == null) return "";
 		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
 		StringBuffer buffer = new StringBuffer();
-		for (Element e: (List<Element>) _internalConfigurations) {
+		for (Element e: (List<Element>) _internalExtensions) {
 			String representation = outputter.outputString(e);
 			buffer.append(representation);
 		}
     	return buffer.toString();
 	}
 
-    @Column(name="configs", length=32768)
-	public void setInternalConfigurationsAsString(String configurations) {
-		_internalConfigurations = new ArrayList<Element>();
-		if (configurations == null || configurations.length() == 0) return;
-		if (configurations != null) {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			SAXBuilder sb = new SAXBuilder();
-        	try {
-				Document d = sb.build(new InputSource(new StringReader("<fragment>" + configurations + "</fragment>")));
-				Iterator i = d.getDescendants(); 
-				while(i.hasNext()) {
-					Element element = (Element) i.next();
-					if (element.getAttributeValue("id") != null) {
-						_internalConfigurations.add(element);
-					}
+    @Column(name="extensions", length=32768)
+	public void setInternalExtensionsAsString(String extensions) {
+		_internalExtensions = new ArrayList<Element>();
+		if (extensions == null || extensions.length() == 0) return;
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		SAXBuilder sb = new SAXBuilder();
+    	try {
+			Document d = sb.build(new InputSource(new StringReader("<fragment>" + extensions + "</fragment>")));
+			Iterator i = d.getDescendants(); 
+			while(i.hasNext()) {
+				Element element = (Element) i.next();
+				if (element.getAttributeValue(ExtensionListContainer.IDENTIFIER_ATTRIBUTE) != null) {
+					_internalExtensions.add(element);
 				}
-			} catch (JDOMException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		} catch (JDOMException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
 	@Transient
 	@XmlTransient
-	public List getInternalConfigurations() {
-		return _internalConfigurations;
+	public List getInternalExtensions() {
+		return _internalExtensions;
 	}
 
 	@Transient
-	public void setInternalConfigurations(List configurations) {
-		_internalConfigurations = configurations;
+	public void setInternalExtensions(List extensions) {
+		_internalExtensions = extensions;
 	}
 }

@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.elements;
+package au.edu.qut.yawl.util;
 
 import java.util.Collection;
 import java.util.HashSet;

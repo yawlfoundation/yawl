@@ -10,8 +10,8 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
-import au.edu.qut.yawl.elements.ConfigurationListContainer;
-import au.edu.qut.yawl.elements.ElementConfiguration;
+import au.edu.qut.yawl.elements.ExtensionListContainer;
+import au.edu.qut.yawl.elements.ElementExtension;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
@@ -77,24 +77,24 @@ public class TestHibernateMarshal extends XMLTestCase  {
     	assertComparison("comparing a minimal spec", "TestSpecMinimal.xml");
     }
     
-    public void testSpecEmbeddedConfigurations() throws Exception {
-		YSpecification spec = StringProducerHibernate.getInstance().getSpecification("TestSpecEmbeddedConfigurations.xml", true);
+    public void testSpecEmbeddedExtensions() throws Exception {
+		YSpecification spec = StringProducerHibernate.getInstance().getSpecification("TestSpecEmbeddedExtensions.xml", true);
 		YDecomposition decomp = spec.getDecomposition("OverseeMusic");
-		YDecompositionEditorConfiguration decompConfig = new YDecompositionEditorConfiguration(decomp);
+		YDecompositionEditorExtension decompExten = new YDecompositionEditorExtension(decomp);
 		assertEquals(
-				"Configuration must present a value",
-				decompConfig.getCenterPoint(), 
+				"Extension must present a value",
+				decompExten.getCenterPoint(), 
 				new Point2D.Double(100, 100)
 		);
-		decompConfig.setCenterPoint(new Point2D.Double(200, 200));
+		decompExten.setCenterPoint(new Point2D.Double(200, 200));
 		assertEquals(
-				"Configuration must be modifiable",
-				decompConfig.getCenterPoint(), 
+				"Extension must be modifiable",
+				decompExten.getCenterPoint(), 
 				new Point2D.Double(200, 200)
 		);
     }
     
-    public static class YawlEditorElementConfiguration extends ElementConfiguration {
+    public static class YawlEditorElementExtension extends ElementExtension {
     	public static Namespace EDITOR_NAMESPACE = Namespace.getNamespace("http://www.baloney.org");
     	public static String EDITOR_ROOT_ELEMENT = "editinfo"; 
     	protected static String domainString = "YAWL Editor";
@@ -108,12 +108,12 @@ public class TestHibernateMarshal extends XMLTestCase  {
     			root.getChildren().add(child);
     		}
     	}
-    	public YawlEditorElementConfiguration(ConfigurationListContainer t) {
+    	public YawlEditorElementExtension(ExtensionListContainer t) {
     		super(t);
     	}
     }
     
-    public static class YDecompositionEditorConfiguration extends YawlEditorElementConfiguration{
+    public static class YDecompositionEditorExtension extends YawlEditorElementExtension{
     	public static String EDITOR_POINT_ELEMENT = "point"; 
     	public static String X_ATTRIBUTE = "x";
     	public static String Y_ATTRIBUTE = "y";
@@ -141,15 +141,15 @@ public class TestHibernateMarshal extends XMLTestCase  {
    			point.setAttribute(X_ATTRIBUTE, String.valueOf(inPoint.getX()));
    			point.setAttribute(Y_ATTRIBUTE, String.valueOf(inPoint.getY()));
     	}
-    	public YDecompositionEditorConfiguration(YDecomposition t) {super(t);}
+    	public YDecompositionEditorExtension(YDecomposition t) {super(t);}
     }    
 
-    public class YTaskEditorConfiguration extends YawlEditorElementConfiguration{
-    	public YTaskEditorConfiguration(YTask t) {super(t);}
+    public class YTaskEditorExtension extends YawlEditorElementExtension{
+    	public YTaskEditorExtension(YTask t) {super(t);}
     }    
 
-    public class YFlowEditorConfiguration extends YawlEditorElementConfiguration{
-    	public YFlowEditorConfiguration(YFlow t) {super(t);}
+    public class YFlowEditorExtension extends YawlEditorElementExtension{
+    	public YFlowEditorExtension(YFlow t) {super(t);}
     }    
 
     

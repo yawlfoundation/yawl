@@ -108,15 +108,12 @@
 		<xs:attribute name="query" type="yawl:XQueryType" use="required"/>
 	</xs:complexType>
 	<xs:complexType name="ExternalNetElementType">
-		<xs:sequence>
-		<xs:element name="configuration"  type="yawl:ExternalConfigurationType" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
 		<xs:attribute name="id" type="yawl:NetElementIDType" use="required"/>
 		<xs:anyAttribute processContents="skip"/>
 	</xs:complexType>
 	<xs:complexType name="FlowsIntoType">
 		<xs:sequence>
-			<xs:element name="configuration"  type="yawl:ExternalConfigurationType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="extension"  type="yawl:ExtensionType" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="nextElementRef" type="yawl:ExternalNetElementType"/>
 			<xs:element name="predicate" type="yawl:PredicateType" minOccurs="0"/>
 			<xs:element name="isDefaultFlow" type="yawl:NullType" minOccurs="0"/>
@@ -179,7 +176,7 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:DecompositionType">
 				<xs:sequence>
-					<xs:element name="configuration"  type="yawl:ExternalConfigurationType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="extension"  type="yawl:ExtensionType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="name" type="yawl:NameType" minOccurs="0"/>
 					<xs:element name="documentation" type="yawl:DocumentationType" minOccurs="0"/>
 					<xs:element name="inputParam" type="yawl:InputParameterFactsType" minOccurs="0" maxOccurs="unbounded"/>
@@ -197,12 +194,12 @@
 		</xs:complexContent>
 	</xs:complexType>
 	
-	<xs:complexType name="ExternalConfigurationType">
+	<xs:complexType name="ExtensionType">
 		<xs:sequence>
 			<xs:any minOccurs="0" maxOccurs="unbounded" 
 			 namespace="##other"/>
 		</xs:sequence>
-		<xs:attribute name="id"/>
+		<xs:attribute name="name"/>
 	</xs:complexType>	
 	<!--
 	#### TYPE #### ExternalNetElementFactsType
@@ -211,6 +208,7 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:ExternalNetElementType">
 				<xs:sequence>
+					<xs:element name="extension"  type="yawl:ExtensionType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="name" minOccurs="0"/>
 					<xs:element name="documentation" minOccurs="0"/>
 					<xs:element name="flowsInto" type="yawl:FlowsIntoType" maxOccurs="unbounded"/>

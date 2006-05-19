@@ -10,18 +10,15 @@
 package au.edu.qut.yawl.elements;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -35,7 +32,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyElement;
@@ -43,30 +39,14 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.validation.Schema;
 
-import org.jdom.Document;
-import org.jdom.JDOMException;
-import org.jdom.input.DOMBuilder;
-import org.jdom.output.DOMOutputter;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.xml.bind.v2.runtime.XMLSerializer;
 
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.PersistableObject;
 import au.edu.qut.yawl.persistence.jaxb.PersistenceHelper;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
-import au.edu.qut.yawl.schema.XSD4YAWLBuilder;
 import au.edu.qut.yawl.unmarshal.SchemaForSchemaValidator;
 import au.edu.qut.yawl.util.YVerificationMessage;
 

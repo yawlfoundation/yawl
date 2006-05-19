@@ -29,7 +29,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -39,24 +38,15 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-import org.jdom.DefaultJDOMFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.filter.ElementFilter;
-import org.jdom.input.DOMBuilder;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
-import org.jdom.output.SAXOutputter;
 import org.jdom.output.XMLOutputter;
-import org.jdom.transform.JDOMResult;
-import org.jdom.transform.JDOMSource;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YDataValidationException;
@@ -87,7 +77,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     "documentation",
     "postsetFlowsAsList"
 })
-public class YExternalNetElement extends YNetElement implements YVerifiable, PolymorphicPersistableObject, ConfigurationListContainer {
+public class YExternalNetElement extends YNetElement implements YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
     protected String _name;
     protected String _documentation;
     public YNet _net;
@@ -95,9 +85,10 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
     private Collection<YFlow> _presetFlows = new TreeSet<YFlow>();
     @Transient
     private Collection<YFlow> _postsetFlows = new TreeSet<YFlow>();
-    private List<Element> _internalConfigurations;
+    private List<Element> _internalExtensions;
     private Long _dbid;
-    /**
+	private static final long serialVersionUID = 2006030080l;
+	/**
      * Null constructor for hibernate
      *
      */
@@ -441,14 +432,16 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
 
     public String toXML() {
         StringBuffer xml = new StringBuffer();
-        if (_internalConfigurations != null) {
+        if (_internalExtensions != null) {
     		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
-        	for (Object config: _internalConfigurations) {
-    			String representation = outputter.outputString((Element)config);
+        	for (Object exten: _internalExtensions) {
+    			String representation = outputter.outputString((Element)exten);
     			xml.append(representation);
         	}
         }
-        	
+        if (_internalExtensions != null && !(_internalExtensions.size() == 0)) {
+        	xml.append(getInternalExtensionsAsString());
+        }
         if( _name != null ) {
 			xml.append( "<name>" ).append( _name ).append( "</name>" );
 		}
@@ -585,52 +578,50 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
     
     
 	@XmlTransient
-    @Column(name="configs", length=32768)
-	public String getInternalConfigurationsAsString() {
-		if (_internalConfigurations == null) return "";
+    @Column(name="extensions", length=32768)
+	public String getInternalExtensionsAsString() {
+		if (_internalExtensions == null) return "";
 		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
 		StringBuffer buffer = new StringBuffer();
-		for (Element e: (List<Element>) _internalConfigurations) {
+		for (Element e: (List<Element>) _internalExtensions) {
 			String representation = outputter.outputString(e);
 			buffer.append(representation);
 		}
     	return buffer.toString();
 	}
 
-    @Column(name="configs", length=32768)
-	public void setInternalConfigurationsAsString(String configurations) {
-		_internalConfigurations = new ArrayList<Element>();
-		if (configurations == null || configurations.length() == 0) return;
-		if (configurations != null) {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			SAXBuilder sb = new SAXBuilder();
-        	try {
-				Document d = sb.build(new InputSource(new StringReader("<fragment>" + configurations + "</fragment>")));
-				Iterator i = d.getDescendants(); 
-				while(i.hasNext()) {
-					Element element = (Element) i.next();
-					if (element.getAttributeValue("id") != null) {
-						_internalConfigurations.add(element);
-					}
+    @Column(name="extensions", length=32768)
+	public void setInternalExtensionsAsString(String extensions) {
+		_internalExtensions = new ArrayList<Element>();
+		if (extensions == null || extensions.length() == 0) return;
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		SAXBuilder sb = new SAXBuilder();
+    	try {
+			Document d = sb.build(new InputSource(new StringReader("<fragment>" + extensions + "</fragment>")));
+			Iterator i = d.getDescendants(); 
+			while(i.hasNext()) {
+				Element element = (Element) i.next();
+				if (element.getAttributeValue(ExtensionListContainer.IDENTIFIER_ATTRIBUTE) != null) {
+					_internalExtensions.add(element);
 				}
-			} catch (JDOMException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		} catch (JDOMException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
 	@Transient
 	@XmlTransient
-	public List<Element> getInternalConfigurations() {
-		return _internalConfigurations;
+	public List<Element> getInternalExtensions() {
+		return _internalExtensions;
 	}
 
 	@Transient
-	public void setInternalConfigurations(List<Element> configurations) {
-		_internalConfigurations = configurations;
+	public void setInternalExtensions(List<Element> extensions) {
+		_internalExtensions = extensions;
 	}
 }

@@ -22,7 +22,6 @@ import org.hibernate.Transaction;
 import com.sun.xml.bind.IDResolver;
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
-import au.edu.qut.yawl.elements.JAXBIDResolver;
 import au.edu.qut.yawl.elements.SpecificationSet;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
