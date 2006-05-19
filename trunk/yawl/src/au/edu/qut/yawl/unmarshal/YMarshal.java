@@ -9,9 +9,7 @@
 
 package au.edu.qut.yawl.unmarshal;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -92,16 +90,15 @@ public class YMarshal {
      */
     public static List unmarshalSpecifications(String specificationSetFileID)
             throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
-    	File file = new File( specificationSetFileID );
-    	
         //first check if is well formed and build a document
-    	Document document = buildSpecificationSetDocument( new InputSource( new FileInputStream( file ) ) );
+    	Document document = buildSpecificationSetDocument(
+    			new InputSource( specificationSetFileID ) );
     	
         //next get the version out as text 
     	String version = getSpecificationSetVersion( document );
     	
         //now check the specification file against its' respective schema
-    	validateSpecification( new InputSource( new FileInputStream( file ) ),
+    	validateSpecification( new InputSource( specificationSetFileID ),
     			specificationSetFileID, version );
     	
         //now build a set of specifications - verification has not yet occured.
@@ -114,6 +111,13 @@ public class YMarshal {
     	SAXBuilder builder = new SAXBuilder();
     	return builder.build( specificationSetSource );
     }
+    
+//    private static Document buildSpecificationSetDocument( Reader specificationSetReader )
+//    		throws JDOMException, IOException {
+//        //first check if is well formed and build a document
+//    	SAXBuilder builder = new SAXBuilder();
+//    	return builder.build( specificationSetReader );
+//    }
     
     /**
      * @return the beta version of the specification set.
