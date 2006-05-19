@@ -9,11 +9,11 @@
 
 package au.edu.qut.yawl.elements;
 
+import java.util.List;
+
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YStateException;
-
-import java.util.List;
 
 /**
  * 

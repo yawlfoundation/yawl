@@ -88,7 +88,7 @@ public class StringProducerHibernate extends StringProducerXML {
 		        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
 		        .setProperty(Environment.USER, "capsela")
 		        .setProperty(Environment.PASS, "capsela")
-//				.setProperty(Environment.HBM2DDL_AUTO, "create")
+				.setProperty(Environment.HBM2DDL_AUTO, "create")
 		        ;
 				setCfg( config );
 		        

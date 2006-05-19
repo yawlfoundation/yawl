@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.elements;
+package au.edu.qut.yawl.persistence;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,10 +6,6 @@ import java.util.concurrent.Callable;
 
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.ValidationEventHandler;
-
-import org.xml.sax.SAXException;
-
-import au.edu.qut.yawl.jaxb.ExternalTaskFactsType;
 
 import com.sun.xml.bind.IDResolver;
 

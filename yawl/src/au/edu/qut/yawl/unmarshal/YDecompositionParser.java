@@ -89,8 +89,8 @@ public class YDecompositionParser {
                     (YAWLServiceGateway) _decomposition,
                     decompElem);
         }
-        List<Element> configurations = _decompElem.getChildren("configuration", _yawlNS);
-        _decomposition.setInternalConfigurations(configurations);
+        List<Element> extensions = _decompElem.getChildren(ExtensionListContainer.ELEMENT_NAME, _yawlNS);
+        _decomposition.setInternalExtensions(extensions);
         /**
          * AJH: Added to support XML attribute pass-thru from specification into task output data doclet.
          * Load element attributes
@@ -190,7 +190,7 @@ public class YDecompositionParser {
     private YTask parseTask(Element taskElem) {
         short[] splitJoinTypes = parseSplitJoinTypes(taskElem);
 
-        List<Element> configurations = taskElem.getChildren("configuration", _yawlNS);
+        List<Element> extensions = taskElem.getChildren(ExtensionListContainer.ELEMENT_NAME, _yawlNS);
         Element decomposesToRefElem = taskElem.getChild("decomposesTo", _yawlNS);
         String decomposesToID = null;
         if (decomposesToRefElem != null) {
@@ -215,7 +215,7 @@ public class YDecompositionParser {
         }
         parseExternalTaskRoles(taskElem, task);
         parseNameAndDocumentation(task, taskElem);
-        task.setInternalConfigurations(configurations);
+        task.setInternalExtensions(extensions);
         return task;
     }
 
@@ -372,7 +372,7 @@ public class YDecompositionParser {
         List flowsIntoElems = netElementElem.getChildren("flowsInto", _yawlNS);
         for (int i = 0; i < flowsIntoElems.size(); i++) {
             Element flowsIntoElem = (Element) flowsIntoElems.get(i);
-            List<Element> configurations = flowsIntoElem.getChildren("configuration", _yawlNS);
+            List<Element> extensions = flowsIntoElem.getChildren(ExtensionListContainer.ELEMENT_NAME, _yawlNS);
             String nextElementRef = flowsIntoElem.getChild("nextElementRef", _yawlNS).getAttributeValue("id");
 
             /**
@@ -542,7 +542,7 @@ public class YDecompositionParser {
                         flow.setEvalOrdering(flowStruct._predicateOrdering);
                         flow.setDefaultFlow(flowStruct._isDefaultFlow);
                         flow.setXpathPredicate(flowStruct._flowPredicate);
-                        flow.setInternalConfigurations(flowStruct.configurations);
+                        flow.setInternalExtensions(flowStruct.extensions);
                         /**
                          * AJH: Added to support flow/link labels
                          */
@@ -660,7 +660,7 @@ public class YDecompositionParser {
         String _flowInto;
         String _flowPredicate;
         Integer _predicateOrdering;
-        List<Element> configurations;
+        List<Element> extensions;
         boolean _isDefaultFlow;
 
         /**

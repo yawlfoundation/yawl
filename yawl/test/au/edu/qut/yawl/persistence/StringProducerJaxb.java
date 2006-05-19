@@ -10,7 +10,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.util.ValidationEventCollector;
 
-import au.edu.qut.yawl.elements.JAXBIDResolver;
 import au.edu.qut.yawl.elements.SpecificationSet;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
