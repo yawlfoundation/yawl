@@ -9,21 +9,23 @@
 
 package au.edu.qut.yawl.elements;
 
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.util.YMessagePrinter;
-import au.edu.qut.yawl.util.YVerificationMessage;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import org.jdom.JDOMException;
+
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.unmarshal.YMarshal;
+import au.edu.qut.yawl.util.YMessagePrinter;
+import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  * 
@@ -37,11 +39,12 @@ public class TestYSpecification extends TestCase {
     private YSpecification _badSpecification;
     private YSpecification _infiniteLoops;
     private YSpecification _originalSpec;
+    private YSpecification _decompAttributeSpec;
     private YSpecification spec;
-    private String validType1;
-    private String validType2;
-    private String validType3;
-    private String validType4;
+//    private String validType1;
+//    private String validType2;
+//    private String validType3;
+//    private String validType4;
 
 
     public TestYSpecification(String name) {
@@ -58,9 +61,11 @@ public class TestYSpecification extends TestCase {
         File file1 = new File(getClass().getResource("GoodNetSpecification.xml").getFile());
         File file2 = new File(getClass().getResource("BadNetSpecification.xml").getFile());
         File file3 = new File(getClass().getResource("infiniteDecomps.xml").getFile());
+        File file4 = new File(getClass().getResource("DecompositionAttributeSpec.xml").getFile());
         _goodSpecification = (YSpecification) YMarshal.unmarshalSpecifications(file1.getAbsolutePath()).get(0);
         _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(file2.getAbsolutePath()).get(0);
         _infiniteLoops = (YSpecification) YMarshal.unmarshalSpecifications(file3.getAbsolutePath()).get(0);
+        _decompAttributeSpec = (YSpecification) YMarshal.unmarshalSpecifications(file4.getAbsolutePath()).get(0);
         spec = new YSpecification("something");
     }
 
@@ -101,7 +106,66 @@ public class TestYSpecification extends TestCase {
         */
         assertTrue(YMessagePrinter.getMessageString(messages), messages.size() == 4);
     }
-
+    
+    /**
+     * Tests that the XML can write a decomposition with attributes besides the
+     * default attributes (the id and xsi:type).
+     */
+    public void testDecompositionAttributeSpec() {
+    	String str = _decompAttributeSpec.toXML();
+    	str = "<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+		"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl" +
+		" d:/yawl/schema/YAWL_SchemaBeta6.xsd\">" + str + "</specificationSet>";
+    	try {
+    		List<YSpecification> specs = YMarshal.unmarshalSpecifications(
+    				str, "TestYSpecification.testDecompositionAttributeSpecB" );
+    		YSpecification spec = specs.get( 0 );
+    		Iterator<YDecomposition> iter = spec._decompositions.iterator();
+    		
+    		boolean attr1found = false;
+    		boolean attr2found = false;
+    		
+    		while( iter.hasNext() ) {
+    			YDecomposition decomp = iter.next();
+    			if( decomp.getId().equals( "SignOff" ) ) {
+    				if( decomp.getAttribute( "foo" ) != null ) {
+    					assertTrue( decomp.getAttribute( "foo" ).equals( "bar" ) );
+    					attr1found = true;
+    				}
+    				if( decomp.getAttribute( "baz" ) != null ) {
+    					assertTrue( decomp.getAttribute( "baz" ).equals( "boz" ) );
+    					attr2found = true;
+    				}
+    			}
+    		}
+    		
+    		assertTrue( attr1found );
+    		assertTrue( attr2found );
+    	}
+    	catch( Exception e ) {
+    		fail( e.toString() );
+    	}
+    }
+    
+    public void testDecompositionAttributeSpecB() {
+    	_decompAttributeSpec.setName( null );
+    	_decompAttributeSpec.setDocumentation( null );
+    	String str = _decompAttributeSpec.toXML();
+    	str = "<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+    		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+    		"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl" +
+    		" d:/yawl/schema/YAWL_SchemaBeta6.xsd\">" + str + "</specificationSet>";
+    	try {
+    		List<YSpecification> specs = YMarshal.unmarshalSpecifications(
+    				str, "TestYSpecification.testDecompositionAttributeSpecB" );
+    		assertTrue( specs.get( 0 ).getName() == null );
+    		assertTrue( specs.get( 0 ).getDocumentation() == null );
+    	}
+    	catch( Exception e ) {
+    		fail( e.toString() );
+    	}
+    }
 
     public void testDataStructure() {
         YNet root = _originalSpec.getRootNet();
@@ -132,7 +196,26 @@ public class TestYSpecification extends TestCase {
         assertSame(prepareClone._net, clonedRecordNet);
         assertSame(prepareClone._mi_active._myTask, prepareClone);
     }
-
+    
+    public void testSpecBetaVersion() {
+    	spec.setBetaVersion("beta3");
+    	assertTrue( spec.getBetaVersion().equals( YSpecification._Beta3 ) );
+    	try {
+    		spec.setBetaVersion( "invalid version string that should get rejected" );
+    		fail( "Setting an invalid version should throw an exception." );
+    	}
+    	catch( IllegalArgumentException e ) {
+    		// proper exception was thrown
+    	}
+    }
+    
+    public void testDecompositions() {
+    	YSpecification spec = new YSpecification( "" );
+    	spec._decompositions.add(new YDecomposition( "self", spec));
+    	assertNull( spec.getDecomposition( "nonexistent" ) );
+    	assertNotNull( spec.getDecomposition( "self" ) );
+    	assertTrue( spec.getDecomposition( "self" ).getSpecification() == spec );
+    }
 
     /**
      * Test specs ability to correctly handle valid data types.
