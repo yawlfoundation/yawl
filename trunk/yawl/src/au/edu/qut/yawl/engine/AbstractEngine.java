@@ -1049,7 +1049,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 logger.debug("--> getAvailableWorkItems: Enabled=" + YEngine._workItemRepository.getEnabledWorkItems().size() +
                         " Fired=" + YEngine._workItemRepository.getFiredWorkItems().size());
             }
-
+ 
             Set allItems = new HashSet();
             allItems.addAll(YEngine._workItemRepository.getEnabledWorkItems());
             allItems.addAll(YEngine._workItemRepository.getFiredWorkItems());
