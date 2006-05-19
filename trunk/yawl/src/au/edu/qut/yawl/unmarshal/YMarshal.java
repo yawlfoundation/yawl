@@ -97,7 +97,7 @@ public class YMarshal {
         //first check if is well formed and build a document
     	Document document = buildSpecificationSetDocument( new InputSource( new FileInputStream( file ) ) );
     	
-        //next get the version out as text
+        //next get the version out as text 
     	String version = getSpecificationSetVersion( document );
     	
         //now check the specification file against its' respective schema
