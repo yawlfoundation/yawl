@@ -217,30 +217,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
         return xmlt.createYAWLSchema(instructionsArr, getDecompositionPrototype().getRootDataElementName());
     }
 
-    @Transient
-    public Element prepareEnablementData() throws YQueryException,
-			YSchemaBuildingException, YDataStateException, YStateException {
-		if (null == getDecompositionPrototype()) {
-			return null;
-		}
-		Element enablementData = produceDataRootElement();
-		YAWLServiceGateway serviceGateway = (YAWLServiceGateway) getDecompositionPrototype();
-		List enablementParams = new ArrayList(serviceGateway
-				.getEnablementParametersMap().values());
-		Collections.sort(enablementParams);
-		for (int i = 0; i < enablementParams.size(); i++) {
-			YParameter parameter = (YParameter) enablementParams.get(i);
-			String paramName = parameter.getName() != null ? parameter
-					.getName() : parameter.getElementName();
-			String expression = (String) getDataMappingsForEnablement()
-					.get(paramName);
-
-			Element result = performDataExtraction(expression, parameter);
-			enablementData.addContent((Element) result.clone());
-		}
-		return enablementData;
-	}
-
     /**
      * 
      * @return
