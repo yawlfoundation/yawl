@@ -102,6 +102,23 @@ System.out.println("marshalledSpecsString = " + marshalledSpecsString);
         _originalXMLString = YMarshal.marshal(_originalSpec);
         _copyXMLString = YMarshal.marshal(_copy);
     }
+    
+    /**
+     * Tests a simple spec that fails because of a vad version.
+     */
+    public void testSimpleSpec() {
+    	try {
+    		YMarshal.unmarshalSpecifications( getClass().getResource( "SimpleSpec.xml" ).toString() );
+    		fail( "SimpleSpec.xml was read successfully, but should have errored" );
+    	}
+    	catch( IllegalArgumentException e ) {
+    		// proper exception was thrown
+    	}
+    	catch( Exception e ) {
+    		e.printStackTrace();
+    		fail( e.toString() );
+    	}
+    }
 
 /*
     public void testBothValid() {
