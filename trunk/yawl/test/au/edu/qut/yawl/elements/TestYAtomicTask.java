@@ -41,6 +41,7 @@ import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.SpecReader;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
@@ -302,6 +303,46 @@ public class TestYAtomicTask extends TestCase {
     }
     
     /**
+     * Tests converting the enablement mappings spec to XML.
+     */
+    public void testEnablementMappingsSpecXML() {
+    	String fileName = "EnablementMappingsSpec.xml";
+    	boolean isXmlFileInPackage = true;
+    	
+    	YSpecification spec = null;
+    	
+    	try {
+    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+    		
+    		String xml = spec.toXML();
+    		
+    		xml = "<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+    			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl" +
+    			" d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">" + xml + "</specificationSet>";
+    		
+    		YSpecification spec2 = (YSpecification) YMarshal.unmarshalSpecifications(
+    				xml, "testEnablementMappingsSpecXML" ).get( 0 );
+    		
+    		// test some things to see if they're the same
+    		// (would be better if there was a .equals for YSpecification that tested
+    		// for example equality)
+    		assertTrue( spec.getDocumentation().equals( spec2.getDocumentation() ) );
+    		assertTrue( spec.getID().equals( spec2.getID() ) );
+    		assertTrue( spec.getDecompositions().size() == spec2.getDecompositions().size() );
+    		assertTrue( spec.getMetaData().toXML().equals( spec2.getMetaData().toXML() ) );
+    		assertTrue( spec.getRootNet().toXML().equals( spec2.getRootNet().toXML() ) );
+    		assertTrue( spec.toXML().equals( spec2.toXML() ) );
+    	}
+    	catch(Exception e) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
+    }
+    
+    /**
      * Tests having enablement mappings with a task that decomposes to null (ie: doesn't
      * decompose to anything). Uses an XML file where the task does have a decomposition,
      * then modifies it in the java code.
@@ -483,7 +524,6 @@ public class TestYAtomicTask extends TestCase {
     
     /**
      * Provides further branch coverage in YAtomicTask.prepareEnablementData
-     *
      */
     public void testEnablementMappingsSpecF() {
     	String fileName = "EnablementMappingsSpecF.xml";
@@ -522,6 +562,46 @@ public class TestYAtomicTask extends TestCase {
     		assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
     		
     		netRunner1.continueIfPossible();
+    	}
+    	catch(Exception e) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
+    }
+    
+    /**
+     * Tests converting the enablement mappings spec F to XML.
+     */
+    public void testEnablementMappingsSpecXML_F() {
+    	String fileName = "EnablementMappingsSpecF.xml";
+    	boolean isXmlFileInPackage = true;
+    	
+    	YSpecification spec = null;
+    	
+    	try {
+    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+    		
+    		String xml = spec.toXML();
+    		
+    		xml = "<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+    			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl" +
+    			" d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">" + xml + "</specificationSet>";
+    		
+    		YSpecification spec2 = (YSpecification) YMarshal.unmarshalSpecifications(
+    				xml, "testEnablementMappingsSpecF_XML" ).get( 0 );
+    		
+    		// test some things to see if they're the same
+    		// (would be better if there was a .equals for YSpecification that tested
+    		// for example equality)
+    		assertTrue( spec.getDocumentation().equals( spec2.getDocumentation() ) );
+    		assertTrue( spec.getID().equals( spec2.getID() ) );
+    		assertTrue( spec.getDecompositions().size() == spec2.getDecompositions().size() );
+    		assertTrue( spec.getMetaData().toXML().equals( spec2.getMetaData().toXML() ) );
+    		assertTrue( spec.getRootNet().toXML().equals( spec2.getRootNet().toXML() ) );
+    		assertTrue( spec.toXML().equals( spec2.toXML() ) );
     	}
     	catch(Exception e) {
     		StringWriter sw = new StringWriter();

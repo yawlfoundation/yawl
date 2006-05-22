@@ -16,8 +16,8 @@
 					<flowsInto>
 						<nextElementRef id="OutputCondition_2"/>
 					</flowsInto>
-					<join code="and"/>
-					<split code="and"/>
+					<join code="or"/>
+					<split code="or"/>
 					<enablementMappings>
 						<mapping>
 							<expression query="&lt;YawlResourceAllocationQuery&gt;{'select hresid from hresperformsrole where rolename = $apos;manager$apos;'}&lt;/YawlResourceAllocationQuery&gt;"/>
