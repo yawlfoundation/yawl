@@ -31,6 +31,7 @@ public class EngineTestSuite extends TestCase{
     public static Test suite(){
         TestSuite suite = new TestSuite();
         suite.addTestSuite(TestCaseCancellation.class);
+        suite.addTestSuite(TestDeadlockingWorkflows.class);
         suite.addTestSuite(TestEngineAgainstABeta4Spec.class);
         suite.addTestSuite(TestEngineAgainstImproperCompletionOfASubnet.class);
         suite.addTestSuite(TestEngineSystem1.class);
@@ -39,6 +40,7 @@ public class EngineTestSuite extends TestCase{
         suite.addTestSuite(TestOrJoin.class);
         suite.addTestSuite(TestRestServiceMethods.class);
         suite.addTestSuite(TestSimpleExecutionUseCases.class);
+        suite.addTestSuite(TestSplitsAndJoins.class);
         suite.addTestSuite(TestYNetRunner.class);
         suite.addTestSuite(TestYWorkItem.class);
         suite.addTestSuite(TestYWorkItemID.class);
