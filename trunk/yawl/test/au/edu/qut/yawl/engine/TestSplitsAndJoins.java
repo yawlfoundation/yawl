@@ -21,6 +21,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.elements.YSpecification;
@@ -297,6 +299,77 @@ public class TestSplitsAndJoins extends TestCase {
         }
         assertTrue( _workItemRepository.getWorkItems().size() == 0 );
         assertFalse( topNetRunner.isAlive() );
+    }
+    
+    /**
+     * Tests trying to complete a task that wasn't activated, which should
+     * cause an exception to be thrown. Calls {@link AbstractEngine#completeWorkItem(YWorkItem, String)}.
+     */
+    public void testCompleteInactiveTest() throws YDataStateException, YPersistenceException,
+			YSchemaBuildingException, YQueryException {
+    	try {
+        	// variables
+        	Set<YWorkItem> workItems;
+        	Iterator<YWorkItem> itemIter;
+        	YWorkItem item;
+        	
+        	// load the spec and start it
+        	_engine.loadSpecification(_specification);
+        	_idForTopNet = _engine.startCase(null, _specification.getID(), null, null);
+        	
+        	
+        	// make sure there's 1 enabled item to start
+        	workItems = _workItemRepository.getEnabledWorkItems();
+        	assertTrue( workItems.size() == 1 );
+        	
+        	// get the enabled item
+        	item = workItems.iterator().next();
+        	
+        	// try to complete it
+        	YNetRunner netRunner = _workItemRepository.getNetRunner( item.getCaseID() );
+        	_engine.completeWorkItem( item, "<A/>" );
+        	
+        	fail( "an error should have been thrown" );
+    	}
+    	catch( YStateException e ) {
+    		// correct exception was thrown.
+    	}
+    }
+    
+    /**
+     * Tests trying to complete a task that wasn't activated, which should
+     * cause an exception to be thrown. Calls
+     * {@link YNetRunner#completeWorkItemInTask(YWorkItem, YIdentifier, String, Document)}.
+     */
+    public void testCompleteInactiveTestB() throws YDataStateException, YPersistenceException,
+			YStateException, YSchemaBuildingException, YQueryException {
+    	try {
+        	// variables
+        	Set<YWorkItem> workItems;
+        	Iterator<YWorkItem> itemIter;
+        	YWorkItem item;
+        	
+        	// load the spec and start it
+        	_engine.loadSpecification(_specification);
+        	_idForTopNet = _engine.startCase(null, _specification.getID(), null, null);
+        	
+        	
+        	// make sure there's 1 enabled item to start
+        	workItems = _workItemRepository.getEnabledWorkItems();
+        	assertTrue( workItems.size() == 1 );
+        	
+        	// get the enabled item
+        	item = workItems.iterator().next();
+        	
+        	// try to complete it
+        	YNetRunner netRunner = _workItemRepository.getNetRunner( item.getCaseID() );
+        	netRunner.completeWorkItemInTask(item, _idForTopNet, "A_5", new Document(new Element("A")) );
+        	
+        	fail( "an error should have been thrown" );
+    	}
+    	catch( RuntimeException e ) {
+    		// correct exception was thrown.
+    	}
     }
 
     public static void main(String args[]) {
