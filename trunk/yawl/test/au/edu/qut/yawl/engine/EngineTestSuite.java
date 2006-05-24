@@ -24,11 +24,11 @@ import junit.textui.TestRunner;
  * 
  */
 public class EngineTestSuite extends TestCase{
-    public EngineTestSuite(String name){
+    public EngineTestSuite(String name) {
         super(name);
     }
 
-    public static Test suite(){
+    public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(TestCaseCancellation.class);
         suite.addTestSuite(TestEngineAgainstABeta4Spec.class);
@@ -36,6 +36,7 @@ public class EngineTestSuite extends TestCase{
         suite.addTestSuite(TestEngineSystem1.class);
         suite.addTestSuite(TestEngineSystem2.class);
         suite.addTestSuite(TestImproperCompletion.class);
+        suite.addTestSuite(TestMiDataOutput.class);
         suite.addTestSuite(TestOrJoin.class);
         suite.addTestSuite(TestRestServiceMethods.class);
         suite.addTestSuite(TestSimpleExecutionUseCases.class);
@@ -47,7 +48,7 @@ public class EngineTestSuite extends TestCase{
         return suite;
     }
 
-    public static void main(String args[]){
+    public static void main(String args[]) {
         TestRunner runner = new TestRunner();
         runner.doRun(suite());
         System.exit(0);
