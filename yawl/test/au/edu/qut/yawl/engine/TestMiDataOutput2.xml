@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1"
 	xmlns:mm="www.citi.qut.edu.au/yawl/exampleSchemas/make_trip_B"
 	xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_SchemaBeta7.1.xsd">
-	<specification uri="TestMiDataOutput.xml">
+	<specification uri="TestMiDataOutput2.xml">
 		<metaData/>
 		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 			attributeFormDefault="unqualified" elementFormDefault="qualified">
@@ -108,7 +108,8 @@
 					</miDataInput>
 					<miDataOutput>
 						<formalOutputExpression query="for $d in /Prepare/songLocal return &lt;song&gt;{$d/songName}{$d/songSpecification}&lt;/song&gt;"/>
-						<outputJoiningExpression query="&lt;songList_output&gt; { for $d in /Prepare/song return &lt;song&gt;{$d/songName/text()}&lt;/song&gt; } &lt;/songList_output&gt;"/>
+						<!-- What should be: {$d/songName/text()} is {$d/songName} in the following query -->
+						<outputJoiningExpression query="&lt;songList_output&gt; { for $d in /Prepare/song return &lt;song&gt;{$d/songName}&lt;/song&gt; } &lt;/songList_output&gt;"/>
 						<resultAppliedToLocalVariable>songList_output</resultAppliedToLocalVariable>
 					</miDataOutput>
 				</task>
