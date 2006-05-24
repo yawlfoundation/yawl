@@ -309,11 +309,11 @@ public class TestYExternalTask extends TestCase{
 
         assertEquals(
         "<task id=\"1\" xsi:type=\"MultipleInstanceExternalTaskFactsType\" " +
-        "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><flowsInto>" +
-        "<nextElementRef id=\"3\"/><isDefaultFlow/></flowsInto><flowsInto>" +
-        "<nextElementRef id=\"2\"/><predicate ordering=\"1\">true()</predicate>" +
-        "</flowsInto><flowsInto><nextElementRef id=\"4\"/><predicate ordering=\"2\">" +
-        "true()</predicate></flowsInto><join code=\"and\"/><split code=\"xor\"/>" +
+        "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
+        "<flowsInto><nextElementRef id=\"2\"/><predicate ordering=\"1\">true()</predicate></flowsInto>" +
+        "<flowsInto><nextElementRef id=\"4\"/><predicate ordering=\"2\">true()</predicate></flowsInto>" +
+        "<flowsInto><nextElementRef id=\"3\"/><isDefaultFlow/></flowsInto>" +
+        "<join code=\"and\"/><split code=\"xor\"/>" +
         "<minimum>3</minimum><maximum>10</maximum><threshold>3</threshold>" +
         "<creationMode code=\"static\"/><miDataInput><expression query=\"/data/stubList\"/>" +
         "<splittingExpression query=\"for $d in /stubList/* return $d\"/>" +
