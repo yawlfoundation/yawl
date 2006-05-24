@@ -33,6 +33,7 @@ import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.exceptions.YDataQueryException;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
@@ -52,6 +53,7 @@ public class TestMiDataOutput extends TestCase {
     private static final int SLEEP_TIME = 100;
     private AbstractEngine _engine;
     private YSpecification _specification;
+    private YSpecification _specification2;
 
     public TestMiDataOutput(String name) {
         super(name);
@@ -64,6 +66,10 @@ public class TestMiDataOutput extends TestCase {
         _specification = null;
         _specification = (YSpecification) YMarshal.
                             unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+        fileURL = getClass().getResource("TestMiDataOutput2.xml");
+        yawlXMLFile = new File(fileURL.getFile());
+        _specification2 = (YSpecification) YMarshal
+        	.unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
     }
@@ -201,6 +207,89 @@ public class TestMiDataOutput extends TestCase {
     	assertTrue(chars.size() == 4);
     }
     
+    /**
+     * This spec fails in beta2 because the root node of the data is <tt>&lt;data&gt;</tt>,
+     * not <tt>&lt;Prepare&gt;</tt> (the ID of the web service gateway) and no data is
+     * returned by the query:<br>
+     * <tt>for $d in /Prepare/songLocal return
+     * &lt;song&gt;{$d/songName}{$d/songSpecification}&lt;/song&gt;</tt>
+     */
+    public void testRunMultiInstanceBeta2() throws YDataStateException, YPersistenceException,
+    		YStateException, YSchemaBuildingException, YQueryException  {
+    	try {
+    		_specification.setBetaVersion(YSpecification._Beta2);
+    		testRunMultiInstance();
+    		fail("The proper exception was not thrown.");
+    	}
+    	catch(YDataQueryException e) {
+    		// the proper exception was thrown.
+//    		System.out.println(e);
+//    		System.out.println("query:" + e.getQueryString());
+//    		System.out.println("data:");
+//    		printxml(e.getData());
+//    		System.out.println("source:");
+//    		System.out.println(e.getSource());
+//    		System.out.println(e);
+//    		e.printStackTrace();
+    	}
+    }
+    
+    public void testRunMultiInstance2Beta2() throws YDataStateException, YPersistenceException,
+			YStateException, YSchemaBuildingException, YQueryException  {
+    	_specification2.setBetaVersion(YSpecification._Beta2);
+    	testRunMultiInstance2();
+    }
+    
+    public void testRunMultiInstance2() throws YDataStateException, YPersistenceException, YStateException,
+			YSchemaBuildingException, YQueryException {
+    	try {
+			// variables
+			Set<YWorkItem> workItems;
+			Iterator<YWorkItem> iter;
+			YWorkItem item;
+			List<YNetRunner> netRunners = new Vector<YNetRunner>();
+			List<YIdentifier> ids = new LinkedList<YIdentifier>();
+
+			// load the spec and start it
+			_engine.loadSpecification( _specification2 );
+			_idForTopNet = _engine.startCase( null, _specification2.getID(), null, null );
+			YNetRunner topNetRunner = _workItemRepository.getNetRunner( _idForTopNet );
+
+			// make sure there's 1 enabled item to start
+			workItems = _workItemRepository.getEnabledWorkItems();
+			assertTrue( workItems.size() == 1 );
+
+			// make sure the work item is the correct one, and start it
+			item = workItems.iterator().next();
+			assertTrue( item.getTaskID(), item.getTaskID().equals( "record" ) );
+			_engine.startWorkItem( item, "admin" );
+
+			sleep( SLEEP_TIME );
+
+			// starting the work item causes children to be created....
+			workItems = item.getChildren();
+			iter = workItems.iterator();
+
+			while( iter.hasNext() ) {
+				item = iter.next();
+				ids.add( item.getCaseID() );
+				// one of the children will have a status of executing, but the others
+				// will only have a status of firing...
+				if( !item.getStatus().equals( YWorkItem.statusExecuting ) ) {
+					// so start executing those that aren't already executing
+					_engine.startWorkItem( item, item.getDataString() );
+					sleep( SLEEP_TIME );
+				}
+				// and finish each one after it executes
+				_engine.completeWorkItem( item, item.getDataString() );
+			}
+			fail("An exception should have been thrown");
+		}
+    	catch(YDataStateException e) {
+    		// the proper exception was thrown
+    	}
+    }
+    
     private static void printxml(Element element) {
     	if(element == null)
     	{
@@ -217,7 +306,7 @@ public class TestMiDataOutput extends TestCase {
     	TestMiDataOutput test = new TestMiDataOutput("");
     	try {
     		test.setUp();
-    		test.testRunMultiInstance();
+    		test.testRunMultiInstance2();
     		System.out.println( "success" );
     	}
     	catch( Exception e ) {
