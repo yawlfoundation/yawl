@@ -455,9 +455,9 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
             	}
         	}
         } else if (this.isDefaultFlow()) {
-        	retval = -1;
-        } else if (f.isDefaultFlow()) {
         	retval = 1;
+        } else if (f.isDefaultFlow()) {
+        	retval = -1;
         } else if (
         		f.getNextElement() != null 
         		&& f.getNextElement().getID() != null
