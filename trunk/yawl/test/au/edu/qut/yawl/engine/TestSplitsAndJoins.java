@@ -26,6 +26,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
@@ -371,7 +372,168 @@ public class TestSplitsAndJoins extends TestCase {
     		// correct exception was thrown.
     	}
     }
+    
+    /**
+     * Tests that a task that hasn't been fired yet won't start when you call t_start()
+     */
+    public void testTaskStart() throws YDataStateException, YPersistenceException,
+			YStateException, YSchemaBuildingException, YQueryException {
+        // variables
+        Set<YWorkItem> workItems;
+		Iterator<YWorkItem> itemIter;
+		YWorkItem item;
 
+		// load the spec and start it
+		assertTrue(_engine.loadSpecification( _specification ));
+		assertFalse(_engine.loadSpecification( _specification ));
+		_idForTopNet = _engine.startCase( null, _specification.getID(), null, null );
+
+		// make sure there's 1 enabled item to start
+		workItems = _workItemRepository.getEnabledWorkItems();
+		assertTrue( workItems.size() == 1 );
+
+		// get the enabled item
+		item = workItems.iterator().next();
+
+		YNetRunner netRunner = _workItemRepository.getNetRunner( item.getCaseID() );
+		YTask task = (YTask) netRunner._net.getNetElement( "A_5" );
+		task.cancel();
+		task.t_start( null );
+		
+		assertFalse( task.getMIExecuting().containsIdentifier() );
+	}
+    
+    /**
+     * Tests suspending a task that's executing, then re-running it and completing it.
+     */
+    public void testSuspendTask() throws YStateException, YSchemaBuildingException,
+    		YDataStateException, YPersistenceException, YQueryException {
+    	// variables
+    	Set<YWorkItem> workItems;
+    	Iterator<YWorkItem> itemIter;
+    	YWorkItem item;
+    	
+    	// load the spec and start it
+    	_engine.loadSpecification(_specification);
+    	_idForTopNet = _engine.startCase(null, _specification.getID(), null, null);
+    	
+    	
+    	// make sure there's 1 enabled item to start
+    	workItems = _workItemRepository.getEnabledWorkItems();
+    	assertTrue( workItems.size() == 1 );
+    	
+    	// get the enabled item, make sure it's the right one
+    	item = workItems.iterator().next();
+    	assertTrue( item.getTaskID(), item.getTaskID().equals( "A_5" ) );
+    	
+    	sleep( SLEEP_TIME );
+    	
+    	// get task A
+    	YNetRunner netRunner = _workItemRepository.getNetRunner( item.getCaseID() );
+		YTask task = (YTask) netRunner._net.getNetElement( "A_5" );
+		
+		assertFalse( task.getMIActive().containsIdentifier() );
+		assertFalse( task.getMIComplete().containsIdentifier() );
+		assertFalse( task.getMIEntered().containsIdentifier() );
+		assertFalse( task.getMIExecuting().containsIdentifier() );
+		
+		// start it
+    	item = _engine.startWorkItem( item, "admin" );
+    	
+    	sleep( SLEEP_TIME );
+    	
+    	assertTrue( task.getMIActive().containsIdentifier() );
+		assertFalse( task.getMIComplete().containsIdentifier() );
+		assertFalse( task.getMIEntered().containsIdentifier() );
+		assertTrue( task.getMIExecuting().containsIdentifier() );
+		
+		try {
+			// trying to start it again when it's already executing should fail
+			item = _engine.startWorkItem( item, "admin" );
+			fail("An exception should have been thrown");
+		}
+		catch(YStateException e) {
+			// proper exception was thrown
+		}
+		
+		assertTrue( task.getMIActive().containsIdentifier() );
+		assertFalse( task.getMIComplete().containsIdentifier() );
+		assertFalse( task.getMIEntered().containsIdentifier() );
+		assertTrue( task.getMIExecuting().containsIdentifier() );
+		
+		// roll it back (suspend it) so it can be started over
+		assertTrue( netRunner.suspendWorkItem( item.getCaseID(), task.getID() ) );
+		// make sure to roll back the status of the work item too...
+		// (it should probably be done in YNetRunner.suspendWorkItem(), but it's not)
+		item.rollBackStatus();
+		
+		assertTrue( task.getMIActive().containsIdentifier() );
+		assertFalse( task.getMIComplete().containsIdentifier() );
+		assertTrue( task.getMIEntered().containsIdentifier() );
+		assertFalse( task.getMIExecuting().containsIdentifier() );
+		assertTrue( item.getStatus().equals( YWorkItem.statusFired ) );
+		
+		// attempting to suspend it again (when it's already suspended) shouldn't work
+		assertFalse( netRunner.suspendWorkItem( item.getCaseID(), task.getID() ) );
+		
+		assertTrue( task.getMIActive().containsIdentifier() );
+		assertFalse( task.getMIComplete().containsIdentifier() );
+		assertTrue( task.getMIEntered().containsIdentifier() );
+		assertFalse( task.getMIExecuting().containsIdentifier() );
+		
+		// restart it (should work since it was suspended earlier)
+		item = _engine.startWorkItem( item, "admin" );
+		
+		sleep( SLEEP_TIME );
+    	
+    	assertTrue( task.getMIActive().containsIdentifier() );
+		assertFalse( task.getMIComplete().containsIdentifier() );
+		assertFalse( task.getMIEntered().containsIdentifier() );
+		assertTrue( task.getMIExecuting().containsIdentifier() );
+    	
+    	// and finally complete it
+    	_engine.completeWorkItem( item, item.getDataString() );
+    }
+    
+    public void testStartNonExistingSpec() throws YSchemaBuildingException, YDataStateException, YPersistenceException {
+    	try {
+    		_engine.startCase( null, "aninvalidID", null, null );
+    		fail("An exception should have been thrown");
+    	}
+    	catch(YStateException e) {
+    		// proper exception was thrown
+    	}
+    }
+    
+    public void testFireUnEnabledTask() throws YDataStateException, YPersistenceException,
+    		YSchemaBuildingException, YQueryException {
+		try {
+			// variables
+			Set<YWorkItem> workItems;
+			Iterator<YWorkItem> itemIter;
+			YWorkItem item;
+
+			// load the spec and start it
+			_engine.loadSpecification( _specification );
+			_idForTopNet = _engine.startCase( null, _specification.getID(), null, null );
+
+			// make sure there's 1 enabled item to start
+			workItems = _workItemRepository.getEnabledWorkItems();
+			assertTrue( workItems.size() == 1 );
+
+			// get the enabled item
+			item = workItems.iterator().next();
+
+			YNetRunner netRunner = _workItemRepository.getNetRunner( item.getCaseID() );
+			YTask task = (YTask) netRunner._net.getNetElement( "D_8" );
+			task.t_fire();
+			fail( "An exception should have been thrown" );
+		}
+		catch( YStateException e ) {
+			// correct exception was thrown.
+		}
+	}
+    
     public static void main(String args[]) {
     	TestSplitsAndJoins test = new TestSplitsAndJoins("");
     	try {
