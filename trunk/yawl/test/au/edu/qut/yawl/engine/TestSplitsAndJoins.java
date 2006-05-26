@@ -11,6 +11,7 @@ package au.edu.qut.yawl.engine;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +25,7 @@ import junit.framework.TestSuite;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
@@ -37,6 +39,7 @@ import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.unmarshal.YMarshal;
+import au.edu.qut.yawl.util.YDocumentCleaner;
 
 /**
  * Tests the XML specification SplitsAndJoins.xml to ensure that it runs
@@ -437,6 +440,14 @@ public class TestSplitsAndJoins extends TestCase {
 		assertFalse( task.getMIEntered().containsIdentifier() );
 		assertFalse( task.getMIExecuting().containsIdentifier() );
 		
+		try {
+			task.t_complete( item.getCaseID(), null );
+			fail("An exception should have been thrown");
+		}
+		catch(RuntimeException exc) {
+			// proper exception was thrown
+		}
+		
 		// start it
     	item = _engine.startWorkItem( item, "admin" );
     	
@@ -480,6 +491,45 @@ public class TestSplitsAndJoins extends TestCase {
 		assertFalse( task.getMIComplete().containsIdentifier() );
 		assertTrue( task.getMIEntered().containsIdentifier() );
 		assertFalse( task.getMIExecuting().containsIdentifier() );
+		
+		try {
+			_engine.completeWorkItem( item, item.getDataString() );
+			fail("An exception should have been thrown");
+		}
+		catch(YStateException e) {
+			// proper exception was thrown
+		}
+		
+		try {
+			_engine.completeWorkItem( null, item.getDataString() );
+			fail("An exception should have been thrown");
+		}
+		catch(YStateException e) {
+			// proper exception was thrown
+		}
+		
+		SAXBuilder builder = new SAXBuilder();
+		Document e = null;
+        try {
+            Document d = builder.build( new StringReader( item.getDataString() ) );
+             e = YDocumentCleaner.cleanDocument( d );
+        }
+        catch(IOException exc) {
+        	exc.printStackTrace();
+        	fail(exc.toString());
+        }
+		catch( JDOMException exc ) {
+			exc.printStackTrace();
+			fail(exc.toString());
+		}
+		
+		try {
+			task.t_complete( item.getCaseID(), e );
+			fail("An exception should have been thrown");
+		}
+		catch(RuntimeException exc) {
+			// proper exception was thrown
+		}
 		
 		// restart it (should work since it was suspended earlier)
 		item = _engine.startWorkItem( item, "admin" );
