@@ -9,9 +9,12 @@
 
 package au.edu.qut.yawl;
 
-import au.edu.qut.yawl.admintool.AdminToolTestSuite;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 import au.edu.qut.yawl.authentication.AuthenticationTestSuite;
 import au.edu.qut.yawl.elements.ElementsTestSuite;
+import au.edu.qut.yawl.elements.data.DataTestSuite;
 import au.edu.qut.yawl.elements.state.StateTestSuite;
 import au.edu.qut.yawl.engine.EngineTestSuite;
 import au.edu.qut.yawl.exceptions.ExceptionTestSuite;
@@ -20,9 +23,6 @@ import au.edu.qut.yawl.persistence.PersistenceTestSuite;
 import au.edu.qut.yawl.schema.SchemaTestSuite;
 import au.edu.qut.yawl.unmarshal.UnmarshallerTestSuite;
 import au.edu.qut.yawl.util.UtilTestSuite;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
 /**
  * 
@@ -42,6 +42,7 @@ public class TestAllYAWLSuites extends TestSuite{
         TestSuite suite = new TestSuite();
 //        suite.addTest(AdminToolTestSuite.suite());
         suite.addTest(ElementsTestSuite.suite());
+        suite.addTest(DataTestSuite.suite());
         suite.addTest(StateTestSuite.suite());
         suite.addTest(EngineTestSuite.suite());
         suite.addTest(ExceptionTestSuite.suite());
