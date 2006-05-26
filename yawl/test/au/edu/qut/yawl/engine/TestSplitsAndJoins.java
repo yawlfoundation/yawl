@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -40,6 +41,8 @@ import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YDocumentCleaner;
+import au.edu.qut.yawl.util.YMessagePrinter;
+import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  * Tests the XML specification SplitsAndJoins.xml to ensure that it runs
@@ -305,6 +308,52 @@ public class TestSplitsAndJoins extends TestCase {
         assertFalse( topNetRunner.isAlive() );
     }
     
+    public void testLoadSpec() throws YPersistenceException, JDOMException, IOException {
+    	URL fileURL = getClass().getResource("SplitsAndJoins.xml");
+        File yawlXMLFile = new File(fileURL.getFile());
+        
+        assertNull(_engine.getSpecification("SplitsAndJoins.ywl"));
+        
+        List<YVerificationMessage> msgs = new LinkedList<YVerificationMessage>(); 
+        List<String> ids = _engine.addSpecifications( yawlXMLFile, false, msgs );
+        assertNotNull( ids );
+        assertTrue( msgs.size() + "\n" + YMessagePrinter.getMessageString( msgs ), msgs.size() == 0 );
+        assertTrue( ids.size() > 0 );
+        assertTrue( "" + ids.size(), ids.size() == 1 );
+        
+        String id = ids.get(0);
+        
+        assertNotNull(_engine.getSpecification("SplitsAndJoins.ywl"));
+        
+        // reading a second time should fail, since the ID is already in the engine.
+        ids = _engine.addSpecifications( yawlXMLFile, false, msgs );
+        
+        assertNotNull( ids );
+        assertTrue( msgs.size() + "\n" + YMessagePrinter.getMessageString( msgs ), msgs.size() > 0 );
+        
+        try {
+        	// should work the first time
+        	_engine.unloadSpecification( id );
+        }
+        catch(YStateException e) {
+        	e.printStackTrace();
+        	fail(e.toString());
+        }
+        
+        assertFalse(_engine.getSpecIDs().contains("SplitsAndJoins.ywl"));
+        // the next line works because the engine keeps track of which specs have been unloaded
+        assertNotNull(_engine.getSpecification("SplitsAndJoins.ywl"));
+        
+        try {
+        	// second time should fail because it's already unloaded
+        	_engine.unloadSpecification( id );
+        	fail("An exception should have been thrown");
+        }
+        catch(YStateException e) {
+        	// proper exception was thrown
+        }
+    }
+    
     /**
      * Tests trying to complete a task that wasn't activated, which should
      * cause an exception to be thrown. Calls {@link AbstractEngine#completeWorkItem(YWorkItem, String)}.
@@ -429,6 +478,8 @@ public class TestSplitsAndJoins extends TestCase {
     	item = workItems.iterator().next();
     	assertTrue( item.getTaskID(), item.getTaskID().equals( "A_5" ) );
     	
+    	System.out.println( _engine.getStateForCase( item.getCaseID() ) );
+    	
     	sleep( SLEEP_TIME );
     	
     	// get task A
@@ -450,6 +501,8 @@ public class TestSplitsAndJoins extends TestCase {
 		
 		// start it
     	item = _engine.startWorkItem( item, "admin" );
+    	
+    	System.out.println( _engine.getStateForCase( item.getCaseID() ) );
     	
     	sleep( SLEEP_TIME );
     	
@@ -477,6 +530,8 @@ public class TestSplitsAndJoins extends TestCase {
 		// make sure to roll back the status of the work item too...
 		// (it should probably be done in YNetRunner.suspendWorkItem(), but it's not)
 		item.rollBackStatus();
+		
+		System.out.println( _engine.getStateForCase( item.getCaseID() ) );
 		
 		assertTrue( task.getMIActive().containsIdentifier() );
 		assertFalse( task.getMIComplete().containsIdentifier() );
@@ -534,6 +589,8 @@ public class TestSplitsAndJoins extends TestCase {
 		// restart it (should work since it was suspended earlier)
 		item = _engine.startWorkItem( item, "admin" );
 		
+		System.out.println( _engine.getStateForCase( item.getCaseID() ) );
+		
 		sleep( SLEEP_TIME );
     	
     	assertTrue( task.getMIActive().containsIdentifier() );
@@ -543,6 +600,8 @@ public class TestSplitsAndJoins extends TestCase {
     	
     	// and finally complete it
     	_engine.completeWorkItem( item, item.getDataString() );
+    	
+    	System.out.println( _engine.getStateForCase( item.getCaseID() ) );
     }
     
     public void testStartNonExistingSpec() throws YSchemaBuildingException, YDataStateException, YPersistenceException {

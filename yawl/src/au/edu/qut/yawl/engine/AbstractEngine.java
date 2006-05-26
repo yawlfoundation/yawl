@@ -700,6 +700,14 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //            }
             logger.debug("<-- unloadSpecification");
     }
+    
+    /**
+     * This function is used for testing the engine. It shouldn't be used anywhere else.
+     */
+    protected void removeSpecification(String specID) {
+    	_specifications.remove(specID);
+    	_unloadedSpecifications.remove(specID);
+    }
 
 
     /**
