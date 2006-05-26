@@ -9,12 +9,11 @@
 
 package au.edu.qut.yawl.engine;
 
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
-
-import java.util.Set;
 import java.util.Iterator;
+import java.util.Set;
+
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 /**
  * @author Lachlan Aldred
@@ -30,11 +29,7 @@ public class EngineClearer {
                 YIdentifier identifier = (YIdentifier) iterator2.next();
                 engine.cancelCase(identifier);
             }
-            try {
-                engine.unloadSpecification(specID);
-            } catch (YStateException e) {
-                e.printStackTrace();
-            }
+            engine.removeSpecification(specID);
         }
     }
 }
