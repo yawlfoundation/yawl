@@ -392,5 +392,38 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Persist
     	_myTask = task;
     }
 
+
+	@Basic
+	public void setMaxInstancesQuery(String instancesQuery) {
+		_maxInstancesQuery = instancesQuery;
+	}
+
+
+	public String getMaxInstancesQuery() {
+		return _maxInstancesQuery;
+	}
+
+
+	@Basic
+	public void setMinInstancesQuery(String instancesQuery) {
+		_minInstancesQuery = instancesQuery;
+	}
+
+
+	public String getMinInstancesQuery() {
+		return _minInstancesQuery;
+	}
+
+
+	@Basic
+	public void setThresholdQuery(String query) {
+		_thresholdQuery = query;
+	}
+
+	
+	public String getThresholdQuery() {
+		return _thresholdQuery;
+	}
+	
 }//end class
 
