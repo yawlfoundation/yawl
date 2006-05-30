@@ -38,6 +38,7 @@ public class EngineTestSuite extends TestCase{
         suite.addTestSuite(TestEngineSystem2.class);
         suite.addTestSuite(TestImproperCompletion.class);
         suite.addTestSuite(TestInputParameters.class);
+        suite.addTestSuite(TestInterfaceBClientObserver.class);
         suite.addTestSuite(TestMiDataOutput.class);
         suite.addTestSuite(TestOrJoin.class);
         suite.addTestSuite(TestRestServiceMethods.class);

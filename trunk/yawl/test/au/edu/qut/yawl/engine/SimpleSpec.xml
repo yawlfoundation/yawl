@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1"
+	xmlns:mm="www.citi.qut.edu.au/yawl/exampleSchemas/make_trip_B"
+	xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_SchemaBeta7.1.xsd">
+	<specification uri="SimpleSpec.xml">
+		<metaData/>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema"/>
+		<decomposition id="OverseeMusic" isRootNet="true" xsi:type="NetFactsType">
+			<processControlElements>
+				<inputCondition id="input">
+					<flowsInto>
+						<nextElementRef id="record"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="record">
+					<flowsInto>
+						<nextElementRef id="finis"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<decomposesTo id="Prepare"/>
+				</task>
+				<outputCondition id="finis">
+					<name>Finished case</name>
+				</outputCondition>
+			</processControlElements>
+		</decomposition>
+		<decomposition id="Prepare" xsi:type="WebServiceGatewayFactsType"/>
+	</specification>
+</specificationSet>
