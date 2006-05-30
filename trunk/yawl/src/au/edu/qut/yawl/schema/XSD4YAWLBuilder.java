@@ -46,7 +46,7 @@ public class XSD4YAWLBuilder {
     /**
      * Sets up an XSD4YAWLBuilder Object
      * @param schemaElemement the w3c Element that is the root of an XML schema.
-     * i.e. this element is the one written like so: "<xs:schema ..> ... </xs:schema>"
+     * i.e. this element is the one written like so: "&lt;xs:schema ..&gt; ... &lt;/xs:schema&gt;"
      */
     public void setSchema(Element schemaElemement) throws YSyntaxException {
         XSDPrototypicalSchema proto = XSDPrototypicalSchema.getInstance();
