@@ -118,7 +118,7 @@
 						<nextElementRef id="finis"/>
 					</flowsInto>
 					<join code="or"/>
-					<split code="xor"/>
+					<split code="and"/>
 					<decomposesTo id="A"/>
 				</task>
 				<outputCondition id="finis">
