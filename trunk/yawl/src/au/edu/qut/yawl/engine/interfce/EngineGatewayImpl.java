@@ -403,8 +403,8 @@ public class EngineGatewayImpl implements EngineGateway {
     /**
      *
      * @param specID specID
-     * @param caseParams format <data>[InputParam]*</data> where
-     * InputParam == <varName>var value</varName>
+     * @param caseParams format &lt;data&gt;[InputParam]*&lt;/data&gt; where
+     * InputParam == &lt;varName&gt;var value&lt;/varName&gt;
      * @param sessionHandle
      * @return the case id of the launched case, or a diagnostic <failure/> msg.
      */
