@@ -104,7 +104,7 @@ public class TestMiDataOutput extends TestCase {
     	List<String> specIDs;
     	List<YVerificationMessage> errors = new LinkedList<YVerificationMessage>();
     	
-    	// load the spec and start it
+    	// load the spec
     	specIDs = _engine.addSpecifications( specFile, false, errors );
     	assertNotNull( YMessagePrinter.getMessageString( errors ), specIDs );
     	assertTrue( YMessagePrinter.getMessageString( errors ),
