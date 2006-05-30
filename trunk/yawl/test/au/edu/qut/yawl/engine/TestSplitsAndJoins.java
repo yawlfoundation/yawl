@@ -39,7 +39,6 @@ import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YDocumentCleaner;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
@@ -55,7 +54,8 @@ public class TestSplitsAndJoins extends TestCase {
     private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private static final int SLEEP_TIME = 100;
     private AbstractEngine _engine;
-    private YSpecification _specification;
+//    private YSpecification _specification;
+    private File _specFile;
 
     public TestSplitsAndJoins(String name) {
         super(name);
@@ -64,10 +64,11 @@ public class TestSplitsAndJoins extends TestCase {
     public void setUp() throws YSchemaBuildingException, YSyntaxException, YPersistenceException,
     		JDOMException, IOException {
         URL fileURL = getClass().getResource("SplitsAndJoins.xml");
-        File yawlXMLFile = new File(fileURL.getFile());
-        _specification = null;
-        _specification = (YSpecification) YMarshal.
-                            unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+//        File yawlXMLFile = new File(fileURL.getFile());
+        _specFile = new File( fileURL.getFile() );
+//        _specification = null;
+//        _specification = (YSpecification) YMarshal.
+//                            unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
     }
@@ -81,16 +82,23 @@ public class TestSplitsAndJoins extends TestCase {
     }
     
     public void testSplitsAndJoins() throws YDataStateException, YPersistenceException, YStateException,
-    		YSchemaBuildingException, YQueryException {
+    		YSchemaBuildingException, YQueryException, JDOMException, IOException {
     	// variables
     	Set<YWorkItem> workItems;
     	Iterator<YWorkItem> itemIter;
     	YWorkItem item;
     	List<YNetRunner> netRunners = new Vector<YNetRunner>();
+    	List<String> ids;
+    	List<YVerificationMessage> errors = new LinkedList<YVerificationMessage>();
+    	YSpecification spec;
     	
     	// load the spec and start it
-    	_engine.loadSpecification(_specification);
-    	_idForTopNet = _engine.startCase(null, _specification.getID(), null, null);
+    	ids = _engine.addSpecifications( _specFile, false, errors );
+    	assertNotNull( ids );
+    	assertTrue( YVerificationMessage.containsNoErrors( errors ) );
+    	spec = _engine.getSpecification( ids.get( 0 ) );
+//    	_engine.loadSpecification(_specification);
+    	_idForTopNet = _engine.startCase(null, spec.getID(), null, null);
     	
     	
     	// make sure there's 1 enabled item to start
@@ -359,16 +367,23 @@ public class TestSplitsAndJoins extends TestCase {
      * cause an exception to be thrown. Calls {@link AbstractEngine#completeWorkItem(YWorkItem, String)}.
      */
     public void testCompleteInactiveTest() throws YDataStateException, YPersistenceException,
-			YSchemaBuildingException, YQueryException {
+			YSchemaBuildingException, YQueryException, JDOMException, IOException {
     	try {
         	// variables
         	Set<YWorkItem> workItems;
         	Iterator<YWorkItem> itemIter;
         	YWorkItem item;
+        	List<String> ids;
+        	List<YVerificationMessage> errors = new LinkedList<YVerificationMessage>();
+        	YSpecification spec;
         	
         	// load the spec and start it
-        	_engine.loadSpecification(_specification);
-        	_idForTopNet = _engine.startCase(null, _specification.getID(), null, null);
+        	ids = _engine.addSpecifications( _specFile, false, errors );
+        	assertNotNull( ids );
+        	assertTrue( YVerificationMessage.containsNoErrors( errors ) );
+        	spec = _engine.getSpecification( ids.get( 0 ) );
+//        	_engine.loadSpecification(_specification);
+        	_idForTopNet = _engine.startCase(null, spec.getID(), null, null);
         	
         	
         	// make sure there's 1 enabled item to start
@@ -395,16 +410,23 @@ public class TestSplitsAndJoins extends TestCase {
      * {@link YNetRunner#completeWorkItemInTask(YWorkItem, YIdentifier, String, Document)}.
      */
     public void testCompleteInactiveTestB() throws YDataStateException, YPersistenceException,
-			YStateException, YSchemaBuildingException, YQueryException {
+			YStateException, YSchemaBuildingException, YQueryException, JDOMException, IOException {
     	try {
         	// variables
         	Set<YWorkItem> workItems;
         	Iterator<YWorkItem> itemIter;
         	YWorkItem item;
+        	List<String> ids;
+        	List<YVerificationMessage> errors = new LinkedList<YVerificationMessage>();
+        	YSpecification spec;
         	
         	// load the spec and start it
-        	_engine.loadSpecification(_specification);
-        	_idForTopNet = _engine.startCase(null, _specification.getID(), null, null);
+        	ids = _engine.addSpecifications( _specFile, false, errors );
+        	assertNotNull( ids );
+        	assertTrue( YVerificationMessage.containsNoErrors( errors ) );
+        	spec = _engine.getSpecification( ids.get( 0 ) );
+//        	_engine.loadSpecification(_specification);
+        	_idForTopNet = _engine.startCase(null, spec.getID(), null, null);
         	
         	
         	// make sure there's 1 enabled item to start
@@ -429,16 +451,32 @@ public class TestSplitsAndJoins extends TestCase {
      * Tests that a task that hasn't been fired yet won't start when you call t_start()
      */
     public void testTaskStart() throws YDataStateException, YPersistenceException,
-			YStateException, YSchemaBuildingException, YQueryException {
+			YStateException, YSchemaBuildingException, YQueryException, JDOMException, IOException {
         // variables
         Set<YWorkItem> workItems;
 		Iterator<YWorkItem> itemIter;
 		YWorkItem item;
+		List<String> ids;
+    	List<YVerificationMessage> errors = new LinkedList<YVerificationMessage>();
+    	YSpecification spec;
 
 		// load the spec and start it
-		assertTrue(_engine.loadSpecification( _specification ));
-		assertFalse(_engine.loadSpecification( _specification ));
-		_idForTopNet = _engine.startCase( null, _specification.getID(), null, null );
+    	ids = _engine.addSpecifications( _specFile, false, errors );
+    	assertNotNull( YMessagePrinter.getMessageString( errors ), ids );
+    	assertTrue( YMessagePrinter.getMessageString( errors ),
+    			YVerificationMessage.containsNoErrors( errors ) );
+    	spec = _engine.getSpecification( ids.get( 0 ) );
+    	
+    	// attempt to reload the spec: should cause an error because the ID is already loaded
+    	errors = new LinkedList<YVerificationMessage>();
+    	ids = _engine.addSpecifications( _specFile, false, errors );
+    	assertNotNull( YMessagePrinter.getMessageString( errors ), ids );
+    	assertFalse( YMessagePrinter.getMessageString( errors ),
+    			YVerificationMessage.containsNoErrors( errors ) );
+    	
+//		assertTrue(_engine.loadSpecification( _specification ));
+//		assertFalse(_engine.loadSpecification( _specification ));
+		_idForTopNet = _engine.startCase( null, spec.getID(), null, null );
 
 		// make sure there's 1 enabled item to start
 		workItems = _workItemRepository.getEnabledWorkItems();
@@ -459,15 +497,22 @@ public class TestSplitsAndJoins extends TestCase {
      * Tests suspending a task that's executing, then re-running it and completing it.
      */
     public void testSuspendTask() throws YStateException, YSchemaBuildingException,
-    		YDataStateException, YPersistenceException, YQueryException {
+    		YDataStateException, YPersistenceException, YQueryException, JDOMException, IOException {
     	// variables
     	Set<YWorkItem> workItems;
     	Iterator<YWorkItem> itemIter;
     	YWorkItem item;
+    	List<String> ids;
+    	List<YVerificationMessage> errors = new LinkedList<YVerificationMessage>();
+    	YSpecification spec;
     	
     	// load the spec and start it
-    	_engine.loadSpecification(_specification);
-    	_idForTopNet = _engine.startCase(null, _specification.getID(), null, null);
+    	ids = _engine.addSpecifications( _specFile, false, errors );
+    	assertNotNull( ids );
+    	assertTrue( YVerificationMessage.containsNoErrors( errors ) );
+    	spec = _engine.getSpecification( ids.get( 0 ) );
+//    	_engine.loadSpecification(_specification);
+    	_idForTopNet = _engine.startCase(null, spec.getID(), null, null);
     	
     	
     	// make sure there's 1 enabled item to start
@@ -479,6 +524,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( item.getTaskID(), item.getTaskID().equals( "A_5" ) );
     	
     	System.out.println( _engine.getStateForCase( item.getCaseID() ) );
+    	System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
     	
     	sleep( SLEEP_TIME );
     	
@@ -503,6 +549,7 @@ public class TestSplitsAndJoins extends TestCase {
     	item = _engine.startWorkItem( item, "admin" );
     	
     	System.out.println( _engine.getStateForCase( item.getCaseID() ) );
+    	System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
     	
     	sleep( SLEEP_TIME );
     	
@@ -532,6 +579,7 @@ public class TestSplitsAndJoins extends TestCase {
 		item.rollBackStatus();
 		
 		System.out.println( _engine.getStateForCase( item.getCaseID() ) );
+		System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
 		
 		assertTrue( task.getMIActive().containsIdentifier() );
 		assertFalse( task.getMIComplete().containsIdentifier() );
@@ -590,6 +638,7 @@ public class TestSplitsAndJoins extends TestCase {
 		item = _engine.startWorkItem( item, "admin" );
 		
 		System.out.println( _engine.getStateForCase( item.getCaseID() ) );
+		System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
 		
 		sleep( SLEEP_TIME );
     	
@@ -602,6 +651,7 @@ public class TestSplitsAndJoins extends TestCase {
     	_engine.completeWorkItem( item, item.getDataString() );
     	
     	System.out.println( _engine.getStateForCase( item.getCaseID() ) );
+    	System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
     }
     
     public void testStartNonExistingSpec() throws YSchemaBuildingException, YDataStateException, YPersistenceException {
@@ -615,16 +665,23 @@ public class TestSplitsAndJoins extends TestCase {
     }
     
     public void testFireUnEnabledTask() throws YDataStateException, YPersistenceException,
-    		YSchemaBuildingException, YQueryException {
+    		YSchemaBuildingException, YQueryException, JDOMException, IOException {
 		try {
 			// variables
 			Set<YWorkItem> workItems;
 			Iterator<YWorkItem> itemIter;
 			YWorkItem item;
+			List<String> ids;
+	    	List<YVerificationMessage> errors = new LinkedList<YVerificationMessage>();
+	    	YSpecification spec;
 
 			// load the spec and start it
-			_engine.loadSpecification( _specification );
-			_idForTopNet = _engine.startCase( null, _specification.getID(), null, null );
+	    	ids = _engine.addSpecifications( _specFile, false, errors );
+        	assertNotNull( ids );
+        	assertTrue( YVerificationMessage.containsNoErrors( errors ) );
+        	spec = _engine.getSpecification( ids.get( 0 ) );
+//			_engine.loadSpecification( _specification );
+			_idForTopNet = _engine.startCase( null, spec.getID(), null, null );
 
 			// make sure there's 1 enabled item to start
 			workItems = _workItemRepository.getEnabledWorkItems();
