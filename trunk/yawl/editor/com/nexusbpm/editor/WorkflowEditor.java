@@ -1,9 +1,4 @@
-package editor.workflow.capsela;
-/*
- * WorkflowEditor.java
- *
- * Created on May 31, 2006, 3:53 PM
- */
+package com.nexusbpm.editor;
 
 /**
  *
@@ -11,13 +6,22 @@ package editor.workflow.capsela;
  */
 public class WorkflowEditor extends javax.swing.JFrame {
     
+	private static WorkflowEditor singleton = null;
+	
     /**
      * Creates new form WorkflowEditor 
      */
-    public WorkflowEditor() {
+    private WorkflowEditor() {
         initComponents();
         this.pack();
     	this.resize(800,600);
+    }
+    
+    public static WorkflowEditor getInstance() {
+    	if (WorkflowEditor.singleton == null) {
+    		WorkflowEditor.singleton = new WorkflowEditor();
+    	}
+    	return singleton;
     }
     
     /** This method is called from within the constructor to
