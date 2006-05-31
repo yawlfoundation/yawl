@@ -120,7 +120,7 @@ public class YSpecification implements Cloneable, YVerifiable, PersistableObject
      * Null constructor inserted for hibernate
      *
      */
-    private YSpecification() {
+    public YSpecification() {
     	_specURI = null;
         _xmlToolsForYAWL = new XMLToolsForYAWL();
     }
