@@ -18,6 +18,8 @@ import javax.swing.ImageIcon;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.nexusbpm.editor.exception.EditorException;
+
 /**
  * This class will be a properties-file managed class. This way we can specify
  * what property goes with which icon.
