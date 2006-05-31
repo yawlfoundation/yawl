@@ -49,8 +49,10 @@ public class TestDataContext extends TestCase implements VetoableChangeListener{
 		assertEquals(lastEvent.getNewValue(), "aNewName");
 		dc.put(dp);
 		dc.remove(dp);
-		dc.remove(dp);
-
+		try {
+			dc.getKeyFor(dp2);
+			fail("Should have thrown an exception");
+		} catch (NullPointerException npe) {}
 	}
 	
 }

@@ -98,7 +98,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     "inputParameters",
     "outputParameters"
 })
-public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
+public class YDecomposition implements Parented, Cloneable, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -122,7 +122,9 @@ public class YDecomposition implements Cloneable, YVerifiable, PolymorphicPersis
     /*
   INSERTED FOR PERSISTANCE
  */
-	
+    @Transient
+    public Object getParent() {return _specification;}
+
 	
     private YCaseData casedata = null;
 

@@ -77,7 +77,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     "documentation",
     "postsetFlowsAsList"
 })
-public class YExternalNetElement extends YNetElement implements YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
+public class YExternalNetElement extends YNetElement implements Parented, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
     protected String _name;
     protected String _documentation;
     public YNet _net;
@@ -133,6 +133,10 @@ public class YExternalNetElement extends YNetElement implements YVerifiable, Pol
     protected void setID(String id) {
     	super.setID(id);
     }
+    
+    @Transient
+    public Object getParent() {return _net;}
+
     
     /**
      * Inserted for hibernate for one-to-many collection from YNet.getNetElements()

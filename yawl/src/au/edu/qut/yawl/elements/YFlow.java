@@ -119,7 +119,19 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
     	_priorElement = element;
     }
 
-
+    @Transient
+    public Object getParent() {
+    	Object retval = null;
+    	if (_priorElement != null && _priorElement._net != null) {
+    		retval = _priorElement._net;
+    	}
+    	else if (_nextElement != null && _nextElement._net != null) {
+    		retval = _nextElement._net;
+    	}    	
+    	return retval;
+    }
+    
+    
 	/**
      * 
      * @return
