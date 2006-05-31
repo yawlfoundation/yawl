@@ -1,4 +1,5 @@
 package au.edu.qut.yawl.persistence.dao;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
         return 0;
     }
     
-    public Object getKey(YSpecification m) {
+    public Serializable getKey(YSpecification m) {
         return m.getID();
     }
 

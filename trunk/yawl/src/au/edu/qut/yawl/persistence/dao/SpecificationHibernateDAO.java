@@ -203,7 +203,7 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 		}
 	}
 
-    public Object getKey(YSpecification m) {
+    public Serializable getKey(YSpecification m) {
         return m.getDbID();
     }
 }

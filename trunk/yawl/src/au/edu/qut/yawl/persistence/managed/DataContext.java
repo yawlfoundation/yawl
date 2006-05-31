@@ -10,9 +10,11 @@ package au.edu.qut.yawl.persistence.managed;
  */
 
 import java.beans.VetoableChangeListener;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAO;
 
 
@@ -21,79 +23,74 @@ import au.edu.qut.yawl.persistence.dao.DAO;
  * 
  * @author SandozM
  */
-public class DataContext<Type> {
+public class DataContext {
     
     /** Creates a new instance of DataContext */
-    public DataContext(DAO<Type> dao) {
+    public DataContext(DAO<YSpecification> dao) {
         this.dao = dao;
-        mapper = new ContextDataMapper();
     }
     
     /**
      * Holds value of property dao.
      */
-    private DAO<Type> dao;
-    private ContextDataMapper mapper;
+    private DAO<YSpecification> dao;
     
-    public ManagedDataObject getManagedObject(Object key, VetoableChangeListener listener) {
-        if (!mapper.contains(key)) {
-            ManagedDataObject managedData = new ManagedDataObject(key, mapper, listener);
-            Type value = dao.retrieve(key);
-            MapperElement n = new MapperElement(value, managedData);
-            mapper.cache.put(key, n);
+    private Map<DataProxy, Object> dataMap = new HashMap<DataProxy, Object>();
+    private Map<Object, DataProxy> proxyMap = new HashMap<Object, DataProxy>();
+    
+    /* (non-Javadoc)
+	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getDataProxy(java.lang.Object)
+	 */
+    public DataProxy getDataProxy(Object dataObject) {
+        if (!proxyMap.containsKey(dataObject)) {
         }
-        return mapper.getManagedObject(key);
+        return proxyMap.get(dataObject);
     }
     
-    public ManagedDataObject createManagedObject(Type value, VetoableChangeListener listener) {
-        ManagedDataObject managedData = new ManagedDataObject(value, mapper, listener);
+    /* (non-Javadoc)
+	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getData(au.edu.qut.yawl.persistence.managed.DataProxy)
+	 */
+    public Object getData(DataProxy proxyObject) {
+        if (!dataMap.containsKey(proxyObject)) {
+        }
+        return dataMap.get(proxyObject);
+    }
+    
+    /* (non-Javadoc)
+	 * @see au.edu.qut.yawl.persistence.managed.DataContext#newObject(Type, java.beans.VetoableChangeListener)
+	 */
+    public DataProxy newObject(Object value, VetoableChangeListener listener) {
         try {
-            MapperElement<Type> n = new MapperElement<Type>(value, managedData);
-            dao.save(value);
-            mapper.cache.put(dao.getKey(value), n);
         } catch(Exception e){}
-        return managedData;
+        return null;
     }
 
-    public DAO getDao() {
-        return dao;
-    }
-
-    public void setDao(DAO val) {
-        this.dao = val;
-    }
-
-    public ContextDataMapper getMapper() {
-        return mapper;
-    }
-
-    public void setMapper(ContextDataMapper val) {
-        this.mapper = val;
+    /* (non-Javadoc)
+	 * @see au.edu.qut.yawl.persistence.managed.DataContext#get(java.io.Serializable)
+	 */
+    public Object get(Serializable key) {
+    	return dao.retrieve(key);
     }
     
-    private static class ContextDataMapper<Type> implements KeyedDataMapper {
-        
-        private Map<Object, MapperElement<Type>> cache = new HashMap<Object, MapperElement<Type>>();
-        public Type getData(Object key) {return cache.get(key).data;}
-        public Map getMetadata(Object key) {return cache.get(key).metadata;}
-        public boolean contains(Object key) {return cache.containsKey(key);}
-        protected ManagedDataObject getManagedObject(Object key) {return cache.get(key).managed;}
-
-        public Map<Object,MapperElement<Type>> getCache() {
-            return cache;
-        }
-
-        public void setCache(Map<Object,MapperElement<Type>> val) {
-            this.cache = val;
-        }
+    /* (non-Javadoc)
+	 * @see au.edu.qut.yawl.persistence.managed.DataContext#put(Type)
+	 */
+    public void put(YSpecification t) {
+    	dao.save(t);
     }
-    static class MapperElement<Type>{
-    	Type data;
-        Map metadata = new HashMap();
-        ManagedDataObject managed;
-        public MapperElement(Type data, ManagedDataObject managed) {
-            this.data = data;
-            this.managed = managed;
-        }
+    
+    /* (non-Javadoc)
+	 * @see au.edu.qut.yawl.persistence.managed.DataContext#remove(Type)
+	 */
+    public void remove(YSpecification t) {
+    	dao.delete(t);
     }
+    
+    /* (non-Javadoc)
+	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getKeyFor(Type)
+	 */
+    public Serializable getKeyFor(YSpecification t) {
+    	return dao.getKey(t);
+    }
+   
 }
