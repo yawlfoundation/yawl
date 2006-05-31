@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1"
+	xmlns:mm="www.citi.qut.edu.au/yawl/exampleSchemas/make_trip_B"
+	xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_SchemaBeta7.1.xsd">
+	<specification uri="OneTwoThreeSpec.xml">
+		<name>OneTwoThree</name>
+		<documentation>A simple spec with 3 sequential tasks</documentation>
+		<metaData/>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema"/>
+		<decomposition id="RootDecomp" isRootNet="true" xsi:type="NetFactsType">
+			<processControlElements>
+				<inputCondition id="input">
+					<flowsInto>
+						<nextElementRef id="one"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="one">
+					<flowsInto>
+						<nextElementRef id="two"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<decomposesTo id="DecompOne"/>
+				</task>
+				<task id="two">
+					<flowsInto>
+						<nextElementRef id="three"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<decomposesTo id="DecompTwo"/>
+				</task>
+				<task id="three">
+					<flowsInto>
+						<nextElementRef id="finis"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<decomposesTo id="DecompThree"/>
+				</task>
+				<outputCondition id="finis">
+					<name>Finished case</name>
+				</outputCondition>
+			</processControlElements>
+		</decomposition>
+		<decomposition id="DecompOne" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="DecompTwo" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="DecompThree" xsi:type="WebServiceGatewayFactsType"/>
+	</specification>
+</specificationSet>
