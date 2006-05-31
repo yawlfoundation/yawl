@@ -10,6 +10,7 @@ package au.edu.qut.yawl.persistence.dao;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
 import org.jdom.JDOMException;
@@ -62,7 +63,7 @@ public class SpecificationFileDAO implements SpecificationDAO{
         return 0;
     }
 
-    public Object getKey(YSpecification m) {
+    public Serializable getKey(YSpecification m) {
         return m.getID();
     }
 }
