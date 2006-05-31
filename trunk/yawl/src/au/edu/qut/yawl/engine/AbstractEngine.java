@@ -1650,6 +1650,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * @return
      * @throws YPersistenceException
      */
+    // FIXME: XXX this function doesn't remove the YAWL service (or do anything, for that matter)
     public YAWLServiceReference removeYawlService(String serviceURI) throws YPersistenceException {
             /*
               INSERTED FOR PERSISTANCE
