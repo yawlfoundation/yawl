@@ -103,6 +103,7 @@ public class UserList {
      * @param isAdmin
      * @throws YAuthenticationException
      */
+    // FIXME: XXX the password validity check should be made into some kind of security plug-in.
     public User addUser(String userID, String password, boolean isAdmin) throws YAuthenticationException {
         User user = null;
 
@@ -184,6 +185,7 @@ public class UserList {
         return result;
     }
 
+    // FIXME: XXX the password is not checked to make sure it's valid... (very bad)
     public void changePassword(String userID, String password) {
         User user = (User) _users.get(userID);
         user.setPassword(password);
