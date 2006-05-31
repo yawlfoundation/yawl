@@ -59,10 +59,19 @@ public class DataContext {
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#newObject(Type, java.beans.VetoableChangeListener)
 	 */
-    public DataProxy newObject(Object value, VetoableChangeListener listener) {
-        try {
-        } catch(Exception e){}
-        return null;
+    public DataProxy newObject(Class type, VetoableChangeListener listener) {
+        	try {
+				Object o = type.newInstance();
+				DataProxy dp = new DataProxy(this, listener);
+				dataMap.put(dp, o);
+				proxyMap.put(o, dp);
+				return dp;
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+			return null;
     }
 
     /* (non-Javadoc)
