@@ -92,7 +92,8 @@ public class DataContext {
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#get(java.io.Serializable)
 	 */
     public DataProxy get(Serializable key) {
-    	return proxyMap.get(dao.retrieve(key));
+    	DataProxy dp = newObject(dao.retrieve(key), null);
+    	return dp;
     }
     
     /* (non-Javadoc)
@@ -106,7 +107,10 @@ public class DataContext {
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#remove(Type)
 	 */
     public void remove(DataProxy t) {
-    	dao.delete((YSpecification) dataMap.get(t));
+    	Object data = dataMap.get(t);
+    	dao.delete((YSpecification) data);
+    	dataMap.remove(t);
+    	proxyMap.remove(data);
     }
     
     /* (non-Javadoc)

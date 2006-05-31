@@ -77,7 +77,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     "decompositions"
 //    "importedNet"
 })
-public class YSpecification implements Cloneable, YVerifiable, PersistableObject {
+public class YSpecification implements Parented, Cloneable, YVerifiable, PersistableObject {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -108,6 +108,10 @@ public class YSpecification implements Cloneable, YVerifiable, PersistableObject
     @Version
     @Column(name="optimistic_lock_version")
     @XmlTransient
+    
+    @Transient
+    public Object getParent() {return null;}
+    
     private Integer getVersion() {
     	return _version;
     }
