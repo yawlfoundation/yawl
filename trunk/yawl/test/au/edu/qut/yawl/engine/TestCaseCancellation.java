@@ -8,30 +8,40 @@
 
 package au.edu.qut.yawl.engine;
 
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.exceptions.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jdom.JDOMException;
 import org.jdom.Document;
+import org.jdom.JDOMException;
+
+import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.engine.interfce.EngineGateway;
+import au.edu.qut.yawl.engine.interfce.EngineGatewayImpl;
+import au.edu.qut.yawl.exceptions.YAuthenticationException;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 
 /**
  * @author Lachlan Aldred
@@ -81,27 +91,27 @@ public class TestCaseCancellation extends TestCase {
     }
 
     public void testIt() throws InterruptedException, YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
-        Thread.sleep(400);
+        Thread.sleep(150);
         performTask("register");
-        Thread.sleep(400);
+        Thread.sleep(150);
         performTask("register_itinerary_segment");
-        Thread.sleep(400);
+        Thread.sleep(150);
         performTask("register_itinerary_segment");
-        Thread.sleep(400);
+        Thread.sleep(150);
         performTask("flight");
-        Thread.sleep(400);
+        Thread.sleep(150);
         performTask("flight");
-        Thread.sleep(400);
+        Thread.sleep(150);
         performTask("cancel");
         Set cases = _engine.getCasesForSpecification(_specification.getID());
         assertTrue(cases.toString(), cases.size() == 0);
     }
 
     public void testCaseCancel() throws InterruptedException, YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
-        Thread.sleep(400);
+        Thread.sleep(150);
         performTask("register");
 
-        Thread.sleep(400);
+        Thread.sleep(150);
         Set enabledItems = _repository.getEnabledWorkItems();
 
         for (Iterator iterator = enabledItems.iterator(); iterator.hasNext();) {
@@ -113,6 +123,42 @@ public class TestCaseCancellation extends TestCase {
         }
         _engine.cancelCase(_idForTopNet);
         assertTrue(_taskCancellationReceived.size() > 0);
+    }
+    
+    public void testCaseCancelGateway() throws InterruptedException, YPersistenceException,
+    		YStateException, YDataStateException, YQueryException, YSchemaBuildingException,
+    		RemoteException, YAuthenticationException {
+    	Thread.sleep(100);
+        performTask("register");
+
+        // this test is assuming that creating a gateway like this will point to the same engine
+        // as the engine that's used for the rest of the tests in this class
+        EngineGateway eg = new EngineGatewayImpl( false );
+        String handle = eg.connect( "admin", "YAWL" );
+        assertNotNull( handle );
+        
+        Thread.sleep(100);
+        Set enabledItems = _repository.getEnabledWorkItems();
+
+        for (Iterator iterator = enabledItems.iterator(); iterator.hasNext();) {
+            YWorkItem workItem = (YWorkItem) iterator.next();
+            if (workItem.getTaskID().equals("register_itinerary_segment")) {
+                _engine.startWorkItem(workItem, "admin");
+                break;
+            }
+        }
+        String result = eg.cancelCase( _idForTopNet.getId(), handle );
+        assertTrue( result, result.startsWith( "<success" ) );
+    }
+    
+    public void testCaseCancelNull() throws YPersistenceException {
+    	try {
+    		_engine.cancelCase( null );
+    		fail( "An exception should have been thrown." );
+    	}
+    	catch( IllegalArgumentException e ) {
+    		// proper exception was thrown
+    	}
     }
 
     public void testCaseCompletion() throws YPersistenceException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException {
