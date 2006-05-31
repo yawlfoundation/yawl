@@ -11,9 +11,16 @@ package au.edu.qut.yawl.persistence.managed;
 
 import java.beans.VetoableChangeListener;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import au.edu.qut.yawl.elements.YDecomposition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAO;
 
@@ -59,47 +66,85 @@ public class DataContext {
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#newObject(Type, java.beans.VetoableChangeListener)
 	 */
+    protected DataProxy newObject(Object o, VetoableChangeListener listener) {
+		DataProxy dp = new DataProxy(this, listener);
+		dataMap.put(dp, o);
+		proxyMap.put(o, dp);
+		return dp;
+    }
+    /* (non-Javadoc)
+	 * @see au.edu.qut.yawl.persistence.managed.DataContext#newObject(Type, java.beans.VetoableChangeListener)
+	 */
     public DataProxy newObject(Class type, VetoableChangeListener listener) {
-        	try {
-				Object o = type.newInstance();
-				DataProxy dp = new DataProxy(this, listener);
-				dataMap.put(dp, o);
-				proxyMap.put(o, dp);
-				return dp;
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-			return null;
+    	DataProxy retval = null;
+    	try {
+    		Object o = type.newInstance();
+    		retval = this.newObject(o, listener);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return retval;
     }
 
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#get(java.io.Serializable)
 	 */
-    public Object get(Serializable key) {
-    	return dao.retrieve(key);
+    public DataProxy get(Serializable key) {
+    	return proxyMap.get(dao.retrieve(key));
     }
     
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#put(Type)
 	 */
-    public void put(YSpecification t) {
-    	dao.save(t);
+    public void put(DataProxy t) {
+    	dao.save((YSpecification) dataMap.get(t));
     }
     
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#remove(Type)
 	 */
-    public void remove(YSpecification t) {
-    	dao.delete(t);
+    public void remove(DataProxy t) {
+    	dao.delete((YSpecification) dataMap.get(t));
     }
     
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getKeyFor(Type)
 	 */
-    public Serializable getKeyFor(YSpecification t) {
-    	return dao.getKey(t);
+    public Serializable getKeyFor(DataProxy t) {
+    	return dao.getKey((YSpecification) dataMap.get(t));
     }
    
+    /**
+     * This should enumerate some of the extra controllers we might need
+     * but leaves out the question of how to connect them - via parent
+     * and or child relationships etc. as well as what connection *means*
+     * for example if a flow points to another task is the flow the parent?
+     * this could lead to traversal issues...best sit back and think about 
+     * it a bit...
+     */ 
+
+    public void generateSubcontrollers(YSpecification spec) {
+    	List<YDecomposition> decomps = spec.getDecompositions();
+    	for (YDecomposition decomp: decomps) {
+    		newObject(decomp, null);
+    		if (decomp instanceof YNet) {
+    			YNet net = (YNet) decomp;
+    			newObject(net.getInputCondition(), null);
+    			newObject(net.getOutputCondition(), null);
+    			for(YExternalNetElement yene: net.getNetElementsDB()) {
+    				newObject(yene, null);
+    				Collection<YFlow> flows = yene.getPostsetFlows();
+    				for (YFlow flow: flows) {
+    					newObject(flows, null);
+    				}
+    				flows = yene.getPresetFlows();
+    				for (YFlow flow: flows) {
+    					newObject(flows, null);
+    				}
+    			}
+    		}
+    	}
+    }
 }

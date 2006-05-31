@@ -1,6 +1,9 @@
 package au.edu.qut.yawl.persistence.managed;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author SandozM
@@ -58,7 +61,18 @@ public class DataProxy {
 		return null;
 	}
 
-	public void setAttribute(String attributeName, Object attributeValue) {
+	public void setAttribute(String attributeName, Object attributeValue) throws PropertyVetoException {
+		Object o = context.getData(this);
+		Object oldval = attributeValue;
+		String name = attributeName.substring(0,1).toUpperCase() + attributeName.substring(1);
+		try {
+			oldval = o.getClass().getMethod("get" + name, new Class[] {}).invoke(o, new Object[] {});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		PropertyChangeEvent evt = new PropertyChangeEvent(o, attributeName, oldval, attributeValue);
+		this.vetoableChangeSupport.fireVetoableChange(evt);
+		
 	}
 
 	public void setDirty(boolean isDirty) {

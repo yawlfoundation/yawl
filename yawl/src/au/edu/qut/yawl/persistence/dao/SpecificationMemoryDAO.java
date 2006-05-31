@@ -24,7 +24,7 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
     }
     
     public Serializable getKey(YSpecification m) {
-        return m.getID();
+        return m.getName();
     }
 
 }
