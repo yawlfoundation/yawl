@@ -16,7 +16,9 @@ import junit.textui.TestRunner;
 import au.edu.qut.yawl.engine.domain.TestYWorkItemID;
 import au.edu.qut.yawl.engine.domain.TestYWorkItemRepository;
 import au.edu.qut.yawl.engine.interfce.TestEngineGateway;
+import au.edu.qut.yawl.engine.interfce.TestEngineGatewaySpecifications;
 import au.edu.qut.yawl.engine.interfce.TestEngineGatewayUserFunctionality;
+import au.edu.qut.yawl.engine.interfce.TestEngineGatewayYAWLServices;
 
 /**
  * 
@@ -37,7 +39,9 @@ public class EngineTestSuite extends TestCase{
         suite.addTestSuite(TestEngineAgainstABeta4Spec.class);
         suite.addTestSuite(TestEngineAgainstImproperCompletionOfASubnet.class);
         suite.addTestSuite(TestEngineGateway.class);
+        suite.addTestSuite(TestEngineGatewaySpecifications.class);
         suite.addTestSuite(TestEngineGatewayUserFunctionality.class);
+        suite.addTestSuite(TestEngineGatewayYAWLServices.class);
         suite.addTestSuite(TestEngineSystem1.class);
         suite.addTestSuite(TestEngineSystem2.class);
         suite.addTestSuite(TestImproperCompletion.class);
