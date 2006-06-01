@@ -18,10 +18,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.rmi.RemoteException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -35,7 +33,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.authentication.UserList;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.EngineTestSuite;
@@ -57,10 +54,8 @@ import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 public class TestEngineGateway extends TestCase {
 //    private YIdentifier _idForTopNet;
     private EngineGateway _gateway;
-//    private AbstractEngine _engine;
     private String _session;
     private String _specID;
-    private static final String SERVICE_URI = "mock://mockedURL/testingEngineGateway";
 //    private String _caseID;
 //    private List _taskCancellationReceived = new ArrayList();
 //    private YWorkItemRepository _repository;
@@ -93,31 +88,8 @@ public class TestEngineGateway extends TestCase {
         }
         _gateway.loadSpecification( spec, randomFileName(), _session );
         
-        fileURL = EngineTestSuite.class.getResource( "SimpleSpec.xml" );
-        yawlXMLFile = new File( fileURL.getFile() );
-        spec = "";
-        br = new BufferedReader(new InputStreamReader(new FileInputStream(yawlXMLFile)));
-        while( (str = br.readLine()) != null ) {
-        	spec += str + "\n";
-        }
-        _gateway.loadSpecification( spec, randomFileName(), _session );
-        
-        fileURL = EngineTestSuite.class.getResource( "TestInputParameters1.xml" );
-        yawlXMLFile = new File( fileURL.getFile() );
-        spec = "";
-        br = new BufferedReader(new InputStreamReader(new FileInputStream(yawlXMLFile)));
-        while( (str = br.readLine()) != null ) {
-        	spec += str + "\n";
-        }
-        _gateway.loadSpecification( spec, randomFileName(), _session );
-        
         // the spec ID for this spec happens to be the same as the filename
         _specID = "OneTwoThreeSpec.xml";
-        
-        URI serviceURI = new URI( SERVICE_URI );
-        YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString(), null);
-        
-        _gateway.addYAWLService( service.toXML(), _session );
     }
     
     private String randomFileName() {
@@ -146,126 +118,6 @@ public class TestEngineGateway extends TestCase {
 		Element root = xmlToRootElement( str );
 		
 		assertTrue( str, root.getContentSize() == 0 );
-    }
-    
-    public void testGetSpecificationList() throws RemoteException {
-    	String str = _gateway.getSpecificationList( _session );
-    	
-    	List<SpecificationData> specs = Marshaller.unmarshalSpecificationSummary(
-    			"<rootTag>" + str + "</rootTag>" );
-    	
-    	assertTrue( "" + specs.size(), specs.size() == 3 );
-    	
-    	for( int i = 0; i < specs.size(); i++ ) {
-    		SpecificationData data = specs.get( i );
-    		assertTrue( data.getID(),
-    				data.getID().equals( "OneTwoThreeSpec.xml" ) ||
-    				data.getID().equals( "SimpleSpec.xml" ) ||
-    				data.getID().equals( "TestInputParameters1.xml" ) );
-    	}
-    }
-    
-    public void testRemoveYAWLServiceSuccess() {
-    	// TODO even though it returns "success" the code doesn't remove the service (noted May 31, 2006)
-    	String result = _gateway.removeYAWLService( SERVICE_URI, _session );
-    	assertNotNull( result );
-    	assertTrue( result, result.startsWith( "<success" ) );
-    }
-    
-    public void testRemoveYAWLServiceFailure() {
-    	String result = _gateway.removeYAWLService( "not_a_service_uri", _session );
-    	assertNotNull( result );
-    	assertTrue( result, result.startsWith( "<failure" ) );
-    }
-    
-    public void testAddYAWLServiceSuccess() throws RemoteException, URISyntaxException {
-    	URI serviceURI = new URI( "mock://mockedURL/testingAddingYAWLService" );
-        YAWLServiceReference service = new YAWLServiceReference( serviceURI.toString(), null );
-        
-        String result = _gateway.addYAWLService( service.toXML(), _session );
-    	assertNotNull( result );
-    	assertTrue( result, result.startsWith( "<success" ) );
-    }
-    
-    public void testAddYAWLServiceFailure() throws RemoteException {
-    	String result = _gateway.addYAWLService( "", _session );
-    	assertNotNull( result );
-    	assertTrue( result, result.startsWith( "<failure" ) );
-    }
-    
-    public void testGetYAWLServiceDocumentationSuccess() throws URISyntaxException, RemoteException {
-    	String uriString = "mock://mockedURL/testingYAWLServiceDocumentation";
-    	String doc = "blah blah blah, this is the documentation";
-    	URI serviceURI = new URI( uriString );
-        YAWLServiceReference service = new YAWLServiceReference( serviceURI.toString(), null );
-        service.setDocumentation( doc );
-        
-        String result = _gateway.addYAWLService( service.toXML(), _session );
-    	assertNotNull( result );
-    	assertTrue( result, result.startsWith( "<success" ) );
-    	
-    	result = _gateway.getYAWLServiceDocumentation( uriString, _session );
-    	assertNotNull( result );
-    	assertTrue( result, result.equals( doc ) );
-    }
-    
-    public void testGetYAWLServiceDocumentationNullDocFailure() throws RemoteException {
-    	String result = _gateway.getYAWLServiceDocumentation( SERVICE_URI, _session );
-    	assertNotNull( result );
-    	assertTrue( result, result.startsWith( "<failure" ) );
-    }
-    
-    public void testGetYAWLServiceDocumentationInvalidServiceFailure() throws RemoteException {
-    	String result = _gateway.getYAWLServiceDocumentation( "invalid_service_uri", _session );
-    	assertNotNull( result );
-    	assertTrue( result, result.startsWith( "<failure" ) );
-    }
-    
-    public void testGetYAWLServices() throws RemoteException {
-    	String result = _gateway.getYAWLServices( _session );
-    	assertNotNull( result );
-    	assertFalse( result, result.startsWith( "<failure" ) );
-    	
-    	int length = result.indexOf( "</yawlService>" ) + 14;
-    	
-    	Map<String, YAWLServiceReference> refs = new HashMap<String, YAWLServiceReference>();
-    	
-    	String keys = "{"; // convenience string printed out on failure
-    	int keycount = 0;
-    	
-    	while( length > 0 ) {
-    		String temp = result.substring( 0, length );
-    		System.out.println( "parsing yawl service: " + temp );
-    		YAWLServiceReference ref = YAWLServiceReference.unmarshal( temp );
-    		refs.put( ref.getYawlServiceID(), ref );
-    		
-    		if( keycount++ > 0 ) {
-    			keys += ", " + ref.getYawlServiceID();
-    		}
-    		else {
-    			keys += ref.getYawlServiceID();
-    		}
-    		
-    		if( length >= result.length() ) {
-    			length = -1;
-    			result = null;
-    		}
-    		else {
-    			result = result.substring( length );
-    			System.out.println( "leftover services to parse: " + result );
-    			length = result.indexOf( "</yawlService>" ) + 14;
-    		}
-    	}
-    	
-    	keys += "}";
-    	
-//    	System.out.println( keys );
-    	
-    	assertTrue( keys, refs.containsKey( "http://localhost:8080/yawlSMSInvoker/ib" ) );
-    	assertTrue( keys, refs.containsKey( "mock://mockedURL/testingEngineGateway" ) );
-    	assertTrue( keys, refs.containsKey( "http://localhost:8080/timeService/ib" ) );
-    	assertTrue( keys, refs.containsKey( "http://localhost:8080/yawlWSInvoker/" ) );
-    	assertTrue( keys, refs.containsKey( "http://localhost:8080/workletService/ib" ) );
     }
 
 //    public void testCaseCancel() throws InterruptedException, YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
@@ -331,7 +183,7 @@ public class TestEngineGateway extends TestCase {
 //    	_caseID = ret;
     }
 
-    public void performTask(String name) throws YDataStateException, YStateException, YQueryException,
+    private void performTask(String name) throws YDataStateException, YStateException, YQueryException,
     		YSchemaBuildingException, YPersistenceException, JDOMException, IOException, InterruptedException {
         Set enabledItems = null;
         Set firedItems = null;
@@ -426,6 +278,12 @@ public class TestEngineGateway extends TestCase {
 					childItem.getDataListString(), _session );
 			assertFalse( result, result.startsWith( "<failure" ) );
         }
+    }
+    
+    public void testGetNonExistentWorkItemDetails() throws RemoteException {
+    	String result = _gateway.getWorkItemDetails( "invalid_work_item_id", _session );
+    	assertNotNull( result );
+    	assertTrue( result, result.startsWith( "<failure" ) );
     }
     
     private WorkItemRecord getWorkItemFromID( String workItemID ) throws JDOMException,

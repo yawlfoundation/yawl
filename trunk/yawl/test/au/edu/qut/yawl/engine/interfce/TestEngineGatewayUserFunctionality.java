@@ -203,7 +203,7 @@ public class TestEngineGatewayUserFunctionality extends TestCase {
     	assertTrue( result, result.startsWith( "<failure" ) );
     }
     
-    public void testCreateUserUserIDTakenFailture() throws RemoteException {
+    public void testCreateUserUserIDTakenFailure() throws RemoteException {
     	String handle = _gateway.connect( "admin", "YAWL" );
     	assertNotNull( handle );
     	
