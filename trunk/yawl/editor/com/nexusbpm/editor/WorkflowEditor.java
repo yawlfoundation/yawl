@@ -1,5 +1,7 @@
 package com.nexusbpm.editor;
 
+import com.nexusbpm.editor.logger.CapselaLogPanel;
+
 /**
  *
  * @author  SandozM
@@ -40,7 +42,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
         desktopPanel = new javax.swing.JPanel();
         desktopScrollPane = new javax.swing.JScrollPane();
         desktopPane = new javax.swing.JDesktopPane();
-        logPanel = new javax.swing.JPanel();
+        logPanel = new CapselaLogPanel();
         logTextScrollPane = new javax.swing.JScrollPane();
         logTextArea = new javax.swing.JTextArea();
         menuBar = new javax.swing.JMenuBar();
@@ -90,13 +92,6 @@ public class WorkflowEditor extends javax.swing.JFrame {
         desktopLogSplitPane.setTopComponent(desktopPanel);
 
         logPanel.setLayout(new java.awt.GridLayout(1, 0));
-
-        logTextArea.setRows(4);
-        logTextArea.setText("Log Message");
-        logTextArea.setPreferredSize(null);
-        logTextScrollPane.setViewportView(logTextArea);
-
-        logPanel.add(logTextScrollPane);
 
         desktopLogSplitPane.setBottomComponent(logPanel);
 
@@ -191,7 +186,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
-    private javax.swing.JPanel logPanel;
+    private CapselaLogPanel logPanel;
     private javax.swing.JTextArea logTextArea;
     private javax.swing.JScrollPane logTextScrollPane;
     private javax.swing.JMenuBar menuBar;

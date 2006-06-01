@@ -9,6 +9,7 @@ import java.awt.image.ColorConvertOp;
 import java.awt.image.RescaleOp;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,12 +32,12 @@ public class ApplicationIcon {
 
   private static final Log LOG = LogFactory.getLog(ApplicationIcon.class);
   /** The icon properties file. */
-  public final static String ICON_PROPERTIES_FILE = "/client.icon.properties";
+  public final static String ICON_PROPERTIES_FILE = "client.icon.properties";
   /**
-   * Constant used in place of a path for icons from <tt>Icon Experience</tt>.
+   * Constant used in place of a path for icons.
    * @see "the icon properties file."
    */
-  public final static String MAGIC_ICON_KEYWORD = "ixicons___";
+  public final static String MAGIC_ICON_KEYWORD = "ICONMGR___";
 
   /**
    * Store all the modified icons in a static map so that we don't need to
@@ -217,7 +218,8 @@ public class ApplicationIcon {
           }
           iconPath = iconPath.replaceFirst(MAGIC_ICON_KEYWORD, prefixPath);
         }
-        ImageIcon icon = new ImageIcon(ApplicationIcon.class.getClassLoader().getResource(iconPath));
+        URL iconURL = ApplicationIcon.class.getResource(iconPath);
+        ImageIcon icon = new ImageIcon(iconURL);
 
         // these 3 lines are for backwards compatibility with the old icons in
         // the
