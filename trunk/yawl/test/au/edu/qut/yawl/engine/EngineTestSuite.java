@@ -52,6 +52,7 @@ public class EngineTestSuite extends TestCase{
         suite.addTestSuite(TestRestServiceMethods.class);
         suite.addTestSuite(TestSimpleExecutionUseCases.class);
         suite.addTestSuite(TestSplitsAndJoins.class);
+        suite.addTestSuite(TestSuspendWorkItem.class);
         suite.addTestSuite(TestYNetRunner.class);
         suite.addTestSuite(TestYWorkItem.class);
         suite.addTestSuite(TestYWorkItemID.class);
