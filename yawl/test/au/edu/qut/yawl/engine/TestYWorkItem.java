@@ -27,6 +27,10 @@ public class TestYWorkItem extends TestCase{
     private YWorkItemID _workItemID;
     private YWorkItem _workItem;
     private YIdentifier _childIdentifier;
+    
+    private YIdentifier _deadlockedWorkItemIdentifier;
+    private YWorkItemID _deadlockedWorkItemID;
+    private YWorkItem _deadlockedWorkItem;
 
     public TestYWorkItem(String name){
         super(name);
@@ -38,6 +42,10 @@ public class TestYWorkItem extends TestCase{
         _childIdentifier = _identifier.createChild();
         _workItemID = new YWorkItemID(_identifier, "task-123");
         _workItem = new YWorkItem("ASpecID", _workItemID, true, false);
+        
+        _deadlockedWorkItemIdentifier = new YIdentifier();
+        _deadlockedWorkItemID = new YWorkItemID(_deadlockedWorkItemIdentifier, "task-abc");
+        _deadlockedWorkItem = new YWorkItem("AnotherSpecID", _deadlockedWorkItemID, true, true );
     }
 
 
@@ -77,10 +85,261 @@ public class TestYWorkItem extends TestCase{
         assertNotNull("Should have thown an exception.",e);
 
     }
-
-
+    
+    public void testProperStatusChange() throws YPersistenceException {
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertNull(_workItem.getParent());
+    	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	assertNotNull(child);
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertNotNull(child.toXML(), child.getStatus());
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	
+    	child.setStatusToStarted("admin");
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	child.setStatusToComplete();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusComplete));
+    	child.setStatusToDelete();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusDeleted));
+    }
+    
+    public void testRollBackStatusSuccess() throws YPersistenceException {
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertNull(_workItem.getParent());
+    	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	assertNotNull(child);
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertNotNull(child.toXML(), child.getStatus());
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	
+    	child.setStatusToStarted("admin");
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	child.rollBackStatus();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	child.setStatusToStarted("admin");
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	child.setStatusToComplete();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusComplete));
+    	child.setStatusToDelete();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusDeleted));
+    }
+    
+    public void testImproperRollBack() throws YPersistenceException {
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	try {
+    		_workItem.rollBackStatus();
+    		fail("Should have thrown an exception.");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception was thrown
+    	}
+    	
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertNull(_workItem.getParent());
+    	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	assertNotNull(child);
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertNotNull(child.toXML(), child.getStatus());
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	
+    	try {
+    		child.rollBackStatus();
+    		fail("Should have thrown an exception.");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception was thrown
+    	}
+    	child.setStatusToStarted("admin");
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	child.setStatusToComplete();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusComplete));
+    	try {
+    		child.rollBackStatus();
+    		fail("Should have thrown an exception.");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception was thrown
+    	}
+    	child.setStatusToDelete();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusDeleted));
+    	try {
+    		child.rollBackStatus();
+    		fail("Should have thrown an exception.");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception was thrown
+    	}
+    	try {
+    		_deadlockedWorkItem.rollBackStatus();
+    		fail("Should have thrown an exception.");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception was thrown
+    	}
+    }
+    
+    public void testImproperStart() throws YPersistenceException {
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	try {
+    		_workItem.setStatusToStarted( "admin" );
+    		fail("Should throw an exception since work item is not in fired state");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception thrown.
+    	}
+    	
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertNull(_workItem.getParent());
+    	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	assertNotNull(child);
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertNotNull(child.toXML(), child.getStatus());
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	
+    	child.setStatusToStarted("admin");
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	try {
+    		child.setStatusToStarted( "admin" );
+    		fail("Should throw an exception since work item is not in fired state");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception thrown.
+    	}
+    	child.setStatusToComplete();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusComplete));
+    	try {
+    		child.setStatusToStarted( "admin" );
+    		fail("Should throw an exception since work item is not in fired state");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception thrown.
+    	}
+    	child.setStatusToDelete();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusDeleted));
+    	try {
+    		child.setStatusToStarted( "admin" );
+    		fail("Should throw an exception since work item is not in fired state");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception thrown.
+    	}
+    	try {
+    		_deadlockedWorkItem.setStatusToStarted( "admin" );
+    		fail("Should throw an exception since work item is not in fired state");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception thrown.
+    	}
+    }
+    
+    public void testImproperComplete() throws YPersistenceException {
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	try {
+    		_workItem.setStatusToComplete();
+    		fail("Should throw an exception since work item is not in executing state");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception thrown.
+    	}
+    	
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertNull(_workItem.getParent());
+    	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	assertNotNull(child);
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertNotNull(child.toXML(), child.getStatus());
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	
+    	try {
+    		child.setStatusToComplete();
+    		fail("Should throw an exception since work item is not in executing state");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception thrown.
+    	}
+    	child.setStatusToStarted("admin");
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	child.setStatusToComplete();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusComplete));
+    	try {
+    		child.setStatusToComplete();
+    		fail("Should throw an exception since work item is not in executing state");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception thrown.
+    	}
+    	child.setStatusToDelete();
+    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusDeleted));
+    	try {
+    		child.setStatusToComplete();
+    		fail("Should throw an exception since work item is not in executing state");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception thrown.
+    	}
+    	try {
+    		_deadlockedWorkItem.setStatusToComplete();
+    		fail("Should throw an exception since work item is not in executing state");
+    	}
+    	catch(RuntimeException e) {
+    		// proper exception thrown.
+    	}
+    }
+    
+    public void testSetWorkItemWithSiblingsToComplete() throws YPersistenceException {
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertNull(_workItem.getParent());
+    	YWorkItem child1 = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	assertNotNull(child1);
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertNotNull(child1.toXML(), child1.getStatus());
+    	assertTrue(child1.getStatus(), child1.getStatus().equals(YWorkItem.statusFired));
+    	
+    	YWorkItem child2 = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	assertNotNull(child2);
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertNotNull(child2.toXML(), child2.getStatus());
+    	assertTrue(child2.getStatus(), child2.getStatus().equals(YWorkItem.statusFired));
+    	
+    	YWorkItem child3 = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	assertNotNull(child3);
+    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertNotNull(child3.toXML(), child3.getStatus());
+    	assertTrue(child3.getStatus(), child3.getStatus().equals(YWorkItem.statusFired));
+    	
+    	child1.setStatusToStarted("admin");
+    	assertTrue(child1.getStatus(), child1.getStatus().equals(YWorkItem.statusExecuting));
+    	
+    	child2.setStatusToStarted("admin");
+    	assertTrue(child2.getStatus(), child2.getStatus().equals(YWorkItem.statusExecuting));
+    	
+    	child1.setStatusToComplete();
+    	assertTrue(child1.getStatus(), child1.getStatus().equals(YWorkItem.statusComplete));
+    	
+    	child2.setStatusToComplete();
+    	assertTrue(child2.getStatus(), child2.getStatus().equals(YWorkItem.statusComplete));
+    	
+    	child3.setStatusToStarted("admin");
+    	assertTrue(child3.getStatus(), child3.getStatus().equals(YWorkItem.statusExecuting));
+    	child3.setStatusToComplete();
+    	assertTrue(child3.getStatus(), child3.getStatus().equals(YWorkItem.statusComplete));
+    	
+    	child1.setStatusToDelete();
+    	assertTrue(child1.getStatus(), child1.getStatus().equals(YWorkItem.statusDeleted));
+    	child2.setStatusToDelete();
+    	assertTrue(child2.getStatus(), child2.getStatus().equals(YWorkItem.statusDeleted));
+    	child3.setStatusToDelete();
+    	assertTrue(child3.getStatus(), child3.getStatus().equals(YWorkItem.statusDeleted));
+    }
+    
     public void testConstructor(){
         assertNull(_workItem.getParent());
-        assertTrue(_workItem.getStatus().equals("Enabled"));
+        assertNotNull(_workItem.toXML(), _workItem.getStatus());
+        assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+        
+        assertNull(_deadlockedWorkItem.getParent());
+        assertNotNull(_deadlockedWorkItem.toXML(), _deadlockedWorkItem.getStatus());
+        assertTrue(_deadlockedWorkItem.getStatus(),
+        		_deadlockedWorkItem.getStatus().equals(YWorkItem.statusDeadlocked));
     }
 }
