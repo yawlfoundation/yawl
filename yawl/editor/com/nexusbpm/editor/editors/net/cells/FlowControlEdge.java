@@ -1,0 +1,76 @@
+package com.nexusbpm.editor.editors.net.cells;
+
+import org.jgraph.graph.Edge;
+
+import com.nexusbpm.editor.persistence.DataProxy;
+
+/**
+ * JGraph edge class for control edges.
+ * 
+ * @author catch23
+ * @author Daniel Gredler
+ * @created October 28, 2002
+ */
+public class FlowControlEdge extends GraphEdge implements Edge {
+
+	/**
+	 * Creates a new JGraph edge for the specified controller's component edge.
+	 * @param controller The controller for the component edge corresponding to this JGraph edge.
+	 */
+	public FlowControlEdge( DataProxy proxy ) {
+		super( proxy );
+	}
+
+	/**
+	 * Gets the source attribute of the GraphControlEdge object
+	 * @return The source value
+	 */
+	public Object getSource() {
+		return super.getSource();
+	}
+
+	/**
+	 * Gets the target attribute of the GraphControlEdge object
+	 * @return The target value
+	 */
+	public Object getTarget() {
+		return super.getTarget();
+	}
+
+	/**
+	 * Sets the source attribute of the GraphControlEdge object
+	 * @param port
+	 *          The new source value
+	 */
+	public void setSource( Object port ) {
+		super.setSource( port );
+	}
+
+	/**
+	 * Sets the target attribute of the GraphControlEdge object
+	 * @param port The new target value
+	 */
+	public void setTarget( Object port ) {
+		super.setTarget( port );
+	}
+
+	/**
+	 * Sets the name on an edge. The in-graph editor would normally call
+	 * setUserObject to set the edge label, but instead, we will set the label on
+	 * our domain object.
+	 */
+	public void setUserObject( Object obj ) {
+		if( obj != null && obj instanceof String ) {
+			throw new RuntimeException("update for yawl context");
+		}
+	}
+
+	/**
+	 * Return the label of the edge so that it will be the initial value of the
+	 * in-graph editor.
+	 */
+	public String toString() {
+		return "ooo, something new here huh?  lets hope these guys figure out a useful output for yawl";
+	}
+
+}
