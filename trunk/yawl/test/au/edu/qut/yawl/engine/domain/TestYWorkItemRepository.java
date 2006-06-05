@@ -9,15 +9,12 @@
 
 package au.edu.qut.yawl.engine.domain;
 
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.engine.domain.YWorkItemID;
-import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
-import junit.framework.TestCase;
-
 import java.util.Iterator;
 import java.util.Set;
+
+import junit.framework.TestCase;
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 /**
  * 
@@ -47,6 +44,9 @@ public class TestYWorkItemRepository extends TestCase {
         }
     }
 
+    public void tearDown() {
+    	_workitemRepository.clear();
+    }
 
     public void testGetItem() throws YPersistenceException {
         assertTrue(_workitemRepository.getEnabledWorkItems().size() == 0);
@@ -59,6 +59,60 @@ public class TestYWorkItemRepository extends TestCase {
         assertNull(_workitemRepository.getWorkItem(_parentWorkItem.getCaseID().toString(), _parentWorkItem.getTaskID()));
     }
 
+    public void testGetParentItems() throws YPersistenceException {
+    	_workitemRepository.clear();
+    	assertTrue( "" + _workitemRepository.getParentWorkItems().size(),
+    			_workitemRepository.getParentWorkItems().size() == 0 );
+    	
+    	// create a couple work items
+    	YWorkItem item = new YWorkItem("A spec",
+    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    	item.setStatus( YWorkItem.statusIsParent );
+    	item = new YWorkItem("A spec",
+    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    	item.setStatus( YWorkItem.statusDeleted );
+    	item = new YWorkItem("A spec",
+    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    	item.setStatus( YWorkItem.statusIsParent );
+    	item = new YWorkItem("A spec",
+    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    	item.setStatus( YWorkItem.statusFired );
+    	
+    	assertTrue( "" + _workitemRepository.getParentWorkItems(),
+    			_workitemRepository.getParentWorkItems().size() == 2 );
+    }
+    
+    public void testGetCompletedItems() throws YPersistenceException {
+    	assertTrue( "" + _workitemRepository.getCompletedWorkItems().size(),
+    			_workitemRepository.getCompletedWorkItems().size() == 0 );
+    	
+    	// create a couple work items
+    	YWorkItem item = new YWorkItem("A spec",
+    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    	item.setStatus( YWorkItem.statusComplete );
+    	item = new YWorkItem("A spec",
+    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    	item.setStatus( YWorkItem.statusDeleted );
+    	item = new YWorkItem("A spec",
+    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    	item.setStatus( YWorkItem.statusIsParent );
+    	item = new YWorkItem("A spec",
+    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    	item.setStatus( YWorkItem.statusComplete );
+    	
+    	assertTrue( "" + _workitemRepository.getCompletedWorkItems(),
+    			_workitemRepository.getCompletedWorkItems().size() == 2 );
+    }
+    
+    public void testRemoveWorkItemsForNullCase() {
+    	try {
+    		_workitemRepository.removeWorkItemsForCase( null );
+    		fail( "An exception should have been thrown." );
+    	}
+    	catch( IllegalArgumentException e ) {
+    		// proper exception was thrown
+    	}
+    }
 
     public void testChildren() {
         Set enabledItems = _workitemRepository.getFiredWorkItems();
