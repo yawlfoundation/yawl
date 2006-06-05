@@ -1272,7 +1272,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 		// which will leave a reference to FlowEditor in GraphEditor and it won't finalize
 		// _flowproxy = null;
 
-		removePropertyChangeListeners();
+//		removePropertyChangeListeners();
 
 		_graphModel = null;
 
