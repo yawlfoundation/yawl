@@ -1,16 +1,21 @@
 package au.edu.qut.yawl.persistence.managed;
 
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author SandozM
  *
  * @param <DataType>
  */
-public class DataProxy {
+public class DataProxy implements PropertyChangeListener {
+
+	public void propertyChange( PropertyChangeEvent evt ) {
+		// TODO delegate, over override?  probably being overridden by subclasses anyway
+		
+	}
 
 	private DataContext context;
 
