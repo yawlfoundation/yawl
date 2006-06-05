@@ -23,14 +23,14 @@ public class GraphPort extends DefaultPort {
   /**
    * @return
    */
-  public DataProxy getproxy() {
+  public DataProxy getProxy() {
     return _proxy;
   }
 
   /**
    * @param proxy
    */
-  public void setproxy(DataProxy proxy) {
+  public void setProxy(DataProxy proxy) {
     _proxy = proxy;
   }
 
