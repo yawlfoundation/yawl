@@ -37,11 +37,22 @@ public class DataContext {
         this.dao = dao;
     }
     
+    /** Creates a new instance of DataContext */
+    public DataContext(DAO<YSpecification> dao, Class dataProxyClass) {
+        this.dao = dao;
+        if (!DataProxy.class.isAssignableFrom(dataProxyClass)) {
+        	throw new IllegalArgumentException(
+        		dataProxyClass.getName() 
+        		+ " is not a subclass of DataProxy");
+        }        	
+        this.dataProxyClass = dataProxyClass;
+    }
+    
     /**
      * Holds value of property dao.
      */
     private DAO<YSpecification> dao;
-    
+    private Class dataProxyClass = DataProxy.class;
     private Map<DataProxy, Object> dataMap = new HashMap<DataProxy, Object>();
     private Map<Object, DataProxy> proxyMap = new HashMap<Object, DataProxy>();
     
@@ -67,10 +78,15 @@ public class DataContext {
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#newObject(Type, java.beans.VetoableChangeListener)
 	 */
     protected DataProxy newObject(Object o, VetoableChangeListener listener) {
-		DataProxy dp = new DataProxy(this, listener);
-		dataMap.put(dp, o);
-		proxyMap.put(o, dp);
-		return dp;
+		try {
+			DataProxy dp = (DataProxy) dataProxyClass.newInstance();
+			dp.setContext(this);
+			if (listener != null) dp.addVetoableChangeListener(listener); 
+			dataMap.put(dp, o);
+			proxyMap.put(o, dp);
+			return dp;
+		} catch (Exception e) {return null;//this can never happen
+		}
     }
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#newObject(Type, java.beans.VetoableChangeListener)

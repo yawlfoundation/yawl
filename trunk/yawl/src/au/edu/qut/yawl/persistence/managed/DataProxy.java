@@ -53,8 +53,15 @@ public class DataProxy {
 		this.addVetoableChangeListener(listener);
 	}
 
+	public DataProxy() {
+	}
+
 	public DataContext getContext() {
 		return context;
+	}
+
+	public void setContext(DataContext context) {
+		this.context = context;
 	}
 
 	public Object getAttribute(String attributeName) {
