@@ -8,21 +8,17 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Random;
+import java.util.StringTokenizer;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.jdom.Element;
 import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.authentication.UserList;
@@ -72,59 +68,42 @@ public class TestEngineGatewaySpecifications extends TestCase {
     	_gateway = new EngineGatewayImpl( false );
         EngineClearer.clear( EngineFactory.createYEngine() );
         
-        loadSpecification( getClass().getResource("OneTwoThreeSpec.xml") );
-        loadSpecification( EngineTestSuite.class.getResource( "SimpleSpec.xml" ) );
-        loadSpecification( EngineTestSuite.class.getResource( "TestInputParameters1.xml" ) );
+        TestEngineGateway.loadSpecification(
+        		getClass().getResource("OneTwoThreeSpec.xml"), _gateway, _session );
+        TestEngineGateway.loadSpecification(
+        		EngineTestSuite.class.getResource( "SimpleSpec.xml" ), _gateway, _session );
+        TestEngineGateway.loadSpecification(
+        		EngineTestSuite.class.getResource( "TestInputParameters1.xml" ), _gateway, _session );
         
         // the spec ID for this spec happens to be the same as the filename
         _specID = "OneTwoThreeSpec.xml";
     }
     
-    private String loadSpecification( URL fileURL ) throws IOException {
-        File yawlXMLFile = new File(fileURL.getFile());
-        String spec = "";
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(yawlXMLFile)));
-        String str;
-        while( (str = br.readLine()) != null ) {
-        	spec += str + "\n";
-        }
-        return _gateway.loadSpecification( spec, randomFileName(), _session );
-    }
-    
-    private String randomFileName() {
-    	Random r = new Random();
-    	String[] chars = {"a", "e", "i", "o", "u"};
-    	String filename = "";
-    	int len = 20;
-    	len += r.nextInt(11);
-    	for( int i = 0; i < len; i++ ) {
-    		filename += chars[ r.nextInt( chars.length ) ];
-    	}
-    	filename += ".xml";
-    	return filename;
-    }
-    
     public void testLoadSpecificationSuccess() throws IOException {
-    	String result = loadSpecification( EngineTestSuite.class.getResource( "SplitsAndJoins.xml" ) );
+    	String result = TestEngineGateway.loadSpecification(
+    			EngineTestSuite.class.getResource( "SplitsAndJoins.xml" ), _gateway, _session );
     	assertNotNull( result );
     	assertTrue( result, result.startsWith( "<success" ) );
     }
     
     public void testLoadSpecificationIDInUseFailure() throws IOException {
-    	String result = loadSpecification( getClass().getResource( "OneTwoThreeSpec.xml" ) );
+    	String result = TestEngineGateway.loadSpecification(
+    			getClass().getResource( "OneTwoThreeSpec.xml" ), _gateway, _session );
     	assertNotNull( result );
     	assertTrue( result, result.startsWith( "<failure" ) );
     }
     
     public void testLoadSpecificationInvalidSpecFailure() throws RemoteException {
     	String result = _gateway.loadSpecification(
-    			"<specificationSet><specification></specificationSet>", randomFileName(), _session );
+    			"<specificationSet><specification></specificationSet>",
+    			TestEngineGateway.randomFileName(), _session );
     	assertNotNull( result );
     	assertTrue( result, result.startsWith( "<failure" ) );
     }
     
     public void testLoadSpecificationVerificationFailure() throws IOException {
-    	String result = loadSpecification( getClass().getResource( "InvalidSplitSpec.xml" ) );
+    	String result = TestEngineGateway.loadSpecification(
+    			getClass().getResource( "InvalidSplitSpec.xml" ), _gateway, _session );
     	assertNotNull( result );
     	assertTrue( result, result.startsWith( "<failure" ) );
     }
@@ -169,7 +148,112 @@ public class TestEngineGatewaySpecifications extends TestCase {
     	assertNotNull( result );
     	assertFalse( result, result.startsWith( "<failure" ) );
     	
-    	// TODO check what's returned and make sure it's correct (not just that it isn't a failure)
+    	String[] text = {
+    			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+    			"<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+    			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"Beta 7.1\" " +
+    			"xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl " +
+    			"d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">",
+    			"<specification uri=\"OneTwoThreeSpec.xml\">",
+    			"<name>OneTwoThree</name>",
+    			"<documentation>A simple spec with 3 sequential tasks</documentation>",
+    			"<metaData />",
+    			"<schema xmlns=\"http://www.w3.org/2001/XMLSchema\" />",
+    			"<decomposition id=\"RootDecomp\" isRootNet=\"true\" xsi:type=\"NetFactsType\">",
+    			"<processControlElements>",
+    			"<inputCondition id=\"input\">",
+    			"<flowsInto>",
+    			"<nextElementRef id=\"one\" />",
+    			"</flowsInto>",
+    			"</inputCondition>",
+    			"<task id=\"one\">",
+    			"<flowsInto>",
+    			"<nextElementRef id=\"two\" />",
+    			"</flowsInto>",
+    			"<join code=\"xor\" />",
+    			"<split code=\"and\" />",
+    			"<decomposesTo id=\"DecompOne\" />",
+    			"</task>",
+    			"<task id=\"two\">",
+    			"<flowsInto>",
+    			"<nextElementRef id=\"three\" />",
+    			"</flowsInto>",
+    			"<join code=\"xor\" />",
+    			"<split code=\"and\" />",
+    			"<decomposesTo id=\"DecompTwo\" />",
+    			"</task>",
+    			"<task id=\"three\">",
+    			"<flowsInto>",
+    			"<nextElementRef id=\"finis\" />",
+    			"</flowsInto>",
+    			"<join code=\"xor\" />",
+    			"<split code=\"and\" />",
+    			"<decomposesTo id=\"DecompThree\" />",
+    			"</task>",
+    			"<outputCondition id=\"finis\">",
+    			"<name>Finished case</name>",
+    			"</outputCondition>",
+    			"</processControlElements>",
+    			"</decomposition>",
+    			"<decomposition id=\"DecompOne\" xsi:type=\"WebServiceGatewayFactsType\" />",
+    			"<decomposition id=\"DecompTwo\" xsi:type=\"WebServiceGatewayFactsType\" />",
+    			"<decomposition id=\"DecompThree\" xsi:type=\"WebServiceGatewayFactsType\" />",
+    			"</specification>",
+    			"</specificationSet>"
+    	};
+    	
+    	StringTokenizer st = new StringTokenizer( result, "\n\r\f" );
+    	
+    	for( int index = 0; index < text.length; index++ ) {
+    		assertTrue( "out of tokens at line " + (index + 1), st.hasMoreTokens() );
+    		String line = st.nextToken();
+    		assertTrue( "line " + (index + 1) + ":\nhard-coded:\n" + text[ index ] + "\nreceived:\n" + line,
+    				line.indexOf( text[ index ] ) >= 0 );
+    	}
+    }
+    
+    public void testGetTaskInformationSuccess() throws JDOMException, IOException {
+    	String result = _gateway.getTaskInformation( _specID, "three", _session );
+    	assertNotNull( result );
+    	assertFalse( result, result.startsWith( "<failure" ) );
+    	
+    	Element root = TestEngineGateway.xmlToRootElement( result );
+    	assertNotNull( root );
+    	assertTrue( root.toString(), root.getName().equals( "taskInfo" ) );
+    	
+    	assertNotNull( root.getChildTextNormalize( "specificationID" ) );
+    	assertTrue( root.getChildTextNormalize( "specificationID" ),
+    			root.getChildTextNormalize( "specificationID" ).equals( "OneTwoThreeSpec.xml" ) );
+    	
+    	assertNotNull( root.getChildTextNormalize( "taskID" ) );
+    	assertTrue( root.getChildTextNormalize( "taskID" ),
+    			root.getChildTextNormalize( "taskID" ).equals( "three" ) );
+    	
+    	assertNotNull( root.getChildTextNormalize( "taskName" ) );
+    	assertTrue( root.getChildTextNormalize( "taskName" ),
+    			root.getChildTextNormalize( "taskName" ).equals( "DecompThree" ) );
+    	
+    	assertNotNull( root.getChildTextNormalize( "decompositionID" ) );
+    	assertTrue( root.getChildTextNormalize( "decompositionID" ),
+    			root.getChildTextNormalize( "decompositionID" ).equals( "DecompThree" ) );
+    	
+    	assertNotNull( root.getChildTextNormalize( "params" ) );
+    	assertTrue( root.getChildTextNormalize( "params" ),
+    			root.getChildTextNormalize( "params" ).length() == 0 );
+    	
+    	assertTrue( "" + root.getContentSize(), root.getContentSize() == 5 );
+    }
+    
+    public void testGetTaskInformationInvalidSpecIDFailure() throws RemoteException {
+    	String result = _gateway.getTaskInformation( "invalid_spec_id", "irrelevant", _session );
+    	assertNotNull( result );
+    	assertTrue( result, result.startsWith( "<failure" ) );
+    }
+    
+    public void testGetTaskInformationInvalidTaskIDFailure() throws RemoteException {
+    	String result = _gateway.getTaskInformation( _specID, "invalid_task_id", _session );
+    	assertNotNull( result );
+    	assertTrue( result, result.startsWith( "<failure" ) );
     }
     
     public static void main(String args[]) {

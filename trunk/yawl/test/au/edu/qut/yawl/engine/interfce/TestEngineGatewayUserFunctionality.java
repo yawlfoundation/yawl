@@ -9,6 +9,7 @@
 package au.edu.qut.yawl.engine.interfce;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 
@@ -16,7 +17,10 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.engine.EngineClearer;
@@ -30,7 +34,8 @@ import au.edu.qut.yawl.exceptions.YSyntaxException;
 
 /**
  * Tests the engine gateway functionality having to do with users
- * (creating users, deleting users, etc).
+ * (creating users, deleting users, etc) and sessions (connecting,
+ * calling functions with invalid sessions, etc).
  * 
  * @author Nathan Rose
  */
@@ -336,6 +341,59 @@ public class TestEngineGatewayUserFunctionality extends TestCase {
     	
     	// finally delete the user
     	_gateway.deleteUser( "temporaryUser", handle );
+    }
+    
+    public void testGetUsers() throws JDOMException, IOException {
+    	String handle = _gateway.connect( "admin", "YAWL" );
+    	assertNotNull( handle );
+    	
+    	// create a user
+    	String result = _gateway.createUser(
+    			"testGetUsersTemporaryUser", "password", false, handle );
+    	assertNotNull( result );
+    	assertTrue( result, result.startsWith( "<success" ) );
+    	
+    	result = _gateway.getUsers( handle );
+    	assertNotNull( result );
+    	assertFalse( result, result.startsWith( "<failure" ) );
+    	
+    	result = "<userlist>" + result + "</userlist>";
+    	
+    	Element root = xmlToRootElement( result );
+    	
+    	assertNotNull( root );
+    	assertTrue( "" + root.getContentSize(), root.getContentSize() == 2 );
+    	
+    	Element user = (Element) root.getContent( 0 );
+    	Element admin = (Element) root.getContent( 1 );
+    	
+    	if( !admin.getChildTextNormalize( "id" ).equals( "admin" ) ) {
+    		// swap them if the order isn't right
+    		Element temp = user;
+    		user = admin;
+    		admin = temp;
+    	}
+    	
+    	assertTrue( admin.getChildTextNormalize( "id" ),
+    			admin.getChildTextNormalize( "id" ).equals( "admin" ) );
+    	assertTrue( admin.getChildTextNormalize( "isAdmin" ),
+    			admin.getChildTextNormalize( "isAdmin" ).equals( "true" ) );
+    	assertTrue( "" + admin.getContentSize(), admin.getContentSize() == 2 );
+    	assertTrue( user.getChildTextNormalize( "id" ),
+    			user.getChildTextNormalize( "id" ).equals( "testGetUsersTemporaryUser" ) );
+    	assertTrue( user.getChildTextNormalize( "isAdmin" ),
+    			user.getChildTextNormalize( "isAdmin" ).equals( "false" ) );
+    	assertTrue( "" + user.getContentSize(), user.getContentSize() == 2 );
+    	
+    	// now delete the user
+    	_gateway.deleteUser( "testCreateUserSuccessTemporaryUser", handle );
+    }
+    
+    private Element xmlToRootElement( String xml ) throws JDOMException, IOException {
+    	SAXBuilder builder = new SAXBuilder();
+    	Document d = builder.build(new StringReader(xml));
+    	assertNotNull( d );
+    	return d.getRootElement();
     }
     
     public static void main(String args[]) {
