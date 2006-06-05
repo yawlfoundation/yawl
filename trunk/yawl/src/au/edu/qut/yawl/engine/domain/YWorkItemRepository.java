@@ -363,7 +363,7 @@ public class YWorkItemRepository {
         return _caseToNetRunnerMap;
     }
 
-
+    // FIXME: XXX this function should always return a set, but the third line sometimes returns null
     public Set getChildrenOf(String workItemID) {
         YWorkItem item = (YWorkItem) _idStringToWorkItemsMap.get(workItemID);
         if (item != null) {
