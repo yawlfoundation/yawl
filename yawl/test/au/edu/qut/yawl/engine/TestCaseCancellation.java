@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -32,9 +31,6 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
-import au.edu.qut.yawl.engine.interfce.EngineGateway;
-import au.edu.qut.yawl.engine.interfce.EngineGatewayImpl;
-import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
@@ -123,32 +119,6 @@ public class TestCaseCancellation extends TestCase {
         }
         _engine.cancelCase(_idForTopNet);
         assertTrue(_taskCancellationReceived.size() > 0);
-    }
-    
-    public void testCaseCancelGateway() throws InterruptedException, YPersistenceException,
-    		YStateException, YDataStateException, YQueryException, YSchemaBuildingException,
-    		RemoteException, YAuthenticationException {
-    	Thread.sleep(100);
-        performTask("register");
-
-        // this test is assuming that creating a gateway like this will point to the same engine
-        // as the engine that's used for the rest of the tests in this class
-        EngineGateway eg = new EngineGatewayImpl( false );
-        String handle = eg.connect( "admin", "YAWL" );
-        assertNotNull( handle );
-        
-        Thread.sleep(100);
-        Set enabledItems = _repository.getEnabledWorkItems();
-
-        for (Iterator iterator = enabledItems.iterator(); iterator.hasNext();) {
-            YWorkItem workItem = (YWorkItem) iterator.next();
-            if (workItem.getTaskID().equals("register_itinerary_segment")) {
-                _engine.startWorkItem(workItem, "admin");
-                break;
-            }
-        }
-        String result = eg.cancelCase( _idForTopNet.getId(), handle );
-        assertTrue( result, result.startsWith( "<success" ) );
     }
     
     public void testCaseCancelNull() throws YPersistenceException {
