@@ -1,5 +1,6 @@
 package com.nexusbpm.editor.persistence;
 
+import java.awt.Container;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -15,8 +16,10 @@ import javax.swing.ImageIcon;
 import com.nexusbpm.editor.editors.net.cells.CapselaCell;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphPort;
+import com.nexusbpm.editor.icon.AnimatedIcon;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.icon.RenderingHints;
+import com.nexusbpm.editor.tree.SharedNode;
 
 public class DataProxy extends au.edu.qut.yawl.persistence.managed.DataProxy implements Transferable {
 
@@ -130,6 +133,15 @@ public class DataProxy extends au.edu.qut.yawl.persistence.managed.DataProxy imp
 		_graphCell.setProxy( this );
 	}
 	
+	private SharedNode _treeNode;
+	
+	public void setTreeNode(SharedNode node) {
+		_treeNode = node;
+	}
+	
+	public SharedNode getTreeNode() {
+		return _treeNode;
+	}
 
 
 	private GraphEdge _graphEdge;
@@ -219,4 +231,34 @@ public class DataProxy extends au.edu.qut.yawl.persistence.managed.DataProxy imp
 		return ApplicationIcon.getIcon( getData().getClass().getName(), RenderingHints.ICON_MEDIUM );
 	}
 
+	private AnimatedIcon _animatedIcon = null;
+
+	private Container _iconContainer;
+
+	/**
+	 * Gets the animated icon for this controller's component.
+	 * @param container the container that the icon is displayed in.
+	 * @return the animated icon for this controller's component.
+	 */
+	public AnimatedIcon iconAnimated( Container container ) {
+		if( _animatedIcon == null ) {
+			_animatedIcon = ApplicationIcon.getAnimatedRotatingIcon( getData().getClass().getName(), 20 );
+		}
+		_iconContainer = container;
+		return _animatedIcon;
+	}
+
+	/**
+	 * Stops this controller's component's animated icon, removes it from the
+	 * container it is displayed in, and nulls the variable in the controller.
+	 */
+	public synchronized void clearAnimatedIcon() {
+		if( _animatedIcon != null ) {
+			_animatedIcon.stop();
+			_iconContainer.remove( _animatedIcon );
+			_iconContainer.repaint();
+			_animatedIcon = null;
+			_iconContainer = null;
+		}
+	}
 }
