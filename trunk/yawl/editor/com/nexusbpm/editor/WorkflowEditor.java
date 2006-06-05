@@ -8,6 +8,9 @@ import com.nexusbpm.editor.logger.CapselaLogPanel;
  */
 public class WorkflowEditor extends javax.swing.JFrame {
     
+	private final static int DEFAULT_CLIENT_WIDTH = 800;
+	private final static int DEFAULT_CLIENT_HEIGHT = 692;
+
 	private static WorkflowEditor singleton = null;
 	
     /**
@@ -16,7 +19,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
     private WorkflowEditor() {
         initComponents();
         this.pack();
-    	this.resize(800,600);
+    	this.setSize(DEFAULT_CLIENT_WIDTH,DEFAULT_CLIENT_HEIGHT);
     }
     
     public static WorkflowEditor getInstance() {
@@ -79,7 +82,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
 
         desktopAndStatusPanel.setLayout(new java.awt.GridLayout(1, 0));
 
-        desktopLogSplitPane.setDividerLocation(500);
+        desktopLogSplitPane.setDividerLocation(480);
         desktopLogSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         desktopLogSplitPane.setRequestFocusEnabled(false);
         desktopPanel.setLayout(new java.awt.GridLayout(1, 0));
@@ -90,8 +93,6 @@ public class WorkflowEditor extends javax.swing.JFrame {
         desktopPanel.add(desktopScrollPane);
 
         desktopLogSplitPane.setTopComponent(desktopPanel);
-
-        logPanel.setLayout(new java.awt.GridLayout(1, 0));
 
         desktopLogSplitPane.setBottomComponent(logPanel);
 
