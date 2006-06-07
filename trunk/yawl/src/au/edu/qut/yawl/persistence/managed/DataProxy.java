@@ -4,21 +4,25 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
+import java.io.Serializable;
+
+import au.edu.qut.yawl.elements.YSpecification;
 
 /**
- * @author SandozM
+ * @author Matthew Sandoz
  *
  * @param <DataType>
  */
-public class DataProxy implements PropertyChangeListener {
+public class DataProxy<Type> implements PropertyChangeListener {
 
 	public void propertyChange( PropertyChangeEvent evt ) {
 		// TODO delegate, over override?  probably being overridden by subclasses anyway
-		
 	}
 
 	private DataContext context;
-
+	private String label;
+	private Serializable id;
+	private Class dataClass;
 	boolean isDirty = true;
 
 	/**
@@ -49,8 +53,8 @@ public class DataProxy implements PropertyChangeListener {
 	 * Getter for property data.
 	 * @return Value of property data.
 	 */
-	public Object getData() {
-		return context.getData(this);
+	public Type getData() {
+		return (Type) context.getData(this);
 	}
 
 	public DataProxy(DataContext context, VetoableChangeListener listener) {
@@ -89,5 +93,29 @@ public class DataProxy implements PropertyChangeListener {
 
 	public void setDirty(boolean isDirty) {
 		this.isDirty = isDirty;
+	}
+
+	public Class getDataClass() {
+		return dataClass;
+	}
+
+	public void setDataClass(Class dataClass) {
+		this.dataClass = dataClass;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public Serializable getId() {
+		return id;
+	}
+
+	public void setId(Serializable id) {
+		this.id = id;
 	}
 }

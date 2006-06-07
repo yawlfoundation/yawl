@@ -15,38 +15,53 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.nexusbpm.editor.util.HashBag;
+
+import au.edu.qut.yawl.admintool.createChart;
+import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YNetElement;
+import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.dao.DAO;
 
 
 
 /**
  * 
- * @author SandozM
+ * @author Matthew Sandoz
  */
 public class DataContext {
     
     /** Creates a new instance of DataContext */
     public DataContext(DAO<YSpecification> dao) {
-        this.dao = dao;
+        init(dao);
     }
     
     /** Creates a new instance of DataContext */
     public DataContext(DAO<YSpecification> dao, Class dataProxyClass) {
-        this.dao = dao;
         if (!DataProxy.class.isAssignableFrom(dataProxyClass)) {
         	throw new IllegalArgumentException(
         		dataProxyClass.getName() 
         		+ " is not a subclass of DataProxy");
         }        	
         this.dataProxyClass = dataProxyClass;
+        init(dao);
     }
+
+	/**
+	 * @param dao
+	 */
+	private void init(DAO<YSpecification> dao) {
+		this.dao = dao;
+        this.hierarchy = new HashBag<DataProxy>();
+	}
     
     /**
      * Holds value of property dao.
@@ -55,12 +70,14 @@ public class DataContext {
     private Class dataProxyClass = DataProxy.class;
     private Map<DataProxy, Object> dataMap = new HashMap<DataProxy, Object>();
     private Map<Object, DataProxy> proxyMap = new HashMap<Object, DataProxy>();
+    private HashBag<DataProxy> hierarchy;    
     
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getDataProxy(java.lang.Object)
 	 */
-    public DataProxy getDataProxy(Object dataObject) {
+    public DataProxy getDataProxy(Object dataObject, VetoableChangeListener listener) {
         if (!proxyMap.containsKey(dataObject)) {
+        	DataProxy dp = newObject(dataObject, listener);
         }
         return proxyMap.get(dataObject);
     }
@@ -77,10 +94,11 @@ public class DataContext {
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#newObject(Type, java.beans.VetoableChangeListener)
 	 */
-    protected DataProxy newObject(Object o, VetoableChangeListener listener) {
+    private DataProxy newObject(Object o, VetoableChangeListener listener) {
 		try {
 			DataProxy dp = (DataProxy) dataProxyClass.newInstance();
 			dp.setContext(this);
+			dp.setLabel(o.toString());
 			if (listener != null) dp.addVetoableChangeListener(listener); 
 			dataMap.put(dp, o);
 			proxyMap.put(o, dp);
@@ -107,16 +125,22 @@ public class DataContext {
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#get(java.io.Serializable)
 	 */
-    public DataProxy get(Serializable key) {
-    	DataProxy dp = newObject(dao.retrieve(key), null);
-    	return dp;
+    public DataProxy get(Serializable key, VetoableChangeListener listener) {
+    	YSpecification spec = dao.retrieve(key);
+    	if (spec != null) this.generateProxies(spec);
+    	return getDataProxy(spec, listener);
     }
     
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#put(Type)
 	 */
-    public void put(DataProxy t) {
-    	dao.save((YSpecification) dataMap.get(t));
+    public void put(DataProxy dp) {
+		dataMap.put(dp, dp.getData());
+		if (dp.getData() != null) {
+	    	dao.save((YSpecification) dataMap.get(dp));
+			proxyMap.put(dp.getData(), dp);
+		}
+
     }
     
     /* (non-Javadoc)
@@ -136,35 +160,90 @@ public class DataContext {
     	return dao.getKey((YSpecification) dataMap.get(t));
     }
    
-    /**
-     * This should enumerate some of the extra controllers we might need
-     * but leaves out the question of how to connect them - via parent
-     * and or child relationships etc. as well as what connection *means*
-     * for example if a flow points to another task is the flow the parent?
-     * this could lead to traversal issues...best sit back and think about 
-     * it a bit...
-     */ 
-
-    public void generateSubcontrollers(YSpecification spec) {
+    public Set<DataProxy> getChildren(DataProxy parent) {
+    	if (hierarchy.get(parent) == null) {
+    		List l = dao.getChildren(parent.getData());
+    		for (Object o: l) {
+    			if (o instanceof YSpecification) {
+    				generateProxies((YSpecification) o);
+    				hierarchy.put(parent, getDataProxy(o, null));
+    			}
+    			else {
+        			DataProxy dp = newObject(o, null);
+        			hierarchy.put(parent, dp);
+    			}
+    		}
+    	}
+		return hierarchy.get(parent);
+    }
+    
+    public void generateProxies(YSpecification spec) {
+		assert spec != null;
+    	DataProxy specProxy = newObject(spec, null);
+    	specProxy.setLabel(spec.getName());
     	List<YDecomposition> decomps = spec.getDecompositions();
     	for (YDecomposition decomp: decomps) {
-    		newObject(decomp, null);
+    		DataProxy decompProxy = newObject(decomp, null);
+    		decompProxy.setLabel(decomp.getId());
+    		hierarchy.put(specProxy, decompProxy);
     		if (decomp instanceof YNet) {
     			YNet net = (YNet) decomp;
-    			newObject(net.getInputCondition(), null);
-    			newObject(net.getOutputCondition(), null);
     			for(YExternalNetElement yene: net.getNetElementsDB()) {
-    				newObject(yene, null);
-    				Collection<YFlow> flows = yene.getPostsetFlows();
+    				DataProxy netElementProxy = newObject(yene, null);
+    				if (findType(yene) == Type.CONDITION) {
+    					netElementProxy.setLabel("{connector}");
+    				} else {
+    					netElementProxy.setLabel(yene.getID());
+    				}
+        			hierarchy.put(decompProxy, netElementProxy);
+    			}
+    		}
+    	}
+    	for (YDecomposition decomp: decomps) {
+    		if (decomp instanceof YNet) {
+    			YNet net = (YNet) decomp;
+    			for(YExternalNetElement yene: net.getNetElementsDB()) {
+        			Collection<YFlow> flows = yene.getPostsetFlows();
     				for (YFlow flow: flows) {
-    					newObject(flows, null);
+    					DataProxy flowProxy = newObject(flow, null);
+    					String to;
+        				if (findType(flow.getNextElement()) == Type.CONDITION) {
+        					to = "to connector";
+        				} else {
+        					to = "to " + getDataProxy(flow.getNextElement(), null).getLabel();
+        				}
+    					flowProxy.setLabel(to);
+    	    			hierarchy.put(getDataProxy(yene, null), flowProxy);
     				}
     				flows = yene.getPresetFlows();
     				for (YFlow flow: flows) {
-    					newObject(flows, null);
+    					DataProxy flowProxy = newObject(flow, null);
+    					String from;
+        				if (findType(flow.getPriorElement()) == Type.CONDITION) {
+        					from = "from connector";
+        				} else {
+        					from = "from " + getDataProxy(flow.getPriorElement(), null).getLabel();
+        				}
+    					flowProxy.setLabel(from);
+    					hierarchy.put(getDataProxy(yene, null), flowProxy);
     				}
     			}
     		}
     	}
     }
+
+    //these should all be moved elsewhere!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    private enum Type {UNKNOWN, INPUT_CONDITION, OUTPUT_CONDITION, TASK, CONDITION, FLOW, SPECIFICATION};
+    private Type findType (Object o) {
+    	Type retval = Type.UNKNOWN;
+    	if (o instanceof YInputCondition ) {retval = Type.INPUT_CONDITION;}
+    	else if (o instanceof YOutputCondition) {retval = Type.OUTPUT_CONDITION;}
+    	else if (o instanceof YTask) {retval = Type.TASK;}
+    	else if (o instanceof YCondition) {retval = Type.CONDITION;}
+    	else if (o instanceof YFlow) {retval = Type.FLOW;}
+    	else if (o instanceof YSpecification) {retval = Type.SPECIFICATION;}
+    	return retval;
+    }
+
 }

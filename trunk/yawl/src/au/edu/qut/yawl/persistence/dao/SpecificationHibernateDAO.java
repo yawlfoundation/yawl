@@ -8,8 +8,12 @@
 
 package au.edu.qut.yawl.persistence.dao;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -206,4 +210,18 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
     public Serializable getKey(YSpecification m) {
         return m.getDbID();
     }
+
+    public List getChildren(Object parent) {
+		List retval = new ArrayList();
+    	initializeSessions();
+		session = openSession();
+		Query query = session.createQuery("SELECT dbid, name, uri FROM yspecification WHERE uri LIKE ?%");
+		query.setString(0, parent.toString());
+		for (Iterator it = query.iterate(); it.hasNext();) {
+			Object[] row = (Object[]) it.next();
+			retval.add(row);
+		}
+		return retval;
+	}
+
 }
