@@ -57,16 +57,17 @@ public class WorkflowEditor extends javax.swing.JFrame {
         componentEditorSplitPane = new javax.swing.JSplitPane();
         componentListPanel = new javax.swing.JPanel();
         componentListScrollPane = new javax.swing.JScrollPane();
-        SpecificationDAO dao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
+        SpecificationDAO dao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
         DataContext dc = new DataContext(dao, EditorDataProxy.class);
-        EditorDataProxy dp = (EditorDataProxy) dc.getDataProxy(new DatasourceRoot("./exampleSpecs"), null);
+        EditorDataProxy dp = (EditorDataProxy) dc.getDataProxy(new DatasourceRoot("/home/sandozm"), null);
+//        EditorDataProxy dp = (EditorDataProxy) dc.getDataProxy(new DatasourceRoot("./exampleSpecs"), null);
         SharedNode root = new SharedNode(dp);
         SharedNodeTreeModel treeModel = new SharedNodeTreeModel(root);
         root.setTreeModel(treeModel);
         componentListTree = new STree(treeModel, componentListScrollPane);
-        componentListTree.setShowsRootHandles(true);
+        componentListTree.setShowsRootHandles(false);
         componentListTree.setRootVisible(true);
-        componentListTree.setRowHeight(-1);
+        componentListTree.setRowHeight(25);
         
         desktopAndStatusPanel = new javax.swing.JPanel();
         desktopLogSplitPane = new javax.swing.JSplitPane();
@@ -92,11 +93,11 @@ public class WorkflowEditor extends javax.swing.JFrame {
         aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Workflow Editor");
+        setTitle("NexusBPM Process Editor");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setForeground(java.awt.Color.lightGray);
-        setName("Workflow Editor");
-        this.setIconImage(ApplicationIcon.getIcon("CapselaFrame.window_icon", ApplicationIcon.HUGE_SIZE).getImage());
+        setName("NexusBPM Process Editor");
+        this.setIconImage(ApplicationIcon.getIcon("CapselaFrame.window_icon", ApplicationIcon.MEDIUM_SIZE).getImage());
         componentEditorSplitPane.setDividerLocation(200);
         componentListPanel.setLayout(new java.awt.BorderLayout());
 
