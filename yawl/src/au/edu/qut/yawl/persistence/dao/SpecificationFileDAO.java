@@ -11,9 +11,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.jdom.JDOMException;
+
+import com.nexusbpm.editor.tree.DatasourceRoot;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
@@ -24,9 +29,18 @@ import au.edu.qut.yawl.unmarshal.YMarshal;
 
 public class SpecificationFileDAO implements SpecificationDAO{
 
+	public File root;
+	
 	public boolean delete(YSpecification t) {
 		new File(t.getID()).delete();
 		return true;
+	}
+
+	public SpecificationFileDAO() {
+		root = new File(".");
+	}
+	public SpecificationFileDAO(File root) {
+		this.root = root;
 	}
 
 	public YSpecification retrieve(Object o) {
@@ -66,4 +80,24 @@ public class SpecificationFileDAO implements SpecificationDAO{
     public Serializable getKey(YSpecification m) {
         return m.getID();
     }
+
+	public List getChildren(Object file) {
+		List retval = new ArrayList();
+		if (file instanceof String || file instanceof DatasourceRoot) {
+			file = file.toString();
+			File f = new File((String) file);
+			if (f.isFile() && f.getName().endsWith(".xml")) {
+				YSpecification spec = retrieve(f.getAbsolutePath());
+				retval.add(spec);
+			} else {
+				File[] files = (new File((String) file)).listFiles();
+				if (files != null) {
+					for (File aFile : files) {
+						retval.add(aFile.getAbsolutePath());
+					}
+				}
+			}
+		}
+		return retval;
+	}
 }

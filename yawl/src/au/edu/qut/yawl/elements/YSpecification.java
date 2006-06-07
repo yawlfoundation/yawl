@@ -573,7 +573,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     	return _dbid;
     }
     
-    private void setDbID(Long dbid) {
+    public void setDbID(Long dbid) {
     	_dbid = dbid;
     }
     
