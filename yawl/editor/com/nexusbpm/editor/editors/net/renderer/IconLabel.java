@@ -10,7 +10,7 @@ import javax.swing.UIManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
  * This label displays the icons of components in the flow editor, based on their execution
@@ -32,7 +32,7 @@ public class IconLabel extends JLabel {
 	public final static Color EXECUTION_STATUS_COLOR_ERROR = Color.RED;
 	public final static Color EXECUTION_STATUS_COLOR_FINISHED = Color.GRAY;
 
-	private DataProxy _proxy;
+	private EditorDataProxy _proxy;
 
 	/**
 	 * Default constructor.
@@ -53,7 +53,7 @@ public class IconLabel extends JLabel {
 	 * @param proxy The proxy whose domain object's icon is to be displayed by this label.
 	 * @throws CapselaException If there is an error retrieving the execution status from the domain object.
 	 */
-	public void setProxy( DataProxy proxy ) {
+	public void setProxy( EditorDataProxy proxy ) {
 		_proxy = proxy;
 		Object component = _proxy.getData();
 		if( component != null ) {

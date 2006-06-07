@@ -44,7 +44,7 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 
 /**
@@ -314,7 +314,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 			Transferable tr = e.getTransferable();
 
 			//flavor not supported, reject drop
-			if( !tr.isDataFlavorSupported( DataProxy.PROXY_FLAVOR ) ) {
+			if( !tr.isDataFlavorSupported( EditorDataProxy.PROXY_FLAVOR ) ) {
 				LOG.debug( "Transferable flavor unsupported" );
 				e.rejectDrop();
 			}
@@ -577,7 +577,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 
 			Action executeAction = new AbstractAction( "Execute" ) {
 				public void actionPerformed( ActionEvent e ) {
-					DataProxy proxy = node.getProxy();
+					EditorDataProxy proxy = node.getProxy();
 					//ClientOperation.createInstanceAndRun( ctrl );
 					throw new RuntimeException("This needs to be reimplemented in the YAWL context");
 				}

@@ -6,7 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.nexusbpm.editor.exception.EditorException;
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
  * This text area displays the description of components in the flow editor.
@@ -20,7 +20,7 @@ public class DescriptionTextArea extends JEditorPane {
 
 	private final static Log LOG = LogFactory.getLog( DescriptionTextArea.class );
 
-	private DataProxy _proxy;
+	private EditorDataProxy _proxy;
 	private String _description;
 
 	/**
@@ -35,7 +35,7 @@ public class DescriptionTextArea extends JEditorPane {
 	 * @param proxy The proxy whose domain object's description is to be displayed by this text area.
 	 * @throws CapselaException If there is an error retrieving the description from the domain object.
 	 */
-	public void setProxy( DataProxy proxy ) throws EditorException {
+	public void setProxy( EditorDataProxy proxy ) throws EditorException {
 		_proxy = proxy;
 		_description = "This is the fancy nancy description.  Please replace me with something less fancy.";
 		this.setText( _description );

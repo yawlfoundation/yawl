@@ -14,7 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import com.nexusbpm.editor.desktop.ComponentEditor;
 import com.nexusbpm.editor.editors.net.GraphEditor;
 import com.nexusbpm.editor.exception.EditorException;
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
  * A flow editor which can contain multiple tabs, each of which will contain a
@@ -47,7 +47,7 @@ public class NetEditor extends ComponentEditor {
 	}
 
 	/** Set of proxys for flow instances that have tabs in this editor. */
-	private HashSet<DataProxy> proxyList = new HashSet<DataProxy>();
+	private HashSet<EditorDataProxy> proxyList = new HashSet<EditorDataProxy>();
 
 	/**
 	 * @see ComponentEditor#initializeUI()
@@ -112,7 +112,7 @@ public class NetEditor extends ComponentEditor {
 	 *                   create a graph editor for.
 	 * @param focusNewTab whether the new tab should be given focus or not.
 	 */
-	public void addGraphEditor( DataProxy proxy, final boolean focusNewTab ) throws EditorException {
+	public void addGraphEditor( EditorDataProxy proxy, final boolean focusNewTab ) throws EditorException {
 		// Get the flow from the cache.
 //		final FlowComponent flow = (FlowComponent) proxy.getPersistentDomainObject( ClientSessionBean.COMPLETE_FLOW_INITIALIZATION );
 //		if (null == flow) {
@@ -170,7 +170,7 @@ public class NetEditor extends ComponentEditor {
 	 * @param proxy the proxy for the flow template or instance whose
 	 *                   tab is to be removed from this flow editor.
 	 */
-	public void removeGraphEditor( DataProxy proxy ) {
+	public void removeGraphEditor( EditorDataProxy proxy ) {
 		if( null != _tabbedPane && null != proxy ) {
 			Component[] components = _tabbedPane.getComponents();
 			int removed = 0;
@@ -211,10 +211,10 @@ public class NetEditor extends ComponentEditor {
 
 		if (null != proxyList) {
 			// remove GraphEditors from instance proxys
-			HashSet<DataProxy> tmp = proxyList;
+			HashSet<EditorDataProxy> tmp = proxyList;
 			proxyList = null;
-			DataProxy tmpproxy;
-			for (Iterator<DataProxy> iterator = tmp.iterator(); iterator.hasNext(); ) {
+			EditorDataProxy tmpproxy;
+			for (Iterator<EditorDataProxy> iterator = tmp.iterator(); iterator.hasNext(); ) {
 				tmpproxy = iterator.next();
 				removeGraphEditor(tmpproxy);
 			}

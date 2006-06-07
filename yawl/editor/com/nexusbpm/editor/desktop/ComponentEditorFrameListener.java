@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jdesktop.swingworker.SwingWorker;
 
 import com.nexusbpm.editor.exception.EditorException;
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.SharedNode;
 
 /**
@@ -55,7 +55,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 		super.internalFrameClosing( e );
 		SwingWorker<Object, Object> worker = new SwingWorker<Object, Object>( ) {
 			public Object doInBackground() {
-				DataProxy proxy = _node.getProxy();
+				EditorDataProxy proxy = _node.getProxy();
 				try {
 					if( _editor.isDirty() ) {
 						LOG.debug( "Editor closing, saving: " );
@@ -98,7 +98,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 	 * @see ClosingFrameListener#internalFrameOpened(InternalFrameEvent)
 	 */
 	public void internalFrameOpened( final InternalFrameEvent e ) {
-		final DataProxy proxy = _node.getProxy();
+		final EditorDataProxy proxy = _node.getProxy();
 		LOG.debug( "internalFrameOpened()" );
 		SwingWorker<Object, Object> worker = new SwingWorker<Object, Object>( ) {
 			public Object doInBackground() {

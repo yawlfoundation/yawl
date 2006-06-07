@@ -54,7 +54,7 @@ import com.nexusbpm.editor.editors.net.cells.GraphPort;
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.icon.AnimatedIcon;
 import com.nexusbpm.editor.icon.ApplicationIcon;
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.worker.CapselaWorker;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
@@ -93,7 +93,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 
   private JButton _runButton;
 
-  private DataProxy _flowproxy;
+  private EditorDataProxy _flowproxy;
 
   private Action _remove;
   
@@ -148,7 +148,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
   /**
    * @return the proxy for the flow that this editor is for.
    */
-  public DataProxy getProxy() {
+  public EditorDataProxy getProxy() {
     return _flowproxy;
   }
 
@@ -156,7 +156,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
    * Sets the proxy for the flow that this editor is for.
    * @param flowproxy the proxy for the flow.
    */
-  public void setproxy(DataProxy flowproxy) {
+  public void setproxy(EditorDataProxy flowproxy) {
     _flowproxy = flowproxy;
   }
 
@@ -210,13 +210,13 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //    }//else
   }//propertyChange()
   
-  private void stopCellAnimation(DataProxy proxy) {
+  private void stopCellAnimation(EditorDataProxy proxy) {
 	  _animatedproxySet.remove(proxy);
 	  proxy.clearAnimatedIcon();
   }
 
-	private Set<DataProxy> _animatedproxySet = new HashSet<DataProxy>();
-	public void startCellAnimation( DataProxy proxy ) {
+	private Set<EditorDataProxy> _animatedproxySet = new HashSet<EditorDataProxy>();
+	public void startCellAnimation( EditorDataProxy proxy ) {
 		CellView view = _graph.getGraphLayoutCache().getMapping( proxy.getGraphCell(), false );
 
 		if( null == view ) {
@@ -332,7 +332,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
    * @throws EditorException not thrown in the code
    */
   public void initialize(SharedNode node) throws EditorException {
-    _flowproxy = (DataProxy) node.getProxy();
+    _flowproxy = (EditorDataProxy) node.getProxy();
     _toolbar = createToolBar();
 
     this.setLayout(new BorderLayout());
@@ -380,7 +380,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
    * @throws EditorException if there is an error getting the local population
    *                          data for the instance.
    */
-  public void initializeInstance(DataProxy instanceproxy) throws EditorException {
+  public void initializeInstance(EditorDataProxy instanceproxy) throws EditorException {
     _isInstance = true;
     _flowproxy = instanceproxy;
 
@@ -468,7 +468,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
    * Inserts a cell for the specified domain object proxy's component at
    * the specified location.
    */
-  public void insert(DataProxy ctrl) throws EditorException {
+  public void insert(EditorDataProxy ctrl) throws EditorException {
     this.initializeCellAndPort(ctrl);
     CapselaCell cell = ctrl.getGraphCell();
     throw new RuntimeException("insert the object into the graph with the location properly restored");
@@ -484,7 +484,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
   /**
    * Connects two cells with an edge.
    */
-	public GraphEdge connect( CapselaCell source, CapselaCell target, boolean isDataEdge, DataProxy edgeproxy ) {
+	public GraphEdge connect( CapselaCell source, CapselaCell target, boolean isDataEdge, EditorDataProxy edgeproxy ) {
 		LOG.debug( "Connecting two cells." );
 		SharedNode flowNode = _flowproxy.getTreeNode();
 		SharedNode sourceNode = source.getProxy().getTreeNode();
@@ -515,7 +515,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 	 * are initialiazed, and returns the cell. A component's cell and port MUST be
 	 * initialized before they are added to the graph.
 	 */
-	private void initializeCellAndPort( DataProxy ctrl ) {
+	private void initializeCellAndPort( EditorDataProxy ctrl ) {
 		CapselaCell cell = ctrl.getGraphCell();
 		GraphPort port = ctrl.getGraphPort();
 		if( port == null ) {
@@ -621,7 +621,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
    * not and should not modify the flow itself (ie remove the component from the
    * flow).
    */
-  public void remove(DataProxy dec) {
+  public void remove(EditorDataProxy dec) {
     _graph.getGraphLayoutCache().remove(new Object[] { dec.getJGraphObject() });
 	_graph.getGraphLayoutCache().removeMapping(dec.getJGraphObject());
   }
@@ -658,7 +658,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 
     if (isComponent) {
       final CapselaCell capselaCell = (CapselaCell) cell;
-      DataProxy proxy = capselaCell.getProxy();
+      EditorDataProxy proxy = capselaCell.getProxy();
       final Component component = (Component) proxy.getData();
       
 //      if( component != null ) {
@@ -751,7 +751,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
   private Set getRemoveSet() {
 
     // Add the currently selected GraphPorts and GraphEdges to the delete list.
-    HashSet<DataProxy> removeSet = new HashSet<DataProxy>();
+    HashSet<EditorDataProxy> removeSet = new HashSet<EditorDataProxy>();
     Object[] selectedArray = _graph.getSelectionCells();
     for (int i = 0; i < selectedArray.length; i++) {
       Object selected = selectedArray[i];
@@ -773,7 +773,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
         if (descendant instanceof GraphPort) {
           GraphPort port = (GraphPort) descendant;
           for (Iterator iter = port.edges(); iter.hasNext();) {
-            DataProxy doc = ((GraphEdge) iter.next()).getProxy();
+            EditorDataProxy doc = ((GraphEdge) iter.next()).getProxy();
             removeSet.add(doc);
           }
         }
@@ -1245,7 +1245,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 		
 		// free up the memory taken up by animated icons
 		for(Iterator iter=_animatedproxySet.iterator(); iter.hasNext();) {
-			DataProxy proxy = (DataProxy) iter.next();
+			EditorDataProxy proxy = (EditorDataProxy) iter.next();
 			stopCellAnimation(proxy);
 		}
 

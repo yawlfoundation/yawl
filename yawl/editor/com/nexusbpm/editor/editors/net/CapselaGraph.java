@@ -48,7 +48,7 @@ import com.nexusbpm.editor.editors.net.cells.CapselaCell;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphPort;
 import com.nexusbpm.editor.editors.net.cells.ViewFactory;
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.DragAndDrop;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.worker.CapselaWorker;
@@ -71,7 +71,7 @@ public class CapselaGraph extends JGraph implements Printable, DropTargetListene
 
   private SharedNode _SharedNode;
 
-  private DataProxy _proxy;
+  private EditorDataProxy _proxy;
 
   private DragSource _dragSource = null;
 
@@ -81,7 +81,7 @@ public class CapselaGraph extends JGraph implements Printable, DropTargetListene
    * @param graphEditor the graph editor that this graph is contained in.
    * @param proxy the proxy for the flow instance.
    */
-  public CapselaGraph(CapselaGraphModel model, GraphEditor graphEditor, DataProxy proxy) {
+  public CapselaGraph(CapselaGraphModel model, GraphEditor graphEditor, EditorDataProxy proxy) {
     this(model, graphEditor, (SharedNode) null);
     _proxy = proxy;
   }
@@ -100,7 +100,7 @@ public class CapselaGraph extends JGraph implements Printable, DropTargetListene
 
     _SharedNode = SharedNode;
     if (_SharedNode != null) {
-      _proxy = (DataProxy) SharedNode.getProxy();
+      _proxy = (EditorDataProxy) SharedNode.getProxy();
     }
 
     _graphEditor = graphEditor;
@@ -302,7 +302,7 @@ public class CapselaGraph extends JGraph implements Printable, DropTargetListene
   /**
    * @return the proxy for the flow which this graph displays.
    */
-  public DataProxy getProxy() {
+  public EditorDataProxy getProxy() {
     return _proxy;
   }
 

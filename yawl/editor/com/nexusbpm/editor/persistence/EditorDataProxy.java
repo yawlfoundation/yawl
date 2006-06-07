@@ -21,7 +21,7 @@ import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.icon.RenderingHints;
 import com.nexusbpm.editor.tree.SharedNode;
 
-public class DataProxy extends au.edu.qut.yawl.persistence.managed.DataProxy implements Transferable {
+public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataProxy implements Transferable {
 
 	private PropertyChangeSupport _changeSupport = new PropertyChangeSupport( this );
 	/**
@@ -194,7 +194,7 @@ public class DataProxy extends au.edu.qut.yawl.persistence.managed.DataProxy imp
 	}
 	
 	/** The data flavor we'll be using for any drag/drop operations. */
-	public final static DataFlavor PROXY_FLAVOR = new DataFlavor( DataProxy.class, "proxy flavor" );
+	public final static DataFlavor PROXY_FLAVOR = new DataFlavor( EditorDataProxy.class, "proxy flavor" );
 
 	/**
 	 * The data flavors in which data can be transferred

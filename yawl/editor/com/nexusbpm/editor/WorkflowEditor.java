@@ -1,6 +1,19 @@
 package com.nexusbpm.editor;
 
+import javax.swing.JFrame;
+import javax.swing.UIManager;
+
+import au.edu.qut.yawl.persistence.dao.DAOFactory;
+import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
+import au.edu.qut.yawl.persistence.managed.DataContext;
+
+import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.editor.tree.DatasourceRoot;
+import com.nexusbpm.editor.tree.STree;
+import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  *
@@ -36,10 +49,25 @@ public class WorkflowEditor extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">                          
     private void initComponents() {
+	    JFrame.setDefaultLookAndFeelDecorated(true);
+		try {
+	        UIManager.setLookAndFeel(
+	            UIManager.getSystemLookAndFeelClassName());
+	    } catch (Exception e) { e.printStackTrace();}
         componentEditorSplitPane = new javax.swing.JSplitPane();
         componentListPanel = new javax.swing.JPanel();
         componentListScrollPane = new javax.swing.JScrollPane();
-        componentListTree = new javax.swing.JTree();
+        SpecificationDAO dao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
+        DataContext dc = new DataContext(dao, EditorDataProxy.class);
+        EditorDataProxy dp = (EditorDataProxy) dc.getDataProxy(new DatasourceRoot("./exampleSpecs"), null);
+        SharedNode root = new SharedNode(dp);
+        SharedNodeTreeModel treeModel = new SharedNodeTreeModel(root);
+        root.setTreeModel(treeModel);
+        componentListTree = new STree(treeModel, componentListScrollPane);
+        componentListTree.setShowsRootHandles(true);
+        componentListTree.setRootVisible(true);
+        componentListTree.setRowHeight(-1);
+        
         desktopAndStatusPanel = new javax.swing.JPanel();
         desktopLogSplitPane = new javax.swing.JSplitPane();
         desktopPanel = new javax.swing.JPanel();
@@ -68,11 +96,11 @@ public class WorkflowEditor extends javax.swing.JFrame {
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setForeground(java.awt.Color.lightGray);
         setName("Workflow Editor");
-        componentEditorSplitPane.setDividerLocation(100);
+        this.setIconImage(ApplicationIcon.getIcon("CapselaFrame.window_icon", ApplicationIcon.HUGE_SIZE).getImage());
+        componentEditorSplitPane.setDividerLocation(200);
         componentListPanel.setLayout(new java.awt.BorderLayout());
 
         componentListScrollPane.setMinimumSize(new java.awt.Dimension(0, 0));
-        componentListTree.setEnabled(false);
         componentListTree.setPreferredSize(null);
         componentListScrollPane.setViewportView(componentListTree);
 

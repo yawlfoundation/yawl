@@ -2,7 +2,7 @@ package com.nexusbpm.editor.editors.net.cells;
 
 import org.jgraph.graph.DefaultPort;
 
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
  *  Description of the Class
@@ -12,9 +12,9 @@ import com.nexusbpm.editor.persistence.DataProxy;
  */
 public class GraphPort extends DefaultPort {
 
-  private DataProxy _proxy;
+  private EditorDataProxy _proxy;
 
-  public GraphPort(DataProxy proxy) {
+  public GraphPort(EditorDataProxy proxy) {
   	super();
   	_proxy = proxy;
   	_proxy.setGraphPort(this);
@@ -23,14 +23,14 @@ public class GraphPort extends DefaultPort {
   /**
    * @return
    */
-  public DataProxy getProxy() {
+  public EditorDataProxy getProxy() {
     return _proxy;
   }
 
   /**
    * @param proxy
    */
-  public void setProxy(DataProxy proxy) {
+  public void setProxy(EditorDataProxy proxy) {
     _proxy = proxy;
   }
 

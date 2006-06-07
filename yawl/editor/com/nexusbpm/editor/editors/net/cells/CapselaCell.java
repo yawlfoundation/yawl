@@ -4,7 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jgraph.graph.DefaultGraphCell;
 
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 
 public class CapselaCell extends DefaultGraphCell {
@@ -14,19 +14,19 @@ public class CapselaCell extends DefaultGraphCell {
 	public static final int DEFAULT_HEIGHT = 70;
 	public static final int DEFAULT_WIDTH = 77;
 
-	private DataProxy _proxy;
+	private EditorDataProxy _proxy;
 
-	public CapselaCell( DataProxy proxy ) {
+	public CapselaCell( EditorDataProxy proxy ) {
 		super();
 		_proxy = proxy;
 		_proxy.setGraphCell( this );
 	}
 
-	public DataProxy getProxy() {
+	public EditorDataProxy getProxy() {
 		return _proxy;
 	}
 
-	public void setProxy( DataProxy controller ) {
+	public void setProxy( EditorDataProxy controller ) {
 		_proxy = controller;
 	}
 

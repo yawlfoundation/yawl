@@ -2,7 +2,7 @@ package com.nexusbpm.editor.editors.net.cells;
 
 import org.jgraph.graph.Edge;
 
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
  * JGraph edge class for control edges.
@@ -17,7 +17,7 @@ public class FlowControlEdge extends GraphEdge implements Edge {
 	 * Creates a new JGraph edge for the specified controller's component edge.
 	 * @param controller The controller for the component edge corresponding to this JGraph edge.
 	 */
-	public FlowControlEdge( DataProxy proxy ) {
+	public FlowControlEdge( EditorDataProxy proxy ) {
 		super( proxy );
 	}
 

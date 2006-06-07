@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.icon.ApplicationIcon;
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.util.syntax.DefaultInputHandler;
 import com.nexusbpm.editor.util.syntax.InputHandler;
 import com.nexusbpm.editor.util.syntax.JEditTextArea;
@@ -51,7 +51,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 	/**
 	 * The controller for this editor's component.
 	 */
-	protected DataProxy _proxy;
+	protected EditorDataProxy _proxy;
 
 	/**
 	 * Action listener that can be added to components to set the editor
@@ -212,7 +212,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 	 * @param controller the controller for this editor's component.
 	 * @throws EditorException if there is a GUI error.
 	 */
-	public void setController( DataProxy proxy ) throws EditorException {
+	public void setController( EditorDataProxy proxy ) throws EditorException {
 		if( _proxy != null ) {
 			LOG.debug( "ComponentEditor.setController - overriding controller" );
 			_proxy.removePropertyChangeListener( this );
