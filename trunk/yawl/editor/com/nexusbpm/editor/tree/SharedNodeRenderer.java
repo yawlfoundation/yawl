@@ -31,7 +31,8 @@ public class SharedNodeRenderer extends DefaultTreeCellRenderer {
 		super.getTreeCellRendererComponent( tree, value, sel, expanded, leaf, row,
 			hasFocus );
 		SharedNode node = (SharedNode) value;
-		setIcon( node.getIcon() );
+		setIcon( node.getProxy().icon() );
+		setText( node.getProxy().getLabel());
 		//    System.out.println("row: "+row+" node: "+node.toString());
 		return this;
 	}

@@ -4,7 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jgraph.graph.DefaultEdge;
 
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 
 /**
@@ -16,19 +16,19 @@ import com.nexusbpm.editor.persistence.DataProxy;
 public class GraphEdge extends DefaultEdge implements org.jgraph.graph.Edge {
   private static final Log LOG = LogFactory.getLog(GraphEdge.class);
   
-  public GraphEdge(DataProxy proxy) {
+  public GraphEdge(EditorDataProxy proxy) {
     super();
     _proxy = proxy;
     _proxy.setGraphEdge(this);
   }
 
-  public DataProxy _proxy;
+  public EditorDataProxy _proxy;
 
-  public DataProxy getProxy() {
+  public EditorDataProxy getProxy() {
     return _proxy;
   }
 
-  public void setProxy(DataProxy proxy) {
+  public void setProxy(EditorDataProxy proxy) {
     _proxy = proxy;
   }
 }

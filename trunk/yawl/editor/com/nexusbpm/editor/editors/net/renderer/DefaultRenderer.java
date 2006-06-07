@@ -17,7 +17,7 @@ import org.jgraph.graph.CellViewRenderer;
 import com.nexusbpm.editor.editors.net.cells.CapselaCell;
 import com.nexusbpm.editor.editors.net.cells.DefaultView;
 import com.nexusbpm.editor.exception.EditorException;
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 
 /**
@@ -32,7 +32,7 @@ public class DefaultRenderer extends JComponent implements CellViewRenderer {
 
 	private final static Log LOG = LogFactory.getLog( DefaultRenderer.class );
 
-	private DataProxy _proxy;
+	private EditorDataProxy _proxy;
 	private NameLabel _nameLabel;
 	private IconLabel _iconLabel;
 	private DescriptionTextArea _descriptionTextArea;
@@ -115,7 +115,7 @@ public class DefaultRenderer extends JComponent implements CellViewRenderer {
 			_isFocused = focus;
 			_isPreview = preview;
 			try {
-				DataProxy proxy = ( (CapselaCell) defaultView.getCell() ).getProxy();
+				EditorDataProxy proxy = ( (CapselaCell) defaultView.getCell() ).getProxy();
 				_nameLabel.setProxy( proxy );
 				_iconLabel.setProxy( proxy );
 				_descriptionTextArea.setProxy( proxy );

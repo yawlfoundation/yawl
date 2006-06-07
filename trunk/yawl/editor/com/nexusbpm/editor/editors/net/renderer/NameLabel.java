@@ -4,7 +4,7 @@ import javax.swing.JLabel;
 import javax.swing.UIManager;
 
 import com.nexusbpm.editor.exception.EditorException;
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
  * This label displays the name of components in the flow editor.
@@ -16,7 +16,7 @@ import com.nexusbpm.editor.persistence.DataProxy;
  */
 class NameLabel extends JLabel {
 
-	private DataProxy _proxy;
+	private EditorDataProxy _proxy;
 	private String _name;
 
 	/**
@@ -37,7 +37,7 @@ class NameLabel extends JLabel {
 	 * @param proxy The proxy whose domain object's name is to be displayed by this label.
 	 * @throws CapselaException If there is an error retrieving the name from the domain object.
 	 */
-	public void setProxy( DataProxy proxy ) throws EditorException {
+	public void setProxy( EditorDataProxy proxy ) throws EditorException {
 		_proxy = proxy;
 		_name = "this should be the name, but it's not implemented yet?  ooo funny bone my funny bone!";
 		this.setText( _name );

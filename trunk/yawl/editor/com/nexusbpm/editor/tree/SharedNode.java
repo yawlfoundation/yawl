@@ -11,7 +11,7 @@ import javax.swing.tree.TreeNode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.nexusbpm.editor.persistence.DataProxy;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
  * Abstract tree node for a tree data structure that extends
@@ -24,7 +24,7 @@ import com.nexusbpm.editor.persistence.DataProxy;
  * 
  * @author Dean Mao
  */
-public abstract class SharedNode extends DefaultMutableTreeNode 
+public class SharedNode extends DefaultMutableTreeNode 
 implements Cloneable, PropertyChangeListener {
 
 	private static final Log LOG = LogFactory.getLog( SharedNode.class );
@@ -42,7 +42,7 @@ implements Cloneable, PropertyChangeListener {
 	 * 
 	 * @see TreeNode#getController()
 	 */
-	protected DataProxy _proxy;
+	protected EditorDataProxy _proxy;
 
 	/**
 	 * Whether or not to ignore PropertyChangeEvents we get in propertyChange() as
@@ -54,23 +54,26 @@ implements Cloneable, PropertyChangeListener {
 	/**
 	 * @return the name to be displayed for this node.
 	 */
-	public abstract String getName();
+	public String getName() {
+		return "name";
+	}
 
 	/**
 	 * Creates a SharedNode for domain object specified by the given controller.
 	 * @param controller the controller for the domain object.
 	 */
-	public SharedNode( DataProxy proxy ) {
+	public SharedNode( EditorDataProxy proxy ) {
 		if( proxy != null ) {
 			_proxy = proxy;
 			_proxy.addPropertyChangeListener( this );
+			setUserObject(proxy.getData());
 		}
 	}
 
 	/**
 	 * @return the controller for the domain object which this node represents.
 	 */
-	public DataProxy getProxy() {
+	public EditorDataProxy getProxy() {
 		return _proxy;
 	}
 
@@ -106,7 +109,9 @@ implements Cloneable, PropertyChangeListener {
 	/**
 	 * @return the icon to be used for this node.
 	 */
-	public abstract ImageIcon getIcon();
+	public ImageIcon getIcon() {
+		return _proxy.icon();
+	}
 
 	/**
 	 * @return the TreeModel to which this node belongs.
@@ -137,7 +142,7 @@ implements Cloneable, PropertyChangeListener {
 		}
 
 		if( _proxy != null ) {
-			DataProxy tmp = _proxy;
+			EditorDataProxy tmp = _proxy;
 			_proxy = null;
 			tmp.removePropertyChangeListener( this );
 		}
