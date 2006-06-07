@@ -8,6 +8,7 @@
 
 package au.edu.qut.yawl.persistence.dao;
 import java.io.Serializable;
+import java.util.List;
 
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -20,6 +21,11 @@ import au.edu.qut.yawl.elements.YSpecification;
 @Remote(SpecificationDAO.class)
 public class SpecificationEJB3DAO implements SpecificationDAO {
 	
+	public List getChildren(Object o) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	@PersistenceContext
 	private EntityManager manager;
 
