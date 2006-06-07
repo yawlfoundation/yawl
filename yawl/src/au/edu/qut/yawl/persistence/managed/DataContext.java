@@ -169,12 +169,12 @@ public class DataContext {
     				hierarchy.put(parent, getDataProxy(o, null));
     			}
     			else {
-        			DataProxy dp = newObject(o, null);
+    				DataProxy dp = newObject(o, null);
         			hierarchy.put(parent, dp);
     			}
     		}
     	}
-		return hierarchy.get(parent);
+    	return hierarchy.get(parent);
     }
     
     public void generateProxies(YSpecification spec) {

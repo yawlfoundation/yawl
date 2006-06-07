@@ -81,16 +81,16 @@ public class SpecificationFileDAO implements SpecificationDAO{
         return m.getID();
     }
 
-	public List getChildren(Object file) {
+	public List getChildren(Object filename) {
 		List retval = new ArrayList();
-		if (file instanceof String || file instanceof DatasourceRoot) {
-			file = file.toString();
-			File f = new File((String) file);
+		if (filename instanceof String || filename instanceof DatasourceRoot) {
+			filename = filename.toString();
+			File f = new File((String) filename);
 			if (f.isFile() && f.getName().endsWith(".xml")) {
 				YSpecification spec = retrieve(f.getAbsolutePath());
 				retval.add(spec);
 			} else {
-				File[] files = (new File((String) file)).listFiles();
+				File[] files = (new File((String) filename)).listFiles();
 				if (files != null) {
 					for (File aFile : files) {
 						retval.add(aFile.getAbsolutePath());

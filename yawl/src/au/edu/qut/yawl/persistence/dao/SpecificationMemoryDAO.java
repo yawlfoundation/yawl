@@ -5,12 +5,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.nexusbpm.editor.tree.DatasourceRoot;
+
 import au.edu.qut.yawl.elements.YSpecification;
 
 public class SpecificationMemoryDAO implements SpecificationDAO{
     
     private Map<Long, YSpecification> specs = new HashMap<Long, YSpecification>();
     private long nextdbID = 1;
+    public static YSpecification testSpec = new YSpecification("/home/sandozm/templates/testing/testspec");
+    static {
+    	testSpec.setName("My test specification");    	
+    }
+    
+    public SpecificationMemoryDAO() {
+    	save(testSpec);
+    }    
+    
     public boolean delete(YSpecification m) {
         specs.remove(m.getID());
         return true;
@@ -32,16 +43,20 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
 
 	public List getChildren(Object o) {
 		if (o == null) throw new IllegalArgumentException("Parent can not be null");
-		if (!(o instanceof String)) throw new IllegalArgumentException("Parent must be a String.");
-		String path = (String) o;
-//		int pathstart = path.lastIndexOf("/") - 1;
-//		path = path.substring(0, pathstart);
 		List retval = new ArrayList();
+		if (o instanceof String || o instanceof DatasourceRoot) {
+
+		String path = o.toString();
 		for (YSpecification value: specs.values()) {
 			String key = value.getID();
 			if (key != null && key.startsWith(path)) {
-				retval.add(specs.get(key));
+				if (ab(path, key) != null) {
+					retval.add(ab(path, key));
+				} else {
+					retval.add(value);
+				}
 			}
+		}
 		}
 		return retval;
 	}
@@ -50,4 +65,24 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
 		return nextdbID++;
 	}
 
+	private static String ab(String a, String b) {
+		String retval = null;
+//		a = "/home/msandoz/a/b/c.efg";
+//		b = "/home/msandoz/a/b/c.efg";
+		if (b.startsWith(a)) {
+			int x = b.lastIndexOf("/");
+			int y = b.indexOf("/", a.length() + 1);
+			System.out.println("stats:" + x + ":" + y + ":" + a + ":" + b);
+			if (x > a.length()) {
+				retval = b.substring(0, y);
+			}
+		}
+		System.out.println(retval);
+		return retval;
+	}
+
+	public static void main(String[] s) {
+		System.out.println("i return " + ab("/home/msandoz/a","/home/msandoz/a/b/c.efg"));
+	}
+	
 }
