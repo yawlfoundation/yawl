@@ -3,6 +3,13 @@ package au.edu.qut.yawl.persistence.managed;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.util.List;
 import java.util.Set;
 
@@ -86,4 +93,45 @@ public class TestDataContext extends TestCase implements VetoableChangeListener{
 		return dp;
 	}
 	
+	public void testURL() {
+		try {
+			URLStreamHandlerFactory f = new MyURLStreamHandlerFactory("local");
+			URL.setURLStreamHandlerFactory(f);
+
+			File f2 = new File("C:\\temp\\XYZ.xml");
+			URI fileUri = f2.toURI();
+			URI memUri = new URI("local","memory","/home/msandoz/", null);
+			String path = fileUri.getPath().substring(fileUri.getPath().lastIndexOf("/") + 1);
+			URI destUri = memUri.resolve(path);
+
+			memUri.toURL();//fails without a handler....
+			
+			System.out.println("source: " + fileUri.toString());
+			System.out.println("dest:   " + memUri.toString());
+			System.out.println("result: " + destUri.toString());
+			System.out.println("path:   " + destUri.getPath());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 }
+
+	class MyURLStreamHandlerFactory implements URLStreamHandlerFactory {
+		public MyURLStreamHandlerFactory(String protocol) {super();this.protocol = protocol;}
+		private String protocol;
+		public URLStreamHandler createURLStreamHandler(String protocol) {
+			if (protocol.equals(this.protocol)) {
+				return new MyURLStreamHandler();
+			}
+			else return null;
+		}
+	}
+
+	class MyURLStreamHandler extends URLStreamHandler{
+		public URLConnection openConnection(URL url) {
+			URLConnection uc = null;//new URLConnection(url) {;
+			return uc;
+		}
+	}

@@ -1,12 +1,15 @@
 package com.nexusbpm.editor;
 
 import javax.swing.JFrame;
+import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 
+import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -55,25 +58,46 @@ public class WorkflowEditor extends javax.swing.JFrame {
 	            UIManager.getSystemLookAndFeelClassName());
 	    } catch (Exception e) { e.printStackTrace();}
         componentEditorSplitPane = new javax.swing.JSplitPane();
-        componentListPanel = new javax.swing.JPanel();
-        componentListScrollPane = new javax.swing.JScrollPane();
-        SpecificationDAO dao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
-        DataContext dc = new DataContext(dao, EditorDataProxy.class);
-        EditorDataProxy dp = (EditorDataProxy) dc.getDataProxy(new DatasourceRoot("/home/sandozm"), null);
-//        EditorDataProxy dp = (EditorDataProxy) dc.getDataProxy(new DatasourceRoot("./exampleSpecs"), null);
-        SharedNode root = new SharedNode(dp);
-        SharedNodeTreeModel treeModel = new SharedNodeTreeModel(root);
-        root.setTreeModel(treeModel);
-        componentListTree = new STree(treeModel, componentListScrollPane);
-        componentListTree.setShowsRootHandles(false);
-        componentListTree.setRootVisible(true);
-        componentListTree.setRowHeight(25);
+        componentList1Panel = new javax.swing.JPanel();
+        componentList2Panel = new javax.swing.JPanel();
+        componentTreesSplitPane = new JSplitPane();
+        componentTreesPanel = new javax.swing.JPanel();
+        componentList1ScrollPane = new javax.swing.JScrollPane();
+        componentList2ScrollPane = new javax.swing.JScrollPane();
+        SpecificationDAO dao1 = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
+        SpecificationDAO dao2 = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
+        DataContext dc1 = new DataContext(dao1, EditorDataProxy.class);
+        DataContext dc2 = new DataContext(dao2, EditorDataProxy.class);
+        EditorDataProxy dp1 = (EditorDataProxy) dc1.getDataProxy(new DatasourceRoot("/home/sandozm/templates/testing/"), null);
+//        EditorDataProxy dp1 = (EditorDataProxy) dc1.getDataProxy(new DatasourceRoot("/home/sandozm/"), null);
+        EditorDataProxy dp2 = (EditorDataProxy) dc2.getDataProxy(new DatasourceRoot("./exampleSpecs/xml/"), null);
+
+        
+        EditorDataProxy dprox = (EditorDataProxy) dc1.getChildren(dp1).toArray()[0];
+        YSpecification spec = (YSpecification) dprox.getData();
+        spec.setID("C:\\temp\\TEST.xml");
+        dc2.put(dprox);
+        SharedNode root1 = new SharedNode(dp1);
+        SharedNode root2 = new SharedNode(dp2);
+        SharedNodeTreeModel treeModel1 = new SharedNodeTreeModel(root1);
+        SharedNodeTreeModel treeModel2 = new SharedNodeTreeModel(root2);
+        root1.setTreeModel(treeModel1);
+        root2.setTreeModel(treeModel2);
+        componentList1Tree = new STree(treeModel1, componentList1ScrollPane);
+        componentList1Tree.setShowsRootHandles(false);
+        componentList1Tree.setRootVisible(true);
+        componentList1Tree.setRowHeight(25);
+        
+        componentList2Tree = new STree(treeModel2, componentList1ScrollPane);
+        componentList2Tree.setShowsRootHandles(false);
+        componentList2Tree.setRootVisible(true);
+        componentList2Tree.setRowHeight(25);
         
         desktopAndStatusPanel = new javax.swing.JPanel();
         desktopLogSplitPane = new javax.swing.JSplitPane();
         desktopPanel = new javax.swing.JPanel();
         desktopScrollPane = new javax.swing.JScrollPane();
-        desktopPane = new javax.swing.JDesktopPane();
+        desktopPane = new DesktopPane();
         logPanel = new CapselaLogPanel();
         logTextScrollPane = new javax.swing.JScrollPane();
         logTextArea = new javax.swing.JTextArea();
@@ -97,17 +121,25 @@ public class WorkflowEditor extends javax.swing.JFrame {
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setForeground(java.awt.Color.lightGray);
         setName("NexusBPM Process Editor");
-        this.setIconImage(ApplicationIcon.getIcon("CapselaFrame.window_icon", ApplicationIcon.MEDIUM_SIZE).getImage());
+        this.setIconImage(ApplicationIcon.getIcon("NexusFrame.window_icon", ApplicationIcon.MEDIUM_SIZE).getImage());
         componentEditorSplitPane.setDividerLocation(200);
-        componentListPanel.setLayout(new java.awt.BorderLayout());
+        componentList1Panel.setLayout(new java.awt.BorderLayout());
+        componentList2Panel.setLayout(new java.awt.BorderLayout());
+        componentTreesPanel.setLayout(new java.awt.BorderLayout());
 
-        componentListScrollPane.setMinimumSize(new java.awt.Dimension(0, 0));
-        componentListTree.setPreferredSize(null);
-        componentListScrollPane.setViewportView(componentListTree);
+        componentList1ScrollPane.setViewportView(componentList1Tree);
 
-        componentListPanel.add(componentListScrollPane, java.awt.BorderLayout.CENTER);
+        componentList2ScrollPane.setViewportView(componentList2Tree);
 
-        componentEditorSplitPane.setLeftComponent(componentListPanel);
+        componentList1Panel.add(componentList1ScrollPane, java.awt.BorderLayout.CENTER);
+        componentList2Panel.add(componentList2ScrollPane, java.awt.BorderLayout.CENTER);
+
+        componentEditorSplitPane.setLeftComponent(componentTreesPanel);
+        componentTreesSplitPane.setDividerLocation(300);
+        componentTreesSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        componentTreesSplitPane.setTopComponent(componentList1Panel);
+        componentTreesSplitPane.setBottomComponent(componentList2Panel);
+        componentTreesPanel.add(componentTreesSplitPane);
 
         desktopAndStatusPanel.setLayout(new java.awt.GridLayout(1, 0));
 
@@ -197,12 +229,16 @@ public class WorkflowEditor extends javax.swing.JFrame {
         });
     }
     
-    // Variables declaration - do not modify                     
     private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JSplitPane componentEditorSplitPane;
-    private javax.swing.JPanel componentListPanel;
-    private javax.swing.JScrollPane componentListScrollPane;
-    private javax.swing.JTree componentListTree;
+    private javax.swing.JPanel componentList1Panel;
+    private javax.swing.JPanel componentList2Panel;
+    private javax.swing.JSplitPane componentTreesSplitPane;
+    private javax.swing.JPanel componentTreesPanel;
+    private javax.swing.JScrollPane componentList1ScrollPane;
+    private javax.swing.JScrollPane componentList2ScrollPane;
+    private javax.swing.JTree componentList1Tree;
+    private javax.swing.JTree componentList2Tree;
     private javax.swing.JMenuItem contentsMenuItem;
     private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem cutMenuItem;
@@ -224,6 +260,4 @@ public class WorkflowEditor extends javax.swing.JFrame {
     private javax.swing.JMenuItem pasteMenuItem;
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
-    // End of variables declaration                   
-    
 }

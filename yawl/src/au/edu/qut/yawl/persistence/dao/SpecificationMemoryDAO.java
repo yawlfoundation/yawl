@@ -7,6 +7,13 @@ import java.util.Map;
 
 import com.nexusbpm.editor.tree.DatasourceRoot;
 
+import au.edu.qut.yawl.elements.YAWLServiceGateway;
+import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YInputCondition;
+import au.edu.qut.yawl.elements.YMetaData;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 
 public class SpecificationMemoryDAO implements SpecificationDAO{
@@ -15,7 +22,37 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
     private long nextdbID = 1;
     public static YSpecification testSpec = new YSpecification("/home/sandozm/templates/testing/testspec");
     static {
-    	testSpec.setName("My test specification");    	
+    	//TODO move this all into a mock - yuck!
+			testSpec.setName("My test specification");
+			testSpec.setBetaVersion(YSpecification._Beta7_1);
+			testSpec.setMetaData(new YMetaData());
+			YNet net = new YNet("My_test_net", testSpec);
+			net.setName("My test network");
+			net.setRootNet("true");
+			testSpec.setRootNet(net);
+			YAWLServiceGateway gate = new YAWLServiceGateway("com.ichg.capsela.domain.component.EmailSenderComponent", testSpec);
+			gate.setName("[send mail support]");
+			testSpec.setDecomposition(gate);
+			YAWLServiceGateway gate2 = new YAWLServiceGateway("com.ichg.capsela.domain.component.JythonComponent", testSpec);
+			gate2.setName("[jython scripting support]");
+			testSpec.setDecomposition(gate2);
+			net.setInputCondition(new YInputCondition("start", net));
+			net.setOutputCondition(new YOutputCondition("end", net));
+			YAtomicTask task = new YAtomicTask("email dean", YAtomicTask._AND, YAtomicTask._AND, net); 
+			task.setDecompositionPrototype(gate);
+			net.addNetElement(task);
+			YAtomicTask task2 = new YAtomicTask("quote of the day", YAtomicTask._AND, YAtomicTask._AND, net); 
+			task2.setDecompositionPrototype(gate2);
+			net.addNetElement(task2);
+			
+			YFlow flow = new YFlow(net.getInputCondition(), task2);
+			net.getInputCondition().setPostset(flow);
+			
+			flow = new YFlow(task2, task);
+			task2.setPostset(flow);
+			
+			flow = new YFlow(task, net.getOutputCondition());
+			net.getOutputCondition().setPreset(flow);
     }
     
     public SpecificationMemoryDAO() {
@@ -72,17 +109,13 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
 		if (b.startsWith(a)) {
 			int x = b.lastIndexOf("/");
 			int y = b.indexOf("/", a.length() + 1);
-			System.out.println("stats:" + x + ":" + y + ":" + a + ":" + b);
+//			System.out.println("stats:" + x + ":" + y + ":" + a + ":" + b);
 			if (x > a.length()) {
 				retval = b.substring(0, y);
 			}
 		}
-		System.out.println(retval);
+//		System.out.println(retval);
 		return retval;
-	}
-
-	public static void main(String[] s) {
-		System.out.println("i return " + ab("/home/msandoz/a","/home/msandoz/a/b/c.efg"));
 	}
 	
 }
