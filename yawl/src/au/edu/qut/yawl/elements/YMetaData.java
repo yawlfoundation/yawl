@@ -332,5 +332,35 @@ public class YMetaData implements PersistableObject {
     private void setSpecification( YSpecification specification ) {
 		this.specification = specification;
 	}
-    
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		YMetaData newData = new YMetaData();
+		for (String contributor: getContributors()) {
+			newData.setContributor(copyString(contributor));
+		}
+		newData.setCoverage(copyString(getCoverage()));
+		newData.setCreated(copyDate(getCreated()));
+		for (String creator: getCreators()) {
+			newData.setCreator(copyString(creator));
+		}
+		newData.setDescription(copyString(getDescription()));
+		newData.setStatus(copyString(getStatus()));
+		for (String subject: getSubjects()) {
+			newData.setSubject(copyString(subject));
+		}
+		newData.setTitle(copyString(getTitle()));
+		newData.setValidFrom(copyDate(getValidFrom()));
+		newData.setValidUntil(copyDate(getValidUntil()));
+		newData.setVersion(copyString(getVersion()));
+		
+		return newData;
+	}
+	private String copyString(String source) {
+		return source == null ? null : new String(source); 
+	}
+	private Date copyDate(Date source) {
+		return source == null ? null : new Date(source.getTime()); 
+	}
+
 }

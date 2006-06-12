@@ -625,4 +625,40 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 	private void setAny(List<Element> nodes) {
 		PersistenceHelper.setAnyJaxb(this, nodes);
 	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		YSpecification outSpec = new YSpecification(getID());
+		outSpec.setBetaVersion(copyString(getBetaVersion()));
+		outSpec.setDocumentation(copyString(getDocumentation()));
+		outSpec.setMetaData(getMetaData());
+		outSpec.setName(copyString(getName()));
+		try {
+			outSpec.setMetaData((YMetaData) getMetaData().clone());
+			outSpec.setSchema(copyString(outSpec.getToolsForYAWL().getSchemaString()));
+		} catch (YSchemaBuildingException e1) {
+			e1.printStackTrace();
+		} catch (YSyntaxException e1) {
+			e1.printStackTrace();
+		} catch (CloneNotSupportedException e1) {
+		e1.printStackTrace();
+		}
+		for (YDecomposition decomp: outSpec.getDecompositions()) {
+			try {
+				YDecomposition decOut = (YDecomposition) decomp.clone();
+				outSpec.setDecomposition(decOut);
+				if (decOut instanceof YNet && ((YNet) decOut).getRootNet().equals("true")) {
+					outSpec.setRootNet((YNet)decOut);
+				}
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+		}
+		return outSpec;	}
+	
+	private String copyString(String source) {
+		return source == null ? null : new String(source); 
+		
+	}
+	
 }
