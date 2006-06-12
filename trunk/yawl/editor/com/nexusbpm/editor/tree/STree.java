@@ -417,8 +417,10 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 	 * @return boolean             true if no problems
 	 */
 	private boolean isDropValid( SharedNode draggingNode, TreePath destinationPath ) {
-		throw new RuntimeException("This method needs to be reimplemented for YAWL context");
-//		if( destinationPath == null ) {
+		RuntimeException e = new RuntimeException("This method needs to be reimplemented for YAWL context");
+		LOG.error("DRAGGING DOESNT WORK", e);
+		throw e;
+		//		if( destinationPath == null ) {
 //			// Invalid drop location.
 //			return false;
 //		}

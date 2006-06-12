@@ -13,6 +13,9 @@ import java.util.Set;
 
 import javax.swing.ImageIcon;
 
+import au.edu.qut.yawl.elements.YAWLServiceGateway;
+import au.edu.qut.yawl.elements.YAtomicTask;
+
 import com.nexusbpm.editor.editors.net.cells.CapselaCell;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphPort;
@@ -228,7 +231,33 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 	 * @return the icon for this controller's domain object.
 	 */
 	public ImageIcon icon() {
-		return ApplicationIcon.getIcon( getData().getClass().getName(), RenderingHints.ICON_MEDIUM );
+		String iconName = null;
+		Object data = getData();
+		if (data instanceof YAtomicTask) {
+			YAtomicTask task = (YAtomicTask) data;
+			if (task.getDecomposition() != null) {
+				if (task.getDecomposition().getName() != null) {
+					iconName = task.getDecomposition().getId();		
+				}
+				else {
+					iconName = "au.edu.qut.yawl.elements.YAtomicTask";
+				}
+			}
+			else {
+				iconName = "com.ichg.capsela.domain.component.DummyComponent";
+			}
+		}
+		else if (data instanceof YAWLServiceGateway) {
+			YAWLServiceGateway gate = (YAWLServiceGateway) data;
+			if (gate.getName() != null) {
+				iconName = gate.getId();
+			}
+			else iconName = "au.edu.qut.yawl.elements.YAtomicTask";
+		} 
+		else {
+		 iconName =  getData().getClass().getName();
+		}
+		return ApplicationIcon.getIcon(iconName, RenderingHints.ICON_MEDIUM );
 	}
 
 	private AnimatedIcon _animatedIcon = null;

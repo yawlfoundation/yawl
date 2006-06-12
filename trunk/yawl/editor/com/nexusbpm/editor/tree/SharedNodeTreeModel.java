@@ -1,5 +1,6 @@
 package com.nexusbpm.editor.tree;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,19 +9,24 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.event.TreeModelListener;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import au.edu.qut.yawl.elements.YAWLServiceGateway;
+import au.edu.qut.yawl.elements.YFlow;
+
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
-public class SharedNodeTreeModel implements TreeModel {
+public class SharedNodeTreeModel extends DefaultTreeModel {
 
 	public static Hashtable<EditorDataProxy, SharedNode> treeNodeCache = new Hashtable<EditorDataProxy, SharedNode>();
 
-	 protected SharedNode root;
+//	 protected SharedNode root;
 
 	public SharedNodeTreeModel(SharedNode root) {
-		this.root = root;
+		super(root);
+//		this.root = root;
 	}
 	
 	public List getChildren(SharedNode parent) {
@@ -60,7 +66,15 @@ public class SharedNodeTreeModel implements TreeModel {
 
 	  // Tell JTree whether an object in the tree is a leaf or not
 	  public boolean isLeaf(Object node) {
+		  SharedNode aNode = (SharedNode) node;
+		  Object aValue = aNode.getProxy().getData();
 		  boolean retval = false;
+		  if (aValue instanceof YAWLServiceGateway 
+				  || aValue instanceof YFlow
+		  ) retval = true;
+//too file specific;		  if (node instanceof File) {
+//			  if (((File) node).isFile() && !((File) node).getName().endsWith("xml")) {}
+//		  }
 //		  retval = ((SharedNode) node).getProxy().getData().getClass() != String.class;
 //		  retval &= ((SharedNode) node).getProxy().getData().getClass() != DatasourceRoot.class;
 		  return retval;

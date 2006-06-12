@@ -31,8 +31,6 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.dao.DAO;
 
-
-
 /**
  * 
  * @author Matthew Sandoz
@@ -184,7 +182,11 @@ public class DataContext {
     	List<YDecomposition> decomps = spec.getDecompositions();
     	for (YDecomposition decomp: decomps) {
     		DataProxy decompProxy = newObject(decomp, null);
-    		decompProxy.setLabel(decomp.getId());
+    		if (decomp.getName() != null && decomp.getName().length() != 0) {
+    			decompProxy.setLabel(decomp.getName());
+    		} else {
+    			decompProxy.setLabel(decomp.getId());
+    		}
     		hierarchy.put(specProxy, decompProxy);
     		if (decomp instanceof YNet) {
     			YNet net = (YNet) decomp;
