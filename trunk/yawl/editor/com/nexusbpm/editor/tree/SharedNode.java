@@ -65,6 +65,7 @@ implements Cloneable, PropertyChangeListener {
 	public SharedNode( EditorDataProxy proxy ) {
 		if( proxy != null ) {
 			_proxy = proxy;
+			_proxy.setTreeNode(this);
 			_proxy.addPropertyChangeListener( this );
 			setUserObject(proxy.getData());
 		}

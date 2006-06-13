@@ -20,10 +20,10 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
     
     private Map<Long, YSpecification> specs = new HashMap<Long, YSpecification>();
     private long nextdbID = 1;
-    public static YSpecification testSpec = new YSpecification("/home/sandozm/templates/testing/testspec");
+    public static YSpecification testSpec = new YSpecification("virtual://memory/home/sandozm/templates/testing/testspec");
     static {
     	//TODO move this all into a mock - yuck!
-			testSpec.setName("My test specification");
+			testSpec.setName("My test specification.xml");
 			testSpec.setBetaVersion(YSpecification._Beta7_1);
 			testSpec.setMetaData(new YMetaData());
 			YNet net = new YNet("My_test_net", testSpec);

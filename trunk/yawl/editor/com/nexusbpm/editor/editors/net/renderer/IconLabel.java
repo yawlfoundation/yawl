@@ -10,6 +10,7 @@ import javax.swing.UIManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
@@ -59,7 +60,7 @@ public class IconLabel extends JLabel {
 		if( component != null ) {
 			// The component is still around.
 //			_executionStatus = component.getExecutionStatus();
-			throw new RuntimeException("implement for yawl!");
+//			new RuntimeException("implement for yawl!" + component).printStackTrace();
 		}
 		else {
 			// The component has been deleted.
@@ -96,7 +97,8 @@ public class IconLabel extends JLabel {
 //				this.setIcon( _proxy.iconLarge() );
 //			}
 //		}
-		throw new RuntimeException("implement this for yawl");
+		this.setIcon(_proxy.icon());
+//		throw new RuntimeException("implement this for yawl");
 	}
 
 	/**

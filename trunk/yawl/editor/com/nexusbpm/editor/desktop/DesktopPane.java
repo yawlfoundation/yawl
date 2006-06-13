@@ -16,7 +16,13 @@ import org.apache.commons.logging.LogFactory;
 
 import samples.bboard.Client;
 
+import au.edu.qut.yawl.elements.YNet;
+
+import com.nexusbpm.editor.editors.NetEditor;
+import com.nexusbpm.editor.exception.EditorException;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.DragAndDrop;
+import com.nexusbpm.editor.tree.SharedNode;
 
 /**
  * The Capsela desktop, where all component editors are displayed.
@@ -73,7 +79,11 @@ public class DesktopPane extends JDesktopPane implements DropTargetListener {
    * be dropped on the desktop.
    */
   private boolean isDropAcceptable(TreeNode draggingNode) {
-	  throw new RuntimeException("this needs a new context for YAWL");
+	  if (draggingNode instanceof SharedNode) {
+		  return ((SharedNode) draggingNode).getProxy().getData() instanceof YNet;
+	  }
+	  else return false;
+//	  throw new RuntimeException("this needs a new context for YAWL");
   }
 
   /**
@@ -86,13 +96,24 @@ public class DesktopPane extends JDesktopPane implements DropTargetListener {
   	TreeNode draggingNode = DragAndDrop.getDraggingNode();
     if( isDropAcceptable(draggingNode) ) {
       Point location = event.getLocation();
-//        CapselaInternalFrame internalFrame = draggingNode.getFrame();
-//        if (Client.numWindowMenuItems() == 0) {
+      NetEditor editor = new NetEditor();
+      EditorDataProxy dp = (EditorDataProxy) ((SharedNode) draggingNode).getProxy();
+      try {
+		editor.setProxy(dp);
+	} catch (EditorException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+      editor.setVisible(true);
+      this.add(editor);
+      
+      
+      //        if (Client.numWindowMenuItems() == 0) {
 //          Client.openInternalFrame(internalFrame, new Point(0,0), true);
 //        } else {
 //          Client.openInternalFrame(internalFrame, location, false);
 //        }
-      throw new RuntimeException("This needs a new context for YAWL.  originally this would open up the editor on the desktop");
+//      throw new RuntimeException("This needs a new context for YAWL.  originally this would open up the editor on the desktop");
     }
   }
 

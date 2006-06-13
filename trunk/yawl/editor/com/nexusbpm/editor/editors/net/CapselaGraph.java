@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jgraph.JGraph;
 import org.jgraph.graph.AttributeMap;
 import org.jgraph.graph.CellView;
+import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphLayoutCache;
@@ -90,17 +91,16 @@ public class CapselaGraph extends JGraph implements Printable, DropTargetListene
    * Constructor used to create a new graph for a flow that is a template.
    * @param model the graph model to use as the data model.
    * @param graphEditor the graph editor that this graph is contained in.
-   * @param SharedNode the node representing the flow template.
+   * @param sharedNode the node representing the flow template.
    */
-  public CapselaGraph(CapselaGraphModel model, GraphEditor graphEditor, SharedNode SharedNode) {
+  public CapselaGraph(CapselaGraphModel model, GraphEditor graphEditor, SharedNode sharedNode) {
     super(model);
-
     _dragSource = new DragSource();
     _dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
 
-    _SharedNode = SharedNode;
+    _SharedNode = sharedNode;
     if (_SharedNode != null) {
-      _proxy = (EditorDataProxy) SharedNode.getProxy();
+      _proxy = (EditorDataProxy) sharedNode.getProxy();
     }
 
     _graphEditor = graphEditor;
@@ -141,7 +141,6 @@ public class CapselaGraph extends JGraph implements Printable, DropTargetListene
     cache.setSelectsAllInsertedCells(false);
     cache.setSelectsLocalInsertedCells(false);
     setGraphLayoutCache(cache);
-    
     setAntiAliased(true);
   }
 

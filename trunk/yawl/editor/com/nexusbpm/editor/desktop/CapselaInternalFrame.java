@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.nexusbpm.editor.icon.ApplicationIcon;
+import com.nexusbpm.editor.icon.RenderingHints;
 
 /**
  * Base class for all internal frames shown on the Capsela desktop.
@@ -62,7 +63,7 @@ implements DropTargetListener
 	 */
 	public final static Dimension EXPAND_TO_FILL_AVAILABLE_SPACE = new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
-	private static final ImageIcon LOADING_ICON = ApplicationIcon.getIcon("CapselaInternalFrame.load_animation");
+	private static final ImageIcon LOADING_ICON = ApplicationIcon.getIcon("NexusInternalFrame.load_animation", RenderingHints.ICON_LARGE);
 	private static final String LOADING_MSG = "Loading data, please wait...";
 
 	private Container _originalContentPane;
@@ -83,7 +84,7 @@ implements DropTargetListener
 
 		this.setSize(300, 300);
 
-		this.setFrameIcon(ApplicationIcon.getIcon("CapselaInternalFrame.window_icon"));
+		this.setFrameIcon(ApplicationIcon.getIcon("NexusInternalFrame.window_icon"));
 
 		new DropTarget(this, this);
 

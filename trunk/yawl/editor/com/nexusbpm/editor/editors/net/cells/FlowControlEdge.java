@@ -60,9 +60,10 @@ public class FlowControlEdge extends GraphEdge implements Edge {
 	 * our domain object.
 	 */
 	public void setUserObject( Object obj ) {
-		if( obj != null && obj instanceof String ) {
-			throw new RuntimeException("update for yawl context");
-		}
+		super.setUserObject(obj);
+//		if( obj != null && obj instanceof String ) {
+//			throw new RuntimeException("update for yawl context");
+//		}
 	}
 
 	/**
@@ -70,7 +71,7 @@ public class FlowControlEdge extends GraphEdge implements Edge {
 	 * in-graph editor.
 	 */
 	public String toString() {
-		return "ooo, something new here huh?  lets hope these guys figure out a useful output for yawl";
+		return "";//this._proxy.getLabel();//"ooo, something new here huh?  lets hope these guys figure out a useful output for yawl";
 	}
 
 }

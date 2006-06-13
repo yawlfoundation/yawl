@@ -11,6 +11,8 @@ import javax.swing.JTabbedPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.elements.YNet;
+
 import com.nexusbpm.editor.desktop.ComponentEditor;
 import com.nexusbpm.editor.editors.net.GraphEditor;
 import com.nexusbpm.editor.exception.EditorException;
@@ -114,10 +116,10 @@ public class NetEditor extends ComponentEditor {
 	 */
 	public void addGraphEditor( EditorDataProxy proxy, final boolean focusNewTab ) throws EditorException {
 		// Get the flow from the cache.
-//		final FlowComponent flow = (FlowComponent) proxy.getPersistentDomainObject( ClientSessionBean.COMPLETE_FLOW_INITIALIZATION );
-//		if (null == flow) {
-//			throw new EditorException("FlowEditor.addGraphEditor - missing flow - fnt=" + focusNewTab);
-//		}
+		final YNet flow = (YNet) proxy.getData();
+		if (null == flow) {
+			throw new EditorException("FlowEditor.addGraphEditor - missing flow - fnt=" + focusNewTab);
+		}
 //		boolean isInstance = flow.isInstance();
 		boolean isInstance = false; // TODO XXX deal with instances later when we figure out how to represent them in yawl
 		if( LOG.isDebugEnabled() ) {
@@ -132,7 +134,7 @@ public class NetEditor extends ComponentEditor {
 		}
 		else {
 			_flowGraphEditor = ge;
-			ge.setproxy( proxy );
+			ge.setProxy( proxy );
 			ge.initialize( proxy.getTreeNode() );
 		}
 		// Figure out what tab title the new editor will be using.
@@ -147,7 +149,7 @@ public class NetEditor extends ComponentEditor {
 		// Actually add the new graph editor to the flow editor's tab pane.
 		_tabbedPane.add( tabTitle, ge );
 		if( focusNewTab ) _tabbedPane.setSelectedComponent( ge );
-//		ge.refresh(flow);
+		ge.refresh(flow);
 		if( isInstance ) {
 			// TODO: HACK: Resume animation sequence if there are components in the running state
 			throw new RuntimeException("figure this part out!");
