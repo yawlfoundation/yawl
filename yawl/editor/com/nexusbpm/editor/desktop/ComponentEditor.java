@@ -110,7 +110,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 	 * is locked by someone else.
 	 */
 	protected void disableInputElementsIfLockedBySomeoneElse() {
-		throw new RuntimeException("needs a new context for yawl");
+//		throw new RuntimeException("needs a new context for yawl");
 	}
 
 	/**
@@ -212,7 +212,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 	 * @param controller the controller for this editor's component.
 	 * @throws EditorException if there is a GUI error.
 	 */
-	public void setController( EditorDataProxy proxy ) throws EditorException {
+	public void setProxy( EditorDataProxy proxy ) throws EditorException {
 		if( _proxy != null ) {
 			LOG.debug( "ComponentEditor.setController - overriding controller" );
 			_proxy.removePropertyChangeListener( this );

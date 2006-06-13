@@ -2,6 +2,7 @@ package com.nexusbpm.editor.editors.net.cells;
 
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.CellViewFactory;
+import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.Edge;
 import org.jgraph.graph.EdgeView;
 import org.jgraph.graph.GraphModel;
@@ -27,7 +28,7 @@ public class ViewFactory implements CellViewFactory {
 		if( c instanceof CapselaCell ) {
 			CapselaCell cell = (CapselaCell) c;
 //			Class rendererClass = DomainObjectProperties.flowRendererForClass( cell.getController().identifier().className() );
-			Class rendererClass = Object.class;
+			Class rendererClass = DefaultRenderer.class;
 			// TODO XXX implement this properly later!!!
 			
 			if( rendererClass == DefaultRenderer.class ) {
@@ -44,10 +45,16 @@ public class ViewFactory implements CellViewFactory {
 			view = createPortView( c );
 		else if( model.isEdge( c ) )
 			view = createEdgeView( c );
+		else if (c instanceof DefaultGraphCell) {
+			view = new DefaultView(c);
+		}
 		else {
 			throw new RuntimeException( "Can't find a proper view for: " + c.getClass().getName() );
 		}
-
+		if (view == null) {
+			new RuntimeException( "Can't find a proper view for: " + c.getClass().getName() ).printStackTrace();
+			view = new DefaultView(c);
+		}
 		return view;
 	}
 

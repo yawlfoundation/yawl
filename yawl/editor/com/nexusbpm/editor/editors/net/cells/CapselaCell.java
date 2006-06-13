@@ -35,6 +35,7 @@ public class CapselaCell extends DefaultGraphCell {
 	 * label, but instead, we will set the label on our domain object.
 	 */
 	public void setUserObject( Object obj ) {
+		super.setUserObject(obj);
 		if( obj != null && obj instanceof String ) {
 			// Set the description and save it immediately. If we don't save immediately, the user might
 			// connect this component to another component, which will wipe out the description change.
@@ -47,7 +48,7 @@ public class CapselaCell extends DefaultGraphCell {
 	 * Return the description of the cell so that it will be the initial value of the in-graph editor.
 	 */
 	public String toString() {
-		return "this is the description, nothing too interesting, yet often times intriguing.  I often wonder where our creativity comes from.";
+		return _proxy.getLabel();//"this is the description, nothing too interesting, yet often times intriguing.  I often wonder where our creativity comes from.";
 	}
 
 	public void finalize() throws Throwable {

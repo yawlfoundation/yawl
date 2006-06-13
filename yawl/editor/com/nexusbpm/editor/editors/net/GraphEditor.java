@@ -12,6 +12,8 @@ import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -28,16 +30,17 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
-
-import net.sf.saxon.functions.Component;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
 import org.jgraph.event.GraphSelectionEvent;
 import org.jgraph.event.GraphSelectionListener;
 import org.jgraph.graph.AttributeMap;
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.ConnectionSet;
+import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphModel;
@@ -47,8 +50,13 @@ import org.jgraph.layout.SugiyamaLayoutAlgorithm;
 import org.jgraph.util.JGraphParallelEdgeRouter;
 import org.jgraph.util.JGraphUtilities;
 
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YNet;
+
 import com.nexusbpm.editor.editors.NetEditor;
 import com.nexusbpm.editor.editors.net.cells.CapselaCell;
+import com.nexusbpm.editor.editors.net.cells.FlowControlEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphPort;
 import com.nexusbpm.editor.exception.EditorException;
@@ -156,7 +164,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
    * Sets the proxy for the flow that this editor is for.
    * @param flowproxy the proxy for the flow.
    */
-  public void setproxy(EditorDataProxy flowproxy) {
+  public void setProxy(EditorDataProxy flowproxy) {
     _flowproxy = flowproxy;
   }
 
@@ -559,26 +567,26 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
    * initialized, and returns said edge. An edge's graph edge MUST be
    * initialized before it is added to the graph.
    */
-//  private GraphEdge initializeGraphEdge(Dependentproxy ctrl) {
-//    GraphEdge graphEdge = ctrl.getGraphEdge();
-//    if (graphEdge == null) {
-//      ComponentEdge componentEdge = (ComponentEdge) ctrl.getPersistentDomainObject();
-//      if (componentEdge instanceof ControlEdge) {
-//        graphEdge = new FlowControlEdge(ctrl);
-//        graphEdge.setUserObject(((ControlEdge) componentEdge).getName());
+  private GraphEdge initializeGraphEdge(EditorDataProxy ctrl) {
+    GraphEdge graphEdge = ctrl.getGraphEdge();
+    if (graphEdge == null) {
+    	YFlow componentEdge = (YFlow) ctrl.getData();
+//      if (componentEdge instanceof FlowControlEdge) {
+        graphEdge = new FlowControlEdge(ctrl);
+        graphEdge.setUserObject(((YFlow) componentEdge).toString());
 //      } else {
 //        graphEdge = new FlowDataEdge(ctrl);
 //      }
-//      ctrl.setGraphEdge(graphEdge);
-//    }
-//    return graphEdge;
-//  }
+      ctrl.setGraphEdge(graphEdge);
+    }
+    return graphEdge;
+  }
 
   /**
    * Creates the attribute map for the specified component. The attribute map is
    * required by JGraph to add the component's cell to the graph.
    */
-  private Map createComponentAttributeMap(Component c) {
+  private Map createComponentAttributeMap(Object c) {
     Map map = new AttributeMap();
 //    GraphConstants.setBounds(map, new Rectangle(c.getFlowLocation()));
     GraphConstants.setBorderColor(map, Color.black);
@@ -659,7 +667,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
     if (isComponent) {
       final CapselaCell capselaCell = (CapselaCell) cell;
       EditorDataProxy proxy = capselaCell.getProxy();
-      final Component component = (Component) proxy.getData();
+      final Object component = proxy.getData();
       
 //      if( component != null ) {
 //    	  if( component.isInstance() != true ) {
@@ -845,80 +853,84 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 	 * the AWT event dispatcher thread and UI updates triggered by this method
 	 * will still occur on the AWT event dispatcher thread.
 	 */
-//	public void refresh(FlowComponent flow) throws EditorException {
-//
-//		LOG.debug( "Refreshing the flow graph." );
-//
-//		// Collections to pass to the JGraph instance later on.
-//		final Hashtable<CapselaCell, Map> cellAttributes = new Hashtable<CapselaCell, Map>();
-//		final Hashtable<GraphEdge, Map> edgeAttributes = new Hashtable<GraphEdge, Map>();
-//		final ConnectionSet cs = new ConnectionSet();
-//		final List<CapselaCell> cells = new ArrayList<CapselaCell>();
-//		final List<GraphEdge> edges = new ArrayList<GraphEdge>();
-//
-//		// Insert the vertex for each component in the flow.
+	public void refresh(YNet flow) throws EditorException {
+		LOG.debug( "Refreshing the flow graph." );
+		// Collections to pass to the JGraph instance later on.
+		final Hashtable<CapselaCell, Map> cellAttributes = new Hashtable<CapselaCell, Map>();
+		final Hashtable<GraphEdge, Map> edgeAttributes = new Hashtable<GraphEdge, Map>();
+		final ConnectionSet cs = new ConnectionSet();
+		final List<CapselaCell> cells = new ArrayList<CapselaCell>();
+		final List<GraphEdge> edges = new ArrayList<GraphEdge>();
+
+		// Insert the vertex for each component in the flow.
 //		if (flow == null) {
-//			flow = (FlowComponent) _flowproxy.getPersistentDomainObject( 2 );
+//			flow = (YNet) _flowproxy.getPersistentDomainObject( 2 );
 //		}
-//		Iterator i = flow.getComponents().iterator();
-//		synchronized( i ) {
-//			while( i.hasNext() ) {
-//				Component c = (Component) i.next();
+		Iterator i = flow.getNetElementsDB().iterator();
+		synchronized( i ) {
+			while( i.hasNext() ) {
+				Object c = i.next();
 //				Rectangle bounds = c.getFlowLocation();
 //				if( bounds == null ) throw new EditorException( "Null flow location: " + c );
-//				DataProxy proxy = (DataProxy) DomainObjectproxy.getproxy( c );
-//				this.initializeCellAndPort( proxy );
-//				CapselaCell cell = proxy.getGraphCell();
-//				Map map = createComponentAttributeMap( c );
-//				cellAttributes.put( cell, map );
-//				cells.add( cell );
-//				LOG.debug( "Adding component to graph: " + c.toString() );
-//			}
-//		}
-//
-//		// Create the runnable that will update the graph vertices on the AWT event dispatcher thread.
-//		Runnable vertexUpdater = new Runnable() {
-//			public void run() {
-//				_graph.getGraphLayoutCache().insert( cells.toArray(), cellAttributes, null, null, null );
-//				if( graphChangeSummary != null ) {
-//					_graph.getModel().removeGraphModelListener( graphChangeSummary );
-//					graphChangeSummary = null;
-//				}
-//				graphChangeSummary = new GraphChangeSummary( _graph, GraphEditor.this );
-//				_graph.getModel().addGraphModelListener( graphChangeSummary );
-//			}
-//		};
-//
-//		// Add all the edges in the flow.
-//		i = flow.getComponents().iterator();
-//		synchronized( i ) {
-//			while( i.hasNext() ) {
-//				Component component = (Component) i.next();
-//				for( Iterator i2 = component.getSourceEdges().iterator(); i2.hasNext(); ) {
-//
-//					ComponentEdge edge = (ComponentEdge) i2.next();
-//					LOG.debug( "edge found: " + edge.toString() );
+				EditorDataProxy proxy = (EditorDataProxy) _flowproxy.getContext().getDataProxy(c, null );
+				this.initializeCellAndPort( proxy );
+				CapselaCell cell = proxy.getGraphCell();
+				Map map = createComponentAttributeMap( c );
+				cellAttributes.put( cell, map );
+				cells.add( cell );
+				LOG.error( "Adding component to graph: " + c.toString() );
+//				LOG.error( "View: " + proxy.getGraphCell().get);
+				
+			}
+		}
+
+		// Create the runnable that will update the graph vertices on the AWT event dispatcher thread.
+		Runnable vertexUpdater = new Runnable() {
+			public void run() {
+				System.out.println("arra: " + cells);
+				System.out.println("attr: " + cellAttributes);
+//				_graph.getGraphLayoutCache().insert( null, null, null, null, null );
+				_graph.getGraphLayoutCache().insert(cells.toArray(), cellAttributes, null, null);
+				if( graphChangeSummary != null ) {
+					_graph.getModel().removeGraphModelListener( graphChangeSummary );
+					graphChangeSummary = null;
+				}
+				graphChangeSummary = new GraphChangeSummary( _graph, GraphEditor.this );
+				_graph.getModel().addGraphModelListener( graphChangeSummary );
+			}
+		};
+
+		// Add all the edges in the flow.
+		i = flow.getNetElementsDB().iterator();
+		synchronized( i ) {
+			while( i.hasNext() ) {
+				YExternalNetElement component = (YExternalNetElement) i.next();
+				for( Iterator i2 = component.getPostsetFlows().iterator(); i2.hasNext(); ) {
+
+					YFlow edge = (YFlow) i2.next();
+					LOG.error( "edge found: " + edge.toString() );
 //					boolean isDataEdge = ( edge instanceof DataEdge );
-//					Dependentproxy edgeproxy = (Dependentproxy) DomainObjectproxy.getproxy( edge );
-//					DataProxy sourceproxy = (DataProxy) DomainObjectproxy.getproxy( edge.getSourceComponent() );
-//					DataProxy sinkproxy = (DataProxy) DomainObjectproxy.getproxy( edge.getSinkComponent() );
-//
+					
+					EditorDataProxy edgeproxy = (EditorDataProxy) _flowproxy.getContext().getDataProxy(edge, null );
+					EditorDataProxy sourceproxy = (EditorDataProxy) _flowproxy.getContext().getDataProxy(edge.getPriorElement(), null );
+					EditorDataProxy sinkproxy = (EditorDataProxy) _flowproxy.getContext().getDataProxy(edge.getNextElement(), null );
+
 //					if( isDataEdge && ( sourceproxy.equals( _flowproxy ) || sinkproxy.equals( _flowproxy ) ) ) {
-//						// this is likely to be a data parameter edge going from the flow to a component, or from
-//						// a component to the flow.
+						// this is likely to be a data parameter edge going from the flow to a component, or from
+						// a component to the flow.
 //						LOG.debug( "################## parameter edge found!" );
-//						// TODO remove this, but add code for parameter nodes
+						// TODO remove this, but add code for parameter nodes
 //					}
 //					else {
-//						// Checking to make sure it is not an edge from the FlowComopnent to a child component
-//						if( _flowproxy.getSharedNode().isNodeChild( sourceproxy.getSharedNode() ) && _flowproxy.getSharedNode().isNodeChild( sinkproxy.getSharedNode() ) ) {
-//							Port sourcePort = sourceproxy.getGraphPort();
-//							Port sinkPort = sinkproxy.getGraphPort();
-//							GraphEdge graphEdge = this.initializeGraphEdge( edgeproxy );
-//							cs.connect( graphEdge, sourcePort, sinkPort );
-//							Map map = createEdgeAttributeMap( isDataEdge );
-//							edgeAttributes.put( graphEdge, map );
-//							edges.add( graphEdge );
+						// Checking to make sure it is not an edge from the FlowComopnent to a child component
+//						if( _flowproxy.getTreeNode().isNodeChild( sourceproxy.getTreeNode() ) && _flowproxy.getTreeNode().isNodeChild( sinkproxy.getTreeNode() ) ) {
+							Port sourcePort = sourceproxy.getGraphPort();
+							Port sinkPort = sinkproxy.getGraphPort();
+							GraphEdge graphEdge = this.initializeGraphEdge( edgeproxy );
+							cs.connect( graphEdge, sourcePort, sinkPort );
+							Map map = createEdgeAttributeMap( false );
+							edgeAttributes.put( graphEdge, map );
+							edges.add( graphEdge );
 //						}
 //						else {
 //							LOG.debug( "NOT DRAWING EDGE! " );
@@ -928,35 +940,35 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //						}
 //					}
 //					addPropertyChangeListener(edgeproxy, _edgePropertyChangeListener);
-//				}
-//			}
-//		}
-//
-//		// Create the runnable that will update the graph edges on the AWT event dispatcher thread.
-//		Runnable edgeUpdater = new Runnable() {
-//			public void run() {
-//				_graph.getGraphLayoutCache().insert( edges.toArray(), edgeAttributes, cs, null, null );
-//				_graph.setSelectionCells( new Object[] {} );
-//				_graph.repaint();
-//				_graph.autoSizeAll();
-//			}
-//		};
-//
-//		// Update the vertices and edges on the AWT event dispatcher thread.
-//		// http://www.iam.ubc.ca/guides/javatut99/uiswing/overview/threads.html
-//		if( SwingUtilities.isEventDispatchThread() ) {
-//			vertexUpdater.run();
-//			edgeUpdater.run();
-//		}
-//		else {
-//			SwingUtilities.invokeLater( vertexUpdater );
-//			SwingUtilities.invokeLater( edgeUpdater );
-//		}
-//
+				}
+			}
+		}
+
+		// Create the runnable that will update the graph edges on the AWT event dispatcher thread.
+		Runnable edgeUpdater = new Runnable() {
+			public void run() {
+				_graph.getGraphLayoutCache().insert( edges.toArray(), edgeAttributes, cs, null, null );
+				_graph.setSelectionCells( new Object[] {} );
+				_graph.repaint();
+				_graph.autoSizeAll();
+			}
+		};
+
+		// Update the vertices and edges on the AWT event dispatcher thread.
+		// http://www.iam.ubc.ca/guides/javatut99/uiswing/overview/threads.html
+		if( SwingUtilities.isEventDispatchThread() ) {
+			vertexUpdater.run();
+			edgeUpdater.run();
+		}
+		else {
+			SwingUtilities.invokeLater( vertexUpdater );
+			SwingUtilities.invokeLater( edgeUpdater );
+		}
+
 //		hideEdges(CONTROL_EDGE_MODE);
-//		
-//		LOG.debug( "Finished refreshing the flow graph." );
-//	}
+		
+		LOG.debug( "Finished refreshing the flow graph." );
+	}
 
 	private static final int CONTROL_EDGE_MODE = 0;
 	private static final int DATA_EDGE_MODE = 1;

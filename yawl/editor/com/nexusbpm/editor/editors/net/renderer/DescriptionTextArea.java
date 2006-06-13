@@ -37,7 +37,7 @@ public class DescriptionTextArea extends JEditorPane {
 	 */
 	public void setProxy( EditorDataProxy proxy ) throws EditorException {
 		_proxy = proxy;
-		_description = "This is the fancy nancy description.  Please replace me with something less fancy.";
+		_description = "";//This is the fancy nancy description.  Please replace me with something less fancy.";
 		this.setText( _description );
 	}
 

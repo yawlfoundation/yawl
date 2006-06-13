@@ -106,7 +106,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 				boolean wasClosable = _editor.isClosable();
 				_editor.setClosable( false );
 				try {
-					_editor.setController( proxy );
+					_editor.setProxy( proxy );
 				}//try
 				catch( EditorException ce ) {
 					// CapselaExceptions are already logged.

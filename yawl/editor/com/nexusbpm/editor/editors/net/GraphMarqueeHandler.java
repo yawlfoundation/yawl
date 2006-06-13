@@ -147,8 +147,8 @@ public class GraphMarqueeHandler extends BasicMarqueeHandler {
 			if( _port != null ) {
 				_current = _graph.toScreen( _port.getLocation( null ) );
 				
-				throw new RuntimeException("do we need validation?  or no?  this basically allows us to" +
-										   " prevent the user from connecting two objects in the graph");
+				new RuntimeException("do we need validation?  or no?  this basically allows us to" +
+										   " prevent the user from connecting two objects in the graph").printStackTrace();
 //				final IndependentController ctrl = ((GraphPort) _port.getCell()).getController();
 //
 //				if( !_cachedDomainObjects.containsKey( ctrl ) ) {

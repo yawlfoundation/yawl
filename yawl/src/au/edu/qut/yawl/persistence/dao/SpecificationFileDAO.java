@@ -11,6 +11,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -67,7 +70,14 @@ public class SpecificationFileDAO implements SpecificationDAO{
 	}
 
 	public int save(YSpecification m) {
-        File f = new File(m.getID());
+        File f = null;
+		try {
+			f = new File(new URI(m.getID()));
+		} catch (Exception e1) {
+			System.err.println(m.getID());
+			e1.printStackTrace();
+		}
+        System.out.println("FILE DAO WRITING OUT " + m.getID());
         try {
         	FileWriter os = new FileWriter(f);
         	os.write(YMarshal.marshal(m));

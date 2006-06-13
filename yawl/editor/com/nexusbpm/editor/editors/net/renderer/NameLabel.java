@@ -39,7 +39,8 @@ class NameLabel extends JLabel {
 	 */
 	public void setProxy( EditorDataProxy proxy ) throws EditorException {
 		_proxy = proxy;
-		_name = "this should be the name, but it's not implemented yet?  ooo funny bone my funny bone!";
+//		_name = "this should be the name, but it's not implemented yet?  ooo funny bone my funny bone!";
+		_name = proxy.getLabel();
 		this.setText( _name );
 	}
 

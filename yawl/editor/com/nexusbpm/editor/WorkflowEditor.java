@@ -1,8 +1,20 @@
 package com.nexusbpm.editor;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.Log4jFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Priority;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
@@ -10,6 +22,7 @@ import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 
 import com.nexusbpm.editor.desktop.DesktopPane;
+import com.nexusbpm.editor.editors.net.GraphEditor;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -33,7 +46,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
      * Creates new form WorkflowEditor 
      */
     private WorkflowEditor() {
-        initComponents();
+    	LogManager.getLogger(STree.class).setPriority(Priority.DEBUG);
+    	initComponents();
         this.pack();
     	this.setSize(DEFAULT_CLIENT_WIDTH,DEFAULT_CLIENT_HEIGHT);
     }
@@ -68,15 +82,21 @@ public class WorkflowEditor extends javax.swing.JFrame {
         SpecificationDAO dao2 = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
         DataContext dc1 = new DataContext(dao1, EditorDataProxy.class);
         DataContext dc2 = new DataContext(dao2, EditorDataProxy.class);
-        EditorDataProxy dp1 = (EditorDataProxy) dc1.getDataProxy(new DatasourceRoot("/home/sandozm/templates/testing/"), null);
+        EditorDataProxy dp1 = (EditorDataProxy) dc1.getDataProxy(new DatasourceRoot("virtual://memory/home/sandozm/templates/testing/"), null);
 //        EditorDataProxy dp1 = (EditorDataProxy) dc1.getDataProxy(new DatasourceRoot("/home/sandozm/"), null);
-        EditorDataProxy dp2 = (EditorDataProxy) dc2.getDataProxy(new DatasourceRoot("./exampleSpecs/xml/"), null);
+        EditorDataProxy dp2 = (EditorDataProxy) dc2.getDataProxy(new DatasourceRoot("file://./exampleSpecs/xml/"), null);
 
         
         EditorDataProxy dprox = (EditorDataProxy) dc1.getChildren(dp1).toArray()[0];
         YSpecification spec = (YSpecification) dprox.getData();
-        spec.setID("C:\\temp\\TEST.xml");
-        dc2.put(dprox);
+        spec.setID("file:/C:\\temp\\TEST.xml");
+        try {
+			System.out.println("uri-" + new File("C:\\temp\\X Y Z.xml").toURI());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//        dc2.put(dprox);
         SharedNode root1 = new SharedNode(dp1);
         SharedNode root2 = new SharedNode(dp2);
         SharedNodeTreeModel treeModel1 = new SharedNodeTreeModel(root1);
@@ -121,7 +141,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setForeground(java.awt.Color.lightGray);
         setName("NexusBPM Process Editor");
-        this.setIconImage(ApplicationIcon.getIcon("NexusFrame.window_icon", ApplicationIcon.MEDIUM_SIZE).getImage());
+        this.setIconImage(ApplicationIcon.getIcon("NexusFrame.window_icon", ApplicationIcon.LARGE_SIZE).getImage());
         componentEditorSplitPane.setDividerLocation(200);
         componentList1Panel.setLayout(new java.awt.BorderLayout());
         componentList2Panel.setLayout(new java.awt.BorderLayout());

@@ -108,7 +108,7 @@ public class DefaultRenderer extends JComponent implements CellViewRenderer {
 		if( view instanceof DefaultView ) {
 			DefaultView defaultView = (DefaultView) view;
 			if( graph.getEditingCell() != defaultView.getCell() ) {
-				setBackground( Color.white );
+				setBackground( Color.blue );
 			}
 			_view = defaultView;
 			_isSelected = sel;

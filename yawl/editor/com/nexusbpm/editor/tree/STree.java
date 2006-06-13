@@ -45,6 +45,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import command.EditorCommand;
 
 
 /**
@@ -308,8 +309,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 	 * @param  e  Description of the Parameter
 	 */
 	public void drop( DropTargetDropEvent e ) {
-		LOG.debug( "doing drop" );
-
+		LOG.error( "doing drop" );
 		try {
 			Transferable tr = e.getTransferable();
 
@@ -331,11 +331,12 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 			}
 
 			SharedNode destinationNode = (SharedNode) destinationPath.getLastPathComponent();
-			SharedNode oldParent = (SharedNode) draggingNode.getParent();
+//			SharedNode oldParent = (SharedNode) draggingNode.getParent();
 
 			if( isDropCopy( draggingNode, destinationPath ) ) {
 				LOG.debug( "performing COPY action" );
-				// ClientOperation.executeCopyCommand( draggingNode.getIndependentController(), destinationNode.getIndependentController(), null, null );
+				System.out.println("copying...");
+				EditorCommand.executeCopyCommand( draggingNode, destinationNode);
 				e.acceptDrop( DnDConstants.ACTION_COPY );
 			}
 			else {
@@ -350,7 +351,8 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 			expandPath( parentPath );
 		}
 		catch( Exception ex ) {
-			LOG.warn( ex );
+			LOG.error( ex );
+			ex.printStackTrace();
 		}
 
 	}
@@ -417,9 +419,10 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 	 * @return boolean             true if no problems
 	 */
 	private boolean isDropValid( SharedNode draggingNode, TreePath destinationPath ) {
-		RuntimeException e = new RuntimeException("This method needs to be reimplemented for YAWL context");
-		LOG.error("DRAGGING DOESNT WORK", e);
-		throw e;
+//		RuntimeException e = new RuntimeException("This method needs to be reimplemented for YAWL context");
+//		LOG.info("shared node=" + draggingNode.getProxy().getData().toString());
+		return true;
+//		throw e;
 		//		if( destinationPath == null ) {
 //			// Invalid drop location.
 //			return false;
