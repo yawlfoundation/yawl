@@ -92,18 +92,39 @@ public class SpecificationFileDAO implements SpecificationDAO{
     }
 
 	public List getChildren(Object filename) {
+		System.out.println("getting children of " + filename);
+//		try {
+//			filename = new File(new URI(filename.toString()));
+//		} catch (URISyntaxException e) {
+//			e.printStackTrace();
+//		}
+		System.out.println("getting children of " + filename);
 		List retval = new ArrayList();
 		if (filename instanceof String || filename instanceof DatasourceRoot) {
 			filename = filename.toString();
-			File f = new File((String) filename);
+			File f = null;
+			try {
+				f = new File(new URI((String) filename));
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if (f.isFile() && f.getName().endsWith(".xml")) {
 				YSpecification spec = retrieve(f.getAbsolutePath());
 				retval.add(spec);
 			} else {
-				File[] files = (new File((String) filename)).listFiles();
+				File[] files = null;
+				try {
+					files = (new File(new URI((String) filename))).listFiles();
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				if (files != null) {
 					for (File aFile : files) {
-						retval.add(aFile.getAbsolutePath());
+						String file = aFile.toURI().toString();
+						if (file.endsWith("/")) file = file.substring(0, file.length() - 1); 
+						retval.add(file);
 					}
 				}
 			}
