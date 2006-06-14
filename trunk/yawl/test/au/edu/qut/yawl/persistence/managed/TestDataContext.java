@@ -98,7 +98,7 @@ public class TestDataContext extends TestCase implements VetoableChangeListener{
 		}
 	}
 
-	public URI moveUri(URI source, URI dest) throws URISyntaxException  {
+	public static URI moveUri(URI source, URI dest) throws URISyntaxException  {
 		URI retval = null;
 		String path = source.getPath().substring(source.getPath().lastIndexOf("/") + 1);
 		retval = new URI(dest.getScheme(), dest.getHost(), dest.getPath() + path, null);
@@ -114,7 +114,7 @@ public class TestDataContext extends TestCase implements VetoableChangeListener{
     	    p = p + "/";
     	return p;
         }
-    public String toURIString(String s, boolean isDirectory) {
+    public static String toURIString(String s, boolean isDirectory) {
     	try {
     	    String sp = slashify(s, isDirectory);
     	    if (sp.startsWith("//"))

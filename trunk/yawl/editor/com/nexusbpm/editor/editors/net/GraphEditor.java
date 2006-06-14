@@ -796,7 +796,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //    try {
 		LOG.debug("GraphEditor.deleteSelectedItems");
       Set removeSet = GraphEditor.this.getRemoveSet();
-      throw new RuntimeException("implement delete operation");
+      new RuntimeException("DISPLAY ONLY implement delete operation");
 //      ClientOperation.executeDeleteCommand(removeSet, GraphEditor.this.getProxy(), GraphEditor.this);
 //    } catch (EditorException ce) {
 //      LOG.error("Error deleting the selected items.", ce);

@@ -21,6 +21,7 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.TestDataContext;
 
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.editors.net.GraphEditor;
@@ -102,32 +103,39 @@ public class WorkflowEditor extends javax.swing.JFrame {
         componentTreesPanel = new javax.swing.JPanel();
         componentList1ScrollPane = new javax.swing.JScrollPane();
         componentList2ScrollPane = new javax.swing.JScrollPane();
-        SpecificationDAO dao1 = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
-        SpecificationDAO dao2 = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
-        DataContext dc1 = new DataContext(dao1, EditorDataProxy.class);
-        DataContext dc2 = new DataContext(dao2, EditorDataProxy.class);
-        EditorDataProxy dp1 = (EditorDataProxy) dc1.getDataProxy(new DatasourceRoot("virtual://memory/home/sandozm/templates/testing/"), null);
+        SpecificationDAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
+        SpecificationDAO filedao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
+        DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
+        DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
+        EditorDataProxy memdp = (EditorDataProxy) memdc.getDataProxy(new DatasourceRoot("virtual://memory/home/sandozm/templates/testing/"), null);
 //        EditorDataProxy dp1 = (EditorDataProxy) dc1.getDataProxy(new DatasourceRoot("/home/sandozm/"), null);
         String dataroot = new File("exampleSpecs/").toURI().toString();
-        EditorDataProxy dp2 = (EditorDataProxy) dc2.getDataProxy(new DatasourceRoot(dataroot), null);
+        EditorDataProxy filedp = (EditorDataProxy) filedc.getDataProxy(new DatasourceRoot(dataroot), null);
 
         
-        EditorDataProxy dprox = (EditorDataProxy) dc1.getChildren(dp1).toArray()[0];
-        YSpecification spec = (YSpecification) dprox.getData();
-        String testPath = "exampleSpecs/TEST File.xml";
-        try {
-        	spec.setID(toURIString(testPath, false));
+        EditorDataProxy dprox = (EditorDataProxy) memdc.getChildren(memdp).toArray()[0];
+        YSpecification spec = null; 
+        try {        
+        	spec = (YSpecification) ((YSpecification) dprox.getData()).clone();
             System.out.println("uri " + spec.getID());
             URI uri = new URI(spec.getID());
-            System.out.println("uri to file " + new File(new URI(spec.getID())).getAbsolutePath());
+//            System.out.println("uri to file " + new File(new URI(spec.getID())).getAbsolutePath());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		System.exit(0);
-		//        dc2.put(dprox);
-        SharedNode root1 = new SharedNode(dp1);
-        SharedNode root2 = new SharedNode(dp2);
+		EditorDataProxy newOne = (EditorDataProxy) filedc.getDataProxy(spec, null);
+		URI desturi = null;
+		try {
+		desturi = TestDataContext.moveUri(new URI(spec.getID()), new URI(dataroot));
+		System.out.println("desturi " + desturi);
+		spec.setID(desturi.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		filedc.put(newOne); 
+        SharedNode root1 = new SharedNode(memdp);
+        SharedNode root2 = new SharedNode(filedp);
+
         SharedNodeTreeModel treeModel1 = new SharedNodeTreeModel(root1);
         SharedNodeTreeModel treeModel2 = new SharedNodeTreeModel(root2);
         root1.setTreeModel(treeModel1);
