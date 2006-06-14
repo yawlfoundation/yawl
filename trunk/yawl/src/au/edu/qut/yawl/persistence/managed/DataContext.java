@@ -75,7 +75,7 @@ public class DataContext {
 	 */
     public DataProxy getDataProxy(Object dataObject, VetoableChangeListener listener) {
         if (!proxyMap.containsKey(dataObject)) {
-        	DataProxy dp = newObject(dataObject, listener);
+        	newObject(dataObject, listener);
         }
         return proxyMap.get(dataObject);
     }

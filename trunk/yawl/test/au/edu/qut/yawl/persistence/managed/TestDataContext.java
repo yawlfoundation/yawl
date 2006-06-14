@@ -6,6 +6,7 @@ import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -34,20 +35,6 @@ public class TestDataContext extends TestCase implements VetoableChangeListener{
 		lastEvent = evt;
 	}
 
-	public void testFileDataContext() {
-		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
-		DataContext dc = new DataContext(memdao);
-		DataProxy<YSpecification> dp;
-		dp = dc.getDataProxy("./bin/xyz.xml", this); // gets a "virtual"
-		DataProxy root = dp;
-		Set l = dc.getChildren(root);
-		System.out.println(l.size());
-		for (DataProxy o: (Set<DataProxy>) l) {
-			System.out.println(o.getData().toString() + ":" + o.getData().getClass().getName());
-		}
-	}
-	
-	
 	public void testMemDataContext() {
 		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
 		DataContext dc = new DataContext(memdao);
@@ -60,9 +47,7 @@ public class TestDataContext extends TestCase implements VetoableChangeListener{
 		dp = getSpecProxy(dc, "/home/msandoz/templates/bTest", "bTest");
 		YSpecification spec = dp.getData();
 		DataProxy dp2 = dc.getDataProxy(spec, this);
-
-		System.out.println(dc.getChildren(root).size());
-		
+	
 		assertEquals(dp, dp2);
 		Object o = dc.getKeyFor(dp);
 		assertNotNull(o);
@@ -93,28 +78,52 @@ public class TestDataContext extends TestCase implements VetoableChangeListener{
 		return dp;
 	}
 	
-	public void testURL() {
+	public void testURI() {
 		try {
 			URLStreamHandlerFactory f = new MyURLStreamHandlerFactory("local");
 			URL.setURLStreamHandlerFactory(f);
 
-			File f2 = new File("C:\\temp\\XYZ.xml");
-			URI fileUri = f2.toURI();
-			URI memUri = new URI("local","memory","/home/msandoz/", null);
-			String path = fileUri.getPath().substring(fileUri.getPath().lastIndexOf("/") + 1);
-			URI destUri = memUri.resolve(path);
+			URI fileUri = new URI(toURIString("C:\\temp\\XYZ is Great.xml", false));
+			URI memUri = new URI("virtual","memory","/home/msandoz/", null);
+			URI destUri = moveUri(fileUri, memUri);
+			assertEquals(destUri.toString(), "virtual://memory/home/msandoz/XYZ%20is%20Great.xml");
 
-			memUri.toURL();//fails without a handler....
-			
-			System.out.println("source: " + fileUri.toString());
-			System.out.println("dest:   " + memUri.toString());
-			System.out.println("result: " + destUri.toString());
-			System.out.println("path:   " + destUri.getPath());
+			URI mem2Uri = new URI("virtual","memory","/home/msandoz/XYZ is Great.xml", null);
+			URI file2Uri = new URI(toURIString("C:\\temp\\", true));
+			URI dest2Uri = moveUri(mem2Uri, file2Uri);
+			assertEquals(dest2Uri.toString(), "file:/C:/temp/XYZ%20is%20Great.xml");
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
+	public URI moveUri(URI source, URI dest) throws URISyntaxException  {
+		URI retval = null;
+		String path = source.getPath().substring(source.getPath().lastIndexOf("/") + 1);
+		retval = new URI(dest.getScheme(), dest.getHost(), dest.getPath() + path, null);
+		return retval;
+	}
+    private static String slashify(String path, boolean isDirectory) {
+    	String p = path;
+    	if (File.separatorChar != '/')
+    	    p = p.replace(File.separatorChar, '/');
+    	if (!p.startsWith("/"))
+    	    p = "/" + p;
+    	if (!p.endsWith("/") && isDirectory)
+    	    p = p + "/";
+    	return p;
+        }
+    public String toURIString(String s, boolean isDirectory) {
+    	try {
+    	    String sp = slashify(s, isDirectory);
+    	    if (sp.startsWith("//"))
+    		sp = "//" + sp;
+    	    return new URI("file", null, sp, null).toString();
+    	} catch (URISyntaxException x) {
+    	    throw new Error(x);		// Can't happen
+    	}
+        }
 	
 }
 

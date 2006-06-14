@@ -498,7 +498,7 @@ public class CapselaGraph extends JGraph implements Printable, DropTargetListene
    * Open the specific editor for a given graph cell object.
    */
   public void startEditingAtCell(Object cell) {
-	  throw new RuntimeException("This should open up an editor for the task/net/decomposition type");
+	  new RuntimeException("This should open up an editor for the task/net/decomposition type").printStackTrace();
 //    if (cell instanceof GraphEdge && ((GraphEdge) cell).getproxy().getPersistentDomainObject() instanceof DataEdge) {
 //      LOG.debug("Trying to edit a data edge");
 //      GraphEdge dataEdge = (GraphEdge) cell;
