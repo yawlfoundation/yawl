@@ -96,7 +96,17 @@ public class DataContext {
 		try {
 			DataProxy dp = (DataProxy) dataProxyClass.newInstance();
 			dp.setContext(this);
-			dp.setLabel(o.toString());
+			if (o instanceof YExternalNetElement) {
+				YExternalNetElement ne = (YExternalNetElement) o;
+				if (ne.getName() == null || ne.getName().length() == 0) {
+					dp.setLabel(ne.getID());
+				} else {
+					dp.setLabel(ne.getName());
+				}
+			} else {
+				dp.setLabel(o.toString());
+			}
+			System.out.println("label set to: " + dp.getLabel());
 			if (listener != null) dp.addVetoableChangeListener(listener); 
 			dataMap.put(dp, o);
 			proxyMap.put(o, dp);
@@ -195,7 +205,11 @@ public class DataContext {
     				if (findType(yene) == Type.CONDITION) {
     					netElementProxy.setLabel("{connector}");
     				} else {
-    					netElementProxy.setLabel(yene.getID());
+    					if (yene.getName() != null && yene.getName().length() != 0) {
+        					netElementProxy.setLabel(yene.getName());
+    					}else {
+        					netElementProxy.setLabel(yene.getID());
+    					}
     				}
         			hierarchy.put(decompProxy, netElementProxy);
     			}

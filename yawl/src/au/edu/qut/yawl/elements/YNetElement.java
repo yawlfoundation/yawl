@@ -46,7 +46,7 @@ public abstract class YNetElement implements Cloneable, Comparable {
      * @param id
      */
     protected YNetElement(String id) {
-        _id = id;
+        setID(id);
     }
 
     /**
@@ -62,7 +62,8 @@ public abstract class YNetElement implements Cloneable, Comparable {
      * @param id
      */
     protected void setID(String id) {
-    	_id = id;
+    	this._id = id.replace(" ", "_");
+    	System.out.println(_id);
     }
 
     public String toString() {

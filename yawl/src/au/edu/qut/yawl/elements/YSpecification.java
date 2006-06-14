@@ -635,7 +635,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 		outSpec.setName(copyString(getName()));
 		try {
 			outSpec.setMetaData((YMetaData) getMetaData().clone());
-			outSpec.setSchema(copyString(outSpec.getToolsForYAWL().getSchemaString()));
+			outSpec.setSchema(copyString(getToolsForYAWL().getSchemaString()));
 		} catch (YSchemaBuildingException e1) {
 			e1.printStackTrace();
 		} catch (YSyntaxException e1) {
@@ -643,7 +643,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 		} catch (CloneNotSupportedException e1) {
 		e1.printStackTrace();
 		}
-		for (YDecomposition decomp: outSpec.getDecompositions()) {
+		for (YDecomposition decomp: getDecompositions()) {
 			try {
 				YDecomposition decOut = (YDecomposition) decomp.clone();
 				outSpec.setDecomposition(decOut);

@@ -77,7 +77,6 @@ public class SpecificationFileDAO implements SpecificationDAO{
 			System.err.println(m.getID());
 			e1.printStackTrace();
 		}
-        System.out.println("FILE DAO WRITING OUT " + m.getID());
         try {
         	FileWriter os = new FileWriter(f);
         	os.write(YMarshal.marshal(m));
@@ -92,12 +91,6 @@ public class SpecificationFileDAO implements SpecificationDAO{
     }
 
 	public List getChildren(Object filename) {
-		System.out.println("getting children of " + filename);
-//		try {
-//			filename = new File(new URI(filename.toString()));
-//		} catch (URISyntaxException e) {
-//			e.printStackTrace();
-//		}
 		System.out.println("getting children of " + filename);
 		List retval = new ArrayList();
 		if (filename instanceof String || filename instanceof DatasourceRoot) {

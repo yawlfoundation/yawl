@@ -513,11 +513,11 @@ public class CapselaGraph extends JGraph implements Printable, DropTargetListene
 //    } else {
 //      assert cell instanceof CapselaCell : "cell instanceof CapselaCell";
 //      LOG.debug("Trying to edit a component");
-//      SharedNode node = ((CapselaCell) cell).getproxy().getSharedNode();
+      SharedNode node = ((CapselaCell) cell).getProxy().getTreeNode();
 //	  ((CapselaCell) cell).getproxy().getPersistentDomainObject(1);
 //      if (!node.isInComponentsFolder()) {
 //        try {
-//          CapselaInternalFrame internalFrame = node.getFrame();
+//          CapselaInternalFrame internalFrame = node.getPrgetFrame();
 //          Client.openInternalFrame(internalFrame);
 //        } catch (Exception e) {
 //          LOG.error(e);

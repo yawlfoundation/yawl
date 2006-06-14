@@ -20,7 +20,7 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
     
     private Map<Long, YSpecification> specs = new HashMap<Long, YSpecification>();
     private long nextdbID = 1;
-    public static YSpecification testSpec = new YSpecification("virtual://memory/home/sandozm/templates/testing/testspec");
+    public static YSpecification testSpec = new YSpecification("virtual://memory/home/sandozm/templates/testing/testspec.xml");
     static {
     	//TODO move this all into a mock - yuck!
 			testSpec.setName("My test specification.xml");
@@ -39,9 +39,11 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
 			net.setInputCondition(new YInputCondition("start", net));
 			net.setOutputCondition(new YOutputCondition("end", net));
 			YAtomicTask task = new YAtomicTask("email dean", YAtomicTask._AND, YAtomicTask._AND, net); 
+			task.setName("email dean");
 			task.setDecompositionPrototype(gate);
 			net.addNetElement(task);
 			YAtomicTask task2 = new YAtomicTask("quote of the day", YAtomicTask._AND, YAtomicTask._AND, net); 
+			task2.setName("quote of the day");
 			task2.setDecompositionPrototype(gate2);
 			net.addNetElement(task2);
 			
