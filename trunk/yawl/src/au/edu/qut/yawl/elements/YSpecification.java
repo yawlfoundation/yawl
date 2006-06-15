@@ -318,7 +318,9 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     		populateDecompositionMap();
     	}
     	
-        _decompositions.add(decomposition);
+        if (!_decompositions.contains(decomposition)) {
+        	_decompositions.add(decomposition);
+        }
 		convenienceDecompositionMap.put(decomposition.getId(), decomposition);
     }
     
