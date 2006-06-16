@@ -62,6 +62,9 @@
                             <td align="center" valign="middle" bgcolor="#ffffff">
 								<a href="/admintool/chartview.jsp" target="_top" class="level3menu">Charts</a>
 							</td>
+                            <td align="center" valign="middle" bgcolor="#ffffff">
+								<a href="/admintool/ProM.jsp" target="_top" class="level3menu">Mining</a>
+							</td>
 							<td bgcolor="#336699"/>
                             <td align="center" valign="middle" bgcolor="#ffffff">
 								<a href="/worklist/admin" target="_top" class="level3menu">Worklist</a>

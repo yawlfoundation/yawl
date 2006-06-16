@@ -20,25 +20,49 @@ package au.edu.qut.yawl.admintool;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
+import org.hibernate.HibernateException;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 
 public class makeXML extends HttpServlet{
 	
-	private String startfile = new String("");
-	private String file = new String("");
-	private String complete = new String("");
-	Vector v = new Vector();
+    private String startfile = new String("");
+    private String file = new String("");
+    private String complete = new String("");
+    
+    DatabaseGatewayImpl _model = null;
+
+    private Vector v = new Vector();
+    
+    boolean _persistanceConfiguredOn = false;
+    
+    public void init(ServletConfig servletConfig) throws ServletException {
+        super.init(servletConfig);
+
+        ServletContext context = servletConfig.getServletContext();
+        String persistOnStr = context.getInitParameter("EnablePersistance");
+        _persistanceConfiguredOn = "true".equalsIgnoreCase(persistOnStr);
+        if (_persistanceConfiguredOn) {
+            try {
+                _model = DatabaseGatewayImpl.getInstance(_persistanceConfiguredOn);
+            } catch (HibernateException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 	
+
 	public void doGet(HttpServletRequest req, HttpServletResponse res){
 		
 	}
@@ -54,7 +78,7 @@ public class makeXML extends HttpServlet{
 		System.out.println("until = " + until);
 		if ((from.charAt(2) != '-' && from.charAt(5) != '-') || (until.charAt(2) != '-' && until.charAt(5) != '-')) {
 			System.out.println("wrongdate format");
-			String url =  new String(getServletContext().getInitParameter("admintool")+"/3rdparty.jsp?wrongdate=true");
+			String url =  new String(getServletContext().getInitParameter("admintool")+"/ProM.jsp?wrongdate=true");
 			try {
 				res.sendRedirect(res.encodeURL(url));
 			} catch (IOException e1) {
@@ -63,7 +87,6 @@ public class makeXML extends HttpServlet{
 			}
 		}
 		else {	
-//	after Tore has changed the milliseconds to timestamps this will need to be changed
 			
 			int fromyear  = Integer.parseInt(from.substring(6,10));
 			int frommonth  = Integer.parseInt(from.substring(3,5));
@@ -77,17 +100,22 @@ public class makeXML extends HttpServlet{
 			String untilDate = transformDateToMilliSeconds(untilyear, untilmonth, untilday);
 						
 			createHeading(specification);
-			Vector subxmlStrings = readDataFromDb(specification, fromDate, untilDate, res);
+			
+			String query = "Select distinct from au.edu.qut.yawl.engine.YWorkItemEvent as element WHERE element.description = '"+specification+"' AND element.time BETWEEN '"+from+"' AND '"+until+"';";
+
+			List subxmlStrings = _model.executeQueryWorkItems(query);
+			//Vector subxmlStrings = readDataFromDb(specification, fromDate, untilDate, res);
 			
 			for (int i=0; i< subxmlStrings.size(); i++) {
 				String casexml = (String) subxmlStrings.get(i);
 				file = file + casexml;
 			}
+
+
 			complete = startfile + file + "</Process></WorkflowLog>";
-					
 			writeXMLfile(complete);
 			
-			String url =  new String(getServletContext().getInitParameter("admintool")+"/3rdparty.jsp?created=true");
+			String url =  new String(getServletContext().getInitParameter("admintool")+"/PromM.jsp?xmllink=test");
 			try {
 				res.sendRedirect(res.encodeURL(url));
 			} catch (IOException e1) {
@@ -195,13 +223,6 @@ public class makeXML extends HttpServlet{
 		String date = "";
 		String caseid = "";
 		
-		Connection connection = null;
-		DBconnection.loadDriver("org.postgresql.Driver");
-		
-		boolean isClosed = DBconnection.getConnection();
-		if(isClosed == true){
-			DBconnection.getConnection();
-		}
 		
 		LinkedList rowkeyList = new LinkedList();
 		LinkedList identifierList = new LinkedList();
@@ -212,27 +233,9 @@ public class makeXML extends HttpServlet{
 		LinkedList description = new LinkedList();
 		
 		try {
-			Statement statement = DBconnection.createStatement();
-			String sql = "SELECT * FROM workitemevent " +
-					"WHERE description = '"+specification+"' AND time BETWEEN '"+from+"' AND '"+until+"';";
-			ResultSet rs = DBconnection.getResultSet(statement, sql);
-			
-			while (rs.next()) {
-				rowkeyList.add(rs.getString(1));
-				identifierList.add(rs.getString(2));
-				taskidList.add(rs.getString(3));
-				resourceList.add(rs.getString(4));
-				timeList.add(rs.getString(5));
-				eventList.add(rs.getString(6));
-				description.add(rs.getString(7));
-			}
-			statement.close();
 		}	
 		catch (Exception e) {
 			//nothing needs doing
-		}
-		if (connection != null) {
-			DBconnection.killConnection();
 		}
 		
 		for (int i=0; i<identifierList.size(); i++) {
