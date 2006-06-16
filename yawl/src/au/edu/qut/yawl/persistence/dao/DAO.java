@@ -3,8 +3,6 @@ package au.edu.qut.yawl.persistence.dao;
 import java.io.Serializable;
 import java.util.List;
 
-import au.edu.qut.yawl.elements.YSpecification;
-
 public interface DAO<Type> {
 	  public int save(Type t);
 	  public boolean delete(Type t);
