@@ -48,7 +48,6 @@ public class WorkflowEditor extends javax.swing.JFrame {
      * Creates new form WorkflowEditor 
      */
     private WorkflowEditor() {
-    	LogManager.getLogger(STree.class).setPriority(Priority.DEBUG);
     	initComponents();
         this.pack();
     	this.setSize(DEFAULT_CLIENT_WIDTH,DEFAULT_CLIENT_HEIGHT);
@@ -174,10 +173,10 @@ public class WorkflowEditor extends javax.swing.JFrame {
         aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("NexusBPM Process Editor");
+        setTitle("Nexus/BPM Process Editor");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setForeground(java.awt.Color.lightGray);
-        setName("NexusBPM Process Editor");
+        setName("Nexus/BPM Process Editor");
         this.setIconImage(ApplicationIcon.getIcon("NexusFrame.window_icon", ApplicationIcon.LARGE_SIZE).getImage());
         componentEditorSplitPane.setDividerLocation(200);
         componentList1Panel.setLayout(new java.awt.BorderLayout());
@@ -281,7 +280,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
     public void run() {
-                new WorkflowEditor().setVisible(true);
+                WorkflowEditor.getInstance().setVisible(true);
             }
         });
     }
@@ -294,8 +293,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
     private javax.swing.JPanel componentTreesPanel;
     private javax.swing.JScrollPane componentList1ScrollPane;
     private javax.swing.JScrollPane componentList2ScrollPane;
-    private javax.swing.JTree componentList1Tree;
-    private javax.swing.JTree componentList2Tree;
+    private STree componentList1Tree;
+    private STree componentList2Tree;
     private javax.swing.JMenuItem contentsMenuItem;
     private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem cutMenuItem;
@@ -317,4 +316,9 @@ public class WorkflowEditor extends javax.swing.JFrame {
     private javax.swing.JMenuItem pasteMenuItem;
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
+
+	public javax.swing.JDesktopPane getDesktopPane() {
+		return desktopPane;
+	}
+
 }
