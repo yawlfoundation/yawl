@@ -74,8 +74,8 @@ public class YNetRunner implements PersistableObject // extends Thread
     private static Logger logger;
 
     protected YNet _net;
-    private Set _enabledTasks = new HashSet();
-    private Set _busyTasks = new HashSet();
+    private Set<YTask> _enabledTasks = new HashSet<YTask>();
+    private Set<YTask> _busyTasks = new HashSet<YTask>();
 
     private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private YIdentifier _caseIDForNet;
@@ -113,7 +113,7 @@ public class YNetRunner implements PersistableObject // extends Thread
 
     /**
      * @hibernate.property column="containingTaskID"
-     * @return
+     * @return id of any containing any composite task
      */
     @Basic
     public String getContainingTaskID() {
@@ -148,7 +148,6 @@ public class YNetRunner implements PersistableObject // extends Thread
 
     /**
      * @hibernate.property column="net_id"
-     * @return
      */
     @Basic
     public String getYNetID() {
@@ -157,7 +156,6 @@ public class YNetRunner implements PersistableObject // extends Thread
 
     /**
      * @hibernate.many-to-one
-     * @return
      */
     @ManyToOne(cascade=CascadeType.ALL)
     public YCaseData getCasedata() {
@@ -168,11 +166,11 @@ public class YNetRunner implements PersistableObject // extends Thread
         casedata = data;
     }
 
-    public void addBusyTask(YExternalNetElement ext) {
+    public void addBusyTask(YTask ext) {
         _busyTasks.add(ext);
     }
 
-    public void addEnabledTask(YExternalNetElement ext) {
+    public void addEnabledTask(YTask ext) {
         _enabledTasks.add(ext);
     }
 
@@ -363,7 +361,6 @@ public class YNetRunner implements PersistableObject // extends Thread
     /**
      * Assumption: this will only get called AFTER a workitem has been progressed?
      * Because if it is called any other time then it will cause the case to stop.
-     * @param pmgr
      * @throws YPersistenceException
      */
     public void kick() throws YPersistenceException {
@@ -772,10 +769,10 @@ public class YNetRunner implements PersistableObject // extends Thread
         if (taskExited) {
             //todo AJH New code here - Relocated from YEngine.completeWorkItem
             if (workItem != null) {
-                _engine.getWorkItemRepository().removeWorkItemFamily(workItem);
+                AbstractEngine.getWorkItemRepository().removeWorkItemFamily(workItem);
             }
 
-            //here are check to see if completing this task resulted in completing the net.
+            //check to see if completing this task resulted in completing the net.
             if (this.isCompleted() && _net.getOutputCondition().getIdentifiers().size() == 1) {
                 //so now we know the net is complete we check if this net is a subnet.
                 if (_containingCompositeTask != null) {
@@ -794,13 +791,6 @@ public class YNetRunner implements PersistableObject // extends Thread
                                             _caseIDForNet,
                                             _containingCompositeTask,
                                             _net.getOutputData());
-                                }
-                                if (_caseIDForNet == null) {
-                                    System.out.println("YNetRunner::completeTask() finished local task: " +
-                                            atomicTask + " composite task: " +
-                                            _containingCompositeTask +
-                                            " caseid for decomposed net: " +
-                                            _caseIDForNet);
                                 }
                             }
                         }
@@ -822,7 +812,7 @@ public class YNetRunner implements PersistableObject // extends Thread
 //            }
 
             /**************************/
-            Logger.getLogger(this.getClass()).debug("NOTIFYING RUNNER");
+            logger.debug("NOTIFYING RUNNER");
             //todo Removing this causes sequence problems when going cyclic
             kick();
         }
@@ -904,12 +894,12 @@ public class YNetRunner implements PersistableObject // extends Thread
     }
 
     @Transient
-    public Set getBusyTasks() {
+    public Set<YTask> getBusyTasks() {
         return _busyTasks;
     }
 
     @Transient
-    public Set getEnabledTasks() {
+    public Set<YTask> getEnabledTasks() {
         return _enabledTasks;
     }
 

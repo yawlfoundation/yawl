@@ -64,7 +64,7 @@ public class WorklistDBConnector {
 
         ResultSet rs = executeQuery(query);
         while (rs.next()) {
-            String user = rs.getString("hresid");
+            String user = rs.getString(1);
             System.out.println("\tuser = " + user);
             if (null == user) {
                 throw new YQueryException(

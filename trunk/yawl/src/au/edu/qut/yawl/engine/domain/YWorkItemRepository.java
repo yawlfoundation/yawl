@@ -25,14 +25,14 @@ import java.util.*;
  * 
  */
 public class YWorkItemRepository {
-    private static Map _idStringToWorkItemsMap;//[case&taskIDStr=YWorkItem]
-    protected static Map _caseToNetRunnerMap;
+    private static Map<String,YWorkItem> _idStringToWorkItemsMap;//[case&taskIDStr=YWorkItem]
+    protected static Map<YIdentifier,YNetRunner> _caseToNetRunnerMap;
     private static YWorkItemRepository _myInstance;
 
 
     private YWorkItemRepository() {
-        _idStringToWorkItemsMap = new HashMap();
-        _caseToNetRunnerMap = new HashMap();
+        _idStringToWorkItemsMap = new HashMap<String,YWorkItem>();
+        _caseToNetRunnerMap = new HashMap<YIdentifier,YNetRunner>();
     }
 
     public void dump(Logger logger) {
@@ -48,7 +48,7 @@ public class YWorkItemRepository {
                     logger.debug("Key = NULL !!!");
                 } else {
                     YIdentifier key = (YIdentifier) objKey;
-                    YNetRunner runner = (YNetRunner) _caseToNetRunnerMap.get(key);
+                    YNetRunner runner = _caseToNetRunnerMap.get(key);
 
                     logger.debug("Entry " + sub + " Key=" + key.getId());
                     logger.debug(("    CaseID        " + runner.getCaseID().toString()));
@@ -66,7 +66,7 @@ public class YWorkItemRepository {
             while (keys.hasNext()) {
                 sub++;
                 String key = (String) keys.next();
-                YWorkItem workitem = (YWorkItem) _idStringToWorkItemsMap.get(key);
+                YWorkItem workitem = _idStringToWorkItemsMap.get(key);
 
                 logger.debug("Entry " + sub + " Key=" + key);
                 logger.debug(("    WorkitemID        " + workitem.getIDString()));
@@ -96,18 +96,17 @@ public class YWorkItemRepository {
     private void removeWorkItem(YWorkItem workItem) {
         Logger.getLogger(this.getClass()).debug("--> cancelAllWorkItemsInGroupOf: " + workItem.getIDString());
         _idStringToWorkItemsMap.remove(workItem.getIDString());
+        //todo Question by Lachlan: add code to remove from DB here?
     }
 
 
     public boolean removeWorkItemFamily(YWorkItem workItem) {
         Logger.getLogger(this.getClass()).debug("--> removeWorkItemFamily: " + workItem.getIDString());
-        Set children = workItem.getParent() == null ? workItem.getChildren() : workItem.getParent().getChildren();
+        Set<YWorkItem> children = workItem.getParent() == null ? workItem.getChildren() : workItem.getParent().getChildren();
         YWorkItem parent = workItem.getParent() == null ? workItem : workItem.getParent();
         if (parent != null) {
             if (children != null) {
-                Iterator iter = children.iterator();
-                while (iter.hasNext()) {
-                    YWorkItem siblingItem = (YWorkItem) iter.next();
+                for (YWorkItem siblingItem : children) {
                     removeWorkItem(siblingItem);
                 }
             }
@@ -125,8 +124,8 @@ public class YWorkItemRepository {
 
 
     public void clear() {
-        _idStringToWorkItemsMap = new HashMap();
-        _caseToNetRunnerMap = new HashMap();
+        _idStringToWorkItemsMap = new HashMap<String,YWorkItem>();
+        _caseToNetRunnerMap = new HashMap<YIdentifier,YNetRunner>();
     }
 
 
@@ -136,12 +135,11 @@ public class YWorkItemRepository {
      */
     public void cancelNet(YIdentifier caseIDForNet) {
         _caseToNetRunnerMap.remove(caseIDForNet);
-        Set itemsToRemove = new HashSet();
-        List allWorkItems = new ArrayList(_idStringToWorkItemsMap.values());
+        Set<String> itemsToRemove = new HashSet<String>();
+        List<YWorkItem> allWorkItems = new ArrayList<YWorkItem>(_idStringToWorkItemsMap.values());
         //go through all the work items and if there are any belonging to
         //the id for this net then remove them.
-        for (int i = 0; i < allWorkItems.size(); i++) {
-            YWorkItem item = (YWorkItem) allWorkItems.get(i);
+        for (YWorkItem item : allWorkItems) {
             YIdentifier identifier = item.getWorkItemID().getCaseID();
             if (identifier.isImmediateChildOf(caseIDForNet) ||
                     identifier.toString().equals(caseIDForNet.toString())) {
@@ -157,36 +155,34 @@ public class YWorkItemRepository {
     //###################################################################################
 
     public YNetRunner getNetRunner(YIdentifier caseID) {
-        return (YNetRunner)
-                _caseToNetRunnerMap.get(caseID);
+        return _caseToNetRunnerMap.get(caseID);
     }
 
 
     public YWorkItem getWorkItem(String caseIDStr, String taskID) {
-        return (YWorkItem) _idStringToWorkItemsMap.get(caseIDStr + ":" + taskID);
+        return _idStringToWorkItemsMap.get(caseIDStr + ":" + taskID);
     }
 
 
     public YWorkItem getWorkItem(String workItemID) {
-        return (YWorkItem) _idStringToWorkItemsMap.get(workItemID);
+        return _idStringToWorkItemsMap.get(workItemID);
     }
 
-
-    public Set getEnabledWorkItems() {
+    /**
+     * Side effect: deletes dead items from the repository.
+     */
+    public Set <YWorkItem> getEnabledWorkItems() {
         Logger.getLogger(this.getClass()).debug("--> getEnabledWorkItems: _idStringToWorkItemsMap=" + _idStringToWorkItemsMap.size() + " _caseToNetRunnerMap=" + _caseToNetRunnerMap.size());
-        Set aSet = new HashSet();
-        Set itemsToRemove = new HashSet();
-        Iterator iter = _idStringToWorkItemsMap.values().iterator();
-        while (iter.hasNext()) {
-            YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusEnabled) {
+        Set<YWorkItem> aSet = new HashSet<YWorkItem>();
+        Set<String> itemsToRemove = new HashSet<String>();
+        for (YWorkItem workitem : _idStringToWorkItemsMap.values()) {
+            if (workitem.getStatus().equals(YWorkItem.Status.Enabled)) {
                 YIdentifier caseID = workitem.getWorkItemID().getCaseID();
-                YNetRunner runner = (YNetRunner) _caseToNetRunnerMap.get(
+                YNetRunner runner = _caseToNetRunnerMap.get(
                         caseID);
                 boolean addedOne = false;
-                Set enabledTasks = runner.getEnabledTasks();
-                for (Iterator iterator = enabledTasks.iterator(); iterator.hasNext();) {
-                    YTask task = (YTask) iterator.next();
+                Set<YTask> enabledTasks = runner.getEnabledTasks();
+                for (YTask task : enabledTasks) {
                     if (task.getID().equals(workitem.getTaskID())) {
                         aSet.add(workitem);
                         addedOne = true;
@@ -204,42 +200,38 @@ public class YWorkItemRepository {
     }
 
 
-    private void removeItems(Set itemsToRemove) {
-        for (Iterator iterator = itemsToRemove.iterator(); iterator.hasNext();) {
-            String workItemID = (String) iterator.next();
+    private void removeItems(Set<String> itemsToRemove) {
+        for (String workItemID : itemsToRemove) {
             _idStringToWorkItemsMap.remove(workItemID);
         }
     }
 
 
-    public Set getParentWorkItems() {
-        Set aSet = new HashSet();
-        Iterator iter = _idStringToWorkItemsMap.values().iterator();
-        while (iter.hasNext()) {
-            YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusIsParent) {
+    public Set<YWorkItem> getParentWorkItems() {
+        Set<YWorkItem> aSet = new HashSet<YWorkItem>();
+        for (YWorkItem workitem : _idStringToWorkItemsMap.values()) {
+            if (workitem.getStatus() == YWorkItem.Status.IsParent) {
                 aSet.add(workitem);
             }
         }
         return aSet;
     }
 
-
-    public Set getFiredWorkItems() {
-        Set aSet = new HashSet();
-        Set itemsToRemove = new HashSet();
-        Iterator iter = _idStringToWorkItemsMap.values().iterator();
-        while (iter.hasNext()) {
-            YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusFired) {
+    /**
+     * Side effect: deletes dead items from the repository.
+     */
+    public Set<YWorkItem> getFiredWorkItems() {
+        Set<YWorkItem> aSet = new HashSet<YWorkItem>();
+        Set<String> itemsToRemove = new HashSet<String>();
+        for (YWorkItem workitem : _idStringToWorkItemsMap.values()) {
+            if (workitem.getStatus() == YWorkItem.Status.Fired) {
                 YIdentifier caseID = workitem.getWorkItemID().getCaseID();
-                YNetRunner runner = (YNetRunner) _caseToNetRunnerMap.get(
+                YNetRunner runner = _caseToNetRunnerMap.get(
                         caseID.getParent());
                 boolean addedOne = false;
                 if (null != runner) {
-                    Set busyTasks = runner.getBusyTasks();
-                    for (Iterator iterator = busyTasks.iterator(); iterator.hasNext();) {
-                        YTask task = (YTask) iterator.next();
+                    Set<YTask> busyTasks = runner.getBusyTasks();
+                    for (YTask task : busyTasks) {
                         if (task.getID().equals(workitem.getTaskID())) {
                             aSet.add(workitem);
                             addedOne = true;
@@ -256,34 +248,31 @@ public class YWorkItemRepository {
     }
 
 
-    public Set getExecutingWorkItems() {
-        Set aSet = new HashSet();
-        Iterator iter = _idStringToWorkItemsMap.values().iterator();
-        while (iter.hasNext()) {
-            YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusExecuting) {
+    public Set<YWorkItem> getExecutingWorkItems() {
+        Set<YWorkItem> aSet = new HashSet<YWorkItem>();
+        for (YWorkItem workitem : _idStringToWorkItemsMap.values()) {
+            if (workitem.getStatus() == YWorkItem.Status.Executing) {
                 aSet.add(workitem);
             }
         }
         return aSet;
     }
 
+    /**
+     * Side effect: deletes dead items from the repository.
+     */
+    public Set<YWorkItem> getExecutingWorkItems(String userName) {
+        Set<YWorkItem> aSet = new HashSet<YWorkItem>();
+        Set<String> itemsToRemove = new HashSet<String>();
 
-    public Set getExecutingWorkItems(String userName) {
-        Set aSet = new HashSet();
-        Set itemsToRemove = new HashSet();
-
-        Iterator iter = _idStringToWorkItemsMap.values().iterator();
-        while (iter.hasNext()) {
-            YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusExecuting) {
+        for (YWorkItem workitem : _idStringToWorkItemsMap.values()) {
+            if (workitem.getStatus() == YWorkItem.Status.Executing) {
                 YIdentifier caseID = workitem.getWorkItemID().getCaseID();
-                YNetRunner runner = (YNetRunner)
+                YNetRunner runner =
                         _caseToNetRunnerMap.get(caseID.getParent());
                 boolean foundOne = false;
-                Set busyTasks = runner.getBusyTasks();
-                for (Iterator iterator = busyTasks.iterator(); iterator.hasNext();) {
-                    YTask task = (YTask) iterator.next();
+                Set<YTask> busyTasks = runner.getBusyTasks();
+                for (YTask task : busyTasks) {
                     if (task.getID().equals(workitem.getTaskID())) {
                         foundOne = true;
                         if (workitem.getUserWhoIsExecutingThisItem().equals(userName)) {
@@ -301,12 +290,10 @@ public class YWorkItemRepository {
     }
 
 
-    public Set getCompletedWorkItems() {
-        Set aSet = new HashSet();
-        Iterator iter = _idStringToWorkItemsMap.values().iterator();
-        while (iter.hasNext()) {
-            YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusComplete) {
+    public Set<YWorkItem> getCompletedWorkItems() {
+        Set<YWorkItem> aSet = new HashSet<YWorkItem>();
+        for (YWorkItem workitem : _idStringToWorkItemsMap.values()) {
+            if (workitem.getStatus() == YWorkItem.Status.Complete) {
                 aSet.add(workitem);
             }
         }
@@ -314,36 +301,35 @@ public class YWorkItemRepository {
     }
 
 
-    public Set getWorkItems() {
-        Set aSet = new HashSet();
-        Set itemsToRemove = new HashSet();
+    /**
+     * Side effect: deletes dead items from the repository.
+     */
+    public Set<YWorkItem> getWorkItems() {
+        Set<YWorkItem> aSet = new HashSet<YWorkItem>();
+        Set<String> itemsToRemove = new HashSet<String>();
         //rather than just return the work items we have to chek that the items in the
         //repository are in synch with the engine
-        Iterator iter = _idStringToWorkItemsMap.values().iterator();
-        while (iter.hasNext()) {
-            YWorkItem workitem = (YWorkItem) iter.next();
-
+        for (YWorkItem workitem : _idStringToWorkItemsMap.values()) {
             YIdentifier caseID = workitem.getWorkItemID().getCaseID();
             YNetRunner runner;
-            if (workitem.getStatus().equals(YWorkItem.statusEnabled) ||
-                    workitem.getStatus().equals(YWorkItem.statusIsParent)) {
-                runner = (YNetRunner) _caseToNetRunnerMap.get(caseID);
-            } else if (workitem.getStatus().equals(YWorkItem.statusComplete) ||
-                    workitem.getStatus().equals(YWorkItem.statusExecuting) ||
-                    workitem.getStatus().equals(YWorkItem.statusFired)) {
-                runner = (YNetRunner) _caseToNetRunnerMap.get(caseID.getParent());
+            if (workitem.getStatus().equals(YWorkItem.Status.Enabled) ||
+                    workitem.getStatus().equals(YWorkItem.Status.IsParent)) {
+                runner = _caseToNetRunnerMap.get(caseID);
+            } else if (workitem.getStatus().equals(YWorkItem.Status.Complete) ||
+                    workitem.getStatus().equals(YWorkItem.Status.Executing) ||
+                    workitem.getStatus().equals(YWorkItem.Status.Fired)) {
+                runner = _caseToNetRunnerMap.get(caseID.getParent());
             } else {
                 continue;
             }
             boolean foundOne = false;
-            Set busyTasks = runner.getBusyTasks();
-            Set enableTasks = runner.getEnabledTasks();
-            Set workItemTasks = new HashSet();
+            Set<YTask> busyTasks = runner.getBusyTasks();
+            Set<YTask> enableTasks = runner.getEnabledTasks();
+            Set<YTask> workItemTasks = new HashSet<YTask>();
             workItemTasks.addAll(busyTasks);
             workItemTasks.addAll(enableTasks);
 
-            for (Iterator iterator = workItemTasks.iterator(); iterator.hasNext();) {
-                YTask task = (YTask) iterator.next();
+            for (YTask task : workItemTasks) {
                 if (task.getID().equals(workitem.getTaskID())) {
                     foundOne = true;
                     aSet.add(workitem);
@@ -363,9 +349,9 @@ public class YWorkItemRepository {
         return _caseToNetRunnerMap;
     }
 
-    // FIXME: XXX this function should always return a set, but the third line sometimes returns null
+    // FIXME: DONE LA: XXX this function should always return a set, but the third line sometimes returns null
     public Set getChildrenOf(String workItemID) {
-        YWorkItem item = (YWorkItem) _idStringToWorkItemsMap.get(workItemID);
+        YWorkItem item = _idStringToWorkItemsMap.get(workItemID);
         if (item != null) {
             return item.getChildren();
         } else
@@ -377,13 +363,13 @@ public class YWorkItemRepository {
      * ones that are related to the case id and removes them.
      * @param caseID must be a case id, (not a child of a caseid).
      */
+    //todo LA Ques: Link to persistance??
     public void removeWorkItemsForCase(YIdentifier caseID) {
         if (caseID == null || caseID.getParent() != null) {
             throw new IllegalArgumentException("the argument <caseID> is not valid.");
         }
-        Set workItems = getWorkItems();
-        for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
-            YWorkItem item = (YWorkItem) iterator.next();
+        Set<YWorkItem> workItems = getWorkItems();
+        for (YWorkItem item : workItems) {
             YWorkItemID wid = item.getWorkItemID();
             //get the root id for this work items case
             //and if it matches the cancellation case id then remove it.

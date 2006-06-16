@@ -12,13 +12,7 @@ package au.edu.qut.yawl.elements;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -98,7 +92,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     public static final String _Beta4 = "Beta 4";
     public static final String _Beta6 = "Beta 6";
     public static final String _Beta7_1 = "Beta 7.1"; 
-    private transient XMLToolsForYAWL _xmlToolsForYAWL = new XMLToolsForYAWL();;
+    private transient XMLToolsForYAWL _xmlToolsForYAWL = new XMLToolsForYAWL();
     public static final String _loaded = "loaded";
     public static final String _unloaded = "unloaded";
     private YMetaData _metaData;
@@ -112,10 +106,12 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     @Transient
     public Object getParent() {return null;}
     
+    @SuppressWarnings({"UNUSED_SYMBOL"})
     private Integer getVersion() {
     	return _version;
     }
     
+    @SuppressWarnings({"UNUSED_SYMBOL"})
     private void setVersion(Integer version) {
     	_version = version;
     }
@@ -151,7 +147,8 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     	return _decompositions;
     }
     
-	@XmlElement(name="decomposition", namespace="http://www.citi.qut.edu.au/yawl")
+	@SuppressWarnings({"UNUSED_SYMBOL"})
+    @XmlElement(name="decomposition", namespace="http://www.citi.qut.edu.au/yawl")
     private void setDecompositions(List<YDecomposition> set) {
 		PersistenceHelper.setJaxbDecompositions(this, set);
     }
@@ -213,8 +210,9 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     /**
      * Used by hibernate annotations only!
      * 
-     * @return
+     * @return the schema XML string
      */
+    @SuppressWarnings({"UNUSED_SYMBOL"})
     @Column(name="schema", length=4096)
     @XmlTransient
     private String getSchema() {
@@ -249,11 +247,12 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
         xml.append(_xmlToolsForYAWL.getSchemaString());
         xml.append("<decomposition id=\"").
                 append(_rootNet.getId()).
-                append("\" isRootNet=\"true\" xsi:type=\"NetFactsType\">");
+                append("\" isRootNet=\"true\" xsi:type=\"NetFactsType\" ").
+                append(format(_rootNet.getAttributes())).
+                append(">");
         xml.append(_rootNet.toXML());
         xml.append("</decomposition>");
-        for (Iterator iterator = _decompositions.iterator(); iterator.hasNext();) {
-            YDecomposition decomposition = (YDecomposition) iterator.next();
+        for (YDecomposition decomposition : _decompositions) {
             if (!decomposition.getId().equals(_rootNet.getId())) {
                 xml.append("<decomposition id=\"").
                         append(decomposition.getId()).
@@ -267,19 +266,39 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
                 xml.append("\"");
 
                 //AJH: Add in any additional attributes
-                for(Iterator iter = decomposition.getAttributes().keySet().iterator(); iter.hasNext();)
-                {
-                    String key = iter.next().toString();
-                    xml.append(" ").append(key).append("=\"").
-                            append(decomposition.getAttribute(key)).append("\"");
-                }
-                
+                xml.append(format(decomposition.getAttributes()));
                 xml.append(">").append(decomposition.toXML());
                 xml.append("</decomposition>");
             }
         }
         xml.append("</specification>");
         return xml.toString();
+    }
+
+
+    /**
+     * Formats a hashtable of string1 to string2 mappings, into
+     * a an XML atribute param-value format.
+     * e.g. style="bold" format="plain" bling="yes" ...
+     * @param attributes
+     * @return the param-value formatted string
+     */
+    private String format(Map<String,String> attributes) {
+        StringBuffer buf = new StringBuffer();
+        Set<String> keys = attributes.keySet();
+        for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+            String key = (String) iterator.next();
+            String value = attributes.get(key);
+            buf.
+                    append(key).
+                    append("=\"").
+                    append(YTask.marshal(value)). //if it's escaped XML, handle it
+                    append("\"");
+            if(iterator.hasNext()) {
+                buf.append(' ');
+            }
+        }
+        return buf.toString();
     }
 
 
@@ -310,7 +329,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     	if (convenienceDecompositionMap == null) {
     		populateDecompositionMap();
     	}
-        return (YDecomposition) convenienceDecompositionMap.get(id);
+        return convenienceDecompositionMap.get(id);
     }
 
     public void setDecomposition(YDecomposition decomposition) {
@@ -326,11 +345,9 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     
     private void populateDecompositionMap() {
     	convenienceDecompositionMap = new HashMap<String, YDecomposition>();
-    	Iterator<YDecomposition> iter = _decompositions.iterator();
-    	while (iter.hasNext()) {
-    		YDecomposition decomposition = iter.next();
-    		convenienceDecompositionMap.put(decomposition.getId(), decomposition);
-    	}
+        for (YDecomposition decomposition : _decompositions) {
+            convenienceDecompositionMap.put(decomposition.getId(), decomposition);
+        }
     }
     
 
@@ -338,10 +355,10 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     //#####################################################################################
     //                              VERIFICATION TASKS
     //#####################################################################################
-    public List verify() {
-        List messages = new ArrayList();
-        for (Iterator iterator = _decompositions.iterator(); iterator.hasNext();) {
-            YDecomposition decomposition = (YDecomposition) iterator.next();
+    public List <YVerificationMessage> verify() {
+        List<YVerificationMessage> messages =
+                new ArrayList<YVerificationMessage> ();
+        for (YDecomposition decomposition : _decompositions) {
             messages.addAll(decomposition.verify());
         }
         //check all nets are being used
@@ -426,8 +443,9 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     }
 
 
-    private List checkForInfiniteLoops() {
-        List messages = new ArrayList();
+    private List <YVerificationMessage> checkForInfiniteLoops() {
+        List <YVerificationMessage> messages =
+                new ArrayList<YVerificationMessage>();
         //check inifinite loops under rootnet and generate error messages
         Set relevantNets = new HashSet();
         relevantNets.add(_rootNet);
@@ -444,8 +462,9 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     }
 
 
-    private List checkTheseTasksForInfiniteLoops(Set relevantTasks, boolean generateWarnings) {
-        List messages = new ArrayList();
+    private List <YVerificationMessage> checkTheseTasksForInfiniteLoops(Set relevantTasks, boolean generateWarnings) {
+        List<YVerificationMessage> messages =
+                new ArrayList<YVerificationMessage>();
         for (Iterator iterator = relevantTasks.iterator(); iterator.hasNext();) {
             YExternalNetElement q = (YExternalNetElement) iterator.next();
             Set visited = new HashSet();
@@ -510,8 +529,9 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     }
 
 
-    private List checkDecompositionUsage() {
-        List messages = new ArrayList();
+    private List <YVerificationMessage> checkDecompositionUsage() {
+        List<YVerificationMessage> messages =
+                new ArrayList<YVerificationMessage>();
         Set netsBeingUsed = new HashSet();
         unfoldNetChildren(_rootNet, netsBeingUsed, null);
         Set specifiedDecompositons = new HashSet(_decompositions);
@@ -581,7 +601,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     
     /**
      * 
-     * @return
+     * @return the id
      */
     @Column(name="uri")
 	@XmlAttribute(name="uri")
@@ -617,12 +637,14 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
         _metaData = metaData;
     }
 
-	@Transient
-	private List<Element> getAny() {
+	@SuppressWarnings({"UNUSED_SYMBOL"})
+    @Transient
+    private List<Element> getAny() {
 		return null;
 	}
 
-	@Transient
+	@SuppressWarnings({"UNUSED_SYMBOL"})
+    @Transient
 	@XmlAnyElement
 	private void setAny(List<Element> nodes) {
 		PersistenceHelper.setAnyJaxb(this, nodes);
@@ -659,8 +681,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 		return outSpec;	}
 	
 	private String copyString(String source) {
-		return source == null ? null : new String(source); 
-		
+		return source == null ? null : new String(source);
 	}
-	
 }

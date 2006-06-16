@@ -211,7 +211,7 @@ public abstract class YDao implements Dao, RunnerDao, WorkItemDao, Specification
         Iterator iter = _idStringToWorkItemsMap.values().iterator();
         while (iter.hasNext()) {
             YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusEnabled) {
+            if (workitem.getStatus() == YWorkItem.Status.Enabled) {
                 YIdentifier caseID = workitem.getWorkItemID().getCaseID();
                 // TODO: Could we create a Engine.getEnabledTask(caseID) instead?
                 YNetRunner runner = _caseToNetRunnerMap.get(caseID);
@@ -249,7 +249,7 @@ public abstract class YDao implements Dao, RunnerDao, WorkItemDao, Specification
         Iterator iter = _idStringToWorkItemsMap.values().iterator();
         while (iter.hasNext()) {
             YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusIsParent) {
+            if (workitem.getStatus() == YWorkItem.Status.IsParent) {
                 aSet.add(workitem);
             }
         }
@@ -263,7 +263,7 @@ public abstract class YDao implements Dao, RunnerDao, WorkItemDao, Specification
         Iterator iter = _idStringToWorkItemsMap.values().iterator();
         while (iter.hasNext()) {
             YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusFired) {
+            if (workitem.getStatus() == YWorkItem.Status.Fired) {
                 YIdentifier caseID = workitem.getWorkItemID().getCaseID();
                 // TODO Could we create an Engine.getBusyTasks(YIdentifier)?
                 YNetRunner runner = _caseToNetRunnerMap.get(caseID.getParent());
@@ -293,7 +293,7 @@ public abstract class YDao implements Dao, RunnerDao, WorkItemDao, Specification
         Iterator iter = _idStringToWorkItemsMap.values().iterator();
         while (iter.hasNext()) {
             YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusExecuting) {
+            if (workitem.getStatus() == YWorkItem.Status.Executing) {
                 aSet.add(workitem);
             }
         }
@@ -308,7 +308,7 @@ public abstract class YDao implements Dao, RunnerDao, WorkItemDao, Specification
         Iterator iter = _idStringToWorkItemsMap.values().iterator();
         while (iter.hasNext()) {
             YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusExecuting) {
+            if (workitem.getStatus() == YWorkItem.Status.Executing) {
                 YIdentifier caseID = workitem.getWorkItemID().getCaseID();
                 // TODO Also Engine.getBusyTasks(YIdentifier)
                 YNetRunner runner =  _caseToNetRunnerMap.get(caseID.getParent());
@@ -338,7 +338,7 @@ public abstract class YDao implements Dao, RunnerDao, WorkItemDao, Specification
         Iterator iter = _idStringToWorkItemsMap.values().iterator();
         while (iter.hasNext()) {
             YWorkItem workitem = (YWorkItem) iter.next();
-            if (workitem.getStatus() == YWorkItem.statusComplete) {
+            if (workitem.getStatus() == YWorkItem.Status.Complete) {
                 aSet.add(workitem);
             }
         }
@@ -357,12 +357,12 @@ public abstract class YDao implements Dao, RunnerDao, WorkItemDao, Specification
             YIdentifier caseID = workitem.getWorkItemID().getCaseID();
             // TODO Also a case of Engine.getBusyTasks()/Engine.getEnabledTasks()
             YNetRunner runner;
-            if (workitem.getStatus().equals(YWorkItem.statusEnabled) ||
-                    workitem.getStatus().equals(YWorkItem.statusIsParent)) {
+            if (workitem.getStatus().equals(YWorkItem.Status.Enabled) ||
+                    workitem.getStatus().equals(YWorkItem.Status.IsParent)) {
                 runner = _caseToNetRunnerMap.get(caseID);
-            } else if (workitem.getStatus().equals(YWorkItem.statusComplete) ||
-                    workitem.getStatus().equals(YWorkItem.statusExecuting) ||
-                    workitem.getStatus().equals(YWorkItem.statusFired)) {
+            } else if (workitem.getStatus().equals(YWorkItem.Status.Complete) ||
+                    workitem.getStatus().equals(YWorkItem.Status.Executing) ||
+                    workitem.getStatus().equals(YWorkItem.Status.Fired)) {
                 runner = _caseToNetRunnerMap.get(caseID.getParent());
             } else {
                 continue;

@@ -28,6 +28,7 @@ public class HumanResource extends Resource implements YVerifiable {
     private boolean isAdministrator = false;
     private String password2;
 
+    /** For hibernate ?? */
     private HumanResource() {
         super();
     }
@@ -74,8 +75,8 @@ public class HumanResource extends Resource implements YVerifiable {
         this.isAdministrator = isAdministrator;
     }
 
-    public List verify() {
-        List result = new ArrayList();
+    public List <YVerificationMessage> verify() {
+        List<YVerificationMessage> result = new ArrayList<YVerificationMessage>();
         result.addAll(super.verify());
 
         if(password == null || password.length() < 4){

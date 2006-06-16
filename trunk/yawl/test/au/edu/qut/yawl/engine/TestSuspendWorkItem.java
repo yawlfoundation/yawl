@@ -110,7 +110,7 @@ public class TestSuspendWorkItem extends TestCase {
 		// start the work item
         workItem = _engine.startWorkItem( workItem, "admin" );
 		assertNotNull( workItem );
-		assertTrue( workItem.getStatus(), workItem.getStatus().equals( YWorkItem.statusExecuting ) );
+		assertTrue(""+ workItem.getStatus(), workItem.getStatus().equals( YWorkItem.Status.Executing ) );
 		
 		// the item should be executing now
 		workItems = _repository.getExecutingWorkItems( "admin" );
@@ -149,7 +149,7 @@ public class TestSuspendWorkItem extends TestCase {
 		item = _engine.startWorkItem( item, "admin" );
 		assertNotNull( item );
 		assertNotNull( item.toXML(), item.getStatus() );
-		assertTrue( item.getStatus(), item.getStatus().equals( YWorkItem.statusExecuting ) );
+		assertTrue(""+ item.getStatus(), item.getStatus().equals( YWorkItem.Status.Executing ) );
 		
 		// to be cautious: make sure any work items that are put in the fired state get run
 		startAllFiredWorkItems();

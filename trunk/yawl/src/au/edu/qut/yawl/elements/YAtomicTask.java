@@ -191,13 +191,14 @@ public class YAtomicTask extends YTask implements PolymorphicPersistableObject {
                 _workItemRepository.removeWorkItemFamily(workItem);
                 //if applicable cancel yawl service
                 YAWLServiceGateway wsgw = (YAWLServiceGateway) getDecompositionPrototype();
-                // this IF isn't needed: the outermost IF makes sure the decomposition isn't null
-//                if (wsgw != null) {
+                //DM: this IF isn't needed: the outermost IF makes sure the decomposition isn't null
+                //LA: Actually it is needed - exists(decomp) !==> exists(webservicegateway)
+                if (wsgw != null) {
                     YAWLServiceReference ys = wsgw.getYawlService();
                     if (ys != null) {
                     	EngineFactory.createYEngine().announceCancellationToEnvironment(ys, workItem);
                     }
-//                }
+                }
             }
         }
     }

@@ -30,8 +30,6 @@ import org.jdom.JDOMException;
  * 
  */
 public class TestMarlonsEagerNessExperiment {
-    private static YIdentifier _idForTopNet;
-    private static YWorkItemRepository _worItemRepository;
 
     public static void main(String[] args) throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException {
         AbstractEngine _engine =  EngineFactory.createYEngine();
@@ -43,8 +41,6 @@ public class TestMarlonsEagerNessExperiment {
                         unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         AbstractEngine engine2 =  EngineFactory.createYEngine();
         engine2.loadSpecification(specification);
-        _idForTopNet = engine2.startCase(null, specification.getID().toString(), null, null);
-
-        _worItemRepository = YWorkItemRepository.getInstance();
+        engine2.startCase(null, specification.getID(), null, null);
     }
 }

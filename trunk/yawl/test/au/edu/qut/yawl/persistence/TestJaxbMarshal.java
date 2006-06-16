@@ -71,7 +71,7 @@ public class TestJaxbMarshal extends XMLTestCase {
 
 	public List<YVerificationMessage> getValidationList(String fileName) throws Exception {
 		YSpecification spec = StringProducerJaxb.getInstance().getSpecification(fileName, true);
-		return (List<YVerificationMessage>) spec.verify();
+		return spec.verify();
 	}
 
 }

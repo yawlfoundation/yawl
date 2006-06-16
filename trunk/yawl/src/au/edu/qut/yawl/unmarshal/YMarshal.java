@@ -163,7 +163,7 @@ public class YMarshal {
     }
 
 
-    public static String marshal(List specificationList) throws IOException, JDOMException {
+    public static String marshal(List<YSpecification> specificationList) throws IOException, JDOMException {
         StringBuffer xml = new StringBuffer();
         xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
         xml.append("<specificationSet " +
@@ -172,8 +172,7 @@ public class YMarshal {
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
                 "xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl " +
                 "d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">");
-        for (int i = 0; i < specificationList.size(); i++) {
-            YSpecification specification = (YSpecification) specificationList.get(i);
+        for (YSpecification specification : specificationList) {
             xml.append(specification.toXML());
         }
         xml.append("</specificationSet>");
@@ -197,7 +196,7 @@ public class YMarshal {
     public static void main(String[] args) throws IOException, YSchemaBuildingException, YSyntaxException, JDOMException {
         URL xmlFileURL = YMarshal.class.getResource("MakeRecordings.xml");
         File file = new File(xmlFileURL.getFile());
-        List specifications = unmarshalSpecifications(file.getCanonicalPath());
+        List <YSpecification> specifications = unmarshalSpecifications(file.getCanonicalPath());
         String marshalledSpecs = marshal(specifications);
         System.out.println("\n\n" + marshalledSpecs);
     }

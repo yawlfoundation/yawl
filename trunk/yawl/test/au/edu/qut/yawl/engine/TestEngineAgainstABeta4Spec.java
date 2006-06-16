@@ -25,6 +25,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * 
@@ -42,11 +43,12 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
     private YSpecification _specification;
     private AbstractEngine _engine;
     private YNetRunner _netRunner;
+    private File yawlXMLFile;
 
 
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
         URL fileURL = getClass().getResource("MakeRecordings(Beta4).xml");
-        File yawlXMLFile = new File(fileURL.getFile());
+        yawlXMLFile = new File(fileURL.getFile());
         _specification = null;
 
         _specification = (YSpecification) YMarshal.
@@ -56,10 +58,10 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
     }
 
 
-    public void testExpectedNormalOperation() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    public void testExpectedNormalOperation() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
         synchronized (this) {
             EngineClearer.clear(_engine);
-            _engine.loadSpecification(_specification);
+            _engine.addSpecifications(yawlXMLFile, false , new ArrayList());
             YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
             _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
             {
@@ -72,7 +74,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 YWorkItem wiDecideName_Executing =
                         _engine.startWorkItem(wiDecideName_Enabled, "admin");
 
-                assertTrue(wiDecideName_Executing.getStatus().equals(YWorkItem.statusExecuting));
+                assertTrue(wiDecideName_Executing.getStatus().equals(YWorkItem.Status.Executing));
 
                 _engine.completeWorkItem(wiDecideName_Executing,
                         "<DecideAlbumName>" +
@@ -89,7 +91,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 YWorkItem wiDecideSongs_Executing =
                         _engine.startWorkItem(wiDecideSongs_Enabled, "admin");
 
-                assertTrue(wiDecideSongs_Executing.getStatus().equals(YWorkItem.statusExecuting));
+                assertTrue(wiDecideSongs_Executing.getStatus().equals(YWorkItem.Status.Executing));
 
                 _engine.completeWorkItem(wiDecideSongs_Executing,
                         "<DecideWhichSongsToRecord>" +
@@ -122,7 +124,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 YWorkItem wiRecord_Executing =
                         _engine.startWorkItem(wiRecord_Enabled, "admin");
 
-                assertTrue(wiRecord_Executing.getStatus().equals(YWorkItem.statusExecuting));
+                assertTrue(wiRecord_Executing.getStatus().equals(YWorkItem.Status.Executing));
 
 
             }

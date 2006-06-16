@@ -145,7 +145,7 @@ public class TestMiDataOutput extends TestCase {
     		ids.add(item.getCaseID());
     		// one of the children will have a status of executing, but the others
     		// will only have a status of firing...
-    		if( !item.getStatus().equals(YWorkItem.statusExecuting) ) {
+    		if( item.getStatus() != YWorkItem.Status.Executing ) {
     			// so start executing those that aren't already executing
     			_engine.startWorkItem( item, item.getDataString() );
     			sleep( SLEEP_TIME );
@@ -312,7 +312,7 @@ public class TestMiDataOutput extends TestCase {
 				ids.add( item.getCaseID() );
 				// one of the children will have a status of executing, but the others
 				// will only have a status of firing...
-				if( !item.getStatus().equals( YWorkItem.statusExecuting ) ) {
+				if( !item.getStatus().equals( YWorkItem.Status.Executing ) ) {
 					// so start executing those that aren't already executing
 					_engine.startWorkItem( item, item.getDataString() );
 					sleep( SLEEP_TIME );

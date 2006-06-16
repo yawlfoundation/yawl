@@ -67,16 +67,16 @@ public class TestYWorkItemRepository extends TestCase {
     	// create a couple work items
     	YWorkItem item = new YWorkItem("A spec",
     			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.statusIsParent );
+    	item.setStatus( YWorkItem.Status.IsParent );
     	item = new YWorkItem("A spec",
     			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.statusDeleted );
+    	item.setStatus( YWorkItem.Status.Cancelled );
     	item = new YWorkItem("A spec",
     			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.statusIsParent );
+    	item.setStatus( YWorkItem.Status.IsParent );
     	item = new YWorkItem("A spec",
     			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.statusFired );
+    	item.setStatus( YWorkItem.Status.Fired );
     	
     	assertTrue( "" + _workitemRepository.getParentWorkItems(),
     			_workitemRepository.getParentWorkItems().size() == 2 );
@@ -89,16 +89,16 @@ public class TestYWorkItemRepository extends TestCase {
     	// create a couple work items
     	YWorkItem item = new YWorkItem("A spec",
     			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.statusComplete );
+    	item.setStatus( YWorkItem.Status.Complete );
     	item = new YWorkItem("A spec",
     			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.statusDeleted );
+    	item.setStatus( YWorkItem.Status.Cancelled );
     	item = new YWorkItem("A spec",
     			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.statusIsParent );
+    	item.setStatus( YWorkItem.Status.IsParent );
     	item = new YWorkItem("A spec",
     			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.statusComplete );
+    	item.setStatus( YWorkItem.Status.Complete );
     	
     	assertTrue( "" + _workitemRepository.getCompletedWorkItems(),
     			_workitemRepository.getCompletedWorkItems().size() == 2 );

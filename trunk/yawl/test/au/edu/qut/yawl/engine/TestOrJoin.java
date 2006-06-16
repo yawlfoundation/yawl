@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.jdom.JDOMException;
 
@@ -56,19 +57,15 @@ public class TestOrJoin extends TestCase {
     public void testImproperCompletion() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YAuthenticationException, YDataStateException, YStateException, YQueryException, YPersistenceException {
         URL fileURL = getClass().getResource("TestOrJoin.xml");
         File yawlXMLFile = new File(fileURL.getFile());
-        YSpecification specification = null;
+        YSpecification specification;
         specification = (YSpecification) YMarshal.
                             unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
-//todo AJH:Obsoltete ????
-//        String sessionHandle = _engine.connect("admin", "YAWL");
-        _engine.loadSpecification(specification);
-        YIdentifier id = _engine.startCase(null, specification.getID().toString(), null, null);
+        _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
+        _engine.startCase(null, specification.getID().toString(), null, null);
         {
             YWorkItem itemA = (YWorkItem)_engine.getAvailableWorkItems().iterator().next();
-//            _localWorklist.startOneWorkItemAndSetOthersToFired(
-//                    itemA.getCaseID().toString(), itemA.getTaskID());
             _engine.startWorkItem(itemA, "admin");
 
             try {
@@ -77,11 +74,8 @@ public class TestOrJoin extends TestCase {
                 ie.printStackTrace();
             }
 
-//            itemA = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
             itemA = (YWorkItem) _engine.getChildrenOfWorkItem(
                     itemA).iterator().next();
-//            _localWorklist.setWorkItemToComplete(
-//                    itemA.getCaseID().toString(), itemA.getTaskID(), "<data/>");
             _engine.completeWorkItem(itemA, "<data/>");
             try {
                 Thread.sleep(_sleepTime);
@@ -91,7 +85,6 @@ public class TestOrJoin extends TestCase {
         }
         {
             YWorkItem itemF = null;
-//            Iterator it = _workItemRepository.getEnabledWorkItems().iterator();
             Iterator it = _engine.getAvailableWorkItems().iterator();
             while (it.hasNext()) {
                 YWorkItem item = (YWorkItem) it.next();

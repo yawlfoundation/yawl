@@ -447,7 +447,7 @@ public abstract class InterfaceBWebsideController {
         if (null == enabledWorkItem) {
             throw new IllegalArgumentException("Param enabledWorkItem cannot be null.");
         }
-        if (!enabledWorkItem.getStatus().equals(YWorkItem.statusEnabled)) {
+        if (!enabledWorkItem.getStatus().equals(YWorkItem.Status.Enabled)) {
             throw new IllegalArgumentException("Param enabledWorkItem must be enabled.");
         }
 

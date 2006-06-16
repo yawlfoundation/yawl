@@ -15,6 +15,7 @@ import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.domain.YLogData;
 import au.edu.qut.yawl.engine.domain.YLogIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItemEvent;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 
@@ -52,7 +53,7 @@ public class YawlLogServletInterface {
     public String logWorkItemEvent(
             String identifier,
             String taskid,
-            String event,
+            YWorkItem.Status event,
             String resource,
             String description
             ) throws YPersistenceException {
@@ -71,7 +72,7 @@ public class YawlLogServletInterface {
     public String logWorkItemEvent(
             String identifier,
             String taskid,
-            String event,
+            YWorkItem.Status event,
             String resource,
             String description,
             String time
@@ -92,7 +93,7 @@ public class YawlLogServletInterface {
 
         newevent.setTaskid(taskid);
 
-        newevent.setEvent(event);
+        newevent.setEvent(""+event);
         newevent.setResource(resource);
         newevent.setDescription(description);
 

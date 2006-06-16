@@ -299,16 +299,16 @@ public class YWorklistModel {
         Set availableWorkItems = _engineClient.getAvailableWorkItems();
         for (Iterator iterator = availableWorkItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
-            if (item.getStatus().equals(YWorkItem.statusEnabled)) {
+            if (item.getStatus().equals(YWorkItem.Status.Enabled)) {
                 addEnabledWorkItem(item);
-            } else if (item.getStatus().equals(YWorkItem.statusFired)) {
+            } else if (item.getStatus().equals(YWorkItem.Status.Fired)) {
                 addFiredWorkItem(item);
             }
         }
         Set allWorkItems = _engineClient.getAllWorkItems();
         for (Iterator iterator = allWorkItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
-            if (item.getStatus().equals(YWorkItem.statusExecuting)) {
+            if (item.getStatus().equals(YWorkItem.Status.Executing)) {
                 if (item.getUserWhoIsExecutingThisItem().equals(_username)) {
                     addStartedWorkItem(item);
                 }

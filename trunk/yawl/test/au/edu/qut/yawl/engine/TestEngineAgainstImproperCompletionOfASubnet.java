@@ -10,7 +10,6 @@
 package au.edu.qut.yawl.engine;
 
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.unmarshal.YMarshal;
@@ -23,8 +22,7 @@ import junit.textui.TestRunner;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Set;
-import java.util.Iterator;
+import java.util.ArrayList;
 
 import org.jdom.JDOMException;
 
@@ -37,11 +35,11 @@ import org.jdom.JDOMException;
  */
 public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
 
-    private YIdentifier _idForTopNet;
     private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private long _sleepTime = 500;
     private AbstractEngine engine;
     private YSpecification _specification;
+    private File yawlXMLFile;
 
 
     public TestEngineAgainstImproperCompletionOfASubnet(String name) {
@@ -49,9 +47,8 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
     }
 
     public void setUp() throws YSyntaxException, JDOMException, YSchemaBuildingException, IOException {
-//        new YLocalWorklist("Barbara");
         URL fileURL = getClass().getResource("ImproperCompletion.xml");
-        File yawlXMLFile = new File(fileURL.getFile());
+        yawlXMLFile = new File(fileURL.getFile());
         _specification = null;
         _specification = (YSpecification) YMarshal.
                 unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
@@ -59,10 +56,10 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
     }
 
 
-    public synchronized void testImproperCompletionSubnet() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    public synchronized void testImproperCompletionSubnet() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
         EngineClearer.clear(engine);
-        engine.loadSpecification(_specification);
-        _idForTopNet = engine.startCase(null, _specification.getID(), null, null);
+        engine.addSpecifications(yawlXMLFile, false, new ArrayList());
+        engine.startCase(null, _specification.getID(), null, null);
         assertTrue(_workItemRepository.getCompletedWorkItems().size() == 0);
         assertTrue(_workItemRepository.getEnabledWorkItems().size() == 1);
         assertTrue(_workItemRepository.getExecutingWorkItems().size() == 0);
@@ -73,7 +70,6 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
             YWorkItem item;
             while (_workItemRepository.getEnabledWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getEnabledWorkItems().iterator().next();
-//System.out.println("TestEngine::() item = " + item);
                 engine.startWorkItem(item, "admin");
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
@@ -85,7 +81,7 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
             while (_workItemRepository.getExecutingWorkItems().size() > 0) {
-                item = (YWorkItem) _workItemRepository.getExecutingWorkItems()
+                item = (YWorkItem) _workItemRepository.getExecutingWorkItems("admin")
                         .iterator().next();
                 engine.completeWorkItem(item, "<data/>");
                 try{ Thread.sleep(_sleepTime);}

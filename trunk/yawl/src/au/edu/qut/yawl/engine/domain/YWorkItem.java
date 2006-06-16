@@ -24,7 +24,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -52,15 +51,19 @@ public class YWorkItem {
 	 * with older revisions if method signatures have not changed. 
 	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
 	 */
-	private static final long serialVersionUID = 2006030080l;
-	
-    public static final String statusEnabled = "Enabled";
-    public static final String statusFired = "Fired";
-    public static final String statusExecuting = "Executing";
-    public static final String statusComplete = "Complete";
-    public static final String statusIsParent = "Is parent";
-    public static final String statusDeadlocked = "Deadlocked";
-    public static final String statusDeleted = "Cancelled";
+    private static final long serialVersionUID = 2006030080l;
+
+    public enum Status {
+        Enabled,Fired,Executing,
+        Complete,IsParent,Deadlocked, Cancelled}
+
+//    public static final String statusEnabled = "Enabled";
+//    public static final String statusFired = "Fired";
+//    public static final String statusExecuting = "Executing";
+//    public static final String statusComplete = "Complete";
+//    public static final String statusIsParent = "Is parent";
+//    public static final String statusDeadlocked = "Deadlocked";
+//    public static final String statusDeleted = "Cancelled";
 
     private YWorkItemID _workItemID;
     private String _specificationID;
@@ -68,13 +71,13 @@ public class YWorkItem {
     private Date _firingTime;
     private Date _startTime;
 
-    private String _status;
+    private Status _status;
     private String _whoStartedMe;
     private boolean _allowsDynamicCreation;
     private Element _dataList;
 
     private YWorkItem _parent;
-    private Set _children;
+    private Set<YWorkItem> _children = new HashSet<YWorkItem>();
 
     private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private static DateFormat _df = new SimpleDateFormat("MMM:dd H:mm:ss");
@@ -86,7 +89,8 @@ public class YWorkItem {
     private String lastevent = "0";
     public String thisId = null;
     private String data_string = null;
-    private String taskname = null;
+
+
 
     /**
      * Constructor<P>
@@ -95,9 +99,6 @@ public class YWorkItem {
      */
     public YWorkItem() {
         super();
-    }
-
-    protected void finalize() {
     }
 
     public void addToRepository() {
@@ -164,7 +165,7 @@ public class YWorkItem {
         _workItemID = workItemID;
         _specificationID = specificationID;
         _enablementTime = new Date();
-        _status = isDeadlocked ? statusDeadlocked : statusEnabled;
+        _status = isDeadlocked ? Status.Deadlocked : Status.Enabled;
         _allowsDynamicCreation = allowsDynamicCreation;
         _workItemRepository.addNewWorkItem(this);
 
@@ -182,8 +183,6 @@ public class YWorkItem {
 // TODO           if (pmgr != null) {
 //                pmgr.storeObject(this);
 //            }
-
-
 
             /*******************************/
         } catch (YPersistenceException e) {
@@ -209,7 +208,7 @@ public class YWorkItem {
         _enablementTime = workItemCreationTime;
         _firingTime = new Date();
         _parent = parent;
-        _status = statusFired;
+        _status = Status.Fired;
         _workItemRepository.addNewWorkItem(this);
         _allowsDynamicCreation = allowsDynamicInstanceCreation;
         /***************************/
@@ -242,14 +241,10 @@ public class YWorkItem {
                     _allowsDynamicCreation
             );
 
-            if (_children == null) {
-                _children = new HashSet();
-            }
-
             /*
               MODIFIED FOR PERSISTANCE
              */
-            setStatus(statusIsParent);
+            setStatus(Status.IsParent);
             _children.add(childItem);
             if (_children.size() == 1) {
                 YawlLogServletInterface.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
@@ -264,19 +259,19 @@ public class YWorkItem {
 
     public void setStatusToDelete() throws YPersistenceException {
         /*MODIFIED FOR PERSISTANCE*/
-        setStatus(statusDeleted);
+        setStatus(Status.Cancelled);
         //_status = statusDeleted;
     }
 
     public void setStatusToStarted(String userName) throws YPersistenceException {
-        if (!_status.equals(statusFired)) {
+        if (_status != Status.Fired) {
             throw new RuntimeException(this + " [when current status is \""
-                    + _status + "\" it cannot be changed to \"" + statusExecuting + "\"]");
+                    + _status + "\" it cannot be changed to \"" + Status.Executing + "\"]");
         }
         /*
           MODIFIED FOR PERSISTANCE
          */
-        setStatus(statusExecuting);
+        setStatus(Status.Executing);
         //_status = statusExecuting;
 
         _startTime = new Date();
@@ -299,14 +294,14 @@ public class YWorkItem {
 
 
     public void setStatusToComplete() throws YPersistenceException {
-        if (!_status.equals(statusExecuting)) {
+        if (_status != Status.Executing) {
             throw new RuntimeException(this + " [when current status is \""
-                    + _status + "\" it cannot be changed to \"" + statusComplete + "\"]");
+                    + _status + "\" it cannot be changed to \"" + Status.Complete + "\"]");
         }
         /*
           MODIFIED FOR PERSISTANCE
          */
-        setStatus(statusComplete);
+        setStatus(Status.Complete);
         //_status = statusComplete;
 
         /*
@@ -314,13 +309,10 @@ public class YWorkItem {
          * the parent is completed too.
          * */
         boolean parentcomplete = true;
-        Set siblings = _parent.getChildren();
+        Set<YWorkItem> siblings = _parent.getChildren();
 
-        Iterator iter = siblings.iterator();
-
-        while (iter.hasNext()) {
-            YWorkItem mysibling = (YWorkItem) iter.next();
-            if (mysibling.getStatus() != YWorkItem.statusComplete)
+        for (YWorkItem sibling : siblings) {
+            if (sibling.getStatus() != Status.Complete)
                 parentcomplete = false;
         }
 
@@ -351,15 +343,15 @@ public class YWorkItem {
 
 
     public void rollBackStatus() throws YPersistenceException {
-        if (!_status.equals(statusExecuting)) {
+        if (!_status.equals(Status.Executing)) {
             throw new RuntimeException(this + " [when current status is \""
-                    + _status + "\" it cannot be rolledBack to \"" + statusFired + "\"]");
+                    + _status + "\" it cannot be rolledBack to \"" + Status.Fired + "\"]");
         }
         //_status = statusFired;
         /*
 	  MODIFIED FOR PERSISTANCE
 	 */
-        setStatus(statusFired);
+        setStatus(Status.Fired);
         YawlLogServletInterface.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
                 _workItemID.getTaskID()
                 , _status, _whoStartedMe, _specificationID);
@@ -425,6 +417,7 @@ public class YWorkItem {
      * Inserted for hibernate
      * @param time
      */
+    @SuppressWarnings({"UNUSED_SYMBOL"})
     private void setEnablementTime(Date time) {
     	_enablementTime = time;
     }
@@ -443,6 +436,7 @@ public class YWorkItem {
      * Inserted for hibernate 
      * @param time
      */
+    @SuppressWarnings({"UNUSED_SYMBOL"})
     private void setFiringTime(Date time) {
     	_firingTime = time;
     }
@@ -465,6 +459,7 @@ public class YWorkItem {
      * Inserted for hibernate
      * @param time
      */
+    @SuppressWarnings({"UNUSED_SYMBOL"})
     private void setStartTime(Date time) {
     	_startTime = time;
     }
@@ -475,11 +470,11 @@ public class YWorkItem {
     }
 
     @Basic
-    public String getStatus() {
+    public Status getStatus() {
         return _status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this._status = status;
     }
 
@@ -492,6 +487,7 @@ public class YWorkItem {
      * Inserted for hibernate
      * @param item
      */
+    @SuppressWarnings({"UNUSED_SYMBOL"})
     private void setParent(YWorkItem item) {
     	_parent = item;
     }
@@ -500,6 +496,8 @@ public class YWorkItem {
     public Set<YWorkItem> getChildren() {
         return _children;
     }
+
+    @SuppressWarnings({"UNUSED_SYMBOL"})
     private void setChildren(Set<YWorkItem> children) {
     	_children = children;
     }
@@ -528,12 +526,13 @@ public class YWorkItem {
 
     @Basic
     public String getUserWhoIsExecutingThisItem() {
-        if (_status == statusExecuting) {
+        if (_status == Status.Executing) {
             return _whoStartedMe;
         } else
             return null;
     }
-    
+
+    //todo Q by LA: do we need this method 4 hibernate? otherwise delete
     private void setUserWhoIsExecutingThisItem(String person) {
     	_whoStartedMe = person;
     }
@@ -542,7 +541,8 @@ public class YWorkItem {
     public boolean allowsDynamicCreation() {
         return _allowsDynamicCreation;
     }
-    
+
+    //todo Q by LA: do we need this method 4 hibernate? otherwise delete
     private void setAllowsDynamicCreation(boolean b) {
     	_allowsDynamicCreation = b;
     }
@@ -564,27 +564,38 @@ public class YWorkItem {
     	// FIXME TODO Do nothing?  Should this value be persisted at all?
     	// Note: the original code did nothing with the persisted value of data_string, it is persisted,
     	// but never read back in.  Is this the functionality that we want?
+        //todo LA Comment: this got used in the system restore code but was a total hack.
+        //i think we could live without it.
     }
 
 
     public String toXML() {
         StringBuffer xmlBuff = new StringBuffer();
         xmlBuff.append("<workItem>");
-        xmlBuff.append("<taskID>" + getTaskID() + "</taskID>");
-        xmlBuff.append("<caseID>" + getCaseID() + "</caseID>");
-        xmlBuff.append("<uniqueID>" + getUniqueID() + "</uniqueID>");
-        xmlBuff.append("<specID>" + _specificationID + "</specID>");
-        xmlBuff.append("<status>" + getStatus() + "</status>");
+        xmlBuff.append("<taskID>").append(getTaskID()).append("</taskID>");
+        xmlBuff.append("<caseID>").append(getCaseID()).append("</caseID>");
+        xmlBuff.append("<uniqueID>").append(getUniqueID()).append("</uniqueID>");
+        xmlBuff.append("<specID>").append(_specificationID).append("</specID>");
+        xmlBuff.append("<status>").append(getStatus()).append("</status>");
         if (_dataList != null) {
-            xmlBuff.append("<data>" + getDataString() + "</data>");
+            xmlBuff.append("<data>").append(getDataString())
+                    .append("</data>");
         }
-        xmlBuff.append("<enablementTime>" + _df.format(getEnablementTime()) + "</enablementTime>");
+        xmlBuff.append("<enablementTime>")
+                .append(_df.format(getEnablementTime()))
+                .append("</enablementTime>");
         if (this.getFiringTime() != null) {
-            xmlBuff.append("<firingTime>" + _df.format(getFiringTime()) + "</firingTime>");
+            xmlBuff.append("<firingTime>")
+                    .append(_df.format(getFiringTime()))
+                    .append("</firingTime>");
         }
         if (this.getStartTime() != null) {
-            xmlBuff.append("<startTime>" + _df.format(getStartTime()) + "</startTime>");
-            xmlBuff.append("<assignedTo>" + getUserWhoIsExecutingThisItem() + "</assignedTo>");
+            xmlBuff.append("<startTime>")
+                    .append(_df.format(getStartTime()))
+                    .append("</startTime>");
+            xmlBuff.append("<assignedTo>")
+                    .append(getUserWhoIsExecutingThisItem())
+                    .append("</assignedTo>");
         }
         xmlBuff.append("</workItem>");
         return xmlBuff.toString();
@@ -599,7 +610,8 @@ public class YWorkItem {
     public String getSpecificationID() {
         return _specificationID;
     }
-    
+
+    //todo Q by LA: needed 4 hibernate ?
     private void setSpecificationID(String specificationID) {
     	_specificationID = specificationID;
     }

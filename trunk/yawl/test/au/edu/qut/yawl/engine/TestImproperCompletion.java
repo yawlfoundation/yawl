@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
+import java.util.ArrayList;
 
 import org.jdom.JDOMException;
 
@@ -41,6 +42,7 @@ public class TestImproperCompletion extends TestCase{
     private AbstractEngine _engine;
     private YIdentifier _id;
     private YSpecification _specification;
+    private File yawlXMLFile;
 
     public TestImproperCompletion(String name){
         super(name);
@@ -48,7 +50,7 @@ public class TestImproperCompletion extends TestCase{
 
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
         URL fileURL = getClass().getResource("TestImproperCompletion.xml");
-        File yawlXMLFile = new File(fileURL.getFile());
+        yawlXMLFile = new File(fileURL.getFile());
         _specification = (YSpecification) YMarshal.
                             unmarshalSpecifications(
                                     yawlXMLFile.getAbsolutePath()).get(0);
@@ -56,19 +58,11 @@ public class TestImproperCompletion extends TestCase{
         _engine =  EngineFactory.createYEngine();
     }
 
-    private String trim(String casesRaw) {
-        int begin = casesRaw.indexOf("<caseID>") + 8;
-        int end = casesRaw.indexOf("</caseID>");
-        if(casesRaw.length() > 12){
-            return casesRaw.substring(begin, end);
-        }
-        else return "";
-    }
 
-    public void testImproperCompletion() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    public void testImproperCompletion() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
         EngineClearer.clear(_engine);
-        _engine.loadSpecification(_specification);
-        _id = _engine.startCase(null, _specification.getID().toString(), null, null);
+        _engine.addSpecifications(yawlXMLFile, false , new ArrayList());
+        _id = _engine.startCase(null, _specification.getID(), null, null);
         int numIter = 0;
         Set s = _engine.getCasesForSpecification("TestImproperCompletion");
 

@@ -58,7 +58,6 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  *
- *
  * @author Lachlan Aldred
  *         Date: 17/06/2003
  *         Time: 13:46:54
@@ -1047,7 +1046,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     //################################################################################
     //   BEGIN REST-FUL SERVICE METHODS
     //################################################################################
-    public Set getAvailableWorkItems() {
+    public Set<YWorkItem> getAvailableWorkItems() {
         // TESTING
         if (logger.isDebugEnabled()) {
             dump();
@@ -1058,7 +1057,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                         " Fired=" + YEngine._workItemRepository.getFiredWorkItems().size());
             }
  
-            Set allItems = new HashSet();
+            Set<YWorkItem> allItems = new HashSet<YWorkItem>();
             allItems.addAll(YEngine._workItemRepository.getEnabledWorkItems());
             allItems.addAll(YEngine._workItemRepository.getFiredWorkItems());
 
@@ -1115,7 +1114,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 YNetRunner netRunner;
                 YWorkItem resultantItem = null;
                 if (workItem != null) {
-                    if (workItem.getStatus().equals(YWorkItem.statusEnabled)) {
+                    if (workItem.getStatus() == YWorkItem.Status.Enabled) {
                         netRunner = YEngine._workItemRepository.getNetRunner(workItem.getCaseID());
                         List childCaseIDs;
                         childCaseIDs = netRunner.attemptToFireAtomicTask(workItem.getTaskID());
@@ -1134,7 +1133,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                                 }
                             }
                         }
-                    } else if (workItem.getStatus().equals(YWorkItem.statusFired)) {
+                    } else if (workItem.getStatus() == YWorkItem.Status.Fired) {
                         workItem.setStatusToStarted(userID);
                         netRunner = YEngine._workItemRepository.getNetRunner(workItem.getCaseID().getParent());
                         Element dataList = ((YTask) netRunner.getNetElement(workItem.getTaskID())
@@ -1142,7 +1141,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                         workItem.setData(dataList);
                         netRunner.startWorkItemInTask(workItem.getCaseID(), workItem.getTaskID());
                         resultantItem = workItem;
-                    } else if (workItem.getStatus().equals(YWorkItem.statusDeadlocked)) {
+                    } else if (workItem.getStatus() == YWorkItem.Status.Deadlocked) {
                         resultantItem = workItem;
                     } else {
 //     TODO                   if (isJournalising()) {
@@ -1243,7 +1242,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
                 Document doc;
                 if (workItem != null) {
-                    if (workItem.getStatus().equals(YWorkItem.statusExecuting)) {
+                    if (workItem.getStatus() == YWorkItem.Status.Executing) {
                         YNetRunner netRunner = YEngine._workItemRepository.getNetRunner(workItem.getCaseID().getParent());
                         synchronized (netRunner) {
                             SAXBuilder builder = new SAXBuilder();
@@ -1287,7 +1286,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                         }
                         workItem.setStatusToComplete();
                         workItem.completeData(doc);
-                    } else if (workItem.getStatus().equals(YWorkItem.statusDeadlocked)) {
+                    } else if (workItem.getStatus() == YWorkItem.Status.Deadlocked) {
                         YEngine._workItemRepository.removeWorkItemFamily(workItem);
                     } else {
                         throw new YStateException("WorkItem with ID [" + workItem.getIDString() +
@@ -1355,7 +1354,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     public void checkElegibilityToAddInstances(String workItemID) throws YStateException {
             YWorkItem item = YEngine._workItemRepository.getWorkItem(workItemID);
             if (item != null) {
-                if (item.getStatus().equals(YWorkItem.statusExecuting)) {
+                if (item.getStatus() == YWorkItem.Status.Executing) {
                     if (item.allowsDynamicCreation()) {
                         YIdentifier identifier = item.getCaseID().getParent();
                         YNetRunner netRunner =
@@ -1463,7 +1462,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                    pmgr.startTransactionalSession();
 //                }
 
-                if (workItem.getStatus().equals(YWorkItem.statusExecuting)) {
+                if (workItem.getStatus() == YWorkItem.Status.Executing) {
                     workItem.rollBackStatus();
                     YNetRunner netRunner = YEngine._workItemRepository.getNetRunner(workItem.getCaseID().getParent());
                     if (netRunner.suspendWorkItem(workItem.getCaseID(), workItem.getTaskID())) {
@@ -1490,7 +1489,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
     public String launchCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException {
 //            YPersistenceManager pmgr = null;
-            String caseIDString;
+            String caseIDString = null;
 
             logger.debug("--> launchCase");
 
@@ -1500,7 +1499,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                pmgr.startTransactionalSession();
 //            }
 
-            YIdentifier caseID = startCase(username, specID, caseParams, completionObserver);
+            try{
+                YIdentifier caseID = startCase(username, specID, caseParams, completionObserver);
 
             if (caseID != null) {
                 caseIDString = caseID.toString();
@@ -1515,6 +1515,11 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //  TODO          if (isJournalising()) {
 //                pmgr.commit();
 //            }
+            } catch (Exception e) {
+//  TODO              if (isJournalising()) {
+//                    pmgr.rollbackTransaction();
+//                }
+            }
             logger.debug("<-- launchCase");
             return caseIDString;
     }

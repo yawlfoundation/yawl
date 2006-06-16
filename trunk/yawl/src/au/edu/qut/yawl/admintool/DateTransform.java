@@ -29,20 +29,7 @@ public class DateTransform {
 
     Connection con = null;
 
-    public DateTransform() {
-	try {
-	    Class.forName("com.mysql.jdbc.Driver").newInstance();
-	} catch (Exception e) {
-	    e.printStackTrace();
-	}
-
-	try {
-	    con = DriverManager.getConnection("jdbc:mysql://fit10011905:3306/yawl?user=root");
-	} catch (Exception e) {
-	    e.printStackTrace();
-	}
-
-    }
+    //todo refactor this into separate classes as necessary
 
     public String getData(String eventid) {
 	String return_data = ""  ;

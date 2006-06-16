@@ -293,8 +293,9 @@ public class YParameter extends YVariable implements Comparable, PolymorphicPers
     }
 
 
-    public List verify() {
-        List messages = new Vector();
+    public List <YVerificationMessage> verify() {
+        List <YVerificationMessage> messages =
+                new Vector<YVerificationMessage>();
         messages.addAll(super.verify());
         if (_mandatory && _initialValue != null) {
             messages.add(new YVerificationMessage(this,
@@ -340,7 +341,6 @@ public class YParameter extends YVariable implements Comparable, PolymorphicPers
     /**
      * Returns whether or not the param is used for pure control flow, i.e.,
      * the value by passes the decompositions state space.
-     * @return
      */
     @Transient
     public boolean bypassesDecompositionStateSpace() {
@@ -366,7 +366,6 @@ public class YParameter extends YVariable implements Comparable, PolymorphicPers
      *
      * Table is keyed by attribute 'name' and contains the string represenation of the XML elements attribute.<P>
      * @hibernate.property
-     * @return
      */
 //    @CollectionOfElements
     @Transient
