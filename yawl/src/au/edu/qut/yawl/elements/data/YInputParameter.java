@@ -296,8 +296,9 @@ public class YInputParameter extends YParameter implements Comparable, Polymorph
     }
 
 
-    public List verify() {
-        List messages = new Vector();
+    public List <YVerificationMessage> verify() {
+        List<YVerificationMessage> messages =
+                new Vector<YVerificationMessage>();
         messages.addAll(super.verify());
         if (super.isMandatory() && _initialValue != null) {
             messages.add(new YVerificationMessage(this,

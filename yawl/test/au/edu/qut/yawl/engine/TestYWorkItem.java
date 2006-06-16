@@ -87,45 +87,45 @@ public class TestYWorkItem extends TestCase{
     }
     
     public void testProperStatusChange() throws YPersistenceException {
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
     	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
     	assertNotNull(child);
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child.toXML(), child.getStatus());
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Fired));
     	
     	child.setStatusToStarted("admin");
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Executing));
     	child.setStatusToComplete();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusComplete));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Complete));
     	child.setStatusToDelete();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusDeleted));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Cancelled));
     }
     
     public void testRollBackStatusSuccess() throws YPersistenceException {
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
     	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
     	assertNotNull(child);
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child.toXML(), child.getStatus());
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Fired));
     	
     	child.setStatusToStarted("admin");
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Executing));
     	child.rollBackStatus();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Fired));
     	child.setStatusToStarted("admin");
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Executing));
     	child.setStatusToComplete();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusComplete));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Complete));
     	child.setStatusToDelete();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusDeleted));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Cancelled));
     }
     
     public void testImproperRollBack() throws YPersistenceException {
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	try {
     		_workItem.rollBackStatus();
     		fail("Should have thrown an exception.");
@@ -134,13 +134,13 @@ public class TestYWorkItem extends TestCase{
     		// proper exception was thrown
     	}
     	
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
     	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
     	assertNotNull(child);
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child.toXML(), child.getStatus());
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Fired));
     	
     	try {
     		child.rollBackStatus();
@@ -150,9 +150,9 @@ public class TestYWorkItem extends TestCase{
     		// proper exception was thrown
     	}
     	child.setStatusToStarted("admin");
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Executing));
     	child.setStatusToComplete();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusComplete));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Complete));
     	try {
     		child.rollBackStatus();
     		fail("Should have thrown an exception.");
@@ -161,7 +161,7 @@ public class TestYWorkItem extends TestCase{
     		// proper exception was thrown
     	}
     	child.setStatusToDelete();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusDeleted));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Cancelled));
     	try {
     		child.rollBackStatus();
     		fail("Should have thrown an exception.");
@@ -179,7 +179,7 @@ public class TestYWorkItem extends TestCase{
     }
     
     public void testImproperStart() throws YPersistenceException {
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	try {
     		_workItem.setStatusToStarted( "admin" );
     		fail("Should throw an exception since work item is not in fired state");
@@ -188,16 +188,16 @@ public class TestYWorkItem extends TestCase{
     		// proper exception thrown.
     	}
     	
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
     	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
     	assertNotNull(child);
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child.toXML(), child.getStatus());
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Fired));
     	
     	child.setStatusToStarted("admin");
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Executing));
     	try {
     		child.setStatusToStarted( "admin" );
     		fail("Should throw an exception since work item is not in fired state");
@@ -206,7 +206,7 @@ public class TestYWorkItem extends TestCase{
     		// proper exception thrown.
     	}
     	child.setStatusToComplete();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusComplete));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Complete));
     	try {
     		child.setStatusToStarted( "admin" );
     		fail("Should throw an exception since work item is not in fired state");
@@ -215,7 +215,7 @@ public class TestYWorkItem extends TestCase{
     		// proper exception thrown.
     	}
     	child.setStatusToDelete();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusDeleted));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Cancelled));
     	try {
     		child.setStatusToStarted( "admin" );
     		fail("Should throw an exception since work item is not in fired state");
@@ -233,7 +233,7 @@ public class TestYWorkItem extends TestCase{
     }
     
     public void testImproperComplete() throws YPersistenceException {
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	try {
     		_workItem.setStatusToComplete();
     		fail("Should throw an exception since work item is not in executing state");
@@ -242,13 +242,13 @@ public class TestYWorkItem extends TestCase{
     		// proper exception thrown.
     	}
     	
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
     	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
     	assertNotNull(child);
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child.toXML(), child.getStatus());
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusFired));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Fired));
     	
     	try {
     		child.setStatusToComplete();
@@ -258,9 +258,9 @@ public class TestYWorkItem extends TestCase{
     		// proper exception thrown.
     	}
     	child.setStatusToStarted("admin");
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusExecuting));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Executing));
     	child.setStatusToComplete();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusComplete));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Complete));
     	try {
     		child.setStatusToComplete();
     		fail("Should throw an exception since work item is not in executing state");
@@ -269,7 +269,7 @@ public class TestYWorkItem extends TestCase{
     		// proper exception thrown.
     	}
     	child.setStatusToDelete();
-    	assertTrue(child.getStatus(), child.getStatus().equals(YWorkItem.statusDeleted));
+    	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Cancelled));
     	try {
     		child.setStatusToComplete();
     		fail("Should throw an exception since work item is not in executing state");
@@ -287,59 +287,59 @@ public class TestYWorkItem extends TestCase{
     }
     
     public void testSetWorkItemWithSiblingsToComplete() throws YPersistenceException {
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
     	YWorkItem child1 = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
     	assertNotNull(child1);
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child1.toXML(), child1.getStatus());
-    	assertTrue(child1.getStatus(), child1.getStatus().equals(YWorkItem.statusFired));
+    	assertTrue(""+child1.getStatus(), child1.getStatus().equals(YWorkItem.Status.Fired));
     	
     	YWorkItem child2 = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
     	assertNotNull(child2);
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child2.toXML(), child2.getStatus());
-    	assertTrue(child2.getStatus(), child2.getStatus().equals(YWorkItem.statusFired));
+    	assertTrue(""+child2.getStatus(), child2.getStatus().equals(YWorkItem.Status.Fired));
     	
     	YWorkItem child3 = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
     	assertNotNull(child3);
-    	assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusIsParent));
+    	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child3.toXML(), child3.getStatus());
-    	assertTrue(child3.getStatus(), child3.getStatus().equals(YWorkItem.statusFired));
+    	assertTrue(""+child3.getStatus(), child3.getStatus().equals(YWorkItem.Status.Fired));
     	
     	child1.setStatusToStarted("admin");
-    	assertTrue(child1.getStatus(), child1.getStatus().equals(YWorkItem.statusExecuting));
+    	assertTrue(""+child1.getStatus(), child1.getStatus().equals(YWorkItem.Status.Executing));
     	
     	child2.setStatusToStarted("admin");
-    	assertTrue(child2.getStatus(), child2.getStatus().equals(YWorkItem.statusExecuting));
+    	assertTrue(""+child2.getStatus(), child2.getStatus().equals(YWorkItem.Status.Executing));
     	
     	child1.setStatusToComplete();
-    	assertTrue(child1.getStatus(), child1.getStatus().equals(YWorkItem.statusComplete));
+    	assertTrue(""+child1.getStatus(), child1.getStatus().equals(YWorkItem.Status.Complete));
     	
     	child2.setStatusToComplete();
-    	assertTrue(child2.getStatus(), child2.getStatus().equals(YWorkItem.statusComplete));
+    	assertTrue(""+child2.getStatus(), child2.getStatus().equals(YWorkItem.Status.Complete));
     	
     	child3.setStatusToStarted("admin");
-    	assertTrue(child3.getStatus(), child3.getStatus().equals(YWorkItem.statusExecuting));
+    	assertTrue(""+child3.getStatus(), child3.getStatus().equals(YWorkItem.Status.Executing));
     	child3.setStatusToComplete();
-    	assertTrue(child3.getStatus(), child3.getStatus().equals(YWorkItem.statusComplete));
+    	assertTrue(""+child3.getStatus(), child3.getStatus().equals(YWorkItem.Status.Complete));
     	
     	child1.setStatusToDelete();
-    	assertTrue(child1.getStatus(), child1.getStatus().equals(YWorkItem.statusDeleted));
+    	assertTrue(""+child1.getStatus(), child1.getStatus().equals(YWorkItem.Status.Cancelled));
     	child2.setStatusToDelete();
-    	assertTrue(child2.getStatus(), child2.getStatus().equals(YWorkItem.statusDeleted));
+    	assertTrue(""+child2.getStatus(), child2.getStatus().equals(YWorkItem.Status.Cancelled));
     	child3.setStatusToDelete();
-    	assertTrue(child3.getStatus(), child3.getStatus().equals(YWorkItem.statusDeleted));
+    	assertTrue(""+child3.getStatus(), child3.getStatus().equals(YWorkItem.Status.Cancelled));
     }
     
     public void testConstructor(){
         assertNull(_workItem.getParent());
         assertNotNull(_workItem.toXML(), _workItem.getStatus());
-        assertTrue(_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.statusEnabled));
+        assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
         
         assertNull(_deadlockedWorkItem.getParent());
         assertNotNull(_deadlockedWorkItem.toXML(), _deadlockedWorkItem.getStatus());
-        assertTrue(_deadlockedWorkItem.getStatus(),
-        		_deadlockedWorkItem.getStatus().equals(YWorkItem.statusDeadlocked));
+        assertTrue(""+_deadlockedWorkItem.getStatus(),
+        		_deadlockedWorkItem.getStatus().equals(YWorkItem.Status.Deadlocked));
     }
 }

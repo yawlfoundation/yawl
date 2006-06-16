@@ -50,8 +50,9 @@ public abstract class Resource implements YVerifiable {
         this.description = description;
     }
 
-    public List verify() {
-        List results = new ArrayList();
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> results =
+                new ArrayList<YVerificationMessage>();
         if(rsrcID == null || rsrcID.length() == 0){
             results.add(new YVerificationMessage(
                     this,

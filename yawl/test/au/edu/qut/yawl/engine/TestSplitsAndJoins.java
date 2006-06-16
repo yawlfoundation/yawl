@@ -585,7 +585,7 @@ public class TestSplitsAndJoins extends TestCase {
 		assertFalse( task.getMIComplete().containsIdentifier() );
 		assertTrue( task.getMIEntered().containsIdentifier() );
 		assertFalse( task.getMIExecuting().containsIdentifier() );
-		assertTrue( item.getStatus().equals( YWorkItem.statusFired ) );
+		assertTrue( item.getStatus() == YWorkItem.Status.Fired  );
 		
 		// attempting to suspend it again (when it's already suspended) shouldn't work
 		assertFalse( netRunner.suspendWorkItem( item.getCaseID(), task.getID() ) );

@@ -56,17 +56,24 @@ public class TestCaseCancellation extends TestCase {
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
 
+        URI serviceURI = new URI("mock://mockedURL/testingCaseCompletion");
+        YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString(), null);
+        Set services = _engine.getYAWLServices();
+        for (Iterator iterator = services.iterator(); iterator.hasNext();) {
+            YAWLServiceReference serviceRef = (YAWLServiceReference) iterator.next();
+            if(serviceRef.getURI().equals(service.getURI())) {
+                _engine.removeYawlService(service.getURI());
+            }
+        }
+        _engine.addYawlService(service);
+
         _repository = YWorkItemRepository.getInstance();
         URL fileURL = getClass().getResource("CaseCancellation.xml");
         File yawlXMLFile = new File(fileURL.getFile());
         _specification = (YSpecification) YMarshal.
                     unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
 
-        _engine.loadSpecification(_specification);
-        URI serviceURI = new URI("mock://mockedURL/testingCaseCompletion");
-
-        YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString(), null);
-        _engine.addYawlService(service);
+        _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         _idForTopNet = _engine.startCase(null, _specification.getID(), null, serviceURI);
 
         ObserverGateway og = new ObserverGateway() {
@@ -141,9 +148,9 @@ public class TestCaseCancellation extends TestCase {
 
 
     public void performTask(String name) throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
-        Set enabledItems = null;
-        Set firedItems = null;
-        Set activeItems = null;
+        Set enabledItems;
+        Set firedItems;
+        Set activeItems;
         enabledItems = _repository.getEnabledWorkItems();
 
         for (Iterator iterator = enabledItems.iterator(); iterator.hasNext();) {
@@ -154,19 +161,16 @@ public class TestCaseCancellation extends TestCase {
             }
         }
         firedItems = _repository.getFiredWorkItems();
-        for (Iterator iterator = firedItems.iterator(); iterator.hasNext();) {
-            YWorkItem workItem = (YWorkItem) iterator.next();
-            _engine.startWorkItem(workItem, "admin");
-            break;
-        }
-        activeItems = _repository.getExecutingWorkItems();
-        for (Iterator iterator = activeItems.iterator(); iterator.hasNext();) {
-            YWorkItem workItem = (YWorkItem) iterator.next();
-            _engine.completeWorkItem(workItem, "<data/>");
-            break;
-        }
-    }
+        Iterator iterator = firedItems.iterator(); iterator.hasNext();
+        YWorkItem workItem = (YWorkItem) iterator.next();
+        _engine.startWorkItem(workItem, "admin");
 
+        activeItems = _repository.getExecutingWorkItems();
+        iterator = activeItems.iterator(); iterator.hasNext();
+        workItem = (YWorkItem) iterator.next();
+        _engine.completeWorkItem(workItem, "<data/>");
+
+    }
 
     public static void main(String args[]) {
         TestRunner runner = new TestRunner();

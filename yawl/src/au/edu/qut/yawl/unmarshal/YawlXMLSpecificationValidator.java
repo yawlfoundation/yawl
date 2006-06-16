@@ -75,7 +75,6 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
         try {
             XMLReader parser = setUpChecker(version);
             parser.parse(input);
-        } catch (SAXParseException e) {
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -95,7 +94,6 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
         try {
             XMLReader parser = setUpChecker(version);
             parser.parse(xmlFileURL);
-        } catch (SAXParseException e) {
         } catch (Exception e) {
             e.printStackTrace();
         }

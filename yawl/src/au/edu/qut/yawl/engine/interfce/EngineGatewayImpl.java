@@ -154,7 +154,8 @@ public class EngineGatewayImpl implements EngineGateway {
                     specID +
                     ") not found.<failure><reason>";
         }
-        List specList = new Vector();
+        List <YSpecification> specList =
+                new Vector<YSpecification>();
         specList.add(spec);
         try {
             return YMarshal.marshal(specList);
@@ -300,7 +301,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             return _userList.connect(userID, password);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + "</failure></reason>";
+            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
         }
     }
 
@@ -315,7 +316,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             return _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + "</failure></reason>";
+            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
         }
     }
 
@@ -329,7 +330,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             return _userList.checkConnectionForAdmin(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + "</failure></reason>";
+            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
         }
     }
 
@@ -537,7 +538,7 @@ public class EngineGatewayImpl implements EngineGateway {
         StringBuffer options = new StringBuffer();
         YWorkItem workItem = _engine.getWorkItem(workItemID);
         if (workItem != null) {
-            if (workItem.getStatus().equals(YWorkItem.statusExecuting)) {
+            if (workItem.getStatus() == YWorkItem.Status.Executing) {
                 options.append("<option operation=\"suspend\">" +
                         "<documentation>Suspend the currently active workItem</documentation>" +
                         "<style>post</style>" +
@@ -563,8 +564,8 @@ public class EngineGatewayImpl implements EngineGateway {
                     enginePersistenceFailure = true;
                 }
             }
-            if (workItem.getStatus().equals(YWorkItem.statusEnabled)
-                    || workItem.getStatus().equals(YWorkItem.statusFired)) {
+            if (workItem.getStatus() == YWorkItem.Status.Enabled
+                    || workItem.getStatus() == YWorkItem.Status.Fired) {
                 options.append("<option operation=\"start\">" +
                         "<documentation>Starts a work item</documentation>" +
                         "<style>post</style>" + "<url>").

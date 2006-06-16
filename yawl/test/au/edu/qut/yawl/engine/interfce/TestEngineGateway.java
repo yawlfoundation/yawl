@@ -168,7 +168,7 @@ public class TestEngineGateway extends TestCase {
         assertTrue( result, result.startsWith( "<failure" ) );
         
         // child work item in fired state shouldn't be able to add instances
-        Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.statusFired );
+        Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.Status.Fired );
         assertNotNull( items );
         assertTrue( "" + items.size(), items.size() == 1 );
         
@@ -180,7 +180,7 @@ public class TestEngineGateway extends TestCase {
         assertTrue( result, result.startsWith( "<failure" ) );
         
         // child work item in executing state should be able to add instances
-        items = getWorkItemsWithStatus( YWorkItem.statusExecuting );
+        items = getWorkItemsWithStatus( YWorkItem.Status.Executing );
         assertNotNull( items );
         assertTrue( "" + items.size(), items.size() == 1 );
         
@@ -229,7 +229,7 @@ public class TestEngineGateway extends TestCase {
         // now finish any work items that are executing
         completeAllExecutingWorkItems();
         
-        items = getWorkItemsWithStatus( YWorkItem.statusExecuting );
+        items = getWorkItemsWithStatus( YWorkItem.Status.Executing );
         assertNotNull( items );
         assertTrue( "" + items.size(), items.size() == 0 );
     }
@@ -274,7 +274,7 @@ public class TestEngineGateway extends TestCase {
         assertFalse( result, result.startsWith( "<failure" ) );
         
         // the item should be executing now
-        Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.statusExecuting );
+        Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.Status.Executing );
         assertNotNull( items );
         assertTrue( "" + items.size(), items.size() == 1 );
         
@@ -287,7 +287,7 @@ public class TestEngineGateway extends TestCase {
     	assertTrue( result, result.startsWith( "<success" ) );
     	
     	// now the work item should be in the "fired" state
-    	items = getWorkItemsWithStatus( YWorkItem.statusFired );
+    	items = getWorkItemsWithStatus( YWorkItem.Status.Fired );
     	assertNotNull( items );
     	assertTrue( "" + items.size(), items.size() == 1 );
     }
@@ -298,7 +298,7 @@ public class TestEngineGateway extends TestCase {
 		testSuspendWorkItem();
 		
 		// get the work item (which should be in the "fired" state)
-		Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.statusFired );
+		Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.Status.Fired );
 		assertNotNull( items );
 		assertTrue( "" + items.size(), items.size() == 1 );
 		
@@ -367,7 +367,7 @@ public class TestEngineGateway extends TestCase {
 				"</caseState>" ) );
 		
 		// the item should be executing now
-		Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.statusExecuting );
+		Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.Status.Executing );
 		assertNotNull( items );
 		assertTrue( "" + items.size(), items.size() == 1 );
 		
@@ -380,7 +380,7 @@ public class TestEngineGateway extends TestCase {
 		assertTrue( result, result.startsWith( "<success" ) );
 		
 		// now the work item should be in the "fired" state
-		items = getWorkItemsWithStatus( YWorkItem.statusFired );
+		items = getWorkItemsWithStatus( YWorkItem.Status.Fired );
 		assertNotNull( items );
 		assertTrue( "" + items.size(), items.size() == 1 );
 		
@@ -414,7 +414,7 @@ public class TestEngineGateway extends TestCase {
     	launchCase();
         performTask("one");
         
-        Set<WorkItemRecord> enabledItems = getWorkItemsWithStatus( YWorkItem.statusEnabled );
+        Set<WorkItemRecord> enabledItems = getWorkItemsWithStatus( YWorkItem.Status.Enabled );
         
         // start the next task
         for( Iterator<WorkItemRecord> iterator = enabledItems.iterator(); iterator.hasNext(); ) {
@@ -604,7 +604,7 @@ public class TestEngineGateway extends TestCase {
     
     private void startAllFiredWorkItems()
     		throws YPersistenceException, JDOMException, IOException {
-    	Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.statusFired );
+    	Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.Status.Fired );
     	WorkItemRecord item;
         for( Iterator<WorkItemRecord> iterator = items.iterator(); iterator.hasNext(); ) {
         	item = iterator.next();
@@ -633,7 +633,7 @@ public class TestEngineGateway extends TestCase {
     		throws YPersistenceException, RemoteException, JDOMException, IOException {
     	Set<WorkItemRecord> items;
     	WorkItemRecord item;
-    	while( (items = getWorkItemsWithStatus( YWorkItem.statusExecuting )).size() > 0 ) {
+    	while( (items = getWorkItemsWithStatus( YWorkItem.Status.Executing )).size() > 0 ) {
         	item = items.iterator().next();
         	assertNotNull( item );
         	
@@ -684,7 +684,7 @@ public class TestEngineGateway extends TestCase {
         	WorkItemRecord item = getWorkItemFromID( id );
         	assertNotNull( id, item );
         	
-        	if( item.getStatus().equals( YWorkItem.statusEnabled ) )
+        	if( item.getStatus().equals( YWorkItem.Status.Enabled ) )
         		items.put( item.getTaskID(), item );
         }
         
@@ -694,7 +694,7 @@ public class TestEngineGateway extends TestCase {
     /**
      * @return a set of work item records for all work items with the given status.
      */
-    private Set<WorkItemRecord> getWorkItemsWithStatus( String status )
+    private Set<WorkItemRecord> getWorkItemsWithStatus( YWorkItem.Status status )
     		throws YPersistenceException, JDOMException, IOException {
         // to get the executing work items we'll have to filter through all of them
         // (no convenience method is located in the gateway, only the repository itself)

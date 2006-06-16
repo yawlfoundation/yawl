@@ -23,7 +23,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -72,7 +71,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 	    "isUntyped",
 	    "elementName"
 })
-public class YVariable implements Cloneable, YVerifiable, Comparable, PolymorphicPersistableObject {
+public class YVariable implements Cloneable, YVerifiable, PolymorphicPersistableObject {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -236,7 +235,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable, Polymorphi
 
     /**
      * Returns the name reference for the data type to be used in this variable.
-     * @return
+     * @return the name of the data type.
      * @hibernate.property column="DATA_TYPE_NAME" length="1024"
      */
     @Basic
@@ -326,31 +325,37 @@ public class YVariable implements Cloneable, YVerifiable, Comparable, Polymorphi
         xml.append(">");
 
         if (null != _documentation) {
-            xml.append("<documentation>"
-                    + _documentation +
-                    "</documentation>");
+            xml.append("<documentation>")
+                    .append(_documentation)
+                    .append("</documentation>");
         }
         if (_isUntyped || null != _name) {
             if (null != _name) {
-                xml.append("<name>" + _name + "</name>");
+                xml.append("<name>")
+                        .append(_name)
+                        .append("</name>");
                 if (_isUntyped) {
                     xml.append("<isUntyped/>");
                 } else {
-                    xml.append("<type>" + _dataTypeName + "</type>");
+                    xml.append("<type>")
+                            .append(_dataTypeName)
+                            .append("</type>");
                     if (null != _namespaceURI) {
-                        xml.append("<namespace>" +
-                                _namespaceURI +
-                                "</namespace>");
+                        xml.append("<namespace>")
+                                .append(_namespaceURI)
+                                .append("</namespace>");
                     }
                 }
             }
         } else if (null != _elementName) {
-            xml.append("<element>" + _elementName + "</element>");
+            xml.append("<element>")
+                    .append(_elementName)
+                    .append("</element>");
         }
         if (_initialValue != null) {
-            xml.append("<initialValue>" +
-                    YTask.marshal(_initialValue) +
-                    "</initialValue>");
+            xml.append("<initialValue>")
+                    .append(YTask.marshal(_initialValue))
+                    .append("</initialValue>");
         }
         return xml.toString();
     }
@@ -363,13 +368,13 @@ public class YVariable implements Cloneable, YVerifiable, Comparable, Polymorphi
 
 
     public Object clone() throws CloneNotSupportedException {
-        YVariable copy = (YVariable) super.clone();
-        return copy;
+        return (YVariable) super.clone();
     }
 
 
-    public List verify() {
-        List messages = new Vector();
+    public List <YVerificationMessage> verify() {
+        List <YVerificationMessage> messages =
+                new Vector<YVerificationMessage>();
         //check that the intital value if well formed
         if (_initialValue != null && _initialValue.indexOf("<") != -1) {
             try {
@@ -388,8 +393,8 @@ public class YVariable implements Cloneable, YVerifiable, Comparable, Polymorphi
         //check schema contains type with typename.
         if (null != _name) {
             boolean isSchemForSchemType =
-                    xty.getSchema4SchemaNameSpace().equals(_namespaceURI);
-            if (true == _isUntyped) {
+                    XMLToolsForYAWL.getSchema4SchemaNameSpace().equals(_namespaceURI);
+            if (_isUntyped) {
                 if (null != _dataTypeName) {
                 //todo [in future - if we ever disallow untyped elements]
                 //todo we may want to catch this and _report it.
@@ -415,91 +420,22 @@ public class YVariable implements Cloneable, YVerifiable, Comparable, Polymorphi
                         " cannot create this variable.",
                         YVerificationMessage.ERROR_STATUS));
             }
-        } else if (null != _name) {
+        } else {
+                messages.add(new YVerificationMessage(
+                        this,
+                        "name or element name must be set",
+                        YVerificationMessage.ERROR_STATUS));
+        }
+        if (null != _name) {
             if (null != _elementName) {
                 messages.add(new YVerificationMessage(
                         this,
                         "name xor element name must be set, not both",
                         YVerificationMessage.ERROR_STATUS));
             }
-        } else {
-            messages.add(new YVerificationMessage(
-                    this,
-                    "name or element name must be set",
-                    YVerificationMessage.ERROR_STATUS));
         }
         //todo check initial value is of data-type
         return messages;
-    }
-
-
-    /**
-     * Compares this object with the specified object for order.  Returns a
-     * negative integer, zero, or a positive integer as this object is less
-     * than, equal to, or greater than the specified object.<p>
-     *
-     * In the foregoing description, the notation
-     * <tt>sgn(</tt><i>expression</i><tt>)</tt> designates the mathematical
-     * <i>signum</i> function, which is defined to return one of <tt>-1</tt>,
-     * <tt>0</tt>, or <tt>1</tt> according to whether the value of <i>expression</i>
-     * is negative, zero or positive.
-     *
-     * The implementor must ensure <tt>sgn(x.compareTo(y)) ==
-     * -sgn(y.compareTo(x))</tt> for all <tt>x</tt> and <tt>y</tt>.  (This
-     * implies that <tt>x.compareTo(y)</tt> must throw an exception iff
-     * <tt>y.compareTo(x)</tt> throws an exception.)<p>
-     *
-     * The implementor must also ensure that the relation is transitive:
-     * <tt>(x.compareTo(y)&gt;0 &amp;&amp; y.compareTo(z)&gt;0)</tt> implies
-     * <tt>x.compareTo(z)&gt;0</tt>.<p>
-     *
-     * Finally, the implementer must ensure that <tt>x.compareTo(y)==0</tt>
-     * implies that <tt>sgn(x.compareTo(z)) == sgn(y.compareTo(z))</tt>, for
-     * all <tt>z</tt>.<p>
-     *
-     * It is strongly recommended, but <i>not</i> strictly required that
-     * <tt>(x.compareTo(y)==0) == (x.equals(y))</tt>.  Generally speaking, any
-     * class that implements the <tt>Comparable</tt> interface and violates
-     * this condition should clearly indicate this fact.  The recommended
-     * language is "Note: this class has a natural ordering that is
-     * inconsistent with equals."
-     *
-     * @param   o the Object to be compared.
-     * @return  a negative integer, zero, or a positive integer as this object
-     *		is less than, equal to, or greater than the specified object.
-     *
-     * @throws ClassCastException if the specified object's type prevents it
-     *         from being compared to this Object.
-     */
-/*    public int compareTo(Object o) {
-        YVariable otherV = (YVariable) o;
-        if(null != _name){
-            if(null != otherV._name){
-                return _name.compareTo(otherV._name);
-            } else if(null != otherV._elementName){
-                if(_name.equals(otherV._elementName)){
-                    return -1;
-                } else {
-                    return _name.compareTo(otherV._elementName);
-                }
-            }
-        } else if(null != _elementName){
-            if(null != otherV._name){
-                if(_elementName.equals(otherV._name)){
-                    return 1;
-                } else {
-                    return _elementName.compareTo(otherV._name);
-                }
-            } else if(null != otherV._elementName){
-                return _elementName.compareTo(otherV._elementName);
-            }
-        }
-        throw new RuntimeException();
-    }
-*/
-
-    public static void main(String[] args) {
-        YVariable var = new YVariable(null, "xs:boolean", "run", "false", "");
     }
 
 
@@ -566,15 +502,6 @@ public class YVariable implements Cloneable, YVerifiable, Comparable, Polymorphi
         return _dataTypeName != null;
     }
 
-    /**
-     * TODO Uhhh...  why does this function always return 1?  Should you at least compare if it is the same class? -DM
-     * 
-     * @param o
-     * @return
-     */
-    public int compareTo(Object o) {
-        return 1;
-    }
     public static class MyAdapter extends XmlAdapter<String, String> {
         public MyAdapter(){}
         

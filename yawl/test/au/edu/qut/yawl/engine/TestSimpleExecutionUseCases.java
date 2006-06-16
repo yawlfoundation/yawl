@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
+import java.util.ArrayList;
 
 import org.jdom.JDOMException;
 
@@ -53,7 +54,7 @@ public class TestSimpleExecutionUseCases extends TestCase{
                         unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
-        _engine.loadSpecification(specification);
+        _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         _caseId = _engine.startCase(null, specification.getID(), null, null);
     }
 

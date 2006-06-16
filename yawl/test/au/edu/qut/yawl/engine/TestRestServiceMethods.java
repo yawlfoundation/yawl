@@ -23,6 +23,7 @@ import junit.textui.TestRunner;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.jdom.JDOMException;
 
@@ -36,7 +37,6 @@ import org.jdom.JDOMException;
 public class TestRestServiceMethods extends TestCase{
     private AbstractEngine _engine;
     private YSpecification _specification;
-    private YSpecification _specification2;
 
 
     public TestRestServiceMethods(String name){
@@ -51,12 +51,11 @@ public class TestRestServiceMethods extends TestCase{
         File mm2File = new File(makeMusic2.getFile());
         _specification = (YSpecification) YMarshal.
                 unmarshalSpecifications(mmFile.getAbsolutePath()).get(0);
-        _specification2 = (YSpecification) YMarshal.
-                unmarshalSpecifications(mm2File.getAbsolutePath()).get(0);
+
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
-        _engine.loadSpecification(_specification);
-        _engine.loadSpecification(_specification2);
+        _engine.addSpecifications(mmFile, false, new ArrayList());
+        _engine.addSpecifications(mm2File, false, new ArrayList());
 
     }
 

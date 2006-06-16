@@ -23,10 +23,7 @@ import junit.textui.TestRunner;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.List;
-import java.util.Collection;
+import java.util.*;
 
 import org.jdom.JDOMException;
 
@@ -38,13 +35,12 @@ import org.jdom.JDOMException;
  * 
  */
 public class TestEngineSystem2 extends TestCase {
-    private YIdentifier _idForBottomNet;
-//    private YIdentifier _idForTopNet;
     private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private int _sleepTime = 100;
     private YNetRunner _netRunner;
     private AbstractEngine _engine;
     private YSpecification _specification;
+    private File yawlXMLFile;
 
     public TestEngineSystem2(String name) {
         super(name);
@@ -53,7 +49,7 @@ public class TestEngineSystem2 extends TestCase {
 
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
         URL fileURL = getClass().getResource("YAWL_Specification4.xml");
-        File yawlXMLFile = new File(fileURL.getFile());
+        yawlXMLFile = new File(fileURL.getFile());
         _specification = null;
 
         _specification = (YSpecification) YMarshal.
@@ -65,10 +61,10 @@ public class TestEngineSystem2 extends TestCase {
 
 
 
-    public void testMultimergeNets() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    public void testMultimergeNets() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
         synchronized(this){
         EngineClearer.clear(_engine);
-        _engine.loadSpecification(_specification);
+        _engine.addSpecifications(yawlXMLFile, true, new ArrayList());
         YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
         _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
         try {
@@ -119,9 +115,9 @@ public class TestEngineSystem2 extends TestCase {
                     (containsItemForTask("c-top", _workItemRepository.getEnabledWorkItems())
                     || containsItemForTask("d-top", _workItemRepository.getEnabledWorkItems()))
                     );
-            _idForBottomNet = (YIdentifier)
+            YIdentifier _idForBottomNet =
                     _netRunner.getCaseID().getChildren().iterator().next();
-            anItem = _workItemRepository.getWorkItem(_idForBottomNet.toString(), "e-top");
+            _workItemRepository.getWorkItem(_idForBottomNet.toString(), "e-top");
             //asert that we can start e-top
             YWorkItem eTp = _engine.getWorkItem(
                     _idForBottomNet.toString() +
@@ -167,10 +163,10 @@ public class TestEngineSystem2 extends TestCase {
 
 
 
-    public void testMultimergeWorkItems() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    public void testMultimergeWorkItems() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
         synchronized(this){
         EngineClearer.clear(_engine);
-        _engine.loadSpecification(_specification);
+        _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
         _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
         try {
@@ -212,7 +208,7 @@ public class TestEngineSystem2 extends TestCase {
             assertTrue(_workItemRepository.getWorkItems().size() == 1);
             //now e-top is enabled once for two tokens
             assertTrue(containsItemForTask("e-top", _workItemRepository.getEnabledWorkItems()));
-            _idForBottomNet = (YIdentifier)
+            YIdentifier _idForBottomNet = (YIdentifier)
                     _netRunner.getCaseID().getChildren().iterator().next();
             YNetRunner bottomNetRunner = _workItemRepository.getNetRunner(_idForBottomNet);
             Collection eTopPreset = bottomNetRunner.getNetElement("e-top").getPresetElements();
@@ -220,7 +216,7 @@ public class TestEngineSystem2 extends TestCase {
                 YCondition ec = (YCondition) iterator.next();
                 assertTrue(ec.containsIdentifier());
             }
-            anItem = _workItemRepository.getWorkItem(_idForBottomNet.toString(), "e-top");
+            _workItemRepository.getWorkItem(_idForBottomNet.toString(), "e-top");
             //assert that we can start e-top
             YWorkItem eTop = _engine.getWorkItem(
                 _idForBottomNet.toString() +
@@ -232,15 +228,9 @@ public class TestEngineSystem2 extends TestCase {
             YNetRunner netRunner = _workItemRepository.getNetRunner(_idForBottomNet);
             while(_workItemRepository.getExecutingWorkItems().size() > 0){
                 anItem = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                String caseIdStr = anItem.getCaseID().toString();
-                String taskID    = anItem.getTaskID();
                 _engine.completeWorkItem(anItem, "<data/>");
             }
 
-            Iterator eTopPresetIterator = eTopPreset.iterator();
-            YCondition ec1, ec2;
-            ec1 = (YCondition)eTopPresetIterator.next();
-            ec2 = (YCondition)eTopPresetIterator.next();
             Thread.sleep(1000);
             assertTrue(netRunner.isCompleted());    //remove
             assertFalse(netRunner.isAlive());       //remove
@@ -263,13 +253,13 @@ public class TestEngineSystem2 extends TestCase {
             throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YAuthenticationException, YDataStateException, YStateException, YQueryException, YPersistenceException {
         URL fileURL = getClass().getResource("TestOrJoin.xml");
         File yawlXMLFile = new File(fileURL.getFile());
-        YSpecification specification = null;
+        YSpecification specification;
         specification = (YSpecification) YMarshal.
                 unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
-        YIdentifier caseID = _engine.startCase(null, specification.getID().toString(), null, null);
+        YIdentifier caseID = _engine.startCase(null, specification.getID(), null, null);
         {
             YWorkItem itemA = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
             _engine.startWorkItem(itemA, "admin");
@@ -370,7 +360,7 @@ public class TestEngineSystem2 extends TestCase {
                         for (Iterator iterator = items.iterator(); iterator.hasNext();) {
                             YWorkItem anItem = (YWorkItem) iterator.next();
                             if(anItem.getTaskID().equals(task.getID())){
-                                if(! anItem.getStatus().equals(YWorkItem.statusEnabled)){
+                                if(! anItem.getStatus().equals(YWorkItem.Status.Enabled)){
                                     fail("The work item [" + anItem + "] " +
                                             "should be enabled because the corresponding " +
                                             "task is enabled but this wokr item is in " +
@@ -402,9 +392,9 @@ public class TestEngineSystem2 extends TestCase {
                         for (Iterator iterator = items.iterator(); iterator.hasNext();) {
                             YWorkItem anItem = (YWorkItem) iterator.next();
                             if(anItem.getTaskID().equals(task.getID())){
-                                if(! (anItem.getStatus().equals(YWorkItem.statusFired)
-                                ||  anItem.getStatus().equals(YWorkItem.statusExecuting)
-                                ||  anItem.getStatus().equals(YWorkItem.statusIsParent))){
+                                if(! (anItem.getStatus().equals(YWorkItem.Status.Fired)
+                                ||  anItem.getStatus().equals(YWorkItem.Status.Executing)
+                                ||  anItem.getStatus().equals(YWorkItem.Status.IsParent))){
                                     fail("The work item [" + anItem + "] " +
                                             "should be fired, executing, or isParent " +
                                             "because the corresponding " +

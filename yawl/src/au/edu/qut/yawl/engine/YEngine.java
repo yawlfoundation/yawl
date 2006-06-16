@@ -52,7 +52,6 @@ import au.edu.qut.yawl.logging.YawlLogServletInterface;
  *
  */
 public class YEngine extends AbstractEngine {
-    private static final boolean ENGINE_PERSISTS_BY_DEFAULT = false;
     private static Logger logger = Logger.getLogger(YEngine.class);
 
     protected static YWorkItemRepository _workItemRepository;
@@ -567,24 +566,6 @@ public class YEngine extends AbstractEngine {
         return _myInstance;
     }
 
-    /**
-     * @deprecated call EngineFactory.createYEngine() instead!
-     * @return
-     */
-    public static YEngine getInstance() {
-//        if (_myInstance == null) {
-//            try {
-//                _myInstance = getInstance(ENGINE_PERSISTS_BY_DEFAULT);
-//            } catch (Exception e) {
-//                throw new RuntimeException("Failure to instanciate an engine");
-//            }
-//
-//            return _myInstance;
-//        } else {
-//            return _myInstance;
-//        }
-    	return EngineFactory.createYEngine();
-    }
 
 
     //###################################################################################

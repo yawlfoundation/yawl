@@ -56,6 +56,7 @@ import au.edu.qut.yawl.schema.Instruction;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
 import au.edu.qut.yawl.util.Order;
 import au.edu.qut.yawl.util.YVerificationMessage;
+import au.edu.qut.yawl.util.Sorter;
 
 /**
  * 
@@ -78,17 +79,17 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 @XmlAccessorType(XmlAccessType.PROPERTY)
 @XmlType(name = "NetFactsType", namespace="http://www.citi.qut.edu.au/yawl", propOrder = {
     "rootNet",
-	"localVariables",
+    "localVariables",
     "processControlElements"
 })
 public class YNet extends YDecomposition implements PolymorphicPersistableObject  {
-	/**
-	 * One should only change the serialVersionUID when the class method signatures have changed.  The
-	 * UID should stay the same so that future revisions of the class can still be backwards compatible
-	 * with older revisions if method signatures have not changed. 
-	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
-	 */
-	private static final long serialVersionUID = 2006030080l;
+    /**
+     * One should only change the serialVersionUID when the class method signatures have changed.  The
+     * UID should stay the same so that future revisions of the class can still be backwards compatible
+     * with older revisions if method signatures have not changed.
+     * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
+     */
+    private static final long serialVersionUID = 2006030080l;
 
 
     private YInputCondition _inputCondition;
@@ -101,14 +102,14 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
 
 
     public String getRootNet() {
-    	return rootNet.toString();
+        return rootNet.toString();
     }
 
     @XmlAttribute(name="isRootNet")
     public void setRootNet(String isRootNet) {
-    	rootNet = Boolean.valueOf(isRootNet);
+        rootNet = Boolean.valueOf(isRootNet);
     }
-    
+
     /**
      * Null constructor for hibernate use only
      *
@@ -120,7 +121,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
         super(id, specification);
     }
 
-    
+
     /**
      * Method getInputCondition.
      * @return YConditionInterface
@@ -166,34 +167,34 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     /**
      * 
      * @return
-	 * @hibernate.map role="netElements" cascade="all-delete-orphan"
-	 * @hibernate.key column="DECOMPOSITION_ID"
-	 * @hibernate.index column="NET_ELEMENT_ID" type="string" length="255" 
-	 *   not-null="true"
-	 * @hibernate.one-to-many 
-	 *   class="au.edu.qut.yawl.elements.YExternalNetElement"
+     * @hibernate.map role="netElements" cascade="all-delete-orphan"
+     * @hibernate.key column="DECOMPOSITION_ID"
+     * @hibernate.index column="NET_ELEMENT_ID" type="string" length="255"
+     *   not-null="true"
+     * @hibernate.one-to-many
+     *   class="au.edu.qut.yawl.elements.YExternalNetElement"
      */
     @OneToMany(mappedBy="container", cascade={CascadeType.ALL})
     @XmlTransient
     public List<YExternalNetElement> getNetElementsDB() {
-    	return _netElements;
+        return _netElements;
     }
     /**
      * Inserted for hibernate TODO Set to protected later
-     * @param map
+     * @param list
      */
     @OneToMany(mappedBy="container", cascade={CascadeType.ALL})
     public void setNetElementsDB(List<YExternalNetElement> list) {
-    	_netElements = list;
+        _netElements = list;
     }
 
     @Transient
     @XmlTransient
     public Map<String, YExternalNetElement> getNetElements() {
         HashMap<String, YExternalNetElement> retval = new HashMap<String, YExternalNetElement>();
-    	for (YExternalNetElement element: _netElements) {
-    		retval.put(element.getID(), element);
-    	}
+        for (YExternalNetElement element: _netElements) {
+            retval.put(element.getID(), element);
+        }
         return retval;
     }
 
@@ -310,7 +311,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
 
 
     public static List<YExternalNetElement> getPostset(List<YExternalNetElement> elements) {
-    	List<YExternalNetElement> postset = new ArrayList<YExternalNetElement>();
+        List<YExternalNetElement> postset = new ArrayList<YExternalNetElement>();
         Iterator iter = elements.iterator();
         while (iter.hasNext()) {
             YNetElement ne = (YNetElement) iter.next();
@@ -323,7 +324,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
 
 
     public static List<YExternalNetElement> getPreset(List<YExternalNetElement> elements) {
-    	List<YExternalNetElement> preset = new ArrayList<YExternalNetElement>();
+        List<YExternalNetElement> preset = new ArrayList<YExternalNetElement>();
         Iterator iter = elements.iterator();
         while (iter.hasNext()) {
             YExternalNetElement ne = (YExternalNetElement) iter.next();
@@ -455,9 +456,9 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
      * @return whether or not the orjoin is enabled.
      */
     protected boolean determineEnabledness(YTask orJoin, YMarking actualMarking,
-                                         YMarking currentlyConsideredMarking,
-                                         YSetOfMarkings markingsAlreadyConsidered) {
-    	List<YExternalNetElement> tasks = YOrJoinUtils.reduceToEnabled(currentlyConsideredMarking, orJoin);
+                                           YMarking currentlyConsideredMarking,
+                                           YSetOfMarkings markingsAlreadyConsidered) {
+        List<YExternalNetElement> tasks = YOrJoinUtils.reduceToEnabled(currentlyConsideredMarking, orJoin);
         while (tasks.size() > 0) {
             YTask task = YOrJoinUtils.pickOptimalEnabledTask(
                     tasks, orJoin, currentlyConsideredMarking, markingsAlreadyConsidered);
@@ -504,7 +505,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
         StringBuffer xml = new StringBuffer();
         xml.append(super.toXML());
         List variables = new ArrayList(_localVariables);
-
+        //to ensure a consistent output order for variables
         Order order = new Order() {
             public boolean lessThan(Object a, Object b) {
                 YVariable var1 = (YVariable) a;
@@ -526,8 +527,9 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
 
         //Question for lachlan - why were we sorting these - 
         //i thought order was important!
-        //        Object[] sortedVars = Sorter.sort(order, variables.toArray());
-        Object[] sortedVars = variables.toArray();
+        //LA: Answer: because they ought to be output in a consistent order.
+        Object[] sortedVars = Sorter.sort(order, variables.toArray());
+
         if (null != sortedVars) {
             for (int i = 0; i < sortedVars.length; i++) {
                 YVariable variable = (YVariable) sortedVars[i];
@@ -688,83 +690,83 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     @Transient
     @XmlTransient
     public Map<String, YVariable> getLocalVariablesMap() {
-    	Map<String, YVariable> map = new HashMap<String, YVariable>();
-    	
-    	for(YVariable entry:_localVariables) {
-    		if (null != entry.getName()) {
-        		map.put(entry.getName(), entry);
-    		} else if (null != entry.getElementName()) {
-        		map.put(entry.getElementName(), entry);
-    		}
-    	}
-    	
-    	return map;
+        Map<String, YVariable> map = new HashMap<String, YVariable>();
+
+        for(YVariable entry:_localVariables) {
+            if (null != entry.getName()) {
+                map.put(entry.getName(), entry);
+            } else if (null != entry.getElementName()) {
+                map.put(entry.getElementName(), entry);
+            }
+        }
+
+        return map;
     }
-    
+
     @OneToMany(mappedBy="parentLocalVariables",cascade = {CascadeType.ALL})
     public List<YVariable> getLocalVariables() {
-    	List<YVariable> retval = new ArrayList<YVariable>();
-    	for(YVariable entry:_localVariables) {
-    		retval.add(entry);
-    	}
-    	return retval;
-	}
+        List<YVariable> retval = new ArrayList<YVariable>();
+        for(YVariable entry:_localVariables) {
+            retval.add(entry);
+        }
+        return retval;
+    }
     @XmlElement(name="localVariable", namespace="http://www.citi.qut.edu.au/yawl")
-	protected void setLocalVariables(List<YVariable> outputParam) {
-		for (YVariable parm: outputParam) {
-			parm.setParentLocalVariables(this);
-			this._localVariables.add(parm);
-		}
-	}
-	@Transient
+    protected void setLocalVariables(List<YVariable> outputParam) {
+        for (YVariable parm: outputParam) {
+            parm.setParentLocalVariables(this);
+            this._localVariables.add(parm);
+        }
+    }
+    @Transient
     @XmlElement(name="processControlElements", namespace="http://www.citi.qut.edu.au/yawl")
     public ProcessControlElements getProcessControlElements() {
-    	ProcessControlElements retval = new ProcessControlElements();
-    	retval.inputCondition = _inputCondition;
-    	retval.outputCondition = _outputCondition;
-    	List<YExternalNetElement> list = new ArrayList<YExternalNetElement>();
-    	for (Map.Entry<String,YExternalNetElement> element: this.getNetElements().entrySet()) {
-    		list.add(element.getValue());
-    	}
-    	return retval;
-	}
-	public void setProcessControlElements(ProcessControlElements elements) {
-    	this.processControlElements = elements;
-    	elements.inputCondition.setContainer(this);
-    	elements.outputCondition.setContainer(this);
-    	this.setInputCondition(elements.inputCondition);
-    	this.setOutputCondition(elements.outputCondition);
-    	Set<YFlow> flows = new TreeSet();
-    	for (YExternalNetElement element : elements.getTaskOrCondition()) {
-    		element.setContainer(this);
-    		this._netElements.add(element);
-    		flows.addAll(element.getPostsetFlows());
-    		flows.addAll(element.getPresetFlows());
-    		element.getPostsetFlows().clear();
-    		element.getPresetFlows().clear();
-    	}
-    	flows.addAll(elements.inputCondition.getPostsetFlows());
-    	flows.addAll(elements.outputCondition.getPresetFlows());
-    	
-    	for (YFlow aflow: flows) {
-    		aflow.setPriorElement(this.getNetElements().get(aflow.getPriorElement().getID()));
-    		aflow.setNextElement(this.getNetElements().get(aflow.getNextElement().getID()));
-    	}
-    	for (YFlow aflow: flows) {
-    		aflow.getPriorElement().setPostset(aflow);
-    		aflow.getNextElement().setPreset(aflow);
-    	}
-    	for (YExternalNetElement element : elements.getTaskOrCondition()) {
-    		if (element instanceof YTask) {
-        		if (((YTask)element).isMultiInstance()) {
-        			((YTask) element).setDataBindingForInputParam(((YTask) element).getMiDataInput().getSplittingExpression().getQuery(), ((YTask) element).getMiDataInput().getFormalInputParam());
-        		}
-    		}
-    	}
-    	
-	}
+        ProcessControlElements retval = new ProcessControlElements();
+        retval.inputCondition = _inputCondition;
+        retval.outputCondition = _outputCondition;
+        List<YExternalNetElement> list = new ArrayList<YExternalNetElement>();
+        for (Map.Entry<String,YExternalNetElement> element: this.getNetElements().entrySet()) {
+            list.add(element.getValue());
+        }
+        return retval;
+    }
+    public void setProcessControlElements(ProcessControlElements elements) {
+        this.processControlElements = elements;
+        elements.inputCondition.setContainer(this);
+        elements.outputCondition.setContainer(this);
+        this.setInputCondition(elements.inputCondition);
+        this.setOutputCondition(elements.outputCondition);
+        Set<YFlow> flows = new TreeSet();
+        for (YExternalNetElement element : elements.getTaskOrCondition()) {
+            element.setContainer(this);
+            this._netElements.add(element);
+            flows.addAll(element.getPostsetFlows());
+            flows.addAll(element.getPresetFlows());
+            element.getPostsetFlows().clear();
+            element.getPresetFlows().clear();
+        }
+        flows.addAll(elements.inputCondition.getPostsetFlows());
+        flows.addAll(elements.outputCondition.getPresetFlows());
 
-	@XmlAccessorType(XmlAccessType.PROPERTY)
+        for (YFlow aflow: flows) {
+            aflow.setPriorElement(this.getNetElements().get(aflow.getPriorElement().getID()));
+            aflow.setNextElement(this.getNetElements().get(aflow.getNextElement().getID()));
+        }
+        for (YFlow aflow: flows) {
+            aflow.getPriorElement().setPostset(aflow);
+            aflow.getNextElement().setPreset(aflow);
+        }
+        for (YExternalNetElement element : elements.getTaskOrCondition()) {
+            if (element instanceof YTask) {
+                if (((YTask)element).isMultiInstance()) {
+                    ((YTask) element).setDataBindingForInputParam(((YTask) element).getMiDataInput().getSplittingExpression().getQuery(), ((YTask) element).getMiDataInput().getFormalInputParam());
+                }
+            }
+        }
+
+    }
+
+    @XmlAccessorType(XmlAccessType.PROPERTY)
     @XmlType(name = "", propOrder = {
         "inputCondition",
         "taskOrCondition",
@@ -778,7 +780,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
 
         @XmlElement(name="inputCondition", namespace = "http://www.citi.qut.edu.au/yawl", required = true)
         public YInputCondition getInputCondition() {
-        	return inputCondition;
+            return inputCondition;
         }
 
         public void setInputCondition(YInputCondition value) {
@@ -786,10 +788,10 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
         }
 
         public void setTaskOrCondition(List<YExternalNetElement> list) {
-        	taskOrCondition = list;
-        	
+            taskOrCondition = list;
+
         }
-        
+
         @XmlElements({
             @XmlElement(name = "condition", namespace = "http://www.citi.qut.edu.au/yawl", type = YInputCondition.class),
             @XmlElement(name = "task", namespace = "http://www.citi.qut.edu.au/yawl", required = true, type = YAtomicTask.class)

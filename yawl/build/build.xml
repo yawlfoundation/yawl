@@ -63,14 +63,14 @@
     <property name="tomcat_manager_url" value="${tomcat.protocol}://${tomcat.address}:${tomcat.port}/manager"/>
 
     <!-- Configure the custom Ant tasks for the Manager application -->
-    <taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask"/>
-    <taskdef name="list" classname="org.apache.catalina.ant.ListTask"/>
-    <taskdef name="reload" classname="org.apache.catalina.ant.ReloadTask"/>
-    <taskdef name="resources" classname="org.apache.catalina.ant.ResourcesTask"/>
-    <taskdef name="roles" classname="org.apache.catalina.ant.RolesTask"/>
-    <taskdef name="start" classname="org.apache.catalina.ant.StartTask"/>
-    <taskdef name="stop" classname="org.apache.catalina.ant.StopTask"/>
-    <taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask"/>
+    <!--<taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask"/>-->
+    <!--<taskdef name="list" classname="org.apache.catalina.ant.ListTask"/>-->
+    <!--<taskdef name="reload" classname="org.apache.catalina.ant.ReloadTask"/>-->
+    <!--<taskdef name="resources" classname="org.apache.catalina.ant.ResourcesTask"/>-->
+    <!--<taskdef name="roles" classname="org.apache.catalina.ant.RolesTask"/>-->
+    <!--<taskdef name="start" classname="org.apache.catalina.ant.StartTask"/>-->
+    <!--<taskdef name="stop" classname="org.apache.catalina.ant.StopTask"/>-->
+    <!--<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask"/>-->
 
     <!--
       Use property values to define the locations of external JAR files on which
@@ -205,6 +205,7 @@
         <pathelement location="${jdom.jar}"/>
         <pathelement location="${servlet.jar}"/>
         <pathelement location="${log4j}"/>
+
         <!-- Include all elements that Tomcat exposes to applications -->
         <pathelement location="${env.CATALINA_HOME}/common/classes"/>
         <fileset dir="${env.CATALINA_HOME}/common/endorsed">
@@ -1391,7 +1392,7 @@
         </javadoc>
     </target>
 
-    <!-- AJH - Added Tomcat deployment target -->
+    <!-- AJH - Added Tomcat deployment target - - >
     <target name="deploy_tomcat_localhost"
         depends="buildWebApps"
         description="Deploy the web applications into Tomcat">
@@ -1446,7 +1447,7 @@
             update="true"/>
 
         <echo>Deployed OK</echo>
-    </target>
+    </target-->
 
     <!-- Target which applies the changes required to Tomcat's common libraries -->
     <target name="deploy_tomcat_common_libs" description="Update the Tomcat common libraries for XML parsers etc.">

@@ -38,6 +38,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * 
@@ -59,20 +60,20 @@ public class TestYNetRunner extends TestCase {
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException {
         URL fileURL = getClass().getResource("YAWL_Specification2.xml");
         File yawlXMLFile1 = new File(fileURL.getFile());
-        YSpecification specification = null;
+        YSpecification specification;
         specification = (YSpecification) YMarshal.
                             unmarshalSpecifications(yawlXMLFile1.getAbsolutePath()).get(0);
         AbstractEngine engine2 = EngineFactory.createYEngine();
         EngineClearer.clear(engine2);
-        engine2.loadSpecification(specification);
+        engine2.addSpecifications(yawlXMLFile1, false, new ArrayList());
         _id1 = engine2.startCase(null, specification.getID(), null, null);
         _netRunner1 = getYNetRunner(engine2, _id1);
         _d = new Document();
         _d.setRootElement(new Element("data"));
     }
-    
+
     public static YNetRunner getYNetRunner(AbstractEngine engine, YIdentifier id) {
-    	return (YNetRunner) engine._caseIDToNetRunnerMap.get(id);
+        return (YNetRunner) engine._caseIDToNetRunnerMap.get(id);
     }
 
 
@@ -181,53 +182,53 @@ public class TestYNetRunner extends TestCase {
         extraID = _netRunner1.addNewInstance("b-top", id, new Element("stub"));
         assertTrue(children.size() == 7 || extraID.getParent().equals(id.getParent()));
     }
-    
+
     public void testCancelYawlServiceSpec() {
-    	String fileName = "TestCancelYawlServiceSpec.xml";
-    	boolean isXmlFileInPackage = true;
-    	
-    	YSpecification spec = null;
-    	YNet root = null;
-    	
-    	try {
-    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		List<YDecomposition> decomps = spec.getDecompositions();
-    		
-    		for(int index = 0; index < decomps.size(); index++) {
-    			YDecomposition temp = decomps.get(index);
-    			if( "OverseeMusic".equals( temp.getId() ) ) {
-    				assert temp instanceof YNet : "decomposition 'OverseeMusic' should be a net!";
-    				root = (YNet) temp;
-    			}
-    		}
-    		
-    		if( root == null ) {
-    			fail( fileName + " should have a net called 'OverseeMusic'" );
-    		}
-    		
-    		YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
-    		
-    		AbstractEngine engine2 = EngineFactory.createYEngine();
+        String fileName = "TestCancelYawlServiceSpec.xml";
+        boolean isXmlFileInPackage = true;
+
+        YSpecification spec = null;
+        YNet root = null;
+
+        try {
+            spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+            List<YDecomposition> decomps = spec.getDecompositions();
+
+            for(int index = 0; index < decomps.size(); index++) {
+                YDecomposition temp = decomps.get(index);
+                if( "OverseeMusic".equals( temp.getId() ) ) {
+                    assert temp instanceof YNet : "decomposition 'OverseeMusic' should be a net!";
+                    root = (YNet) temp;
+                }
+            }
+
+            if( root == null ) {
+                fail( fileName + " should have a net called 'OverseeMusic'" );
+            }
+
+            YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
+
+            AbstractEngine engine2 = EngineFactory.createYEngine();
             EngineClearer.clear(engine2);
             engine2.loadSpecification(spec);
             String idString = engine2.launchCase("SYSTEM", spec.getID(), null, null);
             YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
             Document d = new Document();
             d.setRootElement(new Element("data"));
-    		
-    		List children = netRunner1.attemptToFireAtomicTask("decideName");
-    		assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
-    		
-    		netRunner1.cancel();
-    		
+
+            List children = netRunner1.attemptToFireAtomicTask("decideName");
+            assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
+
+            netRunner1.cancel();
+
             assertFalse(task.t_isBusy());
-    	}
-    	catch(Exception e) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
+        }
+        catch(Exception e) {
+            StringWriter sw = new StringWriter();
+            sw.write( e.toString() + "\n" );
+            e.printStackTrace(new PrintWriter(sw));
+            fail( sw.toString() );
+        }
     }
 
 

@@ -10,18 +10,7 @@
 package au.edu.qut.yawl.elements;
 
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -146,6 +135,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     protected Map<String, String> _dataMappingsForTaskEnablement = new HashMap<String, String>();//[key=ParamName, value=query]
     protected Set<KeyValue> dataMappingsForTaskEnablementSet = new HashSet<KeyValue>();
     protected YDecomposition _decompositionPrototype;
+    private static final String PERFORM_OUTBOUND_SCHEMA_VALIDATION = "skipOutboundSchemaValidation";
 
     //input data storage
     private Map _caseToDataMap = new HashMap();
@@ -156,15 +146,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
 
     //Reset net association
     private E2WFOJNet _resetNet;
-
-    /**
-     * AJH: Extensions to cater for task level XML attributes.
-     *
-     * Encoded list of standard XML attributes used on atomic tasks
-     */
-    private static final String STANDARD_TASK_ATTRIBUTES = "/id/type/skipOutboundSchemaValidation";
-    private static final String PERFORM_OUTBOUND_SCHEMA_VALIDATION = "skipOutboundSchemaValidation";
-    private boolean _skipOutboundSchemaChecks = false;         // False by default
 
 
     /*
@@ -624,7 +605,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
             }
             return false;
         } else {
-            System.out.println("This task [" +
+            logger.error("This task [" +
                     getName() != null ? getName() : getID() +
                     "] is not active, and therefore cannot be completed. "
             );
@@ -990,72 +971,39 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
             YParameter parameter = (YParameter) inputParams.get(i);
             String inputParamName = parameter.getName() != null ?
                     parameter.getName() : parameter.getElementName();
-            String expression = (String) getDataMappingsForTaskStarting().get(inputParamName);
+            String expression = getDataMappingsForTaskStarting().get(inputParamName);
             if (this.isMultiInstance() && inputParamName.equals(
                     _multiInstAttr.getMIFormalInputParam())) {
                 Element specificMIData = (Element)
                         _multiInstanceSpecificParamsIterator.next();
 
-                if (EngineFactory.createYEngine().generateUIMetaData())
-                {
-                    /**
-                     * Add in attributes for input parameter
-                     */
-                    if (parameter.getAttributes() != null)
-                    {
-                        Iterator iter = parameter.getAttributes().keySet().iterator();
-                        while(iter.hasNext())
-                        {
-                            String attrName = (String)iter.next();
-                            String attrValue = (String)parameter.getAttributes().get(attrName);
-                            specificMIData.setAttribute(attrName, attrValue);
-                        }
-                    }
-                }
-                dataForChildCase.addContent(specificMIData);
+                //todo replace with param info in param metadata
+                addXMLAttributes(parameter.getAttributes(), specificMIData);
 
+                dataForChildCase.addContent(specificMIData);
             } else {
                 Element result = performDataExtraction(expression, parameter);
 
-                if (EngineFactory.createYEngine().generateUIMetaData())
-                {
-                    /**
-                     * Add in attributes for input parameter
-                     */
-                    if (parameter.getAttributes() != null)
-                    {
-                        Iterator iter = parameter.getAttributes().keySet().iterator();
-                        while(iter.hasNext())
-                        {
-                            String attrName = (String)iter.next();
-                            String attrValue = (String)parameter.getAttributes().get(attrName);
-                            result.setAttribute(attrName, attrValue);
-                        }
-                    }
-                }
+                //todo replace with param info in param metadata
+                addXMLAttributes(parameter.getAttributes(), result);
+
                 dataForChildCase.addContent((Element) result.clone());
             }
         }
+        //todo replace with param info in task metadata
+        addXMLAttributes(getDecompositionPrototype().getAttributes(), dataForChildCase);
 
-        if (EngineFactory.createYEngine().generateUIMetaData())
-        {
-            /**
-             * AJH: Add in task level attributes for specifcation to XMLdoclet pass-thru.
-             * Note that we skip processing of the YAWL standard task attributes as we only
-             * pass-thru the additional (user interface hints) attributes.
-             */
-            Iterator enumKeys = getDecompositionPrototype().getAttributes().keySet().iterator();
-            while(enumKeys.hasNext())
-            {
-                String attrName = (String)enumKeys.next();
-                String attrValue = (String)getDecompositionPrototype().getAttributes().get(attrName);
-                if (STANDARD_TASK_ATTRIBUTES.indexOf("/" + attrName + "/") == -1)
-                {
-                    dataForChildCase.setAttribute(attrName, attrValue);
-                }
+        _caseToDataMap.put(childInstanceID, dataForChildCase);
+    }
+
+    private void addXMLAttributes(Map<String, String> attributes, Element specificMIData) {
+        if (attributes != null) {
+            Set<String> keys = attributes.keySet();
+            for(String attrName: keys) {
+                String attrValue = attributes.get(attrName);
+                specificMIData.setAttribute(attrName, attrValue);
             }
         }
-        _caseToDataMap.put(childInstanceID, dataForChildCase);
     }
 
     protected Element performDataExtraction(String expression, YParameter inputParamName)
@@ -1561,10 +1509,9 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
          * AJH: Check if this task is to perform outbound schema validation. This is currently configured
          *      via the tasks UI MetaData.
          */
-        String attrVal = (String)decomposition.getAttributes().get(PERFORM_OUTBOUND_SCHEMA_VALIDATION);
+        String attrVal = decomposition.getAttributes().get(PERFORM_OUTBOUND_SCHEMA_VALIDATION);
 
-        if("TRUE".equalsIgnoreCase(attrVal))
-        {
+        if("TRUE".equalsIgnoreCase(attrVal)) {
             setSkipOutboundSchemaChecks(true);
         }
     }
@@ -1574,10 +1521,9 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
      * @param paramName the decomposition enablement variable.
      * @return the data binding query for that parameter.
      */
-
     @Transient
     public String getDataBindingForEnablementParam(String paramName) {
-      return (String) getDataMappingsForEnablement().get(paramName);
+      return getDataMappingsForEnablement().get(paramName);
     }
     
     /**
@@ -1595,7 +1541,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
 	 * @param paramName the decomposition input parameter.
 	 * @return the data binding query for that parameter.
 	 */
-
     @Transient
     public String getDataBindingForInputParam(String paramName) {
       return (String) getDataMappingsForTaskStarting().get(paramName);
@@ -1615,7 +1560,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
      * @param paramName the decomposition output parameter.
      * @return the data binding query for that parameter.
      */
-
     @Transient
 	public String getDataBindingForOutputParam( String paramName ) {
 		Iterator taskCompletionMappingIterator = _dataMappingsForTaskCompletion.keySet().iterator();
@@ -1950,15 +1894,15 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
      */
     @Transient
     private boolean skipOutboundSchemaChecks() {
-        return _skipOutboundSchemaChecks;
+        return getDecompositionPrototype().skipOutboundSchemaChecks();
     }
 
     /**
      * Defines if schema validation is to be performed when starting the task.
-     * @param _performOutboundSchemaChecks
+     * @param performOutboundSchemaChecks
      */
     private void setSkipOutboundSchemaChecks(boolean performOutboundSchemaChecks) {
-        _skipOutboundSchemaChecks = performOutboundSchemaChecks;
+        getDecompositionPrototype().setSkipOutboundSchemaChecks(performOutboundSchemaChecks);
     }
 
 

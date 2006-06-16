@@ -118,6 +118,8 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     protected Document _data;
     private Map<String, String> _attribues = new HashMap<String, String>();
     private List<Element> _internalExtensions;
+    
+    private boolean _outBoundSchemaChecking;
 
     /*
   INSERTED FOR PERSISTANCE
@@ -130,7 +132,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 
     /**
      * Method for hibernate only
-     * @return
      */
     @OneToOne
     @PrimaryKeyJoinColumn
@@ -218,9 +219,9 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 	 * Null constructor for hibernate
 	 */
 	public YDecomposition() {
-        _outputExpressions = new HashSet();
+        _outputExpressions = new HashSet<String>();
         _data = new Document();
-        _attribues = new Hashtable();
+        _attribues = new Hashtable<String, String>();
 	}
 
     public YDecomposition(String id, YSpecification specification) {
@@ -228,9 +229,9 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
         _specification = specification;
         _inputParameters = new ArrayList<YInputParameter>();  //name --> parameter
         _outputParameters = new ArrayList<YOutputParameter>(); //name --> parameter
-        _outputExpressions = new HashSet();
+        _outputExpressions = new HashSet<String>();
         _data = new Document();
-        _attribues = new Hashtable();
+        _attribues = new Hashtable<String, String>();
 
         _data.setRootElement(new Element(getRootDataElementName()));
     }
@@ -254,10 +255,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
         return _attribues.get(name);
     }
 
-    /**
-     * 
-     * @return
-     */
+
     @Column(name="documentation")
     public void setDocumentation(String documentation) {
         _documentation = documentation;
@@ -268,10 +266,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     }
 
 
-    /**
-     * 
-     * @return
-     */
     @Column(name="name")
     public String getName() {
         return _name;
@@ -331,7 +325,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 
     /**
      * Inserted for hibernate
-     * @param set
+     * @param outputQueries
      */
     protected void setOutputQueries(Set<String> outputQueries) {
     	_outputExpressions = outputQueries;
@@ -355,38 +349,35 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
                     append("</documentation>");
         }
 
-        List parameters = new ArrayList(_inputParameters);
+        List<YParameter> parameters =
+                new ArrayList<YParameter>(_inputParameters);
         Collections.sort(parameters);
-        for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
+        for (YParameter parameter : parameters) {
             xml.append(parameter.toXML());
         }
-        for (Iterator<String> iter = _outputExpressions.iterator(); iter.hasNext();) {
-            String expression = iter.next();
+        for (String expression : _outputExpressions) {
             xml.append("<outputExpression query=\"").
                     append(YTask.marshal(expression)).
                     append("\"/>");
         }
-        for (Iterator iterator = _outputParameters.iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
+        parameters = new ArrayList<YParameter>(_outputParameters);
+        Collections.sort(parameters);
+        for (YParameter parameter : parameters) {
             xml.append(parameter.toXML());
         }
-
         return xml.toString();
     }
 
 
-    public List verify() {
-        List messages = new Vector();
+    public List <YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         if (_id == null) {
             messages.add(new YVerificationMessage(this, this + " cannot have null id.", YVerificationMessage.ERROR_STATUS));
         }
-        for (Iterator iterator = _inputParameters.iterator(); iterator.hasNext();) {
-            YInputParameter parameter = (YInputParameter) iterator.next();
-            messages.addAll(parameter.verify());
+        for (YInputParameter inputParameter : _inputParameters) {
+            messages.addAll(inputParameter.verify());
         }
-        for (Iterator iterator = _outputParameters.iterator(); iterator.hasNext();) {
-            YOutputParameter parameter = (YOutputParameter) iterator.next();
+        for (YOutputParameter parameter : _outputParameters) {
             messages.addAll(parameter.verify());
         }
         return messages;
@@ -403,10 +394,9 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     public Object clone() throws CloneNotSupportedException {
         YDecomposition copy = (YDecomposition) super.clone();
         copy._inputParameters = new ArrayList<YInputParameter>();
-        Collection params = _inputParameters;
-        for (Iterator iterator = params.iterator(); iterator.hasNext();) {
-        	YInputParameter parameter = (YInputParameter) iterator.next();
-        	YInputParameter copyParam = (YInputParameter) parameter.clone();
+        Collection<YInputParameter> params = _inputParameters;
+        for (YInputParameter parameter : params) {
+            YInputParameter copyParam = (YInputParameter) parameter.clone();
             copy.setInputParam(copyParam);
         }
         return copy;
@@ -443,15 +433,14 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
         Element rootElement = new Element(rootDataElementName);
         outputDoc.setRootElement(rootElement);
         //now prepare a list of output params to iterate over.
-        List outputParamsList = new ArrayList<YVariable>(getOutputParameters());
+        List <YParameter> outputParamsList = new ArrayList<YParameter>(getOutputParameters());
         Collections.sort(outputParamsList);
 
-        for (Iterator iterator = outputParamsList.iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
+        for (YParameter parameter : outputParamsList) {
             System.out.println("parameter.toXML() = " + parameter.toXML());
             String varElementName =
                     parameter.getName() != null ?
-                    parameter.getName() : parameter.getElementName();
+                            parameter.getName() : parameter.getElementName();
             Element root = _data.getRootElement();
             Element child = root.getChild(varElementName);
             Element clone = (Element) child.clone();
@@ -481,18 +470,16 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 
 
     public void initialise() throws YPersistenceException {
-        Iterator iter = _inputParameters.iterator();
-        while (iter.hasNext()) {
-            YParameter inputParam = (YParameter) iter.next();
+        for (YInputParameter inputParam : _inputParameters) {
             Element initialValuedXMLDOM = null;
             if (inputParam.getInitialValue() != null) {
                 String initialValue = inputParam.getInitialValue();
                 initialValue =
                         "<" + inputParam.getName() + ">" +
-                        initialValue +
-                        "</" + inputParam.getName() + ">";
+                                initialValue +
+                                "</" + inputParam.getName() + ">";
                 try {
-                    SAXBuilder builder = new org.jdom.input.SAXBuilder();
+                    SAXBuilder builder = new SAXBuilder();
                     Document doc = builder.build(new StringReader(initialValue));
                     initialValuedXMLDOM = doc.detachRootElement();
                 } catch (Exception e) {
@@ -537,7 +524,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 
     /**
      * Returns a link to the containing specification.
-     * @return
      */
     @ManyToOne(cascade = {CascadeType.ALL})
     @XmlTransient
@@ -558,15 +544,14 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
      * @return a map of them.
      */
     @Transient
-    public Map getStateSpaceBypassParams() {
-        Map result = new HashMap();
-        Collection ps = _outputParameters;
-        for (Iterator iterator = ps.iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
+    public Map<String,YParameter> getStateSpaceBypassParams() {
+        Map<String,YParameter> result = new HashMap<String, YParameter>();
+        Collection<YOutputParameter> ps = _outputParameters;
+        for (YOutputParameter parameter : ps) {
             if (parameter.bypassesDecompositionStateSpace()) {
                 result.put(
                         parameter.getName() != null ?
-                        parameter.getName() : parameter.getElementName(),
+                                parameter.getName() : parameter.getElementName(),
                         parameter);
             }
         }
@@ -574,7 +559,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     }
 
     @Transient
-    public Set getOutputParamNames() {
+    public Set<? extends String> getOutputParamNames() {
     	Set<String> names = new HashSet<String>();
 
     	for(YVariable entry:_outputParameters) {
@@ -635,7 +620,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 		if (_internalExtensions == null) return "";
 		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
 		StringBuffer buffer = new StringBuffer();
-		for (Element e: (List<Element>) _internalExtensions) {
+		for (Element e: _internalExtensions) {
 			String representation = outputter.outputString(e);
 			buffer.append(representation);
 		}
@@ -645,27 +630,29 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     @Column(name="extensions", length=32768)
 	public void setInternalExtensionsAsString(String extensions) {
 		_internalExtensions = new ArrayList<Element>();
-		if (extensions == null || extensions.length() == 0) return;
-		if (extensions != null) {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			SAXBuilder sb = new SAXBuilder();
-        	try {
-				Document d = sb.build(new InputSource(new StringReader("<fragment>" + extensions + "</fragment>")));
-				Iterator i = d.getDescendants(); 
-				while(i.hasNext()) {
-					Element element = (Element) i.next();
-					if (element.getAttributeValue(ExtensionListContainer.IDENTIFIER_ATTRIBUTE) != null) {
-						_internalExtensions.add(element);
-					}
-				}
-			} catch (JDOMException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		if (extensions == null || extensions.length() == 0) {
+            return;
+        }
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        SAXBuilder sb = new SAXBuilder();
+        try {
+            Document d = sb.build(new InputSource(new StringReader("<fragment>" + extensions + "</fragment>")));
+            Iterator i = d.getDescendants();
+            while(i.hasNext()) {
+                Element element = (Element) i.next();
+                if (element.getAttributeValue(ExtensionListContainer.IDENTIFIER_ATTRIBUTE) != null) {
+                    _internalExtensions.add(element);
+                }
+            }
+        } catch (JDOMException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
 	}
 
 	@Transient
@@ -675,8 +662,16 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 	}
 
 	@Transient
-	public void setInternalExtensions(List extensions) {
+	public void setInternalExtensions(List<Element> extensions) {
 		_internalExtensions = extensions;
 	}
+
+    public boolean skipOutboundSchemaChecks() {
+        return _outBoundSchemaChecking;
+    }
+
+    public void setSkipOutboundSchemaChecks(boolean skipSchemaCheck) {
+        _outBoundSchemaChecking = skipSchemaCheck;
+    }
 
 }

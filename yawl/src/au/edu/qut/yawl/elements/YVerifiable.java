@@ -9,6 +9,8 @@
 
 package au.edu.qut.yawl.elements;
 
+import au.edu.qut.yawl.util.YVerificationMessage;
+
 import java.util.List;
 
 /**
@@ -24,5 +26,5 @@ public interface YVerifiable {
      * @see au.edu.qut.yawl.util.YVerificationMessage
      * @return List of YVerificationMessage
      */
-    public List verify();
+    public List <YVerificationMessage> verify();
 }

@@ -73,7 +73,7 @@ public class TestDeadlockingWorkflows extends TestCase{
         assertTrue(items.size() == 1);
         for (Iterator iterator = items.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
-            assertTrue(item.getStatus() == YWorkItem.statusDeadlocked);
+            assertTrue(item.getStatus() == YWorkItem.Status.Deadlocked);
 //System.out.println("TestDeadlockingWorkflows::..." + item.toXML());
         }
         assertTrue(runner.isCompleted());
