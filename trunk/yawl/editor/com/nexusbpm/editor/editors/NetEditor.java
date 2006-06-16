@@ -54,7 +54,7 @@ public class NetEditor extends ComponentEditor {
 	/**
 	 * @see ComponentEditor#initializeUI()
 	 */
-	protected JComponent initializeUI() throws EditorException {
+	public JComponent initializeUI() throws EditorException {
 
 		_tabbedPane = new JTabbedPane();
 		addGraphEditor( _proxy, true );

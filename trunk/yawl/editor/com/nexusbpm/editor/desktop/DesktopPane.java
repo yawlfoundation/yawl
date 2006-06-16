@@ -9,6 +9,7 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 
 import javax.swing.JDesktopPane;
+import javax.swing.JInternalFrame;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.logging.Log;
@@ -18,6 +19,7 @@ import samples.bboard.Client;
 
 import au.edu.qut.yawl.elements.YNet;
 
+import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.NetEditor;
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -105,9 +107,8 @@ public class DesktopPane extends JDesktopPane implements DropTargetListener {
 		e.printStackTrace();
 	}
       editor.setVisible(true);
+
       this.add(editor);
-      
-      
       //        if (Client.numWindowMenuItems() == 0) {
 //          Client.openInternalFrame(internalFrame, new Point(0,0), true);
 //        } else {

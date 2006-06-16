@@ -251,7 +251,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 	 * @return The editor's user interface.
 	 * @throws EditorException If something goes wrong initializing the editor interface.
 	 */
-	protected abstract JComponent initializeUI() throws EditorException;
+	public abstract JComponent initializeUI() throws EditorException;
 
 	/**
 	 * Uses the specified Swing component to set the editor's user inteface.

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.nexusbpm.editor.component.EmailSenderComponent;
 import com.nexusbpm.editor.tree.DatasourceRoot;
 
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
@@ -30,7 +31,7 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
 			net.setName("My test network");
 			net.setRootNet("true");
 			testSpec.setRootNet(net);
-			YAWLServiceGateway gate = new YAWLServiceGateway("com.ichg.capsela.domain.component.EmailSenderComponent", testSpec);
+			YAWLServiceGateway gate = new YAWLServiceGateway(EmailSenderComponent.class.getName(), testSpec);
 			gate.setName("[send mail support]");
 			testSpec.setDecomposition(gate);
 			YAWLServiceGateway gate2 = new YAWLServiceGateway("com.ichg.capsela.domain.component.JythonComponent", testSpec);
