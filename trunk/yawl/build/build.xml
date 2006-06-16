@@ -21,6 +21,7 @@
     <property name="xforms.dist" value="./build/yawlXForms/dist"/>
     <property name="extra.libs" value="./build/extras"/>        <!-- AJH -->
     <property name="property.files" value="./build/properties"/> <!-- AJH -->
+    <property name="nexus_editor" value="./editor/"/> 
     <property name="classes" value="classes"/>
     <property name="enumeratedClasses" value="./build/3rdParty/enumerated3rdPartyClasses"/>
     <property name="javadoc" value="javadoc"/>
@@ -94,6 +95,11 @@
     <property name="jcommon.jar" value="${basic.libs}/jcommon-1.0.0-rc1.jar"/>
 
     <!--
+     JBOSS
+     -->
+    <property name="jbossall-client.jar" value="${basic.libs}/jbossall-client.jar"/>
+
+    <!--
     Unit test support libraries
     -->
     <property name="junit.jar" value="${basic.libs}/junit.jar"/>
@@ -124,6 +130,8 @@
     <property name="saaj.jar" value="${wsif.libs}/saaj.jar"/>
     <property name="wsdl4j.jar" value="${wsif.libs}/wsdl4j-20030807.jar"/>
     <property name="xmlParserAPIs.jar" value="${wsif.libs}/xmlParserAPIs-2_2_1.jar"/>
+    <property name="soaprmi-1_1.jar" value="${wsif.libs}/soaprmi-1_1.jar"/>
+
     <!--
     XSD Dependencies
     -->
@@ -139,13 +147,26 @@
     <property name="commonsLogging" value="${persist.libs}/commons-logging-1.0.3.jar"/>
     <property name="dom4j" value="${persist.libs}/dom4j-1.4.jar"/>
     <property name="ehcache" value="${persist.libs}/ehcache-0.7.jar"/>
-    <property name="hibernate" value="${persist.libs}/hibernate2.jar"/>
+    <property name="ejb-persist" value="${persist.libs}/ejb3-persistence.jar"/>
+    <property name="jboss-ejb" value="${persist.libs}/jboss-ejb3x.jar"/>
+    <property name="hibernate-ann" value="${persist.libs}/hibernate-annotations.jar"/>
+    <property name="hibernate" value="${persist.libs}/hibernate3.jar"/>
     <property name="postgres7.jar" value="postgresql-7.4.5.jdbc.jar"/>
     <property name="postgres7.path" value="${basic.libs}/${postgres7.jar}"/>
     <property name="postgres8.jar" value="postgresql-8.0-311.jdbc3.jar"/>
     <property name="postgres8.path" value="${basic.libs}/${postgres8.jar}"/>
     <property name="jta" value="${persist.libs}/jta.jar"/>
+    <property name="jaxbapi" value="${persist.libs}/jaxb-api.jar"/>
     <property name="odmg" value="${persist.libs}/odmg-3.0.jar"/>
+
+    <!--
+    Editor Dependencies
+    -->
+
+    <property name="jgraph-5.4.jar" value="${basic.libs}/jgraph-5.4.jar"/>
+    <property name="jgraphaddons-1.0.5.jar" value="${basic.libs}/jgraphaddons-1.0.5.jar"/>
+    <property name="swing-worker.jar" value="${basic.libs}/swing-worker.jar"/>
+
 
     <!--
     PDF Dependencies
@@ -153,6 +174,12 @@
     <property name="itext" value="${pdf.libs}/itext-1.4.jar"/>
     <property name="bcprov" value="${pdf.libs}/bcprov-jdk14-130.jar"/>
     <property name="fileupload" value="${pdf.libs}/commons-fileupload-1.0.jar"/>
+
+    <!--
+    XFORM Dependencies
+    -->
+    <property name="mail.jar" value="${xforms.lib}/mail.jar"/>
+
 
     <!-- Log4J Logging Library -->
     <property name="log4j" value="${basic.libs}/log4j-1.2.8.jar"/>
@@ -169,6 +196,7 @@
     <path id="cp.compile">
         <!-- Include all JAR files that will be included in /WEB-INF/lib -->
         <!-- *** CUSTOMIZE HERE AS REQUIRED BY YOUR APPLICATION *** -->
+        <pathelement location="${jbossall-client.jar}"/>
         <pathelement location="${jfreechart.jar}"/>
         <pathelement location="${jcommon.jar}"/>
         <pathelement location="${junit.jar}"/>
@@ -209,6 +237,7 @@
         <pathelement location="${saaj.jar}"/>
         <pathelement location="${wsdl4j.jar}"/>
         <pathelement location="${xmlParserAPIs.jar}"/>
+        <pathelement location="${soaprmi-1_1.jar}"/>
     </path>
     <!--
     XSD Classpath
@@ -229,9 +258,31 @@
         <pathelement location="${dom4j}"/>
         <pathelement location="${ehcache}"/>
         <pathelement location="${hibernate}"/>
+        <pathelement location="${jaxbapi}"/>
+        <pathelement location="${hibernate-ann}"/>
         <pathelement location="${jta}"/>
         <pathelement location="${odmg}"/>
+        <pathelement location="${jboss-ejb}"/>
+        <pathelement location="${ejb-persist}"/>
     </path>
+
+    <!--
+    Editor Classpath
+    -->
+    <path id="cp.editor">
+        <pathelement location="${jgraph-5.4.jar}"/>
+        <pathelement location="${jgraphaddons-1.0.5.jar}"/>
+        <pathelement location="${swing-worker.jar}"/>
+    </path>
+
+
+    <!--
+    Mail Service Classpath
+    -->
+    <path id="cp.mail">
+        <pathelement location="${mail.jar}"/>
+    </path>
+
 
     <!--
     PDF Forms Classpath
@@ -280,18 +331,22 @@
         <mkdir dir="${output}"/>
         <mkdir dir="${output}/${javadoc}"/>
     </target>
+
+
     <!--
     Compile all source
     Compiles main project source into ${classes}.
     -->
     <target name="compile" depends="init">
-        <javac srcdir="${src}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
+        <javac srcdir="${src}:editor" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
             <classpath refid="cp.xsd"/>
             <classpath refid="cp.persist"/>
 	    <classpath refid="cp.pdfforms"/>
+	    <classpath refid="cp.editor"/>
+	    <classpath refid="cp.mail"/>
         </javac>
         <!--rmic base="${classes}" classname="au.edu.qut.yawl.engine.interfce.EngineGatewayImpl"/-->
         <copy todir="${classes}">
@@ -489,6 +544,11 @@
         <mkdir dir="${yawl.worklist.app.name}/secure/"/>
         <mkdir dir="${yawl.worklist.app.name}/secure/certificates/"/>
         <mkdir dir="${yawl.worklist.app.name}/secure/genDir/"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature"/>
@@ -512,6 +572,24 @@
             <fileset dir="${persist.libs}" includes="*.jar"/>
         </copy>
         <antcall target="decidePostgresVersion"/>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine">
+            <fileset dir="${classes}/au/edu/qut/yawl/engine" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/managed" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao1" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/jaxb" includes="*.class"/>
+        </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
             <fileset dir="${classes}/au/edu/qut/yawl/exceptions" includes="*.class *.hbm.xml"/>
         </copy>
@@ -881,9 +959,15 @@
         Prepare YAWL AdminTool WebApplication
         -->
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/lib"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/admintool"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/admintool/model"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication"/>
@@ -894,6 +978,23 @@
                 />
         </copy>
         <!-- start copying files into war directory -->
+
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/managed" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao1" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/jaxb" includes="*.class"/>
+        </copy>
+
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
             <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
         </copy>
@@ -924,6 +1025,10 @@
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset
                 dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine/domain"/>
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication">
             <fileset
