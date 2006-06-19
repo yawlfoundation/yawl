@@ -35,6 +35,7 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
+import org.jdom.Element;
 import org.jgraph.event.GraphSelectionEvent;
 import org.jgraph.event.GraphSelectionListener;
 import org.jgraph.graph.AttributeMap;
@@ -46,10 +47,14 @@ import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.GraphSelectionModel;
 import org.jgraph.graph.Port;
+import org.jgraph.layout.GEMLayoutAlgorithm;
+import org.jgraph.layout.MoenLayoutAlgorithm;
 import org.jgraph.layout.SugiyamaLayoutAlgorithm;
+import org.jgraph.layout.TreeLayoutAlgorithm;
 import org.jgraph.util.JGraphParallelEdgeRouter;
 import org.jgraph.util.JGraphUtilities;
 
+import au.edu.qut.yawl.elements.ExtensionListContainer;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
@@ -589,6 +594,12 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
   private Map createComponentAttributeMap(Object c) {
     Map map = new AttributeMap();
 //    GraphConstants.setBounds(map, new Rectangle(c.getFlowLocation()));
+    if (c instanceof ExtensionListContainer) {
+    	ExtensionListContainer container = (ExtensionListContainer) c;
+//    	for (Element e: container.getInternalExtensions()) {
+//    		e.getAttribute(getName());
+//    	}
+    }
     GraphConstants.setBorderColor(map, Color.black);
     GraphConstants.setBackground(map, Color.white);
     GraphConstants.setOpaque(map, true);
@@ -612,7 +623,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
     }
     GraphConstants.setLineStyle(map, GraphConstants.STYLE_BEZIER);
     GraphConstants.setRouting(map, EDGE_ROUTER);
-    GraphConstants.setDisconnectable(map, false);
+    GraphConstants.setDisconnectable(map, true);
     GraphConstants.setLineEnd(map, GraphConstants.ARROW_TECHNICAL);
     return map;
   }

@@ -580,14 +580,11 @@ public class CapselaGraph extends JGraph implements Printable,
 // } else {
 // assert cell instanceof CapselaCell : "cell instanceof CapselaCell";
 // LOG.debug("Trying to edit a component");
-      Object node = ((CapselaCell) cell).getProxy().getData();
+	  Object node = ((CapselaCell) cell).getProxy().getData();
+      
       if (node instanceof YAtomicTask) {
-    	  String name = ((YAtomicTask) node).getDecomposition().getId().replace("Component", "Editor");
-          System.out.println(">>>>" + name);
           try {
-			CapselaInternalFrame internalFrame = (CapselaInternalFrame) Class.forName(name).newInstance();
-			((ComponentEditor) internalFrame).setProxy(((CapselaCell) cell).getProxy());
-			System.out.println("editing object for " + ((CapselaCell) cell).getProxy().getData());
+        	  ComponentEditor internalFrame = (ComponentEditor)((CapselaCell) cell).getProxy().getEditor();
 			JDesktopPane desktop = WorkflowEditor.getInstance().getDesktopPane();
 			internalFrame.pack();
 		    internalFrame.setLocation(0,0);

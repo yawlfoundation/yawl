@@ -11,6 +11,8 @@ import org.jdesktop.swingworker.SwingWorker;
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.worker.GlobalEventQueue;
+import com.nexusbpm.editor.worker.Worker;
 
 /**
  * Frame listener for component editors.
@@ -23,7 +25,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 
 	private static final Log LOG = LogFactory.getLog( ComponentEditorFrameListener.class );
 
-	private SharedNode _node;
+	private EditorDataProxy _node;
 
 	private ComponentEditor _editor;
 
@@ -33,7 +35,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 	 * @param node the <tt>ComponentNode</tt> for the component.
 	 * @param editor the <tt>ComponentEditor</tt> for the component.
 	 */
-	public ComponentEditorFrameListener( SharedNode node, ComponentEditor editor ) {
+	public ComponentEditorFrameListener( EditorDataProxy node, ComponentEditor editor ) {
 		super( editor );
 
 		if( LOG.isDebugEnabled() ) {
@@ -53,9 +55,10 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 	 */
 	public void internalFrameClosing( InternalFrameEvent e ) {
 		super.internalFrameClosing( e );
-		SwingWorker<Object, Object> worker = new SwingWorker<Object, Object>( ) {
-			public Object doInBackground() {
-				EditorDataProxy proxy = _node.getProxy();
+		Worker worker = new Worker( ) {
+			public String getName() {return "closing frame";}
+			public void execute() {
+				EditorDataProxy proxy = _node;
 				try {
 					if( _editor.isDirty() ) {
 						LOG.debug( "Editor closing, saving: " );
@@ -65,6 +68,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 					}//if
 					else {
 						LOG.debug( "Editor closing, NOT saving: (" + "isDirty=" + _editor.isDirty() );
+						System.err.println("IT WASNT DIRTY!!!");
 					}
 //					_node.nullifyEditors();
 				}//try
@@ -85,11 +89,11 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 
 					_node = null;
 				}//finally
-				return null;
+//				return null;
 			}//run()
 		};//new CapselaWorker()
-//		GlobalEventQueue.add( worker );
-		throw new RuntimeException("create global event queue (Executor) and add worker");
+		GlobalEventQueue.add( worker );
+		new RuntimeException("OUTPUT ONLY create global event queue (Executor) and add worker").printStackTrace();
 	}
 
 	/**
@@ -98,10 +102,11 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 	 * @see ClosingFrameListener#internalFrameOpened(InternalFrameEvent)
 	 */
 	public void internalFrameOpened( final InternalFrameEvent e ) {
-		final EditorDataProxy proxy = _node.getProxy();
+		final EditorDataProxy proxy = _node;
 		LOG.debug( "internalFrameOpened()" );
-		SwingWorker<Object, Object> worker = new SwingWorker<Object, Object>( ) {
-			public Object doInBackground() {
+		Worker worker = new Worker( ) {
+			public String getName() {return "open internal frame";}
+			public void execute() {
 				// Don't allow the user to close the editor while it's loading.
 				boolean wasClosable = _editor.isClosable();
 				_editor.setClosable( false );
@@ -121,11 +126,11 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 						_editor.setClosable( wasClosable );
 					}//finally
 				}//finally
-				return null;
+//				return null;
 			}//run()
 		};
-//		GlobalEventQueue.add( worker );
-		throw new RuntimeException("create global event queue (Executor) and add worker");
+		GlobalEventQueue.add( worker );
+		new RuntimeException("OUTPUT ONLY create global event queue (Executor) and add worker").printStackTrace();
 	}
 
 	private void callSuperInternalFrameOpened( InternalFrameEvent e ) {

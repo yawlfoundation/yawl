@@ -513,7 +513,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 //				catch( CapselaException ex ) {
 //					LOG.error( ex );
 //				}
-				throw new RuntimeException("This needs to be reimplemented for YAWL context");
+				new RuntimeException("This needs to be reimplemented for YAWL context").printStackTrace();
 			}
 		}
 	}
