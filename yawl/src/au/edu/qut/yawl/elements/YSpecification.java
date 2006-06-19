@@ -263,7 +263,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
                 } else {
                     xml.append("WebServiceGatewayFactsType");
                 }
-                xml.append("\"");
+                xml.append("\" ");
 
                 //AJH: Add in any additional attributes
                 xml.append(format(decomposition.getAttributes()));
