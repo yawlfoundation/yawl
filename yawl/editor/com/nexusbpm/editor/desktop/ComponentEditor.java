@@ -61,6 +61,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 		public void actionPerformed( ActionEvent e ) {
 			LOG.debug( "isDirtyActionListener.actionPerformed: " + e.paramString() );
 			ComponentEditor.this.setDirty( true );
+			System.out.println("pressed a key on the editor");
 		}
 	};
 
@@ -72,6 +73,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 		public void keyPressed( KeyEvent e ) {
 			LOG.debug( "isDirtyKeyAdapter.keyPressed: " + e.paramString() );
 			ComponentEditor.this.setDirty( true );
+			System.out.println("pressed a key on the editor");
 		}
 	};
 
@@ -91,6 +93,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 			LOG.debug( "isDirtyInputHandler.keyPressed: " + e.paramString() );
 			ComponentEditor.this.setDirty( true );
 			super.keyPressed( e );
+			System.out.println("pressed a key on the editor");
 		}
 	}
 
@@ -102,6 +105,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 		public void stateChanged( ChangeEvent e ) {
 			LOG.debug( "isDirtyChangeListener.stateChanged: " + e );
 			ComponentEditor.this.setDirty( true );
+			System.out.println("pressed a key on the editor");
 		}
 	};
 
@@ -197,7 +201,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 			setTitle( name );
 			LOG.debug( "RENAMING INTERNAL FRAME TITLE: " + name );
 		}
-		throw new RuntimeException("editor title names may need a new context in YAWL");
+		new RuntimeException("OUTPUT ONLY editor title names may need a new context in YAWL").printStackTrace();
 	}
 
 	/**

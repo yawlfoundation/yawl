@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 
 import samples.bboard.Client;
 
+import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YNet;
 
 import com.nexusbpm.editor.WorkflowEditor;
@@ -81,10 +82,11 @@ public class DesktopPane extends JDesktopPane implements DropTargetListener {
    * be dropped on the desktop.
    */
   private boolean isDropAcceptable(TreeNode draggingNode) {
-	  if (draggingNode instanceof SharedNode) {
-		  return ((SharedNode) draggingNode).getProxy().getData() instanceof YNet;
-	  }
-	  else return false;
+	if (draggingNode instanceof SharedNode) {
+		return ((SharedNode) draggingNode).getProxy().getData() instanceof YNet
+			|| ((SharedNode) draggingNode).getProxy().getData() instanceof YAtomicTask;
+		}
+	else return false;
 //	  throw new RuntimeException("this needs a new context for YAWL");
   }
 
@@ -98,17 +100,27 @@ public class DesktopPane extends JDesktopPane implements DropTargetListener {
   	TreeNode draggingNode = DragAndDrop.getDraggingNode();
     if( isDropAcceptable(draggingNode) ) {
       Point location = event.getLocation();
-      NetEditor editor = new NetEditor();
       EditorDataProxy dp = (EditorDataProxy) ((SharedNode) draggingNode).getProxy();
-      try {
-		editor.setProxy(dp);
-	} catch (EditorException e) {
-		// TODO Auto-generated catch block
+      
+      CapselaInternalFrame editor;
+	try {
+		editor = dp.getEditor();
+		if (!editor.isVisible()) {
+			editor.setVisible(true);
+//			editor.setLocation(location);
+			add(editor);
+			editor.toFront();
+			editor.setSelected( true );
+		}
+	} catch (Exception e) {
 		e.printStackTrace();
 	}
-      editor.setVisible(true);
-
-      this.add(editor);
+//      EditorDataProxy dp = (EditorDataProxy) ((SharedNode) draggingNode).getProxy();
+//      try {
+//	} catch (EditorException e) {
+		// TODO Auto-generated catch block
+//		e.printStackTrace();
+//	}
       //        if (Client.numWindowMenuItems() == 0) {
 //          Client.openInternalFrame(internalFrame, new Point(0,0), true);
 //        } else {

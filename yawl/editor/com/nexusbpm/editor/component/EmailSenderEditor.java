@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -21,6 +22,10 @@ import javax.swing.border.SoftBevelBorder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.data.YVariable;
 
 import com.nexusbpm.editor.FileChooser;
 import com.nexusbpm.editor.desktop.ComponentEditor;
@@ -44,31 +49,34 @@ public class EmailSenderEditor extends ComponentEditor {
 	private JTextField _subjectField;
 	private JButton _fileBrowseButton;
 	private JTextField _fileAttachmentField;
-	private EmailSenderComponent _sender;
+	private YTask _sender;
 
 	/**
 	 * @see ComponentEditor#initializeUI()
 	 */
 	public JComponent initializeUI() throws EditorException {
 
-//		_sender = (EmailSenderComponent) _controller.getData();
-
-		String to_addresses = "maod@ichg.com";//_sender.getToAddresses();
+		_sender = (YTask) _proxy.getData();
+		Map m = ((YNet) _sender.getParent()).getLocalVariablesMap();
+		String to_addresses = ((YVariable) m.get(_sender.getID() + "." + "toAddresses")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
 		if( to_addresses == null ) to_addresses = "";
 		_toAddressField = new JTextField( "", 30 );
 		_toAddressField.setText( to_addresses );
 
-		String from_address = "sandozm@ichg.com";//_sender.getFromAddress();
+		String from_address = ((YVariable) m.get(_sender.getID() + "." + "fromAddress")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
+//		String from_address = "sandozm@ichg.com";//_sender.getFromAddress();
 		if( from_address == null ) from_address = "capsela@ichotelsgroup.com";
 		_fromAddressField = new JTextField( "", 30 );
 		_fromAddressField.setText( from_address );
 
-		String subject = "the quote is working";//_sender.getSubject();
+		String subject = ((YVariable) m.get(_sender.getID() + "." + "subject")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
+//		String subject = "the quote is working";//_sender.getSubject();
 		if( subject == null ) subject = "";
 		_subjectField = new JTextField( "", 30 );
 		_subjectField.setText( subject );
 
-		String body = "will it work?";//_sender.getBody();
+		String body = ((YVariable) m.get(_sender.getID() + "." + "body")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
+//		String body = "will it work?";//_sender.getBody();
 		if( body == null ) body = "";
 		_editor = new JEditorPane();
 		_editor.setText( body );
@@ -80,13 +88,13 @@ public class EmailSenderEditor extends ComponentEditor {
 
 		_fileBrowseButton = new JButton( "Browse" );
 
-//		addIsDirtyListener( _editor );
-//		addIsDirtyListener( _toAddressField );
-//		addIsDirtyListener( _fromAddressField );
-//		addIsDirtyListener( _subjectField );
-//		addIsDirtyListener( _fileBrowseButton );
-//		addIsDirtyListener( _fileAttachmentField );
-//
+		addIsDirtyListener( _editor );
+		addIsDirtyListener( _toAddressField );
+		addIsDirtyListener( _fromAddressField );
+		addIsDirtyListener( _subjectField );
+		addIsDirtyListener( _fileBrowseButton );
+		addIsDirtyListener( _fileAttachmentField );
+
 		JPanel addressPanel = new JPanel();
 		addressPanel.setLayout( new GridLayout( 3, 2 ) );
 		addressPanel.add( new JLabel( "To Address: " ) );
@@ -121,7 +129,6 @@ public class EmailSenderEditor extends ComponentEditor {
 		} );
 
 		JPanel attachmentPanel = new JPanel();
-		attachmentPanel.setBackground(Color.blue);
 		attachmentPanel.setLayout( new GridLayout( 1, 2 ) );
 		attachmentPanel.add( _fileBrowseButton );
 		attachmentPanel.add( _fileAttachmentField );
@@ -148,10 +155,11 @@ public class EmailSenderEditor extends ComponentEditor {
 	 * @see ComponentEditor#saveAttributes()
 	 */
 	public void saveAttributes() {
-		_sender.setBody( _editor.getText() );
-		_sender.setToAddresses( _toAddressField.getText() );
-		_sender.setFromAddress( _fromAddressField.getText() );
-		_sender.setSubject( _subjectField.getText() );
+		Map m = ((YNet) _sender.getParent()).getLocalVariablesMap();
+		((YVariable) m.get(_sender.getID() + "." + "body")).setInitialValue(_editor.getText());
+		((YVariable) m.get(_sender.getID() + "." + "toAddresses")).setInitialValue(_toAddressField.getText());
+		((YVariable) m.get(_sender.getID() + "." + "fromAddress")).setInitialValue(_fromAddressField.getText());
+		((YVariable) m.get(_sender.getID() + "." + "subject")).setInitialValue(_subjectField.getText());
 	}
 
 }

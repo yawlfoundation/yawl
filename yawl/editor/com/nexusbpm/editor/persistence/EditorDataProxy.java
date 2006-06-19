@@ -12,10 +12,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
+import javax.swing.event.InternalFrameListener;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YNet;
 
+import com.nexusbpm.editor.desktop.CapselaInternalFrame;
+import com.nexusbpm.editor.desktop.ComponentEditor;
+import com.nexusbpm.editor.desktop.ComponentEditorFrameListener;
+import com.nexusbpm.editor.editors.NetEditor;
 import com.nexusbpm.editor.editors.net.cells.CapselaCell;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphPort;
@@ -290,4 +299,107 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 			_iconContainer = null;
 		}
 	}
+
+	/**
+	 * Retrieves the internal frame for the editor corresponding to this node's
+	 * component. If the editor has not yet been created it gets created then
+	 * returned.
+	 * @return the frame of the editor for this node's component.
+	 * @throws CapselaException not thrown in the code.
+	 * @see #getEditor()
+	 */
+	
+	public CapselaInternalFrame getEditor() throws Exception {
+
+			if( _editor == null ) {
+
+				if( getData() instanceof YNet ) {
+					_editor = new NetEditor();
+					_editor.setProxy(this);
+					_editor.initializeUI();					
+				}
+				else {
+					Class editorClass = getEditorClass();
+					_editor = (ComponentEditor) editorClass.newInstance();
+					_editor.setProxy(this);
+					_editor.initializeUI();					
+				}
+				_editor.setTitle( this.getLabel() );
+				LOG.debug( "removing frame listeners" );
+				removeEditorFrameListeners();
+				LOG.debug( "adding frame listener for editor: " + _editor.getClass().getName() );
+				_editor.addInternalFrameListener( getInternalFrameListener( _editor ) );
+			} //if
+
+			return _editor;
+	}
+
+	//	TODO fix this is a hack. These values should be externally mapped... 	
+	public Class getEditorClass() {
+		Class retval;
+		if (getData() instanceof  YNet ) {
+			retval = NetEditor.class;
+		}
+		else if (getData() instanceof YAtomicTask) {
+	    	  String name = ((YAtomicTask) getData()).getDecomposition().getId().replace("Component", "Editor");
+	          try {
+	        	  retval = Class.forName(name);
+	          }
+	          catch (Exception e) {retval = null;}
+		}
+		else retval = null;
+		return retval;
+	}
+
+	
+	
+	/**
+	 * This node's component editor.
+	 * 
+	 * @see ComponentNode#getEditor()
+	 */
+	private ComponentEditor _editor;
+
+	/**
+	 * Our frame listener.
+	 */
+	private InternalFrameListener _frameListener = null;
+
+	private static final Log LOG = LogFactory.getLog( EditorDataProxy.class );
+	/**
+	 * Creates and returns the appropriate InternalFrameListener for the given
+	 * editor for this node's component based on whether this node's component
+	 * is an instance or not and what kind of component it is.
+	 * @param editor the editor for this node's component.
+	 * @return the appropriate InternalFrameListener.
+	 * @throws CapselaException if there is an error retrieving this node's
+	 *                          component's "is instance" attribute (shouldn't
+	 *                          happen).
+	 */
+	public InternalFrameListener getInternalFrameListener( ComponentEditor editor ) throws Exception {
+		Class editorClass = getEditorClass();
+//		if( ( (Boolean) _controller.getDomainObject().getAttribute( Component.ATTR_INSTANCE ) ).booleanValue() ) {
+//			_frameListener = new InstanceEditorFrameListener( this, editor );
+//		}
+//		else 
+//		if( editorClass.equals( ConditionalEditor.class ) || editorClass.equals( AliasEditor.class ) ) {
+//			FlowEditor flowEditor = (FlowEditor) ( (ComponentNode) this.getParent() ).getEditor();
+//			_frameListener = new PostFlowCheckerEditorFrameListener( this, editor, flowEditor );
+//		}
+//		else {
+			_frameListener = new ComponentEditorFrameListener( this, editor );
+//		}
+
+		return _frameListener;
+	}
+	/**
+	 * Remove all frame listeners for this node's component's editor.
+	 */
+	public void removeEditorFrameListeners() {
+		if( _editor != null ) {
+			_editor.removeEditorFrameListeners();
+		}
+	}
+
+
 }
