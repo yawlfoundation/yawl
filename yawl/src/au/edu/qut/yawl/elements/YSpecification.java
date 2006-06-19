@@ -247,7 +247,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
         xml.append(_xmlToolsForYAWL.getSchemaString());
         xml.append("<decomposition id=\"").
                 append(_rootNet.getId()).
-                append("\" isRootNet=\"true\" xsi:type=\"NetFactsType\" ").
+                append("\" xsi:type=\"NetFactsType\" ").
                 append(format(_rootNet.getAttributes())).
                 append(">");
         xml.append(_rootNet.toXML());
