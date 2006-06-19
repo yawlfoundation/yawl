@@ -11,6 +11,8 @@ package au.edu.qut.yawl.elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -144,7 +146,10 @@ public class TestYSpecification extends TestCase {
     		assertTrue( attr2found );
     	}
     	catch( Exception e ) {
-    		fail( e.toString() );
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
     	}
     }
     
@@ -163,7 +168,10 @@ public class TestYSpecification extends TestCase {
     		assertTrue( specs.get( 0 ).getDocumentation() == null );
     	}
     	catch( Exception e ) {
-    		fail( e.toString() );
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
     	}
     }
 
