@@ -225,7 +225,8 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 	}
 
     public YDecomposition(String id, YSpecification specification) {
-        this._id = id;
+        this._id = id.replace(" ", "_");
+        this._name = id;
         _specification = specification;
         _inputParameters = new ArrayList<YInputParameter>();  //name --> parameter
         _outputParameters = new ArrayList<YOutputParameter>(); //name --> parameter
