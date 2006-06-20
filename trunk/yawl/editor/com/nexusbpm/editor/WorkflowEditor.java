@@ -142,12 +142,12 @@ public class WorkflowEditor extends javax.swing.JFrame {
         componentList1Tree = new STree(treeModel1, componentList1ScrollPane);
         componentList1Tree.setShowsRootHandles(false);
         componentList1Tree.setRootVisible(true);
-        componentList1Tree.setRowHeight(25);
+        componentList1Tree.setRowHeight(34);
         
         componentList2Tree = new STree(treeModel2, componentList1ScrollPane);
         componentList2Tree.setShowsRootHandles(false);
         componentList2Tree.setRootVisible(true);
-        componentList2Tree.setRowHeight(25);
+        componentList2Tree.setRowHeight(34);
         
         desktopAndStatusPanel = new javax.swing.JPanel();
         desktopLogSplitPane = new javax.swing.JSplitPane();
