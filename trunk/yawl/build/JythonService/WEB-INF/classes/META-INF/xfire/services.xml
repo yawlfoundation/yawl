@@ -1,0 +1,10 @@
+<!-- START SNIPPET: services -->
+<beans xmlns="http://xfire.codehaus.org/config/1.0">
+  <service>
+    <name>JythonService</name>
+    <namespace>http://www.citi.qut.edu.au/yawl</namespace>
+    <serviceClass>com.nexusbpm.services.jython.JythonService</serviceClass>
+    <implementationClass>com.nexusbpm.services.jython.JythonServiceImpl</implementationClass>
+  </service>
+</beans>
+<!-- END SNIPPET: services -->
