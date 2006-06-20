@@ -1,12 +1,9 @@
 package com.nexusbpm.editor.component;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Properties;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;

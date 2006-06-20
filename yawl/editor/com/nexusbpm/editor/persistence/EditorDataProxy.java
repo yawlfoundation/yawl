@@ -266,7 +266,12 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 		else {
 		 iconName =  getData().getClass().getName();
 		}
-		return ApplicationIcon.getIcon(iconName, RenderingHints.ICON_MEDIUM );
+		try {
+			return ApplicationIcon.getIcon(iconName, RenderingHints.ICON_MEDIUM );
+		}
+		catch(Error e) {
+			return ApplicationIcon.getIcon("com.ichg.capsela.domain.component.Component", RenderingHints.ICON_MEDIUM );
+		}
 	}
 
 	private AnimatedIcon _animatedIcon = null;

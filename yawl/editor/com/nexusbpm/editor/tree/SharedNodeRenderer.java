@@ -33,6 +33,7 @@ public class SharedNodeRenderer extends DefaultTreeCellRenderer {
 		SharedNode node = (SharedNode) value;
 		setIcon( node.getProxy().icon() );
 		setText( node.getProxy().getLabel());
+
 		//    System.out.println("row: "+row+" node: "+node.toString());
 		return this;
 	}
