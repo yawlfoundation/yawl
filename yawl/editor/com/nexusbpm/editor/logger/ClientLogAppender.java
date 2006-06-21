@@ -2,7 +2,8 @@ package com.nexusbpm.editor.logger;
 
 import javax.jms.JMSException;
 
-import com.nexusbpm.editor.exception.EditorException;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.spi.LoggingEvent;
 
 /**
  * Custom log appender used only on the client. This log appender does
@@ -13,7 +14,17 @@ import com.nexusbpm.editor.exception.EditorException;
  * @author Dean Mao
  * @author Daniel Gredler
  */
-public class ClientLogAppender { // extends LogAppender {  LogAppender is a capsela class that may not be worth porting
+public class ClientLogAppender extends AppenderSkeleton { // extends LogAppender {  LogAppender is a capsela class that may not be worth porting
+
+	@Override
+	protected void append( LoggingEvent logEvent ) {
+		LogRecordI record = new LogRecordVO(logEvent.getLevel().toInt(), LogRecordI.SOURCE_CLIENT, logEvent.getStartTime(), 0l, (String) logEvent.getMessage());
+		CapselaLog.log( record );
+	}
+
+	public boolean requiresLayout() {
+		return false;
+	}
 
 	/**
 	 * Default constructor.
@@ -24,13 +35,6 @@ public class ClientLogAppender { // extends LogAppender {  LogAppender is a caps
 	}//ClientLogAppender()
 
 	/**
-	 * @see LogAppender#sendMessage(LogRecordI)
-	 */
-	protected void sendMessage( LogRecordI logRecord ) throws JMSException {
-		CapselaLog.log( logRecord );
-	}//sendMessage()
-
-	/**
 	 * @see LogAppender#close()
 	 */
 	public void close() {
@@ -38,7 +42,6 @@ public class ClientLogAppender { // extends LogAppender {  LogAppender is a caps
 		CapselaLog.getEngineLog().removeAllListeners();
 		CapselaLog.getClientLog().removeAllListeners();
 		CapselaLog.getAllLog().removeAllListeners();
-//		super.close();
 	}//close()
 
 }//ClientLogAppender
