@@ -16,6 +16,7 @@ import org.apache.commons.logging.impl.Log4jFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Priority;
+import org.apache.log4j.PropertyConfigurator;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
@@ -23,6 +24,7 @@ import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.TestDataContext;
 
+import com.ichg.capsela.client.Client;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.editors.net.GraphEditor;
 import com.nexusbpm.editor.icon.ApplicationIcon;
@@ -48,6 +50,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
      * Creates new form WorkflowEditor 
      */
     private WorkflowEditor() {
+		PropertyConfigurator.configure( WorkflowEditor.class.getResource( "client.logging.properties" ) );
     	initComponents();
         this.pack();
     	this.setSize(DEFAULT_CLIENT_WIDTH,DEFAULT_CLIENT_HEIGHT);
