@@ -9,9 +9,15 @@
 
 package au.edu.qut.yawl.unmarshal;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,15 +97,29 @@ public class YMarshal {
     public static List unmarshalSpecifications(String specificationSetFileID)
             throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
         //first check if is well formed and build a document
+    	FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(new File(new URI(specificationSetFileID)));
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+    	char[] chars = new char[8092];
+    	StringBuffer buffer = new StringBuffer();
+    	int len = 0;
+    	while ((len = reader.read(chars)) != -1) {
+    		buffer.append(chars, 0, len);
+    	}
+    	InputSource is = new InputSource(new ByteArrayInputStream(buffer.toString().getBytes("UTF8")));
     	Document document = buildSpecificationSetDocument(
-    			new InputSource( specificationSetFileID ) );
+    			is );
     	
         //next get the version out as text 
     	String version = getSpecificationSetVersion( document );
     	
         //now check the specification file against its' respective schema
-    	validateSpecification( new InputSource( specificationSetFileID ),
-    			specificationSetFileID, version );
+    	validateSpecification(new InputSource(new ByteArrayInputStream(buffer.toString().getBytes("UTF8"))),specificationSetFileID, version );
     	
         //now build a set of specifications - verification has not yet occured.
     	return buildSpecifications( document );

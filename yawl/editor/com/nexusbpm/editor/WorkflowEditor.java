@@ -24,7 +24,6 @@ import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.TestDataContext;
 
-import com.ichg.capsela.client.Client;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.editors.net.GraphEditor;
 import com.nexusbpm.editor.icon.ApplicationIcon;
@@ -34,6 +33,7 @@ import com.nexusbpm.editor.tree.DatasourceRoot;
 import com.nexusbpm.editor.tree.STree;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
+import command.EditorCommand;
 
 /**
  *
@@ -80,7 +80,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
     	    p = p + "/";
     	return p;
         }
-    public String toURIString(String s, boolean isDirectory) {
+    public static String toURIString(String s, boolean isDirectory) {
     	try {
     	    String sp = slashify(s, isDirectory);
     	    if (sp.startsWith("//"))
@@ -110,31 +110,31 @@ public class WorkflowEditor extends javax.swing.JFrame {
         DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
         DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
         EditorDataProxy memdp = (EditorDataProxy) memdc.getDataProxy(new DatasourceRoot("virtual://memory/home/sandozm/templates/testing/"), null);
-//        EditorDataProxy dp1 = (EditorDataProxy) dc1.getDataProxy(new DatasourceRoot("/home/sandozm/"), null);
         String dataroot = new File("exampleSpecs/").toURI().toString();
         EditorDataProxy filedp = (EditorDataProxy) filedc.getDataProxy(new DatasourceRoot(dataroot), null);
-
-        
+       
         EditorDataProxy dprox = (EditorDataProxy) memdc.getChildren(memdp).toArray()[0];
         YSpecification spec = null; 
-        try {        
-        	spec = (YSpecification) ((YSpecification) dprox.getData()).clone();
-            System.out.println("uri " + spec.getID());
-            URI uri = new URI(spec.getID());
+//superseded by copy command
+//        try {        
+//        	spec = (YSpecification) ((YSpecification) dprox.getData()).clone();
+//            System.out.println("uri " + spec.getID());
+//            URI uri = new URI(spec.getID());
 //            System.out.println("uri to file " + new File(new URI(spec.getID())).getAbsolutePath());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		EditorDataProxy newOne = (EditorDataProxy) filedc.getDataProxy(spec, null);
-		URI desturi = null;
-		try {
-		desturi = TestDataContext.moveUri(new URI(spec.getID()), new URI(dataroot));
-		System.out.println("desturi " + desturi);
-		spec.setID(desturi.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		filedc.put(newOne); 
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		EditorDataProxy newOne = (EditorDataProxy) filedc.getDataProxy(spec, null);
+//		URI desturi = null;
+//		try {
+//		desturi = TestDataContext.moveUri(new URI(spec.getID()), new URI(dataroot));
+//		System.out.println("desturi " + desturi);
+//		spec.setID(desturi.toString());
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		filedc.put(newOne); 
+        EditorCommand.executeCopyCommand(dprox, filedp);
         SharedNode root1 = new SharedNode(memdp);
         SharedNode root2 = new SharedNode(filedp);
 

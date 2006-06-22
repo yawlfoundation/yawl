@@ -32,9 +32,9 @@ public class SharedNodeRenderer extends DefaultTreeCellRenderer {
 			hasFocus );
 		SharedNode node = (SharedNode) value;
 		setIcon( node.getProxy().icon() );
-		setText( node.getProxy().getLabel());
-
-		//    System.out.println("row: "+row+" node: "+node.toString());
+		String candidate = node.getProxy().getLabel();
+		if (candidate.endsWith("/")) candidate = candidate.substring(0, candidate.length() - 1 );
+		setText( candidate );
 		return this;
 	}
   

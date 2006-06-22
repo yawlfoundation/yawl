@@ -1,6 +1,8 @@
 package com.nexusbpm.editor.tree;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,8 +39,19 @@ public class SharedNodeTreeModel extends DefaultTreeModel {
 			for (Object childProxy: set) {
 				if (!treeNodeCache.containsKey(childProxy)) {
 					SharedNode node = new SharedNode((EditorDataProxy) childProxy);
-					String x = ((EditorDataProxy) childProxy).getLabel();
+					String x = null;
+					try {
+						x = URLDecoder.decode(((EditorDataProxy) childProxy).getLabel(), "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					int y1 = x.lastIndexOf("/");
+					if (y1 == x.length() - 1) {
+						System.err.println("y11=" + y1);
+						y1 = x.substring(0,y1 - 1).lastIndexOf("/");
+						System.err.println("y12=" + y1);
+					}
 					int y2 = x.lastIndexOf("\\");
 					String x2 = x.substring(Math.max(y1, y2) + 1);
 					node.getProxy().setLabel(x2);
