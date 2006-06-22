@@ -22,6 +22,7 @@ import java.util.List;
 import org.jdom.JDOMException;
 
 import com.nexusbpm.editor.tree.DatasourceRoot;
+import command.EditorCommand;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
@@ -52,7 +53,10 @@ public class SpecificationFileDAO implements SpecificationDAO{
 				return null;
 			}
             try {
-				List l = YMarshal.unmarshalSpecifications(o.toString());
+            	System.out.println(o.toString());
+            	System.out.println(">>" + new File(o.toString()).toURI().toASCIIString());
+            	List l = null;
+				l = YMarshal.unmarshalSpecifications( new File(o.toString()).toURI().toASCIIString());
 				if (l != null && l.size() == 1) {
 					retval = (YSpecification) l.get(0);
 					retval.setID(new File(o.toString()).toURI().toString());
@@ -116,7 +120,7 @@ public class SpecificationFileDAO implements SpecificationDAO{
 				if (files != null) {
 					for (File aFile : files) {
 						String file = aFile.toURI().toString();
-						if (file.endsWith("/")) file = file.substring(0, file.length() - 1); 
+//						if (file.endsWith("/")) file = file.substring(0, file.length() - 1); 
 						retval.add(file);
 					}
 				}

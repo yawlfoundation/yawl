@@ -7,16 +7,21 @@
  */
 package au.edu.qut.yawl.elements;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import au.edu.qut.yawl.elements.data.YInputParameter;
 import au.edu.qut.yawl.elements.data.YOutputParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import com.nexusbpm.editor.component.EmailSenderComponent;
 import com.nexusbpm.editor.component.JythonComponent;
+import command.EditorCommand;
 
 /**
  * The purpose of theMockYSpecification is to provide an example of how to build
  * a robust specification that will be compatible with capsela-style variables
- * and to provide a ready-made specification to use in testing.
+ * and to provide a ready-made specification to use in testing. It is also a 
+ * testbed for systematic methods of setting variables in specifications. 
  * 
  * @author Matthew Sandoz
  * 
@@ -194,8 +199,19 @@ public class MockYSpecification {
 	
 	
 	public static YSpecification getNewSpecification() {
-		YSpecification spec = new YSpecification(
-				"virtual://memory/home/sandozm/templates/testing/testspec.xml");
+		YSpecification spec = null;
+		try {
+			spec = new YSpecification((
+					new URI(
+							"virtual",
+							"memory", 
+							"/home/sandozm/templates/testing/Spec François.xml", 
+							null, 
+							null
+							)).toString());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
 		initSpec(spec);
 		return spec;
 	}
@@ -208,7 +224,7 @@ public class MockYSpecification {
 	}
 
 	private synchronized static void initSpec(YSpecification specification) {
-		specification.setName("My test specification.xml");
+		specification.setName("My test specification");
 		specification.setBetaVersion(YSpecification._Beta7_1);
 		specification.setMetaData(new YMetaData());
 

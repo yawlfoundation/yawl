@@ -336,7 +336,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 			if( isDropCopy( draggingNode, destinationPath ) ) {
 				LOG.debug( "performing COPY action" );
 				System.out.println("copying...");
-				EditorCommand.executeCopyCommand( draggingNode, destinationNode);
+				EditorCommand.executeCopyCommand( draggingNode.getProxy(), destinationNode.getProxy());
 				e.acceptDrop( DnDConstants.ACTION_COPY );
 			}
 			else {
