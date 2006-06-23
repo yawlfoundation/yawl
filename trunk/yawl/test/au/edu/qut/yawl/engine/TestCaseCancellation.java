@@ -161,15 +161,17 @@ public class TestCaseCancellation extends TestCase {
             }
         }
         firedItems = _repository.getFiredWorkItems();
-        Iterator iterator = firedItems.iterator(); iterator.hasNext();
-        YWorkItem workItem = (YWorkItem) iterator.next();
-        _engine.startWorkItem(workItem, "admin");
-
+        for (Iterator iterator = firedItems.iterator(); iterator.hasNext();) {
+            YWorkItem workItem = (YWorkItem) iterator.next();
+            _engine.startWorkItem(workItem, "admin");
+            break;
+        }
         activeItems = _repository.getExecutingWorkItems();
-        iterator = activeItems.iterator(); iterator.hasNext();
-        workItem = (YWorkItem) iterator.next();
-        _engine.completeWorkItem(workItem, "<data/>");
-
+        for (Iterator iterator = activeItems.iterator(); iterator.hasNext();) {
+            YWorkItem workItem = (YWorkItem) iterator.next();
+            _engine.completeWorkItem(workItem, "<data/>");
+            break;
+        }
     }
 
     public static void main(String args[]) {
