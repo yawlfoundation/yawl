@@ -684,7 +684,7 @@ public class TestEngineGateway extends TestCase {
         	WorkItemRecord item = getWorkItemFromID( id );
         	assertNotNull( id, item );
         	
-        	if( item.getStatus().equals( YWorkItem.Status.Enabled ) )
+        	if( item.getStatus().toString().equals( YWorkItem.Status.Enabled.toString() ) )
         		items.put( item.getTaskID(), item );
         }
         
@@ -721,7 +721,7 @@ public class TestEngineGateway extends TestCase {
         	WorkItemRecord item = getWorkItemFromID( id );
         	assertNotNull( id, item );
         	
-        	if( item.getStatus().equals( status ) )
+        	if( item.getStatus().toString().equals( status.toString() ) )
         		items.add( item );
         }
         
