@@ -20,28 +20,19 @@ import java.util.List;
  * 
  */
 public class YMessagePrinter {
-    public static void printMessages(List messages) {
-        Iterator iter = messages.iterator();
-        while (iter.hasNext()) {
-            Object o = null;
-            try {
-                o = iter.next();
-                YVerificationMessage vm = (YVerificationMessage) o;
-                System.out.println(vm.getStatus() + ":" + vm.getMessage());
-            } catch (ClassCastException cce) {
-                System.out.println("About to throw exception over this object = " + o.getClass().getName());
-                cce.printStackTrace();
-            }
+    public static void printMessages(List<YVerificationMessage> messages) {
+        for (YVerificationMessage vm : messages) {
+            System.out.println(vm.getStatus() + ":" + vm.getMessage());
         }
     }
 
 
-    public static String getMessageString(List messages) {
+    public static String getMessageString(List<YVerificationMessage> messages) {
         StringBuffer stringBuffer = new StringBuffer();
-        Iterator iter = messages.iterator();
-        while (iter.hasNext()) {
-            YVerificationMessage message = (YVerificationMessage) iter.next();
-            stringBuffer.append("\n" + message.getStatus() + ":" + message.getMessage());
+        for (YVerificationMessage message1 : messages) {
+            stringBuffer
+                    .append("\n").append(message1.getStatus())
+                    .append(":").append(message1.getMessage());
         }
         return stringBuffer.toString();
     }

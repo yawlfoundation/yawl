@@ -47,16 +47,22 @@ public class SpecificationFileDAO implements SpecificationDAO{
 		this.root = root;
 	}
 
-	public YSpecification retrieve(Object o) {
+    //todo Question by LA: retrieve (object) ???
+    //your precondition, i assume, is that this is an appropriately formed string
+    // pointing to a file.
+    // However the method signature enforces nothing at compile time.
+    //Is this wise?  Is the price we pay for this style of coding that our program
+    // starts to become weakly typed - like C programs?
+    public YSpecification retrieve(Object o) {
 		YSpecification retval = null;
             if (o == null) {
 				return null;
 			}
             try {
             	System.out.println(o.toString());
-            	System.out.println(">>" + new File(o.toString()).toURI().toASCIIString());
+            	System.out.println(">>" + o.toString());
             	List l = null;
-				l = YMarshal.unmarshalSpecifications( new File(o.toString()).toURI().toASCIIString());
+				l = YMarshal.unmarshalSpecifications( o.toString());
 				if (l != null && l.size() == 1) {
 					retval = (YSpecification) l.get(0);
 					retval.setID(new File(o.toString()).toURI().toString());

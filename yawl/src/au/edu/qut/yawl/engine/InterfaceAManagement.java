@@ -14,6 +14,7 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.util.YVerificationMessage;
 import org.jdom.JDOMException;
 
 import java.io.File;
@@ -52,7 +53,7 @@ public interface InterfaceAManagement {
      * @throws IOException
      * @throws YPersistenceException
      */
-    List addSpecifications(File specificationFile, boolean ignoreErors, List errorMessages) throws JDOMException, IOException, YPersistenceException;
+    List addSpecifications(File specificationFile, boolean ignoreErors, List<YVerificationMessage> errorMessages) throws JDOMException, IOException, YPersistenceException;
 
     boolean loadSpecification(YSpecification spec);
 

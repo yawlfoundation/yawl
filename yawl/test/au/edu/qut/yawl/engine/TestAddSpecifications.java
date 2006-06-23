@@ -63,11 +63,11 @@ public class TestAddSpecifications extends TestCase {
     	List<YVerificationMessage> errors = new LinkedList<YVerificationMessage>();
     	
     	ids = _engine.addSpecifications( _spec1File, false, errors );
+
     	assertNotNull( ids );
     	assertTrue( "" + ids.size(), ids.size() == 0 );
     	assertFalse( YMessagePrinter.getMessageString( errors ),
     			YVerificationMessage.containsNoErrors( errors ) );
-    	
     }
     
     /**

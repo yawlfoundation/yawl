@@ -71,7 +71,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 	    "isUntyped",
 	    "elementName"
 })
-public class YVariable implements Cloneable, YVerifiable, PolymorphicPersistableObject {
+public class YVariable implements Comparable, Cloneable, YVerifiable, PolymorphicPersistableObject {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -502,15 +502,23 @@ public class YVariable implements Cloneable, YVerifiable, PolymorphicPersistable
         return _dataTypeName != null;
     }
 
+    /**
+     * @param o
+     * @return always 1 to put all local variables after params when sorting them.
+     */
+    public int compareTo(Object o) {
+        return 1;
+    }
+
     public static class MyAdapter extends XmlAdapter<String, String> {
         public MyAdapter(){}
-        
+
         // Convert a value type to a bound type.
         // read xml content and put into Java class.
         public String unmarshal(String v){
-        	return null;//v.getName().toString();
+            return null;//v.getName().toString();
         }
-        
+
         // Convert a bound type to a value type.
         // write Java content into class that generates desired XML 
         public String marshal(String v){

@@ -158,9 +158,9 @@ public class YAWLException extends Exception {
 	static protected void logForCaller( Exception exception ) {
 		if( ! logging() ) return;
 		Logger logger = Logger.getLogger(callerClassName(exception.getClass().getName()));
-		Throwable throwable = (Throwable) exception;
+		Throwable throwable = exception;
 		throwable = throwable.getCause() != null ? throwable.getCause() : throwable;
-		logger.error(exception, throwable);
+		logger.error("Exception occurred: ", throwable);
 	}//logForCaller()
 
 	/**

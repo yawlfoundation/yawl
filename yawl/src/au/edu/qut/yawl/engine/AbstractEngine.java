@@ -492,17 +492,16 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * @param errorMessages     - an in/out param passing any error messages.
      * @return the specification ids of the sucessfully loaded specs
      */
-    public List addSpecifications(File specificationFile, boolean ignoreErors, List errorMessages) throws JDOMException, IOException, YPersistenceException {
+    public List<String> addSpecifications(File specificationFile, boolean ignoreErors, List<YVerificationMessage> errorMessages) throws JDOMException, IOException, YPersistenceException {
             logger.debug("--> addSpecification: File=" + specificationFile.getAbsolutePath());
 
-            List returnIDs = new Vector();
+            List<String> returnIDs = new Vector<String>();
             List newSpecifications;
             String parsingMsg;
             try {
                 //if there is an XML Schema problem _report it and abort
                 newSpecifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());
             } catch (YSyntaxException e) {
-
                 parsingMsg = e.getMessage();
                 //catch the xml parsers exception,
                 //transform it into YAWL format and abort the load
@@ -512,7 +511,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 }
                 logger.debug("<-- addSpecifcations: syntax exceptions found");
                 return returnIDs;
-            } catch (YSchemaBuildingException e) {
+            }
+            catch (YSchemaBuildingException e) {
                 logger.error("Could not build schema.", e);
                 e.printStackTrace();
                 return null;
@@ -530,9 +530,9 @@ public abstract class AbstractEngine implements InterfaceADesign,
                     if (success) {
                     	logger.info("Persisting specification loaded from file " + specificationFile.getAbsolutePath());
                     	YSpecFile yspec = new YSpecFile(specificationFile.getAbsolutePath());
-                        /*
-                          INSERTED FOR PERSISTANCE
-                         */
+                        //
+                        //  INSERTED FOR PERSISTANCE
+                        //
 //  TODO                      if (!restoring) {
 //                            logger.info("Persisting specification loaded from file " + specificationFile.getAbsolutePath());
 //                            YSpecFile yspec = new YSpecFile(specificationFile.getAbsolutePath());
@@ -548,7 +548,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 ////                                }
 ////                            }
 //                        }
-                        /******************/
+
 
                         returnIDs.add(specification.getID());
                     } else {//the user has loaded the specification with identical id

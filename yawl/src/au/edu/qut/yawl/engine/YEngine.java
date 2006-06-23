@@ -34,6 +34,7 @@ import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.logging.YawlLogServletInterface;
+import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  *
@@ -49,7 +50,7 @@ import au.edu.qut.yawl.logging.YawlLogServletInterface;
  * @author Lachlan Aldred
  *         Date: 17/06/2003
  *         Time: 13:46:54
- *
+ * ©  
  */
 public class YEngine extends AbstractEngine {
     private static Logger logger = Logger.getLogger(YEngine.class);
@@ -59,6 +60,7 @@ public class YEngine extends AbstractEngine {
     private static YawlLogServletInterface yawllog = null;
     private static UserList _userList;
     private final Object mutex = new Object();
+
 
     /*************************************************/
     /*INSERTED VARIABLES AND METHODS FOR PERSISTANCE */
@@ -79,13 +81,13 @@ public class YEngine extends AbstractEngine {
      * Consructor.
      */
     protected YEngine() {
-    	super();
+        super();
         yawllog = YawlLogServletInterface.getInstance();
     }
 
 
     /**
-     * @deprecated This is being called from restore() only so will be commented for now (Persistence related code)
+     * @ deprecated This is being called from restore() only so will be commented for now (Persistence related code)
      * @param uri
      * @return
      * @throws YPersistenceException
@@ -539,14 +541,14 @@ public class YEngine extends AbstractEngine {
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService( ys );
 
-			ys = new YAWLServiceReference( "http://localhost:8080/workletService/ib", null );
-			ys.setDocumentation( "Worklet Dynamic Process Selection Service" );
-			_myInstance.removeYawlService( ys.getURI() );
-			_myInstance.addYawlService( ys );
+            ys = new YAWLServiceReference( "http://localhost:8080/workletService/ib", null );
+            ys.setDocumentation( "Worklet Dynamic Process Selection Service" );
+            _myInstance.removeYawlService( ys.getURI() );
+            _myInstance.addYawlService( ys );
 
-			ys = new YAWLServiceReference( "http://localhost:8080/yawlSMSInvoker/ib", null );
-			ys.setDocumentation( "SMS Message Module. Works if you have an account." );
-			_myInstance.removeYawlService(ys.getURI());
+            ys = new YAWLServiceReference( "http://localhost:8080/yawlSMSInvoker/ib", null );
+            ys.setDocumentation( "SMS Message Module. Works if you have an account." );
+            _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
 
             ys = new YAWLServiceReference("http://localhost:8080/timeService/ib", null);
@@ -582,13 +584,13 @@ public class YEngine extends AbstractEngine {
      * @param errorMessages     - an in/out param passing any error messages.
      * @return the specification ids of the sucessfully loaded specs
      */
-    public List addSpecifications(File specificationFile, boolean ignoreErors, List errorMessages) throws JDOMException, IOException, YPersistenceException {
+    public List<String> addSpecifications(File specificationFile, boolean ignoreErors, List<YVerificationMessage> errorMessages) throws JDOMException, IOException, YPersistenceException {
 
         /**
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.addSpecifications(specificationFile, ignoreErors, errorMessages);
+            return super.addSpecifications(specificationFile, ignoreErors, errorMessages);
         }
     }
 
@@ -599,7 +601,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.loadSpecification(spec);
+            return super.loadSpecification(spec);
         }
     }
 
@@ -617,7 +619,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	super.unloadSpecification(specID);
+            super.unloadSpecification(specID);
         }
     }
 
@@ -672,7 +674,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getSpecIDs();
+            return super.getSpecIDs();
         }
     }
 
@@ -688,7 +690,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getLoadedSpecifications();
+            return super.getLoadedSpecifications();
         }
     }
 
@@ -698,7 +700,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getSpecification(specID);
+            return super.getSpecification(specID);
         }
     }
 
@@ -708,7 +710,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getCaseID(caseIDStr);
+            return super.getCaseID(caseIDStr);
         }
     }
 
@@ -718,7 +720,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getStateTextForCase(caseID);
+            return super.getStateTextForCase(caseID);
         }
     }
 
@@ -728,7 +730,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getStateForCase(caseID);
+            return super.getStateForCase(caseID);
         }
     }
 
@@ -738,7 +740,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	super.registerInterfaceAClient(observer);
+            super.registerInterfaceAClient(observer);
         }
     }
 
@@ -747,7 +749,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	super.registerInterfaceBObserver(observer);
+            super.registerInterfaceBObserver(observer);
         }
     }
 
@@ -761,7 +763,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	super.registerInterfaceBObserverGateway(gateway);
+            super.registerInterfaceBObserverGateway(gateway);
         }
     }
 
@@ -769,12 +771,12 @@ public class YEngine extends AbstractEngine {
     //################################################################################
     //   BEGIN REST-FUL SERVICE METHODS
     //################################################################################
-    public Set getAvailableWorkItems() {
+    public Set<YWorkItem> getAvailableWorkItems() {
         /**
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getAvailableWorkItems();
+            return super.getAvailableWorkItems();
         }
     }
 
@@ -784,7 +786,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getProcessDefinition(specID);
+            return super.getProcessDefinition(specID);
         }
     }
 
@@ -794,7 +796,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getWorkItem(workItemID);
+            return super.getWorkItem(workItemID);
         }
     }
 
@@ -804,7 +806,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getAllWorkItems();
+            return super.getAllWorkItems();
         }
     }
 
@@ -827,7 +829,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.startWorkItem(workItem, userID);
+            return super.startWorkItem(workItem, userID);
         }
     }
 
@@ -844,7 +846,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getTaskDefinition(specificationID, taskID);
+            return super.getTaskDefinition(specificationID, taskID);
         }
     }
 
@@ -862,7 +864,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	super.completeWorkItem(workItem, data);
+            super.completeWorkItem(workItem, data);
         }
     }
 
@@ -883,7 +885,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	super.checkElegibilityToAddInstances(workItemID);
+            super.checkElegibilityToAddInstances(workItemID);
         }
     }
 
@@ -903,7 +905,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.createNewInstance(workItem, paramValueForMICreation);
+            return super.createNewInstance(workItem, paramValueForMICreation);
         }
     }
 
@@ -913,7 +915,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	super.suspendWorkItem(workItemID, userName);
+            super.suspendWorkItem(workItemID, userName);
         }
     }
 
@@ -923,7 +925,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.launchCase(username, specID, caseParams, completionObserver);
+            return super.launchCase(username, specID, caseParams, completionObserver);
         }
     }
 
@@ -943,7 +945,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getCasesForSpecification(specID);
+            return super.getCasesForSpecification(specID);
         }
     }
 
@@ -953,7 +955,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getRegisteredYawlService(yawlServiceID);
+            return super.getRegisteredYawlService(yawlServiceID);
         }
     }
 
@@ -985,7 +987,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	super.addYawlService(yawlService);
+            super.addYawlService(yawlService);
         }
     }
 
@@ -995,7 +997,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getChildrenOfWorkItem(workItem);
+            return super.getChildrenOfWorkItem(workItem);
         }
     }
 
@@ -1030,7 +1032,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getUsers();
+            return super.getUsers();
         }
     }
 
@@ -1039,21 +1041,21 @@ public class YEngine extends AbstractEngine {
      * Returns a list of the YIdentifiers objects for running cases.
      *
      * @return the case ids of the current unfinished processes.
-     * @deprecated this method is not being used
+     * @ deprecated this method is not being used
      */
 //    public List getRunningCaseIDs() {
 //        return new ArrayList(_runningCaseIDToSpecIDMap.keySet());
 //    }
 
     /**
-     * 
+     *
      */
     public String getLoadStatus(String specID) {
         /**
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.getLoadStatus(specID);
+            return super.getLoadStatus(specID);
         }
 
     }
@@ -1072,7 +1074,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return super.removeYawlService(serviceURI);
+            return super.removeYawlService(serviceURI);
         }
     }
 
@@ -1102,7 +1104,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	super.dump();
+            super.dump();
         }
     }
 
@@ -1126,7 +1128,7 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	super.storeObject(obj);
+            super.storeObject(obj);
         }
     }
 

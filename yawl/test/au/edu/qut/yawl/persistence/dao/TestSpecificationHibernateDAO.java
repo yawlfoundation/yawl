@@ -28,8 +28,8 @@ public class TestSpecificationHibernateDAO extends TestCase {
 		SpecificationDAO fileDAO = fileFactory.getSpecificationModelDAO();
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestMakeRecordingsBigTest.xml", true);
-		String uri = f.toURI().toString();
-		testSpec = fileDAO.retrieve(uri);
+
+        testSpec = fileDAO.retrieve(f.getAbsolutePath());
 	}
 
 	protected void tearDown() throws Exception {
