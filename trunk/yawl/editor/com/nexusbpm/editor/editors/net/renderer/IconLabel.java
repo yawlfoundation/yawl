@@ -10,7 +10,6 @@ import javax.swing.UIManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**

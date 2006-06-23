@@ -1,14 +1,5 @@
 package com.nexusbpm.editor.component;
 
-import java.awt.Rectangle;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.ImageIcon;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

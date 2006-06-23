@@ -9,20 +9,14 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 
 import javax.swing.JDesktopPane;
-import javax.swing.JInternalFrame;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import samples.bboard.Client;
-
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YNet;
 
-import com.nexusbpm.editor.WorkflowEditor;
-import com.nexusbpm.editor.editors.NetEditor;
-import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.DragAndDrop;
 import com.nexusbpm.editor.tree.SharedNode;

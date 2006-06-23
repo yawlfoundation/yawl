@@ -29,39 +29,27 @@ import java.util.Hashtable;
 
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.ToolTipManager;
-import javax.swing.tree.TreePath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jgraph.JGraph;
 import org.jgraph.graph.AttributeMap;
 import org.jgraph.graph.CellView;
-import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphLayoutCache;
 import org.jgraph.util.JGraphUtilities;
 
-import samples.bboard.Client;
-
 import au.edu.qut.yawl.elements.YAtomicTask;
 
 import com.nexusbpm.editor.WorkflowEditor;
-import com.nexusbpm.editor.component.EmailSenderEditor;
-import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.desktop.ComponentEditor;
 import com.nexusbpm.editor.editors.net.cells.CapselaCell;
-import com.nexusbpm.editor.editors.net.cells.GraphEdge;
-import com.nexusbpm.editor.editors.net.cells.GraphPort;
 import com.nexusbpm.editor.editors.net.cells.ViewFactory;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.DragAndDrop;
 import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.worker.CapselaWorker;
-import com.nexusbpm.editor.worker.GlobalEventQueue;
 
 /**
  * JGraph object that handles drag'n drop, cell bounds auto-sizing, printing

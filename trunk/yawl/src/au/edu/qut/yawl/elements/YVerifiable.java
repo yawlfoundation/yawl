@@ -9,9 +9,9 @@
 
 package au.edu.qut.yawl.elements;
 
-import au.edu.qut.yawl.util.YVerificationMessage;
-
 import java.util.List;
+
+import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  * 

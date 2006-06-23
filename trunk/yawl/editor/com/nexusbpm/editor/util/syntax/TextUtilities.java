@@ -9,7 +9,8 @@ package com.nexusbpm.editor.util.syntax;
  * remains intact in all source distributions of this package.
  */
 
-import javax.swing.text.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 
 /**
  * Class with several utility functions used by the text area component.

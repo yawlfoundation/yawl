@@ -11,9 +11,6 @@ import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.exceptions.YAWLException;
 
-import com.nexusbpm.editor.util.ComparatorHelper;
-import com.nexusbpm.editor.util.Operator;
-
 /**
  * Extension to the <tt>TableModel</tt> interface which provides extra
  * functionality, such as determining whether a column contains numeric

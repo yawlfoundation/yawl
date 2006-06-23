@@ -335,8 +335,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 
 			if( isDropCopy( draggingNode, destinationPath ) ) {
 				LOG.debug( "performing COPY action" );
-				System.out.println("copying...");
-				EditorCommand.executeCopyCommand( draggingNode.getProxy(), destinationNode.getProxy());
+				EditorCommand.executeCopyCommand( draggingNode, destinationNode);
 				e.acceptDrop( DnDConstants.ACTION_COPY );
 			}
 			else {
@@ -351,7 +350,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 			expandPath( parentPath );
 		}
 		catch( Exception ex ) {
-			LOG.error( ex );
+			LOG.error("Exception trying to copy specification.", ex );
 			ex.printStackTrace();
 		}
 

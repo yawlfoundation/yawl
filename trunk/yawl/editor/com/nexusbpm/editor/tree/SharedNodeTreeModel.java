@@ -1,6 +1,5 @@
 package com.nexusbpm.editor.tree;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -12,7 +11,6 @@ import java.util.Set;
 
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import au.edu.qut.yawl.elements.YAWLServiceGateway;

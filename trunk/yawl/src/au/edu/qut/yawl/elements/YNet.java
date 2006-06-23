@@ -55,8 +55,8 @@ import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.schema.Instruction;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
 import au.edu.qut.yawl.util.Order;
-import au.edu.qut.yawl.util.YVerificationMessage;
 import au.edu.qut.yawl.util.Sorter;
+import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  * 

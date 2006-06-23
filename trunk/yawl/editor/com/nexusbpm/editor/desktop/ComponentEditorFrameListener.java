@@ -6,11 +6,9 @@ import javax.swing.event.InternalFrameEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdesktop.swingworker.SwingWorker;
 
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
-import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
 import com.nexusbpm.editor.worker.Worker;
 
@@ -130,7 +128,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 			}//run()
 		};
 		GlobalEventQueue.add( worker );
-		new RuntimeException("OUTPUT ONLY create global event queue (Executor) and add worker").printStackTrace();
+		LOG.error("TODO:", new RuntimeException("Create global event queue (Executor) and add worker"));
 	}
 
 	private void callSuperInternalFrameOpened( InternalFrameEvent e ) {

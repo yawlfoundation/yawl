@@ -9,16 +9,15 @@ import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
-
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.data.YVariable;
 
-import com.nexusbpm.editor.util.syntax.PythonTokenMarker;
-import com.nexusbpm.editor.util.syntax.SyntaxDocument;
 import com.nexusbpm.editor.desktop.ComponentEditor;
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.util.syntax.JEditTextArea;
+import com.nexusbpm.editor.util.syntax.PythonTokenMarker;
+import com.nexusbpm.editor.util.syntax.SyntaxDocument;
 
 /**
  * The editor for Jython components.
