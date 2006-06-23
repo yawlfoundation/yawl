@@ -245,12 +245,9 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 		if (data instanceof YAtomicTask) {
 			YAtomicTask task = (YAtomicTask) data;
 			if (task.getDecomposition() != null) {
-				if (task.getDecomposition().getName() != null) {
-					iconName = task.getDecomposition().getId();		
-				}
-				else {
-					iconName = "au.edu.qut.yawl.elements.YAtomicTask";
-				}
+				iconName = task.getDecomposition().getId() != null 
+				? task.getDecomposition().getId() 
+				: "au.edu.qut.yawl.elements.YAtomicTask";
 			}
 			else {
 				iconName = "com.ichg.capsela.domain.component.DummyComponent";
