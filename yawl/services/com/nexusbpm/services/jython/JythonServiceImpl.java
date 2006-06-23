@@ -1,19 +1,29 @@
 package com.nexusbpm.services.jython;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
+
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+import javax.jws.WebService;
 
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.python.util.PythonInterpreter;
+
+import com.nexusbpm.services.util.XmlUtil;
 
 /**
  * Implementation of the XFire service interface.
  */
+@WebService
 public class JythonServiceImpl implements JythonService {
 	private boolean initialized = false;
 	
@@ -38,22 +48,40 @@ public class JythonServiceImpl implements JythonService {
 			PythonInterpreter.initialize( System.getProperties(), props, new String[ 0 ] );
 		}
 	}
-
-	public String execute( String inputData ) {
-		JythonData data = new JythonData();
-		
+	
+	@WebMethod
+	@WebResult(name="results")
+	public String execute(
+			@WebParam(name="code") String code,
+			@WebParam(name="output") String output,
+			@WebParam(name="error") String error,
+			@WebParam(name="vars") String vars ) {
 		StringWriter outputWriter = new StringWriter();
 		StringWriter errWriter = new StringWriter();
+		
+		Map<String, String> varMap = new HashMap<String, String>();
 		
 		try {
 			initialize();
 			
-			System.out.println( "Jython received input data:" + inputData );
+			// TODO temporary newline hack...
+			String ls = System.getProperty( "line.separator" );
+			if( ls == null || ls.length() == 0 ) {
+				ls = "\n";
+			}
+			code = code.replaceAll( "@nl;", ls );
 			
-//			data = new JythonData( XmlUtil.unflattenXML( inputData ) );
-			data = new JythonData( "<JythonComponent><code>" + inputData + "</code></JythonComponent>" );
+			System.out.println( "Jython received input code:" + code );
 			
 			PythonInterpreter interp = new PythonInterpreter();
+			
+			// Process dynamic attributes (put attribute values into the Jython interpreter).
+			varMap = getDynamicVariables( vars, errWriter );
+			for( Iterator<String> iter = varMap.keySet().iterator(); iter.hasNext(); ) {
+				String varName = iter.next();
+				String varVal = varMap.get( varName );
+				interp.set( varName, varVal );
+			}
 
 //			// Process dynamic attributes (put attribute values into the Jython interpreter).
 //			Map<String, ComponentAttribute> attributes = this.getComponentAttributes();
@@ -72,12 +100,26 @@ public class JythonServiceImpl implements JythonService {
 			// Execute the code.
 			interp.setOut( outputWriter );
 			interp.setErr( errWriter );
-			interp.exec( data.code );
+			interp.exec( code );
 
-			// Store the output and errors.
-			data.error = errWriter.toString();
-			data.output = outputWriter.toString();
-
+//			// Store the output and errors.
+//			data.error = errWriter.toString();
+//			data.output = outputWriter.toString();
+			
+			// Process dynamic attributes (get attribute values out of the Jython interpreter).
+			for( Iterator<String> iter = varMap.keySet().iterator(); iter.hasNext(); ) {
+				String varName = iter.next();
+				try {
+					Serializable varVal = (Serializable) interp.get( varName, Serializable.class );
+					varMap.put( varName, varVal.toString() );
+				}
+				catch( Throwable t ) {
+					errWriter.write( "Error retrieving value of dynamic variable '" + varName +
+							"' from the Jython interpreter!\n" );
+					t.printStackTrace( new PrintWriter( errWriter ) );
+				}
+			}
+			
 //			// Process dynamic attributes (get attribute values out of the Jython interpreter).
 //			for( Iterator<String> iter = nameSet.iterator(); iter.hasNext(); ) {
 //				String attributeName = iter.next();
@@ -105,47 +147,67 @@ public class JythonServiceImpl implements JythonService {
 //			}
 		}
 		catch( Exception e ) {
-			data.output = outputWriter.toString();
+//			data.output = outputWriter.toString();
 			errWriter.write( "\n" );
 			e.printStackTrace( new PrintWriter( errWriter ) );
-			data.error = errWriter.toString();
+//			data.error = errWriter.toString();
 		}
 		
 		try {
-			System.out.println( data.getResult() );
+			System.out.println( "Jython service results:\n" +
+					getResults( code, outputWriter.toString(), errWriter.toString(), varMap ) );
 		}
 		catch( Throwable t ) {
 		}
 		
-//		return data.getResult();
-		return data.output;
+		return getResults( code, outputWriter.toString(), errWriter.toString(), varMap );
 	}
 	
-	class JythonData {
-		String code;
-		String error;
-		String output;
+	private Map<String, String> getDynamicVariables( String variables, StringWriter errWriter ) {
+		Map m = new HashMap<String, String>();
 		
-		private JythonData( String xml ) throws JDOMException, IOException {
-			Document doc = XmlUtil.xmlToDocument( xml );
-			
-			Element root = doc.getRootElement();
-			
-			this.code = root.getChildText( "code" );
-			this.error = root.getChildText( "error" );
-			this.output = root.getChildText( "output" );
+		if( variables != null && variables.length() > 0 ) {
+			try {
+				Document d = XmlUtil.xmlToDocument( XmlUtil.unmarshal( variables ) );
+				Element root = d.getRootElement();
+				
+				for( int index = 0; index < root.getContentSize(); index++ ) {
+					if( root.getContent( index ) instanceof Element ) {
+						Element child = (Element) root.getContent( index );
+						
+						String varName = child.getName();
+						String varVal = XmlUtil.unmarshal( child.getText() );
+						
+						System.out.println( "Jython found dynamic var '" + varName + "' with val '" + varVal + "'" );
+						
+						m.put( varName, varVal );
+					}
+				}
+			}
+			catch( Throwable t ) {
+				errWriter.write( "Error parsing dynamic variables in the JythonService!\n" );
+				errWriter.write( "Variable data:" + variables + "\n" );
+				t.printStackTrace( new PrintWriter( errWriter ) );
+			}
 		}
 		
-		private JythonData() {
-			code = "";
-			error = "";
-			output = "";
+		return m;
+	}
+	
+	private String getResults( String code, String output, String error, Map<String, String> vars ) {
+		String ret = "<YAWLParameters>";
+		ret += XmlUtil.wrap( "code", code );
+		ret += XmlUtil.wrap( "output", output );
+		ret += XmlUtil.wrap( "error", error );
+		
+		for( Iterator<String> iter = vars.keySet().iterator(); iter.hasNext(); ) {
+			String varName = iter.next();
+			String varVal = vars.get( varName );
+			ret += XmlUtil.wrap( varName, varVal );
 		}
 		
-		private String getResult() {
-			return "<JythonComponent><code>" + code + "</code>" +
-				"<error>" + error + "</error>" +
-				"<output>" + output + "</output></JythonComponent>";
-		}
+		ret += "</YAWLParameters>";
+		
+		return ret;
 	}
 }
