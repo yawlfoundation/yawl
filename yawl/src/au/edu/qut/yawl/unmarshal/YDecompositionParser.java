@@ -129,7 +129,7 @@ public class YDecompositionParser {
         for (int i = 0; i < inputParamElems.size(); i++) {
             Element inputParamElem = (Element) inputParamElems.get(i);
             YInputParameter yparameter = new YInputParameter(_decomposition, YParameter._INPUT_PARAM_TYPE);
-            yparameter.setOrdering(i);
+//            yparameter.setOrdering(i);
             parseParameter(inputParamElem, yparameter, _yawlNS, isBeta2Version());
             decomposition.setInputParam(yparameter);
         }
@@ -137,7 +137,7 @@ public class YDecompositionParser {
         for (int i = 0; i < outputParamElems.size(); i++) {
             Element outputParamElem = (Element) outputParamElems.get(i);
             YOutputParameter yparameter = new YOutputParameter(_decomposition, YParameter._OUTPUT_PARAM_TYPE);
-            yparameter.setOrdering(i);
+//            yparameter.setOrdering(i);
             parseParameter(outputParamElem, yparameter, _yawlNS, isBeta2Version());
             decomposition.setOutputParameter(yparameter);
         }
@@ -162,7 +162,7 @@ public class YDecompositionParser {
         for (int i = 0; i < enablementParamElems.size(); i++) {
             Element enablementParamElem = (Element) enablementParamElems.get(i);
             YParameter parameter = new YParameter(_decomposition, YParameter._ENABLEMENT_PARAM_TYPE);
-            parameter.setOrdering(i);
+//            parameter.setOrdering(i);
             parseParameter(enablementParamElem, parameter, _yawlNS, isBeta2Version());
             webServiceGateway.setEnablementParameter(parameter);
         }
