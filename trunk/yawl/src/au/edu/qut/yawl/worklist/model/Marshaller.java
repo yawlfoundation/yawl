@@ -18,10 +18,13 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.HashMap;
 
@@ -125,15 +128,22 @@ public class Marshaller {
                 } else {
                     paramsForTaskNCase.setOutputParam(param);
                 }
-                String paramOrdering = paramElem.getChildText("ordering");
-                int order = Integer.parseInt(paramOrdering);
-                param.setOrdering(order);
+//                String paramOrdering = paramElem.getChildText("ordering");
+//                int order = Integer.parseInt(paramOrdering);
+//                param.setOrdering(order);
             }
         } catch (JDOMException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        catch( Throwable t ) {
+			StringWriter sw = new StringWriter();
+    		sw.write( t.toString() + "\n" );
+    		t.printStackTrace(new PrintWriter(sw));
+    		System.out.println( sw.toString() );
+    		throw new RuntimeException( t );
+		}
         TaskInformation taskInfo = new TaskInformation(
                 paramsForTaskNCase,
                 taskID,
@@ -280,7 +290,10 @@ public class Marshaller {
             mergedDoc = new Document();//
             mergedDoc.setRootElement((Element) inputData.clone());
 
-            List children = outputData.getContent();
+            // create a new list containing the contents of the old list, because
+            // the call to Content.detach() in the loop will modify the original list
+            // and will cause elements to be skipped if you use the original list
+            List children = new LinkedList( outputData.getContent() );
 
             //iterate through the output vars and add them to the merged doc.
             for (int i = 0; i < children.size(); i++) {
