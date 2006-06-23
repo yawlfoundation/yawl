@@ -96,7 +96,7 @@ public class TestEngineGatewaySpecifications extends TestCase {
     public void testLoadSpecificationInvalidSpecFailure() throws RemoteException {
     	String result = _gateway.loadSpecification(
     			"<specificationSet><specification></specificationSet>",
-    			TestEngineGateway.randomFileName(), _session );
+    			"TestSpec.xml", _session );
     	assertNotNull( result );
     	assertTrue( result, result.startsWith( "<failure" ) );
     }
@@ -202,7 +202,23 @@ public class TestEngineGatewaySpecifications extends TestCase {
     			"</specificationSet>"
     	};
     	
+    	System.out.println( "hard-coded and results:" );
+    	
     	StringTokenizer st = new StringTokenizer( result, "\n\r\f" );
+    	
+    	for( String str : text ) {
+    		System.out.println( str );
+    		if( st.hasMoreTokens() ) {
+    			System.out.println( st.nextToken() );
+    		}
+    		System.out.println();
+    	}
+    	System.out.println( "remaining results:" );
+    	while( st.hasMoreTokens() ) {
+    		System.out.println( st.nextToken() );
+    	}
+    	
+    	st = new StringTokenizer( result, "\n\r\f" );
     	
     	for( int index = 0; index < text.length; index++ ) {
     		assertTrue( "out of tokens at line " + (index + 1), st.hasMoreTokens() );
