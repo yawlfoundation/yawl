@@ -2,8 +2,6 @@ package com.nexusbpm.editor.logger;
 
 import au.edu.qut.yawl.util.ObjectMessageListener;
 
-import com.nexusbpm.editor.exception.EditorException;
-
 /**
  * A listener for log record events.
  * 

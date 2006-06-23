@@ -1,7 +1,5 @@
 package com.nexusbpm.editor.logger;
 
-import javax.jms.JMSException;
-
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 

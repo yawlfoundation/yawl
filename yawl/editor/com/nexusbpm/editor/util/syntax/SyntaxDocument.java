@@ -9,8 +9,11 @@ package com.nexusbpm.editor.util.syntax;
  * remains intact in all source distributions of this package.
  */
 
-import javax.swing.event.*;
-import javax.swing.text.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.PlainDocument;
+import javax.swing.text.Segment;
 import javax.swing.undo.UndoableEdit;
 
 /**

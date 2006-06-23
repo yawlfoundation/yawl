@@ -6,8 +6,6 @@ import javax.swing.event.InternalFrameListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.nexusbpm.editor.WorkflowEditor;
-
 
 /**
  * This is just a frame listener that listens for closing window events. When we
@@ -119,7 +117,7 @@ public class ClosingFrameListener implements InternalFrameListener {
 	public void internalFrameOpened( InternalFrameEvent e ) {
 //		WorkflowEditor.getInstance().addWindowMenuItem( _frame );
 		needsClosing = true;
-		new RuntimeException("OUTPUT ONLY implement for yawl context").printStackTrace();
+		LOG.error("TODO:", new RuntimeException("Implement for yawl context"));
 	}
 
 	/**

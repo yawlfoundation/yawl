@@ -6,6 +6,8 @@ import java.util.Hashtable;
 
 import javax.swing.JComponent;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jgraph.JGraph;
 import org.jgraph.graph.AttributeMap;
 import org.jgraph.graph.CellView;
@@ -13,8 +15,6 @@ import org.jgraph.graph.CellViewFactory;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphLayoutCache;
 import org.jgraph.graph.GraphModel;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
 
 /**
  * @author Dean Mao

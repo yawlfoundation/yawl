@@ -1,24 +1,20 @@
 package command;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Date;
 
-import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.elements.YMetaData;
-import au.edu.qut.yawl.elements.YNet;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
-import au.edu.qut.yawl.persistence.managed.TestDataContext;
 
-import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.tree.SharedNode;
 
 public class EditorCommand {
+//id like to move some of the utility of these to the yspec, util context or dao classes
+	private static final Log LOG = LogFactory.getLog(EditorCommand.class);
 		
 	private static URI joinUris(URI parent, URI child) {
 		URI retval = null;
@@ -31,21 +27,19 @@ public class EditorCommand {
 		return retval;
 	}
 	
-	public static void executeCopyCommand(DataProxy source, DataProxy target) {
-	//preliminaries...
-		DataContext targetDataContext = target.getContext();
-		YSpecification spec = (YSpecification) source.getData();
+	public static void executeCopyCommand(SharedNode source, SharedNode target) {
+		DataContext targetDataContext = target.getProxy().getContext();
+		YSpecification spec = (YSpecification) source.getProxy().getData();
 		try {
 			YSpecification newSpec = (YSpecification) spec.clone();
-			String dataroot = target.getData().toString();
+			String dataroot = target.getProxy().getData().toString();
 			URI desturi = joinUris(new URI(dataroot), new URI(spec.getID()));
 			newSpec.setID(desturi.toASCIIString());
 			DataProxy dp = targetDataContext.getDataProxy(newSpec, null);
 			targetDataContext.put(dp);
-			System.out.println("spec id is " + spec.getID());
-			System.out.println("Copying to " + newSpec.getID());
+			LOG.info("Copying specification " + spec.getID() + " to " + newSpec.getID());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("Error copying specification " + spec.getID(), e);
 		}
 	}
 }

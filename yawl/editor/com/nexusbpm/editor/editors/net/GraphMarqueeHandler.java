@@ -12,16 +12,13 @@ import java.util.Map;
 
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import javax.swing.tree.TreePath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.classic.ValidationFailure;
 import org.jgraph.graph.BasicMarqueeHandler;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.PortView;
 
-import com.nexusbpm.editor.editors.net.cells.GraphPort;
 import com.nexusbpm.editor.editors.net.cells.PortHighlightable;
 
 /**
