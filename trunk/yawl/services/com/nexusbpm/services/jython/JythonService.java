@@ -1,9 +1,8 @@
 package com.nexusbpm.services.jython;
 
 /**
- * Interface for XFire service. It is not strictly necessary to give XFire the interface,
- * but the service class does have to implement <i>some</i> interface.
+ * Interface for XFire service.
  */
 public interface JythonService {
-	public String execute(String data);
+	public String execute(String code, String output, String error, String vars);
 }
