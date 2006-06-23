@@ -21,12 +21,12 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
     }    
     
     public boolean delete(YSpecification m) {
-        specs.remove(m.getID());
+        specs.remove(m.getDbID());
         return true;
     }
 
     public YSpecification retrieve(Object m) {
-    	return specs.get(m);
+    	return specs.get(m); //m should be the dbid 
     }
 
     public int save(YSpecification spec) {
@@ -36,7 +36,7 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
     }
 
     public Serializable getKey(YSpecification m) {
-        return m.getID();
+        return m.getDbID();
     }
 
 	public List getChildren(Object o) {

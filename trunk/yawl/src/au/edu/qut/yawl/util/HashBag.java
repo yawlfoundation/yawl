@@ -1,4 +1,4 @@
-package com.nexusbpm.editor.util;
+package au.edu.qut.yawl.util;
 
 import java.util.HashMap;
 import java.util.HashSet;

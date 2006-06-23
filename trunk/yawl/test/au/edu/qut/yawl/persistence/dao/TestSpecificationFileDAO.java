@@ -1,6 +1,8 @@
 package au.edu.qut.yawl.persistence.dao;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.StringProducerXML;
@@ -27,11 +29,15 @@ public class TestSpecificationFileDAO extends TestCase {
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
 		YSpecification spec = myDAO.retrieve(pk);
-		spec.setID("DUMMY.XML");
+		spec.setID(new File("DUMMY.XML").toURI().toASCIIString());
 		myDAO.save(spec);
-		assertTrue(new File(spec.getID()).exists());
-		myDAO.delete(spec);
-		assertFalse(new File(spec.getID()).exists());
+		try {
+			assertTrue("file was not found at:" + spec.getID(), new File(new URI(spec.getID())).exists());
+			myDAO.delete(spec);
+			assertFalse(new File(new URI(spec.getID())).exists());
+		} catch (URISyntaxException e) {
+			fail("couldnt handle built uri from " + spec.getID());
+		}
 	}
 
 	/*
@@ -55,9 +61,13 @@ public class TestSpecificationFileDAO extends TestCase {
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
 		YSpecification spec = myDAO.retrieve(pk);
-		spec.setID("DUMMY.XML");
+		spec.setID(new File("DUMMY.XML").toURI().toASCIIString());
 		myDAO.save(spec);
-		assertTrue(new File(spec.getID()).exists());
+		try {
+			assertTrue(new File(new URI(spec.getID())).exists());
+		} catch (URISyntaxException e) {
+			fail("couldnt save due to uri problems");
+		}
 	}
 
 	/*
