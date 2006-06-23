@@ -54,8 +54,8 @@ public class TestRestServiceMethods extends TestCase{
 
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
-        _engine.addSpecifications(mmFile, false, new ArrayList());
-        _engine.addSpecifications(mm2File, false, new ArrayList());
+        _engine.addSpecifications(mmFile, true, new ArrayList());
+        _engine.addSpecifications(mm2File, true, new ArrayList());
 
     }
 
