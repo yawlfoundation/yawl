@@ -49,7 +49,7 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:schema>
-		<decomposition id="OverseeMusic" isRootNet="true" xsi:type="NetFactsType">		
+		<decomposition id="OverseeMusic" xsi:type="NetFactsType" isRootNet="true">
 			<name>Oversee Music</name>
 			<inputParam>
 				<name>nameOfArtist</name>
