@@ -11,6 +11,8 @@ package au.edu.qut.yawl.engine;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -94,10 +96,17 @@ public class TestMiDataOutput extends TestCase {
     	}
     }
     
-    public void testRunMultiInstance() throws YDataStateException, YPersistenceException, YStateException,
-    		YSchemaBuildingException, YQueryException, JDOMException, IOException {
-    	YSpecification spec = readSpecification( _spec1File );
-    	runMultiInstance( spec, false );
+    public void testRunMultiInstance() {
+    	try {
+    		YSpecification spec = readSpecification( _spec1File );
+    		runMultiInstance( spec, false );
+    	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
 
     private YSpecification readSpecification(File specFile) throws YPersistenceException, JDOMException, IOException {
@@ -243,8 +252,7 @@ public class TestMiDataOutput extends TestCase {
      * <tt>for $d in /Prepare/songLocal return
      * &lt;song&gt;{$d/songName}{$d/songSpecification}&lt;/song&gt;</tt>
      */
-    public void testRunMultiInstanceBeta2() throws YDataStateException, YPersistenceException,
-    		YStateException, YSchemaBuildingException, YQueryException, JDOMException, IOException  {
+    public void testRunMultiInstanceBeta2() {
     	try {
 //    		_specification.setBetaVersion(YSpecification._Beta2);
     		YSpecification spec = readSpecification( _spec1File );
@@ -264,23 +272,42 @@ public class TestMiDataOutput extends TestCase {
 //    		System.out.println(e);
 //    		e.printStackTrace();
     	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
     
-    public void testRunMultiInstance2Beta2() throws YDataStateException, YPersistenceException,
-			YStateException, YSchemaBuildingException, YQueryException, JDOMException, IOException  {
-    	YSpecification spec = readSpecification( _spec2File );
-    	spec.setBetaVersion( YSpecification._Beta2 );
-    	runMultiInstance2( spec );
+    public void testRunMultiInstance2Beta2() {
+    	try {
+	    	YSpecification spec = readSpecification( _spec2File );
+	    	spec.setBetaVersion( YSpecification._Beta2 );
+	    	runMultiInstance2( spec );
+    	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
     
-    public void testRunMultiInstance2() throws YDataStateException, YPersistenceException, YStateException,
-			YSchemaBuildingException, YQueryException, JDOMException, IOException {
-    	YSpecification spec = readSpecification( _spec2File );
-    	runMultiInstance2( spec );
+    public void testRunMultiInstance2() {
+    	try {
+    		YSpecification spec = readSpecification( _spec2File );
+    		runMultiInstance2( spec );
+    	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
     
-    private void runMultiInstance2(YSpecification specification2) throws YStateException,
-    		YSchemaBuildingException, YPersistenceException, YQueryException {
+    private void runMultiInstance2(YSpecification specification2) {
     	try {
 			// variables
 			Set<YWorkItem> workItems;
@@ -325,118 +352,173 @@ public class TestMiDataOutput extends TestCase {
     	catch(YDataStateException e) {
     		// the proper exception was thrown
     	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
     
-    public void testRunMultiInstance3() throws YDataStateException, YPersistenceException,
-    		YStateException, YSchemaBuildingException, YQueryException, JDOMException, IOException {
-    	YSpecification spec = readSpecification( _spec3File );
-    	runMultiInstance( spec, false );
-    }
-    
-    public void testRunMultiInstance3Beta2() throws YDataStateException, YPersistenceException,
-    		YStateException, YSchemaBuildingException, YQueryException, JDOMException, IOException {
-    	YSpecification spec = readSpecification( _spec3File );
-    	spec.setBetaVersion( YSpecification._Beta2 );
-//    	_specification3.setBetaVersion( YSpecification._Beta2 );
+    public void testRunMultiInstance3() {
     	try {
+    		YSpecification spec = readSpecification( _spec3File );
+    		runMultiInstance( spec, false );
+    	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
+    }
+    
+    public void testRunMultiInstance3Beta2() {
+    	try {
+    		YSpecification spec = readSpecification( _spec3File );
+    		spec.setBetaVersion( YSpecification._Beta2 );
+//    		_specification3.setBetaVersion( YSpecification._Beta2 );
+//    	try {
     		runMultiInstance( spec, false );
     		fail("An exception should have been thrown");
     	}
     	catch(YDataQueryException e) {
     		// proper exception thrown
     	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
     
-    public void testRunMultiInstance3BadQuery1() throws YDataStateException, YPersistenceException,
-			YStateException, YSchemaBuildingException, JDOMException, IOException {
-    	YSpecification spec = readSpecification( _spec3File );
-//    	YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    	YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
-    	task.getMultiInstanceAttributes().setMinInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 1");
+    public void testRunMultiInstance3BadQuery1() {
     	try {
+    		YSpecification spec = readSpecification( _spec3File );
+//    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		task.getMultiInstanceAttributes().setMinInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 1");
+//    	try {
     		runMultiInstance( spec, false );
     		fail("An exception should have been thrown");
     	}
     	catch(YQueryException e) {
     		// proper exception thrown
     	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
     
-    public void testRunMultiInstance3BadQuery1Beta2() throws YDataStateException, YPersistenceException,
-			YStateException, YSchemaBuildingException, JDOMException, IOException {
-    	YSpecification spec = readSpecification( _spec3File );
-//    	YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    	YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
-    	task.getMultiInstanceAttributes().setMinInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 1");
-    	spec.setBetaVersion( YSpecification._Beta2 );
+    public void testRunMultiInstance3BadQuery1Beta2() {
     	try {
+    		YSpecification spec = readSpecification( _spec3File );
+//    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		task.getMultiInstanceAttributes().setMinInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 1");
+    		spec.setBetaVersion( YSpecification._Beta2 );
+//    	try {
     		runMultiInstance( spec, false );
     		fail("An exception should have been thrown");
     	}
     	catch(YQueryException e) {
     		// proper exception thrown
     	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
     
-    public void testRunMultiInstance3BadQuery2() throws YDataStateException, YPersistenceException,
-			YStateException, YSchemaBuildingException, JDOMException, IOException {
-    	YSpecification spec = readSpecification( _spec3File );
-//    	YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    	YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
-    	task.getMultiInstanceAttributes().setMaxInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 10");
+    public void testRunMultiInstance3BadQuery2() {
     	try {
+    		YSpecification spec = readSpecification( _spec3File );
+//    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		task.getMultiInstanceAttributes().setMaxInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 10");
+//    	try {
     		runMultiInstance(spec, false);
     		fail("An exception should have been thrown");
     	}
     	catch(YQueryException e) {
     		// proper exception thrown
     	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
     
-    public void testRunMultiInstance3BadQuery2Beta2() throws YDataStateException, YPersistenceException,
-    		YStateException, YSchemaBuildingException, JDOMException, IOException {
-    	YSpecification spec = readSpecification( _spec3File );
-//    	YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    	YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
-    	task.getMultiInstanceAttributes().setMaxInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 10");
-    	spec.setBetaVersion( YSpecification._Beta2 );
+    public void testRunMultiInstance3BadQuery2Beta2() {
     	try {
+    		YSpecification spec = readSpecification( _spec3File );
+//    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		task.getMultiInstanceAttributes().setMaxInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 10");
+    		spec.setBetaVersion( YSpecification._Beta2 );
+//    	try {
     		runMultiInstance( spec, false );
     		fail("An exception should have been thrown");
     	}
     	catch(YQueryException e) {
     		// proper exception thrown
     	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
     
-    public void testRunMultiInstance3BadQuery3() throws YDataStateException, YPersistenceException,
-			YStateException, YQueryException, JDOMException, IOException {
-    	YSpecification spec = readSpecification( _spec3File );
-//    	YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    	YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
-    	task.getMultiInstanceAttributes().setThresholdQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 4");
+    public void testRunMultiInstance3BadQuery3() {
     	try {
+    		YSpecification spec = readSpecification( _spec3File );
+//    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		task.getMultiInstanceAttributes().setThresholdQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 4");
+//    	try {
     		runMultiInstance( spec, false );
     		fail("An exception should have been thrown");
     	}
     	catch(YSchemaBuildingException e) {
     		// proper exception thrown
     	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
+    	}
     }
     
-    public void testRunMultiInstance3BadQuery3Beta2() throws YDataStateException, YPersistenceException,
-    		YStateException, YSchemaBuildingException, YQueryException, JDOMException, IOException {
-    	YSpecification spec = readSpecification( _spec3File );
-//    	YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    	YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
-    	task.getMultiInstanceAttributes().setThresholdQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 4");
-    	spec.setBetaVersion( YSpecification._Beta2 );
+    public void testRunMultiInstance3BadQuery3Beta2() {
     	try {
+    		YSpecification spec = readSpecification( _spec3File );
+//    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		task.getMultiInstanceAttributes().setThresholdQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 4");
+    		spec.setBetaVersion( YSpecification._Beta2 );
+//    	try {
     		runMultiInstance( spec, false );
     		fail("An exception should have been thrown");
     	}
     	catch(YDataQueryException e) {
     		// proper exception thrown
+    	}
+    	catch( Exception e ) {
+    		StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
     	}
     }
     
