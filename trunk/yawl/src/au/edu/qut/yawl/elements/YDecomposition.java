@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -108,14 +107,22 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 	private static final long serialVersionUID = 2006030080l;
 	
     protected String _id;
-    private Long _dbSpecificationID;
+//    private Long _dbSpecificationID;
     protected YSpecification _specification;
     private String _name;
     private String _documentation;
+    /**
+     * All accesses to this collection should be done through the getter, {@link #getInputParameters()}.
+     * Adding to/removing from the collection should be done directly.
+     */
     private List<YInputParameter> _inputParameters = new ArrayList<YInputParameter>();
+    /**
+     * All accesses to this collection should be done through the getter, {@link #getOutputParameters()}.
+     * Adding to/removing from the collection should be done directly.
+     */
     private List<YOutputParameter> _outputParameters = new ArrayList<YOutputParameter>();
-    private Set<String> _outputExpressions;
-    protected Document _data;
+    private Set<String> _outputExpressions = new HashSet<String>();
+    protected Document _data = new Document();
     private Map<String, String> _attribues = new HashMap<String, String>();
     private List<Element> _internalExtensions;
     
@@ -219,20 +226,12 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 	 * Null constructor for hibernate
 	 */
 	public YDecomposition() {
-        _outputExpressions = new HashSet<String>();
-        _data = new Document();
-        _attribues = new Hashtable<String, String>();
 	}
 
     public YDecomposition(String id, YSpecification specification) {
         this._id = id.replace(" ", "_");
         this._name = id;
         _specification = specification;
-        _inputParameters = new ArrayList<YInputParameter>();  //name --> parameter
-        _outputParameters = new ArrayList<YOutputParameter>(); //name --> parameter
-        _outputExpressions = new HashSet<String>();
-        _data = new Document();
-        _attribues = new Hashtable<String, String>();
 
         _data.setRootElement(new Element(getRootDataElementName()));
     }
@@ -350,10 +349,8 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
                     append("</documentation>");
         }
 
-        List<YParameter> parameters =
-                new ArrayList<YParameter>(_inputParameters);
-        Collections.sort(parameters);
-        for (YParameter parameter : parameters) {
+        List<YInputParameter> inParameters = getInputParameters();
+        for (YInputParameter parameter : inParameters) {
             xml.append(parameter.toXML());
         }
         for (String expression : _outputExpressions) {
@@ -361,9 +358,9 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
                     append(YTask.marshal(expression)).
                     append("\"/>");
         }
-        parameters = new ArrayList<YParameter>(_outputParameters);
-        Collections.sort(parameters);
-        for (YParameter parameter : parameters) {
+        List<YOutputParameter> outParameters = getOutputParameters();
+        Collections.sort(outParameters);
+        for (YOutputParameter parameter : outParameters) {
             xml.append(parameter.toXML());
         }
         return xml.toString();
@@ -375,10 +372,10 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
         if (_id == null) {
             messages.add(new YVerificationMessage(this, this + " cannot have null id.", YVerificationMessage.ERROR_STATUS));
         }
-        for (YInputParameter inputParameter : _inputParameters) {
+        for (YInputParameter inputParameter : getInputParameters()) {
             messages.addAll(inputParameter.verify());
         }
-        for (YOutputParameter parameter : _outputParameters) {
+        for (YOutputParameter parameter : getOutputParameters()) {
             messages.addAll(parameter.verify());
         }
         return messages;
@@ -395,7 +392,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     public Object clone() throws CloneNotSupportedException {
         YDecomposition copy = (YDecomposition) super.clone();
         copy._inputParameters = new ArrayList<YInputParameter>();
-        Collection<YInputParameter> params = _inputParameters;
+        Collection<YInputParameter> params = getInputParameters();
         for (YInputParameter parameter : params) {
             YInputParameter copyParam = (YInputParameter) parameter.clone();
             copy.setInputParam(copyParam);
@@ -471,7 +468,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 
 
     public void initialise() throws YPersistenceException {
-        for (YInputParameter inputParam : _inputParameters) {
+        for (YInputParameter inputParam : getInputParameters()) {
             Element initialValuedXMLDOM = null;
             if (inputParam.getInitialValue() != null) {
                 String initialValue = inputParam.getInitialValue();
@@ -513,7 +510,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     public Set<String> getInputParameterNames() {
     	Set<String> names = new HashSet<String>();
 
-    	for(YVariable entry:_inputParameters) {
+    	for(YVariable entry: getInputParameters()) {
     		if (null != entry.getName()) {
     			names.add(entry.getName());
     		} else if (null != entry.getElementName()) {
@@ -547,7 +544,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     @Transient
     public Map<String,YParameter> getStateSpaceBypassParams() {
         Map<String,YParameter> result = new HashMap<String, YParameter>();
-        Collection<YOutputParameter> ps = _outputParameters;
+        Collection<YOutputParameter> ps = getOutputParameters();
         for (YOutputParameter parameter : ps) {
             if (parameter.bypassesDecompositionStateSpace()) {
                 result.put(
@@ -563,7 +560,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     public Set<? extends String> getOutputParamNames() {
     	Set<String> names = new HashSet<String>();
 
-    	for(YVariable entry:_outputParameters) {
+    	for(YVariable entry:getOutputParameters()) {
     		if (null != entry.getName()) {
     			names.add(entry.getName());
     		} else if (null != entry.getElementName()) {
@@ -588,6 +585,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     	for(YInputParameter entry:_inputParameters) {
     		retval.add(entry);
     	}
+    	Collections.sort(retval);
     	return retval;
 	}
     @XmlElement(name="inputParam", namespace="http://www.citi.qut.edu.au/yawl")

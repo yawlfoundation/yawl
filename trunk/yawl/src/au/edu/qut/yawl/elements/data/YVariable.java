@@ -503,11 +503,13 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
     }
 
     /**
-     * @param o
-     * @return always 1 to put all local variables after params when sorting them.
+     * @see Comparable#compareTo(Object)
      */
     public int compareTo(Object o) {
-        return 1;
+    	YVariable other = (YVariable) o;
+    	String myName = ( this.getName() == null ) ? this.getElementName() : this.getName();
+    	String otherName = ( other.getName() == null ) ? other.getElementName() : other.getName();
+        return myName.compareTo( otherName );
     }
 
     public static class MyAdapter extends XmlAdapter<String, String> {
