@@ -9,7 +9,6 @@
 package au.edu.qut.yawl.persistence.dao;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,15 +17,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 
 import com.nexusbpm.editor.tree.DatasourceRoot;
-import command.EditorCommand;
 
 
 
@@ -37,7 +32,11 @@ public class SpecificationFileDAO implements SpecificationDAO{
 	public File root;
 	
 	public boolean delete(YSpecification t) {
-		new File(t.getID()).delete();
+		try {
+			new File(new URI(t.getID())).delete();
+		} catch (URISyntaxException e) {
+			return false;
+		}
 		return true;
 	}
 
@@ -54,25 +53,27 @@ public class SpecificationFileDAO implements SpecificationDAO{
 				return null;
 			}
             try {
-            	LOG.info("retrieving file spec " + o.toString());
+            	String specLocation = new File((o.toString())).toURI().toASCIIString();
+            	LOG.info("retrieving file spec " + specLocation);
             	List l = null;
-				l = YMarshal.unmarshalSpecifications( new File(o.toString()).toURI().toASCIIString());
+				l = YMarshal.unmarshalSpecifications( specLocation );
 				if (l != null && l.size() == 1) {
 					retval = (YSpecification) l.get(0);
 					retval.setID(new File(o.toString()).toURI().toString());
 				}
             } catch (Exception e) {
-				LOG.error(e);
+				LOG.error("error retrieving file " + new File(o.toString()).toURI().toASCIIString(), e);
 			}
             return retval;
 	}
 
 	public int save(YSpecification m) {
-        File f = null;
+		File f = null;
 		try {
-			f = new File(new URI(m.getID()));
+	        LOG.info("saving " + m.getID());
+	        f = new File(new URI(m.getID()));
 		} catch (Exception e1) {
-			LOG.error("Error saving " + m.getID() + " to file", e1);
+			LOG.error("error saving " + m.getID() + " to file", e1);
 		}
         try {
         	FileWriter os = new FileWriter(f);

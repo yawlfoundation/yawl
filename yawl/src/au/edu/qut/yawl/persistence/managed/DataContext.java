@@ -17,9 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.nexusbpm.editor.util.HashBag;
-
-import au.edu.qut.yawl.admintool.createChart;
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -30,6 +27,8 @@ import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.dao.DAO;
+import au.edu.qut.yawl.util.HashBag;
+
 
 /**
  * 
@@ -106,7 +105,6 @@ public class DataContext {
 			} else {
 				dp.setLabel(o.toString());
 			}
-			System.out.println("label set to: " + dp.getLabel());
 			if (listener != null) dp.addVetoableChangeListener(listener); 
 			dataMap.put(dp, o);
 			proxyMap.put(o, dp);

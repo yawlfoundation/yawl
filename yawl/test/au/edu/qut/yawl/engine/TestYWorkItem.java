@@ -60,10 +60,11 @@ public class TestYWorkItem extends TestCase{
         assertEquals(child.getParent(), _workItem);
         assertNull(child.createChild(id));
         assertNull(_workItem.createChild(new YIdentifier()));
-        assertNull(child.getChildren());
+        assertNotNull(child.getChildren());
+        assertEquals(child.getChildren().size(), 0);
         assertNull(_workItem.getParent());
         assertEquals(_workItem.getChildren().iterator().next(), child);
-        assertTrue(child.getStatus().equals("Fired"));
+        assertTrue(child.getStatus().equals(YWorkItem.Status.Fired));
         assertNotNull(child.getEnablementTime());
         assertEquals(child.getEnablementTime(), _workItem.getEnablementTime());
         assertFalse( child.getFiringTime().before(_workItem.getEnablementTime()));
