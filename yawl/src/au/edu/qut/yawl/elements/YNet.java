@@ -12,6 +12,7 @@ package au.edu.qut.yawl.elements;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,8 +55,6 @@ import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.schema.Instruction;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
-import au.edu.qut.yawl.util.Order;
-import au.edu.qut.yawl.util.Sorter;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
@@ -96,6 +95,10 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     private YOutputCondition _outputCondition;
     protected ProcessControlElements processControlElements;
     private List<YExternalNetElement> _netElements = new ArrayList<YExternalNetElement>();
+    /**
+     * All accesses to this collection should be done through the getter, {@link #getLocalVariables()}.
+     * Adding to/removing from the collection should be done directly.
+     */
     private List<YVariable> _localVariables = new ArrayList<YVariable>();
     private YNet _clone;
     protected Boolean rootNet = false;
@@ -237,7 +240,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
             }
             messages.addAll(nextElement.verify());
         }
-        for (Iterator iterator = _localVariables.iterator(); iterator.hasNext();) {
+        for (Iterator iterator = getLocalVariables().iterator(); iterator.hasNext();) {
             YVariable var = (YVariable) iterator.next();
             messages.addAll(var.verify());
         }
@@ -357,7 +360,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
                 visiting.removeAll(visited);
             } while (visiting.size() > 0);
             _clone._localVariables = new ArrayList<YVariable>();
-            Collection params = _localVariables;
+            Collection params = getLocalVariables();
             for (Iterator iterator = params.iterator(); iterator.hasNext();) {
                 YVariable variable = (YVariable) iterator.next();
                 YVariable copyVar = (YVariable) variable.clone();
@@ -504,37 +507,11 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     public String toXML() {
         StringBuffer xml = new StringBuffer();
         xml.append(super.toXML());
-        List variables = new ArrayList(_localVariables);
-        //to ensure a consistent output order for variables
-        Order order = new Order() {
-            public boolean lessThan(Object a, Object b) {
-                YVariable var1 = (YVariable) a;
-                YVariable var2 = (YVariable) b;
-                String var1Nm = var1.getName() != null ?
-                        var1.getName() : var1.getElementName();
-                String var2Nm = var2.getName() != null ?
-                        var2.getName() : var2.getElementName();
-
-                if (var1Nm != null && var2Nm != null) {
-                    return var1Nm.compareTo(var2Nm) < 0;
-                } else if (var1Nm == null) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
-
-        //Question for lachlan - why were we sorting these - 
-        //i thought order was important!
-        //LA: Answer: because they ought to be output in a consistent order.
-        Object[] sortedVars = Sorter.sort(order, variables.toArray());
-
-        if (null != sortedVars) {
-            for (int i = 0; i < sortedVars.length; i++) {
-                YVariable variable = (YVariable) sortedVars[i];
-                xml.append(variable.toXML());
-            }
+        // getLocalVariables() returns a sorted list
+        List<YVariable> variables = getLocalVariables();
+        
+        for( YVariable variable : variables ) {
+        	xml.append( variable.toXML() );
         }
         xml.append("<processControlElements>");
         xml.append(_inputCondition.toXML());
@@ -582,7 +559,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
      */
     public void initialise() throws YPersistenceException {
         super.initialise();
-        Iterator iter = _localVariables.iterator();
+        Iterator iter = getLocalVariables().iterator();
         while (iter.hasNext()) {
             YVariable variable = (YVariable) iter.next();
             Element initialValuedXMLDOM = null;
@@ -692,7 +669,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
     public Map<String, YVariable> getLocalVariablesMap() {
         Map<String, YVariable> map = new HashMap<String, YVariable>();
 
-        for(YVariable entry:_localVariables) {
+        for(YVariable entry:getLocalVariables()) {
             if (null != entry.getName()) {
                 map.put(entry.getName(), entry);
             } else if (null != entry.getElementName()) {
@@ -709,6 +686,7 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
         for(YVariable entry:_localVariables) {
             retval.add(entry);
         }
+        Collections.sort(retval);
         return retval;
     }
     @XmlElement(name="localVariable", namespace="http://www.citi.qut.edu.au/yawl")

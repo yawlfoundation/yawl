@@ -27,9 +27,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 
-import org.hibernate.annotations.CollectionOfElements;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -64,8 +62,6 @@ public class YParameter extends YVariable implements Comparable, PolymorphicPers
     @XmlElement(name="mandatory", namespace="http://www.citi.qut.edu.au/yawl")
     private boolean _mandatory = false;
 
-    @XmlTransient
-    private int _ordering;
     @XmlTransient
     private boolean _cutsThroughDecompositionStateSpace;
 
@@ -200,11 +196,6 @@ public class YParameter extends YVariable implements Comparable, PolymorphicPers
     }
 
 
-    public void setOrdering(int ordering) {
-        _ordering = ordering;
-    }
-
-
     /**
      * 
      * @return
@@ -277,13 +268,6 @@ public class YParameter extends YVariable implements Comparable, PolymorphicPers
         Element paramElem = doc.getRootElement();
         paramElem.removeChild("initialValue");
         Element typeElement = paramElem.getChild("type");
-        Element orderingElem = new Element("ordering");
-        orderingElem.setText("" + _ordering);
-        if(null == typeElement){
-            paramElem.addContent(0, orderingElem);
-        } else {
-            paramElem.addContent(1, orderingElem);
-        }
         XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
         return outputter.outputString(paramElem);
     }
@@ -303,19 +287,6 @@ public class YParameter extends YVariable implements Comparable, PolymorphicPers
                     YVerificationMessage.ERROR_STATUS));
         }
         return messages;
-    }
-
-
-    public int compareTo(Object o) {
-        YParameter s = (YParameter) o;
-        int dif = this._ordering - s._ordering;
-        if (dif < 0) {
-            return -1;
-        }
-        if (dif > 0) {
-            return 1;
-        }
-        return 0;
     }
 
     @Transient

@@ -9,37 +9,14 @@
 
 package au.edu.qut.yawl.elements.data;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-
-import org.hibernate.annotations.CollectionOfElements;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
-import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  * 
@@ -63,24 +40,6 @@ public class YOutputParameter extends YParameter implements Comparable, Polymorp
 	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
 	 */
 	private static final long serialVersionUID = 2006030080l;
-	
-    @XmlElement(name="mandatory", namespace="http://www.citi.qut.edu.au/yawl")
-    private boolean _mandatory = false;
-
-    @XmlTransient
-    private int _ordering;
-    @XmlTransient
-    private boolean _cutsThroughDecompositionStateSpace;
-
-    @XmlTransient
-//    private static final String[] _paramTypes = new String[]{"inputParam", "outputParam", "enablementParam"};
-//    public static final int _INPUT_PARAM_TYPE = 0;
-    public static final int _OUTPUT_PARAM_TYPE = 1;
-    public static final int _ENABLEMENT_PARAM_TYPE = 2;
-    @XmlTransient
-    private String _paramType;
-    @XmlTransient
-    private Map<String, String> attributes;
 
     /**
      * Null constructor inserted for hibernate

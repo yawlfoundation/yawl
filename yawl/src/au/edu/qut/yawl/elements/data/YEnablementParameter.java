@@ -9,33 +9,14 @@
 
 package au.edu.qut.yawl.elements.data;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
-import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-
-import org.hibernate.annotations.CollectionOfElements;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
@@ -67,20 +48,8 @@ public class YEnablementParameter extends YParameter implements Comparable, Poly
 //    @XmlElement(name="mandatory", namespace="http://www.citi.qut.edu.au/yawl")
 //    private boolean _mandatory = false;
 
-    @XmlTransient
-    private int _ordering;
-    @XmlTransient
-    private boolean _cutsThroughDecompositionStateSpace;
-
-    @XmlTransient
-    private static final String[] _paramTypes = new String[]{"inputParam", "outputParam", "enablementParam"};
-    public static final int _INPUT_PARAM_TYPE = 0;
-    public static final int _OUTPUT_PARAM_TYPE = 1;
-    public static final int _ENABLEMENT_PARAM_TYPE = 2;
 //    @XmlTransient
 //    private String _paramType;
-    @XmlTransient
-    private Map<String, String> attributes;
 
     /**
      * Null constructor inserted for hibernate
@@ -203,11 +172,6 @@ public class YEnablementParameter extends YParameter implements Comparable, Poly
 //    }
 //
 
-    public void setOrdering(int ordering) {
-        _ordering = ordering;
-    }
-
-
     /**
      * 
      * @return
@@ -257,44 +221,6 @@ public class YEnablementParameter extends YParameter implements Comparable, Poly
 //        return xml.toString();
 //    }
 
-    public String toSummaryXML() {
-        SAXBuilder builder = new SAXBuilder();
-        String xml = toXML();
-
-        Document doc = null;
-        try {
-            doc = builder.build(new StringReader(xml));
-        } catch (JDOMException e) {
-            /**
-             * AJH: Silent failure here.
-             */
-            System.out.println(xml);
-            e.printStackTrace();
-        } catch (IOException e) {
-            /**
-             * AJH: Silent failure here.
-             */
-            System.out.println(xml);
-            e.printStackTrace();
-        }
-        Element paramElem = doc.getRootElement();
-        paramElem.removeChild("initialValue");
-        Element typeElement = paramElem.getChild("type");
-        Element orderingElem = new Element("ordering");
-        orderingElem.setText("" + _ordering);
-        if(null == typeElement){
-            paramElem.addContent(0, orderingElem);
-        } else {
-            paramElem.addContent(1, orderingElem);
-        }
-        XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
-        return outputter.outputString(paramElem);
-    }
-
-    public String toString() {
-        return toXML();
-    }
-
 
     public List verify() {
         List messages = new Vector();
@@ -307,37 +233,8 @@ public class YEnablementParameter extends YParameter implements Comparable, Poly
         return messages;
     }
 
-
-    public int compareTo(Object o) {
-        YEnablementParameter s = (YEnablementParameter) o;
-        int dif = this._ordering - s._ordering;
-        if (dif < 0) {
-            return -1;
-        }
-        if (dif > 0) {
-            return 1;
-        }
-        return 0;
-    }
-
 //    @Transient
 //    private boolean isParamType(int paramType) {
 //       return _paramTypes[paramType].equals(_paramType);
 //    }
-//    
- 
-    @Transient
-    public static String getTypeForInput() {
-        return _paramTypes[_INPUT_PARAM_TYPE];
-    }
-
-    @Transient
-    public static String getTypeForOutput() {
-        return _paramTypes[_OUTPUT_PARAM_TYPE];
-    }
-
-    @Transient
-    public static String getTypeForEnablement() {
-        return _paramTypes[_ENABLEMENT_PARAM_TYPE];
-    }
 }
