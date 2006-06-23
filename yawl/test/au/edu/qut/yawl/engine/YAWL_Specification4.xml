@@ -16,18 +16,18 @@
 					</flowsInto>
 					<join code="xor"/>
 					<split code="and"/>
-					<decomposesTo id="Do Nothing"/>
+					<decomposesTo id="Do_Nothing"/>
 				</task>
 				<outputCondition id="o">
 					<name>o</name>
 				</outputCondition>
 			</processControlElements>
 		</rootNet>
-		<decomposition id="Sing a Song" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Rub Your Tummy" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Hop on one Foot" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Pat Your Head" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Do Nothing" xsi:type="NetFactsType">
+		<decomposition id="Sing_a_Song" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Rub_Your_Tummy" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Hop_on_one_Foot" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Pat_Your_Head" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Do_Nothing" xsi:type="NetFactsType">
 			<processControlElements>
 				<inputCondition id="i-top">
 					<name>i</name>
@@ -44,7 +44,7 @@
 					</flowsInto>
 					<join code="xor"/>
 					<split code="and"/>
-					<decomposesTo id="Pat Your Head"/>
+					<decomposesTo id="Pat_Your_Head"/>
 				</task>
 				<task id="c-top">
 					<flowsInto>
@@ -53,7 +53,7 @@
 					<join code="xor"/>
 					<split code="and"/>
 					<removesTokens id="b-top"/>
-					<decomposesTo id="Rub Your Tummy"/>
+					<decomposesTo id="Rub_Your_Tummy"/>
 				</task>
 				<task id="d-top">
 					<flowsInto>
@@ -61,7 +61,7 @@
 					</flowsInto>
 					<join code="xor"/>
 					<split code="and"/>
-					<decomposesTo id="Hop on one Foot"/>
+					<decomposesTo id="Hop_on_one_Foot"/>
 				</task>
                 <task id="e-top">
 					<flowsInto>
@@ -69,7 +69,7 @@
 					</flowsInto>
 					<join code="xor"/>
 					<split code="and"/>
-					<decomposesTo id="Sing a Song"/>
+					<decomposesTo id="Sing_a_Song"/>
 				</task>
 				<outputCondition id="o-top">
 					<name>o</name>
