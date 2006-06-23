@@ -99,8 +99,8 @@ public class YMarshal {
         //first check if is well formed and build a document
     	FileInputStream fis = null;
 		try {
-			fis = new FileInputStream(new File(new URI(specificationSetFileID)));
-		} catch (URISyntaxException e) {
+			fis = new FileInputStream(new File(specificationSetFileID));
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -117,10 +117,10 @@ public class YMarshal {
     	
         //next get the version out as text 
     	String version = getSpecificationSetVersion( document );
-    	
+
         //now check the specification file against its' respective schema
     	validateSpecification(new InputSource(new ByteArrayInputStream(buffer.toString().getBytes("UTF8"))),specificationSetFileID, version );
-    	
+
         //now build a set of specifications - verification has not yet occured.
     	return buildSpecifications( document );
     }

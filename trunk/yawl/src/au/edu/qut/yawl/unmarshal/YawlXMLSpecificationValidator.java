@@ -110,6 +110,7 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
     private XMLReader setUpChecker(String version) throws SAXException {
         XMLReader parser = XMLReaderFactory.createXMLReader(
                 "org.apache.xerces.parsers.SAXParser");
+
         if (YSpecification._Beta2.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                     "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_Schema.xsd"));

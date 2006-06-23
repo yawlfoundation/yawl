@@ -22,7 +22,6 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
-import au.edu.qut.yawl.persistence.managed.TestDataContext;
 
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.editors.net.GraphEditor;
