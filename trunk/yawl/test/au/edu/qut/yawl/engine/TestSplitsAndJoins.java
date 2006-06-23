@@ -366,7 +366,7 @@ public class TestSplitsAndJoins extends TestCase {
      * Tests trying to complete a task that wasn't activated, which should
      * cause an exception to be thrown. Calls {@link AbstractEngine#completeWorkItem(YWorkItem, String)}.
      */
-    public void testCompleteInactiveTest() throws YDataStateException, YPersistenceException,
+    public void testCompleteInactiveTask() throws YDataStateException, YPersistenceException,
 			YSchemaBuildingException, YQueryException, JDOMException, IOException {
     	try {
         	// variables
@@ -409,7 +409,7 @@ public class TestSplitsAndJoins extends TestCase {
      * cause an exception to be thrown. Calls
      * {@link YNetRunner#completeWorkItemInTask(YWorkItem, YIdentifier, String, Document)}.
      */
-    public void testCompleteInactiveTestB() throws YDataStateException, YPersistenceException,
+    public void testCompleteInactiveTaskB() throws YDataStateException, YPersistenceException,
 			YStateException, YSchemaBuildingException, YQueryException, JDOMException, IOException {
     	try {
         	// variables
