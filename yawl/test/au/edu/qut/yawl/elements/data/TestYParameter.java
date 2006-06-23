@@ -212,16 +212,12 @@ public class TestYParameter extends TestCase {
 			Map<String, Element> children = new HashMap<String, Element>();
 			for(Element child : (List<Element>) root.getContent())
 				children.put(child.getName(), child);
-			assertTrue(children.size() == 3);
+			assertTrue(children.size() == 2);
 			assertTrue(children.containsKey("name"));
-			assertTrue(children.containsKey("ordering"));
 			assertTrue(children.containsKey("type"));
 			Element child = children.get("name");
 			Text t = (Text) child.getContent().get(0);
 			assertTrue(t.getText(), t.getText().equals("Param1"));
-			child = children.get("ordering");
-			t = (Text) child.getContent().get(0);
-			assertTrue(t.getText(), t.getText().equals("0"));
 			child = children.get("type");
 			t = (Text) child.getContent().get(0);
 			assertTrue(t.getText(), t.getText().equals("null"));
@@ -244,14 +240,10 @@ public class TestYParameter extends TestCase {
 			Map<String, Element> children = new HashMap<String, Element>();
 			for(Element child : (List<Element>) root.getContent())
 				children.put(child.getName(), child);
-			assertTrue(children.size() == 1);
+			assertTrue(children.size() == 0);
 			assertFalse(children.containsKey("name"));
-			assertTrue(children.containsKey("ordering"));
 			assertFalse(children.containsKey("type"));
 			Element child = children.get("name");
-			child = children.get("ordering");
-			Text t = (Text) child.getContent().get(0);
-			assertTrue(t.getText(), t.getText().equals("0"));
 		}
 		catch( JDOMException e ) {
 			e.printStackTrace();
@@ -313,15 +305,15 @@ public class TestYParameter extends TestCase {
 		}
 	}
 	
-	public void testCompareTo() {
-		_param1.setOrdering(1);
-		_param2.setOrdering(2);
-		assertTrue(_param1.compareTo(_param2) < 0);
-		assertTrue(_param2.compareTo(_param1) > 0);
-		assertTrue(_param1.compareTo(_param1) == 0);
-		_param2.setOrdering(1);
-		assertTrue(_param1.compareTo(_param2) == 0);
-	}
+//	public void testCompareTo() {
+//		_param1.setOrdering(1);
+//		_param2.setOrdering(2);
+//		assertTrue(_param1.compareTo(_param2) < 0);
+//		assertTrue(_param2.compareTo(_param1) > 0);
+//		assertTrue(_param1.compareTo(_param1) == 0);
+//		_param2.setOrdering(1);
+//		assertTrue(_param1.compareTo(_param2) == 0);
+//	}
 	
 //	private static String collectionToString(Collection c) {
 //		String str = "[";
