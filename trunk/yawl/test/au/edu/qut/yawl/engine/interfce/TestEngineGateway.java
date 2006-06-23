@@ -97,21 +97,12 @@ public class TestEngineGateway extends TestCase {
 		while( (str = br.readLine()) != null ) {
 			spec += str + "\n";
 		}
-		return gateway.loadSpecification( spec, randomFileName(), session );
+		String file = fileURL.toString();
+		if( file.lastIndexOf( "/" ) > -1 ) {
+			file = file.substring( file.lastIndexOf( "/" ) + 1, file.length() );
+		}
+		return gateway.loadSpecification( spec, file, session );
 	}
-    
-    public static String randomFileName() {
-    	Random r = new Random();
-    	String[] chars = {"a", "c", "e", "h", "i", "l", "o", "s", "u", "w", "y"};
-    	String filename = "";
-    	int len = 20;
-    	len += r.nextInt(11);
-    	for( int i = 0; i < len; i++ ) {
-    		filename += chars[ r.nextInt( chars.length ) ];
-    	}
-    	filename += ".xml";
-    	return filename;
-    }
     
     public void testExecuteSpecification() throws YDataStateException, YStateException,
     		YQueryException, YSchemaBuildingException, YPersistenceException,
