@@ -99,8 +99,12 @@ public class YMarshal {
         //first check if is well formed and build a document
     	FileInputStream fis = null;
 		try {
-			fis = new FileInputStream(new File(specificationSetFileID));
-		} catch (Exception e) {
+			if (specificationSetFileID.startsWith("file:")) {
+				fis = new FileInputStream(new File(new URI(specificationSetFileID)));
+			} else {
+				fis = new FileInputStream(specificationSetFileID);
+			}
+		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

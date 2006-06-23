@@ -3,19 +3,11 @@ package com.nexusbpm.editor;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
 
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.impl.Log4jFactory;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Priority;
 import org.apache.log4j.PropertyConfigurator;
 
 import au.edu.qut.yawl.elements.YSpecification;
@@ -24,7 +16,6 @@ import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 
 import com.nexusbpm.editor.desktop.DesktopPane;
-import com.nexusbpm.editor.editors.net.GraphEditor;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -32,7 +23,6 @@ import com.nexusbpm.editor.tree.DatasourceRoot;
 import com.nexusbpm.editor.tree.STree;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
-import command.EditorCommand;
 
 /**
  *
@@ -133,7 +123,6 @@ public class WorkflowEditor extends javax.swing.JFrame {
 //			e.printStackTrace();
 //		}
 //		filedc.put(newOne); 
-        EditorCommand.executeCopyCommand(dprox, filedp);
         SharedNode root1 = new SharedNode(memdp);
         SharedNode root2 = new SharedNode(filedp);
 
