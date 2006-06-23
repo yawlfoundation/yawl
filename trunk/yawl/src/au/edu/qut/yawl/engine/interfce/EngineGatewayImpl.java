@@ -11,9 +11,7 @@ package au.edu.qut.yawl.engine.interfce;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -362,7 +360,7 @@ public class EngineGatewayImpl implements EngineGateway {
      *
      * @param workItemID
      * @param sessionHandle
-     * @return either "<success/>" or <failure><reason>...</...>
+     * @return either "&lt;success/&gt;" or &lt;failure&gt;&lt;reason&gt;...&lt;/...&gt;
      */
     public String checkElegibilityToAddInstances(String workItemID, String sessionHandle) {
         try {
@@ -580,20 +578,20 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
-    /**
-     * Legacy code.  This class used to be an RMI server.
-     * @throws RemoteException
-     * @throws MalformedURLException
-     */
-    public void registerRMI() throws RemoteException, MalformedURLException {
-        if (System.getSecurityManager() == null) {
-        }
-        URL codeBaseURL = EngineGatewayImpl.class.getResource("EngineGatewayImpl.class");
-        String codeBaseStr = codeBaseURL.toString();
-        codeBaseStr = codeBaseStr.substring(0, codeBaseStr.lastIndexOf("au"));
-        System.setProperty("java.rmi.server.codebase", codeBaseStr);
-        System.out.println("EngineGateway bound");
-    }
+//    /**
+//     * Legacy code.  This class used to be an RMI server.
+//     * @throws RemoteException
+//     * @throws MalformedURLException
+//     */
+//    public void registerRMI() throws RemoteException, MalformedURLException {
+//        if (System.getSecurityManager() == null) {
+//        }
+//        URL codeBaseURL = EngineGatewayImpl.class.getResource("EngineGatewayImpl.class");
+//        String codeBaseStr = codeBaseURL.toString();
+//        codeBaseStr = codeBaseStr.substring(0, codeBaseStr.lastIndexOf("au"));
+//        System.setProperty("java.rmi.server.codebase", codeBaseStr);
+//        System.out.println("EngineGateway bound");
+//    }
 
 
     /**
@@ -611,6 +609,9 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
         }
         File temp = new File(fileName);
+        if( temp.exists() ) {
+        	temp.delete();
+        }
         List errorMessages = new ArrayList();
         try {
             FileWriter writer = new FileWriter(temp);
@@ -625,7 +626,9 @@ public class EngineGatewayImpl implements EngineGateway {
             e.printStackTrace();
             return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
         } finally {
-            temp.delete();
+        	temp = new File(fileName);
+            if( ! temp.delete() )
+            	temp.deleteOnExit();
         }
         if (errorMessages.size() > 0) {
             StringBuffer errorMsg = new StringBuffer();
