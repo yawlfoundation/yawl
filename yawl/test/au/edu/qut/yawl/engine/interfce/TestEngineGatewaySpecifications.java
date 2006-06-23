@@ -159,7 +159,7 @@ public class TestEngineGatewaySpecifications extends TestCase {
     			"<documentation>A simple spec with 3 sequential tasks</documentation>",
     			"<metaData />",
     			"<schema xmlns=\"http://www.w3.org/2001/XMLSchema\" />",
-    			"<decomposition id=\"RootDecomp\" isRootNet=\"true\" xsi:type=\"NetFactsType\">",
+    			"<decomposition id=\"RootDecomp\" xsi:type=\"NetFactsType\" isRootNet=\"true\">",
     			"<processControlElements>",
     			"<inputCondition id=\"input\">",
     			"<flowsInto>",
