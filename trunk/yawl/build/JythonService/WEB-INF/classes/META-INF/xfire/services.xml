@@ -3,8 +3,8 @@
   <service>
     <name>JythonService</name>
     <namespace>http://www.citi.qut.edu.au/yawl</namespace>
-    <serviceClass>com.nexusbpm.services.jython.JythonService</serviceClass>
-    <implementationClass>com.nexusbpm.services.jython.JythonServiceImpl</implementationClass>
+    <serviceClass>com.nexusbpm.services.jython.JythonServiceImpl</serviceClass>
+    <serviceFactory>jsr181</serviceFactory>
   </service>
 </beans>
 <!-- END SNIPPET: services -->
