@@ -327,6 +327,7 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:ExternalNetElementType">
 				<xs:sequence>
+					<xs:element name="extension"  type="yawl:ExtensionType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="name" minOccurs="0"/>
 					<xs:element name="documentation" minOccurs="0"/>
 				</xs:sequence>

@@ -175,6 +175,7 @@ public class YDecompositionParser {
         Element outputConditionElem = processControlElementsElem.getChild("outputCondition", _yawlNS);
         aNet.setOutputCondition((YOutputCondition) parseCondition(aNet, outputConditionElem));
         List taskElems = processControlElementsElem.getChildren("task", _yawlNS);
+
         for (int i = 0; i < taskElems.size(); i++) {
             Element taskElem = (Element) taskElems.get(i);
             aNet.addNetElement(parseTask(taskElem));
@@ -333,6 +334,8 @@ public class YDecompositionParser {
         String conditionType = conditionElem.getName();
         String id = conditionElem.getAttributeValue("id");
         String label = conditionElem.getChildText("label");
+        
+
         if ("inputCondition".equals(conditionType)) {
             if (label != null) {
                 condition = new YInputCondition(id, label, aNet);
@@ -352,6 +355,8 @@ public class YDecompositionParser {
                 condition = new YCondition(id, aNet);
             }
         }
+        List<Element> extensions = conditionElem.getChildren(ExtensionListContainer.ELEMENT_NAME, _yawlNS);
+        condition.setInternalExtensions(extensions);
         List postsetElements = parsePostset(conditionElem);
         parseNameAndDocumentation(condition, conditionElem);
         this._postsetIDs.add(condition.getID(), postsetElements);

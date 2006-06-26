@@ -80,8 +80,8 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 		if ( sessions != null ) sessions.close();
 		try {
 			AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
-	        .setProperty(Environment.SHOW_SQL, "false")
+	        .setProperty(Environment.USE_SQL_COMMENTS, "true")
+	        .setProperty(Environment.SHOW_SQL, "true")
 	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
 	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
 	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
@@ -96,7 +96,7 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 			}
 			sessions = cfg.buildSessionFactory();
 		}
-		catch (Exception e) {
+		catch (Error e) {
 			e.printStackTrace();
 		}
 	}
