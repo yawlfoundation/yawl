@@ -18,6 +18,9 @@ package au.edu.qut.yawl.exceptions;
  * 
  */
 public class YSchemaBuildingException extends YAWLException {
+	public YSchemaBuildingException(Throwable cause) {
+		super(cause);
+	}
     public YSchemaBuildingException(String msg) {
         super(msg);
     }
