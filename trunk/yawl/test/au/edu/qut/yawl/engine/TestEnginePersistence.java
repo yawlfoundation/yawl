@@ -36,8 +36,8 @@ public class TestEnginePersistence extends TestCase {
     private MessageFormat format =
             new MessageFormat(
                     "<Funky>" +
-                        "<FunkyNumber>{0}</FunkyNumber>" +
                         "<FunkyName>Funky</FunkyName>" +
+                        "<FunkyNumber>{0}</FunkyNumber>" +
                     "</Funky>");
 
 
