@@ -91,7 +91,8 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 			}//run()
 		};//new CapselaWorker()
 		GlobalEventQueue.add( worker );
-		new RuntimeException("OUTPUT ONLY create global event queue (Executor) and add worker").printStackTrace();
+		Exception ex = new RuntimeException("create global event queue (Executor) and add worker");
+		LOG.error(ex.getMessage(), ex);
 	}
 
 	/**
@@ -128,7 +129,8 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 			}//run()
 		};
 		GlobalEventQueue.add( worker );
-		LOG.error("TODO:", new RuntimeException("Create global event queue (Executor) and add worker"));
+		Exception ex = new RuntimeException("Create global event queue (Executor) and add worker");
+		LOG.error("TODO:" + ex.getMessage(), ex);
 	}
 
 	private void callSuperInternalFrameOpened( InternalFrameEvent e ) {

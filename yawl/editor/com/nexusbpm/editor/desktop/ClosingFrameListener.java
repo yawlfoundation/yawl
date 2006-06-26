@@ -117,7 +117,8 @@ public class ClosingFrameListener implements InternalFrameListener {
 	public void internalFrameOpened( InternalFrameEvent e ) {
 //		WorkflowEditor.getInstance().addWindowMenuItem( _frame );
 		needsClosing = true;
-		LOG.error("TODO:", new RuntimeException("Implement for yawl context"));
+		Exception ex = new RuntimeException("Implement internal frame closed for yawl context");
+		LOG.error("TODO:" + ex.getMessage(), ex);
 	}
 
 	/**

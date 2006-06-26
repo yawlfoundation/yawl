@@ -82,14 +82,14 @@ public class StringProducerHibernate extends StringProducerXML {
 			try {
 				AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
 		        .setProperty(Environment.USE_SQL_COMMENTS, "true")
-//		        .setProperty(Environment.SHOW_SQL, "true")
+		        .setProperty(Environment.SHOW_SQL, "true")
 		        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
 		        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
 		        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
 		        .setProperty(Environment.USER, "capsela")
 		        .setProperty(Environment.PASS, "capsela")
-				.setProperty(Environment.HBM2DDL_AUTO, "create")
-		        ;
+				.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
+				;
 				setCfg( config );
 		        
 				for (int i=0; i<classes.length; i++) {
@@ -97,7 +97,7 @@ public class StringProducerHibernate extends StringProducerXML {
 				}
 				setSessions( getCfg().buildSessionFactory( /*new TestInterceptor()*/ ) );
 			}
-			catch (Exception e) {
+			catch (Error e) {
 				e.printStackTrace();
 			}
 		}

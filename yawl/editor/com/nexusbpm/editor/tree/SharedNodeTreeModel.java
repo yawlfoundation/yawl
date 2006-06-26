@@ -46,9 +46,7 @@ public class SharedNodeTreeModel extends DefaultTreeModel {
 					}
 					int y1 = x.lastIndexOf("/");
 					if (y1 == x.length() - 1) {
-						System.err.println("y11=" + y1);
 						y1 = x.substring(0,y1 - 1).lastIndexOf("/");
-						System.err.println("y12=" + y1);
 					}
 					int y2 = x.lastIndexOf("\\");
 					String x2 = x.substring(Math.max(y1, y2) + 1);

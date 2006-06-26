@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
@@ -51,6 +52,7 @@ import au.edu.qut.yawl.elements.ExtensionListContainer;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YTask;
 
 import com.nexusbpm.editor.editors.NetEditor;
 import com.nexusbpm.editor.editors.net.cells.CapselaCell;
@@ -61,6 +63,7 @@ import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.icon.AnimatedIcon;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.worker.CapselaWorker;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
@@ -882,9 +885,19 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 				Map map = createComponentAttributeMap( c );
 				cellAttributes.put( cell, map );
 				cells.add( cell );
+				Rectangle2D.Double rect = new Rectangle2D.Double(100 + 300.0d * Math.random(), 300d * Math.random(), 70d, 70d);
+				GraphConstants.setBounds(cell.getAttributes(), rect);
+				LOG.error("random center for " + c + " is " + rect );
 				LOG.error( "Adding component to graph: " + c.toString() );
+				try {
+					if (c instanceof YExternalNetElement) {
+						YTaskEditorExtension ext = new YTaskEditorExtension((YExternalNetElement) c);
+						rect = new Rectangle2D.Double(ext.getCenterPoint().getX(), ext.getCenterPoint().getY(), 70d, 70d);
+						GraphConstants.setBounds(cell.getAttributes(), rect);
+						LOG.error("center for " + c + " is " + ext.getCenterPoint().toString());
+					}
+				} catch(Exception e) {LOG.error("OOPS" + e.getMessage(), e);}
 //				LOG.error( "View: " + proxy.getGraphCell().get);
-				
 			}
 		}
 

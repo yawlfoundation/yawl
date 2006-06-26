@@ -7,17 +7,14 @@ import java.util.List;
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
-import org.jdom.Element;
-import org.jdom.Namespace;
 
-import au.edu.qut.yawl.elements.ExtensionListContainer;
-import au.edu.qut.yawl.elements.ElementExtension;
+import com.nexusbpm.editor.persistence.YDecompositionEditorExtension;
+
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 
@@ -93,65 +90,6 @@ public class TestHibernateMarshal extends XMLTestCase  {
 				new Point2D.Double(200, 200)
 		);
     }
-    
-    public static class YawlEditorElementExtension extends ElementExtension {
-    	public static Namespace EDITOR_NAMESPACE = Namespace.getNamespace("http://www.baloney.org");
-    	public static String EDITOR_ROOT_ELEMENT = "editinfo"; 
-    	protected static String domainString = "YAWL Editor";
-    	public String getDomain() {return domainString;}
-    	public void ensureRootElementExists() {
-    		super.ensureRootElementExists();
-    		Element root = getRootElement();
-    		Element child = root.getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE);
-    		if (child == null) {
-    			child = new Element(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE);
-    			root.getChildren().add(child);
-    		}
-    	}
-    	public YawlEditorElementExtension(ExtensionListContainer t) {
-    		super(t);
-    	}
-    }
-    
-    public static class YDecompositionEditorExtension extends YawlEditorElementExtension{
-    	public static String EDITOR_POINT_ELEMENT = "point"; 
-    	public static String X_ATTRIBUTE = "x";
-    	public static String Y_ATTRIBUTE = "y";
-    	public Point2D getCenterPoint() {
-    		double x = java.lang.Double.parseDouble(
-    		 getRootElement()
-    		.getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
-    		.getChild(EDITOR_POINT_ELEMENT, EDITOR_NAMESPACE)
-    		.getAttributeValue(X_ATTRIBUTE));
-    		double y = java.lang.Double.parseDouble(
-    		getRootElement()
-    		.getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
-    		.getChild(EDITOR_POINT_ELEMENT, EDITOR_NAMESPACE)
-    		.getAttributeValue(Y_ATTRIBUTE));
-    		 return new Point2D.Double(x, y);
-    	}
-    	public void setCenterPoint(Point2D inPoint) {
-   			this.ensureRootElementExists();
-   			Element editinfo = getRootElement().getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE);
-  			Element point = editinfo.getChild(EDITOR_POINT_ELEMENT, EDITOR_NAMESPACE);
-   			if (point == null) {
-   				point = new Element(EDITOR_POINT_ELEMENT, EDITOR_NAMESPACE);
-   				editinfo.getChildren().add(point);
-   			}
-   			point.setAttribute(X_ATTRIBUTE, String.valueOf(inPoint.getX()));
-   			point.setAttribute(Y_ATTRIBUTE, String.valueOf(inPoint.getY()));
-    	}
-    	public YDecompositionEditorExtension(YDecomposition t) {super(t);}
-    }    
-
-    public class YTaskEditorExtension extends YawlEditorElementExtension{
-    	public YTaskEditorExtension(YTask t) {super(t);}
-    }    
-
-    public class YFlowEditorExtension extends YawlEditorElementExtension{
-    	public YFlowEditorExtension(YFlow t) {super(t);}
-    }    
-
     
     protected void assertComparison(String testComment, String testFilename) throws Exception {
     	String controlXml = StringProducerRawFile.getInstance().getXMLString(testFilename, true);
