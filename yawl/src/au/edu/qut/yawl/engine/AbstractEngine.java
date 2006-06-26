@@ -11,7 +11,9 @@ package au.edu.qut.yawl.engine;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1328,12 +1330,9 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 /**
                  * AJH: More error handling
                  */
-                else if (e instanceof IllegalArgumentException) {
+                else {
                     e.printStackTrace();
-                    throw new YSchemaBuildingException(e.getMessage());
-                } else {
-                    e.printStackTrace();
-                    throw new YSchemaBuildingException(e.getMessage());
+                    throw new YSchemaBuildingException(e);
                 }
             }
             logger.debug("<-- completeWorkItem");
@@ -1516,6 +1515,10 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                pmgr.commit();
 //            }
             } catch (Exception e) {
+            	StringWriter sw = new StringWriter();
+        		sw.write( e.toString() + "\n" );
+        		e.printStackTrace(new PrintWriter(sw));
+        		System.err.println( sw.toString() );
 //  TODO              if (isJournalising()) {
 //                    pmgr.rollbackTransaction();
 //                }
