@@ -676,6 +676,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 		for (YDecomposition decomp: getDecompositions()) {
 			try {
 				YDecomposition decOut = (YDecomposition) decomp.clone();
+				decOut.setSpecification(outSpec);
 				outSpec.setDecomposition(decOut);
 				if (decOut instanceof YNet && ((YNet) decOut).getRootNet().equals("true")) {
 					outSpec.setRootNet((YNet)decOut);

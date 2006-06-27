@@ -59,27 +59,6 @@ public class WorkflowEditor extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">                          
 
-    private static String slashify(String path, boolean isDirectory) {
-    	String p = path;
-    	if (File.separatorChar != '/')
-    	    p = p.replace(File.separatorChar, '/');
-    	if (!p.startsWith("/"))
-    	    p = "/" + p;
-    	if (!p.endsWith("/") && isDirectory)
-    	    p = p + "/";
-    	return p;
-        }
-    public static String toURIString(String s, boolean isDirectory) {
-    	try {
-    	    String sp = slashify(s, isDirectory);
-    	    if (sp.startsWith("//"))
-    		sp = "//" + sp;
-    	    return new URI("file", null, sp, null).toString();
-    	} catch (URISyntaxException x) {
-    	    throw new Error(x);		// Can't happen
-    	}
-        }
-
     
     private void initComponents() {
 	    JFrame.setDefaultLookAndFeelDecorated(true);
@@ -96,49 +75,40 @@ public class WorkflowEditor extends javax.swing.JFrame {
         componentList2ScrollPane = new javax.swing.JScrollPane();
         SpecificationDAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
         SpecificationDAO filedao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
+        SpecificationDAO hibernatedao = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE).getSpecificationModelDAO();
+
         DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
         DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
+        DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
+        
         EditorDataProxy memdp = (EditorDataProxy) memdc.getDataProxy(new DatasourceRoot("virtual://memory/home/sandozm/templates/testing/"), null);
+        
         String dataroot = new File("exampleSpecs/").toURI().toString();
         EditorDataProxy filedp = (EditorDataProxy) filedc.getDataProxy(new DatasourceRoot(dataroot), null);
-       
-        EditorDataProxy dprox = (EditorDataProxy) memdc.getChildren(memdp).toArray()[0];
-        YSpecification spec = null; 
-//superseded by copy command
-//        try {        
-//        	spec = (YSpecification) ((YSpecification) dprox.getData()).clone();
-//            System.out.println("uri " + spec.getID());
-//            URI uri = new URI(spec.getID());
-//            System.out.println("uri to file " + new File(new URI(spec.getID())).getAbsolutePath());
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		EditorDataProxy newOne = (EditorDataProxy) filedc.getDataProxy(spec, null);
-//		URI desturi = null;
-//		try {
-//		desturi = TestDataContext.moveUri(new URI(spec.getID()), new URI(dataroot));
-//		System.out.println("desturi " + desturi);
-//		spec.setID(desturi.toString());
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		filedc.put(newOne); 
-        SharedNode root1 = new SharedNode(memdp);
-        SharedNode root2 = new SharedNode(filedp);
 
-        SharedNodeTreeModel treeModel1 = new SharedNodeTreeModel(root1);
-        SharedNodeTreeModel treeModel2 = new SharedNodeTreeModel(root2);
-        root1.setTreeModel(treeModel1);
-        root2.setTreeModel(treeModel2);
-        componentList1Tree = new STree(treeModel1, componentList1ScrollPane);
-        componentList1Tree.setShowsRootHandles(false);
-        componentList1Tree.setRootVisible(true);
-        componentList1Tree.setRowHeight(34);
+        EditorDataProxy hibdp = (EditorDataProxy) hibdc.getDataProxy(new DatasourceRoot("hibernate://home/sandozm/"), null);
         
-        componentList2Tree = new STree(treeModel2, componentList1ScrollPane);
-        componentList2Tree.setShowsRootHandles(false);
-        componentList2Tree.setRootVisible(true);
-        componentList2Tree.setRowHeight(34);
+        SharedNode memRootNode = new SharedNode(memdp);
+        SharedNode fileRootNode = new SharedNode(filedp);
+        SharedNode hibernateRootNode = new SharedNode(hibdp);
+
+        SharedNodeTreeModel memTreeModel = new SharedNodeTreeModel(memRootNode);
+        SharedNodeTreeModel fileTreeModel = new SharedNodeTreeModel(fileRootNode);
+        SharedNodeTreeModel hibernateTreeModel = new SharedNodeTreeModel(hibernateRootNode);
+
+        memRootNode.setTreeModel(memTreeModel);
+        fileRootNode.setTreeModel(fileTreeModel);
+        hibernateRootNode.setTreeModel(hibernateTreeModel);
+        
+        memoryComponentListTree = new STree(memTreeModel, componentList1ScrollPane);
+        memoryComponentListTree.setShowsRootHandles(false);
+        memoryComponentListTree.setRootVisible(true);
+        memoryComponentListTree.setRowHeight(34);
+        
+        fileComponentListTree = new STree(hibernateTreeModel, componentList1ScrollPane);
+        fileComponentListTree.setShowsRootHandles(false);
+        fileComponentListTree.setRootVisible(true);
+        fileComponentListTree.setRowHeight(34);
         
         desktopAndStatusPanel = new javax.swing.JPanel();
         desktopLogSplitPane = new javax.swing.JSplitPane();
@@ -174,9 +144,9 @@ public class WorkflowEditor extends javax.swing.JFrame {
         componentList2Panel.setLayout(new java.awt.BorderLayout());
         componentTreesPanel.setLayout(new java.awt.BorderLayout());
 
-        componentList1ScrollPane.setViewportView(componentList1Tree);
+        componentList1ScrollPane.setViewportView(memoryComponentListTree);
 
-        componentList2ScrollPane.setViewportView(componentList2Tree);
+        componentList2ScrollPane.setViewportView(fileComponentListTree);
 
         componentList1Panel.add(componentList1ScrollPane, java.awt.BorderLayout.CENTER);
         componentList2Panel.add(componentList2ScrollPane, java.awt.BorderLayout.CENTER);
@@ -284,8 +254,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
     private javax.swing.JPanel componentTreesPanel;
     private javax.swing.JScrollPane componentList1ScrollPane;
     private javax.swing.JScrollPane componentList2ScrollPane;
-    private STree componentList1Tree;
-    private STree componentList2Tree;
+    private STree memoryComponentListTree;
+    private STree fileComponentListTree;
     private javax.swing.JMenuItem contentsMenuItem;
     private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem cutMenuItem;

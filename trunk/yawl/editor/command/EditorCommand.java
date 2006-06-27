@@ -6,6 +6,7 @@ import java.net.URLDecoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -32,6 +33,16 @@ public class EditorCommand {
 		YSpecification spec = (YSpecification) source.getProxy().getData();
 		try {
 			YSpecification newSpec = (YSpecification) spec.clone();
+			
+			LOG.info("x1DECOMPS=" + spec.getDecompositions().size());
+			for (YDecomposition k: spec.getDecompositions()) {
+				LOG.info(k.getName() + "x1:" + k.getParent());
+			}
+			LOG.info("x2DECOMPS=" + newSpec.getDecompositions().size());
+			for (YDecomposition k: newSpec.getDecompositions()) {
+				LOG.info(k.getName() + "x2:" + k.getParent());
+			}
+		
 			String dataroot = target.getProxy().getData().toString();
 			URI desturi = joinUris(new URI(dataroot), new URI(spec.getID()));
 			newSpec.setID(desturi.toASCIIString());
