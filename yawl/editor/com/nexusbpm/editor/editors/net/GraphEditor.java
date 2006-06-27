@@ -54,6 +54,10 @@ import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YTask;
 
+import com.jgraph.layout.JGraphFacade;
+import com.jgraph.layout.JGraphLayout;
+import com.jgraph.layout.graph.JGraphSpringLayout;
+import com.jgraph.layout.hierarchical.JGraphHierarchicalLayout;
 import com.nexusbpm.editor.editors.NetEditor;
 import com.nexusbpm.editor.editors.net.cells.CapselaCell;
 import com.nexusbpm.editor.editors.net.cells.FlowControlEdge;
@@ -885,7 +889,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 				Map map = createComponentAttributeMap( c );
 				cellAttributes.put( cell, map );
 				cells.add( cell );
-				Rectangle2D.Double rect = new Rectangle2D.Double(100 + 300.0d * Math.random(), 300d * Math.random(), 70d, 70d);
+				Rectangle2D.Double rect = new Rectangle2D.Double(400.0d * Math.random(), 400d * Math.random(), 70d, 70d);
 				GraphConstants.setBounds(cell.getAttributes(), rect);
 				LOG.error("random center for " + c + " is " + rect );
 				LOG.error( "Adding component to graph: " + c.toString() );
@@ -896,7 +900,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 						GraphConstants.setBounds(cell.getAttributes(), rect);
 						LOG.error("center for " + c + " is " + ext.getCenterPoint().toString());
 					}
-				} catch(Exception e) {LOG.error("OOPS" + e.getMessage(), e);}
+				} catch(Exception ex) {LOG.error("OOPS!" + ex.getMessage(), ex);}
 //				LOG.error( "View: " + proxy.getGraphCell().get);
 			}
 		}
@@ -948,7 +952,8 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 							Map map = createEdgeAttributeMap( false );
 							edgeAttributes.put( graphEdge, map );
 							edges.add( graphEdge );
-//						}
+
+							//						}
 //						else {
 //							LOG.debug( "NOT DRAWING EDGE! " );
 //							LOG.debug( "sourceproxy: " + sourceproxy.toString() );
@@ -983,7 +988,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 		}
 
 //		hideEdges(CONTROL_EDGE_MODE);
-		
+
 		LOG.debug( "Finished refreshing the flow graph." );
 	}
 

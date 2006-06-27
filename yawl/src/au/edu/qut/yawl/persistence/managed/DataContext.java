@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -27,6 +30,7 @@ import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.dao.DAO;
+import au.edu.qut.yawl.persistence.dao.SpecificationHibernateDAO;
 import au.edu.qut.yawl.util.HashBag;
 
 
@@ -35,7 +39,8 @@ import au.edu.qut.yawl.util.HashBag;
  * @author Matthew Sandoz
  */
 public class DataContext {
-    
+	private static final Log LOG = LogFactory.getLog(DataContext.class);
+
     /** Creates a new instance of DataContext */
     public DataContext(DAO<YSpecification> dao) {
         init(dao);
@@ -141,6 +146,11 @@ public class DataContext {
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#put(Type)
 	 */
     public void put(DataProxy dp) {
+    	YSpecification spec = (YSpecification)dp.getData();
+    	LOG.info("x2DECOMPS=" + spec.getDecompositions().size());
+		for (YDecomposition k: spec.getDecompositions()) {
+			LOG.info(k.getName() + "x2:" + k.getParent());
+		}
 		dataMap.put(dp, dp.getData());
 		if (dp.getData() != null) {
 	    	dao.save((YSpecification) dataMap.get(dp));

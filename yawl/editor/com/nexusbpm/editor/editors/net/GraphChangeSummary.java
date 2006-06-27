@@ -45,7 +45,7 @@ public class GraphChangeSummary implements GraphModelListener {
         if (attributeMap.get(GraphConstants.BOUNDS) != null) {
 //          CellView view = _graph.getGraphLayoutCache().getMapping(cell, false);
 //	      _editor.getFlowEditor().setDirty(true);
-        	new RuntimeException("OUTPUT ONLY implement me please!  (for yawl)").printStackTrace();
+        	LOG.error("TODO graphchanged", new RuntimeException("implement me please!  (for yawl)"));
 		  
 		  // TODO The commented block of code in the "if (view instanceof DefaultView)" is to 
 		  // reposition the animated icon if the position of the component moves.  This is not

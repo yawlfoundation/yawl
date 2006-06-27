@@ -12,8 +12,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -44,7 +47,8 @@ import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.engine.domain.YCaseData;
 
 public class SpecificationHibernateDAO implements SpecificationDAO{
-	
+	private static final Log LOG = LogFactory.getLog(SpecificationHibernateDAO.class);
+
 	private static SessionFactory sessions;
 	private static AnnotationConfiguration cfg;
 	private static boolean deleteAfterRun = true;
@@ -87,6 +91,7 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
 	        .setProperty(Environment.USER, "capsela")
 	        .setProperty(Environment.PASS, "capsela")
+//			.setProperty(Environment.HBM2DDL_AUTO, "create")
 //			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
 			;
 			cfg = config;
@@ -182,10 +187,17 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 //			tx.commit();
 //			tx = session.beginTransaction();
 			session.saveOrUpdate(m);
-//			System.out.println("Persisted " + m.getID());
+			LOG.info("Persisting " + m.getID());
+			LOG.info("DECOMPS=" + m.getDecompositions().size());
+			for (YDecomposition k: m.getDecompositions()) {
+				LOG.info(k.getName() + ":" + k.getParent());
+			}
 			tx.commit();
 			session.close();
 			return 0;
+		}
+		catch (org.hibernate.exception.ConstraintViolationException e2) {
+			e2.getCause().printStackTrace();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -203,8 +215,8 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 				}
 			}
 			catch (Exception ignore) {ignore.printStackTrace();}
-			return 1;
 		}
+		return 1;
 	}
 
     public Serializable getKey(YSpecification m) {
@@ -215,12 +227,9 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 		List retval = new ArrayList();
     	initializeSessions();
 		session = openSession();
-		Query query = session.createQuery("SELECT dbid, name, uri FROM yspecification WHERE uri LIKE ?%");
+		SQLQuery query = session.createSQLQuery("SELECT dbid, name, uri FROM yspecification WHERE uri LIKE ?");
 		query.setString(0, parent.toString());
-		for (Iterator it = query.iterate(); it.hasNext();) {
-			Object[] row = (Object[]) it.next();
-			retval.add(row);
-		}
+		retval = query.list();
 		return retval;
 	}
 
