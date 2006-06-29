@@ -499,7 +499,7 @@ public class createChart extends HttpServlet{
                           Select time selected
                          */
                         if (yaxis.equals("Started-Completed")) {
-                            o[1] = new Integer((int)DateTransform.getTime(ylog.getTime(),granul));
+                            o[1] = new Integer(DateTransform.getTime(ylog.getTime(),granul));
                         } else if (yaxis.equals("Count")) {
                             o[1] = new Integer((int) ylog.getCount());
                         }

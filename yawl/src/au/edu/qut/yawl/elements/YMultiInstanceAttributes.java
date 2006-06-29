@@ -69,8 +69,8 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Persist
      * Null constructor inserted for hibernate
      */
     protected YMultiInstanceAttributes() {
-    	_minInstances = new Integer(1);
-    	_maxInstances = new Integer(1);
+    	_minInstances = Integer.valueOf(1);
+    	_maxInstances = Integer.valueOf(1);
     	_creationMode = _creationModeStatic;
     }
 
@@ -322,19 +322,19 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Persist
     public String toXML() {
         StringBuffer xml = new StringBuffer();
 
-        xml.append("<minimum>" + (_minInstances != null ? _minInstances.toString() : _myTask.marshal(_minInstancesQuery)) + "</minimum>");
-        xml.append("<maximum>" + (_maxInstances != null ? _maxInstances.toString() : _myTask.marshal(_maxInstancesQuery)) + "</maximum>");
-        xml.append("<threshold>" + (_threshold != null ? _threshold.toString() : _myTask.marshal(_thresholdQuery)) + "</threshold>");
+        xml.append("<minimum>" + (_minInstances != null ? _minInstances.toString() : YTask.marshal(_minInstancesQuery)) + "</minimum>");
+        xml.append("<maximum>" + (_maxInstances != null ? _maxInstances.toString() : YTask.marshal(_maxInstancesQuery)) + "</maximum>");
+        xml.append("<threshold>" + (_threshold != null ? _threshold.toString() : YTask.marshal(_thresholdQuery)) + "</threshold>");
         xml.append("<creationMode code=\"" + _creationMode + "\"/>");
         xml.append("<miDataInput>");
-        xml.append("<expression query=\"" + _myTask.marshal(_myTask.getPreSplittingMIQuery()) + "\"/>");
-        xml.append("<splittingExpression query=\"" + _myTask.marshal(_inputSplittingQuery) + "\"/>");
+        xml.append("<expression query=\"" + YTask.marshal(_myTask.getPreSplittingMIQuery()) + "\"/>");
+        xml.append("<splittingExpression query=\"" + YTask.marshal(_inputSplittingQuery) + "\"/>");
         xml.append("<formalInputParam>" + _inputVarName + "</formalInputParam>");
         xml.append("</miDataInput>");
         if (_remoteOutputQuery != null) {
             xml.append("<miDataOutput>");
-            xml.append("<formalOutputExpression query=\"" + _myTask.marshal(_remoteOutputQuery) + "\"/>");
-            xml.append("<outputJoiningExpression query=\"" + _myTask.marshal(_outputProcessingQuery) + "\"/>");
+            xml.append("<formalOutputExpression query=\"" + YTask.marshal(_remoteOutputQuery) + "\"/>");
+            xml.append("<outputJoiningExpression query=\"" + YTask.marshal(_outputProcessingQuery) + "\"/>");
             xml.append("<resultAppliedToLocalVariable>" +
                     _myTask.getMIOutputAssignmentVar(_remoteOutputQuery) +
                     "</resultAppliedToLocalVariable>"

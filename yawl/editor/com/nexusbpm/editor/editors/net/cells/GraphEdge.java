@@ -13,7 +13,7 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * @author catch23
  * @created October 28, 2002 
  */
-public class GraphEdge extends DefaultEdge implements org.jgraph.graph.Edge {
+public class GraphEdge extends DefaultEdge {
   private static final Log LOG = LogFactory.getLog(GraphEdge.class);
   
   public GraphEdge(EditorDataProxy proxy) {

@@ -434,7 +434,7 @@ public interface ExtendedTableModel extends TableModel {
 	 * A basic filter that defines a column to filter on, a filter operation, and
 	 * a value to filter against.
 	 */
-	public class BasicFilter extends Filter implements Serializable {
+	public class BasicFilter extends Filter {
 
 		private int column;
 
@@ -529,7 +529,7 @@ public interface ExtendedTableModel extends TableModel {
 	 * A filter with two sub-filters that accepts a row if said row is accepted
 	 * by either of the two sub-filters.
 	 */
-	public class OrFilter extends Filter implements Serializable {
+	public class OrFilter extends Filter{
 
 		private Filter filter1;
 
@@ -590,7 +590,7 @@ public interface ExtendedTableModel extends TableModel {
 	 * A filter with two sub-filters that accepts a row if said row is accepted
 	 * by both of the two sub-filters.
 	 */
-	public class AndFilter extends Filter implements Serializable {
+	public class AndFilter extends Filter {
 
 		private Filter filter1;
 
@@ -649,7 +649,7 @@ public interface ExtendedTableModel extends TableModel {
 	/**
 	 * A filter that accepts all rows.
 	 */
-	public class InclusiveFilter extends Filter implements Serializable {
+	public class InclusiveFilter extends Filter {
 
 		/**
 		 * Returns whether this filter accepts or rejects the given row of the given

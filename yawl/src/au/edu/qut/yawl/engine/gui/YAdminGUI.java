@@ -350,7 +350,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
      */
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
-        if (command == _createWorklistCommand) {
+        if (command.equals(_createWorklistCommand)) {
             /**
              * Create a new worklist entry
              */
@@ -364,7 +364,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             }
 
 
-        } else if (command == _loadWorkflowCommand) {
+        } else if (command.equals(_loadWorkflowCommand)) {
             /**
              * Load a new process specification
              */
@@ -431,7 +431,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             } catch (YPersistenceException ex) {
                 logError("Failure whilst obtaining state of case", ex);
             }
-        } else if (command == _exportToXMLCommand) {
+        } else if (command.equals(_exportToXMLCommand)) {
             int selectedRow = _loadedSpecificationsTable.getSelectedRow();
             saveXML(selectedRow);
         }

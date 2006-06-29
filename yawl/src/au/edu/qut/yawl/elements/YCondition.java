@@ -19,7 +19,6 @@ import javax.persistence.Transient;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.elements.state.YIdentifierBag;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 
 /**
  * 
@@ -39,7 +38,7 @@ import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
  */
 @Entity
 @DiscriminatorValue("condition")
-public class YCondition extends YExternalNetElement implements YConditionInterface, PolymorphicPersistableObject  {
+public class YCondition extends YExternalNetElement implements YConditionInterface {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

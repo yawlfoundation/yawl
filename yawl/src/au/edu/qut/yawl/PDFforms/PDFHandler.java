@@ -310,7 +310,7 @@ public class PDFHandler extends HttpServlet
 			Element e = (Element)itr.next();
 			
 			//filling fields that are not empty
-			if (e.getText() != "")
+			if (!e.getText().equals(""))
 			    {
 				for(int i=0; i<inputFields.size(); i++)
 				    {

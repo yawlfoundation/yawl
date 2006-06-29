@@ -11,7 +11,7 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * @author Daniel Gredler
  * @created October 28, 2002
  */
-public class FlowControlEdge extends GraphEdge implements Edge {
+public class FlowControlEdge extends GraphEdge {
 
 	/**
 	 * Creates a new JGraph edge for the specified controller's component edge.

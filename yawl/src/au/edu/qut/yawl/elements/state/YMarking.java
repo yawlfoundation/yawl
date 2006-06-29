@@ -330,7 +330,7 @@ public class YMarking {
         List<YExternalNetElement> postset = YNet.getPostset(new ArrayList(_locations));
         for (Iterator taskIter = postset.iterator(); taskIter.hasNext();) {
             YTask task = (YTask) taskIter.next();
-            if (task.getJoinType() != task._OR) {
+            if (task.getJoinType() != YTask._OR) {
                 if (nonOrJoinEnabled(task)) {
                     return false;
                 }

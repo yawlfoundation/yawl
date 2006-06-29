@@ -25,7 +25,7 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * @author Dean Mao
  */
 public class SharedNode extends DefaultMutableTreeNode 
-implements Cloneable, PropertyChangeListener {
+implements PropertyChangeListener {
 
 	private static final Log LOG = LogFactory.getLog( SharedNode.class );
 

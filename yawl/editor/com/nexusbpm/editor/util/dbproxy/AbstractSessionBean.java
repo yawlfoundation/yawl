@@ -21,7 +21,7 @@ public abstract class AbstractSessionBean implements SessionBean {
 
 	static private final Log LOG = LogFactory.getLog( AbstractSessionBean.class );
 
-	private SessionContext _context = null;
+	private SessionContext _context;
 	/**
 	 * @return  the SessionContext of this EJB
 	 */

@@ -9,21 +9,20 @@
 
 package au.edu.qut.yawl.elements.e2wfoj;
 
-import au.edu.qut.yawl.elements.*;
-import au.edu.qut.yawl.elements.data.YParameter;
-import au.edu.qut.yawl.elements.data.YVariable;
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.elements.state.YMarking;
-import au.edu.qut.yawl.elements.state.YOrJoinUtils;
-import au.edu.qut.yawl.elements.state.YSetOfMarkings;
-import au.edu.qut.yawl.elements.state.YInternalCondition;
-import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.util.YVerificationMessage;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
-import java.io.*;
-import java.util.*;
-import java.util.Collections;
+import au.edu.qut.yawl.elements.YCondition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YNetElement;
+import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.state.YMarking;
 
 /**
  *  A Reset net formalisation of a YAWL net.
@@ -92,7 +91,7 @@ public final class E2WFOJNet {
             if (next instanceof YTask){
                YTask nextElement = (YTask) next;
            //  keepTrackOfTaskTypes(nextElement);
-             if (nextElement.getJoinType() == nextElement._AND) 
+             if (nextElement.getJoinType() == YTask._AND) 
             {    RTransition t = new RTransition(nextElement.getID()+"_start");
             	 _StartTransitions.put(t.getID(),t);
             	
@@ -110,7 +109,7 @@ public final class E2WFOJNet {
             	} 
             	 
             }
-            else if (nextElement.getJoinType() == nextElement._XOR) {
+            else if (nextElement.getJoinType() == YTask._XOR) {
             	
                	List<YExternalNetElement> pre = nextElement.getPresetElements();
             	Iterator<YExternalNetElement> preEls = pre.iterator();
@@ -128,7 +127,7 @@ public final class E2WFOJNet {
                
                	}
             }	
-            else if ( nextElement.getJoinType() == nextElement._OR) {
+            else if ( nextElement.getJoinType() == YTask._OR) {
             	RTransition t = new RTransition(nextElement.getID() +"_start");
             	_StartTransitions.put(t.getID(),t);
             	_OJ.put(t.getID(),t);
@@ -136,7 +135,7 @@ public final class E2WFOJNet {
             }
                  
             //T_end            	
-            if (nextElement.getSplitType() == nextElement._AND) {
+            if (nextElement.getSplitType() == YTask._AND) {
             	RTransition t = new RTransition(nextElement.getID()+"_end");
             	_EndTransitions.put(t.getID(),t);
             	
@@ -160,7 +159,7 @@ public final class E2WFOJNet {
          	
             }
                        
-            else if (nextElement.getSplitType() == nextElement._XOR) {
+            else if (nextElement.getSplitType() == YTask._XOR) {
             	List<YExternalNetElement> post = nextElement.getPostsetElements();
             	Iterator<YExternalNetElement> postEls = post.iterator();
             	while (postEls.hasNext()) {
@@ -183,7 +182,7 @@ public final class E2WFOJNet {
                        	
         	}
         	
-        	 else if (nextElement.getSplitType() == nextElement._OR) {
+        	 else if (nextElement.getSplitType() == YTask._OR) {
             	
 	           	 Set xSubSet = new HashSet();
 	           	 List<YExternalNetElement> post = nextElement.getPostsetElements();

@@ -51,7 +51,7 @@ public class YVerificationMessage {
     public static boolean containsNoErrors(List messages) {
         for (int i = 0; i < messages.size(); i++) {
             YVerificationMessage message = (YVerificationMessage) messages.get(i);
-            if (message.getStatus() == ERROR_STATUS) {
+            if (message.getStatus().equals(ERROR_STATUS)) {
                 return false;
             }
         }

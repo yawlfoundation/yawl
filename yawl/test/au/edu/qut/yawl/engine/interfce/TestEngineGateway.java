@@ -142,8 +142,8 @@ public class TestEngineGateway extends TestCase {
         
         // start the work item
         System.out.println( "Starting task: " + item.getTaskID() +
-        		" in work item: " + item.getID().toString() );
-        result = _gateway.startWorkItem( item.getID().toString(), _session );
+        		" in work item: " + item.getID() );
+        result = _gateway.startWorkItem( item.getID(), _session );
         assertNotNull( result );
         assertFalse( result, result.startsWith( "<failure" ) );
         
@@ -260,7 +260,7 @@ public class TestEngineGateway extends TestCase {
         assertNotNull( item );
         
         // start the work item
-        String result = _gateway.startWorkItem( item.getID().toString(), _session );
+        String result = _gateway.startWorkItem( item.getID(), _session );
         assertNotNull( result );
         assertFalse( result, result.startsWith( "<failure" ) );
         
@@ -339,7 +339,7 @@ public class TestEngineGateway extends TestCase {
 		assertNotNull( item );
 		
 		// start the work item
-		String result = _gateway.startWorkItem( item.getID().toString(), _session );
+		String result = _gateway.startWorkItem( item.getID(), _session );
 		assertNotNull( result );
 		assertFalse( result, result.startsWith( "<failure" ) );
 		
@@ -550,8 +550,8 @@ public class TestEngineGateway extends TestCase {
         
         // start the work item
         System.out.println( "Starting task: " + item.getTaskID() +
-        		" in work item: " + item.getID().toString() );
-        result = _gateway.startWorkItem( item.getID().toString(), _session );
+        		" in work item: " + item.getID() );
+        result = _gateway.startWorkItem( item.getID(), _session );
         assertNotNull( result );
         assertFalse( result, result.startsWith( "<failure" ) );
         
@@ -675,7 +675,7 @@ public class TestEngineGateway extends TestCase {
         	WorkItemRecord item = getWorkItemFromID( id );
         	assertNotNull( id, item );
         	
-        	if( item.getStatus().toString().equals( YWorkItem.Status.Enabled.toString() ) )
+        	if( item.getStatus().equals( YWorkItem.Status.Enabled.toString() ) )
         		items.put( item.getTaskID(), item );
         }
         
@@ -712,7 +712,7 @@ public class TestEngineGateway extends TestCase {
         	WorkItemRecord item = getWorkItemFromID( id );
         	assertNotNull( id, item );
         	
-        	if( item.getStatus().toString().equals( status.toString() ) )
+        	if( item.getStatus().equals( status.toString() ) )
         		items.add( item );
         }
         

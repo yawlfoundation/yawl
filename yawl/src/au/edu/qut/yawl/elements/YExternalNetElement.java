@@ -32,12 +32,6 @@ import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.jdom.Document;
@@ -448,7 +442,7 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
                     YCondition nextCondition = (YCondition) nextElement;
                     if (nextCondition.isImplicit()) {
                         YExternalNetElement declaredNextElement =
-                                (YExternalNetElement) nextCondition.getPostsetElements().iterator().next();
+                          nextCondition.getPostsetElements().iterator().next();
                         YFlow declaredFlow = new YFlow(this, declaredNextElement);
                         declaredFlow.setEvalOrdering(flow.getEvalOrdering());
                         declaredFlow.setXpathPredicate(flow.getXpathPredicate());
@@ -570,7 +564,7 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
 		if (_internalExtensions == null) return "";
 		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
 		StringBuffer buffer = new StringBuffer();
-		for (Element e: (List<Element>) _internalExtensions) {
+		for (Element e: _internalExtensions) {
 			String representation = outputter.outputString(e);
 			buffer.append(representation);
 		}

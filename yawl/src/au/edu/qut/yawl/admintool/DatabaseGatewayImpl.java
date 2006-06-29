@@ -551,7 +551,7 @@ public class DatabaseGatewayImpl {
                 if (timeformat == TIMEFORMAT_LONG) {
                     oarray[0] = new Integer(DateTransform.getTime(l, granularity));
                 } else {
-                    oarray[0] = DateTransform.transform((long) l);
+                    oarray[0] = DateTransform.transform(l);
                 }
                 oarray[1] = key;
                 resultitems.add(oarray);
@@ -628,7 +628,7 @@ public class DatabaseGatewayImpl {
                     if (timeformat == TIMEFORMAT_LONG) {
                         data[0] = new Integer(comptime);
                     } else {
-                        data[0] = DateTransform.transform((long) comptimemillis);
+                        data[0] = DateTransform.transform(comptimemillis);
                     }
 
                     caseitems.add(data);

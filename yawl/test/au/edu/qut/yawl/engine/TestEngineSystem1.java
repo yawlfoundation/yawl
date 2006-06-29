@@ -65,7 +65,7 @@ public class TestEngineSystem1 extends TestCase {
         try {
             EngineClearer.clear(_engine);
             _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
-            _idForTopNet = _engine.startCase(null, _specification.getID().toString(), null, null);
+            _idForTopNet = _engine.startCase(null, _specification.getID(), null, null);
             //enabled btop
             Set currWorkItems = _workItemRepository.getEnabledWorkItems();
             YWorkItem anItem = (YWorkItem) currWorkItems.iterator().next();

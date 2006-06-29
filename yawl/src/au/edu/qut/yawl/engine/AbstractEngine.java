@@ -81,8 +81,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
     
     private InterfaceAManagementObserver _interfaceAClient;
     private InterfaceBClientObserver _interfaceBClient;
-    protected ObserverGatewayController observerGatewayController = null;
-    protected static YawlLogServletInterface yawllog = null;
+    protected ObserverGatewayController observerGatewayController;
+    protected static YawlLogServletInterface yawllog;
     protected static UserList _userList;
 
     /*************************************************/

@@ -59,7 +59,7 @@ public class ConditionEvaluator {
 	private String[] _AllOps     = { "*", "/", "+", "-", ">=", "<=",
                                     "<", ">", "!=", "=", "&", "|", "!"} ;
     
-    private String _condition = null ;        // the condition to be evaluated
+    private String _condition ;        // the condition to be evaluated
     private Element _dataList ;               // the list of variables & values
     
     private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.support.ConditionEvaluator");

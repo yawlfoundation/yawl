@@ -15,7 +15,6 @@ import java.util.Vector;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 
@@ -32,7 +31,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  */
 @Entity
 @DiscriminatorValue("output_condition")
-public class YOutputCondition extends YCondition implements PolymorphicPersistableObject {
+public class YOutputCondition extends YCondition {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

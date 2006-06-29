@@ -71,7 +71,7 @@ public class CapselaGraph extends JGraph implements Printable,
 
 	private EditorDataProxy _proxy;
 
-	private DragSource _dragSource = null;
+	private DragSource _dragSource;
 
 	/**
 	 * Constructor used to create a new graph for a flow that is an instance.
@@ -108,7 +108,7 @@ public class CapselaGraph extends JGraph implements Printable,
 
 		_SharedNode = sharedNode;
 		if (_SharedNode != null) {
-			_proxy = (EditorDataProxy) sharedNode.getProxy();
+			_proxy = sharedNode.getProxy();
 		}
 
 		_graphEditor = graphEditor;

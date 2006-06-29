@@ -1622,7 +1622,7 @@ public abstract class Component  {
 	/** The name of the <tt>caller email</tt> attribute of this component. */
 	public final static String ATTR_CALLER_EMAIL = "callerEmail";
 	/** The email address for whoever started this flow by email. */
-	private String _callerEmail = null;
+	private String _callerEmail;
 	/**
 	 * The email address of whoever called or ran this <tt>Component</tt>.
 	 * This attribute is populated automatically by the server.

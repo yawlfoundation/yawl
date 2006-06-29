@@ -345,7 +345,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
    * @throws EditorException not thrown in the code
    */
   public void initialize(SharedNode node) throws EditorException {
-    _flowproxy = (EditorDataProxy) node.getProxy();
+    _flowproxy = node.getProxy();
     _toolbar = createToolBar();
 
     this.setLayout(new BorderLayout());

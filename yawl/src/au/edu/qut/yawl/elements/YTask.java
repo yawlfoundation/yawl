@@ -32,11 +32,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
@@ -80,7 +75,6 @@ import au.edu.qut.yawl.jaxb.CreationModeType;
 import au.edu.qut.yawl.jaxb.ExpressionType;
 import au.edu.qut.yawl.jaxb.VarMappingFactsType;
 import au.edu.qut.yawl.jaxb.VarMappingSetType;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.persistence.jaxb.PersistenceHelper;
 import au.edu.qut.yawl.schema.Instruction;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
@@ -105,7 +99,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  */
 @Entity
 @DiscriminatorValue("task")
-public abstract class YTask extends YExternalNetElement implements PolymorphicPersistableObject {
+public abstract class YTask extends YExternalNetElement {
     private static final Logger logger = Logger.getLogger(YTask.class);
     //class members
     private static final Random _random = new Random(new Date().getTime());
@@ -498,7 +492,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
              iterator.hasNext();) {
             String name = (String) iterator.next();
             if (miVarNameInDecomposition.equals(name)) {
-                return (String) getDataMappingsForTaskStarting().get(name);
+                return getDataMappingsForTaskStarting().get(name);
             }
         }
         return null;
@@ -641,7 +635,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
 
     @Transient
     public String getMIOutputAssignmentVar(String query) {
-        return (String) getDataMappingsForTaskCompletion().get(query);
+        return getDataMappingsForTaskCompletion().get(query);
     }
 
 
@@ -740,7 +734,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
                 //if betaversion > beta3 then validate the results of the aggregation query
                 String uniqueInstanceOutputQuery = _multiInstAttr.getMIFormalOutputQuery();
                 String localVarThatQueryResultGetsAppliedTo =
-                        (String) getDataMappingsForTaskCompletion().get(uniqueInstanceOutputQuery);
+                        getDataMappingsForTaskCompletion().get(uniqueInstanceOutputQuery);
 
                 Map<String, YVariable> netLocalVariablesMap = _net.getLocalVariablesMap();
                 YVariable var = netLocalVariablesMap.containsKey(
@@ -886,7 +880,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
             return false;
         }
         List<YExternalNetElement> preset = getPresetElements();
-        YCondition[] conditions = (YCondition[])
+        YCondition[] conditions = 
                 preset.toArray(new YCondition[preset.size()]);
         switch (_joinType) {
             case YTask._AND:
@@ -1511,7 +1505,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
 	 */
     @Transient
     public String getDataBindingForInputParam(String paramName) {
-      return (String) getDataMappingsForTaskStarting().get(paramName);
+      return getDataMappingsForTaskStarting().get(paramName);
     }
 
     /**
@@ -1533,7 +1527,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
 		Iterator taskCompletionMappingIterator = _dataMappingsForTaskCompletion.keySet().iterator();
 		while( taskCompletionMappingIterator.hasNext() ) {
 			String outputParameterQuery = (String) taskCompletionMappingIterator.next();
-			String outputParameter = (String) _dataMappingsForTaskCompletion.get( outputParameterQuery );
+			String outputParameter = _dataMappingsForTaskCompletion.get( outputParameterQuery );
 			if( paramName.equals( outputParameter ) ) { return outputParameterQuery; }
 		}
 		return null;
@@ -1575,7 +1569,7 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
 					result.append( "<attributes>" );
 
 					String key = (String) atts.next();
-					String value = (String) _decompositionPrototype.getAttributes().get( key );
+					String value = _decompositionPrototype.getAttributes().get( key );
 					System.out.println( key + " : " + value );
 					result.append( "<" + key + ">" + value + "</" + key + ">" );
 

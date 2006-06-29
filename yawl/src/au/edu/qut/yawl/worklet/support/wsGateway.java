@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 
 public class wsGateway extends HttpServlet {
 
-    private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.support.wsGateway");
+    private static transient Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.support.wsGateway");
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)

@@ -22,7 +22,7 @@ public class KeyValue implements PolymorphicPersistableObject{
 
 	private String key;
 	private String value;
-	private Long id = null;
+	private Long id;
 
 	public KeyValue() {
 		super();

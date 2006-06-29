@@ -32,7 +32,7 @@ import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 @XmlType(name = "OutputParameterFactsType", namespace="http://www.citi.qut.edu.au/yawl", 
 		propOrder = {"_mandatory"}
 )
-public class YOutputParameter extends YParameter implements Comparable, PolymorphicPersistableObject  {
+public class YOutputParameter extends YParameter implements PolymorphicPersistableObject  {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

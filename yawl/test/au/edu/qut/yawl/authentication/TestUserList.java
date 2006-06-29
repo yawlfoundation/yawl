@@ -62,9 +62,8 @@ public class TestUserList extends TestCase {
         try {
             key = _userList.connect("fred", "head");
             assertTrue(key,
-                    _userList.checkConnection(key)
-                    ==
-                    UserList._permissionGranted);
+                    _userList.checkConnection(key).equals(
+                    UserList._permissionGranted));
         } catch (YAuthenticationException e) {
             e.printStackTrace();
         }
