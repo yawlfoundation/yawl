@@ -108,7 +108,6 @@ public class YNet extends YDecomposition implements PolymorphicPersistableObject
         return rootNet.toString();
     }
 
-    @XmlAttribute(name="isRootNet")
     public void setRootNet(String isRootNet) {
         rootNet = Boolean.valueOf(isRootNet);
     }

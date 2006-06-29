@@ -8,12 +8,15 @@
 
 package au.edu.qut.yawl.persistence.dao;
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -182,22 +185,27 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 			initializeSessions();
 			Transaction tx;
 			session = openSession();
-			tx = session.beginTransaction();
+//			tx = session.beginTransaction();
 //			session.delete(m);
 //			tx.commit();
-//			tx = session.beginTransaction();
+			tx = session.beginTransaction();
+			LOG.info("Persisting first " + m.getDbID());
+			LOG.info("DECOMPS first =" + m.getDecompositions().size());
+			for (YDecomposition k: m.getDecompositions()) {
+				LOG.info("decomp first " + k.getId() + ":" + k.getSpecification().getDbID());
+			}
 			session.saveOrUpdate(m);
-			LOG.info("Persisting " + m.getID());
+			LOG.info("Persisting " + m.getDbID());
 			LOG.info("DECOMPS=" + m.getDecompositions().size());
 			for (YDecomposition k: m.getDecompositions()) {
-				LOG.info(k.getName() + ":" + k.getParent());
+				LOG.info(k.getId() + ":" + k.getSpecification().getDbID());
 			}
 			tx.commit();
 			session.close();
 			return 0;
 		}
-		catch (org.hibernate.exception.ConstraintViolationException e2) {
-			e2.getCause().printStackTrace();
+		catch (HibernateException e2) {
+			e2.printStackTrace();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -227,9 +235,12 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 		List retval = new ArrayList();
     	initializeSessions();
 		session = openSession();
-		SQLQuery query = session.createSQLQuery("SELECT dbid, name, uri FROM yspecification WHERE uri LIKE ?");
-		query.setString(0, parent.toString());
+		Criteria query = session.createCriteria(YSpecification.class);
+//		query.setParameter(0, parent.toString());
 		retval = query.list();
+		System.out.println(Arrays.asList(retval));
+		System.out.println("LISTING " + retval.size());
+		System.out.println("value check " + parent.toString());
 		return retval;
 	}
 

@@ -89,14 +89,6 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("decomposition")
-@XmlAccessorType(XmlAccessType.PROPERTY )
-@XmlType(name = "DecompositionFactsType", propOrder = {
-	"id",
-    "name",
-    "documentation",
-    "inputParameters",
-    "outputParameters"
-})
 public class YDecomposition implements Parented, Cloneable, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
@@ -107,7 +99,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 	private static final long serialVersionUID = 2006030080l;
 	
     protected String _id;
-//    private Long _dbSpecificationID;
     protected YSpecification _specification;
     private String _name;
     private String _documentation;
@@ -142,7 +133,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
      */
     @OneToOne
     @PrimaryKeyJoinColumn
-    @XmlTransient
 	protected YCaseData getCasedata() {
 		return casedata;
 	}
@@ -191,14 +181,11 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
         return document;
     }
 
-    /************************************/
-
     Long _dbid;
     
     @Id
     @Column(name="decomp_id")
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    @XmlTransient
     public Long getDbID() {
     	return _dbid;
     }
@@ -207,9 +194,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     	_dbid = dbid;
     }
         
-    @XmlAttribute(name="id",required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlID
     public String getId() {
         return _id;
     }
@@ -236,7 +220,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 
     
     @Transient
-    @XmlTransient
     public Map<String, String> getAttributes() {
         return this._attribues;
     }
@@ -316,7 +299,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
      * 
      */
 	@CollectionOfElements
-	@XmlTransient
     public Set<String> getOutputQueries() {
         return _outputExpressions;
     }
@@ -403,7 +385,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
      * @return the document containing runtime variable values
      */
     @Transient
-    @XmlTransient
     public Document getInternalDataDocument() {
         return _data;
     }
@@ -522,7 +503,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
      * Returns a link to the containing specification.
      */
     @ManyToOne(cascade = {CascadeType.ALL})
-    @XmlTransient
     public YSpecification getSpecification() {
         return _specification;
     }
@@ -586,7 +566,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     	Collections.sort(retval);
     	return retval;
 	}
-    @XmlElement(name="inputParam", namespace="http://www.citi.qut.edu.au/yawl")
 	protected void setInputParameters(List<YInputParameter> inputParam) {
 		for (YInputParameter parm: inputParam) {
 			parm.setParentInputParameters(this);
@@ -603,7 +582,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     	return retval;
 	}
     @OneToMany(mappedBy="parentOutputParameters", cascade = {CascadeType.ALL})
-    @XmlElement(name="outputParam", namespace="http://www.citi.qut.edu.au/yawl")
 	protected void setOutputParameters(List<YOutputParameter> outputParam) {
 		for (YOutputParameter parm: outputParam) {
 			parm.setParentOutputParameters(this);
@@ -611,7 +589,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 		}
 	}
 
-	@XmlTransient
     @Column(name="extensions", length=32768)
 	public String getInternalExtensionsAsString() {
 		if (_internalExtensions == null) return "";
@@ -653,7 +630,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 	}
 
 	@Transient
-	@XmlTransient
 	public List getInternalExtensions() {
 		return _internalExtensions;
 	}

@@ -213,25 +213,25 @@ public class YAtomicTask extends YTask implements PolymorphicPersistableObject {
     }
 
 
-    /**
-     * 
-     * @return
-     * @hibernate.one-to-one name="net" class="au.edu.qut.yawl.elements.YNet"
-     */
-    @OneToOne(cascade={CascadeType.ALL})
-    public YNet getNet() {
-        return _net;
-    }
-    
-    /**
-     * Mutator method required by hibernate.
-     * 
-     * @param net
-     */
-    protected void setNet(YNet net) {
-    	_net = net;
-    }
-
+//    /**
+//     * 
+//     * @return
+//     * @hibernate.one-to-one name="net" class="au.edu.qut.yawl.elements.YNet"
+//     */
+//    @OneToOne(cascade={CascadeType.ALL})
+//    public YNet getNet() {
+//        return _net;
+//    }
+//    
+//    /**
+//     * Mutator method required by hibernate.
+//     * 
+//     * @param net
+//     */
+//    protected void setNet(YNet net) {
+//    	_net = net;
+//    }
+//
     @Transient
     public Object clone() throws CloneNotSupportedException {
         YNet copyContainer = _net.getCloneContainer();

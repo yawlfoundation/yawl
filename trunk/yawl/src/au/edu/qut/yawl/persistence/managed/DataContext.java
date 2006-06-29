@@ -147,12 +147,14 @@ public class DataContext {
 	 */
     public void put(DataProxy dp) {
     	YSpecification spec = (YSpecification)dp.getData();
-    	LOG.info("x2DECOMPS=" + spec.getDecompositions().size());
+    	LOG.info("x3DECOMPS=" + spec.getDecompositions().size());
 		for (YDecomposition k: spec.getDecompositions()) {
-			LOG.info(k.getName() + "x2:" + k.getParent());
+			LOG.info(k.getName() + "x3:" + k.getParent());
 		}
 		dataMap.put(dp, dp.getData());
 		if (dp.getData() != null) {
+			LOG.error("saving x3 " + dataMap.get(dp));
+			LOG.error("" + ((YSpecification) dataMap.get(dp)).getDBDecompositions().size() );
 	    	dao.save((YSpecification) dataMap.get(dp));
 			proxyMap.put(dp.getData(), dp);
 		}

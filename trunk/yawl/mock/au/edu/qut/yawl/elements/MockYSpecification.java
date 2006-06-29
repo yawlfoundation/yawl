@@ -30,6 +30,8 @@ public class MockYSpecification {
 	private static final String SCHEMA_URL = "http://www.w3.org/2001/XMLSchema";
 
 	public static YSpecification instance;
+	
+	public static final String rootNetName = "My test net";
 
 	private static final String[] jythonProps = new String[] { "code",
 			"output", "error" };
@@ -155,7 +157,8 @@ public class MockYSpecification {
 	}
 
 	private static YNet createRootNet(YSpecification specification) {
-		YNet net = new YNet("My test net", specification);
+		YNet net = new YNet(rootNetName, specification);
+		net.setName(rootNetName);
 		net.setRootNet("true");
 		specification.setRootNet(net);
 		return net;
@@ -233,8 +236,12 @@ public class MockYSpecification {
 
 		YNet net = createRootNet(specification);
 
-		net.setInputCondition(new YInputCondition("start", net));
-		net.setOutputCondition(new YOutputCondition("end", net));
+		YInputCondition inputCondition = new YInputCondition("start", net);
+		inputCondition.setName("start");
+		net.setInputCondition(inputCondition);
+		YOutputCondition outputCondition = new YOutputCondition("end", net);
+		outputCondition.setName("end");
+		net.setOutputCondition(outputCondition);
 
 		YAtomicTask task = createEmailTask(gate, net);
 		YAtomicTask task2 = createJythonTask(gate2, net);
