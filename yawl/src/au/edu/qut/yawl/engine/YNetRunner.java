@@ -727,7 +727,7 @@ public class YNetRunner implements PersistableObject // extends Thread
 
         //creating a new work item puts it into the work item
         //repository automatically.
-        YWorkItem workItem = new YWorkItem(atomicTask.getNet().getSpecification().getID(),
+        YWorkItem workItem = new YWorkItem(atomicTask.getContainer().getSpecification().getID(),
                 new YWorkItemID(caseIDForNet, atomicTask.getID()),
                 allowDynamicCreation, false);
         if (atomicTask.getDataMappingsForEnablement().size() > 0) {

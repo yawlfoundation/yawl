@@ -244,9 +244,9 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 		Object data = getData();
 		if (data instanceof YAtomicTask) {
 			YAtomicTask task = (YAtomicTask) data;
-			if (task.getDecomposition() != null) {
-				iconName = task.getDecomposition().getId() != null 
-				? task.getDecomposition().getId() 
+			if (task.getDecompositionPrototype() != null) {
+				iconName = task.getDecompositionPrototype().getId() != null 
+				? task.getDecompositionPrototype().getId() 
 				: "au.edu.qut.yawl.elements.YAtomicTask";
 			}
 			else {
@@ -343,7 +343,7 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 			retval = NetEditor.class;
 		}
 		else if (getData() instanceof YAtomicTask) {
-	    	  String name = ((YAtomicTask) getData()).getDecomposition().getId().replace("Component", "Editor");
+	    	  String name = ((YAtomicTask) getData()).getDecompositionPrototype().getId().replace("Component", "Editor");
 	          try {
 	        	  retval = Class.forName(name);
 	          }

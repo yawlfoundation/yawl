@@ -71,12 +71,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("external_net_element")
-@XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlType(name = "ExternalNetElementFactsType", namespace="http://www.citi.qut.edu.au/yawl", propOrder = {
-    "name",
-    "documentation",
-    "postsetFlowsAsList"
-})
+
 public class YExternalNetElement extends YNetElement implements Parented, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
     protected String _name;
     protected String _documentation;
@@ -104,7 +99,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
     @Column(name="extern_id")
-    @XmlTransient
     public Long getDbID() {
     	return _dbid;
     }
@@ -145,7 +139,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
      *    class="au.edu.qut.yawl.elements.YNet"
      */
     @ManyToOne
-    @XmlTransient
     public YNet getContainer() {
     	return _net;
     }
@@ -163,7 +156,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
      * @hibernate.property column="NAME"
      */
     @Column(name="name")
-	@XmlAttribute(name="name", namespace="http://www.citi.qut.edu.au/yawl")
 	public String getName() {
         return _name;
     }
@@ -180,13 +172,11 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
      * @hibernate.property column="DOCUMENTATION"
      */
     @Column(name="documentation")
-    @XmlElement(name="documentation", namespace="http://www.citi.qut.edu.au/yawl")
     public String getDocumentation() {
         return _documentation;
     }
 
     @Transient
-    @XmlTransient
     public String getProperID() {
         return _net.getSpecification().getID() + "|" + super.getID();
     }
@@ -198,7 +188,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
 
 
     @Transient
-    @XmlTransient
      public void setPreset(YFlow flowsInto) {
         if (flowsInto != null) {
             _presetFlows.add(flowsInto);
@@ -208,7 +197,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
 
 
     @Transient
-    @XmlTransient
      public void setPostset(YFlow flowsInto) {
         if (flowsInto != null) {
             _postsetFlows.add(flowsInto);
@@ -493,7 +481,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     }
 
     @Transient
-    @XmlTransient
     public void setPostsetFlows(Collection<YFlow> flows) {
     	for (YFlow flow: flows) {
     		flow.setPriorElement(this);
@@ -509,7 +496,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     }
 
     @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
-    @XmlElement(name="flowsInto", namespace="http://www.citi.qut.edu.au/yawl")
     public void setPostsetFlowsAsList(List<YFlow> flows) {
     	for (YFlow flow: flows) {
 			flow.setPriorElement(this);
@@ -529,7 +515,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     }
 
    @Transient
-   @XmlTransient
     public void setPresetFlows(Collection<YFlow> flows) {
     	_presetFlows = flows;
     }
@@ -539,7 +524,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
        return new ArrayList<YFlow>(_presetFlows);
    }
 
-   @XmlTransient
    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
     public void setPresetFlowsAsList(List<YFlow> flows) {
 	   for (YFlow flow: flows) {
@@ -581,7 +565,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     }
     
     
-	@XmlTransient
     @Column(name="extensions", length=32768)
 	public String getInternalExtensionsAsString() {
 		if (_internalExtensions == null) return "";
@@ -619,7 +602,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
 	}
 
 	@Transient
-	@XmlTransient
 	public List<Element> getInternalExtensions() {
 		return _internalExtensions;
 	}

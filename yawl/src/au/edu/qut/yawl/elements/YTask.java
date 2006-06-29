@@ -105,19 +105,6 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  */
 @Entity
 @DiscriminatorValue("task")
-@XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlType(namespace="http://www.citi.qut.edu.au/yawl", propOrder = {
-	    "join",
-	    "split",
-	    "startingMappings",
-	    "completedMappings",
-	    "decomposition",
-	    "minimum",
-	    "maximum",
-	    "threshold",
-	    "creationMode",
-	    "miDataInput",
-	    "miDataOutput"})
 public abstract class YTask extends YExternalNetElement implements PolymorphicPersistableObject {
     private static final Logger logger = Logger.getLogger(YTask.class);
     //class members
@@ -187,7 +174,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     }
 
     @Transient
-    @XmlTransient
     public E2WFOJNet getResetNet() {
         if (_resetNet != null) {
             return _resetNet;
@@ -214,7 +200,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
      * @hibernate.property column="SPLIT_TYPE"
      */
     @Column(name="split_type")
-    @XmlTransient
     public int getSplitType() {
         return _splitType;
     }
@@ -226,7 +211,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
      * @hibenate.property column="JOIN_TYPE"
      */
     @Column(name="join_type")
-    @XmlTransient
     public int getJoinType() {
         return _joinType;
     }
@@ -267,7 +251,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
      */
     @OneToOne(cascade={CascadeType.ALL})
     @JoinColumn(name="multiinstanceattributes_fk")
-    @XmlTransient
     public YMultiInstanceAttributes getMultiInstanceAttributes() {
         return _multiInstAttr;
     }
@@ -348,7 +331,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     }
 
     @OneToMany(cascade=CascadeType.ALL)
-    @XmlTransient
     public Set<YExternalNetElement> getRemoveSet() {
     	return _removeSet;
     }
@@ -677,7 +659,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
 
 
     @Transient
-    @XmlTransient
     private YIdentifier getI() {
         Iterator iter;
         iter = getPresetElements().iterator();
@@ -1223,7 +1204,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
             joinColumns = { @JoinColumn( name="extern_id") },
             inverseJoinColumns = @JoinColumn( name="key_id")
     )
-    @XmlTransient
     public Set<KeyValue> getDataMappingsForTaskStartingSet() {
     	return dataMappingsForTaskStartingSet;
     }
@@ -1233,7 +1213,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     
     
     
-    @XmlTransient
     @Transient
     public Map<String, String> getDataMappingsForTaskStarting() {
     	Map<String, String> map = new HashMap<String, String>();
@@ -1268,7 +1247,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
             joinColumns = { @JoinColumn( name="extern_id") },
             inverseJoinColumns = @JoinColumn( name="key_id")
     )
-    @XmlTransient
     private Set<KeyValue> getDataMappingsForTaskCompletionSet() {
     	return dataMappingsForTaskCompletionSet;
     }
@@ -1282,7 +1260,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
      * @hibernate.property 
      */
     @Transient
-    @XmlTransient
     public Map<String, String> getDataMappingsForTaskCompletion() {
     	Map<String, String> map = new HashMap<String, String>();
     	for(KeyValue keyValue:dataMappingsForTaskCompletionSet) {
@@ -1313,7 +1290,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
      * @hibernate.property 
      */
     @Transient
-    @XmlTransient
     public Map<String, String> getDataMappingsForEnablement() {
     	Map<String, String> map = new HashMap<String, String>();
     	for(KeyValue keyValue:dataMappingsForTaskEnablementSet) {
@@ -1490,37 +1466,19 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     }
 
     @OneToOne(cascade={CascadeType.ALL})
-    public YDecomposition getDecomposition() {
+    public YDecomposition getDecompositionPrototype() {
     	return _decompositionPrototype;    	
     }
 
     @OneToOne(cascade={CascadeType.ALL})
-    @XmlElement(name="decomposesTo", namespace="http://www.citi.qut.edu.au/yawl")
-    public void setDecomposition(YDecomposition decomposition) {
-    	_decompositionPrototype = decomposition;
-    }
-    
-    @OneToOne(cascade={CascadeType.ALL})
-    public YDecomposition getDecompositionPrototype() {
-        return getDecomposition();
-    }
-    
-    @OneToOne(cascade={CascadeType.ALL})
-    @XmlTransient
     public void setDecompositionPrototype(YDecomposition decomposition) {
-    	/*this (nullcheck) is a kindness to hibernate. We will be adding more
-    	  tests/verify calls to ensure that we are not creating
-    	  bad object maps! -MS
-    	*/	
     	if (decomposition == null) {return;} 
     	_decompositionPrototype = decomposition;
-
         /**
          * AJH: Check if this task is to perform outbound schema validation. This is currently configured
          *      via the tasks UI MetaData.
          */
         String attrVal = decomposition.getAttributes().get(PERFORM_OUTBOUND_SCHEMA_VALIDATION);
-
         if("TRUE".equalsIgnoreCase(attrVal)) {
             setSkipOutboundSchemaChecks(true);
         }
@@ -1932,7 +1890,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     }
     
     @Transient
-    @XmlElement(name="startingMappings", namespace="http://www.citi.qut.edu.au/yawl")
     private void setStartingMappings(VarMappingSetType mappings) {
     	for (VarMappingFactsType mapping:mappings.getMapping()) {
     		String key = mapping.getMapsTo();
@@ -1942,18 +1899,15 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     }
 
     @Transient
-    @XmlElement(name="completedMappings", namespace="http://www.citi.qut.edu.au/yawl")
     private VarMappingSetType getCompletedMappings() {
     	return null;    	
     }
     
     private void setCompletedMappings(VarMappingSetType mappings) {
     	for (VarMappingFactsType mapping:mappings.getMapping()) {
-//        	System.out.println("My completed Mappings: " + mapping.getExpression().getQuery());
     	}
     }
     
-    @XmlElement(name="join", namespace="http://www.citi.qut.edu.au/yawl")
     private void setJoin(ControlTypeType join) {
     	setJoinType(marshalCodeToInt(join));
     }
@@ -1961,7 +1915,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     private ControlTypeType getJoin() {
     	return marshalIntToCode(getJoinType());
     }
-    @XmlElement(name="split", namespace="http://www.citi.qut.edu.au/yawl")
     private void setSplit(ControlTypeType split) {
     	setSplitType(marshalCodeToInt(split));
     }
@@ -2007,14 +1960,12 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     public String getMinimum() {
        	return isMultiInstance() ? Integer.toString(getInitedMultiInstAttr().getMinInstances()) : null;
     }
-    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
     public void setMinimum(String value) {
         if (value != null) this.getInitedMultiInstAttr().setMinInstancesHibernate(new Integer(value));
     }
     public String getMaximum() {
     	return isMultiInstance() ? Integer.toString(getInitedMultiInstAttr().getMaxInstances()): null;
     }
-    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
     public void setMaximum(String value) {
     	if (value != null) this.getInitedMultiInstAttr().setMaxInstancesHibernate(new Integer(value));
     }
@@ -2023,7 +1974,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
         return Integer.toString(getInitedMultiInstAttr().getThreshold());
     }
     @Transient
-    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
     public void setThreshold(String value) {
         this.getInitedMultiInstAttr().setThresholdHibernate(new Integer(value));
     }
@@ -2036,7 +1986,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     }
 
     @Transient
-    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
     public void setCreationMode(CreationModeType value) {
         this.getInitedMultiInstAttr().setCreationMode(value.getCode().value());
     }
@@ -2049,7 +1998,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     	input.setSplittingExpression(expr);
         return input;
     }
-    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
     public void setMiDataInput(PersistenceHelper.MiDataInput value) {
     	getInitedMultiInstAttr().setMIFormalInputParam(value.getFormalInputParam());
     	getInitedMultiInstAttr().setMISplittingQuery(value.getSplittingExpression().getQuery());
@@ -2065,7 +2013,6 @@ public abstract class YTask extends YExternalNetElement implements PolymorphicPe
     	output.setOutputJoiningExpression(expr2);
         return output;
     }
-    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl")
     public void setMiDataOutput(PersistenceHelper.MiDataOutput value) {
     	getInitedMultiInstAttr().setMIFormalOutputQuery(value.getFormalOutputExpression().getQuery());
     	getInitedMultiInstAttr().setMIJoiningQuery(value.getOutputJoiningExpression().getQuery());

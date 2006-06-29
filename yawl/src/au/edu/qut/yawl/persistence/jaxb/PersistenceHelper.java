@@ -148,7 +148,7 @@ public class PersistenceHelper {
         						else if (trial instanceof YCompositeTask){
         							task = (YCompositeTask) trial;
         						}        						
-        						task.setDecomposition(nameMap.get(which));
+        						task.setDecompositionPrototype(nameMap.get(which));
         						Collection<YFlow> flows = taska.getPostsetFlows();
         						for (YFlow flow: flows) {
         							flow.setPriorElement(task);

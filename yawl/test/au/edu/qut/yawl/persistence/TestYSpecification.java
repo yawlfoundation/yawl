@@ -48,7 +48,7 @@ public class TestYSpecification extends TestCase {
 
 
     public TestYSpecification(String name) {
-        super(name);
+    	super(name);
     }
 
 

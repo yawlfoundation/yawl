@@ -25,12 +25,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * @author Lachlan Aldred
  * 
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ExternalNetElementType", namespace="http://www.citi.qut.edu.au/yawl")
 public abstract class YNetElement implements Cloneable, Comparable {
-    @XmlAttribute(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlID
     private String _id;
 
     /**

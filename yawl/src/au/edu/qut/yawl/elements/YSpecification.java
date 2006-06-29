@@ -10,7 +10,11 @@
 package au.edu.qut.yawl.elements;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +46,9 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.w3c.dom.Element;
 
+import au.edu.qut.yawl.elements.data.YInputParameter;
+import au.edu.qut.yawl.elements.data.YOutputParameter;
+import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.PersistableObject;
@@ -67,16 +74,6 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * 
  */
 @Entity
-@XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlType(name = "YAWLSpecificationFactsType", namespace="http://www.citi.qut.edu.au/yawl"
-	, propOrder = {
-    "name",
-    "documentation",
-    "metaData",
-    "any",
-    "decompositions"
-//    "importedNet"
-})
 public class YSpecification implements Parented, Cloneable, YVerifiable, PersistableObject {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
@@ -105,10 +102,9 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     private String importedNet;
     private Integer _version;
     private Long _dbid;
+
     @Version
     @Column(name="optimistic_lock_version")
-    @XmlTransient
-    
     @Transient
     public Object getParent() {return null;}
     
@@ -131,7 +127,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
         _xmlToolsForYAWL = new XMLToolsForYAWL();
     }
 
-
     public YSpecification(String specURI) {
         _specURI = specURI;
         _xmlToolsForYAWL = new XMLToolsForYAWL();
@@ -142,7 +137,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     	return _decompositions;
     }
 
-	@XmlTransient
     public void setDBDecompositions(List<YDecomposition> set) {
 		this._decompositions.clear();
 		this._decompositions.addAll(set);
@@ -154,13 +148,11 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     }
     
 	@SuppressWarnings({"UNUSED_SYMBOL"})
-    @XmlElement(name="decomposition", namespace="http://www.citi.qut.edu.au/yawl")
     private void setDecompositions(List<YDecomposition> set) {
 		PersistenceHelper.setJaxbDecompositions(this, set);
     }
 
     @OneToOne(cascade = {CascadeType.ALL})
-    @XmlTransient
     public YNet getRootNet() {
         return _rootNet;
     }
@@ -177,7 +169,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
      * @return the version of the engine that this specification works for.
      */
     @Column(name="specification_version")
-	@XmlTransient
     public String getBetaVersion() {
         return _betaVersion;
     }
@@ -220,7 +211,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
      */
     @SuppressWarnings({"UNUSED_SYMBOL"})
     @Column(name="schema", length=4096)
-    @XmlTransient
     private String getSchema() {
     	return _xmlToolsForYAWL.getSchemaString();
     }
@@ -313,7 +303,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     }
 
     @Basic
-    @XmlElement(name="name", namespace="http://www.citi.qut.edu.au/yawl")
     public void setName(String name) {
         this._name = name;
     }
@@ -323,7 +312,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     }
 
     @Column(name="documentation")
-    @XmlElement(name="documentation", namespace="http://www.citi.qut.edu.au/yawl")
     public void setDocumentation(String documentation) {
         _documentation = documentation;
     }
@@ -596,8 +584,10 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    @XmlTransient
     public Long getDbID() {
+    	if (new Long(19).equals(_dbid)) {
+    		new Exception("here we are").printStackTrace();
+    	}
     	return _dbid;
     }
     
@@ -610,7 +600,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
      * @return the id
      */
     @Column(name="uri")
-	@XmlAttribute(name="uri")
     public String getID() {
         return _specURI;
     }
@@ -634,7 +623,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 
     @OneToOne(cascade={CascadeType.ALL})
     @JoinColumn(name="metadata_fk")
-    @XmlElement(name="metaData", namespace = "http://www.citi.qut.edu.au/yawl", required = true)
     public YMetaData getMetaData() {
         return _metaData;
     }
@@ -651,41 +639,40 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 
 	@SuppressWarnings({"UNUSED_SYMBOL"})
     @Transient
-	@XmlAnyElement
 	private void setAny(List<Element> nodes) {
 		PersistenceHelper.setAnyJaxb(this, nodes);
 	}
 
 	@Override
 	public Object clone() throws CloneNotSupportedException {
-		YSpecification outSpec = new YSpecification(getID());
-		outSpec.setBetaVersion(copyString(getBetaVersion()));
-		outSpec.setDocumentation(copyString(getDocumentation()));
-		outSpec.setMetaData(getMetaData());
-		outSpec.setName(copyString(getName()));
+		YSpecification retval = null;
+		ObjectOutputStream oos = null;
+		ObjectInputStream ois = null;
 		try {
-			outSpec.setMetaData((YMetaData) getMetaData().clone());
-			outSpec.setSchema(copyString(getToolsForYAWL().getSchemaString()));
-		} catch (YSchemaBuildingException e1) {
-			e1.printStackTrace();
-		} catch (YSyntaxException e1) {
-			e1.printStackTrace();
-		} catch (CloneNotSupportedException e1) {
-		e1.printStackTrace();
-		}
-		for (YDecomposition decomp: getDecompositions()) {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(this);
+			oos.flush();
+			ByteArrayInputStream bin = new ByteArrayInputStream(bos
+					.toByteArray());
+			ois = new ObjectInputStream(bin);
+			retval = (YSpecification) ois.readObject();
+			retval._xmlToolsForYAWL = new XMLToolsForYAWL();
+			retval._xmlToolsForYAWL.setPrimarySchema(_xmlToolsForYAWL.getSchemaString());
+			return retval;
+		} catch (Exception e) {
+			CloneNotSupportedException ex = new CloneNotSupportedException();
+			ex.fillInStackTrace();
+			ex.printStackTrace();
+			throw ex;
+		} finally {
 			try {
-				YDecomposition decOut = (YDecomposition) decomp.clone();
-				decOut.setSpecification(outSpec);
-				outSpec.setDecomposition(decOut);
-				if (decOut instanceof YNet && ((YNet) decOut).getRootNet().equals("true")) {
-					outSpec.setRootNet((YNet)decOut);
-				}
-			} catch (CloneNotSupportedException e) {
-				e.printStackTrace();
+				oos.close();
+				ois.close();
+			} catch (IOException e) {
 			}
 		}
-		return outSpec;	}
+	}
 	
 	private String copyString(String source) {
 		return source == null ? null : new String(source);

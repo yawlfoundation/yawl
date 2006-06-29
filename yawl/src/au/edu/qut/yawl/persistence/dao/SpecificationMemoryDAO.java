@@ -13,7 +13,7 @@ import com.nexusbpm.editor.tree.DatasourceRoot;
 public class SpecificationMemoryDAO implements SpecificationDAO{
     
     private Map<Long, YSpecification> specs = new HashMap<Long, YSpecification>();
-    private long nextdbID = 1;
+    private long nextdbID = 19;
     public static YSpecification testSpec = MockYSpecification.getSpecification();
 
     public SpecificationMemoryDAO() {
