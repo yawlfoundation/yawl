@@ -9,13 +9,16 @@
 
 package au.edu.qut.yawl.elements.state;
 
-import au.edu.qut.yawl.elements.*;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+
+import au.edu.qut.yawl.elements.YCondition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YNetElement;
+import au.edu.qut.yawl.elements.YTask;
 
 /**
  * 

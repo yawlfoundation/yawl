@@ -38,15 +38,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.hibernate.annotations.CollectionOfElements;
@@ -126,7 +117,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     public Object getParent() {return _specification;}
 
 	
-    private YCaseData casedata = null;
+    private YCaseData casedata;
 
     /**
      * Method for hibernate only

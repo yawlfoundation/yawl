@@ -303,7 +303,7 @@ public class DefaultExtendedTableModel extends AbstractTableModel implements Ext
 		int numNulls = 0;
 		int numNotString = 0;
 		for( int col = 0; col < colSize; col++ ) {
-			Class clazz = (Class) this.columnClasses.get( col );
+			Class clazz = this.columnClasses.get( col );
 			if( String.class.isAssignableFrom( clazz ) ) {
 				for( int row = 0; row < rows; row++ ) {
 					numValues++;
@@ -491,7 +491,7 @@ public class DefaultExtendedTableModel extends AbstractTableModel implements Ext
 					valClone = new Double( ((Double) val).doubleValue() );
 				}
 				else if( val instanceof Short ) {
-					valClone = new Short( ((Short) val).shortValue() );
+					valClone = Short.valueOf( ((Short) val).shortValue() );
 				}
 				else if( val instanceof String ) {
 					valClone = new String( (String) val );

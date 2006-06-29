@@ -34,7 +34,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 
@@ -62,7 +61,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     "enablementParam"
 //    "yawlService"
 })
-public class YAWLServiceGateway extends YDecomposition implements YVerifiable, PolymorphicPersistableObject {
+public class YAWLServiceGateway extends YDecomposition {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -181,7 +180,7 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable, P
     @XmlTransient
     public YAWLServiceReference getYawlService() {
         if (_yawlServices.size() > 0) {
-            return (YAWLServiceReference) _yawlServices.iterator().next();
+            return _yawlServices.iterator().next();
         }
         return null;
     }

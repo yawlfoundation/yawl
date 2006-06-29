@@ -24,7 +24,6 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -39,7 +38,6 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 
@@ -61,7 +59,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  */
 @Entity
 @DiscriminatorValue("atomic")
-public class YAtomicTask extends YTask implements PolymorphicPersistableObject {
+public class YAtomicTask extends YTask {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -150,7 +148,7 @@ public class YAtomicTask extends YTask implements PolymorphicPersistableObject {
         for (Iterator iterator = enablementParamNamesAtTask.iterator(); iterator.hasNext();) {
             String paramNameAtTask = (String) iterator.next();
 
-            String query = (String) getDataMappingsForEnablement().get(paramNameAtTask);
+            String query = getDataMappingsForEnablement().get(paramNameAtTask);
             messages.addAll(checkXQuery(query, paramNameAtTask));
             if (!enablementParamNamesAtGateway.contains(paramNameAtTask)) {
                 messages.add(new YVerificationMessage(this,
@@ -256,7 +254,7 @@ public class YAtomicTask extends YTask implements PolymorphicPersistableObject {
             YParameter parameter = (YParameter) enablementParams.get(i);
             String paramName = parameter.getName() != null ?
                     parameter.getName() : parameter.getElementName();
-            String expression = (String) getDataMappingsForEnablement().get(paramName);
+            String expression = getDataMappingsForEnablement().get(paramName);
 
             Element result = performDataExtraction(expression, parameter);
             enablementData.addContent((Element) result.clone());

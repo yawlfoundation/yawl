@@ -9,7 +9,7 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 public class CapselaCell extends DefaultGraphCell {
 
-	private final static Log LOG = LogFactory.getLog( CapselaCell.class );
+	private static final transient Log LOG = LogFactory.getLog( CapselaCell.class );
 
 	public static final int DEFAULT_HEIGHT = 70;
 	public static final int DEFAULT_WIDTH = 77;

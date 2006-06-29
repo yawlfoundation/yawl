@@ -80,7 +80,7 @@ public class DDLRewriter {
         for (int i = 0; i < chars.length; i++) {
             char aChar = chars[i];
             if(aChar == ' '){
-                result += new String("" + chars[i+1]).toUpperCase();
+                result += ("" + chars[i+1]).toUpperCase();
                 i++;
             } else {
                 result += aChar;

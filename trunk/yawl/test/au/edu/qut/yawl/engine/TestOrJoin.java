@@ -63,7 +63,7 @@ public class TestOrJoin extends TestCase {
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
         _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
-        _engine.startCase(null, specification.getID().toString(), null, null);
+        _engine.startCase(null, specification.getID(), null, null);
         {
             YWorkItem itemA = (YWorkItem)_engine.getAvailableWorkItems().iterator().next();
             _engine.startWorkItem(itemA, "admin");
@@ -210,7 +210,7 @@ public class TestOrJoin extends TestCase {
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification2);
-        _engine.startCase(null, specification2.getID().toString(), null, null);
+        _engine.startCase(null, specification2.getID(), null, null);
         {
 //            YWorkItem itemA = (YWorkItem) _workItemRepository.getEnabledWorkItems().iterator().next();
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(

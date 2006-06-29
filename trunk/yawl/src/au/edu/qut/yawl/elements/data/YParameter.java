@@ -50,7 +50,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 @Entity
 @DiscriminatorValue("parameter")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class YParameter extends YVariable implements Comparable, PolymorphicPersistableObject  {
+public class YParameter extends YVariable implements PolymorphicPersistableObject  {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

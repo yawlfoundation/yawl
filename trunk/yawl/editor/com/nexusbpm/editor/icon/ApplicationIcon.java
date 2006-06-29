@@ -45,7 +45,7 @@ public class ApplicationIcon {
    */
   private static Map _preGeneratedIconMap = new HashMap();
 
-  private static Properties _iconProperties = null;
+  private static Properties _iconProperties;
 
   /** Constant for a small icon. */
   public static final int SMALL_SIZE = 0;

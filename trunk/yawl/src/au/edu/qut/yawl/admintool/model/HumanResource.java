@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * Date: 22/09/2005
  * Time: 16:23:34
  */
-public class HumanResource extends Resource implements YVerifiable {
+public class HumanResource extends Resource {
     private String surname;
     private String givenName;
     private String password;

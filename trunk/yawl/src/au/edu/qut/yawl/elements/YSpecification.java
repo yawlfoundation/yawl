@@ -36,19 +36,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAnyElement;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 
 import org.w3c.dom.Element;
 
-import au.edu.qut.yawl.elements.data.YInputParameter;
-import au.edu.qut.yawl.elements.data.YOutputParameter;
-import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.PersistableObject;
@@ -99,7 +89,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     public static final String _loaded = "loaded";
     public static final String _unloaded = "unloaded";
     private YMetaData _metaData;
-    private String importedNet;
     private Integer _version;
     private Long _dbid;
 
@@ -316,7 +305,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
         _documentation = documentation;
     }
 
-    private transient Map<String, YDecomposition> convenienceDecompositionMap = null;
+    private transient Map<String, YDecomposition> convenienceDecompositionMap;
     
     @Transient
     public YDecomposition getDecomposition(String id) {
@@ -585,7 +574,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
     public Long getDbID() {
-    	if (new Long(19).equals(_dbid)) {
+    	if (Long.valueOf(19).equals(_dbid)) {
     		new Exception("here we are").printStackTrace();
     	}
     	return _dbid;

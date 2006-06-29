@@ -40,7 +40,7 @@ public class ProblemPk implements PersistableObject {
     }
     
     public int hashCode() {
-    	return (getSource().toString() + getTimeStamp().toString().hashCode()).hashCode();
+    	return (getSource() + getTimeStamp().toString().hashCode()).hashCode();
     }
     
     public boolean equals(Object obj) {

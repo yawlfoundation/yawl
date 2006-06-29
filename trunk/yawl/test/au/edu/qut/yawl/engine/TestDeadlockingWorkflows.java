@@ -61,7 +61,7 @@ public class TestDeadlockingWorkflows extends TestCase{
         AbstractEngine engine =  EngineFactory.createYEngine();
         EngineClearer.clear(engine);
         engine.loadSpecification(specification);
-        _idForTopNet = engine.startCase(null, specification.getID().toString(), null, null);
+        _idForTopNet = engine.startCase(null, specification.getID(), null, null);
         YWorkItemRepository repository = YWorkItemRepository.getInstance();
         YNetRunner runner = repository.getNetRunner(_idForTopNet);
         try {

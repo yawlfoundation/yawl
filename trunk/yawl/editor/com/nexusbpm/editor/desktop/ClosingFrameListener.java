@@ -24,7 +24,7 @@ public class ClosingFrameListener implements InternalFrameListener {
 	 * Sometimes we lose track that we need closing.  we always close from internalFrameClosing, but using this
 	 * boolean we might close from internalFrameClosed or finalize
 	 */
-	private boolean needsClosing = false;
+	private boolean needsClosing;
 
 	private CapselaInternalFrame _frame;
 
