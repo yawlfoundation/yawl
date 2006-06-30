@@ -11,7 +11,6 @@ package au.edu.qut.yawl.elements;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,11 +23,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.jdom.Document;
@@ -39,7 +33,6 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.xml.sax.InputSource;
 
-import au.edu.qut.yawl.jaxb.PredicateType;
 import au.edu.qut.yawl.persistence.PersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -62,13 +55,6 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  *  @hibernate.class table="FLOW"
  */
 @Entity
-@XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlType(name = "FlowsIntoType", namespace="http://www.citi.qut.edu.au/yawl", propOrder = {
-    "nextElementXml",
-    "predicate",
-    "isDefaultFlow",
-    "documentation"
-})
 public class YFlow implements Comparable, PersistableObject, ExtensionListContainer {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
@@ -110,7 +96,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
      * TODO Figure this puppy out
      */
     @ManyToOne
-    @XmlTransient
     public YExternalNetElement getPriorElement() {
         return _priorElement;
     }
@@ -139,7 +124,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
      * TODO Figure this puppy out
      */
     @ManyToOne
-    @XmlTransient
     public YExternalNetElement getNextElement() {
     	return _nextElement;
     }
@@ -148,7 +132,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
     	_nextElement = element;
     }
     @Transient
-    @XmlElement(name="nextElementRef", namespace="http://www.citi.qut.edu.au/yawl")
     public YExternalNetElement getNextElementXml() {
     	return new YExternalNetElement(_nextElement.getID(), null);
     }
@@ -168,7 +151,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
      */
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-	@XmlTransient
     protected Long getID() {
 		return _id;
 	}
@@ -188,7 +170,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
      * @hibernate.property column="XPATH_PREDICATE"
      */
     @Column(name="xpath_predicate")
-    @XmlTransient
     public String getXpathPredicate() {
         return _xpathPredicate;
     }
@@ -205,7 +186,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
      * @hibernate.property column="EVAL_ORDERING"
      */
     @Column(name="eval_ordering")
-    @XmlTransient
     public Integer getEvalOrdering() {
         return _evalOrdering;
     }
@@ -219,7 +199,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
      * @hibernate.property column="IS_DEFAULT_FLOW"
      */
     @Column(name="is_defaultflow")
-    @XmlTransient
     public boolean isDefaultFlow() {
         return _isDefaultFlow;
     }
@@ -234,7 +213,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
 	 * @hibernate.property
      */
     @Column(name="documentation")
-    @XmlElement(name="documentation")
     public String getDocumentation()
     {
         return _documentation;
@@ -491,7 +469,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
         return retval;
     }
 
-    @XmlElement(name="isDefaultFlow",namespace = "http://www.citi.qut.edu.au/yawl")
     private void setIsDefaultFlow(Object shouldBe) {
     	_isDefaultFlow = true;
     }
@@ -500,27 +477,7 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
     	return _isDefaultFlow ? new Object() : null;
     }
 
-    @Transient
-    @XmlElement(name="predicate",namespace = "http://www.citi.qut.edu.au/yawl")
-    private void setPredicate(PredicateType pred) {
-    	if (pred.getOrdering() != null) {
-    	this.setEvalOrdering(new Integer(pred.getOrdering().toString()));
-    	this.setXpathPredicate(pred.getValue());
-    	}
-    }
-    
-    @Transient
-    private PredicateType getPredicate() {
-    	PredicateType pred = null;
-    	if (getEvalOrdering() != null) {
-    		pred = new PredicateType();
-    		pred.setOrdering(new BigInteger(getEvalOrdering().toString()));
-        	pred.setValue(this.getXpathPredicate());
-    	}
-    	return pred;
-    }
-
-	@XmlTransient
+ 
     @Column(name="extensions", length=32768)
 	public String getInternalExtensionsAsString() {
 		if (_internalExtensions == null) return "";
@@ -558,7 +515,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
 	}
 
 	@Transient
-	@XmlTransient
 	public List getInternalExtensions() {
 		return _internalExtensions;
 	}

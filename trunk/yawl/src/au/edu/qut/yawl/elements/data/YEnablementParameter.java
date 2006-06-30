@@ -14,12 +14,8 @@ import java.util.Vector;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlType;
 
 import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
@@ -104,7 +100,6 @@ public class YEnablementParameter extends YParameter {
 
 
 
-//    @XmlTransient
 //    private YDecomposition parentEnablementParameters;
 //	/**
 //	 * Only used by hibernate

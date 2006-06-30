@@ -73,10 +73,7 @@ public class KeyValue implements PolymorphicPersistableObject{
 	}
 	
 	public boolean equals(Object obj) {
-		if (obj instanceof KeyValue && ((KeyValue) obj).getKey().equals(this.getKey())) {
-			return true;
-		} else {
-			return false;
-		}
+		return (obj instanceof KeyValue 
+			&& ((KeyValue) obj).getKey().equals(this.getKey()));
 	}
 }

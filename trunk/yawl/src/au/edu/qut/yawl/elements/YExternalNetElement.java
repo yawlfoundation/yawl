@@ -65,7 +65,6 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("external_net_element")
-
 public class YExternalNetElement extends YNetElement implements Parented, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
     protected String _name;
     protected String _documentation;
@@ -140,7 +139,7 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
      * Inserted for hibernate
      * @param net
      */
-    protected void setContainer(YNet net) {
+    public void setContainer(YNet net) {
     	_net = net;
     }
     

@@ -44,8 +44,8 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.nexusbpm.command.EditorCommand;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
-import command.EditorCommand;
 
 
 /**

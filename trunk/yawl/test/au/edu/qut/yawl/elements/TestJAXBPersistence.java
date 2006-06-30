@@ -13,14 +13,14 @@ import javax.xml.bind.util.ValidationEventCollector;
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
-import au.edu.qut.yawl.jaxb.ControlTypeCodeType;
-import au.edu.qut.yawl.jaxb.DecompositionType;
-import au.edu.qut.yawl.jaxb.ExternalNetElementFactsType;
-import au.edu.qut.yawl.jaxb.FlowsIntoType;
-import au.edu.qut.yawl.jaxb.NetFactsType;
-import au.edu.qut.yawl.jaxb.SpecificationSetFactsType;
-import au.edu.qut.yawl.jaxb.YAWLSpecificationFactsType;
-import au.edu.qut.yawl.jaxb.NetFactsType.ProcessControlElements;
+//import au.edu.qut.yawl.jaxb.ControlTypeCodeType;
+//import au.edu.qut.yawl.jaxb.DecompositionType;
+//import au.edu.qut.yawl.jaxb.ExternalNetElementFactsType;
+//import au.edu.qut.yawl.jaxb.FlowsIntoType;
+//import au.edu.qut.yawl.jaxb.NetFactsType;
+//import au.edu.qut.yawl.jaxb.SpecificationSetFactsType;
+//import au.edu.qut.yawl.jaxb.YAWLSpecificationFactsType;
+//import au.edu.qut.yawl.jaxb.NetFactsType.ProcessControlElements;
 import au.edu.qut.yawl.persistence.JAXBIDResolver;
 
 import com.sun.xml.bind.IDResolver;
@@ -29,51 +29,51 @@ import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 public class TestJAXBPersistence extends TestCase {
 
 	private void unmarshallGeneratedClasses() {
-		JAXBContext jc = null;
-		Unmarshaller u = null;
-		try {
-			jc = JAXBContext.newInstance("au.edu.qut.yawl.jaxb");
-			// System.setProperty("jaxb.debug", "true");
-			u = jc.createUnmarshaller();
-
-			JAXBIDResolver resolver = new JAXBIDResolver();
-			u.setProperty(IDResolver.class.getName(), resolver);
-			u.setListener(resolver.createListener());
-			JAXBElement o = (JAXBElement) u.unmarshal(new File(
-					"D:\\yawl\\schema\\xyz2.xml"));
-
-			SpecificationSetFactsType ssft = (SpecificationSetFactsType) o
-					.getValue();
-			for (YAWLSpecificationFactsType ysft : ssft.getSpecification()) {
-				for (DecompositionType dt : ysft.getDecomposition()) {
-					System.out.println(dt.getId());
-					if (dt instanceof NetFactsType) {
-						NetFactsType nft = (NetFactsType) dt;
-						ProcessControlElements pce = nft
-								.getProcessControlElements();
-						for (ExternalNetElementFactsType eenef : pce
-								.getTaskOrCondition()) {
-							System.out.println("FROM:" + eenef.getId() + ":"
-									+ eenef);
-							for (FlowsIntoType fit : eenef.getFlowsInto()) {
-								System.out.println("  TO:"
-										+ fit.getNextElementRef());
-								if (fit.getNextElementRef() != null
-										&& fit.getNextElementRef().getIdref() != null)
-									System.out.println("ref="
-											+ fit.getNextElementRef().getId()
-											+ "<"
-											+ fit.getNextElementRef()
-													.getIdref().getClass()
-													.getName() + ">");
-							}
-						}
-					}
-				}
-			}
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		}
+//		JAXBContext jc = null;
+//		Unmarshaller u = null;
+//		try {
+//			jc = JAXBContext.newInstance("au.edu.qut.yawl.jaxb");
+//			// System.setProperty("jaxb.debug", "true");
+//			u = jc.createUnmarshaller();
+//
+//			JAXBIDResolver resolver = new JAXBIDResolver();
+//			u.setProperty(IDResolver.class.getName(), resolver);
+//			u.setListener(resolver.createListener());
+//			JAXBElement o = (JAXBElement) u.unmarshal(new File(
+//					"D:\\yawl\\schema\\xyz2.xml"));
+//
+//			SpecificationSetFactsType ssft = (SpecificationSetFactsType) o
+//					.getValue();
+//			for (YAWLSpecificationFactsType ysft : ssft.getSpecification()) {
+//				for (DecompositionType dt : ysft.getDecomposition()) {
+//					System.out.println(dt.getId());
+//					if (dt instanceof NetFactsType) {
+//						NetFactsType nft = (NetFactsType) dt;
+//						ProcessControlElements pce = nft
+//								.getProcessControlElements();
+//						for (ExternalNetElementFactsType eenef : pce
+//								.getTaskOrCondition()) {
+//							System.out.println("FROM:" + eenef.getId() + ":"
+//									+ eenef);
+//							for (FlowsIntoType fit : eenef.getFlowsInto()) {
+//								System.out.println("  TO:"
+//										+ fit.getNextElementRef());
+//								if (fit.getNextElementRef() != null
+//										&& fit.getNextElementRef().getIdref() != null)
+//									System.out.println("ref="
+//											+ fit.getNextElementRef().getId()
+//											+ "<"
+//											+ fit.getNextElementRef()
+//													.getIdref().getClass()
+//													.getName() + ">");
+//							}
+//						}
+//					}
+//				}
+//			}
+//		} catch (JAXBException e) {
+//			e.printStackTrace();
+//		}
 
 	}
 
@@ -96,7 +96,7 @@ public class TestJAXBPersistence extends TestCase {
 					, YAtomicTask.class
 					, YCompositeTask.class
 					, YMultiInstanceAttributes.class
-					, ControlTypeCodeType.class
+//					, ControlTypeCodeType.class
 					, YInputCondition.class
 					, YOutputCondition.class
 					, YCondition.class

@@ -13,9 +13,10 @@ import java.net.URISyntaxException;
 import au.edu.qut.yawl.elements.data.YInputParameter;
 import au.edu.qut.yawl.elements.data.YOutputParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
+
+import com.nexusbpm.command.EditorCommand;
 import com.nexusbpm.editor.component.EmailSenderComponent;
 import com.nexusbpm.editor.component.JythonComponent;
-import command.EditorCommand;
 
 /**
  * The purpose of theMockYSpecification is to provide an example of how to build

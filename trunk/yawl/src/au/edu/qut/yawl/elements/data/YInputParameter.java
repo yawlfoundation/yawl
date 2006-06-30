@@ -14,9 +14,6 @@ import java.util.Vector;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlType;
 
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
@@ -32,10 +29,6 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  */
 @Entity
 @DiscriminatorValue("input")
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "InputParameterFactsType", namespace="http://www.citi.qut.edu.au/yawl"
-//	,propOrder = {"_mandatory"}
-)
 public class YInputParameter extends YParameter implements PolymorphicPersistableObject  {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
@@ -45,10 +38,8 @@ public class YInputParameter extends YParameter implements PolymorphicPersistabl
 	 */
 	private static final long serialVersionUID = 2006030080l;
 	
-//    @XmlElement(name="mandatory", namespace="http://www.citi.qut.edu.au/yawl")
 //    private boolean _mandatory = false;
 
-//    @XmlTransient
 //    private String _paramType;
 
     /**
@@ -110,7 +101,6 @@ public class YInputParameter extends YParameter implements PolymorphicPersistabl
 
 
 
-//    @XmlTransient
 //    private YDecomposition parentEnablementParameters;
 //	/**
 //	 * Only used by hibernate
