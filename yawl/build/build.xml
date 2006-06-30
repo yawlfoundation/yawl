@@ -157,15 +157,17 @@
     <property name="postgres8.path" value="${basic.libs}/${postgres8.jar}"/>
     <property name="jta" value="${persist.libs}/jta.jar"/>
     <property name="jaxbapi" value="${persist.libs}/jaxb-api.jar"/>
+    <property name="jaxbimpl" value="${persist.libs}/jaxb-impl.jar"/>
     <property name="odmg" value="${persist.libs}/odmg-3.0.jar"/>
-
+	<property name="xmlunit" value="${basic.libs}/xmlunit1.0.jar"/>
+	
     <!--
     Editor Dependencies
     -->
-
     <property name="jgraph-5.4.jar" value="${basic.libs}/jgraph-5.4.jar"/>
     <property name="jgraphaddons-1.0.5.jar" value="${basic.libs}/jgraphaddons-1.0.5.jar"/>
     <property name="swing-worker.jar" value="${basic.libs}/swing-worker.jar"/>
+	<property name="jgraphlayout.jar" value="${basic.libs}/jgraphlayout.jar"/>
 
 
     <!--
@@ -260,6 +262,8 @@
         <pathelement location="${ehcache}"/>
         <pathelement location="${hibernate}"/>
         <pathelement location="${jaxbapi}"/>
+        <pathelement location="${jaxbimpl}"/>
+    	<pathelement location="${xmlunit}"/>
         <pathelement location="${hibernate-ann}"/>
         <pathelement location="${jta}"/>
         <pathelement location="${odmg}"/>
@@ -273,6 +277,7 @@
     <path id="cp.editor">
         <pathelement location="${jgraph-5.4.jar}"/>
         <pathelement location="${jgraphaddons-1.0.5.jar}"/>
+    	<pathelement location="${jgraphlayout.jar}"/>
         <pathelement location="${swing-worker.jar}"/>
     </path>
 
@@ -339,7 +344,7 @@
     Compiles main project source into ${classes}.
     -->
     <target name="compile" depends="init">
-        <javac srcdir="${src}:editor" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
+        <javac srcdir="${src}:editor:mock:test" debug="true" destdir="${classes}">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
