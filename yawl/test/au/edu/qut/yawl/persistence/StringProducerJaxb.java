@@ -28,7 +28,7 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
-import au.edu.qut.yawl.jaxb.ControlTypeCodeType;
+//import au.edu.qut.yawl.jaxb.ControlTypeCodeType;
 
 import com.sun.xml.bind.IDResolver;
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
@@ -46,7 +46,8 @@ public class StringProducerJaxb extends StringProducerXML {
 				YParameter.class, YVariable.class, YNetElement.class,
 				YExternalNetElement.class, YTask.class, YAtomicTask.class,
 				YCompositeTask.class, YMultiInstanceAttributes.class,
-				ControlTypeCodeType.class, YInputCondition.class,
+//				ControlTypeCodeType.class, 
+				YInputCondition.class,
 				YOutputCondition.class, YCondition.class, YFlow.class);
 	}
 	

@@ -7,13 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import org.w3c.dom.Element;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
@@ -24,38 +17,28 @@ import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.jaxb.ExpressionType;
+//import au.edu.qut.yawl.jaxb.ExpressionType;
 
 
 public class PersistenceHelper {
-	@XmlAccessorType(XmlAccessType.FIELD)
-	@XmlType(name = "", propOrder = {
-	    "formalOutputExpression",
-	    "outputJoiningExpression",
-	    "resultAppliedToLocalVariable"
-	})
 	public static class MiDataOutput {
 	
-	    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
-	    protected ExpressionType formalOutputExpression;
-	    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
-	    protected ExpressionType outputJoiningExpression;
-	    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
-	    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+//	    protected ExpressionType formalOutputExpression;
+//	    protected ExpressionType outputJoiningExpression;
 	    protected String resultAppliedToLocalVariable;
 	
-	    public ExpressionType getFormalOutputExpression() {
-	        return formalOutputExpression;
-	    }
-	    public void setFormalOutputExpression(ExpressionType value) {
-	        this.formalOutputExpression = value;
-	    }
-	    public ExpressionType getOutputJoiningExpression() {
-	        return outputJoiningExpression;
-	    }
-	    public void setOutputJoiningExpression(ExpressionType value) {
-	        this.outputJoiningExpression = value;
-	    }
+//	    public ExpressionType getFormalOutputExpression() {
+//	        return formalOutputExpression;
+//	    }
+//	    public void setFormalOutputExpression(ExpressionType value) {
+//	        this.formalOutputExpression = value;
+//	    }
+//	    public ExpressionType getOutputJoiningExpression() {
+//	        return outputJoiningExpression;
+//	    }
+//	    public void setOutputJoiningExpression(ExpressionType value) {
+//	        this.outputJoiningExpression = value;
+//	    }
 	    public String getResultAppliedToLocalVariable() {
 	        return resultAppliedToLocalVariable;
 	    }
@@ -63,38 +46,28 @@ public class PersistenceHelper {
 	        this.resultAppliedToLocalVariable = value;
 	    }
 	}
-	@XmlAccessorType(XmlAccessType.FIELD)
-	@XmlType(name = "", propOrder = {
-	    "expression",
-	    "splittingExpression",
-	    "formalInputParam"
-	})
 	public static class MiDataInput {
-	    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
-	    protected ExpressionType expression;
-	    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
-	    protected ExpressionType splittingExpression;
-	    @XmlElement(namespace = "http://www.citi.qut.edu.au/yawl", required = true)
-	    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-	    protected String formalInputParam;
-	    public ExpressionType getExpression() {
-	        return expression;
-	    }
-	    public void setExpression(ExpressionType value) {
-	        this.expression = value;
-	    }
-	    public ExpressionType getSplittingExpression() {
-	        return splittingExpression;
-	    }
-	    public void setSplittingExpression(ExpressionType value) {
-	        this.splittingExpression = value;
-	    }
-	    public String getFormalInputParam() {
-	        return formalInputParam;
-	    }
-	    public void setFormalInputParam(String value) {
-	        this.formalInputParam = value;
-	    }
+//	    protected ExpressionType expression;
+//	    protected ExpressionType splittingExpression;
+//	    protected String formalInputParam;
+//	    public ExpressionType getExpression() {
+//	        return expression;
+//	    }
+//	    public void setExpression(ExpressionType value) {
+//	        this.expression = value;
+//	    }
+//	    public ExpressionType getSplittingExpression() {
+//	        return splittingExpression;
+//	    }
+//	    public void setSplittingExpression(ExpressionType value) {
+//	        this.splittingExpression = value;
+//	    }
+//	    public String getFormalInputParam() {
+//	        return formalInputParam;
+//	    }
+//	    public void setFormalInputParam(String value) {
+//	        this.formalInputParam = value;
+//	    }
 	}
 	public static void setJaxbDecompositions(YSpecification spec, List<YDecomposition> set) {
 		spec._decompositions = set;

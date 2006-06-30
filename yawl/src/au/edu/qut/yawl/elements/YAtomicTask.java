@@ -25,7 +25,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.jdom.Element;
 
@@ -99,7 +98,6 @@ public class YAtomicTask extends YTask {
             joinColumns = { @JoinColumn( name="extern_id") },
             inverseJoinColumns = @JoinColumn( name="key_id")
     )
-    @XmlTransient
     private Set<KeyValue> getDataMappingsForTaskEnablementSet() {
     	return dataMappingsForTaskEnablementSet;
     }

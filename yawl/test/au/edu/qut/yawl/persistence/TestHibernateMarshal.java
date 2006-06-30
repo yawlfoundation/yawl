@@ -1,14 +1,10 @@
 package au.edu.qut.yawl.persistence;
 
-import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 import java.util.List;
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
-
-import com.nexusbpm.editor.persistence.YDecompositionEditorExtension;
 
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -16,6 +12,8 @@ import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.util.YVerificationMessage;
+
+import com.nexusbpm.editor.persistence.YDecompositionEditorExtension;
 
 
 public class TestHibernateMarshal extends XMLTestCase  {

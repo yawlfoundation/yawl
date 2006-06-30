@@ -11,9 +11,6 @@ package au.edu.qut.yawl.elements.data;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlType;
 
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
@@ -28,10 +25,6 @@ import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
  */
 @Entity
 @DiscriminatorValue("output")
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "OutputParameterFactsType", namespace="http://www.citi.qut.edu.au/yawl", 
-		propOrder = {"_mandatory"}
-)
 public class YOutputParameter extends YParameter implements PolymorphicPersistableObject  {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
@@ -74,8 +67,6 @@ public class YOutputParameter extends YParameter implements PolymorphicPersistab
 
 //
 //
-//    @XmlTransient
-//    private YDecomposition parentEnablementParameters;
 //	/**
 //	 * Only used by hibernate
 //	 */

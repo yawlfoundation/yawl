@@ -92,11 +92,12 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     private Integer _version;
     private Long _dbid;
 
+    @Transient
+    public Object getParent() {return null;}
+
     @Version
     @Column(name="optimistic_lock_version")
     @Transient
-    public Object getParent() {return null;}
-    
     @SuppressWarnings({"UNUSED_SYMBOL"})
     private Integer getVersion() {
     	return _version;

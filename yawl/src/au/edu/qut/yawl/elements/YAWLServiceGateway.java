@@ -25,12 +25,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
@@ -54,13 +48,6 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  */
 @Entity
 @DiscriminatorValue("service_gateway")
-@XmlRootElement(name="WebServiceGatewayFactsType", namespace="http://www.citi.qut.edu.au/yawl")
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "WebServiceGatewayFactsType", namespace="http://www.citi.qut.edu.au/yawl", 
-		propOrder = {
-    "enablementParam"
-//    "yawlService"
-})
 public class YAWLServiceGateway extends YDecomposition {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
@@ -69,9 +56,7 @@ public class YAWLServiceGateway extends YDecomposition {
 	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
 	 */
 	private static final long serialVersionUID = 2006030080l;
-	@XmlTransient
     private Set<YAWLServiceReference> _yawlServices;
-	@XmlElement(name="enablementParam", namespace="http://www.citi.qut.edu.au/yawl")
 	private List<YParameter>enablementParam = new ArrayList<YParameter>();
 
     /**
@@ -177,7 +162,6 @@ public class YAWLServiceGateway extends YDecomposition {
     }
 
     @Transient
-    @XmlTransient
     public YAWLServiceReference getYawlService() {
         if (_yawlServices.size() > 0) {
             return _yawlServices.iterator().next();
@@ -206,7 +190,6 @@ public class YAWLServiceGateway extends YDecomposition {
 	 *   class="au.edu.qut.yawl.elements.data.YVariable"
      */
     @Transient
-    @XmlTransient
     public Map<String, YVariable> getEnablementParametersMap() {
     	Map<String, YVariable> map = new HashMap<String, YVariable>();
     	for(YVariable variable:enablementParam) {

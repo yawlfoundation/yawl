@@ -25,14 +25,6 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.jdom.input.SAXBuilder;
 
@@ -60,17 +52,6 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("variable")
-@XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlType(name = "VariableFactsType", namespace="http://www.citi.qut.edu.au/yawl",
-	propOrder = {
-	    "initialValue",
-	    "documentation",
-	    "name",
-	    "dataTypeName",
-	    "namespaceURI",
-	    "isUntyped",
-	    "elementName"
-})
 public class YVariable implements Comparable, Cloneable, YVerifiable, PolymorphicPersistableObject {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
@@ -130,7 +111,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
 	 */
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    @XmlTransient
     protected Long getID() {
 		return _id;
 	}
@@ -171,7 +151,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
 	 * Only used by hibernate
 	 */
     @ManyToOne
-    @XmlTransient
 	private YDecomposition getParentLocalVariables() {
 		return parentLocalVariables;
 	}
@@ -191,7 +170,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
 	 * Only used by hibernate
 	 */
     @ManyToOne
-    @XmlTransient
 	private YDecomposition getParentInputParameters() {
 		return parentInputParameters;
 	}
@@ -211,7 +189,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
 	 * Only used by hibernate
 	 */
     @ManyToOne
-    @XmlTransient
 	private YDecomposition getParentOutputParameters() {
 		return parentOutputParameters;
 	}
@@ -239,8 +216,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
      * @hibernate.property column="DATA_TYPE_NAME" length="1024"
      */
     @Basic
-    @XmlElement(name="type", namespace="http://www.citi.qut.edu.au/yawl")
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     public String getDataTypeName() {
         return _dataTypeName;
     }
@@ -259,7 +234,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
      * @hibernate.property column="DATA_TYPE_NAMESPACE" length="1024"
      */
     @Basic
-    @XmlTransient
     public String getDataTypeNameSpace() {
         return _namespaceURI;
     }
@@ -277,8 +251,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
 	 * @hibernate.property column="NAME" length="255"
 	 */
     @Basic
-    @XmlElement(name="name", namespace="http://www.citi.qut.edu.au/yawl")
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     public String getName() {
         return _name;
     }
@@ -298,7 +270,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
      * @hibernate.property column="INITIAL_VALUE" length="4096"
 	 */
     @Basic
-    @XmlElement(name="initialValue", namespace="http://www.citi.qut.edu.au/yawl")
     public String getInitialValue() {
         return _initialValue;
     }
@@ -445,7 +416,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
      * @hibernate.property column="DOCUMENTATION" length="4096"
      */
     @Basic
-    @XmlElement(name="documentation", namespace="http://www.citi.qut.edu.au/yawl")
     public String getDocumentation() {
         return _documentation;
     }
@@ -461,8 +431,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
      * @hibernate.property column="ELEMENT_NAME" length="255"
      */
     @Basic
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlElement(name="element", namespace="http://www.citi.qut.edu.au/yawl")
     public String getElementName(){
     	return _elementName;
     }
@@ -476,7 +444,6 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
     }
     
     @Basic
-    @XmlTransient
     public boolean isUntyped(){
     	return _isUntyped;
     }
@@ -511,37 +478,5 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
     	String otherName = ( other.getName() == null ) ? other.getElementName() : other.getName();
         return myName.compareTo( otherName );
     }
-
-    public static class MyAdapter extends XmlAdapter<String, String> {
-        public MyAdapter(){}
-
-        // Convert a value type to a bound type.
-        // read xml content and put into Java class.
-        public String unmarshal(String v){
-            return null;//v.getName().toString();
-        }
-
-        // Convert a bound type to a value type.
-        // write Java content into class that generates desired XML 
-        public String marshal(String v){
-            return null;
-        }
-    }
-
-    @XmlElement(name="namespace", namespace="http://www.citi.qut.edu.au/yawl")
-	private String getNamespaceURI() {
-		return _namespaceURI;
-	}
-	private void setNamespaceURI(String _namespaceuri) {
-		_namespaceURI = _namespaceuri;
-	}
-
-    @XmlElement(name="isUntyped", namespace="http://www.citi.qut.edu.au/yawl")
-    private Boolean getIsUntyped() {
-		return _isUntyped ? Boolean.TRUE : null;
-	}
-	private void setIsUntyped(Boolean untyped) {
-		_isUntyped = (untyped == null) ? Boolean.FALSE : Boolean.TRUE;
-	}
 
 }

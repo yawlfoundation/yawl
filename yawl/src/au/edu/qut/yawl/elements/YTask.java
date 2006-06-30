@@ -68,14 +68,6 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.jaxb.ControlTypeCodeType;
-import au.edu.qut.yawl.jaxb.ControlTypeType;
-import au.edu.qut.yawl.jaxb.CreationModeCodeType;
-import au.edu.qut.yawl.jaxb.CreationModeType;
-import au.edu.qut.yawl.jaxb.ExpressionType;
-import au.edu.qut.yawl.jaxb.VarMappingFactsType;
-import au.edu.qut.yawl.jaxb.VarMappingSetType;
-import au.edu.qut.yawl.persistence.jaxb.PersistenceHelper;
 import au.edu.qut.yawl.schema.Instruction;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
 import au.edu.qut.yawl.util.YSaxonOutPutter;
@@ -100,7 +92,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 @Entity
 @DiscriminatorValue("task")
 public abstract class YTask extends YExternalNetElement {
-    private static final Logger logger = Logger.getLogger(YTask.class);
+    private static final Logger LOG = Logger.getLogger(YTask.class);
     //class members
     private static final Random _random = new Random(new Date().getTime());
     public static final int _AND = 95;
@@ -480,8 +472,8 @@ public abstract class YTask extends YExternalNetElement {
     }
 
     private void generateBeginReport1() {
-        logger.info("\n\nYTask::firing");
-        logger.info("\ttaskID = " + getID());
+        LOG.info("\n\nYTask::firing");
+        LOG.info("\ttaskID = " + getID());
     }
 
 
@@ -591,7 +583,7 @@ public abstract class YTask extends YExternalNetElement {
             }
             return false;
         } else {
-            logger.error("This task [" +
+            LOG.error("This task [" +
                     getName() != null ? getName() : getID() +
                     "] is not active, and therefore cannot be completed. "
             );
@@ -605,9 +597,9 @@ public abstract class YTask extends YExternalNetElement {
 
 
     private static void generateCompletingReport2(Element resultElem, String forNetVar, String query, Document data) {
-        if(logger.isInfoEnabled()) {
+        if(LOG.isInfoEnabled()) {
             XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-            logger.info("\n\nYTask::t_completing " +
+            LOG.info("\n\nYTask::t_completing " +
                     "\n\tstatus: transforming output for net" +
                     "\n\tforNetVar = " + forNetVar +
                     "\n\tquery = " + query +
@@ -617,19 +609,19 @@ public abstract class YTask extends YExternalNetElement {
     }
 
     private void generateCompletingReport1(String query, Document rawDecompositionData, Element queryResultElement) {
-        if(logger.isInfoEnabled()) {
-            logger.info("\n\n\nYTask::completing" +
+        if(LOG.isInfoEnabled()) {
+            LOG.info("\n\n\nYTask::completing" +
                     "\n\tTaskID = " + getID() +
                     "\n\tquery " + query);
             if (query.equals(getPreJoiningMIQuery())) {
-                logger.info("\tquery = [" + query + "] is pre-joining MI query.");
+                LOG.info("\tquery = [" + query + "] is pre-joining MI query.");
             }
 
             XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
             String rawDataStr = out.outputString(rawDecompositionData).trim();
-            logger.info("\n\trawDecomositionData = " + rawDataStr);
+            LOG.info("\n\trawDecomositionData = " + rawDataStr);
             String queryResultStr = out.outputString(queryResultElement).trim();
-            logger.info("\n\tresult = " + queryResultStr.trim());
+            LOG.info("\n\tresult = " + queryResultStr.trim());
         }
     }
 
@@ -702,7 +694,7 @@ public abstract class YTask extends YExternalNetElement {
             }
         }
         i.removeLocation(this);
-        logger.info("YTask::" + getID() + ".exit() caseID(" + _i + ") " +
+        LOG.info("YTask::" + getID() + ".exit() caseID(" + _i + ") " +
                 "_parentDecomposition.getInternalDataDocument() = "
                 + new XMLOutputter(Format.getPrettyFormat()).outputString(_net.getInternalDataDocument()).trim());
         _i = null;
@@ -774,33 +766,33 @@ public abstract class YTask extends YExternalNetElement {
     }
 
     private void generateExitReports3() {
-        if(logger.isInfoEnabled()) {
+        if(LOG.isInfoEnabled()) {
             XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-            logger.info("\tresulting net data = " +
+            LOG.info("\tresulting net data = " +
                     out.outputString(_net.getInternalDataDocument()));
         }
     }
 
     private void generateExitReports2(String miJoiningQuery, Document groupedOutputData, Element result) {
-        if(logger.isInfoEnabled()) {
-            logger.info("\tmi JoiningQuery = " + miJoiningQuery);
+        if(LOG.isInfoEnabled()) {
+            LOG.info("\tmi JoiningQuery = " + miJoiningQuery);
             XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-            logger.info("\tmi groupedOutputData = " + out.outputString(groupedOutputData));
-            logger.info("\tmi result = " + out.outputString(result));
+            LOG.info("\tmi groupedOutputData = " + out.outputString(groupedOutputData));
+            LOG.info("\tmi result = " + out.outputString(result));
         }
     }
 
     private void generateExitReport1() {
-        if(logger.isInfoEnabled()) {
-            logger.info("\n\nYTask::exit()");
-            logger.info("\tgetID = " + getID());
+        if(LOG.isInfoEnabled()) {
+            LOG.info("\n\nYTask::exit()");
+            LOG.info("\tgetID = " + getID());
             for (Iterator iter = _localVariableNameToReplaceableOuptutData.keySet().iterator();
                  iter.hasNext();) {
                 String localVariableName = (String) iter.next();
                 Element queryResult =
                         (Element) _localVariableNameToReplaceableOuptutData.get(localVariableName);
                 XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-                logger.info("\tqueryResult = " + out.outputString(queryResult));
+                LOG.info("\tqueryResult = " + out.outputString(queryResult));
             }
         }
     }
@@ -1867,81 +1859,6 @@ public abstract class YTask extends YExternalNetElement {
         getDecompositionPrototype().setSkipOutboundSchemaChecks(performOutboundSchemaChecks);
     }
 
-
-    @Transient
-    private VarMappingSetType getStartingMappings() {
-    	VarMappingSetType set = new VarMappingSetType();
-    	List<VarMappingFactsType> list = set.getMapping();
-    	for (KeyValue entry:dataMappingsForTaskStartingSet) {
-    		VarMappingFactsType mapping = new VarMappingFactsType();
-    		ExpressionType expression = new ExpressionType();
-    		expression.setQuery(entry.getValue());
-    		mapping.setExpression(expression);
-    		mapping.setMapsTo(entry.getKey());
-    		list.add(mapping);
-    	}
-    	return set;    	
-    }
-    
-    @Transient
-    private void setStartingMappings(VarMappingSetType mappings) {
-    	for (VarMappingFactsType mapping:mappings.getMapping()) {
-    		String key = mapping.getMapsTo();
-    		String value = mapping.getExpression().getQuery();
-    		dataMappingsForTaskStartingSet.add(new KeyValue(key, value));
-    	}
-    }
-
-    @Transient
-    private VarMappingSetType getCompletedMappings() {
-    	return null;    	
-    }
-    
-    private void setCompletedMappings(VarMappingSetType mappings) {
-    	for (VarMappingFactsType mapping:mappings.getMapping()) {
-    	}
-    }
-    
-    private void setJoin(ControlTypeType join) {
-    	setJoinType(marshalCodeToInt(join));
-    }
-    @Transient
-    private ControlTypeType getJoin() {
-    	return marshalIntToCode(getJoinType());
-    }
-    private void setSplit(ControlTypeType split) {
-    	setSplitType(marshalCodeToInt(split));
-    }
-    @Transient
-    private ControlTypeType getSplit() {
-    	return marshalIntToCode(getSplitType());
-    }
-    
-    private static ControlTypeType marshalIntToCode(int type) {
-    	ControlTypeCodeType typeCode = null;
-    	switch(type) {
-	    	case _AND: typeCode = ControlTypeCodeType.AND;break;
-	    	case _OR: typeCode = ControlTypeCodeType.OR;break;
-	    	case _XOR: typeCode = ControlTypeCodeType.XOR;break;
-	    	default: typeCode = ControlTypeCodeType.XOR;
-    	}
-    	ControlTypeType control = new ControlTypeType();
-    	control.setCode(typeCode);
-    	return control;
-    }
-    
-    private static int marshalCodeToInt(ControlTypeType control) {
-    	int type = _XOR;
-    	ControlTypeCodeType code = control.getCode();
-    	switch(code) {
-	    	case AND: type = _AND;break;
-	    	case OR: type = _OR;break;
-	    	case XOR: type = _XOR;break;
-		    default: type = _XOR;
-    	}
-    	return type;
-    }
-    
     @Transient
     private YMultiInstanceAttributes getInitedMultiInstAttr() {
 	    if (_multiInstAttr == null) {
@@ -1970,45 +1887,5 @@ public abstract class YTask extends YExternalNetElement {
     @Transient
     public void setThreshold(String value) {
         this.getInitedMultiInstAttr().setThresholdHibernate(new Integer(value));
-    }
-    
-    @Transient
-    public CreationModeType getCreationMode() {
-    	CreationModeType creation = new CreationModeType();
-    	creation.setCode(CreationModeCodeType.valueOf(this.getInitedMultiInstAttr().getCreationMode()));
-    	return creation;
-    }
-
-    @Transient
-    public void setCreationMode(CreationModeType value) {
-        this.getInitedMultiInstAttr().setCreationMode(value.getCode().value());
-    }
-    @Transient
-    public PersistenceHelper.MiDataInput getMiDataInput() {
-    	PersistenceHelper.MiDataInput input = new PersistenceHelper.MiDataInput();
-    	input.setFormalInputParam(getInitedMultiInstAttr().getMIFormalInputParam());
-    	ExpressionType expr = new ExpressionType();
-    	expr.setQuery(getInitedMultiInstAttr().getMISplittingQuery());
-    	input.setSplittingExpression(expr);
-        return input;
-    }
-    public void setMiDataInput(PersistenceHelper.MiDataInput value) {
-    	getInitedMultiInstAttr().setMIFormalInputParam(value.getFormalInputParam());
-    	getInitedMultiInstAttr().setMISplittingQuery(value.getSplittingExpression().getQuery());
-    }
-    @Transient
-    public PersistenceHelper.MiDataOutput getMiDataOutput() {
-    	PersistenceHelper.MiDataOutput output = new PersistenceHelper.MiDataOutput();
-    	ExpressionType expr1 = new ExpressionType();
-    	expr1.setQuery(getInitedMultiInstAttr().getMIFormalOutputQuery());
-    	output.setFormalOutputExpression(expr1);
-    	ExpressionType expr2 = new ExpressionType();
-    	expr2.setQuery(getInitedMultiInstAttr().getMIJoiningQuery());
-    	output.setOutputJoiningExpression(expr2);
-        return output;
-    }
-    public void setMiDataOutput(PersistenceHelper.MiDataOutput value) {
-    	getInitedMultiInstAttr().setMIFormalOutputQuery(value.getFormalOutputExpression().getQuery());
-    	getInitedMultiInstAttr().setMIJoiningQuery(value.getOutputJoiningExpression().getQuery());
     }
 }

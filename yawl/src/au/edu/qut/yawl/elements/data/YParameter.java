@@ -23,10 +23,6 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -49,7 +45,6 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  */
 @Entity
 @DiscriminatorValue("parameter")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class YParameter extends YVariable implements PolymorphicPersistableObject  {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
@@ -59,20 +54,15 @@ public class YParameter extends YVariable implements PolymorphicPersistableObjec
 	 */
 	private static final long serialVersionUID = 2006030080l;
 	
-    @XmlElement(name="mandatory", namespace="http://www.citi.qut.edu.au/yawl")
     private boolean _mandatory = false;
 
-    @XmlTransient
     private boolean _cutsThroughDecompositionStateSpace;
 
-    @XmlTransient
     private static final String[] _paramTypes = new String[]{"inputParam", "outputParam", "enablementParam"};
     public static final int _INPUT_PARAM_TYPE = 0;
     public static final int _OUTPUT_PARAM_TYPE = 1;
     public static final int _ENABLEMENT_PARAM_TYPE = 2;
-    @XmlTransient
     private String _paramType;
-    @XmlTransient
     private Map<String, String> attributes;
 
     /**
@@ -134,7 +124,6 @@ public class YParameter extends YVariable implements PolymorphicPersistableObjec
 
 
 
-    @XmlTransient
     private YDecomposition parentEnablementParameters;
 	/**
 	 * Only used by hibernate
