@@ -230,6 +230,11 @@ public class EngineGatewayImpl implements EngineGateway {
             if (item != null) {
                 String userID = _userList.getUserID(sessionHandle);
                 YWorkItem child = _engine.startWorkItem(item, userID);
+                if( child == null ) {
+                	throw new YAWLException(
+                			"Engine failed to start work item " + item.toString() +
+                			". The engine returned no work items." );
+                }
                 return OPEN_SUCCESS + child.toXML() + CLOSE_SUCCESS;
             }
             return OPEN_FAILURE + "No work item with id = " + workItemID + CLOSE_FAILURE;

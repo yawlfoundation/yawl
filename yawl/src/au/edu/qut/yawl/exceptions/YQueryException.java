@@ -17,6 +17,9 @@ package au.edu.qut.yawl.exceptions;
  * 
  */
 public class YQueryException extends YAWLException {
+	public YQueryException(Throwable t) {
+		super(t);
+	}
     public YQueryException(String message) {
         super(message);
     }
