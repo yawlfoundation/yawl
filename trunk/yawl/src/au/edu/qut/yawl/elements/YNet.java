@@ -49,19 +49,19 @@ import au.edu.qut.yawl.schema.XMLToolsForYAWL;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
- * 
+ *
  * The implementation of a net in the YAWL paper.   - A container for tasks and conditions.
  * @author Lachlan Aldred
- * 
- * 
+ *
+ *
  * ***************************************************************************************
- * 
- * an object of this class contains a set of inter-connected tasks (action elements) and 
- * conditions (stateful elements).  In addition to the parameter definitions inherited from 
- * its superclass (YDecomposition) YNet allows local variables to be defined. 
- * 
+ *
+ * an object of this class contains a set of inter-connected tasks (action elements) and
+ * conditions (stateful elements).  In addition to the parameter definitions inherited from
+ * its superclass (YDecomposition) YNet allows local variables to be defined.
+ *
  * Set class to non-final for purposes of hibernate
- * 
+ *
  * @hibernate.subclass discriminator-value="1"
  */
 @Entity
@@ -149,7 +149,7 @@ public class YNet extends YDecomposition {
 
 
     /**
-     * 
+     *
      * @return
      * @hibernate.map role="netElements" cascade="all-delete-orphan"
      * @hibernate.key column="DECOMPOSITION_ID"
@@ -196,7 +196,7 @@ public class YNet extends YDecomposition {
      * @return a List of error messages.
      */
     @Override
-	public List verify() {
+    public List verify() {
         List messages = new Vector();
         messages.addAll(super.verify());
         if (this._inputCondition == null) {
@@ -320,7 +320,7 @@ public class YNet extends YDecomposition {
 
 
     @Override
-	public Object clone() {
+    public Object clone() {
         try {
             _clone = (YNet) super.clone();
             _clone._netElements = new ArrayList<YExternalNetElement>();
@@ -486,15 +486,15 @@ public class YNet extends YDecomposition {
     }
 
     @Override
-	public String toXML() {
+    public String toXML() {
         StringBuffer xml = new StringBuffer();
         xml.append(super.toXML());
         // getLocalVariables() returns a sorted list
         List<YVariable> variables = getLocalVariables();
-        
+
         for( YVariable variable : variables ) {
-        	xml.append( variable.toXML() );
-        }
+                xml.append(variable.toXML());
+            }
         xml.append("<processControlElements>");
         xml.append(_inputCondition.toXML());
 
@@ -540,7 +540,7 @@ public class YNet extends YDecomposition {
      * Initialises the variable/parameter declarations so that the net may execute.
      */
     @Override
-	public void initialise() throws YPersistenceException {
+    public void initialise() throws YPersistenceException {
         super.initialise();
         Iterator iter = getLocalVariables().iterator();
         while (iter.hasNext()) {
@@ -614,12 +614,11 @@ public class YNet extends YDecomposition {
     }
 
     @Transient
-    public Set getBusyTasks() {
-        Set busyTasks = new HashSet();
-        for (Object element0 : _netElements) {
-            YExternalNetElement element = (YExternalNetElement) element0;
-            if (element instanceof YTask) {
-                YTask task = (YTask) element;
+    public Set<YTask> getBusyTasks() {
+        Set<YTask> busyTasks = new HashSet<YTask>();
+        for (YExternalNetElement netElement : _netElements) {
+            if (netElement instanceof YTask) {
+                YTask task = (YTask) netElement;
                 if (task.t_isBusy()) {
                     busyTasks.add(task);
                 }
@@ -629,10 +628,10 @@ public class YNet extends YDecomposition {
     }
 
     @Transient
-    public Set getEnabledTasks(YIdentifier id) {
-        Set enabledTasks = new HashSet();
-        for (Object element0 : _netElements) {
-            YExternalNetElement element = (YExternalNetElement) element0;
+    public Set<YTask> getEnabledTasks(YIdentifier id) {
+        Set<YTask> enabledTasks = new HashSet<YTask>();
+        for (Iterator iterator = _netElements.iterator(); iterator.hasNext();) {
+            YExternalNetElement element = (YExternalNetElement) iterator.next();
             if (element instanceof YTask) {
                 YTask task = (YTask) element;
                 if (task.t_enabled(id)) {
@@ -664,10 +663,7 @@ public class YNet extends YDecomposition {
 
     @OneToMany(mappedBy="parentLocalVariables",cascade = {CascadeType.ALL})
     public List<YVariable> getLocalVariables() {
-        List<YVariable> retval = new ArrayList<YVariable>();
-        for(YVariable entry:_localVariables) {
-            retval.add(entry);
-        }
+        List<YVariable> retval = new ArrayList<YVariable>(_localVariables);
         Collections.sort(retval);
         return retval;
     }
@@ -678,4 +674,4 @@ public class YNet extends YDecomposition {
             this._localVariables.add(parm);
         }
     }
-}
+        }

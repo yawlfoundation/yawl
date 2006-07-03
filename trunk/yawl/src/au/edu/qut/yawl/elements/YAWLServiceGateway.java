@@ -83,8 +83,8 @@ public class YAWLServiceGateway extends YDecomposition {
     }
     
 
-    public List verify() {
-        List messages = new Vector();
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         messages.addAll(super.verify());
         for (Iterator iterator = enablementParam.iterator(); iterator.hasNext();) {
             YParameter parameter = (YParameter) iterator.next();
@@ -93,7 +93,7 @@ public class YAWLServiceGateway extends YDecomposition {
         Collection yawlServices = _yawlServices;
         for (Iterator iterator = yawlServices.iterator(); iterator.hasNext();) {
             YAWLServiceReference yawlService = (YAWLServiceReference) iterator.next();
-            List verificationResult = yawlService.verify();
+            List<YVerificationMessage> verificationResult = yawlService.verify();
             for (int i = 0; i < verificationResult.size(); i++) {
                 YVerificationMessage message = (YVerificationMessage) verificationResult.get(i);
                 message.setSource(this);

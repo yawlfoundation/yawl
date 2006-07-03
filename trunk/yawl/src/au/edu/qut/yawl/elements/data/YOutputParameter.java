@@ -21,7 +21,7 @@ import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
  * Date: 24/09/2003
  * Time: 15:49:36
  * 
- * 
+ * @deprecated Lachlan: Not needed because parameters no real 'behaviour'.
  */
 @Entity
 @DiscriminatorValue("output")
