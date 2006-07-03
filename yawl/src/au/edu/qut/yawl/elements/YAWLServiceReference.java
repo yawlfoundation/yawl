@@ -93,8 +93,8 @@ public class YAWLServiceReference implements YVerifiable, PersistableObject {
     /**
      * AJH: Extended message to conditionally include WSGateway ID.
      */ 
-    public List verify() {
-        List messages = new ArrayList();
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
         AbstractEngine engine = EngineFactory.createYEngine();
         YAWLServiceReference service = engine.getRegisteredYawlService(_yawlServiceID);
         if(service == null){

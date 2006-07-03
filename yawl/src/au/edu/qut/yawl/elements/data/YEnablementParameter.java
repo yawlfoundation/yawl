@@ -24,7 +24,8 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * Date: 24/09/2003
  * Time: 15:49:36
  * 
- * 
+ * @deprecated Lachlan: FYI I did not write this class.  This is a damaged
+ * copy and paste of the YParameter class done by someone @IHG.
  */
 @Entity
 @DiscriminatorValue("enablement")

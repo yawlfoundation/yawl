@@ -59,17 +59,17 @@ import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
- * 
+ *
  * @author Lachlan Aldred
  * Date: 25/09/2003
  * Time: 16:04:21
- * 
- * 
+ *
+ *
  * ***************************************************************************************
- * 
- * an abstract class sub-classed by YNet and YAWLServiceGateway.  This class is where input 
- * and output parameters are defined.  
- * 
+ *
+ * an abstract class sub-classed by YNet and YAWLServiceGateway.  This class is where input
+ * and output parameters are defined.
+ *
  * @hibernate.class table="DECOMPOSITION" discriminator-value="0"
  * @hibernate.discriminator column="DECOMPOSITION_TYPE_ID" type="integer"
  */
@@ -84,11 +84,11 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
-	 * with older revisions if method signatures have not changed. 
+	 * with older revisions if method signatures have not changed.
 	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
 	 */
 	private static final long serialVersionUID = 2006030080l;
-	
+
     protected String _id;
     protected YSpecification _specification;
     private String _name;
@@ -107,7 +107,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     protected Document _data = new Document();
     private Map<String, String> _attribues = new HashMap<String, String>();
     private List<Element> _internalExtensions;
-    
+
     private boolean _outBoundSchemaChecking;
 
     /*
@@ -116,7 +116,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     @Transient
     public Object getParent() {return _specification;}
 
-	
+
     private YCaseData casedata;
 
     /**
@@ -127,9 +127,9 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 	protected YCaseData getCasedata() {
 		return casedata;
 	}
-	
+
 	/**
-	 * Method for hibernate only 
+	 * Method for hibernate only
 	 * @param casedata
 	 */
     protected void setCasedata( YCaseData casedata ) {
@@ -173,18 +173,18 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     }
 
     Long _dbid;
-    
+
     @Id
     @Column(name="decomp_id")
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
     public Long getDbID() {
     	return _dbid;
     }
-    
+
     private void setDbID(Long dbid) {
     	_dbid = dbid;
     }
-        
+
     public String getId() {
         return _id;
     }
@@ -196,7 +196,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     protected void setId(String id) {
     	_id = id;
     }
-	
+
 	/**
 	 * Null constructor for hibernate
 	 */
@@ -209,7 +209,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
         _data.setRootElement(new Element(getRootDataElementName()));
     }
 
-    
+
     @Transient
     public Map<String, String> getAttributes() {
         return this._attribues;
@@ -287,7 +287,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 
     /**
      * @return set of output queries
-     * 
+     *
      */
 	@CollectionOfElements
     public Set<String> getOutputQueries() {
@@ -320,8 +320,9 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
                     append("</documentation>");
         }
 
-        List<YInputParameter> inParameters = getInputParameters();
-        for (YInputParameter parameter : inParameters) {
+        List<YParameter> parameters =
+                new ArrayList<YParameter>(_inputParameters);
+        for (YParameter parameter : parameters) {
             xml.append(parameter.toXML());
         }
         for (String expression : _outputExpressions) {
@@ -563,7 +564,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 			this._inputParameters.add(parm);
 		}
 	}
-    
+
     @Transient
     public List<YOutputParameter> getOutputParameters() {
     	List<YOutputParameter> retval = new ArrayList<YOutputParameter>();

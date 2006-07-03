@@ -20,12 +20,13 @@ import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
- * 
+ *
  * @author Lachlan Aldred
  * Date: 24/09/2003
  * Time: 15:49:36
- * 
- * 
+ *
+ * @deprecated By Lachlan: This is not needed as 
+ * parameters have no real "behaviour".
  */
 @Entity
 @DiscriminatorValue("input")
@@ -33,11 +34,11 @@ public class YInputParameter extends YParameter implements PolymorphicPersistabl
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
-	 * with older revisions if method signatures have not changed. 
+	 * with older revisions if method signatures have not changed.
 	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
 	 */
 	private static final long serialVersionUID = 2006030080l;
-	
+
 //    private boolean _mandatory = false;
 
 //    private String _paramType;
@@ -48,7 +49,7 @@ public class YInputParameter extends YParameter implements PolymorphicPersistabl
     protected YInputParameter() {
     }
 
-   
+
 
     /**
      * creates a parameter
@@ -117,8 +118,8 @@ public class YInputParameter extends YParameter implements PolymorphicPersistabl
 //	protected void setParentEnablementParameters( YDecomposition parentEnablementParameters ) {
 //		this.parentEnablementParameters = parentEnablementParameters;
 //	}
-//    
-    
+//
+
 //    /**
 //     * Establishes whether or not the parameter is meant to be mandatory
 //     * @param isMandatory
@@ -145,7 +146,7 @@ public class YInputParameter extends YParameter implements PolymorphicPersistabl
 
 
     /**
-     * 
+     *
      * @return
      * @hibernate.property column="IS_MANDATORY"
      */
@@ -164,7 +165,7 @@ public class YInputParameter extends YParameter implements PolymorphicPersistabl
 
 
     /**
-     * 
+     *
      * @return
      * @hibernate.property column="DIRECTION" length="255"
      */

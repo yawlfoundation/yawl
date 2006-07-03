@@ -41,7 +41,11 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * Date: 24/09/2003
  * Time: 15:49:36
  * 
- * 
+ * todo | LJA: why did you remove the compareTo/comparable?  have you found another
+ * todo | way to guarantee the order params are read in is the order in which they
+ * todo | are stored and retrieived?  you are deferring sorting to the superclass,
+ * todo | which I think is unwise.  It is now sorting a different way too.  This
+ * todo | will break the toXML() produced and the schema for YAWL will reject it.
  */
 @Entity
 @DiscriminatorValue("parameter")
