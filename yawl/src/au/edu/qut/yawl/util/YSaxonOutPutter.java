@@ -18,6 +18,7 @@ import net.sf.saxon.value.Type;
 import net.sf.saxon.xpath.XPathException;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.Text;
 import org.jdom.output.XMLOutputter;
 
 /**
@@ -46,7 +47,7 @@ public class YSaxonOutPutter {
                     break;
                 default:
                     try {
-                        el.setText(item.getStringValue());
+                    	el.addContent(new Text(item.getStringValue()));
                     } catch (XPathException e) {
                         e.printStackTrace();
                     }
