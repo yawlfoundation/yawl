@@ -261,10 +261,7 @@ print dynamicout@nl;
 				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
 				<mandatory/>
 			</outputParam>
-			<yawlService id="http://localhost:8080/yawlWSInvoker/">
-				<wsdlLocation>http://localhost:8080/JythonService/services/JythonService?wsdl</wsdlLocation>
-				<operationName>execute</operationName>
-			</yawlService>
+			<yawlService id="http://localhost:8080/yawlWSInvoker/"/>
 		</decomposition>
 		<decomposition id="DecompTwo" xsi:type="WebServiceGatewayFactsType">
 			<inputParam>
