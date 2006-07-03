@@ -169,7 +169,9 @@ public class WorkItemRecord {
                 "<id>" + _taskID + ":" + _caseID + "</id>" +
                 "<status>" + _status + "</status>" +
                 "<user>" + _whoStartedMe + "</user>" +
-                "<data>" + outCompact.outputString(_dataList) + "</data>" +
+                ((_dataList == null) ?
+                		"<data/>" :
+                		"<data>" + outCompact.outputString(_dataList) + "</data>") +
                 "<specid>" + _specificationID + "</specid>" +
                 "</itemRecord>";
     }

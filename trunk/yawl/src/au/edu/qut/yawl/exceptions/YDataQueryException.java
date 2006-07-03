@@ -26,10 +26,13 @@ public class YDataQueryException extends YDataStateException {
     }
 
     public String getMessage() {
+    	if(_message == null)
         return "The MI data accessing query (" + getQueryString() + ") " +
                 "for the task (" + getSource() + ") " +
                 "was applied over some data. " +
                 "It failed to execute as excepted.";
+    	else
+    		return _message;
     }
 
 

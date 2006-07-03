@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -309,7 +310,7 @@ public abstract class InterfaceBWebsideController {
         } else {
             filteredOutputData = mergedlOutputData;
         }
-	System.out.println(filteredOutputData);
+        System.out.println( "filtered output data:" + filteredOutputData);
 
         String result = _interfaceBClient.checkInWorkItem(workItemID, filteredOutputData, sessionHandle);
         _model.removeRemotelyCachedWorkItem(workItemID);
@@ -343,9 +344,18 @@ public abstract class InterfaceBWebsideController {
         if (taskInfo == null) {
             String taskInfoASXML = _interfaceBClient.getTaskInformationStr(
                     specificationID, taskID, sessionHandle);
-	    System.out.println(taskInfoASXML);
+	    System.out.println( "task info as XML:" + taskInfoASXML);
+	    try {
             taskInfo = InterfaceB_EnvironmentBasedClient.parseTaskInformation(taskInfoASXML);
             _model.setTaskInformation(specificationID, taskID, taskInfo);
+	    }
+	    catch( Exception e ) {
+	    	StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		System.out.println( sw.toString() );
+    		throw new RuntimeException( e );
+	    }
         }
         return taskInfo;
     }
@@ -447,7 +457,7 @@ public abstract class InterfaceBWebsideController {
         if (null == enabledWorkItem) {
             throw new IllegalArgumentException("Param enabledWorkItem cannot be null.");
         }
-        if (!enabledWorkItem.getStatus().equals(YWorkItem.Status.Enabled)) {
+        if (!enabledWorkItem.getStatus().equals(YWorkItem.Status.Enabled.toString())) {
             throw new IllegalArgumentException("Param enabledWorkItem must be enabled.");
         }
 
@@ -495,7 +505,7 @@ public abstract class InterfaceBWebsideController {
                 sessionHandle);
 
         System.out.println("_model = " + _model);
-        System.out.println("enabledWorkItem = " + enabledWorkItem);
+        System.out.println("enabledWorkItem = " + enabledWorkItem.toXML());
 
         TaskInformation taskInfo = getTaskInformation(
                 enabledWorkItem.getSpecificationID(),
