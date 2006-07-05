@@ -12,7 +12,7 @@ public interface ExtensionListContainer {
 
 	String IDENTIFIER_ATTRIBUTE="name";
 	String ELEMENT_NAME = "extension";
-	Namespace YAWL_NAMESPACE = Namespace.getNamespace("http://www.yawl.fit.qut.edu.au/");
+	Namespace YAWL_NAMESPACE = Namespace.getNamespace("http://www.citi.qut.edu.au/yawl");
 	
 	List<Element> getInternalExtensions();
 }
