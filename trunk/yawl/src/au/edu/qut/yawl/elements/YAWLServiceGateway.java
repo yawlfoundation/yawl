@@ -19,12 +19,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Where;
 
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
@@ -73,7 +76,9 @@ public class YAWLServiceGateway extends YDecomposition {
         _yawlServices = new HashSet();
     }
 
-    @OneToMany(mappedBy="parentEnablementParameters")
+    @OneToMany(cascade=CascadeType.ALL)
+    @JoinColumn(name="parent")
+    @Where(clause="DataTypeName='enablementParam'")
     protected List<YParameter> getEnablementParameters() {
     	return enablementParam;
     }
@@ -134,10 +139,10 @@ public class YAWLServiceGateway extends YDecomposition {
 	 *   class="au.edu.qut.yawl.elements.YAWLServiceReference"
      */
     @OneToMany
-        @JoinTable(
-            name="YawlServices",
-            joinColumns = { @JoinColumn( name="decomp_id") },
-            inverseJoinColumns = @JoinColumn( name="yawlServiceID")
+    @JoinTable(
+    	name="YawlServices",
+        joinColumns = { @JoinColumn( name="decomp_id") },
+        inverseJoinColumns = @JoinColumn( name="yawlServiceID")
     )
     protected Set<YAWLServiceReference> getYawlServices() {
     	return _yawlServices;

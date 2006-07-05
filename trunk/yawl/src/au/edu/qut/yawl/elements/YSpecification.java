@@ -37,6 +37,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.w3c.dom.Element;
 
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
@@ -123,6 +125,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     }
     
     @OneToMany(mappedBy="specification",cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public List<YDecomposition> getDBDecompositions() {
     	return _decompositions;
     }

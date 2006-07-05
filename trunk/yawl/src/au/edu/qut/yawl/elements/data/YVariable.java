@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
@@ -28,6 +29,7 @@ import javax.persistence.Transient;
 
 import org.jdom.input.SAXBuilder;
 
+import au.edu.qut.yawl.elements.Parented;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.YVerifiable;
@@ -52,7 +54,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("variable")
-public class YVariable implements Comparable, Cloneable, YVerifiable, PolymorphicPersistableObject {
+public class YVariable implements Comparable, Cloneable, YVerifiable, Parented, PolymorphicPersistableObject {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -86,7 +88,7 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
      * @deprecated see new constructor and setter methods
      */
     public YVariable(YDecomposition dec, String dataType, String name, String initialValue, String namespaceURI) {
-        this.parentLocalVariables = dec;
+        this.parent = dec;
         this._dataTypeName = dataType;
         this._name = name;
         this._initialValue = initialValue;
@@ -99,7 +101,7 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
      * @param dec parent decomposition
      */
     public YVariable(YDecomposition dec) {
-        this.parentLocalVariables = dec;
+        this.parent = dec;
     }
 
     private Long _id;
@@ -134,72 +136,16 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
         _namespaceURI = namespace;
     }
     
-
-    private YDecomposition justGetParent() {
-    	if (parentInputParameters != null) return parentInputParameters;
-    	if (parentOutputParameters != null) return parentOutputParameters;
-    	if (parentLocalVariables != null) return parentLocalVariables;
-    	if (this instanceof YParameter) {
-    		return ((YParameter) this).getParentEnablementParameters();
-    	}
-    	return null;
+    @ManyToOne
+    public YDecomposition getParent() {
+    	return parent;
+    }
+    @ManyToOne
+    public void setParent(YDecomposition parent) {
+    	this.parent = parent;
     }
     
-    private YDecomposition parentLocalVariables;
-
-	/**
-	 * Only used by hibernate
-	 */
-    @ManyToOne
-	private YDecomposition getParentLocalVariables() {
-		return parentLocalVariables;
-	}
-
-	/**
-	 * Only used by hibernate
-	 * @param parentLocalVariables
-	 */
-	public void setParentLocalVariables( YDecomposition parentLocalVariables ) {
-		this.parentLocalVariables = parentLocalVariables;
-	}
-	
-
-
-    private YDecomposition parentInputParameters;
-	/**
-	 * Only used by hibernate
-	 */
-    @ManyToOne
-	private YDecomposition getParentInputParameters() {
-		return parentInputParameters;
-	}
-
-	/**
-	 * Only used by hibernate
-	 * @param parentInputParameters
-	 */
-	public void setParentInputParameters( YDecomposition parentInputParameters ) {
-		this.parentInputParameters = parentInputParameters;
-	}
-	
-
-    
-    private YDecomposition parentOutputParameters;
-	/**
-	 * Only used by hibernate
-	 */
-    @ManyToOne
-	private YDecomposition getParentOutputParameters() {
-		return parentOutputParameters;
-	}
-
-	/**
-	 * Only used by hibernate
-	 * @param parentInputParameters
-	 */
-	public void setParentOutputParameters( YDecomposition parentInputParameters ) {
-		this.parentOutputParameters = parentInputParameters;
-	}
+    private YDecomposition parent;
 
 
 	/**
@@ -360,7 +306,7 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
                         YVerificationMessage.ERROR_STATUS));
             }
         }
-        XMLToolsForYAWL xty = justGetParent().getSpecification().getToolsForYAWL();
+        XMLToolsForYAWL xty = getParent().getSpecification().getToolsForYAWL();
         //check schema contains type with typename.
         if (null != _name) {
             boolean isSchemForSchemType =
@@ -375,7 +321,7 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
                         this,
                         "The type library (Schema) in specification contains no " +
                         "type definition with name [" + _dataTypeName + "].  " +
-                        "Therefore the decomposition " + parentLocalVariables +
+                        "Therefore the decomposition " + parent +
                         " cannot create this variable.",
                         YVerificationMessage.ERROR_STATUS));
             }
@@ -387,7 +333,7 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Polymorphi
                         this,
                         "The type library (Schema) in specification contains no " +
                         "element definition with name [" + _elementName + "].  " +
-                        "\n    Therefore the decomposition " + parentLocalVariables +
+                        "\n    Therefore the decomposition " + parent +
                         " cannot create this variable.",
                         YVerificationMessage.ERROR_STATUS));
             }

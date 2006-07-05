@@ -8,18 +8,15 @@
 
 package au.edu.qut.yawl.persistence.dao;
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
+import org.hibernate.ObjectDeletedException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -42,9 +39,6 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.data.YEnablementParameter;
-import au.edu.qut.yawl.elements.data.YInputParameter;
-import au.edu.qut.yawl.elements.data.YOutputParameter;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.engine.domain.YCaseData;
@@ -54,7 +48,7 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 
 	private static SessionFactory sessions;
 	private static AnnotationConfiguration cfg;
-	private static boolean deleteAfterRun = true;
+	private static boolean deleteAfterRun = false;
 	private Session session;
 	private static SpecificationHibernateDAO INSTANCE;
 
@@ -73,9 +67,9 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 						YAWLServiceGateway.class,
 						YVariable.class,
 						YParameter.class,
-						YInputParameter.class,
-						YOutputParameter.class,
-						YEnablementParameter.class,
+//						YInputParameter.class,
+//						YOutputParameter.class,
+//						YEnablementParameter.class,
 						YDecomposition.class,
 						YNet.class,
 						YCaseData.class,
@@ -124,12 +118,24 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 			session = openSession();
 			Transaction tx = session.beginTransaction();
 			YSpecification spec = (YSpecification) session.get(YSpecification.class, (Serializable) getKey(t));
+			System.out.println(">>>>" + spec.getDbID());
+			for (YDecomposition decomp: spec.getDBDecompositions()) {
+				System.out.println("><" + decomp.getId() + ":" + decomp.getDbID());
+			}
 			session.delete(spec);
 			tx.commit();
 			session.close();
 			return true;
 		}
-			catch (Exception e) {
+		catch(ObjectDeletedException ode) {
+			ode.printStackTrace();
+			System.out.println(">>>>" + ode.getCause());
+			System.out.println(">>>>" + ode.getEntityName());
+			System.out.println(">>>>" + ode.getIdentifier());
+			System.exit(0);
+			return false;
+		}
+		catch (Exception e) {
 				e.printStackTrace();
 				try {
 					if ( session!=null && session.isOpen() ) {

@@ -45,6 +45,8 @@ import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.xpath.XPathException;
 
 import org.apache.log4j.Logger;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -53,7 +55,6 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 
-import au.edu.qut.yawl.elements.data.YInputParameter;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.elements.e2wfoj.E2WFOJNet;
@@ -316,7 +317,8 @@ public abstract class YTask extends YExternalNetElement {
         return getDataMappingsForTaskCompletion().keySet();
     }
 
-    @OneToMany(cascade=CascadeType.ALL)
+//    @OneToMany(cascade=CascadeType.ALL)
+    @Transient
     public Set<YExternalNetElement> getRemoveSet() {
     	return _removeSet;
     }
@@ -1184,12 +1186,9 @@ public abstract class YTask extends YExternalNetElement {
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
     private Set<KeyValue> dataMappingsForTaskStartingSet = new HashSet<KeyValue>();
-    @OneToMany(cascade=CascadeType.ALL)
-    @JoinTable(
-            name="task_starting_map",
-            joinColumns = { @JoinColumn( name="extern_id") },
-            inverseJoinColumns = @JoinColumn( name="key_id")
-    )
+
+    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public Set<KeyValue> getDataMappingsForTaskStartingSet() {
     	return dataMappingsForTaskStartingSet;
     }
@@ -1227,12 +1226,8 @@ public abstract class YTask extends YExternalNetElement {
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
     public Set<KeyValue> dataMappingsForTaskCompletionSet = new HashSet<KeyValue>();
-    @OneToMany(cascade=CascadeType.ALL)
-    @JoinTable(
-            name="task_completion_map",
-            joinColumns = { @JoinColumn( name="extern_id") },
-            inverseJoinColumns = @JoinColumn( name="key_id")
-    )
+    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     private Set<KeyValue> getDataMappingsForTaskCompletionSet() {
     	return dataMappingsForTaskCompletionSet;
     }
@@ -1451,12 +1446,13 @@ public abstract class YTask extends YExternalNetElement {
         return expression;
     }
 
-    @OneToOne(cascade={CascadeType.ALL})
+//    @OneToOne(cascade={CascadeType.ALL})
+    @Transient
     public YDecomposition getDecompositionPrototype() {
     	return _decompositionPrototype;    	
     }
 
-    @OneToOne(cascade={CascadeType.ALL})
+//    @OneToOne(cascade={CascadeType.ALL})
     public void setDecompositionPrototype(YDecomposition decomposition) {
     	if (decomposition == null) {return;} 
     	_decompositionPrototype = decomposition;
@@ -1723,7 +1719,7 @@ public abstract class YTask extends YExternalNetElement {
         //check that non existant local variables are not assigned output.
         Set outPutVarsAssignedTo = getLocalVariablesForTaskCompletion();
         Map<String, YVariable> netLocalVariablesMap = _net.getLocalVariablesMap();
-        List<YInputParameter> netInputParameters = _net.getInputParameters();
+        List<YParameter> netInputParameters = _net.getInputParameters();
         
         for (Iterator iterator = outPutVarsAssignedTo.iterator(); iterator.hasNext();) {
             String localVarName = (String) iterator.next();
@@ -1741,8 +1737,8 @@ public abstract class YTask extends YExternalNetElement {
     }
 
     //remove this hack when the parms is mapped like the netlocals above!!!!!
-    public YInputParameter findInputParameter(String name) {
-    	for (YInputParameter parm: _net.getInputParameters()) {
+    public YParameter findInputParameter(String name) {
+    	for (YParameter parm: _net.getInputParameters()) {
     		if (parm.getName().equals(name)) return parm;
     	}
     	return null;

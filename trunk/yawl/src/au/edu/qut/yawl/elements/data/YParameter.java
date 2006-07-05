@@ -21,7 +21,6 @@ import java.util.Vector;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 import org.jdom.Document;
@@ -86,16 +85,9 @@ public class YParameter extends YVariable implements PolymorphicPersistableObjec
         super(decomposition);
         try{
             _paramType = _paramTypes[type];
-            if (type == _INPUT_PARAM_TYPE && decomposition != null) {
-            	setParentInputParameters(decomposition);
-            	setParentLocalVariables(null);
-            } else if (type == _OUTPUT_PARAM_TYPE && decomposition != null) {
-            	setParentOutputParameters(decomposition);
-            	setParentLocalVariables(null);
-            } else if (type == _ENABLEMENT_PARAM_TYPE && decomposition != null) {
-            	setParentEnablementParameters(decomposition);
-            	setParentLocalVariables(null);
-            }
+//            if (decomposition != null) {
+//            	setParent(decomposition);
+//            }
         }catch (ArrayIndexOutOfBoundsException e){
             throw new IllegalArgumentException("<type> param is not valid.");
         }
@@ -113,38 +105,10 @@ public class YParameter extends YVariable implements PolymorphicPersistableObjec
             throw new IllegalArgumentException("Type (" + type + ") is not valid.");
         }
         _paramType = type;
-
-        if (type.equals("inputParam") && decomposition != null) {
-        	setParentInputParameters(decomposition);
-        	setParentLocalVariables(null);
-        } else if (type.equals("outputParam") && decomposition != null) {
-        	setParentOutputParameters(decomposition);
-        	setParentLocalVariables(null);
-        } else if (type.equals("enablementParam") && decomposition != null) {
-        	setParentEnablementParameters(decomposition);
-        	setParentLocalVariables(null);
-        }
     }
 
 
 
-    private YDecomposition parentEnablementParameters;
-	/**
-	 * Only used by hibernate
-	 */
-    @ManyToOne
-	public YDecomposition getParentEnablementParameters() {
-		return parentEnablementParameters;
-	}
-
-	/**
-	 * Only used by hibernate
-	 * @param parentEnablementParameters
-	 */
-	protected void setParentEnablementParameters( YDecomposition parentEnablementParameters ) {
-		this.parentEnablementParameters = parentEnablementParameters;
-	}
-    
     
     /**
      * Establishes whether or not the parameter is meant to be mandatory

@@ -24,10 +24,14 @@ import java.util.Vector;
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Where;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -119,24 +123,21 @@ public class YNet extends YDecomposition {
         return this._inputCondition;
     }
 
-
-    /**
-     * Method getOutputCondition.
-     * @return YCondition
-     */
-    @OneToOne(cascade = {CascadeType.ALL})
-    public YOutputCondition getOutputCondition() {
-        return _outputCondition;
-    }
-
-    @OneToOne(cascade = {CascadeType.ALL})
+    @OneToOne(mappedBy="container", cascade = {CascadeType.ALL})
     public void setInputCondition(YInputCondition inputCondition) {
         _inputCondition = inputCondition;
         _netElements.add(inputCondition);
     }
 
+    /**
+     * Method getOutputCondition.
+     * @return YCondition
+     */
+    @OneToOne(mappedBy="container", cascade = {CascadeType.ALL})
+    public YOutputCondition getOutputCondition() {
+        return _outputCondition;
+    }
 
-    @OneToOne(cascade = {CascadeType.ALL})
     public void setOutputCondition(YOutputCondition outputCondition) {
         _outputCondition = outputCondition;
         _netElements.add(outputCondition);
@@ -159,6 +160,7 @@ public class YNet extends YDecomposition {
      *   class="au.edu.qut.yawl.elements.YExternalNetElement"
      */
     @OneToMany(mappedBy="container", cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public List<YExternalNetElement> getNetElementsDB() {
         return _netElements;
     }
@@ -166,9 +168,8 @@ public class YNet extends YDecomposition {
      * Inserted for hibernate TODO Set to protected later
      * @param list
      */
-    @OneToMany(mappedBy="container", cascade={CascadeType.ALL})
     public void setNetElementsDB(List<YExternalNetElement> list) {
-        _netElements = list;
+//    	_netElements = list;
     }
 
     @Transient
@@ -661,7 +662,9 @@ public class YNet extends YDecomposition {
         return map;
     }
 
-    @OneToMany(mappedBy="parentLocalVariables",cascade = {CascadeType.ALL})
+    @OneToMany(cascade = {CascadeType.ALL})
+    @JoinColumn(name="parent")
+    @Where(clause="DataTypeName='' OR DataTypeName IS NULL")
     public List<YVariable> getLocalVariables() {
         List<YVariable> retval = new ArrayList<YVariable>(_localVariables);
         Collections.sort(retval);
@@ -670,7 +673,7 @@ public class YNet extends YDecomposition {
 
     protected void setLocalVariables(List<YVariable> outputParam) {
         for (YVariable parm: outputParam) {
-            parm.setParentLocalVariables(this);
+            parm.setParent(this);
             this._localVariables.add(parm);
         }
     }

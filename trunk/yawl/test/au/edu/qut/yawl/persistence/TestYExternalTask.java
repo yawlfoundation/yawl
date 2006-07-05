@@ -9,6 +9,23 @@
 
 package au.edu.qut.yawl.persistence;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YCondition;
@@ -17,32 +34,20 @@ import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.data.YInputParameter;
-import au.edu.qut.yawl.elements.data.YOutputParameter;
-import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.elements.data.YParameter;
+import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.exceptions.*;
+import au.edu.qut.yawl.engine.domain.YCaseData;
+import au.edu.qut.yawl.exceptions.YAWLException;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-
-import au.edu.qut.yawl.engine.domain.YCaseData;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 
@@ -138,9 +143,9 @@ public class TestYExternalTask extends TestCase{
         net.setLocalVariable(var);
         YTask task = new YAtomicTask("1", YTask._AND, YTask._AND, net);
         YAWLServiceGateway ysg = new YAWLServiceGateway("b", spec);
-        YInputParameter p = new YInputParameter(ysg, YParameter._INPUT_PARAM_TYPE);
+        YParameter p = new YParameter(ysg, YParameter._INPUT_PARAM_TYPE);
         p.setName("fred");
-        YOutputParameter q = new YOutputParameter(ysg, YParameter._OUTPUT_PARAM_TYPE);
+        YParameter q = new YParameter(ysg, YParameter._OUTPUT_PARAM_TYPE);
         q.setName("fred");
         ysg.setInputParam(p);
         ysg.setOutputParameter(q);
@@ -160,9 +165,9 @@ public class TestYExternalTask extends TestCase{
         net.setLocalVariable(var);
         YTask task = new YAtomicTask("1", YTask._AND, YTask._AND, net);
         YAWLServiceGateway ysg = new YAWLServiceGateway("b", spec);
-        YInputParameter p = new YInputParameter(ysg, YParameter._INPUT_PARAM_TYPE);
+        YParameter p = new YParameter(ysg, YParameter._INPUT_PARAM_TYPE);
         p.setName("fred");
-        YOutputParameter q = new YOutputParameter(ysg, YParameter._OUTPUT_PARAM_TYPE);
+        YParameter q = new YParameter(ysg, YParameter._OUTPUT_PARAM_TYPE);
         q.setName("fred");
         ysg.setInputParam(p);
         ysg.setOutputParameter(q);

@@ -33,6 +33,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -41,6 +42,9 @@ import javax.persistence.Transient;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.hibernate.annotations.CollectionOfElements;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Where;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -49,8 +53,6 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.xml.sax.InputSource;
 
-import au.edu.qut.yawl.elements.data.YInputParameter;
-import au.edu.qut.yawl.elements.data.YOutputParameter;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.engine.domain.YCaseData;
@@ -97,12 +99,12 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
      * All accesses to this collection should be done through the getter, {@link #getInputParameters()}.
      * Adding to/removing from the collection should be done directly.
      */
-    private List<YInputParameter> _inputParameters = new ArrayList<YInputParameter>();
+    private List<YParameter> _inputParameters = new ArrayList<YParameter>();
     /**
      * All accesses to this collection should be done through the getter, {@link #getOutputParameters()}.
      * Adding to/removing from the collection should be done directly.
      */
-    private List<YOutputParameter> _outputParameters = new ArrayList<YOutputParameter>();
+    private List<YParameter> _outputParameters = new ArrayList<YParameter>();
     private Set<String> _outputExpressions = new HashSet<String>();
     protected Document _data = new Document();
     private Map<String, String> _attribues = new HashMap<String, String>();
@@ -248,7 +250,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     }
 
 
-    public void setInputParam(YInputParameter parameter) {
+    public void setInputParam(YParameter parameter) {
         if (parameter.isInput()) {
             if (null != parameter.getName()) {
                 _inputParameters.add(parameter);
@@ -265,7 +267,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
      * Adds an output parameter to this.
      * @param parameter the parameter to be added
      */
-    public void setOutputParameter(YOutputParameter parameter) {
+    public void setOutputParameter(YParameter parameter) {
         if (parameter.isInput()) {
             throw new RuntimeException("Can't set input param as output param.");
         }
@@ -330,9 +332,9 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
                     append(YTask.marshal(expression)).
                     append("\"/>");
         }
-        List<YOutputParameter> outParameters = getOutputParameters();
+        List<YParameter> outParameters = getOutputParameters();
         Collections.sort(outParameters);
-        for (YOutputParameter parameter : outParameters) {
+        for (YParameter parameter : outParameters) {
             xml.append(parameter.toXML());
         }
         return xml.toString();
@@ -344,10 +346,10 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
         if (_id == null) {
             messages.add(new YVerificationMessage(this, this + " cannot have null id.", YVerificationMessage.ERROR_STATUS));
         }
-        for (YInputParameter inputParameter : getInputParameters()) {
+        for (YParameter inputParameter : getInputParameters()) {
             messages.addAll(inputParameter.verify());
         }
-        for (YOutputParameter parameter : getOutputParameters()) {
+        for (YParameter parameter : getOutputParameters()) {
             messages.addAll(parameter.verify());
         }
         return messages;
@@ -363,10 +365,10 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 
     public Object clone() throws CloneNotSupportedException {
         YDecomposition copy = (YDecomposition) super.clone();
-        copy._inputParameters = new ArrayList<YInputParameter>();
-        Collection<YInputParameter> params = getInputParameters();
-        for (YInputParameter parameter : params) {
-            YInputParameter copyParam = (YInputParameter) parameter.clone();
+        copy._inputParameters = new ArrayList<YParameter>();
+        Collection<YParameter> params = getInputParameters();
+        for (YParameter parameter : params) {
+            YParameter copyParam = (YParameter) parameter.clone();
             copy.setInputParam(copyParam);
         }
         return copy;
@@ -439,7 +441,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 
 
     public void initialise() throws YPersistenceException {
-        for (YInputParameter inputParam : getInputParameters()) {
+        for (YParameter inputParam : getInputParameters()) {
             Element initialValuedXMLDOM = null;
             if (inputParam.getInitialValue() != null) {
                 String initialValue = inputParam.getInitialValue();
@@ -514,8 +516,8 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     @Transient
     public Map<String,YParameter> getStateSpaceBypassParams() {
         Map<String,YParameter> result = new HashMap<String, YParameter>();
-        Collection<YOutputParameter> ps = getOutputParameters();
-        for (YOutputParameter parameter : ps) {
+        Collection<YParameter> ps = getOutputParameters();
+        for (YParameter parameter : ps) {
             if (parameter.bypassesDecompositionStateSpace()) {
                 result.put(
                         parameter.getName() != null ?
@@ -549,34 +551,38 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
         }
     }
 
-    @OneToMany(mappedBy="parentInputParameters", cascade = {CascadeType.ALL})
-    public List<YInputParameter> getInputParameters() {
-    	List<YInputParameter> retval = new ArrayList<YInputParameter>();
-    	for(YInputParameter entry:_inputParameters) {
+    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @Where(clause="DataTypeName='inputParam'")
+    public List<YParameter> getInputParameters() {
+    	List<YParameter> retval = new ArrayList<YParameter>();
+    	for(YParameter entry:_inputParameters) {
     		retval.add(entry);
     	}
     	Collections.sort(retval);
     	return retval;
 	}
-	protected void setInputParameters(List<YInputParameter> inputParam) {
-		for (YInputParameter parm: inputParam) {
-			parm.setParentInputParameters(this);
+	protected void setInputParameters(List<YParameter> inputParam) {
+		for (YParameter parm: inputParam) {
+			parm.setParent(this);
 			this._inputParameters.add(parm);
 		}
 	}
 
-    @Transient
-    public List<YOutputParameter> getOutputParameters() {
-    	List<YOutputParameter> retval = new ArrayList<YOutputParameter>();
-    	for(YOutputParameter entry:_outputParameters) {
+    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @Where(clause="DataTypeName='outputParam'")
+    public List<YParameter> getOutputParameters() {
+    	List<YParameter> retval = new ArrayList<YParameter>();
+    	for(YParameter entry:_outputParameters) {
     		retval.add(entry);
     	}
     	return retval;
 	}
-    @OneToMany(mappedBy="parentOutputParameters", cascade = {CascadeType.ALL})
-	protected void setOutputParameters(List<YOutputParameter> outputParam) {
-		for (YOutputParameter parm: outputParam) {
-			parm.setParentOutputParameters(this);
+
+	protected void setOutputParameters(List<YParameter> outputParam) {
+		for (YParameter parm: outputParam) {
+			parm.setParent(this);
 			this._outputParameters.add(parm);
 		}
 	}
@@ -639,4 +645,23 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
         _outBoundSchemaChecking = skipSchemaCheck;
     }
 
+/*we shouldnt need these if the where clause works.    
+    @OneToMany(mappedBy="parent", cascade = {CascadeType.ALL})
+    private List<YParameter> getParameters() {
+    	List<YParameter> retval = new ArrayList<YParameter>();
+    	retval.addAll(_inputParameters);
+    	retval.addAll(_outputParameters);
+    	return retval;
+    }
+    private void setParameters(List<YParameter> params) {
+    	for (YParameter parm: params) {
+    		if (parm.getDataTypeName().equals(YParameter.getTypeForInput())) {
+    			this.setInputParam(parm);
+    		}
+    		if (parm.getDataTypeName().equals(YParameter.getTypeForOutput())) {
+    			this.setOutputParameter(parm);
+    		}
+    	}
+    }
+    */
 }

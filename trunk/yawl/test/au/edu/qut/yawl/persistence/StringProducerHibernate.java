@@ -26,9 +26,6 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.data.YEnablementParameter;
-import au.edu.qut.yawl.elements.data.YInputParameter;
-import au.edu.qut.yawl.elements.data.YOutputParameter;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.engine.domain.YCaseData;
@@ -50,7 +47,7 @@ public class StringProducerHibernate extends StringProducerXML {
 	}
 	
 	public static StringProducerXML getInstance(boolean deleteAfterRun) {
-		StringProducerHibernate.deleteAfterRun = deleteAfterRun;
+//		StringProducerHibernate.deleteAfterRun = deleteAfterRun;
 		if (INSTANCE == null) {
 			Class[] classes = new Class[] {
 						KeyValue.class,
@@ -67,9 +64,9 @@ public class StringProducerHibernate extends StringProducerXML {
 						YAWLServiceGateway.class,
 						YVariable.class,
 						YParameter.class,
-						YInputParameter.class,
-						YOutputParameter.class,
-						YEnablementParameter.class,
+//						YInputParameter.class,
+//						YOutputParameter.class,
+//						YEnablementParameter.class,
 						YDecomposition.class,
 						YNet.class,
 						YCaseData.class,
@@ -78,7 +75,10 @@ public class StringProducerHibernate extends StringProducerXML {
 				};
 			
 			INSTANCE = new StringProducerHibernate();
-			if ( getSessions()!=null ) getSessions().close();
+			if ( getSessions()!=null ) {
+				getSessions().close();
+//				return INSTANCE;
+			}
 			try {
 				AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
 		        .setProperty(Environment.USE_SQL_COMMENTS, "true")
@@ -88,7 +88,8 @@ public class StringProducerHibernate extends StringProducerXML {
 		        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
 		        .setProperty(Environment.USER, "capsela")
 		        .setProperty(Environment.PASS, "capsela")
-				.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
+				.setProperty(Environment.HBM2DDL_AUTO, "create")
+//				.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
 				;
 				setCfg( config );
 		        
@@ -160,7 +161,7 @@ public class StringProducerHibernate extends StringProducerXML {
 			tx = session.beginTransaction();
 			YSpecification outputSpec = (YSpecification) session.get(YSpecification.class, specID);
 	        marshalledSpecs = YMarshal.marshal(outputSpec);
-	        
+
 	        // Delete spec
 	        if (deleteAfterRun) {
 	        	session.delete(outputSpec);
