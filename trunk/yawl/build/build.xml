@@ -47,7 +47,7 @@
     <property name="yawl.webService.app.name" value="yawlWSInvoker"/>
     <property name="yawl.smsService.app.name" value="yawlSMSInvoker"/>
     <property name="yawl.TimeService.app.name" value="timeService"/>
-    <property name="yawl.admintool.app.name" value="admintool"/>
+    <property name="yawl.admintool.app.name" value="adminTool"/>
     <property name="yawl.xforms.app.name" value="yawlXForms"/>
     <property name="yawl.worklet.app.name" value="workletService"/>
     <property name="yawl.eng.app.path" value="/${yawl.eng.app.name}"/>
