@@ -115,9 +115,9 @@ public class TestYSpecification extends TestCase {
      */
     public void testDecompositionAttributeSpec() {
     	String str = _decompAttributeSpec.toXML();
-    	str = "<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+    	str = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
 		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-		"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl" +
+		"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
 		" d:/yawl/schema/YAWL_SchemaBeta6.xsd\">" + str + "</specificationSet>";
     	try {
     		List<YSpecification> specs = YMarshal.unmarshalSpecifications(
@@ -157,9 +157,9 @@ public class TestYSpecification extends TestCase {
     	_decompAttributeSpec.setName( null );
     	_decompAttributeSpec.setDocumentation( null );
     	String str = _decompAttributeSpec.toXML();
-    	str = "<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+    	str = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
     		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-    		"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl" +
+    		"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
     		" d:/yawl/schema/YAWL_SchemaBeta6.xsd\">" + str + "</specificationSet>";
     	try {
     		List<YSpecification> specs = YMarshal.unmarshalSpecifications(

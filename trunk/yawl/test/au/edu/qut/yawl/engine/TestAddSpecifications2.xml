@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.citi.qut.edu.au/yawl"
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1"
 	xmlns:mm="www.citi.qut.edu.au/yawl/exampleSchemas/make_trip_B"
-	xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_SchemaBeta7.1.xsd">
+	xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ YAWL_SchemaBeta7.1.xsd">
 	<specification uri="TestAddSpecifications2a.xml">
 		<metaData/>
 		<schema xmlns="http://www.w3.org/2001/XMLSchema"/>

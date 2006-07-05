@@ -150,9 +150,9 @@ public class TestEngineGatewaySpecifications extends TestCase {
     	
     	String[] text = {
     			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
-    			"<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+    			"<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
     			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"Beta 7.1\" " +
-    			"xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl " +
+    			"xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/ " +
     			"d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">",
     			"<specification uri=\"OneTwoThreeSpec.xml\">",
     			"<name>OneTwoThree</name>",

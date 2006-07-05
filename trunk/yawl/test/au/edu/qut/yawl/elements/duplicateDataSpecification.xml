@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_Schema.xsd" xmlns="http://www.citi.qut.edu.au/yawl">
+<specificationSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_Schema.xsd" xmlns="http://www.yawl.fit.qut.edu.au/">
 	<specification uri="new-aaSpecification.xml">
 		<metaData/>
 		<rootNet id="top">

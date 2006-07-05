@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <specificationSet 
-xmlns="http://www.citi.qut.edu.au/yawl" 
+xmlns="http://www.yawl.fit.qut.edu.au/" 
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xmlns:editor="http://www.baloney.org"
 version="Beta 7.1" 
-xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd http://www.baloney.org YAWL_Editor.xsd"
+xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_SchemaBeta7.1.xsd http://www.baloney.org YAWL_Editor.xsd"
 >
   <specification uri="file:/D:/workspace/yawl_7.1/exampleSpecs/Editor%20Extensions.xml">
     <name>My test specification</name>

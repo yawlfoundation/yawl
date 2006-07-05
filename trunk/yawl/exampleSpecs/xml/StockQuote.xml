@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_Schema.xsd">
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_Schema.xsd">
 	<specification uri="StockQuote">
 		<name>Stock Quote Invoker</name>
 		<documentation>Demonstration Process to invoke Stock Quote SOAP Service</documentation>

@@ -316,9 +316,9 @@ public class TestYAtomicTask extends TestCase {
     		
     		String xml = spec.toXML();
     		
-    		xml = "<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+    		xml = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
     			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl" +
+    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
     			" d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">" + xml + "</specificationSet>";
     		
     		YSpecification spec2 = (YSpecification) YMarshal.unmarshalSpecifications(
@@ -585,9 +585,9 @@ public class TestYAtomicTask extends TestCase {
     		
     		String xml = spec.toXML();
     		
-    		xml = "<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+    		xml = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
     			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl" +
+    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
     			" d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">" + xml + "</specificationSet>";
     		
     		YSpecification spec2 = (YSpecification) YMarshal.unmarshalSpecifications(

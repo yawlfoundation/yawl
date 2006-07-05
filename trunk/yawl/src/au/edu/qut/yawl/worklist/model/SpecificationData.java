@@ -120,7 +120,7 @@ public class SpecificationData {
         Document document = builder.build(yawlSpecificationInputSource);
         Element yawlSpecSetElement = document.getRootElement();
 
-        Namespace yawlNameSpace = Namespace.getNamespace("http://www.citi.qut.edu.au/yawl");
+        Namespace yawlNameSpace = Namespace.getNamespace("http://www.yawl.fit.qut.edu.au/");
         Element yawlSpecElement = yawlSpecSetElement.getChild("specification", yawlNameSpace);
 
         Namespace schema2SchNS = Namespace.getNamespace("http://www.w3.org/2001/XMLSchema");
