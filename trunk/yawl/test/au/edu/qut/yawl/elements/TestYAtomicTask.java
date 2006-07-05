@@ -22,7 +22,6 @@ import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
 
-import au.edu.qut.yawl.elements.data.YInputParameter;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.elements.state.YIdentifier;
@@ -90,7 +89,7 @@ public class TestYAtomicTask extends TestCase {
         _atomicTask1.setMultiInstanceInputDataMappings("stub", "for $d in /stubList/* return $d");
         _atomicTask1.setDataMappingsForTaskStarting(map);
         _ydecomp = _atomicTask1.getDecompositionPrototype();
-        YInputParameter p = new YInputParameter(null, YParameter._INPUT_PARAM_TYPE);
+        YParameter p = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
         p.setName("stub");
         p.setUntyped(true);
         _ydecomp.setInputParam(p);
@@ -316,9 +315,9 @@ public class TestYAtomicTask extends TestCase {
     		
     		String xml = spec.toXML();
     		
-    		xml = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
+    		xml = "<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
     			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
+    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl" +
     			" d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">" + xml + "</specificationSet>";
     		
     		YSpecification spec2 = (YSpecification) YMarshal.unmarshalSpecifications(
@@ -585,9 +584,9 @@ public class TestYAtomicTask extends TestCase {
     		
     		String xml = spec.toXML();
     		
-    		xml = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
+    		xml = "<specificationSet xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
     			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
+    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl" +
     			" d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">" + xml + "</specificationSet>";
     		
     		YSpecification spec2 = (YSpecification) YMarshal.unmarshalSpecifications(
