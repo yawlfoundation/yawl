@@ -2,9 +2,9 @@
 <!-- edited with XMLSpy v2005 sp1 U (http://www.xmlspy.com) by qwerty ytrewq (wert) -->
 <!-- edited with XML Spy v4.4 U (http://www.xmlspy.com) by Lachlan Aldred (Queensland University of Technology) -->
 <!--
-<xs:schema targetNamespace="http://www.citi.qut.edu.au/yawl" xmlns:yawl="http://www.citi.qut.edu.au/yawl" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xs:schema targetNamespace="http://www.yawl.fit.qut.edu.au/" xmlns:yawl="http://www.yawl.fit.qut.edu.au/" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 -->
-<xs:schema targetNamespace="http://www.citi.qut.edu.au/yawl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:yawl="http://www.citi.qut.edu.au/yawl" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xs:schema targetNamespace="http://www.yawl.fit.qut.edu.au/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:yawl="http://www.yawl.fit.qut.edu.au/" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<!--	
 	##########################################################################################
 		DECLARE ROOT ELEMENT - YAWL_Specification

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/engine/schema/YAWL_SchemaBeta4.xsd">
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/engine/schema/YAWL_SchemaBeta4.xsd">
 	<specification uri="MakeRecordings">
 		<name>Cut Records</name>
 		<documentation>A lightweight process presenting steps to record some some songs in 
