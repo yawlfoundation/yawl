@@ -9,16 +9,34 @@
 
 package au.edu.qut.yawl.unmarshal;
 
-import au.edu.qut.yawl.elements.*;
-import au.edu.qut.yawl.elements.data.YInputParameter;
-import au.edu.qut.yawl.elements.data.YOutputParameter;
-import au.edu.qut.yawl.elements.data.YParameter;
-import au.edu.qut.yawl.elements.data.YVariable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Vector;
+
+import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
-import org.jdom.Attribute;
 
-import java.util.*;
+import au.edu.qut.yawl.elements.ExtensionListContainer;
+import au.edu.qut.yawl.elements.YAWLServiceGateway;
+import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YCompositeTask;
+import au.edu.qut.yawl.elements.YCondition;
+import au.edu.qut.yawl.elements.YDecomposition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YInputCondition;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YOutputCondition;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.data.YParameter;
+import au.edu.qut.yawl.elements.data.YVariable;
 
 /**
  * Builds decomposition objects from XML doclets.
@@ -128,7 +146,7 @@ public class YDecompositionParser {
         List inputParamElems = decompElem.getChildren("inputParam", _yawlNS);
         for (int i = 0; i < inputParamElems.size(); i++) {
             Element inputParamElem = (Element) inputParamElems.get(i);
-            YInputParameter yparameter = new YInputParameter(_decomposition, YParameter._INPUT_PARAM_TYPE);
+            YParameter yparameter = new YParameter(_decomposition, YParameter._INPUT_PARAM_TYPE);
 //            yparameter.setOrdering(i);
             parseParameter(inputParamElem, yparameter, _yawlNS, isBeta2Version());
             decomposition.setInputParam(yparameter);
@@ -136,7 +154,7 @@ public class YDecompositionParser {
         List outputParamElems = decompElem.getChildren("outputParam", _yawlNS);
         for (int i = 0; i < outputParamElems.size(); i++) {
             Element outputParamElem = (Element) outputParamElems.get(i);
-            YOutputParameter yparameter = new YOutputParameter(_decomposition, YParameter._OUTPUT_PARAM_TYPE);
+            YParameter yparameter = new YParameter(_decomposition, YParameter._OUTPUT_PARAM_TYPE);
 //            yparameter.setOrdering(i);
             parseParameter(outputParamElem, yparameter, _yawlNS, isBeta2Version());
             decomposition.setOutputParameter(yparameter);

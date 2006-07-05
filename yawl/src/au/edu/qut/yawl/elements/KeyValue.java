@@ -1,16 +1,18 @@
 package au.edu.qut.yawl.elements;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 
 @Entity
-public class KeyValue implements PolymorphicPersistableObject{
+public class KeyValue implements PolymorphicPersistableObject, Parented{
 
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
@@ -23,6 +25,7 @@ public class KeyValue implements PolymorphicPersistableObject{
 	private String key;
 	private String value;
 	private Long id;
+	private YTask parent;
 
 	public KeyValue() {
 		super();
@@ -75,5 +78,14 @@ public class KeyValue implements PolymorphicPersistableObject{
 	public boolean equals(Object obj) {
 		return (obj instanceof KeyValue 
 			&& ((KeyValue) obj).getKey().equals(this.getKey()));
+	}
+
+	@ManyToOne(cascade = {CascadeType.ALL})
+	public void setParent(YTask parent) {
+		this.parent = parent;
+	}
+
+	public YTask getParent() {
+		return parent;
 	}
 }

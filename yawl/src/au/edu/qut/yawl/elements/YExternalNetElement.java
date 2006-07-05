@@ -131,7 +131,7 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
      * @hibernate.many-to-one column="DECOMPOSITION_ID"
      *    class="au.edu.qut.yawl.elements.YNet"
      */
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.ALL})
     public YNet getContainer() {
     	return _net;
     }
@@ -203,6 +203,7 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
      * @param id
      * @return YExternalNetElement
      */
+    @Transient
     public YExternalNetElement getPostsetElement(String id) {
     	Iterator<YFlow> iter = _postsetFlows.iterator();
     	while (iter.hasNext()) {
@@ -220,6 +221,7 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
      * @param id
      * @return YExternalNetElement
      */
+    @Transient
     public YExternalNetElement getPresetElement(String id) {
     	Iterator<YFlow> iter = _presetFlows.iterator();
     	while (iter.hasNext()) {
@@ -457,6 +459,7 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
         return xml.toString();
     }
 
+    @Transient
     public YFlow getPostsetFlow(YExternalNetElement netElement) {
     	Iterator<YFlow> iter = _postsetFlows.iterator();
     	while (iter.hasNext()) {
@@ -469,11 +472,13 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     }
 
     @Transient
+//    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
     public Collection<YFlow> getPostsetFlows() {
         return _postsetFlows;
     }
 
     @Transient
+//    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
     public void setPostsetFlows(Collection<YFlow> flows) {
     	for (YFlow flow: flows) {
     		flow.setPriorElement(this);
@@ -482,13 +487,15 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     	_postsetFlows.addAll(flows);
     }
 
-    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+//    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+    @Transient
     public List<YFlow> getPostsetFlowsAsList() {
-        return new ArrayList<YFlow>(_postsetFlows);
-        //return (List<YFlow>)_postsetFlows;
+//        return new ArrayList<YFlow>(_postsetFlows);
+        return (List<YFlow>) _postsetFlows;
     }
 
-    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+//    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+    @Transient
     public void setPostsetFlowsAsList(List<YFlow> flows) {
     	for (YFlow flow: flows) {
 			flow.setPriorElement(this);
@@ -502,27 +509,31 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     	_postsetFlows.addAll(flows);
     }
 
-   @Transient
-   public Collection<YFlow> getPresetFlows() {
+    @Transient
+//    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
+    public Collection<YFlow> getPresetFlows() {
         return _presetFlows;
     }
 
    @Transient
+//    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
     public void setPresetFlows(Collection<YFlow> flows) {
     	_presetFlows = flows;
     }
 
-   @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
+//   @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
+   @Transient
    public List<YFlow> getPresetFlowsAsList() {
-       return new ArrayList<YFlow>(_presetFlows);
+       return(List<YFlow>) (_presetFlows);
    }
 
-   @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
-    public void setPresetFlowsAsList(List<YFlow> flows) {
+//   @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
+   @Transient
+   public void setPresetFlowsAsList(List<YFlow> flows) {
 	   for (YFlow flow: flows) {
     		flow.setNextElement(this);
     	}
-//	   _presetFlows.clear();
+	   _presetFlows.clear();
 		for (YFlow flow: flows) {
 			if (flow.getNextElement() != null) {
 				flow.getNextElement().getPresetFlows().add(flow);

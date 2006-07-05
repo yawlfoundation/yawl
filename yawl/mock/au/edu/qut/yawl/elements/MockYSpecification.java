@@ -10,11 +10,9 @@ package au.edu.qut.yawl.elements;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import au.edu.qut.yawl.elements.data.YInputParameter;
-import au.edu.qut.yawl.elements.data.YOutputParameter;
+import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 
-import com.nexusbpm.command.EditorCommand;
 import com.nexusbpm.editor.component.EmailSenderComponent;
 import com.nexusbpm.editor.component.JythonComponent;
 
@@ -72,12 +70,12 @@ public class MockYSpecification {
 				EmailSenderComponent.class.getName(), specification);
 		gate.setName("[send mail support]");
 		for (String prop : emailProps) {
-			YInputParameter gatewayVar = new YInputParameter(gate,
-					YInputParameter._INPUT_PARAM_TYPE);
+			YParameter gatewayVar = new YParameter(gate,
+					YParameter._INPUT_PARAM_TYPE);
 			gatewayVar.setDataTypeAndName("string", prop, SCHEMA_URL);
 			gate.setInputParam(gatewayVar);
-			YOutputParameter gwVar2 = new YOutputParameter(gate,
-					YOutputParameter._OUTPUT_PARAM_TYPE);
+			YParameter gwVar2 = new YParameter(gate,
+					YParameter._OUTPUT_PARAM_TYPE);
 			gwVar2.setDataTypeAndName("string", prop, SCHEMA_URL);
 			gate.setOutputParameter(gwVar2);
 		}
@@ -108,35 +106,35 @@ public class MockYSpecification {
 		yawlServiceReference.setYawlServiceGateway(gate);
 		gate.setYawlService(yawlServiceReference);
 
-		YInputParameter wsdlLocation = new YInputParameter(gate,
-				YInputParameter._INPUT_PARAM_TYPE);
+		YParameter wsdlLocation = new YParameter(gate,
+				YParameter._INPUT_PARAM_TYPE);
 		wsdlLocation.setDataTypeAndName("string", "YawlWSInvokerWSDLLocation",
 				SCHEMA_URL);
 //		wsdlLocation
 //				.setInitialValue("http://localhost:8080/JythonService/services/JythonService?wsdl");
 		gate.setInputParam(wsdlLocation);
 
-		YInputParameter operationName = new YInputParameter(gate,
-				YInputParameter._INPUT_PARAM_TYPE);
+		YParameter operationName = new YParameter(gate,
+				YParameter._INPUT_PARAM_TYPE);
 		operationName.setDataTypeAndName("string",
 				"YawlWSInvokerOperationName", SCHEMA_URL);
 //		operationName.setInitialValue("execute");
 		gate.setInputParam(operationName);
 
-		YInputParameter portName = new YInputParameter(gate,
-				YInputParameter._INPUT_PARAM_TYPE);
+		YParameter portName = new YParameter(gate,
+				YParameter._INPUT_PARAM_TYPE);
 		portName.setDataTypeAndName("string", "YawlWSInvokerPortName",
 				SCHEMA_URL);
 //		portName.setInitialValue("WHATS IT FOR??");
 		gate.setInputParam(portName);
 
 		for (String prop : jythonProps) {
-			YInputParameter gatewayVar = new YInputParameter(gate,
-					YInputParameter._INPUT_PARAM_TYPE);
+			YParameter gatewayVar = new YParameter(gate,
+					YParameter._INPUT_PARAM_TYPE);
 			gatewayVar.setDataTypeAndName("string", prop, SCHEMA_URL);
 			gate.setInputParam(gatewayVar);
-			YOutputParameter gwVar2 = new YOutputParameter(gate,
-					YOutputParameter._OUTPUT_PARAM_TYPE);
+			YParameter gwVar2 = new YParameter(gate,
+					YParameter._OUTPUT_PARAM_TYPE);
 			gwVar2.setDataTypeAndName("string", prop, SCHEMA_URL);
 			gate.setOutputParameter(gwVar2);
 		}

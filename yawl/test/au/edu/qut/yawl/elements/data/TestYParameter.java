@@ -197,7 +197,7 @@ public class TestYParameter extends TestCase {
 	}
 	
 	public void testSummaryXML() {
-		_param1 = new YInputParameter(new YDecomposition(), "inputParam");
+		_param1 = new YParameter(new YDecomposition(), "inputParam");
 		_param1.setName("Param1");
 		_param2 = new YParameter(new YDecomposition(), "outputParam");
 		String xml1 = _param1.toSummaryXML();
@@ -264,11 +264,11 @@ public class TestYParameter extends TestCase {
 			// proper exception was thrown
 		}
 		
-		List<YInputParameter> inParams = _goodSpec.getDecomposition("Root").getInputParameters();
+		List<YParameter> inParams = _goodSpec.getDecomposition("Root").getInputParameters();
 		assertNotNull(inParams);
 		assertTrue(inParams.size() == 2);
 		
-		for(YInputParameter param : inParams) {
+		for(YParameter param : inParams) {
 			List messages = param.verify();
 			assertNotNull("" + param.getID(), messages);
 			assertTrue(param.getName() + "\n" +
@@ -282,11 +282,11 @@ public class TestYParameter extends TestCase {
 		assertTrue("" + msgs.size(), msgs.size() > 0);
 		
 		
-		List<YOutputParameter> outParams = _goodSpec.getDecomposition("Root").getOutputParameters();
+		List<YParameter> outParams = _goodSpec.getDecomposition("Root").getOutputParameters();
 		assertNotNull(outParams);
 		assertTrue(outParams.size() == 2);
 		
-		for(YOutputParameter param : outParams) {
+		for(YParameter param : outParams) {
 			List messages = param.verify();
 			assertNotNull("" + param.getID(), messages);
 			assertTrue(param.getName() + "\n" +
