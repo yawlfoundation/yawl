@@ -1,0 +1,112 @@
+<!doctype html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="content-style-type" content="text/css">
+<link rel="stylesheet" type="text/css" href="style.css">
+<title>ProGuard Limitations</title>
+</head>
+<body>
+
+<h2>Limitations</h2>
+
+When using ProGuard, you should be aware of a few issues, all of which are
+easily avoided or resolved:
+<p>
+<ul>
+<li>ProGuard handles the essential elements of Java: classes, interfaces, class
+    members, inheritance,... ProGuard itself is not aware of any additional
+    <b>naming conventions or APIs</b>: main methods, native methods, beans,
+    serialization,... You'll have to specify these in your configuration. The
+    configuration syntax is intended to be compact, readable, expressive, and
+    generally applicable. It's usually quite simple. The examples section of
+    this manual provides many typical examples. The graphical user interface
+    has checkboxes for common boilerplate configurations.
+    <p>
+
+<li>ProGuard currently copies <b>manifest files and resource files</b>
+    unchanged. Directory entries, on the other hand, are not copied to the
+    output jars. If your code has any special dependencies on these elements,
+    you should modify or add them manually.
+    <p>
+
+<li>For efficiency, ProGuard always ignores any <b>private or package visible
+    library classes</b> while reading library jars. If any of them are
+    extended by public library classes, and then extended again by input
+    classes, ProGuard will complain it can't find them. In that case, you'll
+    have to use the <code>-dontskipnonpubliclibraryclasses</code> option, and
+    maybe even the <code>-dontskipnonpubliclibraryclassmembers</code> option.
+    The graphical user interface has checkboxes for these settings.
+    <p>
+
+<li>For best results, ProGuard's optimization algorithms assume that the
+    processed code never <b>intentionally throws NullPointerExceptions</b> or
+    ArrayIndexOutOfBoundsExceptions, or even OutOfMemoryErrors or
+    StackOverflowErrors, in order to achieve something useful. For instance,
+    it may remove a method call <code>myObject.myMethod()</code> if that call
+    wouldn't have any effect. It ignores that <code>myObject</code> might be
+    null, causing a NullPointerException. In some way this is a good thing:
+    optimized code may throw fewer exceptions. Should this entire assumption
+    be false, you'll have to switch off optimization using the
+    <code>-dontoptimize</code> option.
+    <p>
+
+<li>ProGuard's optimization algorithms also remove all <b>empty busy-waiting
+    loops</b>, unless they test on fields that are marked as
+    <code>volatile</code>. You should always mark tested fields as
+    <code>volatile</code>, or otherwise, you'll have to switch off
+    optimization using the <code>-dontoptimize</code> option.
+    <p>
+
+<li>If an input jar and a library jar contain classes in the <b>same
+    package</b>, the obfuscated output jar may contain class names that
+    overlap with class names in the library jar. This is most likely if the
+    library jar has been obfuscated before, as it will then probably contain
+    classes named 'a', 'b', etc. Packages should therefore never be split
+    across input jars and library jars.
+    <p>
+
+<li>ProGuard may not handle <b>obfuscation marker interfaces</b> as expected.
+    If you specify "<code>-keep class * implements MyKeepInterface</code>",
+    and <code>MyKeepInterface</code> is not used in your code, the specified
+    classes are kept, but they are obfuscated. Technically, the interface is
+    removed in the shrinking phase, making the directive void in the
+    obfuscation phase. This behavior may be fixed in the future. For now, you
+    can get around it by explicitly keeping the interface as well:
+    "<code>-keep class MyKeepInterface</code>". In any case, creating a proper
+    configuration file seems a cleaner solution than using such an obfuscation
+    marker interface.
+    <p>
+
+<li>When obfuscating, ProGuard will write out class files named
+    "<code>a.class</code>", "<code>b.class</code>", etc. If there is a large
+    numbers of classes in the same package, it may also write out
+    <b>"<code>aux.class</code>"</b>. Windows doesn't allow creating files with
+    this reserved name (among a few other names), so it's generally better to
+    write the output to a jar, in order to avoid such problems.
+    <p>
+
+<li>ProGuard's obfuscation process currently doesn't follow the <b>naming
+    rule</b> specifying that nested classes must be named as
+    <code>EnclosingClass$InnerClass</code>, for instance (cfr. <a href=
+    "http://java.sun.com/docs/books/jls/second_edition/html/j.title.doc.html"
+    >The Java Language Specification, Second Edition</a>, <a href=
+    "http://java.sun.com/docs/books/jls/second_edition/html/binaryComp.doc.html#59892"
+    >Section 13.1</a>). This should not present a problem in practice, since
+    the rule is mainly intended for transformations at the source code level.
+    Internal-external class relationships are still represented correctly
+    inside the binary class files. Decompilers or others tools that rely on
+    the naming rule may have problems processing obfuscated jars. I'm not
+    aware of any such cases.
+    <p>
+
+</ul>
+<p>
+
+<hr>
+<address>
+Copyright &copy; 2002-2006
+<a href="http://www.graphics.cornell.edu/~eric/">Eric Lafortune</a>.
+</address>
+</body>
+</html>

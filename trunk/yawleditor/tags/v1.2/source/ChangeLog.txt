@@ -1,0 +1,84 @@
+Version 1.2 (22/05/2005) "HermeticMemeticDisorder"
+  * Stopped the editor from quoting double (") and single quote (') characters in
+    XQuery exports to the engine. Double quote characters cause problems in the 
+    engine when they're not quoted (exceptions raised), and when they ARE quoted 
+    (produce &amp;quot; instead of &quot;).  
+  * Related to the above, XPath and XQuery expression editors will not allow users
+    to type in (") characters. Text literals in these expressions should use the (')
+    character only.
+  * Fixed a bug where pressing the XQuery button on a parameter update dialog
+    would not enable the Done button, even though all the data needed for 
+    allowing the button tobe enabled was supplied.
+  * Built in integrated support for a utility called wofyawl, which allows 
+    users to analyse their specifications for things like invalid flows and
+    cancellation set members. The tool can be configured from the "Tools"
+    menu item (see below).
+  * The old "Tools" menu has been renamed "Elements".
+  * The "Engine" menu has been renamed "Tools", and this will be the new home 
+    for setting up interfacing into all external tools the editor relies on.
+  * Fixed a bug where the specification ID of an exported specification 
+    contained spaces if the filename of the editor file had spaces. Spaces
+    in the specification Id causes engine problems.
+  * Decomposition dialogs now resize dynamically to match decomposition 
+    variables.
+  * The Update Parameter dialog now shows net and task variables as a
+    user convenience.
+  * Fixed a bug where cutting elements out of a net would result in 
+    illegal orphaned flows.
+  * Fixed a bug where exceptions were being thrown on cut actions.
+  * Made a change to Palette buttons and some toolbar menu items 
+    so when they're disabled, they offer advice on what's needed to enable them.
+  * Moving selected elements in a net is now with arrow key-presses (instead of
+    <ALT-arrow key>) to make it match user intuition more closely.
+  * The "Save Specification As" menu item no longer has a hotkey of CTRL-A. CTRL-A
+    instead, selects all elements of the current net with input focus.
+
+Version 1.1-1 (28/02/2005) "Paraselsus"
+  * Validation is now displayed in a split pane buried in the editor proper, 
+    instead of being a floating dialog.
+  * Fixed a bug where copying/cutting and then pasting elements in a currently
+    viewed cancelleation set would have the pasted elements rendered as if 
+    they were still in the cancellation set.
+  * Fixed a bug where clicking the ``Done'' button when focus was in a 
+    Decomposition label field would have the first button press ignored. 
+    Similarly for variable name fields and their "Done" buttons.
+  * Changing decomposition labels will now automatically propogate the change
+    to parameter XQueries and split predicates that use the changed decomposition.
+  * Changing variable names will now automatically propogate the change to 
+    parameter XQueries and split predicates that used the changed variable name.
+  * Net additions and deletions are now undoable edits. 
+  * Made the editor validation code ignore unregistered service errors returned 
+    from engine validation. 
+  * Fixed a thread synchronisation bug where a user could force a double-save
+    of a specification. This had several nasty side effects, including 
+    corrupting save files, the dropping of a nasty exception, and the hanging 
+    of the editor on trying to load a corrupted save file.
+  * The parameter update dialog now disables the "Done" button whenever the 
+    XQuery editor contains no text or there is no output variable for the query.
+  * Resizing a net no longer causes a repositioning of the viewport into the nets.  
+    It's an irritant for users drawing large nets.
+  * Added an Anti-Alias toggle menu item to the view menu. Large nets render 
+    slowly with anti-aliasing on.
+  * Added a "Show grids in diagrams" menu item under the View menu. Again, 
+    this was needed as a speed enhancement for people drawing large nets.
+  * Refactored Ant build script to minimise the work required to produce new 
+    releases of the editor.
+  * Changed color of the progress bars to make them stand out more.
+
+Version 1.1 (04/02/2005): "Trimagistrum"
+  * Fixed a bug where deleting a task who's cancellation 
+    set is being viewed fails to change the color of its 
+    cancellation set members back to normal.
+  * The data perspective is now supported by the editor. Specifically:
+    * XMLSchema can be used to describe complex types of variables.
+    * Variables can be set for nets and tasks. 
+    * XQuery parameter expressions trasform state betwen net and task variables.
+    * OR/XOR Splits now use XPath boolean predicates to select which flows to use.
+    * Multiple-Instance tasks use XQuery expression for task splitting/aggregation.
+  * You can now print entire specifications.
+  * The editor can connect to running engines, and allow users to build 
+    specifications using the actual services registered with that engine.
+  * Users can change the label size on net elements.
+
+Version 1.0 (18/05/2004): "Hermes"
+  * Base Release
