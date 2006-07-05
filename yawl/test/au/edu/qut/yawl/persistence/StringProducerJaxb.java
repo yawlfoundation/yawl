@@ -83,7 +83,7 @@ public class StringProducerJaxb extends StringProducerXML {
 		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		NamespacePrefixMapper mapper = new NamespacePrefixMapper() {
 			public String[] getPreDeclaredNamespaceUris() {
-				return new String[] { "http://www.citi.qut.edu.au/yawl",
+				return new String[] { "http://www.yawl.fit.qut.edu.au/",
 						"http://www.w3.org/2001/XMLSchema-instance",
 						"http://www.w3.org/2001/XMLSchema" };
 			}
@@ -95,7 +95,7 @@ public class StringProducerJaxb extends StringProducerXML {
 				if ("http://www.w3.org/2001/XMLSchema-instance"
 						.equals(namespaceUri))
 					return "xsi";
-				if ("http://www.citi.qut.edu.au/yawl".equals(namespaceUri))
+				if ("http://www.yawl.fit.qut.edu.au/".equals(namespaceUri))
 					return "yawl";
 				return suggestion;
 			}

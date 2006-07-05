@@ -192,9 +192,9 @@ public class YMarshal {
         xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
         xml.append("<specificationSet " +
                 "version=\"" + YSpecification._Beta7_1 + "\" " +
-                "xmlns=\"http://www.citi.qut.edu.au/yawl\" " +
+                "xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                "xsi:schemaLocation=\"http://www.citi.qut.edu.au/yawl " +
+                "xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/ " +
                 "d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">");
         for (YSpecification specification : specificationList) {
             xml.append(specification.toXML());

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XML Spy v4.4 U (http://www.xmlspy.com) by Lachlan Aldred (Queensland University of Technology) -->
-<specificationSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_Schema.xsd" xmlns="http://www.citi.qut.edu.au/yawl" xmlns:mm="www.citi.qut.edu.au/yawl/exampleSchemas/make_trip_B">
+<specificationSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ YAWL_Schema.xsd" xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:mm="www.citi.qut.edu.au/yawl/exampleSchemas/make_trip_B">
 	<specification uri="MakeTrip2.xml">
 		<name>Book Trip</name>
 		<documentation>Lightweight, demonstrative process showing steps for booking a car, a flight, and/or motel stay for each leg

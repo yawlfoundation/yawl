@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.citi.qut.edu.au/yawl"
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Bad Beta"
-	xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_SchemaBeta7.1.xsd">
+	xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ YAWL_SchemaBeta7.1.xsd">
 	<specification uri="Blah.xml">
 		<name>my name</name>
 		<documentation>this specification should not read in because the beta version is bad</documentation>

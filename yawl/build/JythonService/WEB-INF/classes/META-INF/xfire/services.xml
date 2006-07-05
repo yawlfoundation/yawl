@@ -2,7 +2,7 @@
 <beans xmlns="http://xfire.codehaus.org/config/1.0">
   <service>
     <name>JythonService</name>
-    <namespace>http://www.citi.qut.edu.au/yawl</namespace>
+    <namespace>http://www.yawl.fit.qut.edu.au/</namespace>
     <serviceClass>com.nexusbpm.services.jython.JythonServiceImpl</serviceClass>
     <serviceFactory>jsr181</serviceFactory>
   </service>

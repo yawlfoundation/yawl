@@ -113,19 +113,19 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
 
         if (YSpecification._Beta2.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_Schema.xsd"));
+                    "http://www.yawl.fit.qut.edu.au/ " + getClass().getResource("YAWL_Schema.xsd"));
         } else if (YSpecification._Beta3.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta3.xsd"));
+                    "http://www.yawl.fit.qut.edu.au/ " + getClass().getResource("YAWL_SchemaBeta3.xsd"));
         } else if (YSpecification._Beta4.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta4.xsd"));
+                    "http://www.yawl.fit.qut.edu.au/ " + getClass().getResource("YAWL_SchemaBeta4.xsd"));
         } else if (YSpecification._Beta6.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta6.xsd"));
+                    "http://www.yawl.fit.qut.edu.au/ " + getClass().getResource("YAWL_SchemaBeta6.xsd"));
        } else if (YSpecification._Beta7_1.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta7.1.xsd"));
+                    "http://www.yawl.fit.qut.edu.au/ " + getClass().getResource("YAWL_SchemaBeta7.1.xsd"));
         } else {
             throw new RuntimeException("Version [" + version + "] is not valid version.");
         }

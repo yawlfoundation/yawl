@@ -127,21 +127,21 @@ public class TestJAXBPersistence extends TestCase {
 			NamespacePrefixMapper mapper = new NamespacePrefixMapper() {
 				public String[] getPreDeclaredNamespaceUris() {
 					return new String[]{
-						"http://www.citi.qut.edu.au/yawl",
+						"http://www.yawl.fit.qut.edu.au/",
 						"http://www.w3.org/2001/XMLSchema-instance",
 						"http://www.w3.org/2001/XMLSchema" 
 					};
 				}
 				public String[] getContextualNamespaceDecls() {
 					return new String[] {
-					"yawl","http://www.citi.qut.edu.au/yawl"}; 
+					"yawl","http://www.yawl.fit.qut.edu.au/"}; 
 					}
 				public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
 					if( "http://www.w3.org/2001/XMLSchema".equals(namespaceUri) )
 			            return "xs";
 					if( "http://www.w3.org/2001/XMLSchema-instance".equals(namespaceUri) )
 			            return "xsi";
-					if( "http://www.citi.qut.edu.au/yawl".equals(namespaceUri) )
+					if( "http://www.yawl.fit.qut.edu.au/".equals(namespaceUri) )
 			            return "";
 				    return suggestion;
 				}
