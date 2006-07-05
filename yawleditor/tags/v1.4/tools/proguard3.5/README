@@ -1,0 +1,54 @@
+ProGuard, Java class file shrinker, optimizer, and obfuscator
+=============================================================
+
+This distribution contains the following directories:
+
+- lib      : the main jars, compiled and ready to use with "java -jar ...."
+- docs     : the complete documentation, licenses, etc. in html format
+- examples : some example configuration files
+- src      : the source code
+
+
+The best place to start is docs/index.html
+
+
+Example
+=======
+
+If you want to give ProGuard a spin right away, try processing the jar itself:
+
+    cd examples
+    java -jar ../lib/proguard.jar @proguard.pro
+
+The resulting proguard_out.jar contains the same application, but it's a lot
+smaller!
+
+
+Development
+===========
+
+If you're interested in changing and extending ProGuard, you can start by
+compiling the source code yourself:
+
+    mkdir classes
+    javac -sourcepath src -d classes src/proguard/ProGuard.java
+    javac -sourcepath src -d classes src/proguard/retrace/ReTrace.java
+    javac -sourcepath src -d classes src/proguard/gui/ProGuardGUI.java
+
+If you want to compile the ProGuard Ant task as well:
+
+    javac -sourcepath src -d classes -classpath lib/ant.jar \
+        src/proguard/ant/ProGuardTask.java
+
+If you want to compile the J2ME WTK obfuscator plug-in:
+
+    javac -sourcepath src -d classes -classpath wtklib/kenv.zip \
+        src/proguard/wtk/ProGuardObfuscator.java
+
+Note that you'll have to install Ant and the J2ME WTK yourself.
+
+Enjoy!
+
+http://proguard.sourceforge.net/
+
+Copyright (c) 2002-2005 Eric Lafortune (eric@graphics.cornell.edu)

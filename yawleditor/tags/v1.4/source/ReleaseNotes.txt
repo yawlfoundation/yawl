@@ -1,0 +1,89 @@
+The Executables
+-------------------------
+
+Version @EditorReleaseNumber@ of the YAWL editor caters to both the control flow perspective 
+and the data perspective of YAWL along with some very basic support for the 
+resource perspective. YAWL Workflows can now be specified with the editor 
+that manipulate state throught the lifecycle of a runnign workflow. 
+This version of the YAWL editor is designed to be used only with YAWL Engine 
+@CompatibleEngineReleaseNumber@. 
+ 
+Below is a brief discussion of the files available:
+
+* YAWLEditor@EditorReleaseNumber@.jar: 
+
+The default editor distribution, allowing you to validate your specifications 
+and export those specifications to the YAWL Engine.
+
+* YAWLEditorLite@EditorReleaseNumber@.jar:
+
+Note that each Megabyte of size beyound the first of the editor comes from libraries 
+needed by the engine for creating and validating engine specifications.  If you don't 
+need to export to the engine or to validate your specifications, this much smaller sized 
+editor may be more attractive.
+
+* wofyawl@WofYawlReleaseNumber@-win32.exe
+* wofyawl@WofYawlReleaseNumber@-linux-x86.exe
+
+Supplied with this release are a binary windows and Linux 
+executable versions of wofyawl.exe.  When placed in the same 
+directory as the editor, workflow designers will be able to analyse 
+their workflows for deadlock, redundant cancellation set members, 
+etc. Note that the editor expects the executable to be called 
+"wofyawl@WofYawlReleaseNumber@.exe", regardless of the platform on which 
+it runs. Choose the wofyawl implementation right for you, and then rename 
+it to get analysis to work.
+Requirements:
+
+    * Java J2SDK 1.4.2 or above. 
+
+Installation and Running Instructions:
+
+   1. Save the executable jar file to your computer.
+   2. Optionally save the wofyawl.exe program into the same directory.
+   3. Either double-click on the editor jar from a file explorer window, or 
+      from a command-line prompt, type: 
+
+# java -jar YAWLEditor[Lite]@EditorReleaseNumber@.jar 
+
+The Source Code
+----------------------
+
+Copyright permission for the editor specific source code is granted under the 
+GNU Lesser General Public Licence.
+
+YAWLEditor@EditorReleaseNumber@source.zip 
+
+This zip file contains the source for the editor and everything needed to 
+produce the YAWLEditor jar. Specifically:
+
+  * The source for the editor and its required supporting library JGraph @JGraphReleaseNumber@
+  * The @CompatibleEngineReleaseNumber@ YAWL engine WAR files, and
+  * Version @ProguardReleaseNumber@ of the utility ProGuard for fusing the editor and the 
+    functionality it needs from the engine. 
+
+Requirements:
+
+* Java J2SDK 1.4.2 or above
+* The Ant make utility 1.5.3 or above. 
+
+Installation Instructions:
+
+1. Save YAWLEditor@EditorReleaseNumber@source.zip file to your computer.
+2. Unzip the file in a new, empty directory <your_project_directory>.
+3. Run Ant (not supplied) against the build script build.xml in the directory 
+   <your_project_directory>/source/
+4. When the build script is complete, pick your newly minted executable editor 
+   up out of the directory <your_project_directory>/distribution/.
+5. There are a couple of example save files in <your_project_directory>/lib 
+   showing showcasing particular aspects of the YAWL editor. 
+
+The Documentation
+-------------------------
+
+This release of the editor has a very nice looking MS-Word document (zipped for 
+your download convenience) describing how to use the editor. Included is a 
+walk-through tutorial and discussion of some of the more unique aspects of 
+workflow design with YAWL.
+
+* YAWLEditor@EditorReleaseNumber@UserManual.zip
