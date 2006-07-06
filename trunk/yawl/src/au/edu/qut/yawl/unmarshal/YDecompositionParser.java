@@ -159,12 +159,12 @@ public class YDecompositionParser {
             parseParameter(outputParamElem, yparameter, _yawlNS, isBeta2Version());
             decomposition.setOutputParameter(yparameter);
         }
-        List outputExpressions = decompElem.getChildren("outputExpression", _yawlNS);
-        for (int i = 0; i < outputExpressions.size(); i++) {
-            Element outputExpressionElem = (Element) outputExpressions.get(i);
-            String outputExpressionText = outputExpressionElem.getAttributeValue("query");
-            decomposition.setOutputExpression(outputExpressionText);
-        }
+//        List outputExpressions = decompElem.getChildren("outputExpression", _yawlNS);
+//        for (int i = 0; i < outputExpressions.size(); i++) {
+//            Element outputExpressionElem = (Element) outputExpressions.get(i);
+//            String outputExpressionText = outputExpressionElem.getAttributeValue("query");
+//            decomposition.setOutputExpression(outputExpressionText);
+//        }
     }
 
     //done

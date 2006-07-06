@@ -33,7 +33,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -105,7 +104,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
      * Adding to/removing from the collection should be done directly.
      */
     private List<YParameter> _outputParameters = new ArrayList<YParameter>();
-    private Set<String> _outputExpressions = new HashSet<String>();
     protected Document _data = new Document();
     private Map<String, String> _attribues = new HashMap<String, String>();
     private List<Element> _internalExtensions;
@@ -279,31 +277,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     }
 
 
-    /**
-     * @param query
-     */
-    public void setOutputExpression(String query) {
-        _outputExpressions.add(query);
-    }
-
-
-    /**
-     * @return set of output queries
-     *
-     */
-	@CollectionOfElements
-    public Set<String> getOutputQueries() {
-        return _outputExpressions;
-    }
-
-    /**
-     * Inserted for hibernate
-     * @param outputQueries
-     */
-    protected void setOutputQueries(Set<String> outputQueries) {
-    	_outputExpressions = outputQueries;
-    }
-
+ 
 
     public String toXML() {
         StringBuffer xml = new StringBuffer();
@@ -326,11 +300,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
                 new ArrayList<YParameter>(_inputParameters);
         for (YParameter parameter : parameters) {
             xml.append(parameter.toXML());
-        }
-        for (String expression : _outputExpressions) {
-            xml.append("<outputExpression query=\"").
-                    append(YTask.marshal(expression)).
-                    append("\"/>");
         }
         List<YParameter> outParameters = getOutputParameters();
         Collections.sort(outParameters);

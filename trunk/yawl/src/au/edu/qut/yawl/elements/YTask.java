@@ -1712,9 +1712,10 @@ public abstract class YTask extends YExternalNetElement {
     @Transient
     private Collection checkOutputParameterMappings() {
         List messages = new ArrayList();
-        if (_net._specification.usesSimpleRootData()) {
-            messages.addAll(checkOutputParamsPreBeta4());
-        }
+//        dropping pre-beta4 support
+//        if (_net._specification.usesSimpleRootData()) {
+//            messages.addAll(checkOutputParamsPreBeta4());
+//        }
         //check that each output query has valid syntax
         for(KeyValue entry:dataMappingsForTaskCompletionSet) {
         	String nextQuery = entry.getKey();
@@ -1780,7 +1781,7 @@ public abstract class YTask extends YExternalNetElement {
         }
         return messages;
     }
-
+/*
     @Transient
     private Collection checkOutputParamsPreBeta4() {
         List messages = new ArrayList();
@@ -1813,7 +1814,7 @@ public abstract class YTask extends YExternalNetElement {
         }
         return messages;
     }
-
+*/
 
     @Transient
     private Collection checkInputParameterMappings() {
