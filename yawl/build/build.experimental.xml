@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!-- This build file is for testing the importing of ant build files into others -->
+<!-- By splitting up the build.xml file into smaller files by subproject or by functionality maintenance will be easier -->
+<!-- $Id: $ -->
+<project name="Experimental Central Build file" default="mainbuild" basedir="./..">
+
+	<!-- 1. Import all individual build files using these statements -->
+	<import file="build.xml"/>
+	<import file="build.pdfforms.xml"/>
+	
+	<!-- 2. Import all relevant build properties using these statement -->
+
+	<!-- Use the built in variable os.name to differentiate between os specific property files -->
+    <property file="${os.name}.properties"/>
+	<property file="build.properties"/>
+
+	<!-- 3. Have targets which call one or more targets within the imported build files -->
+	<target name="mainbuild">
+	
+		<antcall target="buildWebApps"/>
+		
+	</target>
+  
+</project>
