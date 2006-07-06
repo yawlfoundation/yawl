@@ -29,6 +29,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
@@ -47,6 +48,7 @@ import net.sf.saxon.xpath.XPathException;
 import org.apache.log4j.Logger;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Where;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -114,10 +116,10 @@ public abstract class YTask extends YExternalNetElement {
     private int _joinType;
     protected YMultiInstanceAttributes _multiInstAttr;
     private Set<YExternalNetElement> _removeSet = new HashSet<YExternalNetElement>();
-    protected Map<String, String> _dataMappingsForTaskStarting = new HashMap<String, String>();//[key=ParamName, value=query]
+//    protected Map<String, String> _dataMappingsForTaskStarting = new HashMap<String, String>();//[key=ParamName, value=query]
     protected Map<String, String> _dataMappingsForTaskCompletion = new HashMap<String, String>();//[key=query, value=NetVarName]
-    protected Map<String, String> _dataMappingsForTaskEnablement = new HashMap<String, String>();//[key=ParamName, value=query]
-    protected Set<KeyValue> dataMappingsForTaskEnablementSet = new HashSet<KeyValue>();
+//    protected Map<String, String> _dataMappingsForTaskEnablement = new HashMap<String, String>();//[key=ParamName, value=query]
+    protected Map<String, KeyValue> dataMappingsForTaskEnablementSet = new HashMap<String, KeyValue>();
     protected YDecomposition _decompositionPrototype;
     private static final String PERFORM_OUTBOUND_SCHEMA_VALIDATION = "skipOutboundSchemaValidation";
 
@@ -1185,23 +1187,23 @@ public abstract class YTask extends YExternalNetElement {
      * 
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
-    private Set<KeyValue> dataMappingsForTaskStartingSet = new HashSet<KeyValue>();
+    private Map<String, KeyValue> dataMappingsForTaskStartingSet = new HashMap<String, KeyValue>();
 
-    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="task", cascade={CascadeType.ALL})
+    @MapKey(name="key")
     @OnDelete(action=OnDeleteAction.CASCADE)
-    public Set<KeyValue> getDataMappingsForTaskStartingSet() {
+    @Where(clause="Type='"+KeyValue.STARTING + "'")
+    public Map<String, KeyValue> getDataMappingsForTaskStartingSet() {
     	return dataMappingsForTaskStartingSet;
     }
-    private void setDataMappingsForTaskStartingSet(Set<KeyValue> set) {
+    private void setDataMappingsForTaskStartingSet(Map<String, KeyValue> set) {
     	dataMappingsForTaskStartingSet = set;
     }
-    
-    
     
     @Transient
     public Map<String, String> getDataMappingsForTaskStarting() {
     	Map<String, String> map = new HashMap<String, String>();
-    	for(KeyValue keyValue:dataMappingsForTaskStartingSet) {
+    	for(KeyValue keyValue:dataMappingsForTaskStartingSet.values()) {
     		map.put(keyValue.getKey(), keyValue.getValue());
     	}
     	return map;
@@ -1215,7 +1217,7 @@ public abstract class YTask extends YExternalNetElement {
     	for(Map.Entry entry:map.entrySet()) {
     		String key = entry.getKey().toString();
     		String value = entry.getValue().toString();
-    		dataMappingsForTaskStartingSet.add(new KeyValue(key, value));
+    		dataMappingsForTaskStartingSet.put(key, new KeyValue(KeyValue.STARTING, key, value, this));
     	}
     }
 
@@ -1226,8 +1228,9 @@ public abstract class YTask extends YExternalNetElement {
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
     public Set<KeyValue> dataMappingsForTaskCompletionSet = new HashSet<KeyValue>();
-    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="task", cascade={CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
+    @Where(clause="Type='" + KeyValue.COMPLETION+ "'")
     private Set<KeyValue> getDataMappingsForTaskCompletionSet() {
     	return dataMappingsForTaskCompletionSet;
     }
@@ -1258,7 +1261,7 @@ public abstract class YTask extends YExternalNetElement {
     	for(Map.Entry entry:map.entrySet()) {
     		String key = entry.getKey().toString();
     		String value = entry.getValue().toString();
-    		dataMappingsForTaskCompletionSet.add(new KeyValue(key, value));
+    		dataMappingsForTaskCompletionSet.add(new KeyValue(KeyValue.COMPLETION, key, value, this));
     	}
     }
     
@@ -1271,12 +1274,13 @@ public abstract class YTask extends YExternalNetElement {
      * @hibernate.property 
      */
     @Transient
-    public Map<String, String> getDataMappingsForEnablement() {
-    	Map<String, String> map = new HashMap<String, String>();
-    	for(KeyValue keyValue:dataMappingsForTaskEnablementSet) {
-    		map.put(keyValue.getKey(), keyValue.getValue());
-    	}
-    	return map;
+    public Map<String, KeyValue> getDataMappingsForEnablement() {
+    	return dataMappingsForTaskEnablementSet;
+//    	Map<String, String> map = new HashMap<String, String>();
+//    	for(KeyValue keyValue:dataMappingsForTaskEnablementSet) {
+//    		map.put(keyValue.getKey(), keyValue.getValue());
+//    	}
+//    	return map;
     }
 
 //    public void setDataMappingsForEnablement(Map<String, String>  map) {
@@ -1289,9 +1293,9 @@ public abstract class YTask extends YExternalNetElement {
 //
     // FIXME: XXX this is never called anywhere, should it be here?
     /**
-     * @deprecated
+//     * @deprecated
      */
-    @Deprecated
+//    @Deprecated
 //    public void setDataMappingsForEnablement(YTask task, Map map) {
 //    	task.setDataMappingsForEnablement(map);
 //    }
@@ -1302,10 +1306,10 @@ public abstract class YTask extends YExternalNetElement {
      *      containing this task.
      * @param paramName the enablement decomposition parameter to which to apply the result.
      */
-    public void setDataBindingForEnablementParam(String query, String paramName) {
-    	dataMappingsForTaskEnablementSet.add(new KeyValue(query, paramName));
-    }
-    
+//    public void setDataBindingForEnablementParam(String query, String paramName) {
+//    	dataMappingsForTaskEnablementSet.put(query, new KeyValue(KeyValue.ENABLEMENT, query, paramName, this));
+//    }
+//    
     public String toXML() {
         StringBuffer xml = new StringBuffer();
         xml.append("<task id=\"").append(this.getID()).append("\"");
@@ -1373,7 +1377,7 @@ public abstract class YTask extends YExternalNetElement {
         if (getDataMappingsForTaskStartingSet().size() > 0) {
             if (!(this.isMultiInstance() && getDataMappingsForTaskStartingSet().size() == 1)) {
                 xml.append("<startingMappings>");
-                for (KeyValue entry:dataMappingsForTaskStartingSet) {
+                for (KeyValue entry:dataMappingsForTaskStartingSet.values()) {
                     String mapsTo = entry.getKey();
                     String expression = entry.getValue();
                     if (!isMultiInstance() || !getPreSplittingMIQuery().equals(expression)) {
@@ -1410,7 +1414,7 @@ public abstract class YTask extends YExternalNetElement {
         }
         if (dataMappingsForTaskEnablementSet.size() > 0) {
             xml.append("<enablementMappings>");
-            for (KeyValue entry:dataMappingsForTaskEnablementSet) {
+            for (KeyValue entry:dataMappingsForTaskEnablementSet.values()) {
                 String mapsTo = entry.getKey();
                 String expression = entry.getValue();
                 xml.append("<mapping><expression query=\"").
@@ -1446,13 +1450,14 @@ public abstract class YTask extends YExternalNetElement {
         return expression;
     }
 
-//    @OneToOne(cascade={CascadeType.ALL})
-    @Transient
+    @OneToOne(cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YDecomposition getDecompositionPrototype() {
     	return _decompositionPrototype;    	
     }
 
-//    @OneToOne(cascade={CascadeType.ALL})
+    @OneToOne(cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setDecompositionPrototype(YDecomposition decomposition) {
     	if (decomposition == null) {return;} 
     	_decompositionPrototype = decomposition;
@@ -1473,7 +1478,7 @@ public abstract class YTask extends YExternalNetElement {
      */
     @Transient
     public String getDataBindingForEnablementParam(String paramName) {
-      return getDataMappingsForEnablement().get(paramName);
+      return getDataMappingsForEnablement().get(paramName).getValue();
     }
     
     /**
@@ -1483,7 +1488,7 @@ public abstract class YTask extends YExternalNetElement {
      * @param paramName the decomposition parameter to which to apply the result.
      */
     public void setDataBindingForInputParam(String query, String paramName) {
-    	dataMappingsForTaskStartingSet.add(new KeyValue(paramName, query));
+    	dataMappingsForTaskStartingSet.put(paramName, new KeyValue(KeyValue.STARTING, paramName, query, this));
     }
 
     /**
@@ -1502,7 +1507,7 @@ public abstract class YTask extends YExternalNetElement {
      * @param netVarName the net scope variable to which to apply the result.
      */
     public void setDataBindingForOutputExpression(String query, String netVarName) {
-    	dataMappingsForTaskCompletionSet.add(new KeyValue(query, netVarName));
+    	dataMappingsForTaskCompletionSet.add(new KeyValue(KeyValue.COMPLETION, query, netVarName, this));
     }
 
     /**

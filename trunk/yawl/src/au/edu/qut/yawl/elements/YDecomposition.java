@@ -497,6 +497,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
      * Returns a link to the containing specification.
      */
     @ManyToOne(cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YSpecification getSpecification() {
         return _specification;
     }
@@ -551,7 +552,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
         }
     }
 
-    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="DataTypeName='inputParam'")
     public List<YParameter> getInputParameters() {
@@ -562,6 +563,9 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     	Collections.sort(retval);
     	return retval;
 	}
+    @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @Where(clause="DataTypeName='inputParam'")
 	protected void setInputParameters(List<YParameter> inputParam) {
 		for (YParameter parm: inputParam) {
 			parm.setParent(this);
@@ -569,7 +573,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 		}
 	}
 
-    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="DataTypeName='outputParam'")
     public List<YParameter> getOutputParameters() {

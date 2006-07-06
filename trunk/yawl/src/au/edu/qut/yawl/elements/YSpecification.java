@@ -130,6 +130,8 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     	return _decompositions;
     }
 
+    @OneToMany(mappedBy="specification",cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setDBDecompositions(List<YDecomposition> set) {
 		this._decompositions.clear();
 		this._decompositions.addAll(set);

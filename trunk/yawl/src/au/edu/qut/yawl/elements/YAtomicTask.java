@@ -23,9 +23,13 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Where;
 import org.jdom.Element;
 
 import au.edu.qut.yawl.elements.data.YParameter;
@@ -84,7 +88,7 @@ public class YAtomicTask extends YTask {
 		for (Map.Entry entry : map.entrySet()) {
 			String key = entry.getKey().toString();
 			String value = entry.getValue().toString();
-			dataMappingsForTaskEnablementSet.add(new KeyValue(key, value));
+			dataMappingsForTaskEnablementSet.put(key, new KeyValue(KeyValue.ENABLEMENT, key, value, this));
 		}
 	}
     /**
@@ -92,16 +96,14 @@ public class YAtomicTask extends YTask {
      * 
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
-    @OneToMany(cascade=CascadeType.ALL)
-    @JoinTable(
-            name="task_enablement_map",
-            joinColumns = { @JoinColumn( name="extern_id") },
-            inverseJoinColumns = @JoinColumn( name="key_id")
-    )
-    private Set<KeyValue> getDataMappingsForTaskEnablementSet() {
+    @OneToMany(mappedBy="task", cascade={CascadeType.ALL})
+    @MapKey(name="key")
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @Where(clause="Type='"+KeyValue.ENABLEMENT + "'")
+    private Map<String, KeyValue> getDataMappingsForTaskEnablementSet() {
     	return dataMappingsForTaskEnablementSet;
     }
-    private void setDataMappingsForTaskEnablementSet(Set<KeyValue> set) {
+    private void setDataMappingsForTaskEnablementSet(Map<String, KeyValue> set) {
     	dataMappingsForTaskEnablementSet = set;
     }
 
@@ -146,7 +148,7 @@ public class YAtomicTask extends YTask {
         for (Iterator iterator = enablementParamNamesAtTask.iterator(); iterator.hasNext();) {
             String paramNameAtTask = (String) iterator.next();
 
-            String query = getDataMappingsForEnablement().get(paramNameAtTask);
+            String query = getDataMappingsForEnablement().get(paramNameAtTask).getValue();
             messages.addAll(checkXQuery(query, paramNameAtTask));
             if (!enablementParamNamesAtGateway.contains(paramNameAtTask)) {
                 messages.add(new YVerificationMessage(this,
@@ -252,7 +254,7 @@ public class YAtomicTask extends YTask {
             YParameter parameter = (YParameter) enablementParams.get(i);
             String paramName = parameter.getName() != null ?
                     parameter.getName() : parameter.getElementName();
-            String expression = getDataMappingsForEnablement().get(paramName);
+            String expression = getDataMappingsForEnablement().get(paramName).getValue();
 
             Element result = performDataExtraction(expression, parameter);
             enablementData.addContent((Element) result.clone());

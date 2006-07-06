@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 
@@ -26,14 +27,20 @@ public class KeyValue implements PolymorphicPersistableObject, Parented{
 	private String value;
 	private Long id;
 	private YTask parent;
+	private String type;
+	public static final String COMPLETION = "completion";
+	public static final String ENABLEMENT = "enablement";
+	public static final String STARTING = "starting";
 
 	public KeyValue() {
 		super();
 	}
 	
-	public KeyValue(String key, String value) {
-		this.value = value;
+	public KeyValue(String type, String key, String value, YTask parent) {
+		this.type = type;
 		this.key = key;
+		this.value = value;
+		this.parent = parent;
 	}
 	
 	@Id
@@ -80,12 +87,31 @@ public class KeyValue implements PolymorphicPersistableObject, Parented{
 			&& ((KeyValue) obj).getKey().equals(this.getKey()));
 	}
 
-	@ManyToOne(cascade = {CascadeType.ALL})
+	@Transient
 	public void setParent(YTask parent) {
 		this.parent = parent;
 	}
 
+	@Transient
 	public YTask getParent() {
 		return parent;
+	}
+
+	@ManyToOne(cascade = {CascadeType.ALL})
+	public void setTask(YTask parent) {
+		this.parent = parent;
+	}
+
+	@ManyToOne(cascade = {CascadeType.ALL})
+	public YTask getTask() {
+		return parent;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }

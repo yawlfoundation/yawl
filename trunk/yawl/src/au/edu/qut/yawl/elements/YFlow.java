@@ -100,6 +100,7 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
         return _priorElement;
     }
     
+    @ManyToOne
     public void setPriorElement(YExternalNetElement element) {
     	_priorElement = element;
     }
@@ -128,6 +129,7 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
     	return _nextElement;
     }
     
+    @ManyToOne
     public void setNextElement(YExternalNetElement element) {
     	_nextElement = element;
     }

@@ -27,6 +27,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Where;
 
 import au.edu.qut.yawl.elements.data.YParameter;
@@ -76,12 +78,15 @@ public class YAWLServiceGateway extends YDecomposition {
         _yawlServices = new HashSet();
     }
 
-    @OneToMany(cascade=CascadeType.ALL)
-    @JoinColumn(name="parent")
+    @OneToMany(mappedBy="decomposition", cascade=CascadeType.ALL)
+    @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="DataTypeName='enablementParam'")
     protected List<YParameter> getEnablementParameters() {
     	return enablementParam;
     }
+    @OneToMany(mappedBy="decomposition", cascade=CascadeType.ALL)
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @Where(clause="DataTypeName='enablementParam'")
     protected void setEnablementParameters(List<YParameter> param) {
     	enablementParam.clear();
     	enablementParam.addAll(param);
