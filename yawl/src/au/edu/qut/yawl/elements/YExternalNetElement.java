@@ -24,6 +24,7 @@ import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,6 +35,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -132,6 +135,7 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
      *    class="au.edu.qut.yawl.elements.YNet"
      */
     @ManyToOne(cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YNet getContainer() {
     	return _net;
     }
@@ -139,6 +143,8 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
      * Inserted for hibernate
      * @param net
      */
+    @ManyToOne(cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setContainer(YNet net) {
     	_net = net;
     }
@@ -471,14 +477,16 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     	return null;
     }
 
-    @Transient
-//    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+//    @Transient
+    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public Collection<YFlow> getPostsetFlows() {
         return _postsetFlows;
     }
 
-    @Transient
-//    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+//    @Transient
+    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setPostsetFlows(Collection<YFlow> flows) {
     	for (YFlow flow: flows) {
     		flow.setPriorElement(this);
@@ -509,14 +517,16 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     	_postsetFlows.addAll(flows);
     }
 
-    @Transient
-//    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
+//    @Transient
+    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public Collection<YFlow> getPresetFlows() {
         return _presetFlows;
     }
 
-   @Transient
-//    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
+//   @Transient
+    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setPresetFlows(Collection<YFlow> flows) {
     	_presetFlows = flows;
     }

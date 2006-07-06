@@ -27,6 +27,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.elements.Parented;
@@ -136,13 +138,26 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Parented, 
         _namespaceURI = namespace;
     }
     
-    @ManyToOne
+    @Transient
+    public void setParent(YDecomposition parent) {
+    	this.parent = parent;
+    }
+
+    @Transient
     public YDecomposition getParent() {
     	return parent;
     }
-    @ManyToOne
-    public void setParent(YDecomposition parent) {
+
+    @ManyToOne(cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    public void setDecomposition(YDecomposition parent) {
     	this.parent = parent;
+    }
+    
+    @ManyToOne(cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    public YDecomposition getDecomposition() {
+    	return parent;
     }
     
     private YDecomposition parent;

@@ -119,11 +119,13 @@ public class YNet extends YDecomposition {
      *     class="au.edu.qut.yawl.elements.YInputCondition"
      */
     @OneToOne(cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YInputCondition getInputCondition() {
         return this._inputCondition;
     }
 
     @OneToOne(mappedBy="container", cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setInputCondition(YInputCondition inputCondition) {
         _inputCondition = inputCondition;
         _netElements.add(inputCondition);
@@ -134,10 +136,13 @@ public class YNet extends YDecomposition {
      * @return YCondition
      */
     @OneToOne(mappedBy="container", cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YOutputCondition getOutputCondition() {
         return _outputCondition;
     }
 
+    @OneToOne(mappedBy="container", cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setOutputCondition(YOutputCondition outputCondition) {
         _outputCondition = outputCondition;
         _netElements.add(outputCondition);
@@ -168,8 +173,10 @@ public class YNet extends YDecomposition {
      * Inserted for hibernate TODO Set to protected later
      * @param list
      */
+    @OneToMany(mappedBy="container", cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setNetElementsDB(List<YExternalNetElement> list) {
-//    	_netElements = list;
+    	_netElements = list;
     }
 
     @Transient
@@ -662,8 +669,8 @@ public class YNet extends YDecomposition {
         return map;
     }
 
-    @OneToMany(cascade = {CascadeType.ALL})
-    @JoinColumn(name="parent")
+    @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="DataTypeName='' OR DataTypeName IS NULL")
     public List<YVariable> getLocalVariables() {
         List<YVariable> retval = new ArrayList<YVariable>(_localVariables);
@@ -671,6 +678,9 @@ public class YNet extends YDecomposition {
         return retval;
     }
 
+    @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @Where(clause="DataTypeName='' OR DataTypeName IS NULL")
     protected void setLocalVariables(List<YVariable> outputParam) {
         for (YVariable parm: outputParam) {
             parm.setParent(this);
