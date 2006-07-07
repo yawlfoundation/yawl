@@ -31,6 +31,8 @@ import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D;
 
+import javax.swing.JViewport;
+
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.EdgeView;
 import org.jgraph.graph.GraphCell;
@@ -273,4 +275,16 @@ public class NetCellUtilities {
       net.getNetModel().endUpdate();
     }
   }
+
+  public static void scrollNetToShowElement(NetGraph net, CellView element) {
+    while (element.getParentView() != null) {
+      element = element.getParentView();
+    }
+    if (net.getFrame() != null) {
+      ((JViewport) net.getParent()).scrollRectToVisible(
+          element.getBounds().getBounds()
+      );
+    }
+  }
+
 }
