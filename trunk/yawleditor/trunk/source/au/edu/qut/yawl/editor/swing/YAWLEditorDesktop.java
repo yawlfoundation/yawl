@@ -243,9 +243,9 @@ public class YAWLEditorDesktop extends JDesktopPane
   }
   
   private void resizeIfNecessary() {
-		if (!this.isVisible()) {
-			return;
-		}
+    if (!this.isVisible()) {
+      return;
+    }
 
     int maxX = 0;
     int maxY = 0;

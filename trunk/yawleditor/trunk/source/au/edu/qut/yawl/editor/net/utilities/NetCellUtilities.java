@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D;
 
@@ -174,7 +175,8 @@ public class NetCellUtilities {
     CellView[] allViews =
       VertexView.getDescendantViews(views);
     Map attributes = GraphConstants.createAttributes(allViews, null);
-    net.getModel().edit(attributes, null, null, null);
+    net.getNetModel().edit(attributes, null, null, null);
+    scrollNetToShowCells(net, getCellsOfViews(views));
   }
   
   public static void alignCellsAlongTop(NetGraph net, Object[] cells) {
@@ -276,15 +278,30 @@ public class NetCellUtilities {
     }
   }
 
-  public static void scrollNetToShowElement(NetGraph net, CellView element) {
-    while (element.getParentView() != null) {
-      element = element.getParentView();
+  public static void scrollNetToShowCells(NetGraph net, Object[] cells) {
+    final int ELEMENT_BUFFER = 10;
+    
+    if (net.getFrame() == null) {
+     return;
     }
-    if (net.getFrame() != null) {
-      ((JViewport) net.getParent()).scrollRectToVisible(
-          element.getBounds().getBounds()
-      );
-    }
-  }
+      
+    Rectangle bufferedCellBounds = (Rectangle) net.getCellBounds(cells).getBounds().clone();
 
+    bufferedCellBounds.grow(
+        ELEMENT_BUFFER,
+        ELEMENT_BUFFER
+    );
+    
+    ((JViewport) net.getParent()).scrollRectToVisible(
+        bufferedCellBounds
+    );
+  }
+  
+  public static Object[] getCellsOfViews(CellView[] views) {
+    Object[] objects = new Object[views.length];
+    for(int i = 0; i < views.length; i++) {
+      objects[i] = views[i].getCell();
+    }
+    return objects;
+  }
 }
