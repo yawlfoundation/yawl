@@ -24,6 +24,8 @@
 
 package au.edu.qut.yawl.editor.net.utilities;
 
+import java.awt.Dimension;
+import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,6 +41,7 @@ import au.edu.qut.yawl.editor.elements.model.InputCondition;
 import au.edu.qut.yawl.editor.elements.model.OutputCondition;
 import au.edu.qut.yawl.editor.elements.model.YAWLCell;
 
+import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
 
 /**
@@ -49,6 +52,13 @@ import au.edu.qut.yawl.editor.net.NetGraphModel;
  */
 
 public final class NetUtilities {
+  
+  /**
+   * Default margin size of whitespace to appear around elements
+   * being added to a net.
+   */
+  public static final int DEFAULT_MARGIN  = 20;
+
   
   /**
    * Returns all tasks in the selected net. Specifically, 
@@ -310,5 +320,23 @@ public final class NetUtilities {
     }
     return flows;
   }
+  
+  public static void resizeNetIfNecessary(NetGraph net) {
+    Rectangle2D cellBounds = net.getCellBounds(net.getRoots());
 
+    if (cellBounds == null) {
+      return;
+    }
+
+    net.setPreferredSize(
+        new Dimension(
+          (int) (cellBounds.getX() + cellBounds.getWidth() + DEFAULT_MARGIN),
+          (int) (cellBounds.getY() + cellBounds.getHeight() + DEFAULT_MARGIN)
+        )
+    );
+      
+    if (net.getFrame() != null) {
+      net.getFrame().setPreferredSize(net.getPreferredSize());
+    }
+  }
 }

@@ -26,10 +26,8 @@ package au.edu.qut.yawl.editor.net;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -98,7 +96,6 @@ import javax.swing.ActionMap;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.InputMap;
-import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ToolTipManager;
 
@@ -180,7 +177,7 @@ public class NetGraph extends JGraph {
     
     getGraphLayoutCache().setFactory(new NetCellViewFactory());
     getGraphLayoutCache().setSelectsAllInsertedCells(false);
-
+    
     startUndoableEdits();
   }
   
@@ -305,8 +302,11 @@ public class NetGraph extends JGraph {
   public void addElement(YAWLVertex element) {
     getModel().insert(new Object[] {element}, 
                       null, null, null, null);
-
-    NetCellUtilities.scrollNetToShowElement(this, getViewFor(element));
+    
+    NetCellUtilities.scrollNetToShowCells(
+        this, 
+        new Object[] { element }
+    );
   }
   
 
@@ -626,12 +626,12 @@ public class NetGraph extends JGraph {
     
     getNetModel().endUpdate();
     
-    NetCellUtilities.scrollNetToShowElement(
+    NetCellUtilities.scrollNetToShowCells(
         this, 
-        getViewFor(task)
+        new Object[] { task }
     );
-
-    this.getGraphLayoutCache().reload();
+    
+    getGraphLayoutCache().reload();
   }
 
   public void setSplitDecorator(YAWLTask task, int type, int position) {
@@ -650,12 +650,12 @@ public class NetGraph extends JGraph {
     this.setElementLabelInsideUpdate(task, label);
     
     getNetModel().endUpdate();
-
-    NetCellUtilities.scrollNetToShowElement(
-        this, 
-        getViewFor(task)
-    );
     
+    NetCellUtilities.scrollNetToShowCells(
+        this, 
+        new Object[] { task }
+    );
+
     this.getGraphLayoutCache().reload();
   }
   
@@ -954,7 +954,12 @@ public class NetGraph extends JGraph {
     getNetModel().beginUpdate();
     setElementLabelInsideUpdate(vertex, labelString);
     getNetModel().endUpdate();
-    NetCellUtilities.scrollNetToShowElement(this, getViewFor(vertex));
+    
+    NetCellUtilities.scrollNetToShowCells(
+        this, 
+        new Object[] { vertex }
+    );
+
   }
 
   public void setElementLabelInsideUpdate(GraphCell vertex, String labelString) {
