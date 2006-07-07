@@ -436,7 +436,7 @@ public class XMLToolsForYAWL {
             } else if (instruction instanceof ElementReuseInstruction) {
                 formattedInstructions.add(new String[]{elementName, null});
             } else if (instruction instanceof UntypedElementInstruction) {
-                formattedInstructions.add(new String[]{"xs:any", null});
+                formattedInstructions.add(new String[]{"xs:any", null, "http://www.w3.org/2001/XMLSchema"});
             }
         }
         return (String[][]) formattedInstructions.toArray(new String[instructions.length][]);
