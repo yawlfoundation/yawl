@@ -11,71 +11,16 @@
 			<localVariable>
 				<name>ServiceName</name>
 				<isUntyped/>
-				<!--
-				<type>string</type>
-				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
-				-->
 				<initialValue>Jython</initialValue>
 			</localVariable>
 			<localVariable>
 				<name>result</name>
 				<isUntyped/>
-				<!--
-				<type>ExtensionType</type>
-				<namespace>http://www.citi.qut.edu.au/yawl</namespace>
-				-->
 				<initialValue/>
 			</localVariable>
 			<localVariable>
 				<name>ServiceData</name>
 				<isUntyped/>
-				<!--
-				<type>string</type>
-				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
-				<initialValue>print 'foo'</initialValue>
-				-->
-				<!--
-				<initialValue>&lt;jythonServiceData xmlns:ns2="http://www.citi.qut.edu.au/yawl"&gt;
-  &lt;ns2:code&gt;print foo&lt;/ns2:code&gt;
-  &lt;ns2:dynamicVariable ns2:name="foo"&gt;
-    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"&gt;foo-val&lt;/ns2:value&gt;
-  &lt;/ns2:dynamicVariable&gt;
-  &lt;ns2:dynamicVariable ns2:name="bar"&gt;
-    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"&gt;bar-val&lt;/ns2:value&gt;
-  &lt;/ns2:dynamicVariable&gt;
-  &lt;ns2:dynamicVariable ns2:name="v"&gt;
-    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:int"&gt;3&lt;/ns2:value&gt;
-  &lt;/ns2:dynamicVariable&gt;
-&lt;/jythonServiceData&gt;</initialValue>
-				-->
-				<!--
-				<initialValue>&lt;nexusServiceData xmlns:ns2="http://www.citi.qut.edu.au/yawl"&gt;
-  &lt;ns2:dynamicVariable ns2:name="code"&gt;
-    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"&gt;print foo&lt;/ns2:value&gt;
-  &lt;/ns2:dynamicVariable&gt;
-  &lt;ns2:dynamicVariable ns2:name="foo"&gt;
-    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"&gt;foo-val&lt;/ns2:value&gt;
-  &lt;/ns2:dynamicVariable&gt;
-  &lt;ns2:dynamicVariable ns2:name="bar"&gt;
-    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"&gt;bar-val&lt;/ns2:value&gt;
-  &lt;/ns2:dynamicVariable&gt;
-  &lt;ns2:dynamicVariable ns2:name="v"&gt;
-    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:int"&gt;3&lt;/ns2:value&gt;
-  &lt;/ns2:dynamicVariable&gt;
-&lt;/nexusServiceData&gt;</initialValue>
-				-->
-				<!--
-				<initialValue>&lt;JythonServiceData&gt;
-  &lt;code&gt;print foo&lt;/code&gt;
-&lt;/JythonServiceData&gt;</initialValue>
-
-<NexusServiceData>
-	<variable name="code">
-		<value>print foo</value>
-	</variable>
-</NexusServiceData>
-
-				-->
 				<initialValue>&lt;NexusServiceData&gt;
   &lt;variable name="code"&gt;&lt;value&gt;cHJpbnQgZm9vICsgJyAnICsgYmFyICsgJyAnICsgYmF6CnByaW50ICc1Jw..&lt;/value&gt;&lt;/variable&gt;
   &lt;variable name="foo"&gt;&lt;value&gt;aXRzeQ..&lt;/value&gt;&lt;/variable&gt;
@@ -83,12 +28,6 @@
   &lt;variable name="baz"&gt;&lt;value&gt;c3BpZGVy&lt;/value&gt;&lt;/variable&gt;
 &lt;/NexusServiceData&gt;
 				</initialValue>
-				<!--
-				<initialValue>&lt;NexusServiceData&gt;
-  &lt;variable&gt;&lt;name&gt;code&lt;/name&gt;&lt;value&gt;print foo&lt;/value&gt;&lt;/variable&gt;
-&lt;/NexusServiceData&gt;
-				</initialValue>
-				-->
 			</localVariable>
 			<processControlElements>
 				<inputCondition id="input">
