@@ -306,11 +306,7 @@ public class NetGraph extends JGraph {
     getModel().insert(new Object[] {element}, 
                       null, null, null, null);
 
-    if (getFrame() != null) {
-      ((JViewport) getParent()).scrollRectToVisible(
-          getViewFor(element).getBounds().getBounds()
-      );
-    }
+    NetCellUtilities.scrollNetToShowElement(this, getViewFor(element));
   }
   
 
@@ -629,6 +625,11 @@ public class NetGraph extends JGraph {
     this.setElementLabelInsideUpdate(task, label);
     
     getNetModel().endUpdate();
+    
+    NetCellUtilities.scrollNetToShowElement(
+        this, 
+        getViewFor(task)
+    );
 
     this.getGraphLayoutCache().reload();
   }
@@ -650,6 +651,11 @@ public class NetGraph extends JGraph {
     
     getNetModel().endUpdate();
 
+    NetCellUtilities.scrollNetToShowElement(
+        this, 
+        getViewFor(task)
+    );
+    
     this.getGraphLayoutCache().reload();
   }
   
@@ -948,6 +954,7 @@ public class NetGraph extends JGraph {
     getNetModel().beginUpdate();
     setElementLabelInsideUpdate(vertex, labelString);
     getNetModel().endUpdate();
+    NetCellUtilities.scrollNetToShowElement(this, getViewFor(vertex));
   }
 
   public void setElementLabelInsideUpdate(GraphCell vertex, String labelString) {

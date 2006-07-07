@@ -188,25 +188,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
 
     GraphConstants.setBounds(map, new Rectangle2D.Double(x-1,y-1,x+1,y+1));
     port.setPosition(position);
-    
-    switch(position) {
-      case LEFT: {
-        GraphConstants.setOffset(map, new Point2D.Double(-1,0));
-        break;
-      }
-      case RIGHT: {
-        GraphConstants.setOffset(map, new Point2D.Double(1,0));
-        break;
-      }
-      case TOP: {
-        GraphConstants.setOffset(map, new Point2D.Double(0,-1));
-        break;
-      }
-      case BOTTOM: {
-        GraphConstants.setOffset(map, new Point2D.Double(0,1));
-        break;
-      }
-    }
+    GraphConstants.setOffset(map, new Point2D.Double(x, y));
     port.getAttributes().applyMap(map);
     
     add(port);
