@@ -555,6 +555,13 @@ public class YEngine extends AbstractEngine {
             ys.setDocumentation("Time service, allows tasks to be a timeout task.");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
+            
+            // TODO standard services on startup should probably be dynamically loaded from a properties file
+            ys = new YAWLServiceReference("http://localhost:8080/NexusServiceInvoker/", null);
+            ys.setDocumentation("This service enables YAWL specifications to access" +
+            		" the Nexus Workflow services");
+            _myInstance.removeYawlService(ys.getURI());
+            _myInstance.addYawlService(ys);
 
             /**
              * Ensure we have an 'admin' user
