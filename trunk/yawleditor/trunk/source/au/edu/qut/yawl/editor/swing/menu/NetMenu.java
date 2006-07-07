@@ -31,7 +31,6 @@ import au.edu.qut.yawl.editor.actions.net.RemoveNetAction;
 import au.edu.qut.yawl.editor.actions.net.SetStartingNetAction;
 import au.edu.qut.yawl.editor.actions.net.ExportNetToPngAction;
 import au.edu.qut.yawl.editor.actions.net.NetDecompositionDetailAction;
-import au.edu.qut.yawl.editor.actions.net.ResizeNetAction;
 
 import au.edu.qut.yawl.editor.actions.specification.CreateNetAction;
 
@@ -53,12 +52,9 @@ class NetMenu extends YAWLOpenSpecificationMenu {
     JSplashScreen.getInstance().updateProgressBar(22);
 
     add(new YAWLMenuItem(new RemoveNetAction()));
-    JSplashScreen.getInstance().updateProgressBar(23);
+    JSplashScreen.getInstance().updateProgressBar(24);
 
     add(new YAWLMenuItem(new SetStartingNetAction()));
-    JSplashScreen.getInstance().updateProgressBar(25);
-
-    add(new YAWLMenuItem(new ResizeNetAction()));
     JSplashScreen.getInstance().updateProgressBar(26);
     
     add(new YAWLMenuItem(new NetDecompositionDetailAction()));

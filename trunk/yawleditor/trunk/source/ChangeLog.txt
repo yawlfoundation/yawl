@@ -19,7 +19,9 @@ Version 1.4.2 (??/??/??) "Hey Anakin! Wanna join the dark side? ... duh... OK!"
   * Enhanced the printout and PNG export functionality to write the Specification
     ID and Net ID to the generated output image.
   * There are now a number of zoom options available from the menus and toolbar for
-    changing the zoom level on nets.
+    changing the zoom level on nets. The "Resize Net" menu item has consequently been
+    retired in favour of using zoom functionality to passively manage the overall net
+    size.
 
 Version 1.4.1 (19/05/2006) "With our thoughts, we make the world"
   * This version of the editor has been upgraded to use version 7.2.1 of the YAWL Engine, 

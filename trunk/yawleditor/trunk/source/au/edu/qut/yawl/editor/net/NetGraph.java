@@ -26,8 +26,10 @@ package au.edu.qut.yawl.editor.net;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -96,6 +98,7 @@ import javax.swing.ActionMap;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.InputMap;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ToolTipManager;
 
@@ -302,7 +305,14 @@ public class NetGraph extends JGraph {
   public void addElement(YAWLVertex element) {
     getModel().insert(new Object[] {element}, 
                       null, null, null, null);
+
+    if (getFrame() != null) {
+      ((JViewport) getParent()).scrollRectToVisible(
+          getViewFor(element).getBounds().getBounds()
+      );
+    }
   }
+  
 
   public String getToolTipText(MouseEvent event) {
     Object cell = getFirstCellForLocation(event.getX(), event.getY());
