@@ -10,6 +10,7 @@
     <property name="developer.name" value="Lachlan_Aldred"/>
     <property name="src" value="src"/>
     <property name="test" value="test"/>
+	<property name="services" value="services"/> <!-- source dir for services -->
     <property name="backup" value="backup"/>
     <property name="thirdParty.home" value="${build.home}/thirdParty"/>
     <property name="basic.libs" value="./build/3rdParty/lib"/>
@@ -17,11 +18,13 @@
     <property name="xsd.libs" value="./build/3rdParty/xsdlib"/>
     <property name="persist.libs" value="./build/3rdParty/persistenceLibs"/>
     <property name="standAlone.libs" value="./build/3rdParty/standAlone-libs"/>
+	<property name="nexus.service.libs" value="./build/3rdParty/serviceLibs"/>
     <property name="xforms.lib" value="./build/3rdParty/xforms-lib"/>
     <property name="xforms.dist" value="./build/yawlXForms/dist"/>
     <property name="extra.libs" value="./build/extras"/>        <!-- AJH -->
     <property name="property.files" value="./build/properties"/> <!-- AJH -->
-    <property name="nexus_editor" value="./editor/"/> 
+    <property name="nexus_editor" value="./editor/"/>
+	<property name="mock" value="./mock/"/>
     <property name="classes" value="classes"/>
     <property name="enumeratedClasses" value="./build/3rdParty/enumerated3rdPartyClasses"/>
     <property name="javadoc" value="javadoc"/>
@@ -58,7 +61,11 @@
     <property name="graphics.home" value="${basedir}/graphics"/>
     <property name="manager.url" value="http://localhost:8080/manager"/><!-- Keep -->
     <property file="${build.home}/build.properties"/>
-
+	
+	<property name="nexus.serviceInvoker.app.name" value="NexusServiceInvoker"/>
+	<property name="nexus.serviceInvoker.app.path" value="/${nexus.serviceInvoker.app.name}"/>
+	<property name="nexus.service.jython.app.name" value="JythonService"/>
+	
     <!-- AJH - New lines for Tomcat/Ant iface -->
     <property name="tomcat_manager_url" value="${tomcat.protocol}://${tomcat.address}:${tomcat.port}/manager"/>
 
@@ -169,6 +176,7 @@
     <property name="ehcache" value="${persist.libs}/ehcache-0.7.jar"/>
     <property name="ejb-persist" value="${persist.libs}/ejb3-persistence.jar"/>
     <property name="jboss-ejb" value="${persist.libs}/jboss-ejb3x.jar"/>
+	<property name="jsr173" value="${persist.libs}/jsr173_1.0_api.jar"/>
     <property name="hibernate-ann" value="${persist.libs}/hibernate-annotations.jar"/>
     <property name="hibernate" value="${persist.libs}/hibernate3.jar"/>
     <property name="postgres7.jar" value="postgresql-7.4.5.jdbc.jar"/>
@@ -227,6 +235,10 @@
         <pathelement location="${jdom.jar}"/>
         <pathelement location="${servlet.jar}"/>
         <pathelement location="${log4j}"/>
+    	
+    	<fileset dir="${nexus.service.libs}/xfire">
+    		<include name="*.jar"/>
+    	</fileset>
 
         <!-- Include all elements that Tomcat exposes to applications -->
         <pathelement location="${env.CATALINA_HOME}/common/classes"/>
@@ -240,6 +252,13 @@
         <fileset dir="${env.CATALINA_HOME}/shared/lib">
             <include name="*.jar"/>
         </fileset>
+    	
+    	<fileset dir="${nexus.service.libs}/xfire">
+    		<include name="*.jar"/>
+    	</fileset>
+    	<fileset dir="${nexus.service.libs}/jython">
+    		<include name="*.jar"/>
+    	</fileset>
     </path>
     <!--
     Standard classpath
@@ -289,6 +308,7 @@
         <pathelement location="${odmg}"/>
         <pathelement location="${jboss-ejb}"/>
         <pathelement location="${ejb-persist}"/>
+    	<pathelement location="${jsr173}"/>
     </path>
 
     <!--
@@ -345,6 +365,7 @@
         <!--delete dir="${classes}/.dependency-info"/-->
         <delete dir="${classes}/META-INF"/>
         <delete dir="${classes}/au"/>
+    	<delete dir="${classes}/com/nexusbpm"/>
         <delete dir="${classes}/records"/>
         <delete dir="${output}"/>
     </target>
@@ -354,6 +375,7 @@
   	-->
     <target name="init" depends="clean">
         <mkdir dir="${classes}/au"/>
+    	<mkdir dir="${classes}/com/nexusbpm"/>
         <mkdir dir="${output}"/>
         <mkdir dir="${output}/${javadoc}"/>
     </target>
@@ -364,15 +386,15 @@
     Compiles main project source into ${classes}.
     -->
     <target name="compile" depends="init">
-        <javac srcdir="${src}:editor:mock:test" debug="true" destdir="${classes}">
+        <javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
             <classpath refid="cp.xsd"/>
             <classpath refid="cp.persist"/>
-	    <classpath refid="cp.pdfforms"/>
-	    <classpath refid="cp.editor"/>
-	    <classpath refid="cp.mail"/>
+            <classpath refid="cp.pdfforms"/>
+            <classpath refid="cp.editor"/>
+            <classpath refid="cp.mail"/>
         </javac>
         <!--rmic base="${classes}" classname="au.edu.qut.yawl.engine.interfce.EngineGatewayImpl"/-->
         <copy todir="${classes}">
@@ -703,6 +725,157 @@
         </jar>
         <delete dir="${yawl.worklist.app.name}"/>
     </target>
+	
+	<target name="build_JythonService.war" depends="compile">
+		<!-- create directory structure for the WAR -->
+		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/lib"/>
+		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/META-INF/xfire"/>
+		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/data"/>
+		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/jython"/>
+		
+		<!-- copy libs -->
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/lib">
+			<fileset dir="${nexus.service.libs}/jython" includes="jython.jar"/>
+			<fileset dir="${nexus.service.libs}/xfire" includes="*.jar"/>
+        </copy>
+		
+		<!-- copy misc -->
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/META-INF/xfire">
+			<fileset file="${build.home}/${nexus.service.jython.app.name}/services.xml"/>
+        </copy>
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF">
+            <fileset file="${build.home}/${nexus.service.jython.app.name}/web.xml"/>
+        </copy>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services">
+			<fileset dir="${classes}/com/nexusbpm/services" includes="*.class"/>
+		</copy>
+		
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
+			<fileset dir="${classes}/com/nexusbpm/services/data" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker">
+			<fileset dir="${classes}/com/nexusbpm/services/invoker" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/jython">
+			<fileset dir="${classes}/com/nexusbpm/services/jython" includes="*.class"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/${nexus.service.jython.app.name}.war">
+            <fileset dir="${nexus.service.jython.app.name}"/>
+        </jar>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.jython.app.name}"/>
+	</target>
+	
+	<target name="build_NexusServiceInvoker.war" depends="compile">
+        <!-- ======================================================================
+        Prepare YAWL Web Service Invoker WebApplication
+        -->
+<!--    <mkdir dir="${nexus.serviceInvoker.app.name}/graphics"/>-->
+        <mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/lib"/>
+        <mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
+        <mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+    	<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
+        <mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/data"/>
+		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker"/>
+		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/jython"/>
+        <!-- start copying files into war directory -->
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/elements/data"
+                />
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/unmarshal"
+                includes="YDecompositionParser.class"/>
+        </copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${wsif.libs}" includes="*.jar *.html" excludes="j2ee.jar"/>
+        	<fileset dir="${persist.libs}" includes="jaxb*.jar"/>
+        	<fileset dir="${persist.libs}" includes="jsr173_1.0_api.jar"/>
+        	<fileset dir="${xforms.lib}" includes="activation.jar"/>
+        	<fileset dir="${basic.libs}" includes="log4j*.jar"/>
+        	<fileset dir="${nexus.service.libs}/jython" includes="jython.jar"/>
+        	<fileset dir="${nexus.service.libs}/xfire" includes="*.jar" excludes="jdom*.jar"/>
+        	<fileset dir="${basic.libs}" includes="jdom*.jar"/>
+        </copy>
+
+        <copy file="${property.files}/log4j.properties" todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes"/>
+        <replace file="${nexus.serviceInvoker.app.name}/WEB-INF/classes/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+
+    	<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+    		<fileset dir="${classes}/au/edu/qut/yawl/engine/domain"/>
+    	</copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <!-- copy all major support classes into webapp -->
+    	<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services">
+			<fileset dir="${classes}/com/nexusbpm/services" includes="*.class"/>
+		</copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker">
+            <fileset dir="${classes}/com/nexusbpm/services/invoker">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+		
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
+	        <fileset dir="${classes}/com/nexusbpm/services/data">
+	        	<include name="*.class"/>
+	        </fileset>
+		</copy>
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
+	        <fileset dir="${services}/com/nexusbpm/services/data">
+	        	<include name="jaxb.index"/>
+	        </fileset>
+		</copy>
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services">
+	        <fileset dir="${classes}/com/nexusbpm/services">
+	        	<include name="*.class"/>
+	        </fileset>
+		</copy>
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/jython">
+	        <fileset dir="${classes}/com/nexusbpm/services/jython">
+	        	<include name="*.class"/>
+	        </fileset>
+		</copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+            <fileset dir="${classes}/au/edu/qut/yawl/exceptions" includes="*.class *.hbm.xml"/>
+        </copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist/model"/>
+        </copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF">
+            <fileset file="${build.home}/${nexus.serviceInvoker.app.name}/web.xml"/>
+        </copy>
+        <!-- prepare Web ARchive file -->
+        <jar destfile="${output}/${nexus.serviceInvoker.app.name}.war">
+            <fileset dir="${nexus.serviceInvoker.app.name}"/>
+        </jar>
+        <delete dir="${nexus.serviceInvoker.app.name}"/>
+    </target>
 
     <!--
     Build the application jar/war files
@@ -716,6 +889,7 @@
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/lib"/>
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+    	<mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/wsif"/>
         <!-- start copying files into war directory -->
@@ -749,11 +923,19 @@
             <replacefilter token="\" value="/" />
         </replace>
 
+    	<copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+    		<fileset dir="${classes}/au/edu/qut/yawl/engine/domain"/>
+    	</copy>
         <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset
                 dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
         </copy>
         <!-- copy all major support classes into webapp -->
+    	<copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
+    	            <fileset dir="${classes}/au/edu/qut/yawl/persistence">
+    	                <include name="*.class"/>
+    	            </fileset>
+    	        </copy>
         <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/wsif">
             <fileset dir="${classes}/au/edu/qut/yawl/wsif">
                 <include name="*.class"/>
@@ -1240,6 +1422,8 @@
         build_worklist.war,
         build_yawlSMSInvoker.war,
         build_yawlWSInvoker.war,
+    	build_JythonService.war,
+    	build_NexusServiceInvoker.war,
         build_TimeService.war,
         build_admintool.war,
         build_yawlXForms.war,
