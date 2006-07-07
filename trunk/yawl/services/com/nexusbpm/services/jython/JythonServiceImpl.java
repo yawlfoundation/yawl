@@ -1,30 +1,40 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * individuals and organisations who are commited to improving workflow technology.
+ *
+ */
 package com.nexusbpm.services.jython;
 
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
 import javax.jws.WebService;
 
-import org.jdom.Document;
-import org.jdom.Element;
 import org.python.util.PythonInterpreter;
 
-import com.nexusbpm.services.util.XmlUtil;
+import com.nexusbpm.services.NexusService;
+import com.nexusbpm.services.data.NexusServiceData;
+import com.nexusbpm.services.data.Variable;
 
 /**
- * Implementation of the XFire service interface.
+ * The Jython service provides the ability to run arbitrary Jython code in YAWL. Any
+ * dynamic variables in the NexusServiceData that are not <tt>code</tt>, <tt>output</tt>,
+ * or <tt>error</tt> will be accessible to the Jython code and their values in the
+ * Jython interpreter after the code is finished running will be put back into the
+ * NexusServiceData to be accessible to other tasks in YAWL.
+ * 
+ * @author Nathan Rose
  */
-@WebService
-public class JythonServiceImpl implements JythonService {
+@WebService(endpointInterface="com.nexusbpm.services.NexusService", serviceName="JythonService")
+public class JythonServiceImpl implements NexusService {
 	private boolean initialized = false;
 	
 	// TODO this is definitely temporary...
@@ -49,69 +59,60 @@ public class JythonServiceImpl implements JythonService {
 		}
 	}
 	
-	@WebMethod
-	@WebResult(name="results")
-	public String execute(
-			@WebParam(name="code") String code,
-			@WebParam(name="output") String output,
-			@WebParam(name="error") String error,
-			@WebParam(name="vars") String vars ) {
+	public NexusServiceData execute( NexusServiceData data ) {
+		
+		if( data == null ) {
+			return null;
+		}
+		
 		StringWriter outputWriter = new StringWriter();
 		StringWriter errWriter = new StringWriter();
 		
-		Map<String, String> varMap = new HashMap<String, String>();
+		System.out.println( "Jython service received data:" );
+		System.out.println( data );
 		
 		try {
 			initialize();
 			
-			// TODO temporary newline hack...
-			String ls = System.getProperty( "line.separator" );
-			if( ls == null || ls.length() == 0 ) {
-				ls = "\n";
-			}
-			code = code.replaceAll( "@nl;", ls );
-			
-			System.out.println( "Jython received input code:" + code );
-			
+			// create the interpreter
 			PythonInterpreter interp = new PythonInterpreter();
 			
+			// get a copy of the dynamic variables
+			List<Variable> dynamicVariables = new LinkedList<Variable>( data.getVariables() );
+			
 			// Process dynamic attributes (put attribute values into the Jython interpreter).
-			varMap = getDynamicVariables( vars, errWriter );
-			for( Iterator<String> iter = varMap.keySet().iterator(); iter.hasNext(); ) {
-				String varName = iter.next();
-				String varVal = varMap.get( varName );
-				interp.set( varName, varVal );
+			// remove the non-dynamic variables
+			for( Iterator<Variable> iter = dynamicVariables.iterator(); iter.hasNext(); ) {
+				Variable v = iter.next();
+				String name = v.getName();
+				if( name.equals( "code" ) ||
+						name.equals( "error" ) ||
+						name.equals( "output" ) ) {
+					iter.remove();
+				}
+				else {
+					interp.set( name, data.get( name ) );
+				}
 			}
-
-//			// Process dynamic attributes (put attribute values into the Jython interpreter).
-//			Map<String, ComponentAttribute> attributes = this.getComponentAttributes();
-//			HashSet<String> nameSet = new HashSet<String>();
-//			for( Iterator<String> iter = attributes.keySet().iterator(); iter.hasNext(); ) {
-//				nameSet.add( iter.next() );
-//			}
-//			for( Iterator<String> iter = attributes.keySet().iterator(); iter.hasNext(); ) {
-//				String attributeName = iter.next();
-//				ComponentAttribute attribute = attributes.get( attributeName );
-//				if( attribute.isDynamic() && attribute instanceof ScalarAttribute ) {
-//					interp.set( attributeName, ( (ScalarAttribute) attribute ).getValue() );
-//				}
-//			}
-
+			
 			// Execute the code.
 			interp.setOut( outputWriter );
 			interp.setErr( errWriter );
-			interp.exec( code );
-
-//			// Store the output and errors.
-//			data.error = errWriter.toString();
-//			data.output = outputWriter.toString();
+			interp.exec( data.get( "code" ) );
 			
 			// Process dynamic attributes (get attribute values out of the Jython interpreter).
-			for( Iterator<String> iter = varMap.keySet().iterator(); iter.hasNext(); ) {
-				String varName = iter.next();
+			for( Iterator<Variable> iter = dynamicVariables.iterator(); iter.hasNext(); ) {
+				Variable var = iter.next();
+				String varName = null;
 				try {
+					varName = var.getName();
 					Serializable varVal = (Serializable) interp.get( varName, Serializable.class );
-					varMap.put( varName, varVal.toString() );
+					if( varVal != null ) {
+						data.set( varName, varVal.toString() );
+					}
+					else {
+						data.set( varName, null );
+					}
 				}
 				catch( Throwable t ) {
 					errWriter.write( "Error retrieving value of dynamic variable '" + varName +
@@ -119,95 +120,15 @@ public class JythonServiceImpl implements JythonService {
 					t.printStackTrace( new PrintWriter( errWriter ) );
 				}
 			}
-			
-//			// Process dynamic attributes (get attribute values out of the Jython interpreter).
-//			for( Iterator<String> iter = nameSet.iterator(); iter.hasNext(); ) {
-//				String attributeName = iter.next();
-//				ComponentAttribute attribute = this.getComponentAttribute( attributeName );
-//				if( attribute.isDynamic() && attribute instanceof ScalarAttribute ) {
-//					// Remove the old scalar component attribute.
-//					// An update and commit must happen or else the attribute is not removed properly!!
-//					removeComponentAttribute( attributeName );
-//					PersistenceManager.instance().update( this );
-//					PersistenceManager.instance().commit( true );
-//					// Add the new component attribute. If the variable is already a component attribute,
-//					// we just add it to the component; if the variable is just a regular object, it gets
-//					// wrapped inside a new scalar component attribute.
-//					Serializable variable = (Serializable) interp.get( attributeName, Serializable.class );
-//					ComponentAttribute newAttribute;
-//					if( variable instanceof ComponentAttribute ) {
-//						newAttribute = this.addComponentAttribute( attribute.getName(), (ComponentAttribute) variable );
-//					}
-//					else {
-//						newAttribute = this.addScalarAttribute( attribute.getName(), variable );
-//					}
-//					newAttribute.setDynamic( true );
-//					newAttribute.setPublic( true );
-//				}
-//			}
 		}
 		catch( Exception e ) {
-//			data.output = outputWriter.toString();
 			errWriter.write( "\n" );
 			e.printStackTrace( new PrintWriter( errWriter ) );
-//			data.error = errWriter.toString();
 		}
 		
-		try {
-			System.out.println( "Jython service results:\n" +
-					getResults( code, outputWriter.toString(), errWriter.toString(), varMap ) );
-		}
-		catch( Throwable t ) {
-		}
+		data.set( "output", outputWriter.toString() );
+		data.set( "error", errWriter.toString() );
 		
-		return getResults( code, outputWriter.toString(), errWriter.toString(), varMap );
-	}
-	
-	private Map<String, String> getDynamicVariables( String variables, StringWriter errWriter ) {
-		Map m = new HashMap<String, String>();
-		
-		if( variables != null && variables.length() > 0 ) {
-			try {
-				Document d = XmlUtil.xmlToDocument( XmlUtil.unmarshal( variables ) );
-				Element root = d.getRootElement();
-				
-				for( int index = 0; index < root.getContentSize(); index++ ) {
-					if( root.getContent( index ) instanceof Element ) {
-						Element child = (Element) root.getContent( index );
-						
-						String varName = child.getName();
-						String varVal = XmlUtil.unmarshal( child.getText() );
-						
-						System.out.println( "Jython found dynamic var '" + varName + "' with val '" + varVal + "'" );
-						
-						m.put( varName, varVal );
-					}
-				}
-			}
-			catch( Throwable t ) {
-				errWriter.write( "Error parsing dynamic variables in the JythonService!\n" );
-				errWriter.write( "Variable data:" + variables + "\n" );
-				t.printStackTrace( new PrintWriter( errWriter ) );
-			}
-		}
-		
-		return m;
-	}
-	
-	private String getResults( String code, String output, String error, Map<String, String> vars ) {
-		String ret = "<YAWLParameters>";
-		ret += XmlUtil.wrap( "code", code );
-		ret += XmlUtil.wrap( "output", output );
-		ret += XmlUtil.wrap( "error", error );
-		
-		for( Iterator<String> iter = vars.keySet().iterator(); iter.hasNext(); ) {
-			String varName = iter.next();
-			String varVal = vars.get( varName );
-			ret += XmlUtil.wrap( varName, varVal );
-		}
-		
-		ret += "</YAWLParameters>";
-		
-		return ret;
+		return data;
 	}
 }

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1"
+	xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ YAWL_SchemaBeta7.1.xsd">
+	<specification uri="JythonSpecJaxb.xml">
+		<name>JythonSpec</name>
+		<documentation>Jython Service in JAXB!!!! Maybe...</documentation>
+		<metaData/>
+		<decomposition id="RootDecomp" isRootNet="true" xsi:type="NetFactsType">
+			<localVariable>
+				<name>ServiceName</name>
+				<isUntyped/>
+				<!--
+				<type>string</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+				-->
+				<initialValue>Jython</initialValue>
+			</localVariable>
+			<localVariable>
+				<name>result</name>
+				<isUntyped/>
+				<!--
+				<type>ExtensionType</type>
+				<namespace>http://www.citi.qut.edu.au/yawl</namespace>
+				-->
+				<initialValue/>
+			</localVariable>
+			<localVariable>
+				<name>ServiceData</name>
+				<isUntyped/>
+				<!--
+				<type>string</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+				<initialValue>print 'foo'</initialValue>
+				-->
+				<!--
+				<initialValue>&lt;jythonServiceData xmlns:ns2="http://www.citi.qut.edu.au/yawl"&gt;
+  &lt;ns2:code&gt;print foo&lt;/ns2:code&gt;
+  &lt;ns2:dynamicVariable ns2:name="foo"&gt;
+    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"&gt;foo-val&lt;/ns2:value&gt;
+  &lt;/ns2:dynamicVariable&gt;
+  &lt;ns2:dynamicVariable ns2:name="bar"&gt;
+    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"&gt;bar-val&lt;/ns2:value&gt;
+  &lt;/ns2:dynamicVariable&gt;
+  &lt;ns2:dynamicVariable ns2:name="v"&gt;
+    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:int"&gt;3&lt;/ns2:value&gt;
+  &lt;/ns2:dynamicVariable&gt;
+&lt;/jythonServiceData&gt;</initialValue>
+				-->
+				<!--
+				<initialValue>&lt;nexusServiceData xmlns:ns2="http://www.citi.qut.edu.au/yawl"&gt;
+  &lt;ns2:dynamicVariable ns2:name="code"&gt;
+    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"&gt;print foo&lt;/ns2:value&gt;
+  &lt;/ns2:dynamicVariable&gt;
+  &lt;ns2:dynamicVariable ns2:name="foo"&gt;
+    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"&gt;foo-val&lt;/ns2:value&gt;
+  &lt;/ns2:dynamicVariable&gt;
+  &lt;ns2:dynamicVariable ns2:name="bar"&gt;
+    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"&gt;bar-val&lt;/ns2:value&gt;
+  &lt;/ns2:dynamicVariable&gt;
+  &lt;ns2:dynamicVariable ns2:name="v"&gt;
+    &lt;ns2:value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:int"&gt;3&lt;/ns2:value&gt;
+  &lt;/ns2:dynamicVariable&gt;
+&lt;/nexusServiceData&gt;</initialValue>
+				-->
+				<!--
+				<initialValue>&lt;JythonServiceData&gt;
+  &lt;code&gt;print foo&lt;/code&gt;
+&lt;/JythonServiceData&gt;</initialValue>
+
+<NexusServiceData>
+	<variable name="code">
+		<value>print foo</value>
+	</variable>
+</NexusServiceData>
+
+				-->
+				<initialValue>&lt;NexusServiceData&gt;
+  &lt;variable name="code"&gt;&lt;value&gt;cHJpbnQgZm9vICsgJyAnICsgYmFyICsgJyAnICsgYmF6CnByaW50ICc1Jw..&lt;/value&gt;&lt;/variable&gt;
+  &lt;variable name="foo"&gt;&lt;value&gt;aXRzeQ..&lt;/value&gt;&lt;/variable&gt;
+  &lt;variable name="bar"&gt;&lt;value&gt;Yml0c3k.&lt;/value&gt;&lt;/variable&gt;
+  &lt;variable name="baz"&gt;&lt;value&gt;c3BpZGVy&lt;/value&gt;&lt;/variable&gt;
+&lt;/NexusServiceData&gt;
+				</initialValue>
+				<!--
+				<initialValue>&lt;NexusServiceData&gt;
+  &lt;variable&gt;&lt;name&gt;code&lt;/name&gt;&lt;value&gt;print foo&lt;/value&gt;&lt;/variable&gt;
+&lt;/NexusServiceData&gt;
+				</initialValue>
+				-->
+			</localVariable>
+			<processControlElements>
+				<inputCondition id="input">
+					<flowsInto>
+						<nextElementRef id="one"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="one">
+					<flowsInto>
+						<nextElementRef id="two"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/RootDecomp/ServiceData"/>
+							<mapsTo>ServiceData</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/RootDecomp/ServiceName"/>
+							<mapsTo>ServiceName</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="&lt;result&gt;{/DecompOne/ServiceData/NexusServiceData}&lt;/result&gt;"/>
+							<mapsTo>result</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="DecompOne"/>
+				</task>
+				<task id="two">
+					<flowsInto>
+						<nextElementRef id="finis"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="&lt;ServiceData&gt;{/RootDecomp/result/NexusServiceData}&lt;/ServiceData&gt;"/>
+							<mapsTo>ServiceData</mapsTo>
+						</mapping>
+					</startingMappings>
+					<decomposesTo id="DecompTwo"/>
+				</task>
+				<outputCondition id="finis">
+					<name>Finished case</name>
+				</outputCondition>
+			</processControlElements>
+		</decomposition>
+		<decomposition id="DecompOne" xsi:type="WebServiceGatewayFactsType">
+			<inputParam>
+				<name>ServiceData</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>ServiceName</name>
+				<isUntyped/>
+			</inputParam>
+			<outputParam>
+				<name>ServiceData</name>
+				<isUntyped/>
+			</outputParam>
+			<yawlService id="http://localhost:8080/NexusServiceInvoker/"/>
+		</decomposition>
+		<decomposition id="DecompTwo" xsi:type="WebServiceGatewayFactsType">
+			<inputParam>
+				<name>ServiceData</name>
+				<isUntyped/>
+			</inputParam>
+		</decomposition>
+	</specification>
+</specificationSet>
