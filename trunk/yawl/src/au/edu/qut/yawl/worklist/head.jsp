@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="./graphics/common.css"/>
 <%!
     au.edu.qut.yawl.worklist.model.WorklistController _worklistController = null;
+    String _ixURI ;
 
     public void jspInit(){
                    ServletContext context = getServletContext();
@@ -17,6 +18,7 @@
             context.setAttribute("au.edu.qut.yawl.worklist.model.WorklistController",
                     _worklistController);
         }
+        _ixURI = context.getInitParameter("InterfaceX_BackEnd");
     }
 %>
     <script language="JavaScript">

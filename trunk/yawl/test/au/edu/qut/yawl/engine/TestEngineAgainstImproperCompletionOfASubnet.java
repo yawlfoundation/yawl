@@ -83,7 +83,7 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
             while (_workItemRepository.getExecutingWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getExecutingWorkItems("admin")
                         .iterator().next();
-                engine.completeWorkItem(item, "<data/>");
+                engine.completeWorkItem(item, "<data/>", false);
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }

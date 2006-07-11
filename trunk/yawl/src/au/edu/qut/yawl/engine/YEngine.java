@@ -12,21 +12,18 @@ package au.edu.qut.yawl.engine;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.authentication.UserList;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.*;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
@@ -300,6 +297,13 @@ public class YEngine extends AbstractEngine {
 //
 //                }
 //            }
+//
+//            // restore case & exception observers (where they exist)
+//            for (int i = 0; i < runners.size(); i++) {
+//                YNetRunner runner = (YNetRunner) runners.get(i);
+//                runner.restoreObservers();
+//            }
+//    
 //            logger.info("Restoring process instances - Ends");
 //
 //            logger.info("Restoring work items - Starts");
@@ -542,7 +546,7 @@ public class YEngine extends AbstractEngine {
             _myInstance.addYawlService( ys );
 
             ys = new YAWLServiceReference( "http://localhost:8080/workletService/ib", null );
-            ys.setDocumentation( "Worklet Dynamic Process Selection Service" );
+            ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
             _myInstance.removeYawlService( ys.getURI() );
             _myInstance.addYawlService( ys );
 
@@ -555,13 +559,18 @@ public class YEngine extends AbstractEngine {
             ys.setDocumentation("Time service, allows tasks to be a timeout task.");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
-            
+
             // TODO standard services on startup should probably be dynamically loaded from a properties file
             ys = new YAWLServiceReference("http://localhost:8080/NexusServiceInvoker/", null);
             ys.setDocumentation("This service enables YAWL specifications to access" +
-            		" the Nexus Workflow services");
+                    " the Nexus Workflow services");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
+
+            // register the worklet service as the exception service
+            _exceptionObserver = new InterfaceX_EngineSideClient(
+                                           "http://localhost:8080/workletService/ix") ;
+
 
             /**
              * Ensure we have an 'admin' user
@@ -865,13 +874,13 @@ public class YEngine extends AbstractEngine {
      * @param data
      * @throws YStateException
      */
-    public void completeWorkItem(YWorkItem workItem, String data)
+    public void completeWorkItem(YWorkItem workItem, String data, boolean force)
             throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
         /**
          * SYNC'D External interface
          */
         synchronized (mutex) {
-            super.completeWorkItem(workItem, data);
+            super.completeWorkItem(workItem, data, force);
         }
     }
 
@@ -1164,4 +1173,63 @@ public class YEngine extends AbstractEngine {
         logger.debug("--> persistCase: CaseID = " + caseID.getId());
         logger.debug("<-- persistCase");
     }
+
+    /************************************************************************/
+
+    /**
+     * The following methods have been added to support the exception service
+     */
+
+    public boolean updateWorkItemData(String workItemID, String data) {
+        synchronized (mutex) {
+            return super.updateWorkItemData(workItemID, data);
+        }
+    }
+
+
+    public boolean updateCaseData(String idStr, String data) {
+        synchronized (mutex) {
+            return super.updateCaseData(idStr, data);
+        }
+    }
+
+
+    public void cancelWorkItem(YWorkItem workItem, boolean statusFail)  {
+        synchronized (mutex) {
+            super.cancelWorkItem(workItem, statusFail);
+        }
+    }
+
+
+    protected void announceCheckWorkItemConstraints(InterfaceX_EngineSideClient ixClient,
+                                                    YWorkItem item, Document data, boolean preCheck) {
+        logger.debug("Announcing Check Constraints for task " + item.getIDString() +
+                     " on client " + ixClient.toString());
+        ixClient.announceCheckWorkItemConstraints(item, data, preCheck);
+    }
+
+
+    protected void announceCheckCaseConstraints(InterfaceX_EngineSideClient ixClient,
+                                                String specID, String caseID, String data, boolean preCheck) {
+        logger.debug("Announcing Check Constraints for case " + caseID +
+                     " on client " + ixClient.toString());
+        ixClient.announceCheckCaseConstraints(specID, caseID, data, preCheck);
+    }
+
+
+    public void announceCancellationToExceptionService(InterfaceX_EngineSideClient ixClient,
+                                                       YIdentifier caseID) {
+        logger.debug("Announcing Cancel Case for case " + caseID.toString() +
+                     " on client " + ixClient.toString());
+            ixClient.announceCaseCancellation(caseID.toString());
+    }
+
+
+    public void announceTimeOutToExceptionService(InterfaceX_EngineSideClient ixClient,
+                                                  YWorkItem item, List timeOutTaskIds) {
+        logger.debug("Announcing Time Out for item " + item.getWorkItemID() +
+                     " on client " + ixClient.toString());
+            ixClient.announceTimeOut(item, timeOutTaskIds);
+    }
+
 }

@@ -22,7 +22,7 @@
                 <td><%= caseID %></td>
             </tr>
             <tr>
-                <td>SecificationID : </td>
+                <td>SpecificationID : </td>
                 <td><%= specID %></td>
             </tr>
             <%
@@ -58,6 +58,19 @@
             <%
                     }
                 }
+                else if ("Raise Exception".equals(submit)){
+                   if (_ixURI != null) {
+                       String url = _ixURI + "/caseException?caseID=" + caseID ;
+                       response.sendRedirect( response.encodeURL(url) );
+                   }
+                }
+                else if ("Reject Worklet".equals(submit)){
+                   if (_ixURI != null) {
+                       System.out.println("rrrrrrejecting......");
+                       String url = _ixURI + "/rejectWorklet?caseID=" + caseID ;
+                       response.sendRedirect( response.encodeURL(url) );
+                   }
+                }
             } else { //request method is GET
             %>
             <tr>
@@ -67,8 +80,20 @@
                 <td align="center">
                 <input type="submit" name="submit" value="Cancel Case"/>
                 </td>
-            </tr>
-            <%
+             </tr>
+                <%
+                if (_ixURI != null) {
+                %>
+                   <tr>
+                       <td align="center">
+                           <input type="submit" name="submit" value="Raise Exception"/>
+                       </td>
+                       <td align="center">
+                           <input type="submit" name="submit" value="Reject Worklet"/>
+                       </td>
+                   </tr>    
+                <%
+                }
             }
             %>
         </table>

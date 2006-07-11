@@ -104,7 +104,7 @@ public class TimeService extends InterfaceBWebsideController {
 
     public synchronized void finish(WorkItemRecord itemRecord, String _sessionHandle) {
         try {
-            System.out.println("Checking in work Item:" + itemRecord.getID());
+            System.out.println("Checking in work Item: " + itemRecord.getID());
 
             TaskInformation taskinfo = getTaskInformation(itemRecord.getSpecificationID(),
                     itemRecord.getTaskID(),

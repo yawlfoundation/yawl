@@ -79,7 +79,7 @@ public class TestYWorkItem extends TestCase{
         }
         assertNotNull("Should have thown an exception.",e);
         try{
-            child.setStatusToComplete();
+            child.setStatusToComplete(false);
         }catch(Exception f){
             e= f;
         }
@@ -98,7 +98,7 @@ public class TestYWorkItem extends TestCase{
     	
     	child.setStatusToStarted("admin");
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Executing));
-    	child.setStatusToComplete();
+    	child.setStatusToComplete(false);
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Complete));
     	child.setStatusToDelete();
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Cancelled));
@@ -119,7 +119,7 @@ public class TestYWorkItem extends TestCase{
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Fired));
     	child.setStatusToStarted("admin");
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Executing));
-    	child.setStatusToComplete();
+    	child.setStatusToComplete(false);
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Complete));
     	child.setStatusToDelete();
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Cancelled));
@@ -152,7 +152,7 @@ public class TestYWorkItem extends TestCase{
     	}
     	child.setStatusToStarted("admin");
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Executing));
-    	child.setStatusToComplete();
+    	child.setStatusToComplete(false);
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Complete));
     	try {
     		child.rollBackStatus();
@@ -206,7 +206,7 @@ public class TestYWorkItem extends TestCase{
     	catch(RuntimeException e) {
     		// proper exception thrown.
     	}
-    	child.setStatusToComplete();
+    	child.setStatusToComplete(false);
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Complete));
     	try {
     		child.setStatusToStarted( "admin" );
@@ -236,7 +236,7 @@ public class TestYWorkItem extends TestCase{
     public void testImproperComplete() throws YPersistenceException {
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	try {
-    		_workItem.setStatusToComplete();
+    		_workItem.setStatusToComplete(false);
     		fail("Should throw an exception since work item is not in executing state");
     	}
     	catch(RuntimeException e) {
@@ -252,7 +252,7 @@ public class TestYWorkItem extends TestCase{
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Fired));
     	
     	try {
-    		child.setStatusToComplete();
+    		child.setStatusToComplete(false);
     		fail("Should throw an exception since work item is not in executing state");
     	}
     	catch(RuntimeException e) {
@@ -260,10 +260,10 @@ public class TestYWorkItem extends TestCase{
     	}
     	child.setStatusToStarted("admin");
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Executing));
-    	child.setStatusToComplete();
+    	child.setStatusToComplete(false);
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Complete));
     	try {
-    		child.setStatusToComplete();
+    		child.setStatusToComplete(false);
     		fail("Should throw an exception since work item is not in executing state");
     	}
     	catch(RuntimeException e) {
@@ -272,14 +272,14 @@ public class TestYWorkItem extends TestCase{
     	child.setStatusToDelete();
     	assertTrue(""+child.getStatus(), child.getStatus().equals(YWorkItem.Status.Cancelled));
     	try {
-    		child.setStatusToComplete();
+    		child.setStatusToComplete(false);
     		fail("Should throw an exception since work item is not in executing state");
     	}
     	catch(RuntimeException e) {
     		// proper exception thrown.
     	}
     	try {
-    		_deadlockedWorkItem.setStatusToComplete();
+    		_deadlockedWorkItem.setStatusToComplete(false);
     		fail("Should throw an exception since work item is not in executing state");
     	}
     	catch(RuntimeException e) {
@@ -314,15 +314,15 @@ public class TestYWorkItem extends TestCase{
     	child2.setStatusToStarted("admin");
     	assertTrue(""+child2.getStatus(), child2.getStatus().equals(YWorkItem.Status.Executing));
     	
-    	child1.setStatusToComplete();
+    	child1.setStatusToComplete(false);
     	assertTrue(""+child1.getStatus(), child1.getStatus().equals(YWorkItem.Status.Complete));
     	
-    	child2.setStatusToComplete();
+    	child2.setStatusToComplete(false);
     	assertTrue(""+child2.getStatus(), child2.getStatus().equals(YWorkItem.Status.Complete));
     	
     	child3.setStatusToStarted("admin");
     	assertTrue(""+child3.getStatus(), child3.getStatus().equals(YWorkItem.Status.Executing));
-    	child3.setStatusToComplete();
+    	child3.setStatusToComplete(false);
     	assertTrue(""+child3.getStatus(), child3.getStatus().equals(YWorkItem.Status.Complete));
     	
     	child1.setStatusToDelete();

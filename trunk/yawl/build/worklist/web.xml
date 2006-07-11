@@ -61,7 +61,15 @@
         </description>
     </context-param>
 
-    <!-- Servlet definitions for the servlets that make up
+    <context-param>
+        <param-name>InterfaceX_BackEnd</param-name>
+        <param-value>http://localhost:8080/workletService</param-value>
+        <description>
+            The URL location of the worklet exception service.
+        </description>
+    </context-param>
+
+     <!-- Servlet definitions for the servlets that make up
          your web application, including initialization
          parameters.
     -->

@@ -29,6 +29,8 @@ public class WorkItemRecord {
     public static final String statusComplete = "Complete";
     public static final String statusIsParent = "Is parent";
     public static final String statusDeadlocked = "Deadlocked";
+    public static final String statusForcedComplete = "ForcedComplete";
+    public static final String statusFailed = "Failed";
 
     private String _taskID;
     private String _caseID;

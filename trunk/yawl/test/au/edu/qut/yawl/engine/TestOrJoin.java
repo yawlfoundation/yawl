@@ -76,7 +76,7 @@ public class TestOrJoin extends TestCase {
 
             itemA = (YWorkItem) _engine.getChildrenOfWorkItem(
                     itemA).iterator().next();
-            _engine.completeWorkItem(itemA, "<data/>");
+            _engine.completeWorkItem(itemA, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -106,7 +106,7 @@ public class TestOrJoin extends TestCase {
             itemF = (YWorkItem) _engine.getChildrenOfWorkItem(itemF).iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemF.getCaseID().toString(), itemF.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemF, "<data/>");
+            _engine.completeWorkItem(itemF, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -137,7 +137,7 @@ public class TestOrJoin extends TestCase {
             itemB = (YWorkItem) _engine.getChildrenOfWorkItem(itemB).iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemB.getCaseID().toString(), itemB.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemB, "<data/>");
+            _engine.completeWorkItem(itemB, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -176,7 +176,7 @@ public class TestOrJoin extends TestCase {
 //            itemA = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemA.getCaseID().toString(), itemA.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemA, "<data/>");
+            _engine.completeWorkItem(itemA, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -226,7 +226,7 @@ public class TestOrJoin extends TestCase {
 //            itemA = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemA.getCaseID().toString(), itemA.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemA, "<data/>");
+            _engine.completeWorkItem(itemA, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -256,7 +256,7 @@ public class TestOrJoin extends TestCase {
 //            itemF = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemF.getCaseID().toString(), itemF.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemF, "<data/>");
+            _engine.completeWorkItem(itemF, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -285,7 +285,7 @@ public class TestOrJoin extends TestCase {
 //            itemB = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemB.getCaseID().toString(), itemB.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemB, "<data/>");
+            _engine.completeWorkItem(itemB, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -315,7 +315,7 @@ public class TestOrJoin extends TestCase {
 //            itemA = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemA.getCaseID().toString(), itemA.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemA, "<data/>");
+            _engine.completeWorkItem(itemA, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {

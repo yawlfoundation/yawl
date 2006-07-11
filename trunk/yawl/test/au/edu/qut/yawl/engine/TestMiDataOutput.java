@@ -160,7 +160,7 @@ public class TestMiDataOutput extends TestCase {
     			sleep( SLEEP_TIME );
     		}
     		// and finish each one after it executes
-    		_engine.completeWorkItem( item, item.getDataString() );
+    		_engine.completeWorkItem( item, item.getDataString(), false );
     	}
     	
     	workItems = _workItemRepository.getEnabledWorkItems();
@@ -345,7 +345,7 @@ public class TestMiDataOutput extends TestCase {
 					sleep( SLEEP_TIME );
 				}
 				// and finish each one after it executes
-				_engine.completeWorkItem( item, item.getDataString() );
+				_engine.completeWorkItem( item, item.getDataString(), false );
 			}
 			fail("An exception should have been thrown");
 		}

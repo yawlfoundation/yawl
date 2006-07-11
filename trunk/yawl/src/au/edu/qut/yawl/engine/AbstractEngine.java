@@ -46,6 +46,7 @@ import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
+import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
@@ -57,6 +58,7 @@ import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YDocumentCleaner;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
+import au.edu.qut.yawl.util.JDOMConversionTools;
 
 /**
  *
@@ -77,14 +79,15 @@ public abstract class AbstractEngine implements InterfaceADesign,
     protected Map _caseIDToNetRunnerMap = new HashMap();
     private Map _runningCaseIDToSpecIDMap = new HashMap();
     protected Map _yawlServices = new HashMap();
-    
-    
+
+
     private InterfaceAManagementObserver _interfaceAClient;
     private InterfaceBClientObserver _interfaceBClient;
     protected ObserverGatewayController observerGatewayController;
     protected static YawlLogServletInterface yawllog;
     protected static UserList _userList;
 
+    protected static InterfaceX_EngineSideClient _exceptionObserver = null ;
     /*************************************************/
     /*INSERTED VARIABLES AND METHODS FOR PERSISTANCE */
     /**
@@ -293,6 +296,13 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //
 //                }
 //            }
+//
+//            // restore case & exception observers (where they exist)
+//            for (int i = 0; i < runners.size(); i++) {
+//                YNetRunner runner = (YNetRunner) runners.get(i);
+//                runner.restoreObservers();
+//            }
+//
 //            logger.info("Restoring process instances - Ends");
 //
 //            logger.info("Restoring work items - Starts");
@@ -593,6 +603,23 @@ public abstract class AbstractEngine implements InterfaceADesign,
         YSpecification specification = (YSpecification) _specifications.get(specID);
         if (specification != null) {
             YNetRunner runner = new YNetRunner(specification.getRootNet(), data);
+
+            // register exception service with the net runner (MJA 4/4/06)
+            if (_exceptionObserver != null) {
+                announceCheckCaseConstraints(_exceptionObserver, specID,
+                                             runner.getCaseID().toString(), caseParams, true);
+                runner.setExceptionObserver(_exceptionObserver);
+            }
+
+            if(completionObserver != null) {
+                YAWLServiceReference observer = getRegisteredYawlService(completionObserver.toString());
+                if (observer != null) {
+                    runner.setObserver(observer);
+                } else {
+                    logger.warn("Completion observer: " + completionObserver + " is not a registered YAWL service.");
+                }
+            }
+
             /*
              * INSERTED FOR PERSISTANCE
              */
@@ -619,14 +646,6 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 _interfaceBClient.addCase(specID, runner.getCaseID().toString());
             }
 
-            if(completionObserver != null) {
-                YAWLServiceReference observer = getRegisteredYawlService(completionObserver.toString());
-                if (observer != null) {
-                    runner.setObserver(observer);
-                } else {
-                    logger.warn("Completion observer: " + completionObserver + " is not a registered YAWL service.");
-                }
-            }
             return runner.getCaseID();
         } else {
             throw new YStateException(
@@ -701,7 +720,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //            }
             logger.debug("<-- unloadSpecification");
     }
-    
+
     /**
      * This function is used for testing the engine. It shouldn't be used anywhere else.
      */
@@ -715,7 +734,6 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * Cancels a running case - Internal interface that requires reference to current transaction's persistence
      * manager object.<P>
      *
-     * @param pmgr
      * @param id
      * @throws YPersistenceException
      */
@@ -747,6 +765,11 @@ public abstract class AbstractEngine implements InterfaceADesign,
             YEngine._workItemRepository.removeWorkItemsForCase(id);
 
             finishCase(id);
+
+            // announce cancellation to exception service (if required)
+            if (_exceptionObserver != null)
+                announceCancellationToExceptionService(_exceptionObserver, id) ;
+
         } catch (YPersistenceException e) {
             throw new YPersistenceException("Failure whilst persisting new specification", e);
         }
@@ -1058,7 +1081,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 logger.debug("--> getAvailableWorkItems: Enabled=" + YEngine._workItemRepository.getEnabledWorkItems().size() +
                         " Fired=" + YEngine._workItemRepository.getFiredWorkItems().size());
             }
- 
+
             Set<YWorkItem> allItems = new HashSet<YWorkItem>();
             allItems.addAll(YEngine._workItemRepository.getEnabledWorkItems());
             allItems.addAll(YEngine._workItemRepository.getFiredWorkItems());
@@ -1230,7 +1253,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * @param data
      * @throws YStateException
      */
-    public void completeWorkItem(YWorkItem workItem, String data)
+    public void completeWorkItem(YWorkItem workItem, String data, boolean force)
             throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
 //            YPersistenceManager pmgr = null;
             logger.debug("--> completeWorkItem");
@@ -1247,6 +1270,13 @@ public abstract class AbstractEngine implements InterfaceADesign,
                     if (workItem.getStatus() == YWorkItem.Status.Executing) {
                         YNetRunner netRunner = YEngine._workItemRepository.getNetRunner(workItem.getCaseID().getParent());
                         synchronized (netRunner) {
+
+                            if (_exceptionObserver != null) {
+                                if (netRunner.isTimeServiceTask(workItem)) {
+                                    List timeOutSet = netRunner.getTimeOutTaskSet(workItem);
+                                    announceTimeOutToExceptionService(_exceptionObserver, workItem, timeOutSet);
+                                }
+                            }
                             SAXBuilder builder = new SAXBuilder();
                             //doing this because saxon can't do an effective query when the whitespace is there
                             try {
@@ -1286,7 +1316,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                                 throw f;
                             }
                         }
-                        workItem.setStatusToComplete();
+                        workItem.setStatusToComplete(force);
                         workItem.completeData(doc);
                     } else if (workItem.getStatus() == YWorkItem.Status.Deadlocked) {
                         YEngine._workItemRepository.removeWorkItemFamily(workItem);
@@ -1636,7 +1666,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //    }
 
     /**
-     * 
+     *
      */
     public String getLoadStatus(String specID) {
             if (_specifications.containsKey(specID)) {
@@ -1805,7 +1835,6 @@ public abstract class AbstractEngine implements InterfaceADesign,
      *
      * AJH: Relocated from YPersistance
      *
-     * @param pmgr
      * @param id
      * @throws YPersistenceException
      */
@@ -1824,7 +1853,6 @@ public abstract class AbstractEngine implements InterfaceADesign,
      *
      * AJH: Relocated from YPersistance
      *
-     * @param pmgr
      * @param id
      * @throws YPersistenceException
      */
@@ -1902,4 +1930,95 @@ public abstract class AbstractEngine implements InterfaceADesign,
         logger.debug("--> persistCase: CaseID = " + caseID.getId());
         logger.debug("<-- persistCase");
     }
+
+
+    /***************************************************************************/
+    /** Required methods to enable exception handling service (MJA 04-07/2006) */
+    /***************************************************************************/
+
+    public boolean setExceptionObserver(String observerURI){
+        _exceptionObserver = new InterfaceX_EngineSideClient(observerURI);
+        return true ;
+    }
+
+
+    public boolean removeExceptionObserver() {
+        _exceptionObserver = null ;
+        return true ;
+    }
+
+    protected abstract void announceCheckWorkItemConstraints(
+                                   InterfaceX_EngineSideClient ixClient, YWorkItem item,
+                                   Document data, boolean preCheck);
+
+    protected abstract void announceCheckCaseConstraints(
+                                   InterfaceX_EngineSideClient ixClient,String specID,
+                                   String caseID, String data, boolean preCheck);
+
+    public abstract void announceCancellationToExceptionService(
+                                   InterfaceX_EngineSideClient ixClient,
+                                   YIdentifier caseID);
+
+    public abstract void announceTimeOutToExceptionService(
+                                   InterfaceX_EngineSideClient ixClient,
+                                   YWorkItem item, List timeOutTaskIds);
+
+
+
+    public boolean updateWorkItemData(String workItemID, String data) {
+        YWorkItem workItem = getWorkItem(workItemID);
+
+        if (workItem != null) {
+            try {
+                workItem.setData(JDOMConversionTools.stringToElement(data));
+                return true ;
+            }
+            catch (YPersistenceException e) {
+                return false ;
+            }
+        }
+        return false ;
+    }
+
+
+    public boolean updateCaseData(String idStr, String data) {
+        YNetRunner runner = (YNetRunner) _caseIDToNetRunnerMap.get(getCaseID(idStr));
+
+        if (runner != null) {
+            try {
+                YNet net = runner.getNet();
+                Element updatedVars = JDOMConversionTools.stringToElement(data);
+                List<Element> vars = updatedVars.getChildren();
+                for (Element var : vars) {
+                    net.assignData((Element)var.clone());
+                }
+                return true;
+            }
+            catch (Exception e) {
+                logger.error("Problem updating Case Data for case " + idStr, e);
+            }
+        }
+        return false;
+    }
+
+
+    public void cancelWorkItem(YWorkItem workItem, boolean statusFail)  {
+
+        try {
+            if (workItem != null) {
+               if (workItem.getStatus() == YWorkItem.Status.Executing) {
+                   YIdentifier caseID = workItem.getCaseID().getParent() ;
+                   YNetRunner runner = YEngine._workItemRepository.getNetRunner(caseID);
+                   String taskID = workItem.getTaskID();
+                   runner.cancelTask(taskID);
+                   workItem.setStatusToDeleted(statusFail);
+                   runner.continueIfPossible();
+                }
+            }
+        }
+        catch (YPersistenceException e) {
+            logger.error("Failure whilst persisting workitem cancellation", e);
+        }
+    }
+
 }

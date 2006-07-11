@@ -1,18 +1,16 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
- * individuals and organisations who are commited to improving workflow technology.
- *
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are commited to improving
+ * workflow technology.
  */
 package au.edu.qut.yawl.worklet.rdr;
 
 import au.edu.qut.yawl.worklet.support.*;
-
+import au.edu.qut.yawl.util.JDOMConversionTools;
 import java.lang.*;
-
 import org.jdom.Element ;
-
 import org.apache.log4j.Logger;
 
 
@@ -28,7 +26,7 @@ import org.apache.log4j.Logger;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  v0.7, 10/12/2005    
+ *  v0.8, 04/07/2006
 */
 
 
@@ -41,12 +39,10 @@ public class RdrNode {
 
     private int nodeId;   
     private String condition;
-    private String conclusion;
-    private String cornerstone;  
+    private Element conclusion;
+    private Element cornerstone;
     
     private Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.rdr.RdrNode");
-
-     
 
 
     /** Default constructor */
@@ -64,13 +60,13 @@ public class RdrNode {
 	 *  @param pConclusion - the conclusion stored in this node
 	 *  @param pCornerStone - the cornertone case data for this node
 	 */
-    private RdrNode(int id,
+    public RdrNode(int id,
     			   RdrNode pParent, 
     			   RdrNode pTrueChild,
     			   RdrNode pFalseChild,
     			   String pCondition,
-    			   String pConclusion,
-    			   String pCornerStone ){
+    			   Element pConclusion,
+    			   Element pCornerStone ){
     				   	
        nodeId        = id;
        parent        = pParent;
@@ -86,7 +82,7 @@ public class RdrNode {
 	 *  @param id - the node id for the new node
 	 */
     public RdrNode(int id){
-    	this(id, null, null, null, "", "", "");
+    	this(id, null, null, null, "", null, null);
     }
     
     
@@ -99,8 +95,8 @@ public class RdrNode {
 	 */
 
     public RdrNode(int id, RdrNode parent, 
-                   String condition, String conclusion) {
-    	this(id, parent, null, null, condition, conclusion, "") ;
+                   String condition, Element conclusion) {
+    	this(id, parent, null, null, condition, conclusion, null) ;
     }
     
 //===========================================================================//
@@ -120,11 +116,11 @@ public class RdrNode {
         return(condition);
     }
 
-    public String getConclusion() {
+    public Element getConclusion() {
         return(conclusion);
     }
 
-    public String getCornerStone() {
+    public Element getCornerStone() {
         return(cornerstone);
     }
 
@@ -157,11 +153,11 @@ public class RdrNode {
         condition = newCondition;
     }
 
-    public void setConclusion(String newConclusion) {
+    public void setConclusion(Element newConclusion) {
         conclusion = newConclusion;
     }
 
-    public void setCornerStone(String newCorner) {
+    public void setCornerStone(Element newCorner) {
         cornerstone = newCorner;
     }
 
@@ -227,11 +223,58 @@ public class RdrNode {
    
 //===========================================================================//
 	
-    /** returns a basic String representation of this node */
+    /** returns a String representation of this node */
     public String toString(){
-    	return "Node "+ nodeId + ": " + condition + " -> " + conclusion;
+        System.out.println("**** in rdrNode.toString");
+
+        StringBuffer s = new StringBuffer("RDR NODE RECORD:");
+
+        String par = (parent == null)? "null" : parent.toString();
+        String tChild = (trueChild == null)? "null" : trueChild.toString();
+        String fChild = (falseChild == null)? "null" : falseChild.toString();
+
+        String nID = String.valueOf(nodeId);
+        String conc = (conclusion == null)? "null" : JDOMConversionTools.elementToString(conclusion);
+        String corn = (cornerstone == null)? "null" : JDOMConversionTools.elementToString(cornerstone);
+
+        Library.appendLine(s, "NODE ID", nID);
+        Library.appendLine(s, "CONDITION", condition);
+        Library.appendLine(s, "CONCLUSION", conc);
+        Library.appendLine(s, "CORNERSTONE", corn);
+        Library.appendLine(s, "PARENT NODE", par);
+        Library.appendLine(s, "TRUE CHILD NODE", tChild);
+        Library.appendLine(s, "FALSE CHILD NODE", fChild);
+        System.out.println("**** in rdrNode.toString 1. returning s = " + s.toString());
+
+        return s.toString();
     }
-    
+
+//===========================================================================//
+
+    public String toXML() {
+        String par = (parent == null)? "-1" : parent.getNodeIdAsString();
+        String tChild = (trueChild == null)? "-1" : trueChild.getNodeIdAsString();
+        String fChild = (falseChild == null)? "-1" : falseChild.getNodeIdAsString();
+        String conc = (conclusion == null)? "" : JDOMConversionTools.elementToString(conclusion);
+        String corn = (cornerstone == null)? "" : JDOMConversionTools.elementToString(cornerstone);
+
+        StringBuffer s = new StringBuffer("<ruleNode>");
+
+        Library.appendXML(s, "id", getNodeIdAsString());
+        Library.appendXML(s, "parent", par);
+        Library.appendXML(s, "trueChild", tChild);
+        Library.appendXML(s, "falseChild", fChild);
+        Library.appendXML(s, "condition", condition);
+
+        // these two are Elements so are treated differently
+        s.append(conc);
+        s.append(corn);
+
+        s.append("</ruleNode>");
+
+        return s.toString();
+    }
+
 //===========================================================================//
 //===========================================================================//
 	

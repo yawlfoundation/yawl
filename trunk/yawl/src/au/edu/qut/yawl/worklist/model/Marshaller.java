@@ -37,7 +37,7 @@ import java.util.HashMap;
  * 
  */
 public class Marshaller {
-    private static SAXBuilder builder = new SAXBuilder();
+    // private static SAXBuilder builder = new SAXBuilder();
 
     public static String getOutputParamsInXML(YParametersSchema params, String dataSpaceRootElementNm) {
         StringBuffer result = new StringBuffer();
@@ -88,6 +88,7 @@ public class Marshaller {
 
         String decompositionID = null;
         try {
+            SAXBuilder builder = new SAXBuilder();
             Document doct = builder.build(new StringReader(taskInfoAsXML));
             Element taskInfo = doct.getRootElement();
             taskID = taskInfo.getChildText("taskID");
@@ -169,6 +170,7 @@ public class Marshaller {
         List specSummaryList = new ArrayList();
         Document doc = null;
         try {
+            SAXBuilder builder = new SAXBuilder();
             doc = builder.build(new StringReader(specificationSummaryListXML));
             List specSummaryElements = doc.getRootElement().getChildren();
             for (int i = 0; i < specSummaryElements.size(); i++) {
@@ -219,6 +221,7 @@ public class Marshaller {
         WorkItemRecord workItem = null;
         Document doc = null;
         try {
+            SAXBuilder builder = new SAXBuilder();
             doc = builder.build(new StringReader(workItemXML));
             workItem = unmarshalWorkItem(doc.getRootElement());
         } catch (JDOMException e) {
@@ -263,6 +266,7 @@ public class Marshaller {
     public static List unmarshalCaseIDs(String casesAsXML) {
         List cases = new ArrayList();
         try {
+            SAXBuilder builder = new SAXBuilder();
             StringReader reader = new StringReader(casesAsXML);
             Element casesElem = builder.build(reader).getRootElement();
             for (Iterator iterator = casesElem.getChildren().iterator(); iterator.hasNext();) {

@@ -1,18 +1,20 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
- * individuals and organisations who are commited to improving workflow technology.
- *
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are commited to improving
+ * workflow technology.
  */
-
 package au.edu.qut.yawl.worklet.rdr;
 
 import au.edu.qut.yawl.worklet.support.*;
+import au.edu.qut.yawl.util.JDOMConversionTools;
 
 import org.jdom.Element ;
+import org.apache.log4j.Logger;
 
-// import org.apache.log4j.Logger;
+import java.util.List;
+import java.util.ArrayList;
 
 
 /** A Ripple Down Rule tree implementation.
@@ -28,7 +30,7 @@ import org.jdom.Element ;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  v0.7, 10/12/2005
+ *  v0.8, 04/07/2006
  */
 
 public class RdrTree {
@@ -38,12 +40,11 @@ public class RdrTree {
     private RdrNode _rootNode = null;
     private RdrNode[] _lastPair = new RdrNode[2];     // see search()
     
-    // private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.rdr.RdrTree");
+    private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.rdr.RdrTree");
 
 
     /** Default constructor */
-    public RdrTree(){
-    }
+    public RdrTree(){}
     
     
     /**
@@ -95,6 +96,23 @@ public class RdrTree {
         	return result ;
         }
     }
+
+    /** returns a list of the condition from each node in the tree */
+    public List<String> getAllConditions() {
+        return getAllConditions(_rootNode) ;
+    }
+
+
+    /** recurses the tree, collecting the condition from each node */
+    public List<String> getAllConditions(RdrNode node) {
+        ArrayList<String> list = new ArrayList<String>();
+        if (node != null) {
+            list.add(node.getCondition());
+        	list.addAll(getAllConditions(node.getTrueChild())) ;
+        	list.addAll(getAllConditions(node.getFalseChild())) ;
+        }
+        return list ;
+    }
   
 //===========================================================================//
     
@@ -121,7 +139,7 @@ public class RdrTree {
     *         expressions
     *  @return the conclusion of the last node satisfied
     */ 
-    public String search(Element caseData){
+    public Element search(Element caseData){
     	
     	// recursively search each node in the tree    	
         _lastPair = _rootNode.recursiveSearch(caseData, _rootNode);
@@ -179,8 +197,8 @@ public class RdrTree {
 	/** returns a String representation of this tree */
     public String toString(){
     	String n = Library.newline ;
-    	return "Spec ID: " + _specId + n +
-    	       "Task ID: " + _taskId + n + n + 
+    	return n + "Spec ID: " + _specId + 
+    	       n + "Task ID: " + _taskId + n + n +
                toString(_rootNode) ;
     }
     
@@ -199,7 +217,7 @@ public class RdrTree {
            s.append(n) ;
            
            s.append("Conclusion: ");
-           s.append(root.getConclusion());
+           s.append(JDOMConversionTools.elementToStringDump(root.getConclusion()));
            s.append(n) ;
            
            if (root.getTrueChild() != null) {

@@ -194,12 +194,12 @@ public class EngineGatewayImpl implements EngineGateway {
      * @return result XML message.
      * @throws RemoteException if used in RMI mode
      */
-    public String completeWorkItem(String workItemID, String data, String sessionHandle) throws RemoteException {
+    public String completeWorkItem(String workItemID, String data, boolean force, String sessionHandle) throws RemoteException {
         try {
             _userList.checkConnection(sessionHandle);
             YWorkItem workItem = _engine.getWorkItem(workItemID);
             if (workItem != null) {
-                _engine.completeWorkItem(workItem, data);
+                _engine.completeWorkItem(workItem, data, force);
                 return SUCCESS;
             } else {
                 return OPEN_FAILURE +
@@ -916,4 +916,74 @@ public class EngineGatewayImpl implements EngineGateway {
         }
         return specs.toString();
     }
+
+    /***************************************************************************/
+
+    /** The following methods are called by an Exception Service via Interface_X */
+
+    public String setExceptionObserver(String observerURI) {
+       if (_engine.setExceptionObserver(observerURI))
+           return SUCCESS;
+       else
+           return OPEN_FAILURE + "setExceptionObserver failed" + CLOSE_FAILURE ;
+    }
+
+
+    public String removeExceptionObserver() {
+       _engine.removeExceptionObserver();
+        return SUCCESS;
+    }
+
+
+    public String updateWorkItemData(String workItemID, String data, String sessionHandle) {
+        try {
+            _userList.checkConnection(sessionHandle);
+        } catch (YAuthenticationException e) {
+            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+        }
+        return String.valueOf(_engine.updateWorkItemData(workItemID, data));
+    }
+
+
+    public String updateCaseData(String caseID, String data, String sessionHandle) {
+        try {
+            _userList.checkConnection(sessionHandle);
+        } catch (YAuthenticationException e) {
+            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+        }
+        return String.valueOf(_engine.updateCaseData(caseID, data));
+    }
+
+
+    public String restartWorkItem(String workItemID, String sessionHandle) throws RemoteException {
+        try {
+            _userList.checkConnection(sessionHandle);
+        } catch (YAuthenticationException e) {
+            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+        }
+        String result = "";
+        YWorkItem item = _engine.getWorkItem(workItemID);
+        if (item != null) {
+            item.setStatus(YWorkItem.Status.Enabled);
+            result = startWorkItem(workItemID, sessionHandle);
+        }
+        return result ;
+    }
+
+
+    public String cancelWorkItem(String workItemID, String fail, String sessionHandle)
+                                                                 throws RemoteException {
+        try {
+            _userList.checkConnection(sessionHandle);
+            YWorkItem item = _engine.getWorkItem(workItemID);
+            _engine.cancelWorkItem(item, fail.equalsIgnoreCase("true")) ;
+            return SUCCESS ;
+        }
+        catch (YAuthenticationException e) {
+            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+        }
+    }
+
+    /***************************************************************************/
+ 
 }

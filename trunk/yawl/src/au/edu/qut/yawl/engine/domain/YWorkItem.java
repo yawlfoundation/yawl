@@ -55,7 +55,7 @@ public class YWorkItem {
 
     public enum Status {
         Enabled,Fired,Executing,
-        Complete,IsParent,Deadlocked, Cancelled}
+        Complete,IsParent,Deadlocked,Cancelled,ForcedComplete,Failed}
 
 //    public static final String statusEnabled = "Enabled";
 //    public static final String statusFired = "Fired";
@@ -293,10 +293,13 @@ public class YWorkItem {
     }
 
 
-    public void setStatusToComplete() throws YPersistenceException {
+    public void setStatusToComplete(boolean force) throws YPersistenceException {
+
+        Status completionStatus = force ? Status.ForcedComplete : Status.Complete ;
+
         if (_status != Status.Executing) {
             throw new RuntimeException(this + " [when current status is \""
-                    + _status + "\" it cannot be changed to \"" + Status.Complete + "\"]");
+                    + _status + "\" it cannot be changed to \"" + completionStatus + "\"]");
         }
         /*
           MODIFIED FOR PERSISTANCE
@@ -312,7 +315,8 @@ public class YWorkItem {
         Set<YWorkItem> siblings = _parent.getChildren();
 
         for (YWorkItem sibling : siblings) {
-            if (sibling.getStatus() != Status.Complete)
+            if ((sibling.getStatus() != Status.Complete) &&
+                (sibling.getStatus() != Status.ForcedComplete))
                 parentcomplete = false;
         }
 
@@ -340,6 +344,51 @@ public class YWorkItem {
                 , _status, _whoStartedMe, _specificationID);
         /************************************/
     }
+
+
+    public void setStatusToDeleted(boolean fail) throws YPersistenceException {
+
+        Status completionStatus = fail ? Status.Failed : Status.Cancelled ;
+
+        if (!_status.equals(Status.Executing)) {
+            throw new RuntimeException(this + " [when current status is \""
+                    + _status + "\" it cannot be changed to \"" + completionStatus + "\"]");
+        }
+        setStatus(completionStatus);
+
+        /*
+         * Check if all siblings  are completed, if so then
+         * the parent is completed too.
+         * */
+        boolean parentcomplete = true;
+//        Set siblings = _parent.getChildren();
+//
+//        Iterator iter = siblings.iterator();
+//
+//        while (iter.hasNext()) {
+//            YWorkItem mysibling = (YWorkItem) iter.next();
+//            if ((! mysibling.getStatus().equals(YWorkItem.statusComplete)) &&
+//                (! mysibling.getStatus().equals(YWorkItem.statusForcedComplete)))
+//                parentcomplete = false;
+//        }
+//
+//  todo      if (pmgr != null) {
+//            pmgr.deleteObject(this);
+//            if (parentcomplete) {
+//                pmgr.deleteObject(_parent);
+//            }
+//        }
+
+        YawlLogServletInterface.getInstance().logWorkItemEvent(
+                _parent.getCaseID().toString(), _parent.getTaskID(),
+                _status, _whoStartedMe, _specificationID);
+
+        YawlLogServletInterface.getInstance().logWorkItemEvent(
+                _workItemID.getCaseID().toString(), _workItemID.getTaskID(),
+                _status, _whoStartedMe, _specificationID);
+    }
+
+
 
 
     public void rollBackStatus() throws YPersistenceException {

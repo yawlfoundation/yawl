@@ -135,6 +135,12 @@
 	                    requestDispatcher.forward(request, response);
 					}
                 }
+                else if ("Raise Exception".equals(submitType)){
+                     if (_ixURI != null) {
+                         String url = _ixURI + "/workItemException?workItemID=" + workItemID ;
+                         response.sendRedirect( response.encodeURL(url) );
+                    }
+                }        
             }
         %>
         <%@include file="footer.jsp"%>

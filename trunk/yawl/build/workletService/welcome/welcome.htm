@@ -45,30 +45,29 @@
 		            <!--End top level navigation links and search -->
 
 
- 		<h3 align="center">Welcome to the Worklet Dynamic Process Selection Service for YAWL</h3>
+ 	<h3 align="center">Welcome to the Worklet Dynamic Process Selection and Exception Handling Service for YAWL</h3>
 
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
            <tr>
-              <td valign="top" align="left" width="75" height="64"/>
-                 <img src="./graphics/fireant.jpg"/>
+              <td valign="top" align="left" width="100" height="64"/>
+                  <img src="./graphics/logobig.jpg"/>
               </td>
-        	  <td valign="bottom" align="left">
-                <p>This service provides the abilty to substitute a workitem in a YAWL 
+              <td valign="bottom" align="left">
+                <p>This service provides the ability to substitute a workitem in a YAWL 
                    process with a dynamically selected "worklet" - a discrete YAWL 
                    process that acts as a sub-net for the task.</p>
+                <p>A repertoire (or catalog) of worklets is maintained. Each time the service is
+                   invoked for a workitem, a choice is made from the repertoire based on the data passed
+                   with the workitem, using a set of rules to determine the most appropriate substitution.</p>
+                <p>The workitem is checked out of the YAWL engine, then the selected worklet is launched
+                   as a separate case. The data inputs of the original workitem are mapped to the inputs
+                   of the worklet. When the worklet has completed, its output data is mapped back to
+                   the original workitem, which is then checked back into the engine, allowing the original
+                   process to continue.</p>
               </td>
-           </tr>        
-        </table>   
+          </tr>        
+       </table>   
 
-        <p>A repertoire (or catalog) of worklets is maintained. Each time the service is
-        invoked for a workitem, a choice is made from the repertoire based on the data passed
-        with the workitem, using a set of rules to determine the most appropriate substitution.</p>
-
-        <p>The workitem is checked out of the YAWL engine, then the selected worklet is launched
-        as a separate case. The data inputs of the original workitem are mapped to the inputs
-        of the worklet. When the worklet has completed, its output data is mapped back to
-        the original workitem, which is then checked back into the engine, allowing the original
-        process to continue.</p>
         
         <p>Worklets can be substituted for atomic tasks and multiple-atomic tasks. In the case
         of multiple tasks, a worklet is launched for each child workitem. Because each child 
