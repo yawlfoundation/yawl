@@ -27,6 +27,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.MapKey;
@@ -1184,7 +1185,7 @@ public abstract class YTask extends YExternalNetElement {
      */
     private Map<String, KeyValue> dataMappingsForTaskStartingSet = new HashMap<String, KeyValue>();
 
-    @OneToMany(mappedBy="task", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="task", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @MapKey(name="key")
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="Type='"+KeyValue.STARTING + "'")
@@ -1223,7 +1224,7 @@ public abstract class YTask extends YExternalNetElement {
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
     public Set<KeyValue> dataMappingsForTaskCompletionSet = new HashSet<KeyValue>();
-    @OneToMany(mappedBy="task", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="task", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="Type='" + KeyValue.COMPLETION+ "'")
     private Set<KeyValue> getDataMappingsForTaskCompletionSet() {
@@ -1286,10 +1287,10 @@ public abstract class YTask extends YExternalNetElement {
 //    	}
 //    }
 //
-//    // FIXME: XXX this is never called anywhere, should it be here?
-//    /**
+    // FIXME: XXX this is never called anywhere, should it be here?
+    /**
 //     * @deprecated
-//     */
+     */
 //    @Deprecated
 //    public void setDataMappingsForEnablement(YTask task, Map map) {
 //    	task.setDataMappingsForEnablement(map);
