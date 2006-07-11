@@ -11,15 +11,22 @@ import java.util.Set;
 
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
+import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.state.YInternalCondition;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 public class SharedNodeTreeModel extends DefaultTreeModel {
 
+	private static final Log LOG = LogFactory.getLog( SharedNodeTreeModel.class );
 	public static Hashtable<EditorDataProxy, SharedNode> treeNodeCache = new Hashtable<EditorDataProxy, SharedNode>();
 
 //	 protected SharedNode root;
@@ -32,14 +39,16 @@ public class SharedNodeTreeModel extends DefaultTreeModel {
 	public List getChildren(SharedNode parent) {
 		List<SharedNode> retval = new ArrayList<SharedNode>();
 		EditorDataProxy proxy = parent.getProxy();
-		Set set = proxy.getContext().getChildren(proxy);
+		Set set = proxy.getContext().getChildren(proxy, false);
 		if (set != null) { 
 			for (Object childProxy: set) {
 				if (!treeNodeCache.containsKey(childProxy)) {
 					SharedNode node = new SharedNode((EditorDataProxy) childProxy);
 					String x = null;
 					try {
-						x = URLDecoder.decode(((EditorDataProxy) childProxy).getLabel(), "UTF-8");
+						String label = ((EditorDataProxy) childProxy).getLabel();
+						if (label == null) label = "Uninitialized";
+						x = URLDecoder.decode(label, "UTF-8");
 					} catch (UnsupportedEncodingException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -53,7 +62,16 @@ public class SharedNodeTreeModel extends DefaultTreeModel {
 					node.getProxy().setLabel(x2);
 					treeNodeCache.put((EditorDataProxy) childProxy, node);
 				}
-				retval.add(treeNodeCache.get(childProxy));
+				boolean shouldFilter = false;
+				if (((EditorDataProxy)childProxy).getData() instanceof YAWLServiceGateway
+		 				 || ((EditorDataProxy)childProxy).getData() instanceof YFlow
+		 				 || ((EditorDataProxy)childProxy).getData() instanceof YInternalCondition
+		 				 || ((EditorDataProxy)childProxy).getData() instanceof YCondition
+ 				 ) {
+					shouldFilter = true;
+				}
+				if (!shouldFilter)
+					retval.add(treeNodeCache.get(childProxy));
 			}
 		}
 		Collections.sort(retval, comparator);
@@ -110,5 +128,6 @@ public class SharedNodeTreeModel extends DefaultTreeModel {
 	  // so we don't actually have to keep track of interested listeners.
 	  public void addTreeModelListener(TreeModelListener l) {}
 	  public void removeTreeModelListener(TreeModelListener l) {}
+
 }
 

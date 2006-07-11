@@ -52,14 +52,16 @@ import au.edu.qut.yawl.elements.ExtensionListContainer;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.persistence.managed.DataContext;
 
 import com.jgraph.layout.JGraphFacade;
 import com.jgraph.layout.JGraphLayout;
 import com.jgraph.layout.graph.JGraphSpringLayout;
 import com.jgraph.layout.hierarchical.JGraphHierarchicalLayout;
 import com.nexusbpm.editor.editors.NetEditor;
-import com.nexusbpm.editor.editors.net.cells.CapselaCell;
+import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.editors.net.cells.FlowControlEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphPort;
@@ -98,9 +100,9 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 
   private final static JGraphParallelEdgeRouter EDGE_ROUTER = JGraphParallelEdgeRouter.sharedInstance;
 
-  private CapselaGraph _graph;
+  private NexusGraph _graph;
 
-  private CapselaGraphModel _graphModel;
+  private NexusGraphModel _graphModel;
 
   private Action _edgeEditModeAction;
 
@@ -323,7 +325,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
     if (!_graph.isSelectionEmpty()) {
       Object[] cells = _graph.getSelectionCells();
       for (int i = 0; i < cells.length; i++) {
-        CapselaCell currentCell = (CapselaCell) cells[i];
+        NexusCell currentCell = (NexusCell) cells[i];
         SharedNodeSet.add(currentCell.getProxy().getTreeNode());
       }
     }
@@ -349,8 +351,8 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
     _toolbar = createToolBar();
 
     this.setLayout(new BorderLayout());
-    _graphModel = new CapselaGraphModel();
-    _graph = new CapselaGraph(_graphModel, this, node);
+    _graphModel = new NexusGraphModel();
+    _graph = new NexusGraph(_graphModel, this, node);
     _graph.getSelectionModel().addGraphSelectionListener(this);
     _graph.addKeyListener(this);
 
@@ -407,8 +409,8 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //    }
 
     setLayout(new BorderLayout());
-    _graphModel = new CapselaGraphModel();
-    _graph = new CapselaGraph(_graphModel, this, instanceproxy);
+    _graphModel = new NexusGraphModel();
+    _graph = new NexusGraph(_graphModel, this, instanceproxy);
     _graph.getSelectionModel().addGraphSelectionListener(this);
 
     _toolbar = createToolBar();
@@ -429,8 +431,13 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 	 * Description of the Method
 	 */
 	public void saveAttributes() {
+		DataContext dc = _flowproxy.getContext();
+		DataContext s;
+		YSpecification spec = ((YNet)_flowproxy.getData()).getSpecification();
+		dc.put(dc.getDataProxy(spec, null));
+	
 		throw new RuntimeException("save all the position/bounds for all cell objects in graph");
-//		if( !_isInstance ) {
+		//		if( !_isInstance ) {
 			// save positions of all vertices:
 //				try {
 //					FlowComponent flow = (FlowComponent) _flowproxy.getPersistentDomainObject( 0 );
@@ -483,7 +490,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
    */
   public void insert(EditorDataProxy ctrl) throws EditorException {
     this.initializeCellAndPort(ctrl);
-    CapselaCell cell = ctrl.getGraphCell();
+    NexusCell cell = ctrl.getGraphCell();
     throw new RuntimeException("insert the object into the graph with the location properly restored");
 //    Component c = (Component) ctrl.getPersistentDomainObject();
 //    Map map = createComponentAttributeMap(c);
@@ -497,7 +504,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
   /**
    * Connects two cells with an edge.
    */
-	public GraphEdge connect( CapselaCell source, CapselaCell target, boolean isDataEdge, EditorDataProxy edgeproxy ) {
+	public GraphEdge connect( NexusCell source, NexusCell target, boolean isDataEdge, EditorDataProxy edgeproxy ) {
 		LOG.debug( "Connecting two cells." );
 		SharedNode flowNode = _flowproxy.getTreeNode();
 		SharedNode sourceNode = source.getProxy().getTreeNode();
@@ -529,13 +536,13 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 	 * initialized before they are added to the graph.
 	 */
 	private void initializeCellAndPort( EditorDataProxy ctrl ) {
-		CapselaCell cell = ctrl.getGraphCell();
+		NexusCell cell = ctrl.getGraphCell();
 		GraphPort port = ctrl.getGraphPort();
 		if( port == null ) {
 			port = new GraphPort( ctrl );
 		}
 		if( cell == null ) {
-			cell = new CapselaCell( ctrl );
+			cell = new NexusCell( ctrl );
 			cell.add( port );
 		}
 //		addPropertyChangeListener( ctrl, _graph );
@@ -671,12 +678,12 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
         _graph.startEditingAtCell(cell);
       }
     };
-    boolean isComponent = (cell instanceof CapselaCell);
+    boolean isComponent = (cell instanceof NexusCell);
     //boolean isDataEdge = (cell instanceof FlowDataEdge);
     menu.add(editAction);
 
     if (isComponent) {
-      final CapselaCell capselaCell = (CapselaCell) cell;
+      final NexusCell capselaCell = (NexusCell) cell;
       EditorDataProxy proxy = capselaCell.getProxy();
       final Object component = proxy.getData();
       
@@ -778,8 +785,8 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
         removeSet.add(((GraphPort) selected).getProxy());
       } else if (selected instanceof GraphEdge) {
         removeSet.add(((GraphEdge) selected).getProxy());
-      } else if (selected instanceof CapselaCell) {
-        removeSet.add(((CapselaCell) selected).getProxy());
+      } else if (selected instanceof NexusCell) {
+        removeSet.add(((NexusCell) selected).getProxy());
       }
     }
 
@@ -867,10 +874,10 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 	public void refresh(YNet flow) throws EditorException {
 		LOG.debug( "Refreshing the flow graph." );
 		// Collections to pass to the JGraph instance later on.
-		final Hashtable<CapselaCell, Map> cellAttributes = new Hashtable<CapselaCell, Map>();
+		final Hashtable<NexusCell, Map> cellAttributes = new Hashtable<NexusCell, Map>();
 		final Hashtable<GraphEdge, Map> edgeAttributes = new Hashtable<GraphEdge, Map>();
 		final ConnectionSet cs = new ConnectionSet();
-		final List<CapselaCell> cells = new ArrayList<CapselaCell>();
+		final List<NexusCell> cells = new ArrayList<NexusCell>();
 		final List<GraphEdge> edges = new ArrayList<GraphEdge>();
 
 		// Insert the vertex for each component in the flow.
@@ -885,22 +892,19 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //				if( bounds == null ) throw new EditorException( "Null flow location: " + c );
 				EditorDataProxy proxy = (EditorDataProxy) _flowproxy.getContext().getDataProxy(c, null );
 				this.initializeCellAndPort( proxy );
-				CapselaCell cell = proxy.getGraphCell();
+				NexusCell cell = proxy.getGraphCell();
 				Map map = createComponentAttributeMap( c );
 				cellAttributes.put( cell, map );
 				cells.add( cell );
-				Rectangle2D.Double rect = new Rectangle2D.Double(400.0d * Math.random(), 400d * Math.random(), 70d, 70d);
-				GraphConstants.setBounds(cell.getAttributes(), rect);
-				LOG.error("random center for " + c + " is " + rect );
 				LOG.error( "Adding component to graph: " + c.toString() );
 				try {
 					if (c instanceof YExternalNetElement) {
 						YTaskEditorExtension ext = new YTaskEditorExtension((YExternalNetElement) c);
-						rect = new Rectangle2D.Double(ext.getCenterPoint().getX(), ext.getCenterPoint().getY(), 70d, 70d);
+						Rectangle2D.Double rect = new Rectangle2D.Double(ext.getCenterPoint().getX(), ext.getCenterPoint().getY(), 70d, 70d);
 						GraphConstants.setBounds(cell.getAttributes(), rect);
-						LOG.error("center for " + c + " is " + ext.getCenterPoint().toString());
+						LOG.info("center for " + c + " is " + ext.getCenterPoint().toString());
 					}
-				} catch(Exception ex) {LOG.error("OOPS!" + ex.getMessage(), ex);}
+				} catch(Exception ex) {LOG.error(ex.getMessage(), ex);}
 //				LOG.error( "View: " + proxy.getGraphCell().get);
 			}
 		}
@@ -1339,7 +1343,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 		// don't do this in clear cause need to to get past saveAttributes call
 		// and doing this too soon will also make removeGraphSelectionListener fail
 		if (null != _graph) {
-			CapselaGraph tmp = _graph; // avoid stack overflow on recursive clears
+			NexusGraph tmp = _graph; // avoid stack overflow on recursive clears
 			_graph = null;
 			GraphSelectionModel selectionModel = tmp.getSelectionModel();
 			if (null != selectionModel ) {

@@ -11,6 +11,8 @@ import javax.swing.tree.TreeNode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.elements.YExternalNetElement;
+
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
@@ -163,5 +165,12 @@ implements PropertyChangeListener {
 
 		super.finalize();
 	}
-
+	public boolean isLeaf() {
+		boolean retval = false;
+		if (getProxy().getData() instanceof YExternalNetElement) 
+			retval = true;		
+		else
+			System.err.println(">>>>" + getProxy().getData().getClass().getName());
+		return retval;
+	}
 }

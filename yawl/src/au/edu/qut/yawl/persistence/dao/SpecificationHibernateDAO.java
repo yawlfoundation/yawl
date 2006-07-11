@@ -46,12 +46,10 @@ import au.edu.qut.yawl.engine.domain.YCaseData;
 public class SpecificationHibernateDAO implements SpecificationDAO{
 	private static final Log LOG = LogFactory.getLog(SpecificationHibernateDAO.class);
 
-	private static SessionFactory sessions;
+	private static SessionFactory sessionFactory;
 	private static AnnotationConfiguration cfg;
-	private static boolean deleteAfterRun = false;
-	private Session session;
 	private static SpecificationHibernateDAO INSTANCE;
-
+	private static Session session;
 	private static Class[] classes = new Class[] {
 						KeyValue.class,
 						YFlow.class,
@@ -75,11 +73,11 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 				};
 	
 	private static void initializeSessions() {
-		if ( sessions != null ) sessions.close();
+		if ( sessionFactory != null ) sessionFactory.close();
 		try {
 			AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-	        .setProperty(Environment.USE_SQL_COMMENTS, "true")
-	        .setProperty(Environment.SHOW_SQL, "true")
+	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
+	        .setProperty(Environment.SHOW_SQL, "false")
 	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
 	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
 	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
@@ -93,7 +91,8 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 			for (int i=0; i<classes.length; i++) {
 				cfg.addAnnotatedClass( classes[i] );
 			}
-			sessions = cfg.buildSessionFactory();
+			sessionFactory = cfg.buildSessionFactory();
+			session = sessionFactory.openSession();
 		}
 		catch (Error e) {
 			e.printStackTrace();
@@ -101,7 +100,9 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 	}
 	
 	private Session openSession() throws HibernateException {
-		session = sessions.openSession();
+		if (session == null) {
+			initializeSessions();
+		}
 		return session;
 	}
 	
@@ -110,8 +111,8 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 	}
 
 	public boolean delete(YSpecification t) {
+		Session session = null;
 		try {
-			initializeSessions();
 			session = openSession();
 			Transaction tx = session.beginTransaction();
 			YSpecification spec = (YSpecification) session.get(YSpecification.class, (Serializable) getKey(t));
@@ -121,15 +122,10 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 			}
 			session.delete(spec);
 			tx.commit();
-			session.close();
 			return true;
 		}
 		catch(ObjectDeletedException ode) {
-			ode.printStackTrace();
-			System.out.println(">>>>" + ode.getCause());
-			System.out.println(">>>>" + ode.getEntityName());
-			System.out.println(">>>>" + ode.getIdentifier());
-			System.exit(0);
+			LOG.error("Deletion failure", ode);
 			return false;
 		}
 		catch (Exception e) {
@@ -142,25 +138,26 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 				}
 				catch (Exception ignore) {ignore.printStackTrace();}
 				try {
-					if (sessions!=null) {
-						sessions.close();
-						sessions=null;
+					if (sessionFactory!=null) {
+						sessionFactory.close();
+						sessionFactory=null;
 					}
 				}
-				catch (Exception ignore) {ignore.printStackTrace();}
+				catch (Exception ignore) {
+					LOG.error(ignore);
+				}
 				return false;
 			}
 	}
 
 	public YSpecification retrieve(Object key) {
+		Session session = null;
 		try {
-			initializeSessions();
 			YSpecification retval;
 			session = openSession();
 			Transaction tx = session.beginTransaction();
 			retval = (YSpecification) session.get(YSpecification.class, (Serializable) key);
 			tx.commit();
-			session.close();
 			return retval;
 		}
 		catch (Exception e) {
@@ -171,11 +168,13 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 					session.close();
 				}
 			}
-			catch (Exception ignore) {ignore.printStackTrace();}
+			catch (Exception ignore) {			
+				LOG.error(ignore);
+			}
 			try {
-				if (sessions!=null) {
-					sessions.close();
-					sessions=null;
+				if (sessionFactory!=null) {
+					sessionFactory.close();
+					sessionFactory=null;
 				}
 			}
 			catch (Exception ignore) {ignore.printStackTrace();}
@@ -184,34 +183,21 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 	}
 
 	public int save(YSpecification m) {
+		Session session = null;
 		try {
-			initializeSessions();
 			Transaction tx;
 			session = openSession();
-//			tx = session.beginTransaction();
-//			session.delete(m);
-//			tx.commit();
 			tx = session.beginTransaction();
-			LOG.info("Persisting first " + m.getDbID());
-			LOG.info("DECOMPS first =" + m.getDecompositions().size());
-			for (YDecomposition k: m.getDecompositions()) {
-				LOG.info("decomp first " + k.getId() + ":" + k.getSpecification().getDbID());
-			}
 			session.saveOrUpdate(m);
 			LOG.info("Persisting " + m.getDbID());
-			LOG.info("DECOMPS=" + m.getDecompositions().size());
-			for (YDecomposition k: m.getDecompositions()) {
-				LOG.info(k.getId() + ":" + k.getSpecification().getDbID());
-			}
 			tx.commit();
-			session.close();
 			return 0;
 		}
 		catch (HibernateException e2) {
-			e2.printStackTrace();
+			LOG.error(e2);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			LOG.error(e);
 			try {
 				if ( session!=null && session.isOpen() ) {
 					if ( session.isConnected() ) session.connection().rollback();
@@ -220,12 +206,14 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 			}
 			catch (Exception ignore) {ignore.printStackTrace();}
 			try {
-				if (sessions!=null) {
-					sessions.close();
-					sessions=null;
+				if (sessionFactory!=null) {
+					sessionFactory.close();
+					sessionFactory=null;
 				}
 			}
-			catch (Exception ignore) {ignore.printStackTrace();}
+			catch (Exception ignore) {
+				LOG.error(ignore);
+			}
 		}
 		return 1;
 	}
@@ -235,15 +223,12 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
     }
 
     public List getChildren(Object parent) {
-		List retval = new ArrayList();
-    	initializeSessions();
-		session = openSession();
+    	List retval = new ArrayList();
+		Session session = openSession();
 		Criteria query = session.createCriteria(YSpecification.class);
 //		query.setParameter(0, parent.toString());
 		retval = query.list();
-		System.out.println(Arrays.asList(retval));
-		System.out.println("LISTING " + retval.size());
-		System.out.println("value check " + parent.toString());
+		LOG.debug("retrieving " + Arrays.asList(retval));
 		return retval;
 	}
 

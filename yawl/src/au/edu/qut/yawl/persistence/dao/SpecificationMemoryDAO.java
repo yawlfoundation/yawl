@@ -5,13 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.edu.qut.yawl.elements.MockYSpecification;
 import au.edu.qut.yawl.elements.YSpecification;
 
 import com.nexusbpm.editor.tree.DatasourceRoot;
+import com.nexusbpm.editor.tree.SharedNode;
 
 public class SpecificationMemoryDAO implements SpecificationDAO{
     
+	private static final Log LOG = LogFactory.getLog( SpecificationMemoryDAO.class );
     private Map<Long, YSpecification> specs = new HashMap<Long, YSpecification>();
     private long nextdbID = 19;
     public static YSpecification testSpec = MockYSpecification.getSpecification();
@@ -32,6 +37,7 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
     public int save(YSpecification spec) {
         if (spec.getDbID() == null) spec.setDbID(getNextdbID());
     	specs.put(spec.getDbID(), spec);
+    	LOG.info("New SPEC SPACE=" + specs.toString());
         return 0;
     }
 

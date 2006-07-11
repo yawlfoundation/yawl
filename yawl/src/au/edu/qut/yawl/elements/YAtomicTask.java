@@ -21,6 +21,7 @@ import java.util.Vector;
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.MapKey;
@@ -96,7 +97,7 @@ public class YAtomicTask extends YTask {
      * 
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
-    @OneToMany(mappedBy="task", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="task", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @MapKey(name="key")
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="Type='"+KeyValue.ENABLEMENT + "'")

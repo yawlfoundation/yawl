@@ -147,14 +147,9 @@ public class DataContext {
 	 */
     public void put(DataProxy dp) {
     	YSpecification spec = (YSpecification)dp.getData();
-    	LOG.info("x3DECOMPS=" + spec.getDecompositions().size());
-		for (YDecomposition k: spec.getDecompositions()) {
-			LOG.info(k.getName() + "x3:" + k.getParent());
-		}
-		dataMap.put(dp, dp.getData());
-		if (dp.getData() != null) {
-			LOG.error("saving x3 " + dataMap.get(dp));
-			LOG.error("" + ((YSpecification) dataMap.get(dp)).getDBDecompositions().size() );
+		dataMap.put(dp, spec);
+		System.out.println("putting " + dp.getData());
+		if (spec != null) {
 	    	dao.save((YSpecification) dataMap.get(dp));
 			proxyMap.put(dp.getData(), dp);
 		}
@@ -178,9 +173,10 @@ public class DataContext {
     	return dao.getKey((YSpecification) dataMap.get(t));
     }
    
-    public Set<DataProxy> getChildren(DataProxy parent) {
-    	if (hierarchy.get(parent) == null) {
+    public Set<DataProxy> getChildren(DataProxy parent, boolean forceUpdate) {
+    	if (hierarchy.get(parent) == null || forceUpdate) {
     		List l = dao.getChildren(parent.getData());
+    		LOG.info("getchildren finds " + l);
     		for (Object o: l) {
     			if (o instanceof YSpecification) {
     				generateProxies((YSpecification) o);

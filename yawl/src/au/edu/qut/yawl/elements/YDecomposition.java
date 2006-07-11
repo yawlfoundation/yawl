@@ -34,6 +34,7 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -106,7 +107,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     private List<YParameter> _outputParameters = new ArrayList<YParameter>();
     protected Document _data = new Document();
     private Map<String, String> _attribues = new HashMap<String, String>();
-    private List<Element> _internalExtensions;
+    private List<Element> _internalExtensions = new ArrayList<Element>();
 
     private boolean _outBoundSchemaChecking;
 
@@ -122,8 +123,8 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     /**
      * Method for hibernate only
      */
-    @OneToOne
-    @PrimaryKeyJoinColumn
+    @OneToOne(cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
 	protected YCaseData getCasedata() {
 		return casedata;
 	}
@@ -132,6 +133,8 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 	 * Method for hibernate only
 	 * @param casedata
 	 */
+    @OneToOne(cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     protected void setCasedata( YCaseData casedata ) {
 		this.casedata = casedata;
 	}

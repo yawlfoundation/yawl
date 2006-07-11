@@ -69,7 +69,7 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
     private String _xpathPredicate;
     private Integer _evalOrdering;
     private boolean _isDefaultFlow = false;
-    private List<Element> _internalExtensions;
+    private List<Element> _internalExtensions = new ArrayList<Element>();
 
     /**
      * AJH: Added to support flow/link labels

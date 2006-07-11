@@ -9,6 +9,8 @@
 
 package au.edu.qut.yawl.elements;
 
+import java.io.Serializable;
+
 
 
 /**
@@ -18,7 +20,7 @@ package au.edu.qut.yawl.elements;
  * @author Lachlan Aldred
  * 
  */
-public abstract class YNetElement implements Cloneable, Comparable {
+public abstract class YNetElement implements Cloneable, Comparable, Serializable {
     private String _id;
 
     /**
@@ -26,7 +28,7 @@ public abstract class YNetElement implements Cloneable, Comparable {
      *
      */
     public YNetElement() {
-    	setID("null");
+//    	setID("null");
     }
     
     /**
@@ -50,7 +52,7 @@ public abstract class YNetElement implements Cloneable, Comparable {
      * @param id
      */
     protected void setID(String id) {
-    	this._id = id.replace(" ", "_");
+    	if (id != null) this._id = id.replace(" ", "_");
     }
 
     public String toString() {

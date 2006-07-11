@@ -3,6 +3,7 @@
  */
 package au.edu.qut.yawl.elements;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jdom.Element;

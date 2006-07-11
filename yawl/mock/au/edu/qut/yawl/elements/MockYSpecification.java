@@ -7,6 +7,8 @@
  */
 package au.edu.qut.yawl.elements;
 
+import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -15,6 +17,7 @@ import au.edu.qut.yawl.elements.data.YVariable;
 
 import com.nexusbpm.editor.component.EmailSenderComponent;
 import com.nexusbpm.editor.component.JythonComponent;
+import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 
 /**
  * The purpose of theMockYSpecification is to provide an example of how to build
@@ -87,6 +90,9 @@ public class MockYSpecification {
 		YAtomicTask task = new YAtomicTask("email dean", YAtomicTask._AND,
 				YAtomicTask._AND, net);
 		task.setName("email dean");
+		task.setID("email dean");
+		YTaskEditorExtension editor = new YTaskEditorExtension(task);
+		editor.setCenterPoint(new Point2D.Double(100,200));
 		generateTaskVariables(net, gate, task, emailProps, emailVals);
 		generateTaskWebserviceVariables(net, gate, task, gatewayProps, emailGatewayVals);
 
@@ -148,7 +154,10 @@ public class MockYSpecification {
 		YAtomicTask task = new YAtomicTask("quote of the day",
 				YAtomicTask._AND, YAtomicTask._AND, net);
 		task.setName("quote of the day");
+		task.setID("quote of the day");
 		task.setDecompositionPrototype(gate);
+		YTaskEditorExtension editor = new YTaskEditorExtension(task);
+		editor.setCenterPoint(new Point2D.Double(200,100));
 		generateTaskVariables(net, gate, task, jythonProps, jythonVals);
 		generateTaskWebserviceVariables(net, gate, task, gatewayProps, jythonGatewayVals);
 		net.addNetElement(task);
@@ -237,9 +246,13 @@ public class MockYSpecification {
 
 		YInputCondition inputCondition = new YInputCondition("start", net);
 		inputCondition.setName("start");
+		YTaskEditorExtension editor = new YTaskEditorExtension(inputCondition);
+		editor.setCenterPoint(new Point2D.Double(100,100));
 		net.setInputCondition(inputCondition);
 		YOutputCondition outputCondition = new YOutputCondition("end", net);
 		outputCondition.setName("end");
+		editor = new YTaskEditorExtension(outputCondition);
+		editor.setCenterPoint(new Point2D.Double(200,200));
 		net.setOutputCondition(outputCondition);
 
 		YAtomicTask task = createEmailTask(gate, net);

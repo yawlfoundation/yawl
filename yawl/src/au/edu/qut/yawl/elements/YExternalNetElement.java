@@ -76,7 +76,7 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     private Collection<YFlow> _presetFlows = new TreeSet<YFlow>();
     @Transient
     private Collection<YFlow> _postsetFlows = new TreeSet<YFlow>();
-    private List<Element> _internalExtensions;
+    private List<Element> _internalExtensions = new ArrayList<Element>();
     private Long _dbid;
 	private static final long serialVersionUID = 2006030080l;
 	/**
@@ -425,13 +425,6 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
 
     public String toXML() {
         StringBuffer xml = new StringBuffer();
-        if (_internalExtensions != null) {
-    		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
-        	for (Object exten: _internalExtensions) {
-    			String representation = outputter.outputString((Element)exten);
-    			xml.append(representation);
-        	}
-        }
         if (_internalExtensions != null && !(_internalExtensions.size() == 0)) {
         	xml.append(getInternalExtensionsAsString());
         }

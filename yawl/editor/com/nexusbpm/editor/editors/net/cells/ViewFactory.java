@@ -25,8 +25,8 @@ public class ViewFactory implements CellViewFactory {
 	 */
 	public CellView createView( GraphModel model, Object c ) {
 		CellView view = null;
-		if( c instanceof CapselaCell ) {
-			CapselaCell cell = (CapselaCell) c;
+		if( c instanceof NexusCell ) {
+			NexusCell cell = (NexusCell) c;
 //			Class rendererClass = DomainObjectProperties.flowRendererForClass( cell.getController().identifier().className() );
 			Class rendererClass = DefaultRenderer.class;
 			// TODO XXX implement this properly later!!!

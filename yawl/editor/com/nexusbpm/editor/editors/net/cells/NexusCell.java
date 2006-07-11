@@ -4,19 +4,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jgraph.graph.DefaultGraphCell;
 
+import au.edu.qut.yawl.elements.YExternalNetElement;
+
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 
-public class CapselaCell extends DefaultGraphCell {
+public class NexusCell extends DefaultGraphCell {
 
-	private static final transient Log LOG = LogFactory.getLog( CapselaCell.class );
+	private static final transient Log LOG = LogFactory.getLog( NexusCell.class );
 
 	public static final int DEFAULT_HEIGHT = 70;
 	public static final int DEFAULT_WIDTH = 77;
 
 	private EditorDataProxy _proxy;
 
-	public CapselaCell( EditorDataProxy proxy ) {
+	public NexusCell( EditorDataProxy proxy ) {
 		super();
 		_proxy = proxy;
 		_proxy.setGraphCell( this );
@@ -35,12 +37,13 @@ public class CapselaCell extends DefaultGraphCell {
 	 * label, but instead, we will set the label on our domain object.
 	 */
 	public void setUserObject( Object obj ) {
-		super.setUserObject(obj);
+//		super.setUserObject(obj);
 		if( obj != null && obj instanceof String ) {
 			// Set the description and save it immediately. If we don't save immediately, the user might
 			// connect this component to another component, which will wipe out the description change.
-
-			throw new RuntimeException("implement for yawl");
+			Object o = getProxy().getData();
+			_proxy.setLabel((String) obj);
+			LOG.error("message only", new RuntimeException("implement for yawl"));
 		}
 	}
 
