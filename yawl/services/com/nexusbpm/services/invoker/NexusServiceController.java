@@ -80,7 +80,7 @@ public class NexusServiceController extends InterfaceBWebsideController {
                     NexusServiceData data = null;
                     
                     System.out.println( "Outputting service data to invoke Nexus Service with:" );
-                    new XMLOutputter( Format.getPrettyFormat() ).output( serviceData, System.out );
+                    new XMLOutputter( Format.getRawFormat() ).output( serviceData, System.out );
                     
                     for( int index = 0; index < serviceData.getContentSize(); index++ ) {
                     	Content content = serviceData.getContent( index );
@@ -88,7 +88,7 @@ public class NexusServiceController extends InterfaceBWebsideController {
                     		_logger.debug( "NexusServiceData found" );
                     		Element nexusData = (Element) content;
 //                    		System.out.println( "NexusServiceData element:\n" );
-//                    		new XMLOutputter( Format.getPrettyFormat() ).output( nexusData, System.out );
+//                    		new XMLOutputter( Format.getRawFormat() ).output( nexusData, System.out );
                     		if( nexusData.getName().equals( "NexusServiceData" ) ) {
                     			// TODO may want to wrap this in a try/catch
                     			data = unmarshal( nexusData );
@@ -157,7 +157,7 @@ public class NexusServiceController extends InterfaceBWebsideController {
 		initContext();
 		setNamespace( root, Namespace.getNamespace( "http://www.nexusworkflow.com/" ) );
 		StringWriter writer = new StringWriter();
-		XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
+		XMLOutputter outputter = new XMLOutputter(Format.getRawFormat());
 		outputter.output( root, writer );
 		
 		Unmarshaller unmarshaller = getUnmarshaller();

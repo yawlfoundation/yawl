@@ -51,8 +51,9 @@ public class Interface_Client {
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(connection.getInputStream()));
         String inputLine;
+        String newline = System.getProperty("line.separator");
         while ((inputLine = in.readLine()) != null) {
-            result.append(inputLine);
+            result.append(inputLine).append(newline);
         }
         //clean up
         in.close();
@@ -99,8 +100,9 @@ public class Interface_Client {
         connection.setDoInput(true);
         //retrieve reply
         String inputLine;
+        String newline = System.getProperty("line.separator");
         while ((inputLine = in.readLine()) != null) {
-            result.append(inputLine);
+            result.append(inputLine).append(newline);
         }
         //clean up
         in.close();

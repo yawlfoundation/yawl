@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1"
+	xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ YAWL_SchemaBeta7.1.xsd">
+	<specification uri="JythonSpecJaxb2.xml">
+		<name>JythonSpec</name>
+		<documentation>Specification that runs Jython code</documentation>
+		<metaData/>
+		<decomposition id="RootDecomp" isRootNet="true" xsi:type="NetFactsType">
+			<localVariable>
+				<name>ServiceName</name>
+				<isUntyped/>
+				<initialValue>Jython</initialValue>
+			</localVariable>
+			<localVariable>
+				<name>result</name>
+				<isUntyped/>
+				<initialValue/>
+			</localVariable>
+			<localVariable>
+				<name>ServiceData</name>
+				<isUntyped/>
+				<initialValue>&lt;NexusServiceData&gt;
+  &lt;variable name="code"&gt;&lt;value&gt;from javax.xml.parsebrs import DocumebntBuildebr
+from javax.xml.parsebrs import DocumebntBuildebrFactory
+from com.sun.org.apacheb.xpath.intebrnal import XPathAPI
+from org.w3c.dom import Documebnt
+from org.w3c.dom import Nodeb
+from org.w3c.dom.travebrsal import NodebItebrator
+import timeb
+import java.lang.String
+
+today = timeb.strftimeb("epm/epd/epy",timeb.localtimeb(timeb.timeb()))
+docBuildebrFactory = DocumebntBuildebrFactory.nebwInstanceb()
+docBuildebr = docBuildebrFactory.nebwDocumebntBuildebr()
+doc = docBuildebr.parseb("http://febebds.febebdburnebr.com/quotationspageb/qotd")
+doc.gebtDocumebntElebmebnt().normalizeb()
+nl = XPathAPI.seblebctNodebItebrator(doc, "/rss/channebl/itebm/title | /rss/channebl/itebm/debscription")
+for doneb in rangeb(4):
+	nodeb = nl.nebxtNodeb()
+	if nodeb == Noneb : brebak
+	author = nodeb.gebtTebxtContebnt()
+	nodeb = nl.nebxtNodeb()
+	if nodeb == Noneb : brebak
+	debscription = nodeb.gebtTebxtContebnt()
+	debscription = debscription[:debscription.find("el") - 1]
+	csv = csv + debscription + "\r\n--" + author + "\r\n\r\n"
+print csv&lt;/value&gt;&lt;/variable&gt;
+  &lt;variable name="csv"&gt;&lt;value/&gt;&lt;/variable&gt;
+  &lt;variable name="today"&gt;&lt;value/&gt;&lt;/variable&gt;
+&lt;/NexusServiceData&gt;</initialValue>
+			</localVariable>
+			<processControlElements>
+				<inputCondition id="input">
+					<flowsInto>
+						<nextElementRef id="one"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="one">
+					<flowsInto>
+						<nextElementRef id="two"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/RootDecomp/ServiceData"/>
+							<mapsTo>ServiceData</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/RootDecomp/ServiceName"/>
+							<mapsTo>ServiceName</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="&lt;result&gt;{/DecompOne/ServiceData/NexusServiceData}&lt;/result&gt;"/>
+							<mapsTo>result</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="DecompOne"/>
+				</task>
+				<task id="two">
+					<flowsInto>
+						<nextElementRef id="finis"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="&lt;ServiceData&gt;{/RootDecomp/result/NexusServiceData}&lt;/ServiceData&gt;"/>
+							<mapsTo>ServiceData</mapsTo>
+						</mapping>
+					</startingMappings>
+					<decomposesTo id="DecompTwo"/>
+				</task>
+				<outputCondition id="finis">
+					<name>Finished case</name>
+				</outputCondition>
+			</processControlElements>
+		</decomposition>
+		<decomposition id="DecompOne" xsi:type="WebServiceGatewayFactsType">
+			<inputParam>
+				<name>ServiceData</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>ServiceName</name>
+				<isUntyped/>
+			</inputParam>
+			<outputParam>
+				<name>ServiceData</name>
+				<isUntyped/>
+			</outputParam>
+			<yawlService id="http://localhost:8080/NexusServiceInvoker/"/>
+		</decomposition>
+		<decomposition id="DecompTwo" xsi:type="WebServiceGatewayFactsType">
+			<inputParam>
+				<name>ServiceData</name>
+				<isUntyped/>
+			</inputParam>
+		</decomposition>
+	</specification>
+</specificationSet>
