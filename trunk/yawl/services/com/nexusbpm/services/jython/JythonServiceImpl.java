@@ -12,7 +12,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,7 +21,6 @@ import org.python.util.PythonInterpreter;
 
 import com.nexusbpm.services.NexusService;
 import com.nexusbpm.services.data.NexusServiceData;
-import com.nexusbpm.services.data.Variable;
 
 /**
  * The Jython service provides the ability to run arbitrary Jython code in YAWL. Any
@@ -78,13 +76,12 @@ public class JythonServiceImpl implements NexusService {
 			PythonInterpreter interp = new PythonInterpreter();
 			
 			// get a copy of the dynamic variables
-			List<Variable> dynamicVariables = new LinkedList<Variable>( data.getVariables() );
+			List<String> dynamicVariables = data.getVariableNames();
 			
 			// Process dynamic attributes (put attribute values into the Jython interpreter).
 			// remove the non-dynamic variables
-			for( Iterator<Variable> iter = dynamicVariables.iterator(); iter.hasNext(); ) {
-				Variable v = iter.next();
-				String name = v.getName();
+			for( Iterator<String> iter = dynamicVariables.iterator(); iter.hasNext(); ) {
+				String name = iter.next();
 				if( name.equals( "code" ) ||
 						name.equals( "error" ) ||
 						name.equals( "output" ) ) {
@@ -95,19 +92,19 @@ public class JythonServiceImpl implements NexusService {
 				}
 			}
 			
+			System.out.println( "Jython's code:\n" + data.get( "code" ) );
+			
 			// Execute the code.
 			interp.setOut( outputWriter );
 			interp.setErr( errWriter );
 			interp.exec( data.get( "code" ) );
 			
 			// Process dynamic attributes (get attribute values out of the Jython interpreter).
-			for( Iterator<Variable> iter = dynamicVariables.iterator(); iter.hasNext(); ) {
-				Variable var = iter.next();
-				String varName = null;
+			for( Iterator<String> iter = dynamicVariables.iterator(); iter.hasNext(); ) {
+				String varName = iter.next();
 				try {
-					varName = var.getName();
 					Serializable varVal = (Serializable) interp.get( varName, Serializable.class );
-					if( varVal != null ) {
+					if( varVal == null ) {
 						data.set( varName, varVal.toString() );
 					}
 					else {

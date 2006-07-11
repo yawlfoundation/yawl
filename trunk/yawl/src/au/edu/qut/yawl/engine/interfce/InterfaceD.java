@@ -96,8 +96,9 @@ public class InterfaceD {
         InputStreamReader isReader = new InputStreamReader(inputStr);
         BufferedReader in = new BufferedReader(isReader);
         String inputLine;
+        String newline = System.getProperty("line.separator");
         while ((inputLine = in.readLine()) != null) {
-            result.append(inputLine);
+            result.append(inputLine).append(newline);
         }
 
 //clean up
@@ -128,8 +129,9 @@ public class InterfaceD {
 //retrieve reply
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String inputLine;
+        String newline = System.getProperty("line.separator");
         while ((inputLine = in.readLine()) != null) {
-            result.append(inputLine);
+            result.append(inputLine).append(newline);
         }
 
 //clean up

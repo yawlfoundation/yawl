@@ -212,8 +212,9 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(connection.getInputStream()));
             String inputLine;
+            String newline = System.getProperty("line.separator");
             while ((inputLine = in.readLine()) != null) {
-                result.append(inputLine);
+                result.append(inputLine).append(newline);
             }
             //clean up
             in.close();
