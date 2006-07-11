@@ -27,7 +27,7 @@ import java.sql.Statement;
  *  m3.adams@qut.edu.au
  *  v0.8, 04/07/2006
  */
-
+                                              
 public class DBManager {
 
     // persistence actions
