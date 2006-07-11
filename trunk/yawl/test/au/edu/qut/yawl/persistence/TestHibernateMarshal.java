@@ -92,10 +92,11 @@ public class TestHibernateMarshal extends XMLTestCase  {
     protected void assertComparison(String testComment, String testFilename) throws Exception {
     	String controlXml = StringProducerRawFile.getInstance().getXMLString(testFilename, true);
     	String testXml = StringProducerHibernate.getInstance().getXMLString(testFilename, true);
-    	System.out.println(testXml);
-
+    	System.err.println(testXml);
+		System.out.print("=========================================================");
+		System.err.print(controlXml);
 		Diff diff = new Diff(controlXml, testXml);
-		assertXMLEqual(testComment, diff, diff.identical());
+		assertXMLEqual(testComment, diff, false);
 		assertValidation(testFilename);
     }
 

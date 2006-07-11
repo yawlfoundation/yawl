@@ -66,7 +66,6 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 					}//if
 					else {
 						LOG.debug( "Editor closing, NOT saving: (" + "isDirty=" + _editor.isDirty() );
-						System.err.println("IT WASNT DIRTY!!!");
 					}
 //					_node.nullifyEditors();
 				}//try
@@ -91,7 +90,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 			}//run()
 		};//new CapselaWorker()
 		GlobalEventQueue.add( worker );
-		Exception ex = new RuntimeException("create global event queue (Executor) and add worker");
+		Exception ex = new RuntimeException("TODO: (Output only) create global event queue (Executor) and add worker");
 		LOG.error(ex.getMessage(), ex);
 	}
 

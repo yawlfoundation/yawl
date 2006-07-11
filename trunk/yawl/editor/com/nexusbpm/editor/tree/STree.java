@@ -30,6 +30,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JDesktopPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
@@ -44,7 +45,12 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.elements.YAtomicTask;
+
 import com.nexusbpm.command.EditorCommand;
+import com.nexusbpm.editor.WorkflowEditor;
+import com.nexusbpm.editor.desktop.ComponentEditor;
+import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 
@@ -505,14 +511,22 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 				// When the user double clicks on a tree leaf node, open up the editor.
 				// Don't do it if the node is not a leaf, because double-clicking on a
 				// non-leaf node just expands and contracts said node.
-//				try {
-//					CapselaInternalFrame internalFrame = node.getFrame();
-//					Client.openInternalFrame( internalFrame, new Point( 0, 0 ), true );
-//				}
-//				catch( CapselaException ex ) {
-//					LOG.error( ex );
-//				}
-				new RuntimeException("This needs to be reimplemented for YAWL context").printStackTrace();
+		          try {
+		        	  Object editor = node.getProxy().getEditor();
+		        	  if (editor != null) {
+			        	ComponentEditor internalFrame = (ComponentEditor) editor;
+						JDesktopPane desktop = WorkflowEditor.getInstance().getDesktopPane();
+						internalFrame.pack();
+					    internalFrame.setLocation(0,0);
+						internalFrame.setVisible(true);
+						desktop.add(internalFrame);
+						internalFrame.setSelected( true );
+					    internalFrame.toFront();
+						internalFrame.setMaximum( true );
+			      }
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
 			}
 		}
 	}

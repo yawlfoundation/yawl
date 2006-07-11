@@ -4,6 +4,8 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Collection;
 
+import javax.swing.tree.DefaultTreeModel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -17,6 +19,7 @@ import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 public class EditorCommand {
 //id like to move some of the utility of these to the yspec, util context or dao classes
@@ -34,6 +37,9 @@ public class EditorCommand {
 	}
 	
 	public static void executeCopyCommand(SharedNode source, SharedNode target) {
+		//the purpose of this is to use the path and context of the target
+		//and the content of the source (which must at this point be a 
+		//specification
 		DataContext targetDataContext = target.getProxy().getContext();
 		YSpecification spec = (YSpecification) source.getProxy().getData();
 		try {
@@ -45,6 +51,8 @@ public class EditorCommand {
 			DataProxy dp = targetDataContext.getDataProxy(newSpec, null);
 			targetDataContext.put(dp);
 			LOG.info("Copying specification " + spec.getID() + " to " + newSpec.getID());
+			targetDataContext.getChildren(target.getProxy(), true);
+			((SharedNodeTreeModel)target.getTreeModel()).reload(target);
 		} catch (Exception e) {
 			LOG.error("Error copying specification " + spec.getID(), e);
 		}
@@ -88,8 +96,7 @@ public class EditorCommand {
 			addNewNetElementToExistingNet(element, net);
 		}
 		for (YExternalNetElement element : elements) {
-			//aslist makes a copy - no concurrent mods!
-			for (YFlow flow : element.getPostsetFlowsAsList()) {
+			for (YFlow flow : element.getPostsetFlows()) {
 				//at least one must be the new net so they must == if both are in
 				if (flow.getPriorElement().getParent() != flow.getNextElement().getParent()) {
 					element.removePostsetFlow(flow);
@@ -102,4 +109,19 @@ public class EditorCommand {
 			}
 		}
 	}
+	
+	public static void removeElementFromExistingNet(
+			YExternalNetElement element, YNet existingNet) {
+		throw new UnsupportedOperationException("remove element from net");
+	}
+	public static void removeElementsFromExistingNet(
+			YExternalNetElement[] elements, YNet existingNet) {
+		throw new UnsupportedOperationException("remove elements from net");
+	}
+	
+	public static void removeNetFromExistingSpecification(
+			YNet existingNet, YSpecification spec) {
+		throw new UnsupportedOperationException("remove net from specification");
+	}
+	
 }

@@ -25,7 +25,7 @@ import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.desktop.ComponentEditor;
 import com.nexusbpm.editor.desktop.ComponentEditorFrameListener;
 import com.nexusbpm.editor.editors.NetEditor;
-import com.nexusbpm.editor.editors.net.cells.CapselaCell;
+import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphPort;
 import com.nexusbpm.editor.icon.AnimatedIcon;
@@ -127,12 +127,12 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 
 
 	/** A <tt>graph cell</tt> is the displayed JGraph object for a component. */
-	private CapselaCell _graphCell;
+	private NexusCell _graphCell;
 
 	/**
 	 * @return the graph cell for this component.
 	 */
-	public CapselaCell getGraphCell() {
+	public NexusCell getGraphCell() {
 		return _graphCell;
 	}
 
@@ -140,7 +140,7 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 	 * Sets the graph cell for this component.
 	 * @param cell the graph cell to set.
 	 */
-	public void setGraphCell( CapselaCell cell ) {
+	public void setGraphCell( NexusCell cell ) {
 		_graphCell = cell;
 		_graphCell.setProxy( this );
 	}
@@ -317,15 +317,13 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 
 				if( getData() instanceof YNet ) {
 					_editor = new NetEditor();
-					_editor.setProxy(this);
-					_editor.initializeUI();					
 				}
 				else {
 					Class editorClass = getEditorClass();
 					_editor = (ComponentEditor) editorClass.newInstance();
-					_editor.setProxy(this);
-					_editor.initializeUI();					
 				}
+				_editor.setProxy(this);
+				_editor.initializeUI();					
 				_editor.setTitle( this.getLabel() );
 				LOG.debug( "removing frame listeners" );
 				removeEditorFrameListeners();

@@ -11,9 +11,9 @@ import org.jgraph.graph.Edge;
  * @author     Dean Mao
  * @created    January 21, 2003
  */
-public class CapselaGraphModel extends DefaultGraphModel {
+public class NexusGraphModel extends DefaultGraphModel {
 
-  private static final Log LOG = LogFactory.getLog(CapselaGraphModel.class);
+  private static final Log LOG = LogFactory.getLog(NexusGraphModel.class);
   /**
    * Returns <code>true</code> only if the specified source port is not
    * equal to the edge's target port.

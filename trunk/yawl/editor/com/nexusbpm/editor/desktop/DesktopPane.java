@@ -109,18 +109,6 @@ public class DesktopPane extends JDesktopPane implements DropTargetListener {
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
-//      EditorDataProxy dp = (EditorDataProxy) ((SharedNode) draggingNode).getProxy();
-//      try {
-//	} catch (EditorException e) {
-		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//	}
-      //        if (Client.numWindowMenuItems() == 0) {
-//          Client.openInternalFrame(internalFrame, new Point(0,0), true);
-//        } else {
-//          Client.openInternalFrame(internalFrame, location, false);
-//        }
-//      throw new RuntimeException("This needs a new context for YAWL.  originally this would open up the editor on the desktop");
     }
   }
 

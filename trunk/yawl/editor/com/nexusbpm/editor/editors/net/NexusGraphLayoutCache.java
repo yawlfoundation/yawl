@@ -20,13 +20,13 @@ import org.jgraph.graph.GraphModel;
  * @author Dean Mao
  * @created Sep 10, 2004
  */
-public class CapselaGraphLayoutCache extends GraphLayoutCache {
+public class NexusGraphLayoutCache extends GraphLayoutCache {
 
-  private static final Log LOG = LogFactory.getLog(CapselaGraphLayoutCache.class);
+  private static final Log LOG = LogFactory.getLog(NexusGraphLayoutCache.class);
 
   private JGraph _graph;
   
-  public CapselaGraphLayoutCache(GraphModel arg0, CellViewFactory arg1, JGraph graph, boolean arg2) {
+  public NexusGraphLayoutCache(GraphModel arg0, CellViewFactory arg1, JGraph graph, boolean arg2) {
     super(arg0, arg1, arg2);
     _graph = graph;
   }

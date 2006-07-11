@@ -24,6 +24,7 @@ import java.util.Vector;
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -164,7 +165,7 @@ public class YNet extends YDecomposition {
      * @hibernate.one-to-many
      *   class="au.edu.qut.yawl.elements.YExternalNetElement"
      */
-    @OneToMany(mappedBy="container", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="container", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     public List<YExternalNetElement> getNetElementsDB() {
         return _netElements;
@@ -173,7 +174,7 @@ public class YNet extends YDecomposition {
      * Inserted for hibernate TODO Set to protected later
      * @param list
      */
-    @OneToMany(mappedBy="container", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="container", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     public void setNetElementsDB(List<YExternalNetElement> list) {
     	_netElements = list;
@@ -671,7 +672,7 @@ public class YNet extends YDecomposition {
 
     @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @Where(clause="DataTypeName='' OR DataTypeName IS NULL")
+    @Where(clause="variable_type='variable'")
     public List<YVariable> getLocalVariables() {
         List<YVariable> retval = new ArrayList<YVariable>(_localVariables);
         Collections.sort(retval);
@@ -680,7 +681,7 @@ public class YNet extends YDecomposition {
 
     @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @Where(clause="DataTypeName='' OR DataTypeName IS NULL")
+    @Where(clause="variable_type='variable'")
     protected void setLocalVariables(List<YVariable> outputParam) {
         for (YVariable parm: outputParam) {
             parm.setParent(this);

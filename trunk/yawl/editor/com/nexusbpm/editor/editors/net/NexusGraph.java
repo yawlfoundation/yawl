@@ -45,7 +45,7 @@ import au.edu.qut.yawl.elements.YAtomicTask;
 
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.desktop.ComponentEditor;
-import com.nexusbpm.editor.editors.net.cells.CapselaCell;
+import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.editors.net.cells.ViewFactory;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.DragAndDrop;
@@ -59,11 +59,11 @@ import com.nexusbpm.editor.tree.SharedNode;
  * @author catch23
  * @created October 28, 2002
  */
-public class CapselaGraph extends JGraph implements Printable,
+public class NexusGraph extends JGraph implements Printable,
 		DropTargetListener, DragGestureListener, DragSourceListener,
 		PropertyChangeListener {
 
-	private static final Log LOG = LogFactory.getLog(CapselaGraph.class);
+	private static final Log LOG = LogFactory.getLog(NexusGraph.class);
 
 	private GraphEditor _graphEditor;
 
@@ -83,7 +83,7 @@ public class CapselaGraph extends JGraph implements Printable,
 	 * @param proxy
 	 *            the proxy for the flow instance.
 	 */
-	public CapselaGraph(CapselaGraphModel model, GraphEditor graphEditor,
+	public NexusGraph(NexusGraphModel model, GraphEditor graphEditor,
 			EditorDataProxy proxy) {
 		this(model, graphEditor, (SharedNode) null);
 		_proxy = proxy;
@@ -99,7 +99,7 @@ public class CapselaGraph extends JGraph implements Printable,
 	 * @param sharedNode
 	 *            the node representing the flow template.
 	 */
-	public CapselaGraph(CapselaGraphModel model, GraphEditor graphEditor,
+	public NexusGraph(NexusGraphModel model, GraphEditor graphEditor,
 			SharedNode sharedNode) {
 		super(model);
 		_dragSource = new DragSource();
@@ -135,18 +135,18 @@ public class CapselaGraph extends JGraph implements Printable,
 			public void mousePressed(MouseEvent e) {
 				if (e.getClickCount() == 3) {
 					int x = e.getX(), y = e.getY();
-					Object cell = CapselaGraph.this.getFirstCellForLocation(x,
+					Object cell = NexusGraph.this.getFirstCellForLocation(x,
 							y);
 					startEditingAtCell(cell);
 				}
 			}
 
 			public void mouseReleased(MouseEvent e) {
-				CapselaGraph.this.repaint();
+				NexusGraph.this.repaint();
 			}
 		});
 
-		GraphLayoutCache cache = new CapselaGraphLayoutCache(getModel(),
+		GraphLayoutCache cache = new NexusGraphLayoutCache(getModel(),
 				new ViewFactory(), this, true);
 		cache.setFactory(new ViewFactory());
 		cache.setSelectsAllInsertedCells(false);
@@ -235,7 +235,7 @@ public class CapselaGraph extends JGraph implements Printable,
 			}
 			this.getGraphLayoutCache().edit(table, null, null, null);
 		} catch (Exception ee) {
-			LOG.info(ee);
+			LOG.info("Exception resizing graph.", ee);
 		}
 		super.repaint();
 	}
@@ -568,11 +568,11 @@ public class CapselaGraph extends JGraph implements Printable,
 // } else {
 // assert cell instanceof CapselaCell : "cell instanceof CapselaCell";
 // LOG.debug("Trying to edit a component");
-	  Object node = ((CapselaCell) cell).getProxy().getData();
+	  Object node = ((NexusCell) cell).getProxy().getData();
       
       if (node instanceof YAtomicTask) {
           try {
-        	  ComponentEditor internalFrame = (ComponentEditor)((CapselaCell) cell).getProxy().getEditor();
+        	  ComponentEditor internalFrame = (ComponentEditor)((NexusCell) cell).getProxy().getEditor();
 			JDesktopPane desktop = WorkflowEditor.getInstance().getDesktopPane();
 			internalFrame.pack();
 		    internalFrame.setLocation(0,0);
@@ -613,7 +613,7 @@ public class CapselaGraph extends JGraph implements Printable,
 	 * 
 	 * @param cell
 	 */
-	public void startBasicEditingAtCell(final CapselaCell cell) {
+	public void startBasicEditingAtCell(final NexusCell cell) {
 		throw new RuntimeException(
 				"This should open up an editor for the task/net/decomposition type");
 	}

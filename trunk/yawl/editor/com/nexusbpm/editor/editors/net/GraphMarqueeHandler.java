@@ -45,12 +45,12 @@ public class GraphMarqueeHandler extends BasicMarqueeHandler {
 
 	//private CellView _cell, _firstCell;
 
-	private CapselaGraph _graph;
+	private NexusGraph _graph;
 
 	private GraphEditor _graphEditor;
 
 
-	public GraphMarqueeHandler( CapselaGraph graph, GraphEditor graphEditor ) {
+	public GraphMarqueeHandler( NexusGraph graph, GraphEditor graphEditor ) {
 		super();
 		_graph = graph;
 		_graphEditor = graphEditor;

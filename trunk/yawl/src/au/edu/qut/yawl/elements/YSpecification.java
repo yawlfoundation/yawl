@@ -580,9 +580,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
     public Long getDbID() {
-    	if (Long.valueOf(19).equals(_dbid)) {
-    		new Exception("here we are").printStackTrace();
-    	}
     	return _dbid;
     }
     
@@ -654,6 +651,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 			retval = (YSpecification) ois.readObject();
 			retval._xmlToolsForYAWL = new XMLToolsForYAWL();
 			retval._xmlToolsForYAWL.setPrimarySchema(_xmlToolsForYAWL.getSchemaString());
+			System.err.println(retval.toXML());
 			return retval;
 		} catch (Exception e) {
 			CloneNotSupportedException ex = new CloneNotSupportedException();

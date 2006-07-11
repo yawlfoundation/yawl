@@ -1,5 +1,6 @@
 package com.nexusbpm.editor.editors.net;
 
+import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -9,7 +10,11 @@ import org.jgraph.event.GraphModelEvent;
 import org.jgraph.event.GraphModelListener;
 import org.jgraph.graph.GraphConstants;
 
-import com.nexusbpm.editor.editors.net.cells.CapselaCell;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.persistence.managed.DataContext;
+
+import com.nexusbpm.editor.editors.net.cells.NexusCell;
+import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 
 /**
  * @author Dean Mao
@@ -18,13 +23,13 @@ import com.nexusbpm.editor.editors.net.cells.CapselaCell;
 public class GraphChangeSummary implements GraphModelListener {
 	private final static Log LOG = LogFactory.getLog( GraphChangeSummary.class );
 
-  private CapselaGraph _graph;
+  private NexusGraph _graph;
   private GraphEditor _editor;
 
   /**
    *  
    */
-  public GraphChangeSummary(CapselaGraph graph, GraphEditor editor) {
+  public GraphChangeSummary(NexusGraph graph, GraphEditor editor) {
     _graph = graph;
     _editor = editor;
   }
@@ -38,15 +43,17 @@ public class GraphChangeSummary implements GraphModelListener {
     if (e.getChange().getPreviousAttributes() != null) {
     for (Iterator iter = e.getChange().getPreviousAttributes().keySet().iterator(); iter.hasNext();) {
       Object obj = iter.next();
-      if (obj != null && obj instanceof CapselaCell) {
-        CapselaCell cell = (CapselaCell) obj;
-        //Map oldAttributeMap = (Map) e.getChange().getAttributes().get(cell);
+      if (obj != null && obj instanceof NexusCell) {
+        NexusCell cell = (NexusCell) obj;
         Map attributeMap = (Map) e.getChange().getPreviousAttributes().get(cell);
         if (attributeMap.get(GraphConstants.BOUNDS) != null) {
+        	YExternalNetElement ene = (YExternalNetElement) cell.getProxy().getData();
+        	YTaskEditorExtension extension = new YTaskEditorExtension(ene);
+        	Rectangle2D r = (Rectangle2D) attributeMap.get(GraphConstants.BOUNDS);
+        	extension.setCenterPoint(r.getBounds().getLocation());
 //          CellView view = _graph.getGraphLayoutCache().getMapping(cell, false);
-//	      _editor.getFlowEditor().setDirty(true);
-        	LOG.error("TODO graphchanged", new RuntimeException("implement me please!  (for yawl)"));
-		  
+	      _editor.getFlowEditor().setDirty(true);
+        	LOG.info("Element position changed.");
 		  // TODO The commented block of code in the "if (view instanceof DefaultView)" is to 
 		  // reposition the animated icon if the position of the component moves.  This is not
 		  // necessary at the moment since animated icons represent running components and
