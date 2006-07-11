@@ -12,7 +12,7 @@
     <description>
         This custom YAWL Service dynamically selects an appropriate sub-process for an executing
         workitem, and handles any process exceptions.
-        Copyright © 2005 Queensland University of Technology. All rights reserved.
+        Copyright © 2006 Queensland University of Technology. All rights reserved.
         Author: Michael Adams
         For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads' section under
         http://www.yawl.fit.qut.edu.au/.
@@ -28,9 +28,17 @@
 
     <context-param>
         <param-name>InterfaceBWebSideController</param-name>
-        <param-value>au.edu.qut.yawl.worklet.selection.WorkletService</param-value>
+        <param-value>au.edu.qut.yawl.worklet.WorkletService</param-value>
         <description>
             The class name of the Interface B Server implementation.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>InterfaceX_Service</param-name>
+        <param-value>au.edu.qut.yawl.worklet.exception.ExceptionService</param-value>
+        <description>
+            The class name of the Interface X Service implementation.
         </description>
     </context-param>
 
@@ -120,6 +128,15 @@
     </servlet>
 
     <servlet>
+        <servlet-name>InterfaceX_Servlet</servlet-name>
+        <description>
+            Listens to notification of exceptions from the engine.
+        </description>
+        <servlet-class>au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideServer</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
 		<servlet-name>ErrorServlet</servlet-name>
 		<description>
             Reports that the URI request found nothing, hence the error report.
@@ -134,20 +151,25 @@
         <url-pattern>/ib</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>InterfaceX_Servlet</servlet-name>
+        <url-pattern>/ix</url-pattern>
+    </servlet-mapping>
+
 	<servlet-mapping>
 		<servlet-name>ErrorServlet</servlet-name>
 		<url-pattern>/error</url-pattern>
 	</servlet-mapping>
 
 
-<!-- this servlet provides a gateway from thr .NET rdrEditor -->
+<!-- this servlet provides a gateway from the .NET rdrEditor -->
 
     <servlet>
         <servlet-name>wsGateway</servlet-name>
         <description>
             For replacing a started worklet with another one.
         </description>
-        <servlet-class>au.edu.qut.yawl.worklet.support.wsGateway</servlet-class>
+        <servlet-class>au.edu.qut.yawl.worklet.support.WorkletGateway</servlet-class>
         <load-on-startup>2</load-on-startup>
     </servlet> 
     
@@ -155,6 +177,97 @@
         <servlet-name>wsGateway</servlet-name>
         <url-pattern>/gateway</url-pattern>
     </servlet-mapping>
+
+    
+    <!-- this servlet provides an external gateway to the Exception Service -->
+
+    <servlet>
+        <servlet-name>ItemExceptionJSP</servlet-name>
+        <description>
+            Handles an externally triggered exception for a workitem.
+        </description>
+        <jsp-file>/jsp/wsItemException.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ItemExceptionJSP</servlet-name>
+        <url-pattern>/workItemException</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CaseExceptionJSP</servlet-name>
+        <description>
+            Handles an externally triggered exception for a case.
+        </description>
+        <jsp-file>/jsp/wsCaseException.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CaseExceptionJSP</servlet-name>
+        <url-pattern>/caseException</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>NewCaseExceptionJSP</servlet-name>
+        <description>
+            Handles a request for a new handler for a case-level external exception.
+        </description>
+        <jsp-file>/jsp/wsNewCaseException.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>NewCaseExceptionJSP</servlet-name>
+        <url-pattern>/newCaseException</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>AdminTasksJSP</servlet-name>
+        <description>
+            Handles a request for a new handler for a case-level external exception.
+        </description>
+        <jsp-file>/jsp/wsAdminTasks.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>AdminTasksJSP</servlet-name>
+        <url-pattern>/wsAdminTasks</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>AdminTaskDetailJSP</servlet-name>
+        <description>
+            Handles a request for a new handler for a case-level external exception.
+        </description>
+        <jsp-file>/jsp/wsAdminTaskDetail.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>AdminTaskDetailJSP</servlet-name>
+        <url-pattern>/wsAdminTaskDetail</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RejectWorkletJSP</servlet-name>
+        <description>
+            Handles a request for a new handler for a case-level external exception.
+        </description>
+        <jsp-file>/jsp/wsRejectWorklet.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>RejectWorkletJSP</servlet-name>
+        <url-pattern>/rejectWorklet</url-pattern>
+    </servlet-mapping>
+
+
 
 
     <!--

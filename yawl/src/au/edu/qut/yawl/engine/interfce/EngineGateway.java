@@ -26,7 +26,7 @@ public interface EngineGateway extends Remote {
     /**
      * Inidicates if the engine has encountered some form of persistence failure in its lifetime.<P>
      *
-     * @return
+     * @return boolean
      */
     public boolean enginePersistenceFailure();
     
@@ -59,7 +59,7 @@ public interface EngineGateway extends Remote {
 
     public String suspendWorkItem(String workItemID, String sessionHandle) throws RemoteException;
 
-    public String completeWorkItem(String workItemID, String data, String sessionHandle) throws RemoteException;
+    public String completeWorkItem(String workItemID, String data, boolean force, String sessionHandle) throws RemoteException;
 
     public String startWorkItem(String workItemID, String sessionHandle) throws RemoteException;
 
@@ -110,4 +110,16 @@ public interface EngineGateway extends Remote {
     public String deleteUser(String userName, String sessionHandle) throws RemoteException;
 
     public String changePassword(String password, String sessionHandle) throws RemoteException;
+
+    public String setExceptionObserver(String observerURI) ;
+
+    public String removeExceptionObserver() ;
+
+    public String updateWorkItemData(String workItemID, String data, String sessionHandle);
+
+    public String updateCaseData(String idStr, String data, String sessionHandle) ;
+
+    public String restartWorkItem(String workItemID, String sessionHandle) throws RemoteException ;
+
+    public String cancelWorkItem(String id, String fail, String sessionHandle) throws RemoteException ;
 }

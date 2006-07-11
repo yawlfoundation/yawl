@@ -249,7 +249,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                         msg.append(_engine.startWorkItem(workItemID, sessionHandle));
                     } else if (action.equals("checkin")) {
                         String data = request.getParameter("data");
-                        msg.append(_engine.completeWorkItem(workItemID, data, sessionHandle));
+                        msg.append(_engine.completeWorkItem(workItemID, data, false, sessionHandle));
                     } else if (action.equals("createInstance")) {
                         String paramValueForMICreation =
                                 request.getParameter("paramValueForMICreation");

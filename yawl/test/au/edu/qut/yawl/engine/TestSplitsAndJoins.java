@@ -118,7 +118,7 @@ public class TestSplitsAndJoins extends TestCase {
     	sleep( SLEEP_TIME );
     	
     	// complete task A
-    	_engine.completeWorkItem( item, item.getDataString() );
+    	_engine.completeWorkItem( item, item.getDataString(), false );
     	
     	
     	// task A splits to B and C. Make sure there are 2 enabled items.
@@ -145,7 +145,7 @@ public class TestSplitsAndJoins extends TestCase {
     	itemIter = workItems.iterator();
     	while( itemIter.hasNext() ) {
     		item = itemIter.next();
-    		_engine.completeWorkItem( item, item.getDataString() );
+    		_engine.completeWorkItem( item, item.getDataString(), false );
     	}
     	
     	sleep( SLEEP_TIME );
@@ -166,7 +166,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
 
     	// complete task D
-    	_engine.completeWorkItem( item, item.getDataString() );
+    	_engine.completeWorkItem( item, item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -186,7 +186,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
     	
     	// complete task E
-    	_engine.completeWorkItem( item, item.getDataString() );
+    	_engine.completeWorkItem( item, item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -215,7 +215,7 @@ public class TestSplitsAndJoins extends TestCase {
     	itemIter = workItems.iterator();
     	while( itemIter.hasNext() ) {
     		item = itemIter.next();
-    		_engine.completeWorkItem( item, item.getDataString() );
+    		_engine.completeWorkItem( item, item.getDataString(), false );
     	}
     	
     	sleep( SLEEP_TIME );
@@ -236,7 +236,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
     	
     	// complete task H
-    	_engine.completeWorkItem( item, item.getDataString() );
+    	_engine.completeWorkItem( item, item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -256,7 +256,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
     	
     	// complete task I
-    	_engine.completeWorkItem( item, item.getDataString() );
+    	_engine.completeWorkItem( item, item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -276,7 +276,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
     	
     	// complete task K
-    	_engine.completeWorkItem( item, item.getDataString() );
+    	_engine.completeWorkItem( item, item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -300,7 +300,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
     	
     	// complete task M
-    	_engine.completeWorkItem( item, item.getDataString() );
+    	_engine.completeWorkItem( item, item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -395,7 +395,7 @@ public class TestSplitsAndJoins extends TestCase {
         	
         	// try to complete it
         	YNetRunner netRunner = _workItemRepository.getNetRunner( item.getCaseID() );
-        	_engine.completeWorkItem( item, "<A/>" );
+        	_engine.completeWorkItem( item, "<A/>", false );
         	
         	fail( "an error should have been thrown" );
     	}
@@ -596,7 +596,7 @@ public class TestSplitsAndJoins extends TestCase {
 		assertFalse( task.getMIExecuting().containsIdentifier() );
 		
 		try {
-			_engine.completeWorkItem( item, item.getDataString() );
+			_engine.completeWorkItem( item, item.getDataString(), false );
 			fail("An exception should have been thrown");
 		}
 		catch(YStateException e) {
@@ -604,7 +604,7 @@ public class TestSplitsAndJoins extends TestCase {
 		}
 		
 		try {
-			_engine.completeWorkItem( null, item.getDataString() );
+			_engine.completeWorkItem( null, item.getDataString(), false );
 			fail("An exception should have been thrown");
 		}
 		catch(YStateException e) {
@@ -648,7 +648,7 @@ public class TestSplitsAndJoins extends TestCase {
 		assertTrue( task.getMIExecuting().containsIdentifier() );
     	
     	// and finally complete it
-    	_engine.completeWorkItem( item, item.getDataString() );
+    	_engine.completeWorkItem( item, item.getDataString(), false );
     	
     	System.out.println( _engine.getStateForCase( item.getCaseID() ) );
     	System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );

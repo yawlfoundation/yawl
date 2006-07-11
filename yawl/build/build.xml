@@ -1300,20 +1300,25 @@
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>        
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
-    	<mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions"/>         
-    	<mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema" /> 
-    	<mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal"/>
+    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions"/>         
+    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema" /> 
+    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/util"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model"/>
-        
+
         <!-- 1a. Make the dirs for the worklet classes -->
-    	<mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/rdr"/>
-    	<mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/selection"/>
-    	<mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/support"/>
-    	
-    	<mkdir dir="${yawl.worklet.app.name}/graphics"/>    
-    	
-    	<!-- 2. Copy required yawl classes into dir structure -->    	
+    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/rdr"/>
+    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/selection"/>
+    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/support"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/exception"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/admin"/>
+
+    	  <mkdir dir="${yawl.worklet.app.name}/graphics"/>
+        <mkdir dir="${yawl.worklet.app.name}/jsp"/>
+
+
+        <!-- 2. Copy required yawl classes into dir structure -->
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication">
             <fileset dir="${classes}/au/edu/qut/yawl/authentication"
                      includes="User.class"/>
@@ -1333,19 +1338,21 @@
             <fileset dir="${classes}/au/edu/qut/yawl/elements/state"
                      includes="YIdentifier.class"/>
         </copy>
-    	<copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
-    	   <fileset dir="${classes}/au/edu/qut/yawl/exceptions" 
+    	  <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+    	      <fileset dir="${classes}/au/edu/qut/yawl/exceptions" 
     	            includes="YSchemaBuildingException.class 
     	                      YSyntaxException.class YAWLException.class" /> 
-    	</copy>
-    	<copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema">
-    	   <fileset dir="${classes}/au/edu/qut/yawl/schema" includes="*.class" /> 
-    	</copy>
+    	  </copy>
+    	  <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema">
+    	      <fileset dir="${classes}/au/edu/qut/yawl/schema" includes="*.class" /> 
+    	  </copy>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
             <fileset dir="${classes}/au/edu/qut/yawl/unmarshal"
                      includes="YDecompositionParser.class SchemaValidator.class 
                                SchemaForSchemaValidator.class"/>
         </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/util"
+              file="${classes}/au/edu/qut/yawl/util/JDOMConversionTools.class"/>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist">
             <fileset dir="${classes}/au/edu/qut/yawl/worklist"
                      includes="*.class"/>
@@ -1356,20 +1363,30 @@
         </copy>
         
         <!-- 2a. copy worklet classes to relevant dirs -->
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet"
+              file="${classes}/au/edu/qut/yawl/worklet/WorkletService.class"/>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/rdr">
             <fileset dir="${classes}/au/edu/qut/yawl/worklet/rdr"
                      includes="*.class"/>
         </copy>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/selection">
             <fileset dir="${classes}/au/edu/qut/yawl/worklet/selection"
-                     includes="*.class"/>
+                     includes="*.class *.xml"/>
         </copy>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/support">
             <fileset dir="${classes}/au/edu/qut/yawl/worklet/support"
-                     includes="*.class"/>
+                     includes="*.class *.xml"/>
         </copy>
-        
-    	<!-- 2b. Copy required worklet support files into dir root -->    	
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/exception">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklet/exception"
+                     includes="*.class *.xml"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/admin">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklet/admin"
+                     includes="*.class *.xml"/>
+        </copy>
+
+    	  <!-- 2b. Copy required worklet support files into dir root -->    	
         <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletService.properties"/>
         <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/welcome/welcome.htm"/>
         <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletRepository.zip"/>
@@ -1382,7 +1399,12 @@
         <copy todir="${yawl.worklet.app.name}/graphics" file="${graphics.home}/subtext.jpg"/>
         <copy todir="${yawl.worklet.app.name}/graphics" file="${graphics.home}/yawl.swf"/>
 
-        <!-- 2d. Copy log4j properties -->
+        <!-- 2d. Copy in jsps -->
+        <copy todir="${yawl.worklet.app.name}/jsp">
+             <fileset dir="${classes}/au/edu/qut/yawl/worklet/jsp"/>
+        </copy>
+
+        <!-- 2e. Copy log4j properties -->
         <copy file="${property.files}/log4j.properties" todir="${yawl.worklet.app.name}/WEB-INF/classes"/>
         <replace file="${yawl.worklet.app.name}/WEB-INF/classes/log4j.properties">
             <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
@@ -1391,22 +1413,26 @@
         </replace>
 
         <!-- 3. Copy required 3rd party libraries into dir structure -->    	
-    	<copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
-    	   <fileset dir="${xsd.libs}" includes="*.jar" />
-    	</copy>
-        <copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar"/>
+    	  <copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
+    	     <fileset dir="${xsd.libs}" includes="*.jar" />
+           <fileset dir="${persist.libs}" includes="*.jar"/>
+           <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar"/>
         </copy>
 
-        <!-- 4. Copy web.xml file into dir structure -->
+        <!-- 4. Copy hibernate & postgres files (assumes version 8) -->
+        <copy file="${postgres8.path}" tofile="${yawl.worklet.app.name}/WEB-INF/lib/${postgres8.jar}"/>
+        <copy file="${property.files}/hibernate.properties.postgres8"
+            tofile="${yawl.worklet.app.name}/WEB-INF/classes/hibernate.properties"/>
+
+        <!-- 5. Copy web.xml file into dir structure -->
         <copy todir="${yawl.worklet.app.name}/WEB-INF" file="${build.home}/workletService/web.xml"/>
-        
-        <!-- 5. create Web Archive file -->
+
+        <!-- 6. create Web Archive file -->
         <jar destfile="${output}/workletService.war">
             <fileset dir="${yawl.worklet.app.name}"/>
         </jar>
         
-        <!-- 6. Remove temp build area -->
+        <!-- 7. Remove temp build area -->
         <delete dir="${yawl.worklet.app.name}"/>
     </target>
 

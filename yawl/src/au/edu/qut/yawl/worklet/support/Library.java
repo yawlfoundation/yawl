@@ -1,11 +1,10 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
- * individuals and organisations who are commited to improving workflow technology.
- *
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are commited to improving
+ * workflow technology.
  */
-
 package au.edu.qut.yawl.worklet.support;
 
 import java.util.* ;
@@ -14,13 +13,12 @@ import java.io.* ;
 import org.apache.log4j.Logger;
 
 /**
- *  The support library class of static methods 
- *  for the worklet selection service 
+ *  The support library class of static methods for the worklet service
  *
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  v0.7, 10/12/2005
+ *  v0.8, 04/07/2006
  */
 
 public class Library {
@@ -30,9 +28,12 @@ public class Library {
     public static final String wsRepositoryDir = getRepositoryDir() ;
     public static final String wsLogsDir       = wsRepositoryDir + "logs/" ;
     public static final String wsWorkletsDir   = wsRepositoryDir + "worklets/" ;
-    public static final String wsSelRulesDir   = wsRepositoryDir + "selectionRules/" ;
-    public static final String wsExRulesDir    = wsRepositoryDir + "exceptionRules/" ;
+    public static final String wsRulesDir      = wsRepositoryDir + "rules/" ;
     public static final String wsSelectedDir   = wsRepositoryDir + "selected/" ;
+    public static final boolean wsPersistOn    = getPersistOn() ;
+
+    private static String _resDir = null ;
+    private static String _persist = null ;
     
     public static final String newline = System.getProperty("line.separator");
 
@@ -51,22 +52,46 @@ public class Library {
 	}
 	
 //===========================================================================//
+
+    /** returns the file path to the worklet repository */
+    private static String getRepositoryDir() {
+        if (_resDir == null) getProperties();
+        return _resDir;
+    }
+
+//===========================================================================//
 	
-	/** returns the file path to the worklet repository & files */
-	private static String getRepositoryDir() {
-		Properties prop = new Properties();
-		String fName = wsHomeDir + "workletService.properties" ;
-	    
-	    try {
-	        prop.load(new FileInputStream(fName));
-	        return prop.getProperty("repositoryDir");    // get from prop file
-	    } 
-	    catch (IOException e) {
-	    	_log.error("Can't read workletService.properties files" , e);
-	    	return null ;
-	    }
+    /** returns the value for persistence from the properties file */
+ 	private static boolean getPersistOn() {
+        boolean result = false ;                           // default result
+        if (_persist == null) getProperties();             // read the prop file
+        if (_persist != null) {                            // we have a value
+           result = _persist.equalsIgnoreCase("on")   ||   // a few options
+                    _persist.equalsIgnoreCase("yes")  ||
+                    _persist.equalsIgnoreCase("true") ||
+                    _persist.equalsIgnoreCase("y");
+        }
+
+        return result;
 	}
 	
+//===========================================================================//
+
+    /** returns the file path to the worklet repository & files */
+    private static void getProperties() {
+        Properties prop = new Properties();
+        String fName = wsHomeDir + "workletService.properties" ;
+
+        try {
+            prop.load(new FileInputStream(fName));
+            _resDir = prop.getProperty("repositoryDir");    // get values from prop file
+            _persist = prop.getProperty("persist");
+        }
+        catch (IOException e) {
+            _log.error("Can't read workletService.properties files" , e);
+        }
+    }
+
 //===========================================================================//
 	
 	/**
@@ -101,12 +126,20 @@ public class Library {
 	
 //===========================================================================//
 	
-    /** removes the xxx_ part from the front of a taskid */
+    /** removes the ddd_ part from the front or rear of a taskid */
 	public static String getTaskNameFromId(String tid) {
-		if (tid.length() == 0) return null ;
-		
-		int pos = tid.indexOf('_') ;                   // remove xxx_
-		return tid.substring(pos + 1) ;		           // from start of task 
+		if (tid.length() == 0) return null ;            // no string passed
+        if (tid.indexOf('_') == -1) return tid ;        // no change required
+
+        String[] split = tid.split("_");
+
+        // find out which side has the decomp'd taskid
+        char c = tid.charAt(0);
+
+        if (Character.isDigit(c))                      // if tid starts with a digit
+           return split[1] ;                           // return name after the '_'
+        else
+           return split[0] ;                           // return name before the '_'
 	}
 	
 //===========================================================================//
@@ -154,15 +187,53 @@ public class Library {
        }
    }
    	
-   	
+//===========================================================================//
+
    /** returns true if the file is found */	
    public static boolean fileExists(String fName) {
       File f = new File(fName) ;
       return f.exists() ;        	
-   }	
+   }
+
+//===========================================================================//
+
+    /** returns a list of objects as a String of csv's */
+    public static String listItems(List list) {
+        String s = "" ;
+        for (Object o : list) {
+            s += o + ", ";
+        }
+        return s ;
+    }
+
+//===========================================================================//
+
+    /** appends a formatted line with the passed title and value to the StringBuffer */
+    public static StringBuffer appendLine(StringBuffer s, String title, String item){
+        if (title == null) title = "null" ;
+        if (item == null) item = "null" ;
+        s.append(title); s.append(": "); s.append(item); s.append(newline);
+        return s ;
+    }
+
+//===========================================================================//
+
+    /** appends an XML formatted line with the passed tag and value to the StringBuffer */
+    public static StringBuffer appendXML(StringBuffer s, String tag, String value) {
+        String open  = '<' + tag + '>' ;
+        String close = "</" + tag + '>';
+
+        // replace all <'s and &'s with unmarkedup equivalents
+        if (value.indexOf('&') > -1) value = value.replaceAll("&", "&amp;");
+        if (value.indexOf('<') > -1) value = value.replaceAll("<", "&lt;");
+
+        s.append(open); s.append(value); s.append(close);
+        return s;
+    }
+
    
 //===========================================================================//
 //===========================================================================//
 	
-}
+}  // ends
 

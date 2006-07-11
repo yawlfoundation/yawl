@@ -15,11 +15,11 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.ObserverGateway;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.unmarshal.YDecompositionParser;
+import au.edu.qut.yawl.util.JDOMConversionTools;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.jdom.output.*;
 import org.apache.log4j.Category;
 
 import java.io.IOException;
@@ -79,8 +79,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param workItem the parent work item to cancel.
      */
     public void cancelAllWorkItemsInGroupOf(YAWLServiceReference yawlService, YWorkItem workItem) {
-        System.out.println("Thread::yawlService.getURI() = " + yawlService.getURI());
-        System.out.println("\rworkItem.toXML() = " + workItem.toXML());
+        //System.out.println("Thread::yawlService.getURI() = " + yawlService.getURI());
+        //System.out.println("\rworkItem.toXML() = " + workItem.toXML());
         if(workItem.getParent() == null){
             Handler myHandler = new Handler(yawlService, workItem, "cancelAllInstancesUnderWorkItem");
             myHandler.start();
@@ -184,7 +184,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 } else if (InterfaceB_EngineBasedClient.ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String caseID = _caseID.toString();
-                    String casedataStr = docToString(_casedata) ;
+                    String casedataStr = JDOMConversionTools.documentToString(_casedata) ;
                     Map paramsMap = new HashMap();
                     paramsMap.put("action", _command);
                     paramsMap.put("caseID", caseID);
@@ -196,18 +196,5 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 e.printStackTrace();
             }            
         }
-        
-        
-	    /** 
-	     *  Convert a JDOM Document to a String.
-	     *  Used to convert casedata to a String for passing through IB
-	     *  MJA 06/12/05
-	     */
-	    private String docToString(Document doc) {
-	        XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-	        return out.outputString(doc);
-	    }    
-
-        
     }
 }

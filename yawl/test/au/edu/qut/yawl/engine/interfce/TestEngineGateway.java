@@ -238,7 +238,7 @@ public class TestEngineGateway extends TestCase {
     }
     
     public void testCompleteNonExistentWorkItem() throws RemoteException {
-    	String result = _gateway.completeWorkItem( "invalid_work_item_id", null, _session );
+    	String result = _gateway.completeWorkItem( "invalid_work_item_id", null, false, _session );
     	assertNotNull( result );
     	assertTrue( result, result.startsWith( "<failure" ) );
     }
@@ -641,7 +641,7 @@ public class TestEngineGateway extends TestCase {
             // then complete it
         	System.out.println( "Completing task: " + item.getTaskID() +
 					" in work item: " + item.getID() );
-			result = _gateway.completeWorkItem( item.getID(), item.getDataListString(), _session );
+			result = _gateway.completeWorkItem( item.getID(), item.getDataListString(), false, _session );
 			assertNotNull( result );
 			assertFalse( result, result.startsWith( "<failure" ) );
         }

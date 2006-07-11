@@ -95,6 +95,14 @@
         <input type="submit" name="submit" value="Suspend Task"
             onClick="return isCompletedForm('checkedOutForm', 'workItemID')"/>
         <input name=" Clear " type="reset"/>
+        <%
+        if (_ixURI != null) {
+        %>
+          <input type="submit" name="submit" value="Raise Exception"
+               onClick="return isCompletedForm('availableForm', 'workItemID')"/>
+        <%
+         }
+        %>
         </form>
         </p>
         <%@include file="footer.jsp"%>

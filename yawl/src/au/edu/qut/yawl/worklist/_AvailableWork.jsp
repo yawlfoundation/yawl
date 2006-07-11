@@ -4,43 +4,40 @@
 				 au.edu.qut.yawl.worklist.model.*"%>
 <%
     String workItemID  = request.getParameter("workItemID");
-    
-    if(workItemID != null){			
+    String submitType =  request.getParameter("submit");
 
+    if ((submitType != null) && submitType.equals("Raise Exception")) {
 
-        String sessionHandle = (String) session.getAttribute("sessionHandle");
-        String userID = (String) session.getAttribute("userid");
-        WorkItemRecord checkedOutItem = _worklistController.checkOut(
-                workItemID, sessionHandle);
-        WorkItemProcessor wip = new WorkItemProcessor();
-        
-        if(null != checkedOutItem){
+        if (_ixURI != null) {
+            String url = _ixURI + "/workItemException?workItemID=" + workItemID ;
+            response.sendRedirect( response.encodeURL(url) );
+        }
+    }
+    else {
+        if (workItemID != null) {
 
-            TaskInformation taskInfo = _worklistController.getTaskInformation(
-            	checkedOutItem.getSpecificationID(), checkedOutItem.getTaskID(), 
-            	sessionHandle);
+            String sessionHandle = (String) session.getAttribute("sessionHandle");
+            String userID = (String) session.getAttribute("userid");
+            WorkItemRecord checkedOutItem = _worklistController.checkOut(
+                    workItemID, sessionHandle);
+            WorkItemProcessor wip = new WorkItemProcessor();
 
-		if (taskInfo.getAttribute("formtype")==null || !taskInfo.getAttribute("formtype").equalsIgnoreCase("pdf")) {
-			 	wip.executeWorkItemPost( getServletContext(), checkedOutItem.getID(), 
-				sessionHandle, _worklistController, userID );
-				
-				String url = wip.getRedirectURL( getServletContext(), taskInfo );
-			
-				response.sendRedirect( response.encodeURL(url) );						
-		} else {
-				System.out.println(checkedOutItem.getDataListString());
- 			 	String filename = wip.executePDFWorkItemPost( getServletContext(), checkedOutItem.getID(), taskInfo.getDecompositionID(),
-			  			sessionHandle, _worklistController, userID );
+            if (null != checkedOutItem) {
 
-								
-				String url = "http://localhost:8080/PDFforms/complete.jsp?filename="+filename;
-					response.sendRedirect( response.encodeURL(url) );
+                TaskInformation taskInfo = _worklistController.getTaskInformation(
+                        checkedOutItem.getSpecificationID(), checkedOutItem.getTaskID(),
+                        sessionHandle);
 
-		}
+                //application.getRequestDispatcher("/checkedOut").forward(request, response);
+                wip.executeWorkItemPost(getServletContext(), checkedOutItem.getID(),
+                        sessionHandle, _worklistController, userID);
 
+                String url = wip.getRedirectURL(getServletContext(), taskInfo);
 
-        } else {
-            request.setAttribute("failure", checkedOutItem);
+                response.sendRedirect(response.encodeURL(url));
+            } else {
+                request.setAttribute("failure", checkedOutItem);
+            }
         }
     }
 %><html xmlns="http://www.w3.org/1999/xhtml">
@@ -131,6 +128,14 @@
                 <td><input value=" Check Out " type="submit"
                     onClick="return isCompletedForm('availableForm', 'workItemID')"/></td>
                 <td><input name=" Clear " type="reset"/></td>
+                <%
+                if (_ixURI != null) {
+                %>
+                    <td><input type="submit" name="submit" value="Raise Exception"
+                        onClick="return isCompletedForm('availableForm', 'workItemID')"/></td>
+                <%
+                }
+                %>
             </tr>
         </table>
         </form>

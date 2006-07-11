@@ -1,11 +1,10 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
- * individuals and organisations who are commited to improving workflow technology.
- *
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are commited to improving
+ * workflow technology.
  */
-
 package au.edu.qut.yawl.worklet.selection;
 
 import au.edu.qut.yawl.worklist.model.*;
@@ -31,41 +30,86 @@ import java.util.*;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  v0.7, 10/12/2005
+ *  v0.8, 04/07/2006
  */
 
 public class CheckedOutItem {
 	
 	private WorkItemRecord _wir ;          // the id of the 'parent' workitem
-	private ArrayList _myChildren ;        // list of checked out children
-//	private ArrayList _runningCases ;      // list of running worklet cases 
-	private String _specId ;               // specification that task is in 
- //   private static Logger _log ;                  // log file for debug messages
+	private ArrayList<CheckedOutChildItem> _myChildren ;  // list of checked out children
+	private String _specId ;               // specification that task is in
     private CheckedOutItem _me ;           // reference to self
+
+    private String _persistID ;            // unique id field for persistence
+    private String _wirStr ;               // intermediate string needed for persistence
+
+ //   private static Logger _log ;         // log file for debug messages
 	
-	
-	/** Constructs a CheckedOutItem 
+	public CheckedOutItem() {}             // required for persistence
+
+    /** Constructs a CheckedOutItem
 	 *  @param w - the WorkItemRecord of the 'parent' workitem
 	 */	
 	public CheckedOutItem(WorkItemRecord w) {
 		_wir = w ;                              
-		_myChildren = new ArrayList() ;
-	    _specId = w.getSpecificationID() ;
-        //  _log = Logger.getLogger("au.edu.qut.yawl.worklet.selection.CheckedOutItem");
-        _me = this ;
+        _persistID = _wir.getID();
+
+        initNonPersistedItems();
 	}
 	
 //===========================================================================//
-	
-	// SETTERS //
+
+    // ACCESSORS & MUTATORS NEEDED FOR PERSISTENCE //
+
+    public void set_persistID(String id) {
+        _persistID = id ;
+    }
+
+    public void set_wirStr(String s) {
+        _wirStr = s;
+    }
+
+    public String get_wirStr() {
+        if (_wirStr == null) _wirStr = _wir.toXML() ;
+        return _wirStr ;
+    }
+
+    public String get_persistID() {
+        return _persistID ;
+    }
+
+    // initialise the data members that are not persisted (after a restore)
+    public void initNonPersistedItems() {
+        _specId = _wir.getSpecificationID() ;
+        _myChildren = new ArrayList<CheckedOutChildItem>() ;
+        _me = this ;
+        //  _log = Logger.getLogger("au.edu.qut.yawl.worklet.selection.CheckedOutItem");
+    }
+
+    // update the persisted object
+    private void persistThis() {
+        DBManager dbMgr = DBManager.getInstance(false);
+        if ((dbMgr != null) && dbMgr.isPersisting())
+             dbMgr.persist(this, DBManager.DB_UPDATE);
+    }
+
+
+
+//===========================================================================//
+
+
+    // SETTERS //
 	
 	public void setItem(WorkItemRecord w) {
 		_wir = w ;
-	}
+        _persistID = _wir.getID();
+        initNonPersistedItems();
+        persistThis();
+    }
 	
 	
-	public void setChildren(List c) {
-		_myChildren = (ArrayList) c ;
+	public void setChildren(List<CheckedOutChildItem> c) {
+		_myChildren = (ArrayList<CheckedOutChildItem>) c ;
 	}
 	
 //===========================================================================//
@@ -85,9 +129,14 @@ public class CheckedOutItem {
 	public List getChildren() {
 		return _myChildren ;
 	}
-	
-	
-	/** returns the WorkItemRecord of the index childitem */
+
+
+    public String getParentID() {
+       return _persistID ;
+    }
+
+
+    /** returns the WorkItemRecord of the index childitem */
 	public WorkItemRecord getChildWorkItem(int i) {
 	   if (_myChildren.size() < i) return null ;                  // no kids! 
 	   else {
@@ -100,17 +149,17 @@ public class CheckedOutItem {
 	/** returns the CheckedOutChildItem object of the index childitem */
 	public CheckedOutChildItem getCheckedOutChildItem(int i) {
 	   if (_myChildren.size() < i) return null ;                  // no kids!       
-	   return (CheckedOutChildItem) _myChildren.get(i) ;
+	   return _myChildren.get(i) ;
 	}
 	
 	
 	/** returns the CheckedOutChildItem object of the childitem with the id */
 	public CheckedOutChildItem getCheckedOutChildItem(String itemId) {
-	    Iterator itr = _myChildren.iterator();
-	    while (itr.hasNext()) {                              // for each child   
-    		CheckedOutChildItem c = (CheckedOutChildItem) itr.next() ;
-	        if (itemId.equals(c.getItem().getID())) return c ; 
-        }			
+        for (Object a_myChildren : _myChildren)
+        {                              // for each child
+            CheckedOutChildItem c = (CheckedOutChildItem) a_myChildren;
+            if (itemId.equals(c.getItem().getID())) return c;
+        }
         return null ;
 	}
 	
@@ -120,13 +169,18 @@ public class CheckedOutItem {
 	
 	/** adds a new child item to this parent */
 	public void addChild(WorkItemRecord w) {
-		CheckedOutChildItem child = new CheckedOutChildItem(w);
-		child.setParent(_me) ;
-		_myChildren.add(child) ;                    // keep track of children
+        addChild(new CheckedOutChildItem(w)) ;
 	}
-	
-	
-	/** returns the number of children of this parent */
+
+
+    /** adds child from ChildItem (used when restoring from persistence) */
+    public void addChild(CheckedOutChildItem child) {
+        child.setParent(_me) ;
+        _myChildren.add(child) ;                           // keep track of children
+    }
+
+
+    /** returns the number of children of this parent */
 	public int getChildCount() {
 		return _myChildren.size() ;
 	}
@@ -147,7 +201,7 @@ public class CheckedOutItem {
 		
 		// for each child in list of children
 		for (int i = 0; i < _myChildren.size(); i++) {
-    		CheckedOutChildItem c = (CheckedOutChildItem) _myChildren.get(i) ;
+    		CheckedOutChildItem c = _myChildren.get(i) ;
     		
     		// if this object matches the one passed, remove it
 	        if (childToRemove.getItem().getID().equals(c.getItem().getID())) {
@@ -168,25 +222,33 @@ public class CheckedOutItem {
    
     /** returns String representation of  current CheckedOutItem */  
     public String toString() {
-    	StringBuffer s = new StringBuffer("CheckedOutItem record:") ;
-    	String n = Library.newline ; 	
-    	
-    	s.append(n); 
-    	s.append("PARENT: ");
-    	s.append(_wir.toXML());
-    	s.append(n); 
+        System.out.println("**** in coi.toString");
+        StringBuffer s = new StringBuffer("##### CHECKEDOUTITEM RECORD #####") ;
+    	String n = Library.newline ;
 
-    	// build this toString by calling the toString of each child
-    	s.append("CHILDREN: ");
-    	Iterator itr = _myChildren.iterator();
-	    while (itr.hasNext()) {
-    		CheckedOutChildItem c = (CheckedOutChildItem) itr.next() ;
-    		s.append(c.toString());
+        // write out the parent wir
+        s.append(n);
+        Library.appendLine(s, "CHECKED OUT ITEM", toStringSub());
+
+    	// build this toString by calling the toStringSub of each child
+    	s.append("CHILD ITEM(S): ");
+        s.append(n);
+        for (CheckedOutChildItem child : _myChildren) {
+            s.append(child.toStringSub());
+            s.append(n);
         }
-    	
+
     	return s.toString() ;
     }
-    
+
+
+    public String toStringSub() {
+        StringBuffer s = new StringBuffer();
+        s.append(_wir.toXML());
+        s.append(Library.newline);
+    	return s.toString() ;
+    }
+
 //===========================================================================//
 //===========================================================================//
    

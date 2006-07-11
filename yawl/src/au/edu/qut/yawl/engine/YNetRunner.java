@@ -44,6 +44,7 @@ import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
@@ -51,6 +52,7 @@ import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.persistence.PersistableObject;
+import au.edu.qut.yawl.util.JDOMConversionTools;
 
 /**
  *
@@ -94,6 +96,12 @@ public class YNetRunner implements PersistableObject // extends Thread
     private String containingTaskID = null;
     private YCaseData casedata = null;
     private YAWLServiceReference _caseObserver;
+    private InterfaceX_EngineSideClient _exceptionObserver;
+
+    // inserted to persist observers
+    private String _caseObserverStr = null ;
+    protected String _exceptionObserverStr = null ;
+
     /*****************************/
 
     /*************************************/
@@ -378,6 +386,14 @@ public class YNetRunner implements PersistableObject // extends Thread
                                       _caseIDForNet, _net.getOutputData());
                 }
 
+                // notify exception checkpoint to service if available (post's for case end)
+                if (_exceptionObserver != null) {
+                    Document data = _net.getInternalDataDocument();
+                    _engine.announceCheckCaseConstraints(_exceptionObserver, null,
+                                       _caseIDForNet.toString(),
+                                       JDOMConversionTools.documentToString(data), false);
+                }
+
                 Logger.getLogger(this.getClass()).debug("Asking engine to finish case");
                 _engine.finishCase(_caseIDForNet);
 
@@ -560,6 +576,11 @@ public class YNetRunner implements PersistableObject // extends Thread
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         try {
             boolean success = completeTask(workItem, task, caseID, outputData);
+
+            // notify exception checkpoint to service if available
+            if (_exceptionObserver != null)
+                _engine.announceCheckWorkItemConstraints(_exceptionObserver, workItem, outputData, false);
+
             logger.debug("<-- completeWorkItemInTask");
             return success;
         } catch (YDataStateException e) {
@@ -598,10 +619,12 @@ public class YNetRunner implements PersistableObject // extends Thread
 
                                 createEnabledWorkItem(_caseIDForNet, atomicTask);
                                 YAWLServiceReference ys = wsgw.getYawlService();
+                                YWorkItem item = _workItemRepository.getWorkItem(_caseIDForNet.toString(), atomicTask.getID());
                                 if (ys != null) {
-                                    YWorkItem item = _workItemRepository.getWorkItem(_caseIDForNet.toString(), atomicTask.getID());
                                     _engine.announceEnabledTask(ys, item);
                                 }
+                                if (_exceptionObserver != null)
+                                    _engine.announceCheckWorkItemConstraints(_exceptionObserver, item, _net.getInternalDataDocument(), true);
 
                                 _enabledTasks.add(task);
 
@@ -911,6 +934,111 @@ public class YNetRunner implements PersistableObject // extends Thread
 
     public void setObserver(YAWLServiceReference observer) {
         _caseObserver = observer;
+        _caseObserverStr = observer.getURI();                       // for persistence
+    }
+
+
+    /***************************************************************************/
+    /** The following methods have been added to support the exception service */
+
+    public void setExceptionObserver(InterfaceX_EngineSideClient observer){
+        _exceptionObserver = observer;
+        _exceptionObserverStr = observer.getURI();                  // for persistence
+     }
+
+
+    public void restoreObservers() {
+        if(_caseObserverStr != null) {
+            YAWLServiceReference caseObserver =
+                                    _engine.getRegisteredYawlService(_caseObserverStr);
+            if (caseObserver != null) setObserver(caseObserver);
+        }
+        if (_exceptionObserverStr != null) {
+            InterfaceX_EngineSideClient exObserver =
+                                new InterfaceX_EngineSideClient(_exceptionObserverStr);
+            setExceptionObserver(exObserver);
+            _engine.setExceptionObserver(_exceptionObserverStr);
+        }
+    }
+
+
+    private String get_caseObserverStr() {
+        return _caseObserverStr ;
+    }
+
+
+    private String get_exceptionObserverStr() {
+        return _exceptionObserverStr ;
+    }
+
+
+    private void set_caseObserverStr(String obStr) {
+        _caseObserverStr = obStr ;
+    }
+
+
+    private void set_exceptionObserverStr(String obStr) {
+        _exceptionObserverStr = obStr ;
+    }
+
+    
+    public void cancelTask(String taskID) {
+        YAtomicTask task = (YAtomicTask) getNetElement(taskID);
+
+        try {
+            task.cancel();
+            _busyTasks.remove(task);
+            busyTaskNames.remove(task.getID());
+        }
+        catch (YPersistenceException ype) {
+            logger.fatal("Failure whilst cancelling task: " + taskID, ype);
+
+        }
+    }
+
+
+    public boolean isTimeServiceTask(YWorkItem item) {
+        YTask task = (YTask) getNetElement(item.getTaskID());
+        if ((task != null) && (task instanceof YAtomicTask)) {
+            YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
+            if (wsgw != null) {
+                YAWLServiceReference ys = wsgw.getYawlService();
+                if (ys != null)
+                   return ys.getYawlServiceID().indexOf("timeService") > -1 ;
+            }
+        }
+        return false ;
+    }
+
+
+    public List getTimeOutTaskSet(YWorkItem item) {
+        YTask timeOutTask = (YTask) getNetElement(item.getTaskID());
+        String nextTaskID = getFlowsIntoTaskID(timeOutTask);
+        ArrayList<String> result = new ArrayList<String>() ;
+
+        if (nextTaskID != null) {
+            for ( YNetElement yne : getNet().getNetElements().values()) {
+               if (yne instanceof YTask) {
+                   YTask task = (YTask) yne;
+                   String nextTask = getFlowsIntoTaskID(task);
+                   if (nextTask != null) {
+                       if (nextTask.equals(nextTaskID))
+                          result.add(task.getID());
+                   }
+               }
+            }
+        }
+        if (result.isEmpty()) result = null ;
+        return result;
+    }
+
+
+    private String getFlowsIntoTaskID(YTask task) {
+        if ((task != null) && (task instanceof YAtomicTask)) {
+            Element eTask = JDOMConversionTools.stringToElement(task.toXML());
+            return eTask.getChild("flowsInto").getChild("nextElementRef").getAttributeValue("id");
+        }
+        return null ;
     }
 
 }

@@ -91,7 +91,7 @@ public class TestEngineSystem2 extends TestCase {
             anItem = (YWorkItem) currWorkItems.iterator().next();
             Thread.sleep(_sleepTime);
             //complete btop
-            _engine.completeWorkItem(anItem, "<data/>");
+            _engine.completeWorkItem(anItem, "<data/>", false);
             //c-top and d-top are enabled - fire one
             assertTrue(_workItemRepository.getEnabledWorkItems().size() == 2);
             while(_workItemRepository.getEnabledWorkItems().size() > 1){
@@ -106,7 +106,7 @@ public class TestEngineSystem2 extends TestCase {
             //complete it
             while(_workItemRepository.getExecutingWorkItems().size() > 0){
                 anItem = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(anItem, "<data/>");
+                _engine.completeWorkItem(anItem, "<data/>", false);
             }
             assertTrue(_workItemRepository.getWorkItems().size() == 2);
             //now e-top is enabled and either c-top or d-top are enabled
@@ -132,7 +132,7 @@ public class TestEngineSystem2 extends TestCase {
             assertNotNull(bottomNetRunner);
             while(_workItemRepository.getExecutingWorkItems().size() > 0){
                 anItem = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(anItem, "<data/>");
+                _engine.completeWorkItem(anItem, "<data/>", false);
             }
             Thread.sleep(1000);
             YNetRunner bottomNetRunner2 = _workItemRepository.getNetRunner(_idForBottomNet);
@@ -187,7 +187,7 @@ public class TestEngineSystem2 extends TestCase {
             anItem = (YWorkItem) currWorkItems.iterator().next();
             Thread.sleep(_sleepTime);
             //complete btop
-            _engine.completeWorkItem(anItem, "<data/>");
+            _engine.completeWorkItem(anItem, "<data/>", false);
 
             //c-top and d-top are enabled - fire both
             assertTrue(_workItemRepository.getEnabledWorkItems().size() == 2);
@@ -203,7 +203,7 @@ public class TestEngineSystem2 extends TestCase {
             //complete both
             while(_workItemRepository.getExecutingWorkItems().size() > 0){
                 anItem = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(anItem, "<data/>");
+                _engine.completeWorkItem(anItem, "<data/>", false);
             }
             assertTrue(_workItemRepository.getWorkItems().size() == 1);
             //now e-top is enabled once for two tokens
@@ -228,7 +228,7 @@ public class TestEngineSystem2 extends TestCase {
             YNetRunner netRunner = _workItemRepository.getNetRunner(_idForBottomNet);
             while(_workItemRepository.getExecutingWorkItems().size() > 0){
                 anItem = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(anItem, "<data/>");
+                _engine.completeWorkItem(anItem, "<data/>", false);
             }
 
             Thread.sleep(1000);
@@ -272,7 +272,7 @@ public class TestEngineSystem2 extends TestCase {
 
             itemA = (YWorkItem) _engine.getChildrenOfWorkItem(
                     itemA).iterator().next();
-            _engine.completeWorkItem(itemA, "<data/>");
+            _engine.completeWorkItem(itemA, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -297,7 +297,7 @@ public class TestEngineSystem2 extends TestCase {
             }
 
             itemF = (YWorkItem) _engine.getChildrenOfWorkItem(itemF).iterator().next();
-            _engine.completeWorkItem(itemF, "<data/>");
+            _engine.completeWorkItem(itemF, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -322,7 +322,7 @@ public class TestEngineSystem2 extends TestCase {
             }
 
             itemB = (YWorkItem) _engine.getChildrenOfWorkItem(itemB).iterator().next();
-            _engine.completeWorkItem(itemB, "<data/>");
+            _engine.completeWorkItem(itemB, "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {

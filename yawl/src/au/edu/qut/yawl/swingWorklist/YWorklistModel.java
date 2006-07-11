@@ -238,7 +238,7 @@ public class YWorklistModel {
                     item.getTaskID().equals(taskID)) {
                 try {
                     String outputData = _myActiveTasks.getOutputData(caseID, taskID);
-                    _engineClient.completeWorkItem(item, outputData);
+                    _engineClient.completeWorkItem(item, outputData, false);
                 } catch (YDataStateException e) {
                     String errors = e.getMessage();
                     if (errors.indexOf("FAILED TO VALIDATE AGAINST SCHEMA =") != -1) {

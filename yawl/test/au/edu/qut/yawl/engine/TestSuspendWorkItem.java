@@ -245,7 +245,7 @@ public class TestSuspendWorkItem extends TestCase {
     	Set<YWorkItem> executingItems = _repository.getExecutingWorkItems();
         for (Iterator<YWorkItem> iterator = executingItems.iterator(); iterator.hasNext();) {
             YWorkItem workItem = iterator.next();
-            _engine.completeWorkItem(workItem, workItem.getDataString() );
+            _engine.completeWorkItem(workItem, workItem.getDataString(), false );
             break;
         }
     }

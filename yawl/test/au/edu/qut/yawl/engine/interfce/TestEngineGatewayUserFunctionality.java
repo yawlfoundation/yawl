@@ -71,7 +71,7 @@ public class TestEngineGatewayUserFunctionality extends TestCase {
     	assertTrue( result, result.startsWith( "<failure" ) );
     	assertFalse( _gateway.enginePersistenceFailure() );
     	
-    	result = _gateway.completeWorkItem( "", "", handle );
+    	result = _gateway.completeWorkItem( "", "", false, handle );
     	assertTrue( result, result.startsWith( "<failure" ) );
     	assertFalse( _gateway.enginePersistenceFailure() );
     	

@@ -73,20 +73,20 @@ public class YMarshal {
      * @return List
      */
     public static List unmarshalSpecifications( String specificationSetXMLString, String specificationSetID )
-    		throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
+            throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
         //first check if is well formed and build a document
-    	Document document = buildSpecificationSetDocument(
-    			new InputSource( new StringReader( specificationSetXMLString ) ) );
-    	
+        Document document = buildSpecificationSetDocument(
+                new InputSource( new StringReader( specificationSetXMLString ) ) );
+
         //next get the version out as text
-    	String version = getSpecificationSetVersion( document );
-    	
+        String version = getSpecificationSetVersion( document );
+
         //now check the specification file against its' respective schema
-    	validateSpecification( new InputSource( new StringReader( specificationSetXMLString ) ),
-    			specificationSetID, version );
-    	
+        validateSpecification( new InputSource( new StringReader( specificationSetXMLString ) ),
+                specificationSetID, version );
+
         //now build a set of specifications - verification has not yet occured.
-    	return buildSpecifications( document );
+        return buildSpecifications( document );
     }
 
     /**
@@ -97,68 +97,68 @@ public class YMarshal {
     public static List unmarshalSpecifications(String specificationSetFileID)
             throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
         //first check if is well formed and build a document
-    	FileInputStream fis = null;
-		try {
-			if (specificationSetFileID.startsWith("file:")) {
-				fis = new FileInputStream(new File(new URI(specificationSetFileID)));
-			} else {
-				fis = new FileInputStream(specificationSetFileID);
-			}
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
-    	char[] chars = new char[8092];
-    	StringBuffer buffer = new StringBuffer();
-    	int len = 0;
-    	while ((len = reader.read(chars)) != -1) {
-    		buffer.append(chars, 0, len);
-    	}
-    	InputSource is = new InputSource(new ByteArrayInputStream(buffer.toString().getBytes("UTF8")));
-    	Document document = buildSpecificationSetDocument(
-    			is );
-    	
+        FileInputStream fis = null;
+        try {
+            if (specificationSetFileID.startsWith("file:")) {
+                fis = new FileInputStream(new File(new URI(specificationSetFileID)));
+            } else {
+                fis = new FileInputStream(specificationSetFileID);
+            }
+        } catch (URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+        char[] chars = new char[8092];
+        StringBuffer buffer = new StringBuffer();
+        int len = 0;
+        while ((len = reader.read(chars)) != -1) {
+            buffer.append(chars, 0, len);
+        }
+        InputSource is = new InputSource(new ByteArrayInputStream(buffer.toString().getBytes("UTF8")));
+        Document document = buildSpecificationSetDocument(
+                is );
+
         //next get the version out as text 
-    	String version = getSpecificationSetVersion( document );
+        String version = getSpecificationSetVersion( document );
 
         //now check the specification file against its' respective schema
-    	validateSpecification(new InputSource(new ByteArrayInputStream(buffer.toString().getBytes("UTF8"))),specificationSetFileID, version );
+        validateSpecification(new InputSource(new ByteArrayInputStream(buffer.toString().getBytes("UTF8"))),specificationSetFileID, version );
 
         //now build a set of specifications - verification has not yet occured.
-    	return buildSpecifications( document );
+        return buildSpecifications( document );
     }
-    
+
     private static Document buildSpecificationSetDocument( InputSource specificationSetSource )
-    		throws JDOMException, IOException {
+            throws JDOMException, IOException {
         //first check if is well formed and build a document
-    	SAXBuilder builder = new SAXBuilder();
-    	return builder.build( specificationSetSource );
+        SAXBuilder builder = new SAXBuilder();
+        return builder.build( specificationSetSource );
     }
-    
+
 //    private static Document buildSpecificationSetDocument( Reader specificationSetReader )
 //    		throws JDOMException, IOException {
 //        //first check if is well formed and build a document
 //    	SAXBuilder builder = new SAXBuilder();
 //    	return builder.build( specificationSetReader );
 //    }
-    
+
     /**
      * @return the beta version of the specification set.
      */
     private static String getSpecificationSetVersion( Document specificationSetDocument ) {
-    	Element specificationSetEl = specificationSetDocument.getRootElement();
-    	
+        Element specificationSetEl = specificationSetDocument.getRootElement();
+
         //next get the version out as text - if possible
-    	String version = specificationSetEl.getAttributeValue( "version" );
-    	if( null == version ) {
+        String version = specificationSetEl.getAttributeValue( "version" );
+        if( null == version ) {
             //version attribute was not mandatory in version 2
             //therefore a missing version number would likely be version 2
             version = YSpecification._Beta2;
-    	}
-    	return version;
+        }
+        return version;
     }
-    
+
     /**
      * @param specificationSetSource an InputSource from which the specification set can be read.
      * @param specificationSetID an identifier that will appear in the exception if validation fails
@@ -168,22 +168,22 @@ public class YMarshal {
      *                          for the specified beta version.
      */
     private static void validateSpecification( InputSource specificationSetSource,
-    		String specificationSetID, String version ) throws YSyntaxException {
+                                               String specificationSetID, String version ) throws YSyntaxException {
         //now check the specification file against its' respective schema
-    	String errors = YawlXMLSpecificationValidator.getInstance().checkSchema(
-    			specificationSetSource, version );
-    	if( errors == null || errors.length() > 0 ) {
-    		if( specificationSetID != null ) {
-    			throw new YSyntaxException(
-    					" The specification set [" + specificationSetID +
-                    	"] failed to verify against YAWL's Schema:\n" + errors);
-    		}
-    		else {
-    			throw new YSyntaxException(
+        String errors = YawlXMLSpecificationValidator.getInstance().checkSchema(
+                specificationSetSource, version );
+        if( errors == null || errors.length() > 0 ) {
+            if( specificationSetID != null ) {
+                throw new YSyntaxException(
+                        " The specification set [" + specificationSetID +
+                        "] failed to verify against YAWL's Schema:\n" + errors);
+            }
+            else {
+                throw new YSyntaxException(
                         " The specification set failed to verify against YAWL's Schema:\n"
                         + errors);
-    		}
-    	}
+            }
+        }
     }
 
 

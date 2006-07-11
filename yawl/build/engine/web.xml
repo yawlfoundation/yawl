@@ -66,6 +66,14 @@
 		<servlet-class>au.edu.qut.yawl.engine.interfce.InterfaceA_EngineBasedServer</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+    <servlet>
+        <servlet-name>InterfaceXServlet</servlet-name>
+        <description>
+            It specifically provides access to the control of exceptions.
+        </description>
+        <servlet-class>au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideServer</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 	<servlet>
 		<servlet-name>ErrorServlet</servlet-name>
 		<description>
@@ -87,6 +95,10 @@
 		<url-pattern>/work</url-pattern>
 		<url-pattern>/ib/*</url-pattern>
 	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>InterfaceXServlet</servlet-name>
+        <url-pattern>/ix/*</url-pattern>
+    </servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ErrorServlet</servlet-name>
 		<url-pattern>/</url-pattern>
