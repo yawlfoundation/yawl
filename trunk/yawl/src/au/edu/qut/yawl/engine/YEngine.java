@@ -1203,7 +1203,7 @@ public class YEngine extends AbstractEngine {
 
     protected void announceCheckWorkItemConstraints(InterfaceX_EngineSideClient ixClient,
                                                     YWorkItem item, Document data, boolean preCheck) {
-        logger.debug("Announcing Check Constraints for task " + item.getIDString() +
+        logger.debug("Announcing Check Constraints for task " + ((item == null) ? "{null}" : item.getIDString()) +
                      " on client " + ixClient.toString());
         ixClient.announceCheckWorkItemConstraints(item, data, preCheck);
     }
