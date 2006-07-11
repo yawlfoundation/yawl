@@ -28,7 +28,7 @@ public abstract class YNetElement implements Cloneable, Comparable, Serializable
      *
      */
     public YNetElement() {
-//    	setID("null");
+    	setID("null");
     }
     
     /**
