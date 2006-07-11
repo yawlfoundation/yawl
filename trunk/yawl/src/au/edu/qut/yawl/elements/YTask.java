@@ -544,9 +544,7 @@ public abstract class YTask extends YExternalNetElement {
                 //to the net variable's type.
                 if (_net.getSpecification().isSchemaValidating() &&
                         !query.equals(getPreJoiningMIQuery())) {
-                    YVariable var = netLocalVariablesMap.containsKey(localVarThatQueryResultGetsAppliedTo) ?
-                            netLocalVariablesMap.get(localVarThatQueryResultGetsAppliedTo) :
-                            netLocalVariablesMap.get(localVarThatQueryResultGetsAppliedTo);
+                    YVariable var = netLocalVariablesMap.get(localVarThatQueryResultGetsAppliedTo);
                     Set col = new HashSet();
                     col.add(var);
                     String schemaForVariable = buildSchema(col);
@@ -733,10 +731,7 @@ public abstract class YTask extends YExternalNetElement {
                         getDataMappingsForTaskCompletion().get(uniqueInstanceOutputQuery);
 
                 Map<String, YVariable> netLocalVariablesMap = _net.getLocalVariablesMap();
-                YVariable var = netLocalVariablesMap.containsKey(
-                        localVarThatQueryResultGetsAppliedTo) ?
-                       		netLocalVariablesMap.get(localVarThatQueryResultGetsAppliedTo) :
-                       		netLocalVariablesMap.get(localVarThatQueryResultGetsAppliedTo);
+                YVariable var = netLocalVariablesMap.get(localVarThatQueryResultGetsAppliedTo);
                 Set col = new HashSet();
                 col.add(var);
                 schemaForVariable = buildSchema(col);
@@ -1291,10 +1286,10 @@ public abstract class YTask extends YExternalNetElement {
 //    	}
 //    }
 //
-    // FIXME: XXX this is never called anywhere, should it be here?
-    /**
+//    // FIXME: XXX this is never called anywhere, should it be here?
+//    /**
 //     * @deprecated
-     */
+//     */
 //    @Deprecated
 //    public void setDataMappingsForEnablement(YTask task, Map map) {
 //    	task.setDataMappingsForEnablement(map);
@@ -1444,7 +1439,7 @@ public abstract class YTask extends YExternalNetElement {
             expression = expression.replaceAll("&", "&amp;");
             expression = expression.replaceAll("<", "&lt;");
             expression = expression.replaceAll(">", "&gt;");
-            expression = expression.replaceAll("\"", "&qout;");
+            expression = expression.replaceAll("\"", "&quot;");
             expression = expression.replaceAll("'", "&apos;");
         }
         return expression;
