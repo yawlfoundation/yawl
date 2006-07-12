@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1"
+	xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ YAWL_SchemaBeta7.1.xsd">
+	<specification uri="JythonSpecJaxb4.xml">
+		<name>JythonSpec</name>
+		<documentation>Specification that runs Jython code to get the quotes of the day.</documentation>
+		<metaData/>
+		<decomposition id="RootDecomp" isRootNet="true" xsi:type="NetFactsType">
+			<localVariable>
+				<name>one.ServiceName</name>
+				<isUntyped/>
+				<initialValue>Jython</initialValue>
+			</localVariable>
+			<localVariable>
+				<name>one.code</name>
+				<isUntyped/>
+				<initialValue>text::from javax.xml.parsers import DocumentBuilder
+from javax.xml.parsers import DocumentBuilderFactory
+from com.sun.org.apache.xpath.internal import XPathAPI
+from org.w3c.dom import Document
+from org.w3c.dom import Node
+from org.w3c.dom.traversal import NodeIterator
+import time
+import java.lang.String
+
+today = time.strftime("%pm/%pd/%py",time.localtime(time.time()))
+docBuilderFactory = DocumentBuilderFactory.newInstance()
+docBuilder = docBuilderFactory.newDocumentBuilder()
+doc = docBuilder.parse("http://feeds.feedburner.com/quotationspage/qotd")
+doc.getDocumentElement().normalize()
+nl = XPathAPI.selectNodeIterator(doc, "/rss/channel/item/title | /rss/channel/item/description")
+csv = ""
+for done in range(4):
+	node = nl.nextNode()
+	if node == None : break
+	author = node.getTextContent()
+	node = nl.nextNode()
+	if node == None : break
+	description = node.getTextContent()
+	description = description[:description.find("%l") - 1]
+	csv = csv + description + "\r\n--" + author + "\r\n\r\n"
+print csv
+data.setPlain("today",today)
+data.setPlain("csv",csv)</initialValue>
+			</localVariable>
+			<localVariable>
+				<name>one.output</name>
+				<isUntyped/>
+				<initialValue></initialValue>
+			</localVariable>
+			<localVariable>
+				<name>one.error</name>
+				<isUntyped/>
+				<initialValue></initialValue>
+			</localVariable>
+			<localVariable>
+				<name>one.today</name>
+				<isUntyped/>
+				<initialValue></initialValue>
+			</localVariable>
+			<localVariable>
+				<name>one.csv</name>
+				<isUntyped/>
+				<initialValue></initialValue>
+			</localVariable>
+			<processControlElements>
+				<inputCondition id="input">
+					<flowsInto>
+						<nextElementRef id="one"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="one">
+					<flowsInto>
+						<nextElementRef id="two"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="&lt;code&gt;{/RootDecomp/one.code/text()}&lt;/code&gt;"/>
+							<mapsTo>code</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;error&gt;{/RootDecomp/one.error/text()}&lt;/error&gt;"/>
+							<mapsTo>error</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;output&gt;{/RootDecomp/one.output/text()}&lt;/output&gt;"/>
+							<mapsTo>output</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;today&gt;{/RootDecomp/one.today/text()}&lt;/today&gt;"/>
+							<mapsTo>today</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;csv&gt;{/RootDecomp/one.csv/text()}&lt;/csv&gt;"/>
+							<mapsTo>csv</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;ServiceName&gt;{/RootDecomp/one.ServiceName/text()}&lt;/ServiceName&gt;"/>
+							<mapsTo>ServiceName</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="&lt;one.code&gt;{/DecompOne/code/text()}&lt;/one.code&gt;"/>
+							<mapsTo>one.code</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;one.output&gt;{/DecompOne/output/text()}&lt;/one.output&gt;"/>
+							<mapsTo>one.output</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;one.error&gt;{/DecompOne/error/text()}&lt;/one.error&gt;"/>
+							<mapsTo>one.error</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;one.today&gt;{/DecompOne/today/text()}&lt;/one.today&gt;"/>
+							<mapsTo>one.today</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;one.csv&gt;{/DecompOne/csv/text()}&lt;/one.csv&gt;"/>
+							<mapsTo>one.csv</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="DecompOne"/>
+				</task>
+				<task id="two">
+					<flowsInto>
+						<nextElementRef id="finis"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="&lt;code&gt;{/RootDecomp/one.code/text()}&lt;/code&gt;"/>
+							<mapsTo>code</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;error&gt;{/RootDecomp/one.error/text()}&lt;/error&gt;"/>
+							<mapsTo>error</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;output&gt;{/RootDecomp/one.output/text()}&lt;/output&gt;"/>
+							<mapsTo>output</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;today&gt;{/RootDecomp/one.today/text()}&lt;/today&gt;"/>
+							<mapsTo>today</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;csv&gt;{/RootDecomp/one.csv/text()}&lt;/csv&gt;"/>
+							<mapsTo>csv</mapsTo>
+						</mapping>
+					</startingMappings>
+					<decomposesTo id="DecompTwo"/>
+				</task>
+				<outputCondition id="finis">
+					<name>Finished case</name>
+				</outputCondition>
+			</processControlElements>
+		</decomposition>
+		<decomposition id="DecompOne" xsi:type="WebServiceGatewayFactsType">
+			<inputParam>
+				<name>code</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>output</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>error</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>today</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>csv</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>ServiceName</name>
+				<isUntyped/>
+			</inputParam>
+			<outputParam>
+				<name>code</name>
+				<isUntyped/>
+			</outputParam>
+			<outputParam>
+				<name>output</name>
+				<isUntyped/>
+			</outputParam>
+			<outputParam>
+				<name>error</name>
+				<isUntyped/>
+			</outputParam>
+			<outputParam>
+				<name>today</name>
+				<isUntyped/>
+			</outputParam>
+			<outputParam>
+				<name>csv</name>
+				<isUntyped/>
+			</outputParam>
+			<yawlService id="http://localhost:8080/NexusServiceInvoker/"/>
+		</decomposition>
+		<decomposition id="DecompTwo" xsi:type="WebServiceGatewayFactsType">
+			<inputParam>
+				<name>code</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>output</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>error</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>today</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>csv</name>
+				<isUntyped/>
+			</inputParam>
+		</decomposition>
+	</specification>
+</specificationSet>

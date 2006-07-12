@@ -9,9 +9,7 @@ package com.nexusbpm.services.jython;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -32,7 +30,7 @@ import com.nexusbpm.services.data.NexusServiceData;
  * @author Nathan Rose
  */
 @WebService(endpointInterface="com.nexusbpm.services.NexusService", serviceName="JythonService")
-public class JythonServiceImpl implements NexusService {
+public class JythonService implements NexusService {
 	private boolean initialized = false;
 	
 	// TODO this is definitely temporary...
@@ -66,9 +64,6 @@ public class JythonServiceImpl implements NexusService {
 		StringWriter outputWriter = new StringWriter();
 		StringWriter errWriter = new StringWriter();
 		
-		System.out.println( "Jython service received data:" );
-		System.out.println( data );
-		
 		try {
 			initialize();
 			
@@ -80,51 +75,61 @@ public class JythonServiceImpl implements NexusService {
 			
 			// Process dynamic attributes (put attribute values into the Jython interpreter).
 			// remove the non-dynamic variables
-			for( Iterator<String> iter = dynamicVariables.iterator(); iter.hasNext(); ) {
-				String name = iter.next();
-				if( name.equals( "code" ) ||
-						name.equals( "error" ) ||
-						name.equals( "output" ) ) {
-					iter.remove();
-				}
-				else {
-					interp.set( name, data.get( name ) );
-				}
-			}
+//			for( Iterator<String> iter = dynamicVariables.iterator(); iter.hasNext(); ) {
+//				String name = iter.next();
+//				if( name.equals( "code" ) ||
+//						name.equals( "error" ) ||
+//						name.equals( "output" ) ) {
+//					iter.remove();
+//				}
+//				else {
+//                    System.out.println( "Jython service received variable '" + name + "'" );
+//					interp.set( name, data.get( name ) );
+//				}
+//			}
+            interp.set( "data", data );
 			
-			System.out.println( "Jython's code:\n" + data.get( "code" ) );
+			System.out.println( "Jython's code:\n" + data.getPlain( "code" ) );
 			
 			// Execute the code.
 			interp.setOut( outputWriter );
 			interp.setErr( errWriter );
-			interp.exec( data.get( "code" ) );
+			interp.exec( data.getPlain( "code" ) );
 			
 			// Process dynamic attributes (get attribute values out of the Jython interpreter).
-			for( Iterator<String> iter = dynamicVariables.iterator(); iter.hasNext(); ) {
-				String varName = iter.next();
-				try {
-					Serializable varVal = (Serializable) interp.get( varName, Serializable.class );
-					if( varVal == null ) {
-						data.set( varName, varVal.toString() );
-					}
-					else {
-						data.set( varName, null );
-					}
-				}
-				catch( Throwable t ) {
-					errWriter.write( "Error retrieving value of dynamic variable '" + varName +
-							"' from the Jython interpreter!\n" );
-					t.printStackTrace( new PrintWriter( errWriter ) );
-				}
-			}
+            try {
+                data = (NexusServiceData) interp.get( "data", NexusServiceData.class );
+            }
+            catch( Throwable t ) {
+                errWriter.write( "Error retrieving resulting data from the Jython interpreter!\n" );
+                t.printStackTrace( new PrintWriter( errWriter ) );
+            }
+//			for( Iterator<String> iter = dynamicVariables.iterator(); iter.hasNext(); ) {
+//				String varName = iter.next();
+//				try {
+//					Serializable varVal = (Serializable) interp.get( varName, Serializable.class );
+//					if( varVal != null ) {
+//						data.set( varName, varVal.toString() );
+//					}
+//					else {
+//						data.set( varName, null );
+//					}
+//				}
+//				catch( Throwable t ) {
+//					errWriter.write( "Error retrieving value of dynamic variable '" + varName +
+//							"' from the Jython interpreter!\n" );
+//					t.printStackTrace( new PrintWriter( errWriter ) );
+//				}
+//			}
 		}
 		catch( Exception e ) {
 			errWriter.write( "\n" );
 			e.printStackTrace( new PrintWriter( errWriter ) );
+            e.printStackTrace( System.err );
 		}
 		
-		data.set( "output", outputWriter.toString() );
-		data.set( "error", errWriter.toString() );
+		data.setPlain( "output", outputWriter.toString() );
+		data.setPlain( "error", errWriter.toString() );
 		
 		return data;
 	}
