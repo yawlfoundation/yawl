@@ -1213,7 +1213,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                  */
                 else {
                     logger.error("Failure starting workitem " + workItem.getWorkItemID().toString(), e);
-                    throw new YQueryException(e.getMessage());
+                    throw new YQueryException(e);
                 }
             }
     }

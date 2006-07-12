@@ -41,7 +41,7 @@ public class Interface_Client {
         Iterator paramKeys = paramsMap.keySet().iterator();
         while (paramKeys.hasNext()) {
             String paramName = (String) paramKeys.next();
-            out.print(paramName + "=" + paramsMap.get(paramName));
+            out.print(paramName + "=" + URLEncoder.encode((String)paramsMap.get(paramName),"UTF-8"));
             if (paramKeys.hasNext()) {
                 out.print('&');
             }

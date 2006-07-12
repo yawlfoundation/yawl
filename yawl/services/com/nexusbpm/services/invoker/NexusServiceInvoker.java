@@ -36,13 +36,12 @@ public class NexusServiceInvoker {
     		throw new YAWLException( "To invoke a Nexus Service the name of the service must be supplied!" );
     	}
     	
-    	// TODO get appropriate class for service dynamically
+    	// TODO get appropriate class/URI for service dynamically
     	Class serviceClass = null;
     	String serviceURI = null;
     	try {
 	    	if( serviceName.equalsIgnoreCase( "Jython" ) ) {
-	    		serviceClass = Class.forName( "com.nexusbpm.services.jython.JythonServiceImpl" );
-//	    		serviceClass = Class.forName( "com.nexusbpm.services.invoker.JythonServiceImpl" );
+	    		serviceClass = Class.forName( "com.nexusbpm.services.jython.JythonService" );
 	    		serviceURI = "http://localhost:8080/JythonService/services/JythonService";
 	    	}
 	    	else {
@@ -55,14 +54,13 @@ public class NexusServiceInvoker {
     	
     	try {
 	    	JaxbServiceFactory serviceFactory = new JaxbServiceFactory();
+//    		ObjectServiceFactory serviceFactory = new ObjectServiceFactory();
 			Service serviceModel = serviceFactory.create( serviceClass );
+//    		Service serviceModel = serviceFactory.create( NexusService.class );
 	
 			// Create a client proxy
-//			XFire xf = XFireFactory.newInstance().getXFire();
-//			XFireProxyFactory proxyFactory = new XFireProxyFactory( xf );
 			XFireProxyFactory proxyFactory = new XFireProxyFactory();
 			NexusService service = (NexusService) proxyFactory.create( serviceModel, serviceURI );
-//			NexusService service = create( proxyFactory, xf, serviceModel, serviceURI );
 			
 			assert service != null : "Proxy for Nexus Service '" + serviceName + "' was null";
 			
@@ -75,58 +73,4 @@ public class NexusServiceInvoker {
 							"\nserviceURI=" + serviceURI + ")", e );
 		}
     }
-    
-//    /**
-//     * <p>This function is a modified version of an XFire function in the XFireProxyFactory that
-//     * handles a bug in XFire 1.1 that should be fixed in 1.2.
-//     * The bug has to do with having the service definition (the interface: {@link NexusService})
-//     * declare a function that takes as a parameter and returns instances of
-//     * {@link NexusServiceData} but the service implementations ({@link JythonService}, etc)
-//     * actually use subclasses of {@link NexusServiceData}.</p>
-//     * TODO remove this method and use XFire 1.2 once it is released.
-//     * @see "http://jira.codehaus.org/browse/XFIRE-406"
-//     * @see org.codehaus.xfire.client.XFireProxyFactory#create(org.codehaus.xfire.service.Service, java.lang.String)
-//     */
-//    private static NexusService create(
-//    		XFireProxyFactory proxyFactory,
-//    		XFire xfire,
-//    		Service serviceModel,
-//    		String serviceURI ) {
-//    	
-//    	Collection transports = xfire.getTransportManager().getTransportsForUri( serviceURI );
-//
-//        if (transports.size() == 0)
-//            throw new XFireRuntimeException("No Transport is available for url " + serviceURI);
-//        
-//        Binding binding = null;
-//        Transport transport = null;
-//        for (Iterator itr = transports.iterator(); itr.hasNext() && binding == null;)
-//        {
-//            transport = (Transport) itr.next();
-//            
-//            for (int i = 0; i < transport.getSupportedBindings().length; i++)
-//            {
-//                binding = serviceModel.getBinding(transport.getSupportedBindings()[i]);
-//                
-//                if (binding != null)
-//                    break;
-//            }
-//        }
-//
-//        Client client = new Client(transport, binding, serviceURI);
-//        
-//        // begin modified code for Nexus Service
-//        
-//        List<String> packages = new LinkedList<String>();
-//        
-//        packages.add( "com.nexusbpm.services.data" );
-//        
-//        client.setProperty( "jaxb.search.pacakges", packages );
-//        
-//        // end of modified code for nexus service
-//        
-//    	return (NexusService) proxyFactory.create( client );
-//    }
 }
-
-

@@ -3,7 +3,7 @@
   <service>
     <name>JythonService</name>
     <namespace>http://www.citi.qut.edu.au/yawl</namespace>
-    <serviceClass>com.nexusbpm.services.jython.JythonServiceImpl</serviceClass>
+    <serviceClass>com.nexusbpm.services.jython.JythonService</serviceClass>
     <serviceFactory>org.codehaus.xfire.jaxb2.JaxbServiceFactory</serviceFactory>
   </service>
 </beans>
