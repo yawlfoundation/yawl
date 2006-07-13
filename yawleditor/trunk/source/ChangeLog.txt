@@ -1,4 +1,4 @@
-Version 1.4.2 (??/??/??) "Hey Anakin! Wanna join the dark side? ... duh... OK!"
+Version 1.4.2 (13/07/2006) "Ironforge"
   * Fixed a bug where the "Set Label" dialog box was remembering the last thing
     typed into it, and refusing to set the text of a new element if the newly
     typed text matched the the last stored memory.
@@ -8,7 +8,7 @@ Version 1.4.2 (??/??/??) "Hey Anakin! Wanna join the dark side? ... duh... OK!"
     flow has been sufficiently sketched out, decompositions, etc should be added in).
   * The ability to click on a composite task and have it's unfolding net appear 
     has thus needed shifting. Now, if the user holds down the <CTRL> key when left-clicking
-    a composite task, the net it unfolds to will be brough to the front and given focus.
+    a composite task, the net it unfolds to will be brought to the front and given focus.
     If the composite task has no unfolding net yet, the dialog for selecting a net
     will appear instead.
   * There is now a new menu item avaiable from the "View" menu, allowing workflow
