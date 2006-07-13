@@ -38,12 +38,7 @@ import javax.swing.Action;
 public class LabelElementAction extends YAWLSelectedNetAction 
                                 implements TooltipTogglingWidget {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
-
-  private static final LabelElementDialog labelElementDialog = new LabelElementDialog();
 
   private NetGraph net;
   private YAWLVertex vertex;
@@ -63,6 +58,7 @@ public class LabelElementAction extends YAWLSelectedNetAction
   }  
 
   public void actionPerformed(ActionEvent event) {
+    LabelElementDialog labelElementDialog = new LabelElementDialog();
     labelElementDialog.setVertex(vertex, net);
     labelElementDialog.setVisible(true);
 
