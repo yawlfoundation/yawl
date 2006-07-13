@@ -45,20 +45,13 @@ import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
 
 /**
- * A library of standard utilities that return information in 
+ * A library of standard utilities that return information on, or manipulate 
  * selected nets. 
  * 
  * @author Lindsay Bradford
  */
 
 public final class NetUtilities {
-  
-  /**
-   * Default margin size of whitespace to appear around elements
-   * being added to a net.
-   */
-  public static final int DEFAULT_MARGIN  = 20;
-
   
   /**
    * Returns all tasks in the selected net. Specifically, 
@@ -268,7 +261,11 @@ public final class NetUtilities {
     return null;
   }
 
-  
+  /**
+   * Returns all the outgoing flows from the specified cell.
+   * @param cell
+   * @return A set of outgoing flows from the cell
+   */
   public static Set getOutgoingFlowsFrom(YAWLCell cell) {
 
     VertexContainer container = null;
@@ -294,7 +291,13 @@ public final class NetUtilities {
     }
     return flows;
   }
-  
+
+  /**
+   * Returns all the incomming flows to the specified cell.
+   * @param cell
+   * @return A set of incomming flows to the cell
+   */
+
   public static Set getIncomingFlowsFrom(YAWLCell cell) {
 
     VertexContainer container = null;
@@ -319,24 +322,5 @@ public final class NetUtilities {
       flows.addAll(container.getIncomingFlows());
     }
     return flows;
-  }
-  
-  public static void resizeNetIfNecessary(NetGraph net) {
-    Rectangle2D cellBounds = net.getCellBounds(net.getRoots());
-
-    if (cellBounds == null) {
-      return;
-    }
-
-    net.setPreferredSize(
-        new Dimension(
-          (int) (cellBounds.getX() + cellBounds.getWidth() + DEFAULT_MARGIN),
-          (int) (cellBounds.getY() + cellBounds.getHeight() + DEFAULT_MARGIN)
-        )
-    );
-      
-    if (net.getFrame() != null) {
-      net.getFrame().setPreferredSize(net.getPreferredSize());
-    }
   }
 }

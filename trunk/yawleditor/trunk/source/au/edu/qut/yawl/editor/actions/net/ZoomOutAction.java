@@ -53,7 +53,7 @@ public class ZoomOutAction extends YAWLSelectedNetAction {
   public void actionPerformed(ActionEvent event) {
     final NetGraph graph = getGraph();
     if (graph != null) {
-     graph.setScale(graph.getScale()/2);
+     graph.setScale(graph.getScale()/1.5);
     }
   }
 }

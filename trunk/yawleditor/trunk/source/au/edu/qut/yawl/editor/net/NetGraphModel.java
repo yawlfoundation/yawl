@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 
-import javax.swing.undo.UndoableEdit;
-
 import au.edu.qut.yawl.editor.data.DataVariableSet;
 import au.edu.qut.yawl.editor.data.Decomposition;
 
@@ -135,7 +133,6 @@ public class NetGraphModel extends DefaultGraphModel {
   
   public void remove(Object[] cells) {
     removeCellsAndEdges(getRemovableCellsOf(cells)); 
-    NetUtilities.resizeNetIfNecessary(getGraph());
   }
   
   private HashSet getRemovableCellsOf(Object[] cells) {
@@ -707,16 +704,5 @@ public class NetGraphModel extends DefaultGraphModel {
       parentMap.addEntry(vertex, vertexContainer);
     }
     return vertexContainer;
-  }
-  
-  public void edit(Map attributes, ConnectionSet cs, ParentMap pm, UndoableEdit[] e) {
-    super.edit(attributes, cs, pm, e);
-    NetUtilities.resizeNetIfNecessary(getGraph());
-  }
-  
-  public void insert(Object[] roots, Map attributes, ConnectionSet cs,
-                       ParentMap pm, UndoableEdit[] edits) {
-    super.insert(roots, attributes, cs, pm, edits);
-    NetUtilities.resizeNetIfNecessary(getGraph());
   }
 }

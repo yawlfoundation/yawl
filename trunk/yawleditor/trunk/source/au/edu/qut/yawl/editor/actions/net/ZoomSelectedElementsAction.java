@@ -33,6 +33,7 @@ import java.awt.Dimension;
 
 
 import au.edu.qut.yawl.editor.net.NetGraph;
+import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
 
 public class ZoomSelectedElementsAction extends YAWLSelectedNetAction {
 
@@ -66,15 +67,20 @@ public class ZoomSelectedElementsAction extends YAWLSelectedNetAction {
      double usedZoomFraction = Math.min(xZoomFraction, yZoomFraction);
 
      graph.setScale(usedZoomFraction);
-     final Dimension viewportSize = graph.getFrame().getScrollPane().getViewport().getVisibleRect().getSize();
 
+     //NetUtilities.resizeNetToBoundCells(graph);
+     
+     final Dimension viewportSize = graph.getFrame().getScrollPane().getViewport().getVisibleRect().getSize();
+  
      graph.getFrame().getScrollPane().getViewport().setViewPosition(
          new Point(
              (int) (bounds.getX()*usedZoomFraction - ((viewportSize.getWidth() - bounds.getWidth()*usedZoomFraction)/2)), 
              (int) (bounds.getY()*usedZoomFraction - ((viewportSize.getHeight()- bounds.getHeight()*usedZoomFraction)/2))
          )
      );
+
      graph.getSelectionModel().clearSelection();
+     graph.revalidate();
     }
   }
   

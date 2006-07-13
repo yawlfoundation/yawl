@@ -296,7 +296,12 @@ public class NetCellUtilities {
         bufferedCellBounds
     );
   }
-  
+  /**
+   * A convenience method that takes all the supplied views and 
+   * returns theirunderlying cells in an object array.
+   * @param views
+   * @return
+   */
   public static Object[] getCellsOfViews(CellView[] views) {
     Object[] objects = new Object[views.length];
     for(int i = 0; i < views.length; i++) {

@@ -113,6 +113,13 @@ public class NetGraph extends JGraph {
   private static final int FLOW_SPACER = 20;
   
   public static final int DEFAULT_MARGIN  = 50;
+  
+  /**
+   * Default margin size of whitespace to appear around elements
+   * being added to a net.
+   */
+  public static final int WHITESPACE_MARGIN  = 20;
+
 
   protected transient final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
@@ -201,8 +208,8 @@ public class NetGraph extends JGraph {
     addComponentListener(
       new ComponentAdapter() {
         public void componentResized(ComponentEvent event) {
-          prefs.putInt("internalFrameWidth", getWidth());
-          prefs.putInt("internalFrameHeight", getHeight());
+          prefs.putInt("internalFrameWidth", (int) (getWidth() * getScale()));
+          prefs.putInt("internalFrameHeight", (int) (getHeight() * getScale()));
         } 
     });
   }
@@ -308,8 +315,19 @@ public class NetGraph extends JGraph {
         new Object[] { element }
     );
   }
-  
 
+  
+  public Dimension getPreferredSize() {
+    Dimension currentPrefferedSize = super.getPreferredSize();
+
+    // Put a little whitespace padding around the default preferred size.
+    
+    return new Dimension(
+      (int) currentPrefferedSize.getWidth() + WHITESPACE_MARGIN,
+      (int) currentPrefferedSize.getHeight() + WHITESPACE_MARGIN
+    );
+  }
+  
   public String getToolTipText(MouseEvent event) {
     Object cell = getFirstCellForLocation(event.getX(), event.getY());
     if (cell instanceof YAWLVertex) {
