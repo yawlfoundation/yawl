@@ -29,6 +29,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
 import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
@@ -53,6 +54,7 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
       }
     );
     getRootPane().setDefaultButton(getDoneButton());
+    labelField.requestFocus();
   }
 
   private JPanel getLabelPanel() {

@@ -63,6 +63,5 @@ public class ElementDoubleClickListener extends MouseAdapter {
     LabelElementDialog labelConditionDialog = new LabelElementDialog();    
     labelConditionDialog.setVertex(vertex, net);
     labelConditionDialog.setVisible(true);
-    
   }
 }
