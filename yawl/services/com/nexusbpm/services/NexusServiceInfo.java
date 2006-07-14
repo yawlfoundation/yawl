@@ -7,6 +7,8 @@
  */
 package com.nexusbpm.services;
 
+import com.nexusbpm.services.data.Variable;
+
 public class NexusServiceInfo {
     /** The name of the service. */
     private final String serviceName;
@@ -16,25 +18,34 @@ public class NexusServiceInfo {
     /** The URI where the service can be accessed. */
     private final String serviceURI; // TODO get URI from properties file
     /** The variables that the service will use. */
-    private final String[] variables;
+    private final String[] variableNames;
+    private final String[] variableTypes;
+    private final Object[] initialValues;
     
     public static final NexusServiceInfo[] SERVICES = new NexusServiceInfo[] {
         new NexusServiceInfo( "Jython",
                 "com.nexusbpm.services.jython.JythonService",
                 "http://localhost:8080/JythonService/services/JythonService",
-                new String[] { "code", "output", "error" } ),
+                new String[] { "code", "output", "error" },
+                new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                new Object[] { "print 'foo'", "", "" }),
         new NexusServiceInfo( "EmailSender",
                 "com.nexusbpm.services.email.EmailSenderService",
                 "http://localhost:8080/EmailSenderService/services/EmailSenderService",
-                new String[] { "toAddress", "ccAddress", "bccAddress", "subject", "body" } )
+                new String[] { "toAddress", "ccAddress", "bccAddress", "subject", "body" },
+                new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                new Object[] { "nathan.rose@ichotelsgroup.com", "", "", "", ""} )
     };
     
     private NexusServiceInfo(String serviceName, String serviceClassName,
-            String serviceURI, String[] variables) {
+            String serviceURI, String[] variableNames,
+            String[] variableTypes, Object[] initialValues) {
         this.serviceName = serviceName;
         this.serviceClassName = serviceClassName;
         this.serviceURI = serviceURI;
-        this.variables = variables;
+        this.variableNames = variableNames;
+        this.variableTypes = variableTypes;
+        this.initialValues = initialValues;
     }
     
     public String getServiceName() {
@@ -49,7 +60,15 @@ public class NexusServiceInfo {
         return serviceURI;
     }
 
-    public String[] getVariables() {
-        return variables;
+    public String[] getVariableNames() {
+        return variableNames;
     }
+
+	public Object[] getInitialValues() {
+		return initialValues;
+	}
+
+	public String[] getVariableTypes() {
+		return variableTypes;
+	}
 }

@@ -1227,10 +1227,10 @@ public abstract class YTask extends YExternalNetElement {
     @OneToMany(mappedBy="task", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="Type='" + KeyValue.COMPLETION+ "'")
-    private Set<KeyValue> getDataMappingsForTaskCompletionSet() {
+    public Set<KeyValue> getDataMappingsForTaskCompletionSet() {
     	return dataMappingsForTaskCompletionSet;
     }
-    private void setDataMappingsForTaskCompletionSet(Set<KeyValue> set) {
+    public void setDataMappingsForTaskCompletionSet(Set<KeyValue> set) {
     	dataMappingsForTaskCompletionSet = set;
     }
 
