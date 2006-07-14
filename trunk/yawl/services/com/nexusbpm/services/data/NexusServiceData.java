@@ -100,6 +100,13 @@ public class NexusServiceData {
     }
     
     /**
+     * @see Variable#getValue()
+     */
+    public String getEncodedValue( String variableName ) {
+    	return getVariable( variableName ).getEncodedValue();
+    }
+    
+    /**
      * @see Variable#set(Object)
      */
     public void set( String variableName, Object value ) throws IOException {

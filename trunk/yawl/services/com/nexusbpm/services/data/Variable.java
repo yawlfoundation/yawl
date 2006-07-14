@@ -144,6 +144,15 @@ public class Variable {
         return decodeObject( getValue() );
     }
     
+    String getEncodedValue() {
+    	if( getValue() == null ) {
+    		return getType() + ":null";
+    	}
+    	else {
+    		return getType() + "::" + getValue();
+    	}
+    }
+    
     /**
      * Encodes the given value as appropriate for the variable's type and sets
      * the encoded value for the variable. Note that for binary data this

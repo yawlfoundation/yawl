@@ -91,7 +91,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     private transient XMLToolsForYAWL _xmlToolsForYAWL = new XMLToolsForYAWL();
     public static final String _loaded = "loaded";
     public static final String _unloaded = "unloaded";
-    private YMetaData _metaData;
+    private YMetaData _metaData = new YMetaData();
     private Integer _version;
     private Long _dbid;
 
