@@ -93,6 +93,13 @@ public class NexusServiceData {
     }
     
     /**
+     * @see Variable#getType()
+     */
+    public String getType( String variableName ) {
+        return getVariable( variableName ).getType();
+    }
+    
+    /**
      * @see Variable#set(Object)
      */
     public void set( String variableName, Object value ) throws IOException {
@@ -125,6 +132,13 @@ public class NexusServiceData {
      */
     public void setObject( String variableName, Object value ) throws IOException {
         getOrCreateVariable( variableName ).setObject( value );
+    }
+    
+    /**
+     * @see Variable#setType(String)
+     */
+    public void setType( String variableName, String type ) {
+        getOrCreateVariable( variableName ).setType( type );
     }
     
     private Variable getVariable( String variableName ) {
@@ -168,6 +182,20 @@ public class NexusServiceData {
             }
         }
         return b.toString();
+    }
+    
+    public void addStatusMessage( String message ) {
+        String status = "";
+        if( getType( "Status" ) != null
+                && getType( "Status" ).equals( Variable.TYPE_TEXT )
+                && getPlain( "Status" ) != null ) {
+            status = getPlain( "Status" );
+        }
+        if( status.length() > 0 ) {
+            status += "\n";
+        }
+        status = status + message;
+        setPlain( "Status", status );
     }
     
     public static NexusServiceData unmarshal( List<Content> variables ) {

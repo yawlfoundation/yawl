@@ -233,6 +233,9 @@ public class Variable {
         String getValue() {
             return null;
         }
+        public String getType() {
+            return null;
+        }
         public void set( Object value ) throws IOException {
         }
         public void setBase64( String value ) {
@@ -244,6 +247,8 @@ public class Variable {
         public void setPlain( String value ) {
         }
         void setValue( String value ) {
+        }
+        public void setType( String type ) {
         }
     }
     
