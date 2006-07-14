@@ -1,2 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_Schema.xsd" xmlns="http://www.yawl.fit.qut.edu.au/"><specification uri="YAWL_Specification2.xml"><metaData/><rootNet id="top"><inputParam name="stub"><type>stub:StubType</type></inputParam><localVariable name="stubList"><type>stub:StubListType</type><initialValue>&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;</initialValue></localVariable><processControlElements><inputCondition id="i-top"><name>i</name><flowsInto><nextElementRef id="c-top"/></flowsInto></inputCondition><task id="c-top" xsi:type="MultipleInstanceExternalTaskFactsType"><flowsInto><nextElementRef id="o-top"/></flowsInto><join code="xor"/><split code="and"/><decomposesTo id="leaf-c"/><minimum>2</minimum><maximum>7</maximum><threshold>5</threshold><creationMode code="dynamic"/><miDataInput><expression query="/data/stubList"/><splittingExpression query="for $d in /stubList/* return $d"/><formalInputParam>stub</formalInputParam></miDataInput></task><outputCondition id="o-top"><name>o</name></outputCondition></processControlElements></rootNet><decomposition id="leaf-c" xsi:type="NetFactsType"><inputParam name="stub"><type>stub:StubType</type></inputParam><localVariable name="stubList"><type>stub:StubListType</type><initialValue>&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;</initialValue></localVariable><processControlElements><inputCondition id="i-leaf-c"><name>i</name><flowsInto><nextElementRef id="e-leaf-c"/></flowsInto></inputCondition><task id="e-leaf-c"><flowsInto><nextElementRef id="o-leaf-c"/></flowsInto><join code="xor"/><split code="and"/><decomposesTo id="E"/></task><outputCondition id="o-leaf-c"><name>o</name></outputCondition></processControlElements></decomposition><decomposition id="E" xsi:type="WebServiceGatewayFactsType"></decomposition></specification></specificationSet>
+<specificationSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_Schema.xsd"
+	xmlns="http://www.yawl.fit.qut.edu.au/">
+	<specification uri="YAWL_Specification2.xml">
+		<metaData />
+		<rootNet id="top">
+			<inputParam name="stub">
+				<type>stub:StubType</type>
+			</inputParam>
+			<localVariable name="stubList">
+				<type>stub:StubListType</type>
+				<initialValue>					&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;				</initialValue>
+			</localVariable>
+			<processControlElements>
+				<inputCondition id="i-top">
+					<name>i</name>
+					<flowsInto>
+						<nextElementRef id="c-top" />
+					</flowsInto>
+				</inputCondition>
+				<task id="c-top"
+					xsi:type="MultipleInstanceExternalTaskFactsType">
+					<flowsInto>
+						<nextElementRef id="o-top" />
+					</flowsInto>
+					<join code="xor" />
+					<split code="and" />
+					<decomposesTo id="leaf-c" />
+					<minimum>2</minimum>
+					<maximum>7</maximum>
+					<threshold>5</threshold>
+					<creationMode code="dynamic" />
+					<miDataInput>
+						<expression query="/data/stubList" />
+						<splittingExpression
+							query="for $d in /stubList/* return $d" />
+						<formalInputParam>stub</formalInputParam>
+					</miDataInput>
+				</task>
+				<outputCondition id="o-top">
+					<name>o</name>
+				</outputCondition>
+			</processControlElements>
+		</rootNet>
+		<decomposition id="leaf-c" xsi:type="NetFactsType">
+			<inputParam name="stub">
+				<type>stub:StubType</type>
+			</inputParam>
+			<localVariable name="stubList">
+				<type>stub:StubListType</type>
+				<initialValue>					&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;&lt;stub/&gt;				</initialValue>
+			</localVariable>
+			<processControlElements>
+				<inputCondition id="i-leaf-c">
+					<name>i</name>
+					<flowsInto>
+						<nextElementRef id="e-leaf-c" />
+					</flowsInto>
+				</inputCondition>
+				<task id="e-leaf-c">
+					<flowsInto>
+						<nextElementRef id="o-leaf-c" />
+					</flowsInto>
+					<join code="xor" />
+					<split code="and" />
+					<decomposesTo id="E" />
+				</task>
+				<outputCondition id="o-leaf-c">
+					<name>o</name>
+				</outputCondition>
+			</processControlElements>
+		</decomposition>
+		<decomposition id="E" xsi:type="WebServiceGatewayFactsType"></decomposition>
+	</specification>
+</specificationSet>

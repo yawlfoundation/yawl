@@ -13,7 +13,7 @@ import javax.persistence.Transient;
 import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 
 @Entity
-public class KeyValue implements PolymorphicPersistableObject, Parented{
+public class KeyValue implements PolymorphicPersistableObject, Parented<YTask>{
 
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The

@@ -54,25 +54,25 @@ public class EmailSenderEditor extends ComponentEditor {
 	public JComponent initializeUI() throws EditorException {
 
 		_sender = (YTask) _proxy.getData();
-		Map m = ((YNet) _sender.getParent()).getLocalVariablesMap();
-		String to_addresses = ((YVariable) m.get(_sender.getID() + "." + "toAddresses")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
+		YNet network = _sender.getParent();
+		String to_addresses = ((YVariable) network.getLocalVariable(_sender.getID() + "." + "toAddresses")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
 		if( to_addresses == null ) to_addresses = "";
 		_toAddressField = new JTextField( "", 30 );
 		_toAddressField.setText( to_addresses );
 
-		String from_address = ((YVariable) m.get(_sender.getID() + "." + "fromAddress")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
+		String from_address = ((YVariable) network.getLocalVariable(_sender.getID() + "." + "fromAddress")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
 //		String from_address = "sandozm@ichg.com";//_sender.getFromAddress();
 		if( from_address == null ) from_address = "capsela@ichotelsgroup.com";
 		_fromAddressField = new JTextField( "", 30 );
 		_fromAddressField.setText( from_address );
 
-		String subject = ((YVariable) m.get(_sender.getID() + "." + "subject")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
+		String subject = ((YVariable) network.getLocalVariable(_sender.getID() + "." + "subject")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
 //		String subject = "the quote is working";//_sender.getSubject();
 		if( subject == null ) subject = "";
 		_subjectField = new JTextField( "", 30 );
 		_subjectField.setText( subject );
 
-		String body = ((YVariable) m.get(_sender.getID() + "." + "body")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
+		String body = ((YVariable) network.getLocalVariable(_sender.getID() + "." + "body")).getInitialValue();//= "maod@ichg.com";//_sender.getToAddresses();
 //		String body = "will it work?";//_sender.getBody();
 		if( body == null ) body = "";
 		_editor = new JEditorPane();
@@ -152,11 +152,11 @@ public class EmailSenderEditor extends ComponentEditor {
 	 * @see ComponentEditor#saveAttributes()
 	 */
 	public void saveAttributes() {
-		Map m = ((YNet) _sender.getParent()).getLocalVariablesMap();
-		((YVariable) m.get(_sender.getID() + "." + "body")).setInitialValue(_editor.getText());
-		((YVariable) m.get(_sender.getID() + "." + "toAddresses")).setInitialValue(_toAddressField.getText());
-		((YVariable) m.get(_sender.getID() + "." + "fromAddress")).setInitialValue(_fromAddressField.getText());
-		((YVariable) m.get(_sender.getID() + "." + "subject")).setInitialValue(_subjectField.getText());
+		YNet network = _sender.getParent();
+		((YVariable) network.getLocalVariable(_sender.getID() + "." + "body")).setInitialValue(_editor.getText());
+		((YVariable) network.getLocalVariable(_sender.getID() + "." + "toAddresses")).setInitialValue(_toAddressField.getText());
+		((YVariable) network.getLocalVariable(_sender.getID() + "." + "fromAddress")).setInitialValue(_fromAddressField.getText());
+		((YVariable) network.getLocalVariable(_sender.getID() + "." + "subject")).setInitialValue(_subjectField.getText());
 	}
 
 }

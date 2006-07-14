@@ -202,7 +202,7 @@ public class YWorklistTableModel extends AbstractTableModel {
             List outputParamsMP = task.getDecompositionPrototype().getOutputParameters();
             List outputParamsLst = new ArrayList(outputParamsMP);
             String filteredOutputData;
-            if (task._net.getSpecification().usesSimpleRootData()) {
+            if (task._net.getParent().usesSimpleRootData()) {
                 filteredOutputData = mergedOutputData;
             } else {
                 filteredOutputData = Marshaller.filterDataAgainstOutputParams(

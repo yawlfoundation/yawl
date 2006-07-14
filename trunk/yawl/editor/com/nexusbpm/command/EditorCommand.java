@@ -71,21 +71,21 @@ public class EditorCommand {
 	
 	public static void addDecompositionToSpecification(YSpecification spec, YDecomposition decomp){
 		spec.setDecomposition(decomp);
-		decomp.setSpecification(spec);
+		decomp.setParent(spec);
 		//at this point, might have to regenerate mappings...
 	}
 
 	public static void addNewNetElementToExistingNet(YExternalNetElement newElement, YNet existingNet) {
 		
 		existingNet.addNetElement(newElement);
-		newElement.setContainer(existingNet);
+		newElement.setParent(existingNet);
 		if (newElement instanceof YTask) {
 			YTask task = (YTask) newElement;
 			YDecomposition decomp = task.getDecompositionPrototype();
 			//should we do something with any existing like-named decompositions?
 			if (decomp != null) {
-				decomp.setSpecification(existingNet.getSpecification());
-				existingNet.getSpecification().setDecomposition(decomp);
+				decomp.setParent(existingNet.getParent());
+				existingNet.getParent().setDecomposition(decomp);
 			}
 		}
 	}

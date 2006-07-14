@@ -134,7 +134,7 @@ public class YNetRunner implements PersistableObject // extends Thread
 
     public void setNet(YNet net) {
         _net = net;
-        yNetID = net.getSpecification().getID();
+        yNetID = net.getParent().getID();
         _net.restoreData(casedata);
     }
 
@@ -239,7 +239,7 @@ public class YNetRunner implements PersistableObject // extends Thread
         /*
           INSERTED FOR PERSISTANCE
          */
-        yNetID = netPrototype.getSpecification().getID();
+        yNetID = netPrototype.getParent().getID();
         /*****************************/
 
         prepare();
@@ -271,7 +271,7 @@ public class YNetRunner implements PersistableObject // extends Thread
         /*
           INSERTED FOR PERSISTANCE
          */
-        yNetID = netPrototype.getSpecification().getID();
+        yNetID = netPrototype.getParent().getID();
         setContainingTaskID(container.getID());
         /******************************/
         prepare();
@@ -423,7 +423,7 @@ public class YNetRunner implements PersistableObject // extends Thread
         List locations = _caseIDForNet.getLocations();
         for (int i = 0; i < locations.size(); i++) {
             YNetElement element = (YNetElement) locations.get(i);
-            if (_net.getNetElements().values().contains(element)) {
+            if (_net.getNetElements().contains(element)) {
                 if (element instanceof YTask) {
                     createDeadlockItem((YTask) element);
                 }
@@ -440,7 +440,7 @@ public class YNetRunner implements PersistableObject // extends Thread
 
 
     private void createDeadlockItem(YExternalNetElement netElement) throws YPersistenceException {
-        String specificationID = _net.getSpecification().getID();
+        String specificationID = _net.getParent().getID();
         boolean allowsNewInstances = false;
         boolean isDeadlocked = true;
         YWorkItemID deadlockWorkItemID = new YWorkItemID(_caseIDForNet,
@@ -596,7 +596,7 @@ public class YNetRunner implements PersistableObject // extends Thread
     public synchronized boolean continueIfPossible() throws YPersistenceException {
         Logger.getLogger(this.getClass()).debug("--> continueIfPossible");
 
-        List tasks = new ArrayList(_net.getNetElements().values());
+        List tasks = new ArrayList(_net.getNetElements());
 
         Iterator tasksIter = tasks.iterator();
         while (tasksIter.hasNext()) {
@@ -750,7 +750,7 @@ public class YNetRunner implements PersistableObject // extends Thread
 
         //creating a new work item puts it into the work item
         //repository automatically.
-        YWorkItem workItem = new YWorkItem(atomicTask.getContainer().getSpecification().getID(),
+        YWorkItem workItem = new YWorkItem(atomicTask.getParent().getParent().getID(),
                 new YWorkItemID(caseIDForNet, atomicTask.getID()),
                 allowDynamicCreation, false);
         if (atomicTask.getDataMappingsForEnablement().size() > 0) {
@@ -848,7 +848,7 @@ public class YNetRunner implements PersistableObject // extends Thread
         logger.debug("--> NetRunner cancel " + this.getCaseID().getId());
 
         _cancelling = true;
-        Collection netElements = _net.getNetElements().values();
+        Collection netElements = _net.getNetElements();
         Iterator iterator = netElements.iterator();
         while (iterator.hasNext()) {
             YExternalNetElement netElement = (YExternalNetElement) iterator.next();
@@ -900,7 +900,7 @@ public class YNetRunner implements PersistableObject // extends Thread
 
     @Transient
     public boolean isEmpty() {
-        Iterator elements = _net.getNetElements().values().iterator();
+        Iterator elements = _net.getNetElements().iterator();
         while (elements.hasNext()) {
             YExternalNetElement element = (YExternalNetElement) elements.next();
             if (element instanceof YCondition) {
@@ -1017,7 +1017,7 @@ public class YNetRunner implements PersistableObject // extends Thread
         ArrayList<String> result = new ArrayList<String>() ;
 
         if (nextTaskID != null) {
-            for ( YNetElement yne : getNet().getNetElements().values()) {
+            for ( YNetElement yne : getNet().getNetElements()) {
                if (yne instanceof YTask) {
                    YTask task = (YTask) yne;
                    String nextTask = getFlowsIntoTaskID(task);

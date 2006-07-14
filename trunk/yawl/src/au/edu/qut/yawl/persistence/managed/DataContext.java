@@ -11,6 +11,7 @@ package au.edu.qut.yawl.persistence.managed;
 
 import java.beans.VetoableChangeListener;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -176,7 +177,6 @@ public class DataContext {
     public Set<DataProxy> getChildren(DataProxy parent, boolean forceUpdate) {
     	if (hierarchy.get(parent) == null || forceUpdate) {
     		List l = dao.getChildren(parent.getData());
-    		LOG.info("getchildren finds " + l);
     		for (Object o: l) {
     			if (o instanceof YSpecification) {
     				generateProxies((YSpecification) o);
@@ -191,8 +191,42 @@ public class DataContext {
     	return hierarchy.get(parent);
     }
     
+    public static void removeConditions(YSpecification spec) {
+    	for (YDecomposition decomp: spec.getDecompositions()) {
+    		if (decomp instanceof YNet) {
+    			List<YExternalNetElement> copySet = new ArrayList<YExternalNetElement>();
+    			copySet.addAll(((YNet) decomp).getNetElements());
+    			for (YExternalNetElement currentElement: copySet) {
+    				if (currentElement.getClass() == YCondition.class) {
+    					List<YExternalNetElement> elementsBeforeCondition = currentElement.getPresetElements();
+    					List<YExternalNetElement> elementsAfterCondition = currentElement.getPostsetElements();
+    					if (elementsBeforeCondition.size() == 1) {
+    						YExternalNetElement elementBeforeCondition = elementsBeforeCondition.get(0);
+    						for (YExternalNetElement elementAfterCondition: elementsAfterCondition) {
+    							for (YFlow flow: elementAfterCondition.getPresetFlows()) {
+    								if (flow.getPriorElement() == currentElement) {
+    									flow.setPriorElement(elementAfterCondition);
+    								}
+    							}
+    							for (YFlow flow: elementBeforeCondition.getPostsetFlows()) {
+    								if (flow.getNextElement() == currentElement) {
+    									flow.setNextElement(elementAfterCondition);
+    								}
+    							}
+    							
+    						}
+    					}
+    					((YNet) decomp).getNetElements().remove(currentElement);
+    				}
+    			}
+    		}
+    	}
+    }
+    
+    
     public void generateProxies(YSpecification spec) {
 		assert spec != null;
+		removeConditions(spec);
     	DataProxy specProxy = newObject(spec, null);
     	specProxy.setLabel(spec.getName());
     	List<YDecomposition> decomps = spec.getDecompositions();
@@ -206,9 +240,10 @@ public class DataContext {
     		hierarchy.put(specProxy, decompProxy);
     		if (decomp instanceof YNet) {
     			YNet net = (YNet) decomp;
-    			for(YExternalNetElement yene: net.getNetElementsDB()) {
+    			for(YExternalNetElement yene: net.getNetElements()) {
     				DataProxy netElementProxy = newObject(yene, null);
     				if (findType(yene) == Type.CONDITION) {
+    					LOG.error(yene.getClass().getName());
     					netElementProxy.setLabel("{connector}");
     				} else {
     					if (yene.getName() != null && yene.getName().length() != 0) {
@@ -224,7 +259,7 @@ public class DataContext {
     	for (YDecomposition decomp: decomps) {
     		if (decomp instanceof YNet) {
     			YNet net = (YNet) decomp;
-    			for(YExternalNetElement yene: net.getNetElementsDB()) {
+    			for(YExternalNetElement yene: net.getNetElements()) {
         			Collection<YFlow> flows = yene.getPostsetFlows();
     				for (YFlow flow: flows) {
     					DataProxy flowProxy = newObject(flow, null);

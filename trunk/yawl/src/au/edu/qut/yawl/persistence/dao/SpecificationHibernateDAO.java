@@ -117,7 +117,7 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 			Transaction tx = session.beginTransaction();
 			YSpecification spec = (YSpecification) session.get(YSpecification.class, (Serializable) getKey(t));
 			System.out.println(">>>>" + spec.getDbID());
-			for (YDecomposition decomp: spec.getDBDecompositions()) {
+			for (YDecomposition decomp: spec.getDecompositions()) {
 				System.out.println("><" + decomp.getId() + ":" + decomp.getDbID());
 			}
 			session.delete(spec);

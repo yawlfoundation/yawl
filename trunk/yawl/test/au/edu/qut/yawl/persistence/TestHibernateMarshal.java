@@ -122,7 +122,7 @@ public class TestHibernateMarshal extends XMLTestCase  {
 		for (YDecomposition decomp: spec.getDecompositions()) {
 			System.err.println("Decomp:" + decomp);
 			if (decomp instanceof YNet) {
-				for (YExternalNetElement elem: ((YNet) decomp).getNetElements().values()) {
+				for (YExternalNetElement elem: ((YNet) decomp).getNetElements()) {
 					System.err.println("  Element:" + elem);
 					for (YFlow flow: elem.getPresetFlows()) {
 						System.err.println("    PREFlow:" + flow);

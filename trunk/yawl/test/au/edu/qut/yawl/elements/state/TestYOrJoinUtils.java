@@ -77,8 +77,8 @@ public class TestYOrJoinUtils extends TestCase{
         markedElements.add(_net.getNetElement("b"));
         markedElements.add(_net.getNetElement("cA"));
         markedElements.add(_net.getNetElement("cC"));
-        assertTrue("_parentDecomposition.getNetElements().values().size() " + _net.getNetElements().values().size(),
-               _net.getNetElements().values().size() == 12);
+        assertTrue("_parentDecomposition.getNetElements().values().size() " + _net.getNetElements().size(),
+               _net.getNetElements().size() == 12);
         YMarking marking = new YMarking(markedElements);
         List<YExternalNetElement> enabledReduced = YOrJoinUtils.reduceToEnabled(marking, (YTask)_net.getNetElement("d"));
         assertTrue(enabledReduced.size() == 1);
@@ -91,8 +91,8 @@ public class TestYOrJoinUtils extends TestCase{
         markedElements.add(_net2.getNetElement("b"));
         markedElements.add(_net2.getNetElement("cA"));
         markedElements.add(_net2.getNetElement("cC"));
-        assertTrue("_parentDecomposition.getNetElements().values().size() " + _net2.getNetElements().values().size(),
-               _net2.getNetElements().values().size() == 12);
+        assertTrue("_parentDecomposition.getNetElements().values().size() " + _net2.getNetElements().size(),
+               _net2.getNetElements().size() == 12);
         YMarking marking = new YMarking(markedElements);
         List<YExternalNetElement> enabledReduced = YOrJoinUtils.reduceToEnabled(marking, (YTask)_net2.getNetElement("d"));
         assertTrue(enabledReduced.size() == 2);
@@ -106,8 +106,8 @@ public class TestYOrJoinUtils extends TestCase{
         markedElements.add(_net3.getNetElement("b"));
         markedElements.add(_net3.getNetElement("cA"));
         markedElements.add(_net3.getNetElement("cC"));
-        assertTrue("_parentDecomposition.getNetElements().values().size() " + _net3.getNetElements().values().size(),
-               _net3.getNetElements().values().size() == 13);
+        assertTrue("_parentDecomposition.getNetElements().values().size() " + _net3.getNetElements().size(),
+               _net3.getNetElements().size() == 13);
         YMarking marking = new YMarking(markedElements);
         List<YExternalNetElement> enabledReduced = YOrJoinUtils.reduceToEnabled(marking, (YTask)_net3.getNetElement("d"));
         assertTrue(enabledReduced.size() == 3);

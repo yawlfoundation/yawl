@@ -68,7 +68,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("external_net_element")
-public class YExternalNetElement extends YNetElement implements Parented, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
+public class YExternalNetElement extends YNetElement implements Parented<YNet>, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
     protected String _name;
     protected String _documentation;
     public YNet _net;
@@ -124,31 +124,13 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     	super.setID(id);
     }
     
-    @Transient
-    public Object getParent() {return _net;}
+    @ManyToOne(cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    public YNet getParent() {return _net;}
+    @ManyToOne(cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    public void setParent(YNet net) {_net = net;}
 
-    
-    /**
-     * Inserted for hibernate for one-to-many collection from YNet.getNetElements()
-     * @return
-     * @hibernate.many-to-one column="DECOMPOSITION_ID"
-     *    class="au.edu.qut.yawl.elements.YNet"
-     */
-    @ManyToOne(cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    public YNet getContainer() {
-    	return _net;
-    }
-    /**
-     * Inserted for hibernate
-     * @param net
-     */
-    @ManyToOne(cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    public void setContainer(YNet net) {
-    	_net = net;
-    }
-    
     /**
      * Method getName.
      * @return String
@@ -177,7 +159,7 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
 
     @Transient
     public String getProperID() {
-        return _net.getSpecification().getID() + "|" + super.getID();
+        return _net.getParent().getID() + "|" + super.getID();
     }
 
 
@@ -471,43 +453,22 @@ public class YExternalNetElement extends YNetElement implements Parented, YVerif
     }
 
 //    @Transient
-    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     public Collection<YFlow> getPostsetFlows() {
         return _postsetFlows;
     }
 
 //    @Transient
-    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     public void setPostsetFlows(Collection<YFlow> flows) {
-    	for (YFlow flow: flows) {
-    		flow.setPriorElement(this);
-    	}
+    	this._postsetFlows = flows;
+//    	for (YFlow flow: flows) {
+//    		flow.setPriorElement(this);
+//    	}
 //    	_postsetFlows.clear();
-    	_postsetFlows.addAll(flows);
-    }
-
-//    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
-    @Transient
-    public List<YFlow> getPostsetFlowsAsList() {
-//        return new ArrayList<YFlow>(_postsetFlows);
-        return (List<YFlow>) _postsetFlows;
-    }
-
-//    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
-    @Transient
-    public void setPostsetFlowsAsList(List<YFlow> flows) {
-    	for (YFlow flow: flows) {
-			flow.setPriorElement(this);
-		}
-		_postsetFlows.clear();
-		for (YFlow flow: flows) {
-			if (flow.getNextElement() != null) {
-				flow.getNextElement().getPresetFlows().add(flow);
-			}
-		}
-    	_postsetFlows.addAll(flows);
+//    	_postsetFlows.addAll(flows);
     }
 
 //    @Transient

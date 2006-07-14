@@ -397,7 +397,7 @@ public class TestMiDataOutput extends TestCase {
     	try {
     		YSpecification spec = readSpecification( _spec3File );
 //    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec.getRootNet().getNetElement("record");
     		task.getMultiInstanceAttributes().setMinInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 1");
 //    	try {
     		runMultiInstance( spec, false );
@@ -418,7 +418,7 @@ public class TestMiDataOutput extends TestCase {
     	try {
     		YSpecification spec = readSpecification( _spec3File );
 //    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec.getRootNet().getNetElement("record");
     		task.getMultiInstanceAttributes().setMinInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 1");
     		spec.setBetaVersion( YSpecification._Beta2 );
 //    	try {
@@ -440,7 +440,7 @@ public class TestMiDataOutput extends TestCase {
     	try {
     		YSpecification spec = readSpecification( _spec3File );
 //    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec.getRootNet().getNetElement("record");
     		task.getMultiInstanceAttributes().setMaxInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 10");
 //    	try {
     		runMultiInstance(spec, false);
@@ -461,7 +461,7 @@ public class TestMiDataOutput extends TestCase {
     	try {
     		YSpecification spec = readSpecification( _spec3File );
 //    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec.getRootNet().getNetElement("record");
     		task.getMultiInstanceAttributes().setMaxInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 10");
     		spec.setBetaVersion( YSpecification._Beta2 );
 //    	try {
@@ -483,7 +483,7 @@ public class TestMiDataOutput extends TestCase {
     	try {
     		YSpecification spec = readSpecification( _spec3File );
 //    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec.getRootNet().getNetElement("record");
     		task.getMultiInstanceAttributes().setThresholdQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 4");
 //    	try {
     		runMultiInstance( spec, false );
@@ -504,7 +504,7 @@ public class TestMiDataOutput extends TestCase {
     	try {
     		YSpecification spec = readSpecification( _spec3File );
 //    		YAtomicTask task = (YAtomicTask) _specification3._rootNet.getNetElement("record");
-    		YAtomicTask task = (YAtomicTask) spec._rootNet.getNetElement("record");
+    		YAtomicTask task = (YAtomicTask) spec.getRootNet().getNetElement("record");
     		task.getMultiInstanceAttributes().setThresholdQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 4");
     		spec.setBetaVersion( YSpecification._Beta2 );
 //    	try {

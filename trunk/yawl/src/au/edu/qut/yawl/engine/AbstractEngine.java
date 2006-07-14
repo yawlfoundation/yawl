@@ -1233,7 +1233,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 for (Iterator iterator2 = decompositions.iterator(); iterator2.hasNext();) {
                     YDecomposition decomposition = (YDecomposition) iterator2.next();
                     if (decomposition instanceof YNet) {
-                        if (((YNet) decomposition).getNetElements().containsKey(taskID)) {
+                        if (((YNet) decomposition).getNetElement(taskID) != null) {
                             YExternalNetElement el = ((YNet) decomposition).getNetElement(taskID);
                             if (el instanceof YTask) {
                                 return (YTask) ((YNet) decomposition).getNetElement(taskID);
