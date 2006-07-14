@@ -42,14 +42,18 @@ public class YawlServiceComboBox extends JComboBox {
   
   public YawlServiceComboBox() {
     super();
-    refresh();
   }
   
   public void refresh() {
     removeAllItems();
+    setEnabled(false);
+    
     addYawlServices();
+    if (getItemCount() > 1) {
+      setEnabled(true);
+    }
   }
-  
+
   private void addYawlServices() {
     addYawlServicesFromEngine();    
   }
