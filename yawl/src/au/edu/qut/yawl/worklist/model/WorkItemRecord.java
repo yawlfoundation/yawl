@@ -14,6 +14,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Category;
 import org.apache.log4j.Logger;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 
 /**
  * 
@@ -23,21 +24,16 @@ import org.apache.log4j.Logger;
  * 
  */
 public class WorkItemRecord {
-    public static final String statusEnabled = "Enabled";
-    public static final String statusFired = "Fired";
-    public static final String statusExecuting = "Executing";
-    public static final String statusComplete = "Complete";
-    public static final String statusIsParent = "Is parent";
-    public static final String statusDeadlocked = "Deadlocked";
     public static final String statusForcedComplete = "ForcedComplete";
     public static final String statusFailed = "Failed";
+
 
     private String _taskID;
     private String _caseID;
     private String _enablementTime;
     private String _firingTime;
     private String _startTime;
-    private String _status;
+    private YWorkItem.Status _status;
     private String _whoStartedMe;
     private Element _dataList;
     private String _specificationID;
@@ -70,8 +66,8 @@ public class WorkItemRecord {
     this._enablementTime = enablementTime;
     }
 
-    public void setStatus(String status) {
-    this._status = status;
+    public void setStatus(YWorkItem.Status status) {
+        _status = status;
     }
 
 
@@ -80,11 +76,11 @@ public class WorkItemRecord {
 
     public WorkItemRecord(String caseID, String taskID, String specificationID,
                           String enablementTime, String status) {
-        this._taskID = taskID;
-        this._caseID = caseID;
-        this._specificationID = specificationID;
-        this._enablementTime = enablementTime;
-        this._status = status;
+        _taskID = taskID;
+        _caseID = caseID;
+        _specificationID = specificationID;
+        _enablementTime = enablementTime;
+        _status = YWorkItem.Status.valueOf(status);
     }
 
     public void setFiringTime(String firingTime) {
@@ -133,7 +129,7 @@ public class WorkItemRecord {
         return _startTime;
     }
 
-    public String getStatus() {
+    public YWorkItem.Status getStatus() {
         return _status;
     }
 
@@ -172,8 +168,8 @@ public class WorkItemRecord {
                 "<status>" + _status + "</status>" +
                 "<user>" + _whoStartedMe + "</user>" +
                 ((_dataList == null) ?
-                		"<data/>" :
-                		"<data>" + outCompact.outputString(_dataList) + "</data>") +
+                        "<data/>" :
+                        "<data>" + outCompact.outputString(_dataList) + "</data>") +
                 "<specid>" + _specificationID + "</specid>" +
                 "</itemRecord>";
     }

@@ -259,11 +259,11 @@ public class YDecompositionParser {
 
     private void parseExternalTaskRoles(Element externalTaskElem, YTask externalTask) {
         List removeSet = parseRemoveSet(externalTaskElem);
-        this._removeSetIDs.put(externalTask, removeSet);
+        _removeSetIDs.put(externalTask, removeSet);
         List removeSetForFlows = parseRemoveSetFromFlow(externalTaskElem);
-        this._removeSetForFlows.put(externalTask, removeSetForFlows);
+        _removeSetForFlows.put(externalTask, removeSetForFlows);
         List postsetElements = parsePostset(externalTaskElem);
-        this._postsetIDs.add(externalTask.getID(), postsetElements);
+        _postsetIDs.add(externalTask.getID(), postsetElements);
         Element startingMappings = externalTaskElem.getChild("startingMappings", _yawlNS);
         if (startingMappings != null) {
             externalTask.setDataMappingsForTaskStarting(parseMappings(startingMappings, true));
