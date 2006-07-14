@@ -69,81 +69,81 @@ public class PersistenceHelper {
 //	        this.formalInputParam = value;
 //	    }
 	}
-	public static void setJaxbDecompositions(YSpecification spec, List<YDecomposition> set) {
-		spec._decompositions = set;
-    	for (YDecomposition decomp: spec._decompositions) {
-    		decomp.setSpecification(spec);
-//    		decomp.getInternalDataDocument().setRootElement(new org.jdom.Element(decomp.getRootDataElementName()));
-    		if (decomp instanceof YNet) {
-    			if (Boolean.parseBoolean(((YNet) decomp).getRootNet())) {
-    				spec._rootNet = ((YNet) decomp);
-    			}
-    		}
-    	}
-    	Map<String, YDecomposition> nameMap = new HashMap<String, YDecomposition>();
-    	for (YDecomposition decomp: spec.getDecompositions()) {
-    		nameMap.put(decomp.getId(), decomp);
-    	}
-    		
-    	for (YDecomposition decomp: spec.getDecompositions()) {
-    		if (decomp instanceof YNet) {
-    			for (Map.Entry<String, YExternalNetElement> entry:((YNet) decomp).getNetElements().entrySet()) {
-    				if (entry.getValue() instanceof YTask) {
-    					if (((YTask) entry.getValue()).getDecompositionPrototype() != null) {
-        					String which = ((YTask) entry.getValue()).getDecompositionPrototype().getId();
-        					((YTask) entry.getValue()).setDecompositionPrototype(nameMap.get(which));
-    					}
-    				}
-    			}
-    		}
-    	}
-    	for (YDecomposition decomp: spec.getDecompositions()) {
-    		if (decomp instanceof YNet) {
-    			Map<String, YExternalNetElement> map = new TreeMap<String, YExternalNetElement>();
-    			map.putAll(((YNet) decomp).getNetElements());
-    			for (Map.Entry<String, YExternalNetElement> entry:map.entrySet()) {
-//    				for (YFlow flow: entry.getValue().getPresetFlows()) {
-//    					System.out.println("AFLOW : " + flow.isDefaultFlow() + ":" + flow.getPriorElement().getID() + ":" + entry.getValue().getID());
+//	public static void setJaxbDecompositions(YSpecification spec, List<YDecomposition> set) {
+//		spec._decompositions = set;
+//    	for (YDecomposition decomp: spec._decompositions) {
+//    		decomp.setSpecification(spec);
+////    		decomp.getInternalDataDocument().setRootElement(new org.jdom.Element(decomp.getRootDataElementName()));
+//    		if (decomp instanceof YNet) {
+//    			if (Boolean.parseBoolean(((YNet) decomp).getRootNet())) {
+//    				spec._rootNet = ((YNet) decomp);
+//    			}
+//    		}
+//    	}
+//    	Map<String, YDecomposition> nameMap = new HashMap<String, YDecomposition>();
+//    	for (YDecomposition decomp: spec.getDecompositions()) {
+//    		nameMap.put(decomp.getId(), decomp);
+//    	}
+//    		
+//    	for (YDecomposition decomp: spec.getDecompositions()) {
+//    		if (decomp instanceof YNet) {
+//    			for (Map.Entry<String, YExternalNetElement> entry:((YNet) decomp).getNetElements().entrySet()) {
+//    				if (entry.getValue() instanceof YTask) {
+//    					if (((YTask) entry.getValue()).getDecompositionPrototype() != null) {
+//        					String which = ((YTask) entry.getValue()).getDecompositionPrototype().getId();
+//        					((YTask) entry.getValue()).setDecompositionPrototype(nameMap.get(which));
+//    					}
 //    				}
-//    				for (YFlow flow: entry.getValue().getPostsetFlows()) {
-//    					System.out.println("BFLOW : " + flow.isDefaultFlow() + ":" + entry.getValue().getID() + ":" + flow.getNextElement().getID());
+//    			}
+//    		}
+//    	}
+//    	for (YDecomposition decomp: spec.getDecompositions()) {
+//    		if (decomp instanceof YNet) {
+//    			Map<String, YExternalNetElement> map = new TreeMap<String, YExternalNetElement>();
+//    			map.putAll(((YNet) decomp).getNetElements());
+//    			for (Map.Entry<String, YExternalNetElement> entry:map.entrySet()) {
+////    				for (YFlow flow: entry.getValue().getPresetFlows()) {
+////    					System.out.println("AFLOW : " + flow.isDefaultFlow() + ":" + flow.getPriorElement().getID() + ":" + entry.getValue().getID());
+////    				}
+////    				for (YFlow flow: entry.getValue().getPostsetFlows()) {
+////    					System.out.println("BFLOW : " + flow.isDefaultFlow() + ":" + entry.getValue().getID() + ":" + flow.getNextElement().getID());
+////    				}
+//    				if (entry.getValue() instanceof YTask) {
+//    					YTask taska = ((YTask) entry.getValue());
+//    					if (taska.getDecompositionPrototype() != null) {
+//        					String which = taska.getDecompositionPrototype().getId();
+//        					if (nameMap.get(which) instanceof YNet) {
+//        						YExternalNetElement trial = ((YNet) decomp).getNetElements().get(taska.getID());
+//        						YCompositeTask task = null; 
+//        						if (trial == null || trial instanceof YAtomicTask) {
+//            						task = new YCompositeTask(taska.getID(), taska.getJoinType(), taska.getSplitType(), taska.getParent());
+//        						}
+//        						else if (trial instanceof YCompositeTask){
+//        							task = (YCompositeTask) trial;
+//        						}        						
+//        						task.setDecompositionPrototype(nameMap.get(which));
+//        						Collection<YFlow> flows = taska.getPostsetFlows();
+//        						for (YFlow flow: flows) {
+//        							flow.setPriorElement(task);
+//        						}
+//        						flows = taska.getPresetFlows();
+//        						for (YFlow flow: flows) {
+//        							flow.setNextElement(task);
+//        						}
+//        						task.setPresetFlows(taska.getPresetFlows());
+//        						task.setPostsetFlows(taska.getPostsetFlows());
+////        						task.setCreationMode(taska.getCreationMode());
+//        						task.setDataMappingsForTaskStarting(taska.getDataMappingsForTaskStarting());
+//        						task.setDataMappingsForTaskCompletion(taska.getDataMappingsForTaskCompletion());
+//        						task.setDocumentation(taska.getDocumentation());
+//        						((YNet) decomp).getNetElements().put(task.getID(), task);
+//        					}
+//    					}
 //    				}
-    				if (entry.getValue() instanceof YTask) {
-    					YTask taska = ((YTask) entry.getValue());
-    					if (taska.getDecompositionPrototype() != null) {
-        					String which = taska.getDecompositionPrototype().getId();
-        					if (nameMap.get(which) instanceof YNet) {
-        						YExternalNetElement trial = ((YNet) decomp).getNetElements().get(taska.getID());
-        						YCompositeTask task = null; 
-        						if (trial == null || trial instanceof YAtomicTask) {
-            						task = new YCompositeTask(taska.getID(), taska.getJoinType(), taska.getSplitType(), taska.getContainer());
-        						}
-        						else if (trial instanceof YCompositeTask){
-        							task = (YCompositeTask) trial;
-        						}        						
-        						task.setDecompositionPrototype(nameMap.get(which));
-        						Collection<YFlow> flows = taska.getPostsetFlows();
-        						for (YFlow flow: flows) {
-        							flow.setPriorElement(task);
-        						}
-        						flows = taska.getPresetFlows();
-        						for (YFlow flow: flows) {
-        							flow.setNextElement(task);
-        						}
-        						task.setPresetFlows(taska.getPresetFlows());
-        						task.setPostsetFlows(taska.getPostsetFlows());
-//        						task.setCreationMode(taska.getCreationMode());
-        						task.setDataMappingsForTaskStarting(taska.getDataMappingsForTaskStarting());
-        						task.setDataMappingsForTaskCompletion(taska.getDataMappingsForTaskCompletion());
-        						task.setDocumentation(taska.getDocumentation());
-        						((YNet) decomp).getNetElements().put(task.getID(), task);
-        					}
-    					}
-    				}
-    			}
-    		}
-    	}
-	}
+//    			}
+//    		}
+//    	}
+//	}
 	public static void setAnyJaxb(YSpecification spec, List<Element> nodes) {
 		try {
 			com.sun.org.apache.xml.internal.serialize.XMLSerializer s = new com.sun.org.apache.xml.internal.serialize.XMLSerializer();

@@ -1,5 +1,6 @@
 package au.edu.qut.yawl.elements;
 
-public interface Parented {
-	public Object getParent();
+public interface Parented<Type> {
+	public Type getParent();
+	public void setParent(Type t);
 }

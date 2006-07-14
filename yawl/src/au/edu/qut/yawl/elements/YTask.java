@@ -29,7 +29,6 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -177,7 +176,7 @@ public abstract class YTask extends YExternalNetElement {
 
     private String buildSchema(Collection params) throws YSchemaBuildingException {
 
-        XMLToolsForYAWL xmlt = _net.getSpecification().getToolsForYAWL();
+        XMLToolsForYAWL xmlt = _net.getParent().getToolsForYAWL();
 
         Instruction[] instructionsArr = xmlt.buildInstructions(params);
 
@@ -528,7 +527,7 @@ public abstract class YTask extends YExternalNetElement {
             }
 
             Set queries = getQueriesForTaskCompletion();
-            Map<String, YVariable> netLocalVariablesMap = _net.getLocalVariablesMap();
+//            Map<String, YVariable> netLocalVariablesMap = _net.getLocalVariablesMap();
             for (Iterator iter = queries.iterator(); iter.hasNext();) {
                 String query = (String) iter.next();
                 String localVarThatQueryResultGetsAppliedTo = getMIOutputAssignmentVar(query);
@@ -545,9 +544,9 @@ public abstract class YTask extends YExternalNetElement {
                 }
                 //Now we check that the resulting transformation produced data according
                 //to the net variable's type.
-                if (_net.getSpecification().isSchemaValidating() &&
+                if (_net.getParent().isSchemaValidating() &&
                         !query.equals(getPreJoiningMIQuery())) {
-                    YVariable var = netLocalVariablesMap.get(localVarThatQueryResultGetsAppliedTo);
+                    YVariable var = _net.getLocalVariable(localVarThatQueryResultGetsAppliedTo);
                     Set col = new HashSet();
                     col.add(var);
                     String schemaForVariable = buildSchema(col);
@@ -727,14 +726,13 @@ public abstract class YTask extends YExternalNetElement {
             result = evaluateTreeQuery(
                     _multiInstAttr.getMIJoiningQuery(),
                     _groupedMultiInstanceOutputData);
-            if (_net.getSpecification().isSchemaValidating()) {
+            if (_net.getParent().isSchemaValidating()) {
                 //if betaversion > beta3 then validate the results of the aggregation query
                 String uniqueInstanceOutputQuery = _multiInstAttr.getMIFormalOutputQuery();
                 String localVarThatQueryResultGetsAppliedTo =
                         getDataMappingsForTaskCompletion().get(uniqueInstanceOutputQuery);
 
-                Map<String, YVariable> netLocalVariablesMap = _net.getLocalVariablesMap();
-                YVariable var = netLocalVariablesMap.get(localVarThatQueryResultGetsAppliedTo);
+                YVariable var = _net.getLocalVariable(localVarThatQueryResultGetsAppliedTo);
                 Set col = new HashSet();
                 col.add(var);
                 schemaForVariable = buildSchema(col);
@@ -993,7 +991,7 @@ public abstract class YTask extends YExternalNetElement {
          * AJH: Allow option to inhibit schema validation for outbound data.
          *      Ideally need to support this at task level.
          */
-        if (_net.getSpecification().isSchemaValidating()) {
+        if (_net.getParent().isSchemaValidating()) {
             if (!skipOutboundSchemaChecks()) {
                 performSchemaValidationOverExtractionResult(expression, inputParamName, result); }
         }
@@ -1533,7 +1531,7 @@ public abstract class YTask extends YExternalNetElement {
             result.append("<taskInfo>");
 
             result.append("<specificationID>");
-            result.append(_net.getSpecification().getID());
+            result.append(_net.getParent().getID());
             result.append("</specificationID>");
 
             result.append("<taskID>");
@@ -1613,7 +1611,7 @@ public abstract class YTask extends YExternalNetElement {
      */
     @Transient
     public String getSpecVersion() {
-        return _net.getSpecification().getBetaVersion();
+        return _net.getParent().getBetaVersion();
     }
 
 
@@ -1722,12 +1720,11 @@ public abstract class YTask extends YExternalNetElement {
         }
         //check that non existant local variables are not assigned output.
         Set outPutVarsAssignedTo = getLocalVariablesForTaskCompletion();
-        Map<String, YVariable> netLocalVariablesMap = _net.getLocalVariablesMap();
         List<YParameter> netInputParameters = _net.getInputParameters();
         
         for (Iterator iterator = outPutVarsAssignedTo.iterator(); iterator.hasNext();) {
             String localVarName = (String) iterator.next();
-            if (netLocalVariablesMap.get(localVarName) == null &&
+            if (_net.getLocalVariable(localVarName) == null &&
             	findInputParameter(localVarName) == null) {
                 messages.add(new YVerificationMessage(this,
                         "The task (id= " + getID() + ") claims to assign its " +

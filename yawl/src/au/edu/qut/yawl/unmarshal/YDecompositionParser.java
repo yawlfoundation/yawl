@@ -551,7 +551,7 @@ public class YDecompositionParser {
     private void linkElements() {
         if (_decomposition instanceof YNet) {
             YNet decomposition = (YNet) _decomposition;
-            Iterator netElementIterator = decomposition.getNetElements().values().iterator();
+            Iterator netElementIterator = decomposition.getNetElements().iterator();
             while (netElementIterator.hasNext()) {
                 YExternalNetElement currentNetElement =
                         (YExternalNetElement) netElementIterator.next();

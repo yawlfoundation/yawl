@@ -56,7 +56,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("variable")
-public class YVariable implements Comparable, Cloneable, YVerifiable, Parented, PolymorphicPersistableObject {
+public class YVariable implements Comparable, Cloneable, YVerifiable, Parented<YDecomposition>, PolymorphicPersistableObject {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -321,7 +321,7 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Parented, 
                         YVerificationMessage.ERROR_STATUS));
             }
         }
-        XMLToolsForYAWL xty = getParent().getSpecification().getToolsForYAWL();
+        XMLToolsForYAWL xty = getParent().getParent().getToolsForYAWL();
         //check schema contains type with typename.
         if (null != _name) {
             boolean isSchemForSchemType =

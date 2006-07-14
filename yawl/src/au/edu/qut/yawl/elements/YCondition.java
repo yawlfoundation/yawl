@@ -142,7 +142,7 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
 
     public Object clone() throws CloneNotSupportedException {
         YNet copyContainer = _net.getCloneContainer();
-        if (copyContainer.getNetElements().containsKey(this.getID())) {
+        if (copyContainer.getNetElement(this.getID()) != null) {
             return copyContainer.getNetElement(this.getID());
         }
         YCondition copiedCondition = (YCondition) super.clone();

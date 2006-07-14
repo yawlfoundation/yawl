@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.elements.e2wfoj;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -65,10 +66,10 @@ public final class E2WFOJNet {
      *
      */
     private void ConvertToResetNet(){
-    Map netElements = _yNet.getNetElements();
+    Collection<YExternalNetElement> netElements = _yNet.getNetElements();
      
      //Generate places
-    Iterator netEles = netElements.values().iterator();
+    Iterator netEles = netElements.iterator();
     while (netEles.hasNext()) {
             YExternalNetElement nextElement = (YExternalNetElement) netEles.next();
             if (nextElement instanceof YCondition) {
@@ -85,7 +86,7 @@ public final class E2WFOJNet {
       
     Map _StartTransitions = new HashMap();
     Map _EndTransitions = new HashMap();
-    Iterator netEls = netElements.values().iterator();
+    Iterator netEls = netElements.iterator();
     while (netEls.hasNext()) {
             YExternalNetElement next = (YExternalNetElement) netEls.next();
             if (next instanceof YTask){

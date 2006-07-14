@@ -148,7 +148,7 @@ public class TestYAtomicTask extends TestCase {
     }
     
     public void testCancelTaskWhileRunning() throws YPersistenceException, YStateException, YDataStateException, YQueryException, YSchemaBuildingException {
-    	_atomicTask1.getContainer().getSpecification().setBetaVersion(YSpecification._Beta7_1);
+    	_atomicTask1.getParent().getParent().setBetaVersion(YSpecification._Beta7_1);
     	
     	_c1.add(new YIdentifier());
         List l = null;
@@ -170,13 +170,13 @@ public class TestYAtomicTask extends TestCase {
      * First version of this test cancels a task that's in the work item repository
      */
     public void testCancelTaskInWorkItemRepositoryA() throws YPersistenceException, YStateException, YDataStateException, YQueryException, YSchemaBuildingException {
-    	_atomicTask1.getContainer().getSpecification().setBetaVersion(YSpecification._Beta7_1);
+    	_atomicTask1.getParent().getParent().setBetaVersion(YSpecification._Beta7_1);
     	
     	YIdentifier id = new YIdentifier();
     	YWorkItemRepository repos = YWorkItemRepository.getInstance();
     	repos.clear();
     	
-    	YWorkItem item = new YWorkItem(_atomicTask1.getContainer().getSpecification().getID(),
+    	YWorkItem item = new YWorkItem(_atomicTask1.getParent().getParent().getID(),
     			new YWorkItemID(id, _atomicTask1.getID()), false, false);
     	
     	_c1.add(id);
@@ -227,7 +227,7 @@ public class TestYAtomicTask extends TestCase {
         	YWorkItemRepository repos = YWorkItemRepository.getInstance();
         	repos.clear();
         	
-        	YWorkItem item = new YWorkItem(task.getContainer().getSpecification().getID(),
+        	YWorkItem item = new YWorkItem(task.getParent().getParent().getID(),
         			new YWorkItemID(id, task.getID()), false, false);
         	
         	root.getInputCondition().add(id);

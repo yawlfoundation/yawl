@@ -90,7 +90,7 @@ public class YOutputCondition extends YCondition {
 
     public Object clone() throws CloneNotSupportedException {
         YNet copyContainer = _net.getCloneContainer();
-        if (copyContainer.getNetElements().containsKey(this.getID())) {
+        if (copyContainer.getNetElement(this.getID()) != null) {
             return copyContainer.getNetElement(this.getID());
         }
         YOutputCondition copy = (YOutputCondition) super.clone();

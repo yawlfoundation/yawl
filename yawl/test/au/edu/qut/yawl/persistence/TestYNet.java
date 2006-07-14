@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.persistence;
 
 import au.edu.qut.yawl.elements.YCondition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
@@ -31,6 +32,7 @@ import junit.textui.TestRunner;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -155,15 +157,14 @@ public class TestYNet extends TestCase {
         YInputCondition inputGoodNet = this._goodNet.getInputCondition();
         YInputCondition inputCopy = _copy.getInputCondition();
         assertNotSame(this._goodNet.getNetElements(), _copy.getNetElements());
-        Map originalNetElements = _goodNet.getNetElements();
-        Map copiedNetElements = _copy.getNetElements();
-        Iterator iter = originalNetElements.keySet().iterator();
+        Collection<YExternalNetElement> originalNetElements = _goodNet.getNetElements();
+        Iterator<YExternalNetElement> iter = originalNetElements.iterator();
         while (iter.hasNext()) {
-            String nextElementID = (String) iter.next();
-            assertNotNull(originalNetElements.get(nextElementID));
-            assertNotNull(copiedNetElements.get(nextElementID));
-            assertNotSame(originalNetElements.get(nextElementID),
-                    copiedNetElements.get(nextElementID));
+            String nextElementID = (String) iter.next().getID();
+            assertNotNull(_goodNet.getNetElement(nextElementID));
+            assertNotNull(_copy.getNetElement(nextElementID));
+            assertNotSame(_goodNet.getNetElement(nextElementID),
+            		_copy.getNetElement(nextElementID));
         }
         assertNotSame(inputGoodNet, inputCopy);
     }

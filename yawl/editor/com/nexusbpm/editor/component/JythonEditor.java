@@ -39,18 +39,18 @@ public class JythonEditor extends ComponentEditor {
 	public JComponent initializeUI() throws EditorException {
 
 		YAtomicTask jython = (YAtomicTask) _proxy.getData();
-		Map m = ((YNet) jython.getParent()).getLocalVariablesMap();
+		YNet network = ( jython.getParent());
 
 		_codeEditor = new JEditTextArea();
 		_codeEditor.setDocument( new SyntaxDocument() );
-		_codeEditor.setText( ((YVariable) m.get(jython.getID() + "." + "code")).getInitialValue() );
+		_codeEditor.setText( ((YVariable) network.getLocalVariable(jython.getID() + "." + "code")).getInitialValue() );
 		_codeEditor.setTokenMarker( new PythonTokenMarker() );
 
 		_resultEditor = new JEditorPane();
-		_resultEditor.setText( ((YVariable) m.get(jython.getID() + "." + "output")).getInitialValue() );
+		_resultEditor.setText( ((YVariable) network.getLocalVariable(jython.getID() + "." + "output")).getInitialValue() );
 
 		_errEditor = new JEditorPane();
-		_errEditor.setText( ((YVariable) m.get(jython.getID() + "." + "error")).getInitialValue() );
+		_errEditor.setText( ((YVariable) network.getLocalVariable(jython.getID() + "." + "error")).getInitialValue() );
 
 		addIsDirtyListener( _codeEditor );
 		addIsDirtyListener( _resultEditor );

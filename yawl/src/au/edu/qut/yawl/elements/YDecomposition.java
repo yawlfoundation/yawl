@@ -34,11 +34,14 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Where;
@@ -79,7 +82,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("decomposition")
-public class YDecomposition implements Parented, Cloneable, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
+public class YDecomposition implements Parented<YSpecification>, Cloneable, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -111,8 +114,12 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     /*
   INSERTED FOR PERSISTANCE
  */
-    @Transient
-    public Object getParent() {return _specification;}
+    @ManyToOne(cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    public YSpecification getParent() {return _specification;}
+    @ManyToOne(cascade = {CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    public void setParent(YSpecification spec) {_specification = spec;}
 
 
     private YCaseData casedata;
@@ -461,23 +468,6 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
     	}
     	return names;
     }
-
-    /**
-     * Returns a link to the containing specification.
-     */
-    @ManyToOne(cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    public YSpecification getSpecification() {
-        return _specification;
-    }
-    /**
-     * Inserted for hibernate
-     * @param spec
-     */
-    public void setSpecification(YSpecification spec) {
-    	_specification = spec;
-    }
-
 
     /**
      * Gets those params that bypass the decomposition state space.

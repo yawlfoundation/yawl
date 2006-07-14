@@ -80,9 +80,6 @@ public class YNet extends YDecomposition {
      */
     private static final long serialVersionUID = 2006030080l;
 
-
-    private YInputCondition _inputCondition;
-    private YOutputCondition _outputCondition;
     private List<YExternalNetElement> _netElements = new ArrayList<YExternalNetElement>();
     /**
      * All accesses to this collection should be done through the getter, {@link #getLocalVariables()}.
@@ -119,34 +116,53 @@ public class YNet extends YDecomposition {
      * @hibernate.one-to-one name="inputCondition"
      *     class="au.edu.qut.yawl.elements.YInputCondition"
      */
-    @OneToOne(cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
+//  @OneToOne(mappedBy="parent", cascade = {CascadeType.ALL})
+//  @OnDelete(action=OnDeleteAction.CASCADE)
+  @Transient
     public YInputCondition getInputCondition() {
-        return this._inputCondition;
+	    YInputCondition retval = null;
+  		for (YExternalNetElement element: _netElements) {
+  			if (element instanceof YInputCondition) {
+  				retval = (YInputCondition) element;
+  				break;
+  			}
+  		}
+  		return retval;
     }
 
-    @OneToOne(mappedBy="container", cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
+//  @OneToOne(mappedBy="parent", cascade = {CascadeType.ALL})
+//  @OnDelete(action=OnDeleteAction.CASCADE)
+  @Transient
     public void setInputCondition(YInputCondition inputCondition) {
-        _inputCondition = inputCondition;
-        _netElements.add(inputCondition);
+	  if (!_netElements.contains(inputCondition)) { 
+	        	_netElements.add(inputCondition);
+	  }
     }
 
     /**
      * Method getOutputCondition.
      * @return YCondition
      */
-    @OneToOne(mappedBy="container", cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
+//@OneToOne(mappedBy="parent", cascade = {CascadeType.ALL})
+//@OnDelete(action=OnDeleteAction.CASCADE)
+  @Transient
     public YOutputCondition getOutputCondition() {
-        return _outputCondition;
+		YOutputCondition retval = null;
+		for (YExternalNetElement element: _netElements) {
+			if (element instanceof YOutputCondition) {
+				retval = (YOutputCondition) element;
+				break;
+			}
+		}
+		return retval;
     }
 
-    @OneToOne(mappedBy="container", cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
+//@OneToOne(mappedBy="parent", cascade = {CascadeType.ALL})
+//@OnDelete(action=OnDeleteAction.CASCADE)
+@Transient
     public void setOutputCondition(YOutputCondition outputCondition) {
-        _outputCondition = outputCondition;
-        _netElements.add(outputCondition);
+        if (!_netElements.contains(outputCondition)) 
+        	_netElements.add(outputCondition);
     }
 
 
@@ -165,28 +181,19 @@ public class YNet extends YDecomposition {
      * @hibernate.one-to-many
      *   class="au.edu.qut.yawl.elements.YExternalNetElement"
      */
-    @OneToMany(mappedBy="container", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    public List<YExternalNetElement> getNetElementsDB() {
+    public List<YExternalNetElement> getNetElements() {
         return _netElements;
     }
     /**
      * Inserted for hibernate TODO Set to protected later
      * @param list
      */
-    @OneToMany(mappedBy="container", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    public void setNetElementsDB(List<YExternalNetElement> list) {
+    public void setNetElements(List<YExternalNetElement> list) {
     	_netElements = list;
-    }
-
-    @Transient
-    public Map<String, YExternalNetElement> getNetElements() {
-        HashMap<String, YExternalNetElement> retval = new HashMap<String, YExternalNetElement>();
-        for (YExternalNetElement element: _netElements) {
-            retval.put(element.getID(), element);
-        }
-        return retval;
     }
 
     /**
@@ -196,7 +203,16 @@ public class YNet extends YDecomposition {
      */
     @Transient
     public YExternalNetElement getNetElement(String id) {
-        return getNetElements().get(id);
+        YExternalNetElement retval = null;
+        if (id == null) throw new NullPointerException(
+        		"cannot retrieve a null id element from collection.");
+        for (YExternalNetElement element: getNetElements()) {
+        	if (id.equals(element.getID())) {
+        		retval = element;
+        		break;
+        	}
+        }
+        return retval;
     }
 
 
@@ -208,22 +224,22 @@ public class YNet extends YDecomposition {
     public List verify() {
         List messages = new Vector();
         messages.addAll(super.verify());
-        if (this._inputCondition == null) {
+        if (this.getInputCondition() == null) {
             messages.add(new YVerificationMessage(this, this + " must contain input condition.",
                     YVerificationMessage.ERROR_STATUS));
         }
-        if (this._outputCondition == null) {
+        if (this.getOutputCondition() == null) {
             messages.add(new YVerificationMessage(this, this + " must contain output condition.",
                     YVerificationMessage.ERROR_STATUS));
         }
         Iterator netEls = this._netElements.iterator();
         while (netEls.hasNext()) {
             YExternalNetElement nextElement = (YExternalNetElement) netEls.next();
-            if ((nextElement instanceof YInputCondition) && !_inputCondition.equals(nextElement)) {
+            if ((nextElement instanceof YInputCondition) && !getInputCondition().equals(nextElement)) {
                 messages.add(new YVerificationMessage(this, "Only one inputCondition allowed, " +
                         "and it must be _inputCondition.", YVerificationMessage.ERROR_STATUS));
             }
-            if ((nextElement instanceof YOutputCondition) && !_outputCondition.equals(nextElement)) {
+            if ((nextElement instanceof YOutputCondition) && !getOutputCondition().equals(nextElement)) {
                 messages.add(new YVerificationMessage(this, "Only one outputCondition allowed, " +
                         "and it must be _outputCondition.", YVerificationMessage.ERROR_STATUS));
             }
@@ -251,10 +267,10 @@ public class YNet extends YDecomposition {
             visitingBk := preset(visitedBk); */
         List<YExternalNetElement> visitedFw = new ArrayList<YExternalNetElement>();
         List<YExternalNetElement> visitingFw = new ArrayList<YExternalNetElement>();
-        visitingFw.add(_inputCondition);
+        visitingFw.add(getInputCondition());
         List<YExternalNetElement> visitedBk = new ArrayList<YExternalNetElement>();
         List<YExternalNetElement> visitingBk = new ArrayList<YExternalNetElement>();
-        visitingBk.add(_outputCondition);
+        visitingBk.add(getOutputCondition());
         /*  Begin Loop:
                     visitedFw := visitedFw Union visitingFw;
                     visitingFw := postset(visitingFw) - visitedFw;
@@ -278,8 +294,8 @@ public class YNet extends YDecomposition {
         END */
         int numElements = _netElements.size();
         Set allElements = new HashSet(_netElements);
-        allElements.add(_inputCondition);
-        allElements.add(_outputCondition);
+        allElements.add(getInputCondition());
+        allElements.add(getOutputCondition());
         if (visitedFw.size() != numElements) {
             Set elementsNotInPath = new HashSet(allElements);
             elementsNotInPath.removeAll(visitedFw);
@@ -336,7 +352,7 @@ public class YNet extends YDecomposition {
 
             List<YExternalNetElement> visited = new ArrayList<YExternalNetElement>();
             List<YExternalNetElement> visiting = new ArrayList<YExternalNetElement>();
-            visiting.add(_inputCondition);
+            visiting.add(getInputCondition());
             do {
                 Iterator iter = visiting.iterator();
                 while (iter.hasNext()) {
@@ -505,11 +521,11 @@ public class YNet extends YDecomposition {
                 xml.append(variable.toXML());
             }
         xml.append("<processControlElements>");
-        xml.append(_inputCondition.toXML());
+        xml.append(getInputCondition().toXML());
 
         List<YExternalNetElement> visitedFw = new ArrayList<YExternalNetElement>();
         List<YExternalNetElement> visitingFw = new ArrayList<YExternalNetElement>();
-        visitingFw.add(_inputCondition);
+        visitingFw.add(getInputCondition());
         do {
             visitedFw.addAll(visitingFw);
             visitingFw = getPostset(visitingFw);
@@ -519,7 +535,7 @@ public class YNet extends YDecomposition {
         Collection remainingElements = new ArrayList(_netElements);
         remainingElements.removeAll(visitedFw);
         xml.append(produceXMLStringForSet(remainingElements));
-        xml.append(_outputCondition.toXML());
+        xml.append(getOutputCondition().toXML());
         xml.append("</processControlElements>");
         return xml.toString();
     }
@@ -593,7 +609,7 @@ public class YNet extends YDecomposition {
                         + new XMLOutputter(Format.getPrettyFormat()).outputString(incomingData).trim());
             }
         }
-        if (getSpecification().isSchemaValidating()) {
+        if (getParent().isSchemaValidating()) {
             String schema = buildSchema();
             YExternalNetElement.validateDataAgainstTypes(schema, incomingData, getId());
 
@@ -614,7 +630,7 @@ public class YNet extends YDecomposition {
 
     @Transient
     private String buildSchema() throws YSchemaBuildingException {
-        XMLToolsForYAWL xmlt = getSpecification().getToolsForYAWL();
+        XMLToolsForYAWL xmlt = getParent().getToolsForYAWL();
         Collection params = getInputParameters();
 
         Instruction[] instructionsArr = xmlt.buildInstructions(params);
@@ -655,37 +671,35 @@ public class YNet extends YDecomposition {
     public boolean usesSimpleRootData() {
         return getRootDataElementName().equals("data");
     }
+
     @Transient
-    public Map<String, YVariable> getLocalVariablesMap() {
-        Map<String, YVariable> map = new HashMap<String, YVariable>();
-
-        for(YVariable entry:getLocalVariables()) {
-            if (null != entry.getName()) {
-                map.put(entry.getName(), entry);
-            } else if (null != entry.getElementName()) {
-                map.put(entry.getElementName(), entry);
-            }
-        }
-
-        return map;
+    public YVariable getLocalVariable(String name) {
+    	YVariable retval = null;
+    	if (name != null) {
+	        for(YVariable entry:getLocalVariables()) {
+	        	if (name.equals(entry.getName()) || name.equals(entry.getElementName())) {
+	        		retval = entry;
+	        	}
+	        }
+    	}
+        return retval;
     }
-
+    
     @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="variable_type='variable'")
     public List<YVariable> getLocalVariables() {
-        List<YVariable> retval = new ArrayList<YVariable>(_localVariables);
-        Collections.sort(retval);
-        return retval;
+        Collections.sort(_localVariables);
+        return _localVariables;
     }
 
     @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="variable_type='variable'")
     protected void setLocalVariables(List<YVariable> outputParam) {
-        for (YVariable parm: outputParam) {
+    	this._localVariables = outputParam;
+    	for (YVariable parm: _localVariables) {
             parm.setParent(this);
-            this._localVariables.add(parm);
         }
     }
         }

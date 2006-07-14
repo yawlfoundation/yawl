@@ -222,7 +222,7 @@ public class TestYSpecification extends TestCase {
     	spec._decompositions.add(new YDecomposition( "self", spec));
     	assertNull( spec.getDecomposition( "nonexistent" ) );
     	assertNotNull( spec.getDecomposition( "self" ) );
-    	assertTrue( spec.getDecomposition( "self" ).getSpecification() == spec );
+    	assertTrue( spec.getDecomposition( "self" ).getParent() == spec );
     }
 
     /**

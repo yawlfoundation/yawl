@@ -7,7 +7,6 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
@@ -53,18 +52,13 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 
-import com.jgraph.layout.JGraphFacade;
-import com.jgraph.layout.JGraphLayout;
-import com.jgraph.layout.graph.JGraphSpringLayout;
-import com.jgraph.layout.hierarchical.JGraphHierarchicalLayout;
 import com.nexusbpm.editor.editors.NetEditor;
-import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.editors.net.cells.FlowControlEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphPort;
+import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.icon.AnimatedIcon;
 import com.nexusbpm.editor.icon.ApplicationIcon;
@@ -433,7 +427,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 	public void saveAttributes() {
 		DataContext dc = _flowproxy.getContext();
 		DataContext s;
-		YSpecification spec = ((YNet)_flowproxy.getData()).getSpecification();
+		YSpecification spec = ((YNet)_flowproxy.getData()).getParent();
 		dc.put(dc.getDataProxy(spec, null));
 	
 		throw new RuntimeException("save all the position/bounds for all cell objects in graph");
@@ -884,7 +878,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //		if (flow == null) {
 //			flow = (YNet) _flowproxy.getPersistentDomainObject( 2 );
 //		}
-		Iterator i = flow.getNetElementsDB().iterator();
+		Iterator i = flow.getNetElements().iterator();
 		synchronized( i ) {
 			while( i.hasNext() ) {
 				Object c = i.next();
@@ -926,7 +920,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 		};
 
 		// Add all the edges in the flow.
-		i = flow.getNetElementsDB().iterator();
+		i = flow.getNetElements().iterator();
 		synchronized( i ) {
 			while( i.hasNext() ) {
 				YExternalNetElement component = (YExternalNetElement) i.next();

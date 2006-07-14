@@ -37,7 +37,6 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
     public int save(YSpecification spec) {
         if (spec.getDbID() == null) spec.setDbID(getNextdbID());
     	specs.put(spec.getDbID(), spec);
-    	LOG.info("New SPEC SPACE=" + specs.toString());
         return 0;
     }
 
