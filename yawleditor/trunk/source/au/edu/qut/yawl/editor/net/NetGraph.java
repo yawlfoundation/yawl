@@ -1258,7 +1258,10 @@ public class NetGraph extends JGraph {
 
     getNetModel().beginUpdate();
     
-    this.setElementLabelInsideUpdate(task, decomposition.getLabel());
+    if (task.getLabel() == null) {
+      setElementLabelInsideUpdate(task, decomposition.getLabel());
+    }
+    
     getNetModel().postEdit(
         new UndoableTaskDecompositionChange(
               task, 
