@@ -33,6 +33,7 @@ import org.jdom.output.XMLOutputter;
 
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.data.YParameter;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
 import au.edu.qut.yawl.exceptions.Problem;
@@ -77,8 +78,8 @@ public class WorklistController extends InterfaceBWebsideController {
         _model.updateWorkItems(items);
         for (Iterator iterator = items.iterator(); iterator.hasNext();) {
             WorkItemRecord record = (WorkItemRecord) iterator.next();
-            if (record.getStatus().equals(WorkItemRecord.statusEnabled) ||
-                    record.getStatus().equals(WorkItemRecord.statusFired)) {
+            if (record.getStatus().equals(YWorkItem.Status.Enabled) ||
+                    record.getStatus().equals(YWorkItem.Status.Fired)) {
                 availableItems.add(record);
             }
         }
@@ -184,8 +185,8 @@ public class WorklistController extends InterfaceBWebsideController {
         _model.updateWorkItems(items);
         for (Iterator iterator = items.iterator(); iterator.hasNext();) {
             WorkItemRecord record = (WorkItemRecord) iterator.next();
-            if (record.getStatus().equals(WorkItemRecord.statusDeadlocked) ||
-                    (record.getStatus().equals(WorkItemRecord.statusExecuting) &&
+            if (record.getStatus().equals(YWorkItem.Status.Deadlocked) ||
+                    (record.getStatus().equals(YWorkItem.Status.Executing) &&
                     record.getWhoStartedMe().equals(userid))) {
                 availableItems.add(record);
             }

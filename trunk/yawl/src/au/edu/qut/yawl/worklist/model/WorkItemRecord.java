@@ -24,10 +24,6 @@ import au.edu.qut.yawl.engine.domain.YWorkItem;
  * 
  */
 public class WorkItemRecord {
-    public static final String statusForcedComplete = "ForcedComplete";
-    public static final String statusFailed = "Failed";
-
-
     private String _taskID;
     private String _caseID;
     private String _enablementTime;

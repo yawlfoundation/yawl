@@ -8,6 +8,7 @@
 package au.edu.qut.yawl.worklet.support;
 
 import au.edu.qut.yawl.worklet.exception.ExceptionService;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
@@ -122,9 +123,9 @@ public class RDRConditionFunction {
 
     /** returns true if the status passed is one of the completed statuses */
     private static boolean isFinishedStatus(String status) {
-        return status.equals(WorkItemRecord.statusComplete) ||
-               status.equals(WorkItemRecord.statusForcedComplete) ||
-               status.equals(WorkItemRecord.statusFailed) ;
+        return status.equals(YWorkItem.Status.Complete) ||
+               status.equals(YWorkItem.Status.ForcedComplete) ||
+               status.equals(YWorkItem.Status.Failed) ;
     }
 
     /** extract the specified argument and reutrns its integer value */

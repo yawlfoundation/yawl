@@ -9,6 +9,7 @@ package au.edu.qut.yawl.worklet.exception;
 
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 import au.edu.qut.yawl.util.JDOMConversionTools;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.interfaceX.*;
 
 import au.edu.qut.yawl.worklet.rdr.*;
@@ -656,7 +657,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         ArrayList<WorkItemRecord> children = new ArrayList<WorkItemRecord>();
 
         // ASSUMPTION: Only an 'executing' workitem may be suspended
-        if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
+        if (wir.getStatus().equals(YWorkItem.Status.Executing)) {
             children.add(wir);                          // put item in list for next call
             if (suspendWorkItemList(children)) {        // suspend the item (list)
                 hr.setItemSuspended();                  // record the action
@@ -754,7 +755,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         ArrayList<WorkItemRecord> result = new ArrayList<WorkItemRecord>();
 
         for (WorkItemRecord wir : liveItems) {
-            if (wir.getStatus().equals(WorkItemRecord.statusExecuting))
+            if (wir.getStatus().equals(YWorkItem.Status.Executing))
                 result.add(wir);
         }
         return result ;
@@ -794,8 +795,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         try {
             // only executing items can be removed, so if its only fired or enabled,
             // move it to executing first
-            if (wir.getStatus().equals(WorkItemRecord.statusFired) ||
-                wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
+            if (wir.getStatus().equals(YWorkItem.Status.Fired) ||
+                wir.getStatus().equals(YWorkItem.Status.Enabled)) {
                 CheckedOutItem coi = executeWorkItem(wir);
                 wir = coi.getChildWorkItem(0);
             }
@@ -878,14 +879,14 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
         // only executing items can complete, so if its only fired or enabled,
         // move it to executing first
-        if (wir.getStatus().equals(WorkItemRecord.statusFired) ||
-            wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
+        if (wir.getStatus().equals(YWorkItem.Status.Fired) ||
+            wir.getStatus().equals(YWorkItem.Status.Enabled)) {
             CheckedOutItem coi = executeWorkItem(wir);
             wir = coi.getChildWorkItem(0);
             data = wir.getWorkItemData();
         }
 
-        if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
+        if (wir.getStatus().equals(YWorkItem.Status.Executing)) {
             try {
                 _ixClient.forceCompleteWorkItem(wir, data, _sessionHandle);
                 _log.info("Item successfully force completed: " + wir.getID());
@@ -903,7 +904,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     private void restartWorkItem(WorkItemRecord wir) {
 
         // ASSUMPTION: Only an 'executing' workitem may be restarted
-        if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
+        if (wir.getStatus().equals(YWorkItem.Status.Executing)) {
            try {
                _ixClient.restartWorkItem(wir.getID(), _sessionHandle);
            }
@@ -921,8 +922,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         try {
             // only executing items can be removed, so if its only fired or enabled,
             // move it to executing first
-            if (wir.getStatus().equals(WorkItemRecord.statusFired) ||
-                wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
+            if (wir.getStatus().equals(YWorkItem.Status.Fired) ||
+                wir.getStatus().equals(YWorkItem.Status.Enabled)) {
                 CheckedOutItem coi = executeWorkItem(wir);
                 wir = coi.getChildWorkItem(0);
             }
@@ -947,7 +948,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         WorkItemRecord result = null ;
 
         // ASSUMPTION: Only an 'fired' workitem may be unsuspended
-        if (wir.getStatus().equals(WorkItemRecord.statusFired)) {
+        if (wir.getStatus().equals(YWorkItem.Status.Fired)) {
             try {
                 result = _ixClient.continueWorkItem(wir.getID(), _sessionHandle);
                 _log.debug("Successful work item unsuspend: " + wir.getID());

@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import junit.framework.Test;
@@ -532,14 +531,12 @@ public class TestEngineGateway extends TestCase {
         // get the correct work item out
         WorkItemRecord item = itemsMap.get( name );
         
-        // TODO the following code causes a null pointer exception.
-        // uncomment it once the bug in YWorkItemRepository.getChildrenOf(YWorkItem) is fixed
-//        String result = _gateway.getChildrenOfWorkItem( item.getID(), _session );
-//        assertNotNull( result );
-//        assertTrue( result, result.length() == 0 );
+        String result = _gateway.getChildrenOfWorkItem( item.getID(), _session );
+        assertNotNull( result );
+        assertTrue( result, result.length() == 0 );
         
         // check the options for the work item
-        String result = _gateway.getWorkItemOptions( item.getID(), "", _session );
+        result = _gateway.getWorkItemOptions( item.getID(), "", _session );
         assertNotNull( result );
         assertFalse( result, result.startsWith( "<failure" ) );
         Set<String> options = parseOptions( result );
@@ -675,7 +672,7 @@ public class TestEngineGateway extends TestCase {
         	WorkItemRecord item = getWorkItemFromID( id );
         	assertNotNull( id, item );
         	
-        	if( item.getStatus().equals( YWorkItem.Status.Enabled.toString() ) )
+        	if( item.getStatus().equals( YWorkItem.Status.Enabled ) )
         		items.put( item.getTaskID(), item );
         }
         
@@ -712,7 +709,7 @@ public class TestEngineGateway extends TestCase {
         	WorkItemRecord item = getWorkItemFromID( id );
         	assertNotNull( id, item );
         	
-        	if( item.getStatus().equals( status.toString() ) )
+        	if( item.getStatus().equals( status ) )
         		items.add( item );
         }
         
