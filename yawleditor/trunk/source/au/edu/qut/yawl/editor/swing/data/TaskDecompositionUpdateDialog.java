@@ -185,9 +185,8 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     Thread refreshThread = new Thread(){
       public void run() {
         yawlServiceComboBox.refresh();
-        yawlServiceComboBox.setSelectedItem(getWebServiceDecomposition().getYawlServiceDescription());
         if (yawlServiceComboBox.getItemCount() > 1) {
-          yawlServiceComboBox.setEnabled(true);
+          yawlServiceComboBox.setSelectedItem(getWebServiceDecomposition().getYawlServiceDescription());
         }
         pack();
       }
@@ -218,7 +217,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     newVariableSet.addVariables(
         getDataVariablePanel().getVariables().getUserDefinedVariables()
     );
-    
+
     return newVariableSet;
   }
 }
