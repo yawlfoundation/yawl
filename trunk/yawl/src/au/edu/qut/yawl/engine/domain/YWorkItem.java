@@ -53,7 +53,7 @@ public class YWorkItem {
 	 */
     private static final long serialVersionUID = 2006030080l;
 
-    public enum Status {
+    public static enum Status {
         Enabled,Fired,Executing,
         Complete,IsParent,Deadlocked,Cancelled,ForcedComplete,Failed}
 

@@ -350,7 +350,14 @@ public abstract class InterfaceBWebsideController {
             _model.setTaskInformation(specificationID, taskID, taskInfo);
 	    }
 	    catch( Exception e ) {
-	    	StringWriter sw = new StringWriter();
+	    	//todo: Question to Nathan: i had a look down the stack for places
+            //todo: where an exception can occur, and it seems that you have
+            //todo: added lines of code to marshaller that can indeed throw a
+            //todo: runtimeexception.  This is not good practice because runtime
+            //todo: exceptions do not affect method signatures allowing for all
+            //todo: sorts of programming errors to creep in.
+            //todo: I hope you plan to remove this runtime exception throwing code.
+            StringWriter sw = new StringWriter();
     		sw.write( e.toString() + "\n" );
     		e.printStackTrace(new PrintWriter(sw));
     		System.out.println( sw.toString() );
@@ -457,7 +464,7 @@ public abstract class InterfaceBWebsideController {
         if (null == enabledWorkItem) {
             throw new IllegalArgumentException("Param enabledWorkItem cannot be null.");
         }
-        if (!enabledWorkItem.getStatus().equals(YWorkItem.Status.Enabled.toString())) {
+        if (!enabledWorkItem.getStatus().equals(YWorkItem.Status.Enabled)) {
             throw new IllegalArgumentException("Param enabledWorkItem must be enabled.");
         }
 
@@ -472,7 +479,7 @@ public abstract class InterfaceBWebsideController {
         List mixedChildren = getChildren(enabledWorkItem.getID(), sessionHandle);
         for (int i = 0; i < mixedChildren.size(); i++) {
             WorkItemRecord itemRecord = (WorkItemRecord) mixedChildren.get(i);
-            if (WorkItemRecord.statusFired.equals(itemRecord.getStatus())) {
+            if (YWorkItem.Status.Fired.equals(itemRecord.getStatus())) {
                 _logger.debug("Result of item [" +
                         itemRecord.getID() + "] checkout is : " +
                         checkOut(itemRecord.getID(), sessionHandle));

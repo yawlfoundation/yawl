@@ -80,17 +80,17 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 /**
  * A superclass of any type of task in the YAWL paper.
  *
- * 
+ *
  * @author Lachlan Aldred
- * 
- * 
+ *
+ *
  * ***************************************************************************************
- * 
- * This abstract class is the superclass of the two types of concrete task (YAtomicTask & 
- * YCompositeTask).  This class contains possibly the lion's share of the business process 
- * execution logic.  It also contains many internal state elements (such as 
+ *
+ * This abstract class is the superclass of the two types of concrete task (YAtomicTask &
+ * YCompositeTask).  This class contains possibly the lion's share of the business process
+ * execution logic.  It also contains many internal state elements (such as
  * YInternalCondition)
- * 
+ *
  * @hibernate.subclass discriminator-value="1"
  */
 @Entity
@@ -111,7 +111,7 @@ public abstract class YTask extends YExternalNetElement {
     protected YInternalCondition _mi_complete = new YInternalCondition(YInternalCondition._mi_complete, this);
     protected YInternalCondition _mi_executing = new YInternalCondition(YInternalCondition._executing, this);
     protected static final YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
-   
+
     //private attributes
     private int _splitType;
     private int _joinType;
@@ -141,7 +141,7 @@ public abstract class YTask extends YExternalNetElement {
     public void setI(YIdentifier i) {
         this._i = i;
     }
-    
+
     /**
      * Null constructor necessary for hibernate
      *
@@ -185,7 +185,7 @@ public abstract class YTask extends YExternalNetElement {
     }
 
     /**
-     * 
+     *
      * @return
      * @hibernate.property column="SPLIT_TYPE"
      */
@@ -196,7 +196,7 @@ public abstract class YTask extends YExternalNetElement {
 
 
     /**
-     * 
+     *
      * @return
      * @hibenate.property column="JOIN_TYPE"
      */
@@ -233,8 +233,8 @@ public abstract class YTask extends YExternalNetElement {
     }
 */
 
-    
-    
+
+
     /**
      * @hibernate.one-to-one name="multiInstanceAttributes"
      *    class="au.edu.qut.yawl.elements.YMultiInstanceAttributes"
@@ -246,7 +246,7 @@ public abstract class YTask extends YExternalNetElement {
     }
     /**
      * Inserted for hibernate
-     * 
+     *
      * @param attr
      */
     protected void setMultiInstanceAttributes(YMultiInstanceAttributes attr) {
@@ -321,11 +321,13 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 //    @OneToMany(cascade=CascadeType.ALL)
+    //todo LJA comment: the remove set should be persisted.
+    //todo For Eg. it has a manifestation in the schema for YAWL.
     @Transient
     public Set<YExternalNetElement> getRemoveSet() {
     	return _removeSet;
     }
-    
+
     private void setRemoveSet(Set<YExternalNetElement> s) {
     	_removeSet = s;
     }
@@ -872,7 +874,7 @@ public abstract class YTask extends YExternalNetElement {
             return false;
         }
         List<YExternalNetElement> preset = getPresetElements();
-        YCondition[] conditions = 
+        YCondition[] conditions =
                 preset.toArray(new YCondition[preset.size()]);
         switch (_joinType) {
             case YTask._AND:
@@ -1180,7 +1182,7 @@ public abstract class YTask extends YExternalNetElement {
 
     /**
      * http://forums.hibernate.org/viewtopic.php?t=955600&highlight=strings+map&sid=0811afbccf4990d002ddfeb507ccfe8d
-     * 
+     *
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
     private Map<String, KeyValue> dataMappingsForTaskStartingSet = new HashMap<String, KeyValue>();
@@ -1195,7 +1197,7 @@ public abstract class YTask extends YExternalNetElement {
     private void setDataMappingsForTaskStartingSet(Map<String, KeyValue> set) {
     	dataMappingsForTaskStartingSet = set;
     }
-    
+
     @Transient
     public Map<String, String> getDataMappingsForTaskStarting() {
     	Map<String, String> map = new HashMap<String, String>();
@@ -1204,7 +1206,7 @@ public abstract class YTask extends YExternalNetElement {
     	}
     	return map;
     }
-    
+
     /**
      * The input must be map of [key="variableName", value="expression"]
      * @param map
@@ -1217,10 +1219,10 @@ public abstract class YTask extends YExternalNetElement {
     	}
     }
 
-    
+
     /**
      * http://forums.hibernate.org/viewtopic.php?t=955600&highlight=strings+map&sid=0811afbccf4990d002ddfeb507ccfe8d
-     * 
+     *
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
     public Set<KeyValue> dataMappingsForTaskCompletionSet = new HashSet<KeyValue>();
@@ -1233,11 +1235,11 @@ public abstract class YTask extends YExternalNetElement {
     private void setDataMappingsForTaskCompletionSet(Set<KeyValue> set) {
     	dataMappingsForTaskCompletionSet = set;
     }
-    
+
     /**
-     * 
+     *
      * @return
-     * @hibernate.property 
+     * @hibernate.property
      */
     @Transient
     public Map<String, String> getDataMappingsForTaskCompletion() {
@@ -1260,14 +1262,14 @@ public abstract class YTask extends YExternalNetElement {
     		dataMappingsForTaskCompletionSet.add(new KeyValue(KeyValue.COMPLETION, key, value, this));
     	}
     }
-    
-    
+
+
     /**
      * This belongs in the YTask class since YTask is reponsible for persisting
      * this data according to the toXML() method.
-     * 
+     *
      * @return
-     * @hibernate.property 
+     * @hibernate.property
      */
     @Transient
     public Map<String, KeyValue> getDataMappingsForEnablement() {
@@ -1295,17 +1297,17 @@ public abstract class YTask extends YExternalNetElement {
 //    public void setDataMappingsForEnablement(YTask task, Map map) {
 //    	task.setDataMappingsForEnablement(map);
 //    }
-    
+
     /**
      * Connects the query to a decomposition enablement parameter.
-     * @param query a query applied to the net enablement variable in the net 
+     * @param query a query applied to the net enablement variable in the net
      *      containing this task.
      * @param paramName the enablement decomposition parameter to which to apply the result.
      */
 //    public void setDataBindingForEnablementParam(String query, String paramName) {
 //    	dataMappingsForTaskEnablementSet.put(query, new KeyValue(KeyValue.ENABLEMENT, query, paramName, this));
 //    }
-//    
+//
     public String toXML() {
         StringBuffer xml = new StringBuffer();
         xml.append("<task id=\"").append(this.getID()).append("\"");

@@ -34,14 +34,11 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Where;
@@ -106,7 +103,7 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
      */
     private List<YParameter> _outputParameters = new ArrayList<YParameter>();
     protected Document _data = new Document();
-    private Map<String, String> _attribues = new HashMap<String, String>();
+    private Map<String, String> _attributes = new HashMap<String, String>();
     private List<Element> _internalExtensions = new ArrayList<Element>();
 
     private boolean _outBoundSchemaChecking;
@@ -215,19 +212,19 @@ public class YDecomposition implements Parented, Cloneable, YVerifiable, Polymor
 
     @Transient
     public Map<String, String> getAttributes() {
-        return this._attribues;
+        return _attributes;
     }
 
     public void setAttributes(Map<String, String> attributes) {
-        this._attribues = attributes;
+        _attributes = attributes;
     }
 
     public void setAttribute(String name, String value) {
-        _attribues.put(name, value);
+        _attributes.put(name, value);
     }
 
     public String getAttribute(String name) {
-        return _attribues.get(name);
+        return _attributes.get(name);
     }
 
 

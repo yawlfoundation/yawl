@@ -138,6 +138,8 @@ public class Marshaller {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //todo: Question 4 Nathan: why have you chosen to throw a runtime exception?
+        //todo: This seems a funky thing to do.
         catch( Throwable t ) {
 			StringWriter sw = new StringWriter();
     		sw.write( t.toString() + "\n" );
