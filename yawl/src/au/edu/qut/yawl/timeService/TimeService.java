@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.timeService;
 
 import au.edu.qut.yawl.elements.data.YParameter;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.AuthenticationConfig;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
 import au.edu.qut.yawl.worklist.model.TaskInformation;
@@ -38,7 +39,7 @@ public class TimeService extends InterfaceBWebsideController {
                     List children = super.getChildren(workItemRecord.getID(), _sessionHandle);
                     for (int i = 0; i < children.size(); i++) {
                         WorkItemRecord itemRecord = (WorkItemRecord) children.get(i);
-                        if (WorkItemRecord.statusFired.equals(itemRecord.getStatus())) {
+                        if (YWorkItem.Status.Fired.equals(itemRecord.getStatus())) {
                             checkOut(itemRecord.getID(), _sessionHandle);
                         }
                     }

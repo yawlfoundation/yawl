@@ -8,6 +8,7 @@
 
 package au.edu.qut.yawl.worklet;
 
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
 import au.edu.qut.yawl.worklist.model.*;
@@ -565,13 +566,13 @@ public class WorkletService extends InterfaceBWebsideController {
         for (WorkItemRecord itemRec : children) {
 
             // if its 'fired' check it out
-            if (WorkItemRecord.statusFired.equals(itemRec.getStatus())) {
+            if (YWorkItem.Status.Fired.equals(itemRec.getStatus())) {
                 if (checkOutWorkItem(itemRec))
                     EventLogger.log(_dbMgr, EventLogger.eCheckOut, itemRec, -1);  // log checkout
             }
 
             // if its 'executing', it means it got checked out with the parent
-            else if (WorkItemRecord.statusExecuting.equals(itemRec.getStatus())) {
+            else if (YWorkItem.Status.Executing.equals(itemRec.getStatus())) {
                 _log.debug("   child already checked out with parent: " +
                         itemRec.getID());
                 EventLogger.log(_dbMgr, EventLogger.eCheckOut, itemRec, -1);      // log checkout
@@ -585,7 +586,7 @@ public class WorkletService extends InterfaceBWebsideController {
         for (int j=0; j < children.size(); j++) {
             WorkItemRecord w = children.get(j) ;
 
-            if (WorkItemRecord.statusExecuting.equals(w.getStatus())) {
+            if (YWorkItem.Status.Executing.equals(w.getStatus())) {
                coi.addChild(w) ;
             }
             else
