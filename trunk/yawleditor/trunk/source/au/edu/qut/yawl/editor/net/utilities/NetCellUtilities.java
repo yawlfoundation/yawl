@@ -193,6 +193,7 @@ public class NetCellUtilities {
         );
       }
       net.getNetModel().endUpdate();
+      net.requestFocus();
     }
   }
 
@@ -212,6 +213,7 @@ public class NetCellUtilities {
         );
       }
       net.getNetModel().endUpdate();
+      net.requestFocus();
     }
   }
   
@@ -226,6 +228,7 @@ public class NetCellUtilities {
             + r.getY() + r.getHeight() - bounds.getHeight());
       }
       net.getNetModel().endUpdate();
+      net.requestFocus();
     }
   }
 
@@ -240,6 +243,7 @@ public class NetCellUtilities {
             + r.getX(), 0);
       }
       net.getNetModel().endUpdate();
+      net.requestFocus();
     }
   }
 
@@ -257,6 +261,7 @@ public class NetCellUtilities {
             + cx - bounds.getWidth() / 2, 0);
       }
       net.getNetModel().endUpdate();
+      net.requestFocus();
     }
   }
   
@@ -275,6 +280,7 @@ public class NetCellUtilities {
         );
       }
       net.getNetModel().endUpdate();
+      net.requestFocus();
     }
   }
 

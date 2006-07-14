@@ -1,6 +1,10 @@
 Version 1.4.3 (??/??/????) "Bronzeforge"
   * Fixed a couple of bugs that stopped the "Label Element" dialog from ensuring that 
     the label text field had focus when the dialog appears.
+  * Fixed a bug where the alignment toolbar buttons were retaining focus instead of
+    passing focus back to a net after an element alignment within that net.
+  * Fixed a bug where, if a task already had a label, but later had a decomposition
+    specfied for it, the decomposition label was overwriting the task label.
 
 Version 1.4.2 (13/07/2006) "Ironforge"
   * Fixed a bug where the "Set Label" dialog box was remembering the last thing
