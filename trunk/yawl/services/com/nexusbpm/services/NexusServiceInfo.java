@@ -22,6 +22,15 @@ public class NexusServiceInfo {
     private final String[] variableTypes;
     private final Object[] initialValues;
     
+    public static final NexusServiceInfo getServiceWithName( String serviceName ) {
+        for( int index = 0; index < SERVICES.length; index++ ) {
+            if( SERVICES[ index ].getServiceName().equalsIgnoreCase( serviceName ) ) {
+                return SERVICES[ index ];
+            }
+        }
+        return null;
+    }
+    
     public static final NexusServiceInfo[] SERVICES = new NexusServiceInfo[] {
         new NexusServiceInfo( "Jython",
                 "com.nexusbpm.services.jython.JythonService",

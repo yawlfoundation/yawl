@@ -65,6 +65,20 @@ data.setPlain("csv",csv)</initialValue>
 				<isUntyped/>
 				<initialValue></initialValue>
 			</localVariable>
+			<localVariable>
+				<name>two.subject</name>
+				<isUntyped/>
+				<initialValue>text::Quotes of the Day %l%l%ltoday%r%r%r</initialValue>
+			</localVariable>
+			<localVariable>
+				<name>two.body</name>
+				<isUntyped/>
+				<initialValue>text::Hello, fellow DSS'er, all my circuits are functioning imperfectly and I am fully operational.
+It must be 5:00 PM, so it's time for the quotes of the day - enjoy...
+-YAWL
+
+%l%l%lcsv%r%r%r</initialValue>
+			</localVariable>
 			<processControlElements>
 				<inputCondition id="input">
 					<flowsInto>
@@ -135,16 +149,16 @@ data.setPlain("csv",csv)</initialValue>
 					<split code="and"/>
 					<startingMappings>
 						<mapping>
-							<expression query="&lt;code&gt;{/RootDecomp/one.code/text()}&lt;/code&gt;"/>
-							<mapsTo>code</mapsTo>
+							<expression query="&lt;toAddress&gt;text::nathan.rose@ichotelsgroup.com&lt;/toAddress&gt;"/>
+							<mapsTo>toAddress</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;error&gt;{/RootDecomp/one.error/text()}&lt;/error&gt;"/>
-							<mapsTo>error</mapsTo>
+							<expression query="&lt;subject&gt;{/RootDecomp/two.subject/text()}&lt;/subject&gt;"/>
+							<mapsTo>subject</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;output&gt;{/RootDecomp/one.output/text()}&lt;/output&gt;"/>
-							<mapsTo>output</mapsTo>
+							<expression query="&lt;body&gt;{/RootDecomp/two.body/text()}&lt;/body&gt;"/>
+							<mapsTo>body</mapsTo>
 						</mapping>
 						<mapping>
 							<expression query="&lt;today&gt;{/RootDecomp/one.today/text()}&lt;/today&gt;"/>
@@ -153,6 +167,10 @@ data.setPlain("csv",csv)</initialValue>
 						<mapping>
 							<expression query="&lt;csv&gt;{/RootDecomp/one.csv/text()}&lt;/csv&gt;"/>
 							<mapsTo>csv</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;ServiceName&gt;EmailSender&lt;/ServiceName&gt;"/>
+							<mapsTo>ServiceName</mapsTo>
 						</mapping>
 					</startingMappings>
 					<decomposesTo id="DecompTwo"/>
@@ -211,15 +229,19 @@ data.setPlain("csv",csv)</initialValue>
 		</decomposition>
 		<decomposition id="DecompTwo" xsi:type="WebServiceGatewayFactsType">
 			<inputParam>
-				<name>code</name>
+				<name>toAddress</name>
 				<isUntyped/>
 			</inputParam>
 			<inputParam>
-				<name>output</name>
+				<name>subject</name>
 				<isUntyped/>
 			</inputParam>
 			<inputParam>
-				<name>error</name>
+				<name>body</name>
+				<isUntyped/>
+			</inputParam>
+			<inputParam>
+				<name>ServiceName</name>
 				<isUntyped/>
 			</inputParam>
 			<inputParam>
@@ -230,6 +252,7 @@ data.setPlain("csv",csv)</initialValue>
 				<name>csv</name>
 				<isUntyped/>
 			</inputParam>
+			<yawlService id="http://localhost:8080/NexusServiceInvoker/"/>
 		</decomposition>
 	</specification>
 </specificationSet>

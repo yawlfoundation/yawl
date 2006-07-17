@@ -71,8 +71,8 @@ public class NexusServiceController extends InterfaceBWebsideController {
                     NexusServiceData reply =
                             NexusServiceInvoker.invokeService( serviceName, data );
                     
-                    System.out.println( "\n\nReply from nexus service '" + serviceName + "':\n" + reply );
-                    System.out.println();
+//                    System.out.println( "\n\nReply from nexus service '" + serviceName + "':\n" + reply );
+//                    System.out.println();
                     
                     Element caseDataBoundForEngine = prepareReplyRootElement(enabledWorkItem, _sessionHandle);
                     
