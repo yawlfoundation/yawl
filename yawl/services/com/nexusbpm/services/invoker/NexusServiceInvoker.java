@@ -14,7 +14,9 @@ import org.codehaus.xfire.service.Service;
 import au.edu.qut.yawl.exceptions.YAWLException;
 
 import com.nexusbpm.services.NexusService;
+import com.nexusbpm.services.NexusServiceInfo;
 import com.nexusbpm.services.data.NexusServiceData;
+import com.nexusbpm.services.data.Variable;
 
 /**
  * Uses XFire to invoke Nexus services.
@@ -23,11 +25,21 @@ import com.nexusbpm.services.data.NexusServiceData;
 public class NexusServiceInvoker {
     public static NexusServiceData invokeService(String serviceName,
                                                  NexusServiceData data) throws YAWLException {
-    	NexusService service = getServiceWithName( serviceName );
-    	
-    	System.out.println( "Calling nexus service with:" + data );
-    	
-    	return service.execute( data );
+        NexusService service = getServiceWithName( serviceName );
+        
+//        System.out.println( "Preprocessing data:" + data );
+        data.setType( "Status", Variable.TYPE_TEXT );
+        
+        JythonPreprocessor preprocessor = new JythonPreprocessor( data );
+        preprocessor.evaluate();
+        
+//        System.out.println( "Calling nexus service with:" + data );
+        NexusServiceData result = service.execute( data );
+        
+        preprocessor.setData( result );
+        preprocessor.restore();
+        
+        return result;
     }
     
     public static NexusService getServiceWithName( String serviceName ) throws YAWLException {
@@ -36,20 +48,22 @@ public class NexusServiceInvoker {
     		throw new YAWLException( "To invoke a Nexus Service the name of the service must be supplied!" );
     	}
     	
-    	// TODO get appropriate class/URI for service dynamically
     	Class serviceClass = null;
     	String serviceURI = null;
     	try {
-	    	if( serviceName.equalsIgnoreCase( "Jython" ) ) {
-	    		serviceClass = Class.forName( "com.nexusbpm.services.jython.JythonService" );
-	    		serviceURI = "http://localhost:8080/JythonService/services/JythonService";
-	    	}
-	    	else {
+            NexusServiceInfo serviceInfo = NexusServiceInfo.getServiceWithName( serviceName );
+            
+	    	if( serviceInfo == null ) {
 	    		throw new YAWLException( "There is no Nexus Service named '" + serviceName + "'!" );
 	    	}
+            else {
+                serviceClass = Class.forName( serviceInfo.getServiceClassName() );
+                serviceURI = serviceInfo.getServiceURI();
+            }
     	}
     	catch( ClassNotFoundException e ) {
-    		throw new YAWLException( "There is no Nexus Service named '" + serviceName + "'!", e );
+    		throw new YAWLException( "The service class for Nexus Service named '"
+                    + serviceName + "' could not be found!", e );
     	}
     	
     	try {

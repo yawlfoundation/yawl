@@ -31,7 +31,7 @@ import com.nexusbpm.services.data.NexusServiceData;
  */
 @WebService(endpointInterface="com.nexusbpm.services.NexusService", serviceName="JythonService")
 public class JythonService implements NexusService {
-	private boolean initialized = false;
+	private static boolean initialized = false;
 	
 	// TODO this is definitely temporary...
 	private static final String JYTHON_HOME = "C:/Progra~1/jython-21";
@@ -123,7 +123,9 @@ public class JythonService implements NexusService {
 //			}
 		}
 		catch( Exception e ) {
-			errWriter.write( "\n" );
+            if( errWriter.toString().length() > 0 ) {
+                errWriter.write( "\n" );
+            }
 			e.printStackTrace( new PrintWriter( errWriter ) );
             e.printStackTrace( System.err );
 		}
