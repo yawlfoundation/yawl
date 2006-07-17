@@ -7,7 +7,6 @@
  */
 package au.edu.qut.yawl.elements;
 
-import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.net.URI;
 import java.net.URISyntaxException;

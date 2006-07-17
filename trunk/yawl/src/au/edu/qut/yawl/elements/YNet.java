@@ -39,6 +39,8 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import com.nexusbpm.editor.editors.NetEditor;
+
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.elements.e2wfoj.E2WFOJNet;
@@ -701,4 +703,9 @@ public class YNet extends YDecomposition {
             parm.setParent(this);
         }
     }
-        }
+
+    public void removeNetElement(YExternalNetElement element) {
+    	element.removeAllFlows();
+    	getNetElements().remove(element);
+    }
+}
