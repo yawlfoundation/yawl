@@ -28,6 +28,7 @@ import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -216,20 +217,24 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
         _data.setRootElement(new Element(getRootDataElementName()));
     }
 
-
-    @Transient
+    @OneToMany(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+//    @OnDelete(action=OnDeleteAction.CASCADE)
     public Map<String, String> getAttributes() {
         return _attributes;
     }
 
+    @OneToMany(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+//    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setAttributes(Map<String, String> attributes) {
         _attributes = attributes;
     }
 
+    @Transient
     public void setAttribute(String name, String value) {
         _attributes.put(name, value);
     }
 
+    @Transient
     public String getAttribute(String name) {
         return _attributes.get(name);
     }
