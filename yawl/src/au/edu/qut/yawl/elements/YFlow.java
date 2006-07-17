@@ -68,7 +68,7 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
     private YExternalNetElement _nextElement;
     private String _xpathPredicate;
     private Integer _evalOrdering;
-    private boolean _isDefaultFlow = false;
+    private boolean _isDefaultFlow;
     private List<Element> _internalExtensions = new ArrayList<Element>();
 
     /**
@@ -229,8 +229,8 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
         this._documentation = _documentation;
     }
 
-    public List verify(YExternalNetElement caller) {
-        List messages = new Vector();
+    public List<YVerificationMessage> verify(YExternalNetElement caller) {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         if (_priorElement == null || _nextElement == null) {
             if (_priorElement == null) {
                 messages.add(new YVerificationMessage(caller, caller + " [error] null prior element", YVerificationMessage.ERROR_STATUS));

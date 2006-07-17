@@ -239,33 +239,50 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
         return elements;
     }
     
- public void removePresetFlow(YFlow flowsInto){
-
-   if (flowsInto != null) {
-            _postsetFlows.remove(flowsInto.getNextElement().getID());
-            flowsInto.getNextElement()._presetFlows.remove(flowsInto.getPriorElement().getID());
-        }
-
-   }
+    public void removePresetFlow(YFlow flowsInto){
+    	if (flowsInto != null) {
+    		getPresetFlows().remove(flowsInto);
+    		flowsInto.getPriorElement().getPostsetFlows().remove(flowsInto);
+    	}
+    }
 
    public void removePostsetFlow(YFlow flowsInto){
-
-   if (flowsInto != null) {
-            _postsetFlows.remove(flowsInto.getNextElement().getID());
-            flowsInto.getNextElement()._presetFlows.remove(flowsInto.getPriorElement().getID());
+	   if (flowsInto != null) {
+		   getPostsetFlows().remove(flowsInto);
+            flowsInto.getNextElement().getPresetFlows().remove(flowsInto);
         }
-
    }
-    public List verify() {
-        List messages = new Vector();
+
+   public void removeFlow(YFlow flow) {
+	   if (flow.getNextElement() == this) {
+		   removePresetFlow(flow);
+	   }
+	   if (flow.getPriorElement() == this) {
+		   removePostsetFlow(flow);
+	   }
+   }
+   
+   public void removeAllFlows() {
+	   Collection<YFlow> flows = new ArrayList<YFlow>(getPresetFlows());
+	   for (YFlow flow: flows) {
+		   removePresetFlow(flow);
+	   }
+	   flows = new ArrayList<YFlow>(getPostsetFlows());
+	   for (YFlow flow: flows) {
+		   removePostsetFlow(flow);
+	   }
+   }
+   
+   public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         messages.addAll(verifyPostsetFlows());
         messages.addAll(verifyPresetFlows());
         return messages;
     }
 
 
-    protected List verifyPostsetFlows() {
-        List messages = new Vector();
+    protected List<YVerificationMessage> verifyPostsetFlows() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         if (this._net == null) {
             messages.add(new YVerificationMessage(this, this + " This must have a net to be valid.", YVerificationMessage.ERROR_STATUS));
         }
@@ -286,8 +303,8 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     }
 
 
-    protected List verifyPresetFlows() {
-        List messages = new Vector();
+    protected List<YVerificationMessage> verifyPresetFlows() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         if (_presetFlows.size() == 0) {
             messages.add(new YVerificationMessage(this, this + " The preset size must be > 0", YVerificationMessage.ERROR_STATUS));
         }

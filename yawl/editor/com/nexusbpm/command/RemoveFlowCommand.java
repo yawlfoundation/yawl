@@ -19,10 +19,9 @@ public class RemoveFlowCommand implements Command{
 		YFlow flow = (YFlow) flowToRemove.getData();
 		YExternalNetElement priorElement = flow.getPriorElement();
 		YExternalNetElement nextElement = flow.getNextElement();
-		Collection<YFlow> flowsToCandidates = priorElement.getPostsetFlows();
-		Collection<YFlow> flowsFromCandidates = nextElement.getPresetFlows();
-		flowsToCandidates.remove(flow);
-		flowsFromCandidates.remove(flow);
+		priorElement.removePostsetFlow(flow);
+		nextElement.removePresetFlow(flow);
+		flowToRemove.getContext().remove(flowToRemove);
 	}
 	
 	public void undo() {

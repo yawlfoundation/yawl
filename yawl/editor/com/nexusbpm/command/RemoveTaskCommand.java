@@ -3,6 +3,8 @@ package com.nexusbpm.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import operation.NexusWorkflow;
+
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YCompositeTask;
 import au.edu.qut.yawl.elements.YDecomposition;
@@ -40,29 +42,17 @@ public class RemoveTaskCommand implements Command{
 		}
 		List<YVariable> vars = new ArrayList<YVariable>(net.getLocalVariables());
 		for (YVariable var: vars) {
-			if (var.getName().startsWith(task.getID() + "..")) {
+			if (var.getName().startsWith(task.getID() + NexusWorkflow.NAME_SEPARATOR)) {
 				net.getLocalVariables().remove(var);
 			}
 		}
-		
-		for (YDecomposition decomp: spec.getDecompositions()) {
-			if (decomp instanceof YNet) {
-				for (YExternalNetElement element: ((YNet) decomp).getNetElements()) {
-					for (YFlow flow: element.getPresetFlowsAsList()) {
-						if (flow.getPriorElement() == task || flow.getNextElement() == task) {
-							element.getPresetFlows().remove(flow);
-							context.remove(context.getDataProxy(flow, null));
-						}
-					}
-					for (YFlow flow: element.getPostsetFlows()) {
-						if (flow.getPriorElement() == task || flow.getNextElement() == task) {
-							element.getPresetFlowsAsList().remove(flow);
-							context.remove(context.getDataProxy(flow, null));
-						}
-					}
-				}
-			}
+		for (YFlow flow: task.getPresetFlows()) {
+			context.remove(context.getDataProxy(flow, null));
 		}
+		for (YFlow flow: task.getPostsetFlows()) {
+			context.remove(context.getDataProxy(flow, null));
+		}
+		task.removeAllFlows();		
 		context.remove(taskProxy);
 	}
 	
