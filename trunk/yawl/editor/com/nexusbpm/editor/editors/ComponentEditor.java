@@ -1,4 +1,4 @@
-package com.nexusbpm.editor.desktop;
+package com.nexusbpm.editor.editors;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,7 +7,6 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -17,20 +16,21 @@ import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.elements.YAtomicTask;
+
+import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.exception.EditorException;
-import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.util.syntax.DefaultInputHandler;
 import com.nexusbpm.editor.util.syntax.InputHandler;
 import com.nexusbpm.editor.util.syntax.JEditTextArea;
 import com.nexusbpm.editor.util.syntax.JeditHelper;
 import com.nexusbpm.editor.util.syntax.TextAreaDefaults;
+import com.nexusbpm.services.data.NexusServiceData;
 
 /**
  * Superclass for all component editors.
@@ -42,16 +42,53 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 
 	private static final Log LOG = LogFactory.getLog( ComponentEditor.class );
 
-	private static final ImageIcon ICON_RED_LOCK = ApplicationIcon.getIcon( "ComponentEditor.red_lock" );
-	private static final ImageIcon ICON_GREEN_LOCK = ApplicationIcon.getIcon( "ComponentEditor.red_lock" );
-
 	private boolean _dirty;
 	private boolean _uiInitialized;
+    
+    protected NexusServiceData data;
 
 	/**
 	 * The controller for this editor's component.
 	 */
 	protected EditorDataProxy _proxy;
+    
+    /**
+     * Initializes the editor, performing editor-specific transfer of data
+     * from the {@link NexusServiceData} into the editor. Note that
+     * {@link #setProxy(EditorDataProxy)}
+     * should be called first so that the initialization process can access
+     * the component's data.
+     * <p>
+     * This method is thread-safe, ie, you may call it from a thread other
+     * than the AWT event dispatcher thread and UI updates triggered by this
+     * method will still occur on the AWT event dispatcher thread.
+     *
+     * @throws EditorException if there is a GUI error.
+     */
+    public final void initialize() throws EditorException {
+        if( _uiInitialized == false ) {
+            _uiInitialized = true;
+            final JComponent ui = this.initializeUI();
+            Runnable uiUpdater = new Runnable() {
+                public void run() {
+                    try {
+                        ComponentEditor.this.removeLoadingLabel();
+                        ComponentEditor.this.setUI( ui );
+                        ComponentEditor.this.validate();
+                    }
+                    catch( EditorException e ) {
+                        LOG.error( e.getMessage(), e );
+                    }
+                }
+            };
+            if( SwingUtilities.isEventDispatchThread() ) {
+                uiUpdater.run();
+            }
+            else {
+                SwingUtilities.invokeLater( uiUpdater );
+            }
+        }
+    }
 
 	/**
 	 * Action listener that can be added to components to set the editor
@@ -97,25 +134,17 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 		}
 	}
 
-	/**
-	 * Drop panel listener that can be added to calendar combo boxes to set the
-	 * editor to dirty when a calendar combo box is used.
-	 */
-	private ChangeListener isDirtyChangeListener = new ChangeListener() {
-		public void stateChanged( ChangeEvent e ) {
-			LOG.debug( "isDirtyChangeListener.stateChanged: " + e );
-			ComponentEditor.this.setDirty( true );
-			System.out.println("pressed a key on the editor");
-		}
-	};
-
-	/**
-	 * Disables all input elements in the editor if the edited component
-	 * is locked by someone else.
-	 */
-	protected void disableInputElementsIfLockedBySomeoneElse() {
-//		throw new RuntimeException("needs a new context for yawl");
-	}
+//	/**
+//	 * Drop panel listener that can be added to calendar combo boxes to set the
+//	 * editor to dirty when a calendar combo box is used.
+//	 */
+//	private ChangeListener isDirtyChangeListener = new ChangeListener() {
+//		public void stateChanged( ChangeEvent e ) {
+//			LOG.debug( "isDirtyChangeListener.stateChanged: " + e );
+//			ComponentEditor.this.setDirty( true );
+//			System.out.println("pressed a key on the editor");
+//		}
+//	};
 
 	/**
 	 * Adds an appropriate listener to the specified component, such that when
@@ -206,46 +235,20 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 
 	/**
 	 * Sets the controller of the component that this editor is for.
-	 * Performs editor-specific transfer of data from the component into the
-	 * editor.
-	 * <p>
-	 * This method is thread-safe, ie, you may call it from a thread other than
-	 * the AWT event dispatcher thread and UI updates triggered by this method
-	 * will still occur on the AWT event dispatcher thread.
 	 *
-	 * @param controller the controller for this editor's component.
-	 * @throws EditorException if there is a GUI error.
+	 * @param proxy the proxy for this editor's component.
 	 */
-	public void setProxy( EditorDataProxy proxy ) throws EditorException {
+	public final void setProxy( EditorDataProxy proxy ) {
 		if( _proxy != null ) {
 			LOG.debug( "ComponentEditor.setController - overriding controller" );
 			_proxy.removePropertyChangeListener( this );
 		}
 		_proxy = proxy;
 		_proxy.addPropertyChangeListener( this );
-		if( _uiInitialized == false ) {
-			_uiInitialized = true;
-			final JComponent ui = this.initializeUI();
-			Runnable uiUpdater = new Runnable() {
-				public void run() {
-					try {
-						ComponentEditor.this.removeLoadingLabel();
-						ComponentEditor.this.setUI( ui );
-						ComponentEditor.this.disableInputElementsIfLockedBySomeoneElse();
-						ComponentEditor.this.validate();
-					}
-					catch( EditorException e ) {
-						LOG.error( e.getMessage(), e );
-					}
-				}
-			};
-			if( SwingUtilities.isEventDispatchThread() ) {
-				uiUpdater.run();
-			}
-			else {
-				SwingUtilities.invokeLater( uiUpdater );
-			}
-		}
+        if( _proxy.getData() instanceof YAtomicTask ) {
+            YAtomicTask task = (YAtomicTask) _proxy.getData();
+            data = NexusServiceData.unmarshal( task );
+        }
 	}
 
 	/**
@@ -267,11 +270,18 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 
 	/**
 	 * Performs editor-specific transfer of data from the editor into the
-	 * component.
+	 * {@link NexusServiceData}. Note that {@link #persistAttributes()}
+     * should be called after this method has finished executing to
+     * propagate the changes into the actual workflow specification.
 	 *
 	 * @throws EditorException if there is an error saving the attributes.
 	 */
 	public abstract void saveAttributes() throws EditorException;
+    
+    public final void persistAttributes() {
+        YAtomicTask task = (YAtomicTask) _proxy.getData();
+        data.saveToTask( task.getParent(), task.getID() );
+    }
 
 	/**
 	 * Returns <tt>true</tt> if the editor was used to modify the corresponding
@@ -319,7 +329,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 
 		// may not be strictly necessary but makes it a little easier to see in profile what is left
 		isDirtyActionListener = null;
-		isDirtyChangeListener = null;
+//		isDirtyChangeListener = null;
 		isDirtyKeyAdapter = null;
 
 		super.clear();

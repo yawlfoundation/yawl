@@ -1,7 +1,6 @@
 package com.nexusbpm.editor.editors;
 
 import java.awt.Component;
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -13,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YNet;
 
-import com.nexusbpm.editor.desktop.ComponentEditor;
 import com.nexusbpm.editor.editors.net.GraphEditor;
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -29,7 +27,6 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
 public class NetEditor extends ComponentEditor {
 
 	private final static Log LOG = LogFactory.getLog( NetEditor.class );
-	private final static SimpleDateFormat INSTANCE_DATE_FORMAT = new SimpleDateFormat( "MM/dd/yyyy 'at' h:mm a" );
 
 	private GraphEditor _flowGraphEditor;
 	private JTabbedPane _tabbedPane;
@@ -163,6 +160,7 @@ public class NetEditor extends ComponentEditor {
 //			}
 		}
 		else {
+            // TODO there is no change listener for a graph editor
 			addIsDirtyListener( ge );
 		}
 	}

@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 
-import operation.NexusWorkflow;
 import operation.WorkflowOperation;
 
 import org.jdom.Document;
@@ -31,6 +30,7 @@ import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 
+import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.services.NexusServiceInfo;
 import com.nexusbpm.services.data.NexusServiceData;
 

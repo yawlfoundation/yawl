@@ -1,10 +1,10 @@
-package operation;
+package com.nexusbpm;
 
 public class NexusWorkflow {
 	
 	public static final String NAME_SEPARATOR = "_";
 
-	public static final String VARTYPE = "string";
+	public static final String VARTYPE_STRING = "string";
 
 	public static final String STATUS_VAR = "Status";
 

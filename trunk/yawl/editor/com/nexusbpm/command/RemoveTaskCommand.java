@@ -3,7 +3,6 @@ package com.nexusbpm.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import operation.NexusWorkflow;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YCompositeTask;
@@ -16,6 +15,7 @@ import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 
+import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 public class RemoveTaskCommand implements Command{

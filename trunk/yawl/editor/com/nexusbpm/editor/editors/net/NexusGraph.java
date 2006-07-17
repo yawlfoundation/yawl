@@ -44,7 +44,7 @@ import org.jgraph.util.JGraphUtilities;
 import au.edu.qut.yawl.elements.YAtomicTask;
 
 import com.nexusbpm.editor.WorkflowEditor;
-import com.nexusbpm.editor.desktop.ComponentEditor;
+import com.nexusbpm.editor.editors.ComponentEditor;
 import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.editors.net.cells.ViewFactory;
 import com.nexusbpm.editor.persistence.EditorDataProxy;

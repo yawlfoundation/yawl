@@ -23,6 +23,7 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
+import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.services.data.NexusServiceData;
 
 /**
@@ -31,8 +32,6 @@ import com.nexusbpm.services.data.NexusServiceData;
  */
 public class NexusServiceController extends InterfaceBWebsideController {
     private String _sessionHandle = null;
-    
-    public static final String SERVICENAME_PARAMNAME = "ServiceName";
     
     /**
      * Implements InterfaceBWebsideController.  It recieves messages from the engine
@@ -52,13 +51,13 @@ public class NexusServiceController extends InterfaceBWebsideController {
                 for (int i = 0; i < executingChildren.size(); i++) {
                     WorkItemRecord itemRecord = (WorkItemRecord) executingChildren.get(i);
                     Element inputData = itemRecord.getWorkItemData();
-                    String serviceName = inputData.getChildText(SERVICENAME_PARAMNAME);
+                    String serviceName = inputData.getChildText(NexusWorkflow.SERVICENAME_VAR);
                     List<Content> serviceData = inputData.cloneContent();
                     NexusServiceData data = null;
                     
                     for( Iterator<Content> iter = serviceData.iterator(); iter.hasNext(); ) {
                         Content c = iter.next();
-                        if( c instanceof Element && ((Element)c).getName().equals( SERVICENAME_PARAMNAME ) ) {
+                        if( c instanceof Element && ((Element)c).getName().equals( NexusWorkflow.SERVICENAME_VAR ) ) {
                             iter.remove();
                         }
                     }
@@ -111,7 +110,7 @@ public class NexusServiceController extends InterfaceBWebsideController {
         YParameter param;
         
         param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
-        param.setDataTypeAndName(XSD_NCNAME_TYPE, SERVICENAME_PARAMNAME, XSD_NAMESPACE);
+        param.setDataTypeAndName(XSD_NCNAME_TYPE, NexusWorkflow.SERVICENAME_VAR, XSD_NAMESPACE);
         param.setDocumentation("This is the name of the Nexus Workflow Service");
         params[0] = param;
         
