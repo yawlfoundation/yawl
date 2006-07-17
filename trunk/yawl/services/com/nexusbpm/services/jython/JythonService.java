@@ -8,6 +8,8 @@
 package com.nexusbpm.services.jython;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
@@ -33,27 +35,43 @@ import com.nexusbpm.services.data.NexusServiceData;
 public class JythonService implements NexusService {
 	private static boolean initialized = false;
 	
-	// TODO this is definitely temporary...
-	private static final String JYTHON_HOME = "C:/Progra~1/jython-21";
+    private static String JYTHON_HOME = "C:/Progra~1/jython-21"; // default if jython.properties isn't found
 	
-	private void initialize() {
-		if( !initialized ) {
-			initialized = true;
-			// Get the Jython home and jar paths.
-			File home = new File( JYTHON_HOME );
-			File lib = new File( home, "Lib" );
-			File jar = new File( home, "jython.jar" );
-			// Initialize the python interpreter with the correct home directory and classpath.
-			String classPath = System.getProperty( "java.class.path" );
-			String jythonJar = jar.getAbsolutePath();
-			classPath = classPath + File.pathSeparator + jythonJar;
-			Properties props = new Properties();
-			props.setProperty( "python.verbose", "debug" );
-			props.setProperty( "python.home", JYTHON_HOME );
-			props.setProperty( "java.class.path", classPath );
-			PythonInterpreter.initialize( System.getProperties(), props, new String[ 0 ] );
-		}
-	}
+    private void initialize() {
+        if( !initialized ) {
+            initialized = true;
+            // get jython properties
+            InputStream in = NexusService.class.getResourceAsStream( "jython.properties" );
+            if( in == null ) {
+                System.out.println( "Could not find jython properties file! Using default properties." );
+            }
+            else {
+                try {
+                    Properties p = new Properties();
+                    p.load( in );
+                    JYTHON_HOME = p.getProperty( "jython.home" );
+                    System.out.println( "Using jython home:" + JYTHON_HOME );
+                }
+                catch( IOException e ) {
+                    System.out.println( "Error reading in jython.properties!" );
+                    e.printStackTrace( System.out );
+                }
+            }
+            
+            // Get the Jython home and jar paths.
+            File home = new File( JYTHON_HOME );
+            File jar = new File( home, "jython.jar" );
+            // Initialize the python interpreter with the correct home directory and classpath.
+            String classPath = System.getProperty( "java.class.path" );
+            String jythonJar = jar.getAbsolutePath();
+            classPath = classPath + File.pathSeparator + jythonJar;
+            Properties props = new Properties();
+            props.setProperty( "python.verbose", "debug" );
+            props.setProperty( "python.home", JYTHON_HOME );
+            props.setProperty( "java.class.path", classPath );
+            PythonInterpreter.initialize( System.getProperties(), props, new String[ 0 ] );
+        }
+    }
 	
 	public NexusServiceData execute( NexusServiceData data ) {
 		

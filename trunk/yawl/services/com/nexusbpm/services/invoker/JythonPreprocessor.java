@@ -10,6 +10,7 @@ package com.nexusbpm.services.invoker;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -26,11 +27,13 @@ import org.python.core.PyException;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
+import com.nexusbpm.services.NexusService;
 import com.nexusbpm.services.data.NexusServiceData;
 import com.nexusbpm.services.data.Variable;
 
 /**
- * TODO javadoc
+ * Preprocesses inline jython code in data sent to the Nexus Service invoker before
+ * the data gets passed to the services.
  * 
  * @author Nathan Rose
  * @author Dean Mao
@@ -67,8 +70,7 @@ public class JythonPreprocessor {
     
     private static boolean initialized = false;
     
-    // TODO this is definitely temporary...
-    private static final String JYTHON_HOME = "C:/Progra~1/jython-21";
+    private static String JYTHON_HOME = "C:/Progra~1/jython-21"; // default if jython.properties isn't found
     
     void setData( NexusServiceData data ) {
         this.data = data;
@@ -77,9 +79,26 @@ public class JythonPreprocessor {
     private void initialize() {
         if( !initialized ) {
             initialized = true;
+            // get jython properties
+            InputStream in = NexusService.class.getResourceAsStream( "jython.properties" );
+            if( in == null ) {
+                System.out.println( "Could not find jython properties file! Using default properties." );
+            }
+            else {
+                try {
+                    Properties p = new Properties();
+                    p.load( in );
+                    JYTHON_HOME = p.getProperty( "jython.home" );
+                    System.out.println( "Using jython home:" + JYTHON_HOME );
+                }
+                catch( IOException e ) {
+                    System.out.println( "Error reading in jython.properties!" );
+                    e.printStackTrace( System.out );
+                }
+            }
+            
             // Get the Jython home and jar paths.
             File home = new File( JYTHON_HOME );
-            File lib = new File( home, "Lib" );
             File jar = new File( home, "jython.jar" );
             // Initialize the python interpreter with the correct home directory and classpath.
             String classPath = System.getProperty( "java.class.path" );
