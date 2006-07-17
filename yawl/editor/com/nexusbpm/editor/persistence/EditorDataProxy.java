@@ -20,18 +20,21 @@ import org.apache.commons.logging.LogFactory;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.data.YVariable;
 
+import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
-import com.nexusbpm.editor.desktop.ComponentEditor;
 import com.nexusbpm.editor.desktop.ComponentEditorFrameListener;
+import com.nexusbpm.editor.editors.ComponentEditor;
 import com.nexusbpm.editor.editors.NetEditor;
-import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphPort;
+import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.icon.AnimatedIcon;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.icon.RenderingHints;
 import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.services.NexusServiceInfo;
 
 public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataProxy implements Transferable {
 
@@ -322,8 +325,8 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 					Class editorClass = getEditorClass();
 					_editor = (ComponentEditor) editorClass.newInstance();
 				}
-				_editor.setProxy(this);
-				_editor.initializeUI();					
+//				_editor.setProxy(this);
+//				_editor.initializeUI();
 				_editor.setTitle( this.getLabel() );
 				LOG.debug( "removing frame listeners" );
 				removeEditorFrameListeners();
@@ -334,18 +337,25 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 			return _editor;
 	}
 
-	//	TODO fix this is a hack. These values should be externally mapped... 	
+	//	TODO fix this is a hack. These values should be externally mapped...
 	public Class getEditorClass() {
 		Class retval;
 		if (getData() instanceof  YNet ) {
 			retval = NetEditor.class;
 		}
 		else if (getData() instanceof YAtomicTask) {
-	    	  String name = ((YAtomicTask) getData()).getDecompositionPrototype().getId().replace("Component", "Editor");
-	          try {
-	        	  retval = Class.forName(name);
-	          }
-	          catch (Exception e) {retval = null;}
+            YAtomicTask task = (YAtomicTask) getData();
+            YVariable var = task.getParent().getLocalVariable(
+                    task.getID() + NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.SERVICENAME_VAR );
+            
+            NexusServiceInfo service = NexusServiceInfo.getServiceWithName( var.getInitialValue() );
+            
+            try {
+                retval = Class.forName( service.getEditorClassName() );
+            }
+            catch( ClassNotFoundException e ) {
+                retval = null;
+            }
 		}
 		else retval = null;
 		return retval;

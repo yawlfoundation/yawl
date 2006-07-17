@@ -14,8 +14,7 @@ import java.net.URISyntaxException;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 
-import com.nexusbpm.editor.component.EmailSenderComponent;
-import com.nexusbpm.editor.component.JythonComponent;
+import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 
 /**
@@ -28,6 +27,7 @@ import com.nexusbpm.editor.persistence.YTaskEditorExtension;
  * 
  */
 public class MockYSpecification {
+    // TODO this class needs to be refactored to use the operations in WorkflowOperation
 	private static final String SCHEMA_URL = "http://www.w3.org/2001/XMLSchema";
 
 	public static YSpecification instance;
@@ -35,19 +35,19 @@ public class MockYSpecification {
 	public static final String rootNetName = "My test net";
 
 	private static final String[] jythonProps = new String[] { "code",
-			"output", "error" };
+			"output", "error", "ServiceName" };
 
 	private static final String[] jythonVals = new String[] {
-			"print 3.141592653589793", "systemout", "errorout" };
+			"print 3.141592653589793", "systemout", "errorout", "Jython" };
 
 	private static final String[] emailProps = new String[] { "fromAddress",
-			"toAddresses", "subject", "body", "markupAttachment" };
+			"toAddresses", "subject", "body", "markupAttachment", "ServiceName" };
 
 	private static final String[] emailVals = new String[] {
 			"matthew.sandoz@ichg.com", "dean.mao@ichg.com",
 			"Did you get that thing I sent you?",
 			"This is the message body we expect to deliver.",
-			"Not sure what this attachment is for" };
+			"Not sure what this attachment is for", "EmailSender" };
 
 	private static final String[] gatewayProps = new String[]{
 		"YawlWSInvokerWSDLLocation",
@@ -68,8 +68,9 @@ public class MockYSpecification {
 	
 	private static YAWLServiceGateway createEmailGateway(
 			YSpecification specification) {
-		YAWLServiceGateway gate = new YAWLServiceGateway(
-				EmailSenderComponent.class.getName(), specification);
+        YAWLServiceGateway gate = new YAWLServiceGateway("EmailSender", specification);
+//		YAWLServiceGateway gate = new YAWLServiceGateway(
+//				EmailSenderComponent.class.getName(), specification);
 		gate.setName("[send mail support]");
 		for (String prop : emailProps) {
 			YParameter gatewayVar = new YParameter(gate,
@@ -101,8 +102,9 @@ public class MockYSpecification {
 
 	private static YAWLServiceGateway createJythonGateway(
 			YSpecification specification) {
-		YAWLServiceGateway gate = new YAWLServiceGateway(JythonComponent.class
-				.getName(), specification);
+		YAWLServiceGateway gate = new YAWLServiceGateway("JythonComponent", specification);
+//        YAWLServiceGateway gate = new YAWLServiceGateway(JythonComponent.class
+//				.getName(), specification);
 		gate.setName("[jython scripting support]");
 
 		YAWLServiceReference yawlServiceReference = new YAWLServiceReference();
@@ -174,7 +176,7 @@ public class MockYSpecification {
 	private static void generateTaskVariables(YNet net,
 			YAWLServiceGateway gate, YAtomicTask task, String[] props,
 			String[] vals) {
-		String taskPath = task.getID() + ".";
+		String taskPath = task.getID() + NexusWorkflow.NAME_SEPARATOR;
 		String path = "/" + net.getId() + "/" + taskPath;
 		String gatewayPath = "/" + gate.getId() + "/";
 		task.setDecompositionPrototype(gate);
@@ -185,7 +187,7 @@ public class MockYSpecification {
 		}
 		for (int i = 0; i < props.length; i++) {
 			YVariable var = new YVariable(net);
-			var.setDataTypeAndName("string", task.getID() + "." + props[i],
+			var.setDataTypeAndName("string", task.getID() + NexusWorkflow.NAME_SEPARATOR + props[i],
 					SCHEMA_URL);
 			var.setInitialValue(vals[i]);
 			net.setLocalVariable(var);
@@ -195,7 +197,7 @@ public class MockYSpecification {
 	private static void generateTaskWebserviceVariables(YNet net,
 			YAWLServiceGateway gate, YAtomicTask task, String[] props,
 			String[] vals) {
-		String taskPath = task.getID() + ".";
+		String taskPath = task.getID() + NexusWorkflow.NAME_SEPARATOR;
 		String path = "/" + net.getId() + "/" + taskPath;
 		String gatewayPath = "/" + gate.getId() + "/";
 		task.setDecompositionPrototype(gate);

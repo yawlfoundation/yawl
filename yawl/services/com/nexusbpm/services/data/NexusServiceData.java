@@ -21,6 +21,12 @@ import javax.xml.bind.annotation.XmlType;
 import org.jdom.Content;
 import org.jdom.Element;
 
+import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.data.YVariable;
+
+import com.nexusbpm.NexusWorkflow;
+
 /**
  * Data container for Nexus Services. Instances of this class contain a list of dynamic
  * variables that can be marshalled/unmarshalled between POJO and XML form for use inside
@@ -205,6 +211,10 @@ public class NexusServiceData {
         setPlain( "Status", status );
     }
     
+    /**
+     * Given runtime data from the service invoker, converts the data into an
+     * instance of NexusServiceData.
+     */
     public static NexusServiceData unmarshal( List<Content> variables ) {
         NexusServiceData data = new NexusServiceData();
         data.initList();
@@ -212,47 +222,72 @@ public class NexusServiceData {
         for( Content c : variables ) {
             if( c instanceof Element ) {
                 Element e = (Element) c;
-                String name = e.getName();
-                String type = "text";
-                String value = e.getText();
                 
-                if( value.indexOf( ":" ) > 0 ) {
-                    String candidateType = value.substring( 0, value.indexOf( ":" ) );
-                    candidateType = candidateType.trim().toLowerCase();
-                    // actual value is only the part after the colon
-                    value = value.substring( value.indexOf( ":" ) + 1 );
-                    
-                    if( value.equals( "null" ) ) {
-                        value = null;
-                    }
-                    else {
-                        value = value.substring( 1 );
-                    }
-                    
-                    if( candidateType.equals( "text" ) ) {
-                        // do nothing, type "text" is default
-                    }
-                    else if( candidateType.equals( "base64" ) ) {
-                        type = "base64";
-                    }
-                    else if( candidateType.equals( "binary" ) ) {
-                        type = "binary";
-                    }
-                    else if( candidateType.equals( "object" ) ) {
-                        type = "object";
-                    }
-                    else {
-                        // the colon in the value must be incidental, so restore the value
-                        value = e.getText();
-                    }
-                }
-                
-                Variable variable = new Variable( name, type, value );
-                data.variable.add( variable );
+                data.unmarshalVariable( e.getName(), e.getText() );
             }
         }
         
         return data;
+    }
+    
+    public static NexusServiceData unmarshal( YAtomicTask task ) {
+        NexusServiceData data = new NexusServiceData();
+        data.initList();
+        
+        String taskID = task.getID();
+        
+        for( String varName : task.getDataMappingsForTaskStarting().keySet() ) {
+            if( !( varName.equals( NexusWorkflow.SERVICENAME_VAR )
+                    || varName.equals( "YawlWSInvokerWSDLLocation" )
+                    || varName.equals( "YawlWSInvokerOperationName" )
+                    || varName.equals( "YawlWSInvokerPortName" ) ) ) {
+                String val = task.getParent().getLocalVariable(
+                        taskID + NexusWorkflow.NAME_SEPARATOR + varName ).getInitialValue();
+                
+                data.unmarshalVariable( varName, val );
+            }
+        }
+        
+        return data;
+    }
+    
+    private void unmarshalVariable( String name, String value ) {
+        String type = "text";
+        String finalValue = value;
+        
+        if( finalValue.indexOf( ":" ) > 0 ) {
+            String candidateType = finalValue.substring( 0, finalValue.indexOf( ":" ) );
+            candidateType = candidateType.trim().toLowerCase();
+            // actual value is only the part after the colon
+            finalValue = finalValue.substring( finalValue.indexOf( ":" ) + 1 );
+            
+            if( finalValue.equals( "null" ) ) {
+                finalValue = null;
+            }
+            else {
+                finalValue = finalValue.substring( 1 );
+            }
+            
+            if( candidateType.equals( "text" ) ) {
+                // do nothing, type "text" is default
+            }
+            else if( candidateType.equals( "base64" ) ) {
+                type = "base64";
+            }
+            else if( candidateType.equals( "binary" ) ) {
+                type = "binary";
+            }
+            else if( candidateType.equals( "object" ) ) {
+                type = "object";
+            }
+            else {
+                // the colon in the value must be incidental, so restore the value
+                finalValue = value;
+            }
+        }
+        
+        Variable variable = new Variable( name, type, finalValue );
+        this.variable.add( variable );
     }
     
     public static List<Content> marshal( NexusServiceData data ) {
@@ -271,5 +306,26 @@ public class NexusServiceData {
         }
         
         return variables;
+    }
+    
+    /**
+     * @param net the net containing the task.
+     * @param taskID the ID of the task to save the variables for.
+     */
+    public void saveToTask( YNet net, String taskID ) {
+        
+        for( Variable v : variable ) {
+            String name = taskID + NexusWorkflow.NAME_SEPARATOR + v.name;
+            String value = v.getEncodedValue();
+            
+            if( net.getLocalVariable( name ) != null ) {
+                net.getLocalVariable( name ).setInitialValue( value );
+            }
+            else {
+                YVariable var = new YVariable( net );
+                var.setDataTypeAndName(NexusWorkflow.VARTYPE_STRING, name, NexusWorkflow.XML_SCHEMA_URL);
+                net.setLocalVariable( var );
+            }
+        }
     }
 }

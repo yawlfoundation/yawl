@@ -7,6 +7,7 @@ import javax.swing.event.InternalFrameEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.nexusbpm.editor.editors.ComponentEditor;
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
@@ -61,6 +62,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 					if( _editor.isDirty() ) {
 						LOG.debug( "Editor closing, saving: " );
 						_editor.saveAttributes();
+						_editor.persistAttributes();
 						// ClientOperation.update( controller, 3, false );
 						throw new RuntimeException("implement the save operation, or prompt to save?");
 					}//if
@@ -108,11 +110,12 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 				// Don't allow the user to close the editor while it's loading.
 				boolean wasClosable = _editor.isClosable();
 				_editor.setClosable( false );
+				_editor.setProxy( proxy );
 				try {
-					_editor.setProxy( proxy );
+					_editor.initialize();
 				}//try
-				catch( EditorException ce ) {
-					// CapselaExceptions are already logged.
+				catch( EditorException e ) {
+					e.printStackTrace( System.out );
 				}//catch
 				finally {
 					try {
