@@ -24,6 +24,8 @@ import au.edu.qut.yawl.schema.SchemaTestSuite;
 import au.edu.qut.yawl.unmarshal.UnmarshallerTestSuite;
 import au.edu.qut.yawl.util.UtilTestSuite;
 
+import com.nexusbpm.services.NexusServiceTestSuite;
+
 /**
  * 
  * Author: Lachlan Aldred
@@ -54,6 +56,7 @@ public class TestAllYAWLSuites extends TestSuite{
         suite.addTest(au.edu.qut.yawl.swingWorklist.WorklistTestSuite.suite());
         suite.addTest(au.edu.qut.yawl.worklist.WorklistTestSuite.suite());
         suite.addTest(AuthenticationTestSuite.suite());
+        suite.addTest(NexusServiceTestSuite.suite());
         return suite;
     }
 
