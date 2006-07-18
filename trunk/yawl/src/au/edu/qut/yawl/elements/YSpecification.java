@@ -151,7 +151,10 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
 
     @Transient
     public void setRootNet(YNet rootNet) {
-    	rootNet.setRootNet("true");
+        if( getRootNet() != null ) {
+            getRootNet().setRootNet("false");
+        }
+        rootNet.setRootNet("true");
     	if (getRootNet() == null) {
     		getDecompositions().add(rootNet);
     	}
