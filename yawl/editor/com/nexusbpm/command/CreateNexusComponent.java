@@ -73,6 +73,11 @@ public class CreateNexusComponent implements Command {
 		throw new UnsupportedOperationException(
 				"nexus insert undo not yet implemented");
 	}
+    
+    public void redo() {
+        throw new UnsupportedOperationException(
+                "nexus insert undo not yet implemented");
+    }
 
 	/**
 	 * 

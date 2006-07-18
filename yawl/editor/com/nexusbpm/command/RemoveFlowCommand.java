@@ -44,4 +44,9 @@ public class RemoveFlowCommand implements Command{
 		flowsToCandidates.add(flow);
 		flowsFromCandidates.add(flow);
 	}
+    
+    public void redo() {
+        throw new UnsupportedOperationException(
+                "nexus insert undo not yet implemented");
+    }
 }

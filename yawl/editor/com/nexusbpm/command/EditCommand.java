@@ -52,5 +52,8 @@ public class EditCommand implements Command{
 		}
 	}
 	
-	
+    public void redo() {
+        throw new UnsupportedOperationException(
+                "nexus insert undo not yet implemented");
+    }
 }

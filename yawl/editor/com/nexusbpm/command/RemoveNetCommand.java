@@ -60,5 +60,9 @@ public class RemoveNetCommand implements Command{
 	public void undo() {
 		YNet net = (YNet) netToRemove.getData();
 	}
-
+    
+    public void redo() {
+        throw new UnsupportedOperationException(
+                "nexus insert undo not yet implemented");
+    }
 }
