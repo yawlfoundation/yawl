@@ -22,13 +22,15 @@ public interface Command {
 	 * constructor and hold as state. Be certain that enough information 
 	 * is held to be able to undo the operation later if desired.
 	 */
-	public void execute();
+	public void execute() throws Exception;
 	
 	
 	/**
 	 * Undoes the previous command. Relies on internal state of the command.
 	 */
-	public void undo();
+	public void undo() throws Exception;
 	
-    public void redo();
+    public void redo() throws Exception;
+    
+    public boolean supportsUndo();
 }

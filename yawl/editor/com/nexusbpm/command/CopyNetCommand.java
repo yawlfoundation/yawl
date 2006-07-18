@@ -40,4 +40,8 @@ public class CopyNetCommand implements Command{
         throw new UnsupportedOperationException(
                 "nexus insert undo not yet implemented");
     }
+    
+    public boolean supportsUndo() {
+        return true;
+    }
 }
