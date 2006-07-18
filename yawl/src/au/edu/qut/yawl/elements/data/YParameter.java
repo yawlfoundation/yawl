@@ -224,7 +224,6 @@ public class YParameter extends YVariable implements Serializable  {
         }
         Element paramElem = doc.getRootElement();
         paramElem.removeChild("initialValue");
-        Element typeElement = paramElem.getChild("type");
         XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
         return outputter.outputString(paramElem);
     }

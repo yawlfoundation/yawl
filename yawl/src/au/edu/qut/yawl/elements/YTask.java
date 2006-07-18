@@ -29,6 +29,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -277,8 +278,8 @@ public abstract class YTask extends YExternalNetElement {
         return getDataMappingsForTaskCompletion().values();
     }
 
-    protected List checkXQuery(String xQuery, String param) {
-        List messages = new ArrayList();
+    protected List<YVerificationMessage> checkXQuery(String xQuery, String param) {
+        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
 
         if (null == xQuery || xQuery.length() == 0) {
             messages.add(new YVerificationMessage(this, this +
@@ -319,23 +320,22 @@ public abstract class YTask extends YExternalNetElement {
         return getDataMappingsForTaskCompletion().keySet();
     }
 
-//    @OneToMany(cascade=CascadeType.ALL)
-    //todo LJA comment: the remove set should be persisted.
-    //todo For Eg. it has a manifestation in the schema for YAWL.
-    @Transient
+    @OneToMany(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @JoinTable(name="yexternalnetelement_removeset")
     public Set<YExternalNetElement> getRemoveSet() {
     	return _removeSet;
     }
 
+    @OneToMany(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @JoinTable(name="yexternalnetelement_removeset")
     private void setRemoveSet(Set<YExternalNetElement> s) {
     	_removeSet = s;
     }
 
-
-    public void setRemovesTokensFrom(List removeSet) {
+    @Transient
+    public void setRemovesTokensFrom(List<YExternalNetElement> removeSet) {
         _removeSet.addAll(removeSet);
     }
-
 
     public synchronized List t_fire() throws YStateException, YDataStateException, YQueryException, YPersistenceException {
         YIdentifier id = getI();
@@ -547,7 +547,7 @@ public abstract class YTask extends YExternalNetElement {
                 if (_net.getParent().isSchemaValidating() &&
                         !query.equals(getPreJoiningMIQuery())) {
                     YVariable var = _net.getLocalVariable(localVarThatQueryResultGetsAppliedTo);
-                    Set col = new HashSet();
+                    Set<YVariable> col = new HashSet<YVariable>();
                     col.add(var);
                     String schemaForVariable = buildSchema(col);
                     try {
@@ -905,7 +905,7 @@ public abstract class YTask extends YExternalNetElement {
         copy._mi_complete = new YInternalCondition(YInternalCondition._mi_complete, copy);
         copy._mi_entered = new YInternalCondition(YInternalCondition._mi_entered, copy);
         copy._mi_executing = new YInternalCondition(YInternalCondition._executing, copy);
-        copy._removeSet = new HashSet();
+        copy._removeSet = new HashSet<YExternalNetElement>();
         Iterator iter = _removeSet.iterator();
         while (iter.hasNext()) {
             YExternalNetElement elem = (YExternalNetElement) iter.next();
@@ -1618,8 +1618,8 @@ public abstract class YTask extends YExternalNetElement {
     //######################################################################################
     //###########################  BEGIN VERIFICATION CODE  ################################
     //######################################################################################
-    public List verify() {
-        List messages = new Vector();
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         messages.addAll(super.verify());
         if (_splitType != _AND
                 && _splitType != _OR
@@ -1636,7 +1636,7 @@ public abstract class YTask extends YExternalNetElement {
         if (_splitType != _AND &&
                 (_splitType == _OR || _splitType == _XOR)) {
             int defaultCount = 0;
-            List postsetFlows = new ArrayList(getPostsetFlows());
+            List<YFlow> postsetFlows = new ArrayList<YFlow>(getPostsetFlows());
             Collections.sort(postsetFlows);
             long lastOrdering = Long.MIN_VALUE;
             for (Iterator iterator = postsetFlows.iterator(); iterator.hasNext();) {

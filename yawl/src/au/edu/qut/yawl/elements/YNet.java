@@ -218,8 +218,8 @@ public class YNet extends YDecomposition {
      * @return a List of error messages.
      */
     @Override
-    public List verify() {
-        List messages = new Vector();
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         messages.addAll(super.verify());
         if (this.getInputCondition() == null) {
             messages.add(new YVerificationMessage(this, this + " must contain input condition.",
