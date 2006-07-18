@@ -28,7 +28,7 @@ public class CopyTaskCommand implements Command{
 	
 	public CopyTaskCommand(EditorDataProxy source, EditorDataProxy targetNet) {
 		this.source = source;
-		this.target = target;
+		this.target = targetNet;
 	}
 
 	public void execute() {
@@ -39,4 +39,8 @@ public class CopyTaskCommand implements Command{
 	public void undo() {
 	}
 	
+    public void redo() {
+        throw new UnsupportedOperationException(
+                "nexus insert undo not yet implemented");
+    }
 }

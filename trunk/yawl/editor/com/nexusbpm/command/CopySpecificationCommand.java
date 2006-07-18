@@ -35,5 +35,9 @@ public class CopySpecificationCommand implements Command{
 	public void undo() {
 		
 	}
-	
+    
+    public void redo() {
+        throw new UnsupportedOperationException(
+                "nexus insert undo not yet implemented");
+    }
 }

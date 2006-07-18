@@ -72,4 +72,8 @@ public class RemoveTaskCommand implements Command{
 		throw new UnsupportedOperationException("undo remove task is not implemented yet");
 	}
 	
+    public void redo() {
+        throw new UnsupportedOperationException(
+                "nexus insert undo not yet implemented");
+    }
 }

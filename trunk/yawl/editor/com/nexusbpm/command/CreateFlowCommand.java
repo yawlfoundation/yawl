@@ -48,4 +48,9 @@ public class CreateFlowCommand implements Command{
 		targetElement.getPresetFlows().remove(createdFlow.getData());
 		source.getContext().remove(createdFlow);
 	}
+    
+    public void redo() {
+        throw new UnsupportedOperationException(
+                "nexus insert undo not yet implemented");
+    }
 }
