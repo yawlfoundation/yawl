@@ -9,12 +9,12 @@
 
 package au.edu.qut.yawl.exceptions;
 
+import java.io.IOException;
+
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
-import java.io.IOException;
 
 /**
  * 

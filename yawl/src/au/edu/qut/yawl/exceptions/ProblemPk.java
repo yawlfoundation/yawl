@@ -1,13 +1,12 @@
 package au.edu.qut.yawl.exceptions;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Embeddable;
 
-import au.edu.qut.yawl.persistence.PersistableObject;
-
 @Embeddable
-public class ProblemPk implements PersistableObject {
+public class ProblemPk implements Serializable {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

@@ -169,8 +169,6 @@ implements PropertyChangeListener {
 		boolean retval = false;
 		if (getProxy().getData() instanceof YExternalNetElement) 
 			retval = true;		
-		else
-			System.err.println(">>>>" + getProxy().getData().getClass().getName());
 		return retval;
 	}
 }

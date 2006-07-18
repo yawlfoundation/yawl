@@ -9,9 +9,9 @@
 
 package au.edu.qut.yawl.engine.domain;
 
-import au.edu.qut.yawl.elements.state.YIdentifier;
-
 import java.util.Arrays;
+
+import au.edu.qut.yawl.elements.state.YIdentifier;
 
 /**
  * 

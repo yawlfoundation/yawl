@@ -9,11 +9,9 @@
 
 package au.edu.qut.yawl.persistence.dao1;
 
-import java.util.Set;
+import java.io.Serializable;
 
-import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.PersistableObject;
 
 /**
  * Standard interface for defining a DAO object.  
@@ -22,9 +20,9 @@ import au.edu.qut.yawl.persistence.PersistableObject;
  * @created Oct 27, 2005
  */
 public interface Dao {
-	public void update(PersistableObject obj) throws YPersistenceException;
-	public void delete(PersistableObject obj) throws YPersistenceException;
-	public void create(PersistableObject obj) throws YPersistenceException;
+	public void update(Serializable obj) throws YPersistenceException;
+	public void delete(Serializable obj) throws YPersistenceException;
+	public void create(Serializable obj) throws YPersistenceException;
 	public void startTransaction() throws YPersistenceException;
 	public void commitTransaction() throws YPersistenceException;
 	public void rollbackTransaction() throws YPersistenceException;

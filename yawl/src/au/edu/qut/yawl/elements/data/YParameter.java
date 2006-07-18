@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.elements.data;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -31,7 +32,6 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
@@ -48,7 +48,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  */
 @Entity
 @DiscriminatorValue("parameter")
-public class YParameter extends YVariable implements PolymorphicPersistableObject  {
+public class YParameter extends YVariable implements Serializable  {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

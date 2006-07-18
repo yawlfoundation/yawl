@@ -1,5 +1,7 @@
 package au.edu.qut.yawl.elements;
 
+import java.io.Serializable;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,10 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
-
 @Entity
-public class KeyValue implements PolymorphicPersistableObject, Parented<YTask>{
+public class KeyValue implements Serializable, Parented<YTask>{
 
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The

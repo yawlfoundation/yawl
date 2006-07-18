@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.persistence.dao1;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,7 +20,6 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.YSpecFile;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.PersistableObject;
 
 /**
  * TransientDao is a Dao type that does not persist any data.  It does not have any
@@ -66,12 +66,12 @@ public class TransientDao extends YDao {
 	}
 
 
-	public void create( PersistableObject obj ) throws YPersistenceException {
+	public void create( Serializable obj ) throws YPersistenceException {
 		// TODO Auto-generated method stub
 	}
 
 
-	public void delete( PersistableObject obj ) throws YPersistenceException {
+	public void delete( Serializable obj ) throws YPersistenceException {
 		if (obj instanceof YWorkItem) {
 //			_idStringToWorkItemsMap.remove(((YWorkItem) obj).getIDString());
 		} else if (obj instanceof YSpecFile) {
@@ -92,7 +92,7 @@ public class TransientDao extends YDao {
 	}
 
 
-	public void update( PersistableObject obj ) throws YPersistenceException {
+	public void update( Serializable obj ) throws YPersistenceException {
 		// Nothing to do for non-persistent storage
 	}
 

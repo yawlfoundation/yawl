@@ -19,8 +19,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
-import au.edu.qut.yawl.persistence.PersistableObject;
-
 public class YSpecFile {
     String xml = "";
 

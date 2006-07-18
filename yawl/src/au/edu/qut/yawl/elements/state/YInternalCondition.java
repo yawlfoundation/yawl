@@ -9,14 +9,14 @@
 
 package au.edu.qut.yawl.elements.state;
 
+import java.io.Serializable;
+import java.util.List;
+
 import au.edu.qut.yawl.elements.YConditionInterface;
 import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
-
-import java.util.List;
 
 /**
  * 
@@ -25,7 +25,7 @@ import java.util.List;
  * Time: 10:17:37
  * 
  */
-public class YInternalCondition extends YNetElement implements YConditionInterface, PolymorphicPersistableObject {
+public class YInternalCondition extends YNetElement implements YConditionInterface, Serializable {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.elements;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +55,6 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
@@ -79,7 +79,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("decomposition")
-public class YDecomposition implements Parented<YSpecification>, Cloneable, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
+public class YDecomposition implements Parented<YSpecification>, Cloneable, YVerifiable, Serializable, ExtensionListContainer {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

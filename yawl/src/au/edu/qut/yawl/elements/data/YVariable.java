@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.elements.data;
 
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Vector;
@@ -35,7 +36,6 @@ import au.edu.qut.yawl.elements.Parented;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.YVerifiable;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -56,7 +56,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("variable")
-public class YVariable implements Comparable, Cloneable, YVerifiable, Parented<YDecomposition>, PolymorphicPersistableObject {
+public class YVariable implements Comparable, Cloneable, YVerifiable, Parented<YDecomposition>, Serializable {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
