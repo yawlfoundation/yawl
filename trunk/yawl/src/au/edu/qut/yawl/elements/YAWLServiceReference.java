@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.elements;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,7 +29,6 @@ import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.EngineFactory;
-import au.edu.qut.yawl.persistence.PersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
  /**
@@ -39,7 +39,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * 
  */
 @Entity
-public class YAWLServiceReference implements YVerifiable, PersistableObject {
+public class YAWLServiceReference implements YVerifiable, Serializable {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

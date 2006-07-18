@@ -12,10 +12,7 @@ public class TestJaxbMarshal extends XMLTestCase {
 	
 	public void assertComparison(String fileName) throws Exception {
 		String controlXml = StringProducerYAWL.getInstance().getXMLString(fileName, true); 
-//		String testXml= StringProducerRawFile.getInstance().getXMLString(fileName, true);
 		String testXml= StringProducerJaxb.getInstance().getXMLString(fileName, true);
-//		System.err.println(controlXml);
-//		System.out.println(testXml);
 		Diff diff = new Diff(controlXml, testXml);
 		assertXMLIdentical("comparing minimal", diff, diff.identical());
 		assertValidation(fileName);

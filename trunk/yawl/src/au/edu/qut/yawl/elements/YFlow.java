@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.elements;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,7 +24,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -33,7 +33,6 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.xml.sax.InputSource;
 
-import au.edu.qut.yawl.persistence.PersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
@@ -55,7 +54,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  *  @hibernate.class table="FLOW"
  */
 @Entity
-public class YFlow implements Comparable, PersistableObject, ExtensionListContainer {
+public class YFlow implements Comparable, Serializable, ExtensionListContainer {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -496,7 +495,6 @@ public class YFlow implements Comparable, PersistableObject, ExtensionListContai
 	public void setInternalExtensionsAsString(String extensions) {
 		_internalExtensions = new ArrayList<Element>();
 		if (extensions == null || extensions.length() == 0) return;
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		SAXBuilder sb = new SAXBuilder();
     	try {
 			Document d = sb.build(new InputSource(new StringReader("<fragment>" + extensions + "</fragment>")));

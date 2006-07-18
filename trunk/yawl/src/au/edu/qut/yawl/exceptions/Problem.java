@@ -9,14 +9,13 @@
 
 package au.edu.qut.yawl.exceptions;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-
-import au.edu.qut.yawl.persistence.PersistableObject;
 
 /**
  * 
@@ -27,7 +26,7 @@ import au.edu.qut.yawl.persistence.PersistableObject;
  */
 @Entity
 @IdClass(ProblemPk.class)
-public class Problem implements PersistableObject {
+public class Problem implements Serializable {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

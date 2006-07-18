@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +45,6 @@ import org.w3c.dom.Element;
 
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.persistence.PersistableObject;
 import au.edu.qut.yawl.persistence.jaxb.PersistenceHelper;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
 import au.edu.qut.yawl.unmarshal.SchemaForSchemaValidator;
@@ -67,7 +67,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * 
  */
 @Entity
-public class YSpecification implements Parented, Cloneable, YVerifiable, PersistableObject {
+public class YSpecification implements Parented, Cloneable, YVerifiable, Serializable {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -77,7 +77,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 	private static final long serialVersionUID = 2006030080l;
 	
 	private String _specURI;
-//	public YNet _rootNet;
     public List<YDecomposition> _decompositions = new ArrayList<YDecomposition>();
     protected Object any;
     private String _name;
@@ -127,18 +126,10 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
         _xmlToolsForYAWL = new XMLToolsForYAWL();
     }
     
-//    @OneToMany(mappedBy="parent",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
-//    @OnDelete(action=OnDeleteAction.CASCADE)
-//    public List<YDecomposition> getDBDecompositions() {
-//    	return _decompositions;
-//    }
-//
     @OneToMany(mappedBy="parent",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     public void setDecompositions(List<YDecomposition> set) {
 		this._decompositions = set;
-//		.clear();
-//		this._decompositions.addAll(set);
 	}
 
     @OneToMany(mappedBy="parent",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
@@ -147,7 +138,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     	return _decompositions;
     }
     
-    @Transient//OneToOne(cascade = {CascadeType.ALL})
+    @Transient
     public YNet getRootNet() {
         YNet retval = null;
         for (YDecomposition net: getDecompositions())
@@ -160,14 +151,12 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     }
 
 
-    @Transient//OneToOne(cascade = {CascadeType.ALL})
+    @Transient
     public void setRootNet(YNet rootNet) {
     	rootNet.setRootNet("true");
     	if (getRootNet() == null) {
     		getDecompositions().add(rootNet);
     	}
-//        this._rootNet = rootNet;
-//        setDecomposition(rootNet);
     }
 
 
@@ -634,18 +623,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
     public void setMetaData(YMetaData metaData) {
         _metaData = metaData;
     }
-
-	@SuppressWarnings({"UNUSED_SYMBOL"})
-    @Transient
-    private List<Element> getAny() {
-		return null;
-	}
-
-	@SuppressWarnings({"UNUSED_SYMBOL"})
-    @Transient
-	private void setAny(List<Element> nodes) {
-		PersistenceHelper.setAnyJaxb(this, nodes);
-	}
 
 	@Override
 	public Object clone() throws CloneNotSupportedException {

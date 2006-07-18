@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.elements.state;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +29,6 @@ import javax.persistence.Transient;
 
 import au.edu.qut.yawl.elements.YConditionInterface;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 
 /**
  * 
@@ -36,7 +36,7 @@ import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
  * 
  */
 @Entity
-public class YIdentifierBag implements PolymorphicPersistableObject{
+public class YIdentifierBag implements Serializable{
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

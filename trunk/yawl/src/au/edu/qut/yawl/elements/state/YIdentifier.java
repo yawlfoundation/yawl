@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.elements.state;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +33,6 @@ import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.logging.YawlLogServletInterface;
-import au.edu.qut.yawl.persistence.PersistableObject;
 
 /**
  * 
@@ -43,7 +43,7 @@ import au.edu.qut.yawl.persistence.PersistableObject;
  * 
  */
 @Entity
-public class YIdentifier implements PersistableObject {
+public class YIdentifier implements Serializable {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

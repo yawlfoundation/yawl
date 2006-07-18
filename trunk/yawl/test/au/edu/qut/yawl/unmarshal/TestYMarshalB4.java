@@ -140,8 +140,6 @@ System.out.println("marshalledSpecsString = " + marshalledSpecsString);
         assertEquals(origNet.getInputCondition().toXML(), copyNet.getInputCondition().toXML());
         assertEquals(origNet.getOutputCondition().toXML(), copyNet.getOutputCondition().toXML());
         assertEquals(origNet.getLocalVariables().toString(), copyNet.getLocalVariables().toString());
-System.err.println("\n\norigXML\n" + _originalXMLString);
-//System.out.println("\n\n_copyXMLString\n" + _copyXMLString);
         assertEquals(_originalXMLString, _copyXMLString);
     }
 

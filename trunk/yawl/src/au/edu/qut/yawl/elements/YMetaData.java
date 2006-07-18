@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.elements;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,8 +26,6 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.CollectionOfElements;
 
-import au.edu.qut.yawl.persistence.PersistableObject;
-
 /**
  * Holds the Specification Metadata
  *
@@ -41,7 +40,7 @@ import au.edu.qut.yawl.persistence.PersistableObject;
 @Entity
 @Table(name="ymetadata")
 
-public class YMetaData implements PersistableObject {
+public class YMetaData implements Serializable {
 	public static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
     /**

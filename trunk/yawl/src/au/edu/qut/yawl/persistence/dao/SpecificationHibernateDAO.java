@@ -48,7 +48,6 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 
 	private static SessionFactory sessionFactory;
 	private static AnnotationConfiguration cfg;
-	private static SpecificationHibernateDAO INSTANCE;
 	private static Session session;
 	private static Class[] classes = new Class[] {
 						KeyValue.class,

@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.elements;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +34,6 @@ import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -47,7 +47,6 @@ import org.xml.sax.InputSource;
 
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YDataValidationException;
-import au.edu.qut.yawl.persistence.PolymorphicPersistableObject;
 import au.edu.qut.yawl.unmarshal.XMLValidator;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -68,7 +67,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("external_net_element")
-public class YExternalNetElement extends YNetElement implements Parented<YNet>, YVerifiable, PolymorphicPersistableObject, ExtensionListContainer {
+public class YExternalNetElement extends YNetElement implements Parented<YNet>, YVerifiable, Serializable, ExtensionListContainer {
     protected String _name;
     protected String _documentation;
     public YNet _net;
@@ -566,7 +565,6 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
 	public void setInternalExtensionsAsString(String extensions) {
 		_internalExtensions = new ArrayList<Element>();
 		if (extensions == null || extensions.length() == 0) return;
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		SAXBuilder sb = new SAXBuilder();
     	try {
 			Document d = sb.build(new InputSource(new StringReader("<fragment>" + extensions + "</fragment>")));

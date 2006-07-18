@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.engine;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -51,7 +52,6 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.persistence.PersistableObject;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 
 /**
@@ -63,7 +63,7 @@ import au.edu.qut.yawl.util.JDOMConversionTools;
  * @hibernate.class table="RUNNER_STATES"
  */
 @Entity
-public class YNetRunner implements PersistableObject // extends Thread
+public class YNetRunner implements Serializable // extends Thread
 {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The

@@ -9,14 +9,14 @@
 
 package au.edu.qut.yawl.engine.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import au.edu.qut.yawl.persistence.PersistableObject;
-
 @Entity
-public class YCaseData implements PersistableObject {
+public class YCaseData implements Serializable {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.elements;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
 
@@ -24,7 +25,6 @@ import javax.persistence.Transient;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 
-import au.edu.qut.yawl.persistence.PersistableObject;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
@@ -40,7 +40,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * @hibernate.class table="MULTI_INSTANCE_ATTRIBUTES"
  */
 @Entity
-public class YMultiInstanceAttributes implements Cloneable, YVerifiable, PersistableObject  {
+public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Serializable  {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
