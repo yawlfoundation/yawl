@@ -9,16 +9,16 @@
 
 package au.edu.qut.yawl.persistence;
 
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import junit.framework.TestCase;
-
 import java.io.File;
 import java.io.IOException;
 
+import junit.framework.TestCase;
+
 import org.jdom.JDOMException;
+
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 
 /**
  * 
@@ -44,9 +44,8 @@ public class TestDataParsing extends TestCase {
             File file1 = new File(getClass().getResource("duplicateDataSpecification.xml").getFile());
 //the previous tests:
 //
-//            _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(
-//                    file1.getAbsolutePath()).get(0);
-            _badSpecification = StringProducerJaxb.getInstance().getSpecification("duplicateDataSpecification.xml", true);
+            _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(
+                    file1.getAbsolutePath()).get(0);
             _badSpecification.verify();
         } catch (Exception e) {
             d = e;
