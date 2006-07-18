@@ -84,11 +84,13 @@ public class YNet extends YDecomposition {
     private List<YVariable> _localVariables = new ArrayList<YVariable>();
     private YNet _clone;
 
+    @Transient
     public String getRootNet() {
     	String attribute = this.getAttribute("isRootNet");
         return Boolean.toString("true".equals(attribute));
     }
 
+    @Transient
     public void setRootNet(String isRootNet) {
     	this.setAttribute("isRootNet", isRootNet);
     }

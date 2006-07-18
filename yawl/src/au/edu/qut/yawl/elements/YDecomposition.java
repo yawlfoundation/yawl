@@ -35,14 +35,10 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
-import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Where;
@@ -218,13 +214,11 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
     }
 
     @OneToMany(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-//    @OnDelete(action=OnDeleteAction.CASCADE)
     public Map<String, String> getAttributes() {
         return _attributes;
     }
 
     @OneToMany(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-//    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setAttributes(Map<String, String> attributes) {
         _attributes = attributes;
     }
@@ -516,43 +510,50 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
         }
     }
 
-    @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="DataTypeName='inputParam'")
     public List<YParameter> getInputParameters() {
-    	List<YParameter> retval = new ArrayList<YParameter>();
-    	for(YParameter entry:_inputParameters) {
-    		retval.add(entry);
-    	}
-    	Collections.sort(retval);
-    	return retval;
+//    	List<YParameter> retval = new ArrayList<YParameter>();
+//    	for(YParameter entry:_inputParameters) {
+//    		retval.add(entry);
+//    	}
+//    	Collections.sort(retval);
+    	Collections.sort(_inputParameters);
+    	return _inputParameters;
 	}
-    @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="DataTypeName='inputParam'")
 	protected void setInputParameters(List<YParameter> inputParam) {
-		for (YParameter parm: inputParam) {
-			parm.setParent(this);
-			this._inputParameters.add(parm);
-		}
+    	_inputParameters = inputParam;
+//    	for (YParameter parm: inputParam) {
+//			parm.setParent(this);
+//			this._inputParameters.add(parm);
+//		}
 	}
 
-    @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="DataTypeName='outputParam'")
     public List<YParameter> getOutputParameters() {
-    	List<YParameter> retval = new ArrayList<YParameter>();
-    	for(YParameter entry:_outputParameters) {
-    		retval.add(entry);
-    	}
-    	return retval;
+    	Collections.sort(_outputParameters);
+//    	List<YParameter> retval = new ArrayList<YParameter>();
+//    	for(YParameter entry:_outputParameters) {
+//    		retval.add(entry);
+//    	}
+    	return _outputParameters;
 	}
 
+    @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @Where(clause="DataTypeName='outputParam'")
 	protected void setOutputParameters(List<YParameter> outputParam) {
-		for (YParameter parm: outputParam) {
-			parm.setParent(this);
-			this._outputParameters.add(parm);
-		}
+    	_outputParameters = outputParam;
+//    	for (YParameter parm: outputParam) {
+//			parm.setParent(this);
+//			this._outputParameters.add(parm);
+//		}
 	}
 
     @Column(name="extensions", length=32768)
@@ -573,8 +574,6 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
 		if (extensions == null || extensions.length() == 0) {
             return;
         }
-
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         SAXBuilder sb = new SAXBuilder();
         try {
             Document d = sb.build(new InputSource(new StringReader("<fragment>" + extensions + "</fragment>")));

@@ -677,8 +677,4 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Persist
 			}
 		}
 	}
-	
-	private String copyString(String source) {
-		return source == null ? null : new String(source);
-	}
 }
