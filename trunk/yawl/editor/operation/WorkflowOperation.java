@@ -203,10 +203,14 @@ public class WorkflowOperation {
 	 * Changes the existing input mapping in a task referred to by the target 
 	 * variable to refer to a variable from another task.
 	 * 
-	 * @param source
-	 * @param target
+	 * @param source variable
+	 * @param target variable
 	 */
 	public static void remapInputVariable(YVariable source, YVariable target) {
+		/*Is this potentially a mistake? Should we instead ADD the variable
+ 		  to the mapping set etc. and reference it dynamically from the 
+		  subsequent tasks?
+		*/
 		YTask mappingTask = getNexusTask(source);
 		YNet net = mappingTask.getParent();
 		String taskID = mappingTask.getID();

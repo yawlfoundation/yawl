@@ -470,15 +470,6 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer {
         return retval;
     }
 
-    private void setIsDefaultFlow(Object shouldBe) {
-    	_isDefaultFlow = true;
-    }
-    @Transient
-    private Object getIsDefaultFlow() {
-    	return _isDefaultFlow ? new Object() : null;
-    }
-
- 
     @Column(name="extensions", length=32768)
 	public String getInternalExtensionsAsString() {
 		if (_internalExtensions == null) return "";
@@ -506,21 +497,19 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer {
 				}
 			}
 		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	@Transient
-	public List getInternalExtensions() {
+	public List<Element> getInternalExtensions() {
 		return _internalExtensions;
 	}
 
 	@Transient
-	public void setInternalExtensions(List extensions) {
+	public void setInternalExtensions(List<Element> extensions) {
 		_internalExtensions = extensions;
 	}
 }

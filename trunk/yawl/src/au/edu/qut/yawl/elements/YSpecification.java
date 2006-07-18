@@ -41,11 +41,9 @@ import javax.persistence.Version;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.w3c.dom.Element;
 
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.persistence.jaxb.PersistenceHelper;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
 import au.edu.qut.yawl.unmarshal.SchemaForSchemaValidator;
 import au.edu.qut.yawl.util.YVerificationMessage;
