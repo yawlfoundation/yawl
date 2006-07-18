@@ -23,6 +23,7 @@ import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.data.YVariable;
 
 import com.nexusbpm.services.NexusServiceInfo;
 
@@ -89,21 +90,33 @@ public class CreateNexusComponent implements Command {
 		YOutputCondition outputCondition = new YOutputCondition("end", net);
 		outputCondition.setName("end");
 		net.setOutputCondition(outputCondition);
-
 		spec.getDecompositions().add(net);
 
-		CreateNexusComponent createNexusComponent = new CreateNexusComponent(
+		CreateNexusComponent jythonComponent = new CreateNexusComponent(
 				net, "quote of the day", "quote_of_the_day",
 				NexusServiceInfo.SERVICES[0]);
-		createNexusComponent.execute();
+		jythonComponent.execute();
 
+		CreateNexusComponent emailComponent = new CreateNexusComponent(
+				net, "email dean", "email_dean",
+				NexusServiceInfo.SERVICES[1]);
+		emailComponent.execute();
+
+		
 		YFlow flow = new YFlow(net.getInputCondition(),
-				createNexusComponent.task);
+				jythonComponent.task);
 		net.getInputCondition().setPostset(flow);
 
-		flow = new YFlow(createNexusComponent.task, net.getOutputCondition());
-		createNexusComponent.task.setPostset(flow);
+		flow = new YFlow(jythonComponent.task, emailComponent.task);
+		jythonComponent.task.setPostset(flow);
 
+		flow = new YFlow(emailComponent.task, net.getOutputCondition());
+		jythonComponent.task.setPostset(flow);
+
+		YVariable var1 = net.getLocalVariable("quote_of_the_day__output");
+		YVariable var2 = net.getLocalVariable("email_dean__body");
+		WorkflowOperation.remapInputVariable(var1, var2);
+		
 		SAXBuilder builder = new SAXBuilder();
 
 		try {

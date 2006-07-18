@@ -2,7 +2,7 @@ package com.nexusbpm;
 
 public class NexusWorkflow {
 	
-	public static final String NAME_SEPARATOR = "_";
+	public static final String NAME_SEPARATOR = "__";
 
 	public static final String VARTYPE_STRING = "string";
 

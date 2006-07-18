@@ -207,23 +207,16 @@ public class WorkflowOperation {
 	 * @param target variable
 	 */
 	public static void remapInputVariable(YVariable source, YVariable target) {
-		/*Is this potentially a mistake? Should we instead ADD the variable
- 		  to the mapping set etc. and reference it dynamically from the 
-		  subsequent tasks?
-		*/
-		YTask mappingTask = getNexusTask(source);
-		YNet net = mappingTask.getParent();
-		String taskID = mappingTask.getID();
+		YTask sourceTask = getNexusTask(source);
+		YTask targetTask = getNexusTask(target);
+		YNet net = sourceTask.getParent();
+		String sourceTaskId = sourceTask.getID();
 		String sourcevarName = getNexusSimpleVarName(source);
 		String targetvarName = getNexusSimpleVarName(target);
 
-		mappingTask.setDataBindingForInputParam(createInputBindingString(net,
-				targetvarName, taskID + NexusWorkflow.NAME_SEPARATOR
-						+ sourcevarName), sourcevarName);
-		//		mappingTask.setDataBindingForOutputExpression(createOutputBindingString(
-		//				net, taskID, taskID + NexusWorkflow.NAME_SEPARATOR
-		//						+ sourcevarName, sourcevarName), taskID
-		//				+ NexusWorkflow.NAME_SEPARATOR + sourcevarName);
+		targetTask.setDataBindingForInputParam(createInputBindingString(net,
+				targetvarName, sourceTaskId + NexusWorkflow.NAME_SEPARATOR
+						+ sourcevarName), targetvarName);
 	}
 
 	/**
@@ -238,7 +231,7 @@ public class WorkflowOperation {
 		YNet net = (YNet) var.getParent();
 		int separatorAt = var.getName().indexOf(NexusWorkflow.NAME_SEPARATOR);
 		if (separatorAt != -1) {
-			String id = var.getName().substring(0, separatorAt - 1);
+			String id = var.getName().substring(0, separatorAt);
 			retval = (YTask) net.getNetElement(id);
 		}
 		return retval;
