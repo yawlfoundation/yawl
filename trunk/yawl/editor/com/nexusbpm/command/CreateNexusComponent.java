@@ -7,9 +7,7 @@
  */
 package com.nexusbpm.command;
 
-import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
 
 import operation.WorkflowOperation;
 
@@ -19,32 +17,24 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.data.YParameter;
-import au.edu.qut.yawl.elements.data.YVariable;
 
-import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.services.NexusServiceInfo;
-import com.nexusbpm.services.data.NexusServiceData;
 
 /**
- * a few conventions
+ * The CreateNexusComponent creates the necessary net variables,
+ * task, default task mappings, and Nexus gateway to correctly 
+ * call a Nexus service.
  * 
- * gateways named as: net.getid() + ".." + task.getid() net vars named as:
- * task.getid() + ".." + var.getName()
- * 
- * 
+ * @author Matthew Sandoz
+ *
  */
 public class CreateNexusComponent implements Command {
-
-	/** constant used when concatenating ids to form a new id */
 
 	private YNet net;
 
@@ -83,6 +73,11 @@ public class CreateNexusComponent implements Command {
 				"nexus insert undo not yet implemented");
 	}
 
+	/**
+	 * 
+	 * @todo move this to a test class...
+	 * @param parms
+	 */
 	public static void main(String[] parms) {
 		YSpecification spec = new YSpecification("specification.xml");
 		YNet net = new YNet("jython_network", spec);

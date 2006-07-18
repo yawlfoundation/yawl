@@ -1,10 +1,14 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * individuals and organisations who are commited to improving workflow technology.
+ *
+ */
 package com.nexusbpm.command;
 
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Collection;
-
-import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,8 +25,17 @@ import au.edu.qut.yawl.persistence.managed.DataProxy;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
+/**
+ * This class should be refactored and perhaps moved to the operation package.
+ * 
+ * It includes utility methods for some of the operations we need to invoke 
+ * frequently on the YAWL objects.
+ * 
+ * @todo break up and move the objects around. some into ops some into elements.
+ * @author Matthew Sandoz
+ *
+ */
 public class EditorCommand {
-//id like to move some of the utility of these to the yspec, util context or dao classes
 	private static final Log LOG = LogFactory.getLog(EditorCommand.class);
 		
 	private static URI joinUris(URI parent, URI child) {
