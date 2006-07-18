@@ -46,7 +46,6 @@ public class EmailSenderEditor extends ComponentEditor {
 	 * @see ComponentEditor#initializeUI()
 	 */
 	public JComponent initializeUI() throws EditorException {
-        new Exception("EmailSenderEditor.initializeUI").fillInStackTrace().printStackTrace();
 
 		String to_addresses = data.getPlain( "toAddress" );
 		if( to_addresses == null ) to_addresses = "";
