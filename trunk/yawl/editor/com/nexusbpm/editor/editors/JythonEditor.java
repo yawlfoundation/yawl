@@ -31,7 +31,6 @@ public class JythonEditor extends ComponentEditor {
 	 * @see ComponentEditor#initializeUI()
 	 */
 	public JComponent initializeUI() throws EditorException {
-        new Exception("JythonEditor.initializeUI").fillInStackTrace().printStackTrace();
 
 		_codeEditor = new JEditTextArea();
 		_codeEditor.setDocument( new SyntaxDocument() );
