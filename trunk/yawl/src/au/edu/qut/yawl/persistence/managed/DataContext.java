@@ -31,7 +31,6 @@ import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.dao.DAO;
-import au.edu.qut.yawl.persistence.dao.SpecificationHibernateDAO;
 import au.edu.qut.yawl.util.HashBag;
 
 
@@ -71,16 +70,20 @@ public class DataContext {
      */
     private DAO<YSpecification> dao;
     private Class dataProxyClass = DataProxy.class;
+    /** Maps proxy objects to their data. */
     private Map<DataProxy, Object> dataMap = new HashMap<DataProxy, Object>();
+    /** Maps data objects to their proxies. */
     private Map<Object, DataProxy> proxyMap = new HashMap<Object, DataProxy>();
     private HashBag<DataProxy> hierarchy;    
     
-    /* (non-Javadoc)
+    /**
+     * Returns the data proxy for the given object. If there is no proxy for that
+     * object in this data context then one will be created.
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getDataProxy(java.lang.Object)
 	 */
     public DataProxy getDataProxy(Object dataObject, VetoableChangeListener listener) {
         if (!proxyMap.containsKey(dataObject)) {
-        	newObject(dataObject, listener);
+        	createProxy(dataObject, listener);
         }
         return proxyMap.get(dataObject);
     }
@@ -94,49 +97,37 @@ public class DataContext {
         return dataMap.get(proxyObject);
     }
     
-    /* (non-Javadoc)
-	 * @see au.edu.qut.yawl.persistence.managed.DataContext#newObject(Type, java.beans.VetoableChangeListener)
+    /**
+     * Creates a data proxy for the given data object, assuming that the
+     * object does not already have a proxy.
 	 */
-    private DataProxy newObject(Object o, VetoableChangeListener listener) {
+    private DataProxy createProxy(Object object, VetoableChangeListener listener) {
 		try {
-			DataProxy dp = (DataProxy) dataProxyClass.newInstance();
-			dp.setContext(this);
-			if (o instanceof YExternalNetElement) {
-				YExternalNetElement ne = (YExternalNetElement) o;
-				if (ne.getName() == null || ne.getName().length() == 0) {
-					dp.setLabel(ne.getID());
+			DataProxy dataProxy = (DataProxy) dataProxyClass.newInstance();
+			dataProxy.setContext(this);
+            
+			if (object instanceof YExternalNetElement) {
+				YExternalNetElement netElement = (YExternalNetElement) object;
+				if (netElement.getName() == null || netElement.getName().length() == 0) {
+					dataProxy.setLabel(netElement.getID());
 				} else {
-					dp.setLabel(ne.getName());
+					dataProxy.setLabel(netElement.getName());
 				}
 			} else {
-				dp.setLabel(o.toString());
+				dataProxy.setLabel(object.toString());
 			}
-			if (listener != null) dp.addVetoableChangeListener(listener); 
-			dataMap.put(dp, o);
-			proxyMap.put(o, dp);
-			return dp;
+            
+			if (listener != null) dataProxy.addVetoableChangeListener(listener); 
+			attachProxy(dataProxy, object);
+			return dataProxy;
 		} catch (Exception e) {return null;//this can never happen
 		}
-    }
-    /* (non-Javadoc)
-	 * @see au.edu.qut.yawl.persistence.managed.DataContext#newObject(Type, java.beans.VetoableChangeListener)
-	 */
-    public DataProxy newObject(Class type, VetoableChangeListener listener) {
-    	DataProxy retval = null;
-    	try {
-    		Object o = type.newInstance();
-    		retval = this.newObject(o, listener);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
-		return retval;
     }
 
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#get(java.io.Serializable)
 	 */
+    // TODO refactor this
     public DataProxy get(Serializable key, VetoableChangeListener listener) {
     	YSpecification spec = dao.retrieve(key);
     	if (spec != null) this.generateProxies(spec);
@@ -146,32 +137,60 @@ public class DataContext {
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#put(Type)
 	 */
-    public void put(DataProxy dp) {
-    	YSpecification spec = (YSpecification)dp.getData();
-		dataMap.put(dp, spec);
-		System.out.println("putting " + dp.getData());
+    // TODO refactor this
+    public void put(DataProxy dataProxy) {
+    	YSpecification spec = (YSpecification)dataProxy.getData();
+		dataMap.put(dataProxy, spec);
+		System.out.println("putting " + dataProxy.getData());
 		if (spec != null) {
-	    	dao.save((YSpecification) dataMap.get(dp));
-			proxyMap.put(dp.getData(), dp);
+	    	dao.save((YSpecification) dataMap.get(dataProxy));
+			proxyMap.put(dataProxy.getData(), dataProxy);
 		}
-
     }
     
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#remove(Type)
 	 */
-    public void remove(DataProxy t) {
-    	Object data = dataMap.get(t);
+    // TODO refactor this
+    public void remove(DataProxy dataProxy) {
+    	Object data = dataMap.get(dataProxy);
     	dao.delete((YSpecification) data);
-    	dataMap.remove(t);
+    	dataMap.remove(dataProxy);
     	proxyMap.remove(data);
     }
     
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getKeyFor(Type)
 	 */
+    // TODO refactor this (maybe?)
     public Serializable getKeyFor(DataProxy t) {
     	return dao.getKey((YSpecification) dataMap.get(t));
+    }
+    
+    /**
+     * Attaches the given proxy and the object that it's a proxy for back to
+     * the data context. It is necessary to pass both the proxy and the
+     * object because the proxy delegates retrieving its data to the context
+     * (this class) which won't have its data until after it's attached.
+     * TODO should that get refactored? shouldn't a proxy still have access to the data even after detachment?
+     * @param dataProxy the proxy to add to the context.
+     * @param object the data object that the proxy is a proxy for.
+     */
+    public void attachProxy(DataProxy dataProxy, Object object) {
+        dataProxy.setContext( this );
+        dataMap.put(dataProxy, object);
+        proxyMap.put(object, dataProxy);
+    }
+    
+    /**
+     * Detaches a data proxy from the context.
+     * @param dataProxy the proxy object to detach.
+     */
+    public void detachProxy(DataProxy dataProxy) {
+        Object object = dataProxy.getData();
+        dataMap.remove(dataProxy);
+        proxyMap.remove(object);
+        dataProxy.setContext( null );
     }
    
     public Set<DataProxy> getChildren(DataProxy parent, boolean forceUpdate) {
@@ -183,7 +202,7 @@ public class DataContext {
     				hierarchy.put(parent, getDataProxy(o, null));
     			}
     			else {
-    				DataProxy dp = newObject(o, null);
+    				DataProxy dp = createProxy(o, null);
         			hierarchy.put(parent, dp);
     			}
     		}
@@ -227,11 +246,11 @@ public class DataContext {
     public void generateProxies(YSpecification spec) {
 		assert spec != null;
 		removeConditions(spec);
-    	DataProxy specProxy = newObject(spec, null);
+    	DataProxy specProxy = createProxy(spec, null);
     	specProxy.setLabel(spec.getName());
     	List<YDecomposition> decomps = spec.getDecompositions();
     	for (YDecomposition decomp: decomps) {
-    		DataProxy decompProxy = newObject(decomp, null);
+    		DataProxy decompProxy = createProxy(decomp, null);
     		if (decomp.getName() != null && decomp.getName().length() != 0) {
     			decompProxy.setLabel(decomp.getName());
     		} else {
@@ -241,7 +260,7 @@ public class DataContext {
     		if (decomp instanceof YNet) {
     			YNet net = (YNet) decomp;
     			for(YExternalNetElement yene: net.getNetElements()) {
-    				DataProxy netElementProxy = newObject(yene, null);
+    				DataProxy netElementProxy = createProxy(yene, null);
     				if (findType(yene) == Type.CONDITION) {
     					LOG.error(yene.getClass().getName());
     					netElementProxy.setLabel("{connector}");
@@ -262,7 +281,7 @@ public class DataContext {
     			for(YExternalNetElement yene: net.getNetElements()) {
         			Collection<YFlow> flows = yene.getPostsetFlows();
     				for (YFlow flow: flows) {
-    					DataProxy flowProxy = newObject(flow, null);
+    					DataProxy flowProxy = createProxy(flow, null);
     					String to;
         				if (findType(flow.getNextElement()) == Type.CONDITION) {
         					to = "to connector";
@@ -274,7 +293,7 @@ public class DataContext {
     				}
     				flows = yene.getPresetFlows();
     				for (YFlow flow: flows) {
-    					DataProxy flowProxy = newObject(flow, null);
+    					DataProxy flowProxy = createProxy(flow, null);
     					String from;
         				if (findType(flow.getPriorElement()) == Type.CONDITION) {
         					from = "from connector";
