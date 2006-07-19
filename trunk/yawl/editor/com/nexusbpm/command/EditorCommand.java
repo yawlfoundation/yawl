@@ -62,7 +62,7 @@ public class EditorCommand {
 			URI desturi = joinUris(new URI(dataroot), new URI(spec.getID()));
 			newSpec.setID(desturi.toASCIIString());
 			DataProxy dp = targetDataContext.getDataProxy(newSpec, null);
-			targetDataContext.put(dp);
+			targetDataContext.save(dp);
 			LOG.info("Copying specification " + spec.getID() + " to " + newSpec.getID());
 			targetDataContext.getChildren(target.getProxy(), true);
 			((SharedNodeTreeModel)target.getTreeModel()).reload(target);

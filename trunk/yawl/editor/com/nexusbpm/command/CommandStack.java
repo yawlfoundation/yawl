@@ -3,20 +3,16 @@ package com.nexusbpm.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nexusbpm.editor.exception.EditorException;
-
 /**
  * This is the list of commands that have been executed via the Capsela client,
  * allowing for undoing of specific actions, as well as redoing them once they
  * have been undone.
  * 
- * TODO ensure threading issues are taken care of.
- * 
  * @author Daniel Gredler
  * @author Nathan Rose
  * @see Command
  */
-public class CommandStack {
+class CommandStack {
 	/**
      * The commands which have been executed thus far.
      */
@@ -52,44 +48,32 @@ public class CommandStack {
     /**
      * Undoes the previous command.
      * 
-     * @throws EditorException if the undo operation fails.
+     * @throws Exception if the undo operation fails.
      */
-    public void undoLastCommand() throws EditorException {
+    public void undoLastCommand() throws Exception {
         if( lastExecuted >= 0 ) {
-            try {
-                Command cmd = commands.get( lastExecuted );
-                cmd.undo();
-                lastExecuted--;
-            }
-            catch( Exception e ) {
-                throw new EditorException( "Exception encountered while undoing the last command!", e );
-            }
+            Command cmd = commands.get( lastExecuted );
+            cmd.undo();
+            lastExecuted--;
         }
         else {
-            throw new EditorException( "Cannot undo because there are no more commands to undo!" );
+            throw new Exception( "Cannot undo because there are no more commands to undo!" );
         }
     }
 
     /**
      * Redoes the next command.
      * 
-     * @throws EditorException if the command fails to execute.
+     * @throws Exception if the command fails to execute.
      */
-    public void redoNextCommand() throws EditorException {
+    public void redoNextCommand() throws Exception {
         if( lastExecuted < commands.size() - 1 ) {
-            int oldLastExecuted = lastExecuted;
-            try {
-                lastExecuted++;
-                Command cmd = (Command) commands.get( lastExecuted );
-                cmd.execute();
-            }
-            catch( Exception e ) {
-                lastExecuted = oldLastExecuted;
-                throw new EditorException( "Exception encountered while redoing the next command!", e );
-            }
+            Command cmd = (Command) commands.get( lastExecuted + 1 );
+            cmd.execute();
+            lastExecuted++;
         }
         else {
-            throw new EditorException( "Cannot redo because there are no more commands to redo!" );
+            throw new Exception( "Cannot redo because there are no more commands to redo!" );
         }
     }
 
@@ -97,15 +81,10 @@ public class CommandStack {
      * Executes the specified command and adds it to the command stack.
      * 
      * @param cmd the command to execute
-     * @throws EditorException if the command fails to execute.
+     * @throws Exception if the command fails to execute.
      */
-    public void executeCommand( Command cmd ) throws EditorException {
-        try {
-            cmd.execute();
-        }
-        catch( Exception e ) {
-            throw new EditorException( "Exception encountered while executing the command!", e );
-        }
+    public void executeCommand( Command cmd ) throws Exception {
+        cmd.execute();
         
         lastExecuted++;
         while( commands.size() > lastExecuted ) {

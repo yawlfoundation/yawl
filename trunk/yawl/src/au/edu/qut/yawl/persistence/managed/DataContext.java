@@ -124,36 +124,35 @@ public class DataContext {
 		}
     }
 
-    /* (non-Javadoc)
-	 * @see au.edu.qut.yawl.persistence.managed.DataContext#get(java.io.Serializable)
+    /**
+	 * Retrieves the specification with the given key from the DAO and
+     * generates proxies for the specification and its children.
 	 */
-    // TODO refactor this
-    public DataProxy get(Serializable key, VetoableChangeListener listener) {
+    public DataProxy retrieve(Serializable key, VetoableChangeListener listener) {
     	YSpecification spec = dao.retrieve(key);
     	if (spec != null) this.generateProxies(spec);
     	return getDataProxy(spec, listener);
     }
     
-    /* (non-Javadoc)
-	 * @see au.edu.qut.yawl.persistence.managed.DataContext#put(Type)
+    /**
+     * Tells the DAO to save the object that the proxy is a proxy for,
+     * if the proxy is in the context.
 	 */
-    // TODO refactor this
-    public void put(DataProxy dataProxy) {
-    	YSpecification spec = (YSpecification)dataProxy.getData();
-		dataMap.put(dataProxy, spec);
-		System.out.println("putting " + dataProxy.getData());
+    public void save(DataProxy dataProxy) {
+    	YSpecification spec = (YSpecification) getData(dataProxy);
+		System.out.println("saving " + spec);
+        
 		if (spec != null) {
 	    	dao.save((YSpecification) dataMap.get(dataProxy));
-			proxyMap.put(dataProxy.getData(), dataProxy);
 		}
     }
     
-    /* (non-Javadoc)
-	 * @see au.edu.qut.yawl.persistence.managed.DataContext#remove(Type)
+    /**
+	 * Tells the DAO to delete the object that the proxy is a proxy for
+     * and removes the proxy and data from the context.
 	 */
-    // TODO refactor this
-    public void remove(DataProxy dataProxy) {
-    	Object data = dataMap.get(dataProxy);
+    public void delete(DataProxy dataProxy) {
+    	Object data = getData(dataProxy);
     	dao.delete((YSpecification) data);
     	dataMap.remove(dataProxy);
     	proxyMap.remove(data);
@@ -162,7 +161,6 @@ public class DataContext {
     /* (non-Javadoc)
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getKeyFor(Type)
 	 */
-    // TODO refactor this (maybe?)
     public Serializable getKeyFor(DataProxy t) {
     	return dao.getKey((YSpecification) dataMap.get(t));
     }
@@ -172,7 +170,6 @@ public class DataContext {
      * the data context. It is necessary to pass both the proxy and the
      * object because the proxy delegates retrieving its data to the context
      * (this class) which won't have its data until after it's attached.
-     * TODO should that get refactored? shouldn't a proxy still have access to the data even after detachment?
      * @param dataProxy the proxy to add to the context.
      * @param object the data object that the proxy is a proxy for.
      */

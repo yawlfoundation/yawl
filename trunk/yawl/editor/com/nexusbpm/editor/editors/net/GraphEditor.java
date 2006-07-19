@@ -428,7 +428,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 		DataContext dc = _flowproxy.getContext();
 		DataContext s;
 		YSpecification spec = ((YNet)_flowproxy.getData()).getParent();
-		dc.put(dc.getDataProxy(spec, null));
+		dc.save(dc.getDataProxy(spec, null));
 	
 		throw new RuntimeException("save all the position/bounds for all cell objects in graph");
 		//		if( !_isInstance ) {
