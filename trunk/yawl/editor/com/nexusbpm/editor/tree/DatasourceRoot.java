@@ -8,11 +8,13 @@
 
 package com.nexusbpm.editor.tree;
 
+import au.edu.qut.yawl.elements.Parented;
+
 /**
  * @author Matthew Sandoz
  *
  */
-public class DatasourceRoot {
+public class DatasourceRoot implements Parented<Object> {
 
 	private Object location;
 	public DatasourceRoot(Object location) {this.location = location;}
@@ -24,4 +26,9 @@ public class DatasourceRoot {
 		this.location = location;
 	}
 	public String toString() { return location.toString();}
+    
+    public Object getParent() {
+        return null;
+    }
+    public void setParent( Object t ) {}
 }

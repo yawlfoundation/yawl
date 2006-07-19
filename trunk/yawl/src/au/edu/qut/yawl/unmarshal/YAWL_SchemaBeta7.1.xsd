@@ -382,6 +382,7 @@
 					</xs:element>
 				</xs:sequence>
 				<!-- Extended Attributes (AJH) -->
+                <!-- todo Lachlan reccomendation: please merge this with the 'extension' element by IHG --> 
                 <xs:anyAttribute processContents="skip"/>
 			</xs:extension>
 		</xs:complexContent>

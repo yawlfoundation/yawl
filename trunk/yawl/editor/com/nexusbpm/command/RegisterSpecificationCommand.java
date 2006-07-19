@@ -7,11 +7,14 @@
  */
 package com.nexusbpm.command;
 
-import operation.VisitSpecificationOperation;
-import operation.VisitSpecificationOperation.Visitor;
+import java.util.HashMap;
+import java.util.Map;
+
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.util.VisitSpecificationOperation;
+import au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
@@ -26,6 +29,7 @@ public class RegisterSpecificationCommand extends AbstractCommand{
 
 	private EditorDataProxy parent;
 	private YSpecification spec;
+    Map<Object, DataProxy> map = new HashMap<Object, DataProxy>();
 	
 	public RegisterSpecificationCommand(EditorDataProxy parent, YSpecification spec) {
 		this.spec = spec;
@@ -44,10 +48,24 @@ public class RegisterSpecificationCommand extends AbstractCommand{
 
 	@Override
 	protected void perform() throws Exception {
-        parent.getContext().getDataProxy( spec, null );
+        VisitSpecificationOperation.visitSpecification(spec, new CreateVisitorImpl(parent));
 	}
 
-	class AttachVisitorImpl implements Visitor {
+    class CreateVisitorImpl implements Visitor {
+        DataProxy top;
+
+        public CreateVisitorImpl(DataProxy top) {
+            this.top = top;
+        }
+
+        public void visit(Object child, String childLabel) {
+            DataContext context = top.getContext();
+            DataProxy childProxy = context.createProxy(child, null);
+            childProxy.setLabel(childLabel);
+            RegisterSpecificationCommand.this.map.put(child, childProxy);
+        }
+    }
+    class AttachVisitorImpl implements Visitor {
 		DataProxy top;
 
 		public AttachVisitorImpl(DataProxy top) {
@@ -56,9 +74,9 @@ public class RegisterSpecificationCommand extends AbstractCommand{
 
 		public void visit(Object child, String childLabel) {
 			DataContext context = top.getContext();
-			DataProxy childProxy = context.getDataProxy(child, null);
+            DataProxy childProxy = RegisterSpecificationCommand.this.map.get(child);
+//			DataProxy childProxy = context.getDataProxy(child, null);
 			context.attachProxy(childProxy, child);
-			childProxy.setLabel(childLabel);
 		}
 	}
 	class DetachVisitorImpl implements Visitor {

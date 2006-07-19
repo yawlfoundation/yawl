@@ -81,6 +81,6 @@ public class CreateConditionCommand extends AbstractCommand {
             // TODO do we need to URI encode the label when setting it as the ID?
             condition = WorkflowOperation.createCondition( label.replaceAll( " ", "_" ), label );
         }
-        conditionProxy = context.getDataProxy( condition, null );
+        conditionProxy = context.createProxy( condition, null );
     }
 }

@@ -1,0 +1,10 @@
+<!-- START SNIPPET: services -->
+<beans xmlns="http://xfire.codehaus.org/config/1.0">
+  <service>
+    <name>EmailSenderService</name>
+    <namespace>http://www.citi.qut.edu.au/yawl</namespace>
+    <serviceClass>com.nexusbpm.services.email.EmailSenderService</serviceClass>
+    <serviceFactory>org.codehaus.xfire.jaxb2.JaxbServiceFactory</serviceFactory>
+  </service>
+</beans>
+<!-- END SNIPPET: services -->
