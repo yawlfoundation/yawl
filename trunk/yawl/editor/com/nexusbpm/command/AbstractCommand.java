@@ -11,7 +11,7 @@ public abstract class AbstractCommand implements Command {
     /**
      * @see com.nexusbpm.command.Command#execute()
      */
-    public final void execute() {
+    public final void execute() throws Exception {
         perform();
         attach();
     }
@@ -19,14 +19,14 @@ public abstract class AbstractCommand implements Command {
     /**
      * @see com.nexusbpm.command.Command#redo()
      */
-    public final void redo() {
+    public final void redo() throws Exception {
         attach();
     }
     
     /**
      * @see com.nexusbpm.command.Command#undo()
      */
-    public final void undo() {
+    public final void undo() throws Exception {
         if( supportsUndo() ) {
             detach();
         }
@@ -42,7 +42,7 @@ public abstract class AbstractCommand implements Command {
      * TODO is this exactly what needs to be done?
      * TODO are proxy objects created here or in attach? (probly depends on refactorings of DataContext)
      */
-    protected abstract void perform();
+    protected abstract void perform() throws Exception;
     
     /**
      * Attaches the results of the command to the data context and has the
@@ -50,14 +50,14 @@ public abstract class AbstractCommand implements Command {
      * TODO how would there be any listeners when the command is first executed? or will this only be needed for redo?
      * TODO is this exactly what needs to be done? 
      */
-    protected abstract void attach();
+    protected abstract void attach() throws Exception;
     
     /**
      * Removes the results of the command from the data context and has the
      * proxy notify its listeners that changes were made.
      * TODO is this exactly what needs to be done?
      */
-    protected abstract void detach();
+    protected abstract void detach() throws Exception;
     
     /**
      * Default behavior is to support undo, but if a particular command does not
