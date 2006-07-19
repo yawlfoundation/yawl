@@ -1446,25 +1446,25 @@ public abstract class YTask extends YExternalNetElement {
         return expression;
     }
 
-    @OneToOne(cascade={CascadeType.ALL})
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     public YDecomposition getDecompositionPrototype() {
     	return _decompositionPrototype;    	
     }
 
-    @OneToOne(cascade={CascadeType.ALL})
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     public void setDecompositionPrototype(YDecomposition decomposition) {
-    	if (decomposition == null) {return;} 
+//    	if (decomposition == null) {return;} 
     	_decompositionPrototype = decomposition;
         /**
          * AJH: Check if this task is to perform outbound schema validation. This is currently configured
          *      via the tasks UI MetaData.
          */
-        String attrVal = decomposition.getAttributes().get(PERFORM_OUTBOUND_SCHEMA_VALIDATION);
-        if("TRUE".equalsIgnoreCase(attrVal)) {
-            setSkipOutboundSchemaChecks(true);
-        }
+//        String attrVal = decomposition.getAttributes().get(PERFORM_OUTBOUND_SCHEMA_VALIDATION);
+//        if("TRUE".equalsIgnoreCase(attrVal)) {
+//            setSkipOutboundSchemaChecks(true);
+//        }
     }
 
     /**
