@@ -8,17 +8,20 @@
 package operation;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 
 import com.nexusbpm.NexusWorkflow;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.services.NexusServiceInfo;
 import com.nexusbpm.services.data.NexusServiceData;
 
@@ -27,9 +30,35 @@ import com.nexusbpm.services.data.NexusServiceData;
  * YAWL objects. It holds the basic building blocks for the editor commands.
  * 
  * @author Matthew Sandoz
- *
+ * @author Nathan Rose
  */
 public class WorkflowOperation {
+    /**
+     * Creates a workflow under the given parent "folder."
+     * @param parent a proxy for the parent "folder" where the specification will be stored,
+     *               which may be a folder or a virtualization of a folder depending on the
+     *               data context.
+     * @param name the name to give the specification.
+     * @return the newly created specification.
+     * @throws Exception if the proxy to the parent cannot be converted into a path (shouldn't
+     *                   happen).
+     */
+    public static YSpecification createSpecification(EditorDataProxy parent, String name)
+    throws Exception {
+        YSpecification spec = null;
+        
+        URI u = new URI( parent.getData().toString() );
+        spec = new YSpecification(
+                new URI(
+                        u.getScheme(),
+                        u.getAuthority(),
+                        u.getPath() + "/" + name,
+                        null,
+                        null ).toString() );
+        spec.setName( name );
+        
+        return spec;
+    }
 
 	/**
 	 * Creates a Nexus workflow task in the given net. Provides all default 

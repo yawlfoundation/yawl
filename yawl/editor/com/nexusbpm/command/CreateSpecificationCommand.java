@@ -7,8 +7,7 @@
  */
 package com.nexusbpm.command;
 
-import java.net.URI;
-
+import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -39,46 +38,26 @@ public class CreateSpecificationCommand extends AbstractCommand {
      * @see com.nexusbpm.command.AbstractCommand#attach()
      */
     @Override
-    protected void attach() {
+    protected void attach() throws Exception {
         context.attachProxy( specProxy, specification );
+        context.save( specProxy );
     }
     
     /**
      * @see com.nexusbpm.command.AbstractCommand#detach()
      */
     @Override
-    protected void detach() { 
-        context.detachProxy( specProxy );
+    protected void detach() throws Exception {
+        context.delete( specProxy );
     }
     
     /**
      * @see com.nexusbpm.command.AbstractCommand#perform()
      */
     @Override
-    protected void perform() {
-        specification = createSpecification( parent, specName );
+    protected void perform() throws Exception {
+        specification = WorkflowOperation.createSpecification( parent, specName );
         context.generateProxies( specification );
         specProxy = context.getDataProxy( specification, null );
-    }
-    
-    private YSpecification createSpecification(EditorDataProxy parent, String name) {
-        
-        YSpecification spec = null;
-        try {
-            URI u = new URI( parent.getData().toString() );
-            spec = new YSpecification((
-                    new URI(
-                            u.getScheme(),
-                            u.getAuthority(),
-                            u.getPath() + "/" + name,
-                            null,
-                            null
-                            )).toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        spec.setName(name);
-        
-        return spec;
     }
 }
