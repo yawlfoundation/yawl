@@ -46,7 +46,7 @@ public class CreateFlowCommand implements Command{
 		YExternalNetElement targetElement = (YExternalNetElement) target.getData();
 		sourceElement.getPostsetFlows().remove(createdFlow.getData());
 		targetElement.getPresetFlows().remove(createdFlow.getData());
-		source.getContext().remove(createdFlow);
+		source.getContext().delete(createdFlow);
 	}
     
     public void redo() {

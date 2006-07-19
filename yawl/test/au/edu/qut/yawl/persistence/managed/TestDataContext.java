@@ -61,8 +61,8 @@ public class TestDataContext extends TestCase implements VetoableChangeListener{
 		assertEquals(lastEvent.getPropertyName(), "name");
 		assertEquals(lastEvent.getOldValue(), "bTest");
 		assertEquals(lastEvent.getNewValue(), "aNewName");
-		dc.put(dp);
-		dc.remove(dp);
+		dc.save(dp);
+		dc.delete(dp);
 		try {
 			dc.getKeyFor(dp2);
 			fail("Should have thrown an exception");
@@ -74,7 +74,7 @@ public class TestDataContext extends TestCase implements VetoableChangeListener{
 		spec.setName(name);
 		spec.setID(uri);
 		DataProxy<YSpecification> dp = dc.getDataProxy(spec, this);
-		dc.put(dp);
+		dc.save(dp);
 		return dp;
 	}
 	

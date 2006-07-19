@@ -39,7 +39,7 @@ public class RemoveNetCommand implements Command{
 			spec.setRootNet(null);
 		}
 		decomps.remove(net);
-		netToRemove.getContext().remove(netToRemove);
+		netToRemove.getContext().delete(netToRemove);
 		for (YDecomposition decomp: decomps) {
 			if (decomp instanceof YNet) {
 				net = (YNet) decomp;

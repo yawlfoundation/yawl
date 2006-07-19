@@ -32,7 +32,7 @@ public class RemoveFlowCommand implements Command{
 	public void execute() {
 		YFlow flow = (YFlow) flowToRemove.getData();
 		YExternalNetElement.removeFlow(flow);
-		flowToRemove.getContext().remove(flowToRemove);
+		flowToRemove.getContext().delete(flowToRemove);
 	}
 	
 	public void undo() {
