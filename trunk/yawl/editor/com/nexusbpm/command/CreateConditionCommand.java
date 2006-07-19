@@ -31,9 +31,9 @@ public class CreateConditionCommand extends AbstractCommand {
     private String conditionType;
     private String label;
     
-    public static final String TYPE_CONDITION = "";
-    public static final String TYPE_INPUT_CONDITION = "";
-    public static final String TYPE_OUTPUT_CONDITION = "";
+    public static final String TYPE_CONDITION = "cond";
+    public static final String TYPE_INPUT_CONDITION = "input";
+    public static final String TYPE_OUTPUT_CONDITION = "output";
 	
     /**
      * NOTE: the parent proxy needs to be connected to the context.
