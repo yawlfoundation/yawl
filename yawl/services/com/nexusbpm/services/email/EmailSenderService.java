@@ -62,6 +62,7 @@ public class EmailSenderService implements NexusService {
             from = data.getPlain( "fromAddress" );
 			subject = data.getPlain( "subject" );
 			body = data.getPlain( "body" );
+            host = data.getPlain( "host" );
 			
 			b.append( "to: " ).append( to ).append( "\n" )
 				.append( "cc: " ).append( cc ).append( "\n" )
