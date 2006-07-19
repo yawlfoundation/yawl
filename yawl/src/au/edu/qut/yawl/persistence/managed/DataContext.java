@@ -21,6 +21,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.elements.Parented;
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -177,6 +178,10 @@ public class DataContext {
         dataProxy.setContext( this );
         dataMap.put(dataProxy, object);
         proxyMap.put(object, dataProxy);
+        
+        Object parent = ((Parented) object).getParent();
+        DataProxy parentProxy = getDataProxy( parent, null );
+        hierarchy.put( parentProxy, dataProxy );
     }
     
     /**
@@ -184,9 +189,15 @@ public class DataContext {
      * @param dataProxy the proxy object to detach.
      */
     public void detachProxy(DataProxy dataProxy) {
-        Object object = dataProxy.getData();
+        Parented object = (Parented) dataProxy.getData();
+        Object parent = object.getParent();
+        DataProxy parentProxy = getDataProxy( parent, null );
         dataMap.remove(dataProxy);
         proxyMap.remove(object);
+        
+        hierarchy.remove( dataProxy );
+        hierarchy.get( parent ).remove( dataProxy );
+        
         dataProxy.setContext( null );
     }
    
