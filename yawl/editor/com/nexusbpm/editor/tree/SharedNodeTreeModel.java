@@ -83,7 +83,7 @@ public class SharedNodeTreeModel extends DefaultTreeModel {
 		public int compare(Object o1, Object o2) {
 			SharedNode s1 = (SharedNode) o1;
 			SharedNode s2 = (SharedNode) o2;
-			int result = s1.getUserObject().toString().compareTo(s2.getUserObject().toString());
+			int result = s1.getProxy().getData().toString().compareTo(s2.getProxy().getData().toString());
 			return result;
 		}
 	}

@@ -5,15 +5,15 @@
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
-package operation;
+package au.edu.qut.yawl.util;
 
 import java.util.Collection;
 import java.util.List;
 
+import operation.RemoveNetConditionsOperation;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.nexusbpm.editor.editors.net.cells.DefaultView;
 
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YDecomposition;
@@ -24,7 +24,6 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**
  * The VisitSpecificationOperation allows a caller to iterate through an

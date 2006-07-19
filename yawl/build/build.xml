@@ -65,6 +65,7 @@
 	<property name="nexus.serviceInvoker.app.name" value="NexusServiceInvoker"/>
 	<property name="nexus.serviceInvoker.app.path" value="/${nexus.serviceInvoker.app.name}"/>
 	<property name="nexus.service.jython.app.name" value="JythonService"/>
+	<property name="nexus.service.emailSender.app.name" value="EmailSenderService"/>
 	
     <!-- AJH - New lines for Tomcat/Ant iface -->
     <property name="tomcat_manager_url" value="${tomcat.protocol}://${tomcat.address}:${tomcat.port}/manager"/>
@@ -598,11 +599,12 @@
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
+    	<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal"/>
-        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/au/edu/qut/yawl/worklist"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication"/>
 
@@ -622,6 +624,9 @@
         <antcall target="decidePostgresVersion"/>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine">
             <fileset dir="${classes}/au/edu/qut/yawl/engine" includes="*.class"/>
+        </copy>
+    	<copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+            <fileset dir="${classes}/au/edu/qut/yawl/engine/domain" includes="YWorkItem*.class"/>
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence" includes="*.class"/>
@@ -750,6 +755,7 @@
 		<!-- copy classes -->
 		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services">
 			<fileset dir="${classes}/com/nexusbpm/services" includes="*.class"/>
+			<fileset dir="${services}/com/nexusbpm/services" includes="*.properties"/>
 		</copy>
 		
 		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
@@ -771,6 +777,51 @@
 		<delete dir="${nexus.service.jython.app.name}"/>
 	</target>
 	
+	<target name="build_EmailSenderService.war" depends="compile">
+		<!-- create directory structure for the WAR -->
+		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/lib"/>
+		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/META-INF/xfire"/>
+		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/data"/>
+		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/email"/>
+		
+		<!-- copy libs -->
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/lib">
+<!--			<fileset dir="${nexus.service.libs}/email" includes="*.jar"/>-->
+			<fileset dir="${nexus.service.libs}/xfire" includes="*.jar"/>
+        </copy>
+		
+		<!-- copy misc -->
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/META-INF/xfire">
+			<fileset file="${build.home}/${nexus.service.emailSender.app.name}/services.xml"/>
+        </copy>
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF">
+            <fileset file="${build.home}/${nexus.service.emailSender.app.name}/web.xml"/>
+        </copy>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services">
+			<fileset dir="${classes}/com/nexusbpm/services" includes="*.class"/>
+		</copy>
+		
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
+			<fileset dir="${classes}/com/nexusbpm/services/data" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker">
+			<fileset dir="${classes}/com/nexusbpm/services/invoker" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/email">
+			<fileset dir="${classes}/com/nexusbpm/services/email" includes="*.class"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/${nexus.service.emailSender.app.name}.war">
+            <fileset dir="${nexus.service.emailSender.app.name}"/>
+        </jar>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.emailSender.app.name}"/>
+	</target>
+	
 	<target name="build_NexusServiceInvoker.war" depends="compile">
         <!-- ======================================================================
         Prepare YAWL Web Service Invoker WebApplication
@@ -784,6 +835,7 @@
 		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/data"/>
 		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker"/>
 		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/jython"/>
+		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/email"/>
         <!-- start copying files into war directory -->
         <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
             <fileset
@@ -834,6 +886,7 @@
         </copy>
 		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services">
 			<fileset dir="${classes}/com/nexusbpm/services" includes="*.class"/>
+			<fileset dir="${services}/com/nexusbpm/services" includes="*.properties"/>
 		</copy>
         <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker">
             <fileset dir="${classes}/com/nexusbpm/services/invoker">
@@ -858,6 +911,11 @@
 		</copy>
 		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/jython">
 	        <fileset dir="${classes}/com/nexusbpm/services/jython">
+	        	<include name="*.class"/>
+	        </fileset>
+		</copy>
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/email">
+	        <fileset dir="${classes}/com/nexusbpm/services/email">
 	        	<include name="*.class"/>
 	        </fileset>
 		</copy>
@@ -1300,21 +1358,22 @@
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>        
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
-    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions"/>         
-    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema" /> 
-    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions"/>         
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema" /> 
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/util"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model"/>
 
         <!-- 1a. Make the dirs for the worklet classes -->
-    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/rdr"/>
-    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/selection"/>
-    	  <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/support"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/rdr"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/selection"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/support"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/exception"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/admin"/>
 
-    	  <mkdir dir="${yawl.worklet.app.name}/graphics"/>
+        <mkdir dir="${yawl.worklet.app.name}/graphics"/>
         <mkdir dir="${yawl.worklet.app.name}/jsp"/>
 
 
@@ -1325,6 +1384,9 @@
         </copy>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+            <fileset dir="${classes}/au/edu/qut/yawl/engine/domain" includes="YWorkItem*.class"/>
         </copy>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
             <fileset dir="${classes}/au/edu/qut/yawl/elements"
@@ -1338,18 +1400,18 @@
             <fileset dir="${classes}/au/edu/qut/yawl/elements/state"
                      includes="YIdentifier.class"/>
         </copy>
-    	  <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
-    	      <fileset dir="${classes}/au/edu/qut/yawl/exceptions" 
-    	            includes="YSchemaBuildingException.class 
-    	                      YSyntaxException.class YAWLException.class" /> 
-    	  </copy>
-    	  <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema">
-    	      <fileset dir="${classes}/au/edu/qut/yawl/schema" includes="*.class" /> 
-    	  </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+            <fileset dir="${classes}/au/edu/qut/yawl/exceptions" 
+                includes="YSchemaBuildingException.class 
+                YSyntaxException.class YAWLException.class" /> 
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema">
+            <fileset dir="${classes}/au/edu/qut/yawl/schema" includes="*.class" /> 
+        </copy>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
             <fileset dir="${classes}/au/edu/qut/yawl/unmarshal"
-                     includes="YDecompositionParser.class SchemaValidator.class 
-                               SchemaForSchemaValidator.class"/>
+                includes="YDecompositionParser.class SchemaValidator.class 
+                SchemaForSchemaValidator.class"/>
         </copy>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/util"
               file="${classes}/au/edu/qut/yawl/util/JDOMConversionTools.class"/>
@@ -1388,7 +1450,7 @@
 
     	  <!-- 2b. Copy required worklet support files into dir root -->    	
         <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletService.properties"/>
-        <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/welcome/welcome.htm"/>
+        <!-- <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/welcome/welcome.htm"/> -->
         <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletRepository.zip"/>
 
         <!-- 2c. Copy in graphics for welcome page -->
@@ -1449,6 +1511,7 @@
         build_yawlSMSInvoker.war,
         build_yawlWSInvoker.war,
     	build_JythonService.war,
+    	build_EmailSenderService.war,
     	build_NexusServiceInvoker.war,
         build_TimeService.war,
         build_admintool.war,

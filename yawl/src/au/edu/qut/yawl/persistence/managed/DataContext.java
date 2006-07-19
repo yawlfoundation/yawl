@@ -12,7 +12,6 @@ package au.edu.qut.yawl.persistence.managed;
 import java.beans.VetoableChangeListener;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,8 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.util.HashBag;
-
+import au.edu.qut.yawl.util.VisitSpecificationOperation;
+import au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor;
 
 /**
  * 
@@ -83,9 +83,6 @@ public class DataContext {
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getDataProxy(java.lang.Object)
 	 */
     public DataProxy getDataProxy(Object dataObject, VetoableChangeListener listener) {
-        if (!proxyMap.containsKey(dataObject)) {
-        	createProxy(dataObject, listener);
-        }
         return proxyMap.get(dataObject);
     }
     
@@ -93,8 +90,7 @@ public class DataContext {
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getData(au.edu.qut.yawl.persistence.managed.DataProxy)
 	 */
     public Object getData(DataProxy proxyObject) {
-        if (!dataMap.containsKey(proxyObject)) {
-        }
+        assert dataMap.containsKey(proxyObject) : "attempting to access the data from a disconnected proxy";
         return dataMap.get(proxyObject);
     }
     
@@ -102,7 +98,7 @@ public class DataContext {
      * Creates a data proxy for the given data object, assuming that the
      * object does not already have a proxy.
 	 */
-    private DataProxy createProxy(Object object, VetoableChangeListener listener) {
+    public DataProxy createProxy(Object object, VetoableChangeListener listener) {
 		try {
 			DataProxy dataProxy = (DataProxy) dataProxyClass.newInstance();
 			dataProxy.setContext(this);
@@ -114,26 +110,32 @@ public class DataContext {
 				} else {
 					dataProxy.setLabel(netElement.getName());
 				}
-			} else {
+			} else if (object instanceof YDecomposition) {
+                YDecomposition netElement = (YDecomposition) object;
+                if (netElement.getName() == null || netElement.getName().length() == 0) {
+                    dataProxy.setLabel(netElement.getId());
+                } else {
+                    dataProxy.setLabel(netElement.getName());
+                }
+            } else {
 				dataProxy.setLabel(object.toString());
 			}
             
-			if (listener != null) dataProxy.addVetoableChangeListener(listener); 
-			attachProxy(dataProxy, object);
+			if (listener != null) dataProxy.addVetoableChangeListener(listener);
 			return dataProxy;
-		} catch (Exception e) {return null;//this can never happen
+		} catch (Exception e) {throw new Error(e);//this can never happen
 		}
     }
 
-    /**
-	 * Retrieves the specification with the given key from the DAO and
-     * generates proxies for the specification and its children.
-	 */
-    public DataProxy retrieve(Serializable key, VetoableChangeListener listener) {
-    	YSpecification spec = dao.retrieve(key);
-    	if (spec != null) this.generateProxies(spec);
-    	return getDataProxy(spec, listener);
-    }
+//    /**
+//	 * Retrieves the specification with the given key from the DAO and
+//     * generates proxies for the specification and its children.
+//	 */
+//    public DataProxy retrieve(Serializable key, VetoableChangeListener listener) {
+//    	YSpecification spec = dao.retrieve(key);
+//    	if (spec != null) this.generateProxies(spec);
+//    	return getDataProxy(spec, listener);
+//    }
     
     /**
      * Tells the DAO to save the object that the proxy is a proxy for,
@@ -179,9 +181,15 @@ public class DataContext {
         dataMap.put(dataProxy, object);
         proxyMap.put(object, dataProxy);
         
-        Object parent = ((Parented) object).getParent();
-        DataProxy parentProxy = getDataProxy( parent, null );
-        hierarchy.put( parentProxy, dataProxy );
+        if( object instanceof Parented) {
+            Object parent = ((Parented) object).getParent();
+            if( parent != null ) {
+                DataProxy parentProxy = getDataProxy( parent, null );
+                if( parentProxy != null ) {
+                    hierarchy.put( parentProxy, dataProxy );
+                }
+            }
+        }
     }
     
     /**
@@ -189,6 +197,7 @@ public class DataContext {
      * @param dataProxy the proxy object to detach.
      */
     public void detachProxy(DataProxy dataProxy) {
+        // TODO handle parent not in hierarchy anymore
         Parented object = (Parented) dataProxy.getData();
         Object parent = object.getParent();
         DataProxy parentProxy = getDataProxy( parent, null );
@@ -206,11 +215,20 @@ public class DataContext {
     		List l = dao.getChildren(parent.getData());
     		for (Object o: l) {
     			if (o instanceof YSpecification) {
-    				generateProxies((YSpecification) o);
-    				hierarchy.put(parent, getDataProxy(o, null));
+                    VisitSpecificationOperation.visitSpecification(
+                            (YSpecification) o,
+                            new Visitor() {
+                                public void visit(Object child, String childLabel) {
+                                    DataProxy childProxy = DataContext.this.createProxy(child, null);
+                                    childProxy.setLabel(childLabel);
+                                    DataContext.this.attachProxy( childProxy, child );
+                                }
+                            });
+                    hierarchy.put(parent, getDataProxy( o, null ) );
     			}
     			else {
     				DataProxy dp = createProxy(o, null);
+                    attachProxy(dp, o);
         			hierarchy.put(parent, dp);
     			}
     		}
@@ -250,71 +268,6 @@ public class DataContext {
     	}
     }
     
-    
-    public void generateProxies(YSpecification spec) {
-		assert spec != null;
-		removeConditions(spec);
-    	DataProxy specProxy = createProxy(spec, null);
-    	specProxy.setLabel(spec.getName());
-    	List<YDecomposition> decomps = spec.getDecompositions();
-    	for (YDecomposition decomp: decomps) {
-    		DataProxy decompProxy = createProxy(decomp, null);
-    		if (decomp.getName() != null && decomp.getName().length() != 0) {
-    			decompProxy.setLabel(decomp.getName());
-    		} else {
-    			decompProxy.setLabel(decomp.getId());
-    		}
-    		hierarchy.put(specProxy, decompProxy);
-    		if (decomp instanceof YNet) {
-    			YNet net = (YNet) decomp;
-    			for(YExternalNetElement yene: net.getNetElements()) {
-    				DataProxy netElementProxy = createProxy(yene, null);
-    				if (findType(yene) == Type.CONDITION) {
-    					LOG.error(yene.getClass().getName());
-    					netElementProxy.setLabel("{connector}");
-    				} else {
-    					if (yene.getName() != null && yene.getName().length() != 0) {
-        					netElementProxy.setLabel(yene.getName());
-    					}else {
-        					netElementProxy.setLabel(yene.getID());
-    					}
-    				}
-        			hierarchy.put(decompProxy, netElementProxy);
-    			}
-    		}
-    	}
-    	for (YDecomposition decomp: decomps) {
-    		if (decomp instanceof YNet) {
-    			YNet net = (YNet) decomp;
-    			for(YExternalNetElement yene: net.getNetElements()) {
-        			Collection<YFlow> flows = yene.getPostsetFlows();
-    				for (YFlow flow: flows) {
-    					DataProxy flowProxy = createProxy(flow, null);
-    					String to;
-        				if (findType(flow.getNextElement()) == Type.CONDITION) {
-        					to = "to connector";
-        				} else {
-        					to = "to " + getDataProxy(flow.getNextElement(), null).getLabel();
-        				}
-    					flowProxy.setLabel(to);
-    	    			hierarchy.put(getDataProxy(yene, null), flowProxy);
-    				}
-    				flows = yene.getPresetFlows();
-    				for (YFlow flow: flows) {
-    					DataProxy flowProxy = createProxy(flow, null);
-    					String from;
-        				if (findType(flow.getPriorElement()) == Type.CONDITION) {
-        					from = "from connector";
-        				} else {
-        					from = "from " + getDataProxy(flow.getPriorElement(), null).getLabel();
-        				}
-    					flowProxy.setLabel(from);
-    					hierarchy.put(getDataProxy(yene, null), flowProxy);
-    				}
-    			}
-    		}
-    	}
-    }
 
     //these should all be moved elsewhere!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     

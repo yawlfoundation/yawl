@@ -63,6 +63,6 @@ public class CreateNetCommand extends AbstractCommand {
     @Override
     protected void perform() throws Exception {
         net = WorkflowOperation.createNet( netName );
-        netProxy = context.getDataProxy( net, null );
+        netProxy = context.createProxy( net, null );
     }
 }

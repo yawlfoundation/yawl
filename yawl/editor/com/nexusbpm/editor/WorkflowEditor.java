@@ -1,10 +1,13 @@
 package com.nexusbpm.editor;
 
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.Set;
 
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
@@ -14,7 +17,10 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
+import com.nexusbpm.command.CreateNetCommand;
+import com.nexusbpm.command.CreateSpecificationCommand;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
@@ -75,37 +81,55 @@ public class WorkflowEditor extends javax.swing.JFrame {
         componentList2ScrollPane = new javax.swing.JScrollPane();
         SpecificationDAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
         SpecificationDAO filedao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
-        SpecificationDAO hibernatedao = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE).getSpecificationModelDAO();
+//        SpecificationDAO hibernatedao = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE).getSpecificationModelDAO();
 
         DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
         DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
-        DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
+//        DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
         
-        EditorDataProxy memdp = (EditorDataProxy) memdc.getDataProxy(new DatasourceRoot("virtual://memory/home/sandozm/templates/testing/"), null);
+        Object o = new DatasourceRoot("virtual://memory/home/sandozm/templates/");
+        EditorDataProxy memdp = (EditorDataProxy) memdc.createProxy(o, null);
+        memdc.attachProxy(memdp, o);
+        
+        try {
+            new CreateSpecificationCommand( memdp, "testspec" ).execute();
+            Set<DataProxy> children = memdc.getChildren( memdp, false );
+            for( DataProxy child : children ) {
+                if( child.getData() instanceof YSpecification ) {
+                    new CreateNetCommand( (EditorDataProxy) child, "testnet" ).execute();
+                }
+            }
+        }
+        catch( Exception e ) {
+            e.printStackTrace( System.out );
+            System.out.flush();
+        }
         
         String dataroot = new File("exampleSpecs/").toURI().toString();
-        EditorDataProxy filedp = (EditorDataProxy) filedc.getDataProxy(new DatasourceRoot(dataroot), null);
+        o = new DatasourceRoot(dataroot);
+        EditorDataProxy filedp = (EditorDataProxy) filedc.createProxy(o, null);
+        filedc.attachProxy(filedp, o);
 
-        EditorDataProxy hibdp = (EditorDataProxy) hibdc.getDataProxy(new DatasourceRoot("hibernate://home/sandozm/"), null);
+//        EditorDataProxy hibdp = (EditorDataProxy) hibdc.getDataProxy(new DatasourceRoot("hibernate://home/sandozm/"), null);
         
         SharedNode memRootNode = new SharedNode(memdp);
         SharedNode fileRootNode = new SharedNode(filedp);
-        SharedNode hibernateRootNode = new SharedNode(hibdp);
+//        SharedNode hibernateRootNode = new SharedNode(hibdp);
 
         SharedNodeTreeModel memTreeModel = new SharedNodeTreeModel(memRootNode);
         SharedNodeTreeModel fileTreeModel = new SharedNodeTreeModel(fileRootNode);
-        SharedNodeTreeModel hibernateTreeModel = new SharedNodeTreeModel(hibernateRootNode);
+//        SharedNodeTreeModel hibernateTreeModel = new SharedNodeTreeModel(hibernateRootNode);
 
         memRootNode.setTreeModel(memTreeModel);
         fileRootNode.setTreeModel(fileTreeModel);
-        hibernateRootNode.setTreeModel(hibernateTreeModel);
+//        hibernateRootNode.setTreeModel(hibernateTreeModel);
         
         memoryComponentListTree = new STree(memTreeModel, componentList1ScrollPane);
         memoryComponentListTree.setShowsRootHandles(false);
         memoryComponentListTree.setRootVisible(true);
         memoryComponentListTree.setRowHeight(34);
         
-        fileComponentListTree = new STree(hibernateTreeModel, componentList1ScrollPane);
+        fileComponentListTree = new STree(fileTreeModel, componentList1ScrollPane);
         fileComponentListTree.setShowsRootHandles(false);
         fileComponentListTree.setRootVisible(true);
         fileComponentListTree.setRowHeight(34);

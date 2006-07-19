@@ -62,6 +62,6 @@ public class CreateSpecificationCommand extends AbstractCommand {
     @Override
     protected void perform() throws Exception {
         specification = WorkflowOperation.createSpecification( parent, specName );
-        specProxy = context.getDataProxy( specification, null );
+        specProxy = context.createProxy( specification, null );
     }
 }
