@@ -319,4 +319,12 @@ public class DataContext {
     	return retval;
     }
 
+	public HashBag<DataProxy> getHierarchy() {
+		return hierarchy;
+	}
+
+	public void setHierarchy(HashBag<DataProxy> hierarchy) {
+		this.hierarchy = hierarchy;
+	}
+
 }
