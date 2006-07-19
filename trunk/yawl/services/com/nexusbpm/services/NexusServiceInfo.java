@@ -46,9 +46,9 @@ public class NexusServiceInfo {
                 "com.nexusbpm.services.email.EmailSenderService",
                 "com.nexusbpm.editor.editors.EmailSenderEditor",
                 "http://localhost:8080/EmailSenderService/services/EmailSenderService",
-                new String[] { "toAddress", /*"ccAddress", "bccAddress",*/ "subject", "body" },
-                new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
-                new Object[] { "nathan.rose@ichotelsgroup.com", "", "", "", ""} )
+                new String[] { "toAddress", "ccAddress", "bccAddress", "fromAddress", "host", "subject", "body" },
+                new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                new Object[] { "nathan.rose@ichotelsgroup.com", "", "", "", "", "", ""} )
     };
     
     private NexusServiceInfo(String serviceName, String serviceClassName, String editorClassName,
