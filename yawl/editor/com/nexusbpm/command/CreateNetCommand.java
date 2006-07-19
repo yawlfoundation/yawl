@@ -8,35 +8,35 @@
 package com.nexusbpm.command;
 
 import operation.WorkflowOperation;
-import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
- * The CreateSpecificationCommand creates a specification under the specified
- * parent. The created specification is stored in the command for later undoing.
+ * The CreateNetCommand creates a net in the specified specification.
+ * The created net is stored in the command for later undoing.
  * 
  * @author Nathan Rose
  */
-public class CreateSpecificationCommand extends AbstractCommand {
+public class CreateNetCommand extends AbstractCommand {
 
 	private DataContext context;
     private EditorDataProxy parent;
-    private YSpecification specification;
-    private DataProxy<YSpecification> specProxy;
-    private String specName;
+    private YNet net;
+    private DataProxy<YNet> netProxy;
+    private String netName;
 	
     /**
      * NOTE: the parent proxy needs to be connected to the context.
      * @param parent
-     * @param specName
+     * @param netName
      */
-	public CreateSpecificationCommand(EditorDataProxy parent, String specName) {
+	public CreateNetCommand(EditorDataProxy parent, String netName) {
 		this.context = parent.getContext();
         this.parent = parent;
-        this.specName = specName;
+        this.netName = netName;
 	}
 	
     /**
@@ -44,8 +44,8 @@ public class CreateSpecificationCommand extends AbstractCommand {
      */
     @Override
     protected void attach() throws Exception {
-        context.attachProxy( specProxy, specification );
-        context.save( specProxy );
+        WorkflowOperation.attachNetToSpec( parent, net );
+        context.attachProxy( netProxy, net );
     }
     
     /**
@@ -53,7 +53,8 @@ public class CreateSpecificationCommand extends AbstractCommand {
      */
     @Override
     protected void detach() throws Exception {
-        context.delete( specProxy );
+        WorkflowOperation.detachNetFromSpec( net );
+        context.detachProxy( netProxy );
     }
     
     /**
@@ -61,7 +62,7 @@ public class CreateSpecificationCommand extends AbstractCommand {
      */
     @Override
     protected void perform() throws Exception {
-        specification = WorkflowOperation.createSpecification( parent, specName );
-        specProxy = context.getDataProxy( specification, null );
+        net = WorkflowOperation.createNet( netName );
+        netProxy = context.getDataProxy( net, null );
     }
 }
