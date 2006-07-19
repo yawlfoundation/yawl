@@ -315,24 +315,20 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 	 */
 	
 	public CapselaInternalFrame getEditor() throws Exception {
-
-			if( _editor == null ) {
-
-				if( getData() instanceof YNet ) {
-					_editor = new NetEditor();
-				}
-				else {
-					Class editorClass = getEditorClass();
-					_editor = (ComponentEditor) editorClass.newInstance();
-				}
-//				_editor.setProxy(this);
-//				_editor.initializeUI();
-				_editor.setTitle( this.getLabel() );
-				LOG.debug( "removing frame listeners" );
-				removeEditorFrameListeners();
-				LOG.debug( "adding frame listener for editor: " + _editor.getClass().getName() );
-				_editor.addInternalFrameListener( getInternalFrameListener( _editor ) );
-			} //if
+			if( getData() instanceof YNet ) {
+				_editor = new NetEditor();
+			}
+			else {
+				Class editorClass = getEditorClass();
+				_editor = (ComponentEditor) editorClass.newInstance();
+			}
+//			_editor.setProxy(this);
+//			_editor.initializeUI();
+			_editor.setTitle( this.getLabel() );
+			LOG.debug( "removing frame listeners" );
+			removeEditorFrameListeners();
+			LOG.debug( "adding frame listener for editor: " + _editor.getClass().getName() );
+			_editor.addInternalFrameListener( getInternalFrameListener( _editor ) );
 
 			return _editor;
 	}

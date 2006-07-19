@@ -1,25 +1,24 @@
 package com.nexusbpm.editor;
 
-import java.awt.event.ActionEvent;
 import java.io.File;
-import java.net.URI;
 import java.util.Set;
 
 import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
+import com.nexusbpm.command.CreateConditionCommand;
 import com.nexusbpm.command.CreateNetCommand;
+import com.nexusbpm.command.CreateNexusComponent;
 import com.nexusbpm.command.CreateSpecificationCommand;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.icon.ApplicationIcon;
@@ -29,6 +28,7 @@ import com.nexusbpm.editor.tree.DatasourceRoot;
 import com.nexusbpm.editor.tree.STree;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
+import com.nexusbpm.services.NexusServiceInfo;
 
 /**
  *
@@ -97,6 +97,17 @@ public class WorkflowEditor extends javax.swing.JFrame {
             for( DataProxy child : children ) {
                 if( child.getData() instanceof YSpecification ) {
                     new CreateNetCommand( (EditorDataProxy) child, "testnet" ).execute();
+                    Set<DataProxy> subchildren = child.getContext().getChildren( child, false );
+                    for( DataProxy subchild : subchildren ) {
+                        if( subchild.getData() instanceof YNet ) {
+                            new CreateConditionCommand( (EditorDataProxy) subchild,
+                                    CreateConditionCommand.TYPE_INPUT_CONDITION, null).execute();
+                            new CreateConditionCommand( (EditorDataProxy) subchild,
+                                    CreateConditionCommand.TYPE_OUTPUT_CONDITION, null).execute();
+                            new CreateNexusComponent( (EditorDataProxy) subchild,
+                                    "jython", "jython", NexusServiceInfo.getServiceWithName( "Jython" ) ).execute();
+                        }
+                    }
                 }
             }
         }
