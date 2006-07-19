@@ -50,10 +50,10 @@ public class VisitSpecificationOperation {
      * 
      * @param spec
      */
-    public static void generateProxies(YSpecification spec, Visitor v) {
+    public static void visitSpecification(YSpecification spec, Visitor v) {
 		assert spec != null;
 		RemoveNetConditionsOperation.removeConditions(spec);
-		v.visit(null, spec, spec.getName());
+		v.visit(spec, spec.getName());
     	List<YDecomposition> decomps = spec.getDecompositions();
     	for (YDecomposition decomp: decomps) {
     		String label;
@@ -62,7 +62,7 @@ public class VisitSpecificationOperation {
     		} else {
     			label = decomp.getId();
     		}
-    		v.visit(spec, decomp, label);
+    		v.visit(decomp, label);
     		if (decomp instanceof YNet) {
     			YNet net = (YNet) decomp;
     			for(YExternalNetElement yene: net.getNetElements()) {
@@ -72,7 +72,7 @@ public class VisitSpecificationOperation {
     				} else {
     					label = getLabelFor(yene);
     				}
-    				v.visit(decomp, yene, label);
+    				v.visit(yene, label);
     			}
     		}
     	}
@@ -88,7 +88,7 @@ public class VisitSpecificationOperation {
         				} else {
         					to = "to " + getLabelFor(flow.getNextElement());
         				}
-        				v.visit(yene, flow, to);
+        				v.visit(flow, to);
     				}
     				flows = yene.getPresetFlows();
     				for (YFlow flow: flows) {
@@ -98,7 +98,7 @@ public class VisitSpecificationOperation {
         				} else {
         					from = "from " + getLabelFor(flow.getPriorElement());
         				}
-        				v.visit(yene, flow, from);
+        				v.visit(flow, from);
     				}
     			}
     		}
@@ -128,7 +128,7 @@ public class VisitSpecificationOperation {
     }
     
     public interface Visitor {
-    	void visit(Object parent, Object child, String childLabel);
+    	void visit(Object child, String childLabel);
     }
   
     private enum Type {UNKNOWN, INPUT_CONDITION, OUTPUT_CONDITION, TASK, CONDITION, FLOW, SPECIFICATION};
