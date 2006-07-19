@@ -14,7 +14,10 @@ import java.util.List;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YCondition;
+import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
@@ -33,6 +36,15 @@ import com.nexusbpm.services.data.NexusServiceData;
  * @author Nathan Rose
  */
 public class WorkflowOperation {
+    private static YSpecification tempSpec;
+    
+    private static YSpecification getTempSpec() {
+        if( tempSpec == null ) {
+            tempSpec = new YSpecification( "temp_spec" );
+        }
+        return tempSpec;
+    }
+    
     /**
      * Creates a workflow under the given parent "folder."
      * @param parent a proxy for the parent "folder" where the specification will be stored,
@@ -56,8 +68,92 @@ public class WorkflowOperation {
                         null,
                         null ).toString() );
         spec.setName( name );
+        spec.setBetaVersion(NexusWorkflow.CURRENT_VERSION);
+        spec.setDocumentation("");
         
         return spec;
+    }
+    
+    /**
+     * Creates a new net to be placed inside a specification.
+     * @param name the name to give the net.
+     * @return the newly created net.
+     */
+    public static YNet createNet(String name) {
+        YNet net = null;;
+        
+        // the constructor throws a null pointer exception if you don't have a specification
+        net = new YNet( name, getTempSpec() );
+        net.setParent( null );
+        net.setName( name );
+        net.setDocumentation("");
+        
+        return net;
+    }
+    
+    /**
+     * Places the given net into the specification. If the specification has
+     * no root net, then the new net is set as the root net, otherwise the
+     * net is added to the specification's list of decompositions.
+     * @param specificationProxy a proxy for the parent specification.
+     * @param net the net to add to the specification.
+     */
+    public static void attachNetToSpec(EditorDataProxy specificationProxy, YNet net) {
+        YSpecification spec = (YSpecification) specificationProxy.getData();
+        
+        net.setParent( spec );
+        if( spec.getRootNet() == null ) {
+            spec.setRootNet( net );
+        }
+        else {
+            spec.setDecomposition( net );
+        }
+    }
+    
+    /**
+     * Removes the net from its parent specification.
+     * @param net the net to remove from its specification.
+     */
+    public static void detachNetFromSpec(YNet net) {
+        YSpecification spec = net.getParent();
+        
+        spec._decompositions.remove( net );
+        net.setParent( null );
+    }
+    
+    public static YInputCondition createInputCondition() {
+        return new YInputCondition( "start", "start", null );
+    }
+    
+    public static YOutputCondition createOutputCondition() {
+        return new YOutputCondition( "end", "end", null );
+    }
+    
+    public static YCondition createCondition(String id, String label) {
+        return new YCondition( id, label, null );
+    }
+    
+    public static void attachConditionToNet(EditorDataProxy netProxy, YCondition condition) {
+        YNet net = (YNet) netProxy.getData();
+        
+        condition.setParent( net );
+        // TODO net.addNetElement() would be sufficient... the other functions need refactoring
+        if( condition instanceof YInputCondition ) {
+            net.setInputCondition( (YInputCondition) condition );
+        }
+        else if( condition instanceof YOutputCondition ) {
+            net.setOutputCondition( (YOutputCondition) condition );
+        }
+        else {
+            net.addNetElement( condition );
+        }
+    }
+    
+    public static void detachConditionFromNet(YCondition condition) {
+        YNet net = condition.getParent();
+        
+        net.removeNetElement( condition );
+        condition.setParent( null );
     }
 
 	/**
