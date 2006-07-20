@@ -7,23 +7,10 @@
  */
 package com.nexusbpm.command;
 
-import java.io.StringReader;
-
 import operation.WorkflowOperation;
-
-import org.jdom.Document;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
-import au.edu.qut.yawl.elements.YFlow;
-import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YOutputCondition;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;

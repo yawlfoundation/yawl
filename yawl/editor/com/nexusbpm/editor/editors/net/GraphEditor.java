@@ -2,6 +2,7 @@ package com.nexusbpm.editor.editors.net;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -815,7 +816,8 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
     	  System.out.println("removing " + o);
           Command command = new RemoveTaskCommand(o);
           WorkflowEditor.getExecutor().executeCommand(command);
-          this._graphModel.remove(new Object[] {o});
+          _graph.getGraphLayoutCache().setVisible(o.getGraphCell(), false);
+//          this._graphModel.remove(new Object[] {o.getGraphCell()});
       }
       //      ClientOperation.executeDeleteCommand(removeSet, GraphEditor.this.getProxy(), GraphEditor.this);
 //    } catch (EditorException ce) {

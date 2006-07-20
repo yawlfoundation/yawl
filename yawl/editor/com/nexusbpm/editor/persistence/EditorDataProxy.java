@@ -14,6 +14,8 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.event.InternalFrameListener;
 
+import operation.WorkflowOperation;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -248,9 +250,15 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 		if (data instanceof YAtomicTask) {
 			YAtomicTask task = (YAtomicTask) data;
 			if (task.getDecompositionPrototype() != null) {
+				String serviceName = task.getID() 
+					+ NexusWorkflow.NAME_SEPARATOR 
+					+ NexusWorkflow.SERVICENAME_VAR;
+				String value = task.getParent().getLocalVariable(serviceName).getInitialValue();
+				System.out.println("trying icon map " + value);
 				iconName = task.getDecompositionPrototype().getId() != null 
 				? task.getDecompositionPrototype().getId() 
 				: "au.edu.qut.yawl.elements.YAtomicTask";
+				iconName = value;
 			}
 			else {
 				iconName = "com.ichg.capsela.domain.component.DummyComponent";
