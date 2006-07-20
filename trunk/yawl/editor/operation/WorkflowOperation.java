@@ -258,7 +258,7 @@ public class WorkflowOperation {
 				e.printStackTrace(System.out);
 			}
 		}
-		data.saveToTask(net, taskID);
+		data.marshal(net, taskID);
 
 		List<YVariable> vars = net.getLocalVariables();
 		vars.add(getStringVariable(net, taskID, NexusWorkflow.SERVICENAME_VAR,

@@ -16,7 +16,14 @@ public class ClientLogAppender extends AppenderSkeleton { // extends LogAppender
 
 	@Override
 	protected void append( LoggingEvent logEvent ) {
-		LogRecordI record = new LogRecordVO(logEvent.level.toInt(), LogRecordI.SOURCE_CLIENT, logEvent.getStartTime(), 0l, (String) logEvent.getMessage());
+        LogRecordI record = null;
+        if( logEvent.getThrowableInformation() != null &&
+                logEvent.getThrowableInformation().getThrowable() != null ) {
+            record = new LogRecordVO(logEvent.level.toInt(), LogRecordI.SOURCE_CLIENT, logEvent.getStartTime(), 0l, (String) logEvent.getMessage(), logEvent.getThrowableInformation().getThrowable());
+        }
+        else {
+            record = new LogRecordVO(logEvent.level.toInt(), LogRecordI.SOURCE_CLIENT, logEvent.getStartTime(), 0l, (String) logEvent.getMessage());
+        }
 		CapselaLog.log( record );
 	}
 

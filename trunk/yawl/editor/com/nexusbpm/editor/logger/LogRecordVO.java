@@ -1,5 +1,7 @@
 package com.nexusbpm.editor.logger;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Timestamp;
 
 /**
@@ -37,6 +39,13 @@ public class LogRecordVO implements LogRecordI {
 		_sequenceNumber = sequenceNumber;
 		_message = message;
 	}//LogRecordVO()
+    public LogRecordVO( int level, int sourceType, long timestamp, long sequenceNumber, String message,
+            Throwable t ) {
+        this( level, sourceType, timestamp, sequenceNumber, message);
+        StringWriter writer = new StringWriter();
+        t.printStackTrace( new PrintWriter( writer ) );
+        setThrowableMessage( writer.toString() );
+    }
 	/**
 	 * @see java.lang.Object#toString()
 	 */
