@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * The command executor provides a thread safe mechanism for adding commands
@@ -33,10 +34,13 @@ public class CommandExecutor {
     }
     
     /**
-     * Puts the given command on the stack to be executed.
+     * Puts the given command on the stack to be executed. By returning the
+     * future we can easily execute the command synchronously if needed by 
+     * appending a call to the get method of the returned future to the 
+     * executeCommand call.
      */
-    public void exececuteCommand( Command command ) {
-        executor.submit( new ExecuteCommand( command ) );
+    public Future executeCommand( Command command ) {
+        return executor.submit( new ExecuteCommand( command ) );
     }
     
     /**
@@ -118,7 +122,7 @@ public class CommandExecutor {
         public final void run() {
             Throwable t = null;
             try {
-                run();
+            	execute();
             }
             catch( Throwable tr ) {
                 t = tr;

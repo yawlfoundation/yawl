@@ -8,6 +8,7 @@
 package au.edu.qut.yawl.elements;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -92,7 +93,7 @@ public class MockYSpecification {
 		task.setName("email dean");
 		task.setID("email dean");
 		YTaskEditorExtension editor = new YTaskEditorExtension(task);
-		editor.setCenterPoint(new Point2D.Double(100,200));
+		editor.setBounds(new Rectangle2D.Double(100,200, 120, 250));
 		generateTaskVariables(net, gate, task, emailProps, emailVals);
 		generateTaskWebserviceVariables(net, gate, task, gatewayProps, emailGatewayVals);
 
@@ -158,7 +159,7 @@ public class MockYSpecification {
 		task.setID("quote of the day");
 		task.setDecompositionPrototype(gate);
 		YTaskEditorExtension editor = new YTaskEditorExtension(task);
-		editor.setCenterPoint(new Point2D.Double(200,100));
+		editor.setBounds(new Rectangle2D.Double(200,100, 220, 150));
 		generateTaskVariables(net, gate, task, jythonProps, jythonVals);
 		generateTaskWebserviceVariables(net, gate, task, gatewayProps, jythonGatewayVals);
 		net.addNetElement(task);
@@ -248,12 +249,12 @@ public class MockYSpecification {
 		YInputCondition inputCondition = new YInputCondition("start", net);
 		inputCondition.setName("start");
 		YTaskEditorExtension editor = new YTaskEditorExtension(inputCondition);
-		editor.setCenterPoint(new Point2D.Double(100,100));
+		editor.setBounds(new Rectangle2D.Double(100,100, 120, 150));
 		net.setInputCondition(inputCondition);
 		YOutputCondition outputCondition = new YOutputCondition("end", net);
 		outputCondition.setName("end");
 		editor = new YTaskEditorExtension(outputCondition);
-		editor.setCenterPoint(new Point2D.Double(200,200));
+		editor.setBounds(new Rectangle2D.Double(200,200, 220, 250));
 		net.setOutputCondition(outputCondition);
 
 		YAtomicTask task = createEmailTask(gate, net);

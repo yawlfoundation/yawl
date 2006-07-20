@@ -53,7 +53,11 @@ import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
+import com.nexusbpm.command.Command;
+import com.nexusbpm.command.RemoveTaskCommand;
+import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.NetEditor;
 import com.nexusbpm.editor.editors.net.cells.FlowControlEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
@@ -120,14 +124,13 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 
   private List _validationMessages;
 
-  private boolean _isInstance = false;
+  private boolean _isInstance;
 
   private int _edgeEditMode = CONTROL_EDGE_MODE;
 
-  private boolean _paused = false;
+  private boolean _paused;
 
-  private NetEditor _flowEditor = null;
-
+  private NetEditor _flowEditor;
 
   /**
    * Creates a new graph editor to be contained in the given flow editor.
@@ -807,9 +810,14 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
   private void deleteSelectedItems() {
 //    try {
 		LOG.debug("GraphEditor.deleteSelectedItems");
-      Set removeSet = GraphEditor.this.getRemoveSet();
-      new RuntimeException("DISPLAY ONLY implement delete operation");
-//      ClientOperation.executeDeleteCommand(removeSet, GraphEditor.this.getProxy(), GraphEditor.this);
+      Set<EditorDataProxy> removeSet = (Set<EditorDataProxy>) GraphEditor.this.getRemoveSet();
+      for (EditorDataProxy o: removeSet) {
+    	  System.out.println("removing " + o);
+          Command command = new RemoveTaskCommand(o);
+          WorkflowEditor.getExecutor().executeCommand(command);
+          this._graphModel.remove(new Object[] {o});
+      }
+      //      ClientOperation.executeDeleteCommand(removeSet, GraphEditor.this.getProxy(), GraphEditor.this);
 //    } catch (EditorException ce) {
 //      LOG.error("Error deleting the selected items.", ce);
 //    }
@@ -882,8 +890,6 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 		synchronized( i ) {
 			while( i.hasNext() ) {
 				Object c = i.next();
-//				Rectangle bounds = c.getFlowLocation();
-//				if( bounds == null ) throw new EditorException( "Null flow location: " + c );
 				EditorDataProxy proxy = (EditorDataProxy) _flowproxy.getContext().getDataProxy(c, null );
 				this.initializeCellAndPort( proxy );
 				NexusCell cell = proxy.getGraphCell();
@@ -894,21 +900,16 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 				try {
 					if (c instanceof YExternalNetElement) {
 						YTaskEditorExtension ext = new YTaskEditorExtension((YExternalNetElement) c);
-						Rectangle2D.Double rect = new Rectangle2D.Double(ext.getCenterPoint().getX(), ext.getCenterPoint().getY(), 70d, 70d);
+						Rectangle2D.Double rect = new Rectangle2D.Double(ext.getBounds().getX(), ext.getBounds().getY(), 70d, 70d);
 						GraphConstants.setBounds(cell.getAttributes(), rect);
-						LOG.info("center for " + c + " is " + ext.getCenterPoint().toString());
 					}
 				} catch(Exception ex) {LOG.error(ex.getMessage(), ex);}
-//				LOG.error( "View: " + proxy.getGraphCell().get);
 			}
 		}
 
 		// Create the runnable that will update the graph vertices on the AWT event dispatcher thread.
 		Runnable vertexUpdater = new Runnable() {
 			public void run() {
-				System.out.println("arra: " + cells);
-				System.out.println("attr: " + cellAttributes);
-//				_graph.getGraphLayoutCache().insert( null, null, null, null, null );
 				_graph.getGraphLayoutCache().insert(cells.toArray(), cellAttributes, null, null);
 				if( graphChangeSummary != null ) {
 					_graph.getModel().removeGraphModelListener( graphChangeSummary );
@@ -1145,9 +1146,9 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
     
     if (!_isInstance) {
       // Remove button
-      _remove = new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.remove")) {
+      _remove = new AbstractAction("Delete", ApplicationIcon.getIcon("GraphEditor.remove")) {
         public void actionPerformed(ActionEvent e) {
-          GraphEditor.this.deleteSelectedItems();
+        	GraphEditor.this.deleteSelectedItems();
         }
       };
       _remove.setEnabled(false);

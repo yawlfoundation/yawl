@@ -41,6 +41,7 @@ public class GraphChangeSummary implements GraphModelListener {
    */
   public void graphChanged(GraphModelEvent e) {
     if (e.getChange().getPreviousAttributes() != null) {
+
     for (Iterator iter = e.getChange().getPreviousAttributes().keySet().iterator(); iter.hasNext();) {
       Object obj = iter.next();
       if (obj != null && obj instanceof NexusCell) {
@@ -50,7 +51,7 @@ public class GraphChangeSummary implements GraphModelListener {
         	YExternalNetElement ene = (YExternalNetElement) cell.getProxy().getData();
         	YTaskEditorExtension extension = new YTaskEditorExtension(ene);
         	Rectangle2D r = (Rectangle2D) attributeMap.get(GraphConstants.BOUNDS);
-        	extension.setCenterPoint(r.getBounds().getLocation());
+        	extension.setBounds(r.getBounds());
 //          CellView view = _graph.getGraphLayoutCache().getMapping(cell, false);
 	      _editor.getFlowEditor().setDirty(true);
         	LOG.info("Element position changed.");
