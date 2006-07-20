@@ -280,7 +280,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
     
     public final void persistAttributes() {
         YAtomicTask task = (YAtomicTask) _proxy.getData();
-        data.saveToTask( task.getParent(), task.getID() );
+        data.marshal( task.getParent(), task.getID() );
     }
 
 	/**

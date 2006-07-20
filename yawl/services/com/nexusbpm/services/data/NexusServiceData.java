@@ -255,7 +255,7 @@ public class NexusServiceData {
         String type = "text";
         String finalValue = value;
         
-        if( finalValue.indexOf( ":" ) > 0 ) {
+        if( finalValue != null && finalValue.indexOf( ":" ) > 0 ) {
             String candidateType = finalValue.substring( 0, finalValue.indexOf( ":" ) );
             candidateType = candidateType.trim().toLowerCase();
             // actual value is only the part after the colon
@@ -312,7 +312,7 @@ public class NexusServiceData {
      * @param net the net containing the task.
      * @param taskID the ID of the task to save the variables for.
      */
-    public void saveToTask( YNet net, String taskID ) {
+    public void marshal( YNet net, String taskID ) {
         
         for( Variable v : variable ) {
             String name = taskID + NexusWorkflow.NAME_SEPARATOR + v.name;
@@ -324,6 +324,7 @@ public class NexusServiceData {
             else {
                 YVariable var = new YVariable( net );
                 var.setDataTypeAndName(NexusWorkflow.VARTYPE_STRING, name, NexusWorkflow.XML_SCHEMA_URL);
+                var.setInitialValue( value );
                 net.setLocalVariable( var );
             }
         }

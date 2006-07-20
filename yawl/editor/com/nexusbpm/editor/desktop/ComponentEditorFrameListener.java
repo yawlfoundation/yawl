@@ -108,14 +108,15 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 			public String getName() {return "open internal frame";}
 			public void execute() {
 				// Don't allow the user to close the editor while it's loading.
-				boolean wasClosable = _editor.isClosable();
+//				boolean wasClosable = _editor.isClosable();
+                assert _editor.isClosable() : "editor not closeable";
 				_editor.setClosable( false );
-				_editor.setProxy( proxy );
 				try {
+                    _editor.setProxy( proxy );
 					_editor.initialize();
 				}//try
-				catch( EditorException e ) {
-					e.printStackTrace( System.out );
+				catch( Exception e ) {
+					LOG.error( "Error initializing UI!", e );
 				}//catch
 				finally {
 					try {
@@ -124,7 +125,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 					finally {
 						// Now that we're done loading the frame, we can go back to allowing the
 						// user to close it. Do it in a finally block so it happens no matter what.
-						_editor.setClosable( wasClosable );
+						_editor.setClosable( true );
 					}//finally
 				}//finally
 //				return null;
