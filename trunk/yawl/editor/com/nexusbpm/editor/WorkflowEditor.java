@@ -2,6 +2,7 @@ package com.nexusbpm.editor;
 
 import java.io.File;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
@@ -16,10 +17,13 @@ import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
+import com.nexusbpm.command.Command;
+import com.nexusbpm.command.CommandExecutor;
 import com.nexusbpm.command.CreateConditionCommand;
 import com.nexusbpm.command.CreateNetCommand;
 import com.nexusbpm.command.CreateNexusComponent;
 import com.nexusbpm.command.CreateSpecificationCommand;
+import com.nexusbpm.command.CommandExecutor.ExecutionResult;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
@@ -38,7 +42,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
     
 	private final static int DEFAULT_CLIENT_WIDTH = 800;
 	private final static int DEFAULT_CLIENT_HEIGHT = 692;
-
+	private final static int DEFAULT_COMMAND_STACK_SIZE = 20;
+	private static CommandExecutor executor = new CommandExecutor(DEFAULT_COMMAND_STACK_SIZE);
 	private static WorkflowEditor singleton = null;
 	
     /**
@@ -92,20 +97,25 @@ public class WorkflowEditor extends javax.swing.JFrame {
         memdc.attachProxy(memdp, o);
         
         try {
-            new CreateSpecificationCommand( memdp, "testspec" ).execute();
+        	Command createSpec = new CreateSpecificationCommand( memdp, "testspec" );
+        	executor.executeCommand(createSpec).get();
             Set<DataProxy> children = memdc.getChildren( memdp, false );
             for( DataProxy child : children ) {
                 if( child.getData() instanceof YSpecification ) {
-                    new CreateNetCommand( (EditorDataProxy) child, "testnet" ).execute();
+                    Command createNet = new CreateNetCommand( (EditorDataProxy) child, "testnet" );
+                    executor.executeCommand(createNet).get();
                     Set<DataProxy> subchildren = child.getContext().getChildren( child, false );
                     for( DataProxy subchild : subchildren ) {
                         if( subchild.getData() instanceof YNet ) {
-                            new CreateConditionCommand( (EditorDataProxy) subchild,
-                                    CreateConditionCommand.TYPE_INPUT_CONDITION, null).execute();
-                            new CreateConditionCommand( (EditorDataProxy) subchild,
-                                    CreateConditionCommand.TYPE_OUTPUT_CONDITION, null).execute();
-                            new CreateNexusComponent( (EditorDataProxy) subchild,
-                                    "jython", "jython", NexusServiceInfo.getServiceWithName( "Jython" ) ).execute();
+                            Command command = new CreateConditionCommand( (EditorDataProxy) subchild,
+                                    CreateConditionCommand.TYPE_INPUT_CONDITION, null);
+                            executor.executeCommand(command).get();
+                            command = new CreateConditionCommand( (EditorDataProxy) subchild,
+                                    CreateConditionCommand.TYPE_OUTPUT_CONDITION, null);
+                            executor.executeCommand(command).get();
+                            command = new CreateNexusComponent( (EditorDataProxy) subchild,
+                                    "jython", "jython", NexusServiceInfo.getServiceWithName( "Jython" ) );
+                            executor.executeCommand(command).get();
                         }
                     }
                 }
@@ -315,6 +325,14 @@ public class WorkflowEditor extends javax.swing.JFrame {
 
 	public javax.swing.JDesktopPane getDesktopPane() {
 		return desktopPane;
+	}
+
+	public static CommandExecutor getExecutor() {
+		return executor;
+	}
+
+	public static void setExecutor(CommandExecutor executor) {
+		WorkflowEditor.executor = executor;
 	}
 
 }

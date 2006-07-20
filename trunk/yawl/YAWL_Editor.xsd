@@ -6,6 +6,7 @@
 	<xs:complexType name="ChoiceType">
 		<xs:choice maxOccurs="1">
 			<xs:element name="point" type="editor:PointType"/>
+			<xs:element name="rectangle" type="editor:RectangleType"/>
 			<xs:element name="net" type="editor:NetworkType"/>
 			<xs:element name="flow" type="editor:FlowType"/>
 		</xs:choice>		
@@ -13,6 +14,12 @@
 	<xs:complexType name="PointType">
 		<xs:attribute name="x"></xs:attribute>
 		<xs:attribute name="y"></xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="RectangleType">
+		<xs:attribute name="x1"></xs:attribute>
+		<xs:attribute name="y1"></xs:attribute>
+		<xs:attribute name="x2"></xs:attribute>
+		<xs:attribute name="y2"></xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="NetworkType">
 		<xs:attribute name="x"></xs:attribute>

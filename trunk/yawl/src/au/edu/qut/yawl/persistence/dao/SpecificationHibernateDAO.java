@@ -221,6 +221,7 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
         return m.getDbID();
     }
 
+    //TODO:this needs to actually filter out non-children. currently returns everything
     public List getChildren(Object parent) {
     	List retval = new ArrayList();
 		Session session = openSession();

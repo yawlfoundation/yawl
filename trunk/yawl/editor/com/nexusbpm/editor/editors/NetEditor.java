@@ -30,7 +30,6 @@ public class NetEditor extends ComponentEditor {
 
 	private GraphEditor _flowGraphEditor;
 	private JTabbedPane _tabbedPane;
-
 	/**
 	 * save this off so we can clear it later
 	 */
@@ -54,7 +53,7 @@ public class NetEditor extends ComponentEditor {
 	public JComponent initializeUI() throws EditorException {
 
 		_tabbedPane = new JTabbedPane();
-		addGraphEditor( _proxy, true );
+		addGraphEditor( _proxy, true);
 
 		// XXX TODO here we check if it is an instance or not...  and initialize the graph differently if it is.
 //		Object object = _proxy.getData();
@@ -111,7 +110,7 @@ public class NetEditor extends ComponentEditor {
 	 *                   create a graph editor for.
 	 * @param focusNewTab whether the new tab should be given focus or not.
 	 */
-	public void addGraphEditor( EditorDataProxy proxy, final boolean focusNewTab ) throws EditorException {
+	public void addGraphEditor( EditorDataProxy proxy, final boolean focusNewTab) throws EditorException {
 		// Get the flow from the cache.
 		final YNet flow = (YNet) proxy.getData();
 		if (null == flow) {
@@ -124,7 +123,7 @@ public class NetEditor extends ComponentEditor {
 			LOG.debug( "FlowEditor.addGraphEditor " + type + " proxy: " + proxy.toString() + ", focusNewTab: " + focusNewTab );
 		}
 		// Create and initialize the new graph editor.
-		GraphEditor ge = new GraphEditor( isInstance , this );
+		GraphEditor ge = new GraphEditor( isInstance , this);
 		if( isInstance ) {
 			instanceEditor = ge;
 			ge.initializeInstance( proxy );
