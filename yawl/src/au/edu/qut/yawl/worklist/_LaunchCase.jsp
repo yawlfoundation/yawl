@@ -30,13 +30,10 @@
 					_worklistController, userID);
 				
 				String url = wip.getRedirectURL(getServletContext(), specData);
-				
 				response.sendRedirect( response.encodeURL(url) );
 			}
 	
 			catch(Exception e){
-	
-				System.out.println(e.toString());
 	
 	            if(specData != null){
         %>

@@ -9,8 +9,21 @@
 
 package au.edu.qut.yawl.worklist;
 
-import au.edu.qut.yawl.worklist.model.WorkItemRecord;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.servlet.ServletContext;
+
+import org.jdom.JDOMException;
+
 import au.edu.qut.yawl.elements.data.YParameter;
+import au.edu.qut.yawl.engine.interfce.Interface_Client;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.forms.InstanceBuilder;
@@ -19,20 +32,11 @@ import au.edu.qut.yawl.schema.ElementCreationInstruction;
 import au.edu.qut.yawl.schema.ElementReuseInstruction;
 import au.edu.qut.yawl.schema.Instruction;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
-import au.edu.qut.yawl.worklist.model.*;
-import au.edu.qut.yawl.engine.interfce.*;
-import java.util.HashMap;
-
-import org.jdom.JDOMException;
-
-import javax.servlet.ServletContext;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import au.edu.qut.yawl.worklist.model.SpecificationData;
+import au.edu.qut.yawl.worklist.model.TaskInformation;
+import au.edu.qut.yawl.worklist.model.WorkItemRecord;
+import au.edu.qut.yawl.worklist.model.WorklistController;
+import au.edu.qut.yawl.worklist.model.YParametersSchema;
 
 
 /**
@@ -247,7 +251,7 @@ public class WorkItemProcessor {
     public String getRedirectURL(ServletContext context, SpecificationData specData) {
         String url = context.getInitParameter("YAWLXForms") +
                 "/XFormsServlet?form=/forms/" + this.getFormName(specData) +
-                "&css=/styles/yawl.css&xslt=html4yawl.xsl";
+                "&css=yawl.css&xslt=html4yawl.xsl";
 
         return url;
     }
@@ -263,7 +267,7 @@ public class WorkItemProcessor {
 
       String url = context.getInitParameter("YAWLXForms") +
               "/XFormsServlet?form=/forms/" + this.getFormName(taskInfo) +
-              "&css=/styles/yawl.css&xslt=html4yawl.xsl";
+              "&css=yawl.css&xslt=html4yawl.xsl";
 
       return url;
   }
@@ -291,9 +295,7 @@ public class WorkItemProcessor {
         if (item != null) {
             //first of all get the task information which contains the parameter signatures.
             TaskInformation taskInfo = worklistController.getTaskInformation(
-                    item.getSpecificationID(),
-                    item.getTaskID(),
-                    _sessionHandle);
+                    item.getSpecificationID(), item.getTaskID(), _sessionHandle);
 
             String specID = taskInfo.getSpecificationID();
 
@@ -331,9 +333,7 @@ public class WorkItemProcessor {
                     String typeName = inputParam.getDataTypeName();
                     boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(inputParam.getDataTypeNameSpace());
                     ElementCreationInstruction instruction = new ElementCreationInstruction(
-                            elementName,
-                            typeName,
-                            isPrimitiveType);
+                            elementName, typeName, isPrimitiveType);
                     instructions.add(instruction);
                 }
                 // currently we convert untyped parameters into creation parameters, due to a bug in YAWL
@@ -350,9 +350,7 @@ public class WorkItemProcessor {
                     String typeName = "boolean";
                     boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(inputParam.getDataTypeNameSpace());
                     ElementCreationInstruction instruction = new ElementCreationInstruction(
-                            elementName,
-                            typeName,
-                            isPrimitiveType);
+                            elementName, typeName, isPrimitiveType);
                     instructions.add(instruction);
                 }
                 if (debug) System.out.println();
@@ -400,9 +398,7 @@ public class WorkItemProcessor {
                     String typeName = outputParam.getDataTypeName();
                     boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(outputParam.getDataTypeNameSpace());
                     ElementCreationInstruction instruction = new ElementCreationInstruction(
-                            elementName,
-                            typeName,
-                            isPrimitiveType);
+                            elementName, typeName, isPrimitiveType);
 
                     // if an instruction with the same name already exists in the instruction list
                     // remove it and add the instruction for this parameter
@@ -441,9 +437,7 @@ public class WorkItemProcessor {
                     //boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(outputParam.getDataTypeNameSpace());
                     boolean isPrimitiveType = true;
                     ElementCreationInstruction instruction = new ElementCreationInstruction(
-                            elementName,
-                            typeName,
-                            isPrimitiveType);
+                            elementName, typeName, isPrimitiveType);
 
                     // if an instruction with the same name already exists in the instruction list
                     // remove it and add the instruction for this parameter
@@ -484,31 +478,6 @@ public class WorkItemProcessor {
     }
     
     
-/*
-    private String getInputOutputParams(List inputParams){
-        
-    	// Method needs refactoring or deleting 
-    	// ideally use getInputOnlyParams(input, output) instead
-    	
-    	StringBuffer input = new StringBuffer();
-    	
-    	for (int j = 0; j < inputParams.size(); j++) {
-            YParameter inputParam = (YParameter) inputParams.get(j);
-
-            if (inputParam.getElementName() != null) { // work item input param
-                input.append(inputParam.getElementName() + ",");
-                System.out.println("Add I/O input param element name: "+inputParam.getElementName());
-            }
-            else if (inputParam.getName() != null) {
-            	input.append(inputParam.getName() + ",");
-            	System.out.println("Add I/O input param name: "+inputParam.getName());
-            }
-        }
-    	return input.toString();
-    }
-*/
-    
-    
     /**
      * Given a list of input and output parameters for a task, this method returns
      * the <i>input only</i> parameters by filtering out those parameters which are
@@ -524,26 +493,33 @@ public class WorkItemProcessor {
     	
     	for (int i = 0; i < inputParams.size(); i++){
     		YParameter inputParam = (YParameter) inputParams.get(i);
+
 	    	for (int j = 0; ((j < outputParams.size()) && (found == false)); j++) {
 	            YParameter outputParam = (YParameter) outputParams.get(j);
-	            
+
 	            // check if "input param element name" exists and is not also input/output
-	            if ((inputParam.getElementName() != null) && (outputParam.getElementName().compareTo(inputParam.getElementName()) == 0)) {
-	                found = true;
+	            if (inputParam.getElementName() != null && outputParam.getElementName() != null){
+		            if (outputParam.getElementName().compareTo(inputParam.getElementName()) == 0) {
+		                found = true;
+		            }
 	            }
 	            // check if "input param name" exists and is not also input/output
-	            else if ((inputParam.getName() != null) && (outputParam.getName().compareTo(inputParam.getName()) == 0)) {
-	            	found = true;
+	            if (inputParam.getName() != null && outputParam.getName() != null){
+	            	if (outputParam.getName().compareTo(inputParam.getName()) == 0) {
+	            		found = true;
+	            	}
 	            }
 	        }
 	    	
-	    	if (found == false && (inputParam.getElementName() != null)){
-	    		input.append(inputParam.getElementName() + ",");
-	    		if (debug) System.out.println("Add inputonly param element name: "+inputParam.getElementName());
-	    	}
-	    	else if (found == false && (inputParam.getName() != null)){	
-	    		input.append(inputParam.getName() + ",");
-	    		if (debug) System.out.println("Add inputonly element name: "+inputParam.getName());
+	    	if (found == false){ 
+	    		if (inputParam.getElementName() != null){
+	    			input.append(inputParam.getElementName() + ",");
+		    		if (debug) System.out.println("Add inputonly param element name: "+inputParam.getElementName());
+	    		}
+	    		else if (found == false && (inputParam.getName() != null)){
+		    		input.append(inputParam.getName() + ",");
+		    		if (debug) System.out.println("Add inputonly element name: "+inputParam.getName());
+		    	}
 	    	}
 	    	found = false;
     	}
@@ -571,7 +547,6 @@ public class WorkItemProcessor {
     }
 
 
-
     public String executePDFWorkItemPost(ServletContext context, String workItemID, String decompositionID,
     	String sessionHandle, WorklistController _worklistController, String userID)
             throws YSchemaBuildingException, YSyntaxException, IOException,
@@ -581,34 +556,31 @@ public class WorkItemProcessor {
         TaskInformation taskInfo = _worklistController.getTaskInformation(
                 item.getSpecificationID(), item.getTaskID(), sessionHandle);
 
+		HashMap map = new HashMap();
 	
-	HashMap map = new HashMap();
-
-	System.out.println("workitem is: " + item.getDataListString());
-
-	StringBuffer xmlBuff = new StringBuffer();
-	xmlBuff.append("<workItem>");
-	xmlBuff.append("<taskID>" + item.getTaskID() + "</taskID>");
-	xmlBuff.append("<caseID>" + item.getCaseID() + "</caseID>");
-	xmlBuff.append("<uniqueID>" + item.getUniqueID() + "</uniqueID>");
-	xmlBuff.append("<specID>" + item.getSpecificationID() + "</specID>");
-	xmlBuff.append("<status>" + item.getStatus() + "</status>");
-	xmlBuff.append("<data>" + item.getDataListString() + "</data>");
-	xmlBuff.append("<enablementTime>" + item.getEnablementTime() + "</enablementTime>");
-	xmlBuff.append("<firingTime>" + item.getFiringTime() + "</firingTime>");
-	xmlBuff.append("<startTime>" + item.getStartTime() + "</startTime>");
-	xmlBuff.append("<assignedTo>" + item.getWhoStartedMe() + "</assignedTo>");
-	xmlBuff.append("</workItem>");
+		if (debug) System.out.println("workitem is: " + item.getDataListString());
+	
+		StringBuffer xmlBuff = new StringBuffer();
+		xmlBuff.append("<workItem>");
+		xmlBuff.append("<taskID>" + item.getTaskID() + "</taskID>");
+		xmlBuff.append("<caseID>" + item.getCaseID() + "</caseID>");
+		xmlBuff.append("<uniqueID>" + item.getUniqueID() + "</uniqueID>");
+		xmlBuff.append("<specID>" + item.getSpecificationID() + "</specID>");
+		xmlBuff.append("<status>" + item.getStatus() + "</status>");
+		xmlBuff.append("<data>" + item.getDataListString() + "</data>");
+		xmlBuff.append("<enablementTime>" + item.getEnablementTime() + "</enablementTime>");
+		xmlBuff.append("<firingTime>" + item.getFiringTime() + "</firingTime>");
+		xmlBuff.append("<startTime>" + item.getStartTime() + "</startTime>");
+		xmlBuff.append("<assignedTo>" + item.getWhoStartedMe() + "</assignedTo>");
+		xmlBuff.append("</workItem>");
+			
+		map.put("decompositionID",decompositionID);
+		map.put("workitem",xmlBuff.toString());
+		map.put("username",_worklistController.getUsername());
+		Interface_Client.executePost("http://localhost:8080/worklist/handler",map);
+		if (debug) System.out.println("Calling the pdf handler");
 		
-	map.put("decompositionID",decompositionID);
-	map.put("workitem",xmlBuff.toString());
-	map.put("username",_worklistController.getUsername());
-	Interface_Client.executePost("http://localhost:8080/worklist/handler",map);
-	System.out.println("Calling the pdf handler");
-	
-	return item.getSpecificationID()+item.getTaskID()+item.getUniqueID()+".pdf";
-	
+		return item.getSpecificationID()+item.getTaskID()+item.getUniqueID()+".pdf";
     }
-
 
 }
