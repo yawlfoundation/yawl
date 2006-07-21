@@ -157,8 +157,8 @@ public class DataContext {
     public void delete(DataProxy dataProxy) {
     	Object data = getData(dataProxy);
     	dao.delete((YSpecification) data);
-    	dataMap.remove(dataProxy);
-    	proxyMap.remove(data);
+        removeFromMaps(dataProxy, data);
+        removeFromHierarchy(dataProxy);
     }
     
     /* (non-Javadoc)
@@ -173,23 +173,16 @@ public class DataContext {
      * the data context. It is necessary to pass both the proxy and the
      * object because the proxy delegates retrieving its data to the context
      * (this class) which won't have its data until after it's attached.
+     * If the object does not implement Parented, then it will not be
+     * connected to the hierarchy.
      * @param dataProxy the proxy to add to the context.
      * @param object the data object that the proxy is a proxy for.
      */
     public void attachProxy(DataProxy dataProxy, Object object) {
         dataProxy.setContext( this );
-        dataMap.put(dataProxy, object);
-        proxyMap.put(object, dataProxy);
         
-        if( object instanceof Parented) {
-            Object parent = ((Parented) object).getParent();
-            if( parent != null ) {
-                DataProxy parentProxy = getDataProxy( parent, null );
-                if( parentProxy != null ) {
-                    hierarchy.put( parentProxy, dataProxy );
-                }
-            }
-        }
+        addToMaps(dataProxy, object);
+        addToHierarchy(dataProxy);
     }
     
     /**
@@ -197,23 +190,62 @@ public class DataContext {
      * @param dataProxy the proxy object to detach.
      */
     public void detachProxy(DataProxy dataProxy) {
-        // TODO handle parent not in hierarchy anymore
-        Parented object = (Parented) dataProxy.getData();
-        Object parent = object.getParent();
-        DataProxy parentProxy = getDataProxy( parent, null );
-        dataMap.remove(dataProxy);
-        proxyMap.remove(object);
+        Object object = dataProxy.getData();
         
-        hierarchy.remove( dataProxy );
-        hierarchy.get( parent ).remove( dataProxy );
+        removeFromMaps(dataProxy, object);
+        removeFromHierarchy(dataProxy);
         
-        dataProxy.setContext( null );
+        dataProxy.setContext(null);
+    }
+    
+    private DataProxy getParentProxy(DataProxy child) {
+        if( child.getData() != null
+                && child.getData() instanceof Parented
+                && ((Parented)child.getData()).getParent() != null ) {
+            return proxyMap.get( ((Parented)child.getData()).getParent() );
+        }
+        else {
+            return null;
+        }
+    }
+    
+    /**
+     * The child proxy must be attached to the context for this function to work.
+     * If the child does not implement Parented, then the child won't be added.
+     * @param childProxy
+     */
+    private void addToHierarchy(DataProxy childProxy) {
+        if( getParentProxy( childProxy ) != null ) {
+            hierarchy.put(getParentProxy( childProxy ), childProxy);
+        }
+    }
+    
+    /**
+     * Removes the child proxy, and all of its children, from the hierarchy.
+     */
+    private void removeFromHierarchy(DataProxy childProxy) {
+        hierarchy.remove( childProxy );
+        DataProxy parentProxy = getParentProxy( childProxy );
+        if( parentProxy != null && hierarchy.get( parentProxy ) != null ) {
+            hierarchy.get( parentProxy ).remove( childProxy );
+        }
+    }
+    
+    private void addToMaps(DataProxy proxy, Object data) {
+        dataMap.put(proxy, data);
+        proxyMap.put(data, proxy);
+    }
+    
+    private void removeFromMaps(DataProxy proxy, Object data) {
+        dataMap.remove(proxy);
+        proxyMap.remove(data);
     }
    
     public Set<DataProxy> getChildren(DataProxy parent, boolean forceUpdate) {
     	if (hierarchy.get(parent) == null || forceUpdate) {
     		List l = dao.getChildren(parent.getData());
     		for (Object o: l) {
+                assert o != null : "data proxy returned a null child!" + parent.toString();
     			if (o instanceof YSpecification) {
                     VisitSpecificationOperation.visitSpecification(
                             (YSpecification) o,

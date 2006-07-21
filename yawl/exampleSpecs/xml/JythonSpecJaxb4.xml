@@ -9,12 +9,12 @@
 		<metaData/>
 		<decomposition id="RootDecomp" isRootNet="true" xsi:type="NetFactsType">
 			<localVariable>
-				<name>one.ServiceName</name>
+				<name>one__ServiceName</name>
 				<isUntyped/>
 				<initialValue>Jython</initialValue>
 			</localVariable>
 			<localVariable>
-				<name>one.code</name>
+				<name>one__code</name>
 				<isUntyped/>
 				<initialValue>text::from javax.xml.parsers import DocumentBuilder
 from javax.xml.parsers import DocumentBuilderFactory
@@ -46,32 +46,32 @@ data.setPlain("today",today)
 data.setPlain("csv",csv)</initialValue>
 			</localVariable>
 			<localVariable>
-				<name>one.output</name>
+				<name>one__output</name>
 				<isUntyped/>
 				<initialValue></initialValue>
 			</localVariable>
 			<localVariable>
-				<name>one.error</name>
+				<name>one__error</name>
 				<isUntyped/>
 				<initialValue></initialValue>
 			</localVariable>
 			<localVariable>
-				<name>one.today</name>
+				<name>one__today</name>
 				<isUntyped/>
 				<initialValue></initialValue>
 			</localVariable>
 			<localVariable>
-				<name>one.csv</name>
+				<name>one__csv</name>
 				<isUntyped/>
 				<initialValue></initialValue>
 			</localVariable>
 			<localVariable>
-				<name>two.subject</name>
+				<name>two__subject</name>
 				<isUntyped/>
 				<initialValue>text::Quotes of the Day %l%l%ltoday%r%r%r</initialValue>
 			</localVariable>
 			<localVariable>
-				<name>two.body</name>
+				<name>two__body</name>
 				<isUntyped/>
 				<initialValue>text::Hello, fellow DSS'er, all my circuits are functioning imperfectly and I am fully operational.
 It must be 5:00 PM, so it's time for the quotes of the day - enjoy...
@@ -93,50 +93,50 @@ It must be 5:00 PM, so it's time for the quotes of the day - enjoy...
 					<split code="and"/>
 					<startingMappings>
 						<mapping>
-							<expression query="&lt;code&gt;{/RootDecomp/one.code/text()}&lt;/code&gt;"/>
+							<expression query="&lt;code&gt;{/RootDecomp/one__code/text()}&lt;/code&gt;"/>
 							<mapsTo>code</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;error&gt;{/RootDecomp/one.error/text()}&lt;/error&gt;"/>
+							<expression query="&lt;error&gt;{/RootDecomp/one__error/text()}&lt;/error&gt;"/>
 							<mapsTo>error</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;output&gt;{/RootDecomp/one.output/text()}&lt;/output&gt;"/>
+							<expression query="&lt;output&gt;{/RootDecomp/one__output/text()}&lt;/output&gt;"/>
 							<mapsTo>output</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;today&gt;{/RootDecomp/one.today/text()}&lt;/today&gt;"/>
+							<expression query="&lt;today&gt;{/RootDecomp/one__today/text()}&lt;/today&gt;"/>
 							<mapsTo>today</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;csv&gt;{/RootDecomp/one.csv/text()}&lt;/csv&gt;"/>
+							<expression query="&lt;csv&gt;{/RootDecomp/one__csv/text()}&lt;/csv&gt;"/>
 							<mapsTo>csv</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;ServiceName&gt;{/RootDecomp/one.ServiceName/text()}&lt;/ServiceName&gt;"/>
+							<expression query="&lt;ServiceName&gt;{/RootDecomp/one__ServiceName/text()}&lt;/ServiceName&gt;"/>
 							<mapsTo>ServiceName</mapsTo>
 						</mapping>
 					</startingMappings>
 					<completedMappings>
 						<mapping>
-							<expression query="&lt;one.code&gt;{/DecompOne/code/text()}&lt;/one.code&gt;"/>
-							<mapsTo>one.code</mapsTo>
+							<expression query="&lt;one__code&gt;{/DecompOne/code/text()}&lt;/one__code&gt;"/>
+							<mapsTo>one__code</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;one.output&gt;{/DecompOne/output/text()}&lt;/one.output&gt;"/>
-							<mapsTo>one.output</mapsTo>
+							<expression query="&lt;one__output&gt;{/DecompOne/output/text()}&lt;/one__output&gt;"/>
+							<mapsTo>one__output</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;one.error&gt;{/DecompOne/error/text()}&lt;/one.error&gt;"/>
-							<mapsTo>one.error</mapsTo>
+							<expression query="&lt;one__error&gt;{/DecompOne/error/text()}&lt;/one__error&gt;"/>
+							<mapsTo>one__error</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;one.today&gt;{/DecompOne/today/text()}&lt;/one.today&gt;"/>
-							<mapsTo>one.today</mapsTo>
+							<expression query="&lt;one__today&gt;{/DecompOne/today/text()}&lt;/one__today&gt;"/>
+							<mapsTo>one__today</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;one.csv&gt;{/DecompOne/csv/text()}&lt;/one.csv&gt;"/>
-							<mapsTo>one.csv</mapsTo>
+							<expression query="&lt;one__csv&gt;{/DecompOne/csv/text()}&lt;/one__csv&gt;"/>
+							<mapsTo>one__csv</mapsTo>
 						</mapping>
 					</completedMappings>
 					<decomposesTo id="DecompOne"/>
@@ -153,19 +153,19 @@ It must be 5:00 PM, so it's time for the quotes of the day - enjoy...
 							<mapsTo>toAddress</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;subject&gt;{/RootDecomp/two.subject/text()}&lt;/subject&gt;"/>
+							<expression query="&lt;subject&gt;{/RootDecomp/two__subject/text()}&lt;/subject&gt;"/>
 							<mapsTo>subject</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;body&gt;{/RootDecomp/two.body/text()}&lt;/body&gt;"/>
+							<expression query="&lt;body&gt;{/RootDecomp/two__body/text()}&lt;/body&gt;"/>
 							<mapsTo>body</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;today&gt;{/RootDecomp/one.today/text()}&lt;/today&gt;"/>
+							<expression query="&lt;today&gt;{/RootDecomp/one__today/text()}&lt;/today&gt;"/>
 							<mapsTo>today</mapsTo>
 						</mapping>
 						<mapping>
-							<expression query="&lt;csv&gt;{/RootDecomp/one.csv/text()}&lt;/csv&gt;"/>
+							<expression query="&lt;csv&gt;{/RootDecomp/one__csv/text()}&lt;/csv&gt;"/>
 							<mapsTo>csv</mapsTo>
 						</mapping>
 						<mapping>
