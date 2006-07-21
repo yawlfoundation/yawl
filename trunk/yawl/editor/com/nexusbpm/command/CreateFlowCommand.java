@@ -38,7 +38,8 @@ public class CreateFlowCommand implements Command{
 		YFlow flow = new YFlow(sourceElement, targetElement);
 		sourceElement.getPostsetFlows().add(flow);
 		targetElement.getPresetFlows().add(flow);
-		createdFlow = source.getContext().getDataProxy(flow, null);
+		createdFlow = source.getContext().createProxy(flow, null);
+        source.getContext().attachProxy(createdFlow, flow);
 	}
 	
 	public void undo() {

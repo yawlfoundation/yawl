@@ -2,7 +2,6 @@ package com.nexusbpm.editor;
 
 import java.io.File;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
@@ -20,10 +19,10 @@ import au.edu.qut.yawl.persistence.managed.DataProxy;
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CommandExecutor;
 import com.nexusbpm.command.CreateConditionCommand;
+import com.nexusbpm.command.CreateFlowCommand;
 import com.nexusbpm.command.CreateNetCommand;
 import com.nexusbpm.command.CreateNexusComponent;
 import com.nexusbpm.command.CreateSpecificationCommand;
-import com.nexusbpm.command.CommandExecutor.ExecutionResult;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
@@ -115,6 +114,22 @@ public class WorkflowEditor extends javax.swing.JFrame {
                             executor.executeCommand(command).get();
                             command = new CreateNexusComponent( (EditorDataProxy) subchild,
                                     "jython", "jython", NexusServiceInfo.getServiceWithName( "Jython" ) );
+                            executor.executeCommand(command).get();
+                            command = new CreateNexusComponent( (EditorDataProxy) subchild,
+                                    "email sender", "email_sender", NexusServiceInfo.getServiceWithName( "EmailSender" ) );
+                            executor.executeCommand(command).get();
+                            YNet net = (YNet) subchild.getData();
+                            command = new CreateFlowCommand(
+                                    (EditorDataProxy) memdc.getDataProxy( net.getInputCondition(), null ),
+                                    (EditorDataProxy) memdc.getDataProxy( net.getNetElement( "jython" ), null ) );
+                            executor.executeCommand(command).get();
+                            command = new CreateFlowCommand(
+                                    (EditorDataProxy) memdc.getDataProxy( net.getNetElement( "jython" ), null ),
+                                    (EditorDataProxy) memdc.getDataProxy( net.getNetElement( "email_sender" ), null ) );
+                            executor.executeCommand(command).get();
+                            command = new CreateFlowCommand(
+                                    (EditorDataProxy) memdc.getDataProxy( net.getNetElement( "email_sender" ), null ),
+                                    (EditorDataProxy) memdc.getDataProxy( net.getOutputCondition(), null ) );
                             executor.executeCommand(command).get();
                         }
                     }

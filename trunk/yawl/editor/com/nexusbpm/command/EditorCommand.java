@@ -61,7 +61,9 @@ public class EditorCommand {
 			String dataroot = target.getProxy().getData().toString();
 			URI desturi = joinUris(new URI(dataroot), new URI(spec.getID()));
 			newSpec.setID(desturi.toASCIIString());
-			DataProxy dp = targetDataContext.getDataProxy(newSpec, null);
+//			DataProxy dp = targetDataContext.getDataProxy(newSpec, null);
+            DataProxy dp = targetDataContext.createProxy(newSpec, null);
+            targetDataContext.attachProxy(dp, newSpec);
 			targetDataContext.save(dp);
 			LOG.info("Copying specification " + spec.getID() + " to " + newSpec.getID());
 			targetDataContext.getChildren(target.getProxy(), true);
