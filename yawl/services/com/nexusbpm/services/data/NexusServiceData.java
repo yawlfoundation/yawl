@@ -241,8 +241,12 @@ public class NexusServiceData {
                     || varName.equals( "YawlWSInvokerWSDLLocation" )
                     || varName.equals( "YawlWSInvokerOperationName" )
                     || varName.equals( "YawlWSInvokerPortName" ) ) ) {
-                String val = task.getParent().getLocalVariable(
-                        taskID + NexusWorkflow.NAME_SEPARATOR + varName ).getInitialValue();
+                String val = null;
+                if( task.getParent().getLocalVariable(
+                        taskID + NexusWorkflow.NAME_SEPARATOR + varName ) != null ) {
+                    val = task.getParent().getLocalVariable(
+                            taskID + NexusWorkflow.NAME_SEPARATOR + varName ).getInitialValue();
+                }
                 
                 data.unmarshalVariable( varName, val );
             }
