@@ -245,40 +245,29 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 	 * @return the icon for this controller's domain object.
 	 */
 	public ImageIcon icon() {
-		String iconName = null;
-		Object data = getData();
-		if (data instanceof YAtomicTask) {
-			YAtomicTask task = (YAtomicTask) data;
-			if (task.getDecompositionPrototype() != null) {
-				String serviceName = task.getID() 
-					+ NexusWorkflow.NAME_SEPARATOR 
-					+ NexusWorkflow.SERVICENAME_VAR;
-				String value = task.getParent().getLocalVariable(serviceName).getInitialValue();
-				System.out.println("trying icon map " + value);
-				iconName = task.getDecompositionPrototype().getId() != null 
-				? task.getDecompositionPrototype().getId() 
-				: "au.edu.qut.yawl.elements.YAtomicTask";
-				iconName = value;
-			}
-			else {
-				iconName = "com.ichg.capsela.domain.component.DummyComponent";
+		String iconName = "Component";
+		if (getData() instanceof YAtomicTask) {
+			YAtomicTask task = (YAtomicTask) getData();
+			String serviceName = task.getID() 
+				+ NexusWorkflow.NAME_SEPARATOR 
+				+ NexusWorkflow.SERVICENAME_VAR;
+			String value = null;
+			if (task.getParent() != null) {
+				YVariable var = task.getParent().getLocalVariable(serviceName);
+				if (var != null) {
+					value = var.getInitialValue();
+				}
+				if (value != null) iconName = value;
 			}
 		}
-		else if (data instanceof YAWLServiceGateway) {
-			YAWLServiceGateway gate = (YAWLServiceGateway) data;
-			if (gate.getName() != null) {
-				iconName = gate.getId();
-			}
-			else iconName = "au.edu.qut.yawl.elements.YAtomicTask";
-		} 
 		else {
-		 iconName =  getData().getClass().getName();
+			iconName = getData().getClass().getName();
 		}
 		try {
 			return ApplicationIcon.getIcon(iconName, RenderingHints.ICON_MEDIUM );
 		}
 		catch(Error e) {
-			return ApplicationIcon.getIcon("com.ichg.capsela.domain.component.Component", RenderingHints.ICON_MEDIUM );
+			return ApplicationIcon.getIcon("Component", RenderingHints.ICON_MEDIUM );
 		}
 	}
 
@@ -328,40 +317,48 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 			}
 			else {
 				Class editorClass = getEditorClass();
-				_editor = (ComponentEditor) editorClass.newInstance();
+				if (editorClass != null) {
+					_editor = (ComponentEditor) editorClass.newInstance();
+				}
 			}
 //			_editor.setProxy(this);
 //			_editor.initializeUI();
-			_editor.setTitle( this.getLabel() );
-			LOG.debug( "removing frame listeners" );
-			removeEditorFrameListeners();
-			LOG.debug( "adding frame listener for editor: " + _editor.getClass().getName() );
-			_editor.addInternalFrameListener( getInternalFrameListener( _editor ) );
-
+			if (_editor != null) {
+				_editor.setTitle( this.getLabel() );
+				LOG.debug( "removing frame listeners" );
+				removeEditorFrameListeners();
+				LOG.debug( "adding frame listener for editor: " + _editor.getClass().getName() );
+				_editor.addInternalFrameListener( getInternalFrameListener( _editor ) );
+			}
 			return _editor;
 	}
 
-	//	TODO fix this is a hack. These values should be externally mapped...
+	/**
+	 * uses NexusServiceInfo to retrieve the appropriate editor class for
+	 * the underlying YAWL object.
+	 * 
+	 * @return the class of the editor
+	 */
 	public Class getEditorClass() {
-		Class retval;
-		if (getData() instanceof  YNet ) {
+		Class retval = null;
+		if (getData() instanceof YNet) {
 			retval = NetEditor.class;
-		}
-		else if (getData() instanceof YAtomicTask) {
-            YAtomicTask task = (YAtomicTask) getData();
-            YVariable var = task.getParent().getLocalVariable(
-                    task.getID() + NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.SERVICENAME_VAR );
-            
-            NexusServiceInfo service = NexusServiceInfo.getServiceWithName( var.getInitialValue() );
-            
-            try {
-                retval = Class.forName( service.getEditorClassName() );
-            }
-            catch( ClassNotFoundException e ) {
-                retval = null;
-            }
-		}
-		else retval = null;
+		} else if (getData() instanceof YAtomicTask) {
+			YAtomicTask task = (YAtomicTask) getData();
+			YVariable var = task.getParent().getLocalVariable(
+					task.getID() + NexusWorkflow.NAME_SEPARATOR
+							+ NexusWorkflow.SERVICENAME_VAR);
+			if (var != null) {
+				NexusServiceInfo service = NexusServiceInfo
+						.getServiceWithName(var.getInitialValue());
+				try {
+					retval = Class.forName(service.getEditorClassName());
+				} catch (ClassNotFoundException e) {
+					retval = null;
+				}
+			}
+		} else
+			retval = null;
 		return retval;
 	}
 

@@ -99,9 +99,8 @@ public class DesktopPane extends JDesktopPane implements DropTargetListener {
       CapselaInternalFrame editor;
 	try {
 		editor = dp.getEditor();
-		if (!editor.isVisible()) {
+		if (editor != null && !editor.isVisible()) {
 			editor.setVisible(true);
-//			editor.setLocation(location);
 			add(editor);
 			editor.toFront();
 			editor.setSelected( true );

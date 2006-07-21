@@ -47,7 +47,7 @@ public class RemoveTaskCommand implements Command{
 		net.getNetElements().remove(task);
 		if (task instanceof YAtomicTask && prototype != null) {
 			spec.getDecompositions().remove(prototype);
-			context.delete(context.getDataProxy(prototype, null));
+			context.detachProxy(context.getDataProxy(prototype, null));
 		}
 		if (task instanceof YCompositeTask) {
 			task.setDecompositionPrototype(null);
@@ -59,13 +59,13 @@ public class RemoveTaskCommand implements Command{
 			}
 		}
 		for (YFlow flow: task.getPresetFlows()) {
-			context.delete(context.getDataProxy(flow, null));
+			context.detachProxy(context.getDataProxy(flow, null));
 		}
 		for (YFlow flow: task.getPostsetFlows()) {
-			context.delete(context.getDataProxy(flow, null));
+			context.detachProxy(context.getDataProxy(flow, null));
 		}
 		task.removeAllFlows();		
-		context.delete(taskProxy);
+		context.detachProxy(taskProxy);
 	}
 	
 	public void undo() {

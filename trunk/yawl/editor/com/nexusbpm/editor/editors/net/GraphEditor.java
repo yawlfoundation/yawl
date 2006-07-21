@@ -57,6 +57,7 @@ import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.command.Command;
+import com.nexusbpm.command.CompoundCommand;
 import com.nexusbpm.command.RemoveTaskCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.NetEditor;
@@ -809,21 +810,10 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
   }
 
   private void deleteSelectedItems() {
-//    try {
-		LOG.debug("GraphEditor.deleteSelectedItems");
-      Set<EditorDataProxy> removeSet = (Set<EditorDataProxy>) GraphEditor.this.getRemoveSet();
-      for (EditorDataProxy o: removeSet) {
-    	  System.out.println("removing " + o);
-          Command command = new RemoveTaskCommand(o);
-          WorkflowEditor.getExecutor().executeCommand(command);
-          _graph.getGraphLayoutCache().setVisible(o.getGraphCell(), false);
-//          this._graphModel.remove(new Object[] {o.getGraphCell()});
-      }
-      //      ClientOperation.executeDeleteCommand(removeSet, GraphEditor.this.getProxy(), GraphEditor.this);
-//    } catch (EditorException ce) {
-//      LOG.error("Error deleting the selected items.", ce);
-//    }
-  }
+		LOG.info("GraphEditor.deleteSelectedItems");
+		this._graph.getGraphLayoutCache().remove(_graph.getSelectionCells());
+		this._graph.getGraphLayoutCache().removeMapping(_graph.getSelectionCells());
+	}
 
   private void updateStatus(int status) {
       throw new RuntimeException("implement execution status stuff");

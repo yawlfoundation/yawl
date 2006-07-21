@@ -1,7 +1,9 @@
 package com.nexusbpm.editor.editors.net;
 
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -13,6 +15,10 @@ import org.jgraph.graph.GraphConstants;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 
+import com.nexusbpm.command.Command;
+import com.nexusbpm.command.CompoundCommand;
+import com.nexusbpm.command.RemoveTaskCommand;
+import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 
@@ -40,46 +46,81 @@ public class GraphChangeSummary implements GraphModelListener {
    * @see org.jgraph.event.GraphModelListener#graphChanged(org.jgraph.event.GraphModelEvent)
    */
   public void graphChanged(GraphModelEvent e) {
-    if (e.getChange().getPreviousAttributes() != null) {
+		if (e.getChange().getRemoved() != null) {
+			LOG.info("Objects are being deleted by the graph");
+			List<Command> commands = new ArrayList<Command>();
+			for (Object o : e.getChange().getRemoved()) {
+				if (o instanceof NexusCell) {
+					LOG.info("deleting cell");
+					NexusCell cell = (NexusCell) o;
+					commands.add(new RemoveTaskCommand(cell.getProxy()));
+				} else {
+					LOG.error("not a cell but instead a "
+							+ o.getClass().getName());
+				}
+			}
+			CompoundCommand command = new CompoundCommand(commands);
+			WorkflowEditor.getExecutor().executeCommand(command);
+		}
 
-    for (Iterator iter = e.getChange().getPreviousAttributes().keySet().iterator(); iter.hasNext();) {
-      Object obj = iter.next();
-      if (obj != null && obj instanceof NexusCell) {
-        NexusCell cell = (NexusCell) obj;
-        Map attributeMap = (Map) e.getChange().getPreviousAttributes().get(cell);
-        if (attributeMap.get(GraphConstants.BOUNDS) != null) {
-        	YExternalNetElement ene = (YExternalNetElement) cell.getProxy().getData();
-        	YTaskEditorExtension extension = new YTaskEditorExtension(ene);
-        	Rectangle2D r = (Rectangle2D) attributeMap.get(GraphConstants.BOUNDS);
-        	extension.setBounds(r.getBounds());
-//          CellView view = _graph.getGraphLayoutCache().getMapping(cell, false);
-	      _editor.getFlowEditor().setDirty(true);
-        	LOG.info("Element position changed.");
-		  // TODO The commented block of code in the "if (view instanceof DefaultView)" is to 
-		  // reposition the animated icon if the position of the component moves.  This is not
-		  // necessary at the moment since animated icons represent running components and
-		  // running components are in instances that do not allow their position to be moved.
-		  
-//          if (view instanceof DefaultView) {
-//            AnimatedIcon animatedIcon = ((DefaultView) view).getAnimatedIcon();
-//            DefaultRenderer renderer = (DefaultRenderer) view.getRendererComponent(_graph, false, false, false);
-//            Rectangle rendererBounds = renderer.getNameRenderer().getBounds();
-//
-//            int xOffset = (int) ((rendererBounds.getWidth() / 2) - (animatedIcon.getBounds().getWidth() / 2));
-//            int yOffset = 2;
-//
-//            //Rectangle2D oldBounds = (Rectangle2D) oldAttributeMap.get(GraphConstants.BOUNDS);
-//            Rectangle2D bounds = (Rectangle2D) attributeMap.get(GraphConstants.BOUNDS);
-//            Point location = bounds.getBounds().getLocation();
-//            animatedIcon.setLocation((int) location.getX() + xOffset, (int) location.getY() + yOffset);
-//           
-//            _graph.repaint();
-//          }
-        }
-      }
-    }
-    }
-  }
+		if (e.getChange().getPreviousAttributes() != null) {
+
+			for (Iterator iter = e.getChange().getPreviousAttributes().keySet()
+					.iterator(); iter.hasNext();) {
+				Object obj = iter.next();
+				if (obj != null && obj instanceof NexusCell) {
+					NexusCell cell = (NexusCell) obj;
+					Map attributeMap = (Map) e.getChange()
+							.getPreviousAttributes().get(cell);
+					if (attributeMap.get(GraphConstants.BOUNDS) != null) {
+						YExternalNetElement ene = (YExternalNetElement) cell
+								.getProxy().getData();
+						YTaskEditorExtension extension = new YTaskEditorExtension(
+								ene);
+						Rectangle2D r = (Rectangle2D) attributeMap
+								.get(GraphConstants.BOUNDS);
+						extension.setBounds(r.getBounds());
+						// CellView view =
+						// _graph.getGraphLayoutCache().getMapping(cell, false);
+						_editor.getFlowEditor().setDirty(true);
+						LOG.info("Element position changed.");
+						// TODO The commented block of code in the "if (view
+						// instanceof DefaultView)" is to
+						// reposition the animated icon if the position of the
+						// component moves. This is not
+						// necessary at the moment since animated icons
+						// represent running components and
+						// running components are in instances that do not allow
+						// their position to be moved.
+
+						// if (view instanceof DefaultView) {
+						// AnimatedIcon animatedIcon = ((DefaultView)
+						// view).getAnimatedIcon();
+						// DefaultRenderer renderer = (DefaultRenderer)
+						// view.getRendererComponent(_graph, false, false,
+						// false);
+						// Rectangle rendererBounds =
+						// renderer.getNameRenderer().getBounds();
+						//
+						// int xOffset = (int) ((rendererBounds.getWidth() / 2)
+						// - (animatedIcon.getBounds().getWidth() / 2));
+						// int yOffset = 2;
+						//
+						// //Rectangle2D oldBounds = (Rectangle2D)
+						// oldAttributeMap.get(GraphConstants.BOUNDS);
+						// Rectangle2D bounds = (Rectangle2D)
+						// attributeMap.get(GraphConstants.BOUNDS);
+						// Point location = bounds.getBounds().getLocation();
+						// animatedIcon.setLocation((int) location.getX() +
+						// xOffset, (int) location.getY() + yOffset);
+						//           
+						//            _graph.repaint();
+						//          }
+					}
+				}
+			}
+		}
+	}
 
   //		// Get Old Attributes From GraphModelChange (Undo) -- used to remap
   //		// removed cells

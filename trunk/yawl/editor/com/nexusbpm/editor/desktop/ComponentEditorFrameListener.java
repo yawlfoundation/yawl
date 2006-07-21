@@ -123,8 +123,6 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 						callSuperInternalFrameOpened( e );
 					}//try
 					finally {
-						// Now that we're done loading the frame, we can go back to allowing the
-						// user to close it. Do it in a finally block so it happens no matter what.
 						_editor.setClosable( true );
 					}//finally
 				}//finally
