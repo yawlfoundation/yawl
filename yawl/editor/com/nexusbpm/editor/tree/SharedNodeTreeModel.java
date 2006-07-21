@@ -1,5 +1,8 @@
 package com.nexusbpm.editor.tree;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -24,7 +27,7 @@ import au.edu.qut.yawl.elements.state.YInternalCondition;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
-public class SharedNodeTreeModel extends DefaultTreeModel {
+public class SharedNodeTreeModel extends DefaultTreeModel implements VetoableChangeListener {
 
 	private static final Log LOG = LogFactory.getLog( SharedNodeTreeModel.class );
 	public static Hashtable<EditorDataProxy, SharedNode> treeNodeCache = new Hashtable<EditorDataProxy, SharedNode>();
@@ -36,6 +39,10 @@ public class SharedNodeTreeModel extends DefaultTreeModel {
 //		this.root = root;
 	}
 	
+	public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
+		LOG.info("Change " + evt.getPropertyName() + " from " + evt.getOldValue() + " to " + evt.getNewValue()); 
+	}
+
 	public List getChildren(SharedNode parent) {
 		List<SharedNode> retval = new ArrayList<SharedNode>();
 		EditorDataProxy proxy = parent.getProxy();
@@ -60,7 +67,7 @@ public class SharedNodeTreeModel extends DefaultTreeModel {
 					int y2 = x.lastIndexOf("\\");
 					String x2 = x.substring(Math.max(y1, y2) + 1);
 					node.getProxy().setLabel(x2);
-					treeNodeCache.put((EditorDataProxy) childProxy, node);
+//					treeNodeCache.put((EditorDataProxy) childProxy, node);
 				}
 				boolean shouldFilter = false;
 				if (((EditorDataProxy)childProxy).getData() instanceof YAWLServiceGateway
