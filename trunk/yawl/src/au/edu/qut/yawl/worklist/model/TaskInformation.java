@@ -19,6 +19,7 @@ import java.util.HashMap;
  * 
  */
 public class TaskInformation {
+	
     private YParametersSchema _paramSchema;
     private String _taskID;
     private String _specificationID;
@@ -36,24 +37,34 @@ public class TaskInformation {
         this._specificationID = specificationID;
         this._taskDocumentation = taskDocumentation;
         this._decompositionID = decompositionID;
-	attributes = new HashMap();
+        attributes = new HashMap();
     }
 
     public void setAttributes(HashMap map) {
-	this.attributes = map;
+    	this.attributes = map;
     }
+    
     public void addAttribute(String key, String value) {
-	attributes.put(key,value);
+    	attributes.put(key,value);
     }	
+    
     public HashMap getAttributes() {
-	return attributes;
+    	return attributes;
     }
+    
     public String getAttribute(String key) {
-	return (String) attributes.get(key);
+    	String attribute;
+    	if (attributes.containsKey(key)){
+    		attribute = (String) attributes.get(key);
+    	}
+    	else{
+    		attribute = "";
+    	}
+    	return attribute;
     }
 
     public String getFormType() {
-	return "";
+    	return "";
     }
 
     public YParametersSchema getParamSchema() {
@@ -77,7 +88,7 @@ public class TaskInformation {
 
 
     public String getTaskName() {
-        return _taskName;
+        return _taskName.replace(' ', '_');
     }
 
 

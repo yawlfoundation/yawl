@@ -36,8 +36,9 @@ System.out.println("_ItemViewer.jsp:: item = " + item.toXML());
                 %>
                 <form method="post" action="<%= contextPath %>/workItemProcessor">
                 <%
-                String status = item.getStatus();
-                if(! status.equals(WorkItemRecord.statusDeadlocked)){
+                String status = item.getStatus().toString();
+                System.out.println("IV JSP Status: "+status);
+                if(! status.equals("Deadlocked")){
                     String data = _worklistController.getDataForWorkItem(workItemID);
                     %>
                     <table border="0" cellspacing="10" bgColor="LightGrey">

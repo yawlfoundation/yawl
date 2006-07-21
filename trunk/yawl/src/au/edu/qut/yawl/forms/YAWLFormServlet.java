@@ -24,7 +24,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-//import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -50,9 +49,6 @@ public class YAWLFormServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-    	if (debug) System.out.println("--- YAWLFormServlet ---");
-    	
-        //HttpSession session = request.getSession(true);
         String inputData = null;
         String outputData = null;
 
@@ -96,8 +92,8 @@ public class YAWLFormServlet extends HttpServlet {
 	                inputData = workitem.getDataListString();
 	                outputData = new String(theInstanceData);
                 }
-                System.out.println("XFormOUTPUT: " + outputData);
-                System.out.println("XFormInput: " + inputData);
+                //System.out.println("XFormOUTPUT: " + outputData);
+                //System.out.println("XFormInput: " + inputData);
                 Element inputDataEl = null;
                 Element outputDataEl = null;
                 SAXBuilder _builder = new SAXBuilder();
