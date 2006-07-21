@@ -12,6 +12,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
@@ -27,7 +29,7 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * @author Dean Mao
  */
 public class SharedNode extends DefaultMutableTreeNode 
-implements PropertyChangeListener {
+implements DataProxyStateChangeListener {
 
 	private static final Log LOG = LogFactory.getLog( SharedNode.class );
 
@@ -68,7 +70,7 @@ implements PropertyChangeListener {
 		if( proxy != null ) {
 			_proxy = proxy;
 			_proxy.setTreeNode(this);
-			_proxy.addPropertyChangeListener( this );
+			_proxy.addChangeListener( this );
 			setUserObject(proxy.getData());
 		}
 	}
@@ -92,6 +94,11 @@ implements PropertyChangeListener {
 		LOG.debug( "Got property change event: "+propertyName );
 	}
 
+	public void proxyAttached(DataProxy proxy, Object data) {}
+	public void proxyDetached(DataProxy proxy, Object data) {
+		LOG.info("shared node rec'd detach " + proxy.getLabel() + ":" + data.toString());		
+	}
+		
 	/**
 	 * Sets this node to ignore or not ignore property change events from this
 	 * node's domain object.
@@ -147,7 +154,7 @@ implements PropertyChangeListener {
 		if( _proxy != null ) {
 			EditorDataProxy tmp = _proxy;
 			_proxy = null;
-			tmp.removePropertyChangeListener( this );
+			tmp.removeChangeListener( this );
 		}
 	}
 

@@ -24,10 +24,23 @@ import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.state.YInternalCondition;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
-public class SharedNodeTreeModel extends DefaultTreeModel implements VetoableChangeListener {
+public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxyStateChangeListener {
+
+	public void propertyChange(PropertyChangeEvent evt) {
+	}
+
+	public void proxyAttached(DataProxy proxy, Object data) {
+	}
+
+	public void proxyDetached(DataProxy proxy, Object data) {
+		treeNodeCache.remove(proxy);
+		LOG.info("Well at least I tried to remove it...");
+	}
 
 	private static final Log LOG = LogFactory.getLog( SharedNodeTreeModel.class );
 	public static Hashtable<EditorDataProxy, SharedNode> treeNodeCache = new Hashtable<EditorDataProxy, SharedNode>();
@@ -51,6 +64,7 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements VetoableCha
 			for (Object childProxy: set) {
 				if (!treeNodeCache.containsKey(childProxy)) {
 					SharedNode node = new SharedNode((EditorDataProxy) childProxy);
+					((EditorDataProxy) childProxy).addChangeListener(this);
 					String x = null;
 					try {
 						String label = ((EditorDataProxy) childProxy).getLabel();
@@ -67,7 +81,7 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements VetoableCha
 					int y2 = x.lastIndexOf("\\");
 					String x2 = x.substring(Math.max(y1, y2) + 1);
 					node.getProxy().setLabel(x2);
-//					treeNodeCache.put((EditorDataProxy) childProxy, node);
+					treeNodeCache.put((EditorDataProxy) childProxy, node);
 				}
 				boolean shouldFilter = false;
 				if (((EditorDataProxy)childProxy).getData() instanceof YAWLServiceGateway
@@ -93,8 +107,7 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements VetoableCha
 			int result = s1.getProxy().getData().toString().compareTo(s2.getProxy().getData().toString());
 			return result;
 		}
-	}
-	
+	}	
 	
 	public Object getRoot() { return root; }
 

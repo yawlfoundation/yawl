@@ -2,9 +2,12 @@ package au.edu.qut.yawl.persistence.managed;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import au.edu.qut.yawl.elements.YSpecification;
 
@@ -13,40 +16,29 @@ import au.edu.qut.yawl.elements.YSpecification;
  *
  * @param <DataType>
  */
-public class DataProxy<Type> implements PropertyChangeListener {
-
-	public void propertyChange( PropertyChangeEvent evt ) {
-		// TODO delegate, over override?  probably being overridden by subclasses anyway
-	}
+public class DataProxy<Type> {
 
 	private DataContext context;
 	private String label;
 	private Serializable id;
 	private Class dataClass;
 	boolean isDirty = true;
-
-	/**
-	 * Utility field used by constrained properties.
-	 */
-	private java.beans.VetoableChangeSupport vetoableChangeSupport = new java.beans.VetoableChangeSupport(
-			this);
-
+	protected List<DataProxyStateChangeListener> listeners = new ArrayList<DataProxyStateChangeListener>();
+	
 	/**
 	 * Adds a VetoableChangeListener to the listener list.
 	 * @param l The listener to add.
 	 */
-	public void addVetoableChangeListener(java.beans.VetoableChangeListener l) {
-
-		vetoableChangeSupport.addVetoableChangeListener(l);
+	public void addChangeListener(DataProxyStateChangeListener l) {
+		listeners.add(l);
 	}
 
 	/**
 	 * Removes a VetoableChangeListener from the listener list.
 	 * @param l The listener to remove.
 	 */
-	public void removeVetoableChangeListener(java.beans.VetoableChangeListener l) {
-
-		vetoableChangeSupport.removeVetoableChangeListener(l);
+	public void removeChangeListener(DataProxyStateChangeListener l) {
+		listeners.remove(l);
 	}
 
 	/**
@@ -56,10 +48,10 @@ public class DataProxy<Type> implements PropertyChangeListener {
 	public Type getData() {
 		return (Type) context.getData(this);
 	}
-
-	public DataProxy(DataContext context, VetoableChangeListener listener) {
+	
+	public DataProxy(DataContext context, DataProxyStateChangeListener listener) {
 		this.context = context;
-		this.addVetoableChangeListener(listener);
+		this.addChangeListener(listener);
 	}
 
 	public DataProxy() {
@@ -74,7 +66,14 @@ public class DataProxy<Type> implements PropertyChangeListener {
 	}
 
 	public Object getAttribute(String attributeName) {
-		return null;
+		Object retval = null;
+		try {
+			String name = attributeName.substring(0,1).toUpperCase() + attributeName.substring(1);
+			retval = context.getData(this).getClass().getMethod("get" + name, new Class[] {}).invoke(context.getData(this), new Object[] {});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		return retval;
 	}
 
 	public void setAttribute(String attributeName, Object attributeValue) throws PropertyVetoException {
@@ -85,12 +84,32 @@ public class DataProxy<Type> implements PropertyChangeListener {
 			oldval = o.getClass().getMethod("get" + name, new Class[] {}).invoke(o, new Object[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-		}		
-		PropertyChangeEvent evt = new PropertyChangeEvent(o, attributeName, oldval, attributeValue);
-		this.vetoableChangeSupport.fireVetoableChange(evt);
-		
+		}
+		fireUpdated(attributeName, oldval, attributeValue);
 	}
 
+	public void fireDetached(Object value) {
+		for (DataProxyStateChangeListener listener: listeners) {
+			listener.proxyDetached(this, value);
+		}
+	}
+	
+	public void fireAttached(Object value) {
+		for (DataProxyStateChangeListener listener: listeners) {
+			listener.proxyAttached(this, value);
+		}
+	}
+	
+	public void fireUpdated(String attributeName, Object oldValue, Object newValue) {
+		DataProxyStateChangeEvent evt = DataProxyStateChangeEvent
+			.createPropertyChangeEvent(
+					this, attributeName, oldValue, newValue, 
+				DataProxyStateChangeEvent.Type.UPDATE);
+		for (DataProxyStateChangeListener listener: listeners) {
+			listener.propertyChange(evt);
+		}
+	}
+	
 	public void setDirty(boolean isDirty) {
 		this.isDirty = isDirty;
 	}
