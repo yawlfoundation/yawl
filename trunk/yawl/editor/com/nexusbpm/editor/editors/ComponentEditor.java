@@ -21,6 +21,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.exception.EditorException;
@@ -38,7 +40,7 @@ import com.nexusbpm.services.data.NexusServiceData;
  * @author catch23
  * @created October 28, 2002
  */
-public abstract class ComponentEditor extends CapselaInternalFrame implements PropertyChangeListener {
+public abstract class ComponentEditor extends CapselaInternalFrame implements DataProxyStateChangeListener {
 
 	private static final Log LOG = LogFactory.getLog( ComponentEditor.class );
 
@@ -46,7 +48,10 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 	private boolean _uiInitialized;
     
     protected NexusServiceData data;
+    public void proxyDetached(DataProxy proxy, Object data) {}
+    public void proxyAttached(DataProxy proxy, Object data) {}
 
+    
 	/**
 	 * The controller for this editor's component.
 	 */
@@ -241,10 +246,10 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 	public final void setProxy( EditorDataProxy proxy ) {
 		if( _proxy != null ) {
 			LOG.debug( "ComponentEditor.setController - overriding controller" );
-			_proxy.removePropertyChangeListener( this );
+			_proxy.removeChangeListener( this );
 		}
 		_proxy = proxy;
-		_proxy.addPropertyChangeListener( this );
+		_proxy.addChangeListener( this );
         if( _proxy.getData() instanceof YAtomicTask ) {
             YAtomicTask task = (YAtomicTask) _proxy.getData();
             data = NexusServiceData.unmarshal( task );
@@ -314,7 +319,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Pr
 		}
 
 		if( null != _proxy ) {
-			_proxy.removePropertyChangeListener( this );
+			_proxy.removeChangeListener( this );
 
 // nulling controller is really bad, it makes saveAttributes fail - understanding why would make me feel better
 //			_proxy = null;

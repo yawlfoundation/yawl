@@ -143,9 +143,9 @@ public class GraphMarqueeHandler extends BasicMarqueeHandler {
 			// to the port cannot accept the edge, then give the user visual feedback.
 			if( _port != null ) {
 				_current = _graph.toScreen( _port.getLocation( null ) );
-				
-				new RuntimeException("OUTPUT ONLY do we need validation?  or no?  this basically allows us to" +
-										   " prevent the user from connecting two objects in the graph").printStackTrace();
+				LOG.error("do we need validation?  or no?");
+//				new RuntimeException("OUTPUT ONLY do we need validation?  or no?  this basically allows us to" +
+//										   " prevent the user from connecting two objects in the graph").printStackTrace();
 //				final IndependentController ctrl = ((GraphPort) _port.getCell()).getController();
 //
 //				if( !_cachedDomainObjects.containsKey( ctrl ) ) {

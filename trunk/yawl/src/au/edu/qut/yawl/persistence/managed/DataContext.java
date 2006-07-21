@@ -98,7 +98,7 @@ public class DataContext {
      * Creates a data proxy for the given data object, assuming that the
      * object does not already have a proxy.
 	 */
-    public DataProxy createProxy(Object object, VetoableChangeListener listener) {
+    public DataProxy createProxy(Object object, DataProxyStateChangeListener listener) {
 		try {
 			DataProxy dataProxy = (DataProxy) dataProxyClass.newInstance();
 			dataProxy.setContext(this);
@@ -121,7 +121,7 @@ public class DataContext {
 				dataProxy.setLabel(object.toString());
 			}
             
-			if (listener != null) dataProxy.addVetoableChangeListener(listener);
+			if (listener != null) dataProxy.addChangeListener(listener);
 			return dataProxy;
 		} catch (Exception e) {throw new Error(e);//this can never happen
 		}
@@ -196,6 +196,7 @@ public class DataContext {
         removeFromHierarchy(dataProxy);
         
         dataProxy.setContext(null);
+        dataProxy.fireDetached(object);
     }
     
     private DataProxy getParentProxy(DataProxy child) {
@@ -264,6 +265,9 @@ public class DataContext {
         			hierarchy.put(parent, dp);
     			}
     		}
+    	}
+    	else {
+    		LOG.error("working from memory here...");
     	}
     	return hierarchy.get(parent);
     }

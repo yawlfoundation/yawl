@@ -40,10 +40,12 @@ import org.jgraph.graph.AttributeMap;
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.ConnectionSet;
 import org.jgraph.graph.DefaultGraphModel;
+import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.GraphSelectionModel;
 import org.jgraph.graph.Port;
+import org.jgraph.graph.PortView;
 import org.jgraph.layout.SugiyamaLayoutAlgorithm;
 import org.jgraph.util.JGraphParallelEdgeRouter;
 import org.jgraph.util.JGraphUtilities;
@@ -811,6 +813,22 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 
   private void deleteSelectedItems() {
 		LOG.info("GraphEditor.deleteSelectedItems");
+		Object[] cells = _graph.getSelectionCells();
+		for (Object cell: cells) {
+			if (cell instanceof NexusCell) {
+				NexusCell ncell = (NexusCell) cell;
+				GraphPort port = ncell.getProxy().getGraphPort();
+				LOG.info("Items:" + cell + ":" + port);
+				Set<Edge> edges = new HashSet<Edge>(port.getEdges());
+				for (Edge edge: edges) {
+					LOG.info("Edge:" + edge);
+					_graph.getGraphLayoutCache().remove(new Object[] {edge});
+					_graph.getGraphLayoutCache().removeMapping(new Object[] {edge});
+				}
+				_graph.getGraphLayoutCache().remove(new Object[] {port});
+				_graph.getGraphLayoutCache().removeMapping(new Object[] {port});
+			}
+		}
 		this._graph.getGraphLayoutCache().remove(_graph.getSelectionCells());
 		this._graph.getGraphLayoutCache().removeMapping(_graph.getSelectionCells());
 	}
@@ -943,7 +961,6 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 							Map map = createEdgeAttributeMap( false );
 							edgeAttributes.put( graphEdge, map );
 							edges.add( graphEdge );
-
 							//						}
 //						else {
 //							LOG.debug( "NOT DRAWING EDGE! " );

@@ -264,7 +264,7 @@ public class NetEditor extends ComponentEditor {
 		_tabbedPane = null;
 
 		if( null != _proxy ) {
-			_proxy.removePropertyChangeListener( this );
+			_proxy.removeChangeListener( this );
 			_proxy = null;
 		}
 	}

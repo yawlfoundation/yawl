@@ -130,8 +130,7 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 			}//run()
 		};
 		GlobalEventQueue.add( worker );
-		Exception ex = new RuntimeException("Create global event queue (Executor) and add worker");
-		LOG.error("TODO:" + ex.getMessage(), ex);
+		LOG.error("TODO:Create global event queue (Executor) and add worker");
 	}
 
 	private void callSuperInternalFrameOpened( InternalFrameEvent e ) {
