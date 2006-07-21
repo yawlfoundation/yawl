@@ -733,6 +733,7 @@
 		<!-- create directory structure for the WAR -->
 		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/lib"/>
 		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/META-INF/xfire"/>
+		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
 		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/data"/>
 		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/jython"/>
 		
@@ -759,6 +760,12 @@
 		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
 			<fileset dir="${classes}/com/nexusbpm/services/data" includes="*.class"/>
 		</copy>
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+			<fileset dir="${classes}/au/edu/qut/yawl/elements" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+			<fileset dir="${classes}/au/edu/qut/yawl/elements/data" includes="*.class"/>
+		</copy>
 		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker">
 			<fileset dir="${classes}/com/nexusbpm/services/invoker" includes="*.class"/>
 		</copy>
@@ -779,6 +786,7 @@
 		<!-- create directory structure for the WAR -->
 		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/lib"/>
 		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/META-INF/xfire"/>
+		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
 		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/data"/>
 		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/email"/>
 		
@@ -803,6 +811,12 @@
 		
 		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
 			<fileset dir="${classes}/com/nexusbpm/services/data" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+			<fileset dir="${classes}/au/edu/qut/yawl/elements" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+			<fileset dir="${classes}/au/edu/qut/yawl/elements/data" includes="*.class"/>
 		</copy>
 		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker">
 			<fileset dir="${classes}/com/nexusbpm/services/invoker" includes="*.class"/>
