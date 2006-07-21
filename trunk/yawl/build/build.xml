@@ -198,7 +198,6 @@
     <property name="swing-worker.jar" value="${basic.libs}/swing-worker.jar"/>
 	<property name="jgraphlayout.jar" value="${basic.libs}/jgraphlayout.jar"/>
 
-
     <!--
     PDF Dependencies
     -->
@@ -210,7 +209,6 @@
     XFORM Dependencies
     -->
     <property name="mail.jar" value="${xforms.lib}/mail.jar"/>
-
 
     <!-- Log4J Logging Library -->
     <property name="log4j" value="${basic.libs}/log4j-1.2.8.jar"/>
@@ -1130,7 +1128,7 @@
             <fileset file="${xforms.dist}/${yawl.xforms.app.name}.war"/>
         </copy>
             	
-    	<delete dir="${xforms.dist}"/>
+    	<ant target="clean-all" dir="./build/yawlXForms" antfile="build.xml" inheritAll="false" inheritRefs="false"/>
     </target>
 
     <!--
@@ -1580,7 +1578,6 @@
         </copy>
         <antcall target="cleanup"/>
     </target>
-
 
     <target name="deployXForms" depends="build_yawlXForms.war">
         <!-- Deploy XForms -->
