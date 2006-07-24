@@ -156,7 +156,9 @@ public class DataContext {
 	 */
     public void delete(DataProxy dataProxy) {
     	Object data = getData(dataProxy);
-    	dao.delete((YSpecification) data);
+    	if (data instanceof YSpecification) {
+    		dao.delete((YSpecification) data);
+    	}
         removeFromMaps(dataProxy, data);
         removeFromHierarchy(dataProxy);
     }
@@ -180,7 +182,6 @@ public class DataContext {
      */
     public void attachProxy(DataProxy dataProxy, Object object) {
         dataProxy.setContext( this );
-        
         addToMaps(dataProxy, object);
         addToHierarchy(dataProxy);
     }
@@ -191,12 +192,12 @@ public class DataContext {
      */
     public void detachProxy(DataProxy dataProxy) {
         Object object = dataProxy.getData();
+        dataProxy.fireDetached(object);
         
-        removeFromMaps(dataProxy, object);
         removeFromHierarchy(dataProxy);
+        removeFromMaps(dataProxy, object);
         
         dataProxy.setContext(null);
-        dataProxy.fireDetached(object);
     }
     
     private DataProxy getParentProxy(DataProxy child) {
@@ -218,6 +219,7 @@ public class DataContext {
     private void addToHierarchy(DataProxy childProxy) {
         if( getParentProxy( childProxy ) != null ) {
             hierarchy.put(getParentProxy( childProxy ), childProxy);
+            LOG.info("adding " + childProxy.getLabel() + " to " + getParentProxy( childProxy ).getLabel());
         }
     }
     
@@ -225,21 +227,25 @@ public class DataContext {
      * Removes the child proxy, and all of its children, from the hierarchy.
      */
     private void removeFromHierarchy(DataProxy childProxy) {
-        hierarchy.remove( childProxy );
         DataProxy parentProxy = getParentProxy( childProxy );
         if( parentProxy != null && hierarchy.get( parentProxy ) != null ) {
             hierarchy.get( parentProxy ).remove( childProxy );
+            LOG.info("removing " + childProxy.getLabel() + " from " + getParentProxy( childProxy ).getLabel());
         }
+        hierarchy.remove( childProxy );
+        LOG.info("removing " + childProxy.getLabel() + " as a parent");
     }
     
     private void addToMaps(DataProxy proxy, Object data) {
         dataMap.put(proxy, data);
         proxyMap.put(data, proxy);
+        LOG.info("adding " + proxy.getLabel() + " to maps.");
     }
     
     private void removeFromMaps(DataProxy proxy, Object data) {
         dataMap.remove(proxy);
         proxyMap.remove(data);
+        LOG.info("removing " + proxy.getLabel() + " from maps.");
     }
    
     public Set<DataProxy> getChildren(DataProxy parent, boolean forceUpdate) {
@@ -267,7 +273,6 @@ public class DataContext {
     		}
     	}
     	else {
-    		LOG.error("working from memory here...");
     	}
     	return hierarchy.get(parent);
     }
@@ -303,28 +308,5 @@ public class DataContext {
     		}
     	}
     }
-    
-
-    //these should all be moved elsewhere!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    
-    private enum Type {UNKNOWN, INPUT_CONDITION, OUTPUT_CONDITION, TASK, CONDITION, FLOW, SPECIFICATION};
-    private Type findType (Object o) {
-    	Type retval = Type.UNKNOWN;
-    	if (o instanceof YInputCondition ) {retval = Type.INPUT_CONDITION;}
-    	else if (o instanceof YOutputCondition) {retval = Type.OUTPUT_CONDITION;}
-    	else if (o instanceof YTask) {retval = Type.TASK;}
-    	else if (o instanceof YCondition) {retval = Type.CONDITION;}
-    	else if (o instanceof YFlow) {retval = Type.FLOW;}
-    	else if (o instanceof YSpecification) {retval = Type.SPECIFICATION;}
-    	return retval;
-    }
-
-	public HashBag<DataProxy> getHierarchy() {
-		return hierarchy;
-	}
-
-	public void setHierarchy(HashBag<DataProxy> hierarchy) {
-		this.hierarchy = hierarchy;
-	}
 
 }
