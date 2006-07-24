@@ -10,6 +10,8 @@ import java.util.Set;
 
 import javax.swing.tree.DefaultTreeModel;
 
+import operation.WorkflowOperation;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -31,18 +33,34 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 	}
 
 	public void proxyAttached(DataProxy proxy, Object data) {
+        if( !shouldFilter(proxy) )
+            insertNodeInto( ((EditorDataProxy) proxy).getTreeNode(),
+                ((EditorDataProxy)proxy.getContext().getParentProxy(proxy)).getTreeNode() );
 	}
+    
+    public void insertNodeInto( SharedNode newChild, SharedNode parent ) {
+        int index = 0;
+        while( index < super.getChildCount( parent ) ) {
+            SharedNode neighbor = (SharedNode) super.getChild( parent, index );
+            if( comparator.compare( newChild, neighbor ) <= 0 ) {
+                insertNodeInto( newChild, parent, index );
+                return;
+            }
+            index += 1;
+        }
+        insertNodeInto( newChild, parent, index );
+    }
 
 	public void proxyDetached(DataProxy proxy, Object data) {
 //		SharedNode node = treeNodeCache.get(proxy);
 //		SharedNode parent = (SharedNode) node.getParent();
 //		this.removeNodeFromParent(node);
 //		treeNodeCache.remove(proxy);
-//		if (!shouldFilter(data)) {
+		if (!shouldFilter(data)) {
 			super.removeNodeFromParent(((EditorDataProxy) proxy).getTreeNode());
 //			super.reload();
 			LOG.info("Well at least I tried to remove it...");
-//		}
+		}
 	}
 
 //	 protected SharedNode root;
@@ -80,7 +98,8 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 					String x2 = x.substring(Math.max(y1, y2) + 1);
 					node.getProxy().setLabel(x2);
 					if (!shouldFilter(childProxy)) {
-						super.insertNodeInto(node, parent, parent.getChildCount());
+//						super.insertNodeInto(node, parent, parent.getChildCount());
+                        insertNodeInto(node, parent);
 					}
 				}
 				if (!shouldFilter(childProxy))
@@ -94,12 +113,12 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 	private boolean shouldFilter(Object proxy) {
 		boolean shouldFilter = false;
 		Object data = ((EditorDataProxy) proxy).getData();
-		shouldFilter = (
-				data instanceof YAWLServiceGateway
-			 || data instanceof YFlow
+		shouldFilter = ( data instanceof YFlow
 			 || data instanceof YInternalCondition
-			 || data instanceof YCondition
-		); 
+			 || data instanceof YCondition );
+        shouldFilter = shouldFilter ||
+            ( data instanceof YAWLServiceGateway &&
+                    WorkflowOperation.isGatewayANexusGateway( (YAWLServiceGateway) data ) );
 		LOG.info("filter: " + data.toString() + ":" + shouldFilter + ":" + data.getClass().getName());
 		return shouldFilter;
 	}

@@ -30,7 +30,7 @@ import com.nexusbpm.editor.icon.RenderingHints;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.services.NexusServiceInfo;
 
-public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataProxy implements Transferable {
+public class EditorDataProxy<Type> extends au.edu.qut.yawl.persistence.managed.DataProxy<Type> implements Transferable {
 
 
 	/** A <tt>graph cell</tt> is the displayed JGraph object for a component. */
@@ -134,20 +134,40 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 		return flavor.equals( PROXY_FLAVOR );
 	}
 	
-	/**
-	 * Gets the small icon for the domain object specified by this controller.
-	 * @return the small icon for this controller's domain object.
-	 */
-	public ImageIcon iconSmall() {
-		return ApplicationIcon.getIcon( getData().getClass().getName(), RenderingHints.ICON_SMALL );
-	}
+//	/**
+//	 * Gets the small icon for the domain object specified by this controller.
+//	 * @return the small icon for this controller's domain object.
+//	 */
+//	public ImageIcon iconSmall() {
+//		return ApplicationIcon.getIcon( getData().getClass().getName(), RenderingHints.ICON_SMALL );
+//	}
 
 	/**
 	 * Gets the icon for the domain object specified by this controller.
 	 * @return the icon for this controller's domain object.
 	 */
 	public ImageIcon icon() {
-		String iconName = "Component";
+		String iconName = getIconName();
+		try {
+			return ApplicationIcon.getIcon(iconName, RenderingHints.ICON_MEDIUM );
+		}
+		catch(Error e) {
+			return ApplicationIcon.getIcon("Component", RenderingHints.ICON_MEDIUM );
+		}
+	}
+    
+    public ImageIcon iconSmall() {
+        String iconName = getIconName();
+        try {
+            return ApplicationIcon.getIcon(iconName, RenderingHints.ICON_SMALL );
+        }
+        catch(Error e) {
+            return ApplicationIcon.getIcon("Component", RenderingHints.ICON_SMALL );
+        }
+    }
+    
+    private String getIconName() {
+        String iconName = "Component";
 		if (getData() instanceof YAtomicTask) {
 			YAtomicTask task = (YAtomicTask) getData();
 			String serviceName = task.getID() 
@@ -165,13 +185,8 @@ public class EditorDataProxy extends au.edu.qut.yawl.persistence.managed.DataPro
 		else {
 			iconName = getData().getClass().getName();
 		}
-		try {
-			return ApplicationIcon.getIcon(iconName, RenderingHints.ICON_MEDIUM );
-		}
-		catch(Error e) {
-			return ApplicationIcon.getIcon("Component", RenderingHints.ICON_MEDIUM );
-		}
-	}
+        return iconName;
+    }
 
 	private AnimatedIcon _animatedIcon = null;
 

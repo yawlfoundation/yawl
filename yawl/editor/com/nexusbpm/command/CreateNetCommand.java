@@ -9,6 +9,7 @@ package com.nexusbpm.command;
 
 import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
@@ -23,7 +24,7 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
 public class CreateNetCommand extends AbstractCommand {
 
 	private DataContext context;
-    private EditorDataProxy parent;
+    private EditorDataProxy<YSpecification> specProxy;
     private YNet net;
     private DataProxy<YNet> netProxy;
     private String netName;
@@ -33,9 +34,9 @@ public class CreateNetCommand extends AbstractCommand {
      * @param parent
      * @param netName
      */
-	public CreateNetCommand(EditorDataProxy parent, String netName) {
-		this.context = parent.getContext();
-        this.parent = parent;
+	public CreateNetCommand(EditorDataProxy<YSpecification> specProxy, String netName) {
+		this.context = specProxy.getContext();
+        this.specProxy = specProxy;
         this.netName = netName;
 	}
 	
@@ -44,7 +45,7 @@ public class CreateNetCommand extends AbstractCommand {
      */
     @Override
     protected void attach() throws Exception {
-        WorkflowOperation.attachNetToSpec( parent, net );
+        WorkflowOperation.attachDecompositionToSpec( specProxy.getData(), net );
         context.attachProxy( netProxy, net );
     }
     
@@ -53,7 +54,7 @@ public class CreateNetCommand extends AbstractCommand {
      */
     @Override
     protected void detach() throws Exception {
-        WorkflowOperation.detachNetFromSpec( net );
+        WorkflowOperation.detachDecompositionFromSpec( net );
         context.detachProxy( netProxy );
     }
     

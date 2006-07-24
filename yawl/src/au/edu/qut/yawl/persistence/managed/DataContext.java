@@ -25,13 +25,11 @@ import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
-import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.util.HashBag;
+import au.edu.qut.yawl.util.RemoveNetConditionsOperation;
 import au.edu.qut.yawl.util.VisitSpecificationOperation;
 import au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor;
 
@@ -63,7 +61,7 @@ public class DataContext {
 	 */
 	private void init(DAO<YSpecification> dao) {
 		this.dao = dao;
-        this.hierarchy = new HashBag<DataProxy>();
+        this.hierarchy = new HashBag<DataProxy,DataProxy>();
 	}
     
     /**
@@ -75,7 +73,7 @@ public class DataContext {
     private Map<DataProxy, Object> dataMap = new HashMap<DataProxy, Object>();
     /** Maps data objects to their proxies. */
     private Map<Object, DataProxy> proxyMap = new HashMap<Object, DataProxy>();
-    private HashBag<DataProxy> hierarchy;    
+    private HashBag<DataProxy,DataProxy> hierarchy;    
     
     /**
      * Returns the data proxy for the given object. If there is no proxy for that
@@ -184,6 +182,7 @@ public class DataContext {
         dataProxy.setContext( this );
         addToMaps(dataProxy, object);
         addToHierarchy(dataProxy);
+        dataProxy.fireAttached(object);
     }
     
     /**
@@ -200,7 +199,7 @@ public class DataContext {
         dataProxy.setContext(null);
     }
     
-    private DataProxy getParentProxy(DataProxy child) {
+    public DataProxy getParentProxy(DataProxy child) {
         if( child.getData() != null
                 && child.getData() instanceof Parented
                 && ((Parented)child.getData()).getParent() != null ) {
@@ -254,13 +253,20 @@ public class DataContext {
     		for (Object o: l) {
                 assert o != null : "data proxy returned a null child!" + parent.toString();
     			if (o instanceof YSpecification) {
+                    RemoveNetConditionsOperation.removeConditions( (YSpecification) o );
                     VisitSpecificationOperation.visitSpecification(
                             (YSpecification) o,
                             new Visitor() {
                                 public void visit(Object child, String childLabel) {
-                                    DataProxy childProxy = DataContext.this.createProxy(child, null);
+                                    DataProxy childProxy;
+                                    if( DataContext.this.getDataProxy( child, null ) == null ) {
+                                        childProxy = DataContext.this.createProxy(child, null);
+                                        DataContext.this.attachProxy( childProxy, child );
+                                    }
+                                    else {
+                                        childProxy = DataContext.this.getDataProxy( child, null );
+                                    }
                                     childProxy.setLabel(childLabel);
-                                    DataContext.this.attachProxy( childProxy, child );
                                 }
                             });
                     hierarchy.put(parent, getDataProxy( o, null ) );

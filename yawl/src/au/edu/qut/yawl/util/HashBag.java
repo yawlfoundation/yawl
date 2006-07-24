@@ -16,17 +16,17 @@ import java.util.Set;
  * @author Dean Mao
  * @created Nov 8, 2005
  */
-public class HashBag<Type> extends HashMap<Type, Set<Type>> {
+public class HashBag<KeyType,ValueType> extends HashMap<KeyType, Set<ValueType>> {
   /**
    * Adds the given value to the set contained at the given location.
    * @param key the key defining where to place the value.
    * @param value the value to be added to the set.
    * @return the set that the value was added to.
    */
-  public Set put(Type key, Type value) {
-    Set<Type> hs = this.get(key);
+  public Set put(KeyType key, ValueType value) {
+    Set<ValueType> hs = this.get(key);
     if( hs == null ) {
-      hs = new HashSet<Type>();
+      hs = new HashSet<ValueType>();
       super.put(key, hs);
     }//if
     hs.add(value);

@@ -8,7 +8,6 @@
 
 package com.nexusbpm.editor.persistence;
 
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import org.jdom.Element;
@@ -23,28 +22,34 @@ public class YTaskEditorExtension extends YawlEditorElementExtension{
 	public static String X2_ATTRIBUTE = "x2";
 	public static String Y2_ATTRIBUTE = "y2";
 	public Rectangle2D getBounds() {
-		double x1 = java.lang.Double.parseDouble(
-			 getRootElement()
-			.getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
-			.getChild(EDITOR_RECTANGLE_ELEMENT, EDITOR_NAMESPACE)
-			.getAttributeValue(X1_ATTRIBUTE));
-		double y1 = java.lang.Double.parseDouble(
-			getRootElement()
-			.getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
-			.getChild(EDITOR_RECTANGLE_ELEMENT, EDITOR_NAMESPACE)
-			.getAttributeValue(Y1_ATTRIBUTE));
-		double x2 = java.lang.Double.parseDouble(
-			 getRootElement()
-			.getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
-			.getChild(EDITOR_RECTANGLE_ELEMENT, EDITOR_NAMESPACE)
-			.getAttributeValue(X2_ATTRIBUTE));
-		double y2 = java.lang.Double.parseDouble(
-			getRootElement()
-			.getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
-			.getChild(EDITOR_RECTANGLE_ELEMENT, EDITOR_NAMESPACE)
-			.getAttributeValue(Y2_ATTRIBUTE));
+        ensureRootElementExists();
+		double x1 = getRectangleAttribute(X1_ATTRIBUTE);
+		double y1 = getRectangleAttribute(Y1_ATTRIBUTE);
+		double x2 = getRectangleAttribute(X2_ATTRIBUTE);
+		double y2 = getRectangleAttribute(Y2_ATTRIBUTE);
 		 return new Rectangle2D.Double(x1, y1, x2, y2);
 	}
+    private double getRectangleAttribute(String attribute) {
+        if( ( getRootElement()
+                .getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE) != null )
+                &&
+                ( getRootElement()
+                .getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
+                .getChild(EDITOR_RECTANGLE_ELEMENT, EDITOR_NAMESPACE) != null )
+                &&
+                ( getRootElement()
+                .getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
+                .getChild(EDITOR_RECTANGLE_ELEMENT, EDITOR_NAMESPACE)
+                .getAttributeValue(attribute) != null ) ) {
+            return Double.parseDouble(
+                    getRootElement()
+                    .getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE)
+                    .getChild(EDITOR_RECTANGLE_ELEMENT, EDITOR_NAMESPACE)
+                    .getAttributeValue(attribute));
+        }
+        else
+            return 0;
+    }
 	public void setBounds(Rectangle2D bounds) {
 		this.ensureRootElementExists();
 		Element editinfo = getRootElement().getChild(EDITOR_ROOT_ELEMENT, EDITOR_NAMESPACE);

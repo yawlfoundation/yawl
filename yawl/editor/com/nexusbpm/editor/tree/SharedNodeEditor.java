@@ -50,7 +50,7 @@ public class SharedNodeEditor extends DefaultTreeCellEditor {
 	 */
 	public Component getTreeCellEditorComponent( JTree t, Object value, boolean isSelected, boolean expanded, boolean leaf, int row ) {
 		_node = (SharedNode) value;
-		return super.getTreeCellEditorComponent( t, value, isSelected, expanded, leaf, row );
+		return super.getTreeCellEditorComponent( t, _node.getProxy().getLabel(), isSelected, expanded, leaf, row );
 	}
 
 	/**
@@ -84,8 +84,8 @@ public class SharedNodeEditor extends DefaultTreeCellEditor {
 	 */
 	protected void determineOffset( JTree t, Object value, boolean selected, boolean expanded, boolean leaf, int row ) {
 		if( this.renderer != null ) {
-			SharedNode node = (SharedNode) value;
-			this.editingIcon = node.getIcon();
+//			SharedNode node = (SharedNode) value;
+			this.editingIcon = _node.getIcon();
 			this.offset = this.renderer.getIconTextGap() + this.editingIcon.getIconWidth();
 		}
 		else {

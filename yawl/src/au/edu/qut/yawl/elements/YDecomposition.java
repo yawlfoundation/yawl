@@ -201,6 +201,12 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
     protected void setId(String id) {
     	_id = id;
     }
+    
+    public void setIdAndSpecification(String id, YSpecification specification) {
+        this._id = id.replace(" ", "_");
+        _specification = specification;
+        _data.setRootElement(new Element(getRootDataElementName()));
+    }
 
 	/**
 	 * Null constructor for hibernate

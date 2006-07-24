@@ -45,12 +45,16 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YDecomposition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YSpecification;
 
-import com.nexusbpm.command.EditorCommand;
+import com.nexusbpm.command.Command;
+import com.nexusbpm.command.CopyNetCommand;
+import com.nexusbpm.command.CopySpecificationCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.ComponentEditor;
-import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 
@@ -179,7 +183,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		else {
 			LOG.debug( "Cannot delete node - is not root" );
 		}
-
 	}
 
 	/**
@@ -324,12 +327,14 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 			if( !tr.isDataFlavorSupported( EditorDataProxy.PROXY_FLAVOR ) ) {
 				LOG.debug( "Transferable flavor unsupported" );
 				e.rejectDrop();
+                return;
 			}
 
 			//get new parent node
 			Point loc = e.getLocation();
 			TreePath destinationPath = getPathForLocation( loc.x, loc.y );
 			SharedNode draggingNode = DragAndDrop.getDraggingNode();
+            SharedNode destinationNode = (SharedNode) destinationPath.getLastPathComponent();
 
 			if( !isDropValid( draggingNode, destinationPath ) ) {
 				LOG.debug( "testDropTarget failed" );
@@ -337,19 +342,21 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 				return;
 			}
 
-			SharedNode destinationNode = (SharedNode) destinationPath.getLastPathComponent();
+//			SharedNode destinationNode = (SharedNode) destinationPath.getLastPathComponent();
 //			SharedNode oldParent = (SharedNode) draggingNode.getParent();
 
-			if( isDropCopy( draggingNode, destinationPath ) ) {
+//			if( isDropCopy( draggingNode, destinationPath ) ) {
 				LOG.debug( "performing COPY action" );
-				EditorCommand.executeCopyCommand( draggingNode, destinationNode);
+                WorkflowEditor.getExecutor().executeCommand(
+                        createCopyCommand( draggingNode, destinationNode ) );
+//				EditorCommand.executeCopyCommand( draggingNode, destinationNode);
 				e.acceptDrop( DnDConstants.ACTION_COPY );
-			}
-			else {
-				LOG.debug( "performing MOVE action" );
-				// ClientOperation.executeMoveCommand( draggingNode.getIndependentController(), oldParent.getIndependentController(), destinationNode.getIndependentController(), null, null );
-				e.acceptDrop( DnDConstants.ACTION_MOVE );
-			}
+//			}
+//			else {
+//				LOG.debug( "performing MOVE action" );
+//				// ClientOperation.executeMoveCommand( draggingNode.getIndependentController(), oldParent.getIndependentController(), destinationNode.getIndependentController(), null, null );
+//				e.acceptDrop( DnDConstants.ACTION_MOVE );
+//			}
 
 			e.getDropTargetContext().dropComplete( true );
 
@@ -360,8 +367,24 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 			LOG.error("Exception trying to copy specification.", ex );
 			ex.printStackTrace();
 		}
-
 	}
+    
+    private Command createCopyCommand( SharedNode source, SharedNode target ) {
+        Command cmd;
+        Object sourceObject = source.getProxy().getData();
+        
+        if( sourceObject instanceof YSpecification ) {
+            cmd = new CopySpecificationCommand( source.getProxy(), target.getProxy() );
+        }
+        else if( sourceObject instanceof YNet ) {
+            cmd = new CopyNetCommand( source, target );
+        }
+        else {
+            throw new RuntimeException( "Copy attempt unsupported: " + sourceObject.getClass() );
+        }
+        
+        return cmd;
+    }
 
 	/**
 	 * DropTargetListener interface method
@@ -392,15 +415,15 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		SharedNode draggingNode = DragAndDrop.getDraggingNode();
 		// if destination path is okay accept drop...
 		if( isDropValid( draggingNode, destinationPath ) ) {
-			boolean isCopy = isDropCopy( draggingNode, destinationPath );
-			if( isCopy ) {
+//			boolean isCopy = isDropCopy( draggingNode, destinationPath );
+//			if( isCopy ) {
 				e.acceptDrag( DnDConstants.ACTION_COPY );
 				DragAndDrop.setMouseCursorToAcceptDropForCopy();
-			}
-			else {
-				e.acceptDrag( DnDConstants.ACTION_MOVE );
-				DragAndDrop.setMouseCursorToAcceptDropForMove();
-			}
+//			}
+//			else {
+//				e.acceptDrag( DnDConstants.ACTION_MOVE );
+//				DragAndDrop.setMouseCursorToAcceptDropForMove();
+//			}
 		}
 		// ...otherwise reject drop
 		else {
@@ -427,23 +450,54 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 	private boolean isDropValid( SharedNode draggingNode, TreePath destinationPath ) {
 //		RuntimeException e = new RuntimeException("This method needs to be reimplemented for YAWL context");
 //		LOG.info("shared node=" + draggingNode.getProxy().getData().toString());
-		return true;
 //		throw e;
-		//		if( destinationPath == null ) {
-//			// Invalid drop location.
-//			return false;
-//		}
-//		SharedNode destinationNode = (SharedNode) destinationPath.getLastPathComponent();
-//		if( !destinationNode.getController().isFolder() ) {
-//			// This node does not allow children.
-//			return false;
-//		}
+        if( destinationPath == null || draggingNode == null ) {
+            // Invalid drop location.
+            return false;
+        }
+		SharedNode destinationNode = (SharedNode) destinationPath.getLastPathComponent();
+        if( destinationNode.equals( draggingNode ) ) {
+            // Destination cannot be same as source.
+            return false;
+        }
+        assert draggingNode.getProxy() != null : "draggingNode.getProxy() was null";
+        assert draggingNode.getProxy().getContext() != null :
+            "draggingNode's proxy is not connected to a context";
+        assert destinationNode.getProxy() != null : "destinationNode.getProxy() was null";
+        assert destinationNode.getProxy().getContext() != null :
+            "destinationNode's proxy is not connected to a context";
+//        System.out.println( draggingNode.getProxy().getData().getClass().toString() );
+//        System.out.println( destinationNode.getProxy().getData().getClass().toString() );
+        if( draggingNode.getProxy().getData() instanceof YSpecification ) {
+            if( destinationNode.getProxy().getData() instanceof YSpecification ||
+                    destinationNode.getProxy().getData() instanceof YDecomposition ||
+                    destinationNode.getProxy().getData() instanceof YExternalNetElement ) {
+                // cannot drag a spec into anything but a folder
+                return false;
+            }
+        }
+        else if( draggingNode.getProxy().getData() instanceof YDecomposition ) {
+            if( ! ( destinationNode.getProxy().getData() instanceof YSpecification ) ) {
+                // can only drag a decomposition into a specification
+                return false;
+            }
+        }
+        else if( draggingNode.getProxy().getData() instanceof YExternalNetElement ) {
+            if( ! ( destinationNode.getProxy().getData() instanceof YNet ) ) {
+                // can only drag a task into a decomposition
+                return false;
+            }
+        }
+        else {
+            // if the dragging node is not a spec, decomp, or task, then we don't accept it
+            return false;
+        }
+//        if( !destinationNode.getController().isFolder() ) {
+//            // This node does not allow children.
+//            return false;
+//        }
 //		if( destinationNode.getController().isFlow() ) {
 //			// Cannot drop directly into a flow, need to use the flow editor.
-//			return false;
-//		}
-//		if( destinationNode.equals( draggingNode ) ) {
-//			// Destination cannot be same as source.
 //			return false;
 //		}
 //		if( draggingNode != null && draggingNode.getParent().equals( destinationNode ) ) {
@@ -454,18 +508,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 //			// Destination node cannot be from the Components list (unless the user is admin).
 //			return false;
 //		}
-//		return true;
-	}
-
-	private boolean isDropCopy( SharedNode draggingNode, TreePath destinationPath ) {
-		// TODO: as per Zubin (May 10 2005), everything is a copy operation until further notice.
 		return true;
-		//    // It's a copy instead of a move if the user is dragging something into the network,
-		//    // dragging something out of the network, or dragging something out of the components tree.
-		//    ComponentNode destinationNode = (ComponentNode) destinationPath.getLastPathComponent();
-		//    boolean fromNetworkToX_or_fromXToNetwork = ( destinationNode.isInNetworkFolder() != draggingNode.isInNetworkFolder() );
-		//    boolean fromComponentsToX = draggingNode.isInComponentsFolder();
-		//    return fromNetworkToX_or_fromXToNetwork || fromComponentsToX;
 	}
 
 	// ###############################################################################################
@@ -581,11 +624,12 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		TreePath selPath = tree.getPathForLocation( (int) pt.getX(), (int) pt.getY() );
 		if( selPath == null ) { return null; }
 
-		JPopupMenu menu = new JPopupMenu();
+		JPopupMenu menu = null;
 		tree.setSelectionPath( selPath );
 		final SharedNode node = (SharedNode) selPath.getLastPathComponent();
 
 		if( ! node.isRoot() ) {
+            menu = new JPopupMenu();
 			menu.add( new AbstractAction( "Edit" ) {
 				public void actionPerformed( ActionEvent e ) {
 //					ComponentTree.this.openCurrentNode();
@@ -644,7 +688,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 
 		}
 
-		if( menu.getSubElements().length > 0 ) {
+		if( menu != null && menu.getSubElements().length > 0 ) {
 			menu.add( new JSeparator() );
 		}
 
