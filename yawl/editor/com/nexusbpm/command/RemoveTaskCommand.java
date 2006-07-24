@@ -10,6 +10,9 @@ package com.nexusbpm.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YCompositeTask;
 import au.edu.qut.yawl.elements.YDecomposition;
@@ -34,13 +37,17 @@ public class RemoveTaskCommand implements Command{
 
 	public EditorDataProxy taskProxy;
 	
+	private static final Log LOG = LogFactory.getLog(RemoveTaskCommand.class);
+	
 	public RemoveTaskCommand(EditorDataProxy taskProxy) {
 		this.taskProxy = taskProxy;
 	}
 	
 	public void execute() {
+		try {
 		DataContext context = taskProxy.getContext();
 		YTask task = (YTask) taskProxy.getData();
+		context.detachProxy(taskProxy);
 		YNet net = task.getParent();
 		YSpecification spec = net.getParent();
 		YDecomposition prototype = task.getDecompositionPrototype();
@@ -64,8 +71,10 @@ public class RemoveTaskCommand implements Command{
 		for (YFlow flow: task.getPostsetFlows()) {
 			context.detachProxy(context.getDataProxy(flow, null));
 		}
-		task.removeAllFlows();		
-		context.detachProxy(taskProxy);
+		task.removeAllFlows();		 }
+		catch(Exception e) {
+			LOG.error("Exception in remove task", e);
+		}
 	}
 	
 	public void undo() {

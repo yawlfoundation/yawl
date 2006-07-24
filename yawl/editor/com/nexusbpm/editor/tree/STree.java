@@ -173,7 +173,8 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		LOG.debug( "ComponentTree.deleteCurrentNode" );
 		SharedNode node = this.getSelectedNode();
 		if( !node.isRoot() ) {
-			throw new RuntimeException("please implement the delete node operation!");
+			Exception e = new RuntimeException("please implement the delete node operation!");
+			LOG.error(e.getMessage(), e);
 		}
 		else {
 			LOG.debug( "Cannot delete node - is not root" );

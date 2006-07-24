@@ -1,27 +1,21 @@
 package com.nexusbpm.editor.tree;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YCondition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -31,6 +25,8 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxyStateChangeListener {
 
+	private static final Log LOG = LogFactory.getLog( SharedNodeTreeModel.class );
+
 	public void propertyChange(PropertyChangeEvent evt) {
 	}
 
@@ -38,12 +34,16 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 	}
 
 	public void proxyDetached(DataProxy proxy, Object data) {
-		treeNodeCache.remove(proxy);
-		LOG.info("Well at least I tried to remove it...");
+//		SharedNode node = treeNodeCache.get(proxy);
+//		SharedNode parent = (SharedNode) node.getParent();
+//		this.removeNodeFromParent(node);
+//		treeNodeCache.remove(proxy);
+//		if (!shouldFilter(data)) {
+			super.removeNodeFromParent(((EditorDataProxy) proxy).getTreeNode());
+//			super.reload();
+			LOG.info("Well at least I tried to remove it...");
+//		}
 	}
-
-	private static final Log LOG = LogFactory.getLog( SharedNodeTreeModel.class );
-	public static Hashtable<EditorDataProxy, SharedNode> treeNodeCache = new Hashtable<EditorDataProxy, SharedNode>();
 
 //	 protected SharedNode root;
 
@@ -52,18 +52,16 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 //		this.root = root;
 	}
 	
-	public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
-		LOG.info("Change " + evt.getPropertyName() + " from " + evt.getOldValue() + " to " + evt.getNewValue()); 
-	}
-
 	public List getChildren(SharedNode parent) {
 		List<SharedNode> retval = new ArrayList<SharedNode>();
+		SharedNode node;
 		EditorDataProxy proxy = parent.getProxy();
 		Set set = proxy.getContext().getChildren(proxy, false);
 		if (set != null) { 
 			for (Object childProxy: set) {
-				if (!treeNodeCache.containsKey(childProxy)) {
-					SharedNode node = new SharedNode((EditorDataProxy) childProxy);
+//				if (!treeNodeCache.containsKey(childProxy)) 
+				{
+					node = new SharedNode((EditorDataProxy) childProxy);
 					((EditorDataProxy) childProxy).addChangeListener(this);
 					String x = null;
 					try {
@@ -81,22 +79,29 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 					int y2 = x.lastIndexOf("\\");
 					String x2 = x.substring(Math.max(y1, y2) + 1);
 					node.getProxy().setLabel(x2);
-					treeNodeCache.put((EditorDataProxy) childProxy, node);
+					if (!shouldFilter(childProxy)) {
+						super.insertNodeInto(node, parent, parent.getChildCount());
+					}
 				}
-				boolean shouldFilter = false;
-				if (((EditorDataProxy)childProxy).getData() instanceof YAWLServiceGateway
-		 				 || ((EditorDataProxy)childProxy).getData() instanceof YFlow
-		 				 || ((EditorDataProxy)childProxy).getData() instanceof YInternalCondition
-		 				 || ((EditorDataProxy)childProxy).getData() instanceof YCondition
- 				 ) {
-					shouldFilter = true;
-				}
-				if (!shouldFilter)
-					retval.add(treeNodeCache.get(childProxy));
+				if (!shouldFilter(childProxy))
+					retval.add(node);
 			}
 		}
-		Collections.sort(retval, comparator);
+//		Collections.sort(retval, comparator);
 		return retval;
+	}
+
+	private boolean shouldFilter(Object proxy) {
+		boolean shouldFilter = false;
+		Object data = ((EditorDataProxy) proxy).getData();
+		shouldFilter = (
+				data instanceof YAWLServiceGateway
+			 || data instanceof YFlow
+			 || data instanceof YInternalCondition
+			 || data instanceof YCondition
+		); 
+		LOG.info("filter: " + data.toString() + ":" + shouldFilter + ":" + data.getClass().getName());
+		return shouldFilter;
 	}
 	
 	private static SharedNodeComparator comparator = new SharedNodeComparator();
@@ -109,45 +114,36 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 		}
 	}	
 	
-	public Object getRoot() { return root; }
-
-	  // Tell JTree whether an object in the tree is a leaf or not
 	  public boolean isLeaf(Object node) {
 		  SharedNode aNode = (SharedNode) node;
 		  Object aValue = aNode.getProxy().getData();
 		  boolean retval = false;
 		  if (aValue instanceof YAWLServiceGateway 
 				  || aValue instanceof YFlow
+				  || aValue instanceof YExternalNetElement
 		  ) retval = true;
-//too file specific;		  if (node instanceof File) {
-//			  if (((File) node).isFile() && !((File) node).getName().endsWith("xml")) {}
-//		  }
-//		  retval = ((SharedNode) node).getProxy().getData().getClass() != String.class;
-//		  retval &= ((SharedNode) node).getProxy().getData().getClass() != DatasourceRoot.class;
 		  return retval;
 	  }
 
 	  public int getChildCount(Object parent) {
-		  return getChildren((SharedNode) parent).size();
+		  if (((SharedNode)parent).getChildCount() == 0) {
+			  getChildren((SharedNode) parent);
+		  }
+		  return super.getChildCount(parent);
 	  }
 
 	  public Object getChild(Object parent, int index) {
-		  return getChildren((SharedNode) parent).get(index);
+		  if (((SharedNode)parent).getChildCount() == 0) {
+			  getChildren((SharedNode) parent);
+		  }
+		  return super.getChild(parent, index);
 	  }
 
 	  public int getIndexOfChild(Object parent, Object child) {
-		  return getChildren((SharedNode) parent).indexOf(child);
+		  if (((SharedNode)parent).getChildCount() == 0) {
+			  getChildren((SharedNode) parent);
+		  }
+		  return super.getIndexOfChild(parent, child);
 	  }
-
-	  // This method is only invoked by the JTree for editable trees.  
-	  // This TreeModel does not allow editing, so we do not implement 
-	  // this method.  The JTree editable property is false by default.
-	  public void valueForPathChanged(TreePath path, Object newvalue) {}
-
-	  // Since this is not an editable tree model, we never fire any events,
-	  // so we don't actually have to keep track of interested listeners.
-	  public void addTreeModelListener(TreeModelListener l) {}
-	  public void removeTreeModelListener(TreeModelListener l) {}
-
 }
 
