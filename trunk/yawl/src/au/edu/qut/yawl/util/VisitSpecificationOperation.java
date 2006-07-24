@@ -7,10 +7,7 @@
  */
 package au.edu.qut.yawl.util;
 
-import java.util.Collection;
 import java.util.List;
-
-import operation.RemoveNetConditionsOperation;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,15 +24,14 @@ import au.edu.qut.yawl.elements.YTask;
 
 /**
  * The VisitSpecificationOperation allows a caller to iterate through an
- * entire specification (spec, nets, decomps, tasks, conditions) and do
- * something at each step.
+ * entire specification (spec, nets, decomps, tasks, conditions, flows)
+ * or a subset and do something at each step.
  * 
  * @author Matthew Sandoz
  *
  */
 public class VisitSpecificationOperation {
-
-	  private static final Log LOG = LogFactory.getLog(VisitSpecificationOperation.class);
+    private static final Log LOG = LogFactory.getLog(VisitSpecificationOperation.class);
     
     /**
      * This is a utility method that could be moved. Its purpose is to 
@@ -51,58 +47,50 @@ public class VisitSpecificationOperation {
      */
     public static void visitSpecification(YSpecification spec, Visitor v) {
 		assert spec != null;
-		RemoveNetConditionsOperation.removeConditions(spec);
 		v.visit(spec, spec.getName());
     	List<YDecomposition> decomps = spec.getDecompositions();
     	for (YDecomposition decomp: decomps) {
-    		String label;
-    		if (decomp.getName() != null && decomp.getName().length() != 0) {
-    			label = decomp.getName();
-    		} else {
-    			label = decomp.getId();
-    		}
-    		v.visit(decomp, label);
-    		if (decomp instanceof YNet) {
-    			YNet net = (YNet) decomp;
-    			for(YExternalNetElement yene: net.getNetElements()) {
-    				if (findType(yene) == Type.CONDITION) {
-    					LOG.error(yene.getClass().getName());
-    					label = "{connector}";
-    				} else {
-    					label = getLabelFor(yene);
-    				}
-    				v.visit(yene, label);
-    			}
-    		}
+            visitDecomposition( decomp, v );
     	}
-    	for (YDecomposition decomp: decomps) {
-    		if (decomp instanceof YNet) {
-    			YNet net = (YNet) decomp;
-    			for(YExternalNetElement yene: net.getNetElements()) {
-        			Collection<YFlow> flows = yene.getPostsetFlows();
-    				for (YFlow flow: flows) {
-    					String to;
-        				if (findType(flow.getNextElement()) == Type.CONDITION) {
-        					to = "to connector";
-        				} else {
-        					to = "to " + getLabelFor(flow.getNextElement());
-        				}
-        				v.visit(flow, to);
-    				}
-    				flows = yene.getPresetFlows();
-    				for (YFlow flow: flows) {
-    					String from;
-        				if (findType(flow.getPriorElement()) == Type.CONDITION) {
-        					from = "from connector";
-        				} else {
-        					from = "from " + getLabelFor(flow.getPriorElement());
-        				}
-        				v.visit(flow, from);
-    				}
-    			}
-    		}
-    	}
-    }	
+    }
+    
+    public static void visitDecomposition(YDecomposition decomp, Visitor v) {
+        String label;
+        if (decomp.getName() != null && decomp.getName().length() != 0) {
+            label = decomp.getName();
+        } else {
+            label = decomp.getId();
+        }
+        v.visit(decomp, label);
+        if (decomp instanceof YNet) {
+            YNet net = (YNet) decomp;
+            for(YExternalNetElement yene: net.getNetElements()) {
+                visitNetElement(yene, v);
+            }
+            for(YExternalNetElement yene: net.getNetElements()) {
+                for (YFlow flow: yene.getPostsetFlows()) {
+                    String to;
+                    if (findType(flow.getNextElement()) == Type.CONDITION) {
+                        to = "to connector";
+                    } else {
+                        to = "to " + getLabelFor(flow.getNextElement());
+                    }
+                    v.visit(flow, to);
+                }
+            }
+        }
+    }
+    
+    public static void visitNetElement(YExternalNetElement yene, Visitor v) {
+        String label;
+        if (findType(yene) == Type.CONDITION) {
+            LOG.error(yene.getClass().getName());
+            label = "{connector}";
+        } else {
+            label = getLabelFor(yene);
+        }
+        v.visit(yene, label);
+    }
 
     private static Type findType (Object o) {
     	Type retval = Type.UNKNOWN;

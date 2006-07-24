@@ -1,15 +1,9 @@
 package au.edu.qut.yawl.persistence.managed;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import au.edu.qut.yawl.elements.YSpecification;
 
 /**
  * @author Matthew Sandoz
@@ -51,7 +45,8 @@ public class DataProxy<Type> {
 	
 	public DataProxy(DataContext context, DataProxyStateChangeListener listener) {
 		this.context = context;
-		this.addChangeListener(listener);
+        if( listener != null )
+            this.addChangeListener(listener);
 	}
 
 	public DataProxy() {

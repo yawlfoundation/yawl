@@ -54,7 +54,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  *  @hibernate.class table="FLOW"
  */
 @Entity
-public class YFlow implements Comparable, Serializable, ExtensionListContainer {
+public class YFlow implements Comparable, Serializable, ExtensionListContainer, Parented {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -116,6 +116,7 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer {
     	return retval;
     }
     
+    public void setParent(Object o) {}
     
 	/**
      * 
@@ -423,51 +424,35 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer {
     public int compareTo(Object o) {
     	int retval = 0;
         YFlow f = (YFlow) o;
+        
         if (this.getEvalOrdering() != null && f.getEvalOrdering() != null) {
-        	retval =  this.getEvalOrdering().compareTo(f.getEvalOrdering());
+        	retval = this.getEvalOrdering().compareTo(f.getEvalOrdering());
         } else if (this.isDefaultFlow() && f.isDefaultFlow()) {
-        	retval =  0;
-        	if (
-            		f.getNextElement() != null 
-            		&& f.getNextElement().getID() != null
-            		&& this.getNextElement() != null
-            		&& this.getNextElement().getID() != null
-            ) {
-            	retval = this.getNextElement().getID().compareTo(f.getNextElement().getID());
-            	if (retval == 0) {
-            		if (
-                    		f.getPriorElement() != null 
-                    		&& f.getPriorElement().getID() != null
-                    		&& this.getPriorElement() != null
-                    		&& this.getPriorElement().getID() != null
-                    ) {
-                    	retval = this.getPriorElement().getID().compareTo(f.getPriorElement().getID());
-            		}
-            	}
-        	}
+        	retval = compareById( f );
         } else if (this.isDefaultFlow()) {
         	retval = 1;
         } else if (f.isDefaultFlow()) {
         	retval = -1;
-        } else if (
-        		f.getNextElement() != null 
-        		&& f.getNextElement().getID() != null
-        		&& this.getNextElement() != null
-        		&& this.getNextElement().getID() != null
-        ) {
-        	retval = this.getNextElement().getID().compareTo(f.getNextElement().getID());
-        	if (retval == 0) {
-        		if (
-                		f.getPriorElement() != null 
-                		&& f.getPriorElement().getID() != null
-                		&& this.getPriorElement() != null
-                		&& this.getPriorElement().getID() != null
-                ) {
-                	retval = this.getPriorElement().getID().compareTo(f.getPriorElement().getID());
-        		}
-        	}
+        } else {
+        	retval = compareById( f );
         }
         return retval;
+    }
+    
+    private int compareById( YFlow flow ) {
+    	int retval = 0;
+    	
+    	if (this.getNextElement() != null && this.getNextElement().getID() != null
+        		&& flow.getNextElement() != null && flow.getNextElement().getID() != null) {
+        	retval = this.getNextElement().getID().compareTo(flow.getNextElement().getID());
+    	}
+    	if (retval == 0
+    			&& this.getPriorElement() != null && this.getPriorElement().getID() != null
+    			&& flow.getPriorElement() != null && flow.getPriorElement().getID() != null) {
+    		retval = this.getPriorElement().compareTo(flow.getPriorElement());
+    	}
+    	
+    	return retval;
     }
 
     @Column(name="extensions", length=32768)

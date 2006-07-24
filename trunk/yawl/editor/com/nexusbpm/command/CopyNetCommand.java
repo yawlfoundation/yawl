@@ -7,41 +7,122 @@
  */
 package com.nexusbpm.command;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import operation.WorkflowOperation;
+import au.edu.qut.yawl.elements.YDecomposition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.util.VisitSpecificationOperation;
+import au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor;
+
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * The CopyNetCommand provides a way of copying a net from one 
- * YSpecification to another. Some different things to think about
- * as we do this are: <p>
- *
- * How deep should the copy go?<p>
- * What to do about existing elements that may cause naming collisions<p> 
+ * YSpecification to another.
  * 
- * @author Matthew Sandoz
- *
+ * @author Nathan Rose
  */
-public class CopyNetCommand implements Command{
-
-	EditorDataProxy netProxy;
+public class CopyNetCommand extends AbstractCommand {
+    private DataContext context;
+    private EditorDataProxy<YNet> netProxy;
+    private EditorDataProxy<YSpecification> specProxy;
+    private SharedNode specNode;
+    
+    private Map<Object,EditorDataProxy> proxies;
+    private Map<Object,SharedNode> nodes;
+    
+    private List<YDecomposition> decomps;
 	
-	public CopyNetCommand(EditorDataProxy netProxy) {
-		this.netProxy = netProxy;
+    /**
+     * @param netProxy the source net to copy.
+     * @param specProxy the target specification to copy the net into.
+     */
+	public CopyNetCommand( SharedNode netNode, SharedNode specNode ) {
+		this.netProxy = netNode.getProxy();
+        this.specProxy = specNode.getProxy();
+        this.specNode = specNode;
+        this.context = netProxy.getContext();
 	}
-	
-	public void execute() {
-		
-	}
-	
-	public void undo() {
-		
-	}
-	
-    public void redo() {
-        throw new UnsupportedOperationException(
-                "nexus insert undo not yet implemented");
+    
+    /**
+     * @see com.nexusbpm.command.AbstractCommand#attach()
+     */
+    @Override
+    protected void attach() {
+        for( YDecomposition decomp : decomps ) {
+            WorkflowOperation.attachDecompositionToSpec( specProxy.getData(), decomp );
+            VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
+                /**
+                 * @see VisitSpecificationOperation.Visitor#visit(Object, String)
+                 */
+                public void visit( Object child, String childLabel ) {
+                    if( child instanceof YDecomposition ||
+                            child instanceof YExternalNetElement ||
+                            child instanceof YFlow ) {
+                        context.attachProxy( proxies.get( child ), child );
+                    }
+                }
+            });
+        }
     }
     
-    public boolean supportsUndo() {
-        return true;
+    /**
+     * @see com.nexusbpm.command.AbstractCommand#detach()
+     */
+    @Override
+    protected void detach() {
+        for( YDecomposition decomp : decomps ) {
+            WorkflowOperation.detachDecompositionFromSpec( decomp );
+            VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
+                /**
+                 * @see VisitSpecificationOperation.Visitor#visit(Object, String)
+                 */
+                public void visit( Object child, String childLabel ) {
+                    if( child instanceof YDecomposition ||
+                            child instanceof YExternalNetElement ||
+                            child instanceof YFlow ) {
+                        context.detachProxy( proxies.get( child ) );
+                    }
+                }
+            });
+        }
+    }
+    
+    /**
+     * @see com.nexusbpm.command.AbstractCommand#perform()
+     */
+    @Override
+    protected void perform() throws CloneNotSupportedException {
+        decomps = WorkflowOperation.copyDecomposition( netProxy.getData(), specProxy.getData() );
+        
+        proxies = new HashMap<Object, EditorDataProxy>();
+        nodes = new HashMap<Object, SharedNode>();
+        
+        for( YDecomposition decomp : decomps ) {
+            VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
+                /**
+                 * @see VisitSpecificationOperation.Visitor#visit(Object, String)
+                 */
+                public void visit( Object child, String childLabel ) {
+                    if( child instanceof YDecomposition ||
+                            child instanceof YExternalNetElement ||
+                            child instanceof YFlow ) {
+                        proxies.put( child, (EditorDataProxy) context.createProxy( child, null ) );
+                        nodes.put( child, new SharedNode( proxies.get( child ) ) );
+                        proxies.get( child ).addChangeListener(
+                                (SharedNodeTreeModel) specNode.getTreeModel() );
+                    }
+                }
+            });
+        }
     }
 }

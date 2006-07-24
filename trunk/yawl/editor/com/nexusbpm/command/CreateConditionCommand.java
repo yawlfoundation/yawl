@@ -9,6 +9,7 @@ package com.nexusbpm.command;
 
 import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YCondition;
+import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
@@ -25,7 +26,7 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
 public class CreateConditionCommand extends AbstractCommand {
 
 	private DataContext context;
-    private EditorDataProxy parent;
+    private EditorDataProxy<YNet> netProxy;
     private YCondition condition;
     private DataProxy<YCondition> conditionProxy;
     private String conditionType;
@@ -41,9 +42,9 @@ public class CreateConditionCommand extends AbstractCommand {
      * @param conditionType the type of condition to create.
      * @param label the label given to the condition if the type is not input or output.
      */
-	public CreateConditionCommand(EditorDataProxy parent, String conditionType, String label) {
-		this.context = parent.getContext();
-        this.parent = parent;
+	public CreateConditionCommand(EditorDataProxy<YNet> netProxy, String conditionType, String label) {
+		this.context = netProxy.getContext();
+        this.netProxy = netProxy;
         this.conditionType = conditionType;
         this.label = label;
 	}
@@ -53,7 +54,7 @@ public class CreateConditionCommand extends AbstractCommand {
      */
     @Override
     protected void attach() throws Exception {
-        WorkflowOperation.attachConditionToNet( parent, condition );
+        WorkflowOperation.attachConditionToNet( netProxy.getData(), condition );
         context.attachProxy( conditionProxy, condition );
     }
     
