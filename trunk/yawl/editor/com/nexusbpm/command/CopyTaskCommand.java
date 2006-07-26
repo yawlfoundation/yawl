@@ -21,6 +21,11 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * 
  * @author Matthew Sandoz
  */
+// TODO need to:
+// -copy the NET, the VARIABLES, and the DECOMPOSITION
+// -need to modify the ID of the NET, then
+//   -modify the VARIABLE names according to the ID change
+//   -modify the MAPPINGS in the NET according to the VARIABLE name changes
 public class CopyTaskCommand implements Command{
 
 	EditorDataProxy source;

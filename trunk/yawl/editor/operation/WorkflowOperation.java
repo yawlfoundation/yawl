@@ -9,6 +9,9 @@ package operation;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +26,7 @@ import au.edu.qut.yawl.elements.YCompositeTask;
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
@@ -58,6 +62,10 @@ public class WorkflowOperation {
         return tempSpec;
     }
     
+    public static String convertNameToID( String name ) {
+        return name.replaceAll( " ", "_" );
+    }
+    
     /**
      * Creates a workflow under the given parent "folder."
      * @param parent the URI for the parent "folder" where the specification will be stored.
@@ -90,11 +98,13 @@ public class WorkflowOperation {
      * @param name the name to give the net.
      * @return the newly created net.
      */
-    public static YNet createNet(String name) {
-        YNet net = null;;
+    public static YNet createNet( String name, YSpecification spec ) {
+        YNet net = null;
+        
+        String id = getAvailableDecompID( spec, convertNameToID( name ) );
         
         // the constructor throws a null pointer exception if you don't have a specification
-        net = new YNet( name, getTempSpec() );
+        net = new YNet( id, getTempSpec() );
         net.setParent( null );
         net.setName( name );
         net.setDocumentation("");
@@ -110,7 +120,7 @@ public class WorkflowOperation {
      * @param specificationProxy a proxy for the parent specification.
      * @param decomposition the decomposition to add to the specification.
      */
-    public static void attachDecompositionToSpec(YSpecification spec, YDecomposition decomposition) {
+    public static void attachDecompositionToSpec( YDecomposition decomposition, YSpecification spec ) {
         decomposition.setParent( spec );
         if( decomposition instanceof YNet && spec.getRootNet() == null ) {
             spec.setRootNet( (YNet) decomposition );
@@ -143,25 +153,48 @@ public class WorkflowOperation {
         return new YCondition( id, label, null );
     }
     
-    public static void attachConditionToNet(YNet net, YCondition condition) {
-        condition.setParent( net );
+    public static void attachNetElementToNet( YExternalNetElement element, YNet net ) {
+        element.setParent( net );
         // TODO net.addNetElement() would be sufficient... the other functions need refactoring
-        if( condition instanceof YInputCondition ) {
-            net.setInputCondition( (YInputCondition) condition );
+        if( element instanceof YInputCondition ) {
+            net.setInputCondition( (YInputCondition) element );
         }
-        else if( condition instanceof YOutputCondition ) {
-            net.setOutputCondition( (YOutputCondition) condition );
+        else if( element instanceof YOutputCondition ) {
+            net.setOutputCondition( (YOutputCondition) element );
         }
         else {
-            net.addNetElement( condition );
+            net.addNetElement( element );
         }
     }
     
-    public static void detachConditionFromNet(YCondition condition) {
-        YNet net = condition.getParent();
+    public static void detachNetElementFromNet( YExternalNetElement element ) {
+        YNet net = element.getParent();
         
-        net.removeNetElement( condition );
-        condition.setParent( null );
+        net.removeNetElement( element );
+        element.setParent( null );
+    }
+    
+    public static YFlow createFlow() {
+        return new YFlow( null, null );
+    }
+    
+    public static void attachFlowToElements( YFlow flow,
+            YExternalNetElement source, YExternalNetElement target ) {
+        flow.setPriorElement( source );
+        flow.getPriorElement().getPostsetFlows().add( flow );
+        flow.setNextElement( target );
+        flow.getNextElement().getPresetFlows().add( flow );
+    }
+    
+    public static void detachFlowFromElements( YFlow flow ) {
+        if( flow.getPriorElement() != null ) {
+            flow.getPriorElement().removePostsetFlow( flow );
+            flow.setPriorElement( null );
+        }
+        if( flow.getNextElement() != null ) {
+            flow.getNextElement().removePresetFlow( flow );
+            flow.setNextElement( null );
+        }
     }
     
     /**
@@ -252,22 +285,57 @@ public class WorkflowOperation {
         return decomps;
     }
     
+    public static YSpecification copySpecification( YSpecification original, String targetFolder )
+    throws CloneNotSupportedException, URISyntaxException {
+        YSpecification clone = null;
+        
+        clone = (YSpecification) original.clone();
+        clone.setDbID( null );
+        
+        URI desturi = joinUris(new URI(targetFolder), new URI(clone.getID()));
+        clone.setID(desturi.toASCIIString());
+        
+        return clone;
+    }
+    
+    private static URI joinUris(URI parent, URI child) {
+        URI retval = null;
+        String text = child.getRawPath();
+        int index = text.lastIndexOf("/") + 1;
+        try {
+            retval = new URI(parent.getScheme(), parent.getAuthority(), parent.getPath() + "/" + URLDecoder.decode(text.substring(index), "UTF-8"), child.getQuery(), child.getFragment());
+            retval = retval.normalize();
+        } catch (Exception e) {e.printStackTrace();}
+        return retval;
+    }
+    
     /**
      * @return a non-colliding ID (in the context of the containing spec) by appending
      *         or altering a number at the end of the id.
      */
     public static String getAvailableDecompID(YSpecification spec, String originalID) {
+        List<String> ids = new LinkedList<String>();
+        for( YDecomposition decomp : spec._decompositions ) {
+            ids.add( decomp.getId() );
+        }
+        return getAvailableID( ids, originalID );
+    }
+    
+    /**
+     * @return a non-colliding ID by appending or altering a number at the end of the id.
+     */
+    public static String getAvailableID(List<String> ids, String originalID) {
         HashBag<String, NameAndCounter> bag = new HashBag<String, NameAndCounter>();
         NameAndCounter id = new NameAndCounter( originalID );
         String result;
         
-        for( YDecomposition element : spec._decompositions ) {
-            NameAndCounter n = new NameAndCounter( element.getId() );
+        for( String current : ids ) {
+            NameAndCounter n = new NameAndCounter( current );
             bag.put( n.getStrippedName(), n );
         }
         
         // first try to use the unaltered ID
-        if( spec.getDecomposition( id.toString() ) == null ) {
+        if( ! ids.contains( id.toString() ) ) {
             result = id.toString();
         }
         // second try to use the ID stripped down (IE: copying from somewhere where the
@@ -282,7 +350,7 @@ public class WorkflowOperation {
                 num = bag.get( id.getStrippedName() ).size() + 1;
             id = new NameAndCounter( id.getStrippedName(), Integer.valueOf( num ) );
             
-            while( spec.getDecomposition( id.toString() ) != null ) {
+            while( ids.contains( id.toString() ) ) {
                 id = id.getNextNameAndCounter();
             }
             
@@ -349,93 +417,111 @@ public class WorkflowOperation {
     }//NameAndCounter
 
 	/**
-	 * Creates a Nexus workflow task in the given net. Provides all default 
-	 * mappings from net variables to decomposed gateway variables. 
-	 * 
-	 * @param taskID
-	 * @param taskName
-	 * @param net
-	 * @param gateway
-	 * @param serviceInfo
-	 * @return
+	 * Creates a Nexus workflow task in the given net. Provides all default
+	 * mappings from net variables to decomposed gateway variables, and sets
+     * the gateway as the task's decomposition.
 	 */
-	public static YAtomicTask createTask(String taskID, String taskName,
+	public static YAtomicTask createNexusTask(String taskID, String taskName,
 			YNet net, YAWLServiceGateway gateway, NexusServiceInfo serviceInfo) {
-		YAtomicTask retval = new YAtomicTask(taskID, YTask._AND, YTask._AND,
-				net);
-		retval.setName(taskName);
-		retval.setDecompositionPrototype(gateway);
+		YAtomicTask task = new YAtomicTask( taskID, YTask._AND, YTask._AND, net );
+        task.setParent( null );
+		task.setName( taskName );
+		task.setDecompositionPrototype( gateway );
+        
+        // create in/out mappings for the specific nexus service
 		for (int i = 0; i < serviceInfo.getVariableNames().length; i++) {
 			String varName = serviceInfo.getVariableNames()[i];
-			retval.setDataBindingForInputParam(createInputBindingString(net.getId(),
-					varName, taskID + NexusWorkflow.NAME_SEPARATOR + varName),
-					varName);
-			retval.setDataBindingForOutputExpression(createOutputBindingString(
-					net.getId(), taskID, taskID + NexusWorkflow.NAME_SEPARATOR
-							+ varName, varName), taskID
-					+ NexusWorkflow.NAME_SEPARATOR + varName);
+            
+			task.setDataBindingForInputParam(
+                    createInputBindingString(
+                            net.getId(),
+                            varName,
+                            taskID + NexusWorkflow.NAME_SEPARATOR + varName ),
+                    varName );
+			task.setDataBindingForOutputExpression(
+                    createOutputBindingString(
+                            net.getId(),
+                            taskID,
+                            taskID + NexusWorkflow.NAME_SEPARATOR + varName,
+                            varName),
+                    taskID + NexusWorkflow.NAME_SEPARATOR + varName );
 		}
-		retval.setDataBindingForInputParam(createInputBindingString(net.getId(),
-				NexusWorkflow.SERVICENAME_VAR, taskID
-						+ NexusWorkflow.NAME_SEPARATOR
-						+ NexusWorkflow.SERVICENAME_VAR),
-				NexusWorkflow.SERVICENAME_VAR);
-		retval.setDataBindingForOutputExpression(createOutputBindingString(net.getId(),
-				taskID, taskID + NexusWorkflow.NAME_SEPARATOR
-						+ NexusWorkflow.STATUS_VAR, NexusWorkflow.STATUS_VAR),
-				taskID + NexusWorkflow.NAME_SEPARATOR
-						+ NexusWorkflow.STATUS_VAR);
-		return retval;
+        
+        // create input and output mappings that appear on all nexus tasks
+		task.setDataBindingForInputParam(
+                createInputBindingString(
+                        net.getId(),
+                        NexusWorkflow.SERVICENAME_VAR,
+                        taskID + NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.SERVICENAME_VAR ),
+                NexusWorkflow.SERVICENAME_VAR );
+		task.setDataBindingForOutputExpression(
+                createOutputBindingString(
+                        net.getId(),
+                        taskID,
+                        taskID + NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.STATUS_VAR,
+                        NexusWorkflow.STATUS_VAR ),
+				taskID + NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.STATUS_VAR );
+        
+		return task;
 	}
 
 	/**
-	 * Creates a Nexus Workflow Gateway reference in the given net.
-	 * 
-	 * @param taskID
-	 * @param net
-	 * @param serviceInfo
-	 * @return
+	 * Creates a Nexus Workflow Gateway for the specified nexus service.
 	 */
-	public static YAWLServiceGateway createGateway(String taskID, YNet net,
-			NexusServiceInfo serviceInfo) {
-		YAWLServiceGateway retval = new YAWLServiceGateway(net.getId()
-				+ NexusWorkflow.NAME_SEPARATOR + taskID, net.getParent());
+	public static YAWLServiceGateway createNexusGateway(String taskID, YNet net, NexusServiceInfo serviceInfo) {
+		YAWLServiceGateway gateway = new YAWLServiceGateway(
+                net.getId() + NexusWorkflow.NAME_SEPARATOR + taskID,
+                net.getParent() );
+        gateway.setParent( null );
 		YAWLServiceReference yawlService = new YAWLServiceReference(
-				NexusWorkflow.LOCAL_INVOKER_URI, retval);
-		retval.setYawlService(yawlService);
-		for (int i = 0; i < serviceInfo.getVariableNames().length; i++) {
-			YParameter iparam = new YParameter(net,
-					YParameter._INPUT_PARAM_TYPE);
-			YParameter oparam = new YParameter(net,
-					YParameter._OUTPUT_PARAM_TYPE);
-			iparam.setDataTypeAndName(NexusWorkflow.VARTYPE_STRING, serviceInfo
-					.getVariableNames()[i], NexusWorkflow.XML_SCHEMA_URL);
-			oparam.setDataTypeAndName(NexusWorkflow.VARTYPE_STRING, serviceInfo
-					.getVariableNames()[i], NexusWorkflow.XML_SCHEMA_URL);
-			retval.setInputParam(iparam);
-			retval.setOutputParameter(oparam);
+				NexusWorkflow.LOCAL_INVOKER_URI,
+                gateway);
+		gateway.setYawlService(yawlService);
+        
+        // create in/out parameters for the specific nexus service
+		for( int i = 0; i < serviceInfo.getVariableNames().length; i++ ) {
+			YParameter iparam = new YParameter( gateway, YParameter._INPUT_PARAM_TYPE );
+			YParameter oparam = new YParameter( gateway, YParameter._OUTPUT_PARAM_TYPE );
+            
+			iparam.setDataTypeAndName(
+                    NexusWorkflow.VARTYPE_STRING,
+                    serviceInfo.getVariableNames()[i],
+                    NexusWorkflow.XML_SCHEMA_URL );
+			oparam.setDataTypeAndName(
+                    NexusWorkflow.VARTYPE_STRING,
+                    serviceInfo.getVariableNames()[i],
+                    NexusWorkflow.XML_SCHEMA_URL );
+            
+			gateway.setInputParam( iparam );
+			gateway.setOutputParameter( oparam );
 		}
-		YParameter iparam = new YParameter(net, YParameter._INPUT_PARAM_TYPE);
-		YParameter oparam = new YParameter(net, YParameter._OUTPUT_PARAM_TYPE);
-		iparam.setDataTypeAndName(NexusWorkflow.VARTYPE_STRING,
-				NexusWorkflow.SERVICENAME_VAR, NexusWorkflow.XML_SCHEMA_URL);
-		oparam.setDataTypeAndName(NexusWorkflow.VARTYPE_STRING,
-				NexusWorkflow.STATUS_VAR, NexusWorkflow.XML_SCHEMA_URL);
-		retval.setInputParam(iparam);
-		retval.setOutputParameter(oparam);
-		return retval;
+        
+        // create input and output parameters that appear on all nexus gateways
+		YParameter iparam = new YParameter( gateway, YParameter._INPUT_PARAM_TYPE );
+		YParameter oparam = new YParameter( gateway, YParameter._OUTPUT_PARAM_TYPE );
+        
+		iparam.setDataTypeAndName(
+                NexusWorkflow.VARTYPE_STRING,
+				NexusWorkflow.SERVICENAME_VAR,
+                NexusWorkflow.XML_SCHEMA_URL );
+		oparam.setDataTypeAndName(
+                NexusWorkflow.VARTYPE_STRING,
+				NexusWorkflow.STATUS_VAR,
+                NexusWorkflow.XML_SCHEMA_URL );
+        
+		gateway.setInputParam( iparam );
+		gateway.setOutputParameter( oparam );
+        
+		return gateway;
 	}
 
 	/**
-	 * Creates variables for a particular NexusServiceInfo (service 
-	 * definition) on the given net.
-	 * 
-	 * @param taskID
-	 * @param net
-	 * @param serviceInfo
+	 * Creates net variables for a particular Nexus Service.
 	 */
-	public static void createNetVariables(String taskID, YNet net,
-			NexusServiceInfo serviceInfo) {
+	public static List<YVariable> createNexusVariables(
+            String taskID, YNet net, NexusServiceInfo serviceInfo ) {
+        List<YVariable> variables = new ArrayList<YVariable>( serviceInfo.getVariableNames().length + 1 );
+        
 		NexusServiceData data = new NexusServiceData();
 
 		for (int i = 0; i < serviceInfo.getVariableNames().length; i++) {
@@ -447,41 +533,60 @@ public class WorkflowOperation {
 			try {
 				data.set(name, serviceInfo.getInitialValues()[i]);
 			} catch (IOException e) {
-				e.printStackTrace(System.out);
+				e.printStackTrace( System.out );
 			}
+            
+            YVariable var = new YVariable( null );
+            var.setDataTypeAndName(
+                    NexusWorkflow.VARTYPE_STRING,
+                    taskID + NexusWorkflow.NAME_SEPARATOR + name,
+                    NexusWorkflow.XML_SCHEMA_URL );
+            var.setInitialValue( data.getEncodedValue( name ) );
 		}
-		data.marshal(net, taskID);
-
-		List<YVariable> vars = net.getLocalVariables();
-		vars.add(getStringVariable(net, taskID, NexusWorkflow.SERVICENAME_VAR,
-				serviceInfo.getServiceName()));
-		vars
-				.add(getStringVariable(net, taskID, NexusWorkflow.STATUS_VAR,
-						null));
+		
+		variables.add(
+                getStringVariable(
+                        taskID,
+                        NexusWorkflow.SERVICENAME_VAR,
+                        serviceInfo.getServiceName() ) );
+		variables.add(
+                getStringVariable(
+                        taskID,
+                        NexusWorkflow.STATUS_VAR,
+						null ) );
+        return variables;
 	}
 
 	/**
-	 * Creates a YVariable on the given net with a name derived from the
+	 * Creates a YVariable with a name derived from the
 	 * task id, a separator and the given simple var name.  
-	 * 
-	 * @param net
-	 * @param taskID
-	 * @param varName
-	 * @param initialValue
-	 * @return
 	 */
-	public static YVariable getStringVariable(YNet net, String taskID,
-			String varName, String initialValue) {
-		YVariable var;
-		var = new YVariable(net);
-		var.setDataTypeAndName(NexusWorkflow.VARTYPE_STRING, taskID
-				+ NexusWorkflow.NAME_SEPARATOR + varName,
-				NexusWorkflow.XML_SCHEMA_URL);
-		if (initialValue != null) {
-			var.setInitialValue(initialValue);
+	public static YVariable getStringVariable( String taskID, String varName, String initialValue ) {
+		YVariable var = new YVariable( null );
+        
+		var.setDataTypeAndName(
+                NexusWorkflow.VARTYPE_STRING,
+                taskID + NexusWorkflow.NAME_SEPARATOR + varName,
+				NexusWorkflow.XML_SCHEMA_URL );
+		if( initialValue != null ) {
+			var.setInitialValue( initialValue );
 		}
 		return var;
 	}
+    
+    public static void attachVariablesToNet( List<YVariable> variables, YNet net ) {
+        for( YVariable variable : variables ) {
+            variable.setParent( net );
+            net.getLocalVariables().add( variable );
+        }
+    }
+    
+    public static void detachVariablesFromNet( List<YVariable> variables ) {
+        for( YVariable variable : variables ) {
+            ((YNet) variable.getParent()).getLocalVariables().remove( variable );
+            variable.setParent( null );
+        }
+    }
 
 	/**
 	 * Creates a default input binding string useful for mapping net variables

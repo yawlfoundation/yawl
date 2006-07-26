@@ -313,33 +313,39 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
         _documentation = documentation;
     }
 
-    private transient Map<String, YDecomposition> convenienceDecompositionMap;
+//    private transient Map<String, YDecomposition> convenienceDecompositionMap;
     
     @Transient
     public YDecomposition getDecomposition(String id) {
-    	if (convenienceDecompositionMap == null) {
-    		populateDecompositionMap();
-    	}
-        return convenienceDecompositionMap.get(id);
+//    	if (convenienceDecompositionMap == null) {
+//    		populateDecompositionMap();
+//    	}
+//        return convenienceDecompositionMap.get(id);
+        for( YDecomposition decomp : _decompositions ) {
+            if( decomp.getId().equals( id ) ) {
+                return decomp;
+            }
+        }
+        return null;
     }
 
     public void setDecomposition(YDecomposition decomposition) {
-    	if (convenienceDecompositionMap == null) {
-    		populateDecompositionMap();
-    	}
+//    	if (convenienceDecompositionMap == null) {
+//    		populateDecompositionMap();
+//    	}
     	
         if (!_decompositions.contains(decomposition)) {
         	_decompositions.add(decomposition);
         }
-		convenienceDecompositionMap.put(decomposition.getId(), decomposition);
+//		convenienceDecompositionMap.put(decomposition.getId(), decomposition);
     }
     
-    private void populateDecompositionMap() {
-    	convenienceDecompositionMap = new HashMap<String, YDecomposition>();
-        for (YDecomposition decomposition : _decompositions) {
-            convenienceDecompositionMap.put(decomposition.getId(), decomposition);
-        }
-    }
+//    private void populateDecompositionMap() {
+//    	convenienceDecompositionMap = new HashMap<String, YDecomposition>();
+//        for (YDecomposition decomposition : _decompositions) {
+//            convenienceDecompositionMap.put(decomposition.getId(), decomposition);
+//        }
+//    }
     
 
 

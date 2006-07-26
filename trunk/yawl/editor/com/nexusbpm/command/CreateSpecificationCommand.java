@@ -13,6 +13,8 @@ import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * The CreateSpecificationCommand creates a specification under the specified
@@ -21,9 +23,8 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * @author Nathan Rose
  */
 public class CreateSpecificationCommand extends AbstractCommand {
-
 	private DataContext context;
-    private EditorDataProxy parent;
+    private SharedNode parentNode;
     private YSpecification specification;
     private DataProxy<YSpecification> specProxy;
     private String specName;
@@ -33,9 +34,9 @@ public class CreateSpecificationCommand extends AbstractCommand {
      * @param parent
      * @param specName
      */
-	public CreateSpecificationCommand(EditorDataProxy parent, String specName) {
-		this.context = parent.getContext();
-        this.parent = parent;
+	public CreateSpecificationCommand( SharedNode parentNode, String specName) {
+        this.parentNode = parentNode;
+		this.context = parentNode.getProxy().getContext();
         this.specName = specName;
 	}
 	
@@ -44,7 +45,7 @@ public class CreateSpecificationCommand extends AbstractCommand {
      */
     @Override
     protected void attach() throws Exception {
-        context.attachProxy( specProxy, specification );
+        context.attachProxy( specProxy, specification, parentNode.getProxy() );
         context.save( specProxy );
     }
     
@@ -61,7 +62,9 @@ public class CreateSpecificationCommand extends AbstractCommand {
      */
     @Override
     protected void perform() throws Exception {
-        specification = WorkflowOperation.createSpecification( parent.getData().toString(), specName );
-        specProxy = context.createProxy( specification, null );
+        specification = WorkflowOperation.createSpecification(
+                parentNode.getProxy().getData().toString(), specName );
+        specProxy = context.createProxy( specification, (SharedNodeTreeModel) parentNode.getTreeModel() );
+        new SharedNode( (EditorDataProxy) specProxy );
     }
 }

@@ -13,7 +13,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YDecomposition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.data.YVariable;
 
 import com.nexusbpm.NexusWorkflow;
@@ -241,7 +244,7 @@ public class EditorDataProxy<Type> extends au.edu.qut.yawl.persistence.managed.D
 //			_editor.setProxy(this);
 //			_editor.initializeUI();
 			if (_editor != null) {
-				_editor.setTitle( this.getLabel() );
+				_editor.setTitle( this.getLabel() + getIdString( getData() ) );
 				LOG.debug( "removing frame listeners" );
 				removeEditorFrameListeners();
 				LOG.debug( "adding frame listener for editor: " + _editor.getClass().getName() );
@@ -249,6 +252,21 @@ public class EditorDataProxy<Type> extends au.edu.qut.yawl.persistence.managed.D
 			}
 			return _editor;
 	}
+    
+    private String getIdString( Object data ) {
+        if( data instanceof YExternalNetElement ) {
+            YExternalNetElement netElement = (YExternalNetElement) data;
+            return " (ID: " + netElement.getID() + ")";
+        } else if( data instanceof YDecomposition ) {
+            YDecomposition decomp = (YDecomposition) data;
+            return " (ID: " + decomp.getId() + ")";
+        } else if( data instanceof YSpecification ) {
+            YSpecification spec = (YSpecification) data;
+            return " (ID: " + spec.getID() + ")";
+        } else {
+            return "";
+        }
+    }
 
 	/**
 	 * uses NexusServiceInfo to retrieve the appropriate editor class for

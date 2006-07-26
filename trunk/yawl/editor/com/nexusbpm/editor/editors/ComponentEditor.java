@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -49,7 +48,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
     
     protected NexusServiceData data;
     public void proxyDetached(DataProxy proxy, Object data) {}
-    public void proxyAttached(DataProxy proxy, Object data) {}
+    public void proxyAttached(DataProxy proxy, Object data, DataProxy parent) {}
 
     
 	/**

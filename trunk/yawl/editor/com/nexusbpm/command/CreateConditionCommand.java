@@ -14,6 +14,8 @@ import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * The CreateConditionCommand creates a condition in the specified net.
@@ -24,8 +26,8 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * @author Nathan Rose
  */
 public class CreateConditionCommand extends AbstractCommand {
-
 	private DataContext context;
+    private SharedNode netNode;
     private EditorDataProxy<YNet> netProxy;
     private YCondition condition;
     private DataProxy<YCondition> conditionProxy;
@@ -42,9 +44,10 @@ public class CreateConditionCommand extends AbstractCommand {
      * @param conditionType the type of condition to create.
      * @param label the label given to the condition if the type is not input or output.
      */
-	public CreateConditionCommand(EditorDataProxy<YNet> netProxy, String conditionType, String label) {
-		this.context = netProxy.getContext();
-        this.netProxy = netProxy;
+	public CreateConditionCommand(SharedNode netNode, String conditionType, String label) {
+        this.netNode = netNode;
+        this.netProxy = netNode.getProxy();
+        this.context = netProxy.getContext();
         this.conditionType = conditionType;
         this.label = label;
 	}
@@ -54,8 +57,8 @@ public class CreateConditionCommand extends AbstractCommand {
      */
     @Override
     protected void attach() throws Exception {
-        WorkflowOperation.attachConditionToNet( netProxy.getData(), condition );
-        context.attachProxy( conditionProxy, condition );
+        WorkflowOperation.attachNetElementToNet( condition, netProxy.getData() );
+        context.attachProxy( conditionProxy, condition, netProxy );
     }
     
     /**
@@ -63,7 +66,7 @@ public class CreateConditionCommand extends AbstractCommand {
      */
     @Override
     protected void detach() throws Exception {
-        WorkflowOperation.detachConditionFromNet( condition );
+        WorkflowOperation.detachNetElementFromNet( condition );
         context.detachProxy( conditionProxy );
     }
     
@@ -82,6 +85,6 @@ public class CreateConditionCommand extends AbstractCommand {
             // TODO do we need to URI encode the label when setting it as the ID?
             condition = WorkflowOperation.createCondition( label.replaceAll( " ", "_" ), label );
         }
-        conditionProxy = context.createProxy( condition, null );
+        conditionProxy = context.createProxy( condition, (SharedNodeTreeModel) netNode.getTreeModel() );
     }
 }

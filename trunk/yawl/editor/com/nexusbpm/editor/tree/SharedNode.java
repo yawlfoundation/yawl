@@ -45,6 +45,9 @@ implements DataProxyStateChangeListener {
 	 * @see TreeNode#getController()
 	 */
 	protected EditorDataProxy _proxy;
+    
+    /** Cache the child count (provides a HUGE performance improvement when using file DAO. */
+    Integer childCount = null;
 
 	/**
 	 * Whether or not to ignore PropertyChangeEvents we get in propertyChange() as
@@ -88,12 +91,16 @@ implements DataProxyStateChangeListener {
 	 * @see #setIgnorePropertyChangeEvents(boolean)
 	 */
 	public void propertyChange( PropertyChangeEvent event ) {
+        childCount = null;
 		String propertyName = event.getPropertyName();
 		LOG.debug( "Got property change event: "+propertyName );
 	}
 
-	public void proxyAttached(DataProxy proxy, Object data) {}
+	public void proxyAttached(DataProxy proxy, Object data, DataProxy parent) {
+        childCount = null;
+    }
 	public void proxyDetached(DataProxy proxy, Object data) {
+        childCount = null;
 		LOG.info("shared node rec'd detach " + proxy.getLabel() + ":" + data.toString());		
 	}
 		
