@@ -31,7 +31,7 @@ public class SharedNodeRenderer extends DefaultTreeCellRenderer {
 		super.getTreeCellRendererComponent( tree, value, sel, expanded, leaf, row,
 			hasFocus );
 		SharedNode node = (SharedNode) value;
-		setIcon( node.getProxy().icon() );
+		setIcon( node.getProxy().iconSmall() );
 		String candidate = node.getProxy().getLabel();
 		if (candidate.endsWith("/")) candidate = candidate.substring(0, candidate.length() - 1 );
 		setText( candidate );

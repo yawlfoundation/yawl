@@ -11,9 +11,11 @@ import java.util.List;
 
 /**
  * The CompoundCommand executes, undoes and redoes other commands in a batch.
+ * If any of the commands in the compound command cannot be undone, then the
+ * compound command itself cannot be undone.
  * 
  * @author Matthew Sandoz
- *
+ * @author Nathan Rose
  */
 public class CompoundCommand implements Command  {
 
@@ -36,21 +38,24 @@ public class CompoundCommand implements Command  {
 	}
 
 	public boolean supportsUndo() {
-		boolean retval = false;
-		for (Command command: commands) {
-			if (command.supportsUndo()) {
-				retval = true;
+		boolean retval = true;
+		for( Command command: commands ) {
+			if( ! command.supportsUndo() ) {
+				retval = false;
 			}
 		}
 		return retval;
 	}
 
 	public void undo() throws Exception {
-		for (int i = commands.size() - 1; i >= 0; i--) {
-			if (commands.get(i).supportsUndo()) {
+        if( supportsUndo() ) {
+            for (int i = commands.size() - 1; i >= 0; i--) {
 				commands.get(i).undo();
-			}
-		}
+            }
+        }
+        else {
+            throw new UnsupportedOperationException( "This compound command cannot be undone!" );
+        }
 	}
 	
 }

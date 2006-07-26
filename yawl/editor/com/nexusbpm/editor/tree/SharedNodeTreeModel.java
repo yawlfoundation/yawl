@@ -32,17 +32,24 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 	public void propertyChange(PropertyChangeEvent evt) {
 	}
 
-	public void proxyAttached(DataProxy proxy, Object data) {
-        if( !shouldFilter(proxy) )
-            insertNodeInto( ((EditorDataProxy) proxy).getTreeNode(),
-                ((EditorDataProxy)proxy.getContext().getParentProxy(proxy)).getTreeNode() );
+	public void proxyAttached(DataProxy proxy, Object data, DataProxy parent) {
+        SharedNode parentNode = (SharedNode) getRoot();
+        if( parent != null )
+            parentNode = ((EditorDataProxy) parent).getTreeNode();
+        if( !shouldFilter(proxy) ) {
+            if( parentNode != null )
+                insertNodeInto( ((EditorDataProxy) proxy).getTreeNode(), parentNode );
+            else
+                setRoot( ((EditorDataProxy) proxy).getTreeNode() );
+        }
+        
 	}
     
     public void insertNodeInto( SharedNode newChild, SharedNode parent ) {
         int index = 0;
         while( index < super.getChildCount( parent ) ) {
             SharedNode neighbor = (SharedNode) super.getChild( parent, index );
-            if( comparator.compare( newChild, neighbor ) <= 0 ) {
+            if( comparator.compare( newChild, neighbor ) < 0 ) {
                 insertNodeInto( newChild, parent, index );
                 return;
             }
@@ -63,11 +70,20 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 		}
 	}
 
-//	 protected SharedNode root;
-
-	public SharedNodeTreeModel(SharedNode root) {
+    // the components list is read only
+    private boolean readOnly;
+    
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+    
+    public SharedNodeTreeModel(SharedNode root) {
+        super(root);
+    }
+    
+	public SharedNodeTreeModel(SharedNode root, boolean readOnly) {
 		super(root);
-//		this.root = root;
+        this.readOnly = readOnly;
 	}
 	
 	public List getChildren(SharedNode parent) {
@@ -119,7 +135,7 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
         shouldFilter = shouldFilter ||
             ( data instanceof YAWLServiceGateway &&
                     WorkflowOperation.isGatewayANexusGateway( (YAWLServiceGateway) data ) );
-		LOG.info("filter: " + data.toString() + ":" + shouldFilter + ":" + data.getClass().getName());
+//		LOG.info("filter: " + data.toString() + ":" + shouldFilter + ":" + data.getClass().getName());
 		return shouldFilter;
 	}
 	
@@ -128,7 +144,15 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 		public int compare(Object o1, Object o2) {
 			SharedNode s1 = (SharedNode) o1;
 			SharedNode s2 = (SharedNode) o2;
-			int result = s1.getProxy().getData().toString().compareTo(s2.getProxy().getData().toString());
+            if( s1.getProxy().getData() instanceof String &&
+                    ! ( s2.getProxy().getData() instanceof String ) ) {
+                return -1;
+            }
+            else if( ! ( s1.getProxy().getData() instanceof String ) &&
+                    s2.getProxy().getData() instanceof String ) {
+                return 1;
+            }
+			int result = s1.getProxy().getLabel().toLowerCase().compareTo(s2.getProxy().getLabel().toLowerCase());
 			return result;
 		}
 	}	
@@ -141,14 +165,21 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 				  || aValue instanceof YFlow
 				  || aValue instanceof YExternalNetElement
 		  ) retval = true;
+          if(!retval)
+              if(getChildCount(node)==0)
+                  retval = true;
 		  return retval;
 	  }
 
 	  public int getChildCount(Object parent) {
+          if( ((SharedNode)parent).childCount != null ) {
+              return ((SharedNode)parent).childCount.intValue();
+          }
 		  if (((SharedNode)parent).getChildCount() == 0) {
 			  getChildren((SharedNode) parent);
 		  }
-		  return super.getChildCount(parent);
+          ((SharedNode)parent).childCount = Integer.valueOf( super.getChildCount( parent ) );
+		  return ((SharedNode)parent).childCount.intValue();
 	  }
 
 	  public Object getChild(Object parent, int index) {

@@ -63,7 +63,7 @@ public class EditorCommand {
 			newSpec.setID(desturi.toASCIIString());
 //			DataProxy dp = targetDataContext.getDataProxy(newSpec, null);
             DataProxy dp = targetDataContext.createProxy(newSpec, null);
-            targetDataContext.attachProxy(dp, newSpec);
+            targetDataContext.attachProxy(dp, newSpec, null); // TODO fix null
 			targetDataContext.save(dp);
 			LOG.info("Copying specification " + spec.getID() + " to " + newSpec.getID());
 			targetDataContext.getChildren(target.getProxy(), true);

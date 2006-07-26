@@ -32,10 +32,11 @@ import com.nexusbpm.editor.tree.SharedNodeTreeModel;
  * @author Nathan Rose
  */
 public class CopyNetCommand extends AbstractCommand {
-    private DataContext context;
     private EditorDataProxy<YNet> netProxy;
     private EditorDataProxy<YSpecification> specProxy;
     private SharedNode specNode;
+    
+    private DataContext targetContext;
     
     private Map<Object,EditorDataProxy> proxies;
     private Map<Object,SharedNode> nodes;
@@ -48,9 +49,9 @@ public class CopyNetCommand extends AbstractCommand {
      */
 	public CopyNetCommand( SharedNode netNode, SharedNode specNode ) {
 		this.netProxy = netNode.getProxy();
-        this.specProxy = specNode.getProxy();
         this.specNode = specNode;
-        this.context = netProxy.getContext();
+        this.specProxy = specNode.getProxy();
+        targetContext = specProxy.getContext();
 	}
     
     /**
@@ -59,7 +60,7 @@ public class CopyNetCommand extends AbstractCommand {
     @Override
     protected void attach() {
         for( YDecomposition decomp : decomps ) {
-            WorkflowOperation.attachDecompositionToSpec( specProxy.getData(), decomp );
+            WorkflowOperation.attachDecompositionToSpec( decomp, specProxy.getData() );
             VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
                 /**
                  * @see VisitSpecificationOperation.Visitor#visit(Object, String)
@@ -68,7 +69,7 @@ public class CopyNetCommand extends AbstractCommand {
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
-                        context.attachProxy( proxies.get( child ), child );
+                        targetContext.attachProxy( proxies.get( child ), child, specProxy );
                     }
                 }
             });
@@ -90,7 +91,7 @@ public class CopyNetCommand extends AbstractCommand {
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
-                        context.detachProxy( proxies.get( child ) );
+                        targetContext.detachProxy( proxies.get( child ) );
                     }
                 }
             });
@@ -116,10 +117,9 @@ public class CopyNetCommand extends AbstractCommand {
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
-                        proxies.put( child, (EditorDataProxy) context.createProxy( child, null ) );
+                        proxies.put( child, (EditorDataProxy) targetContext.createProxy(
+                                child, (SharedNodeTreeModel) specNode.getTreeModel() ) );
                         nodes.put( child, new SharedNode( proxies.get( child ) ) );
-                        proxies.get( child ).addChangeListener(
-                                (SharedNodeTreeModel) specNode.getTreeModel() );
                     }
                 }
             });

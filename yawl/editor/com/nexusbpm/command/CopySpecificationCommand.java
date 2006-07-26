@@ -7,41 +7,125 @@
  */
 package com.nexusbpm.command;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import operation.WorkflowOperation;
+import au.edu.qut.yawl.elements.Parented;
+import au.edu.qut.yawl.elements.YDecomposition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.util.VisitSpecificationOperation;
+import au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor;
+
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
- * 
  * The CopySpecificationCommand copies an entire specification
- * from one DataContext to another.
+ * from one location to another (within a data context or
+ * between contexts).
  * 
  * @author Matthew Sandoz
- *
+ * @author Nathan Rose
  */
-public class CopySpecificationCommand implements Command{
-
-	public EditorDataProxy source;
-	public EditorDataProxy target;
+public class CopySpecificationCommand extends AbstractCommand{
+    private EditorDataProxy<YSpecification> sourceSpecProxy;
+    private SharedNode targetNode;
+    private EditorDataProxy<YSpecification> copySpecProxy;
+    private YSpecification copySpec;
+    
+    private Map<Object, EditorDataProxy> proxies;
+    private Map<Object, SharedNode> nodes;
+    
+    private DataContext targetContext;
+    
+//	public EditorDataProxy source;
+//	public EditorDataProxy target;
 	
-	public CopySpecificationCommand(EditorDataProxy source, EditorDataProxy target) {
-		this.source = source;
-		this.target = target;
-	}
-	
-	public void execute() {
-		//steal from: 
-		//EditorCommand.executeCopyCommand(source, target);
-	}
-	
-	public void undo() {
-		
+	public CopySpecificationCommand( SharedNode sourceSpecNode, SharedNode targetNode ) {
+        this.sourceSpecProxy = sourceSpecNode.getProxy();
+		this.targetNode = targetNode;
+        this.targetContext = targetNode.getProxy().getContext();
 	}
     
-    public void redo() {
-        throw new UnsupportedOperationException(
-                "nexus insert undo not yet implemented");
+	/**
+     * @see com.nexusbpm.command.AbstractCommand#attach()
+     */
+    @Override
+    protected void attach() throws Exception {
+        targetContext.attachProxy( copySpecProxy, copySpec, targetNode.getProxy() );
+        for( YDecomposition decomp : copySpec._decompositions ) {
+            VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
+                /** @see VisitSpecificationOperation.Visitor#visit(Object, String) */
+                public void visit( Object child, String childLabel ) {
+                    if( child instanceof YDecomposition ||
+                            child instanceof YExternalNetElement ||
+                            child instanceof YFlow ) {
+                        targetContext.attachProxy( proxies.get( child ), child,
+                                targetContext.getDataProxy( ((Parented)child).getParent(), null ) );
+                    }
+                }
+            });
+        }
+        targetContext.save( copySpecProxy );
     }
     
-    public boolean supportsUndo() {
-        return true;
+    /**
+     * @see com.nexusbpm.command.AbstractCommand#detach()
+     */
+    @Override
+    protected void detach() throws Exception {
+        for( YDecomposition decomp : copySpec._decompositions ) {
+            VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
+                /**
+                 * @see VisitSpecificationOperation.Visitor#visit(Object, String)
+                 */
+                public void visit( Object child, String childLabel ) {
+                    if( child instanceof YDecomposition ||
+                            child instanceof YExternalNetElement ||
+                            child instanceof YFlow ) {
+                        targetContext.detachProxy( proxies.get( child ) );
+                    }
+                }
+            });
+        }
+        targetContext.delete( copySpecProxy );
+    }
+    
+    /**
+     * @see com.nexusbpm.command.AbstractCommand#perform()
+     */
+    @Override
+    protected void perform() throws Exception {
+        copySpec = WorkflowOperation.copySpecification(
+                sourceSpecProxy.getData(), targetNode.getProxy().getData().toString() );
+        
+        copySpecProxy = (EditorDataProxy) targetContext.createProxy( copySpec,
+                (SharedNodeTreeModel) targetNode.getTreeModel() );
+        new SharedNode( copySpecProxy );
+        
+        proxies = new HashMap<Object, EditorDataProxy>();
+        nodes = new HashMap<Object, SharedNode>();
+        
+        for( YDecomposition decomp : copySpec._decompositions ) {
+            VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
+                /**
+                 * @see VisitSpecificationOperation.Visitor#visit(Object, String)
+                 */
+                public void visit( Object child, String childLabel ) {
+                    if( child instanceof YDecomposition ||
+                            child instanceof YExternalNetElement ||
+                            child instanceof YFlow ) {
+                        proxies.put( child, (EditorDataProxy) targetContext.createProxy(
+                                child, (SharedNodeTreeModel) targetNode.getTreeModel() ) );
+                        nodes.put( child, new SharedNode( proxies.get( child ) ) );
+                    }
+                }
+            });
+        }
     }
 }

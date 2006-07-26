@@ -7,13 +7,19 @@
  */
 package com.nexusbpm.command;
 
+import java.util.List;
+
 import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 import com.nexusbpm.services.NexusServiceInfo;
 
 /**
@@ -22,62 +28,82 @@ import com.nexusbpm.services.NexusServiceInfo;
  * call a Nexus service.
  * 
  * @author Matthew Sandoz
- *
+ * @author Nathan Rose
  */
-public class CreateNexusComponent implements Command {
-
-	private YNet net;
-    private EditorDataProxy netProxy;
+public class CreateNexusComponent extends AbstractCommand {
+    private SharedNode netNode;
+    private EditorDataProxy<YNet> netProxy;
+    
+    private DataContext context;
 
 	private String taskName;
-
 	private String taskID;
-
 	private NexusServiceInfo serviceInfo;
 
 	private YAtomicTask task;
+    private DataProxy<YAtomicTask> taskProxy;
+    
+    private YAWLServiceGateway gateway;
+    private DataProxy<YAWLServiceGateway> gatewayProxy;
+    
+    private List<YVariable> netVariables;
 
 	/**
-	 * @param net
+	 * @param netNode
 	 * @param taskName
 	 * @param taskID
 	 * @param serviceInfo
 	 */
-	public CreateNexusComponent(EditorDataProxy netProxy, String taskName, String taskID,
+	public CreateNexusComponent( SharedNode netNode, String taskName, String taskID,
 			NexusServiceInfo serviceInfo) {
-		this.netProxy = netProxy;
-        this.net = (YNet) netProxy.getData();
+        this.netNode = netNode;
+		this.netProxy = netNode.getProxy();
 		this.taskName = taskName;
 		this.taskID = taskID;
 		this.serviceInfo = serviceInfo;
-	}
-
-	public void execute() {
-		WorkflowOperation.createNetVariables(taskID, net, serviceInfo);
-		YAWLServiceGateway gateway = WorkflowOperation.createGateway(taskID, net, serviceInfo);
-		net.getParent().getDecompositions().add(gateway);
-		task = WorkflowOperation.createTask(taskID, taskName, net, gateway, serviceInfo);
-		net.addNetElement(task);
-        DataProxy taskProxy = netProxy.getContext().createProxy( task, null );
-        netProxy.getContext().attachProxy( taskProxy, task );
-        DataProxy gatewayProxy = netProxy.getContext().createProxy( gateway, null );
-        netProxy.getContext().attachProxy( gatewayProxy, gateway );
-	}
-
-	public void undo() {
-		throw new UnsupportedOperationException(
-				"nexus insert undo not yet implemented");
+        this.context = netProxy.getContext();
 	}
     
-    public void redo() {
-        throw new UnsupportedOperationException(
-                "nexus insert undo not yet implemented");
+	/**
+     * @see com.nexusbpm.command.AbstractCommand#attach()
+     */
+    @Override
+    protected void attach() throws Exception {
+        WorkflowOperation.attachDecompositionToSpec( gateway, netProxy.getData().getParent() );
+        WorkflowOperation.attachNetElementToNet( task, netProxy.getData() );
+        WorkflowOperation.attachVariablesToNet( netVariables, netProxy.getData() );
+        DataProxy parentProxy = context.getDataProxy( netProxy.getData().getParent(), null );
+        context.attachProxy( gatewayProxy, gateway, parentProxy );
+        context.attachProxy( taskProxy, task, parentProxy );
     }
     
-    public boolean supportsUndo() {
-        return false;
+    /**
+     * @see com.nexusbpm.command.AbstractCommand#detach()
+     */
+    @Override
+    protected void detach() throws Exception {
+        WorkflowOperation.detachDecompositionFromSpec( gateway );
+        WorkflowOperation.detachNetElementFromNet( task );
+        WorkflowOperation.detachVariablesFromNet( netVariables );
+        context.detachProxy( gatewayProxy );
+        context.detachProxy( taskProxy );
     }
 
+    /**
+     * @see com.nexusbpm.command.AbstractCommand#perform()
+     */
+    @Override
+    protected void perform() throws Exception {
+        gateway = WorkflowOperation.createNexusGateway( taskID, netProxy.getData(), serviceInfo );
+        task = WorkflowOperation.createNexusTask( taskID, taskName, netProxy.getData(), gateway, serviceInfo );
+        netVariables = WorkflowOperation.createNexusVariables( taskID, netProxy.getData(), serviceInfo );
+        
+        gatewayProxy = context.createProxy( gateway, (SharedNodeTreeModel) netNode.getTreeModel() );
+        new SharedNode( (EditorDataProxy) gatewayProxy );
+        taskProxy = context.createProxy( task, (SharedNodeTreeModel) netNode.getTreeModel() );
+        new SharedNode( (EditorDataProxy) taskProxy );
+    }
+    
 //	/**
 //	 * 
 //	 * @todo move this to a test class...
@@ -135,5 +161,4 @@ public class CreateNexusComponent implements Command {
 //		} catch (Exception e) {
 //		}
 //	}
-
 }

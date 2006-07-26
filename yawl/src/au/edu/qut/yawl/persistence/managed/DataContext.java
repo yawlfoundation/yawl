@@ -1,12 +1,15 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * individuals and organisations who are commited to improving workflow technology.
+ *
+ */
 package au.edu.qut.yawl.persistence.managed;
 /*
  * DataContext.java
  *
  * Created on April 20, 2006, 5:24 PM
- *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
  */
 
 import java.beans.VetoableChangeListener;
@@ -36,6 +39,7 @@ import au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor;
 /**
  * 
  * @author Matthew Sandoz
+ * @author Nathan Rose
  */
 public class DataContext {
 	private static final Log LOG = LogFactory.getLog(DataContext.class);
@@ -73,7 +77,7 @@ public class DataContext {
     private Map<DataProxy, Object> dataMap = new HashMap<DataProxy, Object>();
     /** Maps data objects to their proxies. */
     private Map<Object, DataProxy> proxyMap = new HashMap<Object, DataProxy>();
-    private HashBag<DataProxy,DataProxy> hierarchy;    
+    private HashBag<DataProxy,DataProxy> hierarchy;
     
     /**
      * Returns the data proxy for the given object. If there is no proxy for that
@@ -115,11 +119,20 @@ public class DataContext {
                 } else {
                     dataProxy.setLabel(netElement.getName());
                 }
+            } else if( object instanceof YSpecification ) {
+                YSpecification spec = (YSpecification) object;
+                if( spec.getName() == null || spec.getName().length() == 0 ) {
+                    dataProxy.setLabel(spec.getID());
+                }
+                else {
+                    dataProxy.setLabel(spec.getName());
+                }
             } else {
 				dataProxy.setLabel(object.toString());
 			}
             
 			if (listener != null) dataProxy.addChangeListener(listener);
+//            else LOG.warn( "Proxy for object '" + object + "' created with no listener!" );
 			return dataProxy;
 		} catch (Exception e) {throw new Error(e);//this can never happen
 		}
@@ -173,16 +186,16 @@ public class DataContext {
      * the data context. It is necessary to pass both the proxy and the
      * object because the proxy delegates retrieving its data to the context
      * (this class) which won't have its data until after it's attached.
-     * If the object does not implement Parented, then it will not be
-     * connected to the hierarchy.
+     * <em>If the object does not implement Parented, then it will not be
+     * connected to the hierarchy.</em>
      * @param dataProxy the proxy to add to the context.
      * @param object the data object that the proxy is a proxy for.
      */
-    public void attachProxy(DataProxy dataProxy, Object object) {
+    public void attachProxy(DataProxy dataProxy, Object object, DataProxy parent) {
         dataProxy.setContext( this );
         addToMaps(dataProxy, object);
         addToHierarchy(dataProxy);
-        dataProxy.fireAttached(object);
+        dataProxy.fireAttached(object, parent);
     }
     
     /**
@@ -205,9 +218,21 @@ public class DataContext {
                 && ((Parented)child.getData()).getParent() != null ) {
             return proxyMap.get( ((Parented)child.getData()).getParent() );
         }
-        else {
-            return null;
+        else if( child.getData() != null
+                && child.getData() instanceof YSpecification ) {
+//            LOG.warn( "ID of spec:" + ((YSpecification)child.getData()).getID() );
+            String id = ((YSpecification)child.getData()).getID();
+            if( id.replaceAll( "\\\\", "/" ).indexOf( "/" ) >= 0 ) {
+                id = id.substring( 0, id.replaceAll( "\\\\", "/" ).lastIndexOf( "/" ) );
+//                LOG.warn( "new id: " + id + " returns " + getDataProxy( id, null ) );
+                return getDataProxy( id, null );
+            }
+            else {
+                return null;
+            }
         }
+//        LOG.warn( "returning null parent for proxy " + child.getLabel() );
+        return null;
     }
     
     /**
@@ -218,38 +243,40 @@ public class DataContext {
     private void addToHierarchy(DataProxy childProxy) {
         if( getParentProxy( childProxy ) != null ) {
             hierarchy.put(getParentProxy( childProxy ), childProxy);
-            LOG.info("adding " + childProxy.getLabel() + " to " + getParentProxy( childProxy ).getLabel());
+//            LOG.info("adding " + childProxy.getLabel() + " to " + getParentProxy( childProxy ).getLabel());
         }
     }
     
     /**
      * Removes the child proxy, and all of its children, from the hierarchy.
+     * <em>If the object does not implement parented, then it will not be
+     * removed from the hierarchy.</em>
      */
     private void removeFromHierarchy(DataProxy childProxy) {
         DataProxy parentProxy = getParentProxy( childProxy );
         if( parentProxy != null && hierarchy.get( parentProxy ) != null ) {
             hierarchy.get( parentProxy ).remove( childProxy );
-            LOG.info("removing " + childProxy.getLabel() + " from " + getParentProxy( childProxy ).getLabel());
+//            LOG.info("removing " + childProxy.getLabel() + " from " + getParentProxy( childProxy ).getLabel());
         }
         hierarchy.remove( childProxy );
-        LOG.info("removing " + childProxy.getLabel() + " as a parent");
+//        LOG.info("removing " + childProxy.getLabel() + " as a parent");
     }
     
     private void addToMaps(DataProxy proxy, Object data) {
         dataMap.put(proxy, data);
         proxyMap.put(data, proxy);
-        LOG.info("adding " + proxy.getLabel() + " to maps.");
+//        LOG.info("adding " + proxy.getLabel() + " to maps.");
     }
     
     private void removeFromMaps(DataProxy proxy, Object data) {
         dataMap.remove(proxy);
         proxyMap.remove(data);
-        LOG.info("removing " + proxy.getLabel() + " from maps.");
+//        LOG.info("removing " + proxy.getLabel() + " from maps.");
     }
    
     public Set<DataProxy> getChildren(DataProxy parent, boolean forceUpdate) {
     	if (hierarchy.get(parent) == null || forceUpdate) {
-    		List l = dao.getChildren(parent.getData());
+    		List<Parented> l = dao.getChildren(parent.getData());
     		for (Object o: l) {
                 assert o != null : "data proxy returned a null child!" + parent.toString();
     			if (o instanceof YSpecification) {
@@ -261,7 +288,7 @@ public class DataContext {
                                     DataProxy childProxy;
                                     if( DataContext.this.getDataProxy( child, null ) == null ) {
                                         childProxy = DataContext.this.createProxy(child, null);
-                                        DataContext.this.attachProxy( childProxy, child );
+                                        DataContext.this.attachProxy( childProxy, child, null );
                                     }
                                     else {
                                         childProxy = DataContext.this.getDataProxy( child, null );
@@ -273,7 +300,7 @@ public class DataContext {
     			}
     			else {
     				DataProxy dp = createProxy(o, null);
-                    attachProxy(dp, o);
+                    attachProxy(dp, o, parent);
         			hierarchy.put(parent, dp);
     			}
     		}

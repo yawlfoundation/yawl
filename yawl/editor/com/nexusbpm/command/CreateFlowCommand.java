@@ -7,11 +7,15 @@
  */
 package com.nexusbpm.command;
 
+import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * The CreateFlowCommand creates a flow between two external net elements.
@@ -19,43 +23,47 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * flow is minimally configured and must be customized afterwards.
  * 
  * @author Matthew Sandoz
- *
+ * @author Nathan Rose
  */
-public class CreateFlowCommand implements Command{
-
-	EditorDataProxy source;
-	EditorDataProxy target;
-	DataProxy<YFlow> createdFlow;
+public class CreateFlowCommand extends AbstractCommand {
+	private EditorDataProxy<YExternalNetElement> sourceProxy;
+	private EditorDataProxy<YExternalNetElement> targetProxy;
+    private SharedNode targetNode;
+    private YFlow flow;
+	private DataProxy<YFlow> flowProxy;
+    private DataContext context;
 	
-	public CreateFlowCommand(EditorDataProxy source, EditorDataProxy target) {
-		this.source = source;
-		this.target = target;
-	}
-
-	public void execute() {
-		YExternalNetElement sourceElement = (YExternalNetElement) source.getData();
-		YExternalNetElement targetElement = (YExternalNetElement) target.getData();
-		YFlow flow = new YFlow(sourceElement, targetElement);
-		sourceElement.getPostsetFlows().add(flow);
-		targetElement.getPresetFlows().add(flow);
-		createdFlow = source.getContext().createProxy(flow, null);
-        source.getContext().attachProxy(createdFlow, flow);
-	}
-	
-	public void undo() {
-		YExternalNetElement sourceElement = (YExternalNetElement) source.getData();
-		YExternalNetElement targetElement = (YExternalNetElement) target.getData();
-		sourceElement.getPostsetFlows().remove(createdFlow.getData());
-		targetElement.getPresetFlows().remove(createdFlow.getData());
-		source.getContext().delete(createdFlow);
+	public CreateFlowCommand(SharedNode sourceNode, SharedNode targetNode) {
+        this.sourceProxy = sourceNode.getProxy();
+		this.targetNode = targetNode;
+        this.targetProxy = targetNode.getProxy();
+        this.context = targetProxy.getContext();
 	}
     
-    public void redo() {
-        throw new UnsupportedOperationException(
-                "nexus insert undo not yet implemented");
+	/**
+     * @see com.nexusbpm.command.AbstractCommand#attach()
+     */
+    @Override
+    protected void attach() throws Exception {
+        WorkflowOperation.attachFlowToElements( flow, sourceProxy.getData(), targetProxy.getData() );
+        context.attachProxy( flowProxy, flow, context.getDataProxy( flow.getParent(), null ) );
     }
     
-    public boolean supportsUndo() {
-        return true;
+    /**
+     * @see com.nexusbpm.command.AbstractCommand#detach()
+     */
+    @Override
+    protected void detach() throws Exception {
+        WorkflowOperation.detachFlowFromElements( flow );
+        context.detachProxy( flowProxy );
+    }
+    
+    /**
+     * @see com.nexusbpm.command.AbstractCommand#perform()
+     */
+    @Override
+    protected void perform() throws Exception {
+        flow = WorkflowOperation.createFlow();
+        flowProxy = context.createProxy( flow, (SharedNodeTreeModel) targetNode.getTreeModel() );
     }
 }

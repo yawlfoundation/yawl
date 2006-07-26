@@ -31,6 +31,17 @@ public class CommandExecutor {
     public CommandExecutor( int stackSize ) {
         stack = new CommandStack( stackSize );
         executor = Executors.newSingleThreadExecutor();
+        listeners.add( new CommandCompletionListener() {
+            public void commandCompleted( ExecutionResult result ) {
+                if( result.getError() == null ) {
+                    System.out.println( "Command completed successfully" );
+                }
+                else {
+                    System.err.println( "Error occurred executing command:" );
+                    result.getError().printStackTrace( System.err );
+                }
+            }
+        });
     }
     
     /**

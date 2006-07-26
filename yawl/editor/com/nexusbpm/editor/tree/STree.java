@@ -1,6 +1,5 @@
 package com.nexusbpm.editor.tree;
 
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Point;
@@ -29,8 +28,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JDesktopPane;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
@@ -45,6 +45,7 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YNet;
@@ -53,6 +54,9 @@ import au.edu.qut.yawl.elements.YSpecification;
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CopyNetCommand;
 import com.nexusbpm.command.CopySpecificationCommand;
+import com.nexusbpm.command.CreateFolderCommand;
+import com.nexusbpm.command.CreateNetCommand;
+import com.nexusbpm.command.CreateSpecificationCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.ComponentEditor;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -94,17 +98,12 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 	private DragSource _dragSource = null;
 
 	/**
-	 * The containing panel.
-	 */
-	private Component _parentPanel;
-
-	/**
 	 * Constructor for a ComponentTree.
 	 * 
 	 * @param dtm the underlying tree data model.
 	 * @param parentPanel the containing panel.
 	 */
-	public STree( TreeModel dtm, java.awt.Component parentPanel ) {
+	public STree( TreeModel dtm ) {
 		super( dtm );
 
 		addTreeSelectionListener( this );
@@ -136,7 +135,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION );
 		setShowsRootHandles( true );
 
-		_parentPanel = parentPanel;
 		addMouseListener( this );
 		addKeyListener( this );
 		setEditable( true );
@@ -360,11 +358,11 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 
 			e.getDropTargetContext().dropComplete( true );
 
-			TreePath parentPath = new TreePath( destinationNode.getPath() );
-			expandPath( parentPath );
+//			TreePath parentPath = new TreePath( destinationNode.getPath() );
+//			expandPath( parentPath );
 		}
 		catch( Exception ex ) {
-			LOG.error("Exception trying to copy specification.", ex );
+			LOG.error("Exception trying to copy an element!", ex );
 			ex.printStackTrace();
 		}
 	}
@@ -374,7 +372,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         Object sourceObject = source.getProxy().getData();
         
         if( sourceObject instanceof YSpecification ) {
-            cmd = new CopySpecificationCommand( source.getProxy(), target.getProxy() );
+            cmd = new CopySpecificationCommand( source, target );
         }
         else if( sourceObject instanceof YNet ) {
             cmd = new CopyNetCommand( source, target );
@@ -483,10 +481,8 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             }
         }
         else if( draggingNode.getProxy().getData() instanceof YExternalNetElement ) {
-            if( ! ( destinationNode.getProxy().getData() instanceof YNet ) ) {
-                // can only drag a task into a decomposition
-                return false;
-            }
+            // net elements must be dragged into the graph editor, not the tree
+            return false;
         }
         else {
             // if the dragging node is not a spec, decomp, or task, then we don't accept it
@@ -606,7 +602,8 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 	 * @see MouseListener#mousePressed(MouseEvent)
 	 */
 	public void mousePressed( MouseEvent e ) {
-		if( e.getModifiersEx() == ( MouseEvent.BUTTON3_DOWN_MASK ) ) {
+		if( e.getModifiersEx() == ( MouseEvent.BUTTON3_DOWN_MASK ) &&
+                ! ((SharedNodeTreeModel)getModel()).isReadOnly() ) {
 			JPopupMenu menu = createPopupMenu( e.getPoint(), e.getSource() );
 			if( menu != null ) {
 				menu.show( this, e.getX(), e.getY() );
@@ -624,77 +621,176 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		TreePath selPath = tree.getPathForLocation( (int) pt.getX(), (int) pt.getY() );
 		if( selPath == null ) { return null; }
 
-		JPopupMenu menu = null;
+        JPopupMenu.setDefaultLightWeightPopupEnabled( false );
+        
+		JPopupMenu menu = new JPopupMenu();
+        menu.setLightWeightPopupEnabled( false );
 		tree.setSelectionPath( selPath );
 		final SharedNode node = (SharedNode) selPath.getLastPathComponent();
-
-		if( ! node.isRoot() ) {
-            menu = new JPopupMenu();
-			menu.add( new AbstractAction( "Edit" ) {
-				public void actionPerformed( ActionEvent e ) {
-//					ComponentTree.this.openCurrentNode();
-					throw new RuntimeException("This needs to be reimplemented in the YAWL context");
-					
-				}
-			} );
-
-			Action executeAction = new AbstractAction( "Execute" ) {
-				public void actionPerformed( ActionEvent e ) {
-					EditorDataProxy proxy = node.getProxy();
-					//ClientOperation.createInstanceAndRun( ctrl );
-					throw new RuntimeException("This needs to be reimplemented in the YAWL context");
-				}
-			};
-			// Disable the "Execute" menu item if it is for a flow that has errors in it. Note
-			// that we do not force a load of the object here. If we have a PersistentDomainObject
-			// in the cache, we will know enough to disable it if necessary; if we just have
-			// a VirtualDomainObject, we do not care enough to take the time to load the object
-			// from the database. This method is called every time the user right clicks on a
-			// component tree, and it needs to be very fast.
-
-			// TODO the following block is commented because it could cause lazy initialization depth error -- see Dean about it
-
-			//      if(node.getController().isFlow()) {
-			//        try {
-			//          DomainObject obj = node.getController().getDomainObject();
-			//          if( obj instanceof FlowComponent ) {
-			//            FlowComponent flow = (FlowComponent) obj;
-			//            if( Helper.isInitialized(flow.getComponents()) ) {
-			//              FlowUnderstanding fu = new FlowUnderstanding(flow);
-			//              executeAction.setEnabled( ! fu.containsErrors() );
-			//            }
-			//          }
-			//        } catch (CapselaException e) {
-			//          LOG.error(e);
-			//        }
-			//      }
-			menu.add( executeAction );
-
-			menu.add( new JSeparator() );
-
-			Action renameAction = new AbstractAction( "Rename" ) {
-				public void actionPerformed( ActionEvent e ) {
-					STree.this.renameCurrentNode();
-				}
-			};
-			menu.add( renameAction );
-
-			Action deleteAction = new AbstractAction( "Delete" ) {
-				public void actionPerformed( ActionEvent e ) {
-					STree.this.deleteCurrentNode();
-				}
-			};
-			menu.add( deleteAction );
-
-		}
-
-		if( menu != null && menu.getSubElements().length > 0 ) {
-			menu.add( new JSeparator() );
-		}
+        
+        JSeparator createSeparator = new JPopupMenu.Separator();
+        
+        JMenuItem createFolder = new JMenuItem( new AbstractAction( "Create Folder" ) {
+            public void actionPerformed( ActionEvent e ) {
+                WorkflowEditor.getExecutor().executeCommand(
+                        new CreateFolderCommand( node, "New Folder" ) );
+            }
+        });
+        
+        JMenuItem createSpecification = new JMenuItem( new AbstractAction( "Create Specification" ) {
+            public void actionPerformed( ActionEvent e ) {
+                WorkflowEditor.getExecutor().executeCommand(
+                        new CreateSpecificationCommand( node, "New Specification" ) );
+            }
+        });
+        
+        JMenuItem createNet = new JMenuItem();
+        createNet.setAction( new AbstractAction( "Create Net" ) {
+            public void actionPerformed( ActionEvent e ) {
+                WorkflowEditor.getExecutor().executeCommand(
+                        new CreateNetCommand( node, "New Net" ) );
+            }
+        });
+        createNet.setVisible( false );
+        
+        menu.add( createFolder );
+        menu.add( createSpecification );
+        menu.add( createNet );
+        
+        menu.add( createSeparator );
+        
+        JMenuItem edit = new JMenuItem( new AbstractAction( "Edit" ) {
+            public void actionPerformed( ActionEvent e ) {
+                LOG.error( "TODO: implement edit net" );
+            }
+        });
+        edit.setVisible( false );
+        
+        JMenuItem rename = new JMenuItem( new AbstractAction( "Rename" ) {
+            public void actionPerformed( ActionEvent e ) {
+                LOG.error( "TODO: implement rename" );
+//                STree.this.renameCurrentNode();
+            }
+        });
+        
+        JMenuItem delete = new JMenuItem( new AbstractAction( "Delete" ) {
+            public void actionPerformed( ActionEvent e ) {
+                STree.this.deleteCurrentNode();
+            }
+        });
+        
+        menu.add( edit );
+        menu.add( rename );
+        menu.add( delete );
+        
+        Object data = null;
+        if( ! node.isRoot() ) {
+            data = node.getProxy().getData();
+        }
+        
+        if( data == null ) {
+            // TODO make items visible/invisible as appropriate for the root
+            createSeparator.setVisible( false );
+            rename.setVisible( false );
+            delete.setVisible( false );
+        } else if( data instanceof String ) {
+            // TODO show items appropriate for folders
+        } else if( data instanceof YSpecification ) {
+            // TODO show items for specs
+            createFolder.setVisible( false );
+            createSpecification.setVisible( false );
+            createNet.setVisible( true );
+        } else if( data instanceof YDecomposition ) {
+            // TODO show items for decomps
+            createFolder.setVisible( false );
+            createSpecification.setVisible( false );
+            createSeparator.setVisible( false );
+            if( data instanceof YNet ) {
+                // TODO create task
+                edit.setVisible( true );
+            }
+            else {
+                menu = null;
+            }
+            
+        } else if( data instanceof YExternalNetElement ) {
+            // TODO show items for net elements
+            createFolder.setVisible( false );
+            createSpecification.setVisible( false );
+            createSeparator.setVisible( false );
+            if( data instanceof YAtomicTask ) {
+                edit.setVisible( true );
+            }
+            else {
+                menu = null;
+            }
+        } else {
+            menu = null;
+            // TODO invalid selection
+        }
+            
+            
+            
+//            JMenuItem item = new JMenuItem( "Edit" );
+//			AbstractAction act = new AbstractAction( "Edit" ) {
+//				public void actionPerformed( ActionEvent e ) {
+////					ComponentTree.this.openCurrentNode();
+//					throw new RuntimeException("This needs to be reimplemented in the YAWL context");
+//					
+//				}
+//			};
+//            item.setAction( act );
+//            item.setIcon( getIcon( String.class.getName() ) );
+//            menu.add(item);
+//            
+//            menu.add( new AbstractAction( "New Spec" ) {
+//                public void actionPerformed( ActionEvent e ) {
+//                    // TODO
+//                    String name = JOptionPane.showInputDialog( "Please enter spec name" );
+//                    WorkflowEditor.getExecutor().executeCommand( new CreateSpecificationCommand( node, name ) );
+//                }
+//            } );
+//
+//			Action executeAction = new AbstractAction( "Execute" ) {
+//				public void actionPerformed( ActionEvent e ) {
+//					EditorDataProxy proxy = node.getProxy();
+//					//ClientOperation.createInstanceAndRun( ctrl );
+//					throw new RuntimeException("This needs to be reimplemented in the YAWL context");
+//				}
+//			};
+//			// Disable the "Execute" menu item if it is for a flow that has errors in it. Note
+//			// that we do not force a load of the object here. If we have a PersistentDomainObject
+//			// in the cache, we will know enough to disable it if necessary; if we just have
+//			// a VirtualDomainObject, we do not care enough to take the time to load the object
+//			// from the database. This method is called every time the user right clicks on a
+//			// component tree, and it needs to be very fast.
+//
+//			// TODO the following block is commented because it could cause lazy initialization depth error -- see Dean about it
+//
+//			//      if(node.getController().isFlow()) {
+//			//        try {
+//			//          DomainObject obj = node.getController().getDomainObject();
+//			//          if( obj instanceof FlowComponent ) {
+//			//            FlowComponent flow = (FlowComponent) obj;
+//			//            if( Helper.isInitialized(flow.getComponents()) ) {
+//			//              FlowUnderstanding fu = new FlowUnderstanding(flow);
+//			//              executeAction.setEnabled( ! fu.containsErrors() );
+//			//            }
+//			//          }
+//			//        } catch (CapselaException e) {
+//			//          LOG.error(e);
+//			//        }
+//			//      }
+//			menu.add( executeAction );
+//
+//			menu.add( new JPopupMenu.Separator() );
+//
+//
+////		}
 
 		return menu;
 	}
-
+    
 	// ###############################################################################################
 	// #################################### KeyListener Interface ####################################
 	// ###############################################################################################

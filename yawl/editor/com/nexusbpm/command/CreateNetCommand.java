@@ -14,6 +14,8 @@ import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * The CreateNetCommand creates a net in the specified specification.
@@ -22,9 +24,9 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * @author Nathan Rose
  */
 public class CreateNetCommand extends AbstractCommand {
-
 	private DataContext context;
     private EditorDataProxy<YSpecification> specProxy;
+    private SharedNode specNode;
     private YNet net;
     private DataProxy<YNet> netProxy;
     private String netName;
@@ -34,9 +36,10 @@ public class CreateNetCommand extends AbstractCommand {
      * @param parent
      * @param netName
      */
-	public CreateNetCommand(EditorDataProxy<YSpecification> specProxy, String netName) {
+	public CreateNetCommand( SharedNode specNode, String netName) {
+        this.specNode = specNode;
+        this.specProxy = specNode.getProxy();
 		this.context = specProxy.getContext();
-        this.specProxy = specProxy;
         this.netName = netName;
 	}
 	
@@ -45,8 +48,8 @@ public class CreateNetCommand extends AbstractCommand {
      */
     @Override
     protected void attach() throws Exception {
-        WorkflowOperation.attachDecompositionToSpec( specProxy.getData(), net );
-        context.attachProxy( netProxy, net );
+        WorkflowOperation.attachDecompositionToSpec( net, specProxy.getData() );
+        context.attachProxy( netProxy, net, specProxy );
     }
     
     /**
@@ -63,7 +66,8 @@ public class CreateNetCommand extends AbstractCommand {
      */
     @Override
     protected void perform() throws Exception {
-        net = WorkflowOperation.createNet( netName );
-        netProxy = context.createProxy( net, null );
+        net = WorkflowOperation.createNet( netName, specProxy.getData() );
+        netProxy = context.createProxy( net, (SharedNodeTreeModel) specNode.getTreeModel() );
+        new SharedNode( (EditorDataProxy) netProxy );
     }
 }
