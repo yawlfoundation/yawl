@@ -197,7 +197,7 @@
 	<xs:complexType name="ExtensionType">
 		<xs:sequence>
 			<xs:any minOccurs="0" maxOccurs="unbounded" 
-			 namespace="##other"/>
+			 namespace="##other" processContents="lax"/>
 		</xs:sequence>
 		<xs:attribute name="name"/>
 	</xs:complexType>	
