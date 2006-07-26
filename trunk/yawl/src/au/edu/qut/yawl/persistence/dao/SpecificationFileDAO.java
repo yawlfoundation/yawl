@@ -25,7 +25,7 @@ import com.nexusbpm.editor.tree.DatasourceRoot;
 
 
 
-public class SpecificationFileDAO implements SpecificationDAO{
+public class SpecificationFileDAO implements SpecificationDAO {
 
 	private static final Log LOG = LogFactory.getLog(SpecificationFileDAO.class);
 
@@ -103,7 +103,8 @@ public class SpecificationFileDAO implements SpecificationDAO{
 			}
 			if (f.isFile() && f.getName().endsWith(".xml")) {
 				YSpecification spec = retrieve(f.getAbsolutePath());
-				retval.add(spec);
+                if( spec != null )
+                    retval.add(spec);
 			} else {
 				File[] files = null;
 				files = f.listFiles();
