@@ -293,7 +293,7 @@ public class WorkflowOperation {
         clone.setDbID( null );
         
         URI desturi = joinUris(new URI(targetFolder), new URI(clone.getID()));
-        clone.setID(desturi.toASCIIString());
+        clone.setID(desturi.toString());
         
         return clone;
     }

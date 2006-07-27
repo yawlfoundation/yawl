@@ -76,6 +76,7 @@ public class SpecificationFileDAO implements SpecificationDAO {
 			LOG.error("error saving " + m.getID() + " to file", e1);
 		}
         try {
+            m.setID( new URI(m.getID()).toASCIIString() );
         	FileWriter os = new FileWriter(f);
         	os.write(YMarshal.marshal(m));
         	os.flush();
