@@ -30,7 +30,6 @@ import java.awt.event.MouseListener;
 import javax.swing.AbstractAction;
 import javax.swing.JDesktopPane;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
@@ -57,6 +56,7 @@ import com.nexusbpm.command.CopySpecificationCommand;
 import com.nexusbpm.command.CreateFolderCommand;
 import com.nexusbpm.command.CreateNetCommand;
 import com.nexusbpm.command.CreateSpecificationCommand;
+import com.nexusbpm.command.SaveSpecificationCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.ComponentEditor;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -331,6 +331,8 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 			//get new parent node
 			Point loc = e.getLocation();
 			TreePath destinationPath = getPathForLocation( loc.x, loc.y );
+            if( destinationPath == null )
+                return;
 			SharedNode draggingNode = DragAndDrop.getDraggingNode();
             SharedNode destinationNode = (SharedNode) destinationPath.getLastPathComponent();
 
@@ -647,8 +649,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         JMenuItem createNet = new JMenuItem();
         createNet.setAction( new AbstractAction( "Create Net" ) {
             public void actionPerformed( ActionEvent e ) {
-                WorkflowEditor.getExecutor().executeCommand(
-                        new CreateNetCommand( node, "New Net" ) );
+                WorkflowEditor.getExecutor().executeCommand( new CreateNetCommand( node, "New Net" ) );
             }
         });
         createNet.setVisible( false );
@@ -659,9 +660,23 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         
         menu.add( createSeparator );
         
+        JMenuItem save = new JMenuItem( new AbstractAction( "Save Specification" ) {
+            public void actionPerformed( ActionEvent e ) {
+                WorkflowEditor.getExecutor().executeCommand( new SaveSpecificationCommand( node ) );
+            }
+        });
+        save.setVisible( false );
+        
+        JSeparator saveSeparator = new JPopupMenu.Separator();
+        saveSeparator.setVisible( false );
+        
+        menu.add( save );
+        menu.add( saveSeparator );
+        
+        
         JMenuItem edit = new JMenuItem( new AbstractAction( "Edit" ) {
             public void actionPerformed( ActionEvent e ) {
-                LOG.error( "TODO: implement edit net" );
+                LOG.error( "TODO: implement edit component" );
             }
         });
         edit.setVisible( false );
@@ -669,7 +684,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         JMenuItem rename = new JMenuItem( new AbstractAction( "Rename" ) {
             public void actionPerformed( ActionEvent e ) {
                 LOG.error( "TODO: implement rename" );
-//                STree.this.renameCurrentNode();
+                STree.this.renameCurrentNode();
             }
         });
         
@@ -700,6 +715,8 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             createFolder.setVisible( false );
             createSpecification.setVisible( false );
             createNet.setVisible( true );
+            save.setVisible( true );
+            saveSeparator.setVisible( true );
         } else if( data instanceof YDecomposition ) {
             // TODO show items for decomps
             createFolder.setVisible( false );

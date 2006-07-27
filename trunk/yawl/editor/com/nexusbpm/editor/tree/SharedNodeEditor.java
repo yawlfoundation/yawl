@@ -10,6 +10,9 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.nexusbpm.command.RenameElementCommand;
+import com.nexusbpm.editor.WorkflowEditor;
+
 
 /**
  * Editor for component nodes that allows edits only at certain times, tells
@@ -60,15 +63,16 @@ public class SharedNodeEditor extends DefaultTreeCellEditor {
 		String cellEditorValue = (String) super.getCellEditorValue();
 		if( SharedNodeEditor.allowNextEdit == false ) return cellEditorValue;
 		SharedNodeEditor.allowNextEdit = false;
-		String newName = (String) cellEditorValue;
-		String oldName = _node.getName();
+		String newName = cellEditorValue;
+		String oldName = _node.getProxy().getLabel();
 		if( !oldName.equals( newName ) ) {
 			LOG.debug( "Persisting new component name (" + oldName + " -> " + newName + ")." );
-			throw new RuntimeException( "implement the rename tree node methods!" );
+            WorkflowEditor.getExecutor().executeCommand(
+                    new RenameElementCommand( _node, newName, oldName ) );
 		}
-		return _node;
+		return _node.getProxy().getData();
 	}
-
+    
 	/**
 	 * @see DefaultTreeCellEditor#isCellEditable(EventObject)
 	 */
