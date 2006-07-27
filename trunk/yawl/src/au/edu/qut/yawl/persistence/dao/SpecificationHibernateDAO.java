@@ -8,6 +8,7 @@
 
 package au.edu.qut.yawl.persistence.dao;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -184,6 +185,7 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 	public int save(YSpecification m) {
 		Session session = null;
 		try {
+            m.setID(new URI(m.getID()).toASCIIString());
 			Transaction tx;
 			session = openSession();
 			tx = session.beginTransaction();
