@@ -30,6 +30,11 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 	private static final Log LOG = LogFactory.getLog( SharedNodeTreeModel.class );
 
 	public void propertyChange(PropertyChangeEvent evt) {
+        if( evt.getPropertyName().equals( "name" ) ) {
+            if( !shouldFilter(evt.getSource()) ) {
+                super.nodeChanged( ((EditorDataProxy)evt.getSource()).getTreeNode() );
+            }
+        }
 	}
 
 	public void proxyAttached(DataProxy proxy, Object data, DataProxy parent) {
