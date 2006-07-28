@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xf="http://www.w3.org/2002/xforms"
+    xmlns:ev="http://www.w3.org/2001/xml-events">
+    <head>
+        <title>Event Tester</title>
+        <xf:model>
+            <xf:instance xmlns="">
+                <top>
+                    <events></events>
+                    <control>control</control>
+                    <constraint>true</constraint>
+                    <readonly>true</readonly>
+                    <required>true</required>
+                    <relevant>true</relevant>
+                </top>
+            </xf:instance>
+
+            <xf:bind id="b-events" nodeset="events"/>
+            <xf:bind id="b-control" nodeset="control"
+                constraint="../constraint='true'"
+                readonly="../readonly='true'"
+                required="../required='true'"
+                relevant="../relevant='true'"/>
+            <xf:bind id="b-constraint" nodeset="constraint"/>
+            <xf:bind id="b-readonly" nodeset="readonly"/>
+            <xf:bind id="b-required" nodeset="required"/>
+            <xf:bind id="b-relevant" nodeset="relevant"/>
+
+            <xf:submission id="s-debug" action="../jsp/debug-instance.jsp" method="post" replace="all"/>
+        </xf:model>
+    </head>
+
+    <body>
+        <xf:group>
+            <xf:label>Event Tester</xf:label>
+            <xf:group appearance="full">
+                <xf:label>Events dispatched to <b>Control</b></xf:label>
+                <xf:output id="o-events" bind="b-events"/>
+                <br/>
+                <xf:trigger id="t-clear">
+                    <xf:label>Clear</xf:label>
+                    <xf:setvalue bind="b-events"/>
+                </xf:trigger>
+            </xf:group>
+            <xf:group appearance="full">
+                <xf:label>An input control</xf:label>
+                <xf:input xf:bind="b-control">
+                    <xf:label><b>Control</b></xf:label>
+                    <xf:alert>The constraint is now invalid</xf:alert>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' DOMActivate')" ev:event="DOMActivate"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' xforms-value-changed')" ev:event="xforms-value-changed"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' xforms-valid')" ev:event="xforms-valid"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' xforms-invalid')" ev:event="xforms-invalid"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' DOMFocusIn')" ev:event="DOMFocusIn"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' DOMFocusOut')" ev:event="DOMFocusOut"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' xforms-readonly')" ev:event="xforms-readonly"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' xforms-readwrite')" ev:event="xforms-readwrite"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' xforms-required')" ev:event="xforms-required"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' xforms-optional')" ev:event="xforms-optional"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' xforms-enabled')" ev:event="xforms-enabled"/>
+                    <xf:setvalue bind="b-events" value="concat(/top/events,' xforms-disabled')" ev:event="xforms-disabled"/>
+                </xf:input>
+            </xf:group>
+            <xf:group appearance="full">
+                <xf:label>These 4 options control the bind attributes of <b>Control</b></xf:label>
+                <xf:select1 bind="b-constraint" appearance="full">
+                    <xf:label>Constraint</xf:label>
+                    <xf:choices>
+                        <xf:item>
+                            <xf:label>true</xf:label>
+                            <xf:value>true</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>false</xf:label>
+                            <xf:value>false</xf:value>
+                        </xf:item>
+                    </xf:choices>
+                </xf:select1>
+                <xf:select1 bind="b-readonly" appearance="full">
+                    <xf:label>Readonly</xf:label>
+                    <xf:choices>
+                        <xf:item>
+                            <xf:label>true</xf:label>
+                            <xf:value>true</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>false</xf:label>
+                            <xf:value>false</xf:value>
+                        </xf:item>
+                    </xf:choices>
+                </xf:select1>
+                <xf:select1 bind="b-required" appearance="full">
+                    <xf:label>Required</xf:label>
+                    <xf:choices>
+                        <xf:item>
+                            <xf:label>true</xf:label>
+                            <xf:value>true</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>false</xf:label>
+                            <xf:value>false</xf:value>
+                        </xf:item>
+                    </xf:choices>
+                </xf:select1>
+                <xf:select1 bind="b-relevant" appearance="full">
+                    <xf:label>Relevant</xf:label>
+                    <xf:choices>
+                        <xf:item>
+                            <xf:label>true</xf:label>
+                            <xf:value>true</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>false</xf:label>
+                            <xf:value>false</xf:value>
+                        </xf:item>
+                    </xf:choices>
+                </xf:select1>
+            </xf:group>
+            <xf:group>
+                <xf:label>Perform submission to view Instance Data</xf:label>
+                <xf:trigger>
+                    <xf:label>Debug</xf:label>
+                    <xf:send submission="s-debug"/>
+                </xf:trigger>
+            </xf:group>
+        </xf:group>
+    </body>
+</html>

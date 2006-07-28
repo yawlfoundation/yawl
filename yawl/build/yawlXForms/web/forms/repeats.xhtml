@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xforms="http://www.w3.org/2002/xforms"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+    <head>
+        <title>Repeats</title>
+        <style type="text/css">
+            #nested-input-value{width:400px;}
+        </style>
+
+        <xforms:model id="model_1">
+            <xforms:instance id="instance_1" xmlns="">
+                <repeats>
+                    <simple-repeat>simple_0</simple-repeat>
+                    <simple-repeat>simple_1</simple-repeat>
+                    <simple-repeat>simple_2</simple-repeat>
+                    <complex-repeat>
+                        <test1>aaa_0</test1>
+                        <test2>bbb_0</test2>
+                    </complex-repeat>
+                    <complex-repeat>
+                        <test1>aaa_1</test1>
+                        <test2>bbb_1</test2>
+                    </complex-repeat>
+                    <enclosing-repeat>
+                        <nested-repeat>xxx_0</nested-repeat>
+                        <nested-repeat>yyy_0</nested-repeat>
+                        <nested-repeat>zzz_0</nested-repeat>
+                    </enclosing-repeat>
+                    <enclosing-repeat>
+                        <nested-repeat>xxx_1</nested-repeat>
+                        <nested-repeat>yyy_1</nested-repeat>
+                        <nested-repeat>zzz_1</nested-repeat>
+                    </enclosing-repeat>
+                    <enclosing-repeat>
+                        <nested-repeat>xxx_2</nested-repeat>
+                        <nested-repeat>yyy_2</nested-repeat>
+                        <nested-repeat>zzz_2</nested-repeat>
+                    </enclosing-repeat>
+                </repeats>
+            </xforms:instance>
+            <xforms:bind id="bind_1" nodeset="simple-repeat">
+                <xforms:bind id="bind_1_1" nodeset="." type="string"/>
+            </xforms:bind>
+            <xforms:bind id="bind_2" nodeset="complex-repeat">
+                <xforms:bind id="bind_2_1" nodeset="test1" required="true()" type="string"/>
+                <xforms:bind id="bind_2_2" nodeset="test2" required="true()" type="string"/>
+            </xforms:bind>
+            <xforms:bind id="bind_3" nodeset="enclosing-repeat">
+                <xforms:bind id="bind_4" nodeset="nested-repeat">
+                    <xforms:bind id="bind_4_1" nodeset="." type="string"/>
+                </xforms:bind>
+            </xforms:bind>
+            <xforms:submission id="submission_1" action="../jsp/debug-instance.jsp" method="post"/>
+        </xforms:model>
+    </head>
+    <body>
+        <xforms:group>
+            <xforms:label>Repeats</xforms:label>
+            <xforms:group appearance="minimal">
+                <xforms:label>Simple repeat</xforms:label>
+                <xforms:trigger>
+                    <xforms:label xlink:href="images/add_new.gif">Insert after selected</xforms:label>
+                    <xforms:action>
+                        <xforms:insert bind="bind_1" at="index('repeat_1')" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label xlink:href="images/delete.gif">Delete selected</xforms:label>
+                    <xforms:action>
+                        <xforms:delete bind="bind_1" at="index('repeat_1')"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:repeat id="repeat_1" bind="bind_1">
+                    <xforms:input bind="bind_1_1">
+                        <xforms:label>Simple input</xforms:label>
+                    </xforms:input>
+                </xforms:repeat>
+            </xforms:group>
+            <xforms:group appearance="minimal">
+                <xforms:label>Complex repeat</xforms:label>
+                <xforms:trigger>
+                    <xforms:label xlink:href="images/add_new.gif">Insert after selected</xforms:label>
+                    <xforms:action>
+                        <xforms:insert bind="bind_2" at="index('repeat_2')" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label xlink:href="images/delete.gif">Delete selected</xforms:label>
+                    <xforms:action>
+                        <xforms:delete bind="bind_2" at="index('repeat_2')"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:repeat id="repeat_2" bind="bind_2" appearance="full">
+                    <xforms:input bind="bind_2_1">
+                        <xforms:label>Child input 1</xforms:label>
+                    </xforms:input>
+                    <xforms:input bind="bind_2_2">
+                        <xforms:label>Child input 2</xforms:label>
+                    </xforms:input>
+                </xforms:repeat>
+            </xforms:group>
+            <xforms:group appearance="minimal">
+                <xforms:label>Enclosing repeat</xforms:label>
+                <xforms:trigger>
+                    <xforms:label xlink:href="images/add_new.gif">Insert after selected</xforms:label>
+                    <xforms:action>
+                        <xforms:insert bind="bind_3" at="index('repeat_3')" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label xlink:href="images/delete.gif">Delete selected</xforms:label>
+                    <xforms:action>
+                        <xforms:delete bind="bind_3" at="index('repeat_3')"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:repeat id="repeat_3" bind="bind_3" appearance="full">
+                    <xforms:group appearance="minimal">
+                        <xforms:trigger>
+                            <xforms:label xlink:href="images/add_new.gif">Insert after selected</xforms:label>
+                            <xforms:action>
+                                <xforms:insert bind="bind_4" at="index('repeat_4')" position="after"/>
+                            </xforms:action>
+                        </xforms:trigger>
+                        <xforms:trigger>
+                            <xforms:label xlink:href="images/delete.gif">Delete selected</xforms:label>
+                            <xforms:action>
+                                <xforms:delete bind="bind_4" at="index('repeat_4')"/>
+                            </xforms:action>
+                        </xforms:trigger>
+                        <xforms:group appearance="minimal">
+                            <xforms:repeat id="repeat_4" bind="bind_4" appearance="full">
+                                <xforms:input id="nested-input" bind="bind_4_1">
+                                    <xforms:label>Nested input</xforms:label>
+                                </xforms:input>
+                            </xforms:repeat>
+                        </xforms:group>
+                    </xforms:group>
+                </xforms:repeat>
+            </xforms:group>
+        </xforms:group>
+        <xforms:submit submission="submission_1">
+            <xforms:label>Submit</xforms:label>
+        </xforms:submit>
+    </body>
+</html>

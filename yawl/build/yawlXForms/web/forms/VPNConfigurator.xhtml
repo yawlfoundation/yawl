@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xf="http://www.w3.org/2002/xforms"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:ev="http://www.w3.org/2001/xml-events">
+    <head>
+        <title>VPNbuilder</title>
+
+        <style type="text/css">
+            /*body{text-align:center;}*/
+            #content{
+                text-align:left;
+                margin:0 auto;
+                width:800px;
+            }
+            .repeat-item td .label{
+                background:transparent;
+            }
+            .compact-repeat .label{
+                background:rgb( 180, 190, 132 );
+                padding:6px;
+            }
+            .authcol{
+                width:30%;
+            }
+            #vpnflow-table-id{
+                margin-left:50px;
+            }
+            #vpnflow-table-id fieldset{
+                padding:10px 20px 10px 20px;
+            }
+
+            .full-switch-content{padding:15px;}
+            .flowlabel .label{font-weight:bold;}
+            #vpndetails .case{padding:20px;}
+            .switch .switch{margin:20px;}
+        </style>
+
+
+        <xf:model id="vpn">
+            <xf:submission id="save" action="data/confnew.xml" method="put"
+                replace="none"/>
+
+            <xf:instance src="data/conf.xml" xmlns=""/>
+            <xf:instance src="data/vpn-lang.xml" id="msgs" xmlns=""/>
+            <xf:instance src="data/isakmpd.xml" id="isakmpd" xmlns=""/>
+
+            <xf:bind id="vpnconf-ref" nodeset="vpn">
+                <!-- binds for page vpn:0 (vpn main) -->
+                <xf:bind id="main-ref" nodeset=".">  <!-- XXX -->
+                    <xf:bind id="enable-ref" nodeset="enable"/>
+                </xf:bind>
+                <!-- binds for page vpn:1 (vpn global settings) -->
+                <xf:bind id="global-misc-ref" nodeset="global/misc"
+                    relevant="/conf/preferences/configmode > 0">  <!-- XXX and VPN enabled? -->
+                    <xf:bind id="listen-on-ref" nodeset="listen-on"/>
+                    <xf:bind id="retransmits-ref" nodeset="retransmits"/>
+                    <xf:bind id="check-interval-ref" nodeset="check-interval"/>
+                    <xf:bind id="exchange-max-time-ref" nodeset="exchange-max-time"
+                        relevant="//system/openbsd-version > 34"/>
+                </xf:bind>
+                <xf:bind id="global-lifetimes-ref" nodeset="global/lifetimes"
+                    relevant="/conf/preferences/configmode > 0">
+                    <xf:bind id="default-phase1-lifetime-default-ref"
+                        nodeset="default-phase1-lifetime/default"/>
+                    <xf:bind id="default-phase1-lifetime-min-ref"
+                        nodeset="default-phase1-lifetime/min"/>
+                    <xf:bind id="default-phase1-lifetime-max-ref"
+                        nodeset="default-phase1-lifetime/max"/>
+                    <xf:bind id="default-phase2-lifetime-default-ref"
+                        nodeset="default-phase2-lifetime/default"/>
+                    <xf:bind id="default-phase2-lifetime-min-ref"
+                        nodeset="default-phase2-lifetime/min"/>
+                    <xf:bind id="default-phase2-lifetime-max-ref"
+                        nodeset="default-phase2-lifetime/max"/>
+                </xf:bind>
+                <xf:bind id="global-pathnames-ref" nodeset="global/pathnames"
+                    relevant="/conf/preferences/configmode > 3">
+                    <xf:bind id="policy-file-ref"
+                        nodeset="policy-file"/>
+                    <xf:bind id="pubkey-directory-ref"
+                        nodeset="pubkey-directory"/>
+                    <xf:bind id="ca-directory-ref"
+                        nodeset="ca-directory"/>
+                    <xf:bind id="cert-directory-ref"
+                        nodeset="cert-directory"/>
+                    <xf:bind id="private-key-ref"
+                        nodeset="private-key"/>
+                </xf:bind>
+
+                <!-- binds for page vpn:2 (identity) XXX not used -->
+                <xf:bind id="vpnpeer-table-ref" nodeset="identities/identity">
+                </xf:bind>
+
+                <!-- binds for page vpn:3 (VPN peer list) -->
+                <xf:bind id="vpnpeer-table-ref" nodeset="vpnpeers/peer">
+                    <xf:bind id="enable-peer-ref" nodeset="@enable"/>
+                    <xf:bind id="remote-name-ref" nodeset="remote/name"/>
+                    <xf:bind id="remote-idtype-ref" nodeset="remote/id-type" />
+					<!--calculate="../ipaddr" />-->
+                    <xf:bind id="remote-ipaddr-ref" nodeset="remote/ipaddr"
+                        relevant="../id-type='IPV4_ADDR' or ../id-type='IPV6_ADDR'"/>
+                    <xf:bind id="remote-network-ref" nodeset="remote/network"
+                        relevant="../id-type='IPV4_ADDR_SUBNET' or ../id-type='IPV6_ADDR_SUBNET'"/>
+                    <xf:bind id="remote-netmask-ref" nodeset="remote/netmask"
+                        relevant="../id-type='IPV4_ADDR_SUBNET' or ../id-type='IPV6_ADDR_SUBNET'"/>
+                    <xf:bind id="remote-idname-ref" nodeset="remote/idname"
+                        relevant="../id-type='FQDN' or ../id-type='UFQDN' or ../id-type='KEY_ID'"/>
+                    <xf:bind id="local-ipaddr-ref" nodeset="local/ipaddr"/>
+                    <xf:bind id="key-exchange-ref" nodeset="key-exchange/keyex/@type"/>
+                    <xf:bind id="keyex-manual-enc-ref" nodeset="key-exchange/keyex/phase1-enckey"
+                        relevant="../@type='manual'"/>
+                    <xf:bind id="keyex-manual-auth-ref" nodeset="key-exchange/keyex/phase1-authkey"
+                        relevant="../@type='manual'"/>
+                    <xf:bind id="keyex-isakmp-preshare-ref" nodeset="key-exchange/keyex/shared-secret"
+                        relevant="../@type='isakmp-preshare'"/>
+                    <xf:bind id="keyex-isakmp-x509-dn-ref" nodeset="key-exchange/keyex/x509-dn"
+                        relevant="../@type='isakmp-x509'"/>
+                    <xf:bind id="keyex-isakmp-x509-certificate-ref" nodeset="key-exchange/keyex/x509-certificate"
+                        type="base64Binary" relevant="../@type='isakmp-x509'"/>
+                    <xf:bind id="p1-encryption-ref" nodeset="phase1/encryption"/>
+                    <xf:bind id="p1-authentication-ref" nodeset="phase1/authentication"/>
+                    <xf:bind id="p1-dhgroup-ref" nodeset="phase1/dhgroup"
+                        relevant="/conf/preferences/configmode > 0"/>
+                    <xf:bind id="isakmp-mode-ref" nodeset="phase1/isakmp-mode"
+                        relevant="/conf/preferences/configmode > 0"/>
+
+                    <!-- binds for page 3a (VPN peer flow list) -->
+                    <xf:bind id="vpnflow-table-ref" nodeset="vpnflows/flow">
+
+                        <xf:bind id="flowname-ref" nodeset="@name"/>
+                        <xf:bind id="p2-remote-idtype-ref" nodeset="remote/@id-type"/>
+                        <xf:bind id="p2-remote-ipaddr-ref" nodeset="remote/@ipaddr"
+                            relevant="../@id-type='IPV4_ADDR' or ../@id-type='IPV6_ADDR'"/>
+                        <xf:bind id="p2-remote-network-ref" nodeset="remote/@network"
+                            relevant="../@id-type='IPV4_ADDR_SUBNET' or ../@id-type='IPV6_ADDR_SUBNET'"/>
+                        <xf:bind id="p2-remote-netmask-ref" nodeset="remote/@netmask"
+                            relevant="../@id-type='IPV4_ADDR_SUBNET' or ../@id-type='IPV6_ADDR_SUBNET'"/>
+                        <xf:bind id="p2-remote-idname-ref" nodeset="remote/@idname"
+                            relevant="../@id-type='FQDN' or ../id-type='UFQDN' or ../@id-type='KEY_ID'"/>
+                        <xf:bind id="p2-local-idtype-ref" nodeset="local/@id-type"/>
+                        <xf:bind id="p2-local-ipaddr-ref" nodeset="local/@ipaddr"
+                            relevant="../@id-type='IPV4_ADDR' or ../@id-type='IPV6_ADDR'"/>
+                        <xf:bind id="p2-local-network-ref" nodeset="local/@network"
+                            relevant="../@id-type='IPV4_ADDR_SUBNET' or ../@id-type='IPV6_ADDR_SUBNET'"/>
+                        <xf:bind id="p2-local-netmask-ref" nodeset="local/@netmask"
+                            relevant="../@id-type='IPV4_ADDR_SUBNET' or ../@id-type='IPV6_ADDR_SUBNET'"/>
+                        <xf:bind id="p2-local-idname-ref" nodeset="local/@idname"
+                            relevant="../@id-type='FQDN' or ../id-type='UFQDN' or ../@id-type='KEY_ID'"/>
+                        <xf:bind id="p2-encryption-ref" nodeset="phase2/encryption"
+                            relevant="/conf/preferences/configmode > 0"/>
+                        <xf:bind id="p2-authentication-ref" nodeset="phase2/authentication"
+                            relevant="/conf/preferences/configmode > 0"/>
+                        <xf:bind id="pfs-ref" nodeset="phase2/pfs"
+                            relevant="/conf/preferences/configmode > 0"/>
+                        <xf:bind id="p2-dhgroup-ref" nodeset="phase2/dhgroup"
+                            relevant="../pfs='true' and /conf/preferences/configmode > 0"/>
+
+                    </xf:bind>
+
+                </xf:bind>
+
+            </xf:bind>
+        </xf:model>
+    </head>
+
+    <body>
+        <xf:switch appearance="full">
+            <xf:case id="switch-toggles">
+                <xf:trigger>
+                    <xf:label ref="instance('msgs')/vpn/vpn-buttons/btn-global/label"/>
+                    <xf:toggle case="vpn-global"/>
+                </xf:trigger>
+                   <xf:trigger>
+                    <xf:label ref="instance('msgs')/vpn/vpn-buttons/btn-peers/label"/>
+                    <xf:toggle case="vpn-peers"/>
+                </xf:trigger>
+            </xf:case>
+            <!-- ======================================================================
+                 PAGE vpn:1 GLOBAL VPN SETTINGS
+                 ====================================================================== -->
+            <xf:case id="vpn-global" selected="false">
+
+                <xf:group appearance="full" bind="main-ref">
+                    <!--<xf:label ref="instance('msgs')/vpn/vpn-main/grp-main/label"/>-->
+                    <xf:output value="instance('msgs')/vpn/vpn-main/grp-main/text"/>
+
+                    <!-- checkbox enable VPN -->
+                    <xf:select bind="enable-ref" appearance="full">
+                        <xf:label ref="instance('msgs')/vpn/vpn-main/con-enable/label"/>
+                        <xf:item>
+                            <xf:value>true</xf:value>
+                        </xf:item>
+                    </xf:select>
+                </xf:group>
+
+
+                <!-- group 1 global parameters -->
+                <xf:group appearance="full" bind="global-misc-ref">
+                    <xf:label ref="instance('msgs')/vpn/vpn-global/grp-globparms/label"/>
+
+                    <!-- select-multi listen-on -->
+                    <xf:select bind="listen-on-ref" appearance="minimal">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-listen-on/label"/>
+                        <xf:itemset nodeset="//system/local-addresses/addr">
+                            <xf:label ref="."/>
+                            <xf:value ref="."/>
+                        </xf:itemset>
+                    </xf:select>
+
+                    <xf:input bind="retransmits-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-retrans/label"/>
+                    </xf:input>
+
+                    <xf:input bind="check-interval-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-chkintvl/label"/>
+                    </xf:input>
+
+                    <xf:input bind="exchange-max-time-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-exchmaxtime/label"/>
+                    </xf:input>
+                </xf:group>
+
+                <!-- group 2 lifetimes -->
+                <xf:group appearance="full" bind="global-lifetimes-ref">
+                    <xf:label ref="instance('msgs')/vpn/vpn-global/grp-lifetimes/label"/>
+
+                    <xf:input bind="default-phase1-lifetime-default-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-p1-life-def/label"/>
+                    </xf:input>
+
+                    <xf:input bind="default-phase1-lifetime-min-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-p1-life-min/label"/>
+                    </xf:input>
+
+                    <xf:input bind="default-phase1-lifetime-max-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-p1-life-max/label"/>
+                    </xf:input>
+
+                    <xf:input bind="default-phase2-lifetime-default-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-p2-life-def/label"/>
+                    </xf:input>
+
+                    <xf:input bind="default-phase2-lifetime-min-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-p2-life-min/label"/>
+                    </xf:input>
+
+                    <xf:input bind="default-phase2-lifetime-max-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-p2-life-max/label"/>
+                    </xf:input>
+                </xf:group>
+
+                <!-- group 3 pathnames -->
+                <xf:group appearance="full" bind="global-pathnames-ref">
+                    <xf:label ref="instance('msgs')/vpn/vpn-global/grp-pathnames/label"/>
+
+                    <xf:output bind="policy-file-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-policy-file/label"/>
+                    </xf:output>
+
+                    <xf:output bind="pubkey-directory-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-pubkey-directory/label"/>
+                    </xf:output>
+
+                    <xf:output bind="ca-directory-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-ca-directory/label"/>
+                    </xf:output>
+
+                    <xf:output bind="cert-directory-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-cert-directory/label"/>
+                    </xf:output>
+
+                    <xf:output bind="private-key-ref">
+                        <xf:label ref="instance('msgs')/vpn/vpn-global/con-private-key/label"/>
+                    </xf:output>
+                </xf:group>
+            </xf:case>
+
+
+            <!-- ======================================================================
+                 PAGE vpn:3 LIST VPN PEERS
+                 ====================================================================== -->
+            <xf:case id="vpn-peers" selected="true">
+                <!-- group 1 vpnpeers-table -->
+                <xf:group appearance="full">
+                    <!--<xf:label ref="instance('msgs')/vpn/vpn-peers/grp-vpnpeers/label"/>-->
+
+                    <xf:repeat id="vpnpeer-table-id" bind="vpnpeer-table-ref"
+                        appearance="compact">
+
+                        <xf:output bind="remote-name-ref">
+                            <xf:label ref="instance('msgs')//vpn-peers/con-remlabel/label"/>
+                        </xf:output>
+
+                        <!-- checkbox enable peer -->
+                        <xf:select bind="enable-peer-ref" appearance="full">
+                            <xf:label>Enable</xf:label>
+                            <xf:item>
+                                <xf:value>true</xf:value>
+                                <xf:setvalue ev:event="xforms-deselect" ref="." value="'false'"/>
+                            </xf:item>
+                        </xf:select>
+
+                        <xf:output bind="remote-idtype-ref" appearance="minimal">
+                            <!-- xf:label ref="instance('msgs')//vpn-peers/con-remidtype/label"/ -->
+                            <xf:label>Remote ID-Type</xf:label>
+                        </xf:output>
+
+                        <!-- local address
+                        <xf:output bind="local-ipaddr-ref" appearance="minimal">
+                             <xf:label>Local Address</xf:label>
+                        </xf:output> -->
+
+                        <xf:output bind="key-exchange-ref" appearance="minimal">
+                            <!-- xf:label ref="instance('msgs')//vpn-peers/con-keyex/label"/ -->
+                            <xf:label>Type</xf:label>
+                        </xf:output>
+
+                        <!-- encryption algorithm -->
+                        <xf:output bind="p1-encryption-ref" appearance="minimal">
+                            <xf:label>Encryption</xf:label>
+                        </xf:output>
+
+                        <!-- authentication algorithm -->
+                        <xf:output class="authcol" bind="p1-authentication-ref" appearance="minimal">
+                            <xf:label>Authentication</xf:label>
+                        </xf:output>
+
+                    </xf:repeat>
+                </xf:group>
+
+
+                <xf:switch id="vpndetails" appearance="full">
+                    <xf:case id="switch-toggles">
+                        <xf:trigger>
+                            <xf:label>Peer Details</xf:label>
+                            <xf:toggle case="edit-peer"/>
+                        </xf:trigger>
+
+                        <xf:trigger>
+                            <xf:label>Flows</xf:label>
+                            <xf:toggle case="show-flows"/>
+                        </xf:trigger>
+                    </xf:case>
+
+                    <xf:case id="edit-peer" selected="false">
+
+                            <xf:group  ref="/conf/vpn/vpnpeers/peer[index('vpnpeer-table-id')]">
+                                <xf:label>VPN Configuration for Selected Peer</xf:label>
+
+                                <!--<xf:group ref="/conf/vpn/vpnpeers/peer[index('vpnpeer-table-id')]">-->
+                                        <xf:group appearance="full">
+                                            <xf:label>General</xf:label>
+
+                                        <xf:input ref="@name">
+                                            <xf:label>Remote Label</xf:label>
+                                        </xf:input>
+
+                                        <!-- checkbox enable peer -->
+                                        <xf:select ref="@enable" appearance="full">
+                                            <xf:label>Enable Peer</xf:label>
+                                            <xf:item>
+                                                <xf:value>true</xf:value>
+                                                <xf:setvalue ev:event="xforms-deselect" ref="." value="'false'"/>
+                                            </xf:item>
+                                        </xf:select>
+                                        </xf:group>
+
+                                    <xf:group appearance="full">
+                                            <xf:label>Local Address</xf:label>
+                                        <!-- select local address -->
+                                        <xf:select1 ref="local/ipaddr" appearance="minimal">
+                                            <!-- xf:label ref="instance('msgs')//vpn-peers/con-locaddr/label"/ -->
+                                            <xf:label>Local Address</xf:label>
+                                            <xf:itemset nodeset="//system/local-addresses/addr">
+                                                <xf:label ref=".">@label</xf:label>
+                                                <xf:value ref="."/>
+                                            </xf:itemset>
+                                        </xf:select1>
+                                    </xf:group>
+
+                                    <xf:group appearance="full">
+                                        <xf:label>Remote Address</xf:label>
+                                        <!-- select remote id-type -->
+                                        <xf:select1 ref="remote/id-type" appearance="minimal">
+                                            <!-- xf:label ref="instance('msgs')//vpn-peers/con-remidtype/label"/ -->
+                                            <xf:label>Remote ID-Type</xf:label>
+                                            <xf:itemset nodeset="instance('isakmpd')//constants/id-type/type">
+                                                <xf:label ref="@desc"></xf:label>
+                                                <xf:value ref="."/>
+                                            </xf:itemset>
+                                        </xf:select1>
+
+                                        <xf:input ref="remote/ipaddr">
+                                            <!-- xf:label ref="instance('msgs')//vpn-peers/con-remaddr/label"/ -->
+                                            <xf:label>Remote Address</xf:label>
+                                        </xf:input>
+
+                                        <xf:input ref="remote/network">
+                                            <!-- xf:label ref="instance('msgs')//vpn-peers/con-remnetwork/label"/ -->
+                                            <xf:label>Remote Network</xf:label>
+                                        </xf:input>
+
+                                        <xf:input ref="remote/netmask">
+                                            <!-- xf:label ref="instance('msgs')//vpn-peers/con-remnetmask/label"/ -->
+                                            <xf:label>Remote Netmask</xf:label>
+                                        </xf:input>
+
+                                        <xf:input ref="remote/idname">
+                                            <!-- xf:label ref="instance('msgs')//vpn-peers/con-remidname/label"/ -->
+                                            <xf:label>Remote Name</xf:label>
+                                        </xf:input>
+                                    </xf:group>
+                                </xf:group>
+
+                                <xf:group ref="vpn/vpnpeers/peer[index('vpnpeer-table-id')]">
+                                        <!-- select key exchange -->
+                                        <xf:group appearance="full">
+                                            <xf:label>Key Exchange</xf:label>
+                                            <xf:select1 ref="key-exchange/keyex/@type" appearance="minimal">
+                                                <!-- xf:label ref="instance('msgs')//vpn-peers/con-keyex/label"/ -->
+                                                <xf:label>Type</xf:label>
+                                                <xf:itemset nodeset="instance('isakmpd')//constants/keyex/type">
+                                                    <xf:label ref="@desc"/>
+                                                    <xf:value ref="."/>
+                                                </xf:itemset>
+                                            </xf:select1>
+
+                                            <!-- password encryption key (manual keying only) -->
+                                            <xf:secret ref="key-exchange/keyex/phase1-enckey">
+                                                <xf:label>Manual Enc Key</xf:label>
+                                            </xf:secret>
+
+                                            <!-- password authentication key (manual keying only) -->
+                                            <xf:secret ref="key-exchange/keyex/phase1-authkey">
+                                                <xf:label>Manual Auth Key</xf:label>
+                                            </xf:secret>
+
+                                            <!-- password shared secret (ISAKMP shared secret) -->
+                                            <xf:secret ref="key-exchange/keyex/shared-secret">
+                                                <xf:label>ISAKMP Shared Secret</xf:label>
+                                            </xf:secret>
+
+                                            <!-- text Certificate DN (ISAKMP X.509) -->
+                                            <xf:input ref="key-exchange/keyex/x509-dn">
+                                                <xf:label>Certificate DN</xf:label>
+                                            </xf:input>/
+
+        <!-- -->
+                                            <xf:upload ref="key-exchange/keyex/x509-certificate">
+                                                <xf:label>Certificate</xf:label>
+                                                <xf:filename ref="@filename"/>
+                                                <xf:mediatype ref="@mediatype"/>
+                                            </xf:upload>
+        <!-- -->
+
+                                        </xf:group>
+
+                                    <xf:group appearance="full">
+                                            <xf:label>Phase1 Algorithms</xf:label>
+
+                                        <!-- select encryption algorithm -->
+                                        <xf:select1 ref="phase1/encryption" appearance="minimal">
+                                            <xf:label>Encryption</xf:label>
+                                            <xf:itemset nodeset="instance('isakmpd')//constants/encryption/algorithm[@phase1 = 'true']">
+                                                <xf:label ref="@desc"/>
+                                                <xf:value ref="."/>
+                                            </xf:itemset>
+                                        </xf:select1>
+
+                                        <!-- select authentication algorithm -->
+                                        <xf:select1 ref="phase1/authentication" appearance="minimal">
+                                            <xf:label>Authentication</xf:label>
+                                            <xf:itemset nodeset="instance('isakmpd')//constants/authentication/algorithm[@phase1 = 'true']">
+                                                <xf:label ref="@desc"/>
+                                                <xf:value ref="."/>
+                                            </xf:itemset>
+                                        </xf:select1>
+
+                                        <!-- select DH Group -->
+                                        <xf:select1 ref="phase1/dhgroup" appearance="minimal">
+                                            <xf:label>DH Group</xf:label>
+                                            <xf:itemset nodeset="instance('isakmpd')//constants/dhgroup/group">
+                                                <xf:label ref="@desc"/>
+                                                <xf:value ref="."/>
+                                            </xf:itemset>
+                                        </xf:select1>
+
+                                        <!-- select main/agressive mode -->
+                                        <xf:select1 ref="phase1/isakmp-mode" appearance="minimal">
+                                            <!-- xf:label ref="instance('msgs')//vpn-peers/con-isakmpmode/label"/ -->
+                                            <xf:label>ISAKMP Mode</xf:label>
+                                            <xf:itemset nodeset="instance('isakmpd')//constants/exchange-type/mode[@phase1 = 'true']">
+                                                <xf:label ref="@desc"></xf:label>
+                                                <xf:value ref="."/>
+                                            </xf:itemset>
+                                        </xf:select1>
+                                    </xf:group>
+                                <!--</xf:group>-->
+                            </xf:group>
+
+                    </xf:case>
+
+                    <xf:case id="show-flows" selected="true">
+                        <!-- nested repeat for the flows -->
+                        <xf:group appearance="full">
+                            <xf:label>VPN Flows for Selected Peer</xf:label>
+
+
+                            <xf:repeat id="vpnflow-table-id" nodeset="vpn/vpnpeers/peer[index('vpnpeer-table-id')]/vpnflows/flow" appearance="full">
+
+                                <xf:input class="flowlabel" ref="@name">
+                                    <xf:label>Flow Label</xf:label>
+                                    <xf:hint>A descriptive name for this VPN Flow</xf:hint>
+                                </xf:input>
+
+                                <xf:select1 ref="remote/@id-type" appearance="minimal">
+                                    <xf:label>ID-Type</xf:label>
+                                    <xf:itemset nodeset="instance('isakmpd')/constants/id-type/type">
+                                        <xf:label ref="@desc"></xf:label>
+                                        <xf:value ref="."/>
+                                    </xf:itemset>
+                                </xf:select1>
+
+                                <xf:input ref="remote/@ipaddr">
+                                    <xf:label>Address</xf:label>
+                                </xf:input>
+
+                                <xf:input ref="remote/@network">
+                                    <xf:label>Network</xf:label>
+                                </xf:input>
+
+                                <xf:input ref="remote/@netmask">
+                                    <xf:label>Netmask</xf:label>
+                                </xf:input>
+
+                                <xf:input ref="remote/@idname">
+                                    <xf:label>Name</xf:label>
+                                </xf:input>
+                                <xf:select1 ref="local/@id-type" appearance="minimal">
+                                    <xf:label>ID-Type</xf:label>
+                                    <xf:itemset nodeset="instance('isakmpd')/constants/id-type/type">
+                                        <xf:label ref="@desc"></xf:label>
+                                        <xf:value ref="."/>
+                                    </xf:itemset>
+                                </xf:select1>
+
+                                <xf:input ref="local/@ipaddr">
+                                    <xf:label>Address</xf:label>
+                                </xf:input>
+
+                                <xf:input ref="local/@network">
+                                    <xf:label>Network</xf:label>
+                                </xf:input>
+
+                                <xf:input ref="local/@netmask">
+                                    <xf:label>Netmask</xf:label>
+                                </xf:input>
+
+                                <xf:input ref="local/@idname">
+                                    <xf:label>Name</xf:label>
+                                </xf:input>
+
+                                <xf:select1 ref="phase2/encryption" appearance="minimal">
+                                    <xf:label>Encryption</xf:label>
+                                    <xf:itemset nodeset="instance('isakmpd')/constants/encryption/algorithm[@phase2 = 'true']">
+                                        <xf:label ref="@desc"/>
+                                        <xf:value ref="."/>
+                                    </xf:itemset>
+                                </xf:select1>
+
+                                <xf:select1 ref="phase2/authentication" appearance="minimal">
+                                    <xf:label>Authentication</xf:label>
+                                    <xf:itemset nodeset="instance('isakmpd')/constants/authentication/algorithm[@phase2 = 'true']">
+                                        <xf:label ref="@desc"/>
+                                        <xf:value ref="."/>
+                                    </xf:itemset>
+                                </xf:select1>
+
+                                <xf:select1 ref="phase2/pfs" appearance="minimal">
+                                    <xf:label>PFS</xf:label>
+                                    <xf:item>
+                                        <xf:label ref="instance('msgs')//generic/itm-on/label"/>
+                                        <xf:value>true</xf:value>
+                                    </xf:item>
+                                    <xf:item>
+                                        <xf:label ref="instance('msgs')//generic/itm-off/label"/>
+                                        <xf:value>false</xf:value>
+                                    </xf:item>
+                                </xf:select1>
+
+                                <xf:select1 ref="phase2/dhgroup" appearance="minimal">
+                                    <xf:label>DH Group</xf:label>
+                                    <xf:itemset nodeset="instance('isakmpd')//constants/dhgroup/group[@phase2 = 'true']">
+                                        <xf:label ref="@desc"/>
+                                        <xf:value ref="."/>
+                                    </xf:itemset>
+                                </xf:select1>
+                            </xf:repeat>
+
+                        </xf:group>
+                    </xf:case>
+                </xf:switch>
+            </xf:case>
+
+        </xf:switch>
+    </body>
+</html>

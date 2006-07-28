@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<companies>
+  <company id="1">
+    <name>TFH Berlin</name>
+    <subname>Technische Fachhochschule Berlin</subname>
+    <address>2</address>
+  </company>  
+  <company id="2">
+    <name>Chibacon</name>
+    <subname></subname>
+    <address>3</address>
+  </company>  
+</companies>

@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- $Id: conf.xml,v 1.2 2005/12/21 11:06:54 joernt Exp $ -->
+
+<!--
+ * Copyright (c) 2005 Olaf Schreck (chakl@syscall.de)
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+
+<!--
+
+This is the common configuration file for the VPN appliance described in README.vpnapp
+
+-->
+
+
+<conf>
+
+    <!-- ======================================================================
+         User preferences for the config tool
+         ====================================================================== -->
+    <preferences>
+        <configmode>5</configmode>
+        <language>en</language>
+        <cleartext-secrets>false</cleartext-secrets>
+        <ignore-suggestions>false</ignore-suggestions>  <!-- not used -->
+    </preferences>
+
+    <!-- ======================================================================
+         Hardware (sample for a 4 NIC, 2 serial, headless, diskless appliance)
+         ====================================================================== -->
+    <hw>
+        <interfaces>
+	    <if name="if0" physical="rl0"/>
+	    <if name="if1" physical="rl1"/>
+	    <if name="if2" physical="rl2"/>
+	    <if name="if3" physical="fxp0"/>
+	    <if name="if4" physical="san0"/>
+        </interfaces>
+	<serial>
+	    <com name="serial0" physical="tty0"/>
+	    <com name="serial1" physical="tty1"/>
+	</serial>
+	<vga/>
+	<swap/>
+	<datadisk/>
+	<logdisk/>
+	<arcdisk/>
+    </hw>
+
+    <!-- ======================================================================
+         Sys (vendor specific data)
+         ====================================================================== -->
+    <sys>
+        <model>EB</model>
+	<style>generic</style>
+	<branch>stable</branch>
+	<product>syswall</product>
+    </sys>
+
+    <!-- ==================================================================
+         System ... (container for unsorted historic stuff, will go away)
+         ================================================================== -->
+    <system>
+        <hardware>
+            <hw-if name="if0" physical="rl0" />
+            <hw-if name="if1" physical="rl1" />
+            <hw-if name="if2" physical="rl2" />
+        </hardware>
+        <openbsd-version>34</openbsd-version>
+        <local-addresses>
+            <addr label="local">1.2.3.4</addr>
+            <addr label="local2">1.2.3.5</addr>
+        </local-addresses>
+    </system>
+
+    <!-- ==================================================================
+
+         ================================================================== -->
+    <network>
+        <interfaces>
+	    <!-- external interface, IPv4 address, 1 alias -->
+            <if name="if0">
+                <if-label>external</if-label>
+                <if-mode>ipv4</if-mode>
+                <if-addr>192.0.2.1</if-addr>
+                <if-mask>255.255.255.0</if-mask>
+                <if-hostname>syswall-ext</if-hostname>
+                <if-mac></if-mac>
+                <if-media>auto</if-media>
+                <if-mtu>1500</if-mtu>
+                <if-bridgegroup></if-bridgegroup>
+                <if-peer></if-peer>
+                <aliases>
+                    <alias name="alias0">
+                        <alias-label>external_alias0</alias-label>
+                        <alias-mode>ipv4</alias-mode>
+                        <alias-addr>192.0.2.2</alias-addr>
+                        <alias-mask>255.255.255.255</alias-mask>
+                        <alias-hostname>syswall-ext2</alias-hostname>
+                    </alias>
+                </aliases>
+                <vlans></vlans>
+                <pppoe></pppoe>
+                <if-favor-defroute></if-favor-defroute>
+                <if-favor-dns></if-favor-dns>
+            </if>
+
+	    <!-- dmz interface, 2 VLANs, 1 alias -->
+            <if name="if1">
+                <if-label>vlandmz</if-label>
+                <if-mode>vlantrunk</if-mode>
+                <if-addr></if-addr>
+                <if-mask></if-mask>
+                <if-hostname></if-hostname>
+                <if-mac></if-mac>
+                <if-media>auto</if-media>
+                <if-mtu>1500</if-mtu>
+                <if-bridgegroup></if-bridgegroup>
+                <if-peer></if-peer>
+                <aliases></aliases>
+                <vlans>
+                    <vlan name="vlan0">
+                        <vlan-label>dmz_vlan0</vlan-label>
+                        <vlan-mode>ipv4</vlan-mode>
+                        <vlan-vlanid>10</vlan-vlanid>
+                        <vlan-addr>192.168.1.1</vlan-addr>
+                        <vlan-mask>255.255.255.0</vlan-mask>
+                        <vlan-hostname>syswall-vlan10</vlan-hostname>
+                        <vlan-bridgegroup></vlan-bridgegroup>
+                        <vlan-aliases>
+                            <alias name="alias0">
+                                <alias-label>webserver</alias-label>
+                                <alias-mode>ipv4</alias-mode>
+                                <alias-addr>192.168.1.2</alias-addr>
+                                <alias-mask>255.255.255.255</alias-mask>
+                                <alias-hostname>syswall-vlan10-a0</alias-hostname>
+                            </alias>
+                        </vlan-aliases>
+                    </vlan>
+                    <vlan name="vlan1">
+                        <vlan-label>dmz_vlan1</vlan-label>
+                        <vlan-mode>ipv4</vlan-mode>
+                        <vlan-vlanid>11</vlan-vlanid>
+                        <vlan-addr>192.168.2.1</vlan-addr>
+                        <vlan-mask>255.255.255.0</vlan-mask>
+                        <vlan-hostname>syswall-vlan11</vlan-hostname>
+                        <vlan-bridgegroup></vlan-bridgegroup>
+                        <vlan-aliases></vlan-aliases>
+                    </vlan>
+                </vlans>
+                <pppoe></pppoe>
+                <if-favor-defroute></if-favor-defroute>
+                <if-favor-dns></if-favor-dns>
+            </if>
+
+	    <!-- PPPoE interface, DSL line -->
+            <if name="if2">
+                <if-label>dsl</if-label>
+                <if-mode>pppoe</if-mode>
+                <if-addr></if-addr>
+                <if-mask></if-mask>
+                <if-hostname>syswall-dsl</if-hostname>
+                <if-mac></if-mac>
+                <if-media>auto</if-media>
+                <if-mtu>1500</if-mtu>
+                <if-bridgegroup></if-bridgegroup>
+                <if-peer></if-peer>
+                <aliases></aliases>
+                <vlans></vlans>
+                <pppoe>
+                    <if-pppoe-user>joe1234@isp</if-pppoe-user>
+                    <if-pppoe-pass>MySecret</if-pppoe-pass>
+                    <if-pppoe-lqr>yes</if-pppoe-lqr>
+                    <if-pppoe-mtu>1456</if-pppoe-mtu>
+                </pppoe>
+                <if-favor-defroute>yes</if-favor-defroute>
+                <if-favor-dns>yes</if-favor-dns>
+            </if>
+
+	    <!-- internal interface, IPv4 and IPv6 addresses -->
+            <if name="if3">
+                <if-label>internal</if-label>
+                <if-mode>ipv4</if-mode>
+                <if-addr>10.0.0.1</if-addr>
+                <if-mask>255.255.255.0</if-mask>
+                <if-hostname>syswall-int</if-hostname>
+                <if-mac></if-mac>
+                <if-media>auto</if-media>
+                <if-mtu>1500</if-mtu>
+                <if-bridgegroup></if-bridgegroup>
+                <if-peer></if-peer>
+                <aliases>
+                    <alias name="alias0">
+                        <alias-label>internal_ipv6</alias-label>
+                        <alias-mode>ipv6</alias-mode>
+                        <alias-addr>2001:ef41:d1a:45::def1</alias-addr>
+                        <alias-mask>64</alias-mask>
+                        <alias-hostname>syswall-intv6</alias-hostname>
+                    </alias>
+                </aliases>
+                <vlans></vlans>
+                <pppoe></pppoe>
+                <if-favor-defroute></if-favor-defroute>
+                <if-favor-dns></if-favor-dns>
+            </if>
+
+	    <!-- G.703 interface -->
+            <if name="if4">
+                <if-label>g703</if-label>
+                <if-mode>chdlc</if-mode>
+                <if-addr>172.16.0.1</if-addr>
+                <if-mask>255.255.255.255</if-mask>
+                <if-hostname>syswall-g703</if-hostname>
+                <if-mac></if-mac>
+                <if-media>auto</if-media>
+                <if-mtu>1500</if-mtu>
+                <if-bridgegroup></if-bridgegroup>
+                <if-peer>172.16.0.2</if-peer>
+		<if-san-channels>ffffffff</if-san-channels>
+                <aliases></aliases>
+                <vlans></vlans>
+                <pppoe></pppoe>
+                <if-favor-defroute></if-favor-defroute>
+                <if-favor-dns></if-favor-dns>
+            </if>
+
+        </interfaces>
+
+        <dns>
+            <nameservers>
+                <ns name="ns0">
+                    <ns-ip>192.0.2.50</ns-ip>
+                </ns>
+                <ns name="ns1">
+                    <ns-ip>192.0.2.150</ns-ip>
+                </ns>
+           </nameservers>
+        </dns>
+
+        <routing>
+            <route-default>192.0.2.254</route-default>
+            <route-v6default></route-v6default>
+            <static-routes>
+                <static-route name="route0">
+                    <route-net>192.0.1.0/24</route-net>
+                    <route-gw>192.0.2.253</route-gw>
+                </static-route>
+            </static-routes>
+        </routing>
+
+        <bridging>
+            <bridges>
+                <bridge name="bridge0">
+                    <bridge-label></bridge-label>
+		    <bridge-stp></bridge-stp>
+		</bridge>
+            </bridges>
+        </bridging>
+
+        <carp>
+            <virtual-interfaces>
+                <carp name="carp0">
+                    <carp-label></carp-label>
+		    <carp-addr></carp-addr>
+		    <carp-mask></carp-mask>
+		    <carp-vhid></carp-vhid>
+		    <carp-pass></carp-pass>
+		    <carp-advskew></carp-advskew>
+		</carp>
+            </virtual-interfaces>
+        </carp>
+
+    </network>
+
+<!-- USED BY CHIBA VPNCONFIGURATOR SAMPLE FORM -->
+
+  <vpn>
+    <enable>yes</enable>
+
+    <!-- ======================================================================
+         This datastructure holds global configuration data that is common for
+         all VPN peers.
+         ====================================================================== -->
+    <global>
+        <misc>
+            <default-phase1-id/>
+            <default-phase2-suites>QM-ESP-3DES-SHA-PFS-SUITE</default-phase2-suites>
+            <check-interval>120</check-interval>
+            <exchange-max-time>30</exchange-max-time>             <!-- OpenBSD 3.5 -->
+            <listen-on/>
+            <loglevel/>                         <!-- OpenBSD 3.5 -->
+            <logverbose/>                       <!-- OpenBSD 3.5 -->
+            <renegotiate-on-hup>false</renegotiate-on-hup>
+            <retransmits>5</retransmits>
+            <shared-sadb>false</shared-sadb>
+        </misc>
+        <lifetimes>
+            <default-phase1-lifetime>
+                <default>3600</default>
+                <min>60</min>
+                <max>86400</max>
+            </default-phase1-lifetime>
+            <default-phase2-lifetime>
+                <default>1200</default>
+                <min>60</min>
+                <max>86400</max>
+            </default-phase2-lifetime>
+        </lifetimes>
+        <pathnames>
+            <policy-file>/etc/isakmpd/isakmpd.policy</policy-file>
+            <pubkey-directory>/etc/isakmpd/pubkeys</pubkey-directory>
+            <ca-directory>/etc/isakmpd/ca</ca-directory>
+            <cert-directory>/etc/isakmpd/certs</cert-directory>
+            <private-key>/etc/isakmpd/private/local.key</private-key>
+        </pathnames>
+    </global>
+
+
+    <!-- ======================================================================
+         This datastructure holds the configured local identities  XXX not used
+         ====================================================================== -->
+    <identities>
+        <identity name="default">
+            <name>default</name>
+            <id-type>IPV4_ADDR</id-type>
+            <ipaddr>0.0.0.0</ipaddr>
+            <network/>
+            <netmask/>
+            <idname/>
+        </identity>
+    </identities>
+
+    <!-- ======================================================================
+         This datastructure holds all configuration data for all VPN peers.
+         These nodes do not map to isakmpd.conf section, but rather contain all
+         data needed to create isakmpd.conf sections dynamically.
+         ====================================================================== -->
+    <vpnpeers>
+        <!-- sample peer "dynclients" -->
+        <peer name="dynclients" enable="true">
+            <remote>
+                <name>dynclients</name>
+                <id-type>IPV4_ADDR</id-type>
+                <ipaddr>0.0.0.0</ipaddr>
+                <network/>
+                <netmask/>
+                <idname/>
+            </remote>
+            <local>
+                <name>local</name>
+                <ipaddr>1.2.3.4</ipaddr>
+            </local>
+            <key-exchange>
+                <keyex type="isakmp-preshare">
+                    <phase1-enckey/>
+                    <phase1-authkey/>
+                    <shared-secret>clientstest</shared-secret>
+                    <x509-dn/>
+                    <x509-certificate filename="" mediatype=""/>
+                </keyex>
+            </key-exchange>
+            <phase1>
+                <encryption>3DES</encryption>
+                <authentication>MD5</authentication>
+                <dhgroup>GRP2</dhgroup>
+                <isakmp-mode>ID_PROT</isakmp-mode>
+            </phase1>
+            <vpnflows>
+                <flow active="false()" flownum="1" name="remote-to-internal">
+                    <remote id-type="IPV4_ADDR_SUBNET" ipaddr="" network="0.0.0.0" netmask="0.0.0.0" idname=""/>
+                    <local id-type="IPV4_ADDR_SUBNET" ipaddr="" network="192.168.45.0" netmask="255.255.255.0" idname=""/>
+                    <phase2>
+                        <encryption>3DES</encryption>
+                        <authentication>MD5</authentication>
+                        <dhgroup>GRP2</dhgroup>
+                        <isakmp-mode>QM</isakmp-mode>
+                        <pfs>false</pfs>
+                    </phase2>
+                </flow>
+
+                <flow active="false()" flownum="2" name="remote-to-dmz">
+                    <remote id-type="IPV4_ADDR_SUBNET" ipaddr="" network="0.0.0.0" netmask="0.0.0.0" idname=""/>
+                    <local id-type="IPV4_ADDR_SUBNET" ipaddr="" network="1.2.3.128" netmask="255.255.255.224" idname=""/>
+                    <phase2>
+                        <encryption>3DES</encryption>
+                        <authentication>MD5</authentication>
+                        <dhgroup>GRP2</dhgroup>
+                        <isakmp-mode>QM</isakmp-mode>
+                        <pfs>false</pfs>
+                    </phase2>
+                </flow>
+            </vpnflows>
+        </peer>
+
+        <!-- sample peer "production" -->
+        <peer name="production" enable="true">
+            <remote>
+                <name>production</name>  <!-- redundant -->
+                <id-type>IPV4_ADDR</id-type>
+                <ipaddr>5.6.7.8</ipaddr>
+                <network/>
+                <netmask/>
+                <idname/>
+            </remote>
+            <local>
+                <name>local</name>
+                <ipaddr>1.2.3.4</ipaddr>
+            </local>
+            <key-exchange>
+                <keyex type="isakmp-preshare">
+                    <phase1-enckey/>
+                    <phase1-authkey/>
+                    <shared-secret>production</shared-secret>
+                    <x509-dn/>
+                    <x509-certificate filename="" mediatype=""/>
+                </keyex>
+            </key-exchange>
+            <phase1>
+                <encryption>3DES</encryption>
+                <authentication>MD5</authentication>
+                <dhgroup>GRP2</dhgroup>
+                <isakmp-mode>ID_PROT</isakmp-mode>
+            </phase1>
+            <vpnflows>
+                <flow active="true()" flownum="1" name="local-to-production">
+                    <remote id-type="IPV4_ADDR_SUBNET" ipaddr="" network="10.100.0.0" netmask="255.255.255.0" idname=""/>
+                    <local id-type="IPV4_ADDR_SUBNET" ipaddr="" network="192.168.45.0" netmask="255.255.255.0" idname=""/>
+                    <phase2>
+                        <encryption>3DES</encryption>
+                        <authentication>MD5</authentication>
+                        <dhgroup>GRP2</dhgroup>
+                        <isakmp-mode>QM</isakmp-mode>
+                        <pfs>false</pfs>
+                    </phase2>
+                </flow>
+            </vpnflows>
+        </peer>
+
+        <!-- sample peer "distributor" -->
+        <peer name="distributor" enable="true">
+            <remote>
+                <name>distributor</name>
+                <id-type>IPV4_ADDR</id-type>
+                <ipaddr>4.5.6.7</ipaddr>
+                <network/>
+                <netmask/>
+                <idname/>
+            </remote>
+            <local>
+                <name>local</name>
+                <ipaddr>1.2.3.4</ipaddr>
+            </local>
+            <key-exchange>
+                <keyex type="isakmp-preshare">
+                    <phase1-enckey/>
+                    <phase1-authkey/>
+                    <shared-secret>distributor</shared-secret>
+                    <x509-dn/>
+                    <x509-certificate filename="" mediatype=""/>
+                </keyex>
+            </key-exchange>
+            <phase1>
+                <encryption>3DES</encryption>
+                <authentication>MD5</authentication>
+                <dhgroup>GRP2</dhgroup>
+                <isakmp-mode>ID_PROT</isakmp-mode>
+            </phase1>
+            <vpnflows>
+                <flow active="true()" flownum="1" name="local-to-distributorint">
+                    <remote id-type="IPV4_ADDR_SUBNET" ipaddr="" network="10.0.0.0" netmask="255.255.255.0" idname=""/>
+                    <local id-type="IPV4_ADDR_SUBNET" ipaddr="" network="192.168.45.0" netmask="255.255.255.0" idname=""/>
+                    <phase2>
+                        <encryption>3DES</encryption>
+                        <authentication>MD5</authentication>
+                        <dhgroup>GRP2</dhgroup>
+                        <isakmp-mode>QM</isakmp-mode>
+                        <pfs>false</pfs>
+                    </phase2>
+                </flow>
+
+                <flow active="false()" flownum="2" name="local-to-distributordmz">
+                    <remote id-type="IPV4_ADDR_SUBNET" ipaddr="" network="10.0.10.0" netmask="255.255.255.0" idname=""/>
+                    <local id-type="IPV4_ADDR_SUBNET" ipaddr="" network="192.168.45.0" netmask="255.255.255.0" idname=""/>
+                    <phase2>
+                        <encryption>3DES</encryption>
+                        <authentication>MD5</authentication>
+                        <dhgroup>GRP2</dhgroup>
+                        <isakmp-mode>QM</isakmp-mode>
+                        <pfs>false</pfs>
+                    </phase2>
+                </flow>
+            </vpnflows>
+        </peer>
+
+        <!-- sample peer "reseller" -->
+        <peer name="reseller" enable="true">
+            <remote>
+                <name>reseller</name>
+                <id-type>IPV4_ADDR</id-type>
+                <ipaddr>reseller.example.com</ipaddr>
+                <network/>
+                <netmask/>
+                <idname/>
+            </remote>
+            <local>
+                <name>local</name>
+                <ipaddr>1.2.3.4</ipaddr>
+            </local>
+            <key-exchange>
+                <keyex type="isakmp-preshare">
+                    <phase1-enckey/>
+                    <phase1-authkey/>
+                    <shared-secret>reseller</shared-secret>
+                    <x509-dn/>
+                    <x509-certificate filename="" mediatype=""/>
+                </keyex>
+            </key-exchange>
+            <phase1>
+                <encryption>3DES</encryption>
+                <authentication>SHA</authentication>
+                <dhgroup>GRP2</dhgroup>
+                <isakmp-mode>ID_PROT</isakmp-mode>
+            </phase1>
+            <vpnflows>
+                <flow active="true()" flownum="1" name="local-to-reseller">
+                    <remote id-type="IPV4_ADDR_SUBNET" ipaddr="" network="192.168.10.0" netmask="255.255.255.0" idname=""/>
+                    <local id-type="IPV4_ADDR_SUBNET" ipaddr="" network="192.168.45.0" netmask="255.255.255.0" idname=""/>
+                    <phase2>
+                        <encryption>3DES</encryption>
+                        <authentication>SHA</authentication>
+                        <dhgroup>GRP2</dhgroup>
+                        <isakmp-mode>QM</isakmp-mode>
+                        <pfs>false</pfs>
+                    </phase2>
+                </flow>
+            </vpnflows>
+        </peer>
+
+
+    </vpnpeers>
+
+    <!--
+    -->
+
+  </vpn>
+
+</conf>
+
+
+<!--
+*** HISTORY
+*
+* $Log: conf.xml,v $
+* Revision 1.2  2005/12/21 11:06:54  joernt
+* added attribute nodes
+*
+* Revision 1.1  2005/12/21 10:07:36  joernt
+* VPNConfigurator instance data files
+*
+* Revision 1.1  2005/03/06 12:19:53  chaklx
+* reviewed, use shared conf, use i18n
+*
+** renamed vpnconf.xml to conf.xml, chakl
+*
+* Revision 1.2  2005/02/26 22:23:47  joernt
+* first running version
+*
+* Revision 1.1  2005/02/26 14:47:45  joernt
+* VPN conf sample
+*
+
+-->

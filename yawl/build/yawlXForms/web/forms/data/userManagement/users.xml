@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+    <!-- User 1 -->
+    <user id="1">
+      <nick>max</nick>
+      <password>max</password>
+      <name gender="Male">
+        <family>Munstermann</family>
+        <given>Max</given>
+        <middlename/>
+        <prefix>Dipl-Ing.</prefix>
+      </name>
+      <userroles>1 2</userroles>
+      <email>max@munstermann.de</email>
+      <skype>maxmunster</skype>
+      <jabber/>
+    </user>
+    <user id="2">
+      <nick>tim</nick>
+      <password>tim</password>
+      <name gender="Male">
+        <family>Tom</family>
+        <given>Tiny</given>
+        <middlename>Tim</middlename>
+        <prefix>Dr.</prefix>
+      </name>
+      <userroles>2 3</userroles>
+      <email>tinytim@tom.de</email>
+      <skype>tinytim</skype>
+       <jabber/>
+      </user>
+    <!-- User 3 -->
+    <user id="3">
+      <nick>steve</nick>
+      <password>steve</password>
+      <name gender="Male">
+        <family>Stevenson</family>
+        <middlename/>
+        <given>Steve</given>
+        <prefix/>
+      </name>
+      <userroles>1 3</userroles>
+      <email>steve@stevenson.com</email>
+      <skype>stevenson</skype>
+      <jabber>stevenson@gmail.com</jabber>
+    </user>
+    <!-- User 3 -->
+    <user id="0">
+      <nick></nick>
+      <password></password>
+      <name gender="">
+        <family/>
+        <given/>
+        <middlename/>
+        <prefix/>
+      </name>
+      <userroles/>
+      <email/>
+      <jabber/>
+      <skype/>
+    </user>
+</users>
