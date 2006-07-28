@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<todo-list>
-	<todo>
-		<description>test all</description>
-		<target-date>2004-11-17</target-date>
-		<priority>1</priority>
-		<status>not started</status>
-	</todo>
-</todo-list>
