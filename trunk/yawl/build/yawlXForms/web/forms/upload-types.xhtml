@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xf="http://www.w3.org/2002/xforms"
+    xmlns:ev="http://www.w3.org/2001/xml-events">
+
+    <head>
+        <title>Upload Types</title>
+
+        <xf:model>
+            <xf:instance>
+                <data xmlns="">
+                    <file filename="" mediatype=""></file>
+                    <file filename="" mediatype=""></file>
+                    <file filename="" mediatype=""></file>
+                </data>
+            </xf:instance>
+            <xf:bind id="file-1-ref" nodeset="file[1]" type="base64Binary">
+                <xf:bind id="filename-1-ref" nodeset="attribute::filename"/>
+                <xf:bind id="mediatype-1-ref" nodeset="attribute::mediatype"/>
+            </xf:bind>
+            <xf:bind id="file-2-ref" nodeset="file[2]" type="hexBinary">
+                <xf:bind id="filename-2-ref" nodeset="attribute::filename"/>
+                <xf:bind id="mediatype-2-ref" nodeset="attribute::mediatype"/>
+            </xf:bind>
+            <xf:bind id="file-3-ref" nodeset="file[3]" type="anyURI">
+                <xf:bind id="filename-3-ref" nodeset="attribute::filename"/>
+                <xf:bind id="mediatype-3-ref" nodeset="attribute::mediatype"/>
+            </xf:bind>
+        </xf:model>
+    </head>
+    <body>
+        <xf:group appearance="full">
+            <xf:label>Three different upload methods</xf:label>
+            <xf:group appearance="full">
+                <xf:label>Base64</xf:label>
+                <xf:upload bind="file-1-ref" mediatype="text/plain image/* application/*">
+                    <xf:label>File</xf:label>
+                    <xf:filename ref="attribute::filename"/>
+                    <xf:mediatype ref="attribute::mediatype"/>
+                    <xf:hint>The file will be uploaded using base64 encoding</xf:hint>
+                </xf:upload>
+                <xf:output bind="filename-1-ref">
+                    <xf:label>File Name</xf:label>
+                </xf:output>
+                <xf:output bind="mediatype-1-ref">
+                    <xf:label>Media Type</xf:label>
+                </xf:output>
+                <xf:output bind="file-1-ref">
+                    <xf:label>Content</xf:label>
+                </xf:output>
+            </xf:group>
+            <xf:group appearance="full">
+                <xf:label>Hex</xf:label>
+                <xf:upload bind="file-2-ref">
+                    <xf:label>File</xf:label>
+                    <xf:filename ref="attribute::filename"/>
+                    <xf:mediatype ref="attribute::mediatype"/>
+                    <xf:hint>The file will be uploaded using hex encoding</xf:hint>
+                </xf:upload>
+                <xf:output bind="filename-2-ref">
+                    <xf:label>File Name</xf:label>
+                </xf:output>
+                <xf:output bind="mediatype-2-ref">
+                    <xf:label>Media Type</xf:label>
+                </xf:output>
+                <xf:output bind="file-2-ref">
+                    <xf:label>Content</xf:label>
+                </xf:output>
+            </xf:group>
+            <xf:group appearance="full">
+                <xf:label>URI</xf:label>
+                <xf:upload bind="file-3-ref">
+                    <xf:label>File</xf:label>
+                    <xf:filename ref="attribute::filename"/>
+                    <xf:mediatype ref="attribute::mediatype"/>
+                    <xf:hint>The file will be uploaded using an URI</xf:hint>
+                </xf:upload>
+                <xf:output bind="filename-3-ref">
+                    <xf:label>File Name</xf:label>
+                </xf:output>
+                <xf:output bind="mediatype-3-ref">
+                    <xf:label>Media Type</xf:label>
+                </xf:output>
+                <xf:output bind="file-3-ref">
+                    <xf:label>Content</xf:label>
+                </xf:output>
+            </xf:group>
+        </xf:group>
+    </body>
+</html>

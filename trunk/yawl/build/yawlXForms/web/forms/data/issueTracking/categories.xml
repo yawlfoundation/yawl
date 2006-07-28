@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<categories>
+  <itypes>
+      <type id="1">Defect</type>
+      <type id="2">ChangeRequest</type>
+      <type id="3">Feature Request</type>
+  </itypes>
+  <istatus>
+      <status id="1">New</status>
+      <status id="2">Accepted</status>
+      <status id="3">Closed</status>
+  </istatus>
+  <ipriorities>
+      <priority id="1">Lowest</priority>
+      <priority id="2">Low</priority>
+      <priority id="3">Normal</priority>
+      <priority id="4">High</priority>
+      <priority id="5">Highest</priority>
+  </ipriorities>
+  <iseverities>
+      <severity id="1">Minor</severity>
+      <severity id="2">Normal</severity>
+      <severity id="3">Major</severity>
+      <severity id="4">Critical</severity>
+      <severity id="5">Stopper</severity>
+  </iseverities>
+  <sectors>
+   <sector id="1">None</sector>
+   <sector id="2">IT</sector>
+   <sector id="3">Software Design</sector>
+  </sectors>
+  <messengers>
+    <messenger id="1">Jabber</messenger>
+    <messenger id="2">Skype</messenger>
+    <messenger id="3">Hotmail</messenger>
+  </messengers>
+  <group>
+    <gcategory id="1">privat</gcategory>
+    <gcategory id="2">public</gcategory>
+    <gcategory id="3">tfh</gcategory>
+    <gcategory id="4">chiba</gcategory>
+  </group>
+  <genders>
+      <gender id="1">Female</gender>
+      <gender id="2">Male</gender>
+  </genders>
+  <prefixes>
+      <prefix id="1">Dr.</prefix>
+      <prefix id="2">Prof</prefix>
+      <prefix id="3">Dipl-Ing</prefix>
+  </prefixes>
+</categories>

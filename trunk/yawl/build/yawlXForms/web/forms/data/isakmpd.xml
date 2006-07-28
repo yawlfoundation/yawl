@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- $Id: isakmpd.xml,v 1.1 2005/12/21 10:07:36 joernt Exp $ -->
+
+<isakmpd>
+
+<!-- ======================================================================
+     Various constants (algorithm identifiers etc).
+     ====================================================================== -->
+ <constants>
+  <keyex>
+   <type desc="Manual Keying">manual</type>
+   <type desc="ISAKMP Shared Secret">isakmp-preshare</type>
+   <type desc="ISAKMP X.509">isakmp-x509</type>
+  </keyex>
+  <encryption>
+   <algorithm phase1="true" phase2="true" 
+              desc="56bit DES">DES</algorithm>
+   <algorithm phase1="true" phase2="true" 
+              desc="128bit 3DES">3DES</algorithm>
+   <algorithm phase1="true" phase2="true" 
+              desc="128bit AES (Rijndael)">AES</algorithm>
+   <algorithm phase1="true" phase2="true" 
+              desc="128bit Blowfish">BLF</algorithm>
+   <algorithm phase1="true" phase2="true" 
+              desc="128bit CAST">CAST</algorithm>
+  </encryption>
+  <authentication>
+   <algorithm phase1="true" phase2="true" 
+              desc="128bit MD5">MD5</algorithm>
+   <algorithm phase1="true" phase2="true" 
+              desc="160bit SHA-1">SHA</algorithm>
+   <algorithm phase1="false" phase2="true" 
+              desc="160bit RIPE-MD">RIPEMD</algorithm>
+   <algorithm phase1="false" phase2="true" 
+              desc="256bit SHA-2">SHA2-256</algorithm>
+   <algorithm phase1="false" phase2="true" 
+              desc="384bit SHA-2">SHA2-384</algorithm>
+   <algorithm phase1="false" phase2="true" 
+              desc="512bit SHA-2">SHA2-512</algorithm>
+  </authentication>
+  <dhgroup>
+   <group phase1="true" phase2="true" 
+          desc="Group 1 (MODP_768)">GRP1</group>
+   <group phase1="true" phase2="true" 
+          desc="Group 2 (MODP_1024)">GRP2</group>
+   <group phase1="true" phase2="true" 
+          desc="Group 5 (MODP_1536)">GRP5</group>
+   <group phase1="true" phase2="true"
+          desc="Group 14 (MODP_2048)">GRP14</group>
+  </dhgroup>
+  <exchange-type>
+   <mode  phase1="true" phase2="false" 
+          desc="Main Mode">ID_PROT</mode>
+   <mode  phase1="true" phase2="false" 
+          desc="Agressive Mode">AGGRESSIVE</mode>
+   <mode  phase1="false" phase2="true" 
+          desc="Quick Mode">QM</mode>
+  </exchange-type>
+  <id-type>
+   <type  phase1="true" phase2="true" 
+          desc="IPv4 Address">IPV4_ADDR</type>
+   <type  phase1="true" phase2="true" 
+          desc="IPv4 Subnet Address">IPV4_ADDR_SUBNET</type>
+   <type  phase1="true" phase2="true" 
+          desc="IPv6 Address">IPV6_ADDR</type>
+   <type  phase1="true" phase2="true" 
+          desc="IPv6 Subnet Address">IPV6_ADDR_SUBNET</type>
+   <type  phase1="true" phase2="false" 
+          desc="Hostname">FQDN</type>
+   <type  phase1="true" phase2="false" 
+          desc="User Address">UFQDN</type>
+   <type  phase1="true" phase2="false" 
+          desc="Key">KEY_ID</type>
+  </id-type>
+  <transport>
+   <prot>UDP</prot>
+   <prot>TCP</prot>
+  </transport>
+ </constants>
+
+<!-- ======================================================================
+     The "general", "keynote" and "x509-certificates" nodes map to the 
+     isakmpd.conf section with the same name.  These are global configuration 
+     sections for the isakmp daemon.
+     ====================================================================== -->
+ <!-- settings for the [General] section -->
+ <general>
+  <default-phase1-id/>
+  <default-phase1-lifetime>
+   <default                  default="3600">3600</default>
+   <min                      default="60">60</min>
+   <max                      default="86400">86400</max>
+  </default-phase1-lifetime>
+  <default-phase2-lifetime>
+   <default                  default="1200">1200</default>
+   <min                      default="60">60</min>
+   <max                      default="86400">86400</max>
+  </default-phase2-lifetime>
+  <default-phase2-suites     default="QM-ESP-3DES-SHA-PFS-SUITE">QM-ESP-3DES-SHA-PFS-SUITE</default-phase2-suites>
+  <acquire-only/>                     <!-- OpenBSD 3.6 -->
+  <check-interval            default="120">120</check-interval>
+  <exchange-max-time/>                <!-- OpenBSD 3.5 -->
+  <listen-on/>
+  <loglevel/>                         <!-- OpenBSD 3.5 -->
+  <logverbose/>                       <!-- OpenBSD 3.5 -->
+  <nat-t-keepalive/>                  <!-- OpenBSD 3.6 -->
+  <policy-file               default="/etc/isakmpd/isakmpd.policy"/>
+  <pubkey-directory          default="/etc/isakmpd/pubkeys"/>
+  <renegotiate-on-hup        default="false"/>
+  <retransmits               default="5">5</retransmits>
+  <shared-sadb               default="false"/>
+  <use-keynote/>                      <!-- OpenBSD 3.6 -->
+ </general>
+
+ <!-- [Keynote] -->
+ <keynote>
+  <credential-directory/>
+ </keynote>
+
+ <!-- [X509-Certificates] section -->
+ <x509-certificates>
+  <accept-self-signed        default="false"></accept-self-signed>
+  <ca-directory              default="/etc/isakmpd/ca"/>
+  <cert-directory            default="/etc/isakmpd/certs"/>
+  <private-key               default="/etc/isakmpd/private/local.key"/>
+ </x509-certificates>
+
+<!-- ======================================================================
+     Template nodes for [Phase1] and [Phase2]
+     ====================================================================== -->
+ <!-- [Phase1] section -->
+ <phase1>
+  <phase1-peers/>                     <!-- placeholder, filled dynamically -->
+  <phase1-default/>
+ </phase1>
+
+ <!-- [Phase2] section -->
+ <phase2>
+  <connections/>                      <!-- placeholder, filled dynamically -->
+  <passive-connections/>              <!-- placeholder, filled dynamically -->
+ </phase2>
+
+
+<!-- ======================================================================
+     ISAKMP-peers
+     ====================================================================== -->
+ <isakmp-peers>
+
+  <!-- template isakmp peer -->
+  <peer name="template">
+   <phase                    default="1"/>
+   <transport                default="UDP"/>
+   <port                     default="500"/>
+   <local-address/>
+   <remote-address/>
+   <configuration/>
+   <authentication/>
+   <local-id/>
+   <remote-id/>
+   <flags                    default="false"/>
+  </peer>
+ </isakmp-peers>
+
+<!-- ======================================================================
+     The phase1-ids section 
+     ====================================================================== -->
+ <phase1-ids>
+
+  <!-- template phase1 id -->
+  <phase1-id name="template">
+   <id-type/>
+   <address/>
+   <network/>
+   <netmask/>
+   <name/>
+  </phase1-id>
+
+ </phase1-ids>
+
+
+<!-- ======================================================================
+     isakmp configurations
+     ====================================================================== -->
+ <isakmp-configurations>
+
+  <!-- template isakmp configuration -->
+  <isakmp-configuration name="template">
+   <doi                       default="IPSEC"/>
+   <exchange-type             default="ID_PROT"/>
+   <transforms/>
+  </isakmp-configuration>
+
+ </isakmp-configurations>
+
+
+<!-- ======================================================================
+     unused stuff, implicit transforms like 3DES-MD5 and default lifetimes 
+     are fine.
+     ====================================================================== -->
+ <isakmp-transforms>
+  <encryption-algorithm/>
+  <key-length/>
+  <hash-algorithm/>
+  <authentication-method/>
+  <group-description/>
+  <prf/>
+  <life/>
+ </isakmp-transforms>
+
+ <lifetime>
+  <life-type/>
+  <life-duration/>
+ </lifetime>
+
+ <ipsec-connection>
+  <phase>2</phase>
+  <isakmp-peer/>
+  <ipsec-config/>
+  <local-id/>
+  <remote-id/>
+  <flags>
+   <flag value="Active-only"/>
+  </flags>
+ </ipsec-connection>
+
+ <ipsec-configuration>
+  <doi default="IPSEC"/>
+  <exchange-type default="QUICK_MODE"/>
+  <suites/>
+ </ipsec-configuration>
+
+ <ipsec-suite>
+  <protocols/>
+ </ipsec-suite>
+
+ <ipsec-protocols>
+  <protocol-ids>
+   <id>IPSEC_AH</id>
+   <id>IPSEC-ESP</id>
+  </protocol-ids>
+  <transforms/>
+  <replay-window/>
+ </ipsec-protocols>
+
+ <ipsec-transform>
+  <transform-id/>
+  <encapsulation-mode/>
+  <authentication-algorithm/>
+  <group-description/>
+  <life/>  
+ </ipsec-transform>
+
+ <ipsec-id>
+  <id-type/>
+  <address/>
+  <network/>
+  <netmask/>
+  <name/>
+  <protocol/>
+  <port/>
+ </ipsec-id>
+
+</isakmpd>
+
+
+<!-- 
+*** HISTORY
+*
+* $Log: isakmpd.xml,v $
+* Revision 1.1  2005/12/21 10:07:36  joernt
+* VPNConfigurator instance data files
+*
+* Revision 1.2  2005/03/06 12:19:53  chaklx
+* reviewed, use shared conf, use i18n
+*
+* Revision 1.1  2005/02/26 14:47:45  joernt
+* VPN conf sample
+*
+
+-->

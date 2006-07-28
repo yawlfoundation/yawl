@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xf="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<head>
+		<title>Non latin alphabet test</title>
+		<xf:model id="mainModel">
+			<xf:instance id="instance1" xmlns="">
+				<top>
+					<Cognome>Barone</Cognome>
+					<Nome>Annalisa</Nome>
+					<CodiceFiscale>xxxyyy</CodiceFiscale>
+				</top>
+			</xf:instance>
+			            <xf:submission id="save" action="../jsp/debug-instance.jsp" method="post"
+                replace="all"/>
+
+			<xf:bind id="bCognome" nodeset="Cognome" required="true()" type="string" constraint="string-length(.) &gt; 0" />
+			<xf:bind id="bNome" nodeset="Nome" required="true()" type="string" constraint="string-length(.) &gt; 0" />
+			<xf:bind id="bCodiceFiscale" nodeset="CodiceFiscale" required="true()" type="string" />
+		</xf:model>
+		<xf:model id="LabelFile">
+			<xf:instance id="Labels" xmlns="">
+				<ItemSet>
+					<Item Value="X3F09748D0376">
+						<label lang="RU">Сщылн</label>
+						<label lang="IT">Nome</label>
+						<label lang="EN">Name</label>
+						<label lang="US">Name</label>
+					</Item>
+					<Item Value="X3F0D2F6701A2">
+						<label lang="RU">Сщптщьщылн</label>
+						<label lang="IT">Cognome</label>
+						<label lang="EN">Family name</label>
+						<label lang="US">Last name</label>
+					</Item>
+					<Item Value="UU">
+						<label lang="RU">щптщь</label>
+						<label lang="IT">Codice Fiscale</label>
+						<label lang="EN">Fiscal Code</label>
+						<label lang="US">Fiscal Code</label>
+					</Item>
+				</ItemSet>
+			</xf:instance>
+		</xf:model>
+	</head>
+	<body>
+        <span>This is a form using Unicode characters.</span>
+        <xf:group>
+			<xf:label>Dati anagrafici  ффѦѨҊѼ &#1076;&#1074;&#1086;&#1072;&#1076;&#1074;&#1086;</xf:label>
+			<xf:input bind="bCognome">
+				<xf:label ref="instance('Labels')/Item[@Value='X3F0D2F6701A2']/label[@lang='EN']" />
+			</xf:input>
+			<xf:input bind="bNome">
+				<xf:label ref="instance('Labels')/Item[@Value = 'X3F09748D0376']/label[@lang = 'IT']" />
+			</xf:input>
+			<xf:input bind="bCodiceFiscale">
+				<xf:label ref="instance('Labels')/Item[@Value = 'UU']/label[@lang = 'RU']" />
+			</xf:input>
+			<xf:output><xf:label>This is a Unicode label: &#1076;&#1074;&#1086;&#1072;&#1076;&#1074;&#1086;</xf:label><xf:value> </xf:value></xf:output>
+		</xf:group>
+		                <xf:trigger>
+                    <xf:label>Debug</xf:label>
+                    <xf:hint>shows submitted instance data in a separate JSP page</xf:hint>
+                    <xf:action>
+                        <xf:send submission="save"/>
+                    </xf:action>
+                </xf:trigger>
+
+	</body>
+</html>

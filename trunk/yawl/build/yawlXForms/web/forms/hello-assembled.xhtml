@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xforms="http://www.w3.org/2002/xforms"
+    xmlns:ev="http://www.w3.org/2001/xml-events"
+    xmlns:chiba="http://chiba.sourceforge.net/xforms">
+    <head>
+        <title>hello</title>
+        <chiba:include src="hello.xhtml" xpath="//*[@id='hello-model']"/>
+    </head>
+    <body>
+        This form is just the same as hello.xhtml but it's created by borrowing the markup for the model and UI
+        from the original hello.xhtml.  
+        <chiba:include src="hello.xhtml#hello-group" />
+    </body>
+</html>

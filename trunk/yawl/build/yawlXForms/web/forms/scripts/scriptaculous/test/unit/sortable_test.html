@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>script.aculo.us Unit test file</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <script src="../../lib/prototype.js" type="text/javascript"></script>
+  <script src="../../src/scriptaculous.js" type="text/javascript"></script>
+  <script src="../../src/unittest.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="../test.css" type="text/css" />
+</head>
+<body>
+<h1>script.aculo.us Unit test file</h1>
+<p>
+  Test of sortable functions in dragdrop.js
+</p>
+
+<!-- Log output -->
+<div id="testlog"> </div>
+
+
+<ul id="sortable1">
+  <li id="item_1">item 1</li>
+  <li id="item_2">item 1<ul><li id="item_99">!!!</li></ul></li>
+  <li id="item_3">item 1</li>
+  <!-- a comment -->
+</ul>
+
+<div id="sortable2">
+  <div id="item_3">item 3</div>  <div id="item_4">item 4</div>
+  <img src="icon.png" alt="img"/>
+  <!-- a comment -->
+</div>
+
+<div id="sortable3">
+  
+</div>
+
+<ul id="sortable_specialcreate">
+  <li id="y1item">item 1</li>
+  <li id="y2item">item 1<ul><li id="yyyy9928282hjhd">!!!</li></ul></li>
+</ul>
+
+<ul id="sortable_specialformat">
+  <li id="x1item">item 1</li>
+  <li id="x2item">item 1<ul><li id="xxxxx88888item">!!!</li></ul></li>
+</ul>
+
+<!-- Tests follow -->
+<script type="text/javascript" language="javascript" charset="utf-8">
+// <![CDATA[
+
+  new Test.Unit.Runner({
+    
+    setup: function() { with(this) {
+      Sortable.create('sortable1');
+      Sortable.create('sortable2',{tag:'div'});
+      Sortable.create('sortable3');
+      Sortable.create('sortable_specialcreate',{ format:/(\d+)/ });
+      Sortable.create('sortable_specialformat');
+    }},
+    
+    teardown: function() { with(this) {
+      Sortable.destroy('sortable1');
+      Sortable.destroy('sortable2');
+      Sortable.destroy('sortable3');
+      Sortable.destroy('sortable_specialformat');
+      Sortable.destroy('sortable_specialcreate');
+    }},
+    
+    testSortableSerialize: function() { with(this) {
+      assertEqual('sortable1[]=1&sortable1[]=2&sortable1[]=3', Sortable.serialize('sortable1'));      
+      // test empty sortable
+      assertEqual('', Sortable.serialize('sortable3'));
+      
+      Element.remove('item_4');
+      assertEqual('sortable2[]=3', Sortable.serialize('sortable2'));
+    }},
+    
+    testSortableSerializeFormat: function() { with(this) {
+      // shauld correctly serialize from option given to Sortable.create()
+      assertEqual('sortable_specialcreate[]=1&sortable_specialcreate[]=2', 
+        Sortable.serialize('sortable_specialcreate'));
+      
+      // test special format given explicitly
+      assertEqual('sortable_specialformat[]=1&sortable_specialformat[]=2', 
+        Sortable.serialize('sortable_specialformat', {format:/(\d+)/}));
+ 
+      // return full id
+      assertEqual('sortable_specialformat[]=x1item&sortable_specialformat[]=x2item', 
+        Sortable.serialize('sortable_specialformat', {format:/(.*)/}));
+      
+      // test default format given explicitly
+      assertEqual('sortable1[]=1&sortable1[]=2&sortable1[]=3', 
+        Sortable.serialize('sortable1',{format:/^[^_]*_(.*)$/}));
+    }}
+
+  }, "testlog");
+// ]]>
+</script>
+</body>
+</html>
