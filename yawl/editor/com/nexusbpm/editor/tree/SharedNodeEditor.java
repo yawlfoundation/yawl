@@ -66,9 +66,20 @@ public class SharedNodeEditor extends DefaultTreeCellEditor {
 		String newName = cellEditorValue;
 		String oldName = _node.getProxy().getLabel();
 		if( !oldName.equals( newName ) ) {
-			LOG.debug( "Persisting new component name (" + oldName + " -> " + newName + ")." );
-            WorkflowEditor.getExecutor().executeCommand(
-                    new RenameElementCommand( _node, newName, oldName ) );
+            if( _node.getProxy().getData() instanceof String ) {
+                // TODO renaming folders will be complicated....
+                _node.getProxy().setLabel( newName );
+                _node.getProxy().fireUpdated( "name", oldName, newName );
+                String newVal = _node.getProxy().getData().toString();
+                newVal = newVal.substring(0, newVal.length() - oldName.length() ) + newName;
+                _node.getProxy().getContext().renameFolder( _node.getProxy(), newVal );
+                LOG.warn( "Folder renaming will NOT work as expected if the folder was not empty!" );
+            }
+            else {
+                LOG.debug( "Persisting new component name (" + oldName + " -> " + newName + ")." );
+                WorkflowEditor.getExecutor().executeCommand(
+                        new RenameElementCommand( _node, newName, oldName ) );
+            }
 		}
 		return _node.getProxy().getData();
 	}

@@ -83,7 +83,7 @@ public class CreateConditionCommand extends AbstractCommand {
         }
         else {
             // TODO do we need to URI encode the label when setting it as the ID?
-            condition = WorkflowOperation.createCondition( label.replaceAll( " ", "_" ), label );
+            condition = WorkflowOperation.createCondition( netProxy.getData(), label );
         }
         conditionProxy = context.createProxy( condition, (SharedNodeTreeModel) netNode.getTreeModel() );
     }

@@ -11,6 +11,6 @@ import java.beans.PropertyChangeListener;
 
 public interface DataProxyStateChangeListener extends PropertyChangeListener{
 
-	void proxyDetached(DataProxy proxy, Object data);
+	void proxyDetached(DataProxy proxy, Object data, DataProxy parent);
 	void proxyAttached(DataProxy proxy, Object data, DataProxy parent);
 }

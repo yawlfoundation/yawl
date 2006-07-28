@@ -3,15 +3,22 @@ package com.nexusbpm.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.swing.AbstractAction;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
@@ -33,6 +40,7 @@ import com.nexusbpm.command.CommandExecutor;
 import com.nexusbpm.command.CreateNetCommand;
 import com.nexusbpm.command.CreateNexusComponent;
 import com.nexusbpm.command.CreateSpecificationCommand;
+import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
@@ -101,6 +109,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
         // create the file menu
         fileMenu = new JMenu();
         fileMenu.setText("File");
+        fileMenu.setMnemonic( KeyEvent.VK_F );
         
         openMenuItem = new JMenuItem();
         openMenuItem.setText("Open");
@@ -128,6 +137,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
         // create the edit menu
         editMenu = new JMenu();
         editMenu.setText("Edit");
+        editMenu.setMnemonic( KeyEvent.VK_E );
         
         cutMenuItem = new JMenuItem();
         cutMenuItem.setText("Cut");
@@ -146,10 +156,26 @@ public class WorkflowEditor extends javax.swing.JFrame {
         editMenu.add(deleteMenuItem);
         
         
+        /////////////////////////
+        // create the window menu
+//      TODO
+        windowMenu = new JMenu();
+        windowMenu.setText("Window");
+        windowMenu.setMnemonic( KeyEvent.VK_W );
+        
+        noWindowOpenItem = new JMenuItem();
+        noWindowOpenItem.setText("None");
+        noWindowOpenItem.setEnabled(false);
+        windowMenu.add(noWindowOpenItem);
+        
+        windowItems = new HashMap<CapselaInternalFrame,JMenuItem>();
+        
+        
         ///////////////////////
         // create the help menu
         helpMenu = new JMenu();
         helpMenu.setText("Help");
+        helpMenu.setMnemonic( KeyEvent.VK_H );
         
         contentsMenuItem = new JMenuItem();
         contentsMenuItem.setText("Contents");
@@ -166,6 +192,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
         
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
+        menuBar.add(windowMenu);
         menuBar.add(helpMenu);
         
         setJMenuBar(menuBar);
@@ -180,7 +207,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
         EditorDataProxy memdp = (EditorDataProxy) memdc.createProxy(o, null);
         memdc.attachProxy(memdp, o, null);
         
-        SharedNode memRootNode = new SharedNode(memdp);
+//        SharedNode memRootNode = new SharedNode(memdp, o);
+        SharedNode memRootNode = memdp.getTreeNode();
         
         SharedNodeTreeModel memTreeModel = new SharedNodeTreeModel(memRootNode);
         memRootNode.setTreeModel(memTreeModel);
@@ -206,7 +234,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
         EditorDataProxy filedp = (EditorDataProxy) filedc.createProxy(o, null);
         filedc.attachProxy(filedp, o, null);
         
-        SharedNode fileRootNode = new SharedNode(filedp);
+//        SharedNode fileRootNode = new SharedNode(filedp, o);
+        SharedNode fileRootNode = filedp.getTreeNode();
         
         SharedNodeTreeModel fileTreeModel = new SharedNodeTreeModel(fileRootNode);
         fileRootNode.setTreeModel(fileTreeModel);
@@ -229,11 +258,12 @@ public class WorkflowEditor extends javax.swing.JFrame {
             SpecificationDAO hibernatedao = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE).getSpecificationModelDAO();
             DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
             
-            o = new DatasourceRoot("hibernate://home/sandozm/");
+            o = new DatasourceRoot("hibernate://home/");
             EditorDataProxy hibdp = (EditorDataProxy) hibdc.createProxy(o, null);
             hibdc.attachProxy(hibdp, o, null);
             
-            SharedNode hibernateRootNode = new SharedNode(hibdp);
+//            SharedNode hibernateRootNode = new SharedNode(hibdp, o);
+            SharedNode hibernateRootNode = hibdp.getTreeNode();
             
             SharedNodeTreeModel hibernateTreeModel = new SharedNodeTreeModel(hibernateRootNode);
             hibernateRootNode.setTreeModel(hibernateTreeModel);
@@ -412,7 +442,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
         EditorDataProxy componentsRootProxy = (EditorDataProxy) componentsContext.createProxy(o, null);
         componentsContext.attachProxy(componentsRootProxy, o, null);
         
-        SharedNode componentsRootNode = new SharedNode(componentsRootProxy);
+//        SharedNode componentsRootNode = new SharedNode(componentsRootProxy, o);
+        SharedNode componentsRootNode = componentsRootProxy.getTreeNode();
         
         SharedNodeTreeModel componentsTreeModel = new SharedNodeTreeModel(componentsRootNode,true);
         componentsRootNode.setTreeModel(componentsTreeModel);
@@ -481,6 +512,95 @@ public class WorkflowEditor extends javax.swing.JFrame {
     }
     
     /**
+     * Opens an editor center at the given location or maximized if the location
+     * is null.
+     */
+    public void openEditor( EditorDataProxy proxy, Point location ) throws Exception {
+        CapselaInternalFrame editor = proxy.getEditor();
+        if (editor != null && !editor.isVisible()) {
+            JDesktopPane desktop = getDesktopPane();
+            
+            editor.pack();
+            if( location != null ) {
+                int width = desktop.getWidth();
+                int height = desktop.getHeight();
+                
+                if( width > 450 ) width = 450;
+                if( height > 400 ) height = 400;
+                
+                int x = (int)( location.getX() - width / 2 );
+                int y = (int)( location.getY() - height / 2 );
+                
+                if( x < 0 ) x = 0;
+                else if( ( x + width ) > desktop.getWidth() ) x = desktop.getWidth() - width;
+                if( y < 0 ) y = 0;
+                else if( ( y + height ) > desktop.getHeight() ) y = desktop.getHeight() - height;
+                
+                editor.setSize(width, height);
+                editor.setLocation(x, y);
+            }
+            editor.setVisible(true);
+            
+            getDesktopPane().add(editor);
+            
+            editor.setSelected( true );
+            editor.toFront();
+            editor.setMaximum( location == null );
+        }
+        else if( editor != null ) {
+            editor.toFront();
+            editor.setSelected( true );
+        }
+    }
+    
+    public void addInternalFrameMenuItem( CapselaInternalFrame frame ) {
+        assert frame != null : "attempting to add menu item for null frame!";
+        windowMenu.remove( noWindowOpenItem );
+        JMenuItem item = new JRadioButtonMenuItem();
+        item.setAction( new WindowFocusAction( frame ) );
+        item.setText( frame.getTitle() );
+        windowMenu.add( item );
+        windowItems.put( frame, item );
+        setSelectedInternalFrameMenuItem( frame );
+    }
+    
+    private class WindowFocusAction extends AbstractAction {
+        private CapselaInternalFrame frame;
+        private WindowFocusAction( CapselaInternalFrame frame ) {
+            this.frame = frame;
+        }
+        public void actionPerformed( ActionEvent e ) {
+            frame.toFront();
+            try {
+                frame.setSelected( true );
+            }
+            catch( Exception ex ) {
+                // ignore
+            }
+        }
+    }
+    
+    public void setSelectedInternalFrameMenuItem( CapselaInternalFrame frame ) {
+        for( CapselaInternalFrame key : windowItems.keySet() ) {
+            windowItems.get( key ).setSelected( key == frame );
+        }
+    }
+    
+    public void removeInternalFrameMenuItem( CapselaInternalFrame frame ) {
+        if( windowItems.containsKey( frame ) ) {
+            JMenuItem item = windowItems.get( frame );
+            windowMenu.remove( item );
+            windowItems.remove( frame );
+            if( windowItems.size() == 0 ) {
+                windowMenu.add( noWindowOpenItem );
+            }
+        }
+        else {
+            LOG.warn( "Internal window was closed, but it wasn't on the window menu!" );
+        }
+    }
+    
+    /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -529,6 +649,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
     // top level menu options
     private JMenu fileMenu;
     private JMenu editMenu;
+    private JMenu windowMenu;
     private JMenu helpMenu;
     
     // options under the file menu
@@ -542,6 +663,10 @@ public class WorkflowEditor extends javax.swing.JFrame {
     private JMenuItem copyMenuItem;
     private JMenuItem pasteMenuItem;
     private JMenuItem deleteMenuItem;
+    
+    // options under the window menu
+    private JMenuItem noWindowOpenItem;
+    private Map<CapselaInternalFrame,JMenuItem> windowItems;
     
     // options under the help menu
     private JMenuItem contentsMenuItem;

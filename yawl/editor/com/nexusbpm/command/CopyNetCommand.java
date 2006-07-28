@@ -39,7 +39,6 @@ public class CopyNetCommand extends AbstractCommand {
     private DataContext targetContext;
     
     private Map<Object,EditorDataProxy> proxies;
-    private Map<Object,SharedNode> nodes;
     
     private List<YDecomposition> decomps;
 	
@@ -106,7 +105,6 @@ public class CopyNetCommand extends AbstractCommand {
         decomps = WorkflowOperation.copyDecomposition( netProxy.getData(), specProxy.getData() );
         
         proxies = new HashMap<Object, EditorDataProxy>();
-        nodes = new HashMap<Object, SharedNode>();
         
         for( YDecomposition decomp : decomps ) {
             VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
@@ -119,7 +117,6 @@ public class CopyNetCommand extends AbstractCommand {
                             child instanceof YFlow ) {
                         proxies.put( child, (EditorDataProxy) targetContext.createProxy(
                                 child, (SharedNodeTreeModel) specNode.getTreeModel() ) );
-                        nodes.put( child, new SharedNode( proxies.get( child ) ) );
                     }
                 }
             });

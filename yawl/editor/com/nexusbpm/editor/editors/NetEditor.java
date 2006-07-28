@@ -1,8 +1,10 @@
 package com.nexusbpm.editor.editors;
 
 import java.awt.Component;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
@@ -17,7 +19,7 @@ import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
- * A flow editor which can contain multiple tabs, each of which will contain a
+ * A net editor which can contain multiple tabs, each of which will contain a
  * <code>GraphEditor</code>.
  * 
  * @see        com.ichg.capsela.client.editors.flow.GraphEditor
@@ -28,7 +30,7 @@ public class NetEditor extends ComponentEditor {
 
 	private final static Log LOG = LogFactory.getLog( NetEditor.class );
 
-	private GraphEditor _flowGraphEditor;
+	private GraphEditor _netGraphEditor;
 	private JTabbedPane _tabbedPane;
 	/**
 	 * save this off so we can clear it later
@@ -44,8 +46,9 @@ public class NetEditor extends ComponentEditor {
 		super();
 	}
 
-	/** Set of proxys for flow instances that have tabs in this editor. */
-	private HashSet<EditorDataProxy> proxyList = new HashSet<EditorDataProxy>();
+	/** Set of proxys for net instances that have tabs in this editor. */
+//	private HashSet<EditorDataProxy> proxyList = new HashSet<EditorDataProxy>();
+    private Map<EditorDataProxy,GraphEditor> proxyToGraphMap = new HashMap<EditorDataProxy,GraphEditor>();
 
 	/**
 	 * @see ComponentEditor#initializeUI()
@@ -90,8 +93,8 @@ public class NetEditor extends ComponentEditor {
 	 * @see ComponentEditor#saveAttributes()
 	 */
 	public void saveAttributes() {
-		if( _flowGraphEditor != null ) {
-			_flowGraphEditor.saveAttributes();
+		if( _netGraphEditor != null ) {
+			_netGraphEditor.saveAttributes();
 		}
 
 		if (cleared) {
@@ -129,7 +132,7 @@ public class NetEditor extends ComponentEditor {
 			ge.initializeInstance( proxy );
 		}
 		else {
-			_flowGraphEditor = ge;
+			_netGraphEditor = ge;
 			ge.setProxy( proxy );
 			ge.initialize( proxy.getTreeNode() );
 		}
@@ -165,30 +168,20 @@ public class NetEditor extends ComponentEditor {
 	}
 
 	/**
-	 * Removes the graph editor for the specified flow.
-	 * @param proxy the proxy for the flow template or instance whose
-	 *                   tab is to be removed from this flow editor.
+	 * Removes the graph editor for the specified instance net.
+	 * @param proxy the proxy for the net instance whose
+	 *              tab is to be removed from this net editor.
 	 */
-	public void removeGraphEditor( EditorDataProxy proxy ) {
-		if( null != _tabbedPane && null != proxy ) {
-			Component[] components = _tabbedPane.getComponents();
-			int removed = 0;
-			for( int i = 0; i < components.length; i++ ) {
-				Component component = components[ i ];
-				GraphEditor editor = (GraphEditor) component;
-				if( proxy.equals( editor.getProxy() ) ) {
-					_tabbedPane.remove( editor );
-					try {
-						editor.clear();
-					}
-					catch( Throwable throwable ) {
-						LOG.warn("FlowEditor.removeGraphEditor", throwable);
-					}
-					break;
-				}
-			}
-
-			LOG.debug("FlowEditor.removeGraphEditor removed " + removed + " of " + components.length);
+	public void removeGraphEditor( GraphEditor editor ) {
+		if( null != _tabbedPane && null != editor ) {
+            _tabbedPane.remove( editor );
+            try {
+                // TODO XXX
+                editor.clear();
+            }
+            catch( Throwable t ) {
+                LOG.error( "Error disposing of net editor instance graph!", t );
+            }
 		}
 	}
 
@@ -197,56 +190,60 @@ public class NetEditor extends ComponentEditor {
 	 * this method returns <tt>null</tt>.
 	 * @return the <tt>GraphEditor</tt> for the flow template or <tt>null</tt>.
 	 */
-	public GraphEditor getFlowGraphEditor() {
-		return _flowGraphEditor;
+	public GraphEditor getNetGraphEditor() {
+		return _netGraphEditor;
 	}
 
 	/**
 	 * Removes the graph editors from this flow editor and their tabs.
-	 * @see ComponentEditor#clear()
+	 * @see CapselaInternalFrame#frameClosed()
 	 */
-	public void clear() throws Throwable {
-		LOG.debug("FlowEditor.debug");
+	public void frameClosed() throws Exception {
+        LOG.debug( "NetEditor.frameClosed()" );
 
-		if (null != proxyList) {
-			// remove GraphEditors from instance proxys
-			HashSet<EditorDataProxy> tmp = proxyList;
-			proxyList = null;
-			EditorDataProxy tmpproxy;
-			for (Iterator<EditorDataProxy> iterator = tmp.iterator(); iterator.hasNext(); ) {
-				tmpproxy = iterator.next();
-				removeGraphEditor(tmpproxy);
-			}
-			if (null != tmp)
-				LOG.debug("removing graph editors from " + tmp.size() + " proxys ");
-		}
+        if( null != proxyToGraphMap ) {
+            // remove GraphEditors from instance proxys
+            Set<EditorDataProxy> tmp = new HashSet<EditorDataProxy>( proxyToGraphMap.keySet() );
+            for( EditorDataProxy proxy : tmp ) {
+                GraphEditor editor = proxyToGraphMap.get( proxy );
+                proxyToGraphMap.remove( proxy );
+                removeGraphEditor( editor );
+            }
+            proxyToGraphMap = null;
+        }
 
-		if (null != _proxy) {
-			removeGraphEditor(_proxy);
-		}
+        if( null != _netGraphEditor ) {
+            removeGraphEditor( _netGraphEditor );
+            _netGraphEditor = null;
+        }
 
-		if (null != _tabbedPane) {
-			if (null != instanceEditor) {
-				_tabbedPane.remove( instanceEditor);
-			}
-			getContentPane().remove( _tabbedPane ); // 2005-05-13 14:35
-			_tabbedPane.removeAll();
-			_tabbedPane = null; // mjf 2005-05-13 9:43
-		}
+        if( null != _tabbedPane ) {
+            if( null != instanceEditor ) {
+                _tabbedPane.remove( instanceEditor );
+            }
+            getContentPane().remove( _tabbedPane ); // 2005-05-13 14:35
+            _tabbedPane.removeAll();
+            _tabbedPane = null; // mjf 2005-05-13 9:43
+        }
 
-		if (null != instanceEditor) {
-			GraphEditor tmp = instanceEditor;
-			instanceEditor = null;
-			tmp.clear();
-		}
+        try {
+        if( null != instanceEditor ) {
+            GraphEditor tmp = instanceEditor;
+            instanceEditor = null;
+            tmp.clear();
+        }
 
-		if (!isDirty()) {
-			clearing();
-		}
+        if( !isDirty() ) {
+            clearing();
+        }
+        }
+        catch( Throwable t ) {
+            throw new Exception( t );
+        }
 
-		cleared = true;
-		super.clear();
-	}
+        cleared = true;
+        super.frameClosed();
+    }
 
 	/**
 	 * Called from clear as well as from saveAttributes after a clear.
@@ -254,9 +251,9 @@ public class NetEditor extends ComponentEditor {
 	 */
 	private void clearing() throws Throwable {
 		LOG.debug("FlowEditor.clearing");
-		if (null != _flowGraphEditor) {
-			GraphEditor tmp = _flowGraphEditor;
-			_flowGraphEditor = null;
+		if (null != _netGraphEditor) {
+			GraphEditor tmp = _netGraphEditor;
+			_netGraphEditor = null;
 			removeIsDirtyListener(tmp);
 			tmp.clear();
 		}
@@ -265,18 +262,7 @@ public class NetEditor extends ComponentEditor {
 
 		if( null != _proxy ) {
 			_proxy.removeChangeListener( this );
-			_proxy = null;
 		}
-	}
-
-	/**
-	 * Logs that this flow editor is being finalized and calls {@link #clear()}.
-	 * @see ComponentEditor#finalize()
-	 */
-	public void finalize() throws Throwable {
-		LOG.debug("FlowEditor.finalize");
-		clear();
-		super.finalize();
 	}
 
 	/**

@@ -14,7 +14,6 @@ import operation.WorkflowOperation;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
-import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
@@ -27,8 +26,6 @@ public class CreateFolderCommand extends AbstractCommand {
 	private DataContext context;
     private SharedNode parentNode;
     private String parentPath;
-//    private YNet net;
-//    private DataProxy<YNet> netProxy;
     private String folderName;
     private DataProxy folderProxy;
     private String fullname;
@@ -79,6 +76,5 @@ public class CreateFolderCommand extends AbstractCommand {
         
         folderProxy = context.createProxy( fullname, (SharedNodeTreeModel) parentNode.getTreeModel() );
         folderProxy.setLabel( fullname.substring( fullname.lastIndexOf( "/" ) + 1 ) );
-        new SharedNode( (EditorDataProxy) folderProxy );
     }
 }

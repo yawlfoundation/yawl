@@ -66,8 +66,7 @@ public class CreateNetCommand extends AbstractCommand {
      */
     @Override
     protected void perform() throws Exception {
-        net = WorkflowOperation.createNet( netName, specProxy.getData() );
+        net = WorkflowOperation.createNet( netName, "Net", specProxy.getData() );
         netProxy = context.createProxy( net, (SharedNodeTreeModel) specNode.getTreeModel() );
-        new SharedNode( (EditorDataProxy) netProxy );
     }
 }

@@ -82,7 +82,7 @@ public class GraphChangeSummary implements GraphModelListener {
 						extension.setBounds(r.getBounds());
 						// CellView view =
 						// _graph.getGraphLayoutCache().getMapping(cell, false);
-						_editor.getFlowEditor().setDirty(true);
+						_editor.getNetEditor().setDirty(true);
 						LOG.info("Element position changed.");
 						// TODO The commented block of code in the "if (view
 						// instanceof DefaultView)" is to

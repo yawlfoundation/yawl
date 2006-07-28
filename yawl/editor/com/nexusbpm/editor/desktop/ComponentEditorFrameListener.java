@@ -24,85 +24,102 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 
 	private static final Log LOG = LogFactory.getLog( ComponentEditorFrameListener.class );
 
-	private EditorDataProxy _node;
+	private EditorDataProxy _proxy;
 
 	private ComponentEditor _editor;
 
 	/**
 	 * Creates a component editor frame listener for the component specified by
 	 * the given node and editor.
-	 * @param node the <tt>ComponentNode</tt> for the component.
+	 * @param proxy the <tt>DataProxy</tt> for the component.
 	 * @param editor the <tt>ComponentEditor</tt> for the component.
 	 */
-	public ComponentEditorFrameListener( EditorDataProxy node, ComponentEditor editor ) {
+	public ComponentEditorFrameListener( EditorDataProxy proxy, ComponentEditor editor ) {
 		super( editor );
 
 		if( LOG.isDebugEnabled() ) {
 			LOG.debug( "ComponentEditorFrameListener construct editor=" + ( editor == null ? "null" : editor.getClass().getName() ) );
 		}
 
-		_node = node;
+		_proxy = proxy;
 		_editor = editor;
 	}
+    
+    /**
+     * When the editor is closed, saves the attributes in the editor and
+     * alerts the proxy (so that it no longer holds onto the editor and
+     * creates and returns a new editor next time it is asked for its
+     * editor).
+     * @see ClosingFrameListener#internalFrameClosing(InternalFrameEvent)
+     */
+    public void internalFrameClosing( InternalFrameEvent e ) {
+        super.internalFrameClosing( e );
+        if( _proxy != null ) {
+            Worker worker = new CloseWorker();
+            GlobalEventQueue.add( worker );
+        }
+    }
 
 	/**
-	 * When the editor is closed, it should release the lock and nullify the
-	 * editor (to initiate garbage collection on it since some editors are
-	 * huge... like the chart editor). It will also remove itself from the list
-	 * of open windows menu on the capsela client itself.
-	 * @see ClosingFrameListener#internalFrameClosing(InternalFrameEvent)
+	 * When the editor is closed, saves the attributes in the editor and
+     * alerts the proxy (so that it no longer holds onto the editor and
+     * creates and returns a new editor next time it is asked for its
+     * editor).
+	 * @see ClosingFrameListener#internalFrameClosed(InternalFrameEvent)
 	 */
-	public void internalFrameClosing( InternalFrameEvent e ) {
-		super.internalFrameClosing( e );
-		Worker worker = new Worker( ) {
-			public String getName() {return "closing frame";}
-			public void execute() {
-				EditorDataProxy proxy = _node;
-				try {
-					if( _editor.isDirty() ) {
-						LOG.debug( "Editor closing, saving: " );
-						_editor.saveAttributes();
-						_editor.persistAttributes();
-						// ClientOperation.update( controller, 3, false );
-						throw new RuntimeException("implement the save operation, or prompt to save?");
-					}//if
-					else {
-						LOG.debug( "Editor closing, NOT saving: (" + "isDirty=" + _editor.isDirty() );
-					}
-//					_node.nullifyEditors();
-				}//try
-				catch( EditorException ce ) {
-					// CapselaException is already logged.
-				}//catch
-				finally {
-					try {
-						if( null != _editor ) {
-							ComponentEditor tmp = _editor;
-							_editor = null;
-							tmp.clear();
-						}
-					}
-					catch( Throwable throwable ) {
-						LOG.warn( "ComponentEditorFrameListener.run clearing editor", throwable );
-					}
-
-					_node = null;
-				}//finally
-//				return null;
-			}//run()
-		};//new CapselaWorker()
-		GlobalEventQueue.add( worker );
-		Exception ex = new RuntimeException("TODO: (Output only) create global event queue (Executor) and add worker");
-		LOG.error(ex.getMessage(), ex);
+	public void internalFrameClosed( InternalFrameEvent e ) {
+		super.internalFrameClosed( e );
+        if( _proxy != null ) {
+        	Worker worker = new CloseWorker();
+        	GlobalEventQueue.add( worker );
+        }
 	}
+    
+    private class CloseWorker implements Worker {
+        public String getName() {return "closing frame";}
+        public void execute() {
+            EditorDataProxy proxy = _proxy;
+            proxy.editorClosed();
+            try {
+                if( _editor.isDirty() ) {
+                    LOG.debug( "Editor closing, saving: " );
+                    _editor.saveAttributes();
+                    // TODO commandize persisting of attribute changes
+                    _editor.persistAttributes();
+                    // ClientOperation.update( controller, 3, false );
+                    throw new RuntimeException("implement the save operation, or prompt to save?");
+                }//if
+                else {
+                    LOG.debug( "Editor closing, NOT saving: (" + "isDirty=" + _editor.isDirty() );
+                }
+            }//try
+            catch( EditorException exc ) {
+                // TODO save attributes is going to be refactored (commandized), so this might need to change
+                LOG.error( "Error saving attributes!", exc );
+            }//catch
+            finally {
+                try {
+                    if( null != _editor ) {
+                        ComponentEditor tmp = _editor;
+                        _editor = null;
+                        tmp.frameClosed();
+                    }
+                }
+                catch( Throwable throwable ) {
+                    LOG.warn( "ComponentEditorFrameListener.run clearing editor", throwable );
+                }
+                _proxy = null;
+            }//finally
+        }//execute()
+    };//new CapselaWorker()
 
 	/**
-	 * Attempts to acquire a lock on the component that the editor is for and
-	 * disables the close button while the editor is opening.
+	 * Initializes the editor and disables the close button while the
+     * editor is opening.
 	 * @see ClosingFrameListener#internalFrameOpened(InternalFrameEvent)
 	 */
 	public void internalFrameOpened( final InternalFrameEvent e ) {
-		final EditorDataProxy proxy = _node;
+		final EditorDataProxy proxy = _proxy;
 		LOG.debug( "internalFrameOpened()" );
 		Worker worker = new Worker( ) {
 			public String getName() {return "open internal frame";}
@@ -130,21 +147,9 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
 			}//run()
 		};
 		GlobalEventQueue.add( worker );
-		LOG.error("TODO:Create global event queue (Executor) and add worker");
 	}
 
 	private void callSuperInternalFrameOpened( InternalFrameEvent e ) {
 		super.internalFrameOpened( e );
-	}
-
-	/**
-	 * @see Object#finalize()
-	 */
-	public void finalize() throws Throwable {
-		LOG.debug( "CompomentEditorFrameListener.finalize" );
-		_node = null;
-		_editor = null;
-		super.finalize();
-
 	}
 }

@@ -49,6 +49,7 @@ import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CopyNetCommand;
@@ -553,22 +554,12 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 				// When the user double clicks on a tree leaf node, open up the editor.
 				// Don't do it if the node is not a leaf, because double-clicking on a
 				// non-leaf node just expands and contracts said node.
-		          try {
-		        	  Object editor = node.getProxy().getEditor();
-		        	  if (editor != null) {
-			        	ComponentEditor internalFrame = (ComponentEditor) editor;
-						JDesktopPane desktop = WorkflowEditor.getInstance().getDesktopPane();
-						internalFrame.pack();
-					    internalFrame.setLocation(0,0);
-						internalFrame.setVisible(true);
-						desktop.add(internalFrame);
-						internalFrame.setSelected( true );
-					    internalFrame.toFront();
-						internalFrame.setMaximum( true );
-			      }
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
+                try {
+                    WorkflowEditor.getInstance().openEditor( node.getProxy(), null );
+                }
+                catch( Exception ex ) {
+                    LOG.error( "Error opening editor!", ex );
+                }
 			}
 		}
 	}
@@ -622,8 +613,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		final STree tree = (STree) comp;
 		TreePath selPath = tree.getPathForLocation( (int) pt.getX(), (int) pt.getY() );
 		if( selPath == null ) { return null; }
-
-        JPopupMenu.setDefaultLightWeightPopupEnabled( false );
         
 		JPopupMenu menu = new JPopupMenu();
         menu.setLightWeightPopupEnabled( false );
@@ -683,7 +672,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         
         JMenuItem rename = new JMenuItem( new AbstractAction( "Rename" ) {
             public void actionPerformed( ActionEvent e ) {
-                LOG.error( "TODO: implement rename" );
                 STree.this.renameCurrentNode();
             }
         });
@@ -697,6 +685,35 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         menu.add( edit );
         menu.add( rename );
         menu.add( delete );
+        
+        menu.add( new AbstractAction( "DEBUG LOG" ) {
+            public void actionPerformed( ActionEvent e ) {
+                SharedNode anode = node;
+                DataProxy proxy = null;
+                Object data = null;
+                Class dataClass = null;
+                try {
+                    if( node != null ) {
+                        proxy = node.getProxy();
+                        if( proxy != null ) {
+                            data = proxy.getData();
+                            if( data != null ) {
+                                dataClass = data.getClass();
+                            }
+                        }
+                    }
+                }
+                catch( Throwable t ) {
+                    LOG.error( "Error", t );
+                }
+                LOG.warn(
+                        "node:" + node +
+                        "\nproxy:" + proxy +
+                        "\ndata:" + data +
+                        "\ndataClass:" + dataClass,
+                        new Exception("Stacktrace...").fillInStackTrace() );
+            }
+        });
         
         Object data = null;
         if( ! node.isRoot() ) {

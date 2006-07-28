@@ -18,6 +18,7 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
@@ -33,11 +34,17 @@ import com.nexusbpm.editor.icon.RenderingHints;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.services.NexusServiceInfo;
 
-public class EditorDataProxy<Type> extends au.edu.qut.yawl.persistence.managed.DataProxy<Type> implements Transferable {
+public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferable {
 
 
 	/** A <tt>graph cell</tt> is the displayed JGraph object for a component. */
 	private NexusCell _graphCell;
+    
+    public EditorDataProxy() {
+        new SharedNode( this );
+        GraphPort port = new GraphPort( this );
+        new NexusCell( this ).add( port );
+    }
 
 	/**
 	 * @return the graph cell for this component.
@@ -230,10 +237,14 @@ public class EditorDataProxy<Type> extends au.edu.qut.yawl.persistence.managed.D
 	 * @throws CapselaException not thrown in the code.
 	 * @see #getEditor()
 	 */
-	
 	public CapselaInternalFrame getEditor() throws Exception {
+        if( _editor == null ) {
 			if( getData() instanceof YNet ) {
 				_editor = new NetEditor();
+                for( YExternalNetElement element : ((YNet) getData()).getNetElements() ) {
+                    DataProxy proxy = getContext().getDataProxy( element, null );
+                    proxy.addChangeListener( _editor );
+                }
 			}
 			else {
 				Class editorClass = getEditorClass();
@@ -241,8 +252,6 @@ public class EditorDataProxy<Type> extends au.edu.qut.yawl.persistence.managed.D
 					_editor = (ComponentEditor) editorClass.newInstance();
 				}
 			}
-//			_editor.setProxy(this);
-//			_editor.initializeUI();
 			if (_editor != null) {
 				_editor.setTitle( this.getLabel() + getIdString( getData() ) );
 				LOG.debug( "removing frame listeners" );
@@ -250,8 +259,14 @@ public class EditorDataProxy<Type> extends au.edu.qut.yawl.persistence.managed.D
 				LOG.debug( "adding frame listener for editor: " + _editor.getClass().getName() );
 				_editor.addInternalFrameListener( getInternalFrameListener( _editor ) );
 			}
-			return _editor;
+        }
+        return _editor;
 	}
+    
+    public void editorClosed() {
+        // TODO
+        this._editor = null;
+    }
     
     private String getIdString( Object data ) {
         if( data instanceof YExternalNetElement ) {
@@ -343,7 +358,7 @@ public class EditorDataProxy<Type> extends au.edu.qut.yawl.persistence.managed.D
 	 */
 	public void removeEditorFrameListeners() {
 		if( _editor != null ) {
-			_editor.removeEditorFrameListeners();
+			_editor.removeInternalFrameListeners();
 		}
 	}
 
