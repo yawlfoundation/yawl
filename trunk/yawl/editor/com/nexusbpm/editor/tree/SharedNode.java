@@ -72,7 +72,6 @@ implements DataProxyStateChangeListener {
 			_proxy = proxy;
 			_proxy.setTreeNode(this);
 			_proxy.addChangeListener( this );
-			setUserObject(proxy.getData());
 		}
 	}
 
@@ -98,11 +97,13 @@ implements DataProxyStateChangeListener {
 
 	public void proxyAttached(DataProxy proxy, Object data, DataProxy parent) {
         childCount = null;
+        setUserObject(data);
     }
-	public void proxyDetached(DataProxy proxy, Object data) {
+    public void proxyDetached(DataProxy proxy, Object data, DataProxy parent) {
+        // TODO should we call  setUserObject( null );  ?
         childCount = null;
-		LOG.info("shared node rec'd detach " + proxy.getLabel() + ":" + data.toString());		
-	}
+        LOG.info("shared node rec'd detach " + proxy.getLabel() + ":" + data.toString());		
+    }
 		
 	/**
 	 * Sets this node to ignore or not ignore property change events from this

@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
@@ -47,7 +48,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 	private boolean _uiInitialized;
     
     protected NexusServiceData data;
-    public void proxyDetached(DataProxy proxy, Object data) {}
+    public void proxyDetached(DataProxy proxy, Object data, DataProxy parent) {}
     public void proxyAttached(DataProxy proxy, Object data, DataProxy parent) {}
 
     
@@ -283,8 +284,17 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 	public abstract void saveAttributes() throws EditorException;
     
     public final void persistAttributes() {
-        YAtomicTask task = (YAtomicTask) _proxy.getData();
-        data.marshal( task.getParent(), task.getID() );
+        if( _proxy.getData() instanceof YAtomicTask ) {
+            YAtomicTask task = (YAtomicTask) _proxy.getData();
+            data.marshal( task.getParent(), task.getID() );
+        }
+        else if( _proxy.getData() instanceof YNet ) {
+            // TODO
+            LOG.warn( "Not persisting changes to net" );
+        }
+        else {
+            LOG.error( "Cannot persist changes" );
+        }
     }
 
 	/**
@@ -312,17 +322,14 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 	 *
 	 * @throws Throwable not thrown in the code.
 	 */
-	public void clear() throws Throwable {
+	public void frameClosed() throws Exception {
+        // TODO XXX
 		if( LOG.isDebugEnabled() ) {
 			LOG.debug( "ComponentEditor.clear " + getClass().getName() );
 		}
 
 		if( null != _proxy ) {
 			_proxy.removeChangeListener( this );
-
-// nulling controller is really bad, it makes saveAttributes fail - understanding why would make me feel better
-//			_proxy = null;
-
 		}
 
 		setFrameIcon( null );
@@ -336,34 +343,28 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 //		isDirtyChangeListener = null;
 		isDirtyKeyAdapter = null;
 
-		super.clear();
-
-/*
-		if (!isDirty()) {
-			_proxy = null;  // 2005-05-16 15:08 mjf
-		}
-*/
+		super.frameClosed();
 	}
 
 
-	/**
-	 * Cleans up any resources held by this editor. If this method is overriden
-	 * by a subclass, it MUST call this method (ie, <tt>super.finalize()</tt>).
-	 *
-	 * @throws Throwable declared by superclass definition of finalize() but
-	 *                   not thrown in the code.
-	 */
-	public void finalize() throws Throwable {
-		if( LOG.isDebugEnabled() ) {
-			LOG.debug( "ComponentEditor.finalize " + getClass().getName() );
-		}
-		clear();
-
-		// need to delay this so if deleting component but component on desktop - this will be handled correctly
-		// though with hack on ClosingFrameListener - menu will be updated in ClosingFrameListener.finalize
-		removeEditorFrameListeners();
-
-		super.finalize();
-	}
+//	/**
+//	 * Cleans up any resources held by this editor. This method calls {@link #clear()}
+//     * and {@link CapselaInternalFrame#removeEditorFrameListeners()}.
+//	 *
+//	 * @throws Throwable declared by superclass definition of finalize() but
+//	 *                   not thrown in the code.
+//	 */
+//	public final void finalize() throws Throwable {
+//		if( LOG.isDebugEnabled() ) {
+//			LOG.debug( "ComponentEditor.finalize " + getClass().getName() );
+//		}
+//		clear();
+//
+//		// need to delay this so if deleting component but component on desktop - this will be handled correctly
+//		// though with hack on ClosingFrameListener - menu will be updated in ClosingFrameListener.finalize
+//		removeInternalFrameListeners();
+//
+//		super.finalize();
+//	}
 
 }

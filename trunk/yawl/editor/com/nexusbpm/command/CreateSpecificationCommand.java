@@ -12,7 +12,6 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
-import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
@@ -63,8 +62,7 @@ public class CreateSpecificationCommand extends AbstractCommand {
     @Override
     protected void perform() throws Exception {
         specification = WorkflowOperation.createSpecification(
-                parentNode.getProxy().getData().toString(), specName );
+                parentNode.getProxy().getData().toString(), specName, "Specification" );
         specProxy = context.createProxy( specification, (SharedNodeTreeModel) parentNode.getTreeModel() );
-        new SharedNode( (EditorDataProxy) specProxy );
     }
 }

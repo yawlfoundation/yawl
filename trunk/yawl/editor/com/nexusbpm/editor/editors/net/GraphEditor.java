@@ -2,7 +2,6 @@ package com.nexusbpm.editor.editors.net;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -45,7 +44,6 @@ import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.GraphSelectionModel;
 import org.jgraph.graph.Port;
-import org.jgraph.graph.PortView;
 import org.jgraph.layout.SugiyamaLayoutAlgorithm;
 import org.jgraph.util.JGraphParallelEdgeRouter;
 import org.jgraph.util.JGraphUtilities;
@@ -56,12 +54,7 @@ import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
 
-import com.nexusbpm.command.Command;
-import com.nexusbpm.command.CompoundCommand;
-import com.nexusbpm.command.RemoveTaskCommand;
-import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.NetEditor;
 import com.nexusbpm.editor.editors.net.cells.FlowControlEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
@@ -82,154 +75,139 @@ import com.nexusbpm.editor.worker.GlobalEventQueue;
  * @author Dean Mao
  * @created Mar 15, 2004 
  */
-public class GraphEditor extends JPanel implements GraphSelectionListener, KeyListener, PropertyChangeListener {
+public class GraphEditor extends JPanel
+    implements GraphSelectionListener, KeyListener, PropertyChangeListener {
+    private static final Log LOG = LogFactory.getLog( GraphEditor.class );
 
-  private static final Log LOG = LogFactory.getLog(GraphEditor.class);
+    private final static ImageIcon ICON_FLOW_STATUS_OFF = ApplicationIcon.getIcon( "GraphEditor.flow_status_off" );
+//    private final static ImageIcon ICON_FLOW_STATUS_RUNNING = ApplicationIcon.getIcon( "GraphEditor.flow_status_running" );
+//    private final static ImageIcon ICON_FLOW_STATUS_PAUSED = ApplicationIcon.getIcon( "GraphEditor.flow_status_paused" );
+//    private final static ImageIcon ICON_FLOW_STATUS_STOPPED = ApplicationIcon.getIcon( "GraphEditor.flow_status_stopped" );
+    private final static ImageIcon ICON_KILL_FLOW = ApplicationIcon.getIcon( "GraphEditor.kill_flow" );
+    private final static ImageIcon ICON_PAUSE_FLOW = ApplicationIcon.getIcon( "GraphEditor.pause_flow" );
+    private final static ImageIcon ICON_RUN_FLOW = ApplicationIcon.getIcon( "GraphEditor.run_flow" );
+    private final static JGraphParallelEdgeRouter EDGE_ROUTER = JGraphParallelEdgeRouter.sharedInstance;
 
-  private final static ImageIcon ICON_FLOW_STATUS_OFF = ApplicationIcon.getIcon("GraphEditor.flow_status_off");
+    private NexusGraph _graph;
+    private NexusGraphModel _graphModel;
 
-  private final static ImageIcon ICON_FLOW_STATUS_RUNNING = ApplicationIcon.getIcon("GraphEditor.flow_status_running");
+    private NetEditor _netEditor;
+    private EditorDataProxy _netProxy;
 
-  private final static ImageIcon ICON_FLOW_STATUS_PAUSED = ApplicationIcon.getIcon("GraphEditor.flow_status_paused");
+    private Action _edgeEditModeAction;
+    private Action _remove;
+    private Action _openDataEditor;
 
-  private final static ImageIcon ICON_FLOW_STATUS_STOPPED = ApplicationIcon.getIcon("GraphEditor.flow_status_stopped");
+    private JToolBar _toolbar;
 
-  private final static ImageIcon ICON_KILL_FLOW = ApplicationIcon.getIcon("GraphEditor.kill_flow");
+    private JButton _runButton;
+    private JButton _statusIndicatorButton;
+    private JButton _killButton;
+    private JButton _pauseButton;
+    private JButton _flowCheckerButton;
 
-  private final static ImageIcon ICON_PAUSE_FLOW = ApplicationIcon.getIcon("GraphEditor.pause_flow");
+    private List _validationMessages;
 
-  private final static ImageIcon ICON_RUN_FLOW = ApplicationIcon.getIcon("GraphEditor.run_flow");
+    private boolean _isInstance;
+    private boolean _paused;
 
-  private final static JGraphParallelEdgeRouter EDGE_ROUTER = JGraphParallelEdgeRouter.sharedInstance;
+    private int _edgeEditMode = CONTROL_EDGE_MODE;
 
-  private NexusGraph _graph;
+    /**
+     * Creates a new graph editor to be contained in the given flow editor.
+     * @param isInstance whether the graph editor is for a flow instance.
+     * @param flowEditor the flow editor that is creating the graph editor.
+     */
+    public GraphEditor( boolean isInstance, NetEditor netEditor ) {
+        super();
+        _netEditor = netEditor;
+        _isInstance = isInstance;
+    }
 
-  private NexusGraphModel _graphModel;
+    /**
+     * @return the flow editor that created this graph editor.
+     */
+    public NetEditor getNetEditor() {
+        return _netEditor;
+    }
 
-  private Action _edgeEditModeAction;
+    /**
+     * @return whether this graph editor is for a flow instance.
+     */
+    public boolean isInstance() {
+        return _isInstance;
+    }
 
-  private JButton _runButton;
+    /**
+     * @return the proxy for the flow that this editor is for.
+     */
+    public EditorDataProxy getProxy() {
+        return _netProxy;
+    }
 
-  private EditorDataProxy _flowproxy;
-
-  private Action _remove;
-  
-  private Action _openDataEditor;
-
-  private JToolBar _toolbar;
-
-  private JButton _statusIndicatorButton;
-
-  private JButton _killButton;
-
-  private JButton _pauseButton;
-
-  private JButton _flowCheckerButton;
-
-  private List _validationMessages;
-
-  private boolean _isInstance;
-
-  private int _edgeEditMode = CONTROL_EDGE_MODE;
-
-  private boolean _paused;
-
-  private NetEditor _flowEditor;
-
-  /**
-   * Creates a new graph editor to be contained in the given flow editor.
-   * @param isInstance whether the graph editor is for a flow instance.
-   * @param flowEditor the flow editor that is creating the graph editor.
-   */
-  public GraphEditor(boolean isInstance, NetEditor flowEditor) {
-    super();
-    _flowEditor = flowEditor;
-    _isInstance = isInstance;
-  }
-  
-  /**
-   * @return the flow editor that created this graph editor.
-   */
-  public NetEditor getFlowEditor() {
-    return _flowEditor;
-  }
-
-  /**
-   * @return whether this graph editor is for a flow instance.
-   */
-  public boolean isInstance() {
-    return _isInstance;
-  }
-
-  /**
-   * @return the proxy for the flow that this editor is for.
-   */
-  public EditorDataProxy getProxy() {
-    return _flowproxy;
-  }
+    /**
+     * Sets the proxy for the flow that this editor is for.
+     * @param flowproxy the proxy for the flow.
+     */
+    public void setProxy( EditorDataProxy flowproxy ) {
+        _netProxy = flowproxy;
+    }
 
   /**
-   * Sets the proxy for the flow that this editor is for.
-   * @param flowproxy the proxy for the flow.
-   */
-  public void setProxy(EditorDataProxy flowproxy) {
-    _flowproxy = flowproxy;
-  }
+     * Graph editors are property change listeners for the corresponding flow, as
+     * well as for the components within that flow.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange( PropertyChangeEvent event ) {
+        throw new RuntimeException( "handle property change events for yawl" );
+//        String propertyName = event.getPropertyName();
+//        int status = -1;
+//        if( propertyName.equals( Component.ATTR_EXECUTION_STATUS + "." + ExecutionStatus.ATTR_STATUS ) ) {
+//            status = ( (Integer) event.getNewValue() ).intValue();
+//        }//if
+//        else if( propertyName.equals( Component.ATTR_EXECUTION_STATUS ) ) {
+//            ExecutionStatus executionStatus = (ExecutionStatus) event.getNewValue();
+//            status = executionStatus.getStatus();
+//        }//else if
+//        if( status == -1 ) return;
+//        DataProxy source = (DataProxy) event.getSource();
+//        if( source == this.getProxy() ) {
+//            // Execution status for the flow changed.
+//            LOG.debug( "The execution status of the flow has changed to " + status + "." );
+//            this.updateStatus( status );
+//        }//else
+//        else {
+//            // Execution status for one of the child components changed.
+//            long id = source.identifier().getId();
+//            LOG.debug( "Component " + id + " changed execution status to " + status + "." );
+//            switch( status ) {
+//                case ExecutionStatus.STATUS_RUNNING:
+//                    startCellAnimation( source );
+//                    break;
+//                case ExecutionStatus.STATUS_FINISHED:
+//                case ExecutionStatus.STATUS_STOPPED:
+//                case ExecutionStatus.STATUS_KILLED:
+//                case ExecutionStatus.STATUS_ERROR:
+//                    stopCellAnimation( source );
+//                    break;
+//            }//switch
+//            _graph.propertyChange( event );
+//            /// TODO you are doing the repaint stuff:  (for repainting specific region rectangles)
+//            CellView cellView = _graph.getGraphLayoutCache().getMapping( source.getGraphCell(), false );
+//            if( cellView != null ) {
+//                Rectangle2D bounds = cellView.getBounds();
+//                this.repaint( (int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth(), (int) bounds.getHeight() );
+//            }
+//            else {
+//                this.repaint();
+//            }
+//        }//else
+    }//propertyChange()
 
-  /**
-   * Graph editors are property change listeners for the corresponding flow, as
-   * well as for the components within that flow.
-   * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-   */
-  public void propertyChange(PropertyChangeEvent event) {
-	  throw new RuntimeException("handle property change events for yawl");
-//    String propertyName = event.getPropertyName();
-//    int status = -1;
-//    if (propertyName.equals(Component.ATTR_EXECUTION_STATUS + "." + ExecutionStatus.ATTR_STATUS)) {
-//      status = ((Integer) event.getNewValue()).intValue();
-//    }//if
-//    else if (propertyName.equals(Component.ATTR_EXECUTION_STATUS)) {
-//      ExecutionStatus executionStatus = (ExecutionStatus) event.getNewValue();
-//      status = executionStatus.getStatus();
-//    }//else if
-//    if (status == -1) return;
-//    DataProxy source = (DataProxy) event.getSource();
-//    if (source == this.getProxy()) {
-//      // Execution status for the flow changed.
-//      LOG.debug("The execution status of the flow has changed to " + status + ".");
-//      this.updateStatus(status);
-//    }//else
-//    else {
-//      // Execution status for one of the child components changed.
-//      long id = source.identifier().getId();
-//      LOG.debug("Component " + id + " changed execution status to " + status + ".");
-//      switch (status) {
-//        case ExecutionStatus.STATUS_RUNNING:
-//          startCellAnimation(source);
-//          break;
-//        case ExecutionStatus.STATUS_FINISHED:
-//        case ExecutionStatus.STATUS_STOPPED:
-//        case ExecutionStatus.STATUS_KILLED:
-//        case ExecutionStatus.STATUS_ERROR:
-//          stopCellAnimation(source);
-//          break;
-//      }//switch
-//      _graph.propertyChange(event);
-//      /// TODO you are doing the repaint stuff:  (for repainting specific region rectangles)
-//      CellView cellView = _graph.getGraphLayoutCache().getMapping(source.getGraphCell(), false);
-//      if (cellView != null) {
-//      Rectangle2D bounds = cellView.getBounds();
-//        this.repaint((int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth(), (int) bounds.getHeight());
-//      } else {
-//        this.repaint();
-//      }
-//    }//else
-  }//propertyChange()
-  
-  private void stopCellAnimation(EditorDataProxy proxy) {
-	  _animatedproxySet.remove(proxy);
-	  proxy.clearAnimatedIcon();
-  }
+    private void stopCellAnimation( EditorDataProxy proxy ) {
+        _animatedproxySet.remove( proxy );
+        proxy.clearAnimatedIcon();
+    }
 
 	private Set<EditorDataProxy> _animatedproxySet = new HashSet<EditorDataProxy>();
 	public void startCellAnimation( EditorDataProxy proxy ) {
@@ -254,27 +232,29 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 			animatedIcon.start();
 		}
 	}
-  
-  /**
-   * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
-   */
-  public void keyTyped(KeyEvent e) {
-    if (e.getKeyChar() == KeyEvent.VK_DELETE && this.isEditable()) {
-      this.deleteSelectedItems();
-    }
-  }
 
   /**
-   * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
-   */
-  public void keyPressed(KeyEvent e) {
-    if (e.isControlDown()) {
-      if ('c' == e.getKeyChar()) {
-    	  throw new RuntimeException("implement copy operation");
-      } else if ('v' == e.getKeyChar()) {
-    	  throw new RuntimeException("implement paste operation");
-      } else if ('p' == e.getKeyChar()) {
-    	  throw new RuntimeException("implement paste operation?  ctrl-p usually means print...  who knows?");
+     * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+     */
+    public void keyTyped( KeyEvent e ) {
+        if( e.getKeyChar() == KeyEvent.VK_DELETE && this.isEditable() ) {
+            this.deleteSelectedItems();
+        }
+    }
+
+    /**
+     * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+     */
+    public void keyPressed( KeyEvent e ) {
+        if( e.isControlDown() ) {
+            if( 'c' == e.getKeyChar() ) {
+                throw new RuntimeException( "implement copy operation" );
+            }
+            else if( 'v' == e.getKeyChar() ) {
+                throw new RuntimeException( "implement paste operation" );
+            }
+            else if( 'p' == e.getKeyChar() ) {
+                throw new RuntimeException( "implement paste operation?  ctrl-p usually means print...  who knows?" );
 //        if (WorkflowEditor.isCopyAction()) {
 //          Iterator iter = WorkflowEditor.getCopyOrCutNodeSet().iterator();
 //          while (iter.hasNext()) {
@@ -306,100 +286,99 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //          }
 //        }
 //        WorkflowEditor.setCopyOrCutNodeSet(new HashSet());
-      }
+            }
+        }
     }
-  }
 
-  /**
-   * Empty implementation.
-   * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
-   */
-  public void keyReleased(KeyEvent e) {
-    // Empty.
-  }
-
-  /**
-   * @return the set of selected component nodes.
-   */
-  public Set getSelectedSharedNodes() {
-    Set<SharedNode> SharedNodeSet = new HashSet<SharedNode>();
-    if (!_graph.isSelectionEmpty()) {
-      Object[] cells = _graph.getSelectionCells();
-      for (int i = 0; i < cells.length; i++) {
-        NexusCell currentCell = (NexusCell) cells[i];
-        SharedNodeSet.add(currentCell.getProxy().getTreeNode());
-      }
+    /**
+     * Empty implementation.
+     * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+     */
+    public void keyReleased( KeyEvent e ) {
+        // Empty.
     }
-    return SharedNodeSet;
-  }
 
-  /**
-   * Removes all cells from the graph.
-   */
-  public void removeEverything() {
-    Object[] roots = _graph.getRoots();
-    _graph.getGraphLayoutCache().remove(roots);
-  }
+    /**
+     * @return the set of selected component nodes.
+     */
+    public Set getSelectedSharedNodes() {
+        Set<SharedNode> SharedNodeSet = new HashSet<SharedNode>();
+        if( !_graph.isSelectionEmpty() ) {
+            Object[] cells = _graph.getSelectionCells();
+            for( int i = 0; i < cells.length; i++ ) {
+                NexusCell currentCell = (NexusCell) cells[ i ];
+                SharedNodeSet.add( currentCell.getProxy().getTreeNode() );
+            }
+        }
+        return SharedNodeSet;
+    }
 
-  /**
-   * Initializes the graph editor for the flow template specified by the given
-   * component node.
-   * @param node the component node representing the flow template.
-   * @throws EditorException not thrown in the code
-   */
-  public void initialize(SharedNode node) throws EditorException {
-    _flowproxy = node.getProxy();
-    _toolbar = createToolBar();
+    /**
+     * Removes all cells from the graph.
+     */
+    public void removeEverything() {
+        Object[] roots = _graph.getRoots();
+        _graph.getGraphLayoutCache().remove( roots );
+    }
 
-    this.setLayout(new BorderLayout());
-    _graphModel = new NexusGraphModel();
-    _graph = new NexusGraph(_graphModel, this, node);
-    _graph.getSelectionModel().addGraphSelectionListener(this);
-    _graph.addKeyListener(this);
+    /**
+     * Initializes the graph editor for the flow template specified by the given
+     * component node.
+     * @param node the component node representing the flow template.
+     * @throws EditorException not thrown in the code
+     */
+    public void initialize( SharedNode node ) throws EditorException {
+        _netProxy = node.getProxy();
+        _toolbar = createToolBar();
 
-    add(_toolbar, BorderLayout.NORTH);
-    add(new JScrollPane(_graph), BorderLayout.CENTER);
-  }
+        this.setLayout( new BorderLayout() );
+        _graphModel = new NexusGraphModel();
+        _graph = new NexusGraph( _graphModel, this, node );
+        _graph.getSelectionModel().addGraphSelectionListener( this );
+        _graph.addKeyListener( this );
 
-  /**
-   * Adds the specified graph selection listener to the graph's listener list.
-   * @param listener the listener to add.
-   */
-  public void addGraphSelectionListener(GraphSelectionListener listener) {
-    _graph.getSelectionModel().addGraphSelectionListener(listener);
-  }
+        add( _toolbar, BorderLayout.NORTH );
+        add( new JScrollPane( _graph ), BorderLayout.CENTER );
+    }
 
-	/**
-	 * Removes the specified graph selection listener from the graph's listener
-	 * list.
-	 * @param listener the listener to remove.
-	 */
-	public void removeGraphSelectionListener( GraphSelectionListener listener ) {
-		LOG.debug("removeGraphSelectionListener");
-		if( null != _graph ) {
-			GraphSelectionModel selectionModel = _graph.getSelectionModel();
-			if( null != selectionModel ) {
-				selectionModel.removeGraphSelectionListener( listener );
-			}
-			else
-				LOG.debug("Selection Model is empty");
-		}
-		else
-			LOG.debug("Graph is empty");
-	}
+    /**
+     * Adds the specified graph selection listener to the graph's listener list.
+     * @param listener the listener to add.
+     */
+    public void addGraphSelectionListener( GraphSelectionListener listener ) {
+        _graph.getSelectionModel().addGraphSelectionListener( listener );
+    }
 
-  /**
-   * Initializes this graph editor to show a flow instance. The domain object
-   * corresponding to the proxy passed in MUST ALREADY BE FULLY
-   * INITIALIZED.
-   * @param instanceproxy the proxy for the flow instance.
-   * @throws EditorException if there is an error getting the local population
-   *                          data for the instance.
-   */
-  public void initializeInstance(EditorDataProxy instanceproxy) throws EditorException {
-    _isInstance = true;
-    _flowproxy = instanceproxy;
+    /**
+     * Removes the specified graph selection listener from the graph's listener
+     * list.
+     * @param listener the listener to remove.
+     */
+    public void removeGraphSelectionListener( GraphSelectionListener listener ) {
+        LOG.debug( "removeGraphSelectionListener" );
+        if( null != _graph ) {
+            GraphSelectionModel selectionModel = _graph.getSelectionModel();
+            if( null != selectionModel ) {
+                selectionModel.removeGraphSelectionListener( listener );
+            }
+            else
+                LOG.debug( "Selection Model is empty" );
+        }
+        else
+            LOG.debug( "Graph is empty" );
+    }
 
+    /**
+     * Initializes this graph editor to show a flow instance. The domain object
+     * corresponding to the proxy passed in MUST ALREADY BE FULLY
+     * INITIALIZED.
+     * @param instanceproxy the proxy for the flow instance.
+     * @throws EditorException if there is an error getting the local population
+     *                          data for the instance.
+     */
+    public void initializeInstance( EditorDataProxy instanceproxy ) throws EditorException {
+        _isInstance = true;
+        _netProxy = instanceproxy;
 //	  addPropertyChangeListener( _flowproxy, this);
 //    FlowComponent flow = flowComponent;
 //    for (Iterator i = flow.getComponents().iterator(); i.hasNext();) {
@@ -408,33 +387,32 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //
 //		addPropertyChangeListener(ctrl, this);
 //    }
+        setLayout( new BorderLayout() );
+        _graphModel = new NexusGraphModel();
+        _graph = new NexusGraph( _graphModel, this, instanceproxy );
+        _graph.getSelectionModel().addGraphSelectionListener( this );
 
-    setLayout(new BorderLayout());
-    _graphModel = new NexusGraphModel();
-    _graph = new NexusGraph(_graphModel, this, instanceproxy);
-    _graph.getSelectionModel().addGraphSelectionListener(this);
+        _toolbar = createToolBar();
+        this.add( _toolbar, BorderLayout.NORTH );
+        this.add( new JScrollPane( _graph ), BorderLayout.CENTER );
 
-    _toolbar = createToolBar();
-    this.add(_toolbar, BorderLayout.NORTH);
-    this.add(new JScrollPane(_graph), BorderLayout.CENTER);
-    
-    throw new RuntimeException("Figure out how we do instances in yawl editor");
-  }
+        throw new RuntimeException( "Figure out how we do instances in yawl editor" );
+    }
 
-  /**
-   * Locks the graph so that nothing can be moved.
-   */
-  public void lockGraph() {
-    _graph.lockGraph();
-  }
+    /**
+     * Locks the graph so that nothing can be moved.
+     */
+    public void lockGraph() {
+        _graph.lockGraph();
+    }
 
 	/**
 	 * Description of the Method
 	 */
 	public void saveAttributes() {
-		DataContext dc = _flowproxy.getContext();
+		DataContext dc = _netProxy.getContext();
 		DataContext s;
-		YSpecification spec = ((YNet)_flowproxy.getData()).getParent();
+		YSpecification spec = ((YNet)_netProxy.getData()).getParent();
 		dc.save(dc.getDataProxy(spec, null));
 	
 		throw new RuntimeException("save all the position/bounds for all cell objects in graph");
@@ -485,14 +463,14 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //		}
 	}
 
-  /**
-   * Inserts a cell for the specified domain object proxy's component at
-   * the specified location.
-   */
-  public void insert(EditorDataProxy ctrl) throws EditorException {
-    this.initializeCellAndPort(ctrl);
-    NexusCell cell = ctrl.getGraphCell();
-    throw new RuntimeException("insert the object into the graph with the location properly restored");
+    /**
+     * Inserts a cell for the specified domain object proxy's component at
+     * the specified location.
+     */
+    public void insert( EditorDataProxy ctrl ) throws EditorException {
+//    this.initializeCellAndPort(ctrl);
+        NexusCell cell = ctrl.getGraphCell();
+        throw new RuntimeException("insert the object into the graph with the location properly restored");
 //    Component c = (Component) ctrl.getPersistentDomainObject();
 //    Map map = createComponentAttributeMap(c);
 //    Hashtable<CapselaCell, Map> attributes = new Hashtable<CapselaCell, Map>();
@@ -500,54 +478,36 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //    Point location = new Point(c.getFlowLocation().getLocation());
 //    _graph.snap(location);
 //    _graph.getGraphLayoutCache().insert(new Object[] { cell }, attributes, null, null, null);
-  }
+    }
 
-  /**
-   * Connects two cells with an edge.
-   */
-	public GraphEdge connect( NexusCell source, NexusCell target, boolean isDataEdge, EditorDataProxy edgeproxy ) {
-		LOG.debug( "Connecting two cells." );
-		SharedNode flowNode = _flowproxy.getTreeNode();
-		SharedNode sourceNode = source.getProxy().getTreeNode();
-		SharedNode targetNode = target.getProxy().getTreeNode();
-		if( flowNode.isNodeChild( sourceNode ) && flowNode.isNodeChild( targetNode ) ) {
-			Port sourcePort = source.getProxy().getGraphPort();
-			Port targetPort = target.getProxy().getGraphPort();
-			GraphEdge edge = null;  // TODO XXX implement this properly for yawl!!
-			ConnectionSet cs = new ConnectionSet();
-			cs.connect( edge, sourcePort, targetPort );
+    /**
+     * Connects two cells with an edge.
+     */
+    public GraphEdge connect( NexusCell source, NexusCell target, boolean isDataEdge, EditorDataProxy edgeproxy ) {
+        LOG.debug( "Connecting two cells." );
+        SharedNode netNode = _netProxy.getTreeNode();
+        SharedNode sourceNode = source.getProxy().getTreeNode();
+        SharedNode targetNode = target.getProxy().getTreeNode();
+        if( netNode.isNodeChild( sourceNode ) && netNode.isNodeChild( targetNode ) ) {
+            Port sourcePort = source.getProxy().getGraphPort();
+            Port targetPort = target.getProxy().getGraphPort();
+            GraphEdge edge = null; // TODO XXX implement this properly for yawl!!
+            ConnectionSet cs = new ConnectionSet();
+            cs.connect( edge, sourcePort, targetPort );
 
-			Map map = createEdgeAttributeMap( isDataEdge );
-			GraphConstants.setRouting( map, EDGE_ROUTER );
-			GraphConstants.setLineStyle( map, GraphConstants.STYLE_BEZIER );
-			Hashtable<GraphEdge, Map> attributes = new Hashtable<GraphEdge, Map>();
-			attributes.put( edge, map );
+            Map map = createEdgeAttributeMap( isDataEdge );
+            GraphConstants.setRouting( map, EDGE_ROUTER );
+            GraphConstants.setLineStyle( map, GraphConstants.STYLE_BEZIER );
+            Hashtable<GraphEdge, Map> attributes = new Hashtable<GraphEdge, Map>();
+            attributes.put( edge, map );
 
-			_graph.getGraphLayoutCache().insert( new Object[] { edge }, attributes, cs, null, null );
-			return edge;
-		}
-		else {
-			return null;
-		}
-	}
-
-	/**
-	 * Ensures that the cell and port corresponding to the specified proxy
-	 * are initialiazed, and returns the cell. A component's cell and port MUST be
-	 * initialized before they are added to the graph.
-	 */
-	private void initializeCellAndPort( EditorDataProxy ctrl ) {
-		NexusCell cell = ctrl.getGraphCell();
-		GraphPort port = ctrl.getGraphPort();
-		if( port == null ) {
-			port = new GraphPort( ctrl );
-		}
-		if( cell == null ) {
-			cell = new NexusCell( ctrl );
-			cell.add( port );
-		}
-//		addPropertyChangeListener( ctrl, _graph );
-	}
+            _graph.getGraphLayoutCache().insert( new Object[] { edge }, attributes, cs, null, null );
+            return edge;
+        }
+        else {
+            return null;
+        }
+    }
 
 //	protected void addPropertyChangeListener(DomainObjectProxy domainObjectProxy, PropertyChangeListener propertyChangeListener) {
 //		if (domainObjectProxy.addPropertyChangeListener( propertyChangeListener)) {
@@ -575,119 +535,118 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //		proxyListeners.clear();
 //	}
 
-  /**
-   * Ensures that the graph edge corresponding to the specified proxy is
-   * initialized, and returns said edge. An edge's graph edge MUST be
-   * initialized before it is added to the graph.
-   */
-  private GraphEdge initializeGraphEdge(EditorDataProxy ctrl) {
-    GraphEdge graphEdge = ctrl.getGraphEdge();
-    if (graphEdge == null) {
-    	YFlow componentEdge = (YFlow) ctrl.getData();
+    /**
+     * Ensures that the graph edge corresponding to the specified proxy is
+     * initialized, and returns said edge. An edge's graph edge MUST be
+     * initialized before it is added to the graph.
+     */
+    private GraphEdge initializeGraphEdge( EditorDataProxy ctrl ) {
+        GraphEdge graphEdge = ctrl.getGraphEdge();
+        if( graphEdge == null ) {
+            YFlow componentEdge = (YFlow) ctrl.getData();
 //      if (componentEdge instanceof FlowControlEdge) {
-        graphEdge = new FlowControlEdge(ctrl);
-        graphEdge.setUserObject(((YFlow) componentEdge).toString());
+            graphEdge = new FlowControlEdge(ctrl);
+            graphEdge.setUserObject(((YFlow) componentEdge).toString());
 //      } else {
 //        graphEdge = new FlowDataEdge(ctrl);
 //      }
-      ctrl.setGraphEdge(graphEdge);
-    }
-    return graphEdge;
-  }
-
-  /**
-   * Creates the attribute map for the specified component. The attribute map is
-   * required by JGraph to add the component's cell to the graph.
-   */
-  private Map createComponentAttributeMap(Object c) {
-    Map map = new AttributeMap();
-//    GraphConstants.setBounds(map, new Rectangle(c.getFlowLocation()));
-    if (c instanceof ExtensionListContainer) {
-    	ExtensionListContainer container = (ExtensionListContainer) c;
-//    	for (Element e: container.getInternalExtensions()) {
-//    		e.getAttribute(getName());
-//    	}
-    }
-    GraphConstants.setBorderColor(map, Color.black);
-    GraphConstants.setBackground(map, Color.white);
-    GraphConstants.setOpaque(map, true);
-    return map;
-  }
-
-  /**
-   * Creates the attribute map for the specified edge. The attribute map is
-   * required by JGraph to add the edge to the graph.
-   */
-  public static Map createEdgeAttributeMap(boolean isDataEdge) {
-    Map map = new AttributeMap();
-    if (isDataEdge) {
-      GraphConstants.setLineColor(map, new Color(150, 0, 0));
-      GraphConstants.setDashPattern(map, new float[] { 8f, 4f });
-      GraphConstants.setLineWidth(map, 1.0f);
-    } else {
-      GraphConstants.setLineColor(map, Color.BLACK);
-      GraphConstants.setLineWidth(map, 1.0f);
-      GraphConstants.setLabelAlongEdge(map, true);
-    }
-    GraphConstants.setLineStyle(map, GraphConstants.STYLE_BEZIER);
-    GraphConstants.setRouting(map, EDGE_ROUTER);
-    GraphConstants.setDisconnectable(map, true);
-    GraphConstants.setLineEnd(map, GraphConstants.ARROW_TECHNICAL);
-    return map;
-  }
-
-  /**
-   * Returns <code>true</code> if this graph editor is in data edit mode.
-   */
-  public boolean isDataEditMode() {
-    return _edgeEditMode == DATA_EDGE_MODE;
-  }
-
-  /**
-   * Removes the specified component from the graph. Note that this method does
-   * not and should not modify the flow itself (ie remove the component from the
-   * flow).
-   */
-  public void remove(EditorDataProxy dec) {
-    _graph.getGraphLayoutCache().remove(new Object[] { dec.getJGraphObject() });
-	_graph.getGraphLayoutCache().removeMapping(dec.getJGraphObject());
-  }
-
-  /**
-   * @see GraphSelectionListener#valueChanged(GraphSelectionEvent)
-   */
-  public void valueChanged(GraphSelectionEvent e) {
-    boolean enabled = (!_graph.isSelectionEmpty()) && this.isEditable();
-    if (_remove != null) {
-      _remove.setEnabled(enabled);
-    }
-  }
-  
-  /**
-   * Creates the popup menu for the specified cell.
-   */
-  public JPopupMenu createPopupMenu(final Object cell) {
-
-    if (cell == null) {
-      return null;
+            ctrl.setGraphEdge(graphEdge);
+        }
+        return graphEdge;
     }
 
-    JPopupMenu menu = new JPopupMenu();
+    /**
+     * Creates the attribute map for the specified component. The attribute map is
+     * required by JGraph to add the component's cell to the graph.
+     */
+    private Map createComponentAttributeMap( Object c ) {
+        Map map = new AttributeMap();
+//        GraphConstants.setBounds(map, new Rectangle(c.getFlowLocation()));
+        if (c instanceof ExtensionListContainer) {
+            ExtensionListContainer container = (ExtensionListContainer) c;
+//            for (Element e: container.getInternalExtensions()) {
+//                e.getAttribute(getName());
+//            }
+        }
+        GraphConstants.setBorderColor(map, Color.black);
+        GraphConstants.setBackground(map, Color.white);
+        GraphConstants.setOpaque(map, true);
+        return map;
+    }
 
-    Action editAction = new AbstractAction("Edit") {
-      public void actionPerformed(ActionEvent e) {
-        _graph.startEditingAtCell(cell);
-      }
-    };
-    boolean isComponent = (cell instanceof NexusCell);
-    //boolean isDataEdge = (cell instanceof FlowDataEdge);
-    menu.add(editAction);
+    /**
+     * Creates the attribute map for the specified edge. The attribute map is
+     * required by JGraph to add the edge to the graph.
+     */
+    public static Map createEdgeAttributeMap( boolean isDataEdge ) {
+        Map map = new AttributeMap();
+        if( isDataEdge ) {
+            GraphConstants.setLineColor( map, new Color( 150, 0, 0 ) );
+            GraphConstants.setDashPattern( map, new float[] { 8f, 4f } );
+            GraphConstants.setLineWidth( map, 1.0f );
+        }
+        else {
+            GraphConstants.setLineColor( map, Color.BLACK );
+            GraphConstants.setLineWidth( map, 1.0f );
+            GraphConstants.setLabelAlongEdge( map, true );
+        }
+        GraphConstants.setLineStyle( map, GraphConstants.STYLE_BEZIER );
+        GraphConstants.setRouting( map, EDGE_ROUTER );
+        GraphConstants.setDisconnectable( map, true );
+        GraphConstants.setLineEnd( map, GraphConstants.ARROW_TECHNICAL );
+        return map;
+    }
 
-    if (isComponent) {
-      final NexusCell capselaCell = (NexusCell) cell;
-      EditorDataProxy proxy = capselaCell.getProxy();
-      final Object component = proxy.getData();
-      
+    /**
+     * Returns <code>true</code> if this graph editor is in data edit mode.
+     */
+    public boolean isDataEditMode() {
+        return _edgeEditMode == DATA_EDGE_MODE;
+    }
+
+    /**
+     * Removes the specified component from the graph. Note that this method does
+     * not and should not modify the net itself (ie remove the component from the
+     * net).
+     */
+    public void remove( EditorDataProxy dec ) {
+        _graph.getGraphLayoutCache().remove( new Object[] { dec.getJGraphObject() } );
+        _graph.getGraphLayoutCache().removeMapping( dec.getJGraphObject() );
+    }
+
+    /**
+     * @see GraphSelectionListener#valueChanged(GraphSelectionEvent)
+     */
+    public void valueChanged( GraphSelectionEvent e ) {
+        boolean enabled = ( !_graph.isSelectionEmpty() ) && this.isEditable();
+        if( _remove != null ) {
+            _remove.setEnabled( enabled );
+        }
+    }
+
+    /**
+     * Creates the popup menu for the specified cell.
+     */
+    public JPopupMenu createPopupMenu( final Object cell ) {
+
+        if( cell == null ) { return null; }
+
+        JPopupMenu menu = new JPopupMenu();
+
+        Action editAction = new AbstractAction( "Edit" ) {
+            public void actionPerformed( ActionEvent e ) {
+                _graph.startEditingAtCell( cell );
+            }
+        };
+        boolean isComponent = ( cell instanceof NexusCell );
+        //boolean isDataEdge = (cell instanceof FlowDataEdge);
+        menu.add( editAction );
+
+        if( isComponent ) {
+            final NexusCell capselaCell = (NexusCell) cell;
+            EditorDataProxy proxy = capselaCell.getProxy();
+            final Object component = proxy.getData();
+
 //      if( component != null ) {
 //    	  if( component.isInstance() != true ) {
 //    		  menu.addSeparator();
@@ -733,108 +692,110 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //    		  }
 //    	  }
 //      }
-      
-      menu.addSeparator();
 
-      menu.add(new AbstractAction("Properties") {
-        public void actionPerformed(ActionEvent e) {
-          _graph.startBasicEditingAtCell(capselaCell);
+            menu.addSeparator();
+
+            menu.add( new AbstractAction( "Properties" ) {
+                public void actionPerformed( ActionEvent e ) {
+                    _graph.startBasicEditingAtCell( capselaCell );
+                }
+            } );
         }
-      });
+
+        menu.addSeparator();
+
+        Action deleteAction = new AbstractAction( "Delete" ) {
+            public void actionPerformed( ActionEvent e ) {
+                _remove.actionPerformed( e );
+                //        checkFlow();
+            }
+        };
+        deleteAction.setEnabled( this.isEditable() );
+        menu.add( deleteAction );
+
+        return menu;
     }
 
-    menu.addSeparator();
-
-    Action deleteAction = new AbstractAction("Delete") {
-      public void actionPerformed(ActionEvent e) {
-        _remove.actionPerformed(e);
-//        checkFlow();
-      }
-    };
-    deleteAction.setEnabled(this.isEditable());
-    menu.add(deleteAction);
-
-    return menu;
-  }
-
-  /**
-   * Returns <code>true</code> if this graph is editable. A graph is editable
-   * if it does not represent an instance and it is not locked by someone else.
-   */
-  private boolean isEditable() {
-	  return true;
-  }
-
-  /**
-   * Retrieves a list of items that should be removed from the graph if the
-   * currently selected items are to be removed, including: - The
-   * DomainObjectproxys for the currently selected GraphPorts, CapselaCells
-   * and GraphEdges. - The DomainObjectproxys for all the GraphEdges
-   * connected to the selected GraphPorts and CapselaCells.
-   * 
-   * Since this method returns a Set, there are not duplicate
-   * DomainObjectproxys returned.
-   */
-  private Set getRemoveSet() {
-
-    // Add the currently selected GraphPorts and GraphEdges to the delete list.
-    HashSet<EditorDataProxy> removeSet = new HashSet<EditorDataProxy>();
-    Object[] selectedArray = _graph.getSelectionCells();
-    for (int i = 0; i < selectedArray.length; i++) {
-      Object selected = selectedArray[i];
-      if (selected instanceof GraphPort) {
-        removeSet.add(((GraphPort) selected).getProxy());
-      } else if (selected instanceof GraphEdge) {
-        removeSet.add(((GraphEdge) selected).getProxy());
-      } else if (selected instanceof NexusCell) {
-        removeSet.add(((NexusCell) selected).getProxy());
-      }
+    /**
+     * Returns <code>true</code> if this graph is editable. A graph is editable
+     * if it does not represent an instance and it is not locked by someone else.
+     */
+    private boolean isEditable() {
+        return true;
     }
 
-    // Add the GraphEdges connected to the selected GraphPorts.
-    for (int i = 0; i < selectedArray.length; i++) {
-      Object selected = selectedArray[i];
-      Object[] descendants = _graph.getDescendants(new Object[] { selected });
-      for (int j = 0; j < descendants.length; j++) {
-        Object descendant = descendants[j];
-        if (descendant instanceof GraphPort) {
-          GraphPort port = (GraphPort) descendant;
-          for (Iterator iter = port.edges(); iter.hasNext();) {
-            EditorDataProxy doc = ((GraphEdge) iter.next()).getProxy();
-            removeSet.add(doc);
-          }
+    /**
+     * Retrieves a list of items that should be removed from the graph if the
+     * currently selected items are to be removed, including: - The
+     * DomainObjectproxys for the currently selected GraphPorts, CapselaCells
+     * and GraphEdges. - The DomainObjectproxys for all the GraphEdges
+     * connected to the selected GraphPorts and CapselaCells.
+     * 
+     * Since this method returns a Set, there are not duplicate
+     * DomainObjectproxys returned.
+     */
+    private Set getRemoveSet() {
+
+        // Add the currently selected GraphPorts and GraphEdges to the delete list.
+        HashSet<EditorDataProxy> removeSet = new HashSet<EditorDataProxy>();
+        Object[] selectedArray = _graph.getSelectionCells();
+        for( int i = 0; i < selectedArray.length; i++ ) {
+            Object selected = selectedArray[ i ];
+            if( selected instanceof GraphPort ) {
+                removeSet.add( ( (GraphPort) selected ).getProxy() );
+            }
+            else if( selected instanceof GraphEdge ) {
+                removeSet.add( ( (GraphEdge) selected ).getProxy() );
+            }
+            else if( selected instanceof NexusCell ) {
+                removeSet.add( ( (NexusCell) selected ).getProxy() );
+            }
         }
-      }
+
+        // Add the GraphEdges connected to the selected GraphPorts.
+        for( int i = 0; i < selectedArray.length; i++ ) {
+            Object selected = selectedArray[ i ];
+            Object[] descendants = _graph.getDescendants( new Object[] { selected } );
+            for( int j = 0; j < descendants.length; j++ ) {
+                Object descendant = descendants[ j ];
+                if( descendant instanceof GraphPort ) {
+                    GraphPort port = (GraphPort) descendant;
+                    for( Iterator iter = port.edges(); iter.hasNext(); ) {
+                        EditorDataProxy doc = ( (GraphEdge) iter.next() ).getProxy();
+                        removeSet.add( doc );
+                    }
+                }
+            }
+        }
+
+        // Return the compiled list.
+        return removeSet;
     }
 
-    // Return the compiled list.
-    return removeSet;
-  }
+    private void deleteSelectedItems() {
+        LOG.info( "GraphEditor.deleteSelectedItems" );
+        Object[] cells = _graph.getSelectionCells();
+        for( Object cell : cells ) {
+            if( cell instanceof NexusCell ) {
+                NexusCell ncell = (NexusCell) cell;
+                GraphPort port = ncell.getProxy().getGraphPort();
+                LOG.info( "Items:" + cell + ":" + port );
+                Set<Edge> edges = new HashSet<Edge>( port.getEdges() );
+                for( Edge edge : edges ) {
+                    LOG.info( "Edge:" + edge );
+                    _graph.getGraphLayoutCache().remove( new Object[] { edge } );
+                    _graph.getGraphLayoutCache().removeMapping( new Object[] { edge } );
+                }
+                _graph.getGraphLayoutCache().remove( new Object[] { port } );
+                _graph.getGraphLayoutCache().removeMapping( new Object[] { port } );
+            }
+        }
+        this._graph.getGraphLayoutCache().remove( _graph.getSelectionCells() );
+        this._graph.getGraphLayoutCache().removeMapping( _graph.getSelectionCells() );
+    }
 
-  private void deleteSelectedItems() {
-		LOG.info("GraphEditor.deleteSelectedItems");
-		Object[] cells = _graph.getSelectionCells();
-		for (Object cell: cells) {
-			if (cell instanceof NexusCell) {
-				NexusCell ncell = (NexusCell) cell;
-				GraphPort port = ncell.getProxy().getGraphPort();
-				LOG.info("Items:" + cell + ":" + port);
-				Set<Edge> edges = new HashSet<Edge>(port.getEdges());
-				for (Edge edge: edges) {
-					LOG.info("Edge:" + edge);
-					_graph.getGraphLayoutCache().remove(new Object[] {edge});
-					_graph.getGraphLayoutCache().removeMapping(new Object[] {edge});
-				}
-				_graph.getGraphLayoutCache().remove(new Object[] {port});
-				_graph.getGraphLayoutCache().removeMapping(new Object[] {port});
-			}
-		}
-		this._graph.getGraphLayoutCache().remove(_graph.getSelectionCells());
-		this._graph.getGraphLayoutCache().removeMapping(_graph.getSelectionCells());
-	}
-
-  private void updateStatus(int status) {
-      throw new RuntimeException("implement execution status stuff");
+    private void updateStatus(int status) {
+        throw new RuntimeException("implement execution status stuff");
 //    if (status == ExecutionStatus.STATUS_RUNNING) {
 //      // The flow just started running or was unpaused.
 //      _statusIndicatorButton.setDisabledIcon(ICON_FLOW_STATUS_RUNNING);
@@ -871,7 +832,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //    _paused = (status == ExecutionStatus.STATUS_SUSPENDED);
 //    // Refresh the screen.
 //    updateUI();
-  }
+    }
 
 	private GraphChangeSummary graphChangeSummary = null;
 
@@ -883,7 +844,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 	 * the AWT event dispatcher thread and UI updates triggered by this method
 	 * will still occur on the AWT event dispatcher thread.
 	 */
-	public void refresh(YNet flow) throws EditorException {
+	public void refresh(YNet net) throws EditorException {
 		LOG.debug( "Refreshing the flow graph." );
 		// Collections to pass to the JGraph instance later on.
 		final Hashtable<NexusCell, Map> cellAttributes = new Hashtable<NexusCell, Map>();
@@ -893,15 +854,14 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 		final List<GraphEdge> edges = new ArrayList<GraphEdge>();
 
 		// Insert the vertex for each component in the flow.
-//		if (flow == null) {
-//			flow = (YNet) _flowproxy.getPersistentDomainObject( 2 );
+//		if (net == null) {
+//			net = (YNet) _netProxy.getPersistentDomainObject( 2 );
 //		}
-		Iterator i = flow.getNetElements().iterator();
+		Iterator i = net.getNetElements().iterator();
 		synchronized( i ) {
 			while( i.hasNext() ) {
 				Object c = i.next();
-				EditorDataProxy proxy = (EditorDataProxy) _flowproxy.getContext().getDataProxy(c, null );
-				this.initializeCellAndPort( proxy );
+				EditorDataProxy proxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(c, null );
 				NexusCell cell = proxy.getGraphCell();
 				Map map = createComponentAttributeMap( c );
 				cellAttributes.put( cell, map );
@@ -910,7 +870,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 				try {
 					if (c instanceof YExternalNetElement) {
 						YTaskEditorExtension ext = new YTaskEditorExtension((YExternalNetElement) c);
-						Rectangle2D.Double rect = new Rectangle2D.Double(ext.getBounds().getX(), ext.getBounds().getY(), 70d, 70d);
+						Rectangle2D rect = (Rectangle2D) ext.getBounds().clone();
 						GraphConstants.setBounds(cell.getAttributes(), rect);
 					}
 				} catch(Exception ex) {LOG.error(ex.getMessage(), ex);}
@@ -931,7 +891,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 		};
 
 		// Add all the edges in the flow.
-		i = flow.getNetElements().iterator();
+		i = net.getNetElements().iterator();
 		synchronized( i ) {
 			while( i.hasNext() ) {
 				YExternalNetElement component = (YExternalNetElement) i.next();
@@ -941,9 +901,9 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 					LOG.error( "edge found: " + edge.toString() );
 //					boolean isDataEdge = ( edge instanceof DataEdge );
 					
-					EditorDataProxy edgeproxy = (EditorDataProxy) _flowproxy.getContext().getDataProxy(edge, null );
-					EditorDataProxy sourceproxy = (EditorDataProxy) _flowproxy.getContext().getDataProxy(edge.getPriorElement(), null );
-					EditorDataProxy sinkproxy = (EditorDataProxy) _flowproxy.getContext().getDataProxy(edge.getNextElement(), null );
+					EditorDataProxy edgeproxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(edge, null );
+					EditorDataProxy sourceproxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(edge.getPriorElement(), null );
+					EditorDataProxy sinkproxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(edge.getNextElement(), null );
 
 //					if( isDataEdge && ( sourceproxy.equals( _flowproxy ) || sinkproxy.equals( _flowproxy ) ) ) {
 						// this is likely to be a data parameter edge going from the flow to a component, or from
@@ -953,7 +913,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //					}
 //					else {
 						// Checking to make sure it is not an edge from the FlowComopnent to a child component
-//						if( _flowproxy.getTreeNode().isNodeChild( sourceproxy.getTreeNode() ) && _flowproxy.getTreeNode().isNodeChild( sinkproxy.getTreeNode() ) ) {
+//						if( _netProxy.getTreeNode().isNodeChild( sourceproxy.getTreeNode() ) && _netProxy.getTreeNode().isNodeChild( sinkproxy.getTreeNode() ) ) {
 							Port sourcePort = sourceproxy.getGraphPort();
 							Port sinkPort = sinkproxy.getGraphPort();
 							GraphEdge graphEdge = this.initializeGraphEdge( edgeproxy );
@@ -966,7 +926,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //							LOG.debug( "NOT DRAWING EDGE! " );
 //							LOG.debug( "sourceproxy: " + sourceproxy.toString() );
 //							LOG.debug( "sinkproxy: " + sinkproxy.toString() );
-//							LOG.debug( "flowproxy: " + _flowproxy.toString() );
+//							LOG.debug( "netproxy: " + _netProxy.toString() );
 //						}
 //					}
 //					addPropertyChangeListener(edgeproxy, _edgePropertyChangeListener);
@@ -1003,73 +963,73 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 	private static final int CONTROL_EDGE_MODE = 0;
 	private static final int DATA_EDGE_MODE = 1;
 	private static final int ALL_EDGE_MODE = 2;
-	
-  /**
-   * @throws EditorException not thrown in the code.
-   */
-  private JToolBar createToolBar() throws EditorException {
 
-    JToolBar toolbar = new JToolBar();
-    toolbar.setFloatable(false);
+    /**
+     * @throws EditorException not thrown in the code.
+     */
+    private JToolBar createToolBar() throws EditorException {
 
-    if (_isInstance) {
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable( false );
 
-      _statusIndicatorButton = new JButton(ICON_FLOW_STATUS_OFF);
-      _statusIndicatorButton.setToolTipText("Execution Status");
-      _statusIndicatorButton.setDisabledIcon(ICON_FLOW_STATUS_OFF);
-      _statusIndicatorButton.setEnabled(false);
-      toolbar.add(_statusIndicatorButton);
-      toolbar.addSeparator();
+        if( _isInstance ) {
 
-      _killButton = toolbar.add(new AbstractAction("", ICON_KILL_FLOW) {
-        public void actionPerformed(ActionEvent e) {
-			LOG.info("Kill flow");
-			throw new RuntimeException("implement kill");
+            _statusIndicatorButton = new JButton( ICON_FLOW_STATUS_OFF );
+            _statusIndicatorButton.setToolTipText( "Execution Status" );
+            _statusIndicatorButton.setDisabledIcon( ICON_FLOW_STATUS_OFF );
+            _statusIndicatorButton.setEnabled( false );
+            toolbar.add( _statusIndicatorButton );
+            toolbar.addSeparator();
+
+            _killButton = toolbar.add( new AbstractAction( "", ICON_KILL_FLOW ) {
+                public void actionPerformed( ActionEvent e ) {
+                    LOG.info( "Kill flow" );
+                    throw new RuntimeException( "implement kill" );
 //          GlobalEventQueue.add(new CapselaWorker("Kill Button Handler") {
 //            public void run() throws Throwable {
 //              ClientOperation.killComponent(getProxy());
 //            } //run()
 //          });
-        } //actionPerformed()
-      });
-      _killButton.setToolTipText("Kill Flow");
-      _killButton.setEnabled(false);
+                } //actionPerformed()
+            });
+      _killButton.setToolTipText( "Kill Flow" );
+            _killButton.setEnabled( false );
 
-      _pauseButton = toolbar.add(new AbstractAction("", ICON_PAUSE_FLOW) {
-        public void actionPerformed(ActionEvent e) {
-          try {
+            _pauseButton = toolbar.add( new AbstractAction( "", ICON_PAUSE_FLOW ) {
+                public void actionPerformed( ActionEvent e ) {
+                    try {
 
-            if (!_paused) {
-				LOG.info("Pause");
-				throw new RuntimeException("implement pause");
-//              ClientOperation.suspendComponent(getProxy());
-            } else {
-				LOG.info("Resume");
-				throw new RuntimeException("implement resume");
-//              ClientOperation.resumeComponent(getProxy());
-            }
-          } catch (Exception ex) {
-            LOG.error(ex);
-          }
-        } //actionPerformed()
-      });
-      _pauseButton.setToolTipText("Pause Flow");
-      _pauseButton.setEnabled(false);
-      
+                        if( !_paused ) {
+                            LOG.info( "Pause" );
+                            throw new RuntimeException( "implement pause" );
+//                          ClientOperation.suspendComponent(getProxy());
+                        } else {
+                            LOG.info("Resume");
+                            throw new RuntimeException("implement resume");
+//                          ClientOperation.resumeComponent(getProxy());
+                        }
+                    } catch (Exception ex) {
+                        LOG.error(ex);
+                    }
+                } //actionPerformed()
+            });
+            _pauseButton.setToolTipText("Pause Flow");
+            _pauseButton.setEnabled(false);
+
 // TODO XXX
 //      Component c = (Component) getProxy().getPersistentDomainObject();
 //      ExecutionStatus status = c.getExecutionStatus();
 //      updateStatus(status.getStatus());
 
-    } //if
-    else {
+        } //if
+        else {
 
-      _runButton = toolbar.add(new AbstractAction("", ICON_RUN_FLOW) {
-        public void actionPerformed(ActionEvent e) {
-          try {
-			  LOG.info("Run flow");
+            _runButton = toolbar.add(new AbstractAction("", ICON_RUN_FLOW) {
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        LOG.info("Run flow");
 
-				throw new RuntimeException("implement run");
+                        throw new RuntimeException("implement run");
 //            GlobalEventQueue.add(new CapselaWorker("Run Button Handler") {
 //              public void run() throws Throwable {
 //                if (_flowEditor.isDirty()) {
@@ -1083,259 +1043,263 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 //                ClientOperation.runInstance(instance);
 //              } //run()
 //            });
-          } //try
-          catch (Exception ee) {
-            LOG.error("exception", ee);
-          } //catch
-        } //actionPerformed()
-      });
-      _runButton.setToolTipText("Execute flow");
+                    } //try
+                    catch (Exception ee) {
+                        LOG.error("exception", ee);
+                    } //catch
+                } //actionPerformed()
+            });
+            _runButton.setToolTipText("Execute flow");
+        } //else
 
-    } //else
-
-    if (!_isInstance) {
-    // Zoom Std
-    toolbar.addSeparator();
-    toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.zoom_reset")) {
-      public void actionPerformed(ActionEvent e) {
-        _graph.setScale(1.0);
-        LOG.info("Returned graph scale to normal");
-      }
-    }).setToolTipText("Return Zoom to normal");
-    // Zoom In
-    toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.zoom_in")) {
-      public void actionPerformed(ActionEvent e) {
-        _graph.setScale(1.2 * _graph.getScale());
-        LOG.info("Zooming in");
-      }
-    }).setToolTipText("Zoom In");
-    // Zoom Out
-    toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.zoom_out")) {
-      public void actionPerformed(ActionEvent e) {
-        _graph.setScale(_graph.getScale() / 1.2);
-        LOG.info("Zooming out");
-      }
-    }).setToolTipText("Zoom Out");
-
-      toolbar.addSeparator();
-      _edgeEditModeAction = new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.select_control_edge")) {
-        public void actionPerformed(ActionEvent e) {
-          try {
-            String iconKey = null;
-            if (_edgeEditMode == ALL_EDGE_MODE) {
-            	_edgeEditMode = DATA_EDGE_MODE;
-//                hideEdges(DATA_EDGE_MODE);
-              _graph.clearSelection();
-              iconKey = "GraphEditor.select_data_edge";
-              LOG.info("Changing to data communication edit mode, showing only data edges");
-            } else if (_edgeEditMode == DATA_EDGE_MODE){
-            	_edgeEditMode = CONTROL_EDGE_MODE;
-//                hideEdges(CONTROL_EDGE_MODE);
-              _graph.clearSelection();
-              iconKey = "GraphEditor.select_control_edge";
-              LOG.info("Changing to control flow edit mode, showing only control edges");
-            } else if (_edgeEditMode == CONTROL_EDGE_MODE){
-            	_edgeEditMode = ALL_EDGE_MODE;
-//                hideEdges(ALL_EDGE_MODE);
-              _graph.clearSelection();
-              iconKey = "GraphEditor.select_control_edge";
-              LOG.info("Changing to control flow edit mode, showing all edges");
-            }
-            if (iconKey != null) {
-            	putValue(SMALL_ICON, ApplicationIcon.getIcon(iconKey));
-            }
-          } catch (Exception ee) {
-            LOG.error("exception thrown in control/data line toggle", ee);
-          }
-        }
-      };
-      toolbar.add(_edgeEditModeAction).setToolTipText("Toggle flow editing state");
-    }
-    
-    
-    if (!_isInstance) {
-      // Remove button
-      _remove = new AbstractAction("Delete", ApplicationIcon.getIcon("GraphEditor.remove")) {
-        public void actionPerformed(ActionEvent e) {
-        	GraphEditor.this.deleteSelectedItems();
-        }
-      };
-      _remove.setEnabled(false);
-      toolbar.add(_remove).setToolTipText("Remove component from whiteboard");
-    }
-    toolbar.addSeparator();
-
-    // Printing code
-    toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.print")) {
-      public void actionPerformed(ActionEvent e) {
-        if (_graph != null) {
-          PrinterJob printJob = PrinterJob.getPrinterJob();
-          printJob.setPrintable(_graph);
-
-          printJob.pageDialog(new PageFormat());
-
-          if (printJob.printDialog()) {
-            try {
-              printJob.print();
-            } catch (Exception printException) {
-              printException.printStackTrace();
-            }
-          }
-        }
-      }
-    });
-
-    if (false) {
-      // this code is special [ talk to me about it :) ]
-
-      // Ants walking animation code:
-      toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.flow_checker_warning")) {
-        public void actionPerformed(ActionEvent e) {
-          Object[] edges = JGraphUtilities.getEdges(_graph.getModel());
-
-          AttributeMap map = new AttributeMap();
-          GraphConstants.setDashPattern(map, new float[] { 8f, 4f });
-          GraphConstants.setDashOffset(map, 12 - Math.abs(patternPhase % 12));
-          patternPhase--;
-          for (int i = 0; i < edges.length; i++) {
-            HashMap table = new HashMap();
-            table.put(edges[i], map.clone());
-            _graph.getGraphLayoutCache().edit(table, null, null, null);
-          }
-        }
-      });
-    }
-
-    if (!_isInstance) {
-      if (false) { 
-        // TODO Sugiyama layout crashes capsela client for some reason so we are disabling it for now.
-      // Auto layout:
-      toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.layout")) {
-        public void actionPerformed(ActionEvent e) {
-          CapselaWorker w = new CapselaWorker("Auto Layout") {
-            public void run() throws Throwable {
-              if (!sugiyamaApplied) {
-                // save cell state
-                previousCellBounds.clear();
-                Object[] cells = JGraphUtilities.getVertices(_graph.getModel(), DefaultGraphModel.getAll(_graph.getModel()));
-                for (int i = 0; i < cells.length; i++) {
-                  Object cell = cells[i];
-                  Rectangle2D bounds = _graph.getCellBounds(cell);
-                  previousCellBounds.put(cell, bounds.clone());
+        if (!_isInstance) {
+            // Zoom Std
+            toolbar.addSeparator();
+            toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.zoom_reset")) {
+                public void actionPerformed(ActionEvent e) {
+                    _graph.setScale(1.0);
+                    LOG.info("Returned graph scale to normal");
                 }
+            }).setToolTipText("Return Zoom to normal");
+            // Zoom In
+            toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.zoom_in")) {
+                public void actionPerformed(ActionEvent e) {
+                    _graph.setScale(1.2 * _graph.getScale());
+                    LOG.info("Zooming in");
+                }
+            }).setToolTipText("Zoom In");
+            // Zoom Out
+            toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.zoom_out")) {
+                public void actionPerformed(ActionEvent e) {
+                    _graph.setScale(_graph.getScale() / 1.2);
+                    LOG.info("Zooming out");
+                }
+            }).setToolTipText("Zoom Out");
 
-                SugiyamaLayoutAlgorithm algorithm = new SugiyamaLayoutAlgorithm();
-                algorithm.setSpacing(new Point(150, 100));
-                JGraphUtilities.applyLayout(_graph, algorithm);
-                _graph.autoSizeAll();
-              } else {
-                // restore cell state
-                Hashtable table = new Hashtable();
-                for (Iterator iter = previousCellBounds.keySet().iterator(); iter.hasNext();) {
-                  Object cell = iter.next();
-                  Rectangle2D bounds = (Rectangle2D) previousCellBounds.get(cell);
-                  if (bounds != null) {
-                    bounds = (Rectangle2D) bounds.clone();
+            toolbar.addSeparator();
+            _edgeEditModeAction = new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.select_control_edge" ) ) {
+                public void actionPerformed( ActionEvent e ) {
+                    try {
+                        String iconKey = null;
+                        if( _edgeEditMode == ALL_EDGE_MODE ) {
+                            _edgeEditMode = DATA_EDGE_MODE;
+//                          hideEdges(DATA_EDGE_MODE);
+                            _graph.clearSelection();
+                            iconKey = "GraphEditor.select_data_edge";
+                            LOG.info( "Changing to data communication edit mode, showing only data edges" );
+                        }
+                        else if( _edgeEditMode == DATA_EDGE_MODE ) {
+                            _edgeEditMode = CONTROL_EDGE_MODE;
+//                          hideEdges(CONTROL_EDGE_MODE);
+                            _graph.clearSelection();
+                            iconKey = "GraphEditor.select_control_edge";
+                            LOG.info( "Changing to control flow edit mode, showing only control edges" );
+                        }
+                        else if( _edgeEditMode == CONTROL_EDGE_MODE ) {
+                            _edgeEditMode = ALL_EDGE_MODE;
+//                          hideEdges(ALL_EDGE_MODE);
+                            _graph.clearSelection();
+                            iconKey = "GraphEditor.select_control_edge";
+                            LOG.info( "Changing to control flow edit mode, showing all edges" );
+                        }
+                        if( iconKey != null ) {
+                            putValue( SMALL_ICON, ApplicationIcon.getIcon( iconKey ) );
+                        }
+                    }
+                    catch( Exception ee ) {
+                        LOG.error( "exception thrown in control/data line toggle", ee );
+                    }
+                }
+            };
+            toolbar.add( _edgeEditModeAction ).setToolTipText( "Toggle flow editing state" );
+        }
+
+        if( !_isInstance ) {
+            // Remove button
+            _remove = new AbstractAction( "Delete", ApplicationIcon.getIcon( "GraphEditor.remove" ) ) {
+                public void actionPerformed( ActionEvent e ) {
+                    GraphEditor.this.deleteSelectedItems();
+                }
+            };
+            _remove.setEnabled( false );
+            toolbar.add( _remove ).setToolTipText( "Remove component from whiteboard" );
+        }
+        toolbar.addSeparator();
+
+        // Printing code
+        toolbar.add( new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.print" ) ) {
+            public void actionPerformed( ActionEvent e ) {
+                if( _graph != null ) {
+                    PrinterJob printJob = PrinterJob.getPrinterJob();
+                    printJob.setPrintable( _graph );
+
+                    printJob.pageDialog( new PageFormat() );
+
+                    if( printJob.printDialog() ) {
+                        try {
+                            printJob.print();
+                        }
+                        catch( Exception printException ) {
+                            printException.printStackTrace();
+                        }
+                    }
+                }
+            }
+        } );
+
+        if( false ) {
+            // this code is special [ talk to me about it :) ]
+
+            // Ants walking animation code:
+            toolbar.add( new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.flow_checker_warning" ) ) {
+                public void actionPerformed( ActionEvent e ) {
+                    Object[] edges = JGraphUtilities.getEdges( _graph.getModel() );
+
                     AttributeMap map = new AttributeMap();
-                    GraphConstants.setBounds(map, bounds);
-                    table.put(cell, map);
-                  }
+                    GraphConstants.setDashPattern( map, new float[] { 8f, 4f } );
+                    GraphConstants.setDashOffset( map, 12 - Math.abs( patternPhase % 12 ) );
+                    patternPhase--;
+                    for( int i = 0; i < edges.length; i++ ) {
+                        HashMap table = new HashMap();
+                        table.put( edges[ i ], map.clone() );
+                        _graph.getGraphLayoutCache().edit( table, null, null, null );
+                    }
                 }
-                _graph.getGraphLayoutCache().edit(table, null, null, null);
-                _graph.repaint();
-              }
-              sugiyamaApplied = !sugiyamaApplied;
-            }
-          };
-          GlobalEventQueue.add(w);
+            } );
         }
-      }).setToolTipText("Apply Sugiyama layout");
-      }
-      
-      // Auto size:
-      toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.autosize")) {
-        public void actionPerformed(ActionEvent e) {
-          CapselaWorker w = new CapselaWorker("Auto Size") {
-            public void run() throws Throwable {
-              _graph.autoSizeAll();
+
+        if( !_isInstance ) {
+            if( false ) {
+                // TODO Sugiyama layout crashes capsela client for some reason so we are disabling it for now.
+                // Auto layout:
+                toolbar.add( new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.layout" ) ) {
+                    public void actionPerformed( ActionEvent e ) {
+                        CapselaWorker w = new CapselaWorker( "Auto Layout" ) {
+                            public void run() throws Throwable {
+                                if( !sugiyamaApplied ) {
+                                    // save cell state
+                                    previousCellBounds.clear();
+                                    Object[] cells = JGraphUtilities.getVertices( _graph.getModel(), DefaultGraphModel.getAll( _graph.getModel() ) );
+                                    for( int i = 0; i < cells.length; i++ ) {
+                                        Object cell = cells[ i ];
+                                        Rectangle2D bounds = _graph.getCellBounds( cell );
+                                        previousCellBounds.put( cell, bounds.clone() );
+                                    }
+
+                                    SugiyamaLayoutAlgorithm algorithm = new SugiyamaLayoutAlgorithm();
+                                    algorithm.setSpacing( new Point( 150, 100 ) );
+                                    JGraphUtilities.applyLayout( _graph, algorithm );
+                                    _graph.autoSizeAll();
+                                }
+                                else {
+                                    // restore cell state
+                                    Hashtable table = new Hashtable();
+                                    for( Iterator iter = previousCellBounds.keySet().iterator(); iter.hasNext(); ) {
+                                        Object cell = iter.next();
+                                        Rectangle2D bounds = (Rectangle2D) previousCellBounds.get( cell );
+                                        if( bounds != null ) {
+                                            bounds = (Rectangle2D) bounds.clone();
+                                            AttributeMap map = new AttributeMap();
+                                            GraphConstants.setBounds( map, bounds );
+                                            table.put( cell, map );
+                                        }
+                                    }
+                                    _graph.getGraphLayoutCache().edit( table, null, null, null );
+                                    _graph.repaint();
+                                }
+                                sugiyamaApplied = !sugiyamaApplied;
+                            }
+                        };
+                        GlobalEventQueue.add( w );
+                    }
+                } ).setToolTipText( "Apply Sugiyama layout" );
             }
-          };
-          GlobalEventQueue.add(w);
+
+            // Auto size:
+            toolbar.add( new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.autosize" ) ) {
+                public void actionPerformed( ActionEvent e ) {
+                    CapselaWorker w = new CapselaWorker( "Auto Size" ) {
+                        public void run() throws Throwable {
+                            _graph.autoSizeAll();
+                        }
+                    };
+                    GlobalEventQueue.add( w );
+                }
+            } ).setToolTipText( "Auto size graph" );
         }
-      }).setToolTipText("Auto size graph");
+
+        // Converting to image
+        //    JGraphUtilities.toImage();
+
+        return toolbar;
     }
 
-    // Converting to image
-    //    JGraphUtilities.toImage();
+    private Map previousCellBounds = new HashMap();
 
-    return toolbar;
-  }
+    private boolean sugiyamaApplied = false;
 
-  private Map previousCellBounds = new HashMap();
+    //private static final ImageIcon ANIMATED_ICON = ApplicationIcon.getIcon("GraphEditor.animated_icon");
 
-  private boolean sugiyamaApplied = false;
+    // pattern phase:
+    private float patternPhase = 0;
 
-  //private static final ImageIcon ANIMATED_ICON = ApplicationIcon.getIcon("GraphEditor.animated_icon");
+    public void clear() throws Throwable {
+        if( LOG.isDebugEnabled() ) {
+            LOG.debug( "GraphEditor.clear i=" + isInstance() );
+        }
 
-  // pattern phase:
-  private float patternPhase = 0;
+        // free up the memory taken up by animated icons
+        for( Iterator iter = _animatedproxySet.iterator(); iter.hasNext(); ) {
+            EditorDataProxy proxy = (EditorDataProxy) iter.next();
+            stopCellAnimation( proxy );
+        }
 
-	public void clear() throws Throwable {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("GraphEditor.clear i=" + isInstance());
-		}
-		
-		// free up the memory taken up by animated icons
-		for(Iterator iter=_animatedproxySet.iterator(); iter.hasNext();) {
-			EditorDataProxy proxy = (EditorDataProxy) iter.next();
-			stopCellAnimation(proxy);
-		}
+        if( null != graphChangeSummary ) {
+            GraphChangeSummary tmp = graphChangeSummary; // avoid stack overflow on recursive clears
+            graphChangeSummary = null;
 
-		if (null != graphChangeSummary) {
-			GraphChangeSummary tmp = graphChangeSummary;  // avoid stack overflow on recursive clears
-			graphChangeSummary = null;
+            if( null != _graph ) {
+                GraphModel model = _graph.getModel();
+                if( null != model ) {
+                    model.removeGraphModelListener( tmp );
+                }
+            }
+        }
 
-			if (null != _graph) {
-				GraphModel model = _graph.getModel();
-				if (null != model ) {
-					model.removeGraphModelListener( tmp);
-				}
-			}
-		}
+        if( null != _netEditor ) {
+            // TODO FIXME XXX do we really want this? Can we not close a single graph editor without closing the net editor?
+            NetEditor tmp = _netEditor; // avoid stack overflow on recursive clears
+            _netEditor = null;
+            tmp.frameClosed();
 
-		if (null != _flowEditor) {
-			NetEditor tmp = _flowEditor; // avoid stack overflow on recursive clears
-			_flowEditor = null;
-			tmp.clear();
+        }
 
-		}
+        // don't remove _flowproxy in clear - because it will prevent FlowEditor.removeGraphEditor from working
+        // which will leave a reference to FlowEditor in GraphEditor and it won't finalize
+        // _flowproxy = null;
 
-		// don't remove _flowproxy in clear - because it will prevent FlowEditor.removeGraphEditor from working
-		// which will leave a reference to FlowEditor in GraphEditor and it won't finalize
-		// _flowproxy = null;
+        //		removePropertyChangeListeners();
 
-//		removePropertyChangeListeners();
+        _graphModel = null;
 
-		_graphModel = null;
+        // may not be strictly necessary but makes it a little easier to see in profile what is left
+        _edgeEditModeAction = null;
+        _runButton = null;
+        _remove = null;
+        _openDataEditor = null;
+        _toolbar = null;
+        _statusIndicatorButton = null;
+        _killButton = null;
+        _pauseButton = null;
+        _flowCheckerButton = null;
+        _validationMessages = null;
 
-		// may not be strictly necessary but makes it a little easier to see in profile what is left
-		_edgeEditModeAction = null;
-		_runButton = null;
-		_remove = null;
-		_openDataEditor = null;
-		_toolbar = null;
-		_statusIndicatorButton = null;
-		_killButton = null;
-		_pauseButton = null;
-		_flowCheckerButton = null;
-		_validationMessages = null;
-
-		if (null != previousCellBounds) {
-			Map tmp = previousCellBounds;
-			previousCellBounds = null;
-			tmp.clear();
-		}
-	}
+        if( null != previousCellBounds ) {
+            Map tmp = previousCellBounds;
+            previousCellBounds = null;
+            tmp.clear();
+        }
+    }
 
 	/**
 	 * @see Object#finalize()
@@ -1359,9 +1323,8 @@ public class GraphEditor extends JPanel implements GraphSelectionListener, KeyLi
 
 		// don't remove _flowproxy in clear - because it will prevent FlowEditor.removeGraphEditor from working
 		// which will leave a reference to FlowEditor in GraphEditor and it won't finalize
-		_flowproxy = null;
+		_netProxy = null;
 
 		super.finalize();
 	}
-
 }

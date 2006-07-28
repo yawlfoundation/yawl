@@ -262,8 +262,10 @@ implements DropTargetListener
 
 	/**
 	 * Remove all frame listeners from this frame.
+     * @deprecated listeners should not be removed in bulk, use instead
+     * {@link JInternalFrame#removeInternalFrameListener(InternalFrameListener)}.
 	 */
-	public void removeEditorFrameListeners() {
+	public void removeInternalFrameListeners() {
 		InternalFrameListener listeners[] = getInternalFrameListeners();
 		if( listeners.length > 0 ) {
 			LOG.debug("CapselaInternalFrame.removeEditorFrameListeners Removing " + listeners.length + " listeners");
@@ -274,10 +276,11 @@ implements DropTargetListener
 	}
 
 	/**
-	 * Disposes this frame.
-	 * @throws Throwable not thrown.
+	 * Called by the ComponentEditorFrameListener when the frame has been closed
+     * and is safe to dispose of.
+	 * @throws Exception so subclasses can throw exceptions.
 	 */
-	public void clear() throws Throwable {
+	public void frameClosed() throws Exception {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("CapselaInternalFrame.clear " + getClass().getName());
 		}
@@ -287,16 +290,4 @@ implements DropTargetListener
 
 		dispose();
 	}
-
-	/**
-	 * Logs that this frame has been finalized, if debug logging is enabled.
-	 * @see Object#finalize()
-	 */
-	public void finalize() throws Throwable {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("CapselaInternalFrame.finalize " + getClass().getName());
-		}
-		super.finalize();
-	}
-
 }

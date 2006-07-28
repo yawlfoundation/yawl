@@ -39,12 +39,8 @@ public class CopySpecificationCommand extends AbstractCommand{
     private YSpecification copySpec;
     
     private Map<Object, EditorDataProxy> proxies;
-    private Map<Object, SharedNode> nodes;
     
     private DataContext targetContext;
-    
-//	public EditorDataProxy source;
-//	public EditorDataProxy target;
 	
 	public CopySpecificationCommand( SharedNode sourceSpecNode, SharedNode targetNode ) {
         this.sourceSpecProxy = sourceSpecNode.getProxy();
@@ -106,10 +102,8 @@ public class CopySpecificationCommand extends AbstractCommand{
         
         copySpecProxy = (EditorDataProxy) targetContext.createProxy( copySpec,
                 (SharedNodeTreeModel) targetNode.getTreeModel() );
-        new SharedNode( copySpecProxy );
         
         proxies = new HashMap<Object, EditorDataProxy>();
-        nodes = new HashMap<Object, SharedNode>();
         
         for( YDecomposition decomp : copySpec._decompositions ) {
             VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
@@ -122,7 +116,6 @@ public class CopySpecificationCommand extends AbstractCommand{
                             child instanceof YFlow ) {
                         proxies.put( child, (EditorDataProxy) targetContext.createProxy(
                                 child, (SharedNodeTreeModel) targetNode.getTreeModel() ) );
-                        nodes.put( child, new SharedNode( proxies.get( child ) ) );
                     }
                 }
             });

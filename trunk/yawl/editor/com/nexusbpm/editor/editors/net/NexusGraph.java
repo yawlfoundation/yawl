@@ -28,7 +28,6 @@ import java.beans.PropertyChangeListener;
 import java.util.Hashtable;
 
 import javax.swing.JComponent;
-import javax.swing.JDesktopPane;
 import javax.swing.ToolTipManager;
 
 import org.apache.commons.logging.Log;
@@ -42,9 +41,11 @@ import org.jgraph.graph.GraphLayoutCache;
 import org.jgraph.util.JGraphUtilities;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YNet;
 
+import com.nexusbpm.command.CopyTaskCommand;
 import com.nexusbpm.editor.WorkflowEditor;
-import com.nexusbpm.editor.editors.ComponentEditor;
 import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.editors.net.cells.ViewFactory;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -167,39 +168,38 @@ public class NexusGraph extends JGraph implements Printable,
 	 * 
 	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 	 */
-	public void propertyChange(PropertyChangeEvent event) {
-		throw new RuntimeException("needs a yawl specific impl");
-		// DomainObjectproxy source = (DomainObjectproxy) event.getSource();
-		// String property = event.getPropertyName();
-		// long id = source.identifier().getId();
-		// boolean repaint = false;
-		// if (property.equals(Component.ATTR_EXECUTION_STATUS)) {
-		// ExecutionStatus status = (ExecutionStatus) event.getNewValue();
-		// LOG.debug("Component " + id + " changed execution status to " +
-		// status.getName() + ".");
-		// repaint = true;
-		// }
-		// if( property.equals( Component.ATTR_NAME ) ) {
-		// String oldName = (String) event.getOldValue();
-		// String name = (String) event.getNewValue();
-		// LOG.debug( "Component " + id + " changed name from " + oldName + " to
-		// '" + name + "'." );
-		// repaint = true;
-		// }
-		// if (property.equals(MarkupComponent.ATTR_MARKUP)) {
-		// String markup = (String) event.getNewValue();
-		// LOG.debug("Component " + id + " changed markup to '" + markup +
-		// "'.");
-		// repaint = true;
-		// }
-		// if (repaint && source instanceof DataProxy) {
-		// Rectangle2D bounds =
-		// this.getGraphLayoutCache().getMapping(((DataProxy)
-		// source).getGraphCell(), false).getBounds();
-		// this.repaint((int) bounds.getX(), (int) bounds.getY(), (int)
-		// bounds.getWidth(), (int) bounds.getHeight());
-		// }
-	}
+	public void propertyChange( PropertyChangeEvent event ) {
+        throw new RuntimeException( "needs a yawl specific impl" );
+//        DomainObjectproxy source = (DomainObjectproxy) event.getSource();
+//        String property = event.getPropertyName();
+//        long id = source.identifier().getId();
+//        boolean repaint = false;
+//        if( property.equals( Component.ATTR_EXECUTION_STATUS ) ) {
+//            ExecutionStatus status = (ExecutionStatus) event.getNewValue();
+//            LOG.debug( "Component " + id + " changed execution status to " + status.getName() + "." );
+//            repaint = true;
+//        }
+//        if( property.equals( Component.ATTR_NAME ) ) {
+//            String oldName = (String) event.getOldValue();
+//            String name = (String) event.getNewValue();
+//            LOG.debug( "Component " + id + " changed name from " + oldName + " to '" + name + "'." );
+//            repaint = true;
+//        }
+//        if( property.equals( MarkupComponent.ATTR_MARKUP ) ) {
+//            String markup = (String) event.getNewValue();
+//            LOG.debug( "Component " + id + " changed markup to '" + markup + "'." );
+//            repaint = true;
+//        }
+//        if( repaint && source instanceof DataProxy ) {
+//            Rectangle2D bounds = this.getGraphLayoutCache().getMapping(
+//                    ((DataProxy) source).getGraphCell(), false ).getBounds();
+//            this.repaint(
+//                    (int) bounds.getX(),
+//                    (int) bounds.getY(),
+//                    (int) bounds.getWidth(),
+//                    (int) bounds.getHeight() );
+//        }
+    }
 
 	/**
 	 * Cause all cells to change their size to the cell's renderer's perferred
@@ -442,19 +442,34 @@ public class NexusGraph extends JGraph implements Printable,
 	 */
 	public void drop(DropTargetDropEvent event) {
 
-		SharedNode draggingNode = DragAndDrop.getDraggingNode();
+		final SharedNode draggingNode = DragAndDrop.getDraggingNode();
 		if (!isDropAcceptable(draggingNode)) {
 			return;
 		}
 
-		SharedNode oldParent = (SharedNode) draggingNode.getParent();
+//		SharedNode oldParent = (SharedNode) draggingNode.getParent();
 		SharedNode newParent = _SharedNode;
 
-		Point location = event.getLocation();
-		if (isDropCopy(draggingNode)) {
+		final Point location = event.getLocation();
+//		if (isDropCopy(draggingNode)) {
 			// if copy:
 			LOG.debug("IS COPY ACTION");
-			throw new RuntimeException("implement the copy operation");
+            java.awt.EventQueue.invokeLater( new Runnable() {
+                public void run() {
+                    try {
+                        WorkflowEditor.getExecutor().executeCommand(
+                                new CopyTaskCommand( draggingNode, _SharedNode, location ) ).get();
+                        // TODO XXX This NEEDS to be moved elsewhere! Events should be automatically causing
+                        // the graph to update, we shouldn't have to wait for the command to finish and
+                        // tell the graph to redraw!
+                        getGraphEditor().refresh( (YNet) getGraphEditor().getProxy().getData() );
+                    }
+                    catch( Exception e ) {
+                        
+                    }
+                }
+            } );
+//			throw new RuntimeException("implement the copy operation");
 			// try {
 			// ClientOperation.executeCopyCommand((DataProxy)
 			// draggingNode.getproxy(), (DataProxy) newParent.getproxy(),
@@ -463,21 +478,21 @@ public class NexusGraph extends JGraph implements Printable,
 			// } catch (CapselaException e) {
 			// LOG.warn("Error executing copy command.", e);
 			// }
-		} else {
-			// if move:
-			LOG.debug("IS MOVE ACTION");
-			if (newParent != oldParent) {
-				throw new RuntimeException("implement the copy operation");
-				// try {
-				// ClientOperation.executeMoveCommand((DataProxy)
-				// draggingNode.getproxy(),(DataProxy)
-				// oldParent.getproxy(),(DataProxy) newParent
-				// .getproxy(), location, _graphEditor);
-				// } catch (CapselaException e) {
-				// LOG.warn("Error executing move command.", e);
-				// }
-			}
-		}
+//		} else {
+//			// if move:
+//			LOG.debug("IS MOVE ACTION");
+//			if (newParent != oldParent) {
+//				throw new RuntimeException("implement the copy operation");
+//				// try {
+//				// ClientOperation.executeMoveCommand((DataProxy)
+//				// draggingNode.getproxy(),(DataProxy)
+//				// oldParent.getproxy(),(DataProxy) newParent
+//				// .getproxy(), location, _graphEditor);
+//				// } catch (CapselaException e) {
+//				// LOG.warn("Error executing move command.", e);
+//				// }
+//			}
+//		}
 	}
 
 	/**
@@ -489,7 +504,8 @@ public class NexusGraph extends JGraph implements Printable,
 	 * @return whether the given node is acceptable for a drop operation.
 	 */
 	private boolean isDropAcceptable(SharedNode draggingNode) {
-		throw new RuntimeException("implement this for yawl!");
+        return draggingNode.getProxy().getData() instanceof YExternalNetElement;
+//		throw new RuntimeException("implement this for yawl!");
 		// // Can't drop a folder in a flow.
 		// DataProxy proxy = draggingNode.getProxy();
 		// boolean notDroppingFolder = (proxy.isFlow() || (!proxy.isFolder()));
@@ -572,18 +588,11 @@ public class NexusGraph extends JGraph implements Printable,
       
       if (node instanceof YAtomicTask) {
           try {
-        	  ComponentEditor internalFrame = (ComponentEditor)((NexusCell) cell).getProxy().getEditor();
-			JDesktopPane desktop = WorkflowEditor.getInstance().getDesktopPane();
-			internalFrame.pack();
-		    internalFrame.setLocation(0,0);
-			internalFrame.setVisible(true);
-			desktop.add(internalFrame);
-			internalFrame.setSelected( true );
-		    internalFrame.toFront();
-			internalFrame.setMaximum( true );
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+              WorkflowEditor.getInstance().openEditor( ((NexusCell) cell).getProxy(), null );
+          }
+          catch( Exception e ) {
+              LOG.error( "Error opening editor!", e );
+          }
       }
 // ((CapselaCell) cell).getproxy().getPersistentDomainObject(1);
 // if (!node.isInComponentsFolder()) {

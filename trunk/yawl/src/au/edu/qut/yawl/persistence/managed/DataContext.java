@@ -204,7 +204,7 @@ public class DataContext {
      */
     public void detachProxy(DataProxy dataProxy) {
         Object object = dataProxy.getData();
-        dataProxy.fireDetached(object);
+        dataProxy.fireDetached(object, getParentProxy( dataProxy ) );
         
         removeFromHierarchy(dataProxy);
         removeFromMaps(dataProxy, object);
@@ -272,6 +272,13 @@ public class DataContext {
         dataMap.remove(proxy);
         proxyMap.remove(data);
 //        LOG.info("removing " + proxy.getLabel() + " from maps.");
+    }
+    
+    public void renameFolder( DataProxy folder, String name ) {
+        // TODO temporary, somewhat-working solution. NEEDS to be redone
+        Object oldVal = dataMap.get( folder );
+        removeFromMaps( folder, oldVal );
+        addToMaps( folder, name );
     }
    
     public Set<DataProxy> getChildren(DataProxy parent, boolean forceUpdate) {

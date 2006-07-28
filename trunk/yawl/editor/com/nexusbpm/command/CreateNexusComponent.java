@@ -94,14 +94,13 @@ public class CreateNexusComponent extends AbstractCommand {
      */
     @Override
     protected void perform() throws Exception {
+        taskID = WorkflowOperation.getAvailableNetElementID( netProxy.getData(), taskID );
         gateway = WorkflowOperation.createNexusGateway( taskID, netProxy.getData(), serviceInfo );
         task = WorkflowOperation.createNexusTask( taskID, taskName, netProxy.getData(), gateway, serviceInfo );
         netVariables = WorkflowOperation.createNexusVariables( taskID, netProxy.getData(), serviceInfo );
         
         gatewayProxy = context.createProxy( gateway, (SharedNodeTreeModel) netNode.getTreeModel() );
-        new SharedNode( (EditorDataProxy) gatewayProxy );
         taskProxy = context.createProxy( task, (SharedNodeTreeModel) netNode.getTreeModel() );
-        new SharedNode( (EditorDataProxy) taskProxy );
     }
     
 //	/**

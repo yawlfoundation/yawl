@@ -42,12 +42,13 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
         if( parent != null )
             parentNode = ((EditorDataProxy) parent).getTreeNode();
         if( !shouldFilter(proxy) ) {
-            if( parentNode != null )
+            if( parentNode != null ) {
+                parentNode.childCount = null;
                 insertNodeInto( ((EditorDataProxy) proxy).getTreeNode(), parentNode );
+            }
             else
                 setRoot( ((EditorDataProxy) proxy).getTreeNode() );
         }
-        
 	}
     
     public void insertNodeInto( SharedNode newChild, SharedNode parent ) {
@@ -63,12 +64,17 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
         insertNodeInto( newChild, parent, index );
     }
 
-	public void proxyDetached(DataProxy proxy, Object data) {
+	public void proxyDetached(DataProxy proxy, Object data, DataProxy parent) {
 //		SharedNode node = treeNodeCache.get(proxy);
 //		SharedNode parent = (SharedNode) node.getParent();
 //		this.removeNodeFromParent(node);
 //		treeNodeCache.remove(proxy);
 		if (!shouldFilter(data)) {
+            SharedNode parentNode = (SharedNode) getRoot();
+            if( parent != null )
+                parentNode = ((EditorDataProxy) parent).getTreeNode();
+            if( parentNode != null )
+                parentNode.childCount = null;
 			super.removeNodeFromParent(((EditorDataProxy) proxy).getTreeNode());
 //			super.reload();
 			LOG.info("Well at least I tried to remove it...");
@@ -95,12 +101,13 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 		List<SharedNode> retval = new ArrayList<SharedNode>();
 		SharedNode node;
 		EditorDataProxy proxy = parent.getProxy();
-		Set set = proxy.getContext().getChildren(proxy, false);
+		Set<DataProxy> set = proxy.getContext().getChildren(proxy, false);
 		if (set != null) { 
-			for (Object childProxy: set) {
+			for (DataProxy childProxy: set) {
 //				if (!treeNodeCache.containsKey(childProxy)) 
 				{
-					node = new SharedNode((EditorDataProxy) childProxy);
+//					node = new SharedNode((EditorDataProxy) childProxy, childProxy.getData());
+                    node = ((EditorDataProxy)childProxy).getTreeNode();
 					((EditorDataProxy) childProxy).addChangeListener(this);
 					String x = null;
 					try {
@@ -183,8 +190,9 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 		  if (((SharedNode)parent).getChildCount() == 0) {
 			  getChildren((SharedNode) parent);
 		  }
-          ((SharedNode)parent).childCount = Integer.valueOf( super.getChildCount( parent ) );
-		  return ((SharedNode)parent).childCount.intValue();
+//          ((SharedNode)parent).childCount = Integer.valueOf( super.getChildCount( parent ) );
+//		  return ((SharedNode)parent).childCount.intValue();
+          return super.getChildCount( parent );
 	  }
 
 	  public Object getChild(Object parent, int index) {

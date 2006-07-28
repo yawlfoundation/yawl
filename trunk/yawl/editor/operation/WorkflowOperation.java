@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,7 +75,7 @@ public class WorkflowOperation {
      * @throws Exception if the proxy to the parent cannot be converted into a path (shouldn't
      *                   happen).
      */
-    public static YSpecification createSpecification(String parentURI, String name)
+    public static YSpecification createSpecification(String parentURI, String name, String id)
     throws Exception {
         YSpecification spec = null;
         
@@ -83,7 +84,7 @@ public class WorkflowOperation {
                 new URI(
                         u.getScheme(),
                         u.getAuthority(),
-                        u.getPath() + "/" + name,
+                        u.getPath() + "/" + convertNameToID( id ),
                         null,
                         null ).toString() );
         spec.setName( name );
@@ -98,10 +99,10 @@ public class WorkflowOperation {
      * @param name the name to give the net.
      * @return the newly created net.
      */
-    public static YNet createNet( String name, YSpecification spec ) {
+    public static YNet createNet( String name, String id, YSpecification spec ) {
         YNet net = null;
         
-        String id = getAvailableDecompID( spec, convertNameToID( name ) );
+        id = getAvailableDecompID( spec, convertNameToID( id ) );
         
         // the constructor throws a null pointer exception if you don't have a specification
         net = new YNet( id, getTempSpec() );
@@ -149,8 +150,8 @@ public class WorkflowOperation {
         return new YOutputCondition( "end", "end", null );
     }
     
-    public static YCondition createCondition(String id, String label) {
-        return new YCondition( id, label, null );
+    public static YCondition createCondition(YNet net, String label) {
+        return new YCondition( getAvailableNetElementID( net, "Condition" ), label, null );
     }
     
     public static void attachNetElementToNet( YExternalNetElement element, YNet net ) {
@@ -257,7 +258,7 @@ public class WorkflowOperation {
                                 
                                 String varName = info.getVariableNames()[ index ];
                                 task.setDataBindingForInputParam(createInputBindingString(newId,
-                                        varName, task.getID() + NexusWorkflow.NAME_SEPARATOR + varName),
+                                        varName, task.getID(), varName),
                                         varName);
                                 task.setDataBindingForOutputExpression(createOutputBindingString(
                                         newId, task.getID(), task.getID() + NexusWorkflow.NAME_SEPARATOR
@@ -322,9 +323,21 @@ public class WorkflowOperation {
     }
     
     /**
+     * @return a non-colliding ID (in the context of the containing net) by appending
+     *         or altering a number at the end of the id.
+     */
+    public static String getAvailableNetElementID(YNet net, String originalID) {
+        List<String> ids = new LinkedList<String>();
+        for( YExternalNetElement element : net.getNetElements() ) {
+            ids.add( element.getID() );
+        }
+        return getAvailableID( ids, originalID );
+    }
+    
+    /**
      * @return a non-colliding ID by appending or altering a number at the end of the id.
      */
-    public static String getAvailableID(List<String> ids, String originalID) {
+    public static String getAvailableID(Collection<String> ids, String originalID) {
         HashBag<String, NameAndCounter> bag = new HashBag<String, NameAndCounter>();
         NameAndCounter id = new NameAndCounter( originalID );
         String result;
@@ -436,7 +449,8 @@ public class WorkflowOperation {
                     createInputBindingString(
                             net.getId(),
                             varName,
-                            taskID + NexusWorkflow.NAME_SEPARATOR + varName ),
+                            taskID,
+                            varName ),
                     varName );
 			task.setDataBindingForOutputExpression(
                     createOutputBindingString(
@@ -452,7 +466,8 @@ public class WorkflowOperation {
                 createInputBindingString(
                         net.getId(),
                         NexusWorkflow.SERVICENAME_VAR,
-                        taskID + NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.SERVICENAME_VAR ),
+                        taskID,
+                        NexusWorkflow.SERVICENAME_VAR ),
                 NexusWorkflow.SERVICENAME_VAR );
 		task.setDataBindingForOutputExpression(
                 createOutputBindingString(
@@ -464,6 +479,19 @@ public class WorkflowOperation {
         
 		return task;
 	}
+    
+    /**
+     * Creates a task in the given net, and sets the gateway as the task's decomposition.
+     */
+    public static YAtomicTask createTask( String taskID, String taskName, YNet net,
+            YAWLServiceGateway gateway ) {
+        YAtomicTask task = new YAtomicTask( taskID, YTask._AND, YTask._AND, net );
+        task.setParent( null );
+        task.setName( taskName );
+        task.setDecompositionPrototype( gateway );
+        
+        return task;
+    }
 
 	/**
 	 * Creates a Nexus Workflow Gateway for the specified nexus service.
@@ -514,13 +542,30 @@ public class WorkflowOperation {
         
 		return gateway;
 	}
+    
+    /**
+     * Creates a Gateway that is intended to be used as a Nexus Workflow gateway
+     * for the task with the specified id.
+     */
+    public static YAWLServiceGateway createGateway( String taskID, YNet net ) {
+        YAWLServiceGateway gateway = new YAWLServiceGateway(
+                net.getId() + NexusWorkflow.NAME_SEPARATOR + taskID,
+                net.getParent() );
+        gateway.setParent( null );
+        YAWLServiceReference yawlService = new YAWLServiceReference(
+                NexusWorkflow.LOCAL_INVOKER_URI,
+                gateway);
+        gateway.setYawlService(yawlService);
+        
+        return gateway;
+    }
 
 	/**
 	 * Creates net variables for a particular Nexus Service.
 	 */
 	public static List<YVariable> createNexusVariables(
             String taskID, YNet net, NexusServiceInfo serviceInfo ) {
-        List<YVariable> variables = new ArrayList<YVariable>( serviceInfo.getVariableNames().length + 1 );
+        List<YVariable> variables = new ArrayList<YVariable>( serviceInfo.getVariableNames().length + 3 );
         
 		NexusServiceData data = new NexusServiceData();
 
@@ -542,6 +587,7 @@ public class WorkflowOperation {
                     taskID + NexusWorkflow.NAME_SEPARATOR + name,
                     NexusWorkflow.XML_SCHEMA_URL );
             var.setInitialValue( data.getEncodedValue( name ) );
+            variables.add( var );
 		}
 		
 		variables.add(
@@ -594,13 +640,15 @@ public class WorkflowOperation {
 	 * 
 	 * @param net
 	 * @param elementName
+     * @param taskID
 	 * @param variableName
 	 * @return
 	 */
 	public static String createInputBindingString(String netID, String elementName,
-			String variableName) {
-		return "<" + elementName + ">" + "{" + "/" + netID + "/"
-				+ variableName + "/text()" + "}" + "</" + elementName + ">";
+			String taskID, String variableName) {
+		return "<" + elementName + ">" + "{" + "/" + netID + "/" +
+				taskID + NexusWorkflow.NAME_SEPARATOR + variableName + "/text()" + "}" +
+                "</" + elementName + ">";
 	}
 
 	/**
@@ -616,8 +664,8 @@ public class WorkflowOperation {
 	 */
 	public static String createOutputBindingString(String netID, String taskID,
 			String elementName, String variableName) {
-		return "<" + elementName + ">" + "{" + "/" + netID
-				+ NexusWorkflow.NAME_SEPARATOR + taskID + "/" + variableName
+		return "<" + elementName + ">" + "{" + "/" +
+                netID + NexusWorkflow.NAME_SEPARATOR + taskID + "/" + variableName
 				+ "/text()" + "}" + "</" + elementName + ">";
 	}
 
@@ -636,9 +684,13 @@ public class WorkflowOperation {
 		String sourcevarName = getNexusSimpleVarName(source);
 		String targetvarName = getNexusSimpleVarName(target);
 
-		targetTask.setDataBindingForInputParam(createInputBindingString(net.getId(),
-				targetvarName, sourceTaskId + NexusWorkflow.NAME_SEPARATOR
-						+ sourcevarName), targetvarName);
+		targetTask.setDataBindingForInputParam(
+                createInputBindingString(
+                        net.getId(),
+                        targetvarName,
+                        sourceTaskId,
+                        sourcevarName),
+                targetvarName);
 	}
 
 	/**
@@ -681,36 +733,49 @@ public class WorkflowOperation {
      */
     public static boolean isTaskANexusTask( YAtomicTask task ) {
         String taskId = task.getID();
-        if( task.getParent() != null && task.getDecompositionPrototype() != null ) {
-            try {
-                YNet parent = task.getParent();
-                YDecomposition decomp = task.getDecompositionPrototype();
-                boolean isNexus = true;
-                String parentId = parent.getId();
-                String decompId = decomp.getId();
-                isNexus = isNexus && decompId.equals( parentId + NexusWorkflow.NAME_SEPARATOR + taskId );
-                String serviceName = parent.getLocalVariable( taskId +
-                        NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.SERVICENAME_VAR ).getInitialValue();
-                NexusServiceInfo info = NexusServiceInfo.getServiceWithName( serviceName );
-                
-                for( int index = 0; index < info.getVariableNames().length; index++ ) {
-                    String var = info.getVariableNames()[ index ];
-                    isNexus = isNexus && parent.getLocalVariable(
-                            taskId + NexusWorkflow.NAME_SEPARATOR + var ) != null;
-                    isNexus = isNexus && task.getDataMappingsForTaskStarting().get( var ) != null;
-                    isNexus = isNexus && task.getDataMappingsForTaskCompletion().get( var ) != null;
-                    isNexus = isNexus && decomp.getInputParameterNames().contains( var );
-                    isNexus = isNexus && decomp.getOutputParamNames().contains( var );
-                }
-                
-                return isNexus;
+        NexusServiceInfo info = getNexusServiceInfoForTask( task );
+        
+        if( info != null ) {
+            boolean isNexus = true;
+            
+            YNet parent = task.getParent();
+            YDecomposition decomp = task.getDecompositionPrototype();
+            
+            for( int index = 0; index < info.getVariableNames().length; index++ ) {
+                String var = info.getVariableNames()[ index ];
+                isNexus = isNexus && parent.getLocalVariable(
+                        taskId + NexusWorkflow.NAME_SEPARATOR + var ) != null;
+                isNexus = isNexus && task.getDataMappingsForTaskStarting().get( var ) != null;
+                isNexus = isNexus && task.getDataMappingsForTaskCompletion().get( var ) != null;
+                isNexus = isNexus && decomp.getInputParameterNames().contains( var );
+                isNexus = isNexus && decomp.getOutputParamNames().contains( var );
             }
-            catch( NullPointerException e ) {
-                // null pointers happen when it tries to acces net variables that don't exist,
-                // so it's not a nexus task
+            
+            return isNexus;
+        }
+        
+        return false;
+    }
+    
+    public static NexusServiceInfo getNexusServiceInfoForTask( YAtomicTask task ) {
+        String taskId = task.getID();
+        if( task.getParent() != null && task.getDecompositionPrototype() != null ) {
+            YNet parent = task.getParent();
+            YDecomposition decomp = task.getDecompositionPrototype();
+            
+            String parentId = parent.getId();
+            String decompId = decomp.getId();
+            
+            if( decompId.equals( parentId + NexusWorkflow.NAME_SEPARATOR + taskId ) ) {
+                YVariable serviceNameVar = parent.getLocalVariable( taskId +
+                        NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.SERVICENAME_VAR );
+                if( serviceNameVar != null &&
+                        serviceNameVar.getInitialValue() != null ) {
+                    return NexusServiceInfo.getServiceWithName( serviceNameVar.getInitialValue() );
+                }
             }
         }
-        return false;
+        return null;
     }
     
     public static boolean isGatewayANexusGateway( YAWLServiceGateway gateway ) {

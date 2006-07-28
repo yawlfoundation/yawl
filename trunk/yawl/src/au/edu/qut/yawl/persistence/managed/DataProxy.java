@@ -90,9 +90,9 @@ public class DataProxy<Type> {
 		fireUpdated(attributeName, oldval, attributeValue);
 	}
 
-	public void fireDetached(Object value) {
+	public void fireDetached(Object value, DataProxy parent) {
 		for (DataProxyStateChangeListener listener: listeners) {
-			listener.proxyDetached(this, value);
+			listener.proxyDetached(this, value, parent);
 		}
 	}
 	
