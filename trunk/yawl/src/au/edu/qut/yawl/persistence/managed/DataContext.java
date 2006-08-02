@@ -14,7 +14,6 @@ package au.edu.qut.yawl.persistence.managed;
 
 import java.beans.VetoableChangeListener;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,11 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.Parented;
-import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YFlow;
-import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.util.HashBag;
@@ -57,6 +53,7 @@ public class DataContext {
         		+ " is not a subclass of DataProxy");
         }        	
         this.dataProxyClass = dataProxyClass;
+        LOG.trace( "DataContext initialized with proxy class " + dataProxyClass.getName() );
         init(dao);
     }
 
@@ -88,8 +85,8 @@ public class DataContext {
         return proxyMap.get(dataObject);
     }
     
-    /* (non-Javadoc)
-	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getData(au.edu.qut.yawl.persistence.managed.DataProxy)
+    /**
+	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getData(DataProxy)
 	 */
     public Object getData(DataProxy proxyObject) {
         assert dataMap.containsKey(proxyObject) : "attempting to access the data from a disconnected proxy";
@@ -164,14 +161,15 @@ public class DataContext {
     /**
 	 * Tells the DAO to delete the object that the proxy is a proxy for
      * and removes the proxy and data from the context.
+     * TODO remove the detach proxy part
 	 */
     public void delete(DataProxy dataProxy) {
-    	Object data = getData(dataProxy);
+        Object data = getData(dataProxy);
+        DataProxy parent = getParentProxy(dataProxy);
     	if (data instanceof YSpecification) {
     		dao.delete((YSpecification) data);
     	}
-        removeFromMaps(dataProxy, data);
-        removeFromHierarchy(dataProxy);
+        detachProxy(dataProxy, data, parent);
     }
     
     /* (non-Javadoc)
@@ -186,15 +184,16 @@ public class DataContext {
      * the data context. It is necessary to pass both the proxy and the
      * object because the proxy delegates retrieving its data to the context
      * (this class) which won't have its data until after it's attached.
-     * <em>If the object does not implement Parented, then it will not be
-     * connected to the hierarchy.</em>
      * @param dataProxy the proxy to add to the context.
      * @param object the data object that the proxy is a proxy for.
      */
     public void attachProxy(DataProxy dataProxy, Object object, DataProxy parent) {
+        dataProxy.fireAttaching(object, parent);
+        
         dataProxy.setContext( this );
         addToMaps(dataProxy, object);
-        addToHierarchy(dataProxy);
+        addToHierarchy(dataProxy, parent);
+        
         dataProxy.fireAttached(object, parent);
     }
     
@@ -202,14 +201,14 @@ public class DataContext {
      * Detaches a data proxy from the context.
      * @param dataProxy the proxy object to detach.
      */
-    public void detachProxy(DataProxy dataProxy) {
-        Object object = dataProxy.getData();
-        dataProxy.fireDetached(object, getParentProxy( dataProxy ) );
+    public void detachProxy(DataProxy dataProxy, Object object, DataProxy parent) {
+        dataProxy.fireDetaching(object, parent);
         
-        removeFromHierarchy(dataProxy);
+        removeFromHierarchy(dataProxy, parent);
         removeFromMaps(dataProxy, object);
-        
         dataProxy.setContext(null);
+        
+        dataProxy.fireDetached(object, parent);
     }
     
     public DataProxy getParentProxy(DataProxy child) {
@@ -236,24 +235,20 @@ public class DataContext {
     }
     
     /**
-     * The child proxy must be attached to the context for this function to work.
-     * If the child does not implement Parented, then the child won't be added.
+     * Adds the child proxy to the hierarchy as a child of the given parent proxy.
      * @param childProxy
      */
-    private void addToHierarchy(DataProxy childProxy) {
-        if( getParentProxy( childProxy ) != null ) {
-            hierarchy.put(getParentProxy( childProxy ), childProxy);
+    private void addToHierarchy(DataProxy childProxy, DataProxy parentProxy) {
+        if( parentProxy != null ) {
+            hierarchy.put(parentProxy, childProxy);
 //            LOG.info("adding " + childProxy.getLabel() + " to " + getParentProxy( childProxy ).getLabel());
         }
     }
     
     /**
      * Removes the child proxy, and all of its children, from the hierarchy.
-     * <em>If the object does not implement parented, then it will not be
-     * removed from the hierarchy.</em>
      */
-    private void removeFromHierarchy(DataProxy childProxy) {
-        DataProxy parentProxy = getParentProxy( childProxy );
+    private void removeFromHierarchy(DataProxy childProxy, DataProxy parentProxy) {
         if( parentProxy != null && hierarchy.get( parentProxy ) != null ) {
             hierarchy.get( parentProxy ).remove( childProxy );
 //            LOG.info("removing " + childProxy.getLabel() + " from " + getParentProxy( childProxy ).getLabel());
@@ -289,26 +284,30 @@ public class DataContext {
     			if (o instanceof YSpecification) {
                     RemoveNetConditionsOperation.removeConditions( (YSpecification) o );
                     VisitSpecificationOperation.visitSpecification(
-                            (YSpecification) o,
+                            (YSpecification) o, getData( parent ),
                             new Visitor() {
-                                public void visit(Object child, String childLabel) {
+                                public void visit(Object child, Object parent, String childLabel) {
                                     DataProxy childProxy;
                                     if( DataContext.this.getDataProxy( child, null ) == null ) {
                                         childProxy = DataContext.this.createProxy(child, null);
-                                        DataContext.this.attachProxy( childProxy, child, null );
+                                        
+                                        DataProxy parentProxy = DataContext.this.getDataProxy(parent, null);
+                                        DataContext.this.attachProxy( childProxy, child, parentProxy );
                                     }
                                     else {
+                                        LOG.warn( "Revisiting child:" + child );
                                         childProxy = DataContext.this.getDataProxy( child, null );
+                                    }
+                                    if( childLabel == null ) {
+                                        childLabel = "null";
                                     }
                                     childProxy.setLabel(childLabel);
                                 }
                             });
-                    hierarchy.put(parent, getDataProxy( o, null ) );
     			}
     			else {
     				DataProxy dp = createProxy(o, null);
                     attachProxy(dp, o, parent);
-        			hierarchy.put(parent, dp);
     			}
     		}
     	}
@@ -316,37 +315,4 @@ public class DataContext {
     	}
     	return hierarchy.get(parent);
     }
-    
-    public static void removeConditions(YSpecification spec) {
-    	for (YDecomposition decomp: spec.getDecompositions()) {
-    		if (decomp instanceof YNet) {
-    			List<YExternalNetElement> copySet = new ArrayList<YExternalNetElement>();
-    			copySet.addAll(((YNet) decomp).getNetElements());
-    			for (YExternalNetElement currentElement: copySet) {
-    				if (currentElement.getClass() == YCondition.class) {
-    					List<YExternalNetElement> elementsBeforeCondition = currentElement.getPresetElements();
-    					List<YExternalNetElement> elementsAfterCondition = currentElement.getPostsetElements();
-    					if (elementsBeforeCondition.size() == 1) {
-    						YExternalNetElement elementBeforeCondition = elementsBeforeCondition.get(0);
-    						for (YExternalNetElement elementAfterCondition: elementsAfterCondition) {
-    							for (YFlow flow: elementAfterCondition.getPresetFlows()) {
-    								if (flow.getPriorElement() == currentElement) {
-    									flow.setPriorElement(elementAfterCondition);
-    								}
-    							}
-    							for (YFlow flow: elementBeforeCondition.getPostsetFlows()) {
-    								if (flow.getNextElement() == currentElement) {
-    									flow.setNextElement(elementAfterCondition);
-    								}
-    							}
-    							
-    						}
-    					}
-    					((YNet) decomp).getNetElements().remove(currentElement);
-    				}
-    			}
-    		}
-    	}
-    }
-
 }

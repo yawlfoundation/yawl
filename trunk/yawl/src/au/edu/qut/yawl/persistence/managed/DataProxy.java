@@ -31,6 +31,10 @@ public class DataProxy<Type> {
 	 * @param l The listener to add.
 	 */
 	public void addChangeListener(DataProxyStateChangeListener l) {
+        if( listeners.contains( l ) ) {
+            // TODO this should be removed once the editor is in a more working state
+            new RuntimeException( "Listener being added multiple times!" ).fillInStackTrace().printStackTrace();
+        }
 		listeners.add(l);
 	}
 
@@ -41,6 +45,10 @@ public class DataProxy<Type> {
 	public void removeChangeListener(DataProxyStateChangeListener l) {
 		listeners.remove(l);
 	}
+    
+    public boolean containsChangeListener(DataProxyStateChangeListener l) {
+        return listeners.contains(l);
+    }
 
 	/**
 	 * Getter for property data.
@@ -89,13 +97,25 @@ public class DataProxy<Type> {
 		}
 		fireUpdated(attributeName, oldval, attributeValue);
 	}
-
+    
+    public void fireDetaching(Object value, DataProxy parent) {
+        for (DataProxyStateChangeListener listener: listeners) {
+            listener.proxyDetaching(this, value, parent);
+        }
+    }
+    
 	public void fireDetached(Object value, DataProxy parent) {
 		for (DataProxyStateChangeListener listener: listeners) {
 			listener.proxyDetached(this, value, parent);
 		}
 	}
 	
+    public void fireAttaching(Object value, DataProxy parent) {
+        for (DataProxyStateChangeListener listener: listeners) {
+            listener.proxyAttaching(this, value, parent);
+        }
+    }
+    
 	public void fireAttached(Object value, DataProxy parent) {
 		for (DataProxyStateChangeListener listener: listeners) {
 			listener.proxyAttached(this, value, parent);
@@ -129,6 +149,10 @@ public class DataProxy<Type> {
 	}
 
 	public void setLabel(String label) {
+        if( label == null ) {
+            // TODO this should be removed once the editor is in a more working state
+            new RuntimeException( "null label" ).fillInStackTrace().printStackTrace();
+        }
 		this.label = label;
 	}
 

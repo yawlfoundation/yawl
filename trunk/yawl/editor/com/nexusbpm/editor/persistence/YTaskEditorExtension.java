@@ -60,8 +60,8 @@ public class YTaskEditorExtension extends YawlEditorElementExtension{
 		}
 		boundsElement.setAttribute(X1_ATTRIBUTE, String.valueOf(bounds.getX()));
 		boundsElement.setAttribute(Y1_ATTRIBUTE, String.valueOf(bounds.getY()));
-		boundsElement.setAttribute(X2_ATTRIBUTE, String.valueOf(bounds.getX()));
-		boundsElement.setAttribute(Y2_ATTRIBUTE, String.valueOf(bounds.getY()));
+		boundsElement.setAttribute(X2_ATTRIBUTE, String.valueOf(bounds.getWidth()));
+		boundsElement.setAttribute(Y2_ATTRIBUTE, String.valueOf(bounds.getHeight()));
 	}
 	
 }

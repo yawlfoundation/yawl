@@ -7,8 +7,12 @@
  */
 package com.nexusbpm.command;
 
+import java.awt.geom.Rectangle2D;
+
 import operation.WorkflowOperation;
+import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -30,7 +34,12 @@ public class CreateNetCommand extends AbstractCommand {
     private YNet net;
     private DataProxy<YNet> netProxy;
     private String netName;
-	
+    
+    private YInputCondition input;
+    private DataProxy<YInputCondition> inputProxy;
+    private YOutputCondition output;
+    private DataProxy<YOutputCondition> outputProxy;
+    
     /**
      * NOTE: the parent proxy needs to be connected to the context.
      * @param parent
@@ -50,6 +59,10 @@ public class CreateNetCommand extends AbstractCommand {
     protected void attach() throws Exception {
         WorkflowOperation.attachDecompositionToSpec( net, specProxy.getData() );
         context.attachProxy( netProxy, net, specProxy );
+        WorkflowOperation.attachNetElementToNet( input, net );
+        context.attachProxy( inputProxy, input, netProxy );
+        WorkflowOperation.attachNetElementToNet( output, net );
+        context.attachProxy( outputProxy, output, netProxy );
     }
     
     /**
@@ -57,8 +70,12 @@ public class CreateNetCommand extends AbstractCommand {
      */
     @Override
     protected void detach() throws Exception {
+        WorkflowOperation.detachNetElementFromNet( output );
+        context.detachProxy( outputProxy, net, specProxy );
+        WorkflowOperation.detachNetElementFromNet( input );
+        context.detachProxy( inputProxy, input, netProxy );
         WorkflowOperation.detachDecompositionFromSpec( net );
-        context.detachProxy( netProxy );
+        context.detachProxy( netProxy, output, netProxy );
     }
     
     /**
@@ -68,5 +85,11 @@ public class CreateNetCommand extends AbstractCommand {
     protected void perform() throws Exception {
         net = WorkflowOperation.createNet( netName, "Net", specProxy.getData() );
         netProxy = context.createProxy( net, (SharedNodeTreeModel) specNode.getTreeModel() );
+        input = WorkflowOperation.createInputCondition();
+        WorkflowOperation.setBoundsOfNetElement( input, new Rectangle2D.Double( 5, 100, 50, 50 ) );
+        inputProxy = context.createProxy( input, (SharedNodeTreeModel) specNode.getTreeModel() );
+        output = WorkflowOperation.createOutputCondition();
+        WorkflowOperation.setBoundsOfNetElement( output, new Rectangle2D.Double( 300, 100, 50, 50 ) );
+        outputProxy = context.createProxy( output, (SharedNodeTreeModel) specNode.getTreeModel() );
     }
 }

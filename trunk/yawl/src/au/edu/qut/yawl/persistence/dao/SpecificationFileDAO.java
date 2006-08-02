@@ -5,8 +5,8 @@
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
-
 package au.edu.qut.yawl.persistence.dao;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Serializable;
@@ -22,10 +22,6 @@ import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.unmarshal.YMarshal;
-
-import com.nexusbpm.editor.tree.DatasourceRoot;
-
-
 
 public class SpecificationFileDAO implements SpecificationDAO {
 
@@ -121,15 +117,20 @@ public class SpecificationFileDAO implements SpecificationDAO {
 	public List getChildren(Object filename) {
 		LOG.debug("getting file children of " + filename);
 		List retval = new ArrayList();
-		if (filename instanceof String || filename instanceof DatasourceRoot) {
-			filename = filename.toString();
+        if( filename instanceof String || filename instanceof DatasourceRoot ) {
+            filename = filename.toString();
+        }
+        else if( filename instanceof File ) {
+            filename = ((File) filename).toURI().toString();
+        }
+		if( filename instanceof String ) {
 			File f = null;
 			try {
 				f = new File(new URI((String) filename));
 			} catch (URISyntaxException e) {
 				LOG.error("bad file name in file::getChildren", e);
 			}
-			if (f.isFile() && f.getName().toLowerCase().endsWith(".xml")) {
+			if (f.isFile() && ! f.isHidden() && f.getName().toLowerCase().endsWith(".xml")) {
 				YSpecification spec = retrieve(f.getAbsolutePath());
                 if( spec != null )
                     retval.add(spec);
@@ -138,9 +139,12 @@ public class SpecificationFileDAO implements SpecificationDAO {
 				files = f.listFiles();
 				if (files != null) {
 					for (File aFile : files) {
-						String file = aFile.toURI().toString();
-//						if (file.endsWith("/")) file = file.substring(0, file.length() - 1); 
-						retval.add(file);
+                        if( !aFile.isHidden() ) {
+//                            String file = aFile.toURI().toString();
+                            File file = new File( aFile.toURI() );
+//                            if (file.endsWith("/")) file = file.substring(0, file.length() - 1); 
+                            retval.add(file);
+                        }
 					}
 				}
 			}

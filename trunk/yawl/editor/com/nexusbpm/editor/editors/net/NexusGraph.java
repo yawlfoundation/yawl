@@ -450,25 +450,15 @@ public class NexusGraph extends JGraph implements Printable,
 //		SharedNode oldParent = (SharedNode) draggingNode.getParent();
 		SharedNode newParent = _SharedNode;
 
-		final Point location = event.getLocation();
+        Point origLocation = event.getLocation();
+		final Point location = new Point(
+                (int)( origLocation.getX() / getScale() ),
+                (int)( origLocation.getY() / getScale() ) );
 //		if (isDropCopy(draggingNode)) {
 			// if copy:
 			LOG.debug("IS COPY ACTION");
-            java.awt.EventQueue.invokeLater( new Runnable() {
-                public void run() {
-                    try {
-                        WorkflowEditor.getExecutor().executeCommand(
-                                new CopyTaskCommand( draggingNode, _SharedNode, location ) ).get();
-                        // TODO XXX This NEEDS to be moved elsewhere! Events should be automatically causing
-                        // the graph to update, we shouldn't have to wait for the command to finish and
-                        // tell the graph to redraw!
-                        getGraphEditor().refresh( (YNet) getGraphEditor().getProxy().getData() );
-                    }
-                    catch( Exception e ) {
-                        
-                    }
-                }
-            } );
+            WorkflowEditor.getExecutor().executeCommand(
+                    new CopyTaskCommand( draggingNode, _SharedNode, location ) );
 //			throw new RuntimeException("implement the copy operation");
 			// try {
 			// ClientOperation.executeCopyCommand((DataProxy)

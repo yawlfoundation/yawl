@@ -7,10 +7,10 @@
  */
 
 package au.edu.qut.yawl.persistence.dao;
+
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -225,13 +225,61 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 
     //TODO:this needs to actually filter out non-children. currently returns everything
     public List getChildren(Object parent) {
-    	List retval = new ArrayList();
-		Session session = openSession();
-		Criteria query = session.createCriteria(YSpecification.class);
-//		query.setParameter(0, parent.toString());
-		retval = query.list();
-		LOG.debug("retrieving " + Arrays.asList(retval));
+        List retval = new ArrayList();
+        String filter = "";
+        
+        if( parent instanceof DatasourceRoot || parent instanceof String ) {
+            filter = parent.toString();
+            if( ! filter.endsWith( "/" ) ) {
+                filter = filter + "/";
+            }
+            
+            Session session = openSession();
+            Criteria query = session.createCriteria(YSpecification.class);
+            
+//          query.setParameter(0, parent.toString());
+            List tmp = query.list();
+            
+//            for( Object o : tmp ) {
+//                if( getID( o ).startsWith( filter ) && ! retval.contains( o ) ) {
+//                    retval.add( o );
+//                }
+//            }
+            
+            for( Object o : tmp ) {
+                String key = getID( o );
+                if( key != null && key.startsWith( filter ) && ! retval.contains( o ) ) {
+                    if( contains( key, filter ) != null ) {
+                        retval.add( contains( key, filter ) );
+                    } else {
+                        retval.add( o );
+                    }
+                }
+            }
+        }
+        
+		LOG.debug("retrieving " + retval);
 		return retval;
 	}
-
+    
+    private static String contains(String full, String partial) {
+        String retval = null;
+        if (full.startsWith(partial)) {
+            int x = full.lastIndexOf("/");
+            int y = full.indexOf("/", partial.length() + 1);
+            if (x > partial.length()) {
+                retval = full.substring(0, y);
+            }
+        }
+        return retval;
+    }
+    
+    private String getID( Object object ) {
+        if( object instanceof YSpecification ) {
+            return ((YSpecification) object).getID();
+        }
+        else {
+            return object.toString();
+        }
+    }
 }

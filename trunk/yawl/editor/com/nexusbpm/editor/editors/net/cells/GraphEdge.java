@@ -1,7 +1,5 @@
 package com.nexusbpm.editor.editors.net.cells;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jgraph.graph.DefaultEdge;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -14,8 +12,6 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * @created October 28, 2002 
  */
 public class GraphEdge extends DefaultEdge {
-  private static final Log LOG = LogFactory.getLog(GraphEdge.class);
-  
   public GraphEdge(EditorDataProxy proxy) {
     super();
     _proxy = proxy;

@@ -7,6 +7,8 @@
  */
 package com.nexusbpm.command;
 
+import java.io.File;
+
 import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
@@ -61,8 +63,12 @@ public class CreateSpecificationCommand extends AbstractCommand {
      */
     @Override
     protected void perform() throws Exception {
+        Object parent = parentNode.getProxy().getData();
+        if( parent instanceof File ) {
+            parent = ((File) parent).toURI();
+        }
         specification = WorkflowOperation.createSpecification(
-                parentNode.getProxy().getData().toString(), specName, "Specification" );
+                parent.toString(), specName, "Specification" );
         specProxy = context.createProxy( specification, (SharedNodeTreeModel) parentNode.getTreeModel() );
     }
 }

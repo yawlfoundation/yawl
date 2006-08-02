@@ -7,15 +7,19 @@
  */
 package operation;
 
+import java.awt.Point;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +42,7 @@ import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.util.HashBag;
 
 import com.nexusbpm.NexusWorkflow;
+import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 import com.nexusbpm.services.NexusServiceInfo;
 import com.nexusbpm.services.data.NexusServiceData;
 
@@ -79,7 +84,7 @@ public class WorkflowOperation {
     throws Exception {
         YSpecification spec = null;
         
-        URI u = new URI( parentURI );
+        URI u = new URI( parentURI.replaceAll( "\\\\", "/" ) );
         spec = new YSpecification(
                 new URI(
                         u.getScheme(),
@@ -284,6 +289,94 @@ public class WorkflowOperation {
         }
         
         return decomps;
+    }
+    
+    /**
+     * Copies a valid Nexus Service task. The original task's decomposition will
+     * also be copied and the copy of the YAWL service gateway will be set as
+     * the task's decomposition. The parameter <tt>vars</tt> must not be null
+     * because it will be populated with local variables that need to be attached
+     * to the <tt>targetNet</tt> when the task and gateway are attached.
+     * @param sourceTask the original task to make a copy of.
+     * @param targetNet the net that will contain the copy of the task
+     * @param location the location in the net to set for the task (optional)
+     * @param vars a collection that will be populated with local variables to
+     *             be connected to the net.
+     * @return the copy of the task.
+     */
+    public static YAtomicTask copyTask(
+            YAtomicTask sourceTask, YNet targetNet, Point location,
+            List<YVariable> vars ) {
+        assert vars != null : "variable list must not be null";
+        
+        YSpecification targetSpec = targetNet.getParent();
+        
+        String taskID = WorkflowOperation.getAvailableNetElementID( targetNet, sourceTask.getID() );
+        
+        YAWLServiceGateway gateway = WorkflowOperation.createGateway( taskID, targetNet );
+        YAtomicTask task = WorkflowOperation.createTask( taskID, sourceTask.getName(), targetNet, gateway );
+        
+        Set<String> names = new HashSet<String>();
+        
+        for( String name : sourceTask.getDecompositionPrototype().getInputParameterNames() ) {
+            names.add( name );
+            YParameter iparam = new YParameter( gateway, YParameter._INPUT_PARAM_TYPE );
+            iparam.setDataTypeAndName( NexusWorkflow.VARTYPE_STRING, name, NexusWorkflow.XML_SCHEMA_URL );
+            gateway.setInputParam( iparam );
+            task.setDataBindingForInputParam(
+                    WorkflowOperation.createInputBindingString(
+                            targetNet.getId(),
+                            name,
+                            taskID,
+                            name ), name );
+        }
+        
+        for( String name : sourceTask.getDecompositionPrototype().getOutputParamNames() ) {
+            names.add( name );
+            YParameter oparam = new YParameter( gateway, YParameter._OUTPUT_PARAM_TYPE );
+            oparam.setDataTypeAndName( NexusWorkflow.VARTYPE_STRING, name, NexusWorkflow.XML_SCHEMA_URL );
+            gateway.setOutputParameter( oparam );
+            task.setDataBindingForOutputExpression(
+                    WorkflowOperation.createOutputBindingString(
+                            targetNet.getId(),
+                            taskID,
+                            taskID + NexusWorkflow.NAME_SEPARATOR + name,
+                            name ), taskID + NexusWorkflow.NAME_SEPARATOR + name );
+        }
+        
+        for( String name : names ) {
+            YVariable var = new YVariable( null );
+            var.setDataTypeAndName(
+                    NexusWorkflow.VARTYPE_STRING,
+                    taskID + NexusWorkflow.NAME_SEPARATOR + name,
+                    NexusWorkflow.XML_SCHEMA_URL );
+            var.setInitialValue( sourceTask.getParent().getLocalVariable(
+                    sourceTask.getID() + NexusWorkflow.NAME_SEPARATOR + name ).getInitialValue() );
+            vars.add( var );
+        }
+        
+        if( location != null ) {
+            setBoundsOfNetElement( task, new Rectangle2D.Double(
+                    location.getX() - 40, location.getY() - 35,
+                    80, 70 ) );
+        }
+        
+        return task;
+    }
+    
+    /**
+     * Sets the bounds of the given element and returns the old bounds.
+     */
+    public static Rectangle2D setBoundsOfNetElement( YExternalNetElement element, Rectangle2D bounds ) {
+        YTaskEditorExtension editor = new YTaskEditorExtension( element );
+        Rectangle2D oldBounds = editor.getBounds();
+        editor.setBounds( bounds );
+        return oldBounds;
+    }
+    
+    public static Rectangle2D getBoundsOfNetElement( YExternalNetElement element ) {
+        YTaskEditorExtension editor = new YTaskEditorExtension( element );
+        return editor.getBounds();
     }
     
     public static YSpecification copySpecification( YSpecification original, String targetFolder )
@@ -545,7 +638,8 @@ public class WorkflowOperation {
     
     /**
      * Creates a Gateway that is intended to be used as a Nexus Workflow gateway
-     * for the task with the specified id.
+     * for the task with the specified id. No input or output parameters are
+     * created.
      */
     public static YAWLServiceGateway createGateway( String taskID, YNet net ) {
         YAWLServiceGateway gateway = new YAWLServiceGateway(

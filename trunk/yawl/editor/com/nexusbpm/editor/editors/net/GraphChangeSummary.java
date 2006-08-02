@@ -13,12 +13,13 @@ import org.jgraph.event.GraphModelListener;
 import org.jgraph.graph.GraphConstants;
 
 import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.persistence.managed.DataContext;
 
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CompoundCommand;
+import com.nexusbpm.command.RemoveFlowCommand;
 import com.nexusbpm.command.RemoveTaskCommand;
 import com.nexusbpm.editor.WorkflowEditor;
+import com.nexusbpm.editor.editors.net.cells.FlowControlEdge;
 import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 
@@ -48,18 +49,28 @@ public class GraphChangeSummary implements GraphModelListener {
   public void graphChanged(GraphModelEvent e) {
 		if (e.getChange().getRemoved() != null) {
 			LOG.info("Objects are being deleted by the graph");
-			List<Command> commands = new ArrayList<Command>();
+			List<Command> taskCommands = new ArrayList<Command>();
+            List<Command> edgeCommands = new ArrayList<Command>();
 			for (Object o : e.getChange().getRemoved()) {
 				if (o instanceof NexusCell) {
 					LOG.info("deleting cell");
 					NexusCell cell = (NexusCell) o;
-					commands.add(new RemoveTaskCommand(cell.getProxy()));
-				} else {
-					LOG.error("not a cell but instead a "
+					taskCommands.add(new RemoveTaskCommand(cell.getProxy()));
+				} else if(o instanceof FlowControlEdge) {
+                    LOG.info("deleting edge");
+                    FlowControlEdge edge = (FlowControlEdge) o;
+                    edgeCommands.add(new RemoveFlowCommand(edge.getProxy()));
+                } else {
+					LOG.error("not a cell or edge but instead a "
 							+ o.getClass().getName());
 				}
 			}
-			CompoundCommand command = new CompoundCommand(commands);
+			CompoundCommand taskCommand = new CompoundCommand(taskCommands);
+            CompoundCommand edgeCommand = new CompoundCommand(edgeCommands);
+            List<Command> compoundList = new ArrayList<Command>();
+            compoundList.add(edgeCommand); // remove all edges first
+            compoundList.add(taskCommand); // then remove all tasks
+            CompoundCommand command = new CompoundCommand(compoundList);
 			WorkflowEditor.getExecutor().executeCommand(command);
 		}
 

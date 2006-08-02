@@ -19,7 +19,11 @@ import org.jgraph.graph.BasicMarqueeHandler;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.PortView;
 
+import com.nexusbpm.command.CreateFlowCommand;
+import com.nexusbpm.editor.WorkflowEditor;
+import com.nexusbpm.editor.editors.net.cells.GraphPort;
 import com.nexusbpm.editor.editors.net.cells.PortHighlightable;
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
  * This marquee handler listens to the mouse handling events for connecting data/control edges and highlighting
@@ -143,27 +147,20 @@ public class GraphMarqueeHandler extends BasicMarqueeHandler {
 			// to the port cannot accept the edge, then give the user visual feedback.
 			if( _port != null ) {
 				_current = _graph.toScreen( _port.getLocation( null ) );
-				LOG.error("do we need validation?  or no?");
-//				new RuntimeException("OUTPUT ONLY do we need validation?  or no?  this basically allows us to" +
-//										   " prevent the user from connecting two objects in the graph").printStackTrace();
-//				final IndependentController ctrl = ((GraphPort) _port.getCell()).getController();
-//
-//				if( !_cachedDomainObjects.containsKey( ctrl ) ) {
-//					_cachedDomainObjects.put( ctrl, ctrl.getPersistentDomainObject( 0 ) );
-//				}
-//				try {
-//					Component c = (Component) _cachedDomainObjects.get( ctrl );
-//					c.validateSinkControlEdges( false, 1 );
-//					_graph.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
-//				}
-//				catch( ValidationFailure f ) {
-//					try {
-//						_graph.setCursor( Cursor.getSystemCustomCursor( "Invalid.32x32" ) );
-//					}
-//					catch( Exception ex ) {
-//						LOG.error( ex );
-//					}
-//				}
+                String error = CreateFlowCommand.validateFlow(
+                        ((GraphPort) _firstPort.getCell()).getProxy().getData(),
+                        ((GraphPort) _port.getCell()).getProxy().getData() );
+                try {
+                    if( error != null ) {
+                        _graph.setCursor( Cursor.getSystemCustomCursor( "Invalid.32x32" ) );
+                    }
+                    else {
+                        _graph.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
+                    }
+                }
+                catch( Exception exc ) {
+                    LOG.error( "Error getting cursor", exc );
+                }
 			}
 			// Else If no Port was found then Point to Mouse Location
 			else {
@@ -244,41 +241,16 @@ public class GraphMarqueeHandler extends BasicMarqueeHandler {
 
 
 		if( e != null && !e.isConsumed() && _port != null && _firstPort != null && _firstPort != _port ) {
-			// If Valid ExecutionEvent, Current and First Port
-			// TODO XXX do we need validation here to check if we can allow the edge to be connected?
-			
-			
-//				try {
-//					IndependentController source = ((GraphPort) _firstPort.getCell()).getController();
-//					IndependentController sink = ((GraphPort) _port.getCell()).getController();
-//					else {
-//						// Validate the source component.
-//						if( !_graphEditor.isDataEditMode() ) {
-//							Component c = (Component) source.getPersistentDomainObject( 0 );
-//							c.validateSourceControlEdges( false, 1 );
-//						}
-//						// Validate the sink component.
-//						if( !_graphEditor.isDataEditMode() ) {
-//							Component c = (Component) sink.getPersistentDomainObject( 0 );
-//							c.validateSinkControlEdges( false, 1 );
-//						}
-//						// If we get here, validation was successful and we can connect the
-//						// two components.
-//						ClientOperation.executeControlConnectCommand( _graphEditor.getController(), source, sink, _graphEditor );
-//						//sourceRepaintBounds = _graph.getGraphLayoutCache().getMapping(((IndependentController) source).getGraphCell(), false).getBounds();
-//						//sinkRepaintBounds = _graph.getGraphLayoutCache().getMapping(((IndependentController) sink).getGraphCell(), false).getBounds();
-//
-//					}
-//				}
-//				catch( ValidationFailure f ) {
-//					LOG.debug( "Edge validation failed: vetoing connection." );
-//					repaint = true;
-//				}
-//				catch( Exception ee ) {
-//					LOG.warn( "exception", ee );
-//				}
-
-
+            try {
+                EditorDataProxy source = ((GraphPort) _firstPort.getCell()).getProxy();
+                EditorDataProxy sink = ((GraphPort) _port.getCell()).getProxy();
+                
+                WorkflowEditor.getExecutor().executeCommand(
+                        new CreateFlowCommand( source.getTreeNode(), sink.getTreeNode() ) );
+            }
+            catch( Exception exc ) {
+                LOG.error( "Error creating CreateFlowCommand!", exc );
+            }
 
 			// Consume ExecutionEvent
 			e.consume();

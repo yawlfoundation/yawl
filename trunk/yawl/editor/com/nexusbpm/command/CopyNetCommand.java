@@ -64,11 +64,12 @@ public class CopyNetCommand extends AbstractCommand {
                 /**
                  * @see VisitSpecificationOperation.Visitor#visit(Object, String)
                  */
-                public void visit( Object child, String childLabel ) {
+                public void visit( Object child, Object parent, String childLabel ) {
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
-                        targetContext.attachProxy( proxies.get( child ), child, specProxy );
+                        targetContext.attachProxy( proxies.get( child ), child,
+                                targetContext.getDataProxy( parent, null ) );
                     }
                 }
             });
@@ -86,11 +87,12 @@ public class CopyNetCommand extends AbstractCommand {
                 /**
                  * @see VisitSpecificationOperation.Visitor#visit(Object, String)
                  */
-                public void visit( Object child, String childLabel ) {
+                public void visit( Object child, Object parent, String childLabel ) {
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
-                        targetContext.detachProxy( proxies.get( child ) );
+                        targetContext.detachProxy( proxies.get( child ), child,
+                                targetContext.getDataProxy( parent, null ) );
                     }
                 }
             });
@@ -111,7 +113,7 @@ public class CopyNetCommand extends AbstractCommand {
                 /**
                  * @see VisitSpecificationOperation.Visitor#visit(Object, String)
                  */
-                public void visit( Object child, String childLabel ) {
+                public void visit( Object child, Object parent, String childLabel ) {
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {

@@ -55,7 +55,7 @@ public class CreateFolderCommand extends AbstractCommand {
      */
     @Override
     protected void detach() throws Exception {
-        context.detachProxy( folderProxy );
+        context.detachProxy( folderProxy, fullname, parentNode.getProxy() );
     }
     
     /**
