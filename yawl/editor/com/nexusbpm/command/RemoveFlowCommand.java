@@ -11,8 +11,7 @@ import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.persistence.managed.DataContext;
-
-import com.nexusbpm.editor.persistence.EditorDataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**
  * The RemoveFlowCommand removes a flow from its prior's postsets and 
@@ -23,14 +22,14 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  */
 public class RemoveFlowCommand extends AbstractCommand {
 
-	private EditorDataProxy<YFlow> flowProxy;
+	private DataProxy<YFlow> flowProxy;
     private YFlow flow;
     private DataContext context;
     
     private YExternalNetElement source;
     private YExternalNetElement sink;
 	
-	public RemoveFlowCommand( EditorDataProxy proxy ) {
+	public RemoveFlowCommand( DataProxy proxy ) {
         context = proxy.getContext();
 		flowProxy = proxy;
         flow = flowProxy.getData();
@@ -41,8 +40,9 @@ public class RemoveFlowCommand extends AbstractCommand {
      * (Attach and detach are reversed for remove commands).
      */
     protected void attach() {
+        DataProxy parentProxy = context.getDataProxy( flow.getParent(), null );
         WorkflowOperation.detachFlowFromElements( flow );
-        context.detachProxy( flowProxy, flow, context.getDataProxy( flow.getParent(), null ) );
+        context.detachProxy( flowProxy, flow, parentProxy );
     }
     
     /**
