@@ -93,13 +93,13 @@ class CommandStack {
      * @throws Exception if the command fails to execute.
      */
     public Command executeCommand( Command cmd ) throws Exception {
+        while( commands.size() > lastExecuted + 1 ) {
+            commands.remove( commands.size() - 1);
+        }
+        
         cmd.execute();
         
         lastExecuted++;
-        while( commands.size() > lastExecuted ) {
-            commands.remove( commands.size() );
-        }
-        
         commands.add( cmd );
         
         resize();
