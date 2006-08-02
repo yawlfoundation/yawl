@@ -71,11 +71,11 @@ public class CreateNetCommand extends AbstractCommand {
     @Override
     protected void detach() throws Exception {
         WorkflowOperation.detachNetElementFromNet( output );
-        context.detachProxy( outputProxy, net, specProxy );
+        context.detachProxy( outputProxy, output, netProxy );
         WorkflowOperation.detachNetElementFromNet( input );
         context.detachProxy( inputProxy, input, netProxy );
         WorkflowOperation.detachDecompositionFromSpec( net );
-        context.detachProxy( netProxy, output, netProxy );
+        context.detachProxy( netProxy, net, specProxy );
     }
     
     /**
