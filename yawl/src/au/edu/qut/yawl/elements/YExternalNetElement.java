@@ -241,20 +241,22 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     public void removePresetFlow(YFlow flowsInto){
     	if (flowsInto != null) {
     		getPresetFlows().remove(flowsInto);
-    		flowsInto.getPriorElement().getPostsetFlows().remove(flowsInto);
+//    		flowsInto.getPriorElement().getPostsetFlows().remove(flowsInto);
     	}
     }
 
    public void removePostsetFlow(YFlow flowsInto){
 	   if (flowsInto != null) {
 		   getPostsetFlows().remove(flowsInto);
-            flowsInto.getNextElement().getPresetFlows().remove(flowsInto);
+//           flowsInto.getNextElement().getPresetFlows().remove(flowsInto);
         }
    }
 
    public static void removeFlow(YFlow flow) {
 	   flow.getNextElement().removePresetFlow(flow);
+       flow.getPriorElement().getPostsetFlows().remove(flow);
 	   flow.getPriorElement().removePostsetFlow(flow);
+       flow.getNextElement().getPresetFlows().remove(flow);
    }
    
    public void removeAllFlows() {
