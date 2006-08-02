@@ -6,7 +6,7 @@
  *
  */
 
-package com.nexusbpm.editor.tree;
+package au.edu.qut.yawl.persistence.dao;
 
 import au.edu.qut.yawl.elements.Parented;
 

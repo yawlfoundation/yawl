@@ -4,6 +4,7 @@ import java.awt.Container;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.File;
 import java.io.IOException;
 
 import javax.swing.ImageIcon;
@@ -13,10 +14,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
-import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
@@ -35,8 +35,6 @@ import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.services.NexusServiceInfo;
 
 public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferable {
-
-
 	/** A <tt>graph cell</tt> is the displayed JGraph object for a component. */
 	private NexusCell _graphCell;
     
@@ -121,6 +119,26 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 	public Object getJGraphObject() {
 		return getGraphCell();
 	}
+    
+    @Override
+    public void fireAttached( Object value, DataProxy parent ) {
+        super.fireAttached( value, parent );
+        if( ( value instanceof YFlow || value instanceof YExternalNetElement ) &&
+                ((EditorDataProxy)parent)._editor != null ) {
+            ((NetEditor) ((EditorDataProxy)parent)._editor).getNetGraphEditor().insert( this );
+        }
+        // TODO anything else?
+    }
+    
+    @Override
+    public void fireDetached( Object value, DataProxy parent ) {
+        super.fireDetached( value, parent );
+        if( ( value instanceof YFlow || value instanceof YExternalNetElement ) &&
+                ((EditorDataProxy)parent)._editor != null ) {
+            ((NetEditor) ((EditorDataProxy)parent)._editor).getNetGraphEditor().remove( this );
+        }
+        // TODO anything else?
+    }
 	
 	/** The data flavor we'll be using for any drag/drop operations. */
 	public final static DataFlavor PROXY_FLAVOR = new DataFlavor( EditorDataProxy.class, "proxy flavor" );
@@ -192,7 +210,18 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 				if (value != null) iconName = value;
 			}
 		}
-		else {
+		else if( getData() instanceof File ) {
+            if( ((File) getData()).isDirectory() ) {
+                return String.class.getName();
+            }
+            else if( ((File) getData()).toString().toLowerCase().endsWith( ".xml" ) ) {
+                return File.class.getName();
+            }
+            else {
+                return "File";
+            }
+        }
+        else if( getData() != null ) {
 			iconName = getData().getClass().getName();
 		}
         return iconName;
@@ -243,7 +272,7 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 				_editor = new NetEditor();
                 for( YExternalNetElement element : ((YNet) getData()).getNetElements() ) {
                     DataProxy proxy = getContext().getDataProxy( element, null );
-                    proxy.addChangeListener( _editor );
+                    _editor.addListeningProxy( proxy );
                 }
 			}
 			else {
@@ -253,7 +282,7 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 				}
 			}
 			if (_editor != null) {
-				_editor.setTitle( this.getLabel() + getIdString( getData() ) );
+				_editor.resetTitle( this );
 				LOG.debug( "removing frame listeners" );
 				removeEditorFrameListeners();
 				LOG.debug( "adding frame listener for editor: " + _editor.getClass().getName() );
@@ -266,21 +295,6 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
     public void editorClosed() {
         // TODO
         this._editor = null;
-    }
-    
-    private String getIdString( Object data ) {
-        if( data instanceof YExternalNetElement ) {
-            YExternalNetElement netElement = (YExternalNetElement) data;
-            return " (ID: " + netElement.getID() + ")";
-        } else if( data instanceof YDecomposition ) {
-            YDecomposition decomp = (YDecomposition) data;
-            return " (ID: " + decomp.getId() + ")";
-        } else if( data instanceof YSpecification ) {
-            YSpecification spec = (YSpecification) data;
-            return " (ID: " + spec.getID() + ")";
-        } else {
-            return "";
-        }
     }
 
 	/**
@@ -361,6 +375,4 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 			_editor.removeInternalFrameListeners();
 		}
 	}
-
-
 }

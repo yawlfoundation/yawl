@@ -26,9 +26,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 
 import javax.swing.AbstractAction;
-import javax.swing.JDesktopPane;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -59,7 +59,6 @@ import com.nexusbpm.command.CreateNetCommand;
 import com.nexusbpm.command.CreateSpecificationCommand;
 import com.nexusbpm.command.SaveSpecificationCommand;
 import com.nexusbpm.editor.WorkflowEditor;
-import com.nexusbpm.editor.editors.ComponentEditor;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 
@@ -710,8 +709,21 @@ implements MouseListener, KeyListener, TreeSelectionListener,
                         "node:" + node +
                         "\nproxy:" + proxy +
                         "\ndata:" + data +
-                        "\ndataClass:" + dataClass,
+                        "\ndataClass:" + dataClass +
+                        "\ndataID:" + getID( data ),
                         new Exception("Stacktrace...").fillInStackTrace() );
+            }
+            private String getID( Object o ) {
+                if( o instanceof YSpecification ) {
+                    return ((YSpecification) o).getID();
+                }
+                else if( o instanceof YDecomposition ) {
+                    return ((YDecomposition) o).getId();
+                }
+                else if( o instanceof YExternalNetElement ) {
+                    return ((YExternalNetElement) o).getID();
+                }
+                else return "";
             }
         });
         
@@ -726,7 +738,9 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             rename.setVisible( false );
             delete.setVisible( false );
         } else if( data instanceof String ) {
-            // TODO show items appropriate for folders
+            // TODO show items appropriate for virtual folders
+        } else if( data instanceof File ) {
+            // TODO show items appropriate for a filesystem
         } else if( data instanceof YSpecification ) {
             // TODO show items for specs
             createFolder.setVisible( false );

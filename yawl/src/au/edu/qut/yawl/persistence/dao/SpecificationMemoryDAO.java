@@ -11,9 +11,6 @@ import org.apache.commons.logging.LogFactory;
 import au.edu.qut.yawl.elements.MockYSpecification;
 import au.edu.qut.yawl.elements.YSpecification;
 
-import com.nexusbpm.editor.tree.DatasourceRoot;
-import com.nexusbpm.editor.tree.SharedNode;
-
 public class SpecificationMemoryDAO implements SpecificationDAO{
     
 	private static final Log LOG = LogFactory.getLog( SpecificationMemoryDAO.class );
@@ -22,7 +19,7 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
     public static YSpecification testSpec = MockYSpecification.getSpecification();
 
     public SpecificationMemoryDAO() {
-    	save(testSpec); //remove this later...
+    	save(testSpec); // TODO remove this later...
     }    
     
     public boolean delete(YSpecification m) {

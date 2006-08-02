@@ -5,6 +5,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -20,7 +22,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YDecomposition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
@@ -48,7 +53,9 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 	private boolean _uiInitialized;
     
     protected NexusServiceData data;
+    public void proxyDetaching(DataProxy proxy, Object data, DataProxy parent) {}
     public void proxyDetached(DataProxy proxy, Object data, DataProxy parent) {}
+    public void proxyAttaching(DataProxy proxy, Object data, DataProxy parent) {}
     public void proxyAttached(DataProxy proxy, Object data, DataProxy parent) {}
 
     
@@ -231,12 +238,32 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 	public void propertyChange( PropertyChangeEvent event ) {
 		String property = event.getPropertyName();
 		if( property.equals( "name" ) ) {
-			String name = (String) event.getNewValue();
-			setTitle( name );
-			LOG.debug( "RENAMING INTERNAL FRAME TITLE: " + name );
+            // TODO not right
+            resetTitle( _proxy );
 		}
-		new RuntimeException("OUTPUT ONLY editor title names may need a new context in YAWL").printStackTrace();
+//		new RuntimeException("OUTPUT ONLY editor title names may need a new context in YAWL").printStackTrace();
 	}
+    
+    public void resetTitle( DataProxy proxy ) {
+        String name = proxy.getLabel() + getIdString( proxy.getData() );
+        setTitle( name );
+        LOG.debug( "RENAMING INTERNAL FRAME TITLE: " + name );
+    }
+    
+    private String getIdString( Object data ) {
+        if( data instanceof YExternalNetElement ) {
+            YExternalNetElement netElement = (YExternalNetElement) data;
+            return " (ID: " + netElement.getID() + ")";
+        } else if( data instanceof YDecomposition ) {
+            YDecomposition decomp = (YDecomposition) data;
+            return " (ID: " + decomp.getId() + ")";
+        } else if( data instanceof YSpecification ) {
+            YSpecification spec = (YSpecification) data;
+            return " (ID: " + spec.getID() + ")";
+        } else {
+            return "";
+        }
+    }
 
 	/**
 	 * Sets the controller of the component that this editor is for.
@@ -249,7 +276,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 			_proxy.removeChangeListener( this );
 		}
 		_proxy = proxy;
-		_proxy.addChangeListener( this );
+        addListeningProxy( _proxy );
         if( _proxy.getData() instanceof YAtomicTask ) {
             YAtomicTask task = (YAtomicTask) _proxy.getData();
             data = NexusServiceData.unmarshal( task );
@@ -329,7 +356,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 		}
 
 		if( null != _proxy ) {
-			_proxy.removeChangeListener( this );
+            removeListeningProxy( _proxy );
 		}
 
 		setFrameIcon( null );
@@ -345,6 +372,21 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 
 		super.frameClosed();
 	}
+    
+    private List<DataProxy> listeningProxies = new ArrayList<DataProxy>();
+    
+    public void addListeningProxy( DataProxy proxy ) {
+        if( listeningProxies.contains( proxy ) ) {
+            new RuntimeException( "Adding listener twice!" ).fillInStackTrace().printStackTrace();
+        }
+        proxy.addChangeListener( this );
+        listeningProxies.add( proxy );
+    }
+    
+    public void removeListeningProxy( DataProxy proxy ) {
+        proxy.removeChangeListener( this );
+        listeningProxies.remove( proxy );
+    }
 
 
 //	/**

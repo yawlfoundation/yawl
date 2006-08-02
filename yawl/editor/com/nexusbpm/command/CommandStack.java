@@ -57,11 +57,12 @@ class CommandStack {
      * 
      * @throws Exception if the undo operation fails.
      */
-    public void undoLastCommand() throws Exception {
+    public Command undoLastCommand() throws Exception {
         if( lastExecuted >= 0 ) {
             Command cmd = commands.get( lastExecuted );
             cmd.undo();
             lastExecuted--;
+            return cmd;
         }
         else {
             throw new Exception( "Cannot undo because there are no more commands to undo!" );
@@ -73,11 +74,12 @@ class CommandStack {
      * 
      * @throws Exception if the command fails to execute.
      */
-    public void redoNextCommand() throws Exception {
+    public Command redoNextCommand() throws Exception {
         if( lastExecuted < commands.size() - 1 ) {
             Command cmd = (Command) commands.get( lastExecuted + 1 );
-            cmd.execute();
+            cmd.redo();
             lastExecuted++;
+            return cmd;
         }
         else {
             throw new Exception( "Cannot redo because there are no more commands to redo!" );
@@ -90,7 +92,7 @@ class CommandStack {
      * @param cmd the command to execute
      * @throws Exception if the command fails to execute.
      */
-    public void executeCommand( Command cmd ) throws Exception {
+    public Command executeCommand( Command cmd ) throws Exception {
         cmd.execute();
         
         lastExecuted++;
@@ -101,6 +103,8 @@ class CommandStack {
         commands.add( cmd );
         
         resize();
+        
+        return cmd;
     }
     
     /**

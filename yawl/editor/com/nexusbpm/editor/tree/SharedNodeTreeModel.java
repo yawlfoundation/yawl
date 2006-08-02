@@ -1,6 +1,7 @@
 package com.nexusbpm.editor.tree;
 
 import java.beans.PropertyChangeEvent;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -37,13 +38,13 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
         }
 	}
 
+    public void proxyAttaching(DataProxy proxy, Object data, DataProxy parent) {}
 	public void proxyAttached(DataProxy proxy, Object data, DataProxy parent) {
         SharedNode parentNode = (SharedNode) getRoot();
         if( parent != null )
             parentNode = ((EditorDataProxy) parent).getTreeNode();
         if( !shouldFilter(proxy) ) {
             if( parentNode != null ) {
-                parentNode.childCount = null;
                 insertNodeInto( ((EditorDataProxy) proxy).getTreeNode(), parentNode );
             }
             else
@@ -53,8 +54,13 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
     
     public void insertNodeInto( SharedNode newChild, SharedNode parent ) {
         int index = 0;
-        while( index < super.getChildCount( parent ) ) {
-            SharedNode neighbor = (SharedNode) super.getChild( parent, index );
+        while( index < parent.getChildCount() ) {
+            SharedNode neighbor = (SharedNode) parent.getChildAt( index );
+            if( newChild == neighbor ) {
+                new RuntimeException( "child already added!" ).fillInStackTrace().printStackTrace();
+                return;
+            }
+            
             if( comparator.compare( newChild, neighbor ) < 0 ) {
                 insertNodeInto( newChild, parent, index );
                 return;
@@ -64,22 +70,23 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
         insertNodeInto( newChild, parent, index );
     }
 
-	public void proxyDetached(DataProxy proxy, Object data, DataProxy parent) {
+	public void proxyDetaching(DataProxy proxy, Object data, DataProxy parent) {
 //		SharedNode node = treeNodeCache.get(proxy);
 //		SharedNode parent = (SharedNode) node.getParent();
 //		this.removeNodeFromParent(node);
 //		treeNodeCache.remove(proxy);
-		if (!shouldFilter(data)) {
+		if (!shouldFilter(proxy)) {
             SharedNode parentNode = (SharedNode) getRoot();
             if( parent != null )
                 parentNode = ((EditorDataProxy) parent).getTreeNode();
-            if( parentNode != null )
-                parentNode.childCount = null;
+//            if( parentNode != null )
+//                parentNode.childCount = null;
 			super.removeNodeFromParent(((EditorDataProxy) proxy).getTreeNode());
 //			super.reload();
 			LOG.info("Well at least I tried to remove it...");
 		}
 	}
+    public void proxyDetached(DataProxy proxy, Object data, DataProxy parent) {}
 
     // the components list is read only
     private boolean readOnly;
@@ -97,47 +104,6 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
         this.readOnly = readOnly;
 	}
 	
-	public List getChildren(SharedNode parent) {
-		List<SharedNode> retval = new ArrayList<SharedNode>();
-		SharedNode node;
-		EditorDataProxy proxy = parent.getProxy();
-		Set<DataProxy> set = proxy.getContext().getChildren(proxy, false);
-		if (set != null) { 
-			for (DataProxy childProxy: set) {
-//				if (!treeNodeCache.containsKey(childProxy)) 
-				{
-//					node = new SharedNode((EditorDataProxy) childProxy, childProxy.getData());
-                    node = ((EditorDataProxy)childProxy).getTreeNode();
-					((EditorDataProxy) childProxy).addChangeListener(this);
-					String x = null;
-					try {
-						String label = ((EditorDataProxy) childProxy).getLabel();
-						if (label == null) label = "Uninitialized";
-						x = URLDecoder.decode(label, "UTF-8");
-					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					int y1 = x.lastIndexOf("/");
-					if (y1 == x.length() - 1) {
-						y1 = x.substring(0,y1 - 1).lastIndexOf("/");
-					}
-					int y2 = x.lastIndexOf("\\");
-					String x2 = x.substring(Math.max(y1, y2) + 1);
-					node.getProxy().setLabel(x2);
-					if (!shouldFilter(childProxy)) {
-//						super.insertNodeInto(node, parent, parent.getChildCount());
-                        insertNodeInto(node, parent);
-					}
-				}
-				if (!shouldFilter(childProxy))
-					retval.add(node);
-			}
-		}
-//		Collections.sort(retval, comparator);
-		return retval;
-	}
-
 	private boolean shouldFilter(Object proxy) {
 		boolean shouldFilter = false;
 		Object data = ((EditorDataProxy) proxy).getData();
@@ -156,57 +122,95 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 		public int compare(Object o1, Object o2) {
 			SharedNode s1 = (SharedNode) o1;
 			SharedNode s2 = (SharedNode) o2;
-            if( s1.getProxy().getData() instanceof String &&
-                    ! ( s2.getProxy().getData() instanceof String ) ) {
+            if( isDirectory( s1.getProxy() ) && ! isDirectory( s2.getProxy() ) ) {
                 return -1;
             }
-            else if( ! ( s1.getProxy().getData() instanceof String ) &&
-                    s2.getProxy().getData() instanceof String ) {
+            else if( ! isDirectory( s1.getProxy() ) && isDirectory( s2.getProxy() ) ) {
                 return 1;
             }
 			int result = s1.getProxy().getLabel().toLowerCase().compareTo(s2.getProxy().getLabel().toLowerCase());
 			return result;
 		}
-	}	
-	
-	  public boolean isLeaf(Object node) {
-		  SharedNode aNode = (SharedNode) node;
-		  Object aValue = aNode.getProxy().getData();
-		  boolean retval = false;
-		  if (aValue instanceof YAWLServiceGateway 
-				  || aValue instanceof YFlow
-				  || aValue instanceof YExternalNetElement
-		  ) retval = true;
-          if(!retval)
-              if(getChildCount(node)==0)
-                  retval = true;
-		  return retval;
-	  }
+        private boolean isDirectory( DataProxy proxy ) {
+            return proxy.getData() instanceof String ||
+                ( proxy.getData() instanceof File && ((File) proxy.getData()).isDirectory() );
+        }
+    }
 
-	  public int getChildCount(Object parent) {
-          if( ((SharedNode)parent).childCount != null ) {
-              return ((SharedNode)parent).childCount.intValue();
-          }
-		  if (((SharedNode)parent).getChildCount() == 0) {
-			  getChildren((SharedNode) parent);
-		  }
-//          ((SharedNode)parent).childCount = Integer.valueOf( super.getChildCount( parent ) );
-//		  return ((SharedNode)parent).childCount.intValue();
-          return super.getChildCount( parent );
-	  }
+    public boolean isLeaf( Object node ) {
+        SharedNode aNode = (SharedNode) node;
+        Object aValue = aNode.getProxy().getData();
+        if( aNode.initialized == true ) {
+            return aNode.getChildCount() == 0;
+        }
+        else if( aValue instanceof YAWLServiceGateway ||
+                aValue instanceof YFlow ||
+                aValue instanceof YExternalNetElement ) {
+            return true;
+        }
+        else {
+            return getChildCount( node ) == 0;
+        }
+    }
 
-	  public Object getChild(Object parent, int index) {
-		  if (((SharedNode)parent).getChildCount() == 0) {
-			  getChildren((SharedNode) parent);
-		  }
-		  return super.getChild(parent, index);
-	  }
+    public int getChildCount( Object parent ) {
+        initializeNode( (SharedNode) parent );
+        return super.getChildCount( parent );
+    }
 
-	  public int getIndexOfChild(Object parent, Object child) {
-		  if (((SharedNode)parent).getChildCount() == 0) {
-			  getChildren((SharedNode) parent);
-		  }
-		  return super.getIndexOfChild(parent, child);
-	  }
+    public Object getChild( Object parent, int index ) {
+        initializeNode( (SharedNode) parent );
+        return super.getChild( parent, index );
+    }
+
+    public int getIndexOfChild( Object parent, Object child ) {
+        initializeNode( (SharedNode) parent );
+        return super.getIndexOfChild( parent, child );
+    }
+    
+    private void initializeNode( SharedNode parent ) {
+        if( parent.initialized == false ) {
+            List<SharedNode> children = new ArrayList<SharedNode>();
+            EditorDataProxy proxy = parent.getProxy();
+            Set<DataProxy> set = proxy.getContext().getChildren(proxy, false);
+            if( set != null ) {
+                for( DataProxy childProxy: set ) {
+                    SharedNode node = ((EditorDataProxy)childProxy).getTreeNode();
+                    
+                    if( parent.getChildren() == null || ! parent.getChildren().contains( node ) ) {
+                        if( ! childProxy.containsChangeListener( this ) ) {
+                            childProxy.addChangeListener( this );
+                        }
+                        
+                        if ( ! shouldFilter( childProxy ) ) {
+                            String x = null;
+                            try {
+                                String label = ((EditorDataProxy) childProxy).getLabel();
+                                if (label == null) label = "Uninitialized";
+                                x = URLDecoder.decode(label, "UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                            int y1 = x.lastIndexOf("/");
+                            if (y1 == x.length() - 1) {
+                                y1 = x.substring(0,y1 - 1).lastIndexOf("/");
+                            }
+                            int y2 = x.lastIndexOf("\\");
+                            String x2 = x.substring(Math.max(y1, y2) + 1);
+                            node.getProxy().setLabel(x2);
+                            
+                            children.add(node);
+                        }
+                    }
+                }
+            }
+            parent.initialized = true;
+            for( SharedNode child : children ) {
+                if( parent.getChildren() == null || ! parent.getChildren().contains( child ) ) {
+                    insertNodeInto(child, parent);
+                }
+            }
+        }
+    }
 }
 

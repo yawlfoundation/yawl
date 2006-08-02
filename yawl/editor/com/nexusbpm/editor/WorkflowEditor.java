@@ -20,6 +20,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -31,6 +32,7 @@ import org.apache.log4j.PropertyConfigurator;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
+import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -45,7 +47,6 @@ import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
-import com.nexusbpm.editor.tree.DatasourceRoot;
 import com.nexusbpm.editor.tree.STree;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
@@ -139,6 +140,22 @@ public class WorkflowEditor extends javax.swing.JFrame {
         editMenu.setText("Edit");
         editMenu.setMnemonic( KeyEvent.VK_E );
         
+        undoMenuItem = new JMenuItem( new AbstractAction( "Undo" ) {
+            public void actionPerformed( ActionEvent e ) {
+                getExecutor().undo();
+            }
+        });
+        editMenu.add( undoMenuItem );
+        
+        redoMenuItem = new JMenuItem( new AbstractAction( "Redo" ) {
+            public void actionPerformed( ActionEvent e ) {
+                getExecutor().redo();
+            }
+        });
+        editMenu.add( redoMenuItem );
+        
+        editMenu.add( new JSeparator() );
+        
         cutMenuItem = new JMenuItem();
         cutMenuItem.setText("Cut");
         editMenu.add(cutMenuItem);
@@ -158,7 +175,6 @@ public class WorkflowEditor extends javax.swing.JFrame {
         
         /////////////////////////
         // create the window menu
-//      TODO
         windowMenu = new JMenu();
         windowMenu.setText("Window");
         windowMenu.setMnemonic( KeyEvent.VK_W );
@@ -229,7 +245,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
         SpecificationDAO filedao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
         DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
         
-        String dataroot = new File("exampleSpecs/").toURI().toString();
+        String dataroot = new File(".").toURI().normalize().toString();
         o = new DatasourceRoot(dataroot);
         EditorDataProxy filedp = (EditorDataProxy) filedc.createProxy(o, null);
         filedc.attachProxy(filedp, o, null);
@@ -434,7 +450,6 @@ public class WorkflowEditor extends javax.swing.JFrame {
         
         /////////////////////////
         // setup components panel
-        // TODO
         SpecificationDAO componentsDAO = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
         DataContext componentsContext = new DataContext(componentsDAO, EditorDataProxy.class);
         
@@ -469,6 +484,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
         _componentsFrame.setSize( DEFAULT_COMPONENTS_WIDTH, DEFAULT_COMPONENTS_HEIGHT );
         _componentsFrame.setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
         _componentsFrame.setVisible( true );
+        
+        componentsTreeModel.nodeStructureChanged( componentsRootNode );
     }
     
     private SharedNode setupComponentsList( SharedNode root ) {
@@ -512,7 +529,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
     }
     
     /**
-     * Opens an editor center at the given location or maximized if the location
+     * Opens an editor centered at the given location or maximized if the location
      * is null.
      */
     public void openEditor( EditorDataProxy proxy, Point location ) throws Exception {
@@ -521,24 +538,29 @@ public class WorkflowEditor extends javax.swing.JFrame {
             JDesktopPane desktop = getDesktopPane();
             
             editor.pack();
+            int locx = 0;
+            int locy = 0;
             if( location != null ) {
-                int width = desktop.getWidth();
-                int height = desktop.getHeight();
-                
-                if( width > 450 ) width = 450;
-                if( height > 400 ) height = 400;
-                
-                int x = (int)( location.getX() - width / 2 );
-                int y = (int)( location.getY() - height / 2 );
-                
-                if( x < 0 ) x = 0;
-                else if( ( x + width ) > desktop.getWidth() ) x = desktop.getWidth() - width;
-                if( y < 0 ) y = 0;
-                else if( ( y + height ) > desktop.getHeight() ) y = desktop.getHeight() - height;
-                
-                editor.setSize(width, height);
-                editor.setLocation(x, y);
+                locx = (int)location.getX();
+                locy = (int)location.getY();
             }
+            int width = desktop.getWidth();
+            int height = desktop.getHeight();
+            
+            if( width > 450 ) width = 450;
+            if( height > 400 ) height = 400;
+            
+            int x = (int)( locx - width / 2 );
+            int y = (int)( locy - height / 2 );
+            
+            if( x < 0 ) x = 0;
+            else if( ( x + width ) > desktop.getWidth() ) x = desktop.getWidth() - width;
+            if( y < 0 ) y = 0;
+            else if( ( y + height ) > desktop.getHeight() ) y = desktop.getHeight() - height;
+            
+            editor.setSize(width, height);
+            editor.setLocation(x, y);
+            
             editor.setVisible(true);
             
             getDesktopPane().add(editor);
@@ -659,6 +681,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
     private JMenuItem exitMenuItem;
     
     // options under the edit menu
+    private JMenuItem undoMenuItem;
+    private JMenuItem redoMenuItem;
     private JMenuItem cutMenuItem;
     private JMenuItem copyMenuItem;
     private JMenuItem pasteMenuItem;

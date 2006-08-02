@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import operation.WorkflowOperation;
-import au.edu.qut.yawl.elements.Parented;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
@@ -57,12 +56,12 @@ public class CopySpecificationCommand extends AbstractCommand{
         for( YDecomposition decomp : copySpec._decompositions ) {
             VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
                 /** @see VisitSpecificationOperation.Visitor#visit(Object, String) */
-                public void visit( Object child, String childLabel ) {
+                public void visit( Object child, Object parent, String childLabel ) {
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
                         targetContext.attachProxy( proxies.get( child ), child,
-                                targetContext.getDataProxy( ((Parented)child).getParent(), null ) );
+                                targetContext.getDataProxy( parent, null ) );
                     }
                 }
             });
@@ -80,11 +79,12 @@ public class CopySpecificationCommand extends AbstractCommand{
                 /**
                  * @see VisitSpecificationOperation.Visitor#visit(Object, String)
                  */
-                public void visit( Object child, String childLabel ) {
+                public void visit( Object child, Object parent, String childLabel ) {
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
-                        targetContext.detachProxy( proxies.get( child ) );
+                        targetContext.detachProxy( proxies.get( child ), child,
+                                targetContext.getDataProxy( parent, null ) );
                     }
                 }
             });
@@ -110,7 +110,7 @@ public class CopySpecificationCommand extends AbstractCommand{
                 /**
                  * @see VisitSpecificationOperation.Visitor#visit(Object, String)
                  */
-                public void visit( Object child, String childLabel ) {
+                public void visit( Object child, Object parent, String childLabel ) {
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {

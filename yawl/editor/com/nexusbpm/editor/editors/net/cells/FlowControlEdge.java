@@ -1,7 +1,5 @@
 package com.nexusbpm.editor.editors.net.cells;
 
-import org.jgraph.graph.Edge;
-
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
@@ -61,9 +59,6 @@ public class FlowControlEdge extends GraphEdge {
 	 */
 	public void setUserObject( Object obj ) {
 		super.setUserObject(obj);
-//		if( obj != null && obj instanceof String ) {
-//			throw new RuntimeException("update for yawl context");
-//		}
 	}
 
 	/**
@@ -71,7 +66,7 @@ public class FlowControlEdge extends GraphEdge {
 	 * in-graph editor.
 	 */
 	public String toString() {
-		return "";//this._proxy.getLabel();//"ooo, something new here huh?  lets hope these guys figure out a useful output for yawl";
+		return "";
 	}
 
 }

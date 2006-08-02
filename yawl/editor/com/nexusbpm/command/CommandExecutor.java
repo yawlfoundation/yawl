@@ -13,6 +13,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * The command executor provides a thread safe mechanism for adding commands
  * to the command stack, undoing, and redoing commands.
@@ -20,6 +23,8 @@ import java.util.concurrent.Future;
  * @author Nathan Rose
  */
 public class CommandExecutor {
+    private static final Log LOG = LogFactory.getLog( CommandExecutor.class );
+    
     private ExecutorService executor;
     private CommandStack stack;
     private List<CommandCompletionListener> listeners = new LinkedList<CommandCompletionListener>();
@@ -34,11 +39,18 @@ public class CommandExecutor {
         listeners.add( new CommandCompletionListener() {
             public void commandCompleted( ExecutionResult result ) {
                 if( result.getError() == null ) {
-                    System.out.println( "Command completed successfully" );
+                    if( result.getCommand() != null ) {
+                        String name = result.getCommand().getClass().getName();
+                        if( name.indexOf( "." ) >= 0 ) {
+                            name = name.substring( name.lastIndexOf( "." ) + 1 );
+                        }
+                        LOG.info( name + " completed successfully" );
+                    }
+                    else
+                        LOG.info( "Command completed successfully" );
                 }
                 else {
-                    System.err.println( "Error occurred executing command:" );
-                    result.getError().printStackTrace( System.err );
+                    LOG.error( result.getError().getMessage(), result.getError() );
                 }
             }
         });
@@ -106,10 +118,12 @@ public class CommandExecutor {
     }
     
     public static class ExecutionResult {
+        private Command command;
         private Throwable error;
         private boolean canUndo;
         private boolean canRedo;
-        private ExecutionResult( Throwable error, boolean canUndo, boolean canRedo ) {
+        private ExecutionResult( Command cmd, Throwable error, boolean canUndo, boolean canRedo ) {
+            this.command = cmd;
             this.error = error;
             this.canUndo = canUndo;
             this.canRedo = canRedo;
@@ -126,19 +140,26 @@ public class CommandExecutor {
         public Throwable getError() {
             return error;
         }
+        
+        public Command getCommand() {
+            return command;
+        }
     }
     
     private abstract class AbstractExecute implements Runnable {
-        abstract void execute() throws Exception;
+        abstract Command execute() throws Exception;
         public final void run() {
             Throwable t = null;
+            Command cmd = null;
             try {
-            	execute();
+            	cmd = execute();
             }
             catch( Throwable tr ) {
                 t = tr;
             }
-            ExecutionResult result = new ExecutionResult( t,
+            ExecutionResult result = new ExecutionResult(
+                    cmd,
+                    t,
                     CommandExecutor.this.stack.canUndo(),
                     CommandExecutor.this.stack.canRedo() );
             synchronized( listeners ) {
@@ -154,20 +175,20 @@ public class CommandExecutor {
         private ExecuteCommand( Command command ) {
             c = command;
         }
-        public void execute() throws Exception {
-            CommandExecutor.this.stack.executeCommand( c );
+        public Command execute() throws Exception {
+            return CommandExecutor.this.stack.executeCommand( c );
         }
     }
     
     private class ExecuteUndo extends AbstractExecute {
-        public void execute() throws Exception {
-            CommandExecutor.this.stack.undoLastCommand();
+        public Command execute() throws Exception {
+            return CommandExecutor.this.stack.undoLastCommand();
         }
     }
     
     private class ExecuteRedo extends AbstractExecute {
-        public void execute() throws Exception {
-            CommandExecutor.this.stack.redoNextCommand();
+        public Command execute() throws Exception {
+            return CommandExecutor.this.stack.redoNextCommand();
         }
     }
 }

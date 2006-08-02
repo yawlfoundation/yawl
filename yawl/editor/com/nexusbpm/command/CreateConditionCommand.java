@@ -67,7 +67,7 @@ public class CreateConditionCommand extends AbstractCommand {
     @Override
     protected void detach() throws Exception {
         WorkflowOperation.detachNetElementFromNet( condition );
-        context.detachProxy( conditionProxy );
+        context.detachProxy( conditionProxy, condition, netProxy );
     }
     
     /**

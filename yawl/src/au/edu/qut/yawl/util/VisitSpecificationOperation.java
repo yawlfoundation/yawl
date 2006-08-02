@@ -44,14 +44,36 @@ public class VisitSpecificationOperation {
      * decompose method
      * 
      * @param spec
+     * @param parent the object to be passed to the visitor as the parent of the spec
      */
-    public static void visitSpecification(YSpecification spec, Visitor v) {
+    public static void visitSpecification(YSpecification spec, Object parent, Visitor v) {
 		assert spec != null;
-		v.visit(spec, spec.getName());
+		v.visit(spec, parent, getSpecLabel(spec));
     	List<YDecomposition> decomps = spec.getDecompositions();
     	for (YDecomposition decomp: decomps) {
+            assert decomp.getParent() == spec : "spec's decomp's parent was not the spec";
             visitDecomposition( decomp, v );
     	}
+    }
+    
+    private static String getSpecLabel( YSpecification spec ) {
+        String val = "";
+        if( spec.getName() != null ) {
+            val = spec.getName();
+        }
+        else if( spec.getID().indexOf( "/" ) >= 0 ) {
+            val = spec.getID().substring( spec.getID().lastIndexOf( "/" ) + 1 );
+        }
+        else {
+            val = spec.getID();
+        }
+        val = val.trim();
+        if( val.length() > 0 ) {
+            return val;
+        }
+        else {
+            return null;
+        }
     }
     
     public static void visitDecomposition(YDecomposition decomp, Visitor v) {
@@ -61,10 +83,11 @@ public class VisitSpecificationOperation {
         } else {
             label = decomp.getId();
         }
-        v.visit(decomp, label);
+        v.visit(decomp, decomp.getParent(), label);
         if (decomp instanceof YNet) {
             YNet net = (YNet) decomp;
             for(YExternalNetElement yene: net.getNetElements()) {
+                assert yene.getParent() == net : "net's element's parent was not the net";
                 visitNetElement(yene, v);
             }
             for(YExternalNetElement yene: net.getNetElements()) {
@@ -75,7 +98,7 @@ public class VisitSpecificationOperation {
                     } else {
                         to = "to " + getLabelFor(flow.getNextElement());
                     }
-                    v.visit(flow, to);
+                    v.visit(flow, decomp, to);
                 }
             }
         }
@@ -89,7 +112,7 @@ public class VisitSpecificationOperation {
         } else {
             label = getLabelFor(yene);
         }
-        v.visit(yene, label);
+        v.visit(yene, yene.getParent(), label);
     }
 
     private static Type findType (Object o) {
@@ -115,7 +138,7 @@ public class VisitSpecificationOperation {
     }
     
     public interface Visitor {
-    	void visit(Object child, String childLabel);
+    	void visit(Object child, Object parent, String childLabel);
     }
   
     private enum Type {UNKNOWN, INPUT_CONDITION, OUTPUT_CONDITION, TASK, CONDITION, FLOW, SPECIFICATION};

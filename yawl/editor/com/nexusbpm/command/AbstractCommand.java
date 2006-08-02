@@ -8,10 +8,18 @@
 package com.nexusbpm.command;
 
 public abstract class AbstractCommand implements Command {
+    private boolean done = false;
     /**
      * @see com.nexusbpm.command.Command#execute()
      */
     public final void execute() throws Exception {
+        if( done == true ) {
+            throw new IllegalStateException(
+                    "Error executing command: this command has already been executed!\n" +
+                    this.getClass().getName() );
+        }
+        done = true;
+        System.err.println( "Executing abstract command:" + this.getClass().getName() );
         perform();
         attach();
     }

@@ -1,6 +1,7 @@
 package com.nexusbpm.editor.tree;
 
 import java.beans.PropertyChangeEvent;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -46,8 +47,8 @@ implements DataProxyStateChangeListener {
 	 */
 	protected EditorDataProxy _proxy;
     
-    /** Cache the child count (provides a HUGE performance improvement when using file DAO. */
-    Integer childCount = null;
+    /** Keep track of whether this node has gotten its children from the context yet. */
+    boolean initialized = false;
 
 	/**
 	 * Whether or not to ignore PropertyChangeEvents we get in propertyChange() as
@@ -90,19 +91,23 @@ implements DataProxyStateChangeListener {
 	 * @see #setIgnorePropertyChangeEvents(boolean)
 	 */
 	public void propertyChange( PropertyChangeEvent event ) {
-        childCount = null;
+//        childCount = null;
 		String propertyName = event.getPropertyName();
 		LOG.debug( "Got property change event: "+propertyName );
 	}
 
-	public void proxyAttached(DataProxy proxy, Object data, DataProxy parent) {
-        childCount = null;
+    public void proxyAttaching(DataProxy proxy, Object data, DataProxy parent) {
         setUserObject(data);
     }
-    public void proxyDetached(DataProxy proxy, Object data, DataProxy parent) {
+	public void proxyAttached(DataProxy proxy, Object data, DataProxy parent) {
+        // Empty.
+    }
+    public void proxyDetaching(DataProxy proxy, Object data, DataProxy parent) {
         // TODO should we call  setUserObject( null );  ?
-        childCount = null;
-        LOG.info("shared node rec'd detach " + proxy.getLabel() + ":" + data.toString());		
+        LOG.info("shared node rec'd detach " + proxy.getLabel() + ":" + data.toString());
+    }
+    public void proxyDetached(DataProxy proxy, Object data, DataProxy parent) {
+        // Empty.		
     }
 		
 	/**
@@ -163,6 +168,10 @@ implements DataProxyStateChangeListener {
 			tmp.removeChangeListener( this );
 		}
 	}
+    
+    public List getChildren() {
+        return children;
+    }
 
 	/**
 	 * @throws Throwable not thrown.

@@ -51,7 +51,9 @@ import org.jgraph.util.JGraphUtilities;
 import au.edu.qut.yawl.elements.ExtensionListContainer;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 
@@ -467,10 +469,91 @@ public class GraphEditor extends JPanel
      * Inserts a cell for the specified domain object proxy's component at
      * the specified location.
      */
-    public void insert( EditorDataProxy ctrl ) throws EditorException {
-//    this.initializeCellAndPort(ctrl);
-        NexusCell cell = ctrl.getGraphCell();
-        throw new RuntimeException("insert the object into the graph with the location properly restored");
+    public void insert( EditorDataProxy proxy ) {
+        Runnable updater = null;
+        if( proxy.getData() instanceof YExternalNetElement ) {
+            final Hashtable<NexusCell, Map> cellAttributes = new Hashtable<NexusCell, Map>();
+            final List<NexusCell> cells = new ArrayList<NexusCell>();
+            
+            NexusCell cell = proxy.getGraphCell();
+            Map map = createComponentAttributeMap( proxy.getData() );
+            cellAttributes.put( cell, map );
+            cells.add( cell );
+            
+            YTaskEditorExtension editor = new YTaskEditorExtension((YExternalNetElement) proxy.getData());
+            Rectangle2D rect = (Rectangle2D) editor.getBounds().clone();
+            System.out.println( rect.getX() );
+            System.out.println( rect.getY() );
+            System.out.println( rect.getWidth() );
+            System.out.println( rect.getHeight() );
+            GraphConstants.setBounds(cell.getAttributes(), rect);
+            
+            updater = new Runnable() {
+                public void run() {
+                    _graph.getGraphLayoutCache().insert(cells.toArray(), cellAttributes, null, null);
+                    // TODO I don't think the rest of these lines are needed
+                    if( graphChangeSummary != null ) {
+                        _graph.getModel().removeGraphModelListener( graphChangeSummary );
+                        graphChangeSummary = null;
+                    }
+                    graphChangeSummary = new GraphChangeSummary( _graph, GraphEditor.this );
+                    _graph.getModel().addGraphModelListener( graphChangeSummary );
+                }
+            };
+        }
+        else if( proxy.getData() instanceof YFlow ) {
+            final ConnectionSet connectionSet = new ConnectionSet();
+            final Hashtable<GraphEdge, Map> edgeAttributes = new Hashtable<GraphEdge, Map>();
+            final List<GraphEdge> edges = new ArrayList<GraphEdge>();
+            
+            YFlow edge = (YFlow) proxy.getData();
+            DataContext context = proxy.getContext();
+            
+            EditorDataProxy edgeProxy = (EditorDataProxy) context.getDataProxy( edge, null );
+            assert edgeProxy != null : "edge proxy was null";
+            EditorDataProxy sourceProxy = (EditorDataProxy) context.getDataProxy( edge.getPriorElement(), null );
+            assert sourceProxy != null : "source proxy was null";
+            EditorDataProxy sinkProxy = (EditorDataProxy) context.getDataProxy( edge.getNextElement(), null );
+            assert sinkProxy != null : "sink proxy was null";
+            
+            Port sourcePort = sourceProxy.getGraphPort();
+            Port sinkPort = sinkProxy.getGraphPort();
+            GraphEdge graphEdge = this.initializeGraphEdge( edgeProxy );
+            connectionSet.connect( graphEdge, sourcePort, sinkPort );
+            Map map = createEdgeAttributeMap( false );
+            edgeAttributes.put( graphEdge, map );
+            edges.add( graphEdge );
+            
+            updater = new Runnable() {
+                public void run() {
+                    _graph.getGraphLayoutCache().insert(
+                            edges.toArray(),
+                            edgeAttributes,
+                            connectionSet,
+                            null,
+                            null );
+                    _graph.setSelectionCells( new Object[] {} );
+                    _graph.repaint();
+                    _graph.autoSizeAll();
+                }
+            };
+        }
+        else {
+            LOG.error( "Inserting invalid class:" + proxy.getData().getClass().getName(),
+                    new Exception().fillInStackTrace() );
+        }
+        
+        assert updater != null : "graph editor updater was null";
+        
+        if( SwingUtilities.isEventDispatchThread() ) {
+            updater.run();
+        }
+        else {
+            SwingUtilities.invokeLater( updater );
+        }
+        
+//        throw new RuntimeException("insert the object into the graph with the location properly restored");
+        
 //    Component c = (Component) ctrl.getPersistentDomainObject();
 //    Map map = createComponentAttributeMap(c);
 //    Hashtable<CapselaCell, Map> attributes = new Hashtable<CapselaCell, Map>();
@@ -775,6 +858,23 @@ public class GraphEditor extends JPanel
     private void deleteSelectedItems() {
         LOG.info( "GraphEditor.deleteSelectedItems" );
         Object[] cells = _graph.getSelectionCells();
+        List<Object> selectionCells = new ArrayList<Object>( cells.length + 1 );
+        for( Object cell : cells ) {
+            if( cell instanceof NexusCell ) {
+                NexusCell ncell = (NexusCell) cell;
+                Object data = ncell.getProxy().getData();
+                if( ! ( data instanceof YInputCondition ||
+                        data instanceof YOutputCondition ) ) {
+                    selectionCells.add( cell );
+                }
+            }
+            else {
+                selectionCells.add( cell );
+            }
+        }
+        _graph.setSelectionCells( selectionCells.toArray() );
+        cells = _graph.getSelectionCells();
+        
         for( Object cell : cells ) {
             if( cell instanceof NexusCell ) {
                 NexusCell ncell = (NexusCell) cell;
@@ -788,6 +888,9 @@ public class GraphEditor extends JPanel
                 }
                 _graph.getGraphLayoutCache().remove( new Object[] { port } );
                 _graph.getGraphLayoutCache().removeMapping( new Object[] { port } );
+            }
+            else {
+                LOG.info( cell.getClass().getName() );
             }
         }
         this._graph.getGraphLayoutCache().remove( _graph.getSelectionCells() );
@@ -839,12 +942,13 @@ public class GraphEditor extends JPanel
 	/**
 	 * Redraws the entire flow graph. This causes us to remove all the vertices
 	 * and redraw all vertices and edges from the domain object collection.
+     * (TODO: the current code does NOT remove the current edges/vertices)
 	 * <p>
 	 * This method is thread-safe, ie, you may call it from a thread other than
 	 * the AWT event dispatcher thread and UI updates triggered by this method
 	 * will still occur on the AWT event dispatcher thread.
 	 */
-	public void refresh(YNet net) throws EditorException {
+	public void refresh(YNet net) {
 		LOG.debug( "Refreshing the flow graph." );
 		// Collections to pass to the JGraph instance later on.
 		final Hashtable<NexusCell, Map> cellAttributes = new Hashtable<NexusCell, Map>();
@@ -943,7 +1047,7 @@ public class GraphEditor extends JPanel
 				_graph.autoSizeAll();
 			}
 		};
-
+        
 		// Update the vertices and edges on the AWT event dispatcher thread.
 		// http://www.iam.ubc.ca/guides/javatut99/uiswing/overview/threads.html
 		if( SwingUtilities.isEventDispatchThread() ) {

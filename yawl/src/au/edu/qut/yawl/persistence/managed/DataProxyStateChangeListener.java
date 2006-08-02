@@ -10,7 +10,12 @@ package au.edu.qut.yawl.persistence.managed;
 import java.beans.PropertyChangeListener;
 
 public interface DataProxyStateChangeListener extends PropertyChangeListener{
-
-	void proxyDetached(DataProxy proxy, Object data, DataProxy parent);
-	void proxyAttached(DataProxy proxy, Object data, DataProxy parent);
+    /** Called just before the proxy is detached. */
+    void proxyDetaching(DataProxy proxy, Object data, DataProxy parent);
+    /** Called immediately after the proxy is detached. */
+    void proxyDetached(DataProxy proxy, Object data, DataProxy parent);
+    /** Called just before the proxy is attached. */
+    void proxyAttaching(DataProxy proxy, Object data, DataProxy parent);
+    /** Called immediately after the proxy is attached. */
+    void proxyAttached(DataProxy proxy, Object data, DataProxy parent);
 }

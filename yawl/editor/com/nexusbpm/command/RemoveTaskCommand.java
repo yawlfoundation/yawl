@@ -10,18 +10,14 @@ package com.nexusbpm.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import operation.WorkflowOperation;
+import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
-import au.edu.qut.yawl.elements.YCompositeTask;
-import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -31,62 +27,77 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * 
  * @todo Add in parameters to remove the variables and gateway as well
  * @author Matthew Sandoz
- *
+ * @author Nathan Rose
  */
-public class RemoveTaskCommand implements Command{
-
-	public EditorDataProxy taskProxy;
-	
-	private static final Log LOG = LogFactory.getLog(RemoveTaskCommand.class);
-	
+public class RemoveTaskCommand extends AbstractCommand {
+    private DataContext context;
+	private EditorDataProxy<YAtomicTask> taskProxy;
+    private YAtomicTask task;
+    
+    private DataProxy<YNet> netProxy;
+    private YNet net;
+    
+//    private NexusServiceInfo serviceInfo;
+    
+    private YAWLServiceGateway gateway;
+    private DataProxy<YAWLServiceGateway> gatewayProxy;
+    
+    private List<YVariable> netVariables;
+    
+    
+    private DataProxy<YSpecification> specProxy;
+    private YSpecification spec;
+    
 	public RemoveTaskCommand(EditorDataProxy taskProxy) {
+        this.context = taskProxy.getContext();
 		this.taskProxy = taskProxy;
+        this.task = this.taskProxy.getData();
 	}
-	
-	public void execute() {
-		try {
-		DataContext context = taskProxy.getContext();
-		YTask task = (YTask) taskProxy.getData();
-		context.detachProxy(taskProxy);
-		YNet net = task.getParent();
-		YSpecification spec = net.getParent();
-		YDecomposition prototype = task.getDecompositionPrototype();
-		net.getNetElements().remove(task);
-		if (task instanceof YAtomicTask && prototype != null) {
-			spec.getDecompositions().remove(prototype);
-			context.detachProxy(context.getDataProxy(prototype, null));
-		}
-		if (task instanceof YCompositeTask) {
-			task.setDecompositionPrototype(null);
-		}
-		List<YVariable> vars = new ArrayList<YVariable>(net.getLocalVariables());
-		for (YVariable var: vars) {
-			if (var.getName().startsWith(task.getID() + NexusWorkflow.NAME_SEPARATOR)) {
-				net.getLocalVariables().remove(var);
-			}
-		}
-		for (YFlow flow: task.getPresetFlows()) {
-			context.detachProxy(context.getDataProxy(flow, null));
-		}
-		for (YFlow flow: task.getPostsetFlows()) {
-			context.detachProxy(context.getDataProxy(flow, null));
-		}
-		task.removeAllFlows();		 }
-		catch(Exception e) {
-			LOG.error("Exception in remove task", e);
-		}
-	}
-	
-	public void undo() {
-		throw new UnsupportedOperationException("undo remove task is not implemented yet");
-	}
-	
-    public void redo() {
-        throw new UnsupportedOperationException(
-                "nexus insert undo not yet implemented");
+    
+    /**
+     * Removes the task from its net
+     * (Attach and detach are reversed for remove commands).
+     */
+    public void attach() {
+        WorkflowOperation.detachNetElementFromNet( task );
+        context.detachProxy( taskProxy, task, netProxy );
+        WorkflowOperation.detachDecompositionFromSpec( gateway );
+        context.detachProxy( gatewayProxy, gateway, specProxy );
+        WorkflowOperation.detachVariablesFromNet( netVariables );
     }
     
-    public boolean supportsUndo() {
-        return false;
+    /**
+     * Re-attaches the task to its net
+     * (Attach and detach are reversed for remove commands).
+     */
+    public void detach() {
+        WorkflowOperation.attachDecompositionToSpec( gateway, spec );
+        context.attachProxy( gatewayProxy, gateway, specProxy );
+        WorkflowOperation.attachNetElementToNet( task, net );
+        context.attachProxy( taskProxy, task, netProxy );
+        WorkflowOperation.attachVariablesToNet( netVariables, net );
+    }
+    
+    public void perform() {
+        net = task.getParent();
+        netProxy = context.getDataProxy( net, null );
+        
+        spec = net.getParent();
+        specProxy = context.getDataProxy( spec, null );
+        
+        gateway = (YAWLServiceGateway) task.getDecompositionPrototype();
+        gatewayProxy = context.getDataProxy( gateway, null );
+        
+//        serviceInfo = WorkflowOperation.getNexusServiceInfoForTask( task );
+//        assert serviceInfo != null : "Atomic task was not a valid nexus service task";
+        
+        String namePrefix = task.getID() + NexusWorkflow.NAME_SEPARATOR;
+        netVariables = new ArrayList<YVariable>();
+        
+        for( YVariable var : net.getLocalVariables() ) {
+            if( var.getName().startsWith( namePrefix ) ) {
+                netVariables.add( var );
+            }
+        }
     }
 }

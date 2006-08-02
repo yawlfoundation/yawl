@@ -7,10 +7,10 @@
  */
 package com.nexusbpm.command;
 
-import java.util.Collection;
-
+import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.persistence.managed.DataContext;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
@@ -19,38 +19,43 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * next's presets.
  * 
  * @author Matthew Sandoz
- *
+ * @author Nathan Rose
  */
-public class RemoveFlowCommand implements Command{
+public class RemoveFlowCommand extends AbstractCommand {
 
-	EditorDataProxy flowToRemove;
+	private EditorDataProxy<YFlow> flowProxy;
+    private YFlow flow;
+    private DataContext context;
+    
+    private YExternalNetElement source;
+    private YExternalNetElement sink;
 	
-	public RemoveFlowCommand(EditorDataProxy proxy) {
-		flowToRemove = proxy;
-	}
-	
-	public void execute() {
-		YFlow flow = (YFlow) flowToRemove.getData();
-		YExternalNetElement.removeFlow(flow);
-		flowToRemove.getContext().delete(flowToRemove);
-	}
-	
-	public void undo() {
-		YFlow flow = (YFlow) flowToRemove.getData();
-		YExternalNetElement priorElement = flow.getPriorElement();
-		YExternalNetElement nextElement = flow.getNextElement();
-		Collection<YFlow> flowsToCandidates = priorElement.getPostsetFlows();
-		Collection<YFlow> flowsFromCandidates = nextElement.getPresetFlows();
-		flowsToCandidates.add(flow);
-		flowsFromCandidates.add(flow);
+	public RemoveFlowCommand( EditorDataProxy proxy ) {
+        context = proxy.getContext();
+		flowProxy = proxy;
+        flow = flowProxy.getData();
 	}
     
-    public void redo() {
-        throw new UnsupportedOperationException(
-                "nexus insert undo not yet implemented");
+    /**
+     * Removes the flow from the net elements it connects
+     * (Attach and detach are reversed for remove commands).
+     */
+    protected void attach() {
+        WorkflowOperation.detachFlowFromElements( flow );
+        context.detachProxy( flowProxy, flow, context.getDataProxy( flow.getParent(), null ) );
     }
     
-    public boolean supportsUndo() {
-        return true;
+    /**
+     * Reattaches the flow to the net elements it connects
+     * (Attach and detach are reversed for remove commands).
+     */
+    protected void detach() {
+        WorkflowOperation.attachFlowToElements( flow, source, sink );
+        context.attachProxy( flowProxy, flow, context.getDataProxy( flow.getParent(), null ) );
+    }
+    
+    protected void perform() {
+        source = flow.getPriorElement();
+        sink = flow.getNextElement();
     }
 }
