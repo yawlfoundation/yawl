@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 
 import org.jgraph.graph.AbstractCellView;
@@ -24,14 +25,19 @@ import org.jgraph.graph.CellHandle;
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.ConnectionSet;
 import org.jgraph.graph.EdgeView;
+import org.jgraph.graph.GraphCellEditor;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphContext;
 import org.jgraph.graph.GraphLayoutCache;
 import org.jgraph.graph.PortView;
 import org.jgraph.plaf.basic.BasicGraphUI;
 
+import au.edu.qut.yawl.elements.YExternalNetElement;
+
 import com.nexusbpm.command.MoveTasksCommand;
+import com.nexusbpm.command.RenameElementCommand;
 import com.nexusbpm.editor.WorkflowEditor;
+import com.nexusbpm.editor.editors.net.cells.NexusCell;
 
 /**
  *  Description of the Class
@@ -40,39 +46,87 @@ import com.nexusbpm.editor.WorkflowEditor;
  * @created    September 17, 2003
  */
 public class GraphUI extends BasicGraphUI {
-
-  /**
-   *  Description of the Method
-   *
-   * @param  context  Description of the Parameter
-   * @return          Description of the Return Value
-   */
-  public CellHandle createHandle(GraphContext context) {
-    if (context != null && !context.isEmpty() && graph.isEnabled()) {
-      return new CapselaRootHandle(context);
+    /**
+     *  Description of the Method
+     *
+     * @param  context  Description of the Parameter
+     * @return          Description of the Return Value
+     */
+    public CellHandle createHandle( GraphContext context ) {
+        if( context != null && !context.isEmpty() && graph.isEnabled() ) { return new CapselaRootHandle( context ); }
+        return null;
     }
-    return null;
-  }
 
-
-  /**
-   * This custom root handle handles a different mechanism for moving
-   * objects than the default for JGraph. Most of the code is copied
-   * from JGraph, with the following changes:
-   * <ul>
-   * <li>When the drag operation first starts, a copy of the attributes
-   * map for the relevant views is made (to enable undoing).</li>
-   * <li>When the drag operation completes, instead of modifying the
-   * graph right away, it creates a command.</li>
-   * </ul>
-   * I've placed comments including the word "YAWL" (in all caps) at
-   * every change made in order to make the changes easy to find, in
-   * case they need to be modified (such as if we upgrade to a
-   * different version of JGraph, etc).
-   *
-   * @author Nathan Rose
-   */
-  public class CapselaRootHandle implements CellHandle, Serializable {
+    /**
+     * The following function is mostly copied from JGraph, with one section
+     * of the code changed. The purpose of the change is so that renaming of
+     * components in the graph is done through commands, and not through
+     * JGraph's internal mechanism.
+     * 
+     * @see org.jgraph.plaf.basic.BasicGraphUI#completeEditing(boolean, boolean, boolean)
+     */
+    @Override
+    protected void completeEditing( boolean messageStop, boolean messageCancel, boolean messageGraph ) {
+        if (stopEditingInCompleteEditing && editingComponent != null) {
+            Component oldComponent = editingComponent;
+            Object oldCell = editingCell;
+            GraphCellEditor oldEditor = cellEditor;
+            boolean requestFocus = (graph != null &&
+                    (graph.hasFocus() || SwingUtilities.findFocusOwner(editingComponent) != null));
+            editingCell = null;
+            editingComponent = null;
+            if (messageStop)
+                oldEditor.stopCellEditing();
+            else if (messageCancel)
+                oldEditor.cancelCellEditing();
+            graph.remove(oldComponent);
+            if (requestFocus)
+                graph.requestFocus();
+            if (messageGraph) {
+                //----- start of changes made for YAWL
+                Object newValue = oldEditor.getCellEditorValue();
+                if( oldCell instanceof NexusCell
+                        && ((NexusCell) oldCell).getProxy().getData() instanceof YExternalNetElement
+                        && newValue instanceof String ) {
+                    String oldName = ((YExternalNetElement) ((NexusCell) oldCell).getProxy().getData()).getName();
+                    WorkflowEditor.getExecutor().executeCommand(
+                            new RenameElementCommand(
+                                    ((NexusCell) oldCell).getProxy(),
+                                    (String) newValue,
+                                    oldName ) );
+                }
+                else {
+                    // the following line is original to the JGraph code
+                    graphLayoutCache.valueForCellChanged(oldCell, newValue);
+                }
+                //----- end of changes made for YAWL
+            }
+            updateSize();
+            // Remove Editor Listener
+            if (oldEditor != null && cellEditorListener != null)
+                oldEditor.removeCellEditorListener(cellEditorListener);
+            cellEditor = null;
+        }
+    }
+    
+    /**
+     * This custom root handle handles a different mechanism for moving
+     * objects than the default for JGraph. Most of the code is copied
+     * from JGraph, with the following changes:
+     * <ul>
+     * <li>When the drag operation first starts, a copy of the attributes
+     * map for the relevant views is made (to enable undoing).</li>
+     * <li>When the drag operation completes, instead of modifying the
+     * graph right away, it creates a command.</li>
+     * </ul>
+     * I've placed comments including the word "YAWL" (in all caps) at
+     * every change made in order to make the changes easy to find, in
+     * case they need to be modified (such as if we upgrade to a
+     * different version of JGraph, etc).
+     *
+     * @author Nathan Rose
+     */
+    public class CapselaRootHandle implements CellHandle, Serializable {
         // x and y offset from the mouse press event to the left/top corner of a
         // view that is returned by a findViewForPoint().
         // These are used only when the isSnapSelectedView mode is enabled.
@@ -642,6 +696,6 @@ public class GraphUI extends BasicGraphUI {
                 start = null;
             }
         }
-  }
+    }
 }
 

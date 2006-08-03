@@ -27,7 +27,7 @@ import com.nexusbpm.NexusWorkflow;
  * @author Matthew Sandoz
  * @author Nathan Rose
  */
-public class RemoveTaskCommand extends AbstractCommand {
+public class RemoveNexusTaskCommand extends AbstractCommand {
     private DataContext context;
 	private DataProxy<YAtomicTask> taskProxy;
     private YAtomicTask task;
@@ -43,7 +43,7 @@ public class RemoveTaskCommand extends AbstractCommand {
     private DataProxy<YSpecification> specProxy;
     private YSpecification spec;
     
-	public RemoveTaskCommand( DataProxy taskProxy ) {
+	public RemoveNexusTaskCommand( DataProxy taskProxy ) {
         this.context = taskProxy.getContext();
 		this.taskProxy = taskProxy;
         this.task = this.taskProxy.getData();

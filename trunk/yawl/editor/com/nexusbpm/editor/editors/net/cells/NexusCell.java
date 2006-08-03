@@ -31,18 +31,10 @@ public class NexusCell extends DefaultGraphCell {
 	}
 
 	/**
-	 * Sets the description on a cell. The in-graph editor would normally call setUserObject to set the cell
-	 * label, but instead, we will set the label on our domain object.
+	 * @see javax.swing.tree.DefaultMutableTreeNode#setUserObject(java.lang.Object)
 	 */
 	public void setUserObject( Object obj ) {
-//		super.setUserObject(obj);
-		if( obj != null && obj instanceof String ) {
-			// Set the description and save it immediately. If we don't save immediately, the user might
-			// connect this component to another component, which will wipe out the description change.
-			Object o = getProxy().getData();
-			_proxy.setLabel((String) obj);
-			LOG.error("message only", new RuntimeException("implement for yawl"));
-		}
+        // Empty.
 	}
     
     public boolean contains( Object o ) {
@@ -53,7 +45,7 @@ public class NexusCell extends DefaultGraphCell {
 	 * Return the description of the cell so that it will be the initial value of the in-graph editor.
 	 */
 	public String toString() {
-		return _proxy.getLabel();//"this is the description, nothing too interesting, yet often times intriguing.  I often wonder where our creativity comes from.";
+		return _proxy.getLabel();
 	}
 
 	public void finalize() throws Throwable {

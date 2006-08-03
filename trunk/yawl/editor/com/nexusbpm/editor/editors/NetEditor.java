@@ -38,8 +38,6 @@ public class NetEditor extends ComponentEditor {
 	 */
 	private GraphEditor instanceEditor = null;
 
-	private boolean cleared = false;
-
 	/**
 	 * Default constructor.
 	 */
@@ -92,20 +90,7 @@ public class NetEditor extends ComponentEditor {
 	/**
 	 * @see ComponentEditor#saveAttributes()
 	 */
-	public void saveAttributes() {
-		if( _netGraphEditor != null ) {
-			_netGraphEditor.saveAttributes();
-		}
-
-		if (cleared) {
-			try {
-				clearing();
-			}
-			catch( Throwable throwable ) {
-				LOG.warn( "saveAttributes", throwable);
-			}
-		}
-	}
+	public void saveAttributes() {}
 
 	/**
 	 * Adds a graph editor for the specified flow to this flow editor.
@@ -160,10 +145,6 @@ public class NetEditor extends ComponentEditor {
 //					LOG.debug( "Starting cell animation for: " + ctrl.toString() );
 //				}
 //			}
-		}
-		else {
-            // TODO there is no change listener for a graph editor
-			addIsDirtyListener( ge );
 		}
 	}
 
@@ -228,21 +209,22 @@ public class NetEditor extends ComponentEditor {
         }
 
         try {
-        if( null != instanceEditor ) {
-            GraphEditor tmp = instanceEditor;
-            instanceEditor = null;
-            tmp.clear();
-        }
-
-        if( !isDirty() ) {
-            clearing();
-        }
+            if( null != instanceEditor ) {
+                GraphEditor tmp = instanceEditor;
+                instanceEditor = null;
+                tmp.clear();
+            }
         }
         catch( Throwable t ) {
             throw new Exception( t );
         }
 
-        cleared = true;
+        try {
+            clearing();
+        }
+        catch( Throwable throwable ) {
+            LOG.warn( "frameClosed", throwable );
+        }
         super.frameClosed();
     }
 

@@ -23,7 +23,7 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
  * @author Matthew Sandoz
  *
  */
-public class RemoveNetCommand implements Command{
+public class RemoveNetCommand implements Command {
 
 	EditorDataProxy netToRemove;
 	
@@ -35,9 +35,6 @@ public class RemoveNetCommand implements Command{
 		YNet net = (YNet) netToRemove.getData();
 		YSpecification spec = net.getParent();
 		List<YDecomposition> decomps = spec.getDecompositions();
-		if (spec.getRootNet() == net) {
-			spec.setRootNet(null);
-		}
 		decomps.remove(net);
 		netToRemove.getContext().delete(netToRemove);
 		for (YDecomposition decomp: decomps) {
@@ -58,15 +55,17 @@ public class RemoveNetCommand implements Command{
 	}
 	
 	public void undo() {
-		YNet net = (YNet) netToRemove.getData();
+//		YNet net = (YNet) netToRemove.getData();
+        throw new UnsupportedOperationException(
+                "undo not yet implemented");
 	}
     
     public void redo() {
         throw new UnsupportedOperationException(
-                "nexus insert undo not yet implemented");
+                "redo not yet implemented");
     }
     
     public boolean supportsUndo() {
-        return true;
+        return false;
     }
 }

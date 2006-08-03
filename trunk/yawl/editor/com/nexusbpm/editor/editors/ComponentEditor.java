@@ -20,13 +20,10 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jgraph.event.GraphSelectionEvent;
-import org.jgraph.event.GraphSelectionListener;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
@@ -34,7 +31,6 @@ import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 import com.nexusbpm.command.SaveTaskChangesCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
-import com.nexusbpm.editor.editors.net.GraphEditor;
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.util.syntax.DefaultInputHandler;
@@ -153,17 +149,6 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 			System.out.println("pressed a key on the editor");
 		}
 	}
-    
-    /**
-     * Graph selection listener that can be added to graphs to set the
-     * editor to dirty when a graph is used.
-     */
-    private GraphSelectionListener isDirtyGraphSelectionListener = new GraphSelectionListener() {
-        public void valueChanged( GraphSelectionEvent e ) {
-            LOG.debug( "isDirtyGraphSelectionListener.valueChanged(): " + e );
-            ComponentEditor.this.setDirty( true );
-        }
-    };
 
 //	/**
 //	 * Drop panel listener that can be added to calendar combo boxes to set the
@@ -223,9 +208,6 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 //        else if( o instanceof PreferencesModel ) {
 //            ((PreferencesModel) o).addListener( this.isDirtyActionListener );
 //        }
-        else if( o instanceof GraphEditor ) {
-            ((GraphEditor) o).addGraphSelectionListener( this.isDirtyGraphSelectionListener );
-        }
 //        else if( o instanceof JPVEdit ) {
 //            ((JPVEdit) o).addActionListener( this.isDirtyActionListener );
 //        }
@@ -267,6 +249,9 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 		else if( o instanceof JButton ) {
 			((JButton) o).removeActionListener( this.isDirtyActionListener );
 		}
+        else if( o instanceof JList ) {
+            ((JList) o).removeKeyListener( this.isDirtyKeyAdapter );
+        }
 		else {
 			LOG.error( "Unable to remove an isDirty listener to: " + o );
 		}
@@ -355,15 +340,9 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
     public final void persistAttributes() {
         if( _proxy.getData() instanceof YAtomicTask ) {
             WorkflowEditor.getExecutor().executeCommand( new SaveTaskChangesCommand( _proxy, data ) );
-//            YAtomicTask task = (YAtomicTask) _proxy.getData();
-//            data.marshal( task.getParent(), task.getID() );
-        }
-        else if( _proxy.getData() instanceof YNet ) {
-            // TODO
-            LOG.warn( "Not persisting changes to net" );
         }
         else {
-            LOG.error( "Cannot persist changes" );
+            LOG.debug( "Not persisting changes" );
         }
     }
 
