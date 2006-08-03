@@ -24,6 +24,7 @@ import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.net.cells.GraphPort;
 import com.nexusbpm.editor.editors.net.cells.PortHighlightable;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * This marquee handler listens to the mouse handling events for connecting data/control edges and highlighting
@@ -246,7 +247,8 @@ public class GraphMarqueeHandler extends BasicMarqueeHandler {
                 EditorDataProxy sink = ((GraphPort) _port.getCell()).getProxy();
                 
                 WorkflowEditor.getExecutor().executeCommand(
-                        new CreateFlowCommand( source.getTreeNode(), sink.getTreeNode() ) );
+                        new CreateFlowCommand( source, sink,
+                                (SharedNodeTreeModel) sink.getTreeNode().getTreeModel() ) );
             }
             catch( Exception exc ) {
                 LOG.error( "Error creating CreateFlowCommand!", exc );

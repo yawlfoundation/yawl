@@ -18,12 +18,10 @@ import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 import au.edu.qut.yawl.util.VisitSpecificationOperation;
 import au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor;
-
-import com.nexusbpm.editor.persistence.EditorDataProxy;
-import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * The CopyNetCommand provides a way of copying a net from one 
@@ -32,13 +30,13 @@ import com.nexusbpm.editor.tree.SharedNodeTreeModel;
  * @author Nathan Rose
  */
 public class CopyNetCommand extends AbstractCommand {
-    private EditorDataProxy<YNet> netProxy;
-    private EditorDataProxy<YSpecification> specProxy;
-    private SharedNode specNode;
+    private DataProxy<YNet> netProxy;
+    private DataProxy<YSpecification> specProxy;
+    private DataProxyStateChangeListener listener;
     
     private DataContext targetContext;
     
-    private Map<Object,EditorDataProxy> proxies;
+    private Map<Object,DataProxy> proxies;
     
     private List<YDecomposition> decomps;
 	
@@ -46,11 +44,12 @@ public class CopyNetCommand extends AbstractCommand {
      * @param netProxy the source net to copy.
      * @param specProxy the target specification to copy the net into.
      */
-	public CopyNetCommand( SharedNode netNode, SharedNode specNode ) {
-		this.netProxy = netNode.getProxy();
-        this.specNode = specNode;
-        this.specProxy = specNode.getProxy();
+	public CopyNetCommand( DataProxy netProxy, DataProxy specProxy,
+            DataProxyStateChangeListener listener ) {
+		this.netProxy = netProxy;
+        this.specProxy = specProxy;
         targetContext = specProxy.getContext();
+        this.listener = listener;
 	}
     
     /**
@@ -106,7 +105,7 @@ public class CopyNetCommand extends AbstractCommand {
     protected void perform() throws CloneNotSupportedException {
         decomps = WorkflowOperation.copyDecomposition( netProxy.getData(), specProxy.getData() );
         
-        proxies = new HashMap<Object, EditorDataProxy>();
+        proxies = new HashMap<Object, DataProxy>();
         
         for( YDecomposition decomp : decomps ) {
             VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
@@ -117,8 +116,9 @@ public class CopyNetCommand extends AbstractCommand {
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
-                        proxies.put( child, (EditorDataProxy) targetContext.createProxy(
-                                child, (SharedNodeTreeModel) specNode.getTreeModel() ) );
+                        proxies.put(
+                                child,
+                                targetContext.createProxy( child, listener ) );
                     }
                 }
             });

@@ -9,9 +9,7 @@ package com.nexusbpm.command;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
-
-import com.nexusbpm.editor.persistence.EditorDataProxy;
-import com.nexusbpm.editor.tree.SharedNode;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**
  * The SaveSpecificationCommand saves a specification to its containing context.
@@ -20,12 +18,12 @@ import com.nexusbpm.editor.tree.SharedNode;
  * @author Nathan Rose
  */
 public class SaveSpecificationCommand implements Command {
-    private EditorDataProxy<YSpecification> specProxy;
+    private DataProxy<YSpecification> specProxy;
     
     private DataContext context;
 	
-	public SaveSpecificationCommand( SharedNode specNode ) {
-        this.specProxy = specNode.getProxy();
+	public SaveSpecificationCommand( DataProxy specProxy ) {
+        this.specProxy = specProxy;
         this.context = specProxy.getContext();
 	}
     

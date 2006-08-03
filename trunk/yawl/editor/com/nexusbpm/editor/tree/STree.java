@@ -37,7 +37,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -103,7 +102,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 	 * @param dtm the underlying tree data model.
 	 * @param parentPanel the containing panel.
 	 */
-	public STree( TreeModel dtm ) {
+	public STree( SharedNodeTreeModel dtm ) {
 		super( dtm );
 
 		addTreeSelectionListener( this );
@@ -374,10 +373,16 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         Object sourceObject = source.getProxy().getData();
         
         if( sourceObject instanceof YSpecification ) {
-            cmd = new CopySpecificationCommand( source, target );
+            cmd = new CopySpecificationCommand(
+                    source.getProxy(),
+                    target.getProxy(),
+                    (SharedNodeTreeModel) getModel() );
         }
         else if( sourceObject instanceof YNet ) {
-            cmd = new CopyNetCommand( source, target );
+            cmd = new CopyNetCommand(
+                    source.getProxy(),
+                    target.getProxy(),
+                    (SharedNodeTreeModel) getModel() );
         }
         else {
             throw new RuntimeException( "Copy attempt unsupported: " + sourceObject.getClass() );
@@ -630,14 +635,16 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         JMenuItem createSpecification = new JMenuItem( new AbstractAction( "Create Specification" ) {
             public void actionPerformed( ActionEvent e ) {
                 WorkflowEditor.getExecutor().executeCommand(
-                        new CreateSpecificationCommand( node, "New Specification" ) );
+                        new CreateSpecificationCommand( node.getProxy(), "New Specification",
+                                (SharedNodeTreeModel) getModel() ) );
             }
         });
         
         JMenuItem createNet = new JMenuItem();
         createNet.setAction( new AbstractAction( "Create Net" ) {
             public void actionPerformed( ActionEvent e ) {
-                WorkflowEditor.getExecutor().executeCommand( new CreateNetCommand( node, "New Net" ) );
+                WorkflowEditor.getExecutor().executeCommand(
+                        new CreateNetCommand( node.getProxy(), "New Net", (SharedNodeTreeModel) getModel() ) );
             }
         });
         createNet.setVisible( false );
@@ -650,7 +657,8 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         
         JMenuItem save = new JMenuItem( new AbstractAction( "Save Specification" ) {
             public void actionPerformed( ActionEvent e ) {
-                WorkflowEditor.getExecutor().executeCommand( new SaveSpecificationCommand( node ) );
+                WorkflowEditor.getExecutor().executeCommand(
+                        new SaveSpecificationCommand( node.getProxy() ) );
             }
         });
         save.setVisible( false );

@@ -55,6 +55,7 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CompoundCommand;
@@ -165,7 +166,10 @@ public class GraphEditor extends JPanel
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange( PropertyChangeEvent event ) {
-        if( event.getPropertyName().equals( "taskBounds" ) ) {
+        if( event.getPropertyName().equals( DataProxyStateChangeListener.PROPERTY_NAME ) ) {
+            
+        }
+        else if( event.getPropertyName().equals( DataProxyStateChangeListener.PROPERTY_TASK_BOUNDS ) ) {
             final Map attributes = (Map) event.getNewValue();
             Runnable updater = new Runnable() {
                 public void run() {

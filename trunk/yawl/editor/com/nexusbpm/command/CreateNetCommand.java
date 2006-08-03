@@ -16,10 +16,7 @@ import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
-
-import com.nexusbpm.editor.persistence.EditorDataProxy;
-import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.tree.SharedNodeTreeModel;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 /**
  * The CreateNetCommand creates a net in the specified specification.
@@ -29,11 +26,11 @@ import com.nexusbpm.editor.tree.SharedNodeTreeModel;
  */
 public class CreateNetCommand extends AbstractCommand {
 	private DataContext context;
-    private EditorDataProxy<YSpecification> specProxy;
-    private SharedNode specNode;
+    private DataProxy<YSpecification> specProxy;
     private YNet net;
     private DataProxy<YNet> netProxy;
     private String netName;
+    private DataProxyStateChangeListener listener;
     
     private YInputCondition input;
     private DataProxy<YInputCondition> inputProxy;
@@ -45,11 +42,12 @@ public class CreateNetCommand extends AbstractCommand {
      * @param parent
      * @param netName
      */
-	public CreateNetCommand( SharedNode specNode, String netName) {
-        this.specNode = specNode;
-        this.specProxy = specNode.getProxy();
+	public CreateNetCommand( DataProxy specProxy, String netName,
+            DataProxyStateChangeListener listener ) {
+        this.specProxy = specProxy;
 		this.context = specProxy.getContext();
         this.netName = netName;
+        this.listener = listener;
 	}
 	
     /**
@@ -84,12 +82,12 @@ public class CreateNetCommand extends AbstractCommand {
     @Override
     protected void perform() throws Exception {
         net = WorkflowOperation.createNet( netName, "Net", specProxy.getData() );
-        netProxy = context.createProxy( net, (SharedNodeTreeModel) specNode.getTreeModel() );
+        netProxy = context.createProxy( net, listener );
         input = WorkflowOperation.createInputCondition();
         WorkflowOperation.setBoundsOfNetElement( input, new Rectangle2D.Double( 5, 100, 50, 50 ) );
-        inputProxy = context.createProxy( input, (SharedNodeTreeModel) specNode.getTreeModel() );
+        inputProxy = context.createProxy( input, listener );
         output = WorkflowOperation.createOutputCondition();
         WorkflowOperation.setBoundsOfNetElement( output, new Rectangle2D.Double( 300, 100, 50, 50 ) );
-        outputProxy = context.createProxy( output, (SharedNodeTreeModel) specNode.getTreeModel() );
+        outputProxy = context.createProxy( output, listener );
     }
 }

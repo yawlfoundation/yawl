@@ -16,10 +16,8 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
-import com.nexusbpm.editor.persistence.EditorDataProxy;
-import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 import com.nexusbpm.services.NexusServiceInfo;
 
 /**
@@ -30,11 +28,11 @@ import com.nexusbpm.services.NexusServiceInfo;
  * @author Matthew Sandoz
  * @author Nathan Rose
  */
-public class CreateNexusComponent extends AbstractCommand {
-    private SharedNode netNode;
-    private EditorDataProxy<YNet> netProxy;
+public class CreateNexusComponentCommand extends AbstractCommand {
+    private DataProxy<YNet> netProxy;
     
     private DataContext context;
+    private DataProxyStateChangeListener listener;
 
 	private String taskName;
 	private String taskID;
@@ -54,14 +52,14 @@ public class CreateNexusComponent extends AbstractCommand {
 	 * @param taskID
 	 * @param serviceInfo
 	 */
-	public CreateNexusComponent( SharedNode netNode, String taskName, String taskID,
-			NexusServiceInfo serviceInfo) {
-        this.netNode = netNode;
-		this.netProxy = netNode.getProxy();
+	public CreateNexusComponentCommand( DataProxy netProxy, String taskName, String taskID,
+			NexusServiceInfo serviceInfo, DataProxyStateChangeListener listener ) {
+		this.netProxy = netProxy;
 		this.taskName = taskName;
 		this.taskID = taskID;
 		this.serviceInfo = serviceInfo;
         this.context = netProxy.getContext();
+        this.listener = listener;
 	}
     
 	/**
@@ -100,8 +98,8 @@ public class CreateNexusComponent extends AbstractCommand {
         task = WorkflowOperation.createNexusTask( taskID, taskName, netProxy.getData(), gateway, serviceInfo );
         netVariables = WorkflowOperation.createNexusVariables( taskID, netProxy.getData(), serviceInfo );
         
-        gatewayProxy = context.createProxy( gateway, (SharedNodeTreeModel) netNode.getTreeModel() );
-        taskProxy = context.createProxy( task, (SharedNodeTreeModel) netNode.getTreeModel() );
+        gatewayProxy = context.createProxy( gateway, listener );
+        taskProxy = context.createProxy( task, listener );
     }
     
 //	/**

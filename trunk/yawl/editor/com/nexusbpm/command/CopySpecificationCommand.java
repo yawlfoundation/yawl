@@ -16,12 +16,10 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 import au.edu.qut.yawl.util.VisitSpecificationOperation;
 import au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor;
-
-import com.nexusbpm.editor.persistence.EditorDataProxy;
-import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * The CopySpecificationCommand copies an entire specification
@@ -32,19 +30,22 @@ import com.nexusbpm.editor.tree.SharedNodeTreeModel;
  * @author Nathan Rose
  */
 public class CopySpecificationCommand extends AbstractCommand{
-    private EditorDataProxy<YSpecification> sourceSpecProxy;
-    private SharedNode targetNode;
-    private EditorDataProxy<YSpecification> copySpecProxy;
+    private DataProxy<YSpecification> sourceSpecProxy;
+    private DataProxy<YSpecification> copySpecProxy;
+    private DataProxy targetProxy;
     private YSpecification copySpec;
+    private DataProxyStateChangeListener listener;
     
-    private Map<Object, EditorDataProxy> proxies;
+    private Map<Object, DataProxy> proxies;
     
     private DataContext targetContext;
 	
-	public CopySpecificationCommand( SharedNode sourceSpecNode, SharedNode targetNode ) {
-        this.sourceSpecProxy = sourceSpecNode.getProxy();
-		this.targetNode = targetNode;
-        this.targetContext = targetNode.getProxy().getContext();
+	public CopySpecificationCommand( DataProxy sourceSpecProxy, DataProxy targetProxy,
+            DataProxyStateChangeListener listener ) {
+        this.sourceSpecProxy = sourceSpecProxy;
+		this.targetProxy = targetProxy;
+        this.targetContext = targetProxy.getContext();
+        this.listener = listener;
 	}
     
 	/**
@@ -52,7 +53,7 @@ public class CopySpecificationCommand extends AbstractCommand{
      */
     @Override
     protected void attach() throws Exception {
-        targetContext.attachProxy( copySpecProxy, copySpec, targetNode.getProxy() );
+        targetContext.attachProxy( copySpecProxy, copySpec, targetProxy );
         for( YDecomposition decomp : copySpec._decompositions ) {
             VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
                 /** @see VisitSpecificationOperation.Visitor#visit(Object, String) */
@@ -98,12 +99,11 @@ public class CopySpecificationCommand extends AbstractCommand{
     @Override
     protected void perform() throws Exception {
         copySpec = WorkflowOperation.copySpecification(
-                sourceSpecProxy.getData(), targetNode.getProxy().getData().toString() );
+                sourceSpecProxy.getData(), targetProxy.getData().toString() );
         
-        copySpecProxy = (EditorDataProxy) targetContext.createProxy( copySpec,
-                (SharedNodeTreeModel) targetNode.getTreeModel() );
+        copySpecProxy = targetContext.createProxy( copySpec, listener );
         
-        proxies = new HashMap<Object, EditorDataProxy>();
+        proxies = new HashMap<Object, DataProxy>();
         
         for( YDecomposition decomp : copySpec._decompositions ) {
             VisitSpecificationOperation.visitDecomposition( decomp, new Visitor() {
@@ -114,8 +114,7 @@ public class CopySpecificationCommand extends AbstractCommand{
                     if( child instanceof YDecomposition ||
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
-                        proxies.put( child, (EditorDataProxy) targetContext.createProxy(
-                                child, (SharedNodeTreeModel) targetNode.getTreeModel() ) );
+                        proxies.put( child, targetContext.createProxy( child, listener ) );
                     }
                 }
             });
