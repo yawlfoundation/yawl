@@ -53,14 +53,13 @@ import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
-import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CompoundCommand;
 import com.nexusbpm.command.RemoveFlowCommand;
-import com.nexusbpm.command.RemoveTaskCommand;
+import com.nexusbpm.command.RemoveNexusTaskCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.NetEditor;
 import com.nexusbpm.editor.editors.net.cells.FlowControlEdge;
@@ -159,15 +158,31 @@ public class GraphEditor extends JPanel
     public void setProxy( EditorDataProxy flowproxy ) {
         _netProxy = flowproxy;
     }
+    
+    private void repaintGraph() {
+        Runnable repainter = new Runnable() {
+            public void run() {
+                _graph.invalidate();
+                _graph.validate();
+                _graph.repaint();
+            }
+        };
+        if( SwingUtilities.isEventDispatchThread() ) {
+            repainter.run();
+        }
+        else {
+            SwingUtilities.invokeLater( repainter );
+        }
+    }
 
-  /**
+    /**
      * Graph editors are property change listeners for the corresponding flow, as
      * well as for the components within that flow.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange( PropertyChangeEvent event ) {
         if( event.getPropertyName().equals( DataProxyStateChangeListener.PROPERTY_NAME ) ) {
-            
+            repaintGraph();
         }
         else if( event.getPropertyName().equals( DataProxyStateChangeListener.PROPERTY_TASK_BOUNDS ) ) {
             final Map attributes = (Map) event.getNewValue();
@@ -442,63 +457,6 @@ public class GraphEditor extends JPanel
     public void lockGraph() {
         _graph.lockGraph();
     }
-
-	/**
-	 * Description of the Method
-	 */
-	public void saveAttributes() {
-		DataContext dc = _netProxy.getContext();
-		DataContext s;
-		YSpecification spec = ((YNet)_netProxy.getData()).getParent();
-		dc.save(dc.getDataProxy(spec, null));
-	
-		throw new RuntimeException("save all the position/bounds for all cell objects in graph");
-		//		if( !_isInstance ) {
-			// save positions of all vertices:
-//				try {
-//					FlowComponent flow = (FlowComponent) _flowproxy.getPersistentDomainObject( 0 );
-//					if( flow != null ) {
-//						// The flow was not deleted while the graph editor was up.
-//						Set vertexSet = flow.getComponents();
-//						if( null == _graph ) {
-//							LOG.debug( "GraphEditor.saveAttributes graph is empty" );
-//						}
-//						else if( vertexSet != null ) {
-//							Iterator iter = vertexSet.iterator();
-//							while( iter.hasNext() ) {
-//								Component component = (Component) iter.next();
-//								DataProxy proxy = (DataProxy) DomainObjectproxy.getproxy( component );
-//								if( null != _graph ) {
-//									GraphLayoutCache graphLayoutCache = _graph.getGraphLayoutCache();
-//									if( null != graphLayoutCache ) {
-//										CellView cellView = graphLayoutCache.getMapping( proxy.getGraphCell(), false );
-//
-//										if( cellView != null ) {
-//											Rectangle2D bounds2D = cellView.getBounds();
-//											Rectangle bounds = new Rectangle( (int) bounds2D.getX(), (int) bounds2D.getY(), (int) bounds2D
-//													.getWidth(), (int) bounds2D.getHeight() );
-//											if( bounds != null ) {
-//												LOG.debug( "Saving flow location at: " + bounds.toString() );
-//												((Component) proxy.getPersistentDomainObject()).setFlowLocation( bounds );
-//											}
-//										}
-//										else
-//											LOG.debug( "Cell View is empty" );
-//									}
-//									else {
-//										LOG.debug( "Graph Layout Cache is empty" );
-//									}
-//								}
-//
-//							}
-//						}
-//					}
-//				}
-//				catch( Exception ee ) {
-//					LOG.error( "Exception in GraphEditor.saveAttributes", ee );
-//				}
-//		}
-	}
 
     /**
      * Inserts a cell for the specified domain object proxy's component at
@@ -893,7 +851,7 @@ public class GraphEditor extends JPanel
         for( Object o : cells ) {
             if( o instanceof NexusCell ) {
                 NexusCell cell = (NexusCell) o;
-                taskCommands.add( new RemoveTaskCommand( cell.getProxy() ) );
+                taskCommands.add( new RemoveNexusTaskCommand( cell.getProxy() ) );
                 
                 GraphPort port = cell.getProxy().getGraphPort();
                 Set<Edge> edges = new HashSet<Edge>( port.getEdges() );
@@ -1002,7 +960,7 @@ public class GraphEditor extends JPanel
 				Map map = createComponentAttributeMap( c );
 				cellAttributes.put( cell, map );
 				cells.add( cell );
-				LOG.error( "Adding component to graph: " + c.toString() );
+				LOG.debug( "Adding component to graph: " + c.toString() );
 				try {
 					if (c instanceof YExternalNetElement) {
 						YTaskEditorExtension ext = new YTaskEditorExtension((YExternalNetElement) c);
@@ -1028,7 +986,7 @@ public class GraphEditor extends JPanel
 				for( Iterator i2 = component.getPostsetFlows().iterator(); i2.hasNext(); ) {
 
 					YFlow edge = (YFlow) i2.next();
-					LOG.error( "edge found: " + edge.toString() );
+					LOG.debug( "edge found: " + edge.toString() );
 //					boolean isDataEdge = ( edge instanceof DataEdge );
 					
 					EditorDataProxy edgeproxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(edge, null );
@@ -1188,21 +1146,21 @@ public class GraphEditor extends JPanel
             toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.zoom_reset")) {
                 public void actionPerformed(ActionEvent e) {
                     _graph.setScale(1.0);
-                    LOG.info("Returned graph scale to normal");
+                    LOG.debug("Returned graph scale to normal");
                 }
             }).setToolTipText("Return Zoom to normal");
             // Zoom In
             toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.zoom_in")) {
                 public void actionPerformed(ActionEvent e) {
                     _graph.setScale(1.2 * _graph.getScale());
-                    LOG.info("Zooming in");
+                    LOG.debug("Zooming in");
                 }
             }).setToolTipText("Zoom In");
             // Zoom Out
             toolbar.add(new AbstractAction("", ApplicationIcon.getIcon("GraphEditor.zoom_out")) {
                 public void actionPerformed(ActionEvent e) {
                     _graph.setScale(_graph.getScale() / 1.2);
-                    LOG.info("Zooming out");
+                    LOG.debug("Zooming out");
                 }
             }).setToolTipText("Zoom Out");
 
@@ -1216,21 +1174,21 @@ public class GraphEditor extends JPanel
 //                          hideEdges(DATA_EDGE_MODE);
                             _graph.clearSelection();
                             iconKey = "GraphEditor.select_data_edge";
-                            LOG.info( "Changing to data communication edit mode, showing only data edges" );
+                            LOG.debug( "Changing to data communication edit mode, showing only data edges" );
                         }
                         else if( _edgeEditMode == DATA_EDGE_MODE ) {
                             _edgeEditMode = CONTROL_EDGE_MODE;
 //                          hideEdges(CONTROL_EDGE_MODE);
                             _graph.clearSelection();
                             iconKey = "GraphEditor.select_control_edge";
-                            LOG.info( "Changing to control flow edit mode, showing only control edges" );
+                            LOG.debug( "Changing to control flow edit mode, showing only control edges" );
                         }
                         else if( _edgeEditMode == CONTROL_EDGE_MODE ) {
                             _edgeEditMode = ALL_EDGE_MODE;
 //                          hideEdges(ALL_EDGE_MODE);
                             _graph.clearSelection();
                             iconKey = "GraphEditor.select_control_edge";
-                            LOG.info( "Changing to control flow edit mode, showing all edges" );
+                            LOG.debug( "Changing to control flow edit mode, showing all edges" );
                         }
                         if( iconKey != null ) {
                             putValue( SMALL_ICON, ApplicationIcon.getIcon( iconKey ) );

@@ -116,11 +116,13 @@ public class NexusGraph extends JGraph implements Printable,
 		setMarqueeHandler(new GraphMarqueeHandler(this, graphEditor));
 		setPortsVisible(true);
 		setGridEnabled(true);
-		setGridSize(6);
+		setGridSize(5);
 		setTolerance(1);
-		setAntiAliased(false);
+		setAntiAliased(true);
 		setHighlightColor(Color.white);
 		setBendable(false);
+        setDisconnectable(false);
+        setConnectable(false);
 
 		// Pressing the mouse button 2 times in a row will allow users to edit
 		// the
@@ -573,7 +575,6 @@ public class NexusGraph extends JGraph implements Printable,
 	 * Open the specific editor for a given graph cell object.
 	 */
 	public void startEditingAtCell(Object cell) {
-	  new RuntimeException("OUTPUT ONLY This should open up an editor for the task/net/decomposition type").printStackTrace();
 // if (cell instanceof GraphEdge && ((GraphEdge)
 // cell).getproxy().getPersistentDomainObject() instanceof DataEdge) {
 // LOG.debug("Trying to edit a data edge");
