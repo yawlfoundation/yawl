@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name="variable", namespace="http://www.nexusworkflow.com/", propOrder = {
 		"value"})
-public class Variable {
+public class Variable implements Cloneable {
     /** Type constant for plain text variables. */
     public static final String TYPE_TEXT = "text";
     /** Type constant for base 64 encoded string variables. */
@@ -389,5 +389,13 @@ public class Variable {
             ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( temp ) );
             return in.readObject();
         }
+    }
+    
+    /**
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

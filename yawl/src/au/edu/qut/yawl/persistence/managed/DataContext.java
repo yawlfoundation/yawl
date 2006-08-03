@@ -295,6 +295,7 @@ public class DataContext {
                                         DataContext.this.attachProxy( childProxy, child, parentProxy );
                                     }
                                     else {
+                                        // TODO FIXME this shouldn't really happen... but it does
                                         LOG.warn( "Revisiting child:" + child );
                                         childProxy = DataContext.this.getDataProxy( child, null );
                                     }

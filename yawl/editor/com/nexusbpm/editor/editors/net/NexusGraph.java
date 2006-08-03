@@ -42,7 +42,6 @@ import org.jgraph.util.JGraphUtilities;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YNet;
 
 import com.nexusbpm.command.CopyTaskCommand;
 import com.nexusbpm.editor.WorkflowEditor;
@@ -155,6 +154,19 @@ public class NexusGraph extends JGraph implements Printable,
 		setGraphLayoutCache(cache);
 		setAntiAliased(true);
 	}
+    
+    /**
+     * Notification from the <code>UIManager</code> that the L&F has changed.
+     * Replaces the current UI object with the latest version from the
+     * <code>UIManager</code>. Subclassers can override this to support
+     * different GraphUIs.
+     * 
+     * @see JComponent#updateUI
+     */
+    public void updateUI() {
+        setUI(new GraphUI());
+        invalidate();
+    }
 
 	/**
 	 * CapselaGraph will be the property listener for all domain object proxys

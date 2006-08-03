@@ -38,7 +38,7 @@ import com.nexusbpm.NexusWorkflow;
 @XmlRootElement(name = "NexusServiceData", namespace = "http://www.nexusworkflow.com/")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "NexusServiceData", namespace = "http://www.nexusworkflow.com/", propOrder = { "variable" })
-public class NexusServiceData {
+public class NexusServiceData implements Cloneable {
     @XmlElement(namespace = "http://www.nexusworkflow.com/", required = true)
     private List<Variable> variable;
     
@@ -230,7 +230,7 @@ public class NexusServiceData {
         return data;
     }
     
-    public static NexusServiceData unmarshal( YAtomicTask task ) {
+    public static NexusServiceData unmarshal( YAtomicTask task, boolean includeStatusVariable ) {
         NexusServiceData data = new NexusServiceData();
         data.initList();
         
@@ -238,6 +238,7 @@ public class NexusServiceData {
         
         for( String varName : task.getDataMappingsForTaskStarting().keySet() ) {
             if( !( varName.equals( NexusWorkflow.SERVICENAME_VAR )
+                    || ( varName.equals( NexusWorkflow.STATUS_VAR ) && !includeStatusVariable )
                     || varName.equals( "YawlWSInvokerWSDLLocation" )
                     || varName.equals( "YawlWSInvokerOperationName" )
                     || varName.equals( "YawlWSInvokerPortName" ) ) ) {
@@ -332,5 +333,23 @@ public class NexusServiceData {
                 net.setLocalVariable( var );
             }
         }
+    }
+    
+    /**
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        NexusServiceData clone = (NexusServiceData) super.clone();
+        
+        if( clone.variable != null ) {
+            clone.variable = new ArrayList<Variable>();
+            
+            for( Variable var : this.variable ) {
+                clone.variable.add( (Variable) var.clone() );
+            }
+        }
+        
+        return clone;
     }
 }

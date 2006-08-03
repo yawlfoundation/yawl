@@ -41,7 +41,6 @@ import org.jgraph.graph.ConnectionSet;
 import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
-import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.GraphSelectionModel;
 import org.jgraph.graph.Port;
 import org.jgraph.layout.SugiyamaLayoutAlgorithm;
@@ -57,6 +56,11 @@ import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 
+import com.nexusbpm.command.Command;
+import com.nexusbpm.command.CompoundCommand;
+import com.nexusbpm.command.RemoveFlowCommand;
+import com.nexusbpm.command.RemoveTaskCommand;
+import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.editors.NetEditor;
 import com.nexusbpm.editor.editors.net.cells.FlowControlEdge;
 import com.nexusbpm.editor.editors.net.cells.GraphEdge;
@@ -161,7 +165,24 @@ public class GraphEditor extends JPanel
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange( PropertyChangeEvent event ) {
-        throw new RuntimeException( "handle property change events for yawl" );
+        if( event.getPropertyName().equals( "taskBounds" ) ) {
+            final Map attributes = (Map) event.getNewValue();
+            Runnable updater = new Runnable() {
+                public void run() {
+                    _graph.getGraphLayoutCache().edit(attributes, null, null, null);
+                }
+            };
+            
+            if( SwingUtilities.isEventDispatchThread() ) {
+                updater.run();
+            }
+            else {
+                SwingUtilities.invokeLater( updater );
+            }
+            
+        }
+        // TODO may need to handle more property change events
+//        throw new RuntimeException( "handle property change events for yawl" );
 //        String propertyName = event.getPropertyName();
 //        int status = -1;
 //        if( propertyName.equals( Component.ATTR_EXECUTION_STATUS + "." + ExecutionStatus.ATTR_STATUS ) ) {
@@ -304,23 +325,33 @@ public class GraphEditor extends JPanel
      * @return the set of selected component nodes.
      */
     public Set getSelectedSharedNodes() {
-        Set<SharedNode> SharedNodeSet = new HashSet<SharedNode>();
+        Set<SharedNode> sharedNodeSet = new HashSet<SharedNode>();
         if( !_graph.isSelectionEmpty() ) {
             Object[] cells = _graph.getSelectionCells();
             for( int i = 0; i < cells.length; i++ ) {
                 NexusCell currentCell = (NexusCell) cells[ i ];
-                SharedNodeSet.add( currentCell.getProxy().getTreeNode() );
+                sharedNodeSet.add( currentCell.getProxy().getTreeNode() );
             }
         }
-        return SharedNodeSet;
+        return sharedNodeSet;
     }
 
     /**
      * Removes all cells from the graph.
      */
     public void removeEverything() {
-        Object[] roots = _graph.getRoots();
-        _graph.getGraphLayoutCache().remove( roots );
+        Runnable remover = new Runnable() {
+            public void run() {
+                Object[] roots = _graph.getRoots();
+                _graph.getGraphLayoutCache().remove( roots );
+            }
+        };
+        if( SwingUtilities.isEventDispatchThread() ) {
+            remover.run();
+        }
+        else {
+            SwingUtilities.invokeLater( remover );
+        }
     }
 
     /**
@@ -482,22 +513,11 @@ public class GraphEditor extends JPanel
             
             YTaskEditorExtension editor = new YTaskEditorExtension((YExternalNetElement) proxy.getData());
             Rectangle2D rect = (Rectangle2D) editor.getBounds().clone();
-            System.out.println( rect.getX() );
-            System.out.println( rect.getY() );
-            System.out.println( rect.getWidth() );
-            System.out.println( rect.getHeight() );
             GraphConstants.setBounds(cell.getAttributes(), rect);
             
             updater = new Runnable() {
                 public void run() {
                     _graph.getGraphLayoutCache().insert(cells.toArray(), cellAttributes, null, null);
-                    // TODO I don't think the rest of these lines are needed
-                    if( graphChangeSummary != null ) {
-                        _graph.getModel().removeGraphModelListener( graphChangeSummary );
-                        graphChangeSummary = null;
-                    }
-                    graphChangeSummary = new GraphChangeSummary( _graph, GraphEditor.this );
-                    _graph.getModel().addGraphModelListener( graphChangeSummary );
                 }
             };
         }
@@ -517,8 +537,12 @@ public class GraphEditor extends JPanel
             assert sinkProxy != null : "sink proxy was null";
             
             Port sourcePort = sourceProxy.getGraphPort();
+            assert sourcePort != null : "source port was null";
             Port sinkPort = sinkProxy.getGraphPort();
+            assert sinkPort != null : "sink port was null";
             GraphEdge graphEdge = this.initializeGraphEdge( edgeProxy );
+            assert graphEdge != null : "graph edge was null";
+            
             connectionSet.connect( graphEdge, sourcePort, sinkPort );
             Map map = createEdgeAttributeMap( false );
             edgeAttributes.put( graphEdge, map );
@@ -561,35 +585,6 @@ public class GraphEditor extends JPanel
 //    Point location = new Point(c.getFlowLocation().getLocation());
 //    _graph.snap(location);
 //    _graph.getGraphLayoutCache().insert(new Object[] { cell }, attributes, null, null, null);
-    }
-
-    /**
-     * Connects two cells with an edge.
-     */
-    public GraphEdge connect( NexusCell source, NexusCell target, boolean isDataEdge, EditorDataProxy edgeproxy ) {
-        LOG.debug( "Connecting two cells." );
-        SharedNode netNode = _netProxy.getTreeNode();
-        SharedNode sourceNode = source.getProxy().getTreeNode();
-        SharedNode targetNode = target.getProxy().getTreeNode();
-        if( netNode.isNodeChild( sourceNode ) && netNode.isNodeChild( targetNode ) ) {
-            Port sourcePort = source.getProxy().getGraphPort();
-            Port targetPort = target.getProxy().getGraphPort();
-            GraphEdge edge = null; // TODO XXX implement this properly for yawl!!
-            ConnectionSet cs = new ConnectionSet();
-            cs.connect( edge, sourcePort, targetPort );
-
-            Map map = createEdgeAttributeMap( isDataEdge );
-            GraphConstants.setRouting( map, EDGE_ROUTER );
-            GraphConstants.setLineStyle( map, GraphConstants.STYLE_BEZIER );
-            Hashtable<GraphEdge, Map> attributes = new Hashtable<GraphEdge, Map>();
-            attributes.put( edge, map );
-
-            _graph.getGraphLayoutCache().insert( new Object[] { edge }, attributes, cs, null, null );
-            return edge;
-        }
-        else {
-            return null;
-        }
     }
 
 //	protected void addPropertyChangeListener(DomainObjectProxy domainObjectProxy, PropertyChangeListener propertyChangeListener) {
@@ -693,8 +688,19 @@ public class GraphEditor extends JPanel
      * net).
      */
     public void remove( EditorDataProxy dec ) {
-        _graph.getGraphLayoutCache().remove( new Object[] { dec.getJGraphObject() } );
-        _graph.getGraphLayoutCache().removeMapping( dec.getJGraphObject() );
+        final Object obj = dec.getJGraphObject();
+        Runnable remover = new Runnable() {
+            public void run() {
+                _graph.getGraphLayoutCache().remove( new Object[] { obj } );
+                _graph.getGraphLayoutCache().removeMapping( obj );
+            }
+        };
+        if( SwingUtilities.isEventDispatchThread() ) {
+            remover.run();
+        }
+        else {
+            SwingUtilities.invokeLater( remover );
+        }
     }
 
     /**
@@ -856,9 +862,10 @@ public class GraphEditor extends JPanel
     }
 
     private void deleteSelectedItems() {
-        LOG.info( "GraphEditor.deleteSelectedItems" );
+        LOG.debug( "GraphEditor.deleteSelectedItems" );
         Object[] cells = _graph.getSelectionCells();
         List<Object> selectionCells = new ArrayList<Object>( cells.length + 1 );
+        // filter out the input and output conditions first
         for( Object cell : cells ) {
             if( cell instanceof NexusCell ) {
                 NexusCell ncell = (NexusCell) cell;
@@ -875,26 +882,49 @@ public class GraphEditor extends JPanel
         _graph.setSelectionCells( selectionCells.toArray() );
         cells = _graph.getSelectionCells();
         
-        for( Object cell : cells ) {
-            if( cell instanceof NexusCell ) {
-                NexusCell ncell = (NexusCell) cell;
-                GraphPort port = ncell.getProxy().getGraphPort();
-                LOG.info( "Items:" + cell + ":" + port );
+        List<Command> taskCommands = new ArrayList<Command>();
+        List<Command> edgeCommands = new ArrayList<Command>();
+        Set<Edge> edgeSet = new HashSet<Edge>();
+        
+        for( Object o : cells ) {
+            if( o instanceof NexusCell ) {
+                NexusCell cell = (NexusCell) o;
+                taskCommands.add( new RemoveTaskCommand( cell.getProxy() ) );
+                
+                GraphPort port = cell.getProxy().getGraphPort();
                 Set<Edge> edges = new HashSet<Edge>( port.getEdges() );
                 for( Edge edge : edges ) {
-                    LOG.info( "Edge:" + edge );
-                    _graph.getGraphLayoutCache().remove( new Object[] { edge } );
-                    _graph.getGraphLayoutCache().removeMapping( new Object[] { edge } );
+                    edgeSet.add( edge );
                 }
-                _graph.getGraphLayoutCache().remove( new Object[] { port } );
-                _graph.getGraphLayoutCache().removeMapping( new Object[] { port } );
+            }
+            else if( o instanceof FlowControlEdge ) {
+                FlowControlEdge edge = (FlowControlEdge) o;
+                edgeSet.add( edge );
             }
             else {
-                LOG.info( cell.getClass().getName() );
+                LOG.error("not a cell or edge but instead a "
+                        + o.getClass().getName() );
             }
         }
-        this._graph.getGraphLayoutCache().remove( _graph.getSelectionCells() );
-        this._graph.getGraphLayoutCache().removeMapping( _graph.getSelectionCells() );
+        
+        for( Edge e : edgeSet ) {
+            if( e instanceof FlowControlEdge ) {
+                edgeCommands.add( new RemoveFlowCommand( ((FlowControlEdge) e).getProxy() ) );
+            }
+            else {
+                LOG.warn( "deleting an edge that's not a control flow edge!" );
+            }
+        }
+        
+        CompoundCommand taskCommand = new CompoundCommand( taskCommands );
+        CompoundCommand edgeCommand = new CompoundCommand( edgeCommands );
+        
+        List<Command> compoundList = new ArrayList<Command>();
+        compoundList.add( edgeCommand ); // remove all edges first
+        compoundList.add( taskCommand ); // then remove all tasks
+        CompoundCommand command = new CompoundCommand( compoundList );
+        
+        WorkflowEditor.getExecutor().executeCommand( command );
     }
 
     private void updateStatus(int status) {
@@ -936,8 +966,6 @@ public class GraphEditor extends JPanel
 //    // Refresh the screen.
 //    updateUI();
     }
-
-	private GraphChangeSummary graphChangeSummary = null;
 
 	/**
 	 * Redraws the entire flow graph. This causes us to remove all the vertices
@@ -985,12 +1013,6 @@ public class GraphEditor extends JPanel
 		Runnable vertexUpdater = new Runnable() {
 			public void run() {
 				_graph.getGraphLayoutCache().insert(cells.toArray(), cellAttributes, null, null);
-				if( graphChangeSummary != null ) {
-					_graph.getModel().removeGraphModelListener( graphChangeSummary );
-					graphChangeSummary = null;
-				}
-				graphChangeSummary = new GraphChangeSummary( _graph, GraphEditor.this );
-				_graph.getModel().addGraphModelListener( graphChangeSummary );
 			}
 		};
 
@@ -1356,18 +1378,6 @@ public class GraphEditor extends JPanel
         for( Iterator iter = _animatedproxySet.iterator(); iter.hasNext(); ) {
             EditorDataProxy proxy = (EditorDataProxy) iter.next();
             stopCellAnimation( proxy );
-        }
-
-        if( null != graphChangeSummary ) {
-            GraphChangeSummary tmp = graphChangeSummary; // avoid stack overflow on recursive clears
-            graphChangeSummary = null;
-
-            if( null != _graph ) {
-                GraphModel model = _graph.getModel();
-                if( null != model ) {
-                    model.removeGraphModelListener( tmp );
-                }
-            }
         }
 
         if( null != _netEditor ) {

@@ -1,6 +1,7 @@
 package com.nexusbpm.editor.editors;
 
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -73,20 +74,19 @@ public class NetEditor extends ComponentEditor {
 	}
 
 	/**
+     * @see com.nexusbpm.editor.editors.ComponentEditor#propertyChange(java.beans.PropertyChangeEvent)
+     */
+    @Override
+    public void propertyChange( PropertyChangeEvent event ) {
+        super.propertyChange( event );
+        _netGraphEditor.propertyChange( event );
+    }
+
+    /**
 	 * @see ComponentEditor#setUI(JComponent)
 	 */
 	protected void setUI( JComponent component ) {
 		this.getContentPane().add( component );
-	}
-
-	/**
-	 * Override this method so as to increase its visibility and allow outside
-	 * graph change listeners to modify the dirty flag.
-	 * @param isDirty whether the component has been modified.
-	 * @see ComponentEditor#setDirty(boolean)
-	 */
-	public void setDirty( boolean isDirty ) {
-		super.setDirty( isDirty );
 	}
 
 	/**
@@ -213,6 +213,7 @@ public class NetEditor extends ComponentEditor {
         }
 
         if( null != _netGraphEditor ) {
+            _netGraphEditor.removeEverything();
             removeGraphEditor( _netGraphEditor );
             _netGraphEditor = null;
         }
