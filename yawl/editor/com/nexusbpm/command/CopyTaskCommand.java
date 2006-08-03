@@ -19,9 +19,7 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
-
-import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.tree.SharedNodeTreeModel;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 /**
  * The CopyTaskCommand copies a task to a net. All existing YFlows are 
@@ -33,11 +31,11 @@ import com.nexusbpm.editor.tree.SharedNodeTreeModel;
  * @author Nathan Rose
  */
 public class CopyTaskCommand extends AbstractCommand {
-    private SharedNode netNode;
     private DataProxy<YAtomicTask> originalTaskProxy;
     private DataProxy<YNet> netProxy;
     private Point location;
     private DataProxy<YSpecification> specProxy;
+    private DataProxyStateChangeListener listener;
     
     private DataContext context;
     
@@ -48,12 +46,13 @@ public class CopyTaskCommand extends AbstractCommand {
     private DataProxy<YAtomicTask> taskProxy;
     private DataProxy<YAWLServiceGateway> gatewayProxy;
 	
-	public CopyTaskCommand( SharedNode taskNode, SharedNode netNode, Point location ) {
-		this.netNode = netNode;
-        this.originalTaskProxy = taskNode.getProxy();
-        this.netProxy = netNode.getProxy();
+	public CopyTaskCommand( DataProxy taskProxy, DataProxy netProxy, Point location,
+            DataProxyStateChangeListener listener ) {
+        this.originalTaskProxy = taskProxy;
+        this.netProxy = netProxy;
         this.location = location;
         this.context = netProxy.getContext();
+        this.listener = listener;
 	}
     
     public void attach() {
@@ -78,12 +77,12 @@ public class CopyTaskCommand extends AbstractCommand {
         
         task = WorkflowOperation.copyTask(
                 originalTaskProxy.getData(),
-                (YNet) netNode.getProxy().getData(),
+                (YNet) netProxy.getData(),
                 location,
                 vars );
         gateway = (YAWLServiceGateway) task.getDecompositionPrototype();
         
-        gatewayProxy = context.createProxy( gateway, (SharedNodeTreeModel) netNode.getTreeModel() );
-        taskProxy = context.createProxy( task, (SharedNodeTreeModel) netNode.getTreeModel() );
+        gatewayProxy = context.createProxy( gateway, listener );
+        taskProxy = context.createProxy( task, listener );
 	}
 }

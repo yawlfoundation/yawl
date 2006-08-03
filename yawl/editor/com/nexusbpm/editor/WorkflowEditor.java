@@ -40,8 +40,10 @@ import au.edu.qut.yawl.persistence.managed.DataProxy;
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CommandExecutor;
 import com.nexusbpm.command.CreateNetCommand;
-import com.nexusbpm.command.CreateNexusComponent;
+import com.nexusbpm.command.CreateNexusComponentCommand;
 import com.nexusbpm.command.CreateSpecificationCommand;
+import com.nexusbpm.command.CommandExecutor.CommandCompletionListener;
+import com.nexusbpm.command.CommandExecutor.ExecutionResult;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.icon.ApplicationIcon;
@@ -65,7 +67,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
     private final static int DEFAULT_COMPONENTS_HEIGHT = 692;
     
 	private final static int DEFAULT_COMMAND_STACK_SIZE = 20;
-	private static CommandExecutor executor = new CommandExecutor(DEFAULT_COMMAND_STACK_SIZE);
+	private static CommandExecutor executor;
 	private static WorkflowEditor singleton = null;
     
     private static final Log LOG = LogFactory.getLog( WorkflowEditor.class );
@@ -76,8 +78,12 @@ public class WorkflowEditor extends javax.swing.JFrame {
      * Creates new form WorkflowEditor 
      */
     private WorkflowEditor() {
+        // we need to set the singleton instance before the constructor returns so the constructor
+        // can setup the singleton command executor
+        WorkflowEditor.singleton = this;
 		PropertyConfigurator.configure( WorkflowEditor.class.getResource( "client.logging.properties" ) );
     	initComponents();
+        
         this.pack();
     	this.setSize(DEFAULT_CLIENT_WIDTH,DEFAULT_CLIENT_HEIGHT);
         this.setLocationRelativeTo( null );
@@ -145,6 +151,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
                 getExecutor().undo();
             }
         });
+        undoMenuItem.setEnabled( false );
         editMenu.add( undoMenuItem );
         
         redoMenuItem = new JMenuItem( new AbstractAction( "Redo" ) {
@@ -152,6 +159,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
                 getExecutor().redo();
             }
         });
+        redoMenuItem.setEnabled( false );
         editMenu.add( redoMenuItem );
         
         editMenu.add( new JSeparator() );
@@ -495,24 +503,25 @@ public class WorkflowEditor extends javax.swing.JFrame {
             DataProxy proxy = root.getProxy();
             DataContext context = proxy.getContext();
             
-            Command createSpec = new CreateSpecificationCommand( root, "testspec" );
+            Command createSpec = new CreateSpecificationCommand( root.getProxy(), "testspec", model );
             createSpec.execute();
             
             SharedNode specNode = (SharedNode) root.getChildAt( 0 );
             assert specNode.getProxy().getData() instanceof YSpecification : "invalid child of root";
             
-            Command createNet = new CreateNetCommand( specNode, "components net" );
+            Command createNet = new CreateNetCommand( specNode.getProxy(), "components net", model );
             createNet.execute();
             
             SharedNode netNode = (SharedNode) specNode.getChildAt( 0 );
             assert netNode.getProxy().getData() instanceof YNet : "invalid child of specification";
             
             for( NexusServiceInfo info : Arrays.asList( NexusServiceInfo.SERVICES ) ) {
-                Command createComponent = new CreateNexusComponent(
-                        netNode,
+                Command createComponent = new CreateNexusComponentCommand(
+                        netNode.getProxy(),
                         info.getServiceName(),
                         info.getServiceName(),
-                        info );
+                        info,
+                        model );
                 createComponent.execute();
             }
             
@@ -701,8 +710,23 @@ public class WorkflowEditor extends javax.swing.JFrame {
 	}
 
 	public static CommandExecutor getExecutor() {
+        if( executor == null ) {
+            executor = new CommandExecutor(DEFAULT_COMMAND_STACK_SIZE);
+            executor.addCommandCompletionListener( getInstance().createCommandMenuUpdater() );
+        }
 		return executor;
 	}
+    
+    private CommandMenuUpdater createCommandMenuUpdater() {
+        return new CommandMenuUpdater();
+    }
+    
+    private class CommandMenuUpdater implements CommandCompletionListener {
+        public void commandCompleted( ExecutionResult result ) {
+            WorkflowEditor.this.undoMenuItem.setEnabled( result.canUndo() );
+            WorkflowEditor.this.redoMenuItem.setEnabled( result.canRedo() );
+        }
+    }
 
 	public static void setExecutor(CommandExecutor executor) {
 		WorkflowEditor.executor = executor;

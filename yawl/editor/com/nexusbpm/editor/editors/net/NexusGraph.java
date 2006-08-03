@@ -50,6 +50,7 @@ import com.nexusbpm.editor.editors.net.cells.ViewFactory;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.DragAndDrop;
 import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * JGraph object that handles drag'n drop, cell bounds auto-sizing, printing
@@ -470,7 +471,11 @@ public class NexusGraph extends JGraph implements Printable,
 			// if copy:
 			LOG.debug("IS COPY ACTION");
             WorkflowEditor.getExecutor().executeCommand(
-                    new CopyTaskCommand( draggingNode, _SharedNode, location ) );
+                    new CopyTaskCommand(
+                            draggingNode.getProxy(),
+                            _SharedNode.getProxy(),
+                            location,
+                            (SharedNodeTreeModel) _SharedNode.getTreeModel() ) );
 //			throw new RuntimeException("implement the copy operation");
 			// try {
 			// ClientOperation.executeCopyCommand((DataProxy)

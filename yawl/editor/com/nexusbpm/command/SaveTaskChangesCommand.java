@@ -13,6 +13,7 @@ import java.util.List;
 import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.services.data.NexusServiceData;
@@ -44,7 +45,8 @@ public class SaveTaskChangesCommand extends AbstractCommand {
     @Override
     protected void attach() throws Exception {
         newData.marshal( taskProxy.getData().getParent(), taskProxy.getData().getID() );
-        taskProxy.fireUpdated( "variables", oldData.clone(), newData.clone() );
+        taskProxy.fireUpdated(
+                DataProxyStateChangeListener.PROPERTY_TASK_VARIABLES, oldData.clone(), newData.clone() );
     }
     
     /**
@@ -62,7 +64,8 @@ public class SaveTaskChangesCommand extends AbstractCommand {
         }
         WorkflowOperation.detachVariablesFromNet( taskProxy.getData().getParent(), addedVariables );
         oldData.marshal( taskProxy.getData().getParent(), taskProxy.getData().getID() );
-        taskProxy.fireUpdated( "variables", newData.clone(), oldData.clone() );
+        taskProxy.fireUpdated(
+                DataProxyStateChangeListener.PROPERTY_TASK_VARIABLES, newData.clone(), oldData.clone() );
     }
     
     /**

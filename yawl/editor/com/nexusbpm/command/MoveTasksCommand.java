@@ -16,6 +16,7 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 import com.nexusbpm.editor.editors.net.cells.NexusCell;
 import com.nexusbpm.editor.persistence.YTaskEditorExtension;
@@ -58,7 +59,8 @@ public class MoveTasksCommand extends AbstractCommand {
     }
     
     private void performMove( Map<Object, Map> fromAttributes, Map<Object, Map> toAttributes ) {
-        netProxy.fireUpdated( "taskBounds", fromAttributes, toAttributes );
+        netProxy.fireUpdated(
+                DataProxyStateChangeListener.PROPERTY_TASK_BOUNDS, fromAttributes, toAttributes );
         
         for( Object key : fromAttributes.keySet() ) {
             if( key instanceof NexusCell ) {

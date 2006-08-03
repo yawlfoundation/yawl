@@ -12,10 +12,7 @@ import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
-
-import com.nexusbpm.editor.persistence.EditorDataProxy;
-import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.tree.SharedNodeTreeModel;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 /**
  * The CreateConditionCommand creates a condition in the specified net.
@@ -27,12 +24,12 @@ import com.nexusbpm.editor.tree.SharedNodeTreeModel;
  */
 public class CreateConditionCommand extends AbstractCommand {
 	private DataContext context;
-    private SharedNode netNode;
-    private EditorDataProxy<YNet> netProxy;
+    private DataProxy<YNet> netProxy;
     private YCondition condition;
     private DataProxy<YCondition> conditionProxy;
     private String conditionType;
     private String label;
+    private DataProxyStateChangeListener listener;
     
     public static final String TYPE_CONDITION = "cond";
     public static final String TYPE_INPUT_CONDITION = "input";
@@ -44,12 +41,13 @@ public class CreateConditionCommand extends AbstractCommand {
      * @param conditionType the type of condition to create.
      * @param label the label given to the condition if the type is not input or output.
      */
-	public CreateConditionCommand(SharedNode netNode, String conditionType, String label) {
-        this.netNode = netNode;
-        this.netProxy = netNode.getProxy();
+	public CreateConditionCommand( DataProxy netProxy, String conditionType, String label,
+            DataProxyStateChangeListener listener ) {
+        this.netProxy = netProxy;
         this.context = netProxy.getContext();
         this.conditionType = conditionType;
         this.label = label;
+        this.listener = listener;
 	}
 	
     /**
@@ -85,6 +83,6 @@ public class CreateConditionCommand extends AbstractCommand {
             // TODO do we need to URI encode the label when setting it as the ID?
             condition = WorkflowOperation.createCondition( netProxy.getData(), label );
         }
-        conditionProxy = context.createProxy( condition, (SharedNodeTreeModel) netNode.getTreeModel() );
+        conditionProxy = context.createProxy( condition, listener );
     }
 }

@@ -17,10 +17,7 @@ import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
-
-import com.nexusbpm.editor.persistence.EditorDataProxy;
-import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.tree.SharedNodeTreeModel;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 /**
  * The CreateFlowCommand creates a flow between two external net elements.
@@ -31,19 +28,20 @@ import com.nexusbpm.editor.tree.SharedNodeTreeModel;
  * @author Nathan Rose
  */
 public class CreateFlowCommand extends AbstractCommand {
-	private EditorDataProxy<YExternalNetElement> sourceProxy;
-	private EditorDataProxy<YExternalNetElement> targetProxy;
-    private EditorDataProxy<YNet> netProxy;
-    private SharedNode targetNode;
+	private DataProxy<YExternalNetElement> sourceProxy;
+	private DataProxy<YExternalNetElement> targetProxy;
+    private DataProxy<YNet> netProxy;
     private YFlow flow;
 	private DataProxy<YFlow> flowProxy;
     private DataContext context;
+    private DataProxyStateChangeListener listener;
 	
-	public CreateFlowCommand(SharedNode sourceNode, SharedNode targetNode) {
-        this.sourceProxy = sourceNode.getProxy();
-		this.targetNode = targetNode;
-        this.targetProxy = targetNode.getProxy();
+	public CreateFlowCommand( DataProxy sourceProxy, DataProxy targetProxy,
+            DataProxyStateChangeListener listener ) {
+        this.sourceProxy = sourceProxy;
+        this.targetProxy = targetProxy;
         this.context = targetProxy.getContext();
+        this.listener = listener;
 	}
     
 	/**
@@ -69,13 +67,13 @@ public class CreateFlowCommand extends AbstractCommand {
      */
     @Override
     protected void perform() throws Exception {
-        netProxy = (EditorDataProxy) context.getDataProxy( targetProxy.getData().getParent(), null );
+        netProxy = context.getDataProxy( targetProxy.getData().getParent(), null );
         String error = validateFlow( sourceProxy.getData(), targetProxy.getData() );
         if( error != null ) {
             throw new YStateException( error );
         }
         flow = WorkflowOperation.createFlow();
-        flowProxy = context.createProxy( flow, (SharedNodeTreeModel) targetNode.getTreeModel() );
+        flowProxy = context.createProxy( flow, listener );
     }
     
     public static String validateFlow( Object source, Object target ) {

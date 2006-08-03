@@ -20,35 +20,30 @@ import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.NexusWorkflow;
-import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 /**
  * The RemoveTaskCommand removes a task from a network. 
  * 
- * @todo Add in parameters to remove the variables and gateway as well
  * @author Matthew Sandoz
  * @author Nathan Rose
  */
 public class RemoveTaskCommand extends AbstractCommand {
     private DataContext context;
-	private EditorDataProxy<YAtomicTask> taskProxy;
+	private DataProxy<YAtomicTask> taskProxy;
     private YAtomicTask task;
     
     private DataProxy<YNet> netProxy;
     private YNet net;
-    
-//    private NexusServiceInfo serviceInfo;
     
     private YAWLServiceGateway gateway;
     private DataProxy<YAWLServiceGateway> gatewayProxy;
     
     private List<YVariable> netVariables;
     
-    
     private DataProxy<YSpecification> specProxy;
     private YSpecification spec;
     
-	public RemoveTaskCommand(EditorDataProxy taskProxy) {
+	public RemoveTaskCommand( DataProxy taskProxy ) {
         this.context = taskProxy.getContext();
 		this.taskProxy = taskProxy;
         this.task = this.taskProxy.getData();
@@ -87,9 +82,6 @@ public class RemoveTaskCommand extends AbstractCommand {
         
         gateway = (YAWLServiceGateway) task.getDecompositionPrototype();
         gatewayProxy = context.getDataProxy( gateway, null );
-        
-//        serviceInfo = WorkflowOperation.getNexusServiceInfoForTask( task );
-//        assert serviceInfo != null : "Atomic task was not a valid nexus service task";
         
         String namePrefix = task.getID() + NexusWorkflow.NAME_SEPARATOR;
         netVariables = new ArrayList<YVariable>();

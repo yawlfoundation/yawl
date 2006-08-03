@@ -277,10 +277,10 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 	 */
 	public void propertyChange( PropertyChangeEvent event ) {
 		String property = event.getPropertyName();
-		if( property.equals( "name" ) ) {
+		if( property.equals( DataProxyStateChangeListener.PROPERTY_NAME ) ) {
             resetTitle( _proxy );
 		}
-        else if( property.equals( "variables" ) ) {
+        else if( property.equals( DataProxyStateChangeListener.PROPERTY_TASK_VARIABLES ) ) {
             data = (NexusServiceData) event.getNewValue();
         }
 	}

@@ -9,7 +9,15 @@ package au.edu.qut.yawl.persistence.managed;
 
 import java.beans.PropertyChangeListener;
 
-public interface DataProxyStateChangeListener extends PropertyChangeListener{
+public interface DataProxyStateChangeListener extends PropertyChangeListener {
+    // constants for state changes
+    /** Constant indicating the property changing is a component's name. */
+    public static final String PROPERTY_NAME = "NAME";
+    /** Constant indicating the property changing is a task's variables. */
+    public static final String PROPERTY_TASK_VARIABLES = "TASK_VARIABLES";
+    /** Constant indicating the property changing is the location of a task (or net element). */
+    public static final String PROPERTY_TASK_BOUNDS = "TASK_BOUNDS";
+    
     /** Called just before the proxy is detached. */
     void proxyDetaching(DataProxy proxy, Object data, DataProxy parent);
     /** Called immediately after the proxy is detached. */

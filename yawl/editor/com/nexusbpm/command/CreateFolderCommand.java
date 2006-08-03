@@ -20,6 +20,9 @@ import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 /**
  * The CreateFolderCommand creates a sub-folder in the specified folder.
  * 
+ * TODO needs to work for a context attached to a file system
+ * TODO needs to not depend on com.nexusbpm.editor
+ * 
  * @author Nathan Rose
  */
 public class CreateFolderCommand extends AbstractCommand {

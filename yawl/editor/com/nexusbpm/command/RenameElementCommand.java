@@ -13,9 +13,8 @@ import java.lang.reflect.Method;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YSpecification;
-
-import com.nexusbpm.editor.persistence.EditorDataProxy;
-import com.nexusbpm.editor.tree.SharedNode;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 /**
  * The RenameElementCommand renames any single object that is an instance of
@@ -28,13 +27,13 @@ import com.nexusbpm.editor.tree.SharedNode;
  * @author Nathan Rose
  */
 public class RenameElementCommand extends AbstractCommand {
-    private EditorDataProxy proxy;
+    private DataProxy proxy;
     
     private String oldName;
     private String newName;
 	
-	public RenameElementCommand( SharedNode node, String newName, String oldName ) {
-        this.proxy = node.getProxy();
+	public RenameElementCommand( DataProxy proxy, String newName, String oldName ) {
+        this.proxy = proxy;
         this.oldName = oldName;
         this.newName = newName;
 	}
@@ -75,7 +74,7 @@ public class RenameElementCommand extends AbstractCommand {
         }
         
         proxy.setLabel( newName );
-        proxy.fireUpdated( "name", oldName, newName );
+        proxy.fireUpdated( DataProxyStateChangeListener.PROPERTY_NAME, oldName, newName );
     }
     
     /**
