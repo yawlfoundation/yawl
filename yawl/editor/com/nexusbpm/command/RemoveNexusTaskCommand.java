@@ -22,7 +22,7 @@ import au.edu.qut.yawl.persistence.managed.DataProxy;
 import com.nexusbpm.NexusWorkflow;
 
 /**
- * The RemoveTaskCommand removes a task from a network. 
+ * The RemoveNexusTaskCommand removes a task from a network. 
  * 
  * @author Matthew Sandoz
  * @author Nathan Rose

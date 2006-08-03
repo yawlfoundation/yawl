@@ -56,6 +56,8 @@ import com.nexusbpm.command.CopySpecificationCommand;
 import com.nexusbpm.command.CreateFolderCommand;
 import com.nexusbpm.command.CreateNetCommand;
 import com.nexusbpm.command.CreateSpecificationCommand;
+import com.nexusbpm.command.RemoveNetCommand;
+import com.nexusbpm.command.RemoveNexusTaskCommand;
 import com.nexusbpm.command.SaveSpecificationCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -167,18 +169,50 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 
 
 	/**
-	 * Deletes the currently selected node, as long as the corresponding component
-	 * is not locked by someone else.
+	 * Deletes the currently selected node.
 	 */
 	private void deleteCurrentNode() {
 		LOG.debug( "ComponentTree.deleteCurrentNode" );
 		SharedNode node = this.getSelectedNode();
 		if( !node.isRoot() ) {
-			Exception e = new RuntimeException("please implement the delete node operation!");
-			LOG.error(e.getMessage(), e);
+            Object data = node.getProxy().getData();
+            if( data instanceof YSpecification ) {
+                Exception e = new RuntimeException("please implement the delete node operation!");
+                LOG.error(e.getMessage(), e);
+            }
+            else if( data instanceof YNet ) {
+                WorkflowEditor.getExecutor().executeCommand(
+                        new RemoveNetCommand( node.getProxy() ) );
+            }
+            else if( data instanceof YDecomposition ) {
+                Exception e = new RuntimeException("please implement the delete node operation!");
+                LOG.error(e.getMessage(), e);
+            }
+            else if( data instanceof YAtomicTask ) {
+                WorkflowEditor.getExecutor().executeCommand(
+                        new RemoveNexusTaskCommand( node.getProxy() ) );
+            }
+            else if( data instanceof YExternalNetElement ) {
+                Exception e = new RuntimeException("please implement the delete node operation!");
+                LOG.error(e.getMessage(), e);
+            }
+            else if( data instanceof File ) {
+                Exception e = new RuntimeException("please implement the delete node operation!");
+                LOG.error(e.getMessage(), e);
+            }
+            else if( data instanceof String ) {
+                Exception e = new RuntimeException("please implement the delete node operation!");
+                LOG.error(e.getMessage(), e);
+            }
+            else if( data != null ) {
+                LOG.warn( "Cannot delete object - Unknown object type: " + data.getClass().getName() );
+            }
+            else {
+                LOG.warn( "Cannot delete object - object is null!" );
+            }
 		}
 		else {
-			LOG.debug( "Cannot delete node - is not root" );
+			LOG.debug( "Cannot delete node - it is the root node" );
 		}
 	}
 
