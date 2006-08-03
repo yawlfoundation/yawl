@@ -4,8 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jgraph.graph.DefaultGraphCell;
 
-import au.edu.qut.yawl.elements.YExternalNetElement;
-
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 
 
@@ -46,6 +44,10 @@ public class NexusCell extends DefaultGraphCell {
 			LOG.error("message only", new RuntimeException("implement for yawl"));
 		}
 	}
+    
+    public boolean contains( Object o ) {
+        return children.contains( o );
+    }
 
 	/**
 	 * Return the description of the cell so that it will be the initial value of the in-graph editor.

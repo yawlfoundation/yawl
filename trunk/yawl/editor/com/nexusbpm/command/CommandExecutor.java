@@ -39,15 +39,20 @@ public class CommandExecutor {
         listeners.add( new CommandCompletionListener() {
             public void commandCompleted( ExecutionResult result ) {
                 if( result.getError() == null ) {
+                    String name = "Command";
                     if( result.getCommand() != null ) {
-                        String name = result.getCommand().getClass().getName();
+                        name = result.getCommand().getClass().getName();
                         if( name.indexOf( "." ) >= 0 ) {
                             name = name.substring( name.lastIndexOf( "." ) + 1 );
                         }
-                        LOG.info( name + " completed successfully" );
+                        
                     }
-                    else
-                        LOG.info( "Command completed successfully" );
+                    String verb = " was completed ";
+                    if( result.getOperation().equals( ExecutionResult.OPERATION_UNDO ) )
+                        verb = " was undone ";
+                    else if( result.getOperation().equals( ExecutionResult.OPERATION_REDO ) )
+                        verb = " was redone ";
+                    LOG.info( name + verb + "successfully" );
                 }
                 else {
                     LOG.error( result.getError().getMessage(), result.getError() );
@@ -118,16 +123,15 @@ public class CommandExecutor {
     }
     
     public static class ExecutionResult {
+        public static final String OPERATION_EXECUTE = "execute";
+        public static final String OPERATION_UNDO = "undo";
+        public static final String OPERATION_REDO = "redo";
+        
         private Command command;
         private Throwable error;
         private boolean canUndo;
         private boolean canRedo;
-        private ExecutionResult( Command cmd, Throwable error, boolean canUndo, boolean canRedo ) {
-            this.command = cmd;
-            this.error = error;
-            this.canUndo = canUndo;
-            this.canRedo = canRedo;
-        }
+        private String operation;
         
         public boolean canRedo() {
             return canRedo;
@@ -144,24 +148,32 @@ public class CommandExecutor {
         public Command getCommand() {
             return command;
         }
+        
+        public String getOperation() {
+            return operation;
+        }
     }
     
     private abstract class AbstractExecute implements Runnable {
         abstract Command execute() throws Exception;
+        ExecutionResult result;
         public final void run() {
+            result = new ExecutionResult();
             Throwable t = null;
             Command cmd = null;
+            
             try {
             	cmd = execute();
             }
             catch( Throwable tr ) {
                 t = tr;
             }
-            ExecutionResult result = new ExecutionResult(
-                    cmd,
-                    t,
-                    CommandExecutor.this.stack.canUndo(),
-                    CommandExecutor.this.stack.canRedo() );
+            
+            result.command = cmd;
+            result.error = t;
+            result.canUndo = CommandExecutor.this.stack.canUndo();
+            result.canRedo = CommandExecutor.this.stack.canRedo();
+
             synchronized( listeners ) {
                 for( CommandCompletionListener listener : listeners ) {
                     listener.commandCompleted( result );
@@ -176,18 +188,21 @@ public class CommandExecutor {
             c = command;
         }
         public Command execute() throws Exception {
+            result.operation = ExecutionResult.OPERATION_EXECUTE;
             return CommandExecutor.this.stack.executeCommand( c );
         }
     }
     
     private class ExecuteUndo extends AbstractExecute {
         public Command execute() throws Exception {
+            result.operation = ExecutionResult.OPERATION_UNDO;
             return CommandExecutor.this.stack.undoLastCommand();
         }
     }
     
     private class ExecuteRedo extends AbstractExecute {
         public Command execute() throws Exception {
+            result.operation = ExecutionResult.OPERATION_REDO;
             return CommandExecutor.this.stack.redoNextCommand();
         }
     }

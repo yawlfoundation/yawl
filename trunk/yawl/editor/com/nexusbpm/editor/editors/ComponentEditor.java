@@ -20,6 +20,8 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jgraph.event.GraphSelectionEvent;
+import org.jgraph.event.GraphSelectionListener;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YDecomposition;
@@ -29,7 +31,10 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
+import com.nexusbpm.command.SaveTaskChangesCommand;
+import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
+import com.nexusbpm.editor.editors.net.GraphEditor;
 import com.nexusbpm.editor.exception.EditorException;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.util.syntax.DefaultInputHandler;
@@ -100,6 +105,9 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
                 SwingUtilities.invokeLater( uiUpdater );
             }
         }
+        else {
+            LOG.warn( "ComponentEditor.initialize() is being called again!" );
+        }
     }
 
 	/**
@@ -145,6 +153,17 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 			System.out.println("pressed a key on the editor");
 		}
 	}
+    
+    /**
+     * Graph selection listener that can be added to graphs to set the
+     * editor to dirty when a graph is used.
+     */
+    private GraphSelectionListener isDirtyGraphSelectionListener = new GraphSelectionListener() {
+        public void valueChanged( GraphSelectionEvent e ) {
+            LOG.debug( "isDirtyGraphSelectionListener.valueChanged(): " + e );
+            ComponentEditor.this.setDirty( true );
+        }
+    };
 
 //	/**
 //	 * Drop panel listener that can be added to calendar combo boxes to set the
@@ -192,6 +211,27 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 		else if( o instanceof JList ) {
 			((JList) o).addKeyListener( this.isDirtyKeyAdapter );
 		}
+//        else if( o instanceof JCalendarComboBox ) {
+//            ((JCalendarComboBox) o).addChangeListener( this.isDirtyChangeListener );
+//        }
+//        else if( o instanceof JPVTime ) {
+//            ((JPVTime) o).addKeyListener( this.isDirtyKeyAdapter );
+//        }
+//        else if( o instanceof DropPanel ) {
+//            ((DropPanel) o).addDropPanelListener( this.isDirtyDropPanelListener );
+//        }
+//        else if( o instanceof PreferencesModel ) {
+//            ((PreferencesModel) o).addListener( this.isDirtyActionListener );
+//        }
+        else if( o instanceof GraphEditor ) {
+            ((GraphEditor) o).addGraphSelectionListener( this.isDirtyGraphSelectionListener );
+        }
+//        else if( o instanceof JPVEdit ) {
+//            ((JPVEdit) o).addActionListener( this.isDirtyActionListener );
+//        }
+//        else if( o instanceof RecurrencePanel ) {
+//            ((RecurrencePanel) o).addActionListener( this.isDirtyActionListener );
+//        }
 		else {
 			LOG.error( "Unable to add an isDirty listener to: " + o );
 		}
@@ -238,14 +278,16 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 	public void propertyChange( PropertyChangeEvent event ) {
 		String property = event.getPropertyName();
 		if( property.equals( "name" ) ) {
-            // TODO not right
             resetTitle( _proxy );
 		}
-//		new RuntimeException("OUTPUT ONLY editor title names may need a new context in YAWL").printStackTrace();
+        else if( property.equals( "variables" ) ) {
+            data = (NexusServiceData) event.getNewValue();
+        }
 	}
     
     public void resetTitle( DataProxy proxy ) {
         String name = proxy.getLabel() + getIdString( proxy.getData() );
+        if( isDirty() ) name += "*";
         setTitle( name );
         LOG.debug( "RENAMING INTERNAL FRAME TITLE: " + name );
     }
@@ -279,7 +321,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
         addListeningProxy( _proxy );
         if( _proxy.getData() instanceof YAtomicTask ) {
             YAtomicTask task = (YAtomicTask) _proxy.getData();
-            data = NexusServiceData.unmarshal( task );
+            data = NexusServiceData.unmarshal( task, false );
         }
 	}
 
@@ -312,8 +354,9 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
     
     public final void persistAttributes() {
         if( _proxy.getData() instanceof YAtomicTask ) {
-            YAtomicTask task = (YAtomicTask) _proxy.getData();
-            data.marshal( task.getParent(), task.getID() );
+            WorkflowEditor.getExecutor().executeCommand( new SaveTaskChangesCommand( _proxy, data ) );
+//            YAtomicTask task = (YAtomicTask) _proxy.getData();
+//            data.marshal( task.getParent(), task.getID() );
         }
         else if( _proxy.getData() instanceof YNet ) {
             // TODO
@@ -341,7 +384,10 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 	 * @param dirty whether the component has been modified.
 	 */
 	protected void setDirty( boolean dirty ) {
-		_dirty = dirty;
+        if( _dirty != dirty ) {
+            _dirty = dirty;
+            resetTitle( _proxy );
+        }
 	}
 
 	/**
@@ -354,6 +400,10 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 		if( LOG.isDebugEnabled() ) {
 			LOG.debug( "ComponentEditor.clear " + getClass().getName() );
 		}
+        
+        for( DataProxy proxy : new ArrayList<DataProxy>( listeningProxies ) ) {
+            removeListeningProxy( proxy );
+        }
 
 		if( null != _proxy ) {
             removeListeningProxy( _proxy );

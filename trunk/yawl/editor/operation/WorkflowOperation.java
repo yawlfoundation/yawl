@@ -727,6 +727,14 @@ public class WorkflowOperation {
             variable.setParent( null );
         }
     }
+    
+    public static void detachVariablesFromNet( YNet net, List<String> varNames ) {
+        for( String name : varNames ) {
+            if( net.getLocalVariable( name ) != null ) {
+                net.getLocalVariables().remove( net.getLocalVariable( name ) );
+            }
+        }
+    }
 
 	/**
 	 * Creates a default input binding string useful for mapping net variables

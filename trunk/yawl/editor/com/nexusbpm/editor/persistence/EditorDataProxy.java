@@ -4,6 +4,7 @@ import java.awt.Container;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 
@@ -48,6 +49,9 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 	 * @return the graph cell for this component.
 	 */
 	public NexusCell getGraphCell() {
+        if( ! _graphCell.contains( _graphPort ) ) {
+            _graphCell.add( _graphPort );
+        }
 		return _graphCell;
 	}
 
@@ -99,6 +103,9 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 	 * @return the graph port for this component's JGraph object.
 	 */
 	public GraphPort getGraphPort() {
+        if( ! _graphCell.contains( _graphPort ) ) {
+            _graphCell.add( _graphPort );
+        }
 		return _graphPort;
 	}
 
@@ -117,7 +124,10 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 	 *         object.
 	 */
 	public Object getJGraphObject() {
-		return getGraphCell();
+        if( getData() instanceof YFlow )
+            return getGraphEdge();
+        else
+            return getGraphCell();
 	}
     
     @Override
@@ -131,11 +141,19 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
     }
     
     @Override
-    public void fireDetached( Object value, DataProxy parent ) {
-        super.fireDetached( value, parent );
+    public void fireDetaching( Object value, DataProxy parent ) {
+        super.fireDetaching( value, parent );
         if( ( value instanceof YFlow || value instanceof YExternalNetElement ) &&
                 ((EditorDataProxy)parent)._editor != null ) {
             ((NetEditor) ((EditorDataProxy)parent)._editor).getNetGraphEditor().remove( this );
+        }
+        if( _editor != null ) {
+            try {
+                _editor.setClosed( true );
+            }
+            catch( PropertyVetoException e ) {
+                _editor.dispose();
+            }
         }
         // TODO anything else?
     }
