@@ -29,14 +29,16 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Vector;
 
-import java.awt.Rectangle;
+import java.awt.Color;
 import java.awt.Point;
+import java.awt.Rectangle;
 
 import au.edu.qut.yawl.editor.data.Decomposition;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLPort;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.ParentMap;
@@ -69,6 +71,7 @@ public class ArchivableNetState implements Serializable {
     setStartingNetFlag(false);
     setIconified(false);
     setMaximised(false);
+    setBackgroundColor(new Color(SpecificationModel.getInstance().getDefaultNetBackgroundColor()));
   }
 
   public ArchivableNetState(NetGraphModel graphModel) {
@@ -103,6 +106,9 @@ public class ArchivableNetState implements Serializable {
       graphModel.getGraph().getVisibleRect()    
     );
     setDecomposition(graphModel.getDecomposition());
+    setBackgroundColor(
+      graphModel.getGraph().getBackground()    
+    );
   }
   
   public void setSerializationProofAttributeMap(HashMap map) {
@@ -286,5 +292,16 @@ public class ArchivableNetState implements Serializable {
   
   public void setVisibleRectangle(Rectangle rectangle) {
     serializationProofAttributeMap.put("visibleRectangle", rectangle);
+  }
+  
+  public Color getBackgroundColor() {
+    if (serializationProofAttributeMap.get("backgroundColor") != null) {
+      return (Color) serializationProofAttributeMap.get("backgroundColor");
+    }
+    return new Color(SpecificationModel.DEFAULT_NET_BACKGROUND_COLOR);
+  }
+  
+  public void setBackgroundColor(Color color) {
+    serializationProofAttributeMap.put("backgroundColor", color);
   }
 }

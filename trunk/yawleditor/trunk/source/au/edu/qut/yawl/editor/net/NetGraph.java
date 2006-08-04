@@ -158,7 +158,7 @@ public class NetGraph extends JGraph {
     setDoubleBuffered(true);
     setGridSize(4);
     setMinimumMove(4);
-    setBackground(new Color(SpecificationModel.DEFAULT_NET_BACKGROUND_COLOR));
+    setBackground(new Color(SpecificationModel.getInstance().getDefaultNetBackgroundColor()));
     setAntiAliased(prefs.getBoolean("showAntiAliasing", true));
     setPortsVisible(false);
     setCloneable(false);

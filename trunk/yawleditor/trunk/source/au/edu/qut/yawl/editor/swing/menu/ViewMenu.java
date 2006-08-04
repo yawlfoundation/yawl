@@ -34,7 +34,7 @@ import au.edu.qut.yawl.editor.actions.specification.IconifyAllNetsAction;
 import au.edu.qut.yawl.editor.actions.specification.ShowAllNetsAction;
 import au.edu.qut.yawl.editor.actions.view.AntiAliasedToggleAction;
 import au.edu.qut.yawl.editor.actions.view.FontSizeAction;
-import au.edu.qut.yawl.editor.actions.view.NetBackgroundColourAction;
+import au.edu.qut.yawl.editor.actions.view.DefaultNetBackgroundColourAction;
 import au.edu.qut.yawl.editor.actions.view.ShowGridToggleAction;
 import au.edu.qut.yawl.editor.actions.view.ToolTipToggleAction;
 
@@ -95,7 +95,7 @@ class ViewMenu extends JMenu {
   }
   
   private JMenuItem buildNetBackgroundColourItem() {
-    return new JMenuItem(new NetBackgroundColourAction());
+    return new JMenuItem(new DefaultNetBackgroundColourAction());
   }
 
   
