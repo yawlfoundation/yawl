@@ -5,6 +5,10 @@ Version 1.4.3 (??/??/????) "Bronzeforge"
     passing focus back to a net after an element alignment within that net.
   * Fixed a bug where, if a task already had a label, but later had a decomposition
     specfied for it, the decomposition label was overwriting the task label.
+  * Fixed a bug where no engine connection would cause the Task decomposition dialog 
+    some time to appear.
+  * Enhanced zoom behaviour so that an editor save file will now be reloaded with the
+    same zoom and position within a net as it was saved.
 
 Version 1.4.2 (13/07/2006) "Ironforge"
   * Fixed a bug where the "Set Label" dialog box was remembering the last thing
