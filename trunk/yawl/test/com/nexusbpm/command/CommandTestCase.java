@@ -11,7 +11,11 @@ import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 import junit.framework.TestCase;
 
-
+/**
+ * 
+ * @author Dean Mao
+ * @created Aug 4, 2006
+ */
 public abstract class CommandTestCase extends TestCase implements DataProxyStateChangeListener {
 
 	protected DataProxy<String> rootProxy;

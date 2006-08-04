@@ -4,7 +4,11 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
-
+/**
+ * 
+ * @author Dean Mao
+ * @created Aug 4, 2006
+ */
 public class CreateFlowTest extends CommandTestCase {
 
 	DataProxy<YFlow> flowProxy = null;
