@@ -16,12 +16,12 @@ import junit.textui.TestRunner;
  * @author Dean Mao
  * @created Aug 4, 2006
  */
-public class NexusCommandTestSuite extends TestSuite{
+public class CommandTestSuite extends TestSuite{
 	/**
 	 * Constructor for NexusCommandTestSuite.
 	 * @param name
 	 */
-    public NexusCommandTestSuite(String name){
+    public CommandTestSuite(String name){
     	super(name);
     }
 
