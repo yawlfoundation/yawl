@@ -27,6 +27,7 @@ package au.edu.qut.yawl.editor.swing.menu;
 import java.awt.event.KeyEvent;
 
 import au.edu.qut.yawl.editor.actions.net.PrintNetAction;
+import au.edu.qut.yawl.editor.actions.net.NetBackgroundColourAction;
 import au.edu.qut.yawl.editor.actions.net.RemoveNetAction;
 import au.edu.qut.yawl.editor.actions.net.SetStartingNetAction;
 import au.edu.qut.yawl.editor.actions.net.ExportNetToPngAction;
@@ -66,6 +67,10 @@ class NetMenu extends YAWLOpenSpecificationMenu {
     
     addSeparator();
 
+    add(new YAWLMenuItem(new NetBackgroundColourAction()));
+    
+    addSeparator();
+    
     add(new YAWLMenuItem(new PrintNetAction()));
     JSplashScreen.getInstance().updateProgressBar(29);
   }

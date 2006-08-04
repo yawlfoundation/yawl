@@ -23,8 +23,6 @@
  */
 package au.edu.qut.yawl.editor.specification;
 
-import java.awt.Color;
-
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -319,8 +317,8 @@ public class SpecificationArchiveHandler {
     SpecificationModel.getInstance().undoableSetFontSize(0,state.getFontSize());
 
     try {
-      SpecificationModel.getInstance().setNetBackgroundColor(
-          state.getNetBackgroundColor()
+      SpecificationModel.getInstance().setDefaultNetBackgroundColor(
+          state.getDefaultNetBackgroundColor()
       );
     } catch(Exception e) {}
     
@@ -361,7 +359,7 @@ public class SpecificationArchiveHandler {
     SpecificationModel.getInstance().addNetNotUndoable(net.getNetModel());
     net.changeCancellationSet(archivedNet.getTriggeringTaskOfVisibleCancellationSet());
    
-    net.setBackground(new Color(SpecificationModel.getInstance().getNetBackgroundColor()));
+    net.setBackground(archivedNet.getBackgroundColor());
     
     if (archivedNet.getScale() != 0) {
       net.setScale(archivedNet.getScale());

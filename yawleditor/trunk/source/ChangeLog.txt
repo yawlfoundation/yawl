@@ -9,6 +9,9 @@ Version 1.4.3 (??/??/????) "Bronzeforge"
     some time to appear.
   * Enhanced zoom behaviour so that an editor save file will now be reloaded with the
     same zoom and position within a net as it was saved.
+  * The editor has been upgraded to now use Jgraph 5.9.2.
+  * Now, individual nets can have differing background colours. A new menu item on the
+    net menu allows a particular net to have a background colour other than the default.
 
 Version 1.4.2 (13/07/2006) "Ironforge"
   * Fixed a bug where the "Set Label" dialog box was remembering the last thing

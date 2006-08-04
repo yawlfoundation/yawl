@@ -76,7 +76,7 @@ public class SpecificationModel {
   private HashSet decompositions = new HashSet();
   private long    uniqueElementNumber = 0;
   private int     fontSize            = DEFAULT_FONT_SIZE;
-  private int     netBackgroundColor =  DEFAULT_NET_BACKGROUND_COLOR;
+  private int     defaultNetBackgroundColor =  DEFAULT_NET_BACKGROUND_COLOR;
   private String  name                = "";
   private String  description         = "No description has been given.";
   private String  id                 = "";
@@ -123,7 +123,7 @@ public class SpecificationModel {
     nets = new HashSet();
     decompositions = new HashSet();
     fontSize = DEFAULT_FONT_SIZE;
-    netBackgroundColor = DEFAULT_NET_BACKGROUND_COLOR;
+    defaultNetBackgroundColor = DEFAULT_NET_BACKGROUND_COLOR;
     setFileName("");
     setEngineFileName("");
     setDataTypeDefinition(DEFAULT_TYPE_DEFINITION);
@@ -648,22 +648,12 @@ public class SpecificationModel {
     }
   }
   
-  public void setNetBackgroundColor(int color) {
-    NetGraphModel netModel = null;
-    
-    final Color colorAsObject = new Color(color);
-
-    Iterator netIterator = nets.iterator();
-    while(netIterator.hasNext()) {
-      netModel = (NetGraphModel) netIterator.next();
-      NetGraph net = netModel.getGraph();
-      net.setBackground(colorAsObject);
-    }
-    netBackgroundColor = color;
+  public void setDefaultNetBackgroundColor(int color) {
+    defaultNetBackgroundColor = color;
   }
   
-  public int getNetBackgroundColor() {
-    return this.netBackgroundColor;
+  public int getDefaultNetBackgroundColor() {
+    return this.defaultNetBackgroundColor;
   }
 
   public void showNetGrid(boolean gridVisible) {

@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.view;
+package au.edu.qut.yawl.editor.actions.net;
 
 import java.awt.Color;
 
@@ -34,7 +34,7 @@ import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
 
-public class NetBackgroundColourAction extends YAWLBaseAction {
+public class NetBackgroundColourAction extends YAWLSelectedNetAction {
   
   /**
    * 
@@ -46,18 +46,20 @@ public class NetBackgroundColourAction extends YAWLBaseAction {
     putValue(Action.NAME, "Net background colour...");
     putValue(Action.LONG_DESCRIPTION, "Set the net background colour.");
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
+    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+
   }
 
   public NetBackgroundColourAction() {}
  
   public void actionPerformed(ActionEvent event) {
     Color newColor = JColorChooser.showDialog(
-        YAWLEditor.getInstance(),
+        getGraph(),
         "Select Net Background Color",
-        new Color(SpecificationModel.getInstance().getNetBackgroundColor())
+        getGraph().getBackground()
     );
     if (newColor != null) {
-      SpecificationModel.getInstance().setNetBackgroundColor(newColor.getRGB());
+      getGraph().setBackground(newColor);
     }
   }
 }

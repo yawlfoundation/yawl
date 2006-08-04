@@ -56,7 +56,7 @@ public class ArchivableSpecificationState implements Serializable {
 
   public ArchivableSpecificationState() {
     setFontSize(15);
-    setNetBackgroundColor(SpecificationModel.getInstance().DEFAULT_NET_BACKGROUND_COLOR);
+    setDefaultNetBackgroundColor(SpecificationModel.getInstance().DEFAULT_NET_BACKGROUND_COLOR);
     setUniqueElementNumber(0);
   }
 
@@ -81,7 +81,7 @@ public class ArchivableSpecificationState implements Serializable {
     
     setDecompositions((HashSet) specificationModel.getUsedDecompositions());
     setFontSize(specificationModel.getFontSize());
-    setNetBackgroundColor(specificationModel.getNetBackgroundColor());
+    setDefaultNetBackgroundColor(specificationModel.getDefaultNetBackgroundColor());
     setUniqueElementNumber(specificationModel.getUniqueElementNumber());
     setBounds(YAWLEditor.getInstance().getBounds());
   }
@@ -146,12 +146,12 @@ public class ArchivableSpecificationState implements Serializable {
     return ((Integer) serializationProofAttributeMap.get("fontSize")).intValue();
   }
 
-  public void setNetBackgroundColor(int netBackgroundColor) {
-    serializationProofAttributeMap.put("netBackgroundColor",new Integer(netBackgroundColor));
+  public void setDefaultNetBackgroundColor(int netBackgroundColor) {
+    serializationProofAttributeMap.put("defaultNetBackgroundColor",new Integer(netBackgroundColor));
   }
   
-  public int getNetBackgroundColor() {
-    return ((Integer) serializationProofAttributeMap.get("netBackgroundColor")).intValue();
+  public int getDefaultNetBackgroundColor() {
+    return ((Integer) serializationProofAttributeMap.get("defaultNetBackgroundColor")).intValue();
   }
   
   public void setName(String specificationName) {
