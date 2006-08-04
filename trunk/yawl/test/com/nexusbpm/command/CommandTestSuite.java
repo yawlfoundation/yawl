@@ -28,6 +28,9 @@ public class CommandTestSuite extends TestSuite{
     public static Test suite(){
         TestSuite suite = new TestSuite();
         suite.addTestSuite(CreateSpecificationTest.class);
+        suite.addTestSuite(CopyNetTest.class);
+        suite.addTestSuite(RenameElementTest.class);
+        suite.addTestSuite(CreateFlowTest.class);
         return suite;
     }
 
