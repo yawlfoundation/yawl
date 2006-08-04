@@ -7,16 +7,28 @@
  */
 package au.edu.qut.yawl.elements;
 
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
 
+import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.NexusWorkflow;
+import com.nexusbpm.command.Command;
+import com.nexusbpm.command.CreateFlowCommand;
+import com.nexusbpm.command.CreateNetCommand;
+import com.nexusbpm.command.CreateNexusComponentCommand;
+import com.nexusbpm.command.CreateSpecificationCommand;
 import com.nexusbpm.editor.persistence.YTaskEditorExtension;
+import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
+import com.nexusbpm.services.NexusServiceInfo;
 
 /**
  * The purpose of theMockYSpecification is to provide an example of how to build
@@ -25,7 +37,7 @@ import com.nexusbpm.editor.persistence.YTaskEditorExtension;
  * testbed for systematic methods of setting variables in specifications. 
  * 
  * @author Matthew Sandoz
- * 
+ * @author Nathan Rose
  */
 public class MockYSpecification {
     // TODO this class needs to be refactored to use the operations in WorkflowOperation
@@ -269,5 +281,119 @@ public class MockYSpecification {
 		flow = new YFlow(task, net.getOutputCondition());
 		net.getOutputCondition().setPreset(flow);
 	}
-
+    
+    public static void makeSpec( SharedNode parent ) throws Exception {
+        DataContext context = parent.getProxy().getContext();
+        DataProxy parentProxy = parent.getProxy();
+        SharedNodeTreeModel model = (SharedNodeTreeModel) parent.getTreeModel();
+        
+        Set<SharedNode> oldChildren = new HashSet<SharedNode>();
+        
+        for( int index = 0; index < parent.getChildCount(); index++ ) {
+            oldChildren.add( (SharedNode) parent.getChildAt( index ) );
+        }
+        
+        Command createSpec = new CreateSpecificationCommand(
+                parentProxy,
+                "Test Specification",
+                model );
+        createSpec.execute();
+        
+        SharedNode specNode = null;
+        
+        for( int index = 0; index < parent.getChildCount(); index++ ) {
+            if( ! oldChildren.contains( parent.getChildAt( index ) ) ) {
+                specNode = (SharedNode) parent.getChildAt( index );
+                break;
+            }
+        }
+        
+        assert specNode != null : "specNode was null";
+        assert specNode.getProxy().getData() instanceof YSpecification : "invalid child of parent";
+        
+        DataProxy<YSpecification> specProxy = specNode.getProxy();
+        
+        Command createNet = new CreateNetCommand(
+                specProxy,
+                "Test Root Net",
+                model );
+        createNet.execute();
+        
+        DataProxy<YNet> netProxy = context.getDataProxy(
+                specProxy.getData().getDecompositions().get( 0 ), null );
+        
+        assert netProxy != null : "net proxy was null";
+        
+        NexusServiceInfo jython = NexusServiceInfo.getServiceWithName( "Jython" );
+        Command createJython = new CreateNexusComponentCommand(
+                netProxy,
+                jython.getServiceName(),
+                jython.getServiceName(),
+                jython,
+                model );
+        createJython.execute();
+        
+        NexusServiceInfo emailSender = NexusServiceInfo.getServiceWithName( "EmailSender" );
+        Command createEmailSender = new CreateNexusComponentCommand(
+                netProxy,
+                emailSender.getServiceName(),
+                emailSender.getServiceName(),
+                emailSender,
+                model );
+        createEmailSender.execute();
+        
+        DataProxy<YInputCondition> inputProxy = null;
+        DataProxy<YAtomicTask> jythonProxy = null;
+        DataProxy<YAtomicTask> emailSenderProxy = null;
+        DataProxy<YOutputCondition> outputProxy= null;
+        
+        for( int index = 0; index < netProxy.getData().getNetElements().size(); index++ ) {
+            YExternalNetElement element = netProxy.getData().getNetElements().get( index );
+            if( element instanceof YAtomicTask ) {
+                NexusServiceInfo info = WorkflowOperation.getNexusServiceInfoForTask( (YAtomicTask) element );
+                if( info != null ) {
+                    if( info.getServiceName().equals( "Jython" ) ) {
+                        jythonProxy = context.getDataProxy( element, null );
+                    }
+                    else if( info.getServiceName().equals( "EmailSender" ) ) {
+                        emailSenderProxy = context.getDataProxy( element, null );
+                    }
+                }
+            }
+            else if( element instanceof YInputCondition ) {
+                inputProxy = context.getDataProxy( element, null );
+            }
+            else if( element instanceof YOutputCondition ) {
+                outputProxy = context.getDataProxy( element, null );
+            }
+        }
+        
+        assert inputProxy != null : "input proxy was null";
+        assert jythonProxy != null : "jython proxy was null";
+        assert emailSenderProxy != null : "email sender proxy was null";
+        assert outputProxy != null : "output proxy was null";
+        
+        Command flow = new CreateFlowCommand(
+                inputProxy,
+                jythonProxy,
+                model );
+        flow.execute();
+        
+        flow = new CreateFlowCommand(
+                jythonProxy,
+                emailSenderProxy,
+                model );
+        flow.execute();
+        
+        flow = new CreateFlowCommand(
+                emailSenderProxy,
+                outputProxy,
+                model );
+        flow.execute();
+        
+        // TODO insert data
+        
+        // TODO connect data transfer
+    }
+    
 }
