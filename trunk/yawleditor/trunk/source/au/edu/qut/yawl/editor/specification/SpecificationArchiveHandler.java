@@ -362,6 +362,17 @@ public class SpecificationArchiveHandler {
     net.changeCancellationSet(archivedNet.getTriggeringTaskOfVisibleCancellationSet());
    
     net.setBackground(new Color(SpecificationModel.getInstance().getNetBackgroundColor()));
+    
+    if (archivedNet.getScale() != 0) {
+      net.setScale(archivedNet.getScale());
+    }
+    
+    if (archivedNet.getVisibleRectangle() != null) {
+      net.scrollRectToVisible(
+          archivedNet.getVisibleRectangle()
+      );
+    }
+    
     net.getNetModel().setIsStartingNet(archivedNet.getStartingNetFlag());
   }
   

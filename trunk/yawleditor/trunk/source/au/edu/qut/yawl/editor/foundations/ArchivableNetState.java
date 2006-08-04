@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import java.awt.Rectangle;
+import java.awt.Point;
 
 import au.edu.qut.yawl.editor.data.Decomposition;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
@@ -97,6 +98,10 @@ public class ArchivableNetState implements Serializable {
       graphModel.getGraph().getCancellationSetModel().getTriggeringTask()
     );
     setStartingNetFlag(graphModel.isStartingNet());
+    setScale(graphModel.getGraph().getScale());
+    setVisibleRectangle(
+      graphModel.getGraph().getVisibleRect()    
+    );
     setDecomposition(graphModel.getDecomposition());
   }
   
@@ -239,9 +244,9 @@ public class ArchivableNetState implements Serializable {
     serializationProofAttributeMap.put("bounds",bounds);
   }
 
-	public Rectangle getIconBounds() {
+  public Rectangle getIconBounds() {
     return (Rectangle) serializationProofAttributeMap.get("iconBounds");
-	}
+  }
   
   public void setIconBounds(Rectangle iconBounds) {
     serializationProofAttributeMap.put("iconBounds",iconBounds);
@@ -261,5 +266,25 @@ public class ArchivableNetState implements Serializable {
   
   public YAWLTask getTriggeringTaskOfVisibleCancellationSet() {
     return (YAWLTask) serializationProofAttributeMap.get("triggeringTaskOfVisibleCancellationSet");
+  }
+  
+  public double getScale() {
+    try {
+      return ((Double) serializationProofAttributeMap.get("scale")).doubleValue();
+    } catch (Exception e) {
+      return 0;
+    }
+  }
+  
+  public void setScale(double scale) {
+    serializationProofAttributeMap.put("scale",new Double(scale));
+  }
+  
+  public Rectangle getVisibleRectangle() {
+    return (Rectangle) serializationProofAttributeMap.get("visibleRectangle");
+  }
+  
+  public void setVisibleRectangle(Rectangle rectangle) {
+    serializationProofAttributeMap.put("visibleRectangle", rectangle);
   }
 }
