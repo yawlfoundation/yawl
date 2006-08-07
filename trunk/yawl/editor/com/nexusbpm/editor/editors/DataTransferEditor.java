@@ -96,7 +96,7 @@ public class DataTransferEditor extends ComponentEditor {
         private String name;
         private String id;
         public ComboItem( String name, String id ) {
-            LOG.info( "creating combo item name='" + name + "' id='" + id + "'" );
+            LOG.trace( "creating combo item name='" + name + "' id='" + id + "'" );
             this.name = name;
             this.id = id;
         }
@@ -130,14 +130,14 @@ public class DataTransferEditor extends ComponentEditor {
         choices.put( defaultItem, null );
         for( YExternalNetElement element : net.getNetElements() ) {
             if( element instanceof YTask && element != task ) {
-                LOG.info( "element is a task and not this task (" + element + ")" );
+                LOG.trace( "element is a task and not this task (" + element + ")" );
                 YTask task = (YTask) element;
                 NexusServiceData data = NexusServiceData.unmarshal( task, false );
                 List<String> vars = data.getVariableNames();
                 choices.put( new ComboItem( task.getName(), task.getID() ), vars );
             }
             else {
-                LOG.info( "element is not a task or is this task (" + element + ")" );
+                LOG.trace( "element is not a task or is this task (" + element + ")" );
             }
         }
         
@@ -169,11 +169,11 @@ public class DataTransferEditor extends ComponentEditor {
             public void actionPerformed( ActionEvent e ) {
                 for( VariableRow row : new LinkedList<VariableRow>( displayedRows ) ) {
                     if( row.checkBox.isSelected() ) {
-                        LOG.info( "deleting variable " + row.name );
+                        LOG.debug( "deleting variable " + row.name );
                         deleteRow( row );
                     }
                     else {
-                        LOG.info( "not deleting variable " + row.name );
+                        LOG.debug( "not deleting variable " + row.name );
                     }
                 }
                 redisplayRows();
@@ -188,14 +188,14 @@ public class DataTransferEditor extends ComponentEditor {
                         String name = JOptionPane.showInputDialog(
                                 DataTransferEditor.this, "Please enter the variable name", "variableName" );
                         if( name != null ) {
-                            LOG.info( "received name '" + name + "'" );
+                            LOG.trace( "received name '" + name + "'" );
                             name = name.replaceAll( "  ", " " ).replaceAll( " ", "_" );
                             VariableRow row = getDeletedRow( name );
                             if( row != null ) {
                                 restoreRow( row );
                             }
                             else if( getDisplayedRow( name ) != null ) {
-                                LOG.info( "name '" + name + "' is already taken" );
+                                LOG.warn( "name '" + name + "' is already taken" );
                                 JOptionPane.showMessageDialog(
                                         DataTransferEditor.this,
                                         "A variable with the name '" + name +"' already exists!",
@@ -203,13 +203,13 @@ public class DataTransferEditor extends ComponentEditor {
                                         JOptionPane.ERROR_MESSAGE );
                             }
                             else {
-                                LOG.info( "name '" + name + "' is available" );
+                                LOG.debug( "name '" + name + "' is available" );
                                 addRow( name, true );
                             }
                             redisplayRows();
                         }
                         else {
-                            LOG.info( "name was null" );
+                            LOG.debug( "name was null" );
                         }
                     }
                 };
@@ -321,11 +321,11 @@ public class DataTransferEditor extends ComponentEditor {
         displayedRows.add( row );
         deletedRows.remove( row );
         if( deleteSet.contains( row ) ) {
-            LOG.info( "variable being removed from delete set" );
+            LOG.debug( "variable being removed from delete set" );
             deleteSet.remove( row );
         }
         else {
-            LOG.info( "variable being added to add set" );
+            LOG.debug( "variable being added to add set" );
             addSet.add( row );
         }
     }
@@ -334,11 +334,11 @@ public class DataTransferEditor extends ComponentEditor {
         displayedRows.remove( row );
         deletedRows.add( row );
         if( addSet.contains( row ) ) {
-            LOG.info( "variable being removed from add set" );
+            LOG.debug( "variable being removed from add set" );
             addSet.remove( row );
         }
         else {
-            LOG.info( "variable being added to remove set" );
+            LOG.debug( "variable being added to remove set" );
             deleteSet.add( row );
             setDirty( true );
         }
@@ -363,7 +363,7 @@ public class DataTransferEditor extends ComponentEditor {
     }
     
     private void redisplayRows() {
-        LOG.info( "redisplaying rows" );
+        LOG.debug( "redisplaying rows" );
         variablesPanel.removeAll();
         variablesPanel.add( variableNameTitle );
         variablesPanel.add( transferSourceTitle );
@@ -392,7 +392,7 @@ public class DataTransferEditor extends ComponentEditor {
         WorkflowOperation.VariableMapping originalMapping;
         
         public VariableRow( String name, boolean dynamic ) {
-            LOG.info( "creating variable row for variable '" + name + "' dynamic=" + dynamic );
+            LOG.debug( "creating variable row for variable '" + name + "' dynamic=" + dynamic );
             this.name = name;
             
             checkBox.setEnabled( dynamic );
@@ -425,7 +425,7 @@ public class DataTransferEditor extends ComponentEditor {
                     // thrown if the mapping isn't a nexus workflow mapping
                     // TODO we may want to just display the mapping in this case and allow them to
                     // modify it directly, or to "reset" it to a valid nexus workflow mapping
-                    LOG.warn( "Error reading input mapping for variable '" + name + "' (mapping="
+                    LOG.debug( "Error reading input mapping for variable '" + name + "' (mapping="
                             + mapping + ")", e );
                     sources.setSelectedItem( defaultItem );
                 }
@@ -446,31 +446,31 @@ public class DataTransferEditor extends ComponentEditor {
         
         public JComponent getDisplayedEditor() {
             if( sources.getSelectedItem() == defaultItem ) {
-                LOG.info( "displayed editor for " + name + " is button " + editValueButton );
+                LOG.debug( "displayed editor for " + name + " is button " + editValueButton );
                 return editValueButton;
             }
             else {
-                LOG.info( "displayed editor for " + name + " is combo box " + variablesCombo );
+                LOG.debug( "displayed editor for " + name + " is combo box " + variablesCombo );
                 return variablesCombo;
             }
         }
         
         public void resetVariablesCombo() {
-            LOG.info( "resetting variables combo for variable " + name );
+            LOG.debug( "resetting variables combo for variable " + name );
             variablesCombo.removeAllItems();
             ComboItem item = (ComboItem) sources.getSelectedItem();
             assert item != null : "item was null";
             if( choices.get( item ) != null ) {
-                LOG.info( "choices.get( item ) wasn't null" );
+                LOG.debug( "choices.get( item ) wasn't null" );
                 for( String variable : choices.get( item ) ) {
-                    LOG.info( "adding variable " + variable );
+                    LOG.debug( "adding variable " + variable );
                     variablesCombo.addItem( variable );
                 }
                 if( originalMapping != null && originalMapping.taskID.equals( item.id ) ) {
                     variablesCombo.setSelectedItem( originalMapping.variableName );
                 }
                 else if( variablesCombo.getItemCount() > 0 ) {
-                    LOG.info( "setting selected index to 0" );
+                    LOG.debug( "setting selected index to 0" );
                     variablesCombo.setSelectedIndex( 0 );
                 }
                 else {
@@ -481,7 +481,7 @@ public class DataTransferEditor extends ComponentEditor {
         }
         
         public void resetEditorValue() {
-            LOG.info( "resetting editor value for variable " + name );
+            LOG.debug( "resetting editor value for variable " + name );
             type = data.getType( name );
             if( type == null ) {
                 value = null;
@@ -553,7 +553,7 @@ public class DataTransferEditor extends ComponentEditor {
             }
             else if( e.getSource() == row.sources ) {
                 if( e.getStateChange() == ItemEvent.SELECTED ) {
-                    LOG.info( "setting dirty" );
+                    LOG.trace( "setting dirty" );
                     DataTransferEditor.this.setDirty( true );
                     row.resetVariablesCombo();
                     redisplayRows();
@@ -561,7 +561,7 @@ public class DataTransferEditor extends ComponentEditor {
             }
             else if( e.getSource() == row.variablesCombo ) {
                 if( e.getStateChange() == ItemEvent.SELECTED ) {
-                    LOG.info( "setting dirty" );
+                    LOG.trace( "setting dirty" );
                     DataTransferEditor.this.setDirty( true );
                 }
             }
@@ -643,7 +643,7 @@ public class DataTransferEditor extends ComponentEditor {
     }
     
     protected void setDirty( boolean dirty ) {
-        LOG.info( "setting dirty to " + dirty );
+        LOG.trace( "setting dirty to " + dirty );
         super.setDirty( dirty );
         okButton.setEnabled( dirty );
     }
