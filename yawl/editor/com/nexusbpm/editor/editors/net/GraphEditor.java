@@ -675,6 +675,13 @@ public class GraphEditor extends JPanel
         }
     }
 
+    protected boolean handleEditTrigger(Object cell) {
+        _graph.scrollCellToVisible(cell);
+        if (cell != null)
+            _graph.getUI().startEditingAtCell( _graph, cell );
+        return _graph.isEditing();
+    }
+
     /**
      * Creates the popup menu for the specified cell.
      */
@@ -689,6 +696,9 @@ public class GraphEditor extends JPanel
                 _graph.startEditingAtCell( cell );
             }
         };
+        
+        boolean editable = _graph.isCellEditable( cell );
+        
         boolean isComponent = ( cell instanceof NexusCell );
         //boolean isDataEdge = (cell instanceof FlowDataEdge);
         menu.add( editAction );
@@ -745,6 +755,14 @@ public class GraphEditor extends JPanel
 //      }
 
             menu.addSeparator();
+            
+            if( editable ) {
+                menu.add( new AbstractAction( "Rename" ) {
+                    public void actionPerformed( ActionEvent e ) {
+                        handleEditTrigger( cell );
+                    }
+                });
+            }
 
             menu.add( new AbstractAction( "Properties" ) {
                 public void actionPerformed( ActionEvent e ) {
@@ -1257,7 +1275,7 @@ public class GraphEditor extends JPanel
         }
 
         if( !_isInstance ) {
-            if( false ) {
+//            if( false ) {
                 // TODO Sugiyama layout crashes capsela client for some reason so we are disabling it for now.
                 // Auto layout:
                 toolbar.add( new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.layout" ) ) {
@@ -1301,7 +1319,7 @@ public class GraphEditor extends JPanel
                         GlobalEventQueue.add( w );
                     }
                 } ).setToolTipText( "Apply Sugiyama layout" );
-            }
+//            }
 
             // Auto size:
             toolbar.add( new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.autosize" ) ) {
