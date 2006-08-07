@@ -21,8 +21,8 @@ import javax.xml.bind.annotation.XmlType;
 import org.jdom.Content;
 import org.jdom.Element;
 
-import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YVariable;
 
 import com.nexusbpm.NexusWorkflow;
@@ -230,7 +230,7 @@ public class NexusServiceData implements Cloneable {
         return data;
     }
     
-    public static NexusServiceData unmarshal( YAtomicTask task, boolean includeStatusVariable ) {
+    public static NexusServiceData unmarshal( YTask task, boolean includeStatusVariable ) {
         NexusServiceData data = new NexusServiceData();
         data.initList();
         

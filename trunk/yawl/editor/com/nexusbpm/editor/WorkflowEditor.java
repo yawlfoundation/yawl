@@ -46,6 +46,8 @@ import com.nexusbpm.command.CommandExecutor.CommandCompletionListener;
 import com.nexusbpm.command.CommandExecutor.ExecutionResult;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.desktop.DesktopPane;
+import com.nexusbpm.editor.editors.ComponentEditor;
+import com.nexusbpm.editor.editors.DataTransferEditor;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -541,8 +543,12 @@ public class WorkflowEditor extends javax.swing.JFrame {
      * Opens an editor centered at the given location or maximized if the location
      * is null.
      */
-    public void openEditor( EditorDataProxy proxy, Point location ) throws Exception {
+    public void openComponentEditor( EditorDataProxy proxy, Point location ) throws Exception {
         CapselaInternalFrame editor = proxy.getEditor();
+        openEditor( editor, location );
+    }
+    
+    public void openEditor( CapselaInternalFrame editor, Point location ) throws Exception {
         if (editor != null && !editor.isVisible()) {
             JDesktopPane desktop = getDesktopPane();
             
@@ -582,6 +588,15 @@ public class WorkflowEditor extends javax.swing.JFrame {
             editor.toFront();
             editor.setSelected( true );
         }
+    }
+    
+    public void openDataEditor( EditorDataProxy proxy, Point location ) throws Exception {
+        ComponentEditor editor = new DataTransferEditor();
+        
+        editor.resetTitle( proxy );
+        editor.addInternalFrameListener( proxy.getInternalFrameListener( editor ) );
+        
+        openEditor( editor, location );
     }
     
     public void addInternalFrameMenuItem( CapselaInternalFrame frame ) {

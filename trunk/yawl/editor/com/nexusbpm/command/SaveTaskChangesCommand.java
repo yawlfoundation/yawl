@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import operation.WorkflowOperation;
-import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
@@ -25,7 +25,7 @@ import com.nexusbpm.services.data.NexusServiceData;
  * @author Nathan Rose
  */
 public class SaveTaskChangesCommand extends AbstractCommand {
-	private DataProxy<YAtomicTask> taskProxy;
+	private DataProxy<YTask> taskProxy;
     
     private NexusServiceData oldData;
     private NexusServiceData newData;

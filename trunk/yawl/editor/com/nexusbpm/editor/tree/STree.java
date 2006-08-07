@@ -31,7 +31,6 @@ import java.io.File;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
@@ -48,6 +47,7 @@ import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.command.Command;
@@ -235,6 +235,25 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		};
 		SwingUtilities.invokeLater( r );
 	}
+    
+    private void openComponentEditor( SharedNode node ) {
+        try {
+            WorkflowEditor.getInstance().openComponentEditor( node.getProxy(), null );
+        }
+        catch( Exception e ) {
+            LOG.error( "Error", e );
+        }
+    }
+    
+    private void openPropertiesEditor() {
+        SharedNode node = this.getSelectedNode();
+        try {
+            WorkflowEditor.getInstance().openDataEditor( node.getProxy(), null );
+        }
+        catch( Exception e ) {
+            LOG.error( "Error", e );
+        }
+    }
 
 	// ###############################################################################################
 	// ################################ DragGestureListener Interface ################################
@@ -592,12 +611,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 				// When the user double clicks on a tree leaf node, open up the editor.
 				// Don't do it if the node is not a leaf, because double-clicking on a
 				// non-leaf node just expands and contracts said node.
-                try {
-                    WorkflowEditor.getInstance().openEditor( node.getProxy(), null );
-                }
-                catch( Exception ex ) {
-                    LOG.error( "Error opening editor!", ex );
-                }
+                STree.this.openComponentEditor( node );
 			}
 		}
 	}
@@ -657,8 +671,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		tree.setSelectionPath( selPath );
 		final SharedNode node = (SharedNode) selPath.getLastPathComponent();
         
-        JSeparator createSeparator = new JPopupMenu.Separator();
-        
         JMenuItem createFolder = new JMenuItem( new AbstractAction( "Create Folder" ) {
             public void actionPerformed( ActionEvent e ) {
                 WorkflowEditor.getExecutor().executeCommand(
@@ -681,13 +693,14 @@ implements MouseListener, KeyListener, TreeSelectionListener,
                         new CreateNetCommand( node.getProxy(), "New Net", (SharedNodeTreeModel) getModel() ) );
             }
         });
-        createNet.setVisible( false );
+//        createNet.setVisible( false );
         
-        menu.add( createFolder );
-        menu.add( createSpecification );
-        menu.add( createNet );
+//        menu.add( createFolder );
+//        menu.add( createSpecification );
+//        menu.add( createNet );
         
-        menu.add( createSeparator );
+//        JSeparator createSeparator = new JPopupMenu.Separator();
+//        menu.add( createSeparator );
         
         JMenuItem save = new JMenuItem( new AbstractAction( "Save Specification" ) {
             public void actionPerformed( ActionEvent e ) {
@@ -695,25 +708,29 @@ implements MouseListener, KeyListener, TreeSelectionListener,
                         new SaveSpecificationCommand( node.getProxy() ) );
             }
         });
-        save.setVisible( false );
+//        save.setVisible( false );
         
-        JSeparator saveSeparator = new JPopupMenu.Separator();
-        saveSeparator.setVisible( false );
+//        JSeparator saveSeparator = new JPopupMenu.Separator();
+//        saveSeparator.setVisible( false );
         
-        menu.add( save );
-        menu.add( saveSeparator );
-        
+//        menu.add( save );
+//        menu.add( saveSeparator );
         
         JMenuItem edit = new JMenuItem( new AbstractAction( "Edit" ) {
             public void actionPerformed( ActionEvent e ) {
-                LOG.error( "TODO: implement edit component" );
+                STree.this.openComponentEditor( STree.this.getSelectedNode() );
             }
         });
-        edit.setVisible( false );
+//        edit.setVisible( false );
         
         JMenuItem rename = new JMenuItem( new AbstractAction( "Rename" ) {
             public void actionPerformed( ActionEvent e ) {
                 STree.this.renameCurrentNode();
+            }
+        });
+        JMenuItem properties = new JMenuItem( new AbstractAction( "Properties" ) {
+            public void actionPerformed( ActionEvent e ) {
+                STree.this.openPropertiesEditor();
             }
         });
         
@@ -723,81 +740,51 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             }
         });
         
-        menu.add( edit );
-        menu.add( rename );
-        menu.add( delete );
+//        menu.add( edit );
+//        menu.add( rename );
+//        menu.add( delete );
         
-        menu.add( new AbstractAction( "DEBUG LOG" ) {
-            public void actionPerformed( ActionEvent e ) {
-                SharedNode anode = node;
-                DataProxy proxy = null;
-                Object data = null;
-                Class dataClass = null;
-                try {
-                    if( node != null ) {
-                        proxy = node.getProxy();
-                        if( proxy != null ) {
-                            data = proxy.getData();
-                            if( data != null ) {
-                                dataClass = data.getClass();
-                            }
-                        }
-                    }
-                }
-                catch( Throwable t ) {
-                    LOG.error( "Error", t );
-                }
-                LOG.warn(
-                        "node:" + node +
-                        "\nproxy:" + proxy +
-                        "\ndata:" + data +
-                        "\ndataClass:" + dataClass +
-                        "\ndataID:" + getID( data ),
-                        new Exception("Stacktrace...").fillInStackTrace() );
-            }
-            private String getID( Object o ) {
-                if( o instanceof YSpecification ) {
-                    return ((YSpecification) o).getID();
-                }
-                else if( o instanceof YDecomposition ) {
-                    return ((YDecomposition) o).getId();
-                }
-                else if( o instanceof YExternalNetElement ) {
-                    return ((YExternalNetElement) o).getID();
-                }
-                else return "";
-            }
-        });
+        Object data = node.getProxy().getData();
+        assert data != null : "Proxy's data was null!";
         
-        Object data = null;
-        if( ! node.isRoot() ) {
-            data = node.getProxy().getData();
-        }
-        
-        if( data == null ) {
+        if( data instanceof DatasourceRoot ) {
             // TODO make items visible/invisible as appropriate for the root
-            createSeparator.setVisible( false );
-            rename.setVisible( false );
-            delete.setVisible( false );
+            menu.add( createFolder );
+            menu.add( createSpecification );
         } else if( data instanceof String ) {
             // TODO show items appropriate for virtual folders
+            menu.add( createFolder );
+            menu.add( createSpecification );
+            menu.add( new JPopupMenu.Separator() );
+            menu.add( rename );
+            menu.add( new JPopupMenu.Separator() );
+            menu.add( delete );
         } else if( data instanceof File ) {
             // TODO show items appropriate for a filesystem
+            menu.add( createFolder );
+            menu.add( createSpecification );
+            menu.add( new JPopupMenu.Separator() );
+            menu.add( rename );
+            menu.add( new JPopupMenu.Separator() );
+            menu.add( delete );
         } else if( data instanceof YSpecification ) {
             // TODO show items for specs
-            createFolder.setVisible( false );
-            createSpecification.setVisible( false );
-            createNet.setVisible( true );
-            save.setVisible( true );
-            saveSeparator.setVisible( true );
+            menu.add( createNet );
+            menu.add( new JPopupMenu.Separator() );
+            menu.add( save );
+            menu.add( new JPopupMenu.Separator() );
+            menu.add( rename );
+            menu.add( new JPopupMenu.Separator() );
+            menu.add( delete );
         } else if( data instanceof YDecomposition ) {
             // TODO show items for decomps
-            createFolder.setVisible( false );
-            createSpecification.setVisible( false );
-            createSeparator.setVisible( false );
             if( data instanceof YNet ) {
-                // TODO create task
-                edit.setVisible( true );
+                menu.add( edit );
+                menu.add( new JPopupMenu.Separator() );
+                menu.add( rename );
+                menu.add( properties );
+                menu.add( new JPopupMenu.Separator() );
+                menu.add( delete );
             }
             else {
                 menu = null;
@@ -805,11 +792,13 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             
         } else if( data instanceof YExternalNetElement ) {
             // TODO show items for net elements
-            createFolder.setVisible( false );
-            createSpecification.setVisible( false );
-            createSeparator.setVisible( false );
             if( data instanceof YAtomicTask ) {
-                edit.setVisible( true );
+                menu.add( edit );
+                menu.add( new JPopupMenu.Separator() );
+                menu.add( rename );
+                menu.add( properties );
+                menu.add( new JPopupMenu.Separator() );
+                menu.add( delete );
             }
             else {
                 menu = null;
@@ -818,66 +807,51 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             menu = null;
             // TODO invalid selection
         }
-            
-            
-            
-//            JMenuItem item = new JMenuItem( "Edit" );
-//			AbstractAction act = new AbstractAction( "Edit" ) {
-//				public void actionPerformed( ActionEvent e ) {
-////					ComponentTree.this.openCurrentNode();
-//					throw new RuntimeException("This needs to be reimplemented in the YAWL context");
-//					
-//				}
-//			};
-//            item.setAction( act );
-//            item.setIcon( getIcon( String.class.getName() ) );
-//            menu.add(item);
-//            
-//            menu.add( new AbstractAction( "New Spec" ) {
-//                public void actionPerformed( ActionEvent e ) {
-//                    // TODO
-//                    String name = JOptionPane.showInputDialog( "Please enter spec name" );
-//                    WorkflowEditor.getExecutor().executeCommand( new CreateSpecificationCommand( node, name ) );
-//                }
-//            } );
-//
-//			Action executeAction = new AbstractAction( "Execute" ) {
-//				public void actionPerformed( ActionEvent e ) {
-//					EditorDataProxy proxy = node.getProxy();
-//					//ClientOperation.createInstanceAndRun( ctrl );
-//					throw new RuntimeException("This needs to be reimplemented in the YAWL context");
-//				}
-//			};
-//			// Disable the "Execute" menu item if it is for a flow that has errors in it. Note
-//			// that we do not force a load of the object here. If we have a PersistentDomainObject
-//			// in the cache, we will know enough to disable it if necessary; if we just have
-//			// a VirtualDomainObject, we do not care enough to take the time to load the object
-//			// from the database. This method is called every time the user right clicks on a
-//			// component tree, and it needs to be very fast.
-//
-//			// TODO the following block is commented because it could cause lazy initialization depth error -- see Dean about it
-//
-//			//      if(node.getController().isFlow()) {
-//			//        try {
-//			//          DomainObject obj = node.getController().getDomainObject();
-//			//          if( obj instanceof FlowComponent ) {
-//			//            FlowComponent flow = (FlowComponent) obj;
-//			//            if( Helper.isInitialized(flow.getComponents()) ) {
-//			//              FlowUnderstanding fu = new FlowUnderstanding(flow);
-//			//              executeAction.setEnabled( ! fu.containsErrors() );
-//			//            }
-//			//          }
-//			//        } catch (CapselaException e) {
-//			//          LOG.error(e);
-//			//        }
-//			//      }
-//			menu.add( executeAction );
-//
-//			menu.add( new JPopupMenu.Separator() );
-//
-//
-////		}
-
+        
+        if( menu != null ) {
+            menu.add( new AbstractAction( "DEBUG LOG" ) {
+                public void actionPerformed( ActionEvent e ) {
+                    SharedNode anode = node;
+                    DataProxy proxy = null;
+                    Object data = null;
+                    Class dataClass = null;
+                    try {
+                        if( node != null ) {
+                            proxy = node.getProxy();
+                            if( proxy != null ) {
+                                data = proxy.getData();
+                                if( data != null ) {
+                                    dataClass = data.getClass();
+                                }
+                            }
+                        }
+                    }
+                    catch( Throwable t ) {
+                        LOG.error( "Error", t );
+                    }
+                    LOG.warn(
+                            "node:" + node +
+                            "\nproxy:" + proxy +
+                            "\ndata:" + data +
+                            "\ndataClass:" + dataClass +
+                            "\ndataID:" + getID( data ),
+                            new Exception("Stacktrace...").fillInStackTrace() );
+                }
+                private String getID( Object o ) {
+                    if( o instanceof YSpecification ) {
+                        return ((YSpecification) o).getID();
+                    }
+                    else if( o instanceof YDecomposition ) {
+                        return ((YDecomposition) o).getId();
+                    }
+                    else if( o instanceof YExternalNetElement ) {
+                        return ((YExternalNetElement) o).getID();
+                    }
+                    else return "";
+                }
+            });
+        }
+        
 		return menu;
 	}
     
