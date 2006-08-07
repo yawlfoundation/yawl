@@ -631,8 +631,16 @@ public class NexusGraph extends JGraph implements Printable,
 	 * @param cell
 	 */
 	public void startBasicEditingAtCell(final NexusCell cell) {
-		throw new RuntimeException(
-				"This should open up an editor for the task/net/decomposition type");
+        Object node = ((NexusCell) cell).getProxy().getData();
+
+        if( node instanceof YAtomicTask ) {
+            try {
+                WorkflowEditor.getInstance().openDataEditor( ((NexusCell) cell).getProxy(), null );
+            }
+            catch( Exception e ) {
+                LOG.error( "Error opening editor!", e );
+            }
+        }
 	}
 
 	/**
