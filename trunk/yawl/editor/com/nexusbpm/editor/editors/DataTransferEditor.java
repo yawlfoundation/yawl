@@ -1,7 +1,6 @@
 package com.nexusbpm.editor.editors;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -15,7 +14,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -31,7 +29,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
@@ -263,17 +260,10 @@ public class DataTransferEditor extends ComponentEditor {
         editingPanelButtonsPanel.add( editingPanelOKButton );
         setEditingRow( null );
         
-        redisplayRows();
-        
-        variablesPanel.setBackground( r() );
-//        JScrollPane p = new JScrollPane(
-//                variablesPanel,
-//                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-//                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER );
-        
+        redisplayRows();        
         
         JPanel ui = new JPanel();
-        SpringLayout layout = new SpringLayout();
+//        SpringLayout layout = new SpringLayout();
 //        ui.setLayout( layout );
         ui.setLayout( new BorderLayout() );
 		ui.setBorder( new EmptyBorder( 2, 3, 2, 3 ) );
@@ -313,12 +303,6 @@ public class DataTransferEditor extends ComponentEditor {
         catch( PropertyVetoException e ) {
             dispose();
         }
-    }
-    
-    Random r = new Random();
-    
-    private Color r() {
-        return new Color( r.nextInt( 255 ), r.nextInt( 255 ), r.nextInt( 255 ) );
     }
     
     private void addRow( String name, boolean newVar ) {
