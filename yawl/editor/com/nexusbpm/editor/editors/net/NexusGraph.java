@@ -596,7 +596,7 @@ public class NexusGraph extends JGraph implements Printable,
       
       if (node instanceof YAtomicTask) {
           try {
-              WorkflowEditor.getInstance().openEditor( ((NexusCell) cell).getProxy(), null );
+              WorkflowEditor.getInstance().openComponentEditor( ((NexusCell) cell).getProxy(), null );
           }
           catch( Exception e ) {
               LOG.error( "Error opening editor!", e );

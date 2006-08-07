@@ -685,12 +685,12 @@ public class WorkflowOperation {
 		}
 		
 		variables.add(
-                getStringVariable(
+                createStringVariable(
                         taskID,
                         NexusWorkflow.SERVICENAME_VAR,
                         serviceInfo.getServiceName() ) );
 		variables.add(
-                getStringVariable(
+                createStringVariable(
                         taskID,
                         NexusWorkflow.STATUS_VAR,
 						null ) );
@@ -701,7 +701,7 @@ public class WorkflowOperation {
 	 * Creates a YVariable with a name derived from the
 	 * task id, a separator and the given simple var name.  
 	 */
-	public static YVariable getStringVariable( String taskID, String varName, String initialValue ) {
+	public static YVariable createStringVariable( String taskID, String varName, String initialValue ) {
 		YVariable var = new YVariable( null );
         
 		var.setDataTypeAndName(
@@ -714,26 +714,95 @@ public class WorkflowOperation {
 		return var;
 	}
     
-    public static void attachVariablesToNet( List<YVariable> variables, YNet net ) {
+    public static void attachVariablesToNet( Collection<YVariable> variables, YNet net ) {
         for( YVariable variable : variables ) {
             variable.setParent( net );
             net.getLocalVariables().add( variable );
         }
     }
     
-    public static void detachVariablesFromNet( List<YVariable> variables ) {
+    public static void detachVariablesFromNet( Collection<YVariable> variables ) {
         for( YVariable variable : variables ) {
             ((YNet) variable.getParent()).getLocalVariables().remove( variable );
             variable.setParent( null );
         }
     }
     
-    public static void detachVariablesFromNet( YNet net, List<String> varNames ) {
+    public static void detachVariablesFromNet( YNet net, Collection<String> varNames ) {
         for( String name : varNames ) {
             if( net.getLocalVariable( name ) != null ) {
                 net.getLocalVariables().remove( net.getLocalVariable( name ) );
             }
         }
+    }
+    
+    /**
+     * @param type one of the constants in the YParameter class (ie: input param, output param)
+     */
+    public static YParameter createStringParameter( String name, int type ) {
+        YParameter param = new YParameter( null, type );
+        param.setDataTypeAndName( NexusWorkflow.VARTYPE_STRING, name, NexusWorkflow.XML_SCHEMA_URL );
+        return param;
+    }
+    
+    public static void attachParametersToDecomposition( Collection<YParameter> params, YDecomposition decomp ) {
+        for( YParameter param : params ) {
+            if( param.isInput() ) {
+                decomp.getInputParameters().add( param );
+            }
+            else if( param.isOutput() ) {
+                decomp.getOutputParameters().add( param );
+            }
+            else if( param.isEnablement() ) {
+                // TODO ????
+            }
+        }
+    }
+    
+    public static void detachParametersFromDecomposition( Collection<YParameter> params ) {
+        for( YParameter param : params ) {
+            YDecomposition parent = param.getParent();
+            if( param.isInput() ) {
+                parent.getInputParameters().remove( param );
+            }
+            else if( param.isOutput() ) {
+                parent.getOutputParameters().remove( param );
+            }
+            else if( param.isEnablement() ) {
+                // TODO ????
+            }
+        }
+    }
+    
+    public static void main(String[] args) {
+        VariableMapping m = new VariableMapping( "<elid>{/mynet/mytask__var/text()}</elid>" );
+    }
+    
+    public static class VariableMapping {
+        public String elementID;
+        public String netID;
+        public String taskID;
+        public String variableName;
+        public VariableMapping( String mapping ) {
+            // regular expression for:
+            // <elementID>{/netID/taskID__variableName/text()}</elementID>
+            // allowing whitespace in appropriate places.
+            // note: this can fail if taskID or variableName includes a double underscore...
+            Matcher m = Pattern.compile(
+                    "(\\s)*<([^>]+)>(\\s)*\\{(\\s)*/([^/]+)/([^/]+)__([^/]+)/text\\(\\)(\\s)*\\}(\\s)*</\\2>(\\s*)" )
+                    .matcher( mapping );
+            if( m.matches() ) {
+                assert m.groupCount() == 10 : "group count was " + m.groupCount();
+                elementID = m.group( 2 );
+                netID = m.group( 5 );
+                taskID = m.group( 6 );
+                variableName = m.group( 7 );
+            }
+            else {
+                throw new IllegalArgumentException( "The mapping '" + mapping +
+                        "' is not a nexus service generated mapping!" );
+            }
+        }//NameAndCounter()
     }
 
 	/**

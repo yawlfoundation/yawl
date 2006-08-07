@@ -98,7 +98,7 @@ public class DesktopPane extends JDesktopPane implements DropTargetListener {
             EditorDataProxy dp = (EditorDataProxy) ( (SharedNode) draggingNode ).getProxy();
 
             try {
-                WorkflowEditor.getInstance().openEditor( dp, location );
+                WorkflowEditor.getInstance().openComponentEditor( dp, location );
             }
             catch( Exception e ) {
                 LOG.error( "Error opening editor!", e );

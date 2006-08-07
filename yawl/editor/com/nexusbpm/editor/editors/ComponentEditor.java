@@ -25,9 +25,11 @@ import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
+import com.nexusbpm.command.Command;
 import com.nexusbpm.command.SaveTaskChangesCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
@@ -338,12 +340,23 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 	public abstract void saveAttributes() throws EditorException;
     
     public final void persistAttributes() {
-        if( _proxy.getData() instanceof YAtomicTask ) {
+        Command saveCommand = getSaveChangesCommand();
+        if( saveCommand != null ) {
+            WorkflowEditor.getExecutor().executeCommand( saveCommand );
+        }
+        else if( _proxy.getData() instanceof YTask ) {
             WorkflowEditor.getExecutor().executeCommand( new SaveTaskChangesCommand( _proxy, data ) );
         }
         else {
             LOG.debug( "Not persisting changes" );
         }
+    }
+    
+    /**
+     * Override this in a particular editor to provide a custom persistence command.
+     */
+    protected Command getSaveChangesCommand() {
+        return null;
     }
 
 	/**
