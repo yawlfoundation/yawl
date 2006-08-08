@@ -30,6 +30,7 @@ import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
@@ -56,8 +57,13 @@ import com.nexusbpm.command.CopySpecificationCommand;
 import com.nexusbpm.command.CreateFolderCommand;
 import com.nexusbpm.command.CreateNetCommand;
 import com.nexusbpm.command.CreateSpecificationCommand;
+import com.nexusbpm.command.DeleteFileCommand;
+import com.nexusbpm.command.RemoveDecompositionCommand;
 import com.nexusbpm.command.RemoveNetCommand;
+import com.nexusbpm.command.RemoveNetElementCommand;
 import com.nexusbpm.command.RemoveNexusTaskCommand;
+import com.nexusbpm.command.RemoveSpecificationCommand;
+import com.nexusbpm.command.RemoveVirtualFolderCommand;
 import com.nexusbpm.command.SaveSpecificationCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -177,32 +183,42 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		if( !node.isRoot() ) {
             Object data = node.getProxy().getData();
             if( data instanceof YSpecification ) {
-                Exception e = new RuntimeException("please implement the delete node operation!");
-                LOG.error(e.getMessage(), e);
+                WorkflowEditor.getExecutor().executeCommand(
+                        new RemoveSpecificationCommand( node.getProxy() ) );
             }
             else if( data instanceof YNet ) {
                 WorkflowEditor.getExecutor().executeCommand(
                         new RemoveNetCommand( node.getProxy() ) );
             }
             else if( data instanceof YDecomposition ) {
-                Exception e = new RuntimeException("please implement the delete node operation!");
-                LOG.error(e.getMessage(), e);
-            }
-            else if( data instanceof YAtomicTask ) {
                 WorkflowEditor.getExecutor().executeCommand(
-                        new RemoveNexusTaskCommand( node.getProxy() ) );
+                        new RemoveDecompositionCommand( node.getProxy() ) );
             }
             else if( data instanceof YExternalNetElement ) {
-                Exception e = new RuntimeException("please implement the delete node operation!");
-                LOG.error(e.getMessage(), e);
+                if( data instanceof YAtomicTask ) {
+                    WorkflowEditor.getExecutor().executeCommand(
+                            new RemoveNexusTaskCommand( node.getProxy() ) );
+                }
+                else {
+                    WorkflowEditor.getExecutor().executeCommand(
+                            new RemoveNetElementCommand( node.getProxy() ) );
+                }
             }
             else if( data instanceof File ) {
-                Exception e = new RuntimeException("please implement the delete node operation!");
-                LOG.error(e.getMessage(), e);
+                int result = JOptionPane.showConfirmDialog(
+                        WorkflowEditor.getInstance(),
+                        "WARNING: This command is not undoable!\nDo you wish to proceed?",
+                        "Delete File/Folder Confirmation",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE );
+                if( result == JOptionPane.YES_OPTION ) {
+                    WorkflowEditor.getExecutor().executeCommand(
+                            new DeleteFileCommand( node.getProxy() ) );
+                }
             }
             else if( data instanceof String ) {
-                Exception e = new RuntimeException("please implement the delete node operation!");
-                LOG.error(e.getMessage(), e);
+                WorkflowEditor.getExecutor().executeCommand(
+                        new RemoveVirtualFolderCommand( node ) );
             }
             else if( data != null ) {
                 LOG.warn( "Cannot delete object - Unknown object type: " + data.getClass().getName() );
@@ -693,14 +709,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
                         new CreateNetCommand( node.getProxy(), "New Net", (SharedNodeTreeModel) getModel() ) );
             }
         });
-//        createNet.setVisible( false );
-        
-//        menu.add( createFolder );
-//        menu.add( createSpecification );
-//        menu.add( createNet );
-        
-//        JSeparator createSeparator = new JPopupMenu.Separator();
-//        menu.add( createSeparator );
         
         JMenuItem save = new JMenuItem( new AbstractAction( "Save Specification" ) {
             public void actionPerformed( ActionEvent e ) {
@@ -708,20 +716,12 @@ implements MouseListener, KeyListener, TreeSelectionListener,
                         new SaveSpecificationCommand( node.getProxy() ) );
             }
         });
-//        save.setVisible( false );
-        
-//        JSeparator saveSeparator = new JPopupMenu.Separator();
-//        saveSeparator.setVisible( false );
-        
-//        menu.add( save );
-//        menu.add( saveSeparator );
         
         JMenuItem edit = new JMenuItem( new AbstractAction( "Edit" ) {
             public void actionPerformed( ActionEvent e ) {
                 STree.this.openComponentEditor( STree.this.getSelectedNode() );
             }
         });
-//        edit.setVisible( false );
         
         JMenuItem rename = new JMenuItem( new AbstractAction( "Rename" ) {
             public void actionPerformed( ActionEvent e ) {
@@ -739,10 +739,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
                 STree.this.deleteCurrentNode();
             }
         });
-        
-//        menu.add( edit );
-//        menu.add( rename );
-//        menu.add( delete );
         
         Object data = node.getProxy().getData();
         assert data != null : "Proxy's data was null!";
@@ -787,7 +783,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
                 menu.add( delete );
             }
             else {
-                menu = null;
+                menu.add( delete );
             }
             
         } else if( data instanceof YExternalNetElement ) {
@@ -801,7 +797,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
                 menu.add( delete );
             }
             else {
-                menu = null;
+                menu.add( delete );
             }
         } else {
             menu = null;
