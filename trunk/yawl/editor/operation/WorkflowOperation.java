@@ -187,20 +187,20 @@ public class WorkflowOperation {
     public static void attachFlowToElements( YFlow flow,
             YExternalNetElement source, YExternalNetElement target ) {
         flow.setPriorElement( source );
-        flow.getPriorElement().getPostsetFlows().add( flow );
         flow.setNextElement( target );
+        flow.getPriorElement().getPostsetFlows().add( flow );
         flow.getNextElement().getPresetFlows().add( flow );
     }
     
     public static void detachFlowFromElements( YFlow flow ) {
         if( flow.getPriorElement() != null ) {
             flow.getPriorElement().removePostsetFlow( flow );
-            flow.setPriorElement( null );
         }
         if( flow.getNextElement() != null ) {
             flow.getNextElement().removePresetFlow( flow );
-            flow.setNextElement( null );
         }
+        flow.setPriorElement( null );
+        flow.setNextElement( null );
     }
     
     /**
