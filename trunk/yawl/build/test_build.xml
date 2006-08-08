@@ -1,0 +1,1842 @@
+<!-- $Id$ -->
+<project name="YAWL Runtime" default="buildWebApps" basedir="./..">
+
+    <!-- Access the environment -->
+    <property environment="env"/>
+
+    <!--
+    Source and resource directories
+    -->
+    <property name="developer.name" value="Lachlan_Aldred"/>
+    <property name="src" value="src"/>
+    <property name="test" value="test"/>
+	<property name="services" value="services"/> <!-- source dir for services -->
+    <property name="backup" value="backup"/>
+    <property name="thirdParty.home" value="${build.home}/thirdParty"/>
+    <property name="basic.libs" value="./build/3rdParty/lib"/>
+    <property name="wsif.libs" value="./build/3rdParty/wsif-lib"/>
+    <property name="xsd.libs" value="./build/3rdParty/xsdlib"/>
+    <property name="persist.libs" value="./build/3rdParty/persistenceLibs"/>
+    <property name="standAlone.libs" value="./build/3rdParty/standAlone-libs"/>
+	<property name="nexus.service.libs" value="./build/3rdParty/serviceLibs"/>
+    <property name="xforms.lib" value="./build/3rdParty/xforms-lib"/>
+    <property name="xforms.dist" value="./build/yawlXForms/dist"/>
+    <property name="extra.libs" value="./build/extras"/>        <!-- AJH -->
+    <property name="property.files" value="./build/properties"/> <!-- AJH -->
+    <property name="nexus_editor" value="./editor/"/>
+	<property name="mock" value="./mock/"/>
+    <property name="classes" value="classes"/>
+    <property name="enumeratedClasses" value="./build/3rdParty/enumerated3rdPartyClasses"/>
+    <property name="javadoc" value="javadoc"/>
+    <property name="output" value="output"/>
+    <property name="pdf.libs" value="./build/3rdParty/pdflibs"/>
+
+
+
+
+
+    <!-- The various Hibernate database types. Set one of these to 'true' for the required database type -->
+    <property name="use_postgres7" value="false"/>
+    <property name="use_postgres8" value="true"/>
+
+    <!-- <property file="${user.home}/build.properties"/>-->
+    <!--
+    These are insterted from the Apache Build file.
+    Some may have no relevance.
+    -->
+    <property name="yawl.pdfforms.app.name" value="PDFforms"/>
+    <property name="yawl.eng.app.name" value="yawl"/>
+    <property name="yawl.worklist.app.name" value="worklist"/>
+    <property name="yawl.webService.app.name" value="yawlWSInvoker"/>
+    <property name="yawl.smsService.app.name" value="yawlSMSInvoker"/>
+    <property name="yawl.TimeService.app.name" value="timeService"/>
+    <property name="yawl.admintool.app.name" value="adminTool"/>
+    <property name="yawl.xforms.app.name" value="yawlXForms"/>
+    <property name="yawl.worklet.app.name" value="workletService"/>
+    <property name="yawl.eng.app.path" value="/${yawl.eng.app.name}"/>
+    <property name="yawl.worklist.app.path" value="/${yawl.worklist.app.name}"/>
+    <property name="yawl.webService.app.path" value="/${yawl.webService.app.name}"/>
+    <property name="app.version" value="Beta7.1"/>
+    <property name="build.home" value="${basedir}/build"/>
+    <property name="graphics.home" value="${basedir}/graphics"/>
+    <property name="manager.url" value="http://localhost:8080/manager"/><!-- Keep -->
+    <property file="${build.home}/build.properties"/>
+	
+	<property name="nexus.serviceInvoker.app.name" value="NexusServiceInvoker"/>
+	<property name="nexus.serviceInvoker.app.path" value="/${nexus.serviceInvoker.app.name}"/>
+	<property name="nexus.service.jython.app.name" value="JythonService"/>
+	<property name="nexus.service.emailSender.app.name" value="EmailSenderService"/>
+	
+    <!-- AJH - New lines for Tomcat/Ant iface -->
+    <property name="tomcat_manager_url" value="${tomcat.protocol}://${tomcat.address}:${tomcat.port}/manager"/>
+
+    <!-- Tell Ant where to find the custom catalina/tomcat build tasks -->
+    <path id="tomcat.tasks.classpath"
+	  path="${env.CATALINA_HOME}/server/lib/catalina-ant.jar" />
+
+    <!-- Configure the custom Ant tasks for the Manager application --> 
+   <taskdef name="deploy" 
+   	classname="org.apache.catalina.ant.DeployTask"	           
+   	classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="list" 
+   	classname="org.apache.catalina.ant.ListTask"
+       classpathref="tomcat.tasks.classpath"/> 
+   <taskdef name="reload" 
+   	classname="org.apache.catalina.ant.ReloadTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="resources" 
+   	classname="org.apache.catalina.ant.ResourcesTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="roles" 
+   	classname="org.apache.catalina.ant.RolesTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="start" 
+   	classname="org.apache.catalina.ant.StartTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="stop" 
+   	classname="org.apache.catalina.ant.StopTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="undeploy" 
+   	classname="org.apache.catalina.ant.UndeployTask"
+       classpathref="tomcat.tasks.classpath"/>
+
+    <!--
+      Use property values to define the locations of external JAR files on which
+      your application will depend.  In general, these values will be used for
+      two purposes:
+      * Inclusion on the classpath that is passed to the Javac compiler
+      * Being copied into the "/WEB-INF/lib" directory during execution
+        of the "deploy" target.
+
+      Because we will automatically include all of the Java classes that Tomcat 5
+      exposes to web applications, we will not need to explicitly list any of those
+      dependencies.  You only need to worry about external dependencies for JAR
+      files that you are going to include inside your "/WEB-INF/lib" directory.
+    -->
+    <!--
+    Chart drawing library
+    -->
+    <property name="jfreechart.jar" value="${basic.libs}/jfreechart-1.0.0-rc1.jar"/>
+    <!--
+    Chart drawing support library jcommon
+    -->
+    <property name="jcommon.jar" value="${basic.libs}/jcommon-1.0.0-rc1.jar"/>
+
+    <!--
+     JBOSS
+     -->
+    <property name="jbossall-client.jar" value="${basic.libs}/jbossall-client.jar"/>
+
+    <!--
+    Unit test support libraries
+    -->
+    <property name="junit.jar" value="${basic.libs}/junit.jar"/>
+    <!--
+    Xerces library
+    -->
+    <property name="xerces.jar" value="${basic.libs}/xercesImpl.jar"/>
+    <!--
+    SAXON library
+    -->
+    <property name="saxon.jar" value="${basic.libs}/saxon7.jar"/>
+    <!--
+	JDom library
+	-->
+    <property name="jdom.jar" value="${basic.libs}/jdom.jar"/>
+    <!--
+    Sevlet library
+    -->
+    <property name="servlet.jar" value="${basic.libs}/servlet-api.jar"/>
+    <!--
+    WSIF Dependencies
+    -->
+    <property name="wsif.jar" value="${wsif.libs}/wsif.jar"/>
+    <property name="axis.jar" value="${wsif.libs}/axis-1.1RC2.jar"/>
+    <property name="commons-discovery.jar" value="${wsif.libs}/commons-discovery.jar"/>
+    <property name="commons-logging.jar" value="${wsif.libs}/commons-logging.jar"/>
+    <property name="jaxrpc.jar" value="${wsif.libs}/jaxrpc.jar"/>
+    <property name="saaj.jar" value="${wsif.libs}/saaj.jar"/>
+    <property name="wsdl4j.jar" value="${wsif.libs}/wsdl4j-20030807.jar"/>
+    <property name="xmlParserAPIs.jar" value="${wsif.libs}/xmlParserAPIs-2_2_1.jar"/>
+    <property name="soaprmi-1_1.jar" value="${wsif.libs}/soaprmi-1_1.jar"/>
+
+    <!--
+    XSD Dependencies
+    -->
+    <property name="common.jar" value="${xsd.libs}/common.jar"/>
+    <property name="ecore.jar" value="${xsd.libs}/ecore.jar"/>
+    <property name="xsd.jar" value="${xsd.libs}/xsd.jar"/>
+    <property name="xsd.resources.jar" value="${xsd.libs}/xsd.resources.jar"/>
+    <!--
+    Persistence Dependencies
+    -->
+    <property name="cglib" value="${persist.libs}/cglib-full-2.0.1.jar"/>
+    <property name="commonsCollections" value="${persist.libs}/commons-collections-2.1.jar"/>
+    <property name="commonsLogging" value="${persist.libs}/commons-logging-1.0.3.jar"/>
+    <property name="dom4j" value="${persist.libs}/dom4j-1.4.jar"/>
+    <property name="ehcache" value="${persist.libs}/ehcache-0.7.jar"/>
+    <property name="ejb-persist" value="${persist.libs}/ejb3-persistence.jar"/>
+    <property name="jboss-ejb" value="${persist.libs}/jboss-ejb3x.jar"/>
+	<property name="jsr173" value="${persist.libs}/jsr173_1.0_api.jar"/>
+    <property name="hibernate-ann" value="${persist.libs}/hibernate-annotations.jar"/>
+    <property name="hibernate" value="${persist.libs}/hibernate3.jar"/>
+    <property name="postgres7.jar" value="postgresql-7.4.5.jdbc.jar"/>
+    <property name="postgres7.path" value="${basic.libs}/${postgres7.jar}"/>
+    <property name="postgres8.jar" value="postgresql-8.0-311.jdbc3.jar"/>
+    <property name="postgres8.path" value="${basic.libs}/${postgres8.jar}"/>
+    <property name="jta" value="${persist.libs}/jta.jar"/>
+    <property name="jaxbapi" value="${persist.libs}/jaxb-api.jar"/>
+    <property name="jaxbimpl" value="${persist.libs}/jaxb-impl.jar"/>
+    <property name="odmg" value="${persist.libs}/odmg-3.0.jar"/>
+	<property name="xmlunit" value="${basic.libs}/xmlunit1.0.jar"/>
+	
+    <!--
+    Editor Dependencies
+    -->
+    <property name="jgraph-5.4.jar" value="${basic.libs}/jgraph-5.4.jar"/>
+    <property name="jgraphaddons-1.0.5.jar" value="${basic.libs}/jgraphaddons-1.0.5.jar"/>
+    <property name="swing-worker.jar" value="${basic.libs}/swing-worker.jar"/>
+	<property name="jgraphlayout.jar" value="${basic.libs}/jgraphlayout.jar"/>
+
+    <!--
+    PDF Dependencies
+    -->
+    <property name="itext" value="${pdf.libs}/itext-1.4.jar"/>
+    <property name="bcprov" value="${pdf.libs}/bcprov-jdk14-130.jar"/>
+    <property name="fileupload" value="${pdf.libs}/commons-fileupload-1.0.jar"/>
+
+    <!--
+    XFORM Dependencies
+    -->
+    <property name="mail.jar" value="${xforms.lib}/mail.jar"/>
+
+    <!-- Log4J Logging Library -->
+    <property name="log4j" value="${basic.libs}/log4j-1.2.8.jar"/>
+
+    <!-- ==================== Compilation Classpath =========================== -->
+    <!--
+      Rather than relying on the CLASSPATH environment variable, Ant includes
+      features that makes it easy to dynamically construct the classpath you
+      need for each compilation.  The example below constructs the compile
+      classpath to include the servlet.jar file, as well as the other components
+      that Tomcat makes available to web applications automatically, plus anything
+      that you explicitly added.
+    -->
+    <path id="cp.compile">
+        <!-- Include all JAR files that will be included in /WEB-INF/lib -->
+        <!-- *** CUSTOMIZE HERE AS REQUIRED BY YOUR APPLICATION *** -->
+        <pathelement location="${jbossall-client.jar}"/>
+        <pathelement location="${jfreechart.jar}"/>
+        <pathelement location="${jcommon.jar}"/>
+        <pathelement location="${junit.jar}"/>
+        <pathelement location="${xerces.jar}"/>
+        <pathelement location="${saxon.jar}"/>
+        <pathelement location="${jdom.jar}"/>
+        <pathelement location="${servlet.jar}"/>
+        <pathelement location="${log4j}"/>
+    	
+    	<fileset dir="${nexus.service.libs}/xfire">
+    		<include name="*.jar"/>
+    	</fileset>
+
+        <!-- Include all elements that Tomcat exposes to applications -->
+        <pathelement location="${env.CATALINA_HOME}/common/classes"/>
+        <fileset dir="${env.CATALINA_HOME}/common/endorsed">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${env.CATALINA_HOME}/common/lib">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement location="${env.CATALINA_HOME}/shared/classes"/>
+        <fileset dir="${env.CATALINA_HOME}/shared/lib">
+            <include name="*.jar"/>
+        </fileset>
+    	
+    	<fileset dir="${nexus.service.libs}/xfire">
+    		<include name="*.jar"/>
+    	</fileset>
+    	<fileset dir="${nexus.service.libs}/jython">
+    		<include name="*.jar"/>
+    	</fileset>
+    </path>
+    <!--
+    Standard classpath
+    -->
+    <path id="cp.standard">
+        <pathelement path="${classes}"/>
+    </path>
+    <!--
+    WSIF Classpath
+    -->
+    <path id="cp.wsif">
+        <pathelement location="${junit.jar}"/>
+        <pathelement location="${wsif.jar}"/>
+        <pathelement location="${axis.jar}"/>
+        <pathelement location="${commons-discovery.jar}"/>
+        <pathelement location="${commons-logging.jar}"/>
+        <pathelement location="${jaxrpc.jar}"/>
+        <pathelement location="${saaj.jar}"/>
+        <pathelement location="${wsdl4j.jar}"/>
+        <pathelement location="${xmlParserAPIs.jar}"/>
+        <pathelement location="${soaprmi-1_1.jar}"/>
+    </path>
+    <!--
+    XSD Classpath
+    -->
+    <path id="cp.xsd">
+        <pathelement location="${common.jar}"/>
+        <pathelement location="${ecore.jar}"/>
+        <pathelement location="${xsd.jar}"/>
+        <pathelement location="${xsd.resources.jar}"/>
+    </path>
+    <!--
+    Persistence Classpath
+    -->
+    <path id="cp.persist">
+        <pathelement location="${cglib}"/>
+        <pathelement location="${commonsCollections}"/>
+        <pathelement location="${commonsLogging}"/>
+        <pathelement location="${dom4j}"/>
+        <pathelement location="${ehcache}"/>
+        <pathelement location="${hibernate}"/>
+        <pathelement location="${jaxbapi}"/>
+        <pathelement location="${jaxbimpl}"/>
+    	<pathelement location="${xmlunit}"/>
+        <pathelement location="${hibernate-ann}"/>
+        <pathelement location="${jta}"/>
+        <pathelement location="${odmg}"/>
+        <pathelement location="${jboss-ejb}"/>
+        <pathelement location="${ejb-persist}"/>
+    	<pathelement location="${jsr173}"/>
+    </path>
+
+    <!--
+    Editor Classpath
+    -->
+    <path id="cp.editor">
+        <pathelement location="${jgraph-5.4.jar}"/>
+        <pathelement location="${jgraphaddons-1.0.5.jar}"/>
+    	<pathelement location="${jgraphlayout.jar}"/>
+        <pathelement location="${swing-worker.jar}"/>
+    </path>
+
+
+    <!--
+    Mail Service Classpath
+    -->
+    <path id="cp.mail">
+        <pathelement location="${mail.jar}"/>
+    </path>
+
+
+    <!--
+    PDF Forms Classpath
+    -->
+    <path id="cp.pdfforms">
+        <pathelement location="${itext}"/>
+        <pathelement location="${bcprov}"/>
+        <pathelement location="${fileupload}"/>
+    </path>
+    <!--
+    Do the necessary copying all essential files
+    -->
+    <target name="copy">
+        <copy todir="./exampleSpecs/xml">
+            <fileset dir="./schema" includes="*.xsd"/>
+        </copy>
+        <copy todir="${src}/au/edu/qut/yawl/unmarshal">
+            <fileset
+                dir="./schema"
+                includes="*.xsd"/>
+        </copy>
+        <copy todir="${test}/au/edu/qut/yawl/unmarshal">
+            <fileset dir="./exampleSpecs/xml" includes="MakeRecordings.xml"/>
+        </copy>
+        <copy todir="${test}/au/edu/qut/yawl/engine">
+            <fileset dir="./exampleSpecs/xml" includes="MakeRecordings(Beta4).xml"/>
+        </copy>
+    </target>
+    <!--
+    Clean build environment
+    Deletes directories and intermediate files.
+    -->
+    <target name="clean" depends="copy">
+        <!--delete dir="${classes}/.dependency-info"/-->
+        <delete dir="${classes}/META-INF"/>
+        <delete dir="${classes}/au"/>
+    	<delete dir="${classes}/com/nexusbpm"/>
+        <delete dir="${classes}/records"/>
+        <delete dir="${output}"/>
+    </target>
+    <!--
+  	Initialise build environment
+    Creates necessary directories prior to building.
+  	-->
+    <target name="init" depends="clean">
+        <mkdir dir="${classes}/au"/>
+    	<mkdir dir="${classes}/com/nexusbpm"/>
+        <mkdir dir="${output}"/>
+        <mkdir dir="${output}/${javadoc}"/>
+    </target>
+
+
+    <!--
+    Compile all source
+    Compiles main project source into ${classes}.
+    -->
+    <target name="compile" depends="init">
+        <javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.persist"/>
+            <classpath refid="cp.pdfforms"/>
+            <classpath refid="cp.editor"/>
+            <classpath refid="cp.mail"/>
+        </javac>
+        <!--rmic base="${classes}" classname="au.edu.qut.yawl.engine.interfce.EngineGatewayImpl"/-->
+        <copy todir="${classes}">
+            <fileset dir="${src}" excludes="**/*.java"/>
+        </copy>
+
+        <!-- Copy and patch Log4J properties file in for free-standing engine -->
+        <copy file="${property.files}/log4j.properties" todir="${classes}" overwrite="true" />
+
+        <!--
+        <replace file="${classes}/log4j.properties"
+                 token="%TOMCAT_DIR%/logs" value="."/>
+         -->
+        <replace file="${classes}/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+    </target>
+
+    <target name="decidePostgresVersion">
+        <!-- Ascertain which Hibernate properties file to deploy for persistence -->
+        <condition property="using_postgres7" value="true">
+            <and>
+                <contains string="${use_postgres7}" substring="true"/>
+            </and>
+        </condition>
+        <condition property="using_postgres8" value="true">
+            <and>
+                <contains string="${use_postgres8}" substring="true"/>
+            </and>
+        </condition>
+        <antcall target="hibernate_postgres7"/>
+        <antcall target="hibernate_postgres8"/>
+    </target>
+ 
+    <!--
+    Build the application jar/war files
+    Creates a jar file for the main application sources.
+    -->
+    <target name="build_Standalone" depends="compile">
+        <mkdir dir="${enumeratedClasses}"/>
+        <unzip dest="${enumeratedClasses}">
+            <fileset dir="${standAlone.libs}" includes="*.jar" excludes="postgres*.jar"/>
+            <fileset dir="${basic.libs}">
+                <include name="**/*.jar"/>
+            </fileset>
+            <fileset dir="${xsd.libs}">
+                <include name="**/*.jar"/>
+            </fileset>
+            <fileset dir="${persist.libs}">
+                <include name="**/*.jar"/>
+            </fileset>
+        </unzip>
+        <!--=======================================================================
+        Create a self contained jar of the YAWL library
+        -->
+        <antcall target="decidePostgresVersion"/>
+        <jar destfile="${output}/YAWL${app.version}.jar">
+            <fileset dir="${classes}"/>
+            <fileset dir="${enumeratedClasses}"/>
+            <manifest>
+                <attribute name="Created-By" value="${developer.name}"/>
+                <attribute name="Main-Class" value="au/edu/qut/yawl/engine/gui/TabbedEngineGUI"/>
+            </manifest>
+        </jar>
+        <delete dir="${enumeratedClasses}"/>
+    </target>
+
+    <!--
+    Build the application jar/war files
+    Creates a jar file for the main application sources.
+    -->
+    <target name="build_sourcecode" depends="compile">
+        <copy todir="${classes}">
+            <fileset dir="${test}" excludes="**/*.java"/>
+        </copy>
+        <!-- Perform Zip distribution preparation -->
+        <mkdir dir="${output}/engine/src"/>
+        <copy todir="${output}/engine/src">
+            <fileset dir="${src}"/>
+        </copy>
+        <mkdir dir="${output}/engine/build"/>
+        <copy todir="${output}/engine/build">
+            <fileset dir="./build"/>
+        </copy>
+        <mkdir dir="${output}/engine/exampleSpecs"/>
+        <copy todir="${output}/engine/exampleSpecs">
+            <fileset dir="exampleSpecs"/>
+        </copy>
+        <mkdir dir="${output}/engine/graphics"/>
+        <copy todir="${output}/engine/graphics">
+            <fileset dir="graphics"/>
+        </copy>
+        <mkdir dir="${output}/engine/schema"/>
+        <copy todir="${output}/engine/schema">
+            <fileset dir="schema"/>
+        </copy>
+        <jar destfile="${output}/YAWL${app.version}_SRC.zip" excludes="">
+            <fileset dir="${output}/engine"/>
+        </jar>
+        <mkdir dir="${output}/engine/test"/>
+        <copy todir="${output}/engine/test">
+            <fileset dir="${test}"/>
+        </copy>
+        <jar destfile="${output}/YAWL${app.version}-SourceAndTestCode.zip">
+            <fileset dir="${output}/engine"/>
+        </jar>
+        <delete dir="${output}/engine"/>
+    </target>
+
+
+    <!--
+    Build the application jar/war files
+    Creates a jar file for the main application sources.
+    -->
+    <target name="build_engine.war" depends="compile">
+        <!-- ======================================================================
+        Prepare YAWL Engine WebApplication
+        -->
+        <copy todir="${yawl.eng.app.name}/WEB-INF/classes">
+            <fileset dir="${classes}" includes="**/*.class **/*.xsd **/*.hbm.xml"/>
+        </copy>
+
+        <copy file="${property.files}/log4j.properties" todir="${yawl.eng.app.name}/WEB-INF/classes"/>
+        <replace file="${yawl.eng.app.name}/WEB-INF/classes/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+
+        <copy todir="${yawl.eng.app.name}/WEB-INF">
+            <fileset file="${build.home}/engine/web.xml"/>
+        </copy>
+        <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="*.jar" excludes="servlet-api.jar postgres*.jar"/>
+        </copy>
+        <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
+            <fileset dir="${persist.libs}" includes="*.jar"/>
+        </copy>
+        <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
+            <fileset dir="${xsd.libs}" includes="*.jar"/>
+        </copy>
+        <antcall target="decidePostgresVersion"/>
+        <jar destfile="${output}/yawl.war">
+            <fileset dir="${yawl.eng.app.name}"/>
+        </jar>
+        <delete dir="${yawl.eng.app.name}"/>
+    </target>
+
+    <target name="hibernate_postgres7" if="using_postgres7">
+        <echo message="Copying Hibernate properties for PostgreSQL7"/>
+        <copy file="${postgres7.path}" tofile="${yawl.eng.app.name}/WEB-INF/lib/${postgres7.jar}"/>
+        <copy file="${property.files}/hibernate.properties.postgres7"
+              tofile="${yawl.eng.app.name}/WEB-INF/classes/hibernate.properties"/>
+        <copy file="${property.files}/hibernate.properties.postgres7"
+              tofile="${classes}/hibernate.properties"/>
+
+        <copy file="${postgres7.path}" tofile="${yawl.admintool.app.name}/WEB-INF/lib/${postgres7.jar}"/>
+        <copy file="${property.files}/hibernate.properties.postgres7" tofile="${yawl.admintool.app.name}/WEB-INF/classes/hibernate.properties"/>
+
+        <copy file="${postgres7.path}" tofile="${yawl.worklist.app.name}/WEB-INF/lib/${postgres7.jar}"/>
+        <copy file="${property.files}/hibernate.properties.postgres7" tofile="${yawl.worklist.app.name}/WEB-INF/classes/hibernate.properties"/>
+    </target>
+
+    <target name="hibernate_postgres8" if="using_postgres8">
+        <echo message="Copying Hibernate properties for PostgreSQL8"/>
+        <copy file="${postgres8.path}" tofile="${yawl.eng.app.name}/WEB-INF/lib/${postgres8.jar}"/>
+        <copy file="${property.files}/hibernate.properties.postgres8"
+            tofile="${yawl.eng.app.name}/WEB-INF/classes/hibernate.properties"/>
+        <copy file="${property.files}/hibernate.properties.postgres8"
+            tofile="${classes}/hibernate.properties"/>
+
+        <copy file="${postgres8.path}" tofile="${yawl.admintool.app.name}/WEB-INF/lib/${postgres8.jar}"/>
+        <copy file="${property.files}/hibernate.properties.postgres8"
+            tofile="${yawl.admintool.app.name}/WEB-INF/classes/hibernate.properties"/>
+
+        <copy file="${postgres8.path}" tofile="${yawl.worklist.app.name}/WEB-INF/lib/${postgres8.jar}"/>
+        <copy file="${property.files}/hibernate.properties.postgres8"
+            tofile="${yawl.worklist.app.name}/WEB-INF/classes/hibernate.properties"/>
+    </target>
+
+
+    <!--
+    Build the application jar/war files
+    Creates a jar file for the main application sources.
+    -->
+    <target name="build_worklist.war" depends="compile">
+        <!-- ======================================================================
+        Prepare YAWL Worklist WebApplication
+        -->
+        <mkdir dir="${yawl.worklist.app.name}/graphics"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/lib"/>
+        <mkdir dir="${yawl.worklist.app.name}/repository"/>
+        <mkdir dir="${yawl.worklist.app.name}/secure/"/>
+        <mkdir dir="${yawl.worklist.app.name}/secure/certificates/"/>
+        <mkdir dir="${yawl.worklist.app.name}/secure/genDir/"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
+    	<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication"/>
+
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/forms"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions"/>
+        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema"/>
+        <!-- Copy library dependencies into worklist -->
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
+            <fileset dir="${xsd.libs}" includes="*.jar"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" excludes="servlet-api.jar, postgresql*.jar"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
+            <fileset dir="${persist.libs}" includes="*.jar"/>
+        </copy>
+        <antcall target="decidePostgresVersion"/>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine">
+            <fileset dir="${classes}/au/edu/qut/yawl/engine" includes="*.class"/>
+        </copy>
+    	<copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+            <fileset dir="${classes}/au/edu/qut/yawl/engine/domain" includes="YWorkItem*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/managed" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao1" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/jaxb" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+            <fileset dir="${classes}/au/edu/qut/yawl/exceptions" includes="*.class *.hbm.xml"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema">
+            <fileset dir="${classes}/au/edu/qut/yawl/schema" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/forms">
+            <fileset dir="${classes}/au/edu/qut/yawl/forms" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms">
+            <fileset dir="${classes}/au/edu/qut/yawl/PDFforms" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature">
+            <fileset dir="${classes}/au/edu/qut/yawl/PDFforms/signature" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/repository">
+            <fileset dir="${build.home}/PDFforms/repository"/>
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements/state"
+                includes="YIdentifier.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication">
+            <fileset dir="${classes}/au/edu/qut/yawl/authentication"
+                includes="User.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
+            <fileset dir="${classes}/au/edu/qut/yawl/unmarshal"
+                includes="YDecompositionParser.class SchemaValidator.class SchemaForSchemaValidator.class"/>
+        </copy>
+
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements/data"
+                includes="YParameter.class YVariable.class"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib" >
+            <fileset dir="${pdf.libs}"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
+        </copy>
+
+        <copy file="${property.files}/log4j.properties" todir="${yawl.worklist.app.name}/WEB-INF/classes"/>
+        <replace file="${yawl.worklist.app.name}/WEB-INF/classes/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
+            <fileset dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <!-- copy all major support classes into webapp -->
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist/model"
+                includes="*.class"/>
+        </copy>
+        <!-- copy all supportive jsps into webapp -->
+        <copy todir="${yawl.worklist.app.name}">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist">
+                <exclude name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF">
+            <fileset file="${build.home}/${yawl.worklist.app.name}/web.xml"/>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/graphics">
+            <fileset dir="${basedir}/graphics"/>
+        </copy>
+        <!-- prepare Web ARchive file -->
+        <jar destfile="${output}/${yawl.worklist.app.name}.war">
+            <fileset dir="${yawl.worklist.app.name}"/>
+        </jar>
+        <delete dir="${yawl.worklist.app.name}"/>
+    </target>
+	
+	<target name="build_JythonService.war" depends="compile">
+		<!-- create directory structure for the WAR -->
+		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/lib"/>
+		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/META-INF/xfire"/>
+		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/data"/>
+		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/jython"/>
+		
+		<!-- copy libs -->
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/lib">
+			<fileset dir="${nexus.service.libs}/jython" includes="jython.jar"/>
+			<fileset dir="${nexus.service.libs}/xfire" includes="*.jar"/>
+        </copy>
+		
+		<!-- copy misc -->
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/META-INF/xfire">
+			<fileset file="${build.home}/${nexus.service.jython.app.name}/services.xml"/>
+        </copy>
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF">
+            <fileset file="${build.home}/${nexus.service.jython.app.name}/web.xml"/>
+        </copy>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services">
+			<fileset dir="${classes}/com/nexusbpm/services" includes="*.class"/>
+			<fileset dir="${services}/com/nexusbpm/services" includes="*.properties"/>
+		</copy>
+		
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
+			<fileset dir="${classes}/com/nexusbpm/services/data" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+			<fileset dir="${classes}/au/edu/qut/yawl/elements" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+			<fileset dir="${classes}/au/edu/qut/yawl/elements/data" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker">
+			<fileset dir="${classes}/com/nexusbpm/services/invoker" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/com/nexusbpm/services/jython">
+			<fileset dir="${classes}/com/nexusbpm/services/jython" includes="*.class"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/${nexus.service.jython.app.name}.war">
+            <fileset dir="${nexus.service.jython.app.name}"/>
+        </jar>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.jython.app.name}"/>
+	</target>
+	
+	<target name="build_EmailSenderService.war" depends="compile">
+		<!-- create directory structure for the WAR -->
+		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/lib"/>
+		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/META-INF/xfire"/>
+		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/data"/>
+		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/email"/>
+		
+		<!-- copy libs -->
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/lib">
+<!--			<fileset dir="${nexus.service.libs}/email" includes="*.jar"/>-->
+			<fileset dir="${nexus.service.libs}/xfire" includes="*.jar"/>
+        </copy>
+		
+		<!-- copy misc -->
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/META-INF/xfire">
+			<fileset file="${build.home}/${nexus.service.emailSender.app.name}/services.xml"/>
+        </copy>
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF">
+            <fileset file="${build.home}/${nexus.service.emailSender.app.name}/web.xml"/>
+        </copy>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services">
+			<fileset dir="${classes}/com/nexusbpm/services" includes="*.class"/>
+		</copy>
+		
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
+			<fileset dir="${classes}/com/nexusbpm/services/data" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+			<fileset dir="${classes}/au/edu/qut/yawl/elements" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+			<fileset dir="${classes}/au/edu/qut/yawl/elements/data" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker">
+			<fileset dir="${classes}/com/nexusbpm/services/invoker" includes="*.class"/>
+		</copy>
+		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/email">
+			<fileset dir="${classes}/com/nexusbpm/services/email" includes="*.class"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/${nexus.service.emailSender.app.name}.war">
+            <fileset dir="${nexus.service.emailSender.app.name}"/>
+        </jar>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.emailSender.app.name}"/>
+	</target>
+	
+	<target name="build_NexusServiceInvoker.war" depends="compile">
+        <!-- ======================================================================
+        Prepare YAWL Web Service Invoker WebApplication
+        -->
+<!--    <mkdir dir="${nexus.serviceInvoker.app.name}/graphics"/>-->
+        <mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/lib"/>
+        <mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
+        <mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+    	<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
+        <mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/data"/>
+		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker"/>
+		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/jython"/>
+		<mkdir dir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/email"/>
+        <!-- start copying files into war directory -->
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/elements/data"
+                />
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/unmarshal"
+                includes="YDecompositionParser.class"/>
+        </copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${wsif.libs}" includes="*.jar *.html" excludes="j2ee.jar"/>
+        	<fileset dir="${persist.libs}" includes="jaxb*.jar"/>
+        	<fileset dir="${persist.libs}" includes="jsr173_1.0_api.jar"/>
+        	<fileset dir="${xforms.lib}" includes="activation.jar"/>
+        	<fileset dir="${basic.libs}" includes="log4j*.jar"/>
+        	<fileset dir="${nexus.service.libs}/jython" includes="jython.jar"/>
+        	<fileset dir="${nexus.service.libs}/xfire" includes="*.jar" excludes="jdom*.jar"/>
+        	<fileset dir="${basic.libs}" includes="jdom*.jar"/>
+        </copy>
+
+        <copy file="${property.files}/log4j.properties" todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes"/>
+        <replace file="${nexus.serviceInvoker.app.name}/WEB-INF/classes/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+
+    	<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+    		<fileset dir="${classes}/au/edu/qut/yawl/engine/domain"/>
+    	</copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <!-- copy all major support classes into webapp -->
+    	<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services">
+			<fileset dir="${classes}/com/nexusbpm/services" includes="*.class"/>
+			<fileset dir="${services}/com/nexusbpm/services" includes="*.properties"/>
+		</copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/invoker">
+            <fileset dir="${classes}/com/nexusbpm/services/invoker">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+		
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
+	        <fileset dir="${classes}/com/nexusbpm/services/data">
+	        	<include name="*.class"/>
+	        </fileset>
+		</copy>
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
+	        <fileset dir="${services}/com/nexusbpm/services/data">
+	        	<include name="jaxb.index"/>
+	        </fileset>
+		</copy>
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services">
+	        <fileset dir="${classes}/com/nexusbpm/services">
+	        	<include name="*.class"/>
+	        </fileset>
+		</copy>
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/jython">
+	        <fileset dir="${classes}/com/nexusbpm/services/jython">
+	        	<include name="*.class"/>
+	        </fileset>
+		</copy>
+		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/email">
+	        <fileset dir="${classes}/com/nexusbpm/services/email">
+	        	<include name="*.class"/>
+	        </fileset>
+		</copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+            <fileset dir="${classes}/au/edu/qut/yawl/exceptions" includes="*.class *.hbm.xml"/>
+        </copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist/model"/>
+        </copy>
+        <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF">
+            <fileset file="${build.home}/${nexus.serviceInvoker.app.name}/web.xml"/>
+        </copy>
+        <!-- prepare Web ARchive file -->
+        <jar destfile="${output}/${nexus.serviceInvoker.app.name}.war">
+            <fileset dir="${nexus.serviceInvoker.app.name}"/>
+        </jar>
+        <delete dir="${nexus.serviceInvoker.app.name}"/>
+    </target>
+
+    <!--
+    Build the application jar/war files
+    Creates a jar file for the main application sources.
+    -->
+    <target name="build_yawlWSInvoker.war" depends="compile">
+        <!-- ======================================================================
+        Prepare YAWL Web Service Invoker WebApplication
+        -->
+        <mkdir dir="${yawl.webService.app.name}/graphics"/>
+        <mkdir dir="${yawl.webService.app.name}/WEB-INF/lib"/>
+        <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
+        <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+    	<mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
+        <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/wsif"/>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/elements/data"
+                />
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/unmarshal"
+                includes="YDecompositionParser.class"/>
+        </copy>
+        <copy todir="${yawl.webService.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${wsif.libs}" includes="*.jar *.html" excludes="j2ee.jar"/>
+        </copy>
+        <copy todir="${yawl.webService.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
+        </copy>
+
+         <copy file="${property.files}/log4j.properties" todir="${yawl.webService.app.name}/WEB-INF/classes"/>
+         <replace file="${yawl.webService.app.name}/WEB-INF/classes/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+
+    	<copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+    		<fileset dir="${classes}/au/edu/qut/yawl/engine/domain"/>
+    	</copy>
+        <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <!-- copy all major support classes into webapp -->
+    	<copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
+    	            <fileset dir="${classes}/au/edu/qut/yawl/persistence">
+    	                <include name="*.class"/>
+    	            </fileset>
+    	        </copy>
+        <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/wsif">
+            <fileset dir="${classes}/au/edu/qut/yawl/wsif">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.webService.app.name}">
+            <fileset dir="${classes}/au/edu/qut/yawl/wsif">
+                <include name="*.jsp"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+            <fileset dir="${classes}/au/edu/qut/yawl/exceptions" includes="*.class *.hbm.xml"/>
+        </copy>
+        <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist/model"/>
+        </copy>
+        <copy todir="${yawl.webService.app.name}/WEB-INF">
+            <fileset file="${build.home}/${yawl.webService.app.name}/web.xml"/>
+        </copy>
+        <!-- prepare Web ARchive file -->
+        <jar destfile="${output}/${yawl.webService.app.name}.war">
+            <fileset dir="${yawl.webService.app.name}"/>
+        </jar>
+        <delete dir="${yawl.webService.app.name}"/>
+    </target>
+
+    <!--
+    Build the application jar/war files
+    Creates a jar file for the main application sources.
+    -->
+    <target name="build_yawlSMSInvoker.war" depends="compile">
+        <!-- ======================================================================
+        Prepare YAWL SMS Service Invoker WebApplication
+        -->
+        <mkdir dir="${yawl.smsService.app.name}/WEB-INF/lib"/>
+        <mkdir dir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
+        <mkdir dir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+        <mkdir dir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/smsModule"/>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/elements/data"
+                />
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/unmarshal"
+                includes="YDecompositionParser.class"/>
+        </copy>
+        <copy todir="${yawl.smsService.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+        </copy>
+        <copy todir="${yawl.smsService.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
+        </copy>
+
+        <copy file="${property.files}/log4j.properties" todir="${yawl.smsService.app.name}/WEB-INF/classes"/>
+        <replace file="${yawl.smsService.app.name}/WEB-INF/classes/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+
+        <copy todir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <!-- copy all supportive jsps & graphis into webapp -->
+        <copy todir="${yawl.smsService.app.name}">
+            <fileset dir="${classes}/au/edu/qut/yawl/smsModule">
+                <exclude name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.smsService.app.name}/graphics">
+            <fileset dir="${basedir}/graphics"/>
+        </copy>
+        <!-- copy all major support classes into webapp -->
+        <copy todir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/smsModule">
+            <fileset dir="${classes}/au/edu/qut/yawl/smsModule">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist/model"/>
+        </copy>
+        <copy todir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+            <fileset dir="${classes}/au/edu/qut/yawl/exceptions"
+                includes="YAWLException.class"/>
+        </copy>
+        <copy todir="${yawl.smsService.app.name}/WEB-INF">
+            <fileset file="${build.home}/${yawl.smsService.app.name}/web.xml"/>
+        </copy>
+        <!-- prepare Web Archive file -->
+        <jar destfile="${output}/${yawl.smsService.app.name}.war">
+            <fileset dir="${yawl.smsService.app.name}"/>
+        </jar>
+        <delete dir="${yawl.smsService.app.name}"/>
+    </target>
+
+	
+	<!-- build a WorkItemRecord toolkit -->
+	<target name="build_WIR_toolkit.jar" depends="compile">
+        <mkdir dir="${output}/toolkit"/>
+        <copy todir="${output}/toolkit/au/edu/qut/yawl/worklist/model">
+            <fileset file="${classes}/au/edu/qut/yawl/worklist/model/WorkItemRecord.class"/>
+        </copy>
+		
+        <jar destfile="${output}/toolkit/yawl-WIR-toolkit.jar">
+            <fileset dir="${output}/toolkit"/>
+        </jar>
+		
+		<move todir="${xforms.lib}">
+			<fileset file="${output}/toolkit/yawl-WIR-toolkit.jar"/>
+		</move>
+		
+		<delete dir="${output}/toolkit"/>
+	</target>
+	
+	
+    <!-- invoke the external YAWLXforms build script -->
+    <target name="build_yawlXForms.war" depends="build_WIR_toolkit.jar">
+
+      	<mkdir dir="${xforms.dist}"/>
+    	
+        <ant target="distribute" dir="./build/yawlXForms" antfile="build.xml" inheritAll="false" inheritRefs="false"/>
+    	
+        <copy todir="${output}">
+            <fileset file="${xforms.dist}/${yawl.xforms.app.name}.war"/>
+        </copy>
+            	
+    	<ant target="clean-all" dir="./build/yawlXForms" antfile="build.xml" inheritAll="false" inheritRefs="false"/>
+    </target>
+
+    <!--
+    Build the application jar/war files
+
+    Creates a jar file for the main application sources.
+    -->
+    <target name="build_TimeService.war" depends="compile">
+        <!-- ======================================================================
+        Prepare YAWL Time Service WebApplication
+        -->
+        <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/lib"/>
+        <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
+        <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+        <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/timeService"/>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/elements/data"
+                />
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/unmarshal"
+                includes="YDecompositionParser.class"/>
+        </copy>
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+        </copy>
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/lib" >
+            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
+        </copy>
+
+        <copy file="${property.files}/log4j.properties" todir="${yawl.TimeService.app.name}/WEB-INF/classes"/>
+        <replace file="${yawl.TimeService.app.name}/WEB-INF/classes/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <!-- copy all supportive jsps & graphis into webapp -->
+        <copy todir="${yawl.TimeService.app.name}">
+            <fileset dir="${classes}/au/edu/qut/yawl/timeService">
+                <exclude name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.TimeService.app.name}/graphics">
+            <fileset dir="${basedir}/graphics"/>
+        </copy>
+        <!-- copy all major support classes into webapp -->
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/timeService">
+            <fileset dir="${classes}/au/edu/qut/yawl/timeService">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist/model"/>
+        </copy>
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+            <fileset dir="${classes}/au/edu/qut/yawl/exceptions"
+                includes="YAWLException.class"/>
+        </copy>
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF">
+            <fileset file="${build.home}/${yawl.TimeService.app.name}/web.xml"/>
+        </copy>
+        <!-- prepare Web Archive file -->
+        <jar destfile="${output}/${yawl.TimeService.app.name}.war">
+            <fileset dir="${yawl.TimeService.app.name}"/>
+        </jar>
+        <delete dir="${yawl.TimeService.app.name}"/>
+    </target>
+
+
+
+    <!--
+    Build the application jar/war files
+
+    Creates a jar file for the main application sources.
+    -->
+    <target name="build_admintool.war" depends="compile">
+        <!-- ======================================================================
+        Prepare YAWL AdminTool WebApplication
+        -->
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/lib"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/admintool"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/admintool/model"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication"/>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/elements/data"
+                />
+        </copy>
+        <!-- start copying files into war directory -->
+
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/managed" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao1" includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb">
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/jaxb" includes="*.class"/>
+        </copy>
+
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/util">
+            <fileset dir="${classes}/au/edu/qut/yawl/util" includes="*.class"/>
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/unmarshal"
+                includes="YDecompositionParser.class"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar jfreechart-1.0.0-rc1.jar jcommon-1.0.0-rc1.jar"/>
+        </copy>
+
+        <copy file="${property.files}/log4j.properties" todir="${yawl.admintool.app.name}/WEB-INF/classes"/>
+        <replace file="${yawl.admintool.app.name}/WEB-INF/classes/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/lib">
+            <fileset dir="${persist.libs}"/>
+        </copy>
+        <antcall target="decidePostgresVersion"/>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine/domain"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/authentication"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine"
+                includes=" YWorkItem.hbm.xml YWorkItem.class YWorkItemID.class YWorkItemRepository.class YPersistenceManager.class
+				YLogIdentifier.class YLogIdentifier.hbm.xml YWorkItemEvent.class YWorkItemEvent.hbm.xml"/>
+        </copy>
+
+        <!-- copy all supportive jsps & graphics into webapp -->
+        <copy todir="${yawl.admintool.app.name}">
+            <fileset dir="${classes}/au/edu/qut/yawl/admintool">
+                <include name="*.jsp"/>
+                <include name="*.html"/>
+                <include name="*.jpg"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/graphics">
+            <fileset dir="${basedir}/graphics"/>
+        </copy>
+        <!-- copy all major support classes into webapp -->
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/admintool">
+            <fileset dir="${classes}/au/edu/qut/yawl/admintool">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/admintool/model">
+            <fileset dir="${classes}/au/edu/qut/yawl/admintool/model">
+                <include name="*.class"/>
+		<include name="*.xml"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist/model"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+            <fileset dir="${classes}/au/edu/qut/yawl/exceptions"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF">
+            <fileset file="${build.home}/${yawl.admintool.app.name}/web.xml"/>
+        </copy>
+
+        <!-- prepare Web Archive file -->
+        <jar destfile="${output}/${yawl.admintool.app.name}.war">
+            <fileset dir="${yawl.admintool.app.name}"/>
+        </jar>
+        <delete dir="${yawl.admintool.app.name}"/>
+	</target>
+	
+	
+	
+	<!-- Build the WorkletService war file  -->
+    <target name="build_workletService.war" depends="compile">
+       
+        <!-- 1. Make the dir structure for the required yawl classes -->
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/lib"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>        
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions"/>         
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema" /> 
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/util"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model"/>
+
+        <!-- 1a. Make the dirs for the worklet classes -->
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/rdr"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/selection"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/support"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/exception"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/admin"/>
+
+        <mkdir dir="${yawl.worklet.app.name}/graphics"/>
+        <mkdir dir="${yawl.worklet.app.name}/jsp"/>
+
+
+        <!-- 2. Copy required yawl classes into dir structure -->
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication">
+            <fileset dir="${classes}/au/edu/qut/yawl/authentication"
+                     includes="User.class"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
+            <fileset dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+            <fileset dir="${classes}/au/edu/qut/yawl/engine/domain" includes="YWorkItem*.class"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements"
+                     includes="*.class" />
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements/data"
+                     includes="YParameter.class YVariable.class"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements/state"
+                     includes="YIdentifier.class"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+            <fileset dir="${classes}/au/edu/qut/yawl/exceptions" 
+                includes="YSchemaBuildingException.class 
+                YSyntaxException.class YAWLException.class" /> 
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema">
+            <fileset dir="${classes}/au/edu/qut/yawl/schema" includes="*.class" /> 
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
+            <fileset dir="${classes}/au/edu/qut/yawl/unmarshal"
+                includes="YDecompositionParser.class SchemaValidator.class 
+                SchemaForSchemaValidator.class"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/util"
+              file="${classes}/au/edu/qut/yawl/util/JDOMConversionTools.class"/>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist/model"
+                     includes="*.class"/>
+        </copy>
+        
+        <!-- 2a. copy worklet classes to relevant dirs -->
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet"
+              file="${classes}/au/edu/qut/yawl/worklet/WorkletService.class"/>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/rdr">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklet/rdr"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/selection">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklet/selection"
+                     includes="*.class *.xml"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/support">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklet/support"
+                     includes="*.class *.xml"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/exception">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklet/exception"
+                     includes="*.class *.xml"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/admin">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklet/admin"
+                     includes="*.class *.xml"/>
+        </copy>
+
+    	  <!-- 2b. Copy required worklet support files into dir root -->    	
+        <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletService.properties"/>
+        <!-- <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/welcome/welcome.htm"/> -->
+        <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletRepository.zip"/>
+
+        <!-- 2c. Copy in graphics for welcome page -->
+        <copy todir="${yawl.worklet.app.name}/graphics">
+        	<fileset dir="${build.home}/workletService/welcome/graphics"/>
+        </copy> 
+        <copy todir="${yawl.worklet.app.name}/graphics" file="${graphics.home}/common.css"/>
+        <copy todir="${yawl.worklet.app.name}/graphics" file="${graphics.home}/subtext.jpg"/>
+        <copy todir="${yawl.worklet.app.name}/graphics" file="${graphics.home}/yawl.swf"/>
+
+        <!-- 2d. Copy in jsps -->
+        <copy todir="${yawl.worklet.app.name}/jsp">
+             <fileset dir="${classes}/au/edu/qut/yawl/worklet/jsp"/>
+        </copy>
+
+        <!-- 2e. Copy log4j properties -->
+        <copy file="${property.files}/log4j.properties" todir="${yawl.worklet.app.name}/WEB-INF/classes"/>
+        <replace file="${yawl.worklet.app.name}/WEB-INF/classes/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+
+        <!-- 3. Copy required 3rd party libraries into dir structure -->    	
+    	  <copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
+    	     <fileset dir="${xsd.libs}" includes="*.jar" />
+           <fileset dir="${persist.libs}" includes="*.jar"/>
+           <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar"/>
+        </copy>
+
+        <!-- 4. Copy hibernate & postgres files (assumes version 8) -->
+        <copy file="${postgres8.path}" tofile="${yawl.worklet.app.name}/WEB-INF/lib/${postgres8.jar}"/>
+        <copy file="${property.files}/hibernate.properties.postgres8"
+            tofile="${yawl.worklet.app.name}/WEB-INF/classes/hibernate.properties"/>
+
+        <!-- 5. Copy web.xml file into dir structure -->
+        <copy todir="${yawl.worklet.app.name}/WEB-INF" file="${build.home}/workletService/web.xml"/>
+
+        <!-- 6. create Web Archive file -->
+        <jar destfile="${output}/workletService.war">
+            <fileset dir="${yawl.worklet.app.name}"/>
+        </jar>
+        
+        <!-- 7. Remove temp build area -->
+        <delete dir="${yawl.worklet.app.name}"/>
+    </target>
+
+		
+
+    <!--
+    Build the application jar/war files
+    Creates a jar file for the main application sources.
+    -->
+    <target name="buildWebApps"
+        depends=
+        "build_engine.war,
+        build_worklist.war,
+        build_yawlSMSInvoker.war,
+        build_yawlWSInvoker.war,
+    	build_JythonService.war,
+    	build_EmailSenderService.war,
+    	build_NexusServiceInvoker.war,
+        build_TimeService.war,
+        build_admintool.war,
+        build_yawlXForms.war,
+        build_admintool.war,
+	build_PDFforms.war,
+        build_workletService.war"
+        description=
+        "Builds a distribution version of all
+        the YAWL runtime Web apps and copies to the output directory.">
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployWorklist" depends="build_worklist.war">
+        <!-- Deploy Worklist -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.worklist.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployEngine" depends="build_engine.war">
+        <!-- Deploy YAWL Engine -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/yawl.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployWsInvoker" depends="build_yawlWSInvoker.war">
+        <!-- Deploy YAWL WS Invoker -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.webService.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deploySMS" depends="build_yawlSMSInvoker.war">
+        <!-- Deploy SMS Service -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.smsService.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployTimeService" depends="build_TimeService.war">
+        <!-- Deploy Time Service -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.TimeService.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployAdminTool" depends="build_admintool.war">
+        <!-- Deploy Admin Tool -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.admintool.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployPDFforms" depends="build_PDFforms.war">
+        <!-- Deploy Admin Tool -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.pdfforms.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployXForms" depends="build_yawlXForms.war">
+        <!-- Deploy XForms -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.xforms.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+    
+    <target name="deployWorkletService" depends="build_workletService.war">
+        <!-- Deploy Worklet Selection Service -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.worklet.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+
+    <target name="deployWebapps"
+        depends=
+        "deployWorklist,
+        deployEngine,
+        deployWsInvoker,
+        deploySMS,
+        deployTimeService,
+        deployXForms,
+        deployAdminTool,
+	deployPDFforms,
+        deployWorkletService"
+        description=
+        "Deploys all of the web apps to Tomcat, and if tomcat is on it forces a reload.">
+    </target>
+
+    <target name="cleanup">
+        <delete dir="${yawl.eng.app.name}"/>
+        <delete dir="${yawl.admintool.app.name}"/>
+        <delete dir="${yawl.worklist.app.name}"/>
+    </target>
+
+    <!--
+    Build the application jar/war files
+    Creates a jar file for the main application sources.
+    -->
+    <target name="buildAll"
+        depends="build_Standalone,
+        build_sourcecode,
+        build_engine.war,
+        build_worklist.war,
+        build_yawlWSInvoker.war,
+        build_yawlSMSInvoker.war,
+    	build_yawlXForms.war,
+        build_TimeService.war,
+        build_admintool.war,
+	build_PDFforms.war,
+        build_workletService.war,
+        javadoc">
+    </target>
+
+    <target name="buildDeployments"
+        depends="buildAll">
+        <mkdir dir="${output}/deployments/"/>
+        <mkdir dir="${output}/deployments"/>
+        <mkdir dir="${output}/deployments"/>
+    </target>
+
+    <!--
+  	Compile test source code
+    Compiles the source for test cases into the ${classes} directory.
+  	-->
+    <target name="compile-test" depends="compile">
+        <copy todir="${classes}">
+            <fileset dir="${test}" excludes="**/*.java"/>
+        </copy>
+        <javac srcdir="${test}" destdir="${classes}">
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
+        </javac>
+    </target>
+
+    <!--
+    Run the unit tests
+    Invokes the unit tests.
+    -->
+    <target name="test" depends="compile-test">
+        <java classname="au.edu.qut.yawl.TestAllYAWLSuites" fork="true" failonerror="false">
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+        </java>
+    </target>
+
+    <!--
+    The "javadoc" target creates Javadoc API documentation for the Java
+    classes included in your application.  Normally, this is only required
+    when preparing a distribution release, but is available as a separate
+    target in case the developer wants to create Javadocs independently.
+    -->
+    <target name="javadoc" depends="compile" description="Create Javadoc API documentation">
+        <mkdir dir="${output}/${javadoc}/docs/api"/>
+        <javadoc sourcepath="${src}" destdir="${output}/${javadoc}/docs/api" packagenames="*">
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.persist"/>
+        </javadoc>
+    </target>
+
+
+
+    <!-- Target which applies the changes required to Tomcat's common libraries -->
+    <target name="deploy_tomcat_common_libs" description="Update the Tomcat common libraries for XML parsers etc.">
+        <echo>Copying and deleting as-issued Tomcat XML parser libraries</echo>
+
+        <copy file="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar"
+            tofile="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar.original"
+            failonerror="false"/>
+        <delete file="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar"
+            failonerror="false"/>
+
+        <copy file="${env.CATALINA_HOME}/common/endorsed/xml-apis.jar"
+            tofile="${env.CATALINA_HOME}/common/endorsed/xml-apis.jar.original"
+            failonerror="false"/>
+        <delete file="${env.CATALINA_HOME}/common/endorsed/xml-apis.jar"
+            failonerror="false"/>
+
+        <echo>Copying in replacement libaries</echo>
+        <copy file="${xforms.lib}/dom3-xercesImpl.jar"
+            todir="${env.CATALINA_HOME}/common/endorsed"
+            overwrite="true"/>
+        <copy file="${xforms.lib}/dom3-xml-apis.jar"
+            todir="${env.CATALINA_HOME}/common/endorsed"
+            overwrite="true"/>
+    </target>
+
+
+
+
+    <!--
+    Clean build environment
+    Deletes directories and intermediate files.
+    -->
+    <target name="removeDependancyInfo"
+        description="cleans out the intellij records of previous compiles forcing the ide to recompile">
+        <delete dir="${classes}/.dependency-info"/>
+    </target>
+
+
+    <target name="build_PDFforms.war" depends="compile">
+        <!-- ======================================================================
+        Prepare YAWL PDF form WebApplication
+        -->
+        <mkdir dir="${yawl.pdfforms.app.name}/repository/"/>
+        <mkdir dir="${yawl.pdfforms.app.name}/secure/"/>
+        <mkdir dir="${yawl.pdfforms.app.name}/secure/certificates/"/>
+        <mkdir dir="${yawl.pdfforms.app.name}/secure/db/"/>
+        <mkdir dir="${yawl.pdfforms.app.name}/secure/genDir/"/>
+        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/lib"/>
+        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
+        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
+        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms"/>
+        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature"/>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/elements/data"
+                />
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
+            <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/unmarshal"
+                includes="YDecompositionParser.class"/>
+        </copy>
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib">
+            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+        </copy>
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
+            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
+        </copy>
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
+            <fileset dir="${pdf.libs}"/>
+        </copy>
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
+            <fileset dir="${persist.libs}"/>
+        </copy>
+
+        <copy file="${property.files}/log4j.properties" todir="${yawl.pdfforms.app.name}/WEB-INF/classes"/>
+        <replace file="${yawl.pdfforms.app.name}/WEB-INF/classes/log4j.properties">
+            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
+            <!-- switch the slashes (adjust win separators) if necessary -->
+            <replacefilter token="\" value="/" />
+        </replace>
+
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
+        </copy>
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce/interfaceD_WorkItemExecution">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine/interfce/interfaceD_WorkItemExecution"/>
+        </copy>
+        <!-- copy all supportive jsps & graphis into webapp -->
+        <copy todir="${yawl.pdfforms.app.name}">
+            <fileset dir="${classes}/au/edu/qut/yawl/PDFforms">
+                <include name="*.jsp"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.pdfforms.app.name}/graphics">
+            <fileset dir="${basedir}/graphics"/>
+        </copy>
+        <!-- copy all major support classes into webapp -->
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms">
+            <fileset dir="${classes}/au/edu/qut/yawl/PDFforms">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.worklist.app.name}/repository">
+            <fileset dir="${build.home}/PDFforms/repository"/>
+        </copy>
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature">
+            <fileset dir="${classes}/au/edu/qut/yawl/PDFforms/signature">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
+            <fileset dir="${classes}/au/edu/qut/yawl/worklist/model"/>
+        </copy>
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+            <fileset dir="${classes}/au/edu/qut/yawl/exceptions"/>
+        </copy>
+        <copy todir="${yawl.pdfforms.app.name}/WEB-INF">
+            <fileset file="${build.home}/${yawl.pdfforms.app.name}/web.xml"/>
+        </copy>
+        <!-- prepare Web Archive file -->
+        <jar destfile="${output}/${yawl.pdfforms.app.name}.war">
+            <fileset dir="${yawl.pdfforms.app.name}"/>
+        </jar>
+        <delete dir="${yawl.pdfforms.app.name}"/>
+    </target>
+
+</project>
