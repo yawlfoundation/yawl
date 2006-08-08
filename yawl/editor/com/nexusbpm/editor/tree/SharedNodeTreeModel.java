@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 
 import operation.WorkflowOperation;
@@ -62,12 +63,52 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
             }
             
             if( comparator.compare( newChild, neighbor ) < 0 ) {
-                insertNodeInto( newChild, parent, index );
+                doInsertion( newChild, parent, index );
                 return;
             }
             index += 1;
         }
-        insertNodeInto( newChild, parent, index );
+        doInsertion( newChild, parent, index );
+    }
+    
+    private void doInsertion( final SharedNode newChild, final SharedNode parent, final int index ) {
+        Runnable r = new Runnable() {
+            public void run() {
+                insertNodeInto( newChild, parent, index );
+            }
+        };
+        if( SwingUtilities.isEventDispatchThread() ) {
+            r.run();
+        }
+        else {
+            try {
+                SwingUtilities.invokeAndWait( r );
+            }
+            catch( Exception e ) {
+                // this shouldn't happen
+                LOG.error( "Error updating tree!", e );
+            }
+        }
+    }
+    
+    private void doRemoval( final SharedNode node ) {
+        Runnable r = new Runnable() {
+            public void run() {
+                SharedNodeTreeModel.super.removeNodeFromParent( node );
+            }
+        };
+        if( SwingUtilities.isEventDispatchThread() ) {
+            r.run();
+        }
+        else {
+            try {
+                SwingUtilities.invokeAndWait( r );
+            }
+            catch( Exception e ) {
+                // this shouldn't happen
+                LOG.error( "Error updating tree!", e );
+            }
+        }
     }
 
 	public void proxyDetaching(DataProxy proxy, Object data, DataProxy parent) {
@@ -81,9 +122,9 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
                 parentNode = ((EditorDataProxy) parent).getTreeNode();
 //            if( parentNode != null )
 //                parentNode.childCount = null;
-			super.removeNodeFromParent(((EditorDataProxy) proxy).getTreeNode());
+			doRemoval(((EditorDataProxy) proxy).getTreeNode());
 //			super.reload();
-			LOG.info("Well at least I tried to remove it...");
+//			LOG.info("Well at least I tried to remove it...");
 		}
 	}
     public void proxyDetached(DataProxy proxy, Object data, DataProxy parent) {}

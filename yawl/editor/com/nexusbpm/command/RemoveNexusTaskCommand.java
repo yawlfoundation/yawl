@@ -22,17 +22,16 @@ import au.edu.qut.yawl.persistence.managed.DataProxy;
 import com.nexusbpm.NexusWorkflow;
 
 /**
- * The RemoveNexusTaskCommand removes a task from a network. 
+ * The RemoveNexusTaskCommand removes a task from a network.
  * 
  * @author Matthew Sandoz
  * @author Nathan Rose
  */
-public class RemoveNexusTaskCommand extends AbstractCommand {
+public class RemoveNexusTaskCommand extends RemoveNetElementCommand {
     private DataContext context;
-	private DataProxy<YAtomicTask> taskProxy;
+    private DataProxy<YAtomicTask> taskProxy;
     private YAtomicTask task;
     
-    private DataProxy<YNet> netProxy;
     private YNet net;
     
     private YAWLServiceGateway gateway;
@@ -43,19 +42,19 @@ public class RemoveNexusTaskCommand extends AbstractCommand {
     private DataProxy<YSpecification> specProxy;
     private YSpecification spec;
     
-	public RemoveNexusTaskCommand( DataProxy taskProxy ) {
+    public RemoveNexusTaskCommand( DataProxy taskProxy ) {
+        super( taskProxy );
         this.context = taskProxy.getContext();
-		this.taskProxy = taskProxy;
+        this.taskProxy = taskProxy;
         this.task = this.taskProxy.getData();
-	}
+    }
     
     /**
      * Removes the task from its net
      * (Attach and detach are reversed for remove commands).
      */
-    public void attach() {
-        WorkflowOperation.detachNetElementFromNet( task );
-        context.detachProxy( taskProxy, task, netProxy );
+    protected void attach() {
+        super.attach();
         WorkflowOperation.detachDecompositionFromSpec( gateway );
         context.detachProxy( gatewayProxy, gateway, specProxy );
         WorkflowOperation.detachVariablesFromNet( netVariables );
@@ -65,17 +64,16 @@ public class RemoveNexusTaskCommand extends AbstractCommand {
      * Re-attaches the task to its net
      * (Attach and detach are reversed for remove commands).
      */
-    public void detach() {
+    protected void detach() {
         WorkflowOperation.attachDecompositionToSpec( gateway, spec );
         context.attachProxy( gatewayProxy, gateway, specProxy );
-        WorkflowOperation.attachNetElementToNet( task, net );
-        context.attachProxy( taskProxy, task, netProxy );
+        super.detach();
         WorkflowOperation.attachVariablesToNet( netVariables, net );
     }
     
-    public void perform() {
+    protected void perform() {
+        super.perform();
         net = task.getParent();
-        netProxy = context.getDataProxy( net, null );
         
         spec = net.getParent();
         specProxy = context.getDataProxy( spec, null );

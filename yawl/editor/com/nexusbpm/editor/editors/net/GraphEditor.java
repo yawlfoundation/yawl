@@ -896,15 +896,17 @@ public class GraphEditor extends JPanel
             }
         }
         
-        CompoundCommand taskCommand = new CompoundCommand( taskCommands );
-        CompoundCommand edgeCommand = new CompoundCommand( edgeCommands );
-        
-        List<Command> compoundList = new ArrayList<Command>();
-        compoundList.add( edgeCommand ); // remove all edges first
-        compoundList.add( taskCommand ); // then remove all tasks
-        CompoundCommand command = new CompoundCommand( compoundList );
-        
-        WorkflowEditor.getExecutor().executeCommand( command );
+        if( taskCommands.size() > 0 || edgeCommands.size() > 0 ) {
+            CompoundCommand taskCommand = new CompoundCommand( taskCommands );
+            CompoundCommand edgeCommand = new CompoundCommand( edgeCommands );
+            
+            List<Command> compoundList = new ArrayList<Command>();
+            compoundList.add( edgeCommand ); // remove all edges first
+            compoundList.add( taskCommand ); // then remove all tasks
+            CompoundCommand command = new CompoundCommand( compoundList );
+            
+            WorkflowEditor.getExecutor().executeCommand( command );
+        }
     }
 
     private void updateStatus(int status) {

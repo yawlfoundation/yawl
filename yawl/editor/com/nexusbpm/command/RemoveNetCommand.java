@@ -32,7 +32,7 @@ import au.edu.qut.yawl.persistence.managed.DataProxy;
  * @author Matthew Sandoz
  * @author Nathan Rose
  */
-public class RemoveNetCommand extends AbstractCommand {
+public class RemoveNetCommand extends RemoveDecompositionCommand {
 	private DataProxy<YNet> netProxy;
     private YNet net;
     
@@ -47,6 +47,7 @@ public class RemoveNetCommand extends AbstractCommand {
     private Map<YDecomposition, DataProxy> decompositions;
 	
 	public RemoveNetCommand( DataProxy netProxy ) {
+        super( netProxy );
 		this.netProxy = netProxy;
         context = netProxy.getContext();
 	}
@@ -70,6 +71,7 @@ public class RemoveNetCommand extends AbstractCommand {
             WorkflowOperation.detachDecompositionFromSpec( decomp );
             context.detachProxy( proxy, decomp, parentSpecProxy );
         }
+        super.attach();
     }
     
     /**
@@ -77,6 +79,7 @@ public class RemoveNetCommand extends AbstractCommand {
      */
     @Override
     protected void detach() throws Exception {
+        super.detach();
         for( YDecomposition decomp : decompositions.keySet() ) {
             DataProxy proxy = decompositions.get( decomp );
             WorkflowOperation.attachDecompositionToSpec( decomp, parentSpec );
@@ -149,6 +152,6 @@ public class RemoveNetCommand extends AbstractCommand {
                 flowParents.put( flow, proxy );
             }
         }
-        decompositions.put( net, netProxy );
+        super.perform();
     }
 }
