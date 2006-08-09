@@ -94,7 +94,7 @@ public class RemoveSpecificationCommand extends AbstractCommand {
          * @see au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor#visit(Object, Object, String)
          */
         public void visit( Object child, Object parent, String childLabel ) {
-            DataProxy childProxy = context.getDataProxy( child, null );
+            DataProxy childProxy = context.getDataProxy( child );
             if( childProxy != null ) {
                 DataProxy parentProxy = context.getParentProxy( childProxy );
                 proxies.add( childProxy );

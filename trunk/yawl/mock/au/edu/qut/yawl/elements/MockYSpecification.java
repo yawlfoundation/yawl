@@ -320,7 +320,7 @@ public class MockYSpecification {
         createNet.execute();
         
         DataProxy<YNet> netProxy = context.getDataProxy(
-                specProxy.getData().getDecompositions().get( 0 ), null );
+                specProxy.getData().getDecompositions().get( 0 ) );
         
         assert netProxy != null : "net proxy was null";
         
@@ -353,18 +353,18 @@ public class MockYSpecification {
                 NexusServiceInfo info = WorkflowOperation.getNexusServiceInfoForTask( (YAtomicTask) element );
                 if( info != null ) {
                     if( info.getServiceName().equals( "Jython" ) ) {
-                        jythonProxy = context.getDataProxy( element, null );
+                        jythonProxy = context.getDataProxy( element );
                     }
                     else if( info.getServiceName().equals( "EmailSender" ) ) {
-                        emailSenderProxy = context.getDataProxy( element, null );
+                        emailSenderProxy = context.getDataProxy( element );
                     }
                 }
             }
             else if( element instanceof YInputCondition ) {
-                inputProxy = context.getDataProxy( element, null );
+                inputProxy = context.getDataProxy( element );
             }
             else if( element instanceof YOutputCondition ) {
-                outputProxy = context.getDataProxy( element, null );
+                outputProxy = context.getDataProxy( element );
             }
         }
         

@@ -76,10 +76,10 @@ public class RemoveNexusTaskCommand extends RemoveNetElementCommand {
         net = task.getParent();
         
         spec = net.getParent();
-        specProxy = context.getDataProxy( spec, null );
+        specProxy = context.getDataProxy( spec );
         
         gateway = (YAWLServiceGateway) task.getDecompositionPrototype();
-        gatewayProxy = context.getDataProxy( gateway, null );
+        gatewayProxy = context.getDataProxy( gateway );
         
         String namePrefix = task.getID() + NexusWorkflow.NAME_SEPARATOR;
         netVariables = new ArrayList<YVariable>();

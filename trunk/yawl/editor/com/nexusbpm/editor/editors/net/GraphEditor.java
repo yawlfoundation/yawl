@@ -102,7 +102,6 @@ public class GraphEditor extends JPanel
 
     private Action _edgeEditModeAction;
     private Action _remove;
-    private Action _openDataEditor;
 
     private JToolBar _toolbar;
 
@@ -491,11 +490,11 @@ public class GraphEditor extends JPanel
             YFlow edge = (YFlow) proxy.getData();
             DataContext context = proxy.getContext();
             
-            EditorDataProxy edgeProxy = (EditorDataProxy) context.getDataProxy( edge, null );
+            EditorDataProxy edgeProxy = (EditorDataProxy) context.getDataProxy( edge );
             assert edgeProxy != null : "edge proxy was null";
-            EditorDataProxy sourceProxy = (EditorDataProxy) context.getDataProxy( edge.getPriorElement(), null );
+            EditorDataProxy sourceProxy = (EditorDataProxy) context.getDataProxy( edge.getPriorElement() );
             assert sourceProxy != null : "source proxy was null";
-            EditorDataProxy sinkProxy = (EditorDataProxy) context.getDataProxy( edge.getNextElement(), null );
+            EditorDataProxy sinkProxy = (EditorDataProxy) context.getDataProxy( edge.getNextElement() );
             assert sinkProxy != null : "sink proxy was null";
             
             Port sourcePort = sourceProxy.getGraphPort();
@@ -793,54 +792,6 @@ public class GraphEditor extends JPanel
         return true;
     }
 
-    /**
-     * Retrieves a list of items that should be removed from the graph if the
-     * currently selected items are to be removed, including: - The
-     * DomainObjectproxys for the currently selected GraphPorts, CapselaCells
-     * and GraphEdges. - The DomainObjectproxys for all the GraphEdges
-     * connected to the selected GraphPorts and CapselaCells.
-     * 
-     * Since this method returns a Set, there are not duplicate
-     * DomainObjectproxys returned.
-     */
-    private Set getRemoveSet() {
-
-        // Add the currently selected GraphPorts and GraphEdges to the delete list.
-        HashSet<EditorDataProxy> removeSet = new HashSet<EditorDataProxy>();
-        Object[] selectedArray = _graph.getSelectionCells();
-        for( int i = 0; i < selectedArray.length; i++ ) {
-            Object selected = selectedArray[ i ];
-            if( selected instanceof GraphPort ) {
-                removeSet.add( ( (GraphPort) selected ).getProxy() );
-            }
-            else if( selected instanceof GraphEdge ) {
-                removeSet.add( ( (GraphEdge) selected ).getProxy() );
-            }
-            else if( selected instanceof NexusCell ) {
-                removeSet.add( ( (NexusCell) selected ).getProxy() );
-            }
-        }
-
-        // Add the GraphEdges connected to the selected GraphPorts.
-        for( int i = 0; i < selectedArray.length; i++ ) {
-            Object selected = selectedArray[ i ];
-            Object[] descendants = _graph.getDescendants( new Object[] { selected } );
-            for( int j = 0; j < descendants.length; j++ ) {
-                Object descendant = descendants[ j ];
-                if( descendant instanceof GraphPort ) {
-                    GraphPort port = (GraphPort) descendant;
-                    for( Iterator iter = port.edges(); iter.hasNext(); ) {
-                        EditorDataProxy doc = ( (GraphEdge) iter.next() ).getProxy();
-                        removeSet.add( doc );
-                    }
-                }
-            }
-        }
-
-        // Return the compiled list.
-        return removeSet;
-    }
-
     private void deleteSelectedItems() {
         LOG.debug( "GraphEditor.deleteSelectedItems" );
         Object[] cells = _graph.getSelectionCells();
@@ -975,7 +926,7 @@ public class GraphEditor extends JPanel
 		synchronized( i ) {
 			while( i.hasNext() ) {
 				Object c = i.next();
-				EditorDataProxy proxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(c, null );
+				EditorDataProxy proxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(c);
 				NexusCell cell = proxy.getGraphCell();
 				Map map = createComponentAttributeMap( c );
 				cellAttributes.put( cell, map );
@@ -1009,9 +960,9 @@ public class GraphEditor extends JPanel
 					LOG.debug( "edge found: " + edge.toString() );
 //					boolean isDataEdge = ( edge instanceof DataEdge );
 					
-					EditorDataProxy edgeproxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(edge, null );
-					EditorDataProxy sourceproxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(edge.getPriorElement(), null );
-					EditorDataProxy sinkproxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(edge.getNextElement(), null );
+					EditorDataProxy edgeproxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(edge);
+					EditorDataProxy sourceproxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(edge.getPriorElement());
+					EditorDataProxy sinkproxy = (EditorDataProxy) _netProxy.getContext().getDataProxy(edge.getNextElement());
 
 //					if( isDataEdge && ( sourceproxy.equals( _flowproxy ) || sinkproxy.equals( _flowproxy ) ) ) {
 						// this is likely to be a data parameter edge going from the flow to a component, or from
@@ -1382,7 +1333,6 @@ public class GraphEditor extends JPanel
         _edgeEditModeAction = null;
         _runButton = null;
         _remove = null;
-        _openDataEditor = null;
         _toolbar = null;
         _statusIndicatorButton = null;
         _killButton = null;

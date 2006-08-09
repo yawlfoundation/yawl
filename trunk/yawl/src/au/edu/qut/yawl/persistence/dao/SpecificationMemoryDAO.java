@@ -14,7 +14,7 @@ import au.edu.qut.yawl.elements.YSpecification;
 public class SpecificationMemoryDAO implements SpecificationDAO{
     
 	private static final Log LOG = LogFactory.getLog( SpecificationMemoryDAO.class );
-    private Map<Long, YSpecification> specs = new HashMap<Long, YSpecification>();
+    private Map<String, YSpecification> specs = new HashMap<String, YSpecification>();
     private long nextdbID = 19;
     public static YSpecification testSpec = MockYSpecification.getSpecification();
 
@@ -23,7 +23,7 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
     }    
     
     public boolean delete(YSpecification m) {
-        specs.remove(m.getDbID());
+        specs.remove(m.getID());
         return true;
     }
 
@@ -33,12 +33,12 @@ public class SpecificationMemoryDAO implements SpecificationDAO{
 
     public int save(YSpecification spec) {
         if (spec.getDbID() == null) spec.setDbID(getNextdbID());
-    	specs.put(spec.getDbID(), spec);
+    	specs.put(spec.getID(), spec);
         return 0;
     }
 
     public Serializable getKey(YSpecification m) {
-        return m.getDbID();
+        return m.getID();
     }
 
 	public List getChildren(Object o) {

@@ -1,25 +1,20 @@
 package au.edu.qut.yawl.persistence.managed;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
-import java.util.List;
-import java.util.Set;
 
+import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
-import junit.framework.TestCase;
 
-public class TestDataContext extends TestCase implements VetoableChangeListener{
+public class TestDataContext extends TestCase implements DataProxyStateChangeListener {
 
 	private PropertyChangeEvent lastEvent;
 	
@@ -31,49 +26,73 @@ public class TestDataContext extends TestCase implements VetoableChangeListener{
 		super.tearDown();
 	}
 
-	public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
-		lastEvent = evt;
-	}
+    public void proxyAttached( DataProxy proxy, Object data, DataProxy parent ) {
+    }
+
+    public void proxyAttaching( DataProxy proxy, Object data, DataProxy parent ) {
+    }
+
+    public void proxyDetached( DataProxy proxy, Object data, DataProxy parent ) {
+    }
+
+    public void proxyDetaching( DataProxy proxy, Object data, DataProxy parent ) {
+    }
+
+    public void propertyChange( PropertyChangeEvent evt ) {
+        lastEvent = evt;
+    }
 
 	public void testMemDataContext() {
 		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
-		DataContext dc = new DataContext(memdao);
-		DataProxy<YSpecification> dp;
-		dp = dc.getDataProxy("/home/msandoz", this);
-		DataProxy root = dp;
+		DataContext context = new DataContext(memdao);
+        DataProxy<YSpecification> proxy;
+        
+        String rootObject = "/home";
+        DataProxy rootProxy = context.createProxy(rootObject, this);
+        context.attachProxy(rootProxy, rootObject, null);
+        
+        String homeObject = rootObject + "/msandoz";
+		DataProxy homeProxy = context.createProxy(homeObject,this);
+        context.attachProxy(homeProxy, homeObject, rootProxy);
 		
-		getSpecProxy(dc, "/home/aTest", "aTest");
-		getSpecProxy(dc, "/home/msandoz/aTest", "aTest");
-		dp = getSpecProxy(dc, "/home/msandoz/templates/bTest", "bTest");
-		YSpecification spec = dp.getData();
-		DataProxy dp2 = dc.getDataProxy(spec, this);
+		createSpecAndProxy(context, "/home/aTest", "aTest", rootProxy);
+		createSpecAndProxy(context, "/home/msandoz/aTest", "aTest", homeProxy);
+        
+        String templatesObject = homeObject + "/templates";
+        DataProxy templatesProxy = context.createProxy(templatesObject, this);
+        context.attachProxy(templatesProxy, templatesObject, homeProxy);
+        
+		proxy = createSpecAndProxy(context, "/home/msandoz/templates/bTest", "bTest", templatesProxy);
+		YSpecification spec = proxy.getData();
+		DataProxy proxy2 = context.getDataProxy(spec);
 	
-		assertEquals(dp, dp2);
-		Object o = dc.getKeyFor(dp);
+		assertEquals(proxy, proxy2);
+		Object o = context.getKeyFor(proxy);
 		assertNotNull(o);
 		assertEquals(o, spec.getID());
 		lastEvent = null;
 		try {
-			dp.setAttribute("name", "aNewName");
+			proxy.setAttribute("name", "aNewName");
 		}
 		catch(Exception e) {fail("should have been able to set attribute");}
-		assertEquals(lastEvent.getSource(), spec);
+		assertEquals(lastEvent.getSource(), context.getDataProxy(spec));
 		assertEquals(lastEvent.getPropertyName(), "name");
 		assertEquals(lastEvent.getOldValue(), "bTest");
 		assertEquals(lastEvent.getNewValue(), "aNewName");
-		dc.save(dp);
-		dc.delete(dp);
+		context.save(proxy);
+		context.delete(proxy);
 		try {
-			dc.getKeyFor(dp2);
+			context.getKeyFor(proxy2);
 			fail("Should have thrown an exception");
 		} catch (NullPointerException npe) {}
 	}
 
-	public DataProxy<YSpecification> getSpecProxy(DataContext dc, String uri, String name) {
-		YSpecification spec = new YSpecification();
+	public DataProxy<YSpecification> createSpecAndProxy(
+            DataContext dc, String uri, String name, DataProxy parent) {
+		YSpecification spec = new YSpecification(uri);
 		spec.setName(name);
-		spec.setID(uri);
-		DataProxy<YSpecification> dp = dc.getDataProxy(spec, this);
+		DataProxy<YSpecification> dp = dc.createProxy(spec,this);
+        dc.attachProxy(dp, spec, parent);
 		dc.save(dp);
 		return dp;
 	}

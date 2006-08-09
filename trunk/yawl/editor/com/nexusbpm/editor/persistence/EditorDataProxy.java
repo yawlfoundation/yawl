@@ -289,7 +289,7 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 			if( getData() instanceof YNet ) {
 				_editor = new NetEditor();
                 for( YExternalNetElement element : ((YNet) getData()).getNetElements() ) {
-                    DataProxy proxy = getContext().getDataProxy( element, null );
+                    DataProxy proxy = getContext().getDataProxy( element );
                     _editor.addListeningProxy( proxy );
                 }
 			}

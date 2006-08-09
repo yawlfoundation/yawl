@@ -7,10 +7,15 @@
  */
 package com.nexusbpm.command;
 
-import java.util.LinkedList;
+import java.io.File;
+import java.net.URI;
 import java.util.List;
 
 import operation.WorkflowOperation;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
@@ -20,19 +25,20 @@ import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 /**
  * The CreateFolderCommand creates a sub-folder in the specified folder.
  * 
- * TODO needs to work for a context attached to a file system
- * TODO needs to not depend on com.nexusbpm.editor
- * 
  * @author Nathan Rose
  */
-public class CreateFolderCommand extends AbstractCommand {
+public class CreateFolderCommand extends AbstractFileSystemCommand {
+    private static final Log LOG = LogFactory.getLog( CreateSpecificationCommand.class );
+    
 	private DataContext context;
+    
     private SharedNode parentNode;
-    private String parentPath;
+    private DataProxy parentProxy;
     private String folderName;
-    private DataProxy folderProxy;
-    private String fullname;
 	
+    private Object folder;
+    private DataProxy folderProxy;
+    
     /**
      * NOTE: the parent proxy needs to be connected to the context.
      * @param parent
@@ -40,9 +46,9 @@ public class CreateFolderCommand extends AbstractCommand {
      */
 	public CreateFolderCommand( SharedNode parentNode, String folderName ) {
         this.parentNode = parentNode;
-        this.parentPath = parentNode.getProxy().getData().toString();
-		this.context = parentNode.getProxy().getContext();
+        this.parentProxy = parentNode.getProxy();
         this.folderName = folderName;
+		this.context = parentProxy.getContext();
 	}
 	
     /**
@@ -50,7 +56,15 @@ public class CreateFolderCommand extends AbstractCommand {
      */
     @Override
     protected void attach() throws Exception {
-        context.attachProxy( folderProxy, fullname, parentNode.getProxy() );
+        if( folder instanceof File ) {
+            if( ((File) folder).mkdir() ) {
+                LOG.debug( "Folder '" + folder + "' was created successfully" );
+            }
+            else {
+                LOG.warn( "The folder '" + folder + "' could not be created." );
+            }
+        }
+        context.attachProxy( folderProxy, folder, parentProxy );
     }
     
     /**
@@ -58,7 +72,15 @@ public class CreateFolderCommand extends AbstractCommand {
      */
     @Override
     protected void detach() throws Exception {
-        context.detachProxy( folderProxy, fullname, parentNode.getProxy() );
+        context.detachProxy( folderProxy, folder, parentProxy );
+        if( folder instanceof File ) {
+            if( ((File) folder).delete() ) {
+                LOG.debug( "file '" + folder + "' was deleted successfully" );
+            }
+            else {
+                LOG.warn( "The folder '" + folder + "' could not be deleted." );
+            }
+        }
     }
     
     /**
@@ -66,18 +88,30 @@ public class CreateFolderCommand extends AbstractCommand {
      */
     @Override
     protected void perform() throws Exception {
-        List<String> ids = new LinkedList<String>();
-        for( int index = 0; index < parentNode.getChildCount(); index++ ) {
-            ids.add( ((SharedNode) parentNode.getChildAt( index )).getProxy().getLabel() );
-        }
-        String name = WorkflowOperation.getAvailableID( ids, WorkflowOperation.convertNameToID( folderName ) );
+        Object parent = parentProxy.getData();
+        String parentPath = getPath( parent, true );
+        List<String> ids = getChildNames( parentNode );
+        String name;
         
-        fullname = parentPath + "/";
+        name = WorkflowOperation.getAvailableID( ids, WorkflowOperation.convertNameToID( folderName ) );
+        
+        String fullname = parentPath + "/";
         if( fullname.endsWith( "//" ) )
             fullname = fullname.substring( 0, fullname.length() - 1 );
         fullname = fullname + name;
         
-        folderProxy = context.createProxy( fullname, (SharedNodeTreeModel) parentNode.getTreeModel() );
+        if( parentPath.startsWith( "file:" ) ) {
+            // create new folder
+            LOG.debug( "creating real folder with name " + fullname );
+            folder = new File( new URI( fullname ) );
+        }
+        else {
+            // create new virtual folder
+            LOG.debug( "creating virtual folder with name " + fullname );
+            folder = fullname;
+        }
+        
+        folderProxy = context.createProxy( folder, (SharedNodeTreeModel) parentNode.getTreeModel() );
         folderProxy.setLabel( fullname.substring( fullname.lastIndexOf( "/" ) + 1 ) );
     }
 }

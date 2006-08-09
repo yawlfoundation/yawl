@@ -70,7 +70,7 @@ public class CreateNexusComponentCommand extends AbstractCommand {
         WorkflowOperation.attachDecompositionToSpec( gateway, netProxy.getData().getParent() );
         WorkflowOperation.attachNetElementToNet( task, netProxy.getData() );
         WorkflowOperation.attachVariablesToNet( netVariables, netProxy.getData() );
-        DataProxy specProxy = context.getDataProxy( netProxy.getData().getParent(), null );
+        DataProxy specProxy = context.getDataProxy( netProxy.getData().getParent() );
         context.attachProxy( gatewayProxy, gateway, specProxy );
         context.attachProxy( taskProxy, task, netProxy );
     }
@@ -83,7 +83,7 @@ public class CreateNexusComponentCommand extends AbstractCommand {
         WorkflowOperation.detachDecompositionFromSpec( gateway );
         WorkflowOperation.detachNetElementFromNet( task );
         WorkflowOperation.detachVariablesFromNet( netVariables );
-        DataProxy specProxy = context.getDataProxy( netProxy.getData().getParent(), null );
+        DataProxy specProxy = context.getDataProxy( netProxy.getData().getParent() );
         context.detachProxy( gatewayProxy, gateway, specProxy );
         context.detachProxy( taskProxy, task, netProxy );
     }

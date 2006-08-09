@@ -67,7 +67,7 @@ public class CreateFlowCommand extends AbstractCommand {
      */
     @Override
     protected void perform() throws Exception {
-        netProxy = context.getDataProxy( targetProxy.getData().getParent(), null );
+        netProxy = context.getDataProxy( targetProxy.getData().getParent() );
         String error = validateFlow( sourceProxy.getData(), targetProxy.getData() );
         if( error != null ) {
             throw new YStateException( error );
