@@ -1,10 +1,8 @@
 package com.nexusbpm.editor.tree;
 
 import java.beans.PropertyChangeEvent;
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +20,7 @@ import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.state.YInternalCondition;
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
@@ -34,7 +33,7 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 	public void propertyChange(PropertyChangeEvent evt) {
         if( evt.getPropertyName().equals( DataProxyStateChangeListener.PROPERTY_NAME ) ) {
             if( !shouldFilter(evt.getSource()) ) {
-                super.nodeChanged( ((EditorDataProxy)evt.getSource()).getTreeNode() );
+                doNodeChange( ((EditorDataProxy)evt.getSource()).getTreeNode() );
             }
         }
 	}
@@ -71,24 +70,27 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
         doInsertion( newChild, parent, index );
     }
     
+    private void doNodeChange( final SharedNode node ) {
+        Runnable r = new Runnable() {
+            public void run() {
+                SharedNodeTreeModel.super.nodeChanged( node );
+                if( node.getParent() != null ) {
+                    SharedNode parent = (SharedNode) node.getParent();
+                    Collections.sort( parent.getChildren(), comparator );
+                    SharedNodeTreeModel.super.nodeStructureChanged( parent );
+                }
+            }
+        };
+        runOnSwingThread( r );
+    }
+    
     private void doInsertion( final SharedNode newChild, final SharedNode parent, final int index ) {
         Runnable r = new Runnable() {
             public void run() {
                 insertNodeInto( newChild, parent, index );
             }
         };
-        if( SwingUtilities.isEventDispatchThread() ) {
-            r.run();
-        }
-        else {
-            try {
-                SwingUtilities.invokeAndWait( r );
-            }
-            catch( Exception e ) {
-                // this shouldn't happen
-                LOG.error( "Error updating tree!", e );
-            }
-        }
+        runOnSwingThread( r );
     }
     
     private void doRemoval( final SharedNode node ) {
@@ -97,6 +99,10 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
                 SharedNodeTreeModel.super.removeNodeFromParent( node );
             }
         };
+        runOnSwingThread( r );
+    }
+    
+    private void runOnSwingThread( Runnable r ) {
         if( SwingUtilities.isEventDispatchThread() ) {
             r.run();
         }
@@ -173,8 +179,12 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
 			return result;
 		}
         private boolean isDirectory( DataProxy proxy ) {
-            return proxy.getData() instanceof String ||
-                ( proxy.getData() instanceof File && ((File) proxy.getData()).isDirectory() );
+            if( proxy.getData() instanceof DatasourceFolder ) {
+                return ((DatasourceFolder) proxy.getData()).isFolder();
+            }
+            else {
+                return false;
+            }
         }
     }
 
@@ -224,21 +234,21 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
                         }
                         
                         if ( ! shouldFilter( childProxy ) ) {
-                            String x = null;
-                            try {
-                                String label = ((EditorDataProxy) childProxy).getLabel();
-                                if (label == null) label = "Uninitialized";
-                                x = URLDecoder.decode(label, "UTF-8");
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                            }
-                            int y1 = x.lastIndexOf("/");
-                            if (y1 == x.length() - 1) {
-                                y1 = x.substring(0,y1 - 1).lastIndexOf("/");
-                            }
-                            int y2 = x.lastIndexOf("\\");
-                            String x2 = x.substring(Math.max(y1, y2) + 1);
-                            node.getProxy().setLabel(x2);
+//                            String x = null;
+//                            try {
+//                                String label = ((EditorDataProxy) childProxy).getLabel();
+//                                if (label == null) label = "Uninitialized";
+//                                x = URLDecoder.decode(label, "UTF-8");
+//                            } catch (UnsupportedEncodingException e) {
+//                                e.printStackTrace();
+//                            }
+//                            int y1 = x.lastIndexOf("/");
+//                            if (y1 == x.length() - 1) {
+//                                y1 = x.substring(0,y1 - 1).lastIndexOf("/");
+//                            }
+//                            int y2 = x.lastIndexOf("\\");
+//                            String x2 = x.substring(Math.max(y1, y2) + 1);
+//                            node.getProxy().setLabel(x2);
                             
                             children.add(node);
                         }

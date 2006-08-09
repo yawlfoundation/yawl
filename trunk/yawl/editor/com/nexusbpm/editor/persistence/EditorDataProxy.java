@@ -19,6 +19,8 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
+import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.NexusWorkflow;
@@ -228,11 +230,15 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 				if (value != null) iconName = value;
 			}
 		}
-		else if( getData() instanceof File ) {
-            if( ((File) getData()).isDirectory() ) {
+        else if( getData() instanceof DatasourceRoot ) {
+            iconName = DatasourceRoot.class.getName();
+        }
+        else if( getData() instanceof DatasourceFolder ) {
+            DatasourceFolder folder = (DatasourceFolder) getData();
+            if( folder.isFolder() ) {
                 return String.class.getName();
             }
-            else if( ((File) getData()).toString().toLowerCase().endsWith( ".xml" ) ) {
+            else if( folder.getFile().toString().toLowerCase().endsWith( ".xml" ) ) {
                 return File.class.getName();
             }
             else {

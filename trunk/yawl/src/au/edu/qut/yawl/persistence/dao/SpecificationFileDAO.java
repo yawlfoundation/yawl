@@ -114,19 +114,21 @@ public class SpecificationFileDAO implements SpecificationDAO {
         return m.getID();
     }
 
-	public List getChildren(Object filename) {
-		LOG.debug("getting file children of " + filename);
+	public List getChildren(Object object) {
+		LOG.debug("getting file children of " + object);
 		List retval = new ArrayList();
-        if( filename instanceof String || filename instanceof DatasourceRoot ) {
-            filename = filename.toString();
-        }
-        else if( filename instanceof File ) {
-            filename = ((File) filename).toURI().toString();
-        }
-		if( filename instanceof String ) {
+//        if( filename instanceof String || filename instanceof DatasourceRoot ) {
+//            filename = filename.toString();
+//        }
+//        else if( filename instanceof File ) {
+//            filename = ((File) filename).toURI().toString();
+//        }
+//		if( filename != null ) {
+        if( object instanceof DatasourceFolder ) {
+            String filename = ((DatasourceFolder) object).getPath();
 			File f = null;
 			try {
-				f = new File(new URI((String) filename));
+				f = new File( new URI( filename ) );
 			} catch (URISyntaxException e) {
 				LOG.error("bad file name in file::getChildren", e);
 			}
@@ -135,6 +137,7 @@ public class SpecificationFileDAO implements SpecificationDAO {
 //                if( spec != null )
 //                    retval.add(spec);
 //			} else {
+            if( f != null ) {
 				File[] files = null;
 				files = f.listFiles();
 				if (files != null) {
@@ -148,13 +151,14 @@ public class SpecificationFileDAO implements SpecificationDAO {
                                 if( spec != null )
                                     retval.add(spec);
                                 else
-                                    retval.add(file);
+                                    retval.add( new DatasourceFolder( file, (DatasourceFolder) object ) );
                             }
                             else
-                                retval.add(file);
+                                retval.add( new DatasourceFolder( file, (DatasourceFolder) object ) );
                         }
 					}
 				}
+            }
 //			}
 		}
 		return retval;

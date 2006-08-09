@@ -17,7 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 
 import com.nexusbpm.editor.tree.SharedNode;
 
@@ -31,8 +31,9 @@ public abstract class AbstractFileSystemCommand extends AbstractCommand {
     
     protected List<String> getChildNames( SharedNode folder ) throws URISyntaxException {
         List<String> ids = new LinkedList<String>();
-        String parentPath = getPath( folder.getProxy().getData(), true );
-        if( parentPath.startsWith( "file:" ) ) {
+        DatasourceFolder parent = (DatasourceFolder) folder.getProxy().getData();
+        String parentPath = parent.getPath();
+        if( parent.isSchemaFile() ) {
             LOG.trace( "" + parentPath );
             File[] children = new File( new URI( parentPath ) ).listFiles();
             for( int index = 0; index < children.length; index++ ) {
@@ -44,7 +45,7 @@ public abstract class AbstractFileSystemCommand extends AbstractCommand {
         else {
             for( int index = 0; index < folder.getChildCount(); index++ ) {
                 SharedNode child = (SharedNode) folder.getChildAt( index );
-                String id = getPath( child.getProxy().getData(), false );
+                String id = getPath( child.getProxy().getData() );
                 LOG.debug( "used ID:" + id );
                 ids.add( getLastPartOf( id ) );
             }
@@ -52,30 +53,19 @@ public abstract class AbstractFileSystemCommand extends AbstractCommand {
         return ids;
     }
     
-    protected String getPath( Object object, boolean requireFolder ) {
+    protected String getPath( Object object ) {
         String path = "";
         LOG.trace( "getting path of object: " + object );
         if( object == null ) {
             throw new IllegalArgumentException( "Cannot get the path for null!" );
         }
-        else if( object instanceof File ) {
-            LOG.trace( "object is a real folder" );
-            File file = (File) object;
-            path = file.toURI().toString();
-        }
-        else if( object instanceof String || object instanceof DatasourceRoot ) {
-            LOG.trace( "object is a virtual folder or datasource root" );
-            path = object.toString();
-        }
-        else if( requireFolder ) {
-            throw new IllegalArgumentException( "Expected to find a folder, but found a " +
-                    object.getClass().getName() + "!" );
+        else if( object instanceof DatasourceFolder ) {
+            LOG.trace( "object is a folder" );
+            DatasourceFolder folder = (DatasourceFolder) object;
+            path = folder.getPath();
         }
         else if( object instanceof YSpecification ) {
             path = ((YSpecification) object).getID();
-        }
-        else if( object instanceof String ) {
-            path = (String) object;
         }
         else {
             throw new IllegalArgumentException( "Objects of type " +

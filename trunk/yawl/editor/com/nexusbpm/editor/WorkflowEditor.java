@@ -229,9 +229,9 @@ public class WorkflowEditor extends javax.swing.JFrame {
         SpecificationDAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
         DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
         
-        Object o = new DatasourceRoot("virtual://memory/home/");
-        EditorDataProxy memdp = (EditorDataProxy) memdc.createProxy(o, null);
-        memdc.attachProxy(memdp, o, null);
+        DatasourceRoot virtualRoot = new DatasourceRoot("virtual://memory/home/");
+        EditorDataProxy memdp = (EditorDataProxy) memdc.createProxy(virtualRoot, null);
+        memdc.attachProxy(memdp, virtualRoot, null);
         
 //        SharedNode memRootNode = new SharedNode(memdp, o);
         SharedNode memRootNode = memdp.getTreeNode();
@@ -255,10 +255,10 @@ public class WorkflowEditor extends javax.swing.JFrame {
         SpecificationDAO filedao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
         DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
         
-        String dataroot = new File(".").toURI().normalize().toString();
-        o = new DatasourceRoot(dataroot);
-        EditorDataProxy filedp = (EditorDataProxy) filedc.createProxy(o, null);
-        filedc.attachProxy(filedp, o, null);
+        File fileRootObject= new File( new File(".").getAbsoluteFile().toURI().normalize() );
+        DatasourceRoot fileRoot = new DatasourceRoot(fileRootObject);
+        EditorDataProxy filedp = (EditorDataProxy) filedc.createProxy(fileRoot, null);
+        filedc.attachProxy(filedp, fileRoot, null);
         
 //        SharedNode fileRootNode = new SharedNode(filedp, o);
         SharedNode fileRootNode = filedp.getTreeNode();
@@ -284,9 +284,9 @@ public class WorkflowEditor extends javax.swing.JFrame {
             SpecificationDAO hibernatedao = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE).getSpecificationModelDAO();
             DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
             
-            o = new DatasourceRoot("hibernate://home/");
-            EditorDataProxy hibdp = (EditorDataProxy) hibdc.createProxy(o, null);
-            hibdc.attachProxy(hibdp, o, null);
+            DatasourceRoot hibernateRoot = new DatasourceRoot("hibernate://home/");
+            EditorDataProxy hibdp = (EditorDataProxy) hibdc.createProxy(hibernateRoot, null);
+            hibdc.attachProxy(hibdp, hibernateRoot, null);
             
 //            SharedNode hibernateRootNode = new SharedNode(hibdp, o);
             SharedNode hibernateRootNode = hibdp.getTreeNode();
@@ -463,9 +463,10 @@ public class WorkflowEditor extends javax.swing.JFrame {
         SpecificationDAO componentsDAO = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
         DataContext componentsContext = new DataContext(componentsDAO, EditorDataProxy.class);
         
-        o = new DatasourceRoot("virtual://components/");
-        EditorDataProxy componentsRootProxy = (EditorDataProxy) componentsContext.createProxy(o, null);
-        componentsContext.attachProxy(componentsRootProxy, o, null);
+        DatasourceRoot componentsRoot = new DatasourceRoot("virtual://components/");
+        EditorDataProxy componentsRootProxy =
+            (EditorDataProxy) componentsContext.createProxy(componentsRoot, null);
+        componentsContext.attachProxy(componentsRootProxy, componentsRoot, null);
         
 //        SharedNode componentsRootNode = new SharedNode(componentsRootProxy, o);
         SharedNode componentsRootNode = componentsRootProxy.getTreeNode();

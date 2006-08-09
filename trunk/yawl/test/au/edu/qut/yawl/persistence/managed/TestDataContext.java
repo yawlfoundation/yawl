@@ -13,6 +13,8 @@ import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
+import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 
 public class TestDataContext extends TestCase implements DataProxyStateChangeListener {
 
@@ -47,20 +49,20 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
 		DataContext context = new DataContext(memdao);
         DataProxy<YSpecification> proxy;
         
-        String rootObject = "/home";
-        DataProxy rootProxy = context.createProxy(rootObject, this);
-        context.attachProxy(rootProxy, rootObject, null);
+        DatasourceRoot root = new DatasourceRoot("/home");
+        DataProxy rootProxy = context.createProxy(root, this);
+        context.attachProxy(rootProxy, root, null);
         
-        String homeObject = rootObject + "/msandoz";
-		DataProxy homeProxy = context.createProxy(homeObject,this);
-        context.attachProxy(homeProxy, homeObject, rootProxy);
+        DatasourceFolder home = new DatasourceFolder("/home/msandoz", root);
+		DataProxy homeProxy = context.createProxy(home,this);
+        context.attachProxy(homeProxy, home, rootProxy);
 		
 		createSpecAndProxy(context, "/home/aTest", "aTest", rootProxy);
 		createSpecAndProxy(context, "/home/msandoz/aTest", "aTest", homeProxy);
         
-        String templatesObject = homeObject + "/templates";
-        DataProxy templatesProxy = context.createProxy(templatesObject, this);
-        context.attachProxy(templatesProxy, templatesObject, homeProxy);
+        DatasourceFolder templates = new DatasourceFolder("/home/msandoz/templates",home);
+        DataProxy templatesProxy = context.createProxy(templates, this);
+        context.attachProxy(templatesProxy, templates, homeProxy);
         
 		proxy = createSpecAndProxy(context, "/home/msandoz/templates/bTest", "bTest", templatesProxy);
 		YSpecification spec = proxy.getData();

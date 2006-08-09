@@ -12,7 +12,6 @@ package au.edu.qut.yawl.persistence.managed;
  * Created on April 20, 2006, 5:24 PM
  */
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +26,7 @@ import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAO;
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.util.HashBag;
 import au.edu.qut.yawl.util.RemoveNetConditionsOperation;
 import au.edu.qut.yawl.util.VisitSpecificationOperation;
@@ -75,7 +75,7 @@ public class DataContext {
     /** Maps data objects to their proxies. */
     private Map<Object, DataProxy> proxyMap = new HashMap<Object, DataProxy>();
     private HashBag<DataProxy,DataProxy> hierarchy;
-    private DataProxy root;
+    private Map<DataProxy, DataProxy> parents = new HashMap<DataProxy, DataProxy>();
     
     /**
      * Returns the data proxy for the given object. If there is no proxy for that
@@ -92,13 +92,6 @@ public class DataContext {
     public Object getData(DataProxy proxyObject) {
         assert dataMap.containsKey(proxyObject) : "attempting to access the data from a disconnected proxy";
         return dataMap.get(proxyObject);
-    }
-    
-    public void setData(DataProxy proxyObject, Object data) {
-        // remove the old mapping
-        removeFromMaps(proxyObject, getData(proxyObject));
-        // then put in the new mapping
-        addToMaps(proxyObject, data);
     }
     
     /**
@@ -133,6 +126,8 @@ public class DataContext {
                 else {
                     dataProxy.setLabel(spec.getName());
                 }
+            } else if( object instanceof DatasourceFolder ) {
+                dataProxy.setLabel( ((DatasourceFolder) object).getName() );
             } else {
 				dataProxy.setLabel(object.toString());
 			}
@@ -163,7 +158,7 @@ public class DataContext {
 		System.out.println("saving " + spec);
         
 		if (spec != null) {
-	    	dao.save((YSpecification) getData(dataProxy));
+	    	dao.save(spec);
 		}
     }
     
@@ -221,38 +216,7 @@ public class DataContext {
     }
     
     public DataProxy getParentProxy(DataProxy child) {
-        DataProxy retval = null;
-        if( child.getData() != null
-                && child.getData() instanceof Parented
-                && ((Parented)child.getData()).getParent() != null ) {
-            retval = getDataProxy( ((Parented)child.getData()).getParent() );
-        }
-        else if( child.getData() != null
-                && child.getData() instanceof YSpecification ) {
-            String id = ((YSpecification)child.getData()).getID();
-            if( id.replaceAll( "\\\\", "/" ).indexOf( "/" ) >= 0 ) {
-                id = id.substring( 0, id.replaceAll( "\\\\", "/" ).lastIndexOf( "/" ) );
-                retval = getDataProxy( id );
-            }
-            else {
-                retval = null;
-            }
-        }
-        else if( child.getData() != null
-                && child.getData() instanceof File ) {
-            retval = getDataProxy( ((File) child.getData()).getParentFile() );
-        }
-        else if( child.getData() != null
-                && child.getData() instanceof String ) {
-            String path = (String) child.getData();
-            if( path.indexOf( "/" ) >= 0 ) {
-                retval = getDataProxy( path.substring( 0, path.lastIndexOf( "/" ) ) );
-            }
-        }
-        if( retval == null && hierarchy.get( root ).contains( child ) ) {
-            retval = root;
-        }
-        return retval;
+        return parents.get( child );
     }
     
     /**
@@ -260,14 +224,9 @@ public class DataContext {
      * @param childProxy
      */
     private void addToHierarchy(DataProxy childProxy, DataProxy parentProxy) {
+        parents.put( childProxy, parentProxy );
         if( parentProxy != null ) {
             hierarchy.put(parentProxy, childProxy);
-        }
-        else {
-            if( root != null ) {
-                LOG.warn( "setting new root: " + getData( childProxy ) );
-            }
-            root = childProxy;
         }
     }
     
@@ -275,6 +234,7 @@ public class DataContext {
      * Removes the child proxy, and all of its children, from the hierarchy.
      */
     private void removeFromHierarchy(DataProxy childProxy, DataProxy parentProxy) {
+        parents.remove( childProxy );
         if( parentProxy != null && hierarchy.get( parentProxy ) != null ) {
             hierarchy.get( parentProxy ).remove( childProxy );
 //            LOG.info("removing " + childProxy.getLabel() + " from " + getParentProxy( childProxy ).getLabel());

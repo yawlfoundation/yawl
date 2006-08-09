@@ -10,7 +10,10 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
+
 import com.nexusbpm.command.RenameElementCommand;
+import com.nexusbpm.command.RenameFolderCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 
 
@@ -66,8 +69,14 @@ public class SharedNodeEditor extends DefaultTreeCellEditor {
 		String newName = cellEditorValue;
 		String oldName = _node.getProxy().getLabel();
 		if( !oldName.equals( newName ) ) {
-            WorkflowEditor.getExecutor().executeCommand(
-                    new RenameElementCommand( _node.getProxy(), newName, oldName ) );
+            if( _node.getProxy().getData() instanceof DatasourceFolder ) {
+                WorkflowEditor.getExecutor().executeCommand(
+                        new RenameFolderCommand( _node, newName ) );
+            }
+            else {
+                WorkflowEditor.getExecutor().executeCommand(
+                        new RenameElementCommand( _node.getProxy(), newName, oldName ) );
+            }
 //            if( _node.getProxy().getData() instanceof String ) {
 //                // TODO renaming folders will be complicated....
 //                _node.getProxy().setLabel( newName );

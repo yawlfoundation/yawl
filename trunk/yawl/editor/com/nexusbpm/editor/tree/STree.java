@@ -48,6 +48,7 @@ import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
@@ -747,16 +748,8 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             // TODO make items visible/invisible as appropriate for the root
             menu.add( createFolder );
             menu.add( createSpecification );
-        } else if( data instanceof String ) {
-            // TODO show items appropriate for virtual folders
-            menu.add( createFolder );
-            menu.add( createSpecification );
-            menu.add( new JPopupMenu.Separator() );
-            menu.add( rename );
-            menu.add( new JPopupMenu.Separator() );
-            menu.add( delete );
-        } else if( data instanceof File ) {
-            // TODO show items appropriate for a filesystem
+        } else if( data instanceof DatasourceFolder ) {
+            // TODO show items appropriate for folders
             menu.add( createFolder );
             menu.add( createSpecification );
             menu.add( new JPopupMenu.Separator() );

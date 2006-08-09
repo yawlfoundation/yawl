@@ -16,6 +16,7 @@ import operation.WorkflowOperation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
@@ -33,10 +34,10 @@ public class CreateFolderCommand extends AbstractFileSystemCommand {
 	private DataContext context;
     
     private SharedNode parentNode;
-    private DataProxy parentProxy;
+    private DataProxy<DatasourceFolder> parentProxy;
     private String folderName;
 	
-    private Object folder;
+    private DatasourceFolder folder;
     private DataProxy folderProxy;
     
     /**
@@ -56,8 +57,8 @@ public class CreateFolderCommand extends AbstractFileSystemCommand {
      */
     @Override
     protected void attach() throws Exception {
-        if( folder instanceof File ) {
-            if( ((File) folder).mkdir() ) {
+        if( folder.isSchemaFile() ) {
+            if( folder.getFile().mkdir() ) {
                 LOG.debug( "Folder '" + folder + "' was created successfully" );
             }
             else {
@@ -73,8 +74,8 @@ public class CreateFolderCommand extends AbstractFileSystemCommand {
     @Override
     protected void detach() throws Exception {
         context.detachProxy( folderProxy, folder, parentProxy );
-        if( folder instanceof File ) {
-            if( ((File) folder).delete() ) {
+        if( folder.isSchemaFile() ) {
+            if( folder.getFile().delete() ) {
                 LOG.debug( "file '" + folder + "' was deleted successfully" );
             }
             else {
@@ -88,8 +89,8 @@ public class CreateFolderCommand extends AbstractFileSystemCommand {
      */
     @Override
     protected void perform() throws Exception {
-        Object parent = parentProxy.getData();
-        String parentPath = getPath( parent, true );
+        DatasourceFolder parent = parentProxy.getData();
+        String parentPath = parent.getPath();
         List<String> ids = getChildNames( parentNode );
         String name;
         
@@ -103,15 +104,14 @@ public class CreateFolderCommand extends AbstractFileSystemCommand {
         if( parentPath.startsWith( "file:" ) ) {
             // create new folder
             LOG.debug( "creating real folder with name " + fullname );
-            folder = new File( new URI( fullname ) );
+            folder = new DatasourceFolder( new File( new URI( fullname ) ), parent );
         }
         else {
             // create new virtual folder
             LOG.debug( "creating virtual folder with name " + fullname );
-            folder = fullname;
+            folder = new DatasourceFolder( name, parent );
         }
         
         folderProxy = context.createProxy( folder, (SharedNodeTreeModel) parentNode.getTreeModel() );
-        folderProxy.setLabel( fullname.substring( fullname.lastIndexOf( "/" ) + 1 ) );
     }
 }
