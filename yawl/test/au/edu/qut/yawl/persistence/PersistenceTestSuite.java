@@ -9,10 +9,11 @@
 
 package au.edu.qut.yawl.persistence;
 
-import au.edu.qut.yawl.persistence.dao.DAOPersistenceTestSuite;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import au.edu.qut.yawl.persistence.dao.DAOPersistenceTestSuite;
+import au.edu.qut.yawl.persistence.managed.TestDataContext;
 
 /**
  * 
@@ -44,6 +45,7 @@ public class PersistenceTestSuite extends TestSuite{
         suite.addTestSuite(TestYNet.class);
         suite.addTestSuite(TestYSpecification.class);
         suite.addTestSuite(TestHibernateMarshal.class);
+        suite.addTestSuite(TestDataContext.class);
 //        suite.addTestSuite(TestJaxbMarshal.class);
         //return
         return suite;

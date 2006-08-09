@@ -12,7 +12,7 @@ package au.edu.qut.yawl.persistence.managed;
  * Created on April 20, 2006, 5:24 PM
  */
 
-import java.beans.VetoableChangeListener;
+import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -75,13 +75,14 @@ public class DataContext {
     /** Maps data objects to their proxies. */
     private Map<Object, DataProxy> proxyMap = new HashMap<Object, DataProxy>();
     private HashBag<DataProxy,DataProxy> hierarchy;
+    private DataProxy root;
     
     /**
      * Returns the data proxy for the given object. If there is no proxy for that
      * object in this data context then one will be created.
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getDataProxy(java.lang.Object)
 	 */
-    public DataProxy getDataProxy(Object dataObject, VetoableChangeListener listener) {
+    public DataProxy getDataProxy(Object dataObject) {
         return proxyMap.get(dataObject);
     }
     
@@ -93,11 +94,19 @@ public class DataContext {
         return dataMap.get(proxyObject);
     }
     
+    public void setData(DataProxy proxyObject, Object data) {
+        // remove the old mapping
+        removeFromMaps(proxyObject, getData(proxyObject));
+        // then put in the new mapping
+        addToMaps(proxyObject, data);
+    }
+    
     /**
      * Creates a data proxy for the given data object, assuming that the
      * object does not already have a proxy.
 	 */
     public DataProxy createProxy(Object object, DataProxyStateChangeListener listener) {
+        assert object != null : "trying to create a proxy for null!";
 		try {
 			DataProxy dataProxy = (DataProxy) dataProxyClass.newInstance();
 			dataProxy.setContext(this);
@@ -131,7 +140,7 @@ public class DataContext {
 			if (listener != null) dataProxy.addChangeListener(listener);
 //            else LOG.warn( "Proxy for object '" + object + "' created with no listener!" );
 			return dataProxy;
-		} catch (Exception e) {throw new Error(e);//this can never happen
+		} catch (Exception e) {throw new Error(e);//this can happen
 		}
     }
 
@@ -154,7 +163,7 @@ public class DataContext {
 		System.out.println("saving " + spec);
         
 		if (spec != null) {
-	    	dao.save((YSpecification) dataMap.get(dataProxy));
+	    	dao.save((YSpecification) getData(dataProxy));
 		}
     }
     
@@ -176,7 +185,7 @@ public class DataContext {
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getKeyFor(Type)
 	 */
     public Serializable getKeyFor(DataProxy t) {
-    	return dao.getKey((YSpecification) dataMap.get(t));
+    	return dao.getKey((YSpecification) getData(t));
     }
     
     /**
@@ -212,26 +221,38 @@ public class DataContext {
     }
     
     public DataProxy getParentProxy(DataProxy child) {
+        DataProxy retval = null;
         if( child.getData() != null
                 && child.getData() instanceof Parented
                 && ((Parented)child.getData()).getParent() != null ) {
-            return proxyMap.get( ((Parented)child.getData()).getParent() );
+            retval = getDataProxy( ((Parented)child.getData()).getParent() );
         }
         else if( child.getData() != null
                 && child.getData() instanceof YSpecification ) {
-//            LOG.warn( "ID of spec:" + ((YSpecification)child.getData()).getID() );
             String id = ((YSpecification)child.getData()).getID();
             if( id.replaceAll( "\\\\", "/" ).indexOf( "/" ) >= 0 ) {
                 id = id.substring( 0, id.replaceAll( "\\\\", "/" ).lastIndexOf( "/" ) );
-//                LOG.warn( "new id: " + id + " returns " + getDataProxy( id, null ) );
-                return getDataProxy( id, null );
+                retval = getDataProxy( id );
             }
             else {
-                return null;
+                retval = null;
             }
         }
-//        LOG.warn( "returning null parent for proxy " + child.getLabel() );
-        return null;
+        else if( child.getData() != null
+                && child.getData() instanceof File ) {
+            retval = getDataProxy( ((File) child.getData()).getParentFile() );
+        }
+        else if( child.getData() != null
+                && child.getData() instanceof String ) {
+            String path = (String) child.getData();
+            if( path.indexOf( "/" ) >= 0 ) {
+                retval = getDataProxy( path.substring( 0, path.lastIndexOf( "/" ) ) );
+            }
+        }
+        if( retval == null && hierarchy.get( root ).contains( child ) ) {
+            retval = root;
+        }
+        return retval;
     }
     
     /**
@@ -241,7 +262,12 @@ public class DataContext {
     private void addToHierarchy(DataProxy childProxy, DataProxy parentProxy) {
         if( parentProxy != null ) {
             hierarchy.put(parentProxy, childProxy);
-//            LOG.info("adding " + childProxy.getLabel() + " to " + getParentProxy( childProxy ).getLabel());
+        }
+        else {
+            if( root != null ) {
+                LOG.warn( "setting new root: " + getData( childProxy ) );
+            }
+            root = childProxy;
         }
     }
     
@@ -268,13 +294,6 @@ public class DataContext {
         proxyMap.remove(data);
 //        LOG.info("removing " + proxy.getLabel() + " from maps.");
     }
-    
-    public void renameFolder( DataProxy folder, String name ) {
-        // TODO temporary, somewhat-working solution. NEEDS to be redone
-        Object oldVal = dataMap.get( folder );
-        removeFromMaps( folder, oldVal );
-        addToMaps( folder, name );
-    }
    
     public Set<DataProxy> getChildren(DataProxy parent, boolean forceUpdate) {
     	if (hierarchy.get(parent) == null || forceUpdate) {
@@ -288,16 +307,16 @@ public class DataContext {
                             new Visitor() {
                                 public void visit(Object child, Object parent, String childLabel) {
                                     DataProxy childProxy;
-                                    if( DataContext.this.getDataProxy( child, null ) == null ) {
+                                    if( DataContext.this.getDataProxy( child ) == null ) {
                                         childProxy = DataContext.this.createProxy(child, null);
                                         
-                                        DataProxy parentProxy = DataContext.this.getDataProxy(parent, null);
+                                        DataProxy parentProxy = DataContext.this.getDataProxy(parent);
                                         DataContext.this.attachProxy( childProxy, child, parentProxy );
                                     }
                                     else {
                                         // TODO FIXME this shouldn't really happen... but it does
                                         LOG.warn( "Revisiting child:" + child );
-                                        childProxy = DataContext.this.getDataProxy( child, null );
+                                        childProxy = DataContext.this.getDataProxy( child );
                                     }
                                     if( childLabel == null ) {
                                         childLabel = "null";

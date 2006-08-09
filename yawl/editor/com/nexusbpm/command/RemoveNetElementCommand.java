@@ -70,7 +70,7 @@ public class RemoveNetElementCommand extends AbstractCommand {
         flowCommands = new ArrayList<RemoveFlowCommand>();
         
         net = element.getParent();
-        netProxy = context.getDataProxy( net, null );
+        netProxy = context.getDataProxy( net );
         
         Set<YFlow> flows = new HashSet<YFlow>();
         
@@ -85,7 +85,7 @@ public class RemoveNetElementCommand extends AbstractCommand {
         
         for( YFlow flow : flows ) {
             System.out.println( "removing flow for element:" + flow );
-            RemoveFlowCommand c = new RemoveFlowCommand( context.getDataProxy( flow, null ) );
+            RemoveFlowCommand c = new RemoveFlowCommand( context.getDataProxy( flow ) );
             c.perform();
             flowCommands.add( c );
         }

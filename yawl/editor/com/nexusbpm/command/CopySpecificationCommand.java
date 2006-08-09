@@ -16,6 +16,7 @@ import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
@@ -63,7 +64,7 @@ public class CopySpecificationCommand extends AbstractCommand{
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
                         targetContext.attachProxy( proxies.get( child ), child,
-                                targetContext.getDataProxy( parent, null ) );
+                                targetContext.getDataProxy( parent ) );
                     }
                 }
             });
@@ -86,7 +87,7 @@ public class CopySpecificationCommand extends AbstractCommand{
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
                         targetContext.detachProxy( proxies.get( child ), child,
-                                targetContext.getDataProxy( parent, null ) );
+                                targetContext.getDataProxy( parent ) );
                     }
                 }
             });
@@ -106,6 +107,9 @@ public class CopySpecificationCommand extends AbstractCommand{
         }
         else if( targetParent instanceof File ) {
             parent = ((File) targetParent).toURI().toASCIIString();
+        }
+        else if( targetParent instanceof DatasourceRoot ) {
+            parent = targetParent.toString();
         }
         else {
             throw new IllegalArgumentException( "Attempting to copy a specification to an illegal destination!" );

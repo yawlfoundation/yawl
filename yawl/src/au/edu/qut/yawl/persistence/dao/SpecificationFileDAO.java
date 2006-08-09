@@ -130,11 +130,11 @@ public class SpecificationFileDAO implements SpecificationDAO {
 			} catch (URISyntaxException e) {
 				LOG.error("bad file name in file::getChildren", e);
 			}
-			if (f.isFile() && ! f.isHidden() && f.getName().toLowerCase().endsWith(".xml")) {
-				YSpecification spec = retrieve(f.getAbsolutePath());
-                if( spec != null )
-                    retval.add(spec);
-			} else {
+//			if (f.isFile() && ! f.isHidden() && f.getName().toLowerCase().endsWith(".xml")) {
+//				YSpecification spec = retrieve(f.getAbsolutePath());
+//                if( spec != null )
+//                    retval.add(spec);
+//			} else {
 				File[] files = null;
 				files = f.listFiles();
 				if (files != null) {
@@ -142,12 +142,20 @@ public class SpecificationFileDAO implements SpecificationDAO {
                         if( !aFile.isHidden() ) {
 //                            String file = aFile.toURI().toString();
                             File file = new File( aFile.toURI() );
-//                            if (file.endsWith("/")) file = file.substring(0, file.length() - 1); 
-                            retval.add(file);
+//                            if (file.endsWith("/")) file = file.substring(0, file.length() - 1);
+                            if( file.isFile() && file.getName().toLowerCase().endsWith(".xml") ) {
+                                YSpecification spec = retrieve( file.getAbsolutePath() );
+                                if( spec != null )
+                                    retval.add(spec);
+                                else
+                                    retval.add(file);
+                            }
+                            else
+                                retval.add(file);
                         }
 					}
 				}
-			}
+//			}
 		}
 		return retval;
 	}

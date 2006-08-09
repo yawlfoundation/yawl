@@ -45,25 +45,20 @@ public abstract class AbstractCommand implements Command {
     }
     
     /**
-     * Performs this command's operation, but does not attach the results
-     * to existing data objects within the data context.
-     * TODO is this exactly what needs to be done?
-     * TODO are proxy objects created here or in attach? (probly depends on refactorings of DataContext)
+     * Performs this command's operation and creates proxies as needed, but does
+     * not attach the results to existing data objects within the data context.
      */
     protected abstract void perform() throws Exception;
     
     /**
      * Attaches the results of the command to the data context and has the
-     * proxy notify its listeners that changes were made.
-     * TODO how would there be any listeners when the command is first executed? or will this only be needed for redo?
-     * TODO is this exactly what needs to be done? 
+     * proxy notify its listeners that changes were made. 
      */
     protected abstract void attach() throws Exception;
     
     /**
      * Removes the results of the command from the data context and has the
      * proxy notify its listeners that changes were made.
-     * TODO is this exactly what needs to be done?
      */
     protected abstract void detach() throws Exception;
     

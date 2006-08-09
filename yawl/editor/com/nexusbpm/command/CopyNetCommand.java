@@ -68,7 +68,7 @@ public class CopyNetCommand extends AbstractCommand {
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
                         targetContext.attachProxy( proxies.get( child ), child,
-                                targetContext.getDataProxy( parent, null ) );
+                                targetContext.getDataProxy( parent ) );
                     }
                 }
             });
@@ -91,7 +91,7 @@ public class CopyNetCommand extends AbstractCommand {
                             child instanceof YExternalNetElement ||
                             child instanceof YFlow ) {
                         targetContext.detachProxy( proxies.get( child ), child,
-                                targetContext.getDataProxy( parent, null ) );
+                                targetContext.getDataProxy( parent ) );
                     }
                 }
             });

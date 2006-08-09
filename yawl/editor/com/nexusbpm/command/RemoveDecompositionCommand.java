@@ -76,7 +76,7 @@ public class RemoveDecompositionCommand extends AbstractCommand {
         decomposition = decompProxy.getData();
         parentSpec = decomposition.getParent();
         assert parentSpec != null : "parent specification was null";
-        parentSpecProxy = context.getDataProxy( parentSpec, null );
+        parentSpecProxy = context.getDataProxy( parentSpec );
         assert parentSpecProxy != null : "parent specification's proxy was null";
         
         tasks = new LinkedList<YTask>();

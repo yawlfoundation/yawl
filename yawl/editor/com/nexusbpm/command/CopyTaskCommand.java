@@ -72,7 +72,7 @@ public class CopyTaskCommand extends AbstractCommand {
     }
     
 	public void perform() {
-        specProxy = context.getDataProxy( netProxy.getData().getParent(), null );
+        specProxy = context.getDataProxy( netProxy.getData().getParent() );
         vars = new ArrayList<YVariable>();
         
         task = WorkflowOperation.copyTask(

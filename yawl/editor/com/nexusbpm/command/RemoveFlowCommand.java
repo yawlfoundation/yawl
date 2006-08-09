@@ -40,7 +40,7 @@ public class RemoveFlowCommand extends AbstractCommand {
      * (Attach and detach are reversed for remove commands).
      */
     protected void attach() {
-        DataProxy parentProxy = context.getDataProxy( flow.getParent(), null );
+        DataProxy parentProxy = context.getDataProxy( flow.getParent() );
         WorkflowOperation.detachFlowFromElements( flow );
         context.detachProxy( flowProxy, flow, parentProxy );
     }
@@ -51,7 +51,7 @@ public class RemoveFlowCommand extends AbstractCommand {
      */
     protected void detach() {
         WorkflowOperation.attachFlowToElements( flow, source, sink );
-        context.attachProxy( flowProxy, flow, context.getDataProxy( flow.getParent(), null ) );
+        context.attachProxy( flowProxy, flow, context.getDataProxy( flow.getParent() ) );
     }
     
     protected void perform() {

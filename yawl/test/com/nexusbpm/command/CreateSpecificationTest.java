@@ -1,8 +1,5 @@
 package com.nexusbpm.command;
 
-import java.beans.PropertyChangeEvent;
-
-import junit.framework.TestCase;
 import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -10,13 +7,7 @@ import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.persistence.dao.DAO;
-import au.edu.qut.yawl.persistence.dao.DAOFactory;
-import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
-import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
-import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeAdapter;
-import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 import com.nexusbpm.services.NexusServiceInfo;
 
@@ -48,7 +39,7 @@ public class CreateSpecificationTest extends CommandTestCase  {
         createNet.execute();
         
         DataProxy<YNet> netProxy = dataContext.getDataProxy(
-        		specificationProxy.getData().getDecompositions().get( 0 ), null );
+        		specificationProxy.getData().getDecompositions().get( 0 ) );
 
         assert netProxy != null : "net proxy was null";
         
@@ -71,15 +62,15 @@ public class CreateSpecificationTest extends CommandTestCase  {
                 NexusServiceInfo info = WorkflowOperation.getNexusServiceInfoForTask( (YAtomicTask) element );
                 if( info != null ) {
                     if( info.getServiceName().equals( "Jython" ) ) {
-                        jythonProxy = dataContext.getDataProxy( element, null );
+                        jythonProxy = dataContext.getDataProxy( element );
                     }
                 }
             }
             else if( element instanceof YInputCondition ) {
-                inputProxy = dataContext.getDataProxy( element, null );
+                inputProxy = dataContext.getDataProxy( element );
             }
             else if( element instanceof YOutputCondition ) {
-                outputProxy = dataContext.getDataProxy( element, null );
+                outputProxy = dataContext.getDataProxy( element );
             }
         }
 

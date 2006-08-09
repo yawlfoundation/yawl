@@ -103,6 +103,6 @@ public class MoveTasksCommand extends AbstractCommand {
         }
         assert context != null : "data context is null";
         
-        netProxy = context.getDataProxy( net, null );
+        netProxy = context.getDataProxy( net );
     }
 }

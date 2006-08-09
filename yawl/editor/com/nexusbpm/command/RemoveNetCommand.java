@@ -104,7 +104,7 @@ public class RemoveNetCommand extends RemoveDecompositionCommand {
         net = netProxy.getData();
         parentSpec = net.getParent();
         assert parentSpec != null : "parent specification was null";
-        parentSpecProxy = context.getDataProxy( parentSpec, null );
+        parentSpecProxy = context.getDataProxy( parentSpec );
         assert parentSpecProxy != null : "parent specification's proxy was null";
         
         // set of decompositions used by the tasks in other nets
@@ -131,23 +131,23 @@ public class RemoveNetCommand extends RemoveDecompositionCommand {
         decompositions = new HashMap<YDecomposition, DataProxy>();
         
         for( YExternalNetElement element : net.getNetElements() ) {
-            proxy = context.getDataProxy( element, null );
+            proxy = context.getDataProxy( element );
             assert proxy != null : "net element's proxy was null";
             netElements.put( element, proxy );
             if( element instanceof YTask ) {
                 YTask task = (YTask) element;
                 YDecomposition decomp = task.getDecompositionPrototype();
                 if( decomp != null && !usedDecomps.contains( decomp ) ) {
-                    proxy = context.getDataProxy( decomp, null );
+                    proxy = context.getDataProxy( decomp );
                     assert proxy != null : "decomposition's proxy was null";
                     decompositions.put( decomp, proxy );
                 }
             }
             for( YFlow flow : element.getPostsetFlows() ) {
-                proxy = context.getDataProxy( flow, null );
+                proxy = context.getDataProxy( flow );
                 assert proxy != null : "flow's proxy was null";
                 flows.put( flow, proxy );
-                proxy = context.getDataProxy( flow.getParent(), null );
+                proxy = context.getDataProxy( flow.getParent() );
                 assert proxy != null : "flow's parent's proxy was null";
                 flowParents.put( flow, proxy );
             }
