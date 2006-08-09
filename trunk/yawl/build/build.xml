@@ -75,6 +75,30 @@
 	  path="${env.CATALINA_HOME}/server/lib/catalina-ant.jar" />
 
     <!-- Configure the custom Ant tasks for the Manager application 
+   <taskdef name="deploy" 
+   	classname="org.apache.catalina.ant.DeployTask"	           
+   	classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="list" 
+   	classname="org.apache.catalina.ant.ListTask"
+       classpathref="tomcat.tasks.classpath"/> 
+   <taskdef name="reload" 
+   	classname="org.apache.catalina.ant.ReloadTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="resources" 
+   	classname="org.apache.catalina.ant.ResourcesTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="roles" 
+   	classname="org.apache.catalina.ant.RolesTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="start" 
+   	classname="org.apache.catalina.ant.StartTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="stop" 
+   	classname="org.apache.catalina.ant.StopTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="undeploy" 
+   	classname="org.apache.catalina.ant.UndeployTask"
+       classpathref="tomcat.tasks.classpath"/>
     --> 
     <!--
       Use property values to define the locations of external JAR files on which
@@ -524,7 +548,6 @@
         <jar destfile="${output}/yawl.war">
             <fileset dir="${yawl.eng.app.name}"/>
         </jar>
-	<CBRelease file="${output}/yawl.war" />
         <delete dir="${yawl.eng.app.name}"/>
     </target>
 
