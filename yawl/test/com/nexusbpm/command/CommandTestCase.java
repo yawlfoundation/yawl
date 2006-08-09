@@ -2,14 +2,14 @@ package com.nexusbpm.command;
 
 import java.beans.PropertyChangeEvent;
 
-import au.edu.qut.yawl.elements.YSpecification;
+import junit.framework.TestCase;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
-import junit.framework.TestCase;
 
 /**
  * 
@@ -18,7 +18,7 @@ import junit.framework.TestCase;
  */
 public abstract class CommandTestCase extends TestCase implements DataProxyStateChangeListener {
 
-	protected DataProxy<String> rootProxy;
+	protected DataProxy<DatasourceFolder> rootProxy;
 	protected DataContext dataContext;
 	
 	@Override

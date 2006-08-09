@@ -11,7 +11,9 @@ package au.edu.qut.yawl.persistence.dao;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -223,13 +225,13 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
         return m.getDbID();
     }
 
-    //TODO:this needs to actually filter out non-children. currently returns everything
     public List getChildren(Object parent) {
         List retval = new ArrayList();
         String filter = "";
         
-        if( parent instanceof DatasourceRoot || parent instanceof String ) {
-            filter = parent.toString();
+        if( parent instanceof DatasourceFolder ) {
+            DatasourceFolder folder = (DatasourceFolder) parent;
+            filter = folder.getPath();
             if( ! filter.endsWith( "/" ) ) {
                 filter = filter + "/";
             }
@@ -246,12 +248,15 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 //                }
 //            }
             
-            for( Object o : tmp ) {
-                String key = getID( o );
-                if( key != null && key.startsWith( filter ) && ! retval.contains( o ) ) {
-                    if( contains( key, filter ) != null ) {
-                        retval.add( contains( key, filter ) );
+            Set traversal = new HashSet( tmp );
+            
+            for( Object o : traversal ) {
+                String id = getID( o );
+                if( id != null && id.startsWith( filter ) ) {
+                    if( contains( id, filter ) != null ) {
+                        retval.add( new DatasourceFolder( contains( id, filter ), folder ) );
                     } else {
+                        assert o instanceof YSpecification : "object not a specification";
                         retval.add( o );
                     }
                 }
@@ -262,13 +267,16 @@ public class SpecificationHibernateDAO implements SpecificationDAO{
 		return retval;
 	}
     
-    private static String contains(String full, String partial) {
+    private static String contains( String full, String partial ) {
         String retval = null;
-        if (full.startsWith(partial)) {
-            int x = full.lastIndexOf("/");
-            int y = full.indexOf("/", partial.length() + 1);
-            if (x > partial.length()) {
-                retval = full.substring(0, y);
+        if( full.startsWith( partial ) ) {
+            int x = full.lastIndexOf( "/" );
+            int y = full.indexOf( "/", partial.length() + 1 );
+            if( x > partial.length() ) {
+                retval = full.substring( 0, y );
+                if( retval.indexOf( "/" ) >= 0 ) {
+                    retval = retval.substring( retval.lastIndexOf( "/" ) + 1 );
+                }
             }
         }
         return retval;

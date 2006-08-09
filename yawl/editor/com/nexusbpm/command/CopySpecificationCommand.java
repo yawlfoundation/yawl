@@ -7,7 +7,6 @@
  */
 package com.nexusbpm.command;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +15,7 @@ import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
@@ -34,7 +33,7 @@ import au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor;
 public class CopySpecificationCommand extends AbstractCommand{
     private DataProxy<YSpecification> sourceSpecProxy;
     private DataProxy<YSpecification> copySpecProxy;
-    private DataProxy targetProxy;
+    private DataProxy<DatasourceFolder> targetProxy;
     private YSpecification copySpec;
     private DataProxyStateChangeListener listener;
     
@@ -42,7 +41,9 @@ public class CopySpecificationCommand extends AbstractCommand{
     
     private DataContext targetContext;
 	
-	public CopySpecificationCommand( DataProxy sourceSpecProxy, DataProxy targetProxy,
+	public CopySpecificationCommand(
+            DataProxy<YSpecification> sourceSpecProxy,
+            DataProxy<DatasourceFolder> targetProxy,
             DataProxyStateChangeListener listener ) {
         this.sourceSpecProxy = sourceSpecProxy;
 		this.targetProxy = targetProxy;
@@ -100,21 +101,21 @@ public class CopySpecificationCommand extends AbstractCommand{
      */
     @Override
     protected void perform() throws Exception {
-        Object targetParent = targetProxy.getData();
-        String parent;
-        if( targetParent instanceof String ) {
-            parent = (String) targetParent;
-        }
-        else if( targetParent instanceof File ) {
-            parent = ((File) targetParent).toURI().toASCIIString();
-        }
-        else if( targetParent instanceof DatasourceRoot ) {
-            parent = targetParent.toString();
-        }
-        else {
-            throw new IllegalArgumentException( "Attempting to copy a specification to an illegal destination!" );
-        }
-        copySpec = WorkflowOperation.copySpecification( sourceSpecProxy.getData(), parent );
+        DatasourceFolder targetParent = targetProxy.getData();
+        String parentPath = targetParent.getPath();
+//        if( targetParent instanceof String ) {
+//            parent = (String) targetParent;
+//        }
+//        else if( targetParent instanceof File ) {
+//            parent = ((File) targetParent).toURI().toASCIIString();
+//        }
+//        else if( targetParent instanceof DatasourceRoot ) {
+//            parent = targetParent.toString();
+//        }
+//        else {
+//            throw new IllegalArgumentException( "Attempting to copy a specification to an illegal destination!" );
+//        }
+        copySpec = WorkflowOperation.copySpecification( sourceSpecProxy.getData(), parentPath );
         
         copySpecProxy = targetContext.createProxy( copySpec, listener );
         

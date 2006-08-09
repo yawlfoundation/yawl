@@ -7,10 +7,9 @@
  */
 package com.nexusbpm.command;
 
-import java.io.File;
-
 import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
@@ -23,7 +22,7 @@ import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
  */
 public class CreateSpecificationCommand extends AbstractCommand {
 	private DataContext context;
-    private DataProxy parentProxy;
+    private DataProxy<DatasourceFolder> parentProxy;
     private YSpecification specification;
     private DataProxy<YSpecification> specProxy;
     private String specName;
@@ -34,7 +33,7 @@ public class CreateSpecificationCommand extends AbstractCommand {
      * @param parent
      * @param specName
      */
-	public CreateSpecificationCommand( DataProxy parentProxy, String specName,
+	public CreateSpecificationCommand( DataProxy<DatasourceFolder> parentProxy, String specName,
             DataProxyStateChangeListener listener ) {
 		this.context = parentProxy.getContext();
         this.parentProxy = parentProxy;
@@ -64,12 +63,9 @@ public class CreateSpecificationCommand extends AbstractCommand {
      */
     @Override
     protected void perform() throws Exception {
-        Object parent = parentProxy.getData();
-        if( parent instanceof File ) {
-            parent = ((File) parent).toURI();
-        }
+        DatasourceFolder parent = parentProxy.getData();
         specification = WorkflowOperation.createSpecification(
-                parent.toString(), specName, "Specification" );
+                parent.getPath(), specName, "Specification" );
         specProxy = context.createProxy( specification, listener );
     }
 }

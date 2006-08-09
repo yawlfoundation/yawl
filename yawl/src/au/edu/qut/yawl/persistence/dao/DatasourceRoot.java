@@ -8,27 +8,41 @@
 
 package au.edu.qut.yawl.persistence.dao;
 
-import au.edu.qut.yawl.elements.Parented;
+import java.io.File;
 
 /**
  * @author Matthew Sandoz
- *
+ * @author Nathan Rose
  */
-public class DatasourceRoot implements Parented<Object> {
-
-	private Object location;
-	public DatasourceRoot(Object location) {this.location = location;}
-	public DatasourceRoot() {}
-	public Object getLocation() {
-		return location;
-	}
-	public void setLocation(Object location) {
-		this.location = location;
-	}
-	public String toString() { return location.toString();}
-    
-    public Object getParent() {
-        return null;
+public class DatasourceRoot extends DatasourceFolder {
+	public DatasourceRoot( String name ) {
+        super( name, null );
     }
-    public void setParent( Object t ) {}
+    
+    public DatasourceRoot( File file ) {
+        super( file.toURI().toString(), null );
+        setFile( file );
+    }
+    
+    @Override
+    public String getPath() {
+        return getName();
+    }
+    
+    @Override
+    public DatasourceRoot getRoot() {
+        return this;
+    }
+    
+    public boolean isSchemaVirtual() {
+        return getName().startsWith( "virtual:" );
+    }
+    
+    public boolean isSchemaFile() {
+        return getName().startsWith( "file:" );
+    }
+    
+    public boolean isSchemaHibernate() {
+        return getName().startsWith( "hibernate:" );
+    }
 }
