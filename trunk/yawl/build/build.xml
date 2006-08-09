@@ -341,6 +341,7 @@
     Do the necessary copying all essential files
     -->
     <target name="copy">
+	<echo>initial copy of YAWL specs...</echo>
         <copy todir="./exampleSpecs/xml">
             <fileset dir="./schema" includes="*.xsd"/>
         </copy>
@@ -361,6 +362,7 @@
     Deletes directories and intermediate files.
     -->
     <target name="clean" depends="copy">
+	<echo>Cleaning...</echo>
         <!--delete dir="${classes}/.dependency-info"/-->
         <delete dir="${classes}/META-INF"/>
         <delete dir="${classes}/au"/>
@@ -373,6 +375,8 @@
     Creates necessary directories prior to building.
   	-->
     <target name="init" depends="clean">
+	<echo>Initialising...</echo>
+
         <mkdir dir="${classes}/au"/>
     	<mkdir dir="${classes}/com/nexusbpm"/>
         <mkdir dir="${output}"/>
@@ -385,6 +389,8 @@
     Compiles main project source into ${classes}.
     -->
     <target name="compile" depends="init">
+	<echo>Compiling YAWL...</echo>
+
         <javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
@@ -511,6 +517,7 @@
     Creates a jar file for the main application sources.
     -->
     <target name="build_engine.war" depends="compile">
+	<echo>Building YAWL Engine...</echo>
         <!-- ======================================================================
         Prepare YAWL Engine WebApplication
         -->
