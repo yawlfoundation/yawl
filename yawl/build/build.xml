@@ -74,7 +74,7 @@
     <path id="tomcat.tasks.classpath"
 	  path="${env.CATALINA_HOME}/server/lib/catalina-ant.jar" />
 
-    <!-- Configure the custom Ant tasks for the Manager application --> 
+    <!-- Configure the custom Ant tasks for the Manager application 
    <taskdef name="deploy" 
    	classname="org.apache.catalina.ant.DeployTask"	           
    	classpathref="tomcat.tasks.classpath"/>
@@ -99,7 +99,7 @@
    <taskdef name="undeploy" 
    	classname="org.apache.catalina.ant.UndeployTask"
        classpathref="tomcat.tasks.classpath"/>
-
+    --> 
     <!--
       Use property values to define the locations of external JAR files on which
       your application will depend.  In general, these values will be used for
