@@ -1,4 +1,6 @@
-Version 1.4.3 (??/??/????) "Bronzeforge"
+Version 1.4.3 (??/??/????) "Deltapoint"
+  * There is now a new palette menu item allowing users to drag the visible window of a 
+    net around.
   * Fixed a couple of bugs that stopped the "Label Element" dialog from ensuring that 
     the label text field had focus when the dialog appears.
   * Fixed a bug where the alignment toolbar buttons were retaining focus instead of

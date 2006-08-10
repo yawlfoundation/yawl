@@ -1,5 +1,5 @@
 /*
- * Created on 05/12/2003
+ * Created on 19/12/2003
  * YAWLEditor v1.0 
  *
  * @author Lindsay Bradford
@@ -22,33 +22,32 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package au.edu.qut.yawl.editor.actions.palette;
 
-import au.edu.qut.yawl.editor.actions.palette.*;
+import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import au.edu.qut.yawl.editor.swing.menu.Palette;
 
-import javax.swing.JPopupMenu;
+import javax.swing.Action;
 
-public class PalettePopupMenu extends JPopupMenu {
-
+public class NetDragAction extends YAWLPaletteAction implements TooltipTogglingWidget {
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
 
-  public PalettePopupMenu() {
-    super();
-    addMenuItems();
+  {
+    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+    putValue(Action.NAME, "Drag Net Window");
+    putValue(Action.LONG_DESCRIPTION, "Net Window Drag Mode");
+    putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteDrag"));
+    setIdentifier(Palette.DRAG);
   }
   
-  private void addMenuItems() {
-    add(new AtomicTaskAction());
-    add(new CompositeTaskAction());
-    add(new MultipleAtomicTaskAction());
-    add(new MultipleCompositeTaskAction());
-    add(new ConditionAction());
-    add(new FlowRelationAction());
-    add(new MarqueeAction());
-    add(new NetDragAction());
-
+  public String getEnabledTooltipText() {
+    return " Net Drag Mode ";
+  }
+  
+  public String getDisabledTooltipText() {
+    return " You must have an open specification, and selected net to use the palette ";
   }
 }

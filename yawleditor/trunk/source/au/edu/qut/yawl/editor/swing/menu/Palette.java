@@ -48,6 +48,8 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
   public static final int FLOW_RELATION           = 4;
   public static final int CONDITION               = 5;
   public static final int MARQUEE                 = 6;
+  public static final int DRAG                    = 7;
+  
 
   private static int selectedItem = MARQUEE;
   
@@ -61,6 +63,7 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
     new YAWLPaletteButton(new FlowRelationAction(),KeyEvent.VK_5),
     new YAWLPaletteButton(new ConditionAction(),KeyEvent.VK_6),
     new YAWLPaletteButton(new MarqueeAction(),KeyEvent.VK_7),
+    new YAWLPaletteButton(new NetDragAction(),KeyEvent.VK_8),
   };
 
   private static final Palette INSTANCE = new Palette();
@@ -119,6 +122,10 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
       case MULTIPLE_COMPOSITE_TASK: {
         return getClickAnywhereText() + "multiple composite task.";
       }
+      case DRAG: {
+        return "Drag visible window to another area of the net.";     
+      }
+
       default: {
         return "You should never see this palette message!";
       }
