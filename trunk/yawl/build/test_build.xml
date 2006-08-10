@@ -66,15 +66,17 @@
 	<property name="nexus.serviceInvoker.app.path" value="/${nexus.serviceInvoker.app.name}"/>
 	<property name="nexus.service.jython.app.name" value="JythonService"/>
 	<property name="nexus.service.emailSender.app.name" value="EmailSenderService"/>
+    <property name="env.CATALINA_HOME" value="c:/Program Files/Apache Software Foundation/Tomcat 5.5/"/>
 	
-    <!-- AJH - New lines for Tomcat/Ant iface -->
+	
+    <!-- AJH - New lines for Tomcat/Ant iface 
     <property name="tomcat_manager_url" value="${tomcat.protocol}://${tomcat.address}:${tomcat.port}/manager"/>
-
-    <!-- Tell Ant where to find the custom catalina/tomcat build tasks -->
+-->
+    <!-- Tell Ant where to find the custom catalina/tomcat build tasks 
     <path id="tomcat.tasks.classpath"
 	  path="${env.CATALINA_HOME}/server/lib/catalina-ant.jar" />
 
-    <!-- Configure the custom Ant tasks for the Manager application --> 
+    <!-- Configure the custom Ant tasks for the Manager application  
    <taskdef name="deploy" 
    	classname="org.apache.catalina.ant.DeployTask"	           
    	classpathref="tomcat.tasks.classpath"/>
@@ -99,7 +101,7 @@
    <taskdef name="undeploy" 
    	classname="org.apache.catalina.ant.UndeployTask"
        classpathref="tomcat.tasks.classpath"/>
-
+-->
     <!--
       Use property values to define the locations of external JAR files on which
       your application will depend.  In general, these values will be used for
@@ -239,7 +241,7 @@
     		<include name="*.jar"/>
     	</fileset>
 
-        <!-- Include all elements that Tomcat exposes to applications -->
+        <!-- Include all elements that Tomcat exposes to applications 
         <pathelement location="${env.CATALINA_HOME}/common/classes"/>
         <fileset dir="${env.CATALINA_HOME}/common/endorsed">
             <include name="*.jar"/>
@@ -251,7 +253,7 @@
         <fileset dir="${env.CATALINA_HOME}/shared/lib">
             <include name="*.jar"/>
         </fileset>
-    	
+    	-->
     	<fileset dir="${nexus.service.libs}/xfire">
     		<include name="*.jar"/>
     	</fileset>
@@ -1699,33 +1701,6 @@
             <classpath refid="cp.xsd"/>
             <classpath refid="cp.persist"/>
         </javadoc>
-    </target>
-
-
-
-    <!-- Target which applies the changes required to Tomcat's common libraries -->
-    <target name="deploy_tomcat_common_libs" description="Update the Tomcat common libraries for XML parsers etc.">
-        <echo>Copying and deleting as-issued Tomcat XML parser libraries</echo>
-
-        <copy file="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar"
-            tofile="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar.original"
-            failonerror="false"/>
-        <delete file="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar"
-            failonerror="false"/>
-
-        <copy file="${env.CATALINA_HOME}/common/endorsed/xml-apis.jar"
-            tofile="${env.CATALINA_HOME}/common/endorsed/xml-apis.jar.original"
-            failonerror="false"/>
-        <delete file="${env.CATALINA_HOME}/common/endorsed/xml-apis.jar"
-            failonerror="false"/>
-
-        <echo>Copying in replacement libaries</echo>
-        <copy file="${xforms.lib}/dom3-xercesImpl.jar"
-            todir="${env.CATALINA_HOME}/common/endorsed"
-            overwrite="true"/>
-        <copy file="${xforms.lib}/dom3-xml-apis.jar"
-            todir="${env.CATALINA_HOME}/common/endorsed"
-            overwrite="true"/>
     </target>
 
 
