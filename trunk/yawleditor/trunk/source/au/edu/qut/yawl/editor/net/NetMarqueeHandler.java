@@ -27,6 +27,7 @@ package au.edu.qut.yawl.editor.net;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
 import java.awt.geom.Point2D;
@@ -60,7 +61,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
 
 
   public boolean isForceMarqueeEvent(MouseEvent event) {
-    return (Palette.getInstance().getSelected() != Palette.MARQUEE 
+    return (Palette.getInstance().getSelected() != Palette.MARQUEE
             || super.isForceMarqueeEvent(event));  
   }
   
@@ -87,6 +88,11 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
       }
       case Palette.MARQUEE: {
         graph.setCursor(CursorFactory.getCustomCursor(CursorFactory.SELECTION));
+        event.consume();
+        break;
+      }
+      case Palette.DRAG: {
+        graph.setCursor(CursorFactory.getCustomCursor(CursorFactory.DRAG));
         event.consume();
         break;
       }
@@ -158,6 +164,11 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         graph.addMultipleCompositeTask(getNearestSnapPoint(event.getPoint()));
         break;        
       }
+      case Palette.DRAG: {
+        setStartPoint(graph.toScreen(event.getPoint()));
+        event.consume();
+        break;
+      }
       default: {
         super.mousePressed(event);
         break;
@@ -192,6 +203,26 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         }
         break;
       }
+      case Palette.DRAG: {
+        if (!event.isConsumed() && startPoint != null) {
+          
+          Point2D delta = new Point2D.Double(
+              startPoint.getX() - graph.toScreen(event.getPoint()).getX(),
+              startPoint.getY() - graph.toScreen(event.getPoint()).getY()
+          );
+          
+          graph.scrollRectToVisible(
+              new Rectangle(
+                  (int) (graph.getVisibleRect().getX() + delta.getX()),
+                  (int) (graph.getVisibleRect().getY() + delta.getY()),
+                  (int) graph.getVisibleRect().getWidth(),
+                  (int) graph.getVisibleRect().getHeight()
+              )
+          );
+        }
+        event.consume();
+        break;
+      }
       default: {
         super.mouseDragged(event);
         break;
@@ -208,6 +239,11 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
       }
       case Palette.MARQUEE: {
         super.mouseReleased(e);
+        break;
+      }
+      case Palette.DRAG: {
+        setStartPoint(null);
+        e.consume();
         break;
       }
       default: {
