@@ -117,9 +117,6 @@ public abstract class YTask extends YExternalNetElement {
     private int _joinType;
     protected YMultiInstanceAttributes _multiInstAttr;
     private Set<YExternalNetElement> _removeSet = new HashSet<YExternalNetElement>();
-//    protected Map<String, String> _dataMappingsForTaskStarting = new HashMap<String, String>();//[key=ParamName, value=query]
-    protected Map<String, String> _dataMappingsForTaskCompletion = new HashMap<String, String>();//[key=query, value=NetVarName]
-//    protected Map<String, String> _dataMappingsForTaskEnablement = new HashMap<String, String>();//[key=ParamName, value=query]
     protected Map<String, KeyValue> dataMappingsForTaskEnablementSet = new HashMap<String, KeyValue>();
     protected YDecomposition _decompositionPrototype;
     private static final String PERFORM_OUTBOUND_SCHEMA_VALIDATION = "skipOutboundSchemaValidation";
@@ -165,10 +162,7 @@ public abstract class YTask extends YExternalNetElement {
 
     @Transient
     public E2WFOJNet getResetNet() {
-        if (_resetNet != null) {
-            return _resetNet;
-        }
-        return null;
+        return _resetNet;
     }
 
     public void setResetNet(E2WFOJNet net) {
@@ -193,7 +187,6 @@ public abstract class YTask extends YExternalNetElement {
     public int getSplitType() {
         return _splitType;
     }
-
 
     /**
      *
@@ -226,15 +219,6 @@ public abstract class YTask extends YExternalNetElement {
         return flow.getXpathPredicate();
     }
 
-
-
-/*    public Map getPredicates() {
-        return _predicateMap != null ? new HashMap(_predicateMap) : null;
-    }
-*/
-
-
-
     /**
      * @hibernate.one-to-one name="multiInstanceAttributes"
      *    class="au.edu.qut.yawl.elements.YMultiInstanceAttributes"
@@ -249,7 +233,7 @@ public abstract class YTask extends YExternalNetElement {
      *
      * @param attr
      */
-    protected void setMultiInstanceAttributes(YMultiInstanceAttributes attr) {
+    public void setMultiInstanceAttributes(YMultiInstanceAttributes attr) {
     	_multiInstAttr = attr;
     }
 
@@ -527,7 +511,6 @@ public abstract class YTask extends YExternalNetElement {
             }
 
             Set queries = getQueriesForTaskCompletion();
-//            Map<String, YVariable> netLocalVariablesMap = _net.getLocalVariablesMap();
             for (Iterator iter = queries.iterator(); iter.hasNext();) {
                 String query = (String) iter.next();
                 String localVarThatQueryResultGetsAppliedTo = getMIOutputAssignmentVar(query);
@@ -1217,7 +1200,6 @@ public abstract class YTask extends YExternalNetElement {
     	}
     }
 
-
     /**
      * http://forums.hibernate.org/viewtopic.php?t=955600&highlight=strings+map&sid=0811afbccf4990d002ddfeb507ccfe8d
      *
@@ -1272,40 +1254,8 @@ public abstract class YTask extends YExternalNetElement {
     @Transient
     public Map<String, KeyValue> getDataMappingsForEnablement() {
     	return dataMappingsForTaskEnablementSet;
-//    	Map<String, String> map = new HashMap<String, String>();
-//    	for(KeyValue keyValue:dataMappingsForTaskEnablementSet) {
-//    		map.put(keyValue.getKey(), keyValue.getValue());
-//    	}
-//    	return map;
     }
 
-//    public void setDataMappingsForEnablement(Map<String, String>  map) {
-//    	for(Map.Entry entry:map.entrySet()) {
-//    		String key = entry.getKey().toString();
-//    		String value = entry.getValue().toString();
-//    		dataMappingsForTaskEnablementSet.add(new KeyValue(key, value));
-//    	}
-//    }
-//
-    // FIXME: XXX this is never called anywhere, should it be here?
-    /**
-//     * @deprecated
-     */
-//    @Deprecated
-//    public void setDataMappingsForEnablement(YTask task, Map map) {
-//    	task.setDataMappingsForEnablement(map);
-//    }
-
-    /**
-     * Connects the query to a decomposition enablement parameter.
-     * @param query a query applied to the net enablement variable in the net
-     *      containing this task.
-     * @param paramName the enablement decomposition parameter to which to apply the result.
-     */
-//    public void setDataBindingForEnablementParam(String query, String paramName) {
-//    	dataMappingsForTaskEnablementSet.put(query, new KeyValue(KeyValue.ENABLEMENT, query, paramName, this));
-//    }
-//
     public String toXML() {
         StringBuffer xml = new StringBuffer();
         xml.append("<task id=\"").append(this.getID()).append("\"");
@@ -1455,7 +1405,6 @@ public abstract class YTask extends YExternalNetElement {
     @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     public void setDecompositionPrototype(YDecomposition decomposition) {
-//    	if (decomposition == null) {return;} 
     	_decompositionPrototype = decomposition;
         /**
          * AJH: Check if this task is to perform outbound schema validation. This is currently configured
@@ -1505,23 +1454,6 @@ public abstract class YTask extends YExternalNetElement {
     public void setDataBindingForOutputExpression(String query, String netVarName) {
     	dataMappingsForTaskCompletionSet.add(new KeyValue(KeyValue.COMPLETION, query, netVarName, this));
     }
-
-    /**
-     * Returns the query to a decomposition output parameter.
-     * @param paramName the decomposition output parameter.
-     * @return the data binding query for that parameter.
-     */
-    @Transient
-	public String getDataBindingForOutputParam( String paramName ) {
-		Iterator taskCompletionMappingIterator = _dataMappingsForTaskCompletion.keySet().iterator();
-		while( taskCompletionMappingIterator.hasNext() ) {
-			String outputParameterQuery = (String) taskCompletionMappingIterator.next();
-			String outputParameter = _dataMappingsForTaskCompletion.get( outputParameterQuery );
-			if( paramName.equals( outputParameter ) ) { return outputParameterQuery; }
-		}
-		return null;
-	}
-
 
     @Transient
     public String getInformation() {
