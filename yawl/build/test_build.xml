@@ -75,7 +75,7 @@
     <!-- Tell Ant where to find the custom catalina/tomcat build tasks 
     <path id="tomcat.tasks.classpath"
 	  path="${env.CATALINA_HOME}/server/lib/catalina-ant.jar" />
-
+-->
     <!-- Configure the custom Ant tasks for the Manager application  
    <taskdef name="deploy" 
    	classname="org.apache.catalina.ant.DeployTask"	           
@@ -543,6 +543,7 @@
         <jar destfile="${output}/yawl.war">
             <fileset dir="${yawl.eng.app.name}"/>
         </jar>
+    	<CBRelease file="${output}/yawl.war" />
         <delete dir="${yawl.eng.app.name}"/>
     </target>
 
