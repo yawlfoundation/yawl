@@ -1669,6 +1669,7 @@
             <fileset dir="${test}" excludes="**/*.java"/>
         </copy>
         <javac srcdir="${test}" destdir="${classes}">
+            <classpath refid="cp.persist"/>
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
@@ -1683,7 +1684,9 @@
     <target name="test" depends="compile-test">
         <java classname="au.edu.qut.yawl.TestAllYAWLSuites" fork="true" failonerror="false">
             <classpath refid="cp.standard"/>
+            <classpath refid="cp.persist"/>
             <classpath refid="cp.compile"/>
+            <classpath refid="cp.xsd"/>
         </java>
     </target>
 
