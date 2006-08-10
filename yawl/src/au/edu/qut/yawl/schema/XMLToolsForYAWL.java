@@ -31,7 +31,7 @@ import java.util.*;
  * Time: 10:33:10
  * 
  */
-public class XMLToolsForYAWL {
+public class XMLToolsForYAWL implements Cloneable {
 
     private transient XSD4YAWLBuilder _xsd4YAWLBuilder;
 
@@ -77,14 +77,6 @@ public class XMLToolsForYAWL {
         }
     }    
     
-    
-    
-    public void setPrimarySchema(InputSource schemaSource) {
-
-
-    }
-
-
     /**
      * Returns a Set of the global type names as strings.
      * @return global type names Set.
@@ -562,5 +554,13 @@ public class XMLToolsForYAWL {
                 new Instruction[instructions.size()]);
         return instructionsArr;
     }
-
+    
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        XMLToolsForYAWL clone = (XMLToolsForYAWL) super.clone();
+        clone._xsd4YAWLBuilder = (XSD4YAWLBuilder) _xsd4YAWLBuilder.clone();
+        return clone;
+    }
+    
+    
 }

@@ -149,6 +149,15 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
         copiedCondition._bag = new YIdentifierBag(copiedCondition);
         return copiedCondition;
     }
+    
+    protected YExternalNetElement deepClone( YExternalNetElement condition ) {
+        super.deepClone( condition );
+        YCondition clone = (YCondition) condition;
+        
+        clone._bag = new YIdentifierBag(clone);
+        
+        return clone;
+    }
 
 
     public String toXML() {

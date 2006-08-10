@@ -13,9 +13,11 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -383,6 +385,64 @@ public class YNet extends YDecomposition {
     @Transient
     protected YNet getCloneContainer() {
         return _clone;
+    }
+    
+    public YDecomposition deepClone() {
+        return deepClone( new YNet() );
+    }
+    
+    protected YDecomposition deepClone( YDecomposition net ) {
+        super.deepClone( net );
+        try {
+            YNet clone = (YNet) net;
+            
+            clone._localVariables = new ArrayList<YVariable>();
+            for( YVariable variable : _localVariables ) {
+                YVariable cloneVar = (YVariable) variable.clone();
+                cloneVar.setParent( clone );
+                clone._localVariables.add( cloneVar );
+            }
+            
+            Map<YExternalNetElement, YExternalNetElement> origToCloneMap =
+                new HashMap<YExternalNetElement, YExternalNetElement>();
+            
+            clone._netElements = new ArrayList<YExternalNetElement>();
+            for( YExternalNetElement element : _netElements ) {
+                YExternalNetElement elementClone = element.deepClone();
+                elementClone.setParent( clone );
+                clone._netElements.add( elementClone );
+                origToCloneMap.put( element, elementClone );
+            }
+            
+            // restitch the flows
+            for( YExternalNetElement element : _netElements ) {
+                for( YFlow flow : element.getPostsetFlows() ) {
+                    YExternalNetElement source = origToCloneMap.get( flow.getPriorElement() );
+                    YExternalNetElement sink = origToCloneMap.get( flow.getNextElement() );
+                    
+                    YFlow newFlow = new YFlow( source, sink );
+                    source.getPostsetFlows().add( newFlow );
+                    sink.getPresetFlows().add( newFlow );
+                }
+            }
+            
+            // restitch the remove sets for the tasks
+            for( YExternalNetElement element : _netElements ) {
+                if( element instanceof YTask ) {
+                    YTask origTask = (YTask) element;
+                    YTask cloneTask = (YTask) origToCloneMap.get( origTask );
+                    
+                    for( YExternalNetElement item : origTask.getRemoveSet() ) {
+                        cloneTask.getRemoveSet().add( origToCloneMap.get( item ) );
+                    }
+                }
+            }
+            
+            return clone;
+        }
+        catch( CloneNotSupportedException e ) {
+            throw new Error( e );
+        }
     }
 
 

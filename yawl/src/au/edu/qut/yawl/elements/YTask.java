@@ -905,6 +905,66 @@ public abstract class YTask extends YExternalNetElement {
         }
         return copy;
     }
+    
+    protected YExternalNetElement deepClone( YExternalNetElement task ) {
+        super.deepClone( task );
+        YTask clone = (YTask) task;
+        
+        if( _i != null || _caseToDataMap.size() > 0 ||
+                _multiInstanceSpecificParamsIterator != null ||
+                _localVariableNameToReplaceableOuptutData != null ||
+                _groupedMultiInstanceOutputData != null ) {
+            throw new IllegalStateException( "Deep clone of executing tasks is unsupported!" );
+        }
+        
+        clone._splitType = _splitType;
+        clone._joinType = _joinType;
+        
+        if( getMultiInstanceAttributes() != null ) {
+            YMultiInstanceAttributes attr =
+                (YMultiInstanceAttributes) getMultiInstanceAttributes().clone();
+            attr.setContainerTask( clone );
+            clone.setMultiInstanceAttributes( attr );
+        }
+        
+        // remove set stitching done in YNet.deepClone
+        
+        clone.dataMappingsForTaskStartingSet = new HashMap<String, KeyValue>();
+        for( Map.Entry<String, KeyValue> entry : dataMappingsForTaskStartingSet.entrySet() ) {
+            clone.dataMappingsForTaskStartingSet.put(
+                    entry.getKey(),
+                    new KeyValue(
+                            entry.getValue().getType(),
+                            entry.getValue().getKey(),
+                            entry.getValue().getValue(),
+                            clone ) );
+        }
+        
+        clone.dataMappingsForTaskEnablementSet = new HashMap<String, KeyValue>();
+        for( Map.Entry<String, KeyValue> entry : dataMappingsForTaskEnablementSet.entrySet() ) {
+            clone.dataMappingsForTaskEnablementSet.put(
+                    entry.getKey(),
+                    new KeyValue(
+                            entry.getValue().getType(),
+                            entry.getValue().getKey(),
+                            entry.getValue().getValue(),
+                            clone ) );
+        }
+        
+        clone.dataMappingsForTaskCompletionSet = new HashSet<KeyValue>();
+        for( KeyValue kv : dataMappingsForTaskCompletionSet ) {
+            clone.dataMappingsForTaskCompletionSet.add(
+                    new KeyValue( kv.getType(), kv.getKey(), kv.getValue(), clone ) );
+        }
+        
+        clone.setDecompositionPrototype( null );
+        
+        // setting this to null because I don't see it used anywhere...
+        // no use in wasted effort actually cloning it if it isn't used.
+        clone.setResetNet( null );
+        
+        return clone;
+    }
 
 
     protected abstract void startOne(YIdentifier id) throws YDataStateException, YSchemaBuildingException, YPersistenceException;

@@ -40,7 +40,7 @@ import org.hibernate.annotations.CollectionOfElements;
 @Entity
 @Table(name="ymetadata")
 
-public class YMetaData implements Serializable {
+public class YMetaData implements Cloneable, Serializable {
 	public static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
     /**
@@ -68,34 +68,24 @@ public class YMetaData implements Serializable {
 
     @Override
 	public Object clone() throws CloneNotSupportedException {
-		YMetaData newData = new YMetaData();
-		for (String contributor: getContributors()) {
-			newData.setContributor(copyString(contributor));
-		}
-		newData.setCoverage(copyString(getCoverage()));
-		newData.setCreated(copyDate(getCreated()));
-		for (String creator: getCreators()) {
-			newData.setCreator(copyString(creator));
-		}
-		newData.setDescription(copyString(getDescription()));
-		newData.setStatus(copyString(getStatus()));
-		for (String subject: getSubjects()) {
-			newData.setSubject(copyString(subject));
-		}
-		newData.setTitle(copyString(getTitle()));
-		newData.setValidFrom(copyDate(getValidFrom()));
-		newData.setValidUntil(copyDate(getValidUntil()));
-		newData.setVersion(copyString(getVersion()));
-		
+		YMetaData newData = (YMetaData) super.clone();
+        
+        newData.contributors = new HashSet<String>( contributors );
+        newData.creators = new HashSet<String>( creators );
+        newData.subjects = new HashSet<String>( subjects );
+        
+        if( created != null ) {
+            newData.created = (Date) created.clone();
+        }
+        newData.specification = null;
+        if( validFrom != null ) {
+            newData.validFrom = (Date) validFrom.clone();
+        }
+        if( validUntil != null ) {
+            newData.validUntil = (Date) validUntil.clone();
+        }
+        
 		return newData;
-	}
-
-	private Date copyDate(Date source) {
-		return source == null ? null : new Date(source.getTime()); 
-	}
-
-    private String copyString(String source) {
-		return source == null ? null : new String(source); 
 	}
 
 	/**

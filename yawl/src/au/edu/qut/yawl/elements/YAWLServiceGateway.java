@@ -227,5 +227,37 @@ public class YAWLServiceGateway extends YDecomposition {
             throw new RuntimeException("Can only set enablement type param as such.");
         }
     }
-
+    
+    public YDecomposition deepClone() {
+        return deepClone( new YAWLServiceGateway() );
+    }
+    
+    @Override
+    protected YDecomposition deepClone( YDecomposition gateway ) {
+        super.deepClone( gateway );
+        try {
+            YAWLServiceGateway clone = (YAWLServiceGateway) gateway;
+            
+            clone._yawlServices = new HashSet<YAWLServiceReference>();
+            for( YAWLServiceReference reference : _yawlServices ) {
+                YAWLServiceReference refClone = new YAWLServiceReference();
+                refClone.setDocumentation( reference.getDocumentation() );
+                refClone.setYawlServiceGateway( clone );
+                refClone.setYawlServiceID( reference.getYawlServiceID() );
+                clone._yawlServices.add( refClone );
+            }
+            
+            clone.enablementParam = new ArrayList<YParameter>();
+            for( YParameter parameter : enablementParam ) {
+                YParameter cloneParam = (YParameter) parameter.clone();
+                cloneParam.setParent( clone );
+                clone.enablementParam.add( cloneParam );
+            }
+            
+            return clone;
+        }
+        catch( CloneNotSupportedException e ) {
+            throw new Error( e );
+        }
+    }
 }

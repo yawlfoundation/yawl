@@ -358,6 +358,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
         YMultiInstanceAttributes copy = null;
         try {
             copy = (YMultiInstanceAttributes) super.clone();
+            copy._id = null;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
@@ -384,11 +385,11 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
     
 
     @OneToOne(mappedBy = "multiInstanceAttributes")
-    protected YTask getContainerTask() {
+    public YTask getContainerTask() {
     	return _myTask;
     }
     
-    protected void setContainerTask(YTask task) {
+    public void setContainerTask(YTask task) {
     	_myTask = task;
     }
 

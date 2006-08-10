@@ -454,6 +454,15 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
     	
     	return retval;
     }
+    
+    public boolean equals( Object obj ) {
+        if( obj instanceof YFlow ) {
+            return compareTo( obj ) == 0;
+        }
+        else {
+            return false;
+        }
+    }
 
     @Column(name="extensions", length=32768)
 	public String getInternalExtensionsAsString() {

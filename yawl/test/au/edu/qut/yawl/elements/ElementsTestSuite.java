@@ -37,6 +37,7 @@ public class ElementsTestSuite extends TestSuite{
     public static Test suite(){
         TestSuite suite = new TestSuite();
         suite.addTestSuite(TestDataParsing.class);
+        suite.addTestSuite(TestDeepClone.class);
         suite.addTestSuite(TestYAtomicTask.class);
         suite.addTestSuite(TestYCompositeTask.class);
         suite.addTestSuite(TestYExternalCondition.class);

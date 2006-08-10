@@ -18,7 +18,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -76,7 +75,6 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
 	
 	private String _specURI;
     public List<YDecomposition> _decompositions = new ArrayList<YDecomposition>();
-    protected Object any;
     private String _name;
     private String _documentation;
     private String _betaVersion;
@@ -238,13 +236,15 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
         }
         xml.append(_metaData.toXML());
         xml.append(_xmlToolsForYAWL.getSchemaString());
-        xml.append("<decomposition id=\"").
-                append(getRootNet().getId()).
-                append("\" xsi:type=\"NetFactsType\" ").
-                append(format(getRootNet().getAttributes())).
-                append(">");
-        xml.append(getRootNet().toXML());
-        xml.append("</decomposition>");
+        if( getRootNet() != null ) {
+            xml.append("<decomposition id=\"").
+                    append(getRootNet().getId()).
+                    append("\" xsi:type=\"NetFactsType\" ").
+                    append(format(getRootNet().getAttributes())).
+                    append(">");
+            xml.append(getRootNet().toXML());
+            xml.append("</decomposition>");
+        }
         for (YDecomposition decomposition : _decompositions) {
             if (!decomposition.getId().equals(getRootNet().getId())) {
                 xml.append("<decomposition id=\"").
@@ -661,4 +661,48 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
 			}
 		}
 	}
+    
+    public YSpecification deepClone() {
+        try {
+            YSpecification clone = (YSpecification) super.clone();
+            
+            clone._dbid = null;
+            clone._metaData = (YMetaData) _metaData.clone();
+            clone._xmlToolsForYAWL = (XMLToolsForYAWL) _xmlToolsForYAWL.clone();
+            
+            clone._decompositions = new ArrayList<YDecomposition>();
+            for( YDecomposition decomposition : getDecompositions() ) {
+                YDecomposition cloneDecomp = decomposition.deepClone();
+                cloneDecomp.setParent( clone );
+                clone.getDecompositions().add( cloneDecomp );
+            }
+            
+            for( YDecomposition decomposition : getDecompositions() ) {
+                String decompID = decomposition.getId();
+                if( decomposition instanceof YNet ) {
+                    YNet net = (YNet) decomposition;
+                    YNet cloneNet = (YNet) clone.getDecomposition( decompID );
+                    for( YExternalNetElement element : net.getNetElements() ) {
+                        String elementID = element.getID();
+                        if( element instanceof YTask ) {
+                            YTask task = (YTask) element;
+                            YTask cloneTask = (YTask) cloneNet.getNetElement( elementID );
+                            if( task.getDecompositionPrototype() != null ) {
+                                YDecomposition prototype = task.getDecompositionPrototype();
+                                String prototypeID = prototype.getId();
+                                YDecomposition clonePrototype = clone.getDecomposition( prototypeID );
+                                
+                                cloneTask.setDecompositionPrototype( clonePrototype );
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return clone;
+        }
+        catch( CloneNotSupportedException e ) {
+            throw new Error( e );
+        }
+    }
 }
