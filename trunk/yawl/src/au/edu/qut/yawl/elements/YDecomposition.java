@@ -355,6 +355,54 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
         }
         return copy;
     }
+    
+    public YDecomposition deepClone() {
+        return deepClone( new YDecomposition() );
+    }
+    
+    protected YDecomposition deepClone( YDecomposition clone ) {
+        try {
+            clone._attributes = new HashMap<String,String>( _attributes );
+            
+            if( _data != null ) {
+                clone._data = (Document) _data.clone();
+            }
+            
+            clone._dbid = null;
+            clone._documentation = _documentation;
+            clone._id = _id;
+            clone._name = _name;
+            clone._outBoundSchemaChecking = _outBoundSchemaChecking;
+            
+            clone._inputParameters = new ArrayList<YParameter>();
+            for( YParameter parameter : _inputParameters ) {
+                YParameter cloneParam = (YParameter) parameter.clone();
+                cloneParam.setParent( clone );
+                clone._inputParameters.add( cloneParam );
+            }
+            
+            clone.setInternalExtensionsAsString( getInternalExtensionsAsString() );
+            
+            clone._outputParameters = new ArrayList<YParameter>();
+            for( YParameter parameter : _outputParameters ) {
+                YParameter cloneParam = (YParameter) parameter.clone();
+                cloneParam.setParent( clone );
+                clone._outputParameters.add( cloneParam );
+            }
+            
+            clone._specification = null;
+            
+            if( casedata != null ) {
+                clone.casedata = new YCaseData();
+                clone.casedata.setData( casedata.getData() );
+            }
+            
+            return clone;
+        }
+        catch( CloneNotSupportedException e ) {
+            throw new Error( e );
+        }
+    }
 
 
     /**

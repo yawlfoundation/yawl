@@ -418,6 +418,32 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
         return copy;
     }
 
+    public YExternalNetElement deepClone() {
+        try {
+            return deepClone( (YExternalNetElement) this.getClass().newInstance() );
+        }
+        catch( Exception e ) {
+            throw new Error( e );
+        }
+    }
+    
+    protected YExternalNetElement deepClone( YExternalNetElement clone ) {
+        clone.setID( getID() );
+        
+        clone._dbid = null;
+        clone._net = null;
+        
+        clone._documentation = _documentation;
+        clone._name = _name;
+        
+        clone.setInternalExtensionsAsString( getInternalExtensionsAsString() );
+        
+        // restitching of the actual flows happens in YNet.deepClone
+        clone._presetFlows = new TreeSet<YFlow>();
+        clone._postsetFlows = new TreeSet<YFlow>();
+        
+        return clone;
+    }
 
     public String toXML() {
         StringBuffer xml = new StringBuffer();

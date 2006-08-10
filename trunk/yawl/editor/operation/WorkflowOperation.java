@@ -77,21 +77,28 @@ public class WorkflowOperation {
      * @param parent the URI for the parent "folder" where the specification will be stored.
      * @param name the name to give the specification.
      * @return the newly created specification.
-     * @throws Exception if the proxy to the parent cannot be converted into a path (shouldn't
-     *                   happen).
+     * @throws URISyntaxException if the parentURI and id can't be combined into a new URI.
      */
     public static YSpecification createSpecification(String parentURI, String name, String id)
-    throws Exception {
+    throws URISyntaxException {
         YSpecification spec = null;
         
         URI u = new URI( parentURI.replaceAll( "\\\\", "/" ) );
-        spec = new YSpecification(
+        spec = createSpecification( name,
                 new URI(
                         u.getScheme(),
                         u.getAuthority(),
                         u.getPath() + "/" + convertNameToID( id ),
                         null,
                         null ).toString() );
+        
+        return spec;
+    }
+    
+    public static YSpecification createSpecification( String name, String id ) {
+        YSpecification spec = null;
+        
+        spec = new YSpecification( id );
         spec.setName( name );
         spec.setBetaVersion(NexusWorkflow.CURRENT_VERSION);
         spec.setDocumentation("");
@@ -383,7 +390,7 @@ public class WorkflowOperation {
     throws CloneNotSupportedException, URISyntaxException {
         YSpecification clone = null;
         
-        clone = (YSpecification) original.clone();
+        clone = original.deepClone();
         clone.setDbID( null );
         
         URI desturi = joinUris(new URI(targetFolder), new URI(clone.getID()));
@@ -397,9 +404,16 @@ public class WorkflowOperation {
         String text = child.getRawPath();
         int index = text.lastIndexOf("/") + 1;
         try {
-            retval = new URI(parent.getScheme(), parent.getAuthority(), parent.getPath() + "/" + URLDecoder.decode(text.substring(index), "UTF-8"), child.getQuery(), child.getFragment());
+            retval = new URI(
+                    parent.getScheme(),
+                    parent.getAuthority(),
+                    parent.getPath() + "/" + URLDecoder.decode(
+                            text.substring(index),
+                            "UTF-8"),
+                    child.getQuery(),
+                    child.getFragment() );
             retval = retval.normalize();
-        } catch (Exception e) {e.printStackTrace();}
+        } catch (Exception e) { throw new RuntimeException( e ); }
         return retval;
     }
     

@@ -183,13 +183,4 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
             return null;
         }
     }
-    
-//    private YAWLServiceGateway container;
-//    @ManyToOne
-//    private YAWLServiceGateway getContainer() {
-//    	return container;
-//    }
-//    private void setContainer(YAWLServiceGateway container) {
-//    	this.container = container;
-//    }
 }

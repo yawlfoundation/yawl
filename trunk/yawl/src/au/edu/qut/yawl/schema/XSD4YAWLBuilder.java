@@ -33,7 +33,7 @@ import java.util.*;
  * for the creation of new schemas consisting of parts of the schema used to create this one.
  *
  */
-public class XSD4YAWLBuilder {
+public class XSD4YAWLBuilder implements Cloneable {
     private XSDSchema _schema;
     private XSDFactory _xsdFactory;
 
@@ -844,5 +844,16 @@ public class XSD4YAWLBuilder {
      */
     protected XSDSchema getOriginalSchema() {
         return _schema;
+    }
+    
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        XSD4YAWLBuilder clone = (XSD4YAWLBuilder) super.clone();
+        
+        // I don't think there's a problem with leaving the reference to the schema...
+        
+        clone._xsdFactory = XSDSchemaBuildingTools.getXSDFactory();
+        
+        return clone;
     }
 }
