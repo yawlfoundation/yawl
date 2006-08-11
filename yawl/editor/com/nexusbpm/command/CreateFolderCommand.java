@@ -19,9 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
-
-import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.tree.SharedNodeTreeModel;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 /**
  * The CreateFolderCommand creates a sub-folder in the specified folder.
@@ -33,22 +31,24 @@ public class CreateFolderCommand extends AbstractFileSystemCommand {
     
 	private DataContext context;
     
-    private SharedNode parentNode;
     private DataProxy<DatasourceFolder> parentProxy;
     private String folderName;
 	
     private DatasourceFolder folder;
     private DataProxy folderProxy;
     
+    private DataProxyStateChangeListener listener;
+    
     /**
      * NOTE: the parent proxy needs to be connected to the context.
      * @param parent
      * @param netName
      */
-	public CreateFolderCommand( SharedNode parentNode, String folderName ) {
-        this.parentNode = parentNode;
-        this.parentProxy = parentNode.getProxy();
+	public CreateFolderCommand( DataProxy parentProxy, String folderName,
+            DataProxyStateChangeListener listener ) {
+        this.parentProxy = parentProxy;
         this.folderName = folderName;
+        this.listener = listener;
 		this.context = parentProxy.getContext();
 	}
 	
@@ -91,7 +91,7 @@ public class CreateFolderCommand extends AbstractFileSystemCommand {
     protected void perform() throws Exception {
         DatasourceFolder parent = parentProxy.getData();
         String parentPath = parent.getPath();
-        List<String> ids = getChildNames( parentNode );
+        List<String> ids = getChildNames( parentProxy );
         String name;
         
         name = WorkflowOperation.getAvailableID( ids, WorkflowOperation.convertNameToID( folderName ) );
@@ -112,6 +112,6 @@ public class CreateFolderCommand extends AbstractFileSystemCommand {
             folder = new DatasourceFolder( name, parent );
         }
         
-        folderProxy = context.createProxy( folder, (SharedNodeTreeModel) parentNode.getTreeModel() );
+        folderProxy = context.createProxy( folder, listener );
     }
 }

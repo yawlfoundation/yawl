@@ -118,9 +118,23 @@ public class CopySpecificationCommand extends AbstractFileSystemCommand {
             n = new NameAndCounter( n.getStrippedName(), n.getCounter(), null );
         }
         
+        String prefix;
+        String suffix;
+        String tmp = n.toString();
+        if( tmp.indexOf( "/" ) >= 0 ) {
+            prefix = tmp.substring( 0, tmp.lastIndexOf( "/" ) + 1 );
+            suffix = tmp.substring( tmp.lastIndexOf( "/" ) + 1 );
+        }
+        else {
+            prefix = "";
+            suffix = tmp;
+        }
+        
         // then make sure the ID is unique within the folder we're copying to
         List<String> usedIDs = getChildNames( targetProxy );
-        destID = WorkflowOperation.getAvailableID( usedIDs, n.toString() );
+        suffix = WorkflowOperation.getAvailableID( usedIDs, suffix );
+        
+        destID = prefix + suffix;
         
         // then perform the copy
         copySpec = WorkflowOperation.copySpecification( sourceSpecProxy.getData(), destID );

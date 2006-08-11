@@ -71,7 +71,7 @@ public class SharedNodeEditor extends DefaultTreeCellEditor {
 		if( !oldName.equals( newName ) ) {
             if( _node.getProxy().getData() instanceof DatasourceFolder ) {
                 WorkflowEditor.getExecutor().executeCommand(
-                        new RenameFolderCommand( _node, newName ) );
+                        new RenameFolderCommand( _node.getProxy(), newName ) );
             }
             else {
                 WorkflowEditor.getExecutor().executeCommand(

@@ -691,7 +691,8 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         JMenuItem createFolder = new JMenuItem( new AbstractAction( "Create Folder" ) {
             public void actionPerformed( ActionEvent e ) {
                 WorkflowEditor.getExecutor().executeCommand(
-                        new CreateFolderCommand( node, "New Folder" ) );
+                        new CreateFolderCommand( node.getProxy(), "New Folder",
+                                (SharedNodeTreeModel) node.getTreeModel() ) );
             }
         });
         

@@ -22,10 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
-
-import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * The RenameFolderCommand renames a folder and all its children.
@@ -37,7 +35,7 @@ public class RenameFolderCommand extends AbstractFileSystemCommand {
     
     private DataContext context;
     
-    private SharedNode folderNode;
+    private DataProxy folderProxy;
     
     private String oldName;
     private String newName;
@@ -46,11 +44,11 @@ public class RenameFolderCommand extends AbstractFileSystemCommand {
     
     private List<DatasourceFolder> children;
     private List<YSpecification> specs;
-	
-	public RenameFolderCommand( SharedNode folderNode, String newName ) {
-        this.folderNode = folderNode;
+    
+	public RenameFolderCommand( DataProxy folderProxy, String newName ) {
+        this.folderProxy = folderProxy;
         this.newName = newName;
-        this.context = folderNode.getProxy().getContext();
+        this.context = folderProxy.getContext();
 	}
     
 	/**
@@ -105,8 +103,8 @@ public class RenameFolderCommand extends AbstractFileSystemCommand {
             }
         }
         
-        folderNode.getProxy().setLabel( newName );
-        folderNode.getProxy().fireUpdated(
+        folderProxy.setLabel( newName );
+        folderProxy.fireUpdated(
                 DataProxyStateChangeListener.PROPERTY_NAME,
                 oldName, newName );
     }
@@ -116,9 +114,8 @@ public class RenameFolderCommand extends AbstractFileSystemCommand {
      */
     @Override
     protected void perform() throws Exception {
-        folder = (DatasourceFolder) folderNode.getProxy().getData();
-        SharedNode parentNode = (SharedNode) folderNode.getParent();
-        List<String> ids = getChildNames( parentNode );
+        folder = (DatasourceFolder) folderProxy.getData();
+        List<String> ids = getChildNames( context.getParentProxy( folderProxy ) );
         
         String oldPath = folder.getPath();
         oldName = folder.getName();
@@ -126,23 +123,7 @@ public class RenameFolderCommand extends AbstractFileSystemCommand {
         
         specs = new LinkedList<YSpecification>();
         children = new LinkedList<DatasourceFolder>();
-        findSpecifications( folderNode );
-        children.remove( folderNode.getProxy().getData() );
-    }
-    
-    private void findSpecifications( SharedNode node ) {
-        if( node.getProxy().getData() instanceof YSpecification ) {
-            specs.add( (YSpecification) node.getProxy().getData() );
-        }
-        else {
-            children.add( (DatasourceFolder) node.getProxy().getData() );
-            // get the child count to force initialization
-            ((SharedNodeTreeModel)node.getTreeModel()).getChildCount( node );
-            if( node.getChildren() != null ) {
-                for( SharedNode child : (List<SharedNode>) node.getChildren() ) {
-                    findSpecifications( child );
-                }
-            }
-        }
+        collectChildren( folderProxy, specs, children );
+        children.remove( folder );
     }
 }
