@@ -1682,7 +1682,7 @@
     Invokes the unit tests.
     -->
     <target name="test" depends="compile-test">
-        <java classname="au.edu.qut.yawl.TestAllYAWLSuites" fork="true" failonerror="false">
+        <java classname="au.edu.qut.yawl.AllJavaForgeTestSuite" fork="true" failonerror="false">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.persist"/>
             <classpath refid="cp.compile"/>
