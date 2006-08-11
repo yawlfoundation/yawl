@@ -22,6 +22,7 @@ import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 
 /**
  * This class provides functionality useful for commands that interact with the filesystem.
@@ -89,6 +90,28 @@ public abstract class AbstractFileSystemCommand extends AbstractCommand {
         }
         else {
             return uri;
+        }
+    }
+    
+    protected void collectChildren( DataProxy parentProxy,
+            List<YSpecification> childSpecs, List<DatasourceFolder> childFolders ) {
+        collectChildren( ((EditorDataProxy) parentProxy).getTreeNode(), childSpecs, childFolders );
+    }
+    
+    protected void collectChildren( SharedNode node,
+            List<YSpecification> childSpecs, List<DatasourceFolder> childFolders ) {
+        if( node.getProxy().getData() instanceof YSpecification ) {
+            childSpecs.add( (YSpecification) node.getProxy().getData() );
+        }
+        else {
+            childFolders.add( (DatasourceFolder) node.getProxy().getData() );
+            // get the child count to force initialization
+            ((SharedNodeTreeModel)node.getTreeModel()).getChildCount( node );
+            if( node.getChildren() != null ) {
+                for( SharedNode child : (List<SharedNode>) node.getChildren() ) {
+                    collectChildren( child, childSpecs, childFolders );
+                }
+            }
         }
     }
 }
