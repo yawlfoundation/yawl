@@ -264,11 +264,11 @@ public class YNet extends YDecomposition {
             visitingFw := postset(visitedFw);
             visitedBk := {o};
             visitingBk := preset(visitedBk); */
-        List<YExternalNetElement> visitedFw = new ArrayList<YExternalNetElement>();
-        List<YExternalNetElement> visitingFw = new ArrayList<YExternalNetElement>();
+        Set<YExternalNetElement> visitedFw = new HashSet<YExternalNetElement>();
+        Set<YExternalNetElement> visitingFw = new HashSet<YExternalNetElement>();
         visitingFw.add(getInputCondition());
-        List<YExternalNetElement> visitedBk = new ArrayList<YExternalNetElement>();
-        List<YExternalNetElement> visitingBk = new ArrayList<YExternalNetElement>();
+        Set<YExternalNetElement> visitedBk = new HashSet<YExternalNetElement>();
+        Set<YExternalNetElement> visitingBk = new HashSet<YExternalNetElement>();
         visitingBk.add(getOutputCondition());
         /*  Begin Loop:
                     visitedFw := visitedFw Union visitingFw;
@@ -317,8 +317,8 @@ public class YNet extends YDecomposition {
     }
 
 
-    public static List<YExternalNetElement> getPostset(List<YExternalNetElement> elements) {
-        List<YExternalNetElement> postset = new ArrayList<YExternalNetElement>();
+    public static Set<YExternalNetElement> getPostset(Collection<YExternalNetElement> elements) {
+        Set<YExternalNetElement> postset = new HashSet<YExternalNetElement>();
         Iterator iter = elements.iterator();
         while (iter.hasNext()) {
             YNetElement ne = (YNetElement) iter.next();
@@ -330,8 +330,8 @@ public class YNet extends YDecomposition {
     }
 
 
-    public static List<YExternalNetElement> getPreset(List<YExternalNetElement> elements) {
-        List<YExternalNetElement> preset = new ArrayList<YExternalNetElement>();
+    public static Set<YExternalNetElement> getPreset(Collection<YExternalNetElement> elements) {
+        Set<YExternalNetElement> preset = new HashSet<YExternalNetElement>();
         Iterator iter = elements.iterator();
         while (iter.hasNext()) {
             YExternalNetElement ne = (YExternalNetElement) iter.next();
@@ -349,8 +349,8 @@ public class YNet extends YDecomposition {
             _clone = (YNet) super.clone();
             _clone._netElements = new ArrayList<YExternalNetElement>();
 
-            List<YExternalNetElement> visited = new ArrayList<YExternalNetElement>();
-            List<YExternalNetElement> visiting = new ArrayList<YExternalNetElement>();
+            Set<YExternalNetElement> visited = new HashSet<YExternalNetElement>();
+            Set<YExternalNetElement> visiting = new HashSet<YExternalNetElement>();
             visiting.add(getInputCondition());
             do {
                 Iterator iter = visiting.iterator();
@@ -580,8 +580,8 @@ public class YNet extends YDecomposition {
         xml.append("<processControlElements>");
         xml.append(getInputCondition().toXML());
 
-        List<YExternalNetElement> visitedFw = new ArrayList<YExternalNetElement>();
-        List<YExternalNetElement> visitingFw = new ArrayList<YExternalNetElement>();
+        Set<YExternalNetElement> visitedFw = new HashSet<YExternalNetElement>();
+        Set<YExternalNetElement> visitingFw = new HashSet<YExternalNetElement>();
         visitingFw.add(getInputCondition());
         do {
             visitedFw.addAll(visitingFw);

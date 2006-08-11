@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl;
 
+import operation.OperationTestSuite;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
@@ -24,6 +25,7 @@ import au.edu.qut.yawl.schema.SchemaTestSuite;
 import au.edu.qut.yawl.unmarshal.UnmarshallerTestSuite;
 import au.edu.qut.yawl.util.UtilTestSuite;
 
+import com.nexusbpm.command.CommandTestSuite;
 import com.nexusbpm.services.NexusServiceTestSuite;
 
 /**
@@ -56,7 +58,9 @@ public class TestAllYAWLSuites extends TestSuite{
         suite.addTest(au.edu.qut.yawl.swingWorklist.WorklistTestSuite.suite());
         suite.addTest(au.edu.qut.yawl.worklist.WorklistTestSuite.suite());
         suite.addTest(AuthenticationTestSuite.suite());
+        suite.addTest(CommandTestSuite.suite());
         suite.addTest(NexusServiceTestSuite.suite());
+        suite.addTest(OperationTestSuite.suite());
         return suite;
     }
 

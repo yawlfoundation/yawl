@@ -8,9 +8,11 @@
 package com.nexusbpm.command;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import operation.WorkflowOperation;
+import operation.WorkflowOperation.NameAndCounter;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
@@ -30,7 +32,7 @@ import au.edu.qut.yawl.util.VisitSpecificationOperation.Visitor;
  * @author Matthew Sandoz
  * @author Nathan Rose
  */
-public class CopySpecificationCommand extends AbstractCommand{
+public class CopySpecificationCommand extends AbstractFileSystemCommand {
     private DataProxy<YSpecification> sourceSpecProxy;
     private DataProxy<YSpecification> copySpecProxy;
     private DataProxy<DatasourceFolder> targetProxy;
@@ -103,19 +105,25 @@ public class CopySpecificationCommand extends AbstractCommand{
     protected void perform() throws Exception {
         DatasourceFolder targetParent = targetProxy.getData();
         String parentPath = targetParent.getPath();
-//        if( targetParent instanceof String ) {
-//            parent = (String) targetParent;
-//        }
-//        else if( targetParent instanceof File ) {
-//            parent = ((File) targetParent).toURI().toASCIIString();
-//        }
-//        else if( targetParent instanceof DatasourceRoot ) {
-//            parent = targetParent.toString();
-//        }
-//        else {
-//            throw new IllegalArgumentException( "Attempting to copy a specification to an illegal destination!" );
-//        }
-        copySpec = WorkflowOperation.copySpecification( sourceSpecProxy.getData(), parentPath );
+        
+        // first convert the ID to fit the target path
+        String destID = WorkflowOperation.joinURIs( parentPath, sourceSpecProxy.getData().getID() );
+        
+        // then drop or add the ".xml" depending on which context we're going to or coming from
+        NameAndCounter n = new NameAndCounter( destID );
+        if( targetParent.isSchemaFile() ) {
+            n = new NameAndCounter( n.getStrippedName(), n.getCounter(), ".xml" );
+        }
+        else {
+            n = new NameAndCounter( n.getStrippedName(), n.getCounter(), null );
+        }
+        
+        // then make sure the ID is unique within the folder we're copying to
+        List<String> usedIDs = getChildNames( targetProxy );
+        destID = WorkflowOperation.getAvailableID( usedIDs, n.toString() );
+        
+        // then perform the copy
+        copySpec = WorkflowOperation.copySpecification( sourceSpecProxy.getData(), destID );
         
         copySpecProxy = targetContext.createProxy( copySpec, listener );
         

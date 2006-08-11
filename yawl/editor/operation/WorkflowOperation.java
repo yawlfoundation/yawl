@@ -386,20 +386,27 @@ public class WorkflowOperation {
         return editor.getBounds();
     }
     
-    public static YSpecification copySpecification( YSpecification original, String targetFolder )
+    public static YSpecification copySpecification( YSpecification original, String targetID )
     throws CloneNotSupportedException, URISyntaxException {
         YSpecification clone = null;
         
         clone = original.deepClone();
         clone.setDbID( null );
-        
-        URI desturi = joinUris(new URI(targetFolder), new URI(clone.getID()));
-        clone.setID(desturi.toString());
+        clone.setID( targetID );
         
         return clone;
     }
     
-    private static URI joinUris(URI parent, URI child) {
+    public static String joinURIs( String parentURI, String childURI ) {
+        try {
+            return joinURIs( new URI( parentURI ), new URI( childURI ) ).toString();
+        }
+        catch( URISyntaxException e ) {
+            throw new RuntimeException( e );
+        }
+    }
+    
+    public static URI joinURIs( URI parent, URI child ) {
         URI retval = null;
         String text = child.getRawPath();
         int index = text.lastIndexOf("/") + 1;
@@ -468,7 +475,7 @@ public class WorkflowOperation {
             int num = 2;
             if( bag.containsKey( id.getStrippedName() ) )
                 num = bag.get( id.getStrippedName() ).size() + 1;
-            id = new NameAndCounter( id.getStrippedName(), Integer.valueOf( num ) );
+            id = new NameAndCounter( id.getStrippedName(), Integer.valueOf( num ), id.getExtension() );
             
             while( ids.contains( id.toString() ) ) {
                 id = id.getNextNameAndCounter();
@@ -481,58 +488,90 @@ public class WorkflowOperation {
     }
     
     /**
-     * Takes a name and splits it into the actual name and the counter, for
-     * example "My Flow [2]" -> {"My Flow", 2}, or "My Flow" -> {"My Flow", 0}.
+     * <p>Takes a name and splits it into the actual name and the counter, for
+     * example "My_Flow_2" -&gt; {"My_Flow", 2, null}. Also splits a name and extension
+     * (if the extension is 4 or fewer characters), for example "My_Flow.xml"
+     * -&gt; {"My_Flow", null, ".xml"} and "My_Flow_2.xml" -&gt; {"My_Flow", 2, ".xml"}.</p>
+     * <p>The stripped name will never be null, but the counter and
+     * extension may be null if they weren't matched.</p>
+     * <strong>note:</strong> If there is a counter, then the stripped name <em>can</em> be
+     * the empty string. If there is no counter, then the stripped name <em>cannot</em> be
+     * the empty string (unless the entire original name is just the empty string). In other
+     * words, names that start with a dot (such as ".xml") will not be considered to be just
+     * an empty string and an extension, the first dot will be considered part of the
+     * stripped name.
      */
-    private static class NameAndCounter {
+    public static class NameAndCounter {
         private String _strippedName;
         private Integer _counter;
+        private String _extension;
         /**
          * Constructor that splits the name into the actual name and counter.
          * @param origName the original name.
          */
-        private NameAndCounter( String origName ) {
-            // match the string from the last underscore to the end
-            Matcher m = Pattern.compile( "_[1-9][0-9]*" ).matcher(
-                    ( origName.indexOf( "_" ) >= 0 ) ?
-                    origName.substring( origName.lastIndexOf( "_" ) ) :
-                    origName );
+        public NameAndCounter( String origName ) {
+            // match the whole string
+            Matcher m = Pattern.compile( "(.*)(_[1-9][0-9]*)(\\..{0,4})?" ).matcher( origName );
+            Matcher m2 = Pattern.compile( "(.+?)(\\..{0,4})?" ).matcher( origName );
             if( m.matches() ) {
-                // if the last part is a number, split it
-                _strippedName = origName.substring( 0, origName.lastIndexOf( "_" ) );
-                _counter = Integer.valueOf( origName.substring( origName.lastIndexOf( "_" ) + 1 ) );
+                // if the last part (before the extension, if any) is a number, split it
+                _strippedName = m.group( 1 );
+                _counter = Integer.valueOf( m.group( 2 ).substring( 1 ) );
+                _extension = m.group( 3 );
+            }
+            else if( m2.matches() ) {
+                // if the backup matcher matches it, use that one to split it
+                _strippedName = m2.group( 1 );
+                _counter = null;
+                _extension = m2.group( 2 );
             }
             else {
-                // if the last part is a number, then it's not a name/counter pair
+                // otherwise if it can't be matched, just consider it to all be part of the name
                 _strippedName = origName;
                 _counter = null;
+                _extension = null;
             }
         }//NameAndCounter()
-        private NameAndCounter( String namePart, Integer counterPart ) {
+        public NameAndCounter( String namePart, Integer counterPart, String extension ) {
             _strippedName = namePart;
             _counter = counterPart;
+            _extension = extension;
         }
-        private String getStrippedName() {
+        public String getStrippedName() {
             return _strippedName;
         }//getName()
-        private NameAndCounter getNextNameAndCounter() {
+        public Integer getCounter() {
+            return _counter;
+        }
+        public String getExtension() {
+            return _extension;
+        }
+        public NameAndCounter getNextNameAndCounter() {
             if( _counter != null ) {
-                return new NameAndCounter( _strippedName, Integer.valueOf( _counter.intValue() + 1 ) );
+                return new NameAndCounter(
+                        _strippedName,
+                        Integer.valueOf( _counter.intValue() + 1 ),
+                        _extension );
             }
             else {
-                return new NameAndCounter( _strippedName, Integer.valueOf( 2 ) );
+                return new NameAndCounter( _strippedName, Integer.valueOf( 2 ), _extension );
             }
         }
         /**
          * @see Object#toString()
          */
         public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append( _strippedName );
             if( _counter != null ) {
-                return _strippedName + "_" + _counter.toString();
+                builder.append( "_" );
+                builder.append( _counter.toString() );
             }
-            else {
-                return _strippedName;
+            if( _extension != null ) {
+                builder.append( _extension );
             }
+            
+            return builder.toString();
         }//toString()
     }//NameAndCounter
 
@@ -786,10 +825,6 @@ public class WorkflowOperation {
                 // TODO ????
             }
         }
-    }
-    
-    public static void main(String[] args) {
-        VariableMapping m = new VariableMapping( "<elid>{/mynet/mytask__var/text()}</elid>" );
     }
     
     public static class VariableMapping {
