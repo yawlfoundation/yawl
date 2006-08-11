@@ -427,7 +427,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
 
     @Transient
     private List<YExternalNetElement> getEmptyPostsetAtThisLevel(List<YExternalNetElement> aSet) {
-    	List<YExternalNetElement> elements = YNet.getPostset(aSet);
+    	Set<YExternalNetElement> elements = YNet.getPostset(aSet);
         List<YExternalNetElement> resultSet = new ArrayList<YExternalNetElement>();
         for (Iterator iterator = elements.iterator(); iterator.hasNext();) {
             YExternalNetElement element = (YExternalNetElement) iterator.next();
@@ -513,7 +513,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
                 }
             } else {
             	List<YExternalNetElement> postSet = task.getPostsetElements();
-            	List<YExternalNetElement> taskPostSet = YNet.getPostset(postSet);
+            	Set<YExternalNetElement> taskPostSet = YNet.getPostset(postSet);
                 for (Iterator iterator2 = taskPostSet.iterator(); iterator2.hasNext();) {
                     YTask task2 = (YTask) iterator2.next();
                     if (task2.getDecompositionPrototype() == null) {
@@ -553,7 +553,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
             return resultSet;
         }
         Set visited = new HashSet();
-        List<YExternalNetElement> visiting = new ArrayList<YExternalNetElement>();
+        Set<YExternalNetElement> visiting = new HashSet<YExternalNetElement>();
         visiting.add(((YNet) decomposition).getInputCondition());
         do {
             visited.addAll(visiting);

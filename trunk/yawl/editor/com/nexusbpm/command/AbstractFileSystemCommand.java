@@ -18,7 +18,9 @@ import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
+import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.SharedNode;
 
 /**
@@ -28,6 +30,10 @@ import com.nexusbpm.editor.tree.SharedNode;
  */
 public abstract class AbstractFileSystemCommand extends AbstractCommand {
     private static final Log LOG = LogFactory.getLog( AbstractFileSystemCommand.class );
+    
+    protected List<String> getChildNames( DataProxy folder) throws URISyntaxException {
+        return getChildNames( ((EditorDataProxy) folder).getTreeNode() );
+    }
     
     protected List<String> getChildNames( SharedNode folder ) throws URISyntaxException {
         List<String> ids = new LinkedList<String>();

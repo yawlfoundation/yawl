@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -33,16 +34,16 @@ public class YOrJoinUtils {
         if (marking == null || orJoin == null) {
             return null;
         }
-        List<YExternalNetElement> visitedFw = new ArrayList<YExternalNetElement>();
-        List<YExternalNetElement> visitingFw = new ArrayList<YExternalNetElement>();
+        Set<YExternalNetElement> visitedFw = new HashSet<YExternalNetElement>();
+        Set<YExternalNetElement> visitingFw = new HashSet<YExternalNetElement>();
         for (Iterator iterator = marking.getLocations().iterator(); iterator.hasNext();) {
             YNetElement element = (YNetElement) iterator.next();
             if (element instanceof YExternalNetElement) {
                 visitingFw.add((YExternalNetElement) element);
             }
         }
-        List<YExternalNetElement> visitedBk = new ArrayList<YExternalNetElement>();
-        List<YExternalNetElement> visitingBk = new ArrayList<YExternalNetElement>();
+        Set<YExternalNetElement> visitedBk = new HashSet<YExternalNetElement>();
+        Set<YExternalNetElement> visitingBk = new HashSet<YExternalNetElement>();
         visitingBk.add(orJoin);
         /*  REPEAT
                 oldVisitedFw := visitedFw;
@@ -152,9 +153,9 @@ public class YOrJoinUtils {
 
     public static List<YExternalNetElement> getRelevantPostset(YTask aTask, YTask orJoin) {
     	List<YExternalNetElement> returnSet = new ArrayList<YExternalNetElement>();
-    	List<YExternalNetElement> visiting = new ArrayList<YExternalNetElement>();
+    	Set<YExternalNetElement> visiting = new HashSet<YExternalNetElement>();
         visiting.add(orJoin);
-        List<YExternalNetElement> visited = new ArrayList<YExternalNetElement>();
+        Set<YExternalNetElement> visited = new HashSet<YExternalNetElement>();
         while (visiting.size() > 0) {
             visited.addAll(visiting);
             visiting = YNet.getPreset(visiting);
@@ -172,9 +173,9 @@ public class YOrJoinUtils {
 
 
     private static synchronized int countStepsInShortestPath(YTask task, YTask orJoin) {
-    	List<YExternalNetElement> visiting = new ArrayList<YExternalNetElement>();
+    	Set<YExternalNetElement> visiting = new HashSet<YExternalNetElement>();
         visiting.add(task);
-        List<YExternalNetElement> visited = new ArrayList<YExternalNetElement>();
+        Set<YExternalNetElement> visited = new HashSet<YExternalNetElement>();
         for (int i = 0; visiting.size() > 0; i++) {
             if (visiting.contains(orJoin)) {
                 return i;
