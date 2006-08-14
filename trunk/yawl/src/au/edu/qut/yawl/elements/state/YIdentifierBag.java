@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -58,6 +59,7 @@ public class YIdentifierBag implements Serializable{
 	
 	@Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @Column(name="bag_id")
 	public Long getId() {
 		return id;
 	}
