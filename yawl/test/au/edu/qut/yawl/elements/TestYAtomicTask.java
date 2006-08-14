@@ -439,7 +439,7 @@ public class TestYAtomicTask extends TestCase {
     		children = netRunner1.attemptToFireAtomicTask("SignOff_3");
     		assertFalse("Spec input condition contains identifier",
     				spec.getRootNet().getInputCondition().containsIdentifier());
-    		assertTrue("Task 'SignOff_3' busy", netRunner1.getBusyTaskNames().contains("SignOff_3"));
+    		assertTrue("Task 'SignOff_3' busy", netRunner1.getBusyTasks().contains("SignOff_3"));
     	}
     	catch(Exception e) {
     		StringWriter sw = new StringWriter();
