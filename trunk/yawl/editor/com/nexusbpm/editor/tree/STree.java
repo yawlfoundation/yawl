@@ -386,7 +386,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 	 * @param  e  Description of the Parameter
 	 */
 	public void drop( DropTargetDropEvent e ) {
-		LOG.error( "doing drop" );
+		LOG.debug( "doing drop" );
 		try {
 			Transferable tr = e.getTransferable();
 
@@ -746,11 +746,9 @@ implements MouseListener, KeyListener, TreeSelectionListener,
         assert data != null : "Proxy's data was null!";
         
         if( data instanceof DatasourceRoot ) {
-            // TODO make items visible/invisible as appropriate for the root
             menu.add( createFolder );
             menu.add( createSpecification );
         } else if( data instanceof DatasourceFolder ) {
-            // TODO show items appropriate for folders
             menu.add( createFolder );
             menu.add( createSpecification );
             menu.add( new JPopupMenu.Separator() );
@@ -758,7 +756,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             menu.add( new JPopupMenu.Separator() );
             menu.add( delete );
         } else if( data instanceof YSpecification ) {
-            // TODO show items for specs
             menu.add( createNet );
             menu.add( new JPopupMenu.Separator() );
             menu.add( save );
@@ -767,7 +764,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             menu.add( new JPopupMenu.Separator() );
             menu.add( delete );
         } else if( data instanceof YDecomposition ) {
-            // TODO show items for decomps
             if( data instanceof YNet ) {
                 menu.add( edit );
                 menu.add( new JPopupMenu.Separator() );
@@ -781,7 +777,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             }
             
         } else if( data instanceof YExternalNetElement ) {
-            // TODO show items for net elements
             if( data instanceof YAtomicTask ) {
                 menu.add( edit );
                 menu.add( new JPopupMenu.Separator() );
@@ -795,7 +790,6 @@ implements MouseListener, KeyListener, TreeSelectionListener,
             }
         } else {
             menu = null;
-            // TODO invalid selection
         }
         
         if( menu != null ) {

@@ -103,7 +103,6 @@ implements DataProxyStateChangeListener {
         // Empty.
     }
     public void proxyDetaching(DataProxy proxy, Object data, DataProxy parent) {
-        // TODO should we call  setUserObject( null );  ?
         LOG.debug("shared node rec'd detach " + proxy.getLabel() + ":" + data.toString());
     }
     public void proxyDetached(DataProxy proxy, Object data, DataProxy parent) {

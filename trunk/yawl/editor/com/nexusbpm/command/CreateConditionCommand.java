@@ -80,7 +80,6 @@ public class CreateConditionCommand extends AbstractCommand {
             condition = WorkflowOperation.createOutputCondition();
         }
         else {
-            // TODO do we need to URI encode the label when setting it as the ID?
             condition = WorkflowOperation.createCondition( netProxy.getData(), label );
         }
         conditionProxy = context.createProxy( condition, listener );
