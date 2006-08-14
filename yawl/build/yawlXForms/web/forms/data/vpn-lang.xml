@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- $Id: vpn-lang.xml,v 1.1 2005/12/21 10:07:36 joernt Exp $ -->
+
+<lang language="en">
+
+<!-- ======================================================================
+     GENERIC
+     ====================================================================== -->
+    <generic>
+        <itm-on>
+	    <label>on</label>
+	</itm-on>
+	<itm-off>
+            <label>off</label>
+        </itm-off>
+     </generic>
+
+    <!-- main configuration buttons -->
+    <main-buttons>
+        <btn-preferences>
+	    <label>User Preferences</label>
+	</btn-preferences>
+        <btn-vpn>
+	    <label>VPN</label>
+	</btn-vpn>
+        <btn-save>
+            <label>Save Configuration</label>
+        </btn-save>
+    </main-buttons>
+
+
+<!-- ======================================================================
+     User Preferences
+     ====================================================================== -->
+  <preferences>
+
+    <!-- groups in page preferences -->
+    <grp-confmode>  <!-- group 1 -->
+        <label>VPN Configuration Settings</label>
+    </grp-confmode>
+
+    <!-- controls in page preferences -->
+    <con-language>
+        <label>Language</label>
+	<itm-lang-en>
+	    <label>English</label>
+	</itm-lang-en>
+	<itm-lang-de>
+	    <label>German</label>
+	</itm-lang-de>
+    </con-language>
+
+    <con-confmode>
+        <label>Configuration Mode</label>
+        <itm-confmode-simple>
+            <label>Simple</label>
+        </itm-confmode-simple>
+        <itm-confmode-expert>
+            <label>Expert</label>
+        </itm-confmode-expert>
+        <itm-confmode-wizard>
+            <label>Wizard</label>
+        </itm-confmode-wizard>
+    </con-confmode>
+
+  </preferences>
+
+
+<!-- ======================================================================
+     Subform VPN
+     ====================================================================== -->
+
+    <vpn>
+        <vpn-buttons>
+            <btn-global>
+                <label>VPN Global Settings</label>
+            </btn-global>
+            <btn-ident>
+	        <label>My Identity</label>
+            </btn-ident>
+            <btn-peers>
+	        <label>My Peers</label>
+            </btn-peers>
+            <btn-addpeer>
+	        <label>Add Peer</label>
+            </btn-addpeer>
+            <btn-delpeer>
+	        <label>Delete Peer</label>
+            </btn-delpeer>
+        </vpn-buttons>
+
+	<!-- groups and controls for page vpn-main -->
+	<vpn-main>
+	    <grp-main>
+	        <label>VPN Configuration</label>
+		<text></text>
+	    </grp-main>
+            <con-enable>
+	        <label>Enable VPN</label>
+            </con-enable>
+	</vpn-main>
+
+        <vpn-global>
+
+	    <!-- groups in page vpn-global -->
+	    <grp-globparms>  <!-- group 1 global parameters -->
+	       <label>Global Settings</label>
+	    </grp-globparms>
+
+	    <grp-lifetimes>  <!-- group 2 lifetimes -->
+	       <label>Default Lifetimes</label>
+	    </grp-lifetimes>
+
+	    <grp-pathnames>  <!-- group 3 lifetimes -->
+	       <label>Pathnames</label>
+	    </grp-pathnames>
+
+	    <!-- controls in page vpn-global -->
+	    <con-listen-on>
+	       <label>Listen On</label>
+	    </con-listen-on>
+
+	    <con-retrans>
+	       <label>Retransmits</label>
+	    </con-retrans>
+
+	    <con-chkintvl>
+	       <label>Check Interval</label>
+	    </con-chkintvl>
+
+	    <con-exchmaxtime>
+	       <label>Maximum Exchange Time</label>
+	    </con-exchmaxtime>
+
+	    <con-p1-life-def>
+	       <label>Phase 1 Default Lifetime</label>
+	    </con-p1-life-def>
+
+	    <con-p1-life-min>
+	       <label>Phase 1 Minimum Lifetime</label>
+	    </con-p1-life-min>
+
+	    <con-p1-life-max>
+	       <label>Phase 1 Maximum Lifetime</label>
+	    </con-p1-life-max>
+
+	    <con-p2-life-def>
+	       <label>Phase 2 Default Lifetime</label>
+	    </con-p2-life-def>
+
+	    <con-p2-life-min>
+	       <label>Phase 2 Minimum Lifetime</label>
+	    </con-p2-life-min>
+
+	    <con-p2-life-max>
+	       <label>Phase 2 Maximum Lifetime</label>
+	    </con-p2-life-max>
+
+	    <con-policy-file>
+	       <label>Policy File</label>
+	    </con-policy-file>
+
+	    <con-pubkey-directory>
+	       <label>Public-Key Directory</label>
+	    </con-pubkey-directory>
+
+	    <con-ca-directory>
+	       <label>CA Directory</label>
+	    </con-ca-directory>
+
+	    <con-cert-directory>
+	       <label>Certificate Directory</label>
+	    </con-cert-directory>
+
+	    <con-private-key>
+	       <label>Private Key</label>
+	    </con-private-key>
+
+	</vpn-global>
+
+        <vpn-peers>
+
+            <!-- groups in page vpn-peers -->
+            <grp-vpnpeers>  <!-- group 1 vpnpeers-table -->
+                <label>VPN Peers</label>
+            </grp-vpnpeers>
+
+            <!-- controls inside the level1 repeat in page vpn-peers -->
+            <con-remlabel>
+                <label>Remote Name</label>
+            </con-remlabel>
+
+            <con-remaddr>
+                <label>Remote Address</label>
+            </con-remaddr>
+
+            <con-loclabel>
+                <label>Local Label</label>
+            </con-loclabel>
+
+            <con-remaddr>
+                <label>Remote Address</label>
+            </con-remaddr>
+
+            <con-locaddr>
+                <label>Local Address</label>
+            </con-locaddr>
+
+            <con-keyex>
+                <label>Key Exchange</label>
+            </con-keyex>
+
+        </vpn-peers>
+    </vpn>
+
+</lang>
+
+<!-- 
+*** HISTORY
+*
+* $Log: vpn-lang.xml,v $
+* Revision 1.1  2005/12/21 10:07:36  joernt
+* VPNConfigurator instance data files
+*
+* Revision 1.1  2005/03/06 12:19:53  chaklx
+* reviewed, use shared conf, use i18n
+*
+*
+
+-->

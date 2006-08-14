@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:chiba="http://chiba.sourceforge.net/xforms"
+    xmlns:xforms="http://www.w3.org/2002/xforms"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <head>
+        <title>Test Repeats</title>
+        <!-- nonsense example as syntax showcase for 'conditional user-agent stylesheet switching'
+        (these are the default stylesheets anyway if nothing is put here)-->
+
+        <xforms:model>
+            <xforms:submission id="debug" action="../jsp/debug-instance.jsp" method="post"
+                replace="all"/>
+            <xforms:instance xmlns="" id="default">
+                <data>
+                    <input1>2006-02-09</input1>
+                    <input2>2006-02-09</input2>
+                    <input3>2006-02-09T10:54:16+02:00</input3>
+                    <input4>2006-02-09T10:54:16+02:00</input4>
+
+                    <date>
+                        <input>2006-02-09</input>
+                        <input>2006-03-11</input>
+                        <input>2005-12-05</input>
+                    </date>
+                    <dateTime>
+                        <input>2006-02-09T10:54:16+02:00</input>
+                        <input>2006-03-11T12:24:16+02:00</input>
+                        <input>2005-12-05T12:24:16+02:00</input>
+                    </dateTime>
+                    <string>
+                        <input>Hallo</input>
+                        <input>Welt</input>
+                        <input>foo</input>
+                    </string>
+                </data>
+            </xforms:instance>
+
+            <xforms:bind nodeset="input1" type="date"/>
+            <xforms:bind nodeset="input2" readonly="true()" type="date"/>
+            <xforms:bind nodeset="input3" type="dateTime"/>
+            <xforms:bind nodeset="input4" readonly="true()" type="dateTime"/>
+
+            <xforms:bind id="repeatDate" nodeset="date/input[position() != last()]">
+                <xforms:bind id="entryDate" nodeset="./text()" type="date"/>
+            </xforms:bind>
+            <xforms:bind id="repeatDateTime" nodeset="dateTime/input[position() != last()]">
+                <xforms:bind id="entryDateTime" nodeset="./text()" type="dateTime"/>
+            </xforms:bind>
+
+            <xforms:bind id="repeatString" nodeset="string/input[position() != last()]">
+                <xforms:bind id="entryString" nodeset="." type="string" constraint="boolean-from-string(string-length(.) &gt; 0)"/>
+            </xforms:bind>
+
+        </xforms:model>
+        <style type="text/css">
+            .date div{display:inline;}
+        </style>
+
+    </head>
+    <body>
+        <xforms:group appearance="full">
+            <xforms:label>Repeat Tests</xforms:label>
+            <xforms:group>
+                <xforms:label>Dojo Time</xforms:label>
+                <input dojoType="AdjustableIntegerTextBox"
+                   value="00"
+                   delta="1"
+                   min="0"
+                   max="60"
+                   separator=""
+                   maxlength="2"
+                   widgetId="integertextbox1">
+                  </input>
+                  <span dojoType="Spinner" inputWidgetId="integertextbox1"></span>
+                  <br/>
+                <input dojoType="AdjustableIntegerTextBox"
+                   value="00"
+                   delta="1"
+                   min="0"
+                   max="60"
+                   maxlength="2"                        
+                   widgetId="integertextbox2">
+                  </input>
+                  <span dojoType="Spinner" inputWidgetId="integertextbox2"></span>
+                  <br/>
+                  </xforms:group>
+            <xforms:group appearance="full">
+                <xforms:label>Repeat: Input Type = dateTime</xforms:label>
+                <xforms:trigger>
+                    <xforms:label>Append</xforms:label>
+                    <xforms:action>
+                        <xforms:insert nodeset="/data/dateTime/input"
+                            xforms:at="last()-1" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete selected</xforms:label>
+                    <xforms:action>
+                        <xforms:delete bind="repeatDateTime" at="xforms:index('repeatDateTimeID')"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:repeat id="repeatDateTimeID" bind="repeatDateTime" appearance="full">
+                    <xforms:input bind="entryDateTime">
+                        <xforms:label>repeated input:</xforms:label>
+                        <xforms:hint>repeated enty</xforms:hint>
+                    </xforms:input>
+                </xforms:repeat>
+            </xforms:group>
+
+
+            <xforms:group appearance="full">
+                <xforms:label>Repeat: Input Type = string</xforms:label>
+                <xforms:trigger>
+                    <xforms:label>Append</xforms:label>
+                    <xforms:hint>appends a new entry at the end of this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:insert nodeset="string/input"
+                            xforms:at="last()=1" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete selected</xforms:label>
+                    <xforms:hint>deletes selected entry from this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:delete bind="repeatString" at="xforms:index('repeatStringID')"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:repeat id="repeatStringID" bind="repeatString" appearance="full">
+                    <xforms:input bind="entryString">
+                        <xforms:label>repeated input:</xforms:label>
+                        <xforms:hint>repeated enty</xforms:hint>
+                        <xforms:alert>must be non-empty string</xforms:alert>
+                    </xforms:input>
+                </xforms:repeat>
+            </xforms:group>
+
+
+            <xforms:submit submission="debug">
+                <xforms:label>Debug</xforms:label>
+            </xforms:submit>
+        </xforms:group>
+    </body>
+</html>

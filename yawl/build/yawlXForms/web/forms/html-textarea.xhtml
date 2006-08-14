@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xforms="http://www.w3.org/2002/xforms"
+    xmlns:ev="http://www.w3.org/2001/xml-events"
+    xmlns:chiba="http://chiba.sourceforge.net/xforms">
+    <head>
+        <title>HTML Textarea</title>
+		<xforms:model>
+            <xforms:submission id="debug" action="../jsp/debug-instance.jsp" method="post" replace="all"/>
+
+            <xforms:instance>
+				<root xmlns="">
+					<display>true</display>
+					<content><![CDATA[ ]]>
+					</content>
+					<rpt-content><![CDATA[<p>This is HTML content 1</p>]]>
+					</rpt-content>
+					<rpt-content><![CDATA[<p>This is HTML content 2</p>]]>
+					</rpt-content>
+					<rpt-content><![CDATA[<p>This is HTML content 3</p>]]>
+					</rpt-content>
+				</root>
+			</xforms:instance>
+			<xforms:bind id="bd-display" nodeset="display" type="boolean"/>
+			<xforms:bind id="bd-content" nodeset="content" relevant="/root/display = 'true'"/>
+		</xforms:model>
+    </head>
+    <body>
+		<xforms:group appearance="full">
+			<xforms:input ref="display" incremental="true">
+				<xforms:label>Show <![CDATA[<textarea xforms:mediatype="text/html">]]></xforms:label>
+			</xforms:input>
+			<xforms:group appearance="full" bind="bd-content">
+				<xforms:label>Textareas</xforms:label>
+				<xforms:textarea ref="." xforms:mediatype="text/html" incremental="true"/>
+				<xforms:textarea ref="." xforms:mediatype="text/html" incremental="false"/>
+			</xforms:group>
+		</xforms:group>
+		<xforms:group appearance="full">
+			<xforms:repeat id="rpt" nodeset="rpt-content">
+				<xforms:textarea ref="." xforms:mediatype="text/html">
+					<xforms:label>Textarea</xforms:label>
+				</xforms:textarea>
+				<xforms:output ref="." mediatype="text/html">
+					<xforms:label>HTML</xforms:label>
+				</xforms:output>
+			</xforms:repeat>
+			<xforms:trigger>
+				<xforms:label>Add</xforms:label>
+				<xforms:insert nodeset="rpt-content"
+                            xforms:at="last()" position="after"/>
+			</xforms:trigger>
+			<xforms:trigger>
+				<xforms:label>Delete</xforms:label>
+				<xforms:delete nodeset="rpt-content" at="index('rpt')"/>
+			</xforms:trigger>
+			<xforms:trigger>
+				<xforms:label>Debug</xforms:label>
+				<xforms:send submission="debug" />
+			</xforms:trigger>
+
+		</xforms:group>
+    </body>
+</html>

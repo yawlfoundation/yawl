@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: orderlist.xhtml,v 1.5 2006/07/25 22:25:58 joernt Exp $ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xf="http://www.w3.org/2002/xforms"
+    xmlns:ev="http://www.w3.org/2001/xml-events">
+    <head>
+        <title>Order List</title>
+        <style type="text/css">
+            .text-right {text-align: right;}
+            .repeat-header *{background:darkkhaki;}
+            .repeat-header label{padding:5px;font-weight:bold;}
+            fieldset {width:400px;}
+            fieldset fieldset{padding:0;}
+            fieldset fieldset table{margin-left:auto;margin-right:auto;text-align:center;}
+            .repeat-header{background:cadetblue;}
+            .repeat-header label{padding:5px;font-weight:bold;}
+            .col-1 label{width:50px;}
+            .col-2 {text-align:center;}
+            .col-2 .value{width:30px;text-align:center;}
+            .col-2 label{width:50px;}
+
+            .col-3 label{width:70px;}
+            .col-4 label{width:70px;}
+
+            #total {background:palegoldenrod;display:block;border-top:solid thin rgb( 188, 216, 132 );text-align:right;margin-top:20px;}
+            #total label{font-size:16pt;padding-top:5px;text-align:left;margin-left:30px;}
+            #total-value{display:block;padding:5px;font-size:16pt;padding-top:5px;white-space:nowrap;margin-right:30px;}
+
+
+        </style>
+        <xf:model>
+            <xf:instance xmlns="">
+                <order>
+                    <item amount="1" price="2.50" sum="">article_1</item>
+                    <item amount="1" price="5.00" sum="">article_2</item>
+                    <item amount="1" price="9.95" sum="">article_3</item>
+<!--
+                    <item amount="1" price="15.37" sum="">article_4</item>
+                    <item amount="1" price="12.25" sum="">article_5</item>
+-->
+                    <item amount="1" price="" sum=""/>
+                </order>
+            </xf:instance>
+
+            <xf:bind id="items" nodeset="item[position()!=last()]">
+                <xf:bind id="article" nodeset="." required="true()"/>
+                <xf:bind id="amount" nodeset="@amount" type="integer" required="true()" constraint=". &lt; 100"/>
+                <xf:bind id="price" nodeset="@price" type="float"/>
+                <xf:bind id="sum" nodeset="@sum" calculate="../@amount * ../@price" type="float" />
+            </xf:bind>
+        </xf:model>
+    </head>
+    <body>
+        <xf:group appearance="full">
+            <xf:label>A simple calculated Order List with slightly formatted output.</xf:label>
+
+            <xf:group appearance="minimal">
+                <xf:repeat id="repeatid" bind="items" appearance="compact">
+                    <xf:select1 bind="article">
+                        <xf:label>Article</xf:label>
+                        <xf:choices>
+                            <xf:item>
+                                <xf:label>Article 1</xf:label>
+                                <xf:value>article_1</xf:value>
+                                <xf:setvalue ev:event="xforms-select" bind="price">2.50</xf:setvalue>
+                            </xf:item>
+                            <xf:item>
+                                <xf:label>Article 2</xf:label>
+                                <xf:value>article_2</xf:value>
+                                <xf:setvalue ev:event="xforms-select" bind="price">5.00</xf:setvalue>
+                            </xf:item>
+                            <xf:item>
+                                <xf:label>Article 3</xf:label>
+                                <xf:value>article_3</xf:value>
+                                <xf:setvalue ev:event="xforms-select" bind="price">9.95</xf:setvalue>
+                            </xf:item>
+                            <xf:item>
+                                <xf:label>Article 4</xf:label>
+                                <xf:value>article_4</xf:value>
+                                <xf:setvalue ev:event="xforms-select" bind="price">15.37</xf:setvalue>
+                            </xf:item>
+                            <xf:item>
+                                <xf:label>Article 5</xf:label>
+                                <xf:value>article_5</xf:value>
+                                <xf:setvalue ev:event="xforms-select" bind="price">12.25</xf:setvalue>
+                            </xf:item>
+                            <xf:item>
+                                <xf:label>Article 6</xf:label>
+                                <xf:value>article_6</xf:value>
+                                <xf:setvalue ev:event="xforms-select" bind="price">47.11</xf:setvalue>
+                            </xf:item>
+                        </xf:choices>
+                    </xf:select1>
+                    <xf:input bind="amount" incremental="true">
+                        <xf:label>Amount</xf:label>
+                        <xf:alert>You can order a maximum of 99 items in one order</xf:alert>
+                    </xf:input>
+                    <xf:output value="format-number(@price, '€ #.00')" class="text-right">
+                        <xf:label>Price</xf:label>
+                    </xf:output>
+                    <xf:output value="format-number(@sum, '€ #.00')" class="text-right">
+                        <xf:label>Sum</xf:label>
+                    </xf:output>
+                </xf:repeat>
+
+                <xf:output id="total" value="format-number(sum(/order/item/@sum), '€ #.00')">
+                    <xf:label>Total Price: </xf:label>
+                </xf:output>
+            </xf:group>
+
+            <xf:group appearance="minimal">
+                <xf:trigger>
+                    <xf:label>Add item</xf:label>
+                    <xf:action>
+                        <xf:insert bind="items" at="last()" position="after"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:trigger>
+                    <xf:label>Delete item</xf:label>
+                    <xf:action>
+                        <xf:delete bind="items" at="index('repeatid')"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:trigger>
+                    <xf:label>Reset</xf:label>
+                    <xf:action>
+                        <xf:reset/>
+                    </xf:action>
+                </xf:trigger>
+            </xf:group>
+        </xf:group>
+    </body>
+</html>

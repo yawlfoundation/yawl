@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xf="http://www.w3.org/2002/xforms">
+    <head>
+        <title>HTML Content Editor</title>
+        <style type="text/css">
+            .column {
+                float: left;
+            }
+        </style>
+        <xf:model>
+            <xf:instance src="data/cdata-instance.xml"/>
+            <xf:submission id="s-debug" action="../jsp/debug-instance.jsp" method="post" replace="all"/>
+        </xf:model>
+    </head>
+    <body>
+        <xf:group appearance="compact">
+            <xf:label>HTML Content Editor</xf:label>
+            <xf:group appearance="full" class="column">
+                <xf:label>Edit a <b>&lt;![CDATA[]]&gt;</b> node</xf:label>
+                <xf:textarea ref="text">
+                    <xf:label/>
+                </xf:textarea>
+            </xf:group>
+            <xf:group appearance="full" class="column">
+                <xf:label>View through <b>&lt;xf:output mediatype="text/html"/&gt;</b></xf:label>
+                <xf:output ref="text" mediatype="text/html"/>
+            </xf:group>
+        </xf:group>
+        <xf:group appearance="minimal">
+            <xf:trigger>
+                <xf:label>Debug</xf:label>
+                <xf:action>
+                    <xf:send submission="s-debug"/>
+                </xf:action>
+            </xf:trigger>
+        </xf:group>
+    </body>
+</html>
