@@ -129,6 +129,7 @@ class YSpecificationParser {
                         this,
                         _specification.getBetaVersion());
                 YDecomposition decomposition = _decompositionParser[i].getDecomposition();
+                
                 _specification.setDecomposition(decomposition);
             }
         }
@@ -231,6 +232,7 @@ class YSpecificationParser {
             while (compTasksIter.hasNext()) {
                 YTask task = (YTask) compTasksIter.next();
                 String decompID = (String) decomposesToIDs.get(task);
+            	decompID = decompID.replace(" ", "_");
                 YDecomposition implementation = _specification.getDecomposition(decompID);
                 task.setDecompositionPrototype(implementation);
             }
