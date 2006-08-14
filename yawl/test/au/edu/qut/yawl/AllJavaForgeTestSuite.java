@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl;
 
+import operation.OperationTestSuite;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
@@ -55,10 +56,10 @@ public class AllJavaForgeTestSuite extends TestSuite{
 
         TestSuite suite = new TestSuite();
 //        suite.addTest(AdminToolTestSuite.suite());
-        //suite.addTest(ElementsTestSuite.suite());
+        suite.addTest(ElementsTestSuite.suite());
         suite.addTest(DataTestSuite.suite());
         suite.addTest(StateTestSuite.suite());
-        //suite.addTest(EngineTestSuite.suite());
+        suite.addTest(EngineTestSuite.suite());
         suite.addTest(ExceptionTestSuite.suite());
         suite.addTest(LoggingTestSuite.suite());
         //suite.addTest(PersistenceTestSuite.suite());
@@ -69,6 +70,8 @@ public class AllJavaForgeTestSuite extends TestSuite{
         suite.addTest(au.edu.qut.yawl.worklist.WorklistTestSuite.suite());
         suite.addTest(AuthenticationTestSuite.suite());
         //suite.addTest(NexusServiceTestSuite.suite());
+        suite.addTest(OperationTestSuite.suite());
+
         return suite;
     }
 

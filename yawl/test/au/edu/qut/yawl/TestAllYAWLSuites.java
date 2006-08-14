@@ -25,6 +25,8 @@ import au.edu.qut.yawl.schema.SchemaTestSuite;
 import au.edu.qut.yawl.unmarshal.UnmarshallerTestSuite;
 import au.edu.qut.yawl.util.UtilTestSuite;
 
+import au.edu.qut.yawl.exceptions.YAWLException;
+
 import com.nexusbpm.command.CommandTestSuite;
 import com.nexusbpm.services.NexusServiceTestSuite;
 
@@ -42,7 +44,16 @@ public class TestAllYAWLSuites extends TestSuite{
     }
 
 
+
     public static Test suite(){
+    	
+    	/*
+    	Disable logging to avoid unwanted error messages
+    	and display of exceptions which are actually being caught
+    	properly during testing
+    	*/
+    	YAWLException.setLogging(false);
+    	
         TestSuite suite = new TestSuite();
 //        suite.addTest(AdminToolTestSuite.suite());
         suite.addTest(ElementsTestSuite.suite());
