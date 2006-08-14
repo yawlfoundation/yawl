@@ -800,6 +800,7 @@ public class WorkflowOperation {
     
     public static void attachParametersToDecomposition( Collection<YParameter> params, YDecomposition decomp ) {
         for( YParameter param : params ) {
+        	param.setDecomposition(  decomp  );
             if( param.isInput() ) {
                 decomp.getInputParameters().add( param );
             }
