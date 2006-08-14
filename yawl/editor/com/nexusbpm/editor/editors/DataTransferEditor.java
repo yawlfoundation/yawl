@@ -51,12 +51,9 @@ import com.nexusbpm.services.data.NexusServiceData;
 import com.nexusbpm.services.data.Variable;
 
 /**
- * Editor for the email sender component.
+ * Editor for data transfer in YAWL
  * 
- * @see        com.ichg.capsela.domain.component.EmailSenderComponent
- * @author     catch23
- * @author     Daniel Gredler
- * @created    October 28, 2002
+ * @author Nathan Rose
  */
 public class DataTransferEditor extends ComponentEditor {
 	private static final Log LOG = LogFactory.getLog( DataTransferEditor.class );
@@ -76,7 +73,7 @@ public class DataTransferEditor extends ComponentEditor {
     private Set<VariableRow> addSet = new HashSet<VariableRow>();
     
     private JLabel variableNameTitle;
-    private JLabel transferSourceTitle;
+    private JLabel dataSourceTitle;
     private JLabel transferVariableTitle;
     
     private YNet net;
@@ -149,10 +146,10 @@ public class DataTransferEditor extends ComponentEditor {
         variableNameTitle.setFont( variableNameTitle.getFont().deriveFont( Font.BOLD ) );
         variableNameTitle.setHorizontalAlignment( SwingConstants.CENTER );
         
-        transferSourceTitle = new JLabel();
-        transferSourceTitle.setText( "Transfer source:" );
-        transferSourceTitle.setFont( transferSourceTitle.getFont().deriveFont( Font.BOLD ) );
-        transferSourceTitle.setHorizontalAlignment( SwingConstants.CENTER );
+        dataSourceTitle = new JLabel();
+        dataSourceTitle.setText( "Data source:" );
+        dataSourceTitle.setFont( dataSourceTitle.getFont().deriveFont( Font.BOLD ) );
+        dataSourceTitle.setHorizontalAlignment( SwingConstants.CENTER );
         
         transferVariableTitle = new JLabel();
         transferVariableTitle.setText( "Source variable/value:" );
@@ -237,8 +234,8 @@ public class DataTransferEditor extends ComponentEditor {
         
         buttonsPanel = new JPanel();
 //        SpringLayout buttonsLayout = new SpringLayout();
-        buttonsPanel.setLayout( new BoxLayout( buttonsPanel, BoxLayout.X_AXIS ) );
 //        buttonsPanel.setLayout( buttonsLayout );
+        buttonsPanel.setLayout( new BoxLayout( buttonsPanel, BoxLayout.X_AXIS ) );
         buttonsPanel.setBorder( BorderFactory.createEmptyBorder( 4, 4, 4, 4 ) );
         buttonsPanel.add( deleteButton );
         buttonsPanel.add( Box.createHorizontalStrut( 5 ) );
@@ -366,7 +363,7 @@ public class DataTransferEditor extends ComponentEditor {
         LOG.debug( "redisplaying rows" );
         variablesPanel.removeAll();
         variablesPanel.add( variableNameTitle );
-        variablesPanel.add( transferSourceTitle );
+        variablesPanel.add( dataSourceTitle );
         variablesPanel.add( transferVariableTitle );
         deleteButton.setEnabled( false );
         for( VariableRow row : displayedRows ) {
