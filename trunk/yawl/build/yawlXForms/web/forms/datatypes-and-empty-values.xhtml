@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xf="http://www.w3.org/2002/xforms"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:my="http://my.namespace.org">
+    <head>
+        <title>Datatypes and empty values</title>
+        <xf:model schema="#my-schema">
+            <xf:instance xmlns="">
+                <data>
+                    <test/>
+                    <test/>
+                    <test xsi:nil="true"/>
+                    <test/>
+                    <test xsi:nil="true"/>
+                </data>
+            </xf:instance>
+            <xf:bind id="b-test-1" nodeset="test[1]" type="integer"/>
+            <xf:bind id="b-test-2" nodeset="test[2]" type="xs:integer"/>
+            <xf:bind id="b-test-3" nodeset="test[3]" type="xs:integer"/>
+            <xf:bind id="b-test-4" nodeset="test[4]" type="my:restricted"/>
+            <xf:bind id="b-test-5" nodeset="test[5]" type="my:restricted"/>
+        </xf:model>
+        <xs:schema id="my-schema" targetNamespace="http://my.namespace.org">
+            <xs:simpleType name="restricted">
+                <xs:restriction base="xs:integer">
+                    <xs:maxInclusive value="180"/>
+                    <xs:minInclusive value="-180"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:schema>
+    </head>
+    <body>
+        <xf:group appearance="full">
+            <xf:label>Datatypes and empty values</xf:label>
+            <xf:input bind="b-test-1">
+                <xf:label>Type <b>integer</b></xf:label>
+                <xf:alert>A <b>integer</b> is needed</xf:alert>
+            </xf:input>
+            <xf:input bind="b-test-2">
+                <xf:label>Type <b>xs:integer</b></xf:label>
+                <xf:alert>A <b>xs:integer</b> is needed</xf:alert>
+            </xf:input>
+            <xf:input bind="b-test-3">
+                <xf:label>Type <b>xs:integer [xsi:nil='true']</b></xf:label>
+                <xf:alert>A <b>xs:integer [xsi:nil='true']</b> is needed</xf:alert>
+            </xf:input>
+            <xf:input bind="b-test-4">
+                <xf:label>Type <b>my:restricted</b></xf:label>
+                <xf:alert>A <b>my:restricted</b> is needed</xf:alert>
+            </xf:input>
+            <xf:input bind="b-test-3">
+                <xf:label>Type <b>my:restricted [xsi:nil='true']</b></xf:label>
+                <xf:alert>A <b>my:restricted [xsi:nil='true']</b> is needed</xf:alert>
+            </xf:input>
+        </xf:group>
+    </body>
+</html>

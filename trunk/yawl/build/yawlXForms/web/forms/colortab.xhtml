@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:chiba="http://chiba.sourceforge.net/xforms"
+    xmlns:ev="http://www.w3.org/2001/xml-events"
+    xmlns:xforms="http://www.w3.org/2002/xforms">
+    <head>
+        <title>Color selector</title>
+        <xforms:model>
+            <xforms:submission id="debug" action="../jsp/debug-instance.jsp" method="post" replace="all"/>
+            <xforms:instance xmlns="">
+                <data/>
+            </xforms:instance>
+        </xforms:model>
+        <style type="text/css">
+            .colortab {
+                width: 60%;
+                margin-bottom: 20px;
+                text-align: justify;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Choose your favorite Colour</h2>
+        <div class="colortab">
+        This is a demonstration of the XForms &apos;switch&apos; UI construct which allows conditional User Interfaces.
+        <br/><br/>
+        The following shows an example for a switch with appearance="full". This is interpreted to produce a
+        tabsheet representation. The triggers toggling the cases are rendered on the respective tab.
+        </div>
+        <xforms:switch appearance="full" class="colortab">
+            <xforms:case id="switch-toggles" selected="false">
+                <xforms:trigger id="bluebtn">
+                    <xforms:label>Blue</xforms:label>
+                    <xforms:action>
+                        <xforms:toggle case="case-blue"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger id="redbtn">
+                    <xforms:label>Red</xforms:label>
+                    <xforms:action>
+                        <xforms:toggle case="case-red"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger id="yellowbtn">
+                    <xforms:label>Yellow</xforms:label>
+                    <xforms:action>
+                        <xforms:toggle case="case-yellow"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger id="greenbtn">
+                    <xforms:label>Green</xforms:label>
+                    <xforms:action>
+                        <xforms:toggle case="case-green"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger id="whitebtn">
+                    <xforms:label>White</xforms:label>
+                    <xforms:action>
+                        <xforms:toggle case="case-white"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger id="purplebtn">
+                    <xforms:label>Purple</xforms:label>
+                    <xforms:action>
+                        <xforms:toggle case="case-purple"/>
+                    </xforms:action>
+                </xforms:trigger>
+            </xforms:case>
+            <xforms:case id="case-blue" selected="true">
+                <xforms:label>blue</xforms:label>
+                <table bgcolor="blue" width="100%">
+                    <tr>
+                        <td align="center">
+                            <br/>
+                            <br/>
+                            <br/>
+                            Hello Blue Lover
+                            <br/>
+                            <br/>
+                            <br/>
+                        </td>
+                    </tr>
+                </table>
+            </xforms:case>
+            <xforms:case id="case-red" selected="false">
+                <xforms:label>red</xforms:label>
+                <table bgcolor="red"  width="100%">
+                    <tr>
+                        <td align="center">
+                            <br/>
+                            <br/>
+                            <br/>
+                            Hello Red Lover
+                            <br/>
+                            <br/>
+                            <br/>
+                        </td>
+                    </tr>
+                </table>
+            </xforms:case>
+            <xforms:case id="case-yellow" selected="false">
+                <xforms:label>yellow</xforms:label>
+                <table bgcolor="yellow"  width="100%">
+                    <tr>
+                        <td align="center">
+                            <br/>
+                            <br/>
+                            <br/>
+                            Hello Yellow Lover
+                            <br/>
+                            <br/>
+                            <br/>
+                        </td>
+                    </tr>
+                </table>
+            </xforms:case>
+            <xforms:case id="case-green" selected="false">
+                <xforms:label>green</xforms:label>
+                <table bgcolor="green"  width="100%">
+                    <tr>
+                        <td align="center">
+                            <br/>
+                            <br/>
+                            <br/>
+                            Hello Green Lover
+                            <br/>
+                            <br/>
+                            <br/>
+                        </td>
+                    </tr>
+                </table>
+            </xforms:case>
+            <xforms:case id="case-white" selected="false">
+                <xforms:label>white</xforms:label>
+                <table bgcolor="white"  width="100%">
+                    <tr>
+                        <td align="center">
+                            <br/>
+                            <br/>
+                            <br/>
+                            Hello White Lover
+                            <br/>
+                            <br/>
+                            <br/>
+                        </td>
+                    </tr>
+                </table>
+            </xforms:case>
+            <xforms:case id="case-purple" selected="false">
+                <xforms:label>purple</xforms:label>
+                <table bgcolor="purple"  width="100%">
+                    <tr>
+                        <td align="center">
+                            <br/>
+                            <br/>
+                            <br/>
+                            Hello Purple Lover
+                            <br/>
+                            <br/>
+                            <br/>
+                        </td>
+                    </tr>
+                </table>
+            </xforms:case>
+        </xforms:switch>
+
+<!--
+        <fieldset>
+            <legend style="position:relative;">
+                <input type="button" value="foo" />
+                <input type="button" value="bar"/>
+                <input type="button" value="baz"/>
+            </legend>
+        </fieldset>
+-->
+    </body>
+</html>

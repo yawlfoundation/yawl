@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xforms="http://www.w3.org/2002/xforms"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:ev="http://www.w3.org/2001/xml-events">
+    <head>
+        <title>hello</title>
+        <xforms:model id="C-1">
+            <xforms:submission id="debug" action="../jsp/debug-instance.jsp" method="post" replace="all"/>
+            <xforms:instance id="C-2" xmlns="">
+                <data>
+                    <name/>
+                </data>
+            </xforms:instance>
+
+            <xforms:action ev:event="xforms-ready">
+                <xforms:load resource="images/chiba50t.gif"/>
+                <!--<xforms:send submission="debug"/>-->
+            </xforms:action>
+        </xforms:model>
+    </head>
+    <body>
+        <xforms:group id="C-3" appearance="minimal">
+            <xforms:label id="C-4">Hello</xforms:label>
+        </xforms:group>
+    </body>
+</html>

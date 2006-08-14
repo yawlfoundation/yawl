@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:chiba="http://chiba.sourceforge.net/xforms"
+    xmlns:xf="http://www.w3.org/2002/xforms"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ev="http://www.w3.org/2001/xml-events">
+    <head>
+        <title>Formbuilder</title>
+        <style type="text/css">
+            #buttons{
+                display:block;
+                float:none;
+                position:relative;
+                left:10;
+                background:rgb( 234, 241, 220 );
+                width:100%;
+                padding:5px;
+                border:thin solid rgb( 188, 216, 132 );
+            }
+            #formstructure{float:left;}
+            #helper-buttons{
+            }
+            #input-id .value{width:50px;}
+            #details{float:left;}
+            .textarea .value{height:40px;width:150px;}
+            .input .value{width:150px;}
+            .input-level .value{width:30px;text-align:center;}
+        </style>
+
+        <xf:model>
+            <!--<xf:submission id="save" method="post" replace="instance" action="data/formdef.xml"/>-->
+            <xf:submission id="debug" method="post" replace="all" action="../jsp/debug-instance.jsp"/>
+
+            <xf:instance xmlns="" src="data/formdef.xml"/>
+
+            <xf:bind nodeset="name" required="true()"/>
+            <xf:bind nodeset="formdata/element">
+                <xf:bind nodeset="@type"
+                         required="true()"/>
+                <xf:bind nodeset="@appearance"
+                         relevant="not(../@type='case')"/>
+                <xf:bind nodeset="@nodename"
+                         relevant="not(../@type='case' or ../@type='switch')"/>
+                <xf:bind nodeset="label"
+                         required="not(../@type='group' or ../@type='output')"
+                         relevant="not(../@type='repeat' or ../@type='case' or ../@type='switch')"/>
+                <xf:bind nodeset="hint"
+                         relevant="not(../@type='case' or ../@type='switch')"/>
+                <xf:bind nodeset="help"
+                         relevant="not(../@type='case' or ../@type='switch')"/>
+
+                <xf:bind nodeset="mips" relevant="not(../@type='case' or ../@type='switch')">
+                    <xf:bind nodeset="readonly" relevant="not(../../@type='output')"/>
+                    <xf:bind nodeset="required" relevant="not(../../@type='output')"/>
+                    <xf:bind nodeset="constraint" relevant="not(../../@type='output')"/>
+                    <xf:bind nodeset="alert" relevant="string-length(../@constraint) != 0"/>
+                </xf:bind>
+
+                <!-- output-specific start -->
+                <xf:bind nodeset="value" relevant="../@type='output'"/>
+                <!-- output-specific end -->
+
+                <!-- select/select1-specific -->
+                <xf:bind nodeset="list" relevant="../@type='select' or ../@type='select1'"/>
+
+                <!-- case-specific -->
+                <xf:bind nodeset="@selected"
+                         relevant="../@type='case'"/>
+
+                <!-- range-specific -->
+                <xf:bind nodeset="@start" relevant="../@type='range'"/>
+                <xf:bind nodeset="@end" relevant="../@type='range'"/>
+                <xf:bind nodeset="@step" relevant="../@type='range'"/>
+
+                <!-- submit-specific -->
+                <xf:bind nodeset="@submission" relevant="../@type='submit'" required="true()"/>
+
+                <!-- upload specific -->
+                <xf:bind nodeset="@filename" relevant="../@type='upload'"/>
+                <xf:bind nodeset="@mediatype" relevant="../@type='upload'"/>
+
+
+            </xf:bind>
+
+            <xf:action ev:event="xforms-submit-error">
+                <xf:message>Problem during submission - please check your inputs</xf:message>
+            </xf:action>
+        </xf:model>
+    </head>
+    <body>
+            <div id="buttons">
+                <xf:trigger>
+                    <xf:label>debug</xf:label>
+                    <xf:send submission="debug"/>
+                </xf:trigger>
+                <xf:trigger>
+                    <xf:label>save</xf:label>
+                    <xf:send submission="save"/>
+                </xf:trigger>
+            </div>
+
+            <xf:group id="formstructure">
+                <xf:label>Form Structure</xf:label>
+
+
+                <xf:repeat id="elements" nodeset="formdata/element" appearance="compact">
+                    <xf:input class="input-level" ref="@level">
+                        <xf:label>Level</xf:label>
+                    </xf:input>
+                    <xf:select1 ref="@type" appearance="minimal">
+                        <xf:label>UI Element</xf:label>
+                        <xf:choices>
+                        <xf:item>
+                            <xf:label>Group</xf:label>
+                            <xf:value>group</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Repeat</xf:label>
+                            <xf:value>repeat</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Switch</xf:label>
+                            <xf:value>switch</xf:value>
+<!--
+                            <xf:action ev:event="xforms-select">
+                                <xf:insert nodeset="/form/formdata/element" position="after" at="index('elements')"/>
+                                <xf:setvalue ref="/form/formdata/element[index('elements')]/@type" value="'case'"/>
+                                <xf:setvalue ref="/form/formdata/element[index('elements')]/@level"
+                                             value="format-number(. + 1,0)"/>
+                            </xf:action>
+-->
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Case</xf:label>
+                            <xf:value>case</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>---</xf:label>
+                            <xf:value></xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Input</xf:label>
+                            <xf:value>input</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Output</xf:label>
+                            <xf:value>output</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Secret</xf:label>
+                            <xf:value>secret</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Select1</xf:label>
+                            <xf:value>select1</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Select</xf:label>
+                            <xf:value>select</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Submit</xf:label>
+                            <xf:value>submit</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Range</xf:label>
+                            <xf:value>range</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Textarea</xf:label>
+                            <xf:value>textarea</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Trigger</xf:label>
+                            <xf:value>trigger</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>Upload</xf:label>
+                            <xf:value>upload</xf:value>
+                        </xf:item>
+                        </xf:choices>
+                    </xf:select1>
+                </xf:repeat>
+                <xf:group id="helper-buttons" appearance="minimal">
+                    <xf:trigger>
+                        <xf:label>+</xf:label>
+                        <xf:insert nodeset="formdata/element" position="after" at="index('elements')"/>
+                    </xf:trigger>
+                    <xf:trigger>
+                        <xf:label>-</xf:label>
+                        <xf:delete nodeset="formdata/element" at="index('elements')"/>
+                    </xf:trigger>
+                    <xf:trigger>
+                        <xf:label>&gt;</xf:label>
+                        <xf:setvalue ref="/form/formdata/element[index('elements')]/@level" value="format-number(. + 1,0)"/>
+                    </xf:trigger>
+                    <xf:trigger>
+                        <xf:label>&lt;</xf:label>
+                        <xf:setvalue ref="/form/formdata/element[index('elements')]/@level" value="format-number(if(. &gt; 1,. -1,1),0)"/>
+                    </xf:trigger>
+                    <xf:trigger>
+                        <xf:label>up</xf:label>
+
+                    </xf:trigger>
+                    <xf:trigger>
+                        <xf:label>down</xf:label>
+
+                    </xf:trigger>
+
+                </xf:group>
+            </xf:group>
+
+
+            <xf:group id="details" ref="formdata/element[index('elements')]" appearance="full">
+                <xf:label>Component Details</xf:label>
+                <xf:group appearance="minimal">
+                    <xf:label>General</xf:label>
+                    <xf:input id="input-id" ref="@id">
+                        <xf:label>Id</xf:label>
+                        <xf:action ev:event="xforms-value-changed">
+                            <xf:setvalue ref="/form/formdata/element[index('elements')]/@nodename"
+                                         value="/form/formdata/element[index('elements')]/@id"/>
+                        </xf:action>
+                    </xf:input>
+                    <xf:select1 ref="@selected">
+                        <xf:label>selected</xf:label>
+                        <xf:item>
+                            <xf:label>selected</xf:label>
+                            <xf:value>true</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>deselected</xf:label>
+                            <xf:value>false</xf:value>
+                        </xf:item>
+                    </xf:select1>
+                    <xf:select1 appearance="minimal" ref="@appearance">
+                        <xf:label>Appearance</xf:label>
+                        <xf:item>
+                            <xf:label></xf:label>
+                            <xf:value></xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>minimal</xf:label>
+                            <xf:value>minimal</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>compact</xf:label>
+                            <xf:value>compact</xf:value>
+                        </xf:item>
+                        <xf:item>
+                            <xf:label>full</xf:label>
+                            <xf:value>full</xf:value>
+                        </xf:item>
+                    </xf:select1>
+                    <xf:input ref="@nodename">
+                        <xf:label>Instance Nodename</xf:label>
+                    </xf:input>
+                    <xf:input ref="label">
+                        <xf:label>Label</xf:label>
+                    </xf:input>
+                    <xf:textarea ref="hint">
+                        <xf:label>Hint</xf:label>
+                    </xf:textarea>
+                    <xf:textarea ref="help">
+                        <xf:label>Help</xf:label>
+                    </xf:textarea>
+
+                    <!-- output-specific start -->
+                    <xf:input ref="value">
+                        <xf:label>Value</xf:label>
+                    </xf:input>
+                    <!-- output-specific end -->
+
+                    <!-- range-specific start -->
+                    <xf:input ref="@start">
+                        <xf:label>Start</xf:label>
+                    </xf:input>
+                    <xf:input ref="@end">
+                        <xf:label>End</xf:label>
+                    </xf:input>
+                    <xf:input ref="@step">
+                        <xf:label>Step</xf:label>
+                    </xf:input>
+                    <!-- range-specific end -->
+
+                    <!-- select/select1-specific start -->
+                    <xf:group ref="list">
+                        <xf:label>List entries</xf:label>
+                        <xf:trigger>
+                            <xf:label>add</xf:label>
+                            <xf:insert nodeset="item" position="after" at="last()"/>
+                        </xf:trigger>
+                        <xf:trigger>
+                            <xf:label>delete</xf:label>
+                            <xf:delete nodeset="item" at="index('list')"/>
+                        </xf:trigger>
+                        <xf:repeat id="list" appearance="compact" nodeset="item">
+                            <xf:input ref="@label">
+                                <xf:label>Label</xf:label>
+                            </xf:input>
+                            <xf:input ref="@value">
+                                <xf:label>Value</xf:label>
+                            </xf:input>
+                        </xf:repeat>
+                    </xf:group>
+                    <!-- select/select1-specific end -->
+
+                    <!-- submit-specific start -->
+                    <xf:input ref="@submission">
+                        <xf:label>Submission</xf:label>
+                    </xf:input>
+                    <!-- submit-specific end -->
+
+                    <!-- upload-specific start -->
+                    <xf:input ref="@filename">
+                        <xf:label>Filename</xf:label>
+                    </xf:input>
+                    <xf:input ref="@mediatype">
+                        <xf:label>Mediatype</xf:label>
+                    </xf:input>
+                    <!-- upload-specific end -->
+
+
+                </xf:group>
+
+                <xf:group appearance="full" ref="mips">
+                    <xf:label>ModelItem Properties</xf:label>
+                    <xf:input ref="readonly">
+                        <xf:label>readonly</xf:label>
+                    </xf:input>
+                    <xf:input ref="required">
+                        <xf:label>required</xf:label>
+                    </xf:input>
+                    <xf:input ref="relevant">
+                        <xf:label>relevant</xf:label>
+                    </xf:input>
+                    <xf:input ref="constraint" incremental="true">
+                        <xf:label>constraint</xf:label>
+                    </xf:input>
+                    <xf:input ref="alert">
+                        <xf:label>Alert</xf:label>
+                    </xf:input>
+                    <xf:input ref="calculate">
+                        <xf:label>calculate</xf:label>
+                    </xf:input>
+                    <xf:input ref="datatype">
+                        <xf:label>datatype</xf:label>
+                    </xf:input>
+                </xf:group>
+
+            </xf:group>
+    </body>
+</html>

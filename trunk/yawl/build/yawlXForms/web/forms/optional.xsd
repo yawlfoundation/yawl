@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : optional.xsd
+    Created on : 22 September 2003, 09:07
+    Author     : Sophie Ramel
+    Description:
+        Test XMLSchema to generate the XForms document optional.xml to test optional values
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="unqualified">
+    <xsd:element name="optional">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="simple-mandatory-string" type="xsd:string"/>
+                <xsd:element name="simple-optional-string" type="xsd:string" minOccurs="0"/>
+                <xsd:element name="simple-mandatory-int" type="xsd:integer"/>
+                <xsd:element name="simple-optional-int" type="xsd:integer" minOccurs="0"/>
+                <xsd:element name="complex1-mandatory" type="complex-with-mandatory"/>
+                <xsd:element name="complex1-optional" type="complex-with-mandatory" minOccurs="0"/>
+                <xsd:element name="complex2-mandatory" type="complex-with-all-optional"/>
+                <xsd:element name="complex2-optional" type="complex-with-all-optional" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="complex-with-mandatory">
+        <xsd:sequence>
+            <xsd:element name="field-mandatory-string" type="xsd:string"/>
+            <xsd:element name="field-optional-string" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="complex-with-all-optional">
+        <xsd:sequence>
+            <xsd:element name="field1-optional-string" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="field2-optional-string" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

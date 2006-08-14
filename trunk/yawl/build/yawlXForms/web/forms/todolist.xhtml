@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--+ Example application for a Chiba Web  XForms ToDoList
+    + @version 0.01
+    + @date    26.04.2006
+    + @author Lars Windauer
+    + @licence OSI-approved Artistic License
+    + @liceceURL: http://opensource.org/licenses/artistic-license.php
+    + @knownBugs To many so far ;o)
+    +-->
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:chiba="http://chiba.sourceforge.net/xforms"
+        xmlns:ev="http://www.w3.org/2001/xml-events"
+        xmlns:xf="http://www.w3.org/2002/xforms"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+<head>
+    <title>Chiba XForms 2DoList</title>
+    <style type="text/css">
+        #column1 {display: inline;}
+        #column2 {display: inline;}
+    </style>
+    <xf:model>
+        <xf:instance id="tasks" src="data/todolist/todolist.xml" xmlns=""/>
+        <xf:instance id="lists" src="data/todolist/lists.xml" xmlns=""/>
+        <xf:instance id="controller" xmlns="">
+            <controller>
+                <index/>
+                <copy/>
+                <e-state>true</e-state>
+                <task id="" name="" summary="" owner="" start="" end="" priority="" status="" category=""/>
+            </controller>
+        </xf:instance>
+
+
+        <xf:submission id="debug" method="post" action="../jsp/debug-instance.jsp"/>
+        <xf:action ev:event="xforms-link-exception">
+            <xf:message>Instance loading failed.</xf:message>
+        </xf:action>
+
+        <xf:bind nodeset="instance('controller')">
+            <xf:bind id="editStatusReadonly" nodeset="e-state"/>
+            <xf:bind id="controllerTask" nodeset="task">
+                <xf:bind id="cTaskID" nodeset="@id"/>
+                <xf:bind id="cTaskName" nodeset="@name"/>
+                <xf:bind id="cTaskSum" nodeset="@summary"/>
+                <xf:bind id="cTaskOwner" nodeset="@owner"/>
+                <xf:bind id="cTaskStart" nodeset="@start"/>
+                <xf:bind id="cTaskEnd" nodeset="@end"/>
+                <xf:bind id="cTaskPrio" nodeset="@priority"/>
+                <xf:bind id="cTaskStatus" nodeset="@status"/>
+                <xf:bind id="cTaskCategory" nodeset="@category"/>
+            </xf:bind>
+            <xf:bind nodeset="index" calculate="index('tList')"/>
+            <xf:bind nodeset="copy" readonly="count(instance('tasks')/task)=1"/>
+        </xf:bind>
+
+        <xf:bind id="taskList" nodeset="instance('tasks')/task[position()!=last()]"
+                 readonly="boolean-from-string(instance('controller')/e-state)">
+            <xf:bind id="selectedTask" nodeset="instance('tasks')/task[index('tList')]">
+                <xf:bind id="taskID" nodeset="@id"/>
+                <xf:bind id="taskName" nodeset="@name"/>
+                <xf:bind id="taskSum" nodeset="summary"/>
+                <xf:bind id="taskOwner" nodeset="owner"/>
+                <xf:bind id="taskStart" nodeset="start"/>
+                <xf:bind id="taskEnd" nodeset="end"/>
+                <xf:bind id="taskPrio" nodeset="priority"/>
+                <xf:bind id="taskStatus" nodeset="status"/>
+                <xf:bind id="taskCategory" nodeset="category"/>
+            </xf:bind>
+        </xf:bind>
+    </xf:model>
+</head>
+<!--++++++++++     LAYOUT    ++++++++++-->
+<body>
+<xf:group appearance="full">
+<xf:label><b>Chiba XForms 2DoList</b></xf:label>
+<xf:switch>
+<xf:case id="t-default">
+    <xf:group appearance="full">
+        <xf:label>Task Overview</xf:label>
+        <xf:repeat id="tList" bind="taskList" appearance="compact">
+            <xf:output ref="@id">
+                <xf:label>ID</xf:label>
+            </xf:output>
+            <xf:output ref="@name">
+                <xf:label>Taskname</xf:label>
+            </xf:output>
+            <xf:output ref="summary">
+                <xf:label>Summary:</xf:label>
+            </xf:output>
+            <xf:output ref="owner">
+                <xf:label>Task Owner</xf:label>
+            </xf:output>
+        </xf:repeat>
+    </xf:group>
+    <xf:group bind="selectedTask"  id="column2">
+        <xf:label>Task Details</xf:label>
+        <xf:input bind="taskID">
+            <xf:label>ID</xf:label>
+        </xf:input>
+        <xf:input bind="taskName">
+            <xf:label>Taskname</xf:label>
+        </xf:input>
+        <xf:input bind="taskSum">
+            <xf:label>Summary</xf:label>
+        </xf:input>
+        <!-- TODO Output field produces an error if the last Task is deleted - Assumed Reason: substring function -->
+        <xf:output value="substring-before(string(end), 'T')">
+            <xf:label>End Date:</xf:label>
+        </xf:output>
+        <xf:input bind="taskOwner">
+            <xf:label>Owner</xf:label>
+        </xf:input>
+        <xf:output value="substring-before((substring-after(end, 'T')), '+')">
+            <xf:label>End Time</xf:label>
+        </xf:output>
+        <xf:select1 bind="taskPrio" appearance="minimal">
+            <xf:label>Priority</xf:label>
+            <xf:itemset nodeset="instance('lists')/priorities/priority">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <xf:select1 bind="taskStatus" appearance="minimal">
+            <xf:label>Status</xf:label>
+            <xf:itemset nodeset="instance('lists')/status/status">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <xf:select1 bind="taskCategory" appearance="minimal">
+            <xf:label>Category</xf:label>
+            <xf:itemset nodeset="instance('lists')/categories/category">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+    </xf:group>
+    <xf:group appearance="minimal">
+        <xf:trigger bind="controllerTask">
+            <xf:label>Create Task</xf:label>
+            <xf:action>
+                <xf:setvalue ref="@id" value="format-number(max(instance('tasks')/task/@id) + 1, '0')"/>
+                <xf:setvalue ref="@name"/>
+                <xf:setvalue ref="@summary"/>
+                <xf:setvalue ref="@owner"/>
+                <xf:setvalue ref="@start" value="now()"/>
+                <xf:setvalue ref="@end"/>
+                <xf:setvalue ref="@priority"/>
+                <xf:setvalue ref="@status"/>
+                <xf:setvalue ref="@category"/>
+                <xf:toggle case="t-create"/>
+            </xf:action>
+        </xf:trigger>
+        <xf:trigger ref="instance('controller')/copy">
+            <xf:label>Edit selected Task</xf:label>
+            <xf:action>
+                <xf:setvalue bind="cTaskID" value="instance('tasks')/task[index('tList')]/@id"/>
+                <xf:setvalue bind="cTaskName" value="instance('tasks')/task[index('tList')]/@name"/>/>
+                <xf:setvalue bind="cTaskSum" value="instance('tasks')/task[index('tList')]/summary"/>/>
+                <xf:setvalue bind="cTaskOwner" value="instance('tasks')/task[index('tList')]/owner"/>
+                <xf:setvalue bind="cTaskStart" value="instance('tasks')/task[index('tList')]/start"/>
+                <xf:setvalue bind="cTaskEnd" value="instance('tasks')/task[index('tList')]/end"/>
+                <xf:setvalue bind="cTaskPrio" value="instance('tasks')/task[index('tList')]/priority"/>
+                <xf:setvalue bind="cTaskStatus" value="instance('tasks')/task[index('tList')]/status"/>
+                <xf:setvalue bind="cTaskCategory" value="instance('tasks')/task[index('tList')]/category"/>
+                <xf:setvalue bind="editStatusReadonly" value="'false'"/>
+                <xf:toggle case="t-edit"/>
+            </xf:action>
+        </xf:trigger>
+        <xf:trigger ref="instance('controller')/copy">
+            <xf:label>Delete selected Task</xf:label>
+            <xf:action>
+                <xf:toggle case="t-delete"/>
+            </xf:action>
+        </xf:trigger>
+    </xf:group>
+</xf:case>
+<xf:case id="t-create">
+    <xf:group appearance="full" bind="controllerTask">
+        <xf:label>Create Issue </xf:label>
+        <xf:output ref="@id">
+            <xf:label>ID</xf:label>
+        </xf:output>
+        <xf:input ref="@name">
+            <xf:label>Taskname</xf:label>
+        </xf:input>
+        <xf:input ref="@summary">
+            <xf:label>Summary</xf:label>
+        </xf:input>
+        <xf:input ref="@end">
+            <xf:label>End</xf:label>
+        </xf:input>
+        <xf:input ref="@owner">
+            <xf:label>Owner</xf:label>
+        </xf:input>
+        <xf:select1 ref="@priority" appearance="minimal">
+            <xf:label>Priority</xf:label>
+            <xf:itemset nodeset="instance('lists')/priorities/priority">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <xf:select1 ref="@status" appearance="minimal">
+            <xf:label>Status</xf:label>
+            <xf:itemset nodeset="instance('lists')/status/status">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <xf:select1 ref="@category" appearance="minimal">
+            <xf:label>Category</xf:label>
+            <xf:itemset nodeset="instance('lists')/categories/category">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+    </xf:group>
+    <xf:group appearance="minimal">
+        <xf:trigger>
+            <xf:label>Create Task</xf:label>
+            <xf:action>
+                <xf:insert nodeset="instance('tasks')/task" at="last()" position="before"/>
+
+                <xf:setvalue bind="taskID" value="instance('controller')/task[1]/@id"/>
+                <xf:setvalue bind="taskName" value="instance('controller')/task[1]/@name"/>
+                <xf:setvalue bind="taskSum" value="instance('controller')/task[1]/@summary"/>
+                <xf:setvalue bind="taskOwner" value="instance('controller')/task[1]/@owner"/>
+                <xf:setvalue bind="taskStart" value="instance('controller')/task[1]/@start"/>
+                <xf:setvalue bind="taskEnd" value="instance('controller')/task[1]/@end"/>
+                <xf:setvalue bind="taskPrio" value="instance('controller')/task[1]/@priority"/>
+                <xf:setvalue bind="taskStatus" value="instance('controller')/task[1]/@status"/>
+                <xf:setvalue bind="taskCategory" value="instance('controller')/task[1]/@category"/>
+                <xf:setvalue bind="editStatusReadonly" value="'true'"/>
+                <xf:toggle case="t-default"/>
+            </xf:action>
+        </xf:trigger>
+        <xf:trigger>
+            <xf:label>Cancel</xf:label>
+            <xf:action>
+                <xf:toggle case="t-default"/>
+            </xf:action>
+        </xf:trigger>
+    </xf:group>
+</xf:case>
+<xf:case id="t-edit">
+    <xf:group appearance="full" bind="controllerTask">
+        <xf:label>Edit Task </xf:label>
+        <xf:output ref="@id">
+            <xf:label>ID</xf:label>
+        </xf:output>
+        <xf:input ref="@name">
+            <xf:label>Taskname</xf:label>
+        </xf:input>
+        <xf:input ref="@summary">
+            <xf:label>Summary</xf:label>
+        </xf:input>
+        <xf:input ref="@end">
+            <xf:label>End</xf:label>
+        </xf:input>
+        <xf:input ref="@owner">
+            <xf:label>Owner</xf:label>
+        </xf:input>
+        <xf:select1 ref="@priority" appearance="minimal">
+            <xf:label>Priority</xf:label>
+            <xf:itemset nodeset="instance('lists')/priorities/priority">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <xf:select1 ref="@status" appearance="minimal">
+            <xf:label>Status</xf:label>
+            <xf:itemset nodeset="instance('lists')/status/status">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <xf:select1 ref="@category" appearance="minimal">
+            <xf:label>Category</xf:label>
+            <xf:itemset nodeset="instance('lists')/categories/category">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+    </xf:group>
+    <xf:group appearance="minimal">
+        <xf:trigger>
+            <xf:label>Save</xf:label>
+            <xf:action>
+               <xf:setvalue bind="editStatusReadonly" value="'false'"/>
+                <xf:setvalue bind="taskName" value="instance('controller')/task[1]/@name"/>
+                <xf:setvalue bind="taskSum" value="instance('controller')/task[1]/@summary"/>
+                <xf:setvalue bind="taskOwner" value="instance('controller')/task[1]/@owner"/>
+                <xf:setvalue bind="taskStart" value="instance('controller')/task[1]/@start"/>
+                <xf:setvalue bind="taskEnd" value="instance('controller')/task[1]/@end"/>
+                <xf:setvalue bind="taskPrio" value="instance('controller')/task[1]/@priority"/>
+                <xf:setvalue bind="taskStatus" value="instance('controller')/task[1]/@status"/>
+                <xf:setvalue bind="taskCategory" value="instance('controller')/task[1]/@category"/>
+                <xf:setvalue bind="editStatusReadonly" value="'true'"/>
+                <xf:toggle case="t-default"/>
+            </xf:action>
+        </xf:trigger>
+        <xf:trigger>
+            <xf:label>Cancel</xf:label>
+            <xf:action>
+                <xf:toggle case="t-default"/>
+            </xf:action>
+        </xf:trigger>
+    </xf:group>
+</xf:case>
+<xf:case id="t-delete">
+    <xf:group appearance="minimal">
+        <xf:label>Delete selected Task</xf:label>
+        <p>Really delete <xf:output value="instance('tasks')/task[index('tList')]/@name"/>
+           (id: <xf:output value="instance('tasks')/task[index('tList')]/@id"/>)?</p>
+        <xf:trigger>
+            <xf:label>Yes, Delete Task </xf:label>
+            <xf:action>
+                <xf:toggle case="t-default"/>
+                <xf:delete nodeset="instance('tasks')/task" at="index('tList')"/>
+            </xf:action>
+        </xf:trigger>
+        <xf:trigger>
+            <xf:label>No, Cancel</xf:label>
+            <xf:action>
+                <xf:toggle case="t-default"/>
+            </xf:action>
+        </xf:trigger>
+    </xf:group>
+</xf:case>
+</xf:switch>
+<!-- /Group: Issues: Issue Details -->
+</xf:group>
+<xf:submit submission="debug">
+    <xf:label>Debug</xf:label>
+</xf:submit>
+</body>
+</html>
+

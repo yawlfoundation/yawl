@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:chiba="http://chiba.sourceforge.net/xforms"
+    xmlns:xforms="http://www.w3.org/2002/xforms"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <head>
+        <title>Test Repeats</title>
+        <!-- nonsense example as syntax showcase for 'conditional user-agent stylesheet switching'
+        (these are the default stylesheets anyway if nothing is put here)-->
+
+        <xforms:model>
+            <xforms:submission id="debug" action="../jsp/generate-instance.jsp" method="post"
+                replace="instance"/>
+            <xforms:instance xmlns="" id="default">
+                <data>
+                    <boolean>
+                        <input>false</input>
+                        <input>false</input>
+                        <input></input>
+                    </boolean>
+                    <date>
+                        <input>2006-02-09</input>
+                        <input>2006-03-11T12:24:16+02:00</input>
+                        <input>2005-12-03</input>
+                    </date>
+                    <string>
+                        <input>Hallo</input>
+                        <input>Welt</input>
+                        <input></input>
+                    </string>
+                    <upload1>
+                        <file filename="" mediatype=""></file>
+                        <file filename="" mediatype=""></file>
+                        <file filename="" mediatype=""></file>
+                    </upload1>
+                </data>
+            </xforms:instance>
+
+            <xforms:bind id="repeatBoolean" nodeset="boolean/input[position() != last()]">
+                <xforms:bind id="entryBoolean" nodeset="." type="boolean"/>
+            </xforms:bind>
+            <xforms:bind id="insertBooleanBtn" nodeset="boolean" readonly="count(*) = 1" />
+
+            <xforms:bind id="repeatDate" nodeset="date/input[position() != last()]">
+                <xforms:bind id="entryDate" nodeset="." type="date"/>
+            </xforms:bind>
+            <xforms:bind id="insertDateBtn" nodeset="date" readonly="count(*) = 1" />
+
+            <xforms:bind id="repeatString" nodeset="string/input[position() != last()]">
+                <xforms:bind id="entryString" nodeset="." type="string"/>
+            </xforms:bind>
+            <xforms:bind id="insertStringBtn" nodeset="string" readonly="count(*) = 1" />
+
+            <xforms:bind id="repeatUpload1" nodeset="upload1/file[position() != last()]" type="base64Binary">
+                <xforms:bind id="upload1FileName" nodeset="attribute::filename"/>
+                <xforms:bind id="upload1MediaType" nodeset="attribute::mediatype"/>
+            </xforms:bind>
+            <xforms:bind id="insertUploadBtn" nodeset="upload1" readonly="count(*) = 1" />
+
+        </xforms:model>
+    </head>
+    <body>
+        <xforms:group appearance="full">
+            <xforms:label>Repeat Tests</xforms:label>
+            <xforms:group appearance="full">
+                <xforms:label>Repeat: Input Type = boolean</xforms:label>
+                <xforms:trigger>
+                    <xforms:label>Append</xforms:label>
+                    <xforms:hint>appends a new entry at the end of this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:insert nodeset="boolean/input"
+                            xforms:at="last()=1" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger bind="insertBooleanBtn">
+                    <xforms:label>Insert after selected</xforms:label>
+                    <xforms:hint>appends a new entry at the end of this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:insert nodeset="/data/boolean/input"
+                            xforms:at="index('repeatBooleanID')" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete selected</xforms:label>
+                    <xforms:hint>deletes selected entry from this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:delete bind="repeatBoolean" at="xforms:index('repeatBooleanID')"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete last entry</xforms:label>
+                    <xforms:hint>deletes last entry from this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:delete bind="repeatBoolean" at="last()"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:repeat id="repeatBooleanID" bind="repeatBoolean" appearance="full">
+                    <xforms:input bind="entryBoolean">
+                        <xforms:label>repeated input:</xforms:label>
+                        <xforms:hint>repeated enty</xforms:hint>
+                    </xforms:input>
+                </xforms:repeat>
+            </xforms:group>
+
+
+            <xforms:group appearance="full">
+                <xforms:label>Repeat: Input Type = date</xforms:label>
+                <xforms:trigger>
+                    <xforms:label>Append</xforms:label>
+                    <xforms:hint>appends a new entry at the end of this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:insert nodeset="date/input"
+                            xforms:at="last()=1" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger bind="insertDateBtn">
+                    <xforms:label>Insert after selected</xforms:label>
+                    <xforms:hint>appends a new entry at the end of this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:insert nodeset="/data/date/input"
+                            xforms:at="index('repeatDateID')" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete selected</xforms:label>
+                    <xforms:hint>deletes selected entry from this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:delete bind="repeatDate" at="xforms:index('repeatDateID')"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete last entry</xforms:label>
+                    <xforms:hint>deletes last entry from this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:delete bind="repeatDate" at="last()"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:repeat id="repeatDateID" bind="repeatDate" appearance="full">
+                    <xforms:input bind="entryDate">
+                        <xforms:label>repeated input:</xforms:label>
+                        <xforms:hint>repeated enty</xforms:hint>
+                    </xforms:input>
+                </xforms:repeat>
+            </xforms:group>
+
+            <xforms:group appearance="full">
+                <xforms:label>Repeat: Input Type = string</xforms:label>
+                <xforms:trigger>
+                    <xforms:label>Append</xforms:label>
+                    <xforms:hint>appends a new entry at the end of this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:insert nodeset="string/input"
+                            xforms:at="last()=1" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger bind="insertStringBtn">
+                    <xforms:label>Insert after selected</xforms:label>
+                    <xforms:hint>appends a new entry at the end of this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:insert nodeset="/data/string/input"
+                            xforms:at="index('repeatStringID')" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete selected</xforms:label>
+                    <xforms:hint>deletes selected entry from this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:delete bind="repeatString" at="xforms:index('repeatStringID')"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete last entry</xforms:label>
+                    <xforms:hint>deletes last entry from this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:delete bind="repeatString" at="last()"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:repeat id="repeatStringID" bind="repeatString" appearance="full">
+                    <xforms:input bind="entryString">
+                        <xforms:label>repeated input:</xforms:label>
+                        <xforms:hint>repeated enty</xforms:hint>
+                    </xforms:input>
+                </xforms:repeat>
+            </xforms:group>
+
+            <xforms:group appearance="full">
+                <xforms:label>Repeat: Input Type = upload</xforms:label>
+                <xforms:trigger>
+                    <xforms:label>Append</xforms:label>
+                    <xforms:hint>appends a new entry at the end of this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:insert nodeset="upload1/file"
+                            xforms:at="last()=1" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger bind="insertUploadBtn">
+                    <xforms:label>Insert after selected</xforms:label>
+                    <xforms:hint>appends a new entry at the end of this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:insert nodeset="/data/upload1/file"
+                            xforms:at="index('repeatUpload1ID')" position="after"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete selected</xforms:label>
+                    <xforms:hint>deletes selected entry from this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:delete bind="repeatUpload1" at="xforms:index('repeatUpload1ID')"/>
+                    </xforms:action>
+                </xforms:trigger>
+                <xforms:trigger>
+                    <xforms:label>Delete last entry</xforms:label>
+                    <xforms:hint>deletes last entry from this collection</xforms:hint>
+                    <xforms:action>
+                        <xforms:delete bind="repeatUpload1" at="last()"/>
+                    </xforms:action>
+                </xforms:trigger>
+
+                <xforms:repeat id="repeatUpload1ID" bind="repeatUpload1" appearance="full">
+                    <xforms:upload bind="repeatUpload1" mediatype="text/plain image/* application/*">
+                        <xforms:label>File</xforms:label>
+                        <xforms:filename ref="attribute::filename"/>
+                        <xforms:mediatype ref="attribute::mediatype"/>
+                        <xforms:hint>The file will be uploaded using base64 encoding</xforms:hint>
+                    </xforms:upload>
+                </xforms:repeat>
+            </xforms:group>
+        </xforms:group>
+    </body>
+</html>

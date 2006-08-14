@@ -1,0 +1,737 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--+ Example application for a Chiba Web  XForms ToDoList
+    + @version 0.01
+    + @date    26.04.2006
+    + @author Lars Windauer
+    + @licence OSI-approved Artistic License
+    + @liceceURL: http://opensource.org/licenses/artistic-license.php
+    + @knownBugs To many so far ;o)
+    +-->
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:chiba="http://chiba.sourceforge.net/xforms"
+        xmlns:ev="http://www.w3.org/2001/xml-events"
+        xmlns:xf="http://www.w3.org/2002/xforms"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<head>
+    <title>Chiba Issuetracking</title>
+    <xf:model functions="chiba:context">
+        <!-- Instance Datas of the 2DoList -->
+        <!-- xf:instance src="data/toDoList.xml"/-->
+
+        <xf:instance id="issues" src="data/issueTracking/issues.xml"/>
+        <xf:instance id="categories" src="data/issueTracking/categories.xml"/>
+        <xf:instance id="projects" src="data/issueTracking/projects.xml"/>
+        <xf:instance id="users" src="data/issueTracking/users.xml"/>
+        <xf:instance id="controller" xmlns="">
+            <controller>
+                <issue btnSwitch="true" id="" summary="" type="" status="" priority="" severity="" date="" creator="" project="">
+                    <annotation/>
+                </issue>
+
+                <change summary="false" type="false" annotation="false" status="false" priority="false" severity="false"
+                        project="false" any="false" all="false"/>
+                <save-button/>
+                <copy/>
+            </controller>
+        </xf:instance>
+        <xf:bind nodeset="instance('controller')" >
+            <xf:bind id="controllerIssue" nodeset="issue" >
+                <xf:bind id="iSum" nodeset="@summary"   required="true()" />
+                <xf:bind id="iType" nodeset="@type"     required="true()"/>
+                <xf:bind id="iStatus" nodeset="@status" required="true()"/>
+                <xf:bind id="iPrio" nodeset="@priority" required="true()"/>
+                <xf:bind id="iSev" nodeset="@severity"  required="true()"/>
+                <xf:bind id="iCreator" nodeset="@creator" required="true()"/>
+                <xf:bind id="iProject" nodeset="@project"  required="true()"/>
+                <xf:bind id="iAnnotation" nodeset="annotation" type="string"  required="true()"/>
+                <xf:bind id="changedAll" nodeset="@btnSwitch" readonly="not(boolean(string-length(../@summary) &gt; 0 and
+                        string-length(../@type) &gt; 0 and
+                        string-length(../@status) &gt; 0 and
+                        string-length(../@priority) &gt; 0 and
+                        string-length(../@severity) &gt; 0 and
+                        string-length(../@project) &gt; 0 and
+                        string-length(../annotation) &gt; 0))"/>
+            </xf:bind>
+            <xf:bind nodeset="change">
+                <xf:bind id="changedAny" nodeset="@any" calculate="
+                    boolean-from-string(../@summary) or
+                    boolean-from-string(../@type) or
+                    boolean-from-string(../@status) or
+                    boolean-from-string(../@priority) or
+                    boolean-from-string(../@severity) or
+                    boolean-from-string(../@project) or
+                    boolean-from-string(../@annotation)"/>
+            </xf:bind>
+            <xf:bind id="save-button" nodeset="save-button"
+                     readonly="string-length(normalize-space(../issue/annotation))=0"/>
+            <xf:bind nodeset="copy" readonly="count(instance('issues')/issue)=1"/>
+        </xf:bind>
+
+
+        <xf:bind id="issueList" nodeset="instance('issues')/issue[position()!=last()]">
+            <xf:bind id="issueID" nodeset="@id"/>
+            <xf:bind id="userNick" nodeset="@creator"/>
+        </xf:bind>
+        <xf:bind id="selectedIssueDetails" nodeset="instance('issues')/issue[index('iList')]">
+            <xf:bind id="iChangeLog" nodeset="changelog/change"/>
+        </xf:bind>
+
+
+
+        <xf:submission id="debug-controller" method="post" ref="instance('controller')" action="../jsp/debug-instance.jsp" validate="false"/>
+        <xf:submission id="debug-categories" method="post" ref="instance('categories')" action="../jsp/debug-instance.jsp"/>
+        <xf:submission id="debug-users"      method="post" ref="instance('users')"      action="../jsp/debug-instance.jsp"/>
+        <xf:submission id="debug-issues"     method="post" ref="instance('issues')"     action="../jsp/debug-instance.jsp"/>
+        <xf:action ev:event="xforms-link-exception">
+            <xf:message>Instance loading failed.</xf:message>
+        </xf:action>
+    </xf:model>
+     <style type="text/css">
+            .compact-repeat .repeat-item td{
+                     padding:4px;
+             }
+
+            .repeat-index {
+                background: #F6AE4E;
+                color:#9E0000;
+            }
+            .repeat-index .value{
+                background: #F6AE4E;
+                color:#9E0000;
+            }
+            .repeat-index-pre {
+                background: #F28F00;
+                color:#F7F2C3;
+            }
+            .repeat-index-pre .value {
+                background: #F28F00;
+                color:#F7F2C3;
+            }
+
+            /* style the issue list repeat */
+            #iList label {color:#9E0000;font-weight:bold;}
+            #iList .col-1  label {width:15px;}
+            #iList .col-1 .value {width:15px;}
+            #iList .col-2  label {width:70px;}
+            #iList .col-2 .value {width:70px;}
+            #iList .col-3  label {width:90px;}
+            #iList .col-3 .value {width:90px;}
+            #iList .col-4  label {width:80px;}
+            #iList .col-4 .value {width:80px;}
+            #iList .col-5  label {width:60px;}
+            #iList .col-5 .value {width:60px;}
+            #iList .col-6  label {width:60px;}
+            #iList .col-6 .value {width:60px;}
+            #iList .col-7  label {width:60px;}
+            #iList .col-7 .value {width:60px;}
+            #iList .col-8  label {width:60px;}
+            #iList .col-8 .value {width:60px;}
+
+            /* style the issue list repeat */
+            #changeLogList label {color:#9E0000;font-weight:bold;}
+            /* Date */
+            #changeLogList .col-1  label {width:60px;}
+            #changeLogList .col-1 .value {width:60px;}
+            /* Time */
+            #changeLogList .col-2  label {width:60px;}
+            #changeLogList .col-2 .value {width:60px;}
+            /* Author */
+            #changeLogList .col-3  label {width:60px;}
+            #changeLogList .col-3 .value {width:60px;}
+            /* Type */
+            #changeLogList .col-4  label {width:60px;}
+            #changeLogList .col-4 .value {width:60px;}
+            /* Summary */
+            #changeLogList .col-5  label {width:60px;}
+            #changeLogList .col-5 .value {width:60px;}
+            /* Annotation */
+            #changeLogList .col-6  label {width:60px;}
+            #changeLogList .col-6 .value {width:60px;}
+            /* Project */
+            #changeLogList .col-7  label {width:60px;}
+            #changeLogList .col-7 .value {width:60px;}
+            /* Priority */
+            #changeLogList .col-8  label {width:60px;}
+            #changeLogList .col-8 .value {width:60px;}
+            /* Severity */
+            #changeLogList .col-9  label {width:60px;}
+            #changeLogList .col-9 .value {width:60px;}
+            /* Staqtus */
+            #changeLogList .col-10  label {width:60px;}
+            #changeLogList .col-10 .value {width:60px;}
+            #noborderCtrls{
+                border-width:0em;
+            }
+            #noborderMain{
+                border-width:0em;
+            }
+
+            #traxCreateIssue .select1 .value {
+                width:140px;
+            }
+            #traxCreateIssue .select1 label  {
+                width:80px;
+            }
+            #traxCreateIssue .input .value {
+                width:140px;
+            }
+            #traxCreateIssue .input label  {
+                width:80px;
+            }
+            #traxCreateIssue .textarea .value {
+                width:140px;
+            }
+            #traxCreateIssue .textarea label  {
+                width:80px;
+            }
+
+
+
+             * > fieldset {
+                border: thin solid;
+                border-color:#9E0000;
+                background: #F7F2C3;
+            }
+
+           /* IE */
+            fieldset fieldset{
+                margin:2px;
+                background:#F7F2C3;
+                padding-top:10px;
+            }
+
+
+            fieldset legend{
+
+                border-color:#9E0000;
+                background: #F7F2C3;
+
+            }
+            /** AADF00 */
+            .label  { color:#700000 }
+
+     </style>
+</head>
+
+<body>
+<xf:group appearance="full" id="trax-all">
+<xf:label><b>XF:TRAX</b></xf:label>
+<xf:group class="noborderCtrls" appearance="minimal">
+                <xf:trigger bind="controllerIssue" appearance="minimal">
+                    <xf:label>Create Issue</xf:label>
+                    <xf:action>
+                        <xf:setvalue ref="@id" value="format-number(max(instance('issues')/issue/@id) + 1, '0')"/>
+                        <xf:setvalue ref="@date" value="now()"/>
+                        <xf:setvalue ref="@creator"/>
+                        <xf:setvalue ref="@summary"/>
+                        <xf:setvalue ref="@type"/>
+                        <xf:setvalue ref="@status"/>
+                        <xf:setvalue ref="@priority"/>
+                        <xf:setvalue ref="@severity"/>
+                        <xf:setvalue ref="@project"/>
+                        <xf:setvalue ref="annotation"/>
+                        <xf:toggle case="create-issue"/>
+                    </xf:action>
+                </xf:trigger>
+                <div align="right">Logged in as <xf:output value="chiba:context('lassesUser')" appearance="minimal"/></div>
+        </xf:group>
+
+    <!-- Group: Issues: Issue Overview -->
+    <xf:switch>
+        <xf:case id="issue-list">
+            <xf:group appearance="compact" id="traxIssueList">
+             <xf:group class="noborderMain" appearance="full">
+                <xf:repeat id="iList" bind="issueList" appearance="compact">
+                    <xf:output ref="@id" id="iList-id">
+                        <xf:label>ID</xf:label>
+                    </xf:output>
+                    <xf:output ref="@type" id="iList-type">
+                        <xf:label>Type</xf:label>
+                    </xf:output>
+                    <xf:output ref="@summary" id="iList-summary" >
+                        <xf:label>Summary</xf:label>
+                    </xf:output>
+                    <xf:output value="substring-before(@date, 'T')" id="iList-date">
+                        <xf:label>Date</xf:label>
+                    </xf:output>
+                    <xf:output ref="@priority" id="iList-priority">
+                        <xf:label>Priority</xf:label>
+                    </xf:output>
+                    <xf:output ref="@severity" id="iList-severity">
+                        <xf:label>Severity</xf:label>
+                    </xf:output>
+                    <xf:output ref="@status" id="iList-status">
+                        <xf:label>Status</xf:label>
+                    </xf:output>
+                    <xf:output ref="@project" id="iList-project">
+                        <xf:label>Project</xf:label>
+                    </xf:output>
+                <xf:trigger ref="instance('controller')/copy" appearance="minimal">
+                    <xf:label>delete</xf:label>
+                    <xf:action>
+                        <xf:toggle case="delete-issue"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:trigger ref="instance('controller')/copy" appearance="minimal">
+                    <xf:label>details</xf:label>
+                        <xf:action>
+                        <xf:setvalue ref="instance('controller')/issue/@creator"/>
+                        <xf:setvalue ref="instance('controller')/issue/@summary"/>
+                        <xf:setvalue ref="instance('controller')/issue/@type"/>
+                        <xf:setvalue ref="instance('controller')/issue/@status"/>
+                        <xf:setvalue ref="instance('controller')/issue/@priority"/>
+                        <xf:setvalue ref="instance('controller')/issue/@severity"/>
+                        <xf:setvalue ref="instance('controller')/issue/@project"/>
+                        <xf:setvalue ref="instance('controller')/issue/annotation"/>
+
+                        <xf:toggle case="issue-details"/>
+                    </xf:action>
+                </xf:trigger>
+                </xf:repeat>
+             </xf:group>
+        </xf:group>
+        </xf:case>
+        <xf:case id="create-issue">
+        <xf:group id="traxCreateIssue" appearance="full" bind="controllerIssue">
+        <xf:label>Create Issue <xf:output ref="@id"/></xf:label>
+        <xf:group class="noborderMain">
+
+        <xf:select1 ref="instance('controller')/issue/@type" appearance="minimal">
+            <xf:label>Type</xf:label>
+            <xf:itemset nodeset="instance('categories')/itypes/type">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <br/>
+        <xf:input bind="iSum"  >
+            <xf:label>Summary</xf:label>
+            <xf:hint>Summary of the new issue</xf:hint>
+            <xf:alert>Hallo Welt</xf:alert>
+        </xf:input>
+        <br/>
+        <xf:textarea bind="iAnnotation" >
+            <xf:label>Description</xf:label>
+            <xf:hint>The description gives space for a more detailed specification of the issue</xf:hint>
+        </xf:textarea>
+        <br/>
+        <xf:select1 ref="instance('controller')/issue/@project" appearance="minimal">
+            <xf:label>Project</xf:label>
+            <xf:itemset nodeset="instance('projects')/project">
+                <xf:label ref="name"/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <br/>
+        <xf:select1 ref="instance('controller')/issue/@priority" appearance="minimal" >
+            <xf:label>Priority</xf:label>
+            <xf:itemset nodeset="instance('categories')/ipriorities/priority">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <br/>
+        <xf:select1 ref="instance('controller')/issue/@severity" appearance="minimal" >
+            <xf:label>Severity</xf:label>
+            <xf:itemset nodeset="instance('categories')/iseverities/severity">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <br/>
+        <xf:select1 ref="instance('controller')/issue/@status" appearance="minimal" >
+            <xf:label>Status</xf:label>
+            <xf:itemset nodeset="instance('categories')/istatus/status">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select1>
+        <br/>
+        </xf:group>
+        <xf:group class="noborderCtrls" appearance="minimal">
+                <xf:trigger bind="changedAll">
+                    <xf:label>Create</xf:label>
+                    <xf:action>
+                        <xf:setindex repeat="changeLogList" index="1"/>
+                        <xf:rebuild/>
+                        <xf:insert nodeset="instance('issues')/issue" at="last()" position="before"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/@id"
+                                     value="instance('controller')/issue/@id"/>
+
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/@date"
+                                     value="instance('controller')/issue/@date"/>
+
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/@creator"
+                                     value="instance('users')/user/@id[../nick=chiba:context('lassesUser')]"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/@type"
+                                     value="instance('controller')/issue/@type"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/@summary"
+                                     value="instance('controller')/issue/@summary"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/@status"
+                                     value="instance('controller')/issue/@status"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/@priority"
+                                     value="instance('controller')/issue/@priority"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/@severity"
+                                     value="instance('controller')/issue/@severity"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/@project"
+                                     value="instance('controller')/issue/@project"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/issueDesc"
+                                     value="instance('controller')/issue/annotation"/>
+                        <!-- Write the first change to the issue changelog and initialize it with the values from creation -->
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/@date"
+                                     value="instance('controller')/issue/@date"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/@author"
+                                     value="instance('users')/user/@id[../nick=chiba:context('lassesUser')]"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/summary"
+                                     value="instance('controller')/issue/@summary"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/type"
+                                     value="instance('controller')/issue/@type"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/status"
+                                     value="instance('controller')/issue/@status"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/priority"
+                                     value="instance('controller')/issue/@priority"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/severity"
+                                     value="instance('controller')/issue/@severity"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/project"
+                                     value="instance('controller')/issue/@project"/>
+                        <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/annotation"
+                                     value="'Issue created'"/>
+                        <xf:toggle case="issue-list"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:trigger>
+                    <xf:label>Cancel</xf:label>
+                    <xf:action>
+                        <xf:toggle case="issue-list"/>
+                    </xf:action>
+                </xf:trigger>
+            </xf:group>
+        </xf:group>
+        </xf:case>
+           <xf:case id="issue-details">
+                <xf:group id="traxIssueDetails" appearance="full" bind="selectedIssueDetails">
+                    <xf:label>Issue <xf:output ref="@id"/>  details</xf:label>
+                    <xf:output ref="@id">
+                        <xf:label>ID</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:output appearance="minimal" ref="instance('categories')/itypes/type[@id=instance('issues')/issue[index('iList')]/@type]">
+                        <xf:label>Type</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:output ref="@summary">
+                        <xf:label>Summary</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:output ref="instance('users')/user[@id=instance('issues')/issue[index('iList')]/@creator]/nick">
+                        <xf:label>Creator</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:output value="substring-before(@date, 'T')">
+                        <xf:label>Date</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:output ref="issueDesc">
+                        <xf:label>Description</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:output value="substring-before((substring-after(@date, 'T')), '+')">
+                        <xf:label>Time</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:output ref="instance('projects')/project[@id=instance('issues')/issue[index('iList')]/@project]/name">
+                        <xf:label>Project</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:output ref="instance('categories')/ipriorities/priority[@id=instance('issues')/issue[index('iList')]/@priority]">
+                        <xf:label>Priority</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:output ref="instance('categories')/iseverities/severity[@id=instance('issues')/issue[index('iList')]/@severity]">
+                        <xf:label>Severity</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:output ref="instance('categories')/istatus/status[@id=instance('issues')/issue[index('iList')]/@status]">
+                        <xf:label>Status</xf:label>
+                    </xf:output>
+                    <br/>
+                    <xf:group class="noborderCtrls" appearance="minimal">
+                        <xf:trigger appearance="compact">
+                            <xf:label>Edit issue</xf:label>
+                            <xf:action>
+                                <!-- Set up everything for edit item -->
+                                <xf:setvalue ref="instance('controller')/change/@summary"    value="'false'"/>
+                                <xf:setvalue ref="instance('controller')/change/@type"       value="'false'"/>
+                                <xf:setvalue ref="instance('controller')/change/@status"     value="'false'"/>
+                                <xf:setvalue ref="instance('controller')/change/@priority"   value="'false'"/>
+                                <xf:setvalue ref="instance('controller')/change/@severity"   value="'false'"/>
+                                <xf:setvalue ref="instance('controller')/change/@project"    value="'false'"/>
+                                <xf:setvalue ref="instance('controller')/change/@annotation" value="'false'"/>
+
+                                <xf:setvalue ref="instance('controller')/issue/@id"
+                                             value="instance('issues')/issue[index('iList')]/@id"/>
+                                <xf:setvalue ref="instance('controller')/issue/@date"
+                                             value="instance('issues')/issue[index('iList')]/@date"/>
+                                <xf:setvalue ref="instance('controller')/issue/@creator"
+                                             value="instance('issues')/issue[index('iList')]/@creator"/>
+                                <xf:setvalue ref="instance('controller')/issue/@summary"
+                                             value="instance('issues')/issue[index('iList')]/@summary"/>
+                                <xf:setvalue ref="instance('controller')/issue/@type"
+                                             value="instance('issues')/issue[index('iList')]/@type"/>
+                                <xf:setvalue ref="instance('controller')/issue/@status"
+                                             value="instance('issues')/issue[index('iList')]/@status"/>
+                                <xf:setvalue ref="instance('controller')/issue/@priority"
+                                             value="instance('issues')/issue[index('iList')]/@priority"/>
+                                <xf:setvalue ref="instance('controller')/issue/@severity"
+                                             value="instance('issues')/issue[index('iList')]/@severity"/>
+                                <xf:setvalue ref="instance('controller')/issue/@project"
+                                             value="instance('issues')/issue[index('iList')]/@project"/>
+                                <xf:setvalue bind="iAnnotation"/>
+                                <xf:toggle case="edit-issue"/>
+                            </xf:action>
+                        </xf:trigger>
+                        <xf:trigger appearance="compact">
+                            <xf:label>Issue history</xf:label>
+                            <xf:action>
+                                <xf:toggle case="issue-history"/>
+                            </xf:action>
+                        </xf:trigger>
+                        <xf:trigger appearance="compact">
+                            <xf:label>Return to Issue List</xf:label>
+                            <xf:action>
+                                <xf:toggle case="issue-list"/>
+                            </xf:action>
+                        </xf:trigger>
+                    </xf:group>
+                </xf:group>
+            </xf:case>
+            <xf:case id="edit-issue">
+                <xf:group appearance="full" id="traxEditIssue" ref="instance('controller')/issue">
+                <xf:label><b>Edit Issue <xf:output ref="instance('controller')/issue/@id"/></b></xf:label>
+                    <xf:select1 ref="@type" appearance="minimal">
+                        <xf:label>Type</xf:label>
+                        <xf:itemset nodeset="instance('categories')/itypes/type">
+                            <xf:label ref="."/>
+                            <xf:value ref="@id"/>
+                        </xf:itemset>
+                        <xf:action ev:event="xforms-value-changed">
+                            <xf:setvalue ref="instance('controller')/change/@type"
+                                         value="if(instance('controller')/issue/@type != instance('issues')/issue[index('iList')]/@type, true(), false())"/>
+                        </xf:action>
+                    </xf:select1>
+                    <xf:input ref="@summary">
+                        <xf:label>Summary</xf:label>
+                        <xf:action ev:event="xforms-value-changed">
+                            <xf:setvalue ref="instance('controller')/change/@summary"
+                                         value="if(instance('controller')/issue/@summary != instance('issues')/issue[index('iList')]/@summary, true(), false())"/>
+                        </xf:action>
+                    </xf:input>
+                    <xf:textarea bind="iAnnotation" incremental="true">
+                        <xf:label>Annotation</xf:label>
+                        <xf:action ev:event="xforms-value-changed">
+                            <xf:setvalue ref="instance('controller')/change/@annotation"
+                                         value="if(string-length(instance('controller')/issue/annotation) &gt; 0, true(), false())"/>
+                        </xf:action>
+                    </xf:textarea>
+                    <xf:select1 ref="@project" appearance="minimal">
+                        <xf:label>Project</xf:label>
+                        <xf:itemset nodeset="instance('projects')/project">
+                            <xf:label ref="name"/>
+                            <xf:value ref="@id"/>
+                        </xf:itemset>
+                        <xf:action ev:event="xforms-value-changed">
+                            <xf:setvalue ref="instance('controller')/change/@project"
+                                         value="if(instance('controller')/issue/@project != instance('issues')/issue[index('iList')]/@project, true(), false())"/>
+                        </xf:action>
+                    </xf:select1>
+                    <xf:select1 ref="@priority" appearance="minimal">
+                        <xf:label>Priority</xf:label>
+                        <xf:itemset nodeset="instance('categories')/ipriorities/priority">
+                            <xf:label ref="."/>
+                            <xf:value ref="@id"/>
+                        </xf:itemset>
+                        <xf:action ev:event="xforms-value-changed">
+                            <xf:setvalue ref="instance('controller')/change/@priority"
+                                         value="if(instance('controller')/issue/@priority != instance('issues')/issue[index('iList')]/@priority, true(), false())"/>
+                        </xf:action>
+                    </xf:select1>
+                    <xf:select1 ref="@severity" appearance="minimal">
+                        <xf:label>Severity</xf:label>
+                        <xf:itemset nodeset="instance('categories')/iseverities/severity">
+                            <xf:label ref="."/>
+                            <xf:value ref="@id"/>
+                        </xf:itemset>
+                        <xf:action ev:event="xforms-value-changed">
+                            <xf:setvalue ref="instance('controller')/change/@severity"
+                                         value="if(instance('controller')/issue/@severity != instance('issues')/issue[index('iList')]/@severity, true(), false())"/>
+                        </xf:action>
+                    </xf:select1>
+                    <xf:select1 ref="@status" appearance="minimal">
+                        <xf:label>Status</xf:label>
+                        <xf:itemset nodeset="instance('categories')/istatus/status">
+                            <xf:label ref="."/>
+                            <xf:value ref="@id"/>
+                        </xf:itemset>
+                        <xf:action ev:event="xforms-value-changed">
+                            <xf:setvalue ref="instance('controller')/change/@status"
+                                         value="if(instance('controller')/issue/@status != instance('issues')/issue[index('iList')]/@status, true(), false())"/>
+                        </xf:action>
+                    </xf:select1>
+                    <xf:group class="noborderCtrls" appearance="full">
+                        <xf:trigger ref="instance('controller')/save-button">
+                            <xf:label>Save</xf:label>
+                            <xf:action>
+                                <!-- compute changes -->
+                                <xf:insert nodeset="instance('issues')/issue[index('iList')]/changelog/change" at="1"
+                                           position="before"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/@date"
+                                             value="now()"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/@author"
+                                             value="instance('users')/user/@id[../nick=chiba:context('lassesUser')]"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/summary"
+                                             value="instance('issues')/issue[index('iList')]/@summary"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/type"
+                                             value="instance('issues')/issue[index('iList')]/@type"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/status"
+                                             value="instance('issues')/issue[index('iList')]/@status"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/priority"
+                                             value="instance('issues')/issue[index('iList')]/@priority"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/severity"
+                                             value="instance('issues')/issue[index('iList')]/@severity"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/project"
+                                             value="instance('issues')/issue[index('iList')]/@project"/>
+                                <!-- Delete everything that was not(!) changed -->
+                                <xf:delete nodeset="instance('issues')/issue[index('iList')]/changelog/change/summary"
+                                           at="if(boolean-from-string(instance('controller')/change/@summary), 0, 1)"/>
+                                <xf:delete nodeset="instance('issues')/issue[index('iList')]/changelog/change/type"
+                                           at="if(boolean-from-string(instance('controller')/change/@type), 0, 1)"/>
+                                <xf:delete nodeset="instance('issues')/issue[index('iList')]/changelog/change/status"
+                                           at="if(boolean-from-string(instance('controller')/change/@status), 0, 1)"/>
+                                <xf:delete nodeset="instance('issues')/issue[index('iList')]/changelog/change/priority"
+                                           at="if(boolean-from-string(instance('controller')/change/@priority), 0, 1)"/>
+                                <xf:delete nodeset="instance('issues')/issue[index('iList')]/changelog/change/severity"
+                                           at="if(boolean-from-string(instance('controller')/change/@severity), 0, 1)"/>
+                                <xf:delete nodeset="instance('issues')/issue[index('iList')]/changelog/change/project"
+                                           at="if(boolean-from-string(instance('controller')/change/@project), 0, 1)"/>
+                                <xf:delete nodeset="instance('issues')/issue[index('iList')]/changelog/change"
+                                           at="if(boolean-from-string(instance('controller')/change/@any), 0, 1)"/>
+                                <!-- update issue -->
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/@date"
+                                             value="instance('controller')/issue/@date"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/@summary"
+                                             value="instance('controller')/issue/@summary"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/@type"
+                                             value="instance('controller')/issue/@type"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/@status"
+                                             value="instance('controller')/issue/@status"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/@priority"
+                                             value="instance('controller')/issue/@priority"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/@severity"
+                                             value="instance('controller')/issue/@severity"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/@project"
+                                             value="instance('controller')/issue/@project"/>
+                                <xf:setvalue ref="instance('issues')/issue[index('iList')]/changelog/change/annotation"
+                                             value="instance('controller')/issue/annotation"/>
+                                <xf:toggle case="issue-details"/>
+                            </xf:action>
+                        </xf:trigger>
+                        <xf:trigger appearance="compact">
+                            <xf:label>Cancel</xf:label>
+                            <xf:action>
+                                <xf:toggle case="issue-details"/>
+                            </xf:action>
+                        </xf:trigger>
+                    </xf:group>
+                </xf:group>
+            </xf:case>
+
+            <xf:case id="issue-history">
+                <xf:group appearance="full" id="traxIssueHistory" ref="instance('controller')/issue">
+                    <xf:label><b>Issue <xf:output ref="@id"/> history</b>
+                    </xf:label>
+                    <xf:repeat id="changeLogList" bind="iChangeLog" appearance="compact">
+                        <xf:output value="substring-before(@date, 'T')">
+                            <xf:label>Date</xf:label>
+                        </xf:output>
+                        <xf:output value="substring-before((substring-after(@date, 'T')), '+')">
+                            <xf:label>Time</xf:label>
+                        </xf:output>
+                        <xf:output ref="@author">
+                            <xf:label>Author</xf:label>
+                        </xf:output>
+                        <xf:output ref="type">
+                            <xf:label>Type</xf:label>
+                        </xf:output>
+                        <xf:output ref="summary">
+                            <xf:label>summary</xf:label>
+                        </xf:output>
+                        <xf:output ref="annotation">
+                            <xf:label>Annotation</xf:label>
+                        </xf:output>
+                        <xf:output ref="project">
+                            <xf:label>Project</xf:label>
+                        </xf:output>
+                        <xf:output ref="priority">
+                            <xf:label>Priority</xf:label>
+                        </xf:output>
+                        <xf:output ref="severity">
+                            <xf:label>Severity</xf:label>
+                        </xf:output>
+                        <xf:output ref="status">
+                            <xf:label>Status</xf:label>
+                        </xf:output>
+                    </xf:repeat>
+                    <xf:group class="noborderCtrls" appearance="minimal">
+                        <xf:trigger appearance="compact">
+                            <xf:label>Issue details</xf:label>
+                            <xf:action>
+                                <xf:toggle case="issue-details"/>
+                            </xf:action>
+                        </xf:trigger>
+                        <xf:trigger appearance="compact">
+                            <xf:label>Return to issue list</xf:label>
+                            <xf:action>
+                                <xf:toggle case="issue-list"/>
+                            </xf:action>
+                        </xf:trigger>
+                    </xf:group>
+                </xf:group>
+        </xf:case>
+        <xf:case id="delete-issue">
+            <xf:group appearance="full" id="deleteIssue" bind="selectedIssueDetails">
+                <xf:label>Really delete Issue <xf:output ref="@id"/></xf:label>
+                <xf:trigger>
+                    <xf:label>Delete</xf:label>
+                    <xf:action>
+                        <xf:delete nodeset="instance('issues')/issue" at="index('iList')"/>
+                        <xf:toggle case="issue-list"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:trigger>
+                    <xf:label>Cancel</xf:label>
+                    <xf:action>
+                        <xf:toggle case="issue-list"/>
+                    </xf:action>
+                </xf:trigger>
+            </xf:group>
+        </xf:case>
+    </xf:switch>
+<!-- /Group: Issues: Issue Details -->
+</xf:group>
+<xf:submit submission="debug-controller">
+    <xf:label>Debug Controller</xf:label>
+</xf:submit>
+<xf:submit submission="debug-categories">
+    <xf:label>Debug Categories</xf:label>
+</xf:submit>
+<xf:submit submission="debug-users">
+    <xf:label>Debug Users</xf:label>
+</xf:submit>
+<xf:submit submission="debug-issues">
+    <xf:label>Debug Issues</xf:label>
+</xf:submit>
+<!-- Group -->
+</body>
+</html>

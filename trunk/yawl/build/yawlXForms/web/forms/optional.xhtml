@@ -1,0 +1,127 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xforms="http://www.w3.org/2002/xforms"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    >
+    <head>
+        <title>Optional elements</title>
+        <xforms:model xforms:id="model_0">
+            <xforms:instance xforms:id="instance_0">
+                <optional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:noNamespaceSchemaLocation="optional.xsd"
+                    xmlns="">
+                    <simple-mandatory-string>test</simple-mandatory-string>
+                    <simple-optional-string/>
+                    <simple-mandatory-int>42</simple-mandatory-int>
+                    <simple-optional-int>1</simple-optional-int>
+                    <complex1-mandatory>
+                        <field-mandatory-string>test complex1 mandatory</field-mandatory-string>
+                        <field-optional-string/>
+                    </complex1-mandatory>
+                    <complex1-optional>
+                        <field-mandatory-string>test complex1 optional</field-mandatory-string>
+                        <field-optional-string/>
+                    </complex1-optional>
+                    <complex2-mandatory>
+                        <field1-optional-string/>
+                        <field2-optional-string/>
+                    </complex2-mandatory>
+                    <complex2-optional>
+                        <field1-optional-string/>
+                        <field2-optional-string/>
+                    </complex2-optional>
+                </optional>
+            </xforms:instance>
+            <xforms:bind xforms:id="bind_0" xforms:nodeset="/optional">
+                <xforms:bind xforms:id="bind_1" xforms:nodeset="simple-mandatory-string" xforms:required="true()" xforms:type="string"/>
+                <xforms:bind xforms:id="bind_2" xforms:nodeset="simple-optional-string" xforms:required="false()" xforms:type="string"/>
+                <xforms:bind xforms:id="bind_3" xforms:nodeset="simple-mandatory-int" xforms:required="true()" xforms:type="integer"/>
+                <xforms:bind xforms:id="bind_4" xforms:nodeset="simple-optional-int" xforms:required="false()" xforms:type="integer"/>
+                <xforms:bind xforms:id="bind_5" xforms:nodeset="complex1-mandatory">
+                    <xforms:bind xforms:id="bind_6" xforms:nodeset="field-mandatory-string" xforms:required="true()" xforms:type="string"/>
+                    <xforms:bind xforms:id="bind_7" xforms:nodeset="field-optional-string" xforms:required="false()" xforms:type="string"/>
+                </xforms:bind>
+                <xforms:bind xforms:id="bind_8" xforms:nodeset="complex1-optional">
+                    <xforms:bind xforms:id="bind_9" xforms:nodeset="field-mandatory-string" xforms:required="true()" xforms:type="string"/>
+                    <xforms:bind xforms:id="bind_10" xforms:nodeset="field-optional-string" xforms:required="false()" xforms:type="string"/>
+                </xforms:bind>
+                <xforms:bind xforms:id="bind_11" xforms:nodeset="complex2-mandatory">
+                    <xforms:bind xforms:id="bind_12" xforms:nodeset="field1-optional-string" xforms:required="false()" xforms:type="string"/>
+                    <xforms:bind xforms:id="bind_13" xforms:nodeset="field2-optional-string" xforms:required="false()" xforms:type="string"/>
+                </xforms:bind>
+                <xforms:bind xforms:id="bind_14" xforms:nodeset="complex2-optional">
+                    <xforms:bind xforms:id="bind_15" xforms:nodeset="field1-optional-string" xforms:required="false()" xforms:type="string"/>
+                    <xforms:bind xforms:id="bind_16" xforms:nodeset="field2-optional-string" xforms:required="false()" xforms:type="string"/>
+                </xforms:bind>
+            </xforms:bind>
+            <xforms:submission xforms:action="../jsp/debug-instance.jsp" xforms:id="submission_0" xforms:method="post"/>
+        </xforms:model>
+    </head>
+    <body>
+        <xforms:group xforms:id="group_0">
+            <xforms:label xforms:id="label_0">Optional</xforms:label>
+            <xforms:input xforms:bind="bind_1" xforms:id="input_0">
+                <xforms:label xforms:id="label_1">Simple-mandatory-string</xforms:label>
+                <xforms:alert xforms:id="alert_0">Please provide a valid value for &apos;Simple-mandatory-string&apos;. &apos;Simple-mandatory-string&apos; is a required &apos;String&apos; value.</xforms:alert>
+            </xforms:input>
+            <xforms:input xforms:bind="bind_2" xforms:id="input_1">
+                <xforms:label xforms:id="label_2">Simple-optional-string</xforms:label>
+                <xforms:alert xforms:id="alert_1">Please provide a valid value for &apos;Simple-optional-string&apos;. &apos;Simple-optional-string&apos; is an optional &apos;String&apos; value.</xforms:alert>
+            </xforms:input>
+            <xforms:input xforms:bind="bind_3" xforms:id="input_2">
+                <xforms:label xforms:id="label_3">Simple-mandatory-int</xforms:label>
+                <xforms:alert xforms:id="alert_2">Please provide a valid value for &apos;Simple-mandatory-int&apos;. &apos;Simple-mandatory-int&apos; is a required &apos;Integer&apos; value.</xforms:alert>
+            </xforms:input>
+            <xforms:input xforms:bind="bind_4" xforms:id="input_3">
+                <xforms:label xforms:id="label_4">Simple-optional-int</xforms:label>
+                <xforms:alert xforms:id="alert_3">Please provide a valid value for &apos;Simple-optional-int&apos;. &apos;Simple-optional-int&apos; is an optional &apos;Integer&apos; value.</xforms:alert>
+            </xforms:input>
+            <xforms:group xforms:id="group_1">
+                <xforms:label xforms:id="label_5">Complex1-mandatory</xforms:label>
+                <xforms:input xforms:bind="bind_6" xforms:id="input_4">
+                    <xforms:label xforms:id="label_6">Field-mandatory-string</xforms:label>
+                    <xforms:alert xforms:id="alert_4">Please provide a valid value for &apos;Field-mandatory-string&apos;. &apos;Field-mandatory-string&apos; is a required &apos;String&apos; value.</xforms:alert>
+                </xforms:input>
+                <xforms:input xforms:bind="bind_7" xforms:id="input_5">
+                    <xforms:label xforms:id="label_7">Field-optional-string</xforms:label>
+                    <xforms:alert xforms:id="alert_5">Please provide a valid value for &apos;Field-optional-string&apos;. &apos;Field-optional-string&apos; is an optional &apos;String&apos; value.</xforms:alert>
+                </xforms:input>
+            </xforms:group>
+            <xforms:group xforms:id="group_2">
+                <xforms:label xforms:id="label_8">Complex1-optional</xforms:label>
+                <xforms:input xforms:bind="bind_9" xforms:id="input_6">
+                    <xforms:label xforms:id="label_9">Field-mandatory-string</xforms:label>
+                    <xforms:alert xforms:id="alert_6">Please provide a valid value for &apos;Field-mandatory-string&apos;. &apos;Field-mandatory-string&apos; is a required &apos;String&apos; value.</xforms:alert>
+                </xforms:input>
+                <xforms:input xforms:bind="bind_10" xforms:id="input_7">
+                    <xforms:label xforms:id="label_10">Field-optional-string</xforms:label>
+                    <xforms:alert xforms:id="alert_7">Please provide a valid value for &apos;Field-optional-string&apos;. &apos;Field-optional-string&apos; is an optional &apos;String&apos; value.</xforms:alert>
+                </xforms:input>
+            </xforms:group>
+            <xforms:group xforms:id="group_3">
+                <xforms:label xforms:id="label_11">Complex2-mandatory</xforms:label>
+                <xforms:input xforms:bind="bind_12" xforms:id="input_8">
+                    <xforms:label xforms:id="label_12">Field1-optional-string</xforms:label>
+                    <xforms:alert xforms:id="alert_8">Please provide a valid value for &apos;Field1-optional-string&apos;. &apos;Field1-optional-string&apos; is an optional &apos;String&apos; value.</xforms:alert>
+                </xforms:input>
+                <xforms:input xforms:bind="bind_13" xforms:id="input_9">
+                    <xforms:label xforms:id="label_13">Field2-optional-string</xforms:label>
+                    <xforms:alert xforms:id="alert_9">Please provide a valid value for &apos;Field2-optional-string&apos;. &apos;Field2-optional-string&apos; is an optional &apos;String&apos; value.</xforms:alert>
+                </xforms:input>
+            </xforms:group>
+            <xforms:group xforms:id="group_4">
+                <xforms:label xforms:id="label_14">Complex2-optional</xforms:label>
+                <xforms:input xforms:bind="bind_15" xforms:id="input_10">
+                    <xforms:label xforms:id="label_15">Field1-optional-string</xforms:label>
+                    <xforms:alert xforms:id="alert_10">Please provide a valid value for &apos;Field1-optional-string&apos;. &apos;Field1-optional-string&apos; is an optional &apos;String&apos; value.</xforms:alert>
+                </xforms:input>
+                <xforms:input xforms:bind="bind_16" xforms:id="input_11">
+                    <xforms:label xforms:id="label_16">Field2-optional-string</xforms:label>
+                    <xforms:alert xforms:id="alert_11">Please provide a valid value for &apos;Field2-optional-string&apos;. &apos;Field2-optional-string&apos; is an optional &apos;String&apos; value.</xforms:alert>
+                </xforms:input>
+            </xforms:group>
+        </xforms:group>
+        <xforms:submit xforms:id="submit_0" xforms:submission="submission_0">
+            <xforms:label xforms:id="label_17">Submit</xforms:label>
+        </xforms:submit>
+    </body>
+</html>

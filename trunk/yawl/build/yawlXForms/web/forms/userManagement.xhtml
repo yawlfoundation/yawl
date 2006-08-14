@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--+ Example application for a Chiba Web  XForms ToDoList
+    + @version 0.01
+    + @date    26.04.2006
+    + @author Lars Windauer
+    + @licence OSI-approved Artistic License 
+    + @liceceURL: http://opensource.org/licenses/artistic-license.php
+    + @knownBugs To many so far ;o)
+    +-->
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:chiba="http://chiba.sourceforge.net/xforms"
+        xmlns:ev="http://www.w3.org/2001/xml-events"
+        xmlns:xf="http://www.w3.org/2002/xforms"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<head>
+    <title>Chiba XForms 2DoList</title>
+    <xf:model>
+        <xf:instance id="controller" xmlns="">
+            <controller>
+                <copy/>
+                <save-button-create/>
+                <edit-readonly>true</edit-readonly>
+                <user id="" nick="" password1="" password2="">
+                    <name gender="" prefix="" given="" middlename="" family=""/>
+                    <userroles/>
+                    <email/>
+                    <skype/>
+                    <jabber/>
+                </user>
+            </controller>
+        </xf:instance>
+        <xf:instance id="users" src="data/userManagement/users.xml"/>
+        <xf:instance id="categories" src="data/userManagement/categories.xml"/>
+        <xf:submission id="debug" method="post" action="../jsp/debug-instance.jsp"/>
+        <xf:action ev:event="xforms-link-exception">
+            <xf:message>Instance loading failed.</xf:message>
+        </xf:action>
+
+        <xf:bind nodeset="instance('controller')">
+            <!-- xf:bind nodeset="index" calculate="index('uList')"/-->
+            <xf:bind nodeset="copy" readonly="count(instance('users')/user)=1"/>
+            <xf:bind id="save-button-create" nodeset="save-button-create"
+                     readonly="string-length(normalize-space(../user/@nick))=0 or string-length(normalize-space(../user/@password1))=0 or string-length(normalize-space(../user/@password2))=0"/>
+            <xf:bind id="edit-readonly" nodeset="edit-readonly"/>
+            <xf:bind nodeset="user">
+                <xf:bind id="cID" nodeset="@id"/>
+                <xf:bind id="cNick" nodeset="@nick" required="true()"
+                         constraint="not(instance('users')/user[nick=instance('controller')/user/@nick])"/>
+                <xf:bind id="cPassword1" nodeset="@password1" required="true()"/>
+                <xf:bind id="cPassword2" nodeset="@password2" required="true()"
+                         constraint=".=instance('controller')/user/@password1"/>
+                <xf:bind nodeset="name">
+                    <xf:bind id="cGender" nodeset="@gender"/>
+                    <xf:bind id="cPrefix" nodeset="@prefix"/>
+                    <xf:bind id="cGiven" nodeset="@given"/>
+                    <xf:bind id="cMiddleName" nodeset="@middlename"/>
+                    <xf:bind id="cFamily" nodeset="@family"/>
+                </xf:bind>
+                <xf:bind id="cRoles" nodeset="userroles"/>
+                <xf:bind id="cEmail" nodeset="email"/>
+                <xf:bind id="cSkype" nodeset="skype"/>
+                <xf:bind id="cJabber" nodeset="jabber"/>
+            </xf:bind>
+        </xf:bind>
+
+        <xf:bind id="userList" nodeset="instance('users')/user[position()!=last()]">
+            <xf:bind id="selectedUserDetails" nodeset="instance('users')/user[index('uList')]"
+                     readonly="boolean-from-string(instance('controller')/edit-readonly)">
+                <xf:bind id="id" nodeset="@id"/>
+                <xf:bind id="nick" nodeset="nick"
+                         constraint="string-length(.) &gt; 2"
+                         type="string"
+                        />
+                <xf:bind id="password" nodeset="password"/>
+                <xf:bind id="name" nodeset="name">
+                    <xf:bind id="gender" nodeset="@gender"/>
+                    <xf:bind id="familyName" nodeset="family"/>
+                    <xf:bind id="givenName" nodeset="given"/>
+                    <xf:bind id="middleName" nodeset="middlename"/>
+                    <xf:bind id="prefixName" nodeset="prefix"/>
+                </xf:bind>
+                <xf:bind id="roles" nodeset="userroles"/>
+                <xf:bind id="email" nodeset="email"/>
+                <xf:bind id="skype" nodeset="skype"/>
+                <xf:bind id="jabber" nodeset="jabber"/>
+            </xf:bind>
+        </xf:bind>
+    </xf:model>
+</head>
+
+<body>
+<!-- Group 4 everything -->
+<xf:group appearance="full">
+<xf:label><b>Chiba XForms User Management</b></xf:label>
+
+<p>Chiba User Management example application</p><br/>
+<xf:switch>
+<xf:case id="case-list" selected="true">
+<xf:group appearance="minimal">
+    <xf:label>User List</xf:label>
+    <xf:repeat id="uList" bind="userList" appearance="compact">
+        <xf:output ref="@id">
+            <xf:label>ID</xf:label>
+        </xf:output>
+        <xf:output ref="nick">
+            <xf:label>Nick</xf:label>
+        </xf:output>
+        <xf:output ref="email">
+            <xf:label>Email:</xf:label>
+        </xf:output>
+        <xf:output ref="skype">
+            <xf:label>Skype</xf:label>
+        </xf:output>
+        <xf:output ref="jabber">
+            <xf:label>Jabber</xf:label>
+        </xf:output>
+    </xf:repeat>
+</xf:group>
+<xf:group>
+    <xf:label>User Details</xf:label>
+    <xf:input bind="nick">
+        <xf:label>Nick</xf:label>
+    </xf:input>
+    <xf:input bind="gender">
+        <xf:label>Gender</xf:label>
+    </xf:input>
+    <xf:input bind="prefixName">
+        <xf:label>Prefix</xf:label>
+    </xf:input>
+    <xf:input bind="givenName">
+        <xf:label>First name</xf:label>
+    </xf:input>
+    <xf:input bind="middleName">
+        <xf:label>Middlename</xf:label>
+    </xf:input>
+    <xf:input bind="familyName">
+        <xf:label>Surname</xf:label>
+    </xf:input>
+    <xf:select bind="roles" appearance="full">
+        <xf:label>Roles</xf:label>
+        <xf:itemset nodeset="instance('categories')/roles/role">
+            <xf:label ref="."/>
+            <xf:value ref="@id"/>
+        </xf:itemset>
+    </xf:select>
+    <xf:input bind="email">
+        <xf:label>Email</xf:label>
+    </xf:input>
+    <xf:input bind="skype">
+        <xf:label>Skype</xf:label>
+    </xf:input>
+    <xf:input bind="jabber">
+        <xf:label>Jabber</xf:label>
+    </xf:input>
+</xf:group>
+<xf:group>
+    <xf:trigger>
+        <xf:label>Create User</xf:label>
+        <xf:action>
+            <xf:setvalue bind="cID" value="format-number(max(instance('users')/user/@id) + 1, '0')"/>
+            <xf:setvalue bind="cNick"/>
+            <xf:setvalue bind="cPassword1"/>
+            <xf:setvalue bind="cPassword2"/>
+            <xf:setvalue bind="cFamily"/>
+            <xf:setvalue bind="cGiven"/>
+            <xf:setvalue bind="cMiddleName"/>
+            <xf:setvalue bind="cPrefix"/>
+            <xf:setvalue bind="cRoles"/>
+            <xf:setvalue bind="cEmail"/>
+            <xf:setvalue bind="cSkype"/>
+            <xf:setvalue bind="cJabber"/>
+            <xf:setvalue bind="edit-readonly" value="'false'"/>
+            <xf:toggle case="case-create"/>
+        </xf:action>
+    </xf:trigger>
+    <xf:trigger ref="instance('controller')/copy">
+        <xf:label>Edit User Details</xf:label>
+        <xf:action>
+            <xf:toggle case="case-details"/>
+            <xf:setvalue bind="cNick" value="instance('users')/user[index('uList')]/nick"/>
+            <xf:setvalue bind="cGender" value="instance('users')/user[index('uList')]/name/@gender"/>
+            <xf:setvalue bind="cPrefix" value="instance('users')/user[index('uList')]/name/prefix"/>
+            <xf:setvalue bind="cGiven" value="instance('users')/user[index('uList')]/name/given"/>
+            <xf:setvalue bind="cMiddleName" value="instance('users')/user[index('uList')]/name/middlename"/>
+            <xf:setvalue bind="cFamily" value="instance('users')/user[index('uList')]/name/family"/>
+            <xf:setvalue bind="cRoles" value="instance('users')/user[index('uList')]/userroles"/>
+            <xf:setvalue bind="cEmail" value="instance('users')/user[index('uList')]/email"/>
+            <xf:setvalue bind="cJabber" value="instance('users')/user[index('uList')]/skype"/>
+            <xf:setvalue bind="cSkype" value="instance('users')/user[index('uList')]/jabber"/>
+            <xf:setvalue bind="edit-readonly" value="'false'"/>
+        </xf:action>
+    </xf:trigger>
+    <xf:trigger ref="instance('controller')/copy">
+        <xf:label>Delete selected Issue</xf:label>
+        <xf:action>
+            <xf:toggle case="c-delete"/>
+        </xf:action>
+    </xf:trigger>
+</xf:group>
+</xf:case>
+<xf:case id="case-details" selected="true">
+    <xf:group>
+        <xf:label>User Details</xf:label>
+        <xf:output bind="cNick">
+            <xf:label>Nick</xf:label>
+        </xf:output>
+        <xf:input bind="cGender" appearance="minimal">
+            <xf:label>Gender</xf:label>
+        </xf:input>
+        <xf:input bind="cPrefix" appearance="full">
+            <xf:label>Prefix</xf:label>
+        </xf:input>
+        <xf:input bind="cGiven">
+            <xf:label>First name</xf:label>
+        </xf:input>
+        <xf:input bind="cMiddleName">
+            <xf:label>Middlename</xf:label>
+        </xf:input>
+        <xf:input bind="cFamily">
+            <xf:label>Surname</xf:label>
+        </xf:input>
+        <xf:select bind="cRoles" appearance="full">
+            <xf:label>Roles</xf:label>
+            <xf:itemset nodeset="instance('categories')/roles/role">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select>
+        <xf:input bind="cEmail">
+            <xf:label>Email</xf:label>
+        </xf:input>
+        <xf:input bind="cSkype">
+            <xf:label>Skype</xf:label>
+        </xf:input>
+        <xf:input bind="cJabber">
+            <xf:label>Jabber</xf:label>
+        </xf:input>
+        <xf:trigger>
+            <xf:label>Save</xf:label>
+            <xf:action>
+                <xf:setvalue bind="gender" value="instance('controller')/user[1]/name/@gender"/>
+                <xf:setvalue bind="familyName" value="instance('controller')/user[1]/name/@family"/>
+                <xf:setvalue bind="givenName" value="instance('controller')/user[1]/name/@given"/>
+                <xf:setvalue bind="middleName" value="instance('controller')/user[1]/name/@middlename"/>
+                <xf:setvalue bind="prefixName" value="instance('controller')/user[1]/name/@prefix"/>
+                <xf:setvalue bind="roles" value="instance('controller')/user[1]/userroles"/>
+                <xf:setvalue bind="email" value="instance('controller')/user[1]/email"/>
+                <xf:setvalue bind="jabber" value="instance('controller')/user[1]/jabber"/>
+                <xf:setvalue bind="skype" value="instance('controller')/user[1]/skype"/>
+                <xf:setvalue bind="edit-readonly" value="'true'"/>
+                <xf:toggle case="case-list"/>
+            </xf:action>
+        </xf:trigger>
+        <xf:trigger>
+            <xf:label>Cancel</xf:label>
+            <xf:action>
+                <xf:setvalue bind="edit-readonly" value="'true'"/>
+                <xf:toggle case="case-list"/>
+            </xf:action>
+        </xf:trigger>
+    </xf:group>
+</xf:case>
+<xf:case id="case-create" selected="true">
+    <xf:group>
+        <xf:label>Create User</xf:label>
+        <xf:input bind="cID">
+            <xf:label>ID</xf:label>
+        </xf:input>
+        <xf:input bind="cNick">
+            <xf:label>Nick</xf:label>
+            <xf:alert>nick must be unique and not null</xf:alert>
+        </xf:input>
+        <xf:input bind="cPassword1">
+            <xf:label>Password</xf:label>
+        </xf:input>
+        <xf:input bind="cPassword2">
+            <xf:label>Reenter Password</xf:label>
+            <xf:alert>The passwords do not match</xf:alert>
+        </xf:input>
+        <xf:input bind="cGender" appearance="minimal">
+            <xf:label>Gender</xf:label>
+        </xf:input>
+        <xf:input bind="cPrefix" appearance="full">
+            <xf:label>Prefix</xf:label>
+        </xf:input>
+        <xf:input bind="cGiven">
+            <xf:label>First name</xf:label>
+        </xf:input>
+        <xf:input bind="cMiddleName">
+            <xf:label>Middlename</xf:label>
+        </xf:input>
+        <xf:input bind="cFamily">
+            <xf:label>Surname</xf:label>
+        </xf:input>
+        <xf:select bind="cRoles" appearance="full">
+            <xf:label>Roles</xf:label>
+            <xf:itemset nodeset="instance('categories')/roles/role">
+                <xf:label ref="."/>
+                <xf:value ref="@id"/>
+            </xf:itemset>
+        </xf:select>
+        <xf:input bind="cEmail">
+            <xf:label>Email</xf:label>
+        </xf:input>
+        <xf:input bind="cSkype">
+            <xf:label>Skype</xf:label>
+        </xf:input>
+        <xf:input bind="cJabber">
+            <xf:label>Jabber</xf:label>
+        </xf:input>
+        <xf:group appearance="minimal">
+            <xf:trigger bind="save-button-create">
+                <xf:label>Save User</xf:label>
+                <xf:action>
+                    <xf:insert nodeset="instance('users')/user" at="last()" position="before"/>
+                    <xf:setvalue bind="id" value="instance('controller')/user[1]/@id"/>
+                    <xf:setvalue bind="nick" value="instance('controller')/user[1]/@nick"/>
+                    <xf:setvalue bind="password" value="instance('controller')/user[1]/@password1"/>
+                    <xf:setvalue bind="gender" value="instance('controller')/user[1]/name/@gender"/>
+                    <xf:setvalue bind="familyName" value="instance('controller')/user[1]/name/@family"/>
+                    <xf:setvalue bind="givenName" value="instance('controller')/user[1]/name/@given"/>
+                    <xf:setvalue bind="middleName" value="instance('controller')/user[1]/name/@middlename"/>
+                    <xf:setvalue bind="prefixName" value="instance('controller')/user[1]/name/@prefix"/>
+                    <xf:setvalue bind="roles" value="instance('controller')/user[1]/userroles"/>
+                    <xf:setvalue bind="email" value="instance('controller')/user[1]/email"/>
+                    <xf:setvalue bind="jabber" value="instance('controller')/user[1]/jabber"/>
+                    <xf:setvalue bind="skype" value="instance('controller')/user[1]/skype"/>
+                    <xf:setvalue bind="edit-readonly" value="'true'"/>
+                    <xf:toggle case="case-list"/>
+                </xf:action>
+            </xf:trigger>
+            <xf:trigger>
+                <xf:label>Cancel</xf:label>
+                <xf:action>
+                    <xf:setvalue bind="edit-readonly" value="'true'"/>
+                    <xf:toggle case="case-list"/>
+                </xf:action>
+            </xf:trigger>
+        </xf:group>
+    </xf:group>
+</xf:case>
+<xf:case id="c-delete">
+    <xf:group appearance="minimal">
+        <xf:label>Really delete Issue <xf:output ref="@id"/></xf:label>
+        <xf:trigger>
+            <xf:label>Delete</xf:label>
+            <xf:action>
+                <xf:delete nodeset="instance('users')/user" at="index('uList')"/>
+                <xf:toggle case="case-list"/>
+            </xf:action>
+        </xf:trigger>
+        <xf:trigger>
+            <xf:label>Cancel</xf:label>
+            <xf:action>
+                <xf:toggle case="case-list"/>
+            </xf:action>
+        </xf:trigger>
+    </xf:group>
+</xf:case>
+</xf:switch>
+<xf:submit submission="debug">
+    <xf:label>Debug</xf:label>
+</xf:submit>
+</xf:group>
+<!-- Group -->
+</body>
+</html>

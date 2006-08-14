@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:chiba="http://chiba.sourceforge.net/xforms"
+    xmlns:xforms="http://www.w3.org/2002/xforms"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <head>
+        <title>Test Repeats</title>
+        <!-- nonsense example as syntax showcase for 'conditional user-agent stylesheet switching'
+        (these are the default stylesheets anyway if nothing is put here)-->
+
+        <xforms:model>
+            <xforms:submission id="debug" action="../jsp/generate-instance.jsp" method="post"
+                replace="instance"/>
+            <xforms:instance xmlns="" id="default">
+                <data>
+                    <complex>
+                        <boolean>false</boolean>
+                        <date>2006-02-09</date>
+                        <string>foo</string>
+                        <upload filename="" mediatype=""></upload>
+                    </complex>
+                    <complex>
+                        <boolean>false</boolean>
+                        <date>2006-02-09</date>
+                        <string>foo</string>
+                        <upload filename="" mediatype=""></upload>
+                    </complex>
+                </data>
+            </xforms:instance>
+
+            <xforms:bind id="b-repeat" nodeset="complex[position() != last()]">
+                <xforms:bind id="b-boolean" nodeset="boolean" type="boolean"/>
+                <xforms:bind id="b-date" nodeset="date" type="date"/>
+                <xforms:bind id="b-string" nodeset="string" type="string"/>
+                <xforms:bind id="b-upload" nodeset="upload" type="anyURI"/>
+            </xforms:bind>
+
+            <xforms:bind id="insertUploadBtn" nodeset="upload1" readonly="count(*) = 1" />
+
+        </xforms:model>
+        <style type="text/css">
+            .date div{display:inline;}
+        </style>
+
+    </head>
+    <body>
+        <xforms:group appearance="full">
+            <xforms:label>Repeat Tests</xforms:label>
+            <xforms:trigger>
+                <xforms:label>Append</xforms:label>
+                <xforms:hint>appends a new entry at the end of this collection</xforms:hint>
+                <xforms:action>
+                    <xforms:insert nodeset="complex"
+                        xforms:at="last()=1" position="after"/>
+                </xforms:action>
+            </xforms:trigger>
+            <xforms:trigger>
+                <xforms:label>Delete selected</xforms:label>
+                <xforms:hint>deletes selected entry from this collection</xforms:hint>
+                <xforms:action>
+                    <xforms:delete bind="b-repeat" at="xforms:index('repeat')"/>
+                </xforms:action>
+            </xforms:trigger>
+            <xforms:repeat id="repeat" bind="b-repeat" appearance="compact">
+                <xforms:input bind="b-boolean">
+                    <xforms:label>Boolean</xforms:label>
+                </xforms:input>
+                <xforms:input bind="b-date">
+                    <xforms:label>Date</xforms:label>
+                </xforms:input>
+                <xforms:input bind="b-string">
+                    <xforms:label>String</xforms:label>
+                </xforms:input>
+                <xforms:upload bind="b-upload">
+                    <xforms:filename ref="attribute::filename"/>
+                    <xforms:mediatype ref="attribute::mediatype"/>
+                    <xforms:label>repeated input:</xforms:label>
+                    <xforms:hint>repeated enty</xforms:hint>
+                    <xforms:alert>must be true</xforms:alert>
+                </xforms:upload>
+            </xforms:repeat>
+
+        </xforms:group>
+    </body>
+</html>

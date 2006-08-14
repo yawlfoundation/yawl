@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:chiba="http://chiba.sourceforge.net/xforms"
+    xmlns:xf="http://www.w3.org/2002/xforms"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <head>
+        <title>Test Repeats</title>
+        <!-- nonsense example as syntax showcase for 'conditional user-agent stylesheet switching'
+        (these are the default stylesheets anyway if nothing is put here)-->
+
+        <xf:model>
+            <xf:submission id="debug" action="../jsp/generate-instance.jsp" method="post"
+                replace="instance"/>
+            <xf:instance xmlns="" id="default">
+                <data>
+                    <file1 filename="" mediatype=""></file1>
+                    <file2 filename="" mediatype=""></file2>
+                    <file3 filename="" mediatype=""></file3>
+                    <file4 filename="" mediatype=""></file4>
+                    <upload>
+                        <input filename="" mediatype=""></input>
+                        <input filename="" mediatype=""></input>
+                        <input filename="" mediatype=""></input>
+                    </upload>
+                    <string>
+                        <input>Hallo</input>
+                        <input>Welt</input>
+                        <input>foo</input>
+                    </string>
+                </data>
+            </xf:instance>
+
+            <xf:bind nodeset="file1" type="anyURI"/>
+            <xf:bind nodeset="file2" type="base64Binary"/>
+            <xf:bind nodeset="file3" type="hexBinary"/>
+            <xf:bind nodeset="file4"  type="anyURI" readonly="true()" />
+
+            <xf:bind id="repeatUpload" nodeset="upload/input[position() != last()]">
+                <xf:bind id="entryUpload" nodeset="." type="anyURI"/>
+            </xf:bind>
+
+            <xf:bind id="repeatString" nodeset="string/input[position() != last()]">
+                <xf:bind id="entryString" nodeset="." type="string" constraint="boolean-from-string(string-length(.) &gt; 0)"/>
+            </xf:bind>
+
+            <xf:submission id="save" action="../jsp/debug-instance.jsp" method="post"
+                replace="all" validate="false"/>
+
+        </xf:model>
+
+    </head>
+    <body>
+        <xf:group appearance="full">
+            <xf:label>Upload Tests</xf:label>
+            <xf:group appearance="full">
+                <xf:upload ref="file1">
+                    <xf:label>anyURI</xf:label>
+                    <xf:filename ref="attribute::filename"/>
+                    <xf:mediatype ref="attribute::mediatype"/>
+                </xf:upload>
+                <xf:output ref="file1/@filename">
+                    <xf:label>File Name</xf:label>
+                </xf:output>
+                <xf:output ref="file1/@mediatype">
+                    <xf:label>Media Type</xf:label>
+                </xf:output>
+                <xf:output ref="file1">
+                    <xf:label>Content</xf:label>
+                </xf:output>
+
+                <xf:upload ref="file2">
+                    <xf:label>anyURI</xf:label>
+                    <xf:filename ref="attribute::filename"/>
+                    <xf:mediatype ref="attribute::mediatype"/>
+                </xf:upload>
+                <xf:output ref="file2/@filename">
+                    <xf:label>File Name</xf:label>
+                </xf:output>
+                <xf:output ref="file2/@mediatype">
+                    <xf:label>Media Type</xf:label>
+                </xf:output>
+                <xf:output ref="file2">
+                    <xf:label>Content</xf:label>
+                </xf:output>
+
+                <xf:upload ref="file3">
+                    <xf:label>anyURI</xf:label>
+                    <xf:filename ref="attribute::filename"/>
+                    <xf:mediatype ref="attribute::mediatype"/>
+                </xf:upload>
+                <xf:output ref="file3/@filename">
+                    <xf:label>File Name</xf:label>
+                </xf:output>
+                <xf:output ref="file3/@mediatype">
+                    <xf:label>Media Type</xf:label>
+                </xf:output>
+                <xf:output ref="file3">
+                    <xf:label>Content</xf:label>
+                </xf:output>
+
+                <xf:upload ref="file4">
+                    <xf:label>upload readonly</xf:label>
+                    <xf:filename ref="attribute::filename"/>
+                    <xf:mediatype ref="attribute::mediatype"/>
+                </xf:upload>
+            </xf:group>
+
+            <xf:group appearance="full">
+                <xf:label>Repeat: Input Type = Upload</xf:label>
+                <xf:trigger>
+                    <xf:label>Append</xf:label>
+                    <xf:hint>appends a new entry at the end of this collection</xf:hint>
+                    <xf:action>
+                        <xf:insert nodeset="upload/input"
+                            xf:at="last()=1" position="after"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:trigger>
+                    <xf:label>Delete selected</xf:label>
+                    <xf:hint>deletes selected entry from this collection</xf:hint>
+                    <xf:action>
+                        <xf:delete bind="repeatUpload" at="xf:index('repeatUploadID')"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:repeat id="repeatUploadID" bind="repeatUpload" appearance="full">
+                    <xf:upload bind="entryUpload">
+                        <xf:filename ref="attribute::filename"/>
+                        <xf:mediatype ref="attribute::mediatype"/>
+                        <xf:label>repeated input:</xf:label>
+                        <xf:hint>repeated enty</xf:hint>
+                        <xf:alert>must be true</xf:alert>
+                    </xf:upload>
+                </xf:repeat>
+            </xf:group>
+
+            <xf:group appearance="full">
+                <xf:label>Repeat: Input Type = string</xf:label>
+                <xf:trigger>
+                    <xf:label>Append</xf:label>
+                    <xf:hint>appends a new entry at the end of this collection</xf:hint>
+                    <xf:action>
+                        <xf:insert nodeset="string/input"
+                            xf:at="last()=1" position="after"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:trigger>
+                    <xf:label>Delete selected</xf:label>
+                    <xf:hint>deletes selected entry from this collection</xf:hint>
+                    <xf:action>
+                        <xf:delete bind="repeatString" at="xf:index('repeatStringID')"/>
+                    </xf:action>
+                </xf:trigger>
+                <xf:repeat id="repeatStringID" bind="repeatString" appearance="full">
+                    <xf:input bind="entryString">
+                        <xf:label>repeated input:</xf:label>
+                        <xf:hint>repeated enty</xf:hint>
+                        <xf:alert>must be non-empty string</xf:alert>
+                    </xf:input>
+                </xf:repeat>
+            </xf:group>
+
+
+            <xf:trigger>
+                <xf:label>debug</xf:label>
+                <xf:send submission="save"/>
+            </xf:trigger>
+        </xf:group>
+    </body>
+</html>
