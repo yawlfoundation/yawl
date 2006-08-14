@@ -386,11 +386,11 @@ public class YNet extends YDecomposition {
     protected YNet getCloneContainer() {
         return _clone;
     }
-    
+
     public YDecomposition deepClone() {
         return deepClone( new YNet() );
     }
-    
+
     protected YDecomposition deepClone( YDecomposition net ) {
         super.deepClone( net );
         try {
@@ -696,8 +696,8 @@ public class YNet extends YDecomposition {
     }
 
     @Transient
-    public Set<YTask> getBusyTasks() {
-        Set<YTask> busyTasks = new HashSet<YTask>();
+    public Set<YExternalNetElement> getBusyTasks() {
+        Set<YExternalNetElement> busyTasks = new HashSet<YExternalNetElement>();
         for (YExternalNetElement netElement : _netElements) {
             if (netElement instanceof YTask) {
                 YTask task = (YTask) netElement;
@@ -710,8 +710,8 @@ public class YNet extends YDecomposition {
     }
 
     @Transient
-    public Set<YTask> getEnabledTasks(YIdentifier id) {
-        Set<YTask> enabledTasks = new HashSet<YTask>();
+    public Set<YExternalNetElement> getEnabledTasks(YIdentifier id) {
+        Set<YExternalNetElement> enabledTasks = new HashSet<YExternalNetElement>();
         for (Iterator iterator = _netElements.iterator(); iterator.hasNext();) {
             YExternalNetElement element = (YExternalNetElement) iterator.next();
             if (element instanceof YTask) {
