@@ -9,11 +9,18 @@
 
 package au.edu.qut.yawl.elements.state;
 
-import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+
 import au.edu.qut.yawl.elements.YConditionInterface;
-import au.edu.qut.yawl.elements.YNetElement;
+import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YStateException;
@@ -25,7 +32,9 @@ import au.edu.qut.yawl.exceptions.YStateException;
  * Time: 10:17:37
  * 
  */
-public class YInternalCondition extends YNetElement implements YConditionInterface, Serializable {
+@Entity
+@DiscriminatorValue("internal_condition")
+public class YInternalCondition extends YExternalNetElement implements YConditionInterface {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -40,12 +49,34 @@ public class YInternalCondition extends YNetElement implements YConditionInterfa
     public static String _mi_entered = "mi_entered";
     public static String _executing = "executing";
     public static String _mi_complete = "mi_complete";
-
-
+    
     public YInternalCondition(String id, YTask myTask) {
-        super(id);
+        setID(id);
         _bag = new YIdentifierBag(this);
         _myTask = myTask;
+    }
+
+    @OneToOne(cascade={CascadeType.ALL})
+	@JoinTable(
+			name = "IdentifierBagOneToOne",
+			joinColumns = {@JoinColumn(name = "extern_id")},
+			inverseJoinColumns = @JoinColumn(name = "bag_id"))
+    private YIdentifierBag getIdentifierBag() {
+    	return _bag;
+    }
+    
+    private void setIdentifierBag(YIdentifierBag bag) {
+    	_bag = bag;
+    }
+
+
+    @OneToOne
+    private YTask getTask() {
+    	return _myTask;
+    }
+    
+    private void setTask(YTask task) {
+    	_myTask = task;
     }
 
     /**
@@ -83,6 +114,7 @@ public class YInternalCondition extends YNetElement implements YConditionInterfa
     /**
      * @return a List of the identifiers in the condition numbering 1 or more.
      */
+    @Transient
     public List getIdentifiers() {
         return _bag.getIdentifiers();
     }
