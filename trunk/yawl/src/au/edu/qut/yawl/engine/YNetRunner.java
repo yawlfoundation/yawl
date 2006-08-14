@@ -19,13 +19,22 @@ import java.util.Set;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
-import org.hibernate.annotations.CollectionOfElements;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -76,8 +85,8 @@ public class YNetRunner implements Serializable // extends Thread
     private static Logger logger;
 
     protected YNet _net;
-    private Set<YTask> _enabledTasks = new HashSet<YTask>();
-    private Set<YTask> _busyTasks = new HashSet<YTask>();
+    private Set<YExternalNetElement> _enabledTasks = new HashSet<YExternalNetElement>();
+    private Set<YExternalNetElement> _busyTasks = new HashSet<YExternalNetElement>();
 
     private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private YIdentifier _caseIDForNet;
@@ -91,8 +100,8 @@ public class YNetRunner implements Serializable // extends Thread
      * ***************************
      */
     protected String yNetID = null;
-    private Set enabledTaskNames = new HashSet();
-    private Set busyTaskNames = new HashSet();
+//    private Set enabledTaskNames = new HashSet();
+//    private Set busyTaskNames = new HashSet();
     private String containingTaskID = null;
     private YCaseData casedata = null;
     private YAWLServiceReference _caseObserver;
@@ -138,10 +147,12 @@ public class YNetRunner implements Serializable // extends Thread
         _net.restoreData(casedata);
     }
 
-//    @OneToOne
-//    @JoinTable
-//    
-//    XXX FIXME TODO (this is where you left off)
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinTable(
+            name="netrunner_to_net",
+            joinColumns = { @JoinColumn( name="netrunner_id") },
+            inverseJoinColumns = @JoinColumn( name="decomp_id")
+    )
     public YNet getNet() {
         return _net;
     }
@@ -165,11 +176,14 @@ public class YNetRunner implements Serializable // extends Thread
     /**
      * @hibernate.many-to-one
      */
-    @ManyToOne(cascade=CascadeType.ALL)
+    @OneToOne(cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YCaseData getCasedata() {
         return casedata;
     }
 
+    @OneToOne(cascade={CascadeType.ALL})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setCasedata(YCaseData data) {
         casedata = data;
     }
@@ -181,22 +195,22 @@ public class YNetRunner implements Serializable // extends Thread
     public void addEnabledTask(YTask ext) {
         _enabledTasks.add(ext);
     }
-
-	@CollectionOfElements
-    public Set<String> getEnabledTaskNames() {
-        return enabledTaskNames;
-    }
-	private void setEnabledTaskNames(Set<String> enabledTaskNames) {
-		this.enabledTaskNames = enabledTaskNames;
-	}
-
-	@CollectionOfElements
-    public Set<String> getBusyTaskNames() {
-        return busyTaskNames;
-    }
-	private void setBusyTaskNames(Set<String> busyTaskNames) {
-		this.busyTaskNames = busyTaskNames;
-	}
+//
+//	@CollectionOfElements
+//    public Set<String> getEnabledTaskNames() {
+//        return enabledTaskNames;
+//    }
+//	private void setEnabledTaskNames(Set<String> enabledTaskNames) {
+//		this.enabledTaskNames = enabledTaskNames;
+//	}
+//
+//	@CollectionOfElements
+//    public Set<String> getBusyTaskNames() {
+//        return busyTaskNames;
+//    }
+//	private void setBusyTaskNames(Set<String> busyTaskNames) {
+//		this.busyTaskNames = busyTaskNames;
+//	}
     /************************************************/
 
 
@@ -525,7 +539,7 @@ public class YNetRunner implements Serializable // extends Thread
             /*
              INSERTED FOR PERSISTANCE
             */
-            enabledTaskNames.remove(task.getID());
+//            enabledTaskNames.remove(task.getID());
 //            YPersistance.getInstance().updateData(this);
 //  TODO          if (pmgr != null) {
 //                pmgr.updateObject(this);
@@ -536,7 +550,7 @@ public class YNetRunner implements Serializable // extends Thread
             /*
   INSERTED FOR PERSISTANCE
  */
-            busyTaskNames.add(task.getID());
+//            busyTaskNames.add(task.getID());
 //            YPersistance.getInstance().updateData(this);
 //  TODO          if (pmgr != null) {
 //                pmgr.updateObject(this);
@@ -630,7 +644,7 @@ public class YNetRunner implements Serializable // extends Thread
 
                                 /*************************/
                                 /* INSERTED FOR PERSISTANCE*/
-                                enabledTaskNames.add(task.getID());
+//                                enabledTaskNames.add(task.getID());
 //                                YPersistance.getInstance().updateData(this);
 //  TODO                              if (pmgr != null) {
 //                                    pmgr.updateObject(this);
@@ -658,7 +672,7 @@ public class YNetRunner implements Serializable // extends Thread
 
                             /*************************/
                             /* INSERTED FOR PERSISTANCE*/
-                            busyTaskNames.add(task.getID());
+//                            busyTaskNames.add(task.getID());
 //                            YPersistance.getInstance().updateData(this);
 //  TODO                          if (pmgr != null) {
 //                                pmgr.updateObject(this);
@@ -703,7 +717,7 @@ public class YNetRunner implements Serializable // extends Thread
                         _enabledTasks.remove(task);
                         /*************************/
                         /* INSERTED FOR PERSISTANCE*/
-                        enabledTaskNames.remove(task.getID());
+//                        enabledTaskNames.remove(task.getID());
 
                         /**
                          * AJH: Bugfix: We need to remove from persistence the cancelled task
@@ -815,9 +829,9 @@ public class YNetRunner implements Serializable // extends Thread
                                             _containingCompositeTask,
                                             _net.getOutputData());
                                 }
+                                }
                             }
                         }
-                    }
                 } else if (_engine != null && _containingCompositeTask != null) {
                     _engine.finishCase(_caseIDForNet);
                 }
@@ -828,7 +842,7 @@ public class YNetRunner implements Serializable // extends Thread
             /*
               INSERTED FOR PERSISTANCE
              */
-            busyTaskNames.remove(atomicTask.getID());
+//            busyTaskNames.remove(atomicTask.getID());
 //            YPersistance.getInstance().updateData(this);
 // TODO           if (pmgr != null) {
 //                pmgr.updateObject(this);
@@ -880,7 +894,19 @@ public class YNetRunner implements Serializable // extends Thread
     }
 
 
+    private Long _id;
+
     @Id
+    @Column(name="netrunner_id")
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    protected Long getId() {
+		return _id;
+	}
+    
+	protected void setId( Long id ) {
+		_id = id;
+	}
+
     @ManyToOne
     public YIdentifier getCaseID() {
         return _caseIDForNet;
@@ -916,14 +942,32 @@ public class YNetRunner implements Serializable // extends Thread
         return true;
     }
 
-    @Transient
-    public Set<YTask> getBusyTasks() {
+    @OneToMany(cascade={CascadeType.ALL})
+    @JoinTable(
+            name="busy_task_set",
+            joinColumns = { @JoinColumn( name="netrunner_id") },
+            inverseJoinColumns = @JoinColumn( name="extern_id")
+    )
+    public Set<YExternalNetElement> getBusyTasks() {
         return _busyTasks;
     }
+    
+    private void setBusyTasks(Set<YExternalNetElement> tasks) {
+    	_busyTasks = tasks;
+    }
 
-    @Transient
-    public Set<YTask> getEnabledTasks() {
+    @OneToMany(cascade={CascadeType.ALL})
+    @JoinTable(
+            name="enabled_task_set",
+            joinColumns = { @JoinColumn( name="netrunner_id") },
+            inverseJoinColumns = @JoinColumn( name="extern_id")
+    )
+    public Set<YExternalNetElement> getEnabledTasks() {
         return _enabledTasks;
+    }
+    
+    private void setEnabledTasks(Set<YExternalNetElement> tasks) {
+    	_enabledTasks = tasks;
     }
 
 
@@ -944,7 +988,7 @@ public class YNetRunner implements Serializable // extends Thread
     public void setExceptionObserver(InterfaceX_EngineSideClient observer){
         _exceptionObserver = observer;
         _exceptionObserverStr = observer.getURI();                  // for persistence
-     }
+}
 
 
     public void restoreObservers() {
@@ -960,7 +1004,6 @@ public class YNetRunner implements Serializable // extends Thread
             _engine.setExceptionObserver(_exceptionObserverStr);
         }
     }
-
 
     private String get_caseObserverStr() {
         return _caseObserverStr ;
@@ -988,7 +1031,7 @@ public class YNetRunner implements Serializable // extends Thread
         try {
             task.cancel();
             _busyTasks.remove(task);
-            busyTaskNames.remove(task.getID());
+//            busyTaskNames.remove(task.getID());
         }
         catch (YPersistenceException ype) {
             logger.fatal("Failure whilst cancelling task: " + taskID, ype);
