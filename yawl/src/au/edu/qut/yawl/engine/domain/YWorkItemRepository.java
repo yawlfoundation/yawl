@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
@@ -187,8 +188,8 @@ public class YWorkItemRepository {
                 YNetRunner runner = _caseToNetRunnerMap.get(
                         caseID);
                 boolean addedOne = false;
-                Set<YTask> enabledTasks = runner.getEnabledTasks();
-                for (YTask task : enabledTasks) {
+                Set<YExternalNetElement> enabledTasks = runner.getEnabledTasks();
+                for (YExternalNetElement task : enabledTasks) {
                     if (task.getID().equals(workitem.getTaskID())) {
                         aSet.add(workitem);
                         addedOne = true;
@@ -236,8 +237,8 @@ public class YWorkItemRepository {
                         caseID.getParent());
                 boolean addedOne = false;
                 if (null != runner) {
-                    Set<YTask> busyTasks = runner.getBusyTasks();
-                    for (YTask task : busyTasks) {
+                    Set<YExternalNetElement> busyTasks = runner.getBusyTasks();
+                    for (YExternalNetElement task : busyTasks) {
                         if (task.getID().equals(workitem.getTaskID())) {
                             aSet.add(workitem);
                             addedOne = true;
@@ -277,8 +278,8 @@ public class YWorkItemRepository {
                 YNetRunner runner =
                         _caseToNetRunnerMap.get(caseID.getParent());
                 boolean foundOne = false;
-                Set<YTask> busyTasks = runner.getBusyTasks();
-                for (YTask task : busyTasks) {
+                Set<YExternalNetElement> busyTasks = runner.getBusyTasks();
+                for (YExternalNetElement task : busyTasks) {
                     if (task.getID().equals(workitem.getTaskID())) {
                         foundOne = true;
                         if (workitem.getUserWhoIsExecutingThisItem().equals(userName)) {
@@ -329,13 +330,13 @@ public class YWorkItemRepository {
                 continue;
             }
             boolean foundOne = false;
-            Set<YTask> busyTasks = runner.getBusyTasks();
-            Set<YTask> enableTasks = runner.getEnabledTasks();
-            Set<YTask> workItemTasks = new HashSet<YTask>();
+            Set<YExternalNetElement> busyTasks = runner.getBusyTasks();
+            Set<YExternalNetElement> enableTasks = runner.getEnabledTasks();
+            Set<YExternalNetElement> workItemTasks = new HashSet<YExternalNetElement>();
             workItemTasks.addAll(busyTasks);
             workItemTasks.addAll(enableTasks);
 
-            for (YTask task : workItemTasks) {
+            for (YExternalNetElement task : workItemTasks) {
                 if (task.getID().equals(workitem.getTaskID())) {
                     foundOne = true;
                     aSet.add(workitem);
