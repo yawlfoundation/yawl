@@ -9,6 +9,8 @@
 
 package au.edu.qut.yawl.engine.domain;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,8 +30,11 @@ import javax.persistence.Transient;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.xml.sax.InputSource;
 
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
@@ -51,8 +56,8 @@ public class YWorkItem {
 	 * with older revisions if method signatures have not changed. 
 	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
 	 */
-    private static final long serialVersionUID = 2006030080l;
-
+	private static final long serialVersionUID = 2006030080l;
+	
     public static enum Status {
         Enabled,Fired,Executing,
         Complete,IsParent,Deadlocked,Cancelled,ForcedComplete,Failed}
@@ -89,8 +94,6 @@ public class YWorkItem {
     private String lastevent = "0";
     public String thisId = null;
     private String data_string = null;
-
-
 
     /**
      * Constructor<P>
@@ -183,6 +186,8 @@ public class YWorkItem {
 // TODO           if (pmgr != null) {
 //                pmgr.storeObject(this);
 //            }
+
+
 
             /*******************************/
         } catch (YPersistenceException e) {
@@ -580,7 +585,7 @@ public class YWorkItem {
         } else
             return null;
     }
-
+    
     //todo Q by LA: do we need this method 4 hibernate? otherwise delete
     private void setUserWhoIsExecutingThisItem(String person) {
     	_whoStartedMe = person;
@@ -590,13 +595,13 @@ public class YWorkItem {
     public boolean allowsDynamicCreation() {
         return _allowsDynamicCreation;
     }
-
+    
     //todo Q by LA: do we need this method 4 hibernate? otherwise delete
     private void setAllowsDynamicCreation(boolean b) {
     	_allowsDynamicCreation = b;
     }
 
-    @Basic
+    @Transient
     public String getDataString() {
         if (_dataList != null) {
             XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
@@ -607,14 +612,36 @@ public class YWorkItem {
     
     /**
      * Inserted for hibernate
+     * @return
+     */
+    @Basic
+    private String getDataList() {
+        if (_dataList != null) {
+        	Document d = new Document(_dataList);
+            XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+            return outputter.outputString(d);
+        }
+        return null;
+    }
+    
+    /**
+     * Inserted for hibernate
      * @param s
      */
-    private void setDataString(String s) {
-    	// FIXME TODO Do nothing?  Should this value be persisted at all?
-    	// Note: the original code did nothing with the persisted value of data_string, it is persisted,
-    	// but never read back in.  Is this the functionality that we want?
-        //todo LA Comment: this got used in the system restore code but was a total hack.
-        //i think we could live without it.
+    private void setDataList(String s) {
+    	try {
+			SAXBuilder builder = new SAXBuilder();
+			Document d = builder.build( new StringReader(s));
+			_dataList = d.getRootElement();
+		}
+		catch( JDOMException e ) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch( IOException e ) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 
@@ -659,7 +686,7 @@ public class YWorkItem {
     public String getSpecificationID() {
         return _specificationID;
     }
-
+    
     //todo Q by LA: needed 4 hibernate ?
     private void setSpecificationID(String specificationID) {
     	_specificationID = specificationID;
