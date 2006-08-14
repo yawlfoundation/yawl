@@ -21,7 +21,8 @@ import java.io.Serializable;
  * 
  */
 public abstract class YNetElement implements Cloneable, Comparable, Serializable {
-    private String _id;
+
+	private String _id;
 
     /**
      * Null constructor for hibernate
@@ -45,6 +46,11 @@ public abstract class YNetElement implements Cloneable, Comparable, Serializable
     public String getID() {
         return _id;
     }
+
+    @Override
+	public int hashCode() {
+		return getID().hashCode();
+	}
     
     /**
      * Set method only used by hibernate
