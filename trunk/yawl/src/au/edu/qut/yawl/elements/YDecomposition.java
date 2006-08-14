@@ -203,7 +203,9 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
     }
     
     public void setIdAndSpecification(String id, YSpecification specification) {
-        this._id = id.replace(" ", "_");
+        /* TODO Tore: Find out why blank spaces are not allowed in specifications
+         * */
+    	this._id = id;//id.replace(" ", "_");
         _specification = specification;
         _data.setRootElement(new Element(getRootDataElementName()));
     }
@@ -215,7 +217,10 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
 	}
 
     public YDecomposition(String id, YSpecification specification) {
-        this._id = id.replace(" ", "_");
+        /* TODO Tore: Find out why blank spaces are not allowed in specifications
+         * */
+    	this._id = id;//id.replace(" ", "_");
+    	
         _specification = specification;
         _data.setRootElement(new Element(getRootDataElementName()));
     }
