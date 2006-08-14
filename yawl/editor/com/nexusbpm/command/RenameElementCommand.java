@@ -21,9 +21,6 @@ import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
  * YSpecification, YDecomposition, YExternalNetElement, or that has a method
  * setName(String).
  * 
- * TODO this needs major work so that it functions properly for folders that aren't empty, for
- * files/directories on the file system, etc.
- * 
  * @author Nathan Rose
  */
 public class RenameElementCommand extends AbstractCommand {

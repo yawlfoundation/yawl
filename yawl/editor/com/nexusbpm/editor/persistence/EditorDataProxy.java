@@ -139,7 +139,6 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
                 ((EditorDataProxy)parent)._editor != null ) {
             ((NetEditor) ((EditorDataProxy)parent)._editor).getNetGraphEditor().insert( this );
         }
-        // TODO anything else?
     }
     
     @Override
@@ -157,7 +156,6 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
                 _editor.dispose();
             }
         }
-        // TODO anything else?
     }
 	
 	/** The data flavor we'll be using for any drag/drop operations. */

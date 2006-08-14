@@ -84,17 +84,14 @@ public class ComponentEditorFrameListener extends ClosingFrameListener implement
                 if( _editor.isDirty() ) {
                     LOG.debug( "Editor closing, saving: " );
                     _editor.saveAttributes();
-                    // TODO commandize persisting of attribute changes
                     _editor.persistAttributes();
                     // ClientOperation.update( controller, 3, false );
-                    throw new RuntimeException("implement the save operation, or prompt to save?");
                 }//if
                 else {
                     LOG.debug( "Editor closing, NOT saving: (" + "isDirty=" + _editor.isDirty() );
                 }
             }//try
             catch( EditorException exc ) {
-                // TODO save attributes is going to be refactored (commandized), so this might need to change
                 LOG.error( "Error saving attributes!", exc );
             }//catch
             finally {

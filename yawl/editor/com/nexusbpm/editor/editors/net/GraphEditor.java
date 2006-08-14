@@ -199,50 +199,6 @@ public class GraphEditor extends JPanel
             }
             
         }
-        // TODO may need to handle more property change events
-//        throw new RuntimeException( "handle property change events for yawl" );
-//        String propertyName = event.getPropertyName();
-//        int status = -1;
-//        if( propertyName.equals( Component.ATTR_EXECUTION_STATUS + "." + ExecutionStatus.ATTR_STATUS ) ) {
-//            status = ( (Integer) event.getNewValue() ).intValue();
-//        }//if
-//        else if( propertyName.equals( Component.ATTR_EXECUTION_STATUS ) ) {
-//            ExecutionStatus executionStatus = (ExecutionStatus) event.getNewValue();
-//            status = executionStatus.getStatus();
-//        }//else if
-//        if( status == -1 ) return;
-//        DataProxy source = (DataProxy) event.getSource();
-//        if( source == this.getProxy() ) {
-//            // Execution status for the flow changed.
-//            LOG.debug( "The execution status of the flow has changed to " + status + "." );
-//            this.updateStatus( status );
-//        }//else
-//        else {
-//            // Execution status for one of the child components changed.
-//            long id = source.identifier().getId();
-//            LOG.debug( "Component " + id + " changed execution status to " + status + "." );
-//            switch( status ) {
-//                case ExecutionStatus.STATUS_RUNNING:
-//                    startCellAnimation( source );
-//                    break;
-//                case ExecutionStatus.STATUS_FINISHED:
-//                case ExecutionStatus.STATUS_STOPPED:
-//                case ExecutionStatus.STATUS_KILLED:
-//                case ExecutionStatus.STATUS_ERROR:
-//                    stopCellAnimation( source );
-//                    break;
-//            }//switch
-//            _graph.propertyChange( event );
-//            /// TODO you are doing the repaint stuff:  (for repainting specific region rectangles)
-//            CellView cellView = _graph.getGraphLayoutCache().getMapping( source.getGraphCell(), false );
-//            if( cellView != null ) {
-//                Rectangle2D bounds = cellView.getBounds();
-//                this.repaint( (int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth(), (int) bounds.getHeight() );
-//            }
-//            else {
-//                this.repaint();
-//            }
-//        }//else
     }//propertyChange()
 
     private void stopCellAnimation( EditorDataProxy proxy ) {
