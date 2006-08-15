@@ -42,6 +42,7 @@ public class TestYSpecification extends TestCase {
     private YSpecification _infiniteLoops;
     private YSpecification _originalSpec;
     private YSpecification _decompAttributeSpec;
+    private YSpecification _SpecWithSpaceInTask;
     private YSpecification spec;
 //    private String validType1;
 //    private String validType2;
@@ -64,12 +65,16 @@ public class TestYSpecification extends TestCase {
         File file2 = new File(getClass().getResource("BadNetSpecification.xml").getFile());
         File file3 = new File(getClass().getResource("infiniteDecomps.xml").getFile());
         File file4 = new File(getClass().getResource("DecompositionAttributeSpec.xml").getFile());
+        File file5 = new File(getClass().getResource("YAWL_Spec_TaskWithSpace.xml").getFile());
+
         _goodSpecification = (YSpecification) YMarshal.unmarshalSpecifications(file1.getAbsolutePath()).get(0);
         _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(file2.getAbsolutePath()).get(0);
         _infiniteLoops = (YSpecification) YMarshal.unmarshalSpecifications(file3.getAbsolutePath()).get(0);
         _decompAttributeSpec = (YSpecification) YMarshal.unmarshalSpecifications(file4.getAbsolutePath()).get(0);
+        _SpecWithSpaceInTask = (YSpecification) YMarshal.unmarshalSpecifications(file5.getAbsolutePath()).get(0);
         spec = new YSpecification("something");
     }
+    
 
 
     public void testGoodNetVerify() {
@@ -83,6 +88,18 @@ public class TestYSpecification extends TestCase {
         }
     }
 
+    public void testSpecWithSpaceInTaskVerify() {
+        List messages = _SpecWithSpaceInTask.verify();
+        
+        if (!YVerificationMessage.containsNoErrors(messages)) {
+        	
+            /*
+             * Must be able to parse specifications with spaces in the
+             * task names, a failure indicates that the space is not allowed
+             * */
+            fail(YMessagePrinter.getMessageString(messages));
+        }
+    }
 
     public void testBadSpecVerify() {
         List messages = _badSpecification.verify();
@@ -216,6 +233,7 @@ public class TestYSpecification extends TestCase {
     		// proper exception was thrown
     	}
     }
+    
     
     public void testDecompositions() {
     	YSpecification spec = new YSpecification( "" );
