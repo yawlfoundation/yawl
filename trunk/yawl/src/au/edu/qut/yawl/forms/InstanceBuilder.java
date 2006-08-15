@@ -61,14 +61,14 @@ public class InstanceBuilder {
             DocumentBuilder builder = factory.newDocumentBuilder();
             //factory.setValidating(true);
             //factory.setNamespaceAware(true);
-
+           
             byte[] xmlByteArray = schema.getBytes();
     		ByteArrayInputStream xmlStream = new ByteArrayInputStream( xmlByteArray );
     		InputSource xmlReader = new InputSource(xmlStream);
 
             // parse schema
             document = builder.parse(xmlReader);
-
+            
             DOMImplementation impl = builder.getDOMImplementation();
             instanceS = impl.createDocument(null, root, null);
             Element rootElement = instanceS.getDocumentElement();
@@ -115,11 +115,11 @@ public class InstanceBuilder {
 			}
 	        
 	        // Create NodeIterators for both the "empty" and "input" instance documents
-	        // must have DOM level 2 for DocumentTraversal.
+	        // NOTE: must have DOM level 2 to allow DocumentTraversal.
 	        DocumentTraversal traversableS = (DocumentTraversal) instanceS;
 	        NodeIterator iteratorS = traversableS.createNodeIterator(instanceS, NodeFilter.SHOW_ALL, null, true);
 	
-	        // Iterate over the instance
+	        // Iterate over the input instance data
 	        Node nodeS;
 	        Node nodeI;
 	        boolean found = false;
@@ -143,12 +143,16 @@ public class InstanceBuilder {
 	
 	                    // if the nodeName for this instance node matches an elements attribute in the schema,
 	                    // overwrite the text value of that node with the text from this node
+	                	// then delete the node from the original instance so that it can't be copied again.
 	                    if (nodeI.getNodeName().compareTo(nodeS.getNodeName()) == 0) {
 	
 	                        try {
 	                            Node newNode = instanceS.importNode(nodeI, true);
 	                            instanceS.getDocumentElement().replaceChild(newNode, nodeS);
-	
+	                            
+	                            Node parent = nodeI.getParentNode();
+	                            parent.removeChild(nodeI);
+	                            
 	                            found = true;
 	
 	                        } catch (DOMException e) {
