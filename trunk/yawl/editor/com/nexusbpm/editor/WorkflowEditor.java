@@ -31,9 +31,10 @@ import org.apache.log4j.PropertyConfigurator;
 
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
-import au.edu.qut.yawl.persistence.dao.SpecificationDAO;
+import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
@@ -226,7 +227,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
         
         ////////////////////////////
         // create the memory context
-        SpecificationDAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
+//        SpecificationDAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
+        DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
         DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
         
         DatasourceRoot virtualRoot = new DatasourceRoot("virtual://memory/home/");
@@ -252,7 +254,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
         
         //////////////////////////
         // create the file context
-        SpecificationDAO filedao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
+//        SpecificationDAO filedao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
+        DAO filedao = DAOFactory.getDAO( PersistenceType.FILE );
         DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
         
         File fileRootObject= new File( new File(".").getAbsoluteFile().toURI().normalize() );
@@ -281,7 +284,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
         // create the hibernate context
         STree hibernateComponentListTree = null;
         try {
-            SpecificationDAO hibernatedao = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE).getSpecificationModelDAO();
+//            SpecificationDAO hibernatedao = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE).getSpecificationModelDAO();
+        	DAO hibernatedao = DAOFactory.getDAO( PersistenceType.HIBERNATE );
             DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
             
             DatasourceRoot hibernateRoot = new DatasourceRoot("hibernate://home/");
@@ -460,7 +464,8 @@ public class WorkflowEditor extends javax.swing.JFrame {
         
         /////////////////////////
         // setup components panel
-        SpecificationDAO componentsDAO = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
+//        SpecificationDAO componentsDAO = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
+        DAO componentsDAO = DAOFactory.getDAO( PersistenceType.MEMORY );
         DataContext componentsContext = new DataContext(componentsDAO, EditorDataProxy.class);
         
         DatasourceRoot componentsRoot = new DatasourceRoot("virtual://components/");
