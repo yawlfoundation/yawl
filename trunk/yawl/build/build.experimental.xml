@@ -5,8 +5,11 @@
 <project name="Experimental Central Build file" default="mainbuild" basedir="./..">
 
 	<!-- 1. Import all individual build files using these statements -->
-	<import file="build.xml"/>
+	<import file="build.common.xml"/>
 	<import file="build.pdfforms.xml"/>
+    <import file="build.jython.xml"/>
+    
+    
 	
 	<!-- 2. Import all relevant build properties using these statement -->
 
