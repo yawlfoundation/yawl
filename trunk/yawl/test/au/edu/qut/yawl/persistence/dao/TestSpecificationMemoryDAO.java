@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.StringProducerXML;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
+import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 
 public class TestSpecificationMemoryDAO extends TestCase {
 
@@ -13,28 +14,34 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		DAOFactory fileFactory = DAOFactory.getDAOFactory(DAOFactory.Type.FILE);
-		SpecificationDAO fileDAO = fileFactory.getSpecificationModelDAO();
+//		DAOFactory fileFactory = DAOFactory.getDAOFactory(DAOFactory.Type.FILE);
+//		SpecificationDAO fileDAO = fileFactory.getSpecificationModelDAO();
+		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestCompletedMappings.xml", true);
-		testSpec = fileDAO.retrieve(f.getAbsolutePath());
+		testSpec = (YSpecification) fileDAO.retrieve(YSpecification.class, f.getAbsolutePath());
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
+	}
+	
+	private DAO getDAO() {
+		return DAOFactory.getDAO( PersistenceType.MEMORY );
 	}
 
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
 	public void testDelete() {
-		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY);
-		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
+//		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY);
+//		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
+		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
-		YSpecification spec = myDAO.retrieve(testSpec.getID());
+		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());
 		assertNotNull(spec);
 		myDAO.delete(spec);
-		spec = myDAO.retrieve(testSpec.getID());
+		spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());
 		assertNull(spec);
 	}
 
@@ -42,11 +49,12 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.retrieve(Object)'
 	 */
 	public void testRetrieve() {
-		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY);
-		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
+//		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY);
+//		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
+		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
 		String pk = testSpec.getID();
-		YSpecification spec = myDAO.retrieve(pk);	
+		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, pk);	
 		assertNotNull(spec);
 	}
 
@@ -54,10 +62,11 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
 	 */
 	public void testSave() {
-		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY);
-		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
+//		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY);
+//		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
+		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
-		YSpecification spec2 = myDAO.retrieve(testSpec.getID());
+		YSpecification spec2 = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());
 		assertNotNull(spec2);
 	}
 
@@ -65,10 +74,11 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.getKey(YSpecification)'
 	 */
 	public void testGetKey() {
-		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY);
-		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
+//		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY);
+//		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
+		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
-		YSpecification spec = myDAO.retrieve(testSpec.getID());
+		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());
 		assertEquals(spec.getID(), testSpec.getID());
 	}
 
