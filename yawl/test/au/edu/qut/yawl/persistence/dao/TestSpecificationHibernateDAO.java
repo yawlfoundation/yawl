@@ -23,8 +23,6 @@ public class TestSpecificationHibernateDAO extends TestCase {
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-//		DAOFactory fileFactory = DAOFactory.getDAOFactory(DAOFactory.Type.FILE);
-//		SpecificationDAO fileDAO = fileFactory.getSpecificationModelDAO();
 		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestMakeRecordingsBigTest.xml", true);
@@ -44,8 +42,6 @@ public class TestSpecificationHibernateDAO extends TestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
 	public void testDelete() {
-//		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE);
-//		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
 		Object key = myDAO.getKey(testSpec);
@@ -60,8 +56,6 @@ public class TestSpecificationHibernateDAO extends TestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.retrieve(Object)'
 	 */
 	public void testRetrieve() {
-//		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE);
-//		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, myDAO.getKey(testSpec));	
@@ -72,8 +66,6 @@ public class TestSpecificationHibernateDAO extends TestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
 	 */
 	public void testSave() {
-//		DAOFactory hibernateFactory = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE);
-//		SpecificationDAO hibernateDAO = hibernateFactory.getSpecificationModelDAO();
 		DAO hibernateDAO = getDAO();
 		hibernateDAO.save(testSpec);
 		YSpecification spec2 = (YSpecification) hibernateDAO.retrieve(YSpecification.class,testSpec.getDbID());

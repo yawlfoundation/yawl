@@ -28,8 +28,6 @@ public class TestSpecificationFileDAO extends TestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
 	public void testDelete() {
-//		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.FILE);
-//		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
 		DAO myDAO = getDAO();
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
@@ -49,8 +47,6 @@ public class TestSpecificationFileDAO extends TestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.retrieve(Object)'
 	 */
 	public void testRetrieve() {
-//		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.FILE);
-//		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
 		DAO myDAO = getDAO();
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
@@ -62,8 +58,6 @@ public class TestSpecificationFileDAO extends TestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
 	 */
 	public void testSave() {
-//		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.FILE);
-//		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
 		DAO myDAO = getDAO();
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
@@ -81,8 +75,6 @@ public class TestSpecificationFileDAO extends TestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.getKey(YSpecification)'
 	 */
 	public void testGetKey() {
-//		DAOFactory myFactory = DAOFactory.getDAOFactory(DAOFactory.Type.FILE);
-//		SpecificationDAO myDAO = myFactory.getSpecificationModelDAO();
 		DAO myDAO = getDAO();
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
