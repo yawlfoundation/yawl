@@ -1,14 +1,24 @@
 <?xml version="1.0"?>
-<!-- This build file is for testing the importing of ant build files into others -->
-<!-- By splitting up the build.xml file into smaller files by subproject or by functionality maintenance will be easier -->
-<!-- $Id: $ -->
+<!-- $Id$ -->
 <project name="Experimental Central Build file" default="mainbuild" basedir="./..">
 
+    <!-- This build file is for testing the importing of ant build files into others -->
+    <!-- By splitting up the build.xml file into smaller files by subproject or by functionality maintenance will be easier -->
+    
 	<!-- 1. Import all individual build files using these statements -->
 	<import file="build.common.xml"/>
-	<import file="build.pdfforms.xml"/>
+    <import file="build.engine.xml"/>    
+    <import file="build.editor.xml"/>    
+    <import file="build.yawlSMSInvoker.xml"/>    
+    <import file="build.yawlWSInvoker.xml"/>    
+    <import file="build.yawlXForms.xml"/>    
+
+    <import file="build.pdfforms.xml"/>
     <import file="build.jython.xml"/>
-    
+    <import file="build.emailSender.xml"/>    
+    <import file="build.workletService.xml"/>    
+
+ 
     
 	
 	<!-- 2. Import all relevant build properties using these statement -->

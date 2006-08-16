@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<project name="Experimental YAWL Engine Build File" default="buildWebApps" basedir="./..">
+ 
+ <!-- The tasks needed to build the engine war file and the relevant dist/yawl.jar file go here -->
+ 
+</project>
