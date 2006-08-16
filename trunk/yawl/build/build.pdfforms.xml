@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
-<project name="Experimental PDFforms Build file" default="build_PDFforms.war"><!-- basedir="./.."> -->
+<project name="Experimental PDFforms Build file" default="build_PDFforms"><!-- basedir="./.."> -->
 
      <!-- The tasks needed to build the PDF Forms plugin go here --> 
     

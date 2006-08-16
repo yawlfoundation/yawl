@@ -5,7 +5,11 @@
     <!-- This build file is for testing the importing of ant build files into others -->
     <!-- By splitting up the build.xml file into smaller files by subproject or by functionality maintenance will be easier -->
     
-	<!-- 1. Import all individual build files using these statements -->
+    <!-- FIXME: Hack to import the old build.xml until all parts of it are migrated to the new structure -->   
+    <import file="build.old.xml"/>
+
+ 
+    <!-- 1. Import all individual build files using these statements -->
 	<import file="build.common.xml"/>
     <import file="build.engine.xml"/>    
     <import file="build.editor.xml"/>    
@@ -18,20 +22,30 @@
     <import file="build.emailSender.xml"/>    
     <import file="build.workletService.xml"/>    
 
- 
-    
-	
+ 	
 	<!-- 2. Import all relevant build properties using these statement -->
 
 	<!-- Use the built in variable os.name to differentiate between os specific property files -->
-    <property file="${os.name}.properties"/>
+    <!-- <property file="${os.name}.properties"/> -->
 	<property file="build.properties"/>
 
 	<!-- 3. Have targets which call one or more targets within the imported build files -->
 	<target name="mainbuild">
-	
-		<antcall target="buildWebApps"/>
-		
+
+        <!-- Start off by building the engine each time -->
+        <antcall target="build_engine" />
+        
+        <!-- Make up a dist/yawl.jar file for other components to reference -->
+        <antcall target="dist_yawl_jar" />      
+
+        <!-- Make up a dist/yawl.war file -->
+        <antcall target="dist_yawl_war" />      
+        
+        <!-- Compile and distribute each of the core non-engine components -->
+        
+
+        
+        <!-- <antcall target="buildWebApps"/> -->	
 	</target>
   
 </project>

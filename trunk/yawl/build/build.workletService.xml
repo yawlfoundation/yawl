@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
-<project name="Experimental Jython Service Build file" default="build_PDFforms.war"><!-- basedir="./.."> -->
+<project name="Experimental Jython Service Build file" default="build_workletService"><!-- basedir="./.."> -->
 
  <!-- The tasks needed to build the workletService go here -->
 
