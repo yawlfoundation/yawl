@@ -2,4 +2,6 @@
 <!-- $Id$ -->
 <project name="Experimental YAWL Common Build File" default="buildWebApps" basedir="./..">
  
+ <!-- Any common tasks or properties go here -->
+ 
 </project>

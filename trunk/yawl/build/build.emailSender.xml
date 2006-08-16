@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<project name="Experimental Email Sender Service Build file" default="build_PDFforms.war"><!-- basedir="./.."> -->
+
+ <!-- The tasks needed to build the Email Sender go here -->
+
+
+</project>
