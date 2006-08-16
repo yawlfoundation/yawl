@@ -20,7 +20,6 @@ import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -61,6 +60,7 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 
 /**
@@ -230,6 +230,10 @@ public class YNetRunner implements Serializable // extends Thread
     	}
 //        super("NetRunner:" + netPrototype.getID());
         _caseIDForNet = new YIdentifier();
+        DataProxy proxy = AbstractEngine.getDataContext().createProxy( _caseIDForNet, null );
+        AbstractEngine.getDataContext().attachProxy( proxy, _caseIDForNet, null );
+        AbstractEngine.getDataContext().save( proxy );
+        
         /*
         INSERTED FOR PERSISTANCE
         */
@@ -291,6 +295,7 @@ public class YNetRunner implements Serializable // extends Thread
         prepare();
         _net.setIncomingData(incomingData);
 
+        AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
 //  TODO      if (pmgr != null) {
 //            pmgr.storeObject(this);
 //        }
@@ -503,6 +508,7 @@ public class YNetRunner implements Serializable // extends Thread
             /******************
              INSERTED FOR PERSISTANCE
              */
+            AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
 //            YPersistance.getInstance().updateData(this);
 //  TODO          if (pmgr != null) {
 //                pmgr.updateObject(this);
@@ -555,6 +561,7 @@ public class YNetRunner implements Serializable // extends Thread
 //  TODO          if (pmgr != null) {
 //                pmgr.updateObject(this);
 //            }
+            AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
 
             /******************************/
             synchronized (this) {
@@ -642,6 +649,7 @@ public class YNetRunner implements Serializable // extends Thread
 
                                 _enabledTasks.add(task);
 
+                                AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
                                 /*************************/
                                 /* INSERTED FOR PERSISTANCE*/
 //                                enabledTaskNames.add(task.getID());
@@ -670,6 +678,7 @@ public class YNetRunner implements Serializable // extends Thread
                             //fire the composite task
                             _busyTasks.add(task);
 
+                            AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
                             /*************************/
                             /* INSERTED FOR PERSISTANCE*/
 //                            busyTaskNames.add(task.getID());
@@ -723,6 +732,9 @@ public class YNetRunner implements Serializable // extends Thread
                          * AJH: Bugfix: We need to remove from persistence the cancelled task
                          */
                         YWorkItem wItem = _workItemRepository.getWorkItem(_caseIDForNet.toString(), task.getID());
+                        DataProxy proxy = AbstractEngine.getDataContext().retrieve( YWorkItem.class, wItem.getId(), null );
+                        AbstractEngine.getDataContext().delete( proxy );
+                        AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
 // TODO                       if (pmgr != null)
 //                        {
 //                            pmgr.deleteObject(wItem);
@@ -842,6 +854,7 @@ public class YNetRunner implements Serializable // extends Thread
             /*
               INSERTED FOR PERSISTANCE
              */
+            AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
 //            busyTaskNames.remove(atomicTask.getID());
 //            YPersistance.getInstance().updateData(this);
 // TODO           if (pmgr != null) {

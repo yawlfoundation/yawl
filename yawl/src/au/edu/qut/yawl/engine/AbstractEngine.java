@@ -54,11 +54,16 @@ import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.logging.YawlLogServletInterface;
+import au.edu.qut.yawl.persistence.dao.DAO;
+import au.edu.qut.yawl.persistence.dao.DAOFactory;
+import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
+import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.unmarshal.YMarshal;
+import au.edu.qut.yawl.util.JDOMConversionTools;
 import au.edu.qut.yawl.util.YDocumentCleaner;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
-import au.edu.qut.yawl.util.JDOMConversionTools;
 
 /**
  *
@@ -78,7 +83,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     private Map _unloadedSpecifications = new HashMap();
     protected Map _caseIDToNetRunnerMap = new HashMap();
     private Map _runningCaseIDToSpecIDMap = new HashMap();
-    protected Map _yawlServices = new HashMap();
+//    protected Map _yawlServices = new HashMap();
 
 
     private InterfaceAManagementObserver _interfaceAClient;
@@ -117,6 +122,20 @@ public abstract class AbstractEngine implements InterfaceADesign,
          */
         ObserverGateway stdHttpObserverGateway = new InterfaceB_EngineBasedClient();
         observerGatewayController.addGateway(stdHttpObserverGateway);
+    }
+    
+    private static DataContext context;
+    
+    public static void setDataContext( DataContext context ) {
+    	AbstractEngine.context = context;
+    }
+    
+    public static DataContext getDataContext() {
+    	if( context == null ) {
+    		DAO mem = DAOFactory.getDAO( PersistenceType.MEMORY );
+    		context = new DataContext( mem );
+    	}
+    	return context;
     }
 
     /**
@@ -541,7 +560,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
                     boolean success = loadSpecification(specification);
                     if (success) {
                     	logger.info("Persisting specification loaded from file " + specificationFile.getAbsolutePath());
-                    	YSpecFile yspec = new YSpecFile(specificationFile.getAbsolutePath());
+//                    	YSpecFile yspec = new YSpecFile(specificationFile.getAbsolutePath());
+                    	
                         //
                         //  INSERTED FOR PERSISTANCE
                         //
@@ -561,6 +581,9 @@ public abstract class AbstractEngine implements InterfaceADesign,
 ////                            }
 //                        }
 
+                    	DataProxy proxy = getDataContext().createProxy( specification, null );
+                    	getDataContext().attachProxy( proxy, specification, null );
+                    	getDataContext().save( proxy );
 
                         returnIDs.add(specification.getID());
                     } else {//the user has loaded the specification with identical id
@@ -620,6 +643,10 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 }
             }
 
+            DataProxy proxy = getDataContext().createProxy( runner, null );
+        	getDataContext().attachProxy( proxy, runner, null );
+        	getDataContext().save( proxy );
+        	
             /*
              * INSERTED FOR PERSISTANCE
              */
@@ -702,6 +729,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                    pmgr.deleteObject(yspec);
 //                }
 //  TODO              DaoFactory.createYDao().delete(yspec);
+                DataProxy proxy = getDataContext().retrieveSpecificationProxy( specID );
+            	getDataContext().delete( proxy );
 
                 YSpecification toUnload = (YSpecification) _specifications.remove(specID);
                 _unloadedSpecifications.put(specID, toUnload);
@@ -1585,7 +1614,12 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
 
     public YAWLServiceReference getRegisteredYawlService(String yawlServiceID) {
-            return (YAWLServiceReference) _yawlServices.get(yawlServiceID);
+    	DataProxy proxy = getDataContext().retrieve( YAWLServiceReference.class, yawlServiceID, null );
+    	if( proxy != null ) {
+    		return (YAWLServiceReference) proxy.getData();
+    	}
+    	return null;
+//            return (YAWLServiceReference) _yawlServices.get(yawlServiceID);
     }
 
 
@@ -1607,7 +1641,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     public void addYawlService(YAWLServiceReference yawlService) throws YPersistenceException {
             logger.debug("--> addYawlService: Service=" + yawlService.getURI());
 
-            _yawlServices.put(yawlService.getURI(), yawlService);
+//            _yawlServices.put(yawlService.getURI(), yawlService);
 
             /*
               INSERTED FOR PERSISTANCE
@@ -1620,6 +1654,9 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                pmgr.storeObject(yawlService);
 //                pmgr.commit();
 //            }
+            DataProxy proxy = getDataContext().createProxy( yawlService, null );
+            getDataContext().attachProxy( proxy, yawlService, null );
+            getDataContext().save( proxy );
 
             logger.debug("<-- addYawlService");
     }
@@ -1688,14 +1725,19 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * @return
      * @throws YPersistenceException
      */
-    // FIXME: XXX this function doesn't remove the YAWL service (or do anything, for that matter)
     public YAWLServiceReference removeYawlService(String serviceURI) throws YPersistenceException {
             /*
               INSERTED FOR PERSISTANCE
              */
-            YAWLServiceReference service = (YAWLServiceReference) _yawlServices.get(serviceURI);
+//            YAWLServiceReference service = (YAWLServiceReference) _yawlServices.get(serviceURI);
 
-            if (service != null) {
+            DataProxy<YAWLServiceReference> proxy = getDataContext().retrieve( YAWLServiceReference.class, serviceURI, null );
+            YAWLServiceReference service = null;
+            if( proxy != null ) {
+            	service = proxy.getData();
+            	getDataContext().delete( proxy );
+            }
+//            if (service != null) {
 // TODO               if (isJournalising()) {
 //                    logger.info("Deleting persisted entry for YAWL service " + service.getURI() + " with ID " + service.get_yawlServiceID());
 
@@ -1710,7 +1752,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                        throw e;
 //                    }
 //                }
-            }
+//            }
 
             return service;
     }
@@ -1821,7 +1863,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * @throws YPersistenceException
      */
     public void storeObject(Object obj) throws YPersistenceException {
-
+    	throw new UnsupportedOperationException( "This function is no longer supported. Use the DataContext" );
 //   TODO         if (isJournalising()) {
 //                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
 //                pmgr.startTransactionalSession();
@@ -1840,7 +1882,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
      */
     protected void clearCase(YIdentifier id) throws YPersistenceException {
         logger.debug("--> clearCase: CaseID = " + id.getId());
-
+        
 //  TODO      if (journalising) {
 //            clearCaseDelegate(id);
 //        }
@@ -1897,6 +1939,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
      */
     public String getMaxCase() {
 // TODO       if (!isJournalising()) {
+    	// TODO FIXME incrementing identifiers
+    	System.err.println( "FIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-ME" );
             maxcase++;
             return Integer.toString(maxcase);
 //        } else {

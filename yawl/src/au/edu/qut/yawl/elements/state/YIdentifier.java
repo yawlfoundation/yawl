@@ -31,8 +31,11 @@ import au.edu.qut.yawl.elements.YConditionInterface;
 import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.logging.YawlLogServletInterface;
+import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**
  * 
@@ -90,6 +93,7 @@ public class YIdentifier implements Serializable {
 
     public YIdentifier() {
 //    	 TODO This is bad style, primary key generation should be located elsewhere!!
+    	System.err.println( "FIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-ME" );
         id = YawlLogServletInterface.getInstance().getNextCaseId();
     }
 
@@ -167,6 +171,11 @@ public class YIdentifier implements Serializable {
         _children.add(identifier);
         identifier._parent = this;
 
+        DataContext context = AbstractEngine.getDataContext();
+        DataProxy idProxy = context.createProxy( identifier, null );
+        context.attachProxy( idProxy, identifier, context.getDataProxy( this ) );
+        context.save( context.getDataProxy( this ) );
+        
         /*
           INSERTED FOR PERSISTANCE
          */
@@ -197,6 +206,7 @@ public class YIdentifier implements Serializable {
 
 
     public String toString() {
+    	if( id == null ) return "null";
         return this.id;
     }
 
@@ -217,6 +227,8 @@ public class YIdentifier implements Serializable {
             this.locationNames.add(condition.toString());
         }
 
+        DataContext context = AbstractEngine.getDataContext();
+        context.save( context.getDataProxy( this ) );
 //    YPersistance.getInstance().updateData(this);
 // TODO       if (pmgr != null) {
 //            pmgr.updateObjectExternal(this);
@@ -240,6 +252,8 @@ public class YIdentifier implements Serializable {
             this.locationNames.remove(condition.toString());
         }
 
+        DataContext context = AbstractEngine.getDataContext();
+        context.save( context.getDataProxy( this ) );
 //        YPersistance.getInstance().updateData(this);
 // TODO       if (pmgr != null) {
 //            pmgr.updateObjectExternal(this);
@@ -261,6 +275,8 @@ public class YIdentifier implements Serializable {
          */
         this.locationNames.add(task.getID());
 
+        DataContext context = AbstractEngine.getDataContext();
+        context.save( context.getDataProxy( this ) );
 //        YPersistance.getInstance().updateData(this);
 //  TODO      if (pmgr != null) {
 //            pmgr.updateObjectExternal(this);
@@ -282,7 +298,7 @@ public class YIdentifier implements Serializable {
         this.locationNames.remove(task.getID());
     }
 
-    //FIXME do we persist locations or not?
+    //FIXME do we persist locations or not? (Lachlan?)
     @Transient
     public synchronized List<YNetElement> getLocations() {  // TODO Why is this synchronized?  -- DM
         return _locations;

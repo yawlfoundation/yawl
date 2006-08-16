@@ -92,7 +92,6 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
      * @return
      * @hibernate.many-to-one column="NET_ELEMENT_ID"
      *    class="au.edu.qut.yawl.elements.YExternalNetElement"
-     * TODO Figure this puppy out
      */
     @ManyToOne
     public YExternalNetElement getPriorElement() {
@@ -122,7 +121,6 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
      * 
      * @return
      * @hibernate.many-to-one column="NET_ELEMENT_ID" class="au.edu.qut.yawl.elements.YExternalNetElement"
-     * TODO Figure this puppy out
      */
     @ManyToOne
     public YExternalNetElement getNextElement() {

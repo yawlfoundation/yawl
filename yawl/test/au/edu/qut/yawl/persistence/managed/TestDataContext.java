@@ -15,6 +15,7 @@ import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
+import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 
 public class TestDataContext extends TestCase implements DataProxyStateChangeListener {
 
@@ -45,7 +46,8 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
     }
 
 	public void testMemDataContext() {
-		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
+//		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
+		DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
 		DataContext context = new DataContext(memdao);
         DataProxy<YSpecification> proxy;
         
