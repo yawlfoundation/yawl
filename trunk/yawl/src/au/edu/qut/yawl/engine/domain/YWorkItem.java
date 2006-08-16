@@ -34,11 +34,12 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.xml.sax.InputSource;
 
 import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.logging.YawlLogServletInterface;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**
  * 
@@ -122,11 +123,11 @@ public class YWorkItem {
 
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    protected Long getId() {
+    public Long getId() {
 		return _id;
 	}
     
-	protected void setId( Long id ) {
+	public void setId( Long id ) {
 		_id = id;
 	}
     
@@ -182,6 +183,9 @@ public class YWorkItem {
                     workItemID.getTaskID()
                     , _status, _whoStartedMe, _specificationID);
 	    setThisId(_workItemID.toString() + "!" + _workItemID.getUniqueID());
+	    DataProxy proxy = AbstractEngine.getDataContext().createProxy( this, null );
+	    AbstractEngine.getDataContext().attachProxy( proxy, this, null );
+	    AbstractEngine.getDataContext().save( proxy );
 //        YPersistance.getInstance().storeData(this);
 // TODO           if (pmgr != null) {
 //                pmgr.storeObject(this);
@@ -224,6 +228,9 @@ public class YWorkItem {
                 , _status, _whoStartedMe, _specificationID);
 	setThisId(_workItemID.toString() + "!" + _workItemID.getUniqueID());
 
+	DataProxy proxy = AbstractEngine.getDataContext().createProxy( this, null );
+    AbstractEngine.getDataContext().attachProxy( proxy, this, null );
+    AbstractEngine.getDataContext().save( proxy );
 //	YPersistance.getInstance().storeData(this);
 // TODO       if (pmgr != null) {
 //            pmgr.storeObject(this);
@@ -282,6 +289,7 @@ public class YWorkItem {
         _startTime = new Date();
         _whoStartedMe = userName;
 
+	    AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
         /*
           INSERTED FOR PERSISTANCE
          */
@@ -328,6 +336,12 @@ public class YWorkItem {
         /********************************/
         /* INSERTED FOR PERSISTANCE */
         /**********************************/
+        DataProxy proxy = AbstractEngine.getDataContext().getDataProxy( this );
+        DataProxy parentProxy = AbstractEngine.getDataContext().getParentProxy( proxy );
+        AbstractEngine.getDataContext().delete( proxy );
+        if( parentProxy != null && parentcomplete ) {
+        	AbstractEngine.getDataContext().delete( parentProxy );
+        }
 //	YPersistance.getInstance().removeData(this);
 //        if (parentcomplete) {
 //              YPersistance.getInstance().removeData(_parent);
@@ -414,6 +428,7 @@ public class YWorkItem {
         _startTime = null;
         _whoStartedMe = null;
 
+        AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
         /*
           INSERTED FOR PERSISTANCE
          */
@@ -432,6 +447,7 @@ public class YWorkItem {
         /* FOR PERSISTANCE */
         /*********************/
         data_string = getDataString();
+        AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
 //	YPersistance.getInstance().updateData(this);
 //  TODO      if (pmgr != null) {
 //            pmgr.updateObject(this);

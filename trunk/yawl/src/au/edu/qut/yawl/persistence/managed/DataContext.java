@@ -13,6 +13,7 @@ package au.edu.qut.yawl.persistence.managed;
  */
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,12 +42,12 @@ public class DataContext {
 	private static final Log LOG = LogFactory.getLog(DataContext.class);
 
     /** Creates a new instance of DataContext */
-    public DataContext(DAO<YSpecification> dao) {
+    public DataContext(DAO<Object> dao) {
         init(dao);
     }
     
     /** Creates a new instance of DataContext */
-    public DataContext(DAO<YSpecification> dao, Class dataProxyClass) {
+    public DataContext(DAO<Object> dao, Class dataProxyClass) {
         if (!DataProxy.class.isAssignableFrom(dataProxyClass)) {
         	throw new IllegalArgumentException(
         		dataProxyClass.getName() 
@@ -60,7 +61,7 @@ public class DataContext {
 	/**
 	 * @param dao
 	 */
-	private void init(DAO<YSpecification> dao) {
+	private void init(DAO<Object> dao) {
 		this.dao = dao;
         this.hierarchy = new HashBag<DataProxy,DataProxy>();
 	}
@@ -68,7 +69,7 @@ public class DataContext {
     /**
      * Holds value of property dao.
      */
-    private DAO<YSpecification> dao;
+    private DAO<Object> dao;
     private Class dataProxyClass = DataProxy.class;
     /** Maps proxy objects to their data. */
     private Map<DataProxy, Object> dataMap = new HashMap<DataProxy, Object>();
@@ -139,26 +140,61 @@ public class DataContext {
 		}
     }
 
-//    /**
-//	 * Retrieves the specification with the given key from the DAO and
-//     * generates proxies for the specification and its children.
-//	 */
-//    public DataProxy retrieve(Serializable key, VetoableChangeListener listener) {
-//    	YSpecification spec = dao.retrieve(key);
-//    	if (spec != null) this.generateProxies(spec);
-//    	return getDataProxy(spec, listener);
-//    }
+    /**
+	 * Retrieves the specification with the given key from the DAO and
+     * generates proxies for the specification and its children.
+	 */
+    public DataProxy retrieve(Class type, Serializable key, DataProxyStateChangeListener listener) {
+    	Object object = dao.retrieve(type, key);
+    	if(object != null && object instanceof YSpecification) {
+    		// TODO generate child proxies
+    		createProxy( object, listener );
+    	}
+    	return getDataProxy(object);
+    }
+    
+    public List<DataProxy> retrieveAll( Class type, DataProxyStateChangeListener listener ) {
+    	List<DataProxy> retval = new ArrayList<DataProxy>();
+    	List objects = dao.retrieveAll( type );
+    	
+    	for( Object o : objects ) {
+    		if( getDataProxy( o ) != null ) {
+    			retval.add( getDataProxy( o ) );
+    		}
+    		else {
+    			// TODO handle specs
+    			retval.add( createProxy( o, listener ) );
+    		}
+    	}
+    	
+    	return retval;
+    }
+    
+    public DataProxy retrieveSpecificationProxy( String specID ) {
+    	// TODO fix this hack!!!!!
+    	List<DataProxy> specs = retrieveAll( YSpecification.class, null );
+    	for( DataProxy proxy : specs ) {
+    		if( proxy.getData() != null ) {
+    			YSpecification spec = (YSpecification) proxy.getData();
+    			if( spec.getID() != null && spec.getID().equals( specID ) ) {
+    				return proxy;
+    			}
+    		}
+    	}
+    	return null;
+    }
     
     /**
      * Tells the DAO to save the object that the proxy is a proxy for,
      * if the proxy is in the context.
 	 */
     public void save(DataProxy dataProxy) {
-    	YSpecification spec = (YSpecification) getData(dataProxy);
-		System.out.println("saving " + spec);
+//    	YSpecification spec = (YSpecification) getData(dataProxy);
+    	Object object = getData( dataProxy );
+		System.out.println("saving " + object);
         
-		if (spec != null) {
-	    	dao.save(spec);
+		if (object != null) {
+	    	dao.save(object);
 		}
     }
     
@@ -170,9 +206,10 @@ public class DataContext {
     public void delete(DataProxy dataProxy) {
         Object data = getData(dataProxy);
         DataProxy parent = getParentProxy(dataProxy);
-    	if (data instanceof YSpecification) {
-    		dao.delete((YSpecification) data);
-    	}
+//    	if (data instanceof YSpecification) {
+//    		dao.delete((YSpecification) data);
+//    	}
+        dao.delete( data );
         detachProxy(dataProxy, data, parent);
     }
     
@@ -180,7 +217,7 @@ public class DataContext {
 	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getKeyFor(Type)
 	 */
     public Serializable getKeyFor(DataProxy t) {
-    	return dao.getKey((YSpecification) getData(t));
+    	return (Serializable) dao.getKey(getData(t));
     }
     
     /**

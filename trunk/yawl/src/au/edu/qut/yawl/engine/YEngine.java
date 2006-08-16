@@ -12,14 +12,18 @@ package au.edu.qut.yawl.engine;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.authentication.UserList;
-import au.edu.qut.yawl.elements.*;
+import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
@@ -31,6 +35,7 @@ import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.logging.YawlLogServletInterface;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
@@ -986,7 +991,13 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-            return new HashSet(_yawlServices.values());
+        	List<DataProxy> proxies = getDataContext().retrieveAll( YAWLServiceReference.class, null );
+        	Set<YAWLServiceReference> references = new HashSet<YAWLServiceReference>();
+        	for( DataProxy proxy : proxies ) {
+        		references.add( (YAWLServiceReference) proxy.getData() ); 
+        	}
+        	return references;
+//            return new HashSet(_yawlServices.values());
         }
     }
 

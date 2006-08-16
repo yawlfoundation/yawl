@@ -92,7 +92,6 @@ public class YMetaData implements Cloneable, Serializable {
      * 
      * @return
      * @hibernate.property 
-     * TODO Set<String>
      */
     @CollectionOfElements
     public Set<String> getContributors() {
@@ -123,7 +122,6 @@ public class YMetaData implements Cloneable, Serializable {
      * 
      * @return
      * @hibernate.property 
-     * TODO Set<String>
      */
     @CollectionOfElements
     public Set<String> getCreators() {
@@ -169,7 +167,6 @@ public class YMetaData implements Cloneable, Serializable {
      * 
      * @return
      * @hibernate.property 
-     * TODO Set<String>
      */
     @CollectionOfElements
     public Set<String> getSubjects() {

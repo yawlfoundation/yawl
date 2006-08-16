@@ -40,6 +40,7 @@ public class Problem implements Serializable {
     private String _messageType;
     private String _message;
     public static final String EMPTY_RESOURCE_SET_MESSAGETYPE = "EmptyResourceSetType";
+    private Long _id;
 
     /**
      * Default explicit constructor required by hibernate
@@ -48,6 +49,15 @@ public class Problem implements Serializable {
     }
     
     @Id
+    public Long getID() {
+    	return _id;
+    }
+    
+    public void setID( Long id ) {
+    	_id = id;
+    }
+    
+    @Basic
     public String getSource() {
         return _source;
     }
@@ -56,7 +66,7 @@ public class Problem implements Serializable {
         this._source = source;
     }
 
-    @Id
+    @Basic
     public Date getTimeStamp() {
         return _timeStamp;
     }
@@ -98,7 +108,7 @@ public class Problem implements Serializable {
     public int hashCode() {
         int result;
         result = _source.hashCode();
-        result = 29 * result + _timeStamp.hashCode();  // TODO DM: Why 29 * result?  What is 29 for?
+        result = 29 * result + _timeStamp.hashCode();
         return result;
     }
 }

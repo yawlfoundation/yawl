@@ -47,10 +47,10 @@ public abstract class YNetElement implements Cloneable, Comparable, Serializable
         return _id;
     }
 
-    @Override
-	public int hashCode() {
-		return getID().hashCode();
-	}
+//    @Override
+//	public int hashCode() {
+//		return getID().hashCode();
+//	}
     
     /**
      * Set method only used by hibernate

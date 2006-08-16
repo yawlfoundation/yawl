@@ -223,46 +223,49 @@ public class YawlLogServletInterface {
 //            pmgr.storeObjectFromExternal(ylogid);
 //        }
     }
+    
+    static int nextID = 100000;
 
     public String getNextCaseId() {
-        if (!enabled) {
-            int id = new Integer(caseId).intValue();
-            id++;
-            caseId = new Integer(id).toString();
-        } else {
-            String nextid = null;
-            try {
+    	return "" + nextID++;
+//        if (!enabled) {
+//            int id = new Integer(caseId).intValue();
+//            id++;
+//            caseId = new Integer(id).toString();
+//        } else {
+//            String nextid = null;
+//            try {
+//
+////todo AJH Changed for persistence
+////        nextid = YPersistance.getInstance().getMaxCase();
+//                nextid =  EngineFactory.createYEngine().getMaxCase();
+//
+//                if (nextid.indexOf(".") != -1) {
+//                    String idstring = nextid.substring(0, nextid.indexOf("."));
+//                    int x = new Integer(idstring).intValue();
+//                    nextid = new String(new Integer(++x).toString());
+//                } else {
+//                    int x = new Integer(nextid).intValue();
+//                    nextid = new String(new Integer(++x).toString());
+//                }
+//
+//            } catch (Exception e) {
+//                nextid = null;
+//                e.printStackTrace();
+//
+//            }
+//
+//            if (nextid == null || nextid.equals("-1")) {
+//                enabled = false;
+//                int id = new Integer(caseId).intValue();
+//                id++;
+//                caseId = new Integer(id).toString();
+//            } else {
+//                caseId = nextid;
+//            }
+//        }
 
-//todo AJH Changed for persistence
-//        nextid = YPersistance.getInstance().getMaxCase();
-                nextid =  EngineFactory.createYEngine().getMaxCase();
-
-                if (nextid.indexOf(".") != -1) {
-                    String idstring = nextid.substring(0, nextid.indexOf("."));
-                    int x = new Integer(idstring).intValue();
-                    nextid = new String(new Integer(++x).toString());
-                } else {
-                    int x = new Integer(nextid).intValue();
-                    nextid = new String(new Integer(++x).toString());
-                }
-
-            } catch (Exception e) {
-                nextid = null;
-                e.printStackTrace();
-
-            }
-
-            if (nextid == null || nextid.equals("-1")) {
-                enabled = false;
-                int id = new Integer(caseId).intValue();
-                id++;
-                caseId = new Integer(id).toString();
-            } else {
-                caseId = nextid;
-            }
-        }
-
-        return caseId;
+//        return caseId;
     }
 
 }

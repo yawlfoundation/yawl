@@ -7,6 +7,7 @@ import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
+import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
@@ -23,7 +24,8 @@ public abstract class CommandTestCase extends TestCase implements DataProxyState
 	
 	@Override
 	protected void setUp() throws Exception {
-		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
+//		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
+		DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
 		dataContext = new DataContext(memdao);
 		DatasourceRoot root = new DatasourceRoot("virtual://memory/");
 		rootProxy = dataContext.createProxy( root, null );

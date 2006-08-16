@@ -9,11 +9,13 @@
 
 package au.edu.qut.yawl.engine;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
+
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-
-import java.util.Date;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 
 /**
@@ -80,6 +82,9 @@ public class YProblemEvent {
         error.setTimeStamp(new Date());
         error.setSource(_source.toString());
 
+        DataProxy proxy = AbstractEngine.getDataContext().createProxy( error, null );
+        AbstractEngine.getDataContext().attachProxy( proxy, error, null );
+        AbstractEngine.getDataContext().save( proxy );
         /**
          * AJH: Bugfix - Prevent NPE being thrown if persistence switched off
          */
