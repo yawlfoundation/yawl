@@ -32,6 +32,9 @@
     <property name="pdf.libs" value="./build/3rdParty/pdflibs"/>
 
 
+
+
+
     <!-- The various Hibernate database types. Set one of these to 'true' for the required database type -->
     <property name="use_postgres7" value="false"/>
     <property name="use_postgres8" value="true"/>
@@ -63,11 +66,40 @@
 	<property name="nexus.serviceInvoker.app.path" value="/${nexus.serviceInvoker.app.name}"/>
 	<property name="nexus.service.jython.app.name" value="JythonService"/>
 	<property name="nexus.service.emailSender.app.name" value="EmailSenderService"/>
-
-	<!-- Assumed value for catalina_home -->
-    <property name="env.CATALINA_HOME" value="c:/Program Files/Apache Software Foundation/Tomcat 5.5/"/>
 	
+    <!-- AJH - New lines for Tomcat/Ant iface -->
+    <property name="tomcat_manager_url" value="${tomcat.protocol}://${tomcat.address}:${tomcat.port}/manager"/>
 
+    <!-- Tell Ant where to find the custom catalina/tomcat build tasks -->
+    <path id="tomcat.tasks.classpath"
+	  path="${env.CATALINA_HOME}/server/lib/catalina-ant.jar" />
+
+    <!-- Configure the custom Ant tasks for the Manager application 
+   <taskdef name="deploy" 
+   	classname="org.apache.catalina.ant.DeployTask"	           
+   	classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="list" 
+   	classname="org.apache.catalina.ant.ListTask"
+       classpathref="tomcat.tasks.classpath"/> 
+   <taskdef name="reload" 
+   	classname="org.apache.catalina.ant.ReloadTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="resources" 
+   	classname="org.apache.catalina.ant.ResourcesTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="roles" 
+   	classname="org.apache.catalina.ant.RolesTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="start" 
+   	classname="org.apache.catalina.ant.StartTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="stop" 
+   	classname="org.apache.catalina.ant.StopTask"
+       classpathref="tomcat.tasks.classpath"/>
+   <taskdef name="undeploy" 
+   	classname="org.apache.catalina.ant.UndeployTask"
+       classpathref="tomcat.tasks.classpath"/>
+    --> 
     <!--
       Use property values to define the locations of external JAR files on which
       your application will depend.  In general, these values will be used for
@@ -190,7 +222,10 @@
       that Tomcat makes available to web applications automatically, plus anything
       that you explicitly added.
     -->
+
+
     <path id="cp.compile">
+
         <!-- Include all JAR files that will be included in /WEB-INF/lib -->
         <!-- *** CUSTOMIZE HERE AS REQUIRED BY YOUR APPLICATION *** -->
         <pathelement location="${jbossall-client.jar}"/>
@@ -207,19 +242,10 @@
     		<include name="*.jar"/>
     	</fileset>
 
-        <!-- Include all elements that Tomcat exposes to applications 
-        <pathelement location="${env.CATALINA_HOME}/common/classes"/>
-        <fileset dir="${env.CATALINA_HOME}/common/endorsed">
-            <include name="*.jar"/>
-        </fileset>
-        <fileset dir="${env.CATALINA_HOME}/common/lib">
-            <include name="*.jar"/>
-        </fileset>
-        <pathelement location="${env.CATALINA_HOME}/shared/classes"/>
-        <fileset dir="${env.CATALINA_HOME}/shared/lib">
-            <include name="*.jar"/>
-        </fileset>
-    	-->
+
+
+
+    	
     	<fileset dir="${nexus.service.libs}/xfire">
     		<include name="*.jar"/>
     	</fileset>
@@ -309,6 +335,7 @@
     Do the necessary copying all essential files
     -->
     <target name="copy">
+	<echo>initial copy of YAWL specs...</echo>
         <copy todir="./exampleSpecs/xml">
             <fileset dir="./schema" includes="*.xsd"/>
         </copy>
@@ -324,11 +351,43 @@
             <fileset dir="./exampleSpecs/xml" includes="MakeRecordings(Beta4).xml"/>
         </copy>
     </target>
+
+
+
+   <target name="check_catalina_yes" if="env.CATALINA_HOME">
+	<echo>Tomcat installed...</echo>
+
+ 	<path id="cp.tomcat">
+         <!-- Include all elements that Tomcat exposes to applications -->
+       	<pathelement location="${env.CATALINA_HOME}/common/classes"/>
+	        <fileset dir="${env.CATALINA_HOME}/common/endorsed">
+            <include name="*.jar"/>
+       	</fileset>
+        <fileset dir="${env.CATALINA_HOME}/common/lib">
+       	    <include name="*.jar"/>
+        </fileset>
+        <pathelement location="${env.CATALINA_HOME}/shared/classes"/>
+	        <fileset dir="${env.CATALINA_HOME}/shared/lib">
+       	    <include name="*.jar"/>
+        </fileset>
+	</path>
+    </target>
+
+    <target name="check_catalina_no" unless="env.CATALINA_HOME">
+	<echo>Tomcat not installed...</echo>
+ 	<path id="cp.tomcat"> </path>
+
+	 <!-- Assumed value for catalina_home -->
+	 <property name="env.CATALINA_HOME" value="c:/Program Files/Apache Software Foundation/Tomcat 5.5/"/>
+    </target>
+
+
     <!--
     Clean build environment
     Deletes directories and intermediate files.
     -->
     <target name="clean" depends="copy">
+	<echo>Cleaning...</echo>
         <!--delete dir="${classes}/.dependency-info"/-->
         <delete dir="${classes}/META-INF"/>
         <delete dir="${classes}/au"/>
@@ -340,7 +399,9 @@
   	Initialise build environment
     Creates necessary directories prior to building.
   	-->
-    <target name="init" depends="clean">
+    <target name="init" depends="clean, check_catalina_yes, check_catalina_no">
+	<echo>Initialising...</echo>
+
         <mkdir dir="${classes}/au"/>
     	<mkdir dir="${classes}/com/nexusbpm"/>
         <mkdir dir="${output}"/>
@@ -353,8 +414,11 @@
     Compiles main project source into ${classes}.
     -->
     <target name="compile" depends="init">
+	<echo>Compiling YAWL...</echo>
+
         <javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
             <classpath refid="cp.standard"/>
+            <classpath refid="cp.tomcat"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
             <classpath refid="cp.xsd"/>
@@ -479,6 +543,7 @@
     Creates a jar file for the main application sources.
     -->
     <target name="build_engine.war" depends="compile">
+	<echo>Building YAWL Engine...</echo>
         <!-- ======================================================================
         Prepare YAWL Engine WebApplication
         -->
@@ -509,7 +574,6 @@
         <jar destfile="${output}/yawl.war">
             <fileset dir="${yawl.eng.app.name}"/>
         </jar>
-    	<CBRelease file="${output}/yawl.war" />
         <delete dir="${yawl.eng.app.name}"/>
     </target>
 
@@ -564,7 +628,6 @@
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
-        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
     	<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms"/>
@@ -603,9 +666,6 @@
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1">
-            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao1" includes="*.class"/>
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/jaxb" includes="*.class"/>
@@ -695,8 +755,6 @@
         <jar destfile="${output}/${yawl.worklist.app.name}.war">
             <fileset dir="${yawl.worklist.app.name}"/>
         </jar>
-    	<CBRelease file="${output}/${yawl.worklist.app.name}.war" />
-
         <delete dir="${yawl.worklist.app.name}"/>
     </target>
 	
@@ -746,11 +804,9 @@
 		
 		<!-- make the jar -->
 		<jar destfile="${output}/${nexus.service.jython.app.name}.war">
-
-
             <fileset dir="${nexus.service.jython.app.name}"/>
         </jar>
-		<CBRelease file="${output}/${nexus.service.jython.app.name}.war" />
+		
 		<!-- clean up -->
 		<delete dir="${nexus.service.jython.app.name}"/>
 	</target>
@@ -800,11 +856,9 @@
 		
 		<!-- make the jar -->
 		<jar destfile="${output}/${nexus.service.emailSender.app.name}.war">
-    	
-
             <fileset dir="${nexus.service.emailSender.app.name}"/>
         </jar>
-		<CBRelease file="${output}/}/${nexus.service.emailSender.app.name}.war" />
+		
 		<!-- clean up -->
 		<delete dir="${nexus.service.emailSender.app.name}"/>
 	</target>
@@ -919,7 +973,6 @@
         <jar destfile="${output}/${nexus.serviceInvoker.app.name}.war">
             <fileset dir="${nexus.serviceInvoker.app.name}"/>
         </jar>
-<CBRelease file="${output}/}/${nexus.serviceInvoker.app.name}.war" />
         <delete dir="${nexus.serviceInvoker.app.name}"/>
     </target>
 
@@ -1005,7 +1058,6 @@
         <jar destfile="${output}/${yawl.webService.app.name}.war">
             <fileset dir="${yawl.webService.app.name}"/>
         </jar>
-<CBRelease file="${output}/}/${yawl.webService.app.name}.war" />
         <delete dir="${yawl.webService.app.name}"/>
     </target>
 
@@ -1085,7 +1137,6 @@
         <jar destfile="${output}/${yawl.smsService.app.name}.war">
             <fileset dir="${yawl.smsService.app.name}"/>
         </jar>
-<CBRelease file="${output}/}/${yawl.smsService.app.name}.war" />
         <delete dir="${yawl.smsService.app.name}"/>
     </target>
 
@@ -1119,7 +1170,7 @@
         <copy todir="${output}">
             <fileset file="${xforms.dist}/${yawl.xforms.app.name}.war"/>
         </copy>
-    	<CBRelease file="${output}/${yawl.xforms.app.name}.war" />            	
+            	
     	<ant target="clean-all" dir="./build/yawlXForms" antfile="build.xml" inheritAll="false" inheritRefs="false"/>
     </target>
 
@@ -1136,6 +1187,7 @@
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/timeService"/>
         <!-- start copying files into war directory -->
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
@@ -1147,7 +1199,9 @@
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
             <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
         </copy>
-        <!-- start copying files into war directory -->
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+            <fileset dir="${classes}/au/edu/qut/yawl/engine/domain" includes="**/*.class"/>
+        </copy>
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
             <fileset
                 dir="${classes}/au/edu/qut/yawl/unmarshal"
@@ -1200,7 +1254,6 @@
         <jar destfile="${output}/${yawl.TimeService.app.name}.war">
             <fileset dir="${yawl.TimeService.app.name}"/>
         </jar>
-<CBRelease file="${output}/}/${yawl.TimeService.app.name}.war" />
         <delete dir="${yawl.TimeService.app.name}"/>
     </target>
 
@@ -1220,7 +1273,6 @@
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
@@ -1244,9 +1296,6 @@
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1">
-            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao1" includes="*.class"/>
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/jaxb" includes="*.class"/>
@@ -1335,7 +1384,6 @@
         <jar destfile="${output}/${yawl.admintool.app.name}.war">
             <fileset dir="${yawl.admintool.app.name}"/>
         </jar>
-<CBRelease file="${output}/}/${yawl.admintool.app.name}.war" />
         <delete dir="${yawl.admintool.app.name}"/>
 	</target>
 	
@@ -1485,7 +1533,7 @@
         <jar destfile="${output}/workletService.war">
             <fileset dir="${yawl.worklet.app.name}"/>
         </jar>
-        <CBRelease file="${output}/}/${yawl.worklet.app.name}.war" />
+        
         <!-- 7. Remove temp build area -->
         <delete dir="${yawl.worklet.app.name}"/>
     </target>
@@ -1508,7 +1556,6 @@
         build_TimeService.war,
         build_admintool.war,
         build_yawlXForms.war,
-        build_admintool.war,
 	build_PDFforms.war,
         build_workletService.war"
         description=
@@ -1517,6 +1564,113 @@
         <antcall target="cleanup"/>
     </target>
 
+    <target name="JavaForgeDeploy"
+	depends=
+	"buildWebApps">
+
+        <CBRelease file="${output}/yawl.war" />
+     	<CBRelease file="${output}/${yawl.worklist.app.name}.war" />
+	<CBRelease file="${output}/${nexus.service.jython.app.name}.war" />
+	<CBRelease file="${output}/}/${nexus.service.emailSender.app.name}.war" />
+	<CBRelease file="${output}/}/${nexus.serviceInvoker.app.name}.war" />
+	<CBRelease file="${output}/}/${yawl.webService.app.name}.war" />
+	<CBRelease file="${output}/}/${yawl.smsService.app.name}.war" />
+    	<CBRelease file="${output}/${yawl.xforms.app.name}.war" />            	
+	<CBRelease file="${output}/}/${yawl.TimeService.app.name}.war" />
+	<CBRelease file="${output}/}/${yawl.admintool.app.name}.war" />
+        <CBRelease file="${output}/}/${yawl.worklet.app.name}.war" />
+
+    <antcall target="cleanup"/>
+
+    </target>
+
+    <target name="deployWorklist" depends="build_worklist.war">
+        <!-- Deploy Worklist -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.worklist.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployEngine" depends="build_engine.war">
+        <!-- Deploy YAWL Engine -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/yawl.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployWsInvoker" depends="build_yawlWSInvoker.war">
+        <!-- Deploy YAWL WS Invoker -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.webService.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deploySMS" depends="build_yawlSMSInvoker.war">
+        <!-- Deploy SMS Service -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.smsService.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployTimeService" depends="build_TimeService.war">
+        <!-- Deploy Time Service -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.TimeService.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployAdminTool" depends="build_admintool.war">
+        <!-- Deploy Admin Tool -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.admintool.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployPDFforms" depends="build_PDFforms.war">
+        <!-- Deploy Admin Tool -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.pdfforms.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployXForms" depends="build_yawlXForms.war">
+        <!-- Deploy XForms -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.xforms.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+    
+    <target name="deployWorkletService" depends="build_workletService.war">
+        <!-- Deploy Worklet Selection Service -->
+        <copy todir="${env.CATALINA_HOME}/webapps">
+            <fileset file="${output}/${yawl.worklet.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+
+    <target name="deployWebapps"
+        depends=
+        "deployWorklist,
+        deployEngine,
+        deployWsInvoker,
+        deploySMS,
+        deployTimeService,
+        deployXForms,
+        deployAdminTool,
+	deployPDFforms,
+        deployWorkletService"
+        description=
+        "Deploys all of the web apps to Tomcat, and if tomcat is on it forces a reload.">
+    </target>
 
     <target name="cleanup">
         <delete dir="${yawl.eng.app.name}"/>
@@ -1554,12 +1708,11 @@
   	Compile test source code
     Compiles the source for test cases into the ${classes} directory.
   	-->
-    <target name="compile-test" depends="compile">
+    <target name="compile-test" depends="buildAll">
         <copy todir="${classes}">
             <fileset dir="${test}" excludes="**/*.java"/>
         </copy>
         <javac srcdir="${test}" destdir="${classes}">
-            <classpath refid="cp.persist"/>
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
@@ -1572,11 +1725,9 @@
     Invokes the unit tests.
     -->
     <target name="test" depends="compile-test">
-        <java classname="au.edu.qut.yawl.AllJavaForgeTestSuite" fork="true" failonerror="false">
+        <java classname="au.edu.qut.yawl.TestAllYAWLSuites" fork="true" failonerror="false">
             <classpath refid="cp.standard"/>
-            <classpath refid="cp.persist"/>
             <classpath refid="cp.compile"/>
-            <classpath refid="cp.xsd"/>
         </java>
     </target>
 
@@ -1597,6 +1748,88 @@
         </javadoc>
     </target>
 
+    <!-- AJH - Added Tomcat deployment target - - >
+    <target name="deploy_tomcat_localhost"
+        depends="buildWebApps"
+        description="Deploy the web applications into Tomcat">
+        <echo message="Deploying web applications via ${tomcat_manager_url}"/>
+
+        <echo message="Deploying ${yawl.xforms.app.name}"/>
+        <deploy url="${tomcat_manager_url}"
+            username="${tomcat.manager.username}"
+            password="${tomcat.manager.password}"
+            path="/${yawl.xforms.app.name}"
+            war="../${output}/${yawl.xforms.app.name}.war"
+            update="true"/>
+
+        <echo message="Deploying ${yawl.eng.app.name}"/>
+        <deploy url="${tomcat_manager_url}"
+            username="${tomcat.manager.username}"
+            password="${tomcat.manager.password}"
+            path="/yawl"
+            war="../${output}/${yawl.eng.app.name}.war"
+            update="true"/>
+
+        <echo message="Deploying ${yawl.worklist.app.name}"/>
+        <deploy url="${tomcat_manager_url}"
+            username="${tomcat.manager.username}"
+            password="${tomcat.manager.password}"
+            path="/${yawl.worklist.app.name}"
+            war="../${output}/${yawl.worklist.app.name}.war"
+            update="true"/>
+
+        <echo message="Deploying ${yawl.webService.app.name}"/>
+        <deploy url="${tomcat_manager_url}"
+            username="${tomcat.manager.username}"
+            password="${tomcat.manager.password}"
+            path="/${yawl.webService.app.name}"
+            war="../${output}/${yawl.webService.app.name}.war"
+            update="true"/>
+
+        <echo message="Deploying ${yawl.smsService.app.name}"/>
+        <deploy url="${tomcat_manager_url}"
+            username="${tomcat.manager.username}"
+            password="${tomcat.manager.password}"
+            path="/${yawl.smsService.app.name}"
+            war="../${output}/${yawl.smsService.app.name}.war"
+            update="true"/>
+            
+        <echo message="Deploying ${yawl.worklet.app.name}"/>
+        <deploy url="${tomcat_manager_url}"
+            username="${tomcat.manager.username}"
+            password="${tomcat.manager.password}"
+            path="/${yawl.worklet.app.name}"
+            war="../${output}/${yawl.worklet.app.name}.war"
+            update="true"/>
+
+        <echo>Deployed OK</echo>
+    </target-->
+
+    <!-- Target which applies the changes required to Tomcat's common libraries -->
+    <target name="deploy_tomcat_common_libs" description="Update the Tomcat common libraries for XML parsers etc.">
+        <echo>Copying and deleting as-issued Tomcat XML parser libraries</echo>
+
+        <copy file="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar"
+            tofile="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar.original"
+            failonerror="false"/>
+        <delete file="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar"
+            failonerror="false"/>
+
+        <copy file="${env.CATALINA_HOME}/common/endorsed/xml-apis.jar"
+            tofile="${env.CATALINA_HOME}/common/endorsed/xml-apis.jar.original"
+            failonerror="false"/>
+        <delete file="${env.CATALINA_HOME}/common/endorsed/xml-apis.jar"
+            failonerror="false"/>
+
+        <echo>Copying in replacement libaries</echo>
+        <copy file="${xforms.lib}/dom3-xercesImpl.jar"
+            todir="${env.CATALINA_HOME}/common/endorsed"
+            overwrite="true"/>
+        <copy file="${xforms.lib}/dom3-xml-apis.jar"
+            todir="${env.CATALINA_HOME}/common/endorsed"
+            overwrite="true"/>
+    </target>
+
 
 
 
@@ -1608,7 +1841,26 @@
         description="cleans out the intellij records of previous compiles forcing the ide to recompile">
         <delete dir="${classes}/.dependency-info"/>
     </target>
+<!--
+    <taskdef resource="emma_ant.properties" classpathref="cp.test" />
 
+    <path id="cp.test" >
+        <path refid="${junit-jar}"/>
+        <path refid="${emma.dir}/emma.jar" />
+        <path refid="${emma.dir}/emma_ant.jar" />
+        <path refid="${log4j-jar}"/>
+    </path>
+
+    <target name="emmaRun" depends="compile-test" description="perform code coverage" >
+        <emmajava enabled="true" libclasspathref="cp.test"
+                  classname="org.jintegrator.TestAllSuites"
+                  classpathref="run.classpath"
+                  sourcepath="${src}:${test}"
+                >
+            <html outfile="${coverage.dir}/coverage.html"  />
+        </emmajava>
+    </target>
+-->
 
     <target name="build_PDFforms.war" depends="compile">
         <!-- ======================================================================
