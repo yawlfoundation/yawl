@@ -14,6 +14,8 @@ Version 1.4.3 (??/??/????) "Deltapoint"
   * The editor has been upgraded to now use Jgraph 5.9.2.
   * Now, individual nets can have differing background colours. A new menu item on the
     net menu allows a particular net to have a background colour other than the default.
+  * Fixed a bug where the Parameter Update dialog required the user to press one of the
+    XQuery generating buttons before the done button for the dialog would be enabled.
 
 Version 1.4.2 (13/07/2006) "Ironforge"
   * Fixed a bug where the "Set Label" dialog box was remembering the last thing
