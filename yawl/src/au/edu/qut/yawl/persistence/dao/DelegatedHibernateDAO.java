@@ -44,8 +44,11 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YCaseData;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.exceptions.Problem;
 
 public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedHibernateDAO.class );
@@ -112,6 +115,10 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	public DelegatedHibernateDAO() {
 		addType( YSpecification.class, new SpecificationHibernateDAO() );
 		addType( YNetRunner.class, new NetRunnerHibernateDAO() );
+		addType( Problem.class, new ProblemHibernateDAO() );
+		addType( YWorkItem.class, new WorkItemHibernateDAO() );
+		addType( YIdentifier.class, new IdentifierHibernateDAO() );
+		addType( YAWLServiceReference.class, new YAWLServiceReferenceHibernateDAO() );
 	}
 	
 	public List getChildren( Object object ) {
@@ -313,6 +320,38 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 		
 		public Object getKey( YNetRunner object ) {
 			return PersistenceUtilities.getNetRunnerDatabaseKey( object );
+		}
+	}
+	
+	private class ProblemHibernateDAO extends AbstractHibernateDAO<Problem> {
+		protected void preSave( Problem object ) {}
+		
+		public Object getKey( Problem object ) {
+			return PersistenceUtilities.getProblemDatabaseKey( object );
+		}
+	}
+	
+	private class WorkItemHibernateDAO extends AbstractHibernateDAO<YWorkItem> {
+		protected void preSave( YWorkItem item ) {}
+		
+		public Object getKey( YWorkItem item ) {
+			return PersistenceUtilities.getWorkItemDatabaseKey( item );
+		}
+	}
+	
+	private class IdentifierHibernateDAO extends AbstractHibernateDAO<YIdentifier> {
+		protected void preSave( YIdentifier item ) {}
+		
+		public Object getKey( YIdentifier item ) {
+			return PersistenceUtilities.getIdentifierDatabaseKey( item );
+		}
+	}
+	
+	private class YAWLServiceReferenceHibernateDAO extends AbstractHibernateDAO<YAWLServiceReference> {
+		protected void preSave( YAWLServiceReference item ) {}
+		
+		public Object getKey( YAWLServiceReference item ) {
+			return PersistenceUtilities.getYAWLServiceReferenceDatabaseKey( item );
 		}
 	}
 }
