@@ -492,16 +492,6 @@ public class GraphEditor extends JPanel
         else {
             SwingUtilities.invokeLater( updater );
         }
-        
-//        throw new RuntimeException("insert the object into the graph with the location properly restored");
-        
-//    Component c = (Component) ctrl.getPersistentDomainObject();
-//    Map map = createComponentAttributeMap(c);
-//    Hashtable<CapselaCell, Map> attributes = new Hashtable<CapselaCell, Map>();
-//    attributes.put(cell, map);
-//    Point location = new Point(c.getFlowLocation().getLocation());
-//    _graph.snap(location);
-//    _graph.getGraphLayoutCache().insert(new Object[] { cell }, attributes, null, null, null);
     }
 
 //	protected void addPropertyChangeListener(DomainObjectProxy domainObjectProxy, PropertyChangeListener propertyChangeListener) {

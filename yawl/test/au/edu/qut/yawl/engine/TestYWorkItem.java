@@ -39,9 +39,11 @@ public class TestYWorkItem extends TestCase{
 
     public void setUp() throws Exception{
         _identifier = new YIdentifier();
+        YIdentifier.saveIdentifier( _identifier, null, null );
         _childIdentifier = _identifier.createChild();
         _workItemID = new YWorkItemID(_identifier, "task-123");
         _workItem = new YWorkItem("ASpecID", _workItemID, true, false);
+        YWorkItem.saveWorkItem( _workItem, null, null );
         
         _deadlockedWorkItemIdentifier = new YIdentifier();
         _deadlockedWorkItemID = new YWorkItemID(_deadlockedWorkItemIdentifier, "task-abc");

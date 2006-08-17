@@ -51,6 +51,7 @@ public class TestYNetRunner extends TestCase {
     private YNetRunner _netRunner1;
     private YIdentifier _id1;
     private Document _d;
+    private AbstractEngine _engine;
 
     public TestYNetRunner(String name) {
         super(name);
@@ -63,11 +64,11 @@ public class TestYNetRunner extends TestCase {
         YSpecification specification;
         specification = (YSpecification) YMarshal.
                             unmarshalSpecifications(yawlXMLFile1.getAbsolutePath()).get(0);
-        AbstractEngine engine2 = EngineFactory.createYEngine();
-        EngineClearer.clear(engine2);
-        engine2.addSpecifications(yawlXMLFile1, false, new ArrayList());
-        _id1 = engine2.startCase(null, specification.getID(), null, null);
-        _netRunner1 = getYNetRunner(engine2, _id1);
+        _engine = EngineFactory.createYEngine();
+        EngineClearer.clear(_engine);
+        _engine.addSpecifications(yawlXMLFile1, false, new ArrayList());
+        _id1 = _engine.startCase(null, specification.getID(), null, null);
+        _netRunner1 = getYNetRunner(_engine, _id1);
         _d = new Document();
         _d.setRootElement(new Element("data"));
     }
@@ -76,6 +77,9 @@ public class TestYNetRunner extends TestCase {
         return (YNetRunner) engine._caseIDToNetRunnerMap.get(id);
     }
 
+    private YWorkItem getWorkItem( YNetRunner runner, String taskID ) {
+    	return _engine.getWorkItem( runner.getCaseID() + ":" + taskID );
+    }
 
     public void testBasicFireAtomic() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
         assertTrue(_netRunner1.getEnabledTasks().contains(_netRunner1.getNetElement("a-top")));
@@ -101,7 +105,12 @@ public class TestYNetRunner extends TestCase {
         assertTrue(_netRunner1.getEnabledTasks().size() == 0);
         assertTrue(_netRunner1.getBusyTasks().size() == 1);
         _netRunner1.startWorkItemInTask((YIdentifier) children.get(0), "a-top");
-        assertTrue(_netRunner1.completeWorkItemInTask(null, (YIdentifier) children.get(0), "a-top",_d));
+        assertTrue(
+        		_netRunner1.completeWorkItemInTask(
+        				getWorkItem( _netRunner1, "a-top" ),
+        				(YIdentifier) children.get(0),
+        				"a-top",
+        				_d));
         YCondition anonC = ((YCondition) _netRunner1.getNetElement(
                 "c{a-top_b-top}"));
         assertTrue(anonC.contains(_id1));
@@ -123,9 +132,17 @@ public class TestYNetRunner extends TestCase {
             _netRunner1.startWorkItemInTask((YIdentifier) btopChildren.get(i), "b-top");
 
             if (i + 1 == btopChildren.size() || i + 1 == btop.getMultiInstanceAttributes().getThreshold()) {
-                assertTrue(_netRunner1.completeWorkItemInTask(null, (YIdentifier) btopChildren.get(i), "b-top", _d));
+                assertTrue(_netRunner1.completeWorkItemInTask(
+                		getWorkItem( _netRunner1, "b-top" ),
+                		(YIdentifier) btopChildren.get(i),
+                		"b-top",
+                		_d));
             } else {
-                assertFalse(_netRunner1.completeWorkItemInTask(null, (YIdentifier) btopChildren.get(i), "b-top", _d));
+                assertFalse(_netRunner1.completeWorkItemInTask(
+                		getWorkItem( _netRunner1, "b-top" ),
+                		(YIdentifier) btopChildren.get(i),
+                		"b-top",
+                		_d));
 //System.out.println("i " + i + " childrensize  " + btopChildren.size());
             }
         }
@@ -133,7 +150,11 @@ public class TestYNetRunner extends TestCase {
 //System.out.println("got here");
             Exception f = null;
             try {
-                _netRunner1.completeWorkItemInTask(null, (YIdentifier) btopChildren.get(i), "b-top", _d);
+                _netRunner1.completeWorkItemInTask(
+                		getWorkItem( _netRunner1, "b-top" ),
+                		(YIdentifier) btopChildren.get(i),
+                		"b-top",
+                		_d);
             } catch (Exception e) {
                 f = e;
             }
@@ -166,7 +187,11 @@ public class TestYNetRunner extends TestCase {
             fail();
         }
         _netRunner1.startWorkItemInTask((YIdentifier) children.get(0), "a-top");
-        _netRunner1.completeWorkItemInTask(null,(YIdentifier) children.get(0), "a-top", _d);
+        _netRunner1.completeWorkItemInTask(
+        		getWorkItem( _netRunner1, "a-top" ),
+        		(YIdentifier) children.get(0),
+        		"a-top",
+        		_d);
         try {
             children = _netRunner1.attemptToFireAtomicTask("b-top");
         } catch (YDataStateException e) {

@@ -36,6 +36,7 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.logging.YawlLogServletInterface;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 /**
  * 
@@ -124,6 +125,25 @@ public class YIdentifier implements Serializable {
         }
         return descendants;
     }
+    
+    public static void saveIdentifier( YIdentifier id, YIdentifier parent,
+    		DataProxyStateChangeListener listener ) {
+    	DataContext context = AbstractEngine.getDataContext();
+    	DataProxy proxy = context.getDataProxy( id );
+    	DataProxy parentProxy = null;
+    	if( parent != null ) {
+    		parentProxy = context.getDataProxy( parent );
+    		assert parentProxy != null : "attempting to persist child when parent is not persisted!";
+    	}
+    	if( proxy == null ) {
+    		proxy = context.createProxy( id, listener );
+    		context.attachProxy( proxy, id, parentProxy );
+    	}
+        if( parent != null ) {
+        	context.save( parentProxy );
+        }
+        context.save( proxy );
+    }
 
 
     public YIdentifier createChild() throws YPersistenceException {
@@ -131,6 +151,7 @@ public class YIdentifier implements Serializable {
                 new YIdentifier(this.id + "." + (_children.size() + 1));
         _children.add(identifier);
         identifier._parent = this;
+        saveIdentifier( identifier, this, null );
 
         /*
           INSERTED FOR PERSISTANCE
@@ -171,10 +192,7 @@ public class YIdentifier implements Serializable {
         _children.add(identifier);
         identifier._parent = this;
 
-        DataContext context = AbstractEngine.getDataContext();
-        DataProxy idProxy = context.createProxy( identifier, null );
-        context.attachProxy( idProxy, identifier, context.getDataProxy( this ) );
-        context.save( context.getDataProxy( this ) );
+        saveIdentifier( identifier, this, null );
         
         /*
           INSERTED FOR PERSISTANCE
@@ -227,8 +245,7 @@ public class YIdentifier implements Serializable {
             this.locationNames.add(condition.toString());
         }
 
-        DataContext context = AbstractEngine.getDataContext();
-        context.save( context.getDataProxy( this ) );
+        saveIdentifier( this, null, null );
 //    YPersistance.getInstance().updateData(this);
 // TODO       if (pmgr != null) {
 //            pmgr.updateObjectExternal(this);
@@ -252,8 +269,7 @@ public class YIdentifier implements Serializable {
             this.locationNames.remove(condition.toString());
         }
 
-        DataContext context = AbstractEngine.getDataContext();
-        context.save( context.getDataProxy( this ) );
+        saveIdentifier( this, null, null );
 //        YPersistance.getInstance().updateData(this);
 // TODO       if (pmgr != null) {
 //            pmgr.updateObjectExternal(this);
@@ -275,8 +291,7 @@ public class YIdentifier implements Serializable {
          */
         this.locationNames.add(task.getID());
 
-        DataContext context = AbstractEngine.getDataContext();
-        context.save( context.getDataProxy( this ) );
+        saveIdentifier( this, null, null );
 //        YPersistance.getInstance().updateData(this);
 //  TODO      if (pmgr != null) {
 //            pmgr.updateObjectExternal(this);

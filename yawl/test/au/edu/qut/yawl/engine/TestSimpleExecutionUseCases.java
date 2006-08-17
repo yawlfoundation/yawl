@@ -9,24 +9,32 @@
 
 package au.edu.qut.yawl.engine;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Set;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+import org.jdom.JDOMException;
+
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.exceptions.YAWLException;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.exceptions.*;
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Set;
-import java.util.ArrayList;
-
-import org.jdom.JDOMException;
 
 /**
  * 
@@ -86,7 +94,10 @@ public class TestSimpleExecutionUseCases extends TestCase{
         try {
             _engine.startWorkItem(item ,"admin");
         } catch (YAWLException e) {
-            fail(e.getMessage());
+        	StringWriter sw = new StringWriter();
+        	PrintWriter pw = new PrintWriter( sw );
+        	e.printStackTrace( pw );
+            fail( sw.toString() );
         }
 
 

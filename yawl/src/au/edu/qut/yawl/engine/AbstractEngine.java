@@ -643,10 +643,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 }
             }
 
-            DataProxy proxy = getDataContext().createProxy( runner, null );
-        	getDataContext().attachProxy( proxy, runner, null );
-        	getDataContext().save( proxy );
-        	
+            YNetRunner.saveNetRunner( runner, null );
             /*
              * INSERTED FOR PERSISTANCE
              */

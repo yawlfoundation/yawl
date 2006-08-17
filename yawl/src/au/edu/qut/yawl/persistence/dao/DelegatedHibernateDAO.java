@@ -25,6 +25,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.criterion.Restrictions;
 
 import au.edu.qut.yawl.elements.KeyValue;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
@@ -281,7 +282,8 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	            }
 	            
 	            Session session = openSession();
-	            Criteria query = session.createCriteria(YSpecification.class);
+	            Criteria query = session.createCriteria(YSpecification.class)
+	            	.add( Restrictions.like( "ID", filter + "%" ) );
 	            
 	            List tmp = query.list();
 	            
