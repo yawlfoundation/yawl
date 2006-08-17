@@ -17,8 +17,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.exceptions.Problem;
 
 public class DelegatedSpringDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedSpringDAO.class );
@@ -26,6 +30,10 @@ public class DelegatedSpringDAO extends AbstractDelegatedDAO {
 	public DelegatedSpringDAO() {
 		addType( YSpecification.class, new SpecificationSpringDAO() );
 		addType( YNetRunner.class, new NetRunnerSpringDAO() );
+		addType( Problem.class, new ProblemSpringDAO() );
+		addType( YWorkItem.class, new WorkItemSpringDAO() );
+		addType( YIdentifier.class, new IdentifierSpringDAO() );
+		addType( YAWLServiceReference.class, new YAWLServiceReferenceSpringDAO() );
 	}
 	
 	public List getChildren( Object object ) {
@@ -131,6 +139,38 @@ public class DelegatedSpringDAO extends AbstractDelegatedDAO {
 		
 		public Object getKey( YNetRunner object ) {
 			return PersistenceUtilities.getNetRunnerDatabaseKey( object );
+		}
+	}
+	
+	private class ProblemSpringDAO extends AbstractSpringDAO<Problem> {
+		protected void preSave( Problem object ) {}
+		
+		public Object getKey( Problem object ) {
+			return PersistenceUtilities.getProblemDatabaseKey( object );
+		}
+	}
+	
+	private class WorkItemSpringDAO extends AbstractSpringDAO<YWorkItem> {
+		protected void preSave( YWorkItem item ) {}
+		
+		public Object getKey( YWorkItem item ) {
+			return PersistenceUtilities.getWorkItemDatabaseKey( item );
+		}
+	}
+	
+	private class IdentifierSpringDAO extends AbstractSpringDAO<YIdentifier> {
+		protected void preSave( YIdentifier item ) {}
+		
+		public Object getKey( YIdentifier item ) {
+			return PersistenceUtilities.getIdentifierDatabaseKey( item );
+		}
+	}
+	
+	private class YAWLServiceReferenceSpringDAO extends AbstractSpringDAO<YAWLServiceReference> {
+		protected void preSave( YAWLServiceReference item ) {}
+		
+		public Object getKey( YAWLServiceReference item ) {
+			return PersistenceUtilities.getYAWLServiceReferenceDatabaseKey( item );
 		}
 	}
 }
