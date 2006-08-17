@@ -7,6 +7,8 @@
  */
 package au.edu.qut.yawl.persistence.dao;
 
+import java.io.Serializable;
+
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
@@ -36,31 +38,47 @@ public class PersistenceUtilities {
 		return spec.getID();
 	}
 	
-	public static Object getSpecificationDatabaseKey( YSpecification spec ) {
+	public static Serializable getSpecificationDatabaseKey( YSpecification spec ) {
 		return spec.getDbID();
 	}
 	
 	public static Object getNetRunnerKey( YNetRunner netRunner ) {
+		return getNetRunnerDatabaseKey( netRunner );
+	}
+	
+	public static Serializable getNetRunnerDatabaseKey( YNetRunner netRunner ) {
 		return netRunner.getCaseID();
 	}
 	
-	public static Object getNetRunnerDatabaseKey( YNetRunner netRunner ) {
-		return getNetRunnerKey( netRunner );
+	public static Object getProblemKey( Problem problem ) {
+		return getProblemDatabaseKey( problem );
 	}
 	
-	public static Object getProblemKey( Problem problem ) {
+	public static Serializable getProblemDatabaseKey( Problem problem ) {
 		return problem.getID();
 	}
 	
 	public static Object getWorkItemKey( YWorkItem item ) {
+		return getWorkItemDatabaseKey( item );
+	}
+	
+	public static Serializable getWorkItemDatabaseKey( YWorkItem item ) {
 		return item.getId();
 	}
 	
 	public static Object getIdentifierKey( YIdentifier id ) {
+		return getIdentifierDatabaseKey( id );
+	}
+	
+	public static Serializable getIdentifierDatabaseKey( YIdentifier id ) {
 		return id.getId();
 	}
 	
 	public static Object getYAWLServiceReferenceKey( YAWLServiceReference reference ) {
+		return getYAWLServiceReferenceDatabaseKey( reference );
+	}
+	
+	public static Serializable getYAWLServiceReferenceDatabaseKey( YAWLServiceReference reference ) {
 		return reference.getYawlServiceID();
 	}
 }
