@@ -602,7 +602,6 @@
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
-        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
     	<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms"/>
@@ -641,9 +640,6 @@
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1">
-            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao1" includes="*.class"/>
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/jaxb" includes="*.class"/>
@@ -1251,7 +1247,6 @@
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
@@ -1275,9 +1270,6 @@
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1">
-            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao1" includes="*.class"/>
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/jaxb" includes="*.class"/>
