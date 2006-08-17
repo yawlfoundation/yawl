@@ -542,9 +542,6 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
   
   class XQueryEditorPanel extends JPanel {
     
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
     private JLabel openingSinkTagLabel = new JLabel("<sinkVarible>");
     private JLabel closingSinkTagLabel = new JLabel("</sinkVarible>");
@@ -564,7 +561,10 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
 
       xQueryEditor = new JXQueryEditorPane();
       xQueryEditor.setMinimumSize(new Dimension(400,400));
-      xQueryEditor.addKeyListener(new ParameterEditorDocumentListener());
+
+      xQueryEditor.getXQueryEditor().addKeyListener(
+          new ParameterEditorDocumentListener()
+      );
 
       add(openingSinkTagLabel,BorderLayout.NORTH);
         
@@ -586,11 +586,11 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
     }
     
     public void keyTyped(KeyEvent e) {
-      // deliberately does nothing
+      getDoneButton().setEnabled(shouldDoneButtonBeEnabled());
     }
 
     public void keyReleased(KeyEvent e) {
-      getDoneButton().setEnabled(shouldDoneButtonBeEnabled());
+      // deliberately does nothing
     }
   }
   

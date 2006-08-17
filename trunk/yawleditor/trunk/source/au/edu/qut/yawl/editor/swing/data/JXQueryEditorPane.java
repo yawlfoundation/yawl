@@ -56,7 +56,7 @@ public class JXQueryEditorPane extends JProblemReportingEditorPane {
     getXQueryEditor().setPreAndPostEditorText(preEditorText, postEditorText);
   }
   
-  private JXQueryEditor getXQueryEditor() {
+  public JXQueryEditor getXQueryEditor() {
     return (JXQueryEditor) getEditor();
   }
 }
