@@ -146,11 +146,8 @@ public class DataContext {
 	 */
     public DataProxy retrieve(Class type, Serializable key, DataProxyStateChangeListener listener) {
     	Object object = dao.retrieve(type, key);
-    	if(object != null && object instanceof YSpecification) {
-    		// TODO generate child proxies
-    		createProxy( object, listener );
-    	}
-    	return getDataProxy(object);
+    	// TODO how do we handle the parent proxy?
+    	return handleRetrievedObject( object, null, listener );
     }
     
     public List<DataProxy> retrieveAll( Class type, DataProxyStateChangeListener listener ) {
@@ -158,16 +155,50 @@ public class DataContext {
     	List objects = dao.retrieveAll( type );
     	
     	for( Object o : objects ) {
-    		if( getDataProxy( o ) != null ) {
-    			retval.add( getDataProxy( o ) );
-    		}
-    		else {
-    			// TODO handle specs
-    			retval.add( createProxy( o, listener ) );
+    		// TODO how do we handle the parent proxy?
+    		DataProxy proxy = handleRetrievedObject( o, null, listener );
+    		if( proxy != null ) {
+    			retval.add( proxy );
     		}
     	}
     	
     	return retval;
+    }
+    
+    private DataProxy handleRetrievedObject( Object object, DataProxy parentProxy,
+    		DataProxyStateChangeListener listener ) {
+    	if( object != null && getDataProxy( object ) == null ) {
+    		if( object instanceof YSpecification) {
+                RemoveNetConditionsOperation.removeConditions( (YSpecification) object );
+                VisitSpecificationOperation.visitSpecification(
+                        (YSpecification) object, getData( parentProxy ),
+                        new Visitor() {
+                            public void visit(Object child, Object parent, String childLabel) {
+                                DataProxy childProxy;
+                                if( DataContext.this.getDataProxy( child ) == null ) {
+                                    childProxy = DataContext.this.createProxy(child, null);
+                                    
+                                    DataProxy parentProxy = DataContext.this.getDataProxy(parent);
+                                    DataContext.this.attachProxy( childProxy, child, parentProxy );
+                                }
+                                else {
+                                    // TODO FIXME this shouldn't really happen... but it does
+                                    LOG.warn( "Revisiting child:" + child );
+                                    childProxy = DataContext.this.getDataProxy( child );
+                                }
+                                if( childLabel == null ) {
+                                    childLabel = "null";
+                                }
+                                childProxy.setLabel(childLabel);
+                            }
+                        });
+        	}
+    		else {
+    			DataProxy proxy = createProxy( object, listener );
+    			attachProxy( proxy, object, parentProxy );
+    		}
+    	}
+    	return getDataProxy( object );
     }
     
     public DataProxy retrieveSpecificationProxy( String specID ) {
@@ -189,13 +220,12 @@ public class DataContext {
      * if the proxy is in the context.
 	 */
     public void save(DataProxy dataProxy) {
-//    	YSpecification spec = (YSpecification) getData(dataProxy);
     	Object object = getData( dataProxy );
-		System.out.println("saving " + object);
-        
-		if (object != null) {
-	    	dao.save(object);
+		System.out.println("saving " + object );
+		if( object == null ) {
+			throw new RuntimeException( "Cannot persist null as an object!" );
 		}
+        dao.save( object );
     }
     
     /**
@@ -206,15 +236,13 @@ public class DataContext {
     public void delete(DataProxy dataProxy) {
         Object data = getData(dataProxy);
         DataProxy parent = getParentProxy(dataProxy);
-//    	if (data instanceof YSpecification) {
-//    		dao.delete((YSpecification) data);
-//    	}
+        
         dao.delete( data );
         detachProxy(dataProxy, data, parent);
     }
     
-    /* (non-Javadoc)
-	 * @see au.edu.qut.yawl.persistence.managed.DataContext#getKeyFor(Type)
+    /**
+	 * @see au.edu.qut.yawl.persistence.dao.DAO#getKey(Object)
 	 */
     public Serializable getKeyFor(DataProxy t) {
     	return (Serializable) dao.getKey(getData(t));
@@ -297,35 +325,36 @@ public class DataContext {
     		List<Parented> l = dao.getChildren(parent.getData());
     		for (Object o: l) {
                 assert o != null : "data proxy returned a null child!" + parent.toString();
-    			if (o instanceof YSpecification) {
-                    RemoveNetConditionsOperation.removeConditions( (YSpecification) o );
-                    VisitSpecificationOperation.visitSpecification(
-                            (YSpecification) o, getData( parent ),
-                            new Visitor() {
-                                public void visit(Object child, Object parent, String childLabel) {
-                                    DataProxy childProxy;
-                                    if( DataContext.this.getDataProxy( child ) == null ) {
-                                        childProxy = DataContext.this.createProxy(child, null);
-                                        
-                                        DataProxy parentProxy = DataContext.this.getDataProxy(parent);
-                                        DataContext.this.attachProxy( childProxy, child, parentProxy );
-                                    }
-                                    else {
-                                        // TODO FIXME this shouldn't really happen... but it does
-                                        LOG.warn( "Revisiting child:" + child );
-                                        childProxy = DataContext.this.getDataProxy( child );
-                                    }
-                                    if( childLabel == null ) {
-                                        childLabel = "null";
-                                    }
-                                    childProxy.setLabel(childLabel);
-                                }
-                            });
-    			}
-    			else {
-    				DataProxy dp = createProxy(o, null);
-                    attachProxy(dp, o, parent);
-    			}
+                handleRetrievedObject( o, parent, null );
+//    			if (o instanceof YSpecification) {
+//                    RemoveNetConditionsOperation.removeConditions( (YSpecification) o );
+//                    VisitSpecificationOperation.visitSpecification(
+//                            (YSpecification) o, getData( parent ),
+//                            new Visitor() {
+//                                public void visit(Object child, Object parent, String childLabel) {
+//                                    DataProxy childProxy;
+//                                    if( DataContext.this.getDataProxy( child ) == null ) {
+//                                        childProxy = DataContext.this.createProxy(child, null);
+//                                        
+//                                        DataProxy parentProxy = DataContext.this.getDataProxy(parent);
+//                                        DataContext.this.attachProxy( childProxy, child, parentProxy );
+//                                    }
+//                                    else {
+//                                        // TODO FIXME this shouldn't really happen... but it does
+//                                        LOG.warn( "Revisiting child:" + child );
+//                                        childProxy = DataContext.this.getDataProxy( child );
+//                                    }
+//                                    if( childLabel == null ) {
+//                                        childLabel = "null";
+//                                    }
+//                                    childProxy.setLabel(childLabel);
+//                                }
+//                            });
+//    			}
+//    			else {
+//    				DataProxy dp = createProxy(o, null);
+//                    attachProxy(dp, o, parent);
+//    			}
     		}
     	}
     	else {

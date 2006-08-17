@@ -104,6 +104,7 @@ public class YCompositeTask extends YTask {
                 id,
                 getData(id));
 
+        YNetRunner.saveNetRunner( netRunner, null );
         /*
           INSERTED FOR PERSISTANCE
          */

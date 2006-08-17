@@ -39,7 +39,9 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.logging.YawlLogServletInterface;
+import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 /**
  * 
@@ -183,9 +185,6 @@ public class YWorkItem {
                     workItemID.getTaskID()
                     , _status, _whoStartedMe, _specificationID);
 	    setThisId(_workItemID.toString() + "!" + _workItemID.getUniqueID());
-	    DataProxy proxy = AbstractEngine.getDataContext().createProxy( this, null );
-	    AbstractEngine.getDataContext().attachProxy( proxy, this, null );
-	    AbstractEngine.getDataContext().save( proxy );
 //        YPersistance.getInstance().storeData(this);
 // TODO           if (pmgr != null) {
 //                pmgr.storeObject(this);
@@ -228,14 +227,42 @@ public class YWorkItem {
                 , _status, _whoStartedMe, _specificationID);
 	setThisId(_workItemID.toString() + "!" + _workItemID.getUniqueID());
 
-	DataProxy proxy = AbstractEngine.getDataContext().createProxy( this, null );
-    AbstractEngine.getDataContext().attachProxy( proxy, this, null );
-    AbstractEngine.getDataContext().save( proxy );
 //	YPersistance.getInstance().storeData(this);
 // TODO       if (pmgr != null) {
 //            pmgr.storeObject(this);
 //        }
         /*******************************/
+    }
+    
+    public static void saveWorkItem( YWorkItem item, YWorkItem parent,
+    		DataProxyStateChangeListener listener ) {
+    	DataContext context = AbstractEngine.getDataContext();
+    	DataProxy proxy = context.getDataProxy( item );
+    	DataProxy parentProxy = null;
+    	if( parent != null ) {
+    		parentProxy = context.getDataProxy( parent );
+    		assert parentProxy != null : "attempting to persist child when parent is not persisted!";
+    	}
+    	if( proxy == null ) {
+    		proxy = context.createProxy( item, listener );
+    		context.attachProxy( proxy, item, parentProxy );
+    	}
+        if( parent != null ) {
+        	context.save( parentProxy );
+        }
+        context.save( proxy );
+    }
+    
+    public static void deleteWorkItem( YWorkItem item ) {
+    	DataContext context = AbstractEngine.getDataContext();
+    	DataProxy proxy = context.getDataProxy( item );
+    	assert proxy != null : "attempting to delete a work item that isn't persisted!";
+    	DataProxy parentProxy = context.getParentProxy( proxy );
+    	context.delete( proxy );
+    	if( parentProxy != null ) {
+	    	// TODO not sure if we need to save the parent or not...
+	    	context.save( parentProxy );
+    	}
     }
 
 
@@ -262,8 +289,8 @@ public class YWorkItem {
                 YawlLogServletInterface.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
                         _workItemID.getTaskID()
                         , _status, _whoStartedMe, _specificationID, null);
-
             }
+            saveWorkItem( childItem, this, null );
             return childItem;
         }
         return null;
@@ -289,7 +316,7 @@ public class YWorkItem {
         _startTime = new Date();
         _whoStartedMe = userName;
 
-	    AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
+        saveWorkItem( this, null, null );
         /*
           INSERTED FOR PERSISTANCE
          */
@@ -428,7 +455,7 @@ public class YWorkItem {
         _startTime = null;
         _whoStartedMe = null;
 
-        AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
+        saveWorkItem( this, null, null );
         /*
           INSERTED FOR PERSISTANCE
          */
@@ -447,7 +474,7 @@ public class YWorkItem {
         /* FOR PERSISTANCE */
         /*********************/
         data_string = getDataString();
-        AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
+        saveWorkItem( this, null, null );
 //	YPersistance.getInstance().updateData(this);
 //  TODO      if (pmgr != null) {
 //            pmgr.updateObject(this);

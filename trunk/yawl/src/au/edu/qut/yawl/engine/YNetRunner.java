@@ -60,7 +60,9 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 
 /**
@@ -230,9 +232,7 @@ public class YNetRunner implements Serializable // extends Thread
     	}
 //        super("NetRunner:" + netPrototype.getID());
         _caseIDForNet = new YIdentifier();
-        DataProxy proxy = AbstractEngine.getDataContext().createProxy( _caseIDForNet, null );
-        AbstractEngine.getDataContext().attachProxy( proxy, _caseIDForNet, null );
-        AbstractEngine.getDataContext().save( proxy );
+        YIdentifier.saveIdentifier( _caseIDForNet, null, null );
         
         /*
         INSERTED FOR PERSISTANCE
@@ -295,10 +295,27 @@ public class YNetRunner implements Serializable // extends Thread
         prepare();
         _net.setIncomingData(incomingData);
 
-        AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
 //  TODO      if (pmgr != null) {
 //            pmgr.storeObject(this);
 //        }
+    }
+    
+    public static void saveNetRunner( YNetRunner runner, DataProxyStateChangeListener listener ) {
+    	DataContext context = AbstractEngine.getDataContext();
+    	DataProxy proxy = context.getDataProxy( runner );
+    	DataProxy parentProxy = null;
+//    	if( parent != null ) {
+//    		parentProxy = context.getDataProxy( parent );
+//    		assert parentProxy != null : "attempting to persist child when parent is not persisted!";
+//    	}
+    	if( proxy == null ) {
+    		proxy = context.createProxy( runner, listener );
+    		context.attachProxy( proxy, runner, parentProxy );
+    	}
+//        if( parent != null ) {
+//        	context.save( parentProxy );
+//        }
+        context.save( proxy );
     }
 
 
@@ -464,10 +481,11 @@ public class YNetRunner implements Serializable // extends Thread
         boolean isDeadlocked = true;
         YWorkItemID deadlockWorkItemID = new YWorkItemID(_caseIDForNet,
                 netElement.getID());
-        new YWorkItem(specificationID,
+        YWorkItem item = new YWorkItem(specificationID,
                 deadlockWorkItemID,
                 allowsNewInstances,
                 isDeadlocked);
+        YWorkItem.saveWorkItem( item, item.getParent(), null );
         //Log to Problems table of database.
         YProblemEvent event  = new YProblemEvent(_net, "Deadlocked", YProblemEvent.RuntimeError);
         event.logProblem();
@@ -795,6 +813,7 @@ public class YNetRunner implements Serializable // extends Thread
             }
             workItem.setData(data);
         }
+        YWorkItem.saveWorkItem( workItem, workItem.getParent(), null );
     }
 
 
