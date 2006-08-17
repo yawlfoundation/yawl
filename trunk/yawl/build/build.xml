@@ -50,7 +50,7 @@
     <property name="yawl.webService.app.name" value="yawlWSInvoker"/>
     <property name="yawl.smsService.app.name" value="yawlSMSInvoker"/>
     <property name="yawl.TimeService.app.name" value="timeService"/>
-    <property name="yawl.admintool.app.name" value="adminTool"/>
+    <property name="yawl.admintool.app.name" value="admintool"/>
     <property name="yawl.xforms.app.name" value="yawlXForms"/>
     <property name="yawl.worklet.app.name" value="workletService"/>
     <property name="yawl.eng.app.path" value="/${yawl.eng.app.name}"/>
@@ -1165,6 +1165,7 @@
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/timeService"/>
         <!-- start copying files into war directory -->
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
@@ -1176,7 +1177,9 @@
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
             <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
         </copy>
-        <!-- start copying files into war directory -->
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
+            <fileset dir="${classes}/au/edu/qut/yawl/engine/domain" includes="**/*.class"/>
+        </copy>
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
             <fileset
                 dir="${classes}/au/edu/qut/yawl/unmarshal"
@@ -1535,13 +1538,32 @@
         build_TimeService.war,
         build_admintool.war,
         build_yawlXForms.war,
-        build_admintool.war,
 	build_PDFforms.war,
         build_workletService.war"
         description=
         "Builds a distribution version of all
         the YAWL runtime Web apps and copies to the output directory.">
         <antcall target="cleanup"/>
+    </target>
+
+    <target name="JavaForgeDeploy"
+	depends=
+	"buildWebApps">
+
+        <CBRelease file="${output}/yawl.war" />
+     	<CBRelease file="${output}/${yawl.worklist.app.name}.war" />
+	<CBRelease file="${output}/${nexus.service.jython.app.name}.war" />
+	<CBRelease file="${output}/}/${nexus.service.emailSender.app.name}.war" />
+	<CBRelease file="${output}/}/${nexus.serviceInvoker.app.name}.war" />
+	<CBRelease file="${output}/}/${yawl.webService.app.name}.war" />
+	<CBRelease file="${output}/}/${yawl.smsService.app.name}.war" />
+    	<CBRelease file="${output}/${yawl.xforms.app.name}.war" />            	
+	<CBRelease file="${output}/}/${yawl.TimeService.app.name}.war" />
+	<CBRelease file="${output}/}/${yawl.admintool.app.name}.war" />
+        <CBRelease file="${output}/}/${yawl.worklet.app.name}.war" />
+
+    <antcall target="cleanup"/>
+
     </target>
 
     <target name="deployWorklist" depends="build_worklist.war">
