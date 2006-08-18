@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 
 public class DelegatedFileDAO extends AbstractDelegatedDAO {
@@ -50,9 +51,11 @@ public class DelegatedFileDAO extends AbstractDelegatedDAO {
 			loadedObjects.remove( key );
 		}
 		
-		public List<Type> retrieveAll( Class type ) {
-			// TODO
-			return new ArrayList<Type>();
+		public List<Type> retrieveByRestriction( Class type, Restriction restriction ) {
+			// restrictions don't make sense in the context of a hierarchical filesystem the
+			// same way they do for a database or memory
+			throw new UnsupportedOperationException(
+					"The file system DAO does not support retrieval by restriction!" );
 		}
 	}
 	

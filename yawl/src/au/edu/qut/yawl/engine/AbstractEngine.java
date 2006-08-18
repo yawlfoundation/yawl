@@ -57,6 +57,8 @@ import au.edu.qut.yawl.logging.YawlLogServletInterface;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.unmarshal.YMarshal;
@@ -726,8 +728,12 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                    pmgr.deleteObject(yspec);
 //                }
 //  TODO              DaoFactory.createYDao().delete(yspec);
-                DataProxy proxy = getDataContext().retrieveSpecificationProxy( specID );
-            	getDataContext().delete( proxy );
+                List<DataProxy> list = getDataContext().retrieveByRestriction( YSpecification.class,
+                		new PropertyRestriction( "ID", Comparison.EQUAL, specID ),
+                		null );
+                assert list.size() == 1 : "there should only be 1 specification with the given ID";
+//                .retrieveSpecificationProxy( specID );
+            	getDataContext().delete( list.get( 0 ) );
 
                 YSpecification toUnload = (YSpecification) _specifications.remove(specID);
                 _unloadedSpecifications.put(specID, toUnload);

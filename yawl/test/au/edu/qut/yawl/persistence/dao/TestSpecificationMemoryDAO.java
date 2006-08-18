@@ -1,12 +1,15 @@
 package au.edu.qut.yawl.persistence.dao;
 
 import java.io.File;
+import java.util.List;
 
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.StringProducerXML;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
 public class TestSpecificationMemoryDAO extends TestCase {
 
@@ -50,6 +53,41 @@ public class TestSpecificationMemoryDAO extends TestCase {
 		String pk = testSpec.getID();
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, pk);	
 		assertNotNull(spec);
+	}
+	
+	public void testRetrieveByRestriction() {
+		DAO myDAO = getDAO();
+		
+		testSpec.setDocumentation( "asdf test 1234" );
+		myDAO.save( testSpec );
+		
+		YSpecification spec2 = new YSpecification( "TEST_URI" );
+		spec2.setDocumentation( "asdfblahasdf" );
+		myDAO.save( spec2 );
+		
+		List specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
+				"documentation", Comparison.EQUAL, "asdf test 1234" ) );
+		assertNotNull( specs );
+		assertTrue( "" + specs.size(), specs.size() == 1 );
+		
+		myDAO.delete( spec2 );
+		
+		specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
+				"documentation", Comparison.NOT_EQUAL, "asdf test 1234" ) );
+		assertNotNull( specs );
+		assertTrue( "" + specs.size(), specs.size() == 0 );
+		
+		myDAO.save( spec2 );
+		
+		specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
+				"documentation", Comparison.LIKE, "asdf%1234" ) );
+		assertNotNull( specs );
+		assertTrue( "" + specs.size(), specs.size() == 1 );
+		
+		specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
+				"documentation", Comparison.LIKE, "asdf%" ) );
+		assertNotNull( specs );
+		assertTrue( "" + specs.size(), specs.size() == 2 );
 	}
 
 	/*

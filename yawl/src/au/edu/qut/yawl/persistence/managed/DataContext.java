@@ -28,6 +28,8 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 import au.edu.qut.yawl.util.HashBag;
 import au.edu.qut.yawl.util.RemoveNetConditionsOperation;
 import au.edu.qut.yawl.util.VisitSpecificationOperation;
@@ -151,8 +153,13 @@ public class DataContext {
     }
     
     public List<DataProxy> retrieveAll( Class type, DataProxyStateChangeListener listener ) {
+    	return retrieveByRestriction( type, new Unrestricted(), null );
+    }
+    
+    public List<DataProxy> retrieveByRestriction( Class type, Restriction restriction,
+    		DataProxyStateChangeListener listener ) {
     	List<DataProxy> retval = new ArrayList<DataProxy>();
-    	List objects = dao.retrieveAll( type );
+    	List objects = dao.retrieveByRestriction( type, restriction );
     	
     	for( Object o : objects ) {
     		// TODO how do we handle the parent proxy?
@@ -199,20 +206,6 @@ public class DataContext {
     		}
     	}
     	return getDataProxy( object );
-    }
-    
-    public DataProxy retrieveSpecificationProxy( String specID ) {
-    	// TODO fix this hack!!!!!
-    	List<DataProxy> specs = retrieveAll( YSpecification.class, null );
-    	for( DataProxy proxy : specs ) {
-    		if( proxy.getData() != null ) {
-    			YSpecification spec = (YSpecification) proxy.getData();
-    			if( spec.getID() != null && spec.getID().equals( specID ) ) {
-    				return proxy;
-    			}
-    		}
-    	}
-    	return null;
     }
     
     /**
