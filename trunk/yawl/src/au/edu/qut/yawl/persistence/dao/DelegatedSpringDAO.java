@@ -30,7 +30,7 @@ import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 
 public class DelegatedSpringDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedSpringDAO.class );
-
+	
 	public DelegatedSpringDAO() {
 		addType( YSpecification.class, new SpecificationSpringDAO() );
 		addType( YNetRunner.class, new NetRunnerSpringDAO() );

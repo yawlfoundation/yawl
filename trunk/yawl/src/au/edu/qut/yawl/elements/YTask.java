@@ -64,6 +64,7 @@ import au.edu.qut.yawl.elements.e2wfoj.E2WFOJNet;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.events.StateEvent;
 import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YDataQueryException;
 import au.edu.qut.yawl.exceptions.YDataStateException;
@@ -106,10 +107,10 @@ public abstract class YTask extends YExternalNetElement {
     //internal state nodes
     protected YIdentifier _i;
     //sorry for now need public for tests
-    public YInternalCondition _mi_active = new YInternalCondition(YInternalCondition._mi_active, this);
-    protected YInternalCondition _mi_entered = new YInternalCondition(YInternalCondition._mi_entered, this);
-    protected YInternalCondition _mi_complete = new YInternalCondition(YInternalCondition._mi_complete, this);
-    protected YInternalCondition _mi_executing = new YInternalCondition(YInternalCondition._executing, this);
+    public YInternalCondition _mi_active = new YInternalCondition(new StateEvent(StateEvent.ACTIVE), this);
+    protected YInternalCondition _mi_entered = new YInternalCondition(new StateEvent(StateEvent.ENTERED), this);
+    protected YInternalCondition _mi_complete = new YInternalCondition(new StateEvent(StateEvent.COMPLETE), this);
+    protected YInternalCondition _mi_executing = new YInternalCondition(new StateEvent(StateEvent.EXECUTING), this);
     protected static final YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
 
     //private attributes
@@ -884,10 +885,10 @@ public abstract class YTask extends YExternalNetElement {
 
     public Object clone() throws CloneNotSupportedException {
         YTask copy = (YTask) super.clone();
-        copy._mi_active = new YInternalCondition(YInternalCondition._mi_active, copy);
-        copy._mi_complete = new YInternalCondition(YInternalCondition._mi_complete, copy);
-        copy._mi_entered = new YInternalCondition(YInternalCondition._mi_entered, copy);
-        copy._mi_executing = new YInternalCondition(YInternalCondition._executing, copy);
+        copy._mi_active = new YInternalCondition(new StateEvent(StateEvent.ACTIVE), copy);
+        copy._mi_complete = new YInternalCondition(new StateEvent(StateEvent.COMPLETE), copy);
+        copy._mi_entered = new YInternalCondition(new StateEvent(StateEvent.ENTERED), copy);
+        copy._mi_executing = new YInternalCondition(new StateEvent(StateEvent.EXECUTING), copy);
         copy._removeSet = new HashSet<YExternalNetElement>();
         Iterator iter = _removeSet.iterator();
         while (iter.hasNext()) {

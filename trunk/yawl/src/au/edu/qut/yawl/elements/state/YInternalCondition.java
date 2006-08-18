@@ -22,6 +22,8 @@ import javax.persistence.Transient;
 import au.edu.qut.yawl.elements.YConditionInterface;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.events.DispatcherFactory;
+import au.edu.qut.yawl.events.StateEvent;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YStateException;
 
@@ -45,13 +47,11 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
 	
     private YIdentifierBag _bag;
     public YTask _myTask;
-    public static String _mi_active = "mi_active";
-    public static String _mi_entered = "mi_entered";
-    public static String _executing = "executing";
-    public static String _mi_complete = "mi_complete";
     
-    public YInternalCondition(String id, YTask myTask) {
-        setID(id);
+    private StateEvent state;
+    
+    public YInternalCondition(StateEvent state, YTask myTask) {
+    	this.state = state;
         _bag = new YIdentifierBag(this);
         _myTask = myTask;
     }
@@ -84,6 +84,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      * @param identifier
      */
     public void add(YIdentifier identifier) throws YPersistenceException {
+    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         _bag.addIdentifier(identifier);
     }
 
@@ -124,6 +125,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      * inside then make no change to the state of this.
      */
     public YIdentifier removeOne() throws YPersistenceException {
+    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         YIdentifier id = (YIdentifier) getIdentifiers().get(0);
         _bag.remove(id, 1);
         return id;
@@ -135,6 +137,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      * @param identifier
      */
     public void removeOne(YIdentifier identifier) throws YPersistenceException {
+    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         _bag.remove(identifier, 1);
     }
 
@@ -146,6 +149,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      * held inside this, and further more no change will be made to the state of this.
      */
     public void remove(YIdentifier identifier, int amount) throws YStateException, YPersistenceException {
+    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         _bag.remove(identifier, amount);
     }
 
@@ -154,10 +158,12 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      * @param identifier
      */
     public void removeAll(YIdentifier identifier) throws YPersistenceException {
+    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         _bag.remove(identifier, _bag.getAmount(identifier));
     }
 
     public void removeAll() {
+    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         _bag.removeAll();
     }
 

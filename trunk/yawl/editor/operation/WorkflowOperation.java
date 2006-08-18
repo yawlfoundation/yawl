@@ -43,6 +43,7 @@ import au.edu.qut.yawl.util.HashBag;
 
 import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.editor.persistence.YTaskEditorExtension;
+import com.nexusbpm.editor.persistence.YTaskEventExtension;
 import com.nexusbpm.services.NexusServiceInfo;
 import com.nexusbpm.services.data.NexusServiceData;
 
@@ -369,6 +370,18 @@ public class WorkflowOperation {
         }
         
         return task;
+    }
+    
+    public static boolean setNetElementConsoleLogging( YExternalNetElement element, boolean logging ) {
+        YTaskEventExtension editor = new YTaskEventExtension( element );
+        boolean oldLogging = editor.isConsoleLogging();
+        editor.setConsoleLogging( logging );
+        return oldLogging;
+    }
+    
+    public static boolean isNetElementConsoleLogging( YExternalNetElement element ) {
+        YTaskEventExtension editor = new YTaskEventExtension( element );
+        return editor.isConsoleLogging();
     }
     
     /**

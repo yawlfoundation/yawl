@@ -7,8 +7,13 @@
  */
 package au.edu.qut.yawl.persistence.dao;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
 public class DAOFactory {
 	private DAOFactory() {}
+	
+	private static final String CONTEXT_CONFIG_LOCATION = ""; // TODO context config file location
 	
 	public enum PersistenceType {EJB3, FILE, HIBERNATE, MEMORY, SPRING};
 	
@@ -21,6 +26,7 @@ public class DAOFactory {
 			case HIBERNATE:
 				return new DelegatedHibernateDAO();
 			case SPRING:
+				ApplicationContext context = new FileSystemXmlApplicationContext(CONTEXT_CONFIG_LOCATION);
 				return new DelegatedSpringDAO();
 			case MEMORY:
 			default:
