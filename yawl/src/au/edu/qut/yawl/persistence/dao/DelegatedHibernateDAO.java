@@ -49,6 +49,7 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.events.Event;
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
@@ -79,7 +80,8 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 						YNet.class,
 						YCaseData.class,
 						YMetaData.class,
-						YSpecification.class
+						YSpecification.class,
+						Event.class
 				};
 	
 	private static void initializeSessions() {
