@@ -9,12 +9,15 @@
 package au.edu.qut.yawl.persistence.dao;
 
 import java.io.File;
+import java.util.List;
 
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.StringProducerXML;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
 public class TestSpecificationHibernateDAO extends TestCase {
 
@@ -60,6 +63,40 @@ public class TestSpecificationHibernateDAO extends TestCase {
 		myDAO.save(testSpec);
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, myDAO.getKey(testSpec));	
 		assertNotNull(spec);
+	}
+	
+	public void testRetrieveByRestriction() {
+		DAO myDAO = getDAO();
+		
+		// TODO we need to clean up possible failed previous runs before we run this test
+		// once we ensure tests are rolled back after completion, this should be removed
+		List specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
+				"documentation", Comparison.EQUAL, "asdf test 1234" ) );
+		for( Object object : specs ) {
+			myDAO.delete( object );
+		}
+		
+		testSpec.setDocumentation( "asdf test 1234" );
+		myDAO.save( testSpec );
+		specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
+				"documentation", Comparison.EQUAL, "asdf test 1234" ) );
+		assertNotNull( specs );
+		assertTrue( "" + specs.size(), specs.size() == 1 );
+		
+		// TODO ensure that the database is rolled back for each test so that tests are completely
+		// independent, then uncomment the following test
+//		specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
+//				"documentation", Comparison.NOT_EQUAL, "asdf test 1234" ) );
+//		assertNotNull( specs );
+//		assertTrue( "" + specs.size(), specs.size() == 0 );
+		
+		// TODO since tests are not truly independent, this next part can possible fail
+		// depending on the state of the database
+		specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
+				"documentation", Comparison.LIKE, "asdf%1234" ) );
+		assertNotNull( specs );
+		assertTrue( "" + specs.size(), specs.size() == 1 );
+		myDAO.delete( testSpec );
 	}
 
 	/*

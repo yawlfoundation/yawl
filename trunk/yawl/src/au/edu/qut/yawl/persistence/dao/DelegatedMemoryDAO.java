@@ -7,6 +7,8 @@
  */
 package au.edu.qut.yawl.persistence.dao;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,9 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.Problem;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionEvaluator;
+import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 
 public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedMemoryDAO.class );
@@ -41,6 +46,18 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 	private abstract class AbstractMemoryDAO<Type> implements DAO<Type> {
 		protected abstract void preSave( Type object );
 		protected Map<Object, Type> objects = new HashMap<Object, Type>();
+		protected BeanInfo typeInfo;
+		
+		protected void initProperties( Class type ) {
+			if( typeInfo == null ) {
+				try {
+					typeInfo = Introspector.getBeanInfo( type );
+				}
+				catch( Exception e ) {
+					LOG.error( e );
+				}
+			}
+		}
 
 		public final boolean delete( Type object ) {
 			return objects.remove( getKey( object ) ) != null;
@@ -50,10 +67,20 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 			return objects.get( key );
 		}
 		
-		public final List<Type> retrieveAll( Class type ) {
-			return new ArrayList<Type>( objects.values() );
+		public final List<Type> retrieveByRestriction( Class type, Restriction restriction ) {
+			if( restriction instanceof Unrestricted ) {
+				return new ArrayList<Type>( objects.values() );
+			}
+			initProperties( type );
+			List<Type> retval = new ArrayList<Type>();
+			for( Type object : objects.values() ) {
+				if( RestrictionEvaluator.passesRestriction( object, restriction, typeInfo ) ) {
+					retval.add( object );
+				}
+			}
+			return retval;
 		}
-
+		
 		public final void save( Type object ) {
 			preSave( object );
 			objects.put( getKey( object ), object );

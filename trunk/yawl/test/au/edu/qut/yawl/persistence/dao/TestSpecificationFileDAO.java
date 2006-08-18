@@ -9,6 +9,9 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.StringProducerXML;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
 public class TestSpecificationFileDAO extends TestCase {
 	
@@ -52,6 +55,25 @@ public class TestSpecificationFileDAO extends TestCase {
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class,pk);	
 		assertNotNull(spec);
+	}
+	
+	public void testRetrieveByRestriction() {
+		DAO myDAO = getDAO();
+		try {
+			myDAO.retrieveByRestriction( YSpecification.class, new Unrestricted() );
+			fail( "An exception should have been thrown.");
+		}
+		catch( UnsupportedOperationException e ) {
+			// proper exception was thrown
+		}
+		try {
+			myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
+					"ID", Comparison.EQUAL, "TestCompletedMappings.xml" ) );
+			fail( "An exception should have been thrown.");
+		}
+		catch( UnsupportedOperationException e ) {
+			// proper exception was thrown
+		}
 	}
 
 	/*

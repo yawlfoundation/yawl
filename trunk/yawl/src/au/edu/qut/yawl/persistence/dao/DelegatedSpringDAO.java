@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.criterion.DetachedCriteria;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import au.edu.qut.yawl.elements.YAWLServiceReference;
@@ -23,6 +24,9 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.Problem;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
+import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 
 public class DelegatedSpringDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedSpringDAO.class );
@@ -55,9 +59,14 @@ public class DelegatedSpringDAO extends AbstractDelegatedDAO {
 			return (Type) getHibernateTemplate().get( type, (Serializable) key );
 		}
 		
-		public List<Type> retrieveAll( Class type ) {
-			// TODO
-			return new ArrayList<Type>();
+		public List<Type> retrieveByRestriction( Class type, Restriction restriction ) {
+			DetachedCriteria criteria = DetachedCriteria.forClass( type );
+			
+			if( ! ( restriction instanceof Unrestricted ) ) {
+            	criteria.add( RestrictionCriterionConverter.convertRestriction( restriction ) );
+            }
+			
+			return getHibernateTemplate().findByCriteria( criteria );
 		}
 		
 		public final boolean delete( Type object ) {

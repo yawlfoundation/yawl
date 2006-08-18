@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.YNetRunner;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 
 @Stateless
 @Remote(DelegatedEJB3DAO.class)
@@ -48,7 +49,7 @@ public class DelegatedEJB3DAO extends AbstractDelegatedDAO {
 			return (Type) manager.find( type, key );
 		}
 		
-		public List<Type> retrieveAll( Class type ) {
+		public List<Type> retrieveByRestriction( Class type, Restriction restriction ) {
 			// TODO
 			return new ArrayList<Type>();
 		}

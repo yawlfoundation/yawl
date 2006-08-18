@@ -9,11 +9,13 @@ package au.edu.qut.yawl.persistence.dao;
 
 import java.util.List;
 
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+
 public interface DAO<Type> {
 	public Object getKey(Type object);
 	  public void save(Type object);
 	  public Type retrieve(Class type, Object key);
-	  public List<Type> retrieveAll(Class type);
+	  public List<Type> retrieveByRestriction(Class type, Restriction restriction);
 	  public boolean delete(Type object);
 	  public List getChildren(Object object);
 }

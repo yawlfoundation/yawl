@@ -50,6 +50,9 @@ import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.Problem;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
+import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 
 public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedHibernateDAO.class );
@@ -209,9 +212,46 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 			}
 		}
 		
-		public List<Type> retrieveAll( Class type ) {
-			// TODO
-			return new ArrayList<Type>();
+		public List<Type> retrieveByRestriction( Class type, Restriction restriction ) {
+			Session session = null;
+			try {
+				session = openSession();
+				Transaction tx = session.beginTransaction();
+				
+	            Criteria query = session.createCriteria( type );
+	            
+	            if( ! ( restriction instanceof Unrestricted ) ) {
+	            	query.add( RestrictionCriterionConverter.convertRestriction( restriction ) );
+	            }
+	            
+	            List tmp = query.list();
+	            Set set = new HashSet( tmp );
+				List<Type> retval = new ArrayList<Type>( set );
+				tx.commit();
+				return retval;
+			}
+			catch (Exception e) {
+				LOG.error( e );
+				try {
+					if( session != null && session.isOpen() ) {
+						if ( session.isConnected() ) session.connection().rollback();
+						session.close();
+					}
+				}
+				catch( Exception ignore ) {			
+					LOG.error( ignore );
+				}
+				try {
+					if (sessionFactory!=null) {
+						sessionFactory.close();
+						sessionFactory=null;
+					}
+				}
+				catch( Exception ignore ) {
+					LOG.error( ignore );
+				}
+				return null;
+			}
 		}
 
 		public void save( Type object ) {
