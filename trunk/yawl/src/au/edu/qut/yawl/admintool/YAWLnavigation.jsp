@@ -35,15 +35,14 @@
 							<td width="1"  height="3" bgcolor="#336699"/>
 							<td width="90" bgcolor="#336699"/>
 							<td width="1" bgcolor="#336699"/>
-                            <td width="90" bgcolor="#336699"/>
-							<td width="1" bgcolor="#336699"/>
 							<td width="90" bgcolor="#336699"/>
 							<td width="1" bgcolor="#336699"/>
 							<td width="90" bgcolor="#336699"/>
 							<td width="1" bgcolor="#336699"/>
 							<td width="90" bgcolor="#336699"/>
 							<td width="1" bgcolor="#336699"/>
-	
+							<td width="90" bgcolor="#336699"/>
+							<td width="1" bgcolor="#336699"/>	
 						</tr>
                         <%
                             String contextPath = request.getContextPath();
@@ -51,43 +50,38 @@
 						<tr height="20">
 							<td bgcolor="#336699"/>
                             <td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="/admintool/organizational.jsp" target="_top" class="level3menu">Resources</a>
+								<a href="/adminTool/organizational.jsp" target="_top" class="level3menu">Resources</a>
 							</td>
 							<td bgcolor="#336699"/>
                             <td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="/admintool/roles.jsp" target="_top" class="level3menu">Roles</a>
+								<a href="/adminTool/roles.jsp" target="_top" class="level3menu">Roles</a>
 							</td>
 							<td bgcolor="#336699"/>
-
                             <td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="/admintool/chartview.jsp" target="_top" class="level3menu">Charts</a>
-							</td>
-                            <td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="/admintool/ProM.jsp" target="_top" class="level3menu">Mining</a>
+								<a href="/adminTool/chartview.jsp" target="_top" class="level3menu">Charts</a>
 							</td>
 							<td bgcolor="#336699"/>
                             <td align="center" valign="middle" bgcolor="#ffffff">
 								<a href="/worklist/admin" target="_top" class="level3menu">Worklist</a>
 							</td>
-
 							<td bgcolor="#336699"/>
 							<td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="/admintool/logout.jsp" target="_top" class="level3menu">Logout</a>
+								<a href="/adminTool/logout.jsp" target="_top" class="level3menu">Logout</a>
 							</td>
 							<td bgcolor="#336699"/>
 						</tr>
-						<tr>
-							<td bgcolor="#336699" height="1"/>
-							<td bgcolor="#336699"/>
-							<td bgcolor="#336699"/>
-							<td bgcolor="#336699"/>
-							<td bgcolor="#336699"/>
-							<td bgcolor="#336699"/>
-							<td bgcolor="#336699"/>
-							<td bgcolor="#336699"/>
-							<td bgcolor="#336699"/>
-							<td bgcolor="#336699"/>
-		
+						<tr align="center">
+							<td width="1"  height="1" bgcolor="#336699"/>
+							<td width="90" bgcolor="#336699"/>
+							<td width="1" bgcolor="#336699"/>
+							<td width="90" bgcolor="#336699"/>
+							<td width="1" bgcolor="#336699"/>
+							<td width="90" bgcolor="#336699"/>
+							<td width="1" bgcolor="#336699"/>
+							<td width="90" bgcolor="#336699"/>
+							<td width="1" bgcolor="#336699"/>
+									<td width="90" bgcolor="#336699"/>
+							<td width="1" bgcolor="#336699"/>
 						</tr>
 				</table>
 			</td>
