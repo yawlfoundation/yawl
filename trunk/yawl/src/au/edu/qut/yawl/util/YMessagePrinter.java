@@ -12,6 +12,10 @@ package au.edu.qut.yawl.util;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import au.edu.qut.yawl.engine.YEngine;
+
 /**
  * 
  * @author Lachlan Aldred
@@ -20,9 +24,12 @@ import java.util.List;
  * 
  */
 public class YMessagePrinter {
-    public static void printMessages(List<YVerificationMessage> messages) {
+	private static Logger logger = Logger.getLogger(YMessagePrinter.class);
+
+	public static void printMessages(List<YVerificationMessage> messages) {
         for (YVerificationMessage vm : messages) {
-            System.out.println(vm.getStatus() + ":" + vm.getMessage());
+        	logger.debug("--> printMessages: " + vm.getStatus() + ":" + vm.getMessage());
+        	//System.out.println(vm.getStatus() + ":" + vm.getMessage());
         }
     }
 
