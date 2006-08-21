@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.persistence.Basic;
+import javax.persistence.Lob;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -657,10 +658,10 @@ public class YWorkItem {
      * Inserted for hibernate
      * @return
      */
-    @Basic
+    @Lob
     private String getDataList() {
-        if (_dataList != null) {
-        	Document d = new Document(_dataList);
+        if (_dataList != null) {        	
+        	Document d = new Document((Element) _dataList.clone());
             XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
             return outputter.outputString(d);
         }
@@ -672,19 +673,21 @@ public class YWorkItem {
      * @param s
      */
     private void setDataList(String s) {
-    	try {
-			SAXBuilder builder = new SAXBuilder();
-			Document d = builder.build( new StringReader(s));
-			_dataList = d.getRootElement();
-		}
-		catch( JDOMException e ) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch( IOException e ) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	if (s!=null) {
+    		try {
+				SAXBuilder builder = new SAXBuilder();
+				Document d = builder.build( new StringReader(s));
+				_dataList = d.getRootElement();
+			}
+			catch( JDOMException e ) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch( IOException e ) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
     }
 
 
