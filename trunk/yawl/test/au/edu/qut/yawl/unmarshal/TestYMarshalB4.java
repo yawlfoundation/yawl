@@ -104,14 +104,14 @@ System.out.println("marshalledSpecsString = " + marshalledSpecsString);
     }
     
     /**
-     * Tests a simple spec that fails because of a vad version.
+     * Tests a simple spec that fails because of a bad version.
      */
     public void testSimpleSpec() {
     	try {
     		YMarshal.unmarshalSpecifications( getClass().getResource( "SimpleSpec.xml" ).toString() );
     		fail( "SimpleSpec.xml was read successfully, but should have errored" );
     	}
-    	catch( IllegalArgumentException e ) {
+    	catch( YSyntaxException e ) {
     		// proper exception was thrown
     	}
     	catch( Exception e ) {
