@@ -5,9 +5,14 @@ import java.util.List;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.YNetRunner;
+import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.dao.DAO;
+import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
+import au.edu.qut.yawl.persistence.managed.DataContext;
 import junit.framework.TestCase;
 import au.edu.qut.yawl.persistence.StringProducerXML;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
@@ -18,6 +23,11 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 	
 	protected void setUp() throws Exception {
 		super.setUp();
+
+		DAO hib = DAOFactory.getDAO( PersistenceType.HIBERNATE );
+		DataContext context = new DataContext( hib );
+		AbstractEngine.setDataContext(context);
+		
 		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestMakeRecordingsBigTest.xml", true);
@@ -33,7 +43,7 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 	private DAO getDAO() {
 		return DAOFactory.getDAO( PersistenceType.HIBERNATE );
 	}
-	
+
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
@@ -42,6 +52,7 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			DAO hibernateDAO = getDAO();
 			YNetRunner runner = new YNetRunner(testSpec.getRootNet(), null);
 			hibernateDAO.save(runner);
+			
 			Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
 			assertNotNull(runner2);
 			
