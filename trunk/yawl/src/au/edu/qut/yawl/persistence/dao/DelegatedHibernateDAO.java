@@ -81,6 +81,9 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 						YCaseData.class,
 						YMetaData.class,
 						YSpecification.class,
+						YNetRunner.class,
+						YWorkItem.class,
+						YIdentifier.class,
 						Event.class
 				};
 	
@@ -94,7 +97,7 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
 	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
 	        .setProperty(Environment.USER, "capsela")
-	        .setProperty(Environment.PASS, "capsela")
+			.setProperty(Environment.PASS, "capsela")
 //			.setProperty(Environment.HBM2DDL_AUTO, "create")
 //			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
 			;
@@ -191,6 +194,7 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 				return retval;
 			}
 			catch (Exception e) {
+				e.printStackTrace();
 				LOG.error( e );
 				try {
 					if( session != null && session.isOpen() ) {
@@ -261,6 +265,8 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 			try {
 				preSave( object );
 				Transaction tx;
+
+
 				session = openSession();
 				tx = session.beginTransaction();
 				session.saveOrUpdate( object );
@@ -269,9 +275,11 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 			}
 			catch( HibernateException e2 ) {
 				LOG.error( e2 );
+				e2.printStackTrace();
 			}
 			catch( Exception e ) {
 				LOG.error( e );
+				e.printStackTrace();
 				try {
 					if( session != null && session.isOpen() ) {
 						if( session.isConnected() ) session.connection().rollback();
