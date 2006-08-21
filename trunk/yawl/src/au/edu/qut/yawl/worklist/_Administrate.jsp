@@ -175,7 +175,7 @@
         <br/>
         <br/>
 
-        <a href="/admintool">Edit Organisational Model</a>
+        <a href="/adminTool">Edit Organisational Model</a>
 
         <br/>
 	<br/>
