@@ -351,7 +351,6 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
         }
-	System.out.println("retreiving task information");
         YTask task = _engine.getTaskDefinition(specificationID, taskID);
         if (task != null) {
             return task.getInformation();
@@ -628,7 +627,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            e.printStackTrace();
+            //e.printStackTrace();
             return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
         } finally {
         	temp = new File(fileName);
