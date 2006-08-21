@@ -164,7 +164,7 @@ public class Marshaller {
     /**
      * Creates a list of SpecificationDatas from formatted XML.
      * These are brief meta data summary
-     * information objects that describe a worklfow specification.
+     * information objects that describe a workflow specification.
      * @param specificationSummaryListXML
      * @return  the list
      */
@@ -325,6 +325,17 @@ public class Marshaller {
         return result;
     }
 
+/**
+ * 
+ * Filter output data so that only the elements which are actually
+ * in the outputParams list are returned
+ * 
+ * @param mergedOutputData
+ * @param outputParams
+ * @return XML String representation of output data
+ * @throws JDOMException
+ * @throws IOException
+ */
     public static String filterDataAgainstOutputParams(String mergedOutputData,
                                                        List outputParams) throws JDOMException, IOException {
         //build the merged output data document
