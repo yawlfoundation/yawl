@@ -47,7 +47,7 @@ public class PersistenceUtilities {
 	}
 	
 	public static Serializable getNetRunnerDatabaseKey( YNetRunner netRunner ) {
-		return netRunner.getCaseID();
+		return netRunner.getId();
 	}
 	
 	public static Object getProblemKey( Problem problem ) {
