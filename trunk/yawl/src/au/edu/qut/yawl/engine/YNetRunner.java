@@ -149,12 +149,15 @@ public class YNetRunner implements Serializable // extends Thread
         _net.restoreData(casedata);
     }
 
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinTable(
-            name="netrunner_to_net",
-            joinColumns = { @JoinColumn( name="netrunner_id") },
-            inverseJoinColumns = @JoinColumn( name="decomp_id")
-    )
+    @OneToOne(cascade=CascadeType.ALL)    
+    /* JoinTable does not work for one-to-one mappings
+     * Why is there a join table anyways?
+     * */
+    //@JoinTable(
+    //        name="netrunner_to_net",
+    //        joinColumns = { @JoinColumn( name="netrunner_id") },
+    //        inverseJoinColumns = @JoinColumn( name="decomp_id")
+    //)    
     public YNet getNet() {
         return _net;
     }
@@ -928,14 +931,20 @@ public class YNetRunner implements Serializable // extends Thread
 
     private Long _id;
 
+    /*
+     * Tore: I made these public to enable the persistence
+     * utilities to use these to access the database key
+     * Before, the case_id was used as key, but the retreive
+     * method expected a long
+     * */
     @Id
     @Column(name="netrunner_id")
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    protected Long getId() {
+    public Long getId() {
 		return _id;
 	}
     
-	protected void setId( Long id ) {
+	public void setId( Long id ) {
 		_id = id;
 	}
 
@@ -1003,7 +1012,7 @@ public class YNetRunner implements Serializable // extends Thread
     }
 
 
-    public boolean isAddEnabled(String taskID, YIdentifier childID) {
+    public boolean isAddEnabled(String taskID, YIdentifier childID)  {
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         return task.t_addEnabled(childID);
     }

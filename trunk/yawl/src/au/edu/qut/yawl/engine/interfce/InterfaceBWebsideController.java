@@ -209,6 +209,11 @@ public abstract class InterfaceBWebsideController {
      */
     public WorkItemRecord checkOut(String workItemID, String sessionHandle) throws IOException, YAWLException {
         WorkItemRecord resultItem = null;
+        
+        if (!checkConnection(sessionHandle)) {
+        	sessionHandle = connect(DEFAULT_ENGINE_USERNAME,DEFAULT_ENGINE_PASSWORD);
+        }
+        
         String msg = _interfaceBClient.checkOutWorkItem(workItemID, sessionHandle);
         _logger.debug("Response message: " + msg);
         if (successful(msg)) {
@@ -285,9 +290,9 @@ public abstract class InterfaceBWebsideController {
         //first merge the input and output data together
         String mergedlOutputData = Marshaller.getMergedOutputData(inputData, outputData);
 
-	if (!checkConnection(sessionHandle)) {
-	    sessionHandle = connect(DEFAULT_ENGINE_USERNAME,DEFAULT_ENGINE_PASSWORD);
-	}
+        if (!checkConnection(sessionHandle)) {
+        	sessionHandle = connect(DEFAULT_ENGINE_USERNAME,DEFAULT_ENGINE_PASSWORD);
+        }
 
 
         //Now if this is beta4 or greater then remove all those input only bits of data

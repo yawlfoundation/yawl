@@ -11,7 +11,7 @@ package au.edu.qut.yawl.engine.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.Basic;
+import javax.persistence.Lob;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -31,7 +31,7 @@ public class YCaseData implements Serializable {
     public YCaseData() {
     }
 
-    @Basic
+    @Lob
     public String getData() {
         return data;
     }
