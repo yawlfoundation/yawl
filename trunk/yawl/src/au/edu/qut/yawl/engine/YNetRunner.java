@@ -918,7 +918,7 @@ public class YNetRunner implements Serializable // extends Thread
     }
 
 
-    public synchronized boolean suspendWorkItem(YIdentifier caseID, String taskID) throws YPersistenceException {
+    public synchronized boolean rollbackWorkItem(YIdentifier caseID, String taskID) throws YPersistenceException {
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         return task.t_rollBackToFired(caseID);
     }
@@ -1029,7 +1029,7 @@ public class YNetRunner implements Serializable // extends Thread
     public void setExceptionObserver(InterfaceX_EngineSideClient observer){
         _exceptionObserver = observer;
         _exceptionObserverStr = observer.getURI();                  // for persistence
-}
+     }
 
 
     public void restoreObservers() {
@@ -1045,6 +1045,7 @@ public class YNetRunner implements Serializable // extends Thread
             _engine.setExceptionObserver(_exceptionObserverStr);
         }
     }
+
 
     private String get_caseObserverStr() {
         return _caseObserverStr ;

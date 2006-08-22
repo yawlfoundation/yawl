@@ -40,7 +40,7 @@ import org.apache.log4j.Level;
  *
  *  Parentheses may be used to group sub-expressions.
  *
- *  An RDRConditionException will be raised if the expression is malformed or
+ *  An RdrConditionException will be raised if the expression is malformed or
  *  does not evaluate to a boolean value (see getMessage() for the kinds of
  *  things that can go wrong).
  *
@@ -115,14 +115,14 @@ public class ConditionEvaluator {
      *  Evaluates a previously supplied condition using a previously 
      *  supplied datalist. 
      *
-     *  Throws an RDRConditionException if those two items have not been
+     *  Throws an RdrConditionException if those two items have not been
      *  previously supplied.
      */
-    public boolean evaluate() throws RDRConditionException {
+    public boolean evaluate() throws RdrConditionException {
         if (_condition == null)
-           throw new RDRConditionException(getMessage(0)) ;
+           throw new RdrConditionException(getMessage(0)) ;
         else if (_dataList == null)
-           throw new RDRConditionException(getMessage(14)) ;
+           throw new RdrConditionException(getMessage(14)) ;
 
          return evaluate(_condition, _dataList) ;  // call parameterized version
     }
@@ -135,7 +135,7 @@ public class ConditionEvaluator {
      *  @return the boolean result of the evaluation
      */
     public boolean evaluate(String cond, Element dlist)
-                                         throws RDRConditionException {
+                                         throws RdrConditionException {
         _dataList = dlist ;
 
         // DEBUG: log received items
@@ -148,7 +148,7 @@ public class ConditionEvaluator {
         // if a boolean result, return it
         if (isBoolean(result))
            return result.equalsIgnoreCase("TRUE") ;
-         else throw new RDRConditionException(getMessage(1));   // result not T/F
+         else throw new RdrConditionException(getMessage(1));   // result not T/F
     }
 
 //==========================================================================//    
@@ -248,9 +248,9 @@ public class ConditionEvaluator {
 
 
     /** @return true if expression is a registered function name in the
-     *  RDRConditionFunction class */
+     *  RdrConditionFunctions class */
     private boolean isFunctionName(String s) {
-       return RDRConditionFunction.isRegisteredFunction(s) ;
+       return RdrConditionFunction.isRegisteredFunction(s) ;
     }
 
 
@@ -513,7 +513,7 @@ public class ConditionEvaluator {
      *  pre: any parenthesised sub expressions have been evaluated to 
      *       simple values 	
      */
-    private String[] tokenize(String s) throws RDRConditionException {
+    private String[] tokenize(String s) throws RdrConditionException {
         Vector<String> v = new Vector<String>() ;
         int ix = 0, ln = s.length();
         String token ;
@@ -542,7 +542,7 @@ public class ConditionEvaluator {
                else {
                    String msg = "Expression contains an invalid token at char "
                                  + ix;
-                   throw new RDRConditionException(msg) ;
+                   throw new RdrConditionException(msg) ;
                }
                v.addElement(token) ;
                ix += token.length() ;
@@ -553,7 +553,7 @@ public class ConditionEvaluator {
         // make sure tokens are ordered correctly
         if (ValidateTokenization(result))
            return result ;
-        else throw new RDRConditionException(getMessage(2)) ;
+        else throw new RdrConditionException(getMessage(2)) ;
 
     }
 
@@ -570,11 +570,11 @@ public class ConditionEvaluator {
         *  pre: s[start] == quote char
         */
        private String getLiteralString(String s, int start)
-                                                 throws RDRConditionException{
+                                                 throws RdrConditionException {
            int tmp = s.indexOf('"', start + 1) ;
 
            // no ending quote
-        if (tmp == -1) throw new RDRConditionException(getMessage(3)) ;
+        if (tmp == -1) throw new RdrConditionException(getMessage(3)) ;
 
         return s.substring(start, tmp + 1) ;
        }
@@ -582,12 +582,12 @@ public class ConditionEvaluator {
 
        /** returns a literal number from start position in s */
        private String getLiteralNumber(String s, int start)
-                                                 throws RDRConditionException {
+                                                 throws RdrConditionException {
         int tmp = start + 1 ;
         String result ;
         while ((tmp < s.length()) && isDigitOrDot(s.charAt(tmp))) tmp++ ;
            result = s.substring(start, tmp) ;
-         if (! isNumber(result)) throw new RDRConditionException(getMessage(4)) ;
+         if (! isNumber(result)) throw new RdrConditionException(getMessage(4)) ;
          return result ;
        }
 
@@ -642,7 +642,7 @@ public class ConditionEvaluator {
 
 
     /** parses and evaluates expression 's' using operator precedence */
-    private String parseAndEvaluate(String s) throws RDRConditionException {
+    private String parseAndEvaluate(String s) throws RdrConditionException {
 
        String subExpr, ans ;
        String[] tokens ;
@@ -699,7 +699,7 @@ public class ConditionEvaluator {
     *  @param rOp - the right operand
     */
    private String evalExpression(String lOp, String operator, String rOp)
-                                                     throws RDRConditionException {
+                                                     throws RdrConditionException {
 
        // if either op is a function call, replace it with its evaluation
        if (isFunctionCall(lOp)) lOp = getFunctionResult(lOp) ;
@@ -712,13 +712,13 @@ public class ConditionEvaluator {
        // make sure any data variables used contain valid data
        if ((lOp.equals("undefined")) || (rOp.equals("undefined") ) ||
           (lOp.length() == 0 )  || (rOp.length() == 0) ) {
-             throw new RDRConditionException(getMessage(12)) ;
+             throw new RdrConditionException(getMessage(12)) ;
        }
 
        // make sure the two operands are the same data type
        if ((isNumber(lOp) && !isNumber(rOp))  ||
           (isBoolean(lOp) && !isBoolean(rOp))) {
-             throw new RDRConditionException(getMessage(15) + ". Left = " +
+             throw new RdrConditionException(getMessage(15) + ". Left = " +
                                              lOp + ", Right = " + rOp) ;
        }
 
@@ -754,7 +754,8 @@ public class ConditionEvaluator {
         funcName = func.substring(0, func.indexOf('['));
 
         // run function
-        result = RDRConditionFunction.execute(funcName, args) ;
+        result = RdrConditionFunction.execute(funcName, args) ;
+        if (result == null) result = "null";
         return result ;
     }
 
@@ -769,7 +770,7 @@ public class ConditionEvaluator {
 
     /** retrieves the value for a variable or function from the datalist Element */
     private String getVarValue(String var) {
-       String result;
+       String result = null ;
        _log.debug("in getVarValue, var = " + var) ;
 
        // var "this" refers to the workitem associated with the task named in this rule
@@ -815,7 +816,7 @@ public class ConditionEvaluator {
 
    /** Convert operands to nubmers and perform operation */
    private String doNumericOperation(String l, String op, String r)
-                                                  throws RDRConditionException {
+                                                  throws RdrConditionException {
          double dLeft = Double.parseDouble(l) ;
          double dRight = Double.parseDouble(r) ;
 
@@ -829,31 +830,31 @@ public class ConditionEvaluator {
 
    /** performs the comparison and returns "true" or "false" */
    private String doNumericComparison(double l, String op, double r)
-                                                    throws RDRConditionException {
+                                                    throws RdrConditionException {
        if (op.compareTo("=") == 0)  return String.valueOf(l == r) ;
        if (op.compareTo(">") == 0)  return String.valueOf(l >  r) ;
        if (op.compareTo(">=") == 0) return String.valueOf(l >= r) ;
        if (op.compareTo("<") == 0)  return String.valueOf(l <  r) ;
        if (op.compareTo("<=") == 0) return String.valueOf(l <= r) ;
        if (op.compareTo("!=") == 0) return String.valueOf(l != r) ;
-          throw new RDRConditionException(getMessage(8)) ;  // error if gets here
+          throw new RdrConditionException(getMessage(8)) ;  // error if gets here
    }
 
 
    /** performs the operation and returns result as a string */
    private String doArithmeticOperation(double l, String op, double r)
-                                                    throws RDRConditionException {
+                                                    throws RdrConditionException {
           if (op.compareTo("+") == 0) return String.valueOf(l + r) ;
           if (op.compareTo("-") == 0) return String.valueOf(l - r) ;
           if (op.compareTo("*") == 0) return String.valueOf(l * r) ;
           if (op.compareTo("/") == 0) return String.valueOf(l / r) ;
-          throw new RDRConditionException(getMessage(11)) ;  // error if gets here
+          throw new RdrConditionException(getMessage(11)) ;  // error if gets here
    }
 
 
    /** performs the operation and returns "true" or "false" */
    private String doBooleanOperation(String l, String op, String r)
-                                               throws RDRConditionException {
+                                               throws RdrConditionException {
           // convert string operands to boolean
           boolean bLeft = (l.equalsIgnoreCase("TRUE")) ;
           boolean bRight = (r.equalsIgnoreCase("TRUE")) ;
@@ -862,18 +863,18 @@ public class ConditionEvaluator {
        if (op.compareTo("!=") == 0) return String.valueOf(bLeft != bRight) ;
        if (op.compareTo("&") == 0)  return String.valueOf(bLeft && bRight) ;
        if (op.compareTo("|") == 0)  return String.valueOf(bLeft || bRight) ;
-          throw new RDRConditionException(getMessage(9)) ;  // error if gets here
+          throw new RdrConditionException(getMessage(9)) ;  // error if gets here
    }
 
 
    /** performs the comparison and returns "true" or "false" */
    private String doStringOperation(String l, String op, String r)
-                                               throws RDRConditionException {
+                                               throws RdrConditionException {
        if (op.compareTo("=") == 0)
           return String.valueOf(l.compareTo(r) == 0) ;
        if (op.compareTo("!=") == 0)
           return String.valueOf(l.compareTo(r) != 0) ;
-       throw new RDRConditionException(getMessage(10)) ;  // error if gets here
+       throw new RdrConditionException(getMessage(10)) ;  // error if gets here
    }
 
 
@@ -895,7 +896,7 @@ public class ConditionEvaluator {
             boolean b = t.evaluate(s, e) ;
             t.p("expression: " + s + ", returns: " + b) ;
         }
-        catch ( RDRConditionException re) { re.printStackTrace() ;}
+        catch ( RdrConditionException re) { re.printStackTrace() ;}
 
     }
 

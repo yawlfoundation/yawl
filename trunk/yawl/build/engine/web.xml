@@ -12,6 +12,7 @@
         Date: 24/12/2003
         Time: 16:17:01
     </description>
+
 	<!-- Context initialization parameters that define shared
          String constants used within your application.
     -->
@@ -40,7 +41,31 @@
             The RMI registry name of the RMI gateway into the YAWL Engine.
         </description>
 	</context-param>
-	<!-- Servlet definitions for the servlets that make up
+
+
+    <!-- PARAMS FOR EXCEPTION SERVICE -->
+
+    <context-param>
+		<param-name>EnableExceptionService</param-name>
+		<param-value>false</param-value>
+		<description>
+			Set this value to 'true' to enable monitoring by an Exception Service
+			(specified by the URI param below).
+			Set it to 'false' to disable the Exception Service.
+        </description>
+	</context-param>
+
+    <context-param>
+        <param-name>ExceptionObserverURI</param-name>
+        <param-value>http://localhost:8080/workletService/ix</param-value>
+        <description>
+            This value provides the URI of an Exception Service that monitors
+            for process exceptions through Interface X.
+        </description>
+    </context-param>
+
+
+    <!-- Servlet definitions for the servlets that make up
          your web application, including initialization
          parameters.
     -->
@@ -69,7 +94,8 @@
     <servlet>
         <servlet-name>InterfaceXServlet</servlet-name>
         <description>
-            It specifically provides access to the control of exceptions.
+            This servlet provides access to the monitoring and management of
+            process exceptions.
         </description>
         <servlet-class>au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideServer</servlet-class>
         <load-on-startup>1</load-on-startup>
@@ -82,7 +108,8 @@
 		<servlet-class>au.edu.qut.yawl.engine.interfce.ErrorServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	<!-- Define mappings that are used by the servlet container to
+
+    <!-- Define mappings that are used by the servlet container to
          translate a particular request URI (context-relative) to a
          particular servlet.
     -->
@@ -109,4 +136,5 @@
 		<session-timeout>30</session-timeout>
 		<!-- 30 minutes -->
 	</session-config>
+
 </web-app>

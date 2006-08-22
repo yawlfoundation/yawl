@@ -67,7 +67,7 @@ public class RdrNode {
     			   String pCondition,
     			   Element pConclusion,
     			   Element pCornerStone ){
-    				   	
+ 
        nodeId        = id;
        parent        = pParent;
        trueChild     = pTrueChild;
@@ -213,7 +213,7 @@ public class RdrNode {
 	            }
 	        }
 	    }
-	    catch( RDRConditionException rde ) {      // bad condition found
+	    catch( RdrConditionException rde ) {      // bad condition found
             _log.error("Search Exception", rde) ;
             pair[0] = null ;
             pair[1] = null ;
@@ -225,7 +225,6 @@ public class RdrNode {
 	
     /** returns a String representation of this node */
     public String toString(){
-        System.out.println("**** in rdrNode.toString");
 
         StringBuffer s = new StringBuffer("RDR NODE RECORD:");
 
@@ -244,7 +243,6 @@ public class RdrNode {
         Library.appendLine(s, "PARENT NODE", par);
         Library.appendLine(s, "TRUE CHILD NODE", tChild);
         Library.appendLine(s, "FALSE CHILD NODE", fChild);
-        System.out.println("**** in rdrNode.toString 1. returning s = " + s.toString());
 
         return s.toString();
     }

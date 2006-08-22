@@ -1,7 +1,8 @@
 <%@ page import="java.util.Iterator,
                  java.util.List,
 				 au.edu.qut.yawl.worklist.WorkItemProcessor,
-				 au.edu.qut.yawl.worklist.model.*"%>
+				 au.edu.qut.yawl.worklist.model.*,
+				 au.edu.qut.yawl.engine.domain.YWorkItem"%>
 <%
     String workItemID  = request.getParameter("workItemID");
     String submitType =  request.getParameter("submit");
@@ -100,16 +101,24 @@
                         item.getTaskID(),
                         (String)session.getAttribute("sessionHandle"));
                     if(taskInfo != null){
+                        if (item.getStatus().equals(YWorkItem.Status.Suspended)) {
                     %>
-                    <tr>
-                        <td height="30" align="center"><input type="radio" name="workItemID"
-                            value="<%= item.getID() %>"/></td>
-                        <td/>
-                        <td align="center">
-                            <a
-                              href="<%= contextPath %>/availableWork?workItemID=<%= item.getID() %>"><%= id %>
-                            </a>
-                        </td>
+                          <tr>
+                              <td height="30" align="center">&nbsp;&nbsp;</td>
+                              <td/>
+                              <td align="center"><%= item.getID() %></td>
+                     <% } else { %>
+
+                          <tr>
+                             <td height="30" align="center"><input type="radio" name="workItemID"
+                                 value="<%= item.getID() %>"/></td>
+                             <td/>
+                             <td align="center">
+                                <a
+                                  href="<%= contextPath %>/availableWork?workItemID=<%= item.getID() %>"><%= id %>
+                                </a>
+                             </td>
+                      <% } %>
                         <td/>
                         <td align="center"><%= taskInfo.getTaskName() %></td>
                         <td/>

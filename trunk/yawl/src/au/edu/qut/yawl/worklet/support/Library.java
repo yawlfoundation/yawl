@@ -5,6 +5,7 @@
  * collaboration of individuals and organisations who are commited to improving
  * workflow technology.
  */
+
 package au.edu.qut.yawl.worklet.support;
 
 import java.util.* ;
@@ -13,7 +14,8 @@ import java.io.* ;
 import org.apache.log4j.Logger;
 
 /**
- *  The support library class of static methods for the worklet service
+ *  The support library class of static methods 
+ *  for the worklet service 
  *
  *  @author Michael Adams
  *  BPM Group, QUT Australia
@@ -24,106 +26,72 @@ import org.apache.log4j.Logger;
 public class Library {
 	
 	// various file paths to the service installation & repository files
-	public static final String wsHomeDir       = getHomeDir() ;
-    public static final String wsRepositoryDir = getRepositoryDir() ;
-    public static final String wsLogsDir       = wsRepositoryDir + "logs/" ;
-    public static final String wsWorkletsDir   = wsRepositoryDir + "worklets/" ;
-    public static final String wsRulesDir      = wsRepositoryDir + "rules/" ;
-    public static final String wsSelectedDir   = wsRepositoryDir + "selected/" ;
-    public static final boolean wsPersistOn    = getPersistOn() ;
+	public static String wsHomeDir ;
+    public static String wsRepositoryDir ;
+    public static String wsLogsDir ;
+    public static String wsWorkletsDir ;
+    public static String wsRulesDir ;
+    public static String wsSelectedDir ;
+    public static boolean wsPersistOn ;
+    public static boolean wsInitialised ;
 
-    private static String _resDir = null ;
-    private static String _persist = null ;
-    
     public static final String newline = System.getProperty("line.separator");
 
     private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.support.Library"); 
     
 
 //===========================================================================//
-	
+
     /**
-     *  returns the file path to the worklet service inside the local 
-     *  Tomcat installation
+     * Called by the WorkletGateway servlet to set the persistence value
+     * read in from web.xml
+     * @param setting - true or false as specified in web.xml
      */
-	private static String getHomeDir() {
-		return (getEnvString("catalina_home").replace('\\', '/' ) + 
-	                         "/webapps/workletService/") ;
-	}
-	
-//===========================================================================//
+     public static void setPersist(boolean setting) {
+        wsPersistOn = setting ;
+     }
 
-    /** returns the file path to the worklet repository */
-    private static String getRepositoryDir() {
-        if (_resDir == null) getProperties();
-        return _resDir;
+ //===========================================================================//
+
+    /**
+     * Called by the WorkletGateway servlet to set the path to the worklet
+     * repository as read in from web.xml
+     * @param dir - the path value specified in web.xml
+     */
+    public static void setRepositoryDir(String dir) {
+        dir = dir.replace('\\', '/' );             // switch slashes
+        if (! dir.endsWith("/")) dir += "/";       // make sure it has ending slash
+
+        // set the repository dir and the sub-dirs
+        wsRepositoryDir = dir ;
+        wsLogsDir       = wsRepositoryDir + "logs/" ;
+        wsWorkletsDir   = wsRepositoryDir + "worklets/" ;
+        wsRulesDir      = wsRepositoryDir + "rules/" ;
+        wsSelectedDir   = wsRepositoryDir + "selected/" ;
     }
 
 //===========================================================================//
-	
-    /** returns the value for persistence from the properties file */
- 	private static boolean getPersistOn() {
-        boolean result = false ;                           // default result
-        if (_persist == null) getProperties();             // read the prop file
-        if (_persist != null) {                            // we have a value
-           result = _persist.equalsIgnoreCase("on")   ||   // a few options
-                    _persist.equalsIgnoreCase("yes")  ||
-                    _persist.equalsIgnoreCase("true") ||
-                    _persist.equalsIgnoreCase("y");
-        }
 
-        return result;
+    /**
+     * Called by the WorkletGateway servlet to set the actual local file path to
+     * the worklet service (as read from the servlet context)
+     * @param dir - the local path value to the root of the worklet service
+     */
+	public static void setHomeDir(String dir) {
+        wsHomeDir = dir ;
 	}
-	
+
 //===========================================================================//
 
-    /** returns the file path to the worklet repository & files */
-    private static void getProperties() {
-        Properties prop = new Properties();
-        String fName = wsHomeDir + "workletService.properties" ;
-
-        try {
-            prop.load(new FileInputStream(fName));
-            _resDir = prop.getProperty("repositoryDir");    // get values from prop file
-            _persist = prop.getProperty("persist");
-        }
-        catch (IOException e) {
-            _log.error("Can't read workletService.properties files" , e);
-        }
+    /**
+     * Called by the WorkletGateway servlet to set a flag when the service has
+     * completed initialisation (to prevent multi-initialisations)
+     */
+    public static void setServicetInitialised() {
+        wsInitialised = true ;
     }
+	
 
-//===========================================================================//
-	
-	/**
-	 *  gets the value of the requested OS environment variable
-	 *  @param key - the OS environment variable
-	 *  @return the value as a String
-	 */
-	public static String getEnvString(String key) {
-
-	   // get name of operating system	
-	   String osName = System.getProperty("os.name").toUpperCase();
-	   String cmd ;
-	    
-	   // select the right cmd for the OS
-	   if (osName.startsWith("WINDOWS 9")) cmd = "command.com /c echo" ;
-	   else if (osName.startsWith("WIN")) cmd = "cmd.exe /c echo" ;
-	   else cmd = "/bin/env echo" ;
-	  
-	   //add the key
-	   cmd = cmd + " %" + key.toUpperCase() + "%" ;
-	
-	   try {
-	  	  Process p = Runtime.getRuntime().exec(cmd);      //run it
-	      return new BufferedReader(
-	     	     new InputStreamReader(p.getInputStream())).readLine();
-	   }   	    
-	   catch (Exception e) {
-	      _log.error("Can't get env variable " + cmd, e);
-	      return "" ;	
-	   }
-	}
-	
 //===========================================================================//
 	
     /** removes the ddd_ part from the front or rear of a taskid */

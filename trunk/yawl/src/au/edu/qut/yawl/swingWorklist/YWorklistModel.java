@@ -267,7 +267,7 @@ public class YWorklistModel {
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
-                    _engineClient.suspendWorkItem(item.getIDString(), _username);
+                    _engineClient.rollbackWorkItem(item.getIDString(), _username);
                 } catch (YStateException e) {
                     e.printStackTrace();
                 }

@@ -26,7 +26,7 @@ import java.util.*;
  *  v0.8, 04/07/2006
  */
 
-public class RDRConversionTools {
+public class RdrConversionTools {
 
     /******************************************************************************/
 
@@ -131,12 +131,27 @@ public class RDRConversionTools {
 
     /******************************************************************************/
 
+    public static String WIRListToString(List items) {
+        List strList = new ArrayList() ;
+
+        if (items != null) {
+            Iterator itr = items.iterator() ;
+            while (itr.hasNext()) {
+
+                // convert each WIR to XML
+                strList.add(((WorkItemRecord) itr.next()).toXML());
+            }
+            return itrToString(strList.iterator());
+        }
+        return null ;
+    }
+
     /**
      * Converts a list of String values to a String of csv's
      * @param list - list of String values
      * @return the String of comma separated values
      */
-    public static String StringListToString(List list) {
+     public static String StringListToString(List list) {
         if (list != null)
             return itrToString(list.iterator());
         else

@@ -18,6 +18,8 @@
             context.setAttribute("au.edu.qut.yawl.worklist.model.WorklistController",
                     _worklistController);
         }
+
+        // initialise the exception service add-ins to the worklist
         _ixURI = context.getInitParameter("InterfaceX_BackEnd");
     }
 %>

@@ -174,8 +174,63 @@ public class EngineGatewayImpl implements EngineGateway {
     public String suspendWorkItem(String workItemID, String sessionHandle) throws RemoteException {
         try {
             _userList.checkConnection(sessionHandle);
+            YWorkItem item = _engine.suspendWorkItem(workItemID);
+
+            if (item != null)
+                return OPEN_SUCCESS + item.toXML() + CLOSE_SUCCESS;
+            else
+                return OPEN_FAILURE +
+                        "WorkItem with ID [" + workItemID + "] not found." +
+                        CLOSE_FAILURE;
+        }
+        catch (YAWLException e) {
+            if (e instanceof YPersistenceException) {
+                enginePersistenceFailure = true;
+            }
+            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+        }
+    }
+
+    /**
+     *
+     * @param workItemID
+     * @param sessionHandle
+     * @return
+     * @throws RemoteException
+     */
+    public String unsuspendWorkItem(String workItemID, String sessionHandle) throws RemoteException {
+        try {
+            _userList.checkConnection(sessionHandle);
+
+            YWorkItem item = _engine.unsuspendWorkItem(workItemID);
+            if (item != null)
+                return OPEN_SUCCESS + item.toXML() + CLOSE_SUCCESS;
+            else
+                return OPEN_FAILURE +
+                        "WorkItem with ID [" + workItemID + "] not found." +
+                        CLOSE_FAILURE;
+        }
+        catch (YAWLException e) {
+            if (e instanceof YPersistenceException) {
+                enginePersistenceFailure = true;
+            }
+            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+        }
+    }
+
+
+    /**
+     *
+     * @param workItemID
+     * @param sessionHandle
+     * @return
+     * @throws RemoteException
+     */
+    public String rollbackWorkItem(String workItemID, String sessionHandle) throws RemoteException {
+        try {
+            _userList.checkConnection(sessionHandle);
             String userName = _userList.getUserID(sessionHandle);
-            _engine.suspendWorkItem(workItemID, userName);
+            _engine.rollbackWorkItem(workItemID, userName);
             return SUCCESS;
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {

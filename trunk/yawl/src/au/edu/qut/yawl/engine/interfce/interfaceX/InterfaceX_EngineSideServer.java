@@ -57,24 +57,28 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
 
 
     public void init() throws ServletException {
-
         logger = Logger.getLogger(this.getClass());
-
         ServletContext context = getServletContext();
 
-        /*
-        ADDED FOR PERSISTANCE TO CHECK IF
-        DATABASE IS ENABLED/DISABLED
-        */
         try {
+            // get reference to engine
             _engine = (EngineGateway) context.getAttribute("engine");
             if (_engine == null) {
+
+                // turn on persistence if required
                 String persistOn = context.getInitParameter("EnablePersistance");
                 boolean persist = "true".equalsIgnoreCase(persistOn);
                 _engine = new EngineGatewayImpl(persist);
                 context.setAttribute("engine", _engine);
             }
-        } catch (YPersistenceException e) {
+            // turn on exception monitoring if required
+            String exServiceOn = context.getInitParameter("EnableExceptionService");
+            if (exServiceOn.equalsIgnoreCase("true")) {
+                String observerURI = context.getInitParameter("ExceptionObserverURI");
+                if (observerURI != null) _engine.setExceptionObserver(observerURI);
+            }
+        }
+        catch (YPersistenceException e) {
             InterfaceX_EngineSideServer.logger.fatal("Failure to initialise runtime (persistence failure)", e);
             throw new UnavailableException("Persistence failure");
         }
@@ -180,6 +184,9 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
             }
             else if ("continueWorkItem".equals(lastPartOfPath)) {
                 msg.append(_engine.startWorkItem(workitemID, sessionHandle));
+            }
+            else if ("unsuspendWorkItem".equals(lastPartOfPath)) {
+                msg.append(_engine.unsuspendWorkItem(workitemID, sessionHandle));
             }
             else if ("restartWorkItem".equals(lastPartOfPath)) {
                 msg.append(_engine.restartWorkItem(workitemID, sessionHandle));

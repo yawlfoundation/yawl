@@ -1512,9 +1512,36 @@ public abstract class AbstractEngine implements InterfaceADesign,
             }
     }
 
+   //added method
+    public YWorkItem suspendWorkItem(String workItemID) throws YStateException, YPersistenceException {
 
-    public void suspendWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException {
-//            YPersistenceManager pmgr = null;
+        YWorkItem workItem = YEngine._workItemRepository.getWorkItem(workItemID);
+        if (workItem != null) {
+            if (workItem.hasLiveStatus()) {
+                workItem.setStatusToSuspended();  //added
+            }
+        }
+        return workItem ;
+    }
+
+
+    public YWorkItem unsuspendWorkItem(String workItemID) throws YStateException, YPersistenceException {
+
+        YWorkItem workItem = YEngine._workItemRepository.getWorkItem(workItemID);
+        if (workItem != null) {
+            if (workItem.getStatus().equals(YWorkItem.Status.Suspended)) {
+                    workItem.setStatusToUnsuspended();  //added
+            }
+        }
+        return workItem ;
+    }
+
+    // rolls back a workitem from executing to fired
+    public void rollbackWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException {
+        /**
+         * SYNC'D External interface
+         */
+
 
             YWorkItem workItem = YEngine._workItemRepository.getWorkItem(workItemID);
             if (workItem != null) {
@@ -1526,7 +1553,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 if (workItem.getStatus() == YWorkItem.Status.Executing) {
                     workItem.rollBackStatus();
                     YNetRunner netRunner = YEngine._workItemRepository.getNetRunner(workItem.getCaseID().getParent());
-                    if (netRunner.suspendWorkItem(workItem.getCaseID(), workItem.getTaskID())) {
+                    if (netRunner.rollbackWorkItem(workItem.getCaseID(), workItem.getTaskID())) {
                     } else {
 //   TODO                     if (isJournalising()) {
 //                            pmgr.rollbackTransaction();
@@ -1985,7 +2012,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
     public boolean setExceptionObserver(String observerURI){
         _exceptionObserver = new InterfaceX_EngineSideClient(observerURI);
-        return true ;
+        return (_exceptionObserver != null) ;
     }
 
 

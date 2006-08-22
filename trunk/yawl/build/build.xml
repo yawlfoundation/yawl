@@ -59,7 +59,10 @@
     <property name="app.version" value="Beta7.1"/>
     <property name="build.home" value="${basedir}/build"/>
     <property name="graphics.home" value="${basedir}/graphics"/>
+    <property name="dist.home" value="${basedir}/dist"/>
+    <property name="docs.home" value="${basedir}/docs"/>
     <property name="manager.url" value="http://localhost:8080/manager"/><!-- Keep -->
+    <property name="src.home" value="${basedir}/src"/>
     <property file="${build.home}/build.properties"/>
 	
 	<property name="nexus.serviceInvoker.app.name" value="NexusServiceInvoker"/>
@@ -1360,16 +1363,16 @@
         </jar>
         <delete dir="${yawl.admintool.app.name}"/>
 	</target>
-	
-	
-	
+
+
+
 	<!-- Build the WorkletService war file  -->
     <target name="build_workletService.war" depends="compile">
-       
+
         <!-- 1. Make the dir structure for the required yawl classes -->
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/lib"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication"/>
-        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>        
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
@@ -1387,7 +1390,8 @@
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/exception"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/admin"/>
 
-        <mkdir dir="${yawl.worklet.app.name}/graphics"/>
+        <!-- 1b. Make the dirs for welcome.htm & the jsps -->
+    	<mkdir dir="${yawl.worklet.app.name}/graphics"/>
         <mkdir dir="${yawl.worklet.app.name}/jsp"/>
 
 
@@ -1462,9 +1466,8 @@
                      includes="*.class *.xml"/>
         </copy>
 
-    	  <!-- 2b. Copy required worklet support files into dir root -->    	
-        <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletService.properties"/>
-        <!-- <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/welcome/welcome.htm"/> -->
+    	<!-- 2b. Copy required worklet support files into dir root -->
+        <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/welcome/welcome.htm"/>
         <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletRepository.zip"/>
 
         <!-- 2c. Copy in graphics for welcome page -->
@@ -1650,6 +1653,7 @@
         <delete dir="${yawl.eng.app.name}"/>
         <delete dir="${yawl.admintool.app.name}"/>
         <delete dir="${yawl.worklist.app.name}"/>
+        <delete dir="${yawl.worklet.app.name}"/>
     </target>
 
     <!--

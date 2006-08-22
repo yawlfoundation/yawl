@@ -10,9 +10,9 @@ package au.edu.qut.yawl.worklet.support;
 
 
 /**
- *  RDRConditionException Class.
+ *  RdrConditionException Class.
  *
- *  An RDRConditionException is thrown when an attenpt is made to evaluate
+ *  An RdrConditionException is thrown when an attenpt is made to evaluate
  *  a rule's condition and is found to be malformed or does not evaluate
  *  to a boolean result.
  *
@@ -22,12 +22,12 @@ package au.edu.qut.yawl.worklet.support;
  *  v0.7, 10/12/2005
  */
 
-public class RDRConditionException extends Exception {
-   RDRConditionException() {
+public class RdrConditionException extends Exception {
+   RdrConditionException() {
        super();
    }
    
-   RDRConditionException(String message) {
+   RdrConditionException(String message) {
        super(message);
    }
 

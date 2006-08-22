@@ -79,7 +79,8 @@ public class WorklistController extends InterfaceBWebsideController {
         for (Iterator iterator = items.iterator(); iterator.hasNext();) {
             WorkItemRecord record = (WorkItemRecord) iterator.next();
             if (record.getStatus().equals(YWorkItem.Status.Enabled) ||
-                    record.getStatus().equals(YWorkItem.Status.Fired)) {
+                    record.getStatus().equals(YWorkItem.Status.Fired)||
+                    record.getStatus().equals(YWorkItem.Status.Suspended)) {
                 availableItems.add(record);
             }
         }
@@ -251,7 +252,7 @@ public class WorklistController extends InterfaceBWebsideController {
 
 
     public String suspendWorkItem(String workItemID, String sessionHandle) throws IOException {
-        return _interfaceBClient.suspendWorkItem(workItemID, sessionHandle);
+        return _interfaceBClient.rollbackWorkItem(workItemID, sessionHandle);
     }
 
 

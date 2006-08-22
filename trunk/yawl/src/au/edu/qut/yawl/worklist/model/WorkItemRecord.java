@@ -177,5 +177,13 @@ public class WorkItemRecord {
     public String getUniqueID() {
         return _uniqueID;
     }
+
+    //added method
+    public boolean hasLiveStatus() {
+        return _status.equals(YWorkItem.Status.Fired) ||
+               _status.equals(YWorkItem.Status.Enabled) ||
+               _status.equals(YWorkItem.Status.Executing);
+    }
+    
 }
 

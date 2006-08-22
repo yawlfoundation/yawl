@@ -5,6 +5,7 @@
  * collaboration of individuals and organisations who are commited to improving
  * workflow technology.
  */
+
 package au.edu.qut.yawl.worklet.selection;
 
 import au.edu.qut.yawl.worklist.model.*;
@@ -13,7 +14,7 @@ import au.edu.qut.yawl.worklet.support.*;
 import org.apache.log4j.Logger;
 
 
-/** The CheckedOutChildItem class maintains a dataset for a 'child' workitem 
+/** The CheckedOutChildItem class maintains a dataset for a 'child' workitem
  *  that has been checked-out of the engine (via its parent).
  *
  *  Note that an atomic task YAWL workitem has one child, and a multiple atomic
@@ -36,7 +37,7 @@ public class CheckedOutChildItem extends WorkletRecord {
 	
 	private CheckedOutItem _parent ;       // the 'parent' workitem
     private String _parentID ;             // for persistence link back to parent
-    private String _persistID ;            // unique id field for persistence
+//    private String _persistID ;            // unique id field for persistence
 
     public CheckedOutChildItem() {}        // required for persistence
 
@@ -88,7 +89,7 @@ public class CheckedOutChildItem extends WorkletRecord {
 
     // restore stringified objects
     public void initNonPersistedItems() {
-        _wir = RDRConversionTools.xmlStringtoWIR(_wirStr);
+        _wir = RdrConversionTools.xmlStringtoWIR(_wirStr);
         _datalist = _wir.getWorkItemData();
     }
 
@@ -97,7 +98,6 @@ public class CheckedOutChildItem extends WorkletRecord {
 	
 	/** returns String representation of current CheckedOutChildItem */
     public String toString() {
-        System.out.println("**** in coci.toString");
 
         StringBuffer s = new StringBuffer("##### CHECKEDOUTCHILDITEM RECORD #####") ;
         s.append(Library.newline);
@@ -113,9 +113,9 @@ public class CheckedOutChildItem extends WorkletRecord {
     public String toStringSub() {
         return super.toStringSub();
     }
-   
+
 //===========================================================================//
 //===========================================================================//
-  
+
 }
 	

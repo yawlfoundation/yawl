@@ -56,7 +56,9 @@ public interface InterfaceBClient {
 
     void completeWorkItem(YWorkItem workItem, String data, boolean force) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
 
-    void suspendWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException;
+    void rollbackWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException;
+
+    YWorkItem suspendWorkItem(String workItemID) throws YStateException, YPersistenceException;
 
     YWorkItem getWorkItem(String workItemID);
 
