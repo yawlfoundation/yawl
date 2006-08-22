@@ -64,7 +64,8 @@ public class YWorkItem {
 	
     public static enum Status {
         Enabled,Fired,Executing,
-        Complete,IsParent,Deadlocked,Cancelled,ForcedComplete,Failed}
+        Complete,IsParent,Deadlocked,Cancelled,
+        ForcedComplete,Failed,Suspended}
 
 //    public static final String statusEnabled = "Enabled";
 //    public static final String statusFired = "Fired";
@@ -81,6 +82,7 @@ public class YWorkItem {
     private Date _startTime;
 
     private Status _status;
+    private Status _prevStatus;                   //added
     private String _whoStartedMe;
     private boolean _allowsDynamicCreation;
     private Element _dataList;
@@ -160,6 +162,12 @@ public class YWorkItem {
             YawlLogServletInterface.getInstance().logData(child.getName(), child.getValue(), lastevent, "o");
         }
 
+    }
+
+    //added method
+    public boolean hasLiveStatus() {
+        return _status.equals(Status.Fired) || _status.equals(Status.Enabled) ||
+               _status.equals(Status.Executing);
     }
 
 
@@ -338,7 +346,7 @@ public class YWorkItem {
 
         Status completionStatus = force ? Status.ForcedComplete : Status.Complete ;
 
-        if (_status != Status.Executing) {
+        if (!((_status == Status.Executing) || (_status == Status.Suspended))) {
             throw new RuntimeException(this + " [when current status is \""
                     + _status + "\" it cannot be changed to \"" + completionStatus + "\"]");
         }
@@ -397,7 +405,7 @@ public class YWorkItem {
 
         Status completionStatus = fail ? Status.Failed : Status.Cancelled ;
 
-        if (!_status.equals(Status.Executing)) {
+        if (!(_status.equals(Status.Executing) || _status.equals(Status.Suspended))) {
             throw new RuntimeException(this + " [when current status is \""
                     + _status + "\" it cannot be changed to \"" + completionStatus + "\"]");
         }
@@ -464,7 +472,29 @@ public class YWorkItem {
 //  TODO      if (pmgr != null) {
 //            pmgr.updateObject(this);
 //        }
+    }
+    //added method
+    public void setStatusToSuspended() throws YPersistenceException {
+        if (hasLiveStatus()) {
+            _prevStatus = _status ;
+            setStatus(Status.Suspended);
 
+            YawlLogServletInterface.getInstance().logWorkItemEvent(
+                    _workItemID.getCaseID().toString(), _workItemID.getTaskID(),
+                    _status, _whoStartedMe, _specificationID);
+        }
+        else throw new RuntimeException(this + " [when current status is \""
+                                + _status + "\" it cannot be changed to \"Suspended\".]");
+    }
+
+    //added method
+    public void setStatusToUnsuspended() throws YPersistenceException {
+        setStatus(_prevStatus);
+        _prevStatus = null ;
+
+        YawlLogServletInterface.getInstance().logWorkItemEvent(
+                _workItemID.getCaseID().toString(), _workItemID.getTaskID(),
+                _status, _whoStartedMe, _specificationID);
     }
 
 
@@ -656,7 +686,7 @@ public class YWorkItem {
     
     /**
      * Inserted for hibernate
-     * @return
+     * @return datalist
      */
     @Lob
     private String getDataList() {
@@ -736,5 +766,9 @@ public class YWorkItem {
     //todo Q by LA: needed 4 hibernate ?
     private void setSpecificationID(String specificationID) {
     	_specificationID = specificationID;
+    }
+
+    public boolean isEnabledSuspended() {
+        return _status.equals(Status.Suspended) && _prevStatus.equals(Status.Enabled);
     }
 }

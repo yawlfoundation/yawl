@@ -66,7 +66,6 @@
                 }
                 else if ("Reject Worklet".equals(submit)){
                    if (_ixURI != null) {
-                       System.out.println("rrrrrrejecting......");
                        String url = _ixURI + "/rejectWorklet?caseID=" + caseID ;
                        response.sendRedirect( response.encodeURL(url) );
                    }

@@ -480,6 +480,8 @@ public abstract class InterfaceBWebsideController {
         _logger.debug("Result of item [" + enabledWorkItem.getID() +
                 "] checkout is : " + result);
 
+
+
         //if the work item has any children
         List mixedChildren = getChildren(enabledWorkItem.getID(), sessionHandle);
         for (int i = 0; i < mixedChildren.size(); i++) {

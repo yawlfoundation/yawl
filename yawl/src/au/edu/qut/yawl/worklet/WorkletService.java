@@ -72,7 +72,7 @@ import java.util.*;
  *         |                      +=========+                        |        *
  *         M                                                         V        *   
  *  +=====================+                        +=======================+  *               
- *  | CheckedOutChildItem |                        | RDRConditionException |  *
+ *  | CheckedOutChildItem |                        | RdrConditionException |  *
  *  +=====================+                        +=======================+  * 
  *                                                                            *
  * -------------------------------------------------------------------------- *
@@ -150,13 +150,8 @@ public class WorkletService extends InterfaceBWebsideController {
     public WorkletService(){
         super();
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(_engineURI + "/ia");
-        _workletsDir = Library.wsWorkletsDir;
-        _persisting = Library.wsPersistOn;
-        _dbMgr = DBManager.getInstance(_persisting);
-        _persisting = (_dbMgr != null);                 // turn it off if no connection
         _me = this ;
         _log = Logger.getLogger("au.edu.qut.yawl.worklet.WorkletService");
-        if (_persisting) restoreDataSets();             // reload running cases data
     }
 
     /** @return a reference to the current WorkletService instance */
@@ -168,6 +163,19 @@ public class WorkletService extends InterfaceBWebsideController {
         _exService = es ;
     }
 
+    // called from servlet WorkletGateway after contexts are loaded
+    public void completeInitialisation() {
+        _workletsDir = Library.wsWorkletsDir;
+        _persisting = Library.wsPersistOn;
+
+        // init persistence class
+        if (_dbMgr == null) _dbMgr = DBManager.getInstance(_persisting);
+        _persisting = (_dbMgr != null);                 // turn it off if no connection
+
+        // reload running cases data
+        if ((_persisting) && (! restored)) restoreDataSets();
+    }
+    
 //***************************************************************************//
 
 /************************************ 
@@ -175,7 +183,7 @@ public class WorkletService extends InterfaceBWebsideController {
  ***********************************/
 
     /**
-     *  Handles a message from the engine that a workitem has been enabled 
+     *  Handles a message from the engine that a workitem has been enabled
      *  (see InterfaceBWebsideController for more details)
      *  In this case, it either starts a worklet substitution process, or, if
      *  the workitem denotes the end of a worklet case, it completes the
@@ -501,7 +509,10 @@ public class WorkletService extends InterfaceBWebsideController {
                 }
                 else {
                     _handledWorkItems.put(childId, coChild) ;
-                    if (_persisting) _dbMgr.persist(coChild, DBManager.DB_INSERT);
+                    if (_persisting) {
+                        _dbMgr.persist(coChild, DBManager.DB_INSERT);
+                        coChild.ObjectPersisted();
+                    }
                 }
             }
             else _log.warn("could not launch worklet: " + wSelected) ;
@@ -802,8 +813,7 @@ public class WorkletService extends InterfaceBWebsideController {
                String taskId = getDecompID(coci.getItem()) ;
 
                // refresh ruleset to pickup newly added rule
-               RdrSet ruleSet = _ruleSets.get(specId) ;
-               if (ruleSet != null) ruleSet.refresh() ;
+               RefreshRuleSet(specId);
 
                RdrTree tree = getTree(specId, taskId, XTYPE_SELECTION) ;
 
@@ -999,6 +1009,11 @@ public class WorkletService extends InterfaceBWebsideController {
             result = ruleSet.getTree(treeType, taskID) ;  // trees at task level
 
         return result ;
+     }
+
+     protected void RefreshRuleSet(String specID) {
+         RdrSet ruleSet = (RdrSet) _ruleSets.get(specID) ;
+         if (ruleSet != null) ruleSet.refresh() ;
      }
 
     //***************************************************************************//
@@ -1199,8 +1214,8 @@ public class WorkletService extends InterfaceBWebsideController {
                _adminTasksMgr.addTask(caseID, title, scenario, process, taskType);
         if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_INSERT) ;
 
-        if (taskType == AdministrationTask.TASKTYPE_REJECTED_SELECTION)
-           _exService.suspendCase(caseID);
+        // suspend case pending admin action
+        _exService.suspendCase(caseID);
     }
 
     public List<String> getAdminTaskTitles() {
@@ -1249,7 +1264,7 @@ public class WorkletService extends InterfaceBWebsideController {
            Iterator itr = items.iterator();
            while (itr.hasNext()) {
                coi = (CheckedOutItem) itr.next();
-               coi.setItem(RDRConversionTools.xmlStringtoWIR(coi.get_wirStr()));     // restore wir
+               coi.setItem(RdrConversionTools.xmlStringtoWIR(coi.get_wirStr()));     // restore wir
                coi.initNonPersistedItems();
                loadTree(coi.getSpecId());             // needed when child items restore
                result.put(coi.getParentID(), coi);

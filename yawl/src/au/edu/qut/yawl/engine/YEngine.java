@@ -572,9 +572,9 @@ public class YEngine extends AbstractEngine {
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
 
-            // register the worklet service as the exception service
-            _exceptionObserver = new InterfaceX_EngineSideClient(
-                                           "http://localhost:8080/workletService/ix") ;
+
+
+
 
 
             /**
@@ -930,13 +930,27 @@ public class YEngine extends AbstractEngine {
         }
     }
 
+    public YWorkItem suspendWorkItem(String workItemID) throws YStateException, YPersistenceException {
 
-    public void suspendWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException {
+        synchronized (mutex) {
+           return super.suspendWorkItem(workItemID);
+        }
+    }
+    public YWorkItem unsuspendWorkItem(String workItemID) throws YStateException, YPersistenceException {
+
+        synchronized (mutex) {
+           return super.unsuspendWorkItem(workItemID);
+        }
+    }
+
+
+    // rolls back a workitem from executing to fired
+    public void rollbackWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException {
         /**
          * SYNC'D External interface
          */
         synchronized (mutex) {
-            super.suspendWorkItem(workItemID, userName);
+            super.rollbackWorkItem(workItemID, userName);
         }
     }
 

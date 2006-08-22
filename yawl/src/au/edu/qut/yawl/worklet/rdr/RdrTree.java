@@ -5,6 +5,7 @@
  * collaboration of individuals and organisations who are commited to improving
  * workflow technology.
  */
+
 package au.edu.qut.yawl.worklet.rdr;
 
 import au.edu.qut.yawl.worklet.support.*;
@@ -15,6 +16,8 @@ import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.ArrayList;
+
+// import org.apache.log4j.Logger;
 
 
 /** A Ripple Down Rule tree implementation.
@@ -53,7 +56,7 @@ public class RdrTree {
      *  @param taskId - id of task that this tree will support
      */
      public RdrTree(String specId, String taskId){
-    	_taskId = taskId ;                
+    	_taskId = taskId ;
     	_specId = specId ;
     }
 

@@ -117,6 +117,18 @@ public class InterfaceX_ServiceSideClient extends Interface_Client {
     }
 
 
+    public WorkItemRecord unsuspendWorkItem(String workItemID, String sessionHandle)
+                                                           throws IOException {
+        HashMap params = new HashMap() ;
+        params.put("workitemID", workItemID);
+        params.put("sessionHandle", sessionHandle);
+        String result = executePost(_backEndURIStr + "/unsuspendWorkItem", params);
+
+        // process result
+        result = stripOuterElement(result);
+        return Marshaller.unmarshalWorkItem(result);
+    }
+
     public void restartWorkItem(String workItemID, String sessionHandle)
                                                            throws IOException {
         HashMap<String,String> params = new HashMap<String, String>() ;

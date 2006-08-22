@@ -320,7 +320,8 @@ public class YWorkItemRepository {
             YIdentifier caseID = workitem.getWorkItemID().getCaseID();
             YNetRunner runner;
             if (workitem.getStatus().equals(YWorkItem.Status.Enabled) ||
-                    workitem.getStatus().equals(YWorkItem.Status.IsParent)) {
+                    workitem.getStatus().equals(YWorkItem.Status.IsParent) ||
+                    workitem.isEnabledSuspended()) {
                 runner = _caseToNetRunnerMap.get(caseID);
             } else if (workitem.getStatus().equals(YWorkItem.Status.Complete) ||
                     workitem.getStatus().equals(YWorkItem.Status.Executing) ||

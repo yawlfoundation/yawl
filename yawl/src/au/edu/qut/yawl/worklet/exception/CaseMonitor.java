@@ -10,6 +10,7 @@ package au.edu.qut.yawl.worklet.exception;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 import au.edu.qut.yawl.worklet.support.*;
+import au.edu.qut.yawl.worklet.WorkletService;
 
 import org.jdom.Element;
 
@@ -43,6 +44,7 @@ public class CaseMonitor {
     private HandlerRunner _hrCaseExternal ;             // runner for case-level external
     private ArrayList<String> _liveItems = new ArrayList<String>();     // list of executing items
     private boolean _liveCase = false ;                 // is case still executing?
+    private boolean _preCaseCancelled = false ;         // has pre-case check killed case
 
     // persistence members
     private String _hrPreCaseID = null ;
@@ -61,7 +63,6 @@ public class CaseMonitor {
      * @param data - a string representation of the case data
      */
     public CaseMonitor(String specID, String caseID, String data) {
-
         _log = Logger.getLogger("au.edu.qut.yawl.worklet.exception.CaseMonitor");
         _specID = specID ;
         _caseID = caseID ;
@@ -161,7 +162,7 @@ public class CaseMonitor {
     public void initNonPersistedItems() {
         _caseData = JDOMConversionTools.stringToElement(_caseDataStr);
         _netLevelData = JDOMConversionTools.stringToElement(_netDataStr);
-        _liveItems = (ArrayList<String>) RDRConversionTools.StringToStringList(_liveItemIDs);
+        _liveItems = (ArrayList<String>) RdrConversionTools.StringToStringList(_liveItemIDs);
         _log = Logger.getLogger("au.edu.qut.yawl.worklet.exception.CaseMonitor");
     }
 
@@ -187,7 +188,7 @@ public class CaseMonitor {
         HandlerRunner runner ;
 
         // runner ids are a string of ids persisted for this CaseMonitor
-        List<String> runnerIDs = RDRConversionTools.StringToStringList(_itemRunnerIDs);
+        List<String> runnerIDs = RdrConversionTools.StringToStringList(_itemRunnerIDs);
         if (runnerIDs != null) {
             for (String runnerID : runnerIDs) {
                 runner = restoreRunner(runnerID, runnerMap);
@@ -387,7 +388,7 @@ public class CaseMonitor {
         for (HandlerRunner runner : _itemRunners.values()) {
             ids.add(String.valueOf(runner.get_id()));
         }
-        _itemRunnerIDs = RDRConversionTools.StringListToString(ids);
+        _itemRunnerIDs = RdrConversionTools.StringListToString(ids);
     }
 
     //***************************************************************************//
@@ -402,12 +403,29 @@ public class CaseMonitor {
     }
 
     public HandlerRunner getCaseExternalHandlerRunner() {
-        return _hrPostCase;
+        return _hrCaseExternal;
     }
 
     /** retrieves an item-level runner */
     public HandlerRunner getHandlerRunnerForItem(String itemID) {
         return _itemRunners.get(itemID) ;
+    }
+
+
+    /** returns the runner for the specified type (if any) */
+    public HandlerRunner getRunnerForType(int xType, String itemID) {
+        HandlerRunner result ;
+        switch (xType) {
+            case WorkletService.XTYPE_CASE_PRE_CONSTRAINTS :
+                result = getPreCaseHandlerRunner(); break ;
+            case WorkletService.XTYPE_CASE_POST_CONSTRAINTS :
+                result = getPostCaseHandlerRunner(); break ;
+            case WorkletService.XTYPE_CASE_EXTERNAL_TRIGGER :
+                result = getCaseExternalHandlerRunner(); break ;
+            default :
+                result = getHandlerRunnerForItem(itemID);
+        }
+        return result ;
     }
 
 
@@ -455,7 +473,7 @@ public class CaseMonitor {
         else {
             if (_itemRunners.containsKey(itemID)) {
                 _itemRunners.remove(itemID);
-                _itemRunnerIDs = RDRConversionTools.MapKeySetToString(_itemRunners);
+                _itemRunnerIDs = RdrConversionTools.MapKeySetToString(_itemRunners);
                 persistThis();
             }
             else
@@ -475,7 +493,7 @@ public class CaseMonitor {
         else {
             if (_itemRunners.containsKey(runner.getItemId())) {
                 _itemRunners.remove(runner.getItemId());
-                _itemRunnerIDs = RDRConversionTools.MapKeySetToString(_itemRunners);
+                _itemRunnerIDs = RdrConversionTools.MapKeySetToString(_itemRunners);
                 persistThis();
             }
         }
@@ -506,18 +524,17 @@ public class CaseMonitor {
 
     public void addLiveItem(String taskID) {
         _liveItems.add(taskID);
-        _liveItemIDs = RDRConversionTools.StringListToString(_liveItems);
+        _liveItemIDs = RdrConversionTools.StringListToString(_liveItems);
         persistThis();
     }
 
     public  void removeLiveItem(String taskID) {
         if (_liveItems.contains(taskID)) {
             _liveItems.remove(taskID);
-            _liveItemIDs = RDRConversionTools.StringListToString(_liveItems);
+            _liveItemIDs = RdrConversionTools.StringListToString(_liveItems);
             persistThis();
         }
     }
-
 
 
     //***************************************************************************//
@@ -559,6 +576,15 @@ public class CaseMonitor {
 
     public boolean isCaseCompleted() {
         return ! _liveCase ;
+    }
+
+
+    public void setPreCaseCancellationFlag() {
+        _preCaseCancelled = true ;
+    }
+
+    public boolean isPreCaseCancelled() {
+        return _preCaseCancelled ;
     }
 
     /********************************************************************************/

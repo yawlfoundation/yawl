@@ -100,15 +100,13 @@
                     }
                 } else if (submitType.equals("Edit Work Item")){
 					try{
-						System.out.println("HERE!!!!!");
-
 						String userID = (String) session.getAttribute("userid");
 						WorkItemProcessor wip = new WorkItemProcessor();
 						WorkItemRecord item = _worklistController.getCachedWorkItem(workItemID);
 						TaskInformation taskInfo = _worklistController.getTaskInformation(
 			            	        item.getSpecificationID(), item.getTaskID(), sessionHandle);
 
-						System.out.println(taskInfo.getAttribute("formtype"));
+						//System.out.println(taskInfo.getAttribute("formtype"));
 
 						if (taskInfo.getAttribute("formtype")==null || !taskInfo.getAttribute("formtype").equalsIgnoreCase("pdf")) {
 				

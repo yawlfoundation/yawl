@@ -44,6 +44,8 @@ public class WorkletRecord {
     protected int _reasonType ;              // why the worklet was raised
     protected static Logger _log ;           // log file for debug messages
 
+    protected String _persistID ;            // unique id field for persistence
+    protected boolean _hasPersisted = false; // set to true when row is inserted
     protected String _searchPairStr ;        // intermediate str for persistence
     protected String _wirStr ;               // intermediate str for persistence
 
@@ -59,7 +61,7 @@ public class WorkletRecord {
 
     public void setItem(WorkItemRecord w) {
         _wir = w ;
-        persistThis();
+        if (_hasPersisted) persistThis();
     }
 
 
@@ -70,28 +72,30 @@ public class WorkletRecord {
 
     public void setWorkletName(String wName) {
         _workletName = wName ;
-        persistThis();
+        if (_hasPersisted) persistThis();
     }
 
 
     public void setSearchPair(RdrNode[] pair) {
         _searchPair = pair ;
+        if (_hasPersisted) persistThis();
     }
 
 
     public void setRunningCaseId(String caseId) {
         _runningCaseId = caseId ;
-        persistThis();
+        if (_hasPersisted) persistThis();
     }
 
     public void setExType(int xType) {
         _reasonType = xType ;
+        if (_hasPersisted) persistThis();
     }
 
 
     public void removeRunningCaseId() {
         _runningCaseId = "" ;
-        persistThis();
+        if (_hasPersisted) persistThis();
     }
 
 
@@ -214,7 +218,7 @@ public class WorkletRecord {
     public void rebuildSearchPair(String specID, String taskID) {
 
         RdrSet ruleSet = new RdrSet(specID);                  // make a new set
-        RdrTree tree ;
+        RdrTree tree = null ;
 
         switch (_reasonType) {
             case WorkletService.XTYPE_CASE_PRE_CONSTRAINTS :
@@ -226,7 +230,11 @@ public class WorkletRecord {
         }
 
         if (tree != null)
-            _searchPair = RDRConversionTools.stringToSearchPair(_searchPairStr, tree);
+            _searchPair = RdrConversionTools.stringToSearchPair(_searchPairStr, tree);
+    }
+
+    public void ObjectPersisted() {
+        _hasPersisted = true ;
     }
 
 
@@ -259,7 +267,7 @@ public class WorkletRecord {
         Element eCaseid = new Element("caseid") ;
         Element eRunningCaseId = new Element("runningcaseid") ;
         Element eCaseData = new Element("casedata") ;
-        Element eReason = new Element("reason") ;
+        Element eReason = new Element("extype") ;
         Element eWorklet = new Element("worklet") ;
 
         try {
@@ -276,7 +284,7 @@ public class WorkletRecord {
             eCaseid.setText(_wir.getCaseID());
             eWorklet.setText(_workletName) ;
             eRunningCaseId.setText(_runningCaseId) ;
-            eReason.setText(WorkletService.getXTypeString(_reasonType));
+            eReason.setText(String.valueOf(_reasonType));
 
             // add the nodeids to the relevent elements
             eSatisfied.setText(_searchPair[0].getNodeIdAsString()) ;
@@ -285,14 +293,16 @@ public class WorkletRecord {
             eLastNode.addContent(eTested) ;
 
             // add the elements to the document
-            doc.getRootElement().addContent(eId) ;
-            doc.getRootElement().addContent(eSpecid);
-            doc.getRootElement().addContent(eTaskid);
-            doc.getRootElement().addContent(eCaseid);
-            doc.getRootElement().addContent(eWorklet) ;
-            doc.getRootElement().addContent(eRunningCaseId) ;
-            doc.getRootElement().addContent(eLastNode) ;
-            doc.getRootElement().addContent(eCaseData) ;
+            Element root = doc.getRootElement();
+            root.addContent(eId) ;
+            root.addContent(eSpecid);
+            root.addContent(eTaskid);
+            root.addContent(eCaseid);
+            root.addContent(eWorklet) ;
+            root.addContent(eRunningCaseId) ;
+            root.addContent(eReason);
+            root.addContent(eLastNode) ;
+            root.addContent(eCaseData) ;
 
              // create the output file
              saveDocument(createFileName(), doc) ;
@@ -344,8 +354,6 @@ public class WorkletRecord {
 
     /** returns a String representation of current WorkletRecord */
     public String toString() {
-        System.out.println("**** in wr.toString");
-
         StringBuffer s = new StringBuffer("##### WORKLET RECORD #####") ;
         s.append(Library.newline);
         s.append(toStringSub());

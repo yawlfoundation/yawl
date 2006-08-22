@@ -82,6 +82,23 @@
         </description>
     </context-param>
 
+    <context-param>
+        <param-name>Repository</param-name>
+        <param-value>C:\Worklets\repository\</param-value>
+        <description>
+           The path where the worklet repository is installed.
+        </description>
+    </context-param>
+
+    <context-param>
+		<param-name>EnablePersistence</param-name>
+		<param-value>true</param-value>
+		<description>
+			'true' to enable persistence and logging
+			'false' to disable
+        </description>
+	</context-param>
+
     <!-- Servlet definitions for the servlets that make up
          your web application, including initialization
          parameters.  With Tomcat, you can also send requests

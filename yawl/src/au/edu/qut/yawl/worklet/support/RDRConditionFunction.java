@@ -10,7 +10,6 @@ package au.edu.qut.yawl.worklet.support;
 import au.edu.qut.yawl.worklet.exception.ExceptionService;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.util.JDOMConversionTools;
-import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
 import java.util.*;
 
@@ -39,11 +38,11 @@ import org.apache.log4j.*;
  *  v0.8 04/07/2006
  */
 
-public class RDRConditionFunction {
+public class RdrConditionFunction {
 
     private static final ExceptionService _es = ExceptionService.getInst();
     private static Logger _log =
-                        Logger.getLogger("au.edu.qut.yawl.worklet.support.RDRConditionFunction");
+                        Logger.getLogger("au.edu.qut.yawl.worklet.support.RdrConditionFunction");
 
 
     // add the name of each defined function here

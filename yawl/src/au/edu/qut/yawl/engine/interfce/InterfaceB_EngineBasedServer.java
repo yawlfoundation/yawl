@@ -259,6 +259,8 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                                 sessionHandle));
                     } else if (action.equals("suspend")) {
                         msg.append(_engine.suspendWorkItem(workItemID, sessionHandle));
+                    } else if (action.equals("rollback")) {
+                        msg.append(_engine.rollbackWorkItem(workItemID, sessionHandle));
                     } else if (action.equals("launchCase")) {
                         String specID = lastPartOfPath;
                         URI completionObserver = getCompletionObserver(request);

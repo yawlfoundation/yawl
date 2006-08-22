@@ -60,6 +60,7 @@
     <property name="build.home" value="${basedir}/build"/>
     <property name="graphics.home" value="${basedir}/graphics"/>
     <property name="manager.url" value="http://localhost:8080/manager"/><!-- Keep -->
+    <property name="src.home" value="${basedir}/src"/>
     <property file="${build.home}/build.properties"/>
 	
 	<property name="nexus.serviceInvoker.app.name" value="NexusServiceInvoker"/>
@@ -1413,7 +1414,8 @@
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/exception"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklet/admin"/>
 
-        <mkdir dir="${yawl.worklet.app.name}/graphics"/>
+        <!-- 1b. Make the dirs for welcome.htm & the jsps -->
+    	<mkdir dir="${yawl.worklet.app.name}/graphics"/>
         <mkdir dir="${yawl.worklet.app.name}/jsp"/>
 
 
@@ -1488,9 +1490,8 @@
                      includes="*.class *.xml"/>
         </copy>
 
-    	  <!-- 2b. Copy required worklet support files into dir root -->    	
-        <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletService.properties"/>
-        <!-- <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/welcome/welcome.htm"/> -->
+    	<!-- 2b. Copy required worklet support files into dir root -->
+        <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/welcome/welcome.htm"/>
         <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletRepository.zip"/>
 
         <!-- 2c. Copy in graphics for welcome page -->
@@ -1676,6 +1677,7 @@
         <delete dir="${yawl.eng.app.name}"/>
         <delete dir="${yawl.admintool.app.name}"/>
         <delete dir="${yawl.worklist.app.name}"/>
+        <delete dir="${yawl.worklet.app.name}"/>
     </target>
 
     <!--

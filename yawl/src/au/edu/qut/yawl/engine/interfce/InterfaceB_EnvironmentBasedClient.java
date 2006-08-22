@@ -260,9 +260,25 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if the engine can't be found.
      */
     public String suspendWorkItem(String workItemID, String sessionHandle) throws IOException {
-        Map paramsMap = new HashMap();
+         Map paramsMap = new HashMap();
         paramsMap.put("sessionHandle", sessionHandle);
         paramsMap.put("action", "suspend");
+        return executePost(_backEndURIStr + "/workItem/" + workItemID,
+                paramsMap);
+    }
+
+
+    /**
+     * Rolls back a work item from executing to fired.
+     * @param workItemID the work item id.
+     * @param sessionHandle the sessoin handle
+     * @return diagnostic XML message
+     * @throws IOException if the engine can't be found.
+     */
+    public String rollbackWorkItem(String workItemID, String sessionHandle) throws IOException {
+        Map paramsMap = new HashMap();
+        paramsMap.put("sessionHandle", sessionHandle);
+        paramsMap.put("action", "rollback");
         return executePost(_backEndURIStr + "/workItem/" + workItemID,
                 paramsMap);
     }

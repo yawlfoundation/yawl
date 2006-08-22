@@ -9,7 +9,6 @@ package au.edu.qut.yawl.worklet.exception;
 
 import au.edu.qut.yawl.worklet.rdr.RdrConclusion;
 import au.edu.qut.yawl.worklet.support.*;
-import au.edu.qut.yawl.worklet.WorkletService;
 
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 import au.edu.qut.yawl.util.JDOMConversionTools;
@@ -144,7 +143,7 @@ public class HandlerRunner extends WorkletRecord {
     /** called when an action unsuspends the workitem of this HandlerRunner */
     public void unsetItemSuspended() {
         _isItemSuspended = false ;
-        persistThis();
+        unsetSuspendedList();
     }
 
     /** called when an action suspends the case of this HandlerRunner */
@@ -157,7 +156,7 @@ public class HandlerRunner extends WorkletRecord {
     /** called when an action unsuspends the case of this HandlerRunner */
     public void unsetCaseSuspended() {
         _isCaseSuspended = false ;
-        persistThis();
+        unsetSuspendedList();
     }
 
 
@@ -166,15 +165,15 @@ public class HandlerRunner extends WorkletRecord {
      }
 
 
-     /** called when an action suspends the parent case of this HandlerRunner */
+     /** called when an action suspends the item or parent case of this HandlerRunner */
     public void setSuspendedList(List<WorkItemRecord> items) {
         _suspendedItems = items ;
-        _suspList = RDRConversionTools.StringListToString(items);
+        _suspList = RdrConversionTools.WIRListToString(items);
          persistThis();
     }
 
 
-    /** called when an action unsuspends the parent case of this HandlerRunner */
+    /** called when an action unsuspends the item or parent case of this HandlerRunner */
     public void unsetSuspendedList() {
         _suspendedItems = null ;
         _suspList = null;
@@ -218,6 +217,7 @@ public class HandlerRunner extends WorkletRecord {
 
     public void set_id(int id) { _id = id ; }
 
+
     /** Stringifies some data members for persistence purposes */
     private void initPersistedData() {
         _rdrConcStr = JDOMConversionTools.elementToStringDump(_rdrConc.getConclusion());
@@ -225,17 +225,21 @@ public class HandlerRunner extends WorkletRecord {
         _id = this.hashCode();
     }
 
+
     /** re-converts stringified persisted data back to data members after restore */
     public void initNonPersistedItems() {
         _rdrConc = new RdrConclusion(JDOMConversionTools.stringToElement(_rdrConcStr));
-        _wir = RDRConversionTools.xmlStringtoWIR(_wirStr);
-        _datalist = _wir.getWorkItemData();
+
+        if (_wirStr != null) {                                      // if item runner
+            _wir = RdrConversionTools.xmlStringtoWIR(_wirStr);
+            _datalist = _wir.getWorkItemData();
+        }
 
         // reconstitute the susp items list
-        List<String> list = RDRConversionTools.StringToStringList(_suspList);
+        List<String> list = RdrConversionTools.StringToStringList(_suspList);
         if (list != null) {
             for (String xmlItem : list) {
-                _suspendedItems.add(RDRConversionTools.xmlStringtoWIR(xmlItem));
+                _suspendedItems.add(RdrConversionTools.xmlStringtoWIR(xmlItem));
             }
         }
     }
@@ -271,7 +275,8 @@ public class HandlerRunner extends WorkletRecord {
         s.append(super.toString());
 
         String conc = (_rdrConc == null) ? "null" : _rdrConc.toString();
-        String parent = (_parentMonitor == null)? "null" : _parentMonitor.toString();
+        String parent = (_parentMonitor == null)? "null" :
+                         _parentMonitor.getSpecID() + ": " + _parentMonitor.getCaseID();
         String index = String.valueOf(_actionIndex);
         String count = String.valueOf(_actionCount);
         String itemSusp = String.valueOf(_isItemSuspended);
@@ -313,7 +318,7 @@ public class HandlerRunner extends WorkletRecord {
         Element eCaseid = new Element("caseid") ;
         Element eRunningCaseId = new Element("runningcaseid") ;
         Element eCaseData = new Element("casedata") ;
-        Element eReason = new Element("reason") ;
+        Element eReason = new Element("extype") ;
         Element eWorklet = new Element("worklet") ;
 
         try {
@@ -322,19 +327,19 @@ public class HandlerRunner extends WorkletRecord {
             for (Element e : dataItems) {
                 eCaseData.addContent((Element) e.clone());
             }
+           // set values for case identifiers
+           eSpecid.setText(_parentMonitor.getSpecID());
+           eCaseid.setText(_parentMonitor.getCaseID());
 
            if (_wir != null) {
-
-               //set values for the workitem identifiers
+               // set values for the workitem identifiers (item-level exception)
                eId.setText(_wir.getID()) ;
-               eSpecid.setText(_wir.getSpecificationID());
                eTaskid.setText(Library.getTaskNameFromId(_wir.getTaskID()));
-               eCaseid.setText(_wir.getCaseID());
-               eWorklet.setText(_workletName) ;
-               eRunningCaseId.setText(_runningCaseId) ;
             }
 
-            eReason.setText(WorkletService.getXTypeString(_reasonType));
+            eWorklet.setText(_workletName) ;
+            eRunningCaseId.setText(_runningCaseId) ;
+            eReason.setText(String.valueOf(_reasonType));
 
             // add the nodeids to the relevent elements
             eSatisfied.setText(_searchPair[0].getNodeIdAsString()) ;
@@ -343,20 +348,22 @@ public class HandlerRunner extends WorkletRecord {
             eLastNode.addContent(eTested) ;
 
             // add the elements to the document
-            doc.getRootElement().addContent(eId) ;
-            doc.getRootElement().addContent(eSpecid);
-            doc.getRootElement().addContent(eTaskid);
-            doc.getRootElement().addContent(eCaseid);
-            doc.getRootElement().addContent(eWorklet) ;
-            doc.getRootElement().addContent(eRunningCaseId) ;
-            doc.getRootElement().addContent(eLastNode) ;
-            doc.getRootElement().addContent(eCaseData) ;
+            Element root = doc.getRootElement();
+            root.addContent(eId) ;
+            root.addContent(eSpecid);
+            root.addContent(eTaskid);
+            root.addContent(eCaseid);
+            root.addContent(eWorklet) ;
+            root.addContent(eRunningCaseId) ;
+            root.addContent(eReason);
+            root.addContent(eLastNode) ;
+            root.addContent(eCaseData) ;
 
              // create the output file
              saveDocument(createFileName(), doc) ;
         }
         catch (IllegalAddException iae) {
-            WorkletRecord._log.error("Exception when adding content", iae) ;
+            _log.error("Exception when adding content", iae) ;
         }
      }
 
