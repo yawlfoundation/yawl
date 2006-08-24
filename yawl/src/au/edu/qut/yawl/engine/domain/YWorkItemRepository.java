@@ -20,7 +20,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 
@@ -295,6 +294,16 @@ public class YWorkItemRepository {
         removeItems(itemsToRemove);
         return aSet;
     }
+    
+    public Set<YWorkItem> getSuspendedWorkItems() {
+    	Set<YWorkItem> set = new HashSet<YWorkItem>();
+    	for( YWorkItem item : _idStringToWorkItemsMap.values() ) {
+    		if( item.getStatus() == YWorkItem.Status.Suspended ) {
+    			set.add( item );
+    		}
+    	}
+    	return set;
+    }
 
 
     public Set<YWorkItem> getCompletedWorkItems() {
@@ -307,6 +316,9 @@ public class YWorkItemRepository {
         return aSet;
     }
 
+    public Set<YWorkItem> getAllWorkItems() {
+    	return new HashSet<YWorkItem>( _idStringToWorkItemsMap.values() );
+    }
 
     /**
      * Side effect: deletes dead items from the repository.

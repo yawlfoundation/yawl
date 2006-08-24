@@ -12,9 +12,13 @@ public class StateEvent extends Event {
     public StateEvent( String state ) {
     	this.state = state;
     }
+    
+	public String getState() {
+		return state;
+	}
 
 	@Override
 	public String toString() {
-		return "\n\n\n\n\n-----------\n" + state + "\n----------\n";
+		return "\n\n-----------\n" + state + "\n----------\n";
 	}
 }

@@ -115,8 +115,9 @@ System.out.println("marshalledSpecsString = " + marshalledSpecsString);
     		// proper exception was thrown
     	}
     	catch( Exception e ) {
-    		e.printStackTrace();
-    		fail( e.toString() );
+    		StringWriter w = new StringWriter();
+    		e.printStackTrace( new PrintWriter( w ) );
+    		fail( w.toString() );
     	}
     }
 

@@ -1139,7 +1139,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
 
     public Set getAllWorkItems() {
-            return YEngine._workItemRepository.getWorkItems();
+            return YEngine._workItemRepository.getAllWorkItems();
     }
 
 

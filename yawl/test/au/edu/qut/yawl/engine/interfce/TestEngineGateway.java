@@ -276,8 +276,8 @@ public class TestEngineGateway extends TestCase {
     	assertNotNull( result );
     	assertTrue( result, result.startsWith( "<success" ) );
     	
-    	// now the work item should be in the "fired" state
-    	items = getWorkItemsWithStatus( YWorkItem.Status.Fired );
+    	// now the work item should be in the "Suspended" state
+    	items = getWorkItemsWithStatus( YWorkItem.Status.Suspended );
     	assertNotNull( items );
     	assertTrue( "" + items.size(), items.size() == 1 );
     }
@@ -287,8 +287,8 @@ public class TestEngineGateway extends TestCase {
 		// utilize this other test to start the work item then suspend it
 		testSuspendWorkItem();
 		
-		// get the work item (which should be in the "fired" state)
-		Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.Status.Fired );
+		// get the work item (which should be in the "suspended" state)
+		Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.Status.Suspended );
 		assertNotNull( items );
 		assertTrue( "" + items.size(), items.size() == 1 );
 		
@@ -296,7 +296,7 @@ public class TestEngineGateway extends TestCase {
 		assertNotNull( item );
 		
 		// now we should be able to start it back up again
-		String result = _gateway.startWorkItem( item.getID(), _session );
+		String result = _gateway.unsuspendWorkItem( item.getID(), _session );
 		assertNotNull( result );
 		assertTrue( result, result.startsWith( "<success" ) );
 		
@@ -347,7 +347,7 @@ public class TestEngineGateway extends TestCase {
 		assertTrue( xml, xml.equals(
 				"<caseState caseID=\"" + _caseID + "\" specID=\"OneTwoThreeSpec.xml\">" +
 					"<task id=\"AtomicTask:one\" name=\"DecompOne\">" +
-						"<internalCondition id=\"mi_active[AtomicTask:one]\">" +
+						"<internalCondition id=\"active[AtomicTask:one]\">" +
 							"<identifier>" + _caseID + ".1</identifier>" +
 						"</internalCondition>" +
 						"<internalCondition id=\"executing[AtomicTask:one]\">" +
@@ -369,8 +369,8 @@ public class TestEngineGateway extends TestCase {
 		assertNotNull( result );
 		assertTrue( result, result.startsWith( "<success" ) );
 		
-		// now the work item should be in the "fired" state
-		items = getWorkItemsWithStatus( YWorkItem.Status.Fired );
+		// now the work item should be in the "suspended" state
+		items = getWorkItemsWithStatus( YWorkItem.Status.Suspended );
 		assertNotNull( items );
 		assertTrue( "" + items.size(), items.size() == 1 );
 		
@@ -379,10 +379,10 @@ public class TestEngineGateway extends TestCase {
 		assertTrue( xml, xml.equals(
 				"<caseState caseID=\"" + _caseID + "\" specID=\"OneTwoThreeSpec.xml\">" +
 					"<task id=\"AtomicTask:one\" name=\"DecompOne\">" +
-						"<internalCondition id=\"mi_active[AtomicTask:one]\">" +
+						"<internalCondition id=\"active[AtomicTask:one]\">" +
 							"<identifier>" + _caseID + ".1</identifier>" +
 						"</internalCondition>" +
-						"<internalCondition id=\"mi_entered[AtomicTask:one]\">" +
+						"<internalCondition id=\"executing[AtomicTask:one]\">" +
 							"<identifier>" + _caseID + ".1</identifier>" +
 						"</internalCondition>" +
 					"</task>" +

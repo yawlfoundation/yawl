@@ -105,10 +105,10 @@ public class TestSuspendWorkItem extends TestCase {
 		
 		// the engine code as of June 02, 2006 should do nothing if you try to suspend
 		// a work item that's not executing
-        _engine.suspendWorkItem( workItem.getWorkItemID().toString(), "admin" );
+        _engine.suspendWorkItem( workItem.getWorkItemID().toString() );
 		
 		// start the work item
-        workItem = _engine.startWorkItem( workItem, "admin" );
+        workItem = _engine.unsuspendWorkItem( workItem.getIDString() );
 		assertNotNull( workItem );
 		assertTrue(""+ workItem.getStatus(), workItem.getStatus().equals( YWorkItem.Status.Executing ) );
 		
@@ -121,10 +121,10 @@ public class TestSuspendWorkItem extends TestCase {
 		assertNotNull( workItem );
 		
 		// suspend the work item
-		_engine.suspendWorkItem( workItem.getWorkItemID().toString(), "admin" );
+		_engine.suspendWorkItem( workItem.getWorkItemID().toString() );
 		
 		// now the work item should be in the "fired" state
-		workItems = _repository.getFiredWorkItems();
+		workItems = _repository.getSuspendedWorkItems();
 		assertNotNull( workItems );
 		assertTrue( "" + workItems.size(), workItems.size() == 1 );
 	}
@@ -136,7 +136,7 @@ public class TestSuspendWorkItem extends TestCase {
 		testSuspendWorkItem();
 		
 		// get the work item (which should be in the "fired" state)
-		Set<YWorkItem> items = _repository.getFiredWorkItems();
+		Set<YWorkItem> items = _repository.getSuspendedWorkItems();
 		assertNotNull( items );
 		assertTrue( "" + items.size(), items.size() == 1 );
 		
@@ -146,7 +146,7 @@ public class TestSuspendWorkItem extends TestCase {
 		assertTrue( item.getTaskID(), item.getTaskID().equals( "register" ) );
 		
 		// now we should be able to start it back up again
-		item = _engine.startWorkItem( item, "admin" );
+		item = _engine.unsuspendWorkItem( item.getIDString() );
 		assertNotNull( item );
 		assertNotNull( item.toXML(), item.getStatus() );
 		assertTrue(""+ item.getStatus(), item.getStatus().equals( YWorkItem.Status.Executing ) );
@@ -172,21 +172,17 @@ public class TestSuspendWorkItem extends TestCase {
 		}
 	}
     
-    public void testSuspendNullWorkItem() throws YPersistenceException {
-    	try {
-    		_engine.suspendWorkItem( null, "admin" );
-    		fail( "an exception should have been thrown." );
-    	}
-    	catch( YStateException e ) {
-    		// proper exception was thrown
-    	}
+    public void testSuspendNullWorkItem() throws YPersistenceException, YStateException {
+    	YWorkItem retval = _engine.suspendWorkItem( null );
+    	assertNull( "return value should have been null", retval );
     }
     
     /**
-     * Tests suspending a work item where the work item's status and the task's status are
-     * out of synch.
+     * Tests rolling back a work item to the fired state where the work item's status
+     * and the task's status are out of synch.
      */
-    public void testSuspendOutOfSynchWorkItem() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    public void testRollbackOutOfSynchWorkItem() throws YStateException, YDataStateException,
+    YQueryException, YSchemaBuildingException, YPersistenceException {
     	// get the correct work item
     	Set<YWorkItem> workItems = _repository.getEnabledWorkItems();
     	YWorkItem workItem = null;
@@ -205,7 +201,7 @@ public class TestSuspendWorkItem extends TestCase {
 		
 		// the engine code as of June 02, 2006 should do nothing if you try to suspend
 		// a work item that's not executing
-        _engine.suspendWorkItem( original.getWorkItemID().toString(), "admin" );
+        _engine.suspendWorkItem( original.getWorkItemID().toString() );
 		
 		// the item should be executing now
 		workItems = _repository.getExecutingWorkItems( "admin" );
@@ -220,9 +216,9 @@ public class TestSuspendWorkItem extends TestCase {
     	YAtomicTask task = (YAtomicTask) netRunner._net.getNetElement( "register" );
     	task.getMIExecuting().removeAll();
 		
-		// suspend the work item
+		// rollback the work item
     	try {
-    		_engine.suspendWorkItem( workItem.getWorkItemID().toString(), "admin" );
+    		_engine.rollbackWorkItem( workItem.getWorkItemID().toString(), "admin" );
     		fail( "An exception should have been thrown" );
     	}
     	catch( YStateException e ) {
