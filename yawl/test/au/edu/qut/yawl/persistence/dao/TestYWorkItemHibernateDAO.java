@@ -94,7 +94,7 @@ public class TestYWorkItemHibernateDAO extends TestCase {
 			/*
 			 * Check for correctly restored values as well
 			 * */
-			assertTrue("", item2.allowsDynamicCreation() == true );
+			assertTrue("dynamic creation error", item2.allowsDynamicCreation() == true );
 			assertTrue("", item2.getCaseID().getId().equals("abc")==true );
 			assertTrue("", item2.getWorkItemID().getCaseID().equals("abc")==true);
 			assertTrue("", item2.getWorkItemID().getTaskID().equals("test_task")==true);
