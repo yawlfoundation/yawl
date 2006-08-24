@@ -168,6 +168,6 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
     }
 
     public String toString() {
-        return getID() + "[" + _myTask.toString() + "]";
+        return state.getState() + "[" + _myTask.toString() + "]";
     }
 }

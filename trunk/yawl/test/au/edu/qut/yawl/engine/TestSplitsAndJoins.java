@@ -572,10 +572,10 @@ public class TestSplitsAndJoins extends TestCase {
 		assertFalse( task.getMIEntered().containsIdentifier() );
 		assertTrue( task.getMIExecuting().containsIdentifier() );
 		
-		// roll it back (suspend it) so it can be started over
-		assertTrue( netRunner.suspendWorkItem( item.getCaseID(), task.getID() ) );
+		// roll it back so it can be started over
+		assertTrue( netRunner.rollbackWorkItem( item.getCaseID(), task.getID() ) );
 		// make sure to roll back the status of the work item too...
-		// (it should probably be done in YNetRunner.suspendWorkItem(), but it's not)
+		// (it should probably be done in YNetRunner.rollbackWorkItem(), but it's not)
 		item.rollBackStatus();
 		
 		System.out.println( _engine.getStateForCase( item.getCaseID() ) );
@@ -587,8 +587,8 @@ public class TestSplitsAndJoins extends TestCase {
 		assertFalse( task.getMIExecuting().containsIdentifier() );
 		assertTrue( item.getStatus() == YWorkItem.Status.Fired  );
 		
-		// attempting to suspend it again (when it's already suspended) shouldn't work
-		assertFalse( netRunner.suspendWorkItem( item.getCaseID(), task.getID() ) );
+		// attempting to roll it back again (when it's already rolled back) shouldn't work
+		assertFalse( netRunner.rollbackWorkItem( item.getCaseID(), task.getID() ) );
 		
 		assertTrue( task.getMIActive().containsIdentifier() );
 		assertFalse( task.getMIComplete().containsIdentifier() );
@@ -634,7 +634,7 @@ public class TestSplitsAndJoins extends TestCase {
 			// proper exception was thrown
 		}
 		
-		// restart it (should work since it was suspended earlier)
+		// restart it (should work since it was rolled back earlier)
 		item = _engine.startWorkItem( item, "admin" );
 		
 		System.out.println( _engine.getStateForCase( item.getCaseID() ) );

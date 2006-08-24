@@ -9,13 +9,17 @@
 
 package au.edu.qut.yawl.unmarshal;
 
-import au.edu.qut.yawl.elements.YSpecification;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
+
+import au.edu.qut.yawl.elements.YSpecification;
 
 /**
  * 
@@ -76,7 +80,9 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
             XMLReader parser = setUpChecker(version);
             parser.parse(input);
         } catch (Exception e) {
-            e.printStackTrace();
+        	StringWriter writer = new StringWriter();
+        	e.printStackTrace( new PrintWriter( writer ) );
+            _errorsString.append( writer.toString() );
         }
         return _errorsString.toString();
     }
