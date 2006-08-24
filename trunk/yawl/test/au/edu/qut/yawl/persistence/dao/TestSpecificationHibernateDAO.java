@@ -13,8 +13,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.persistence.StringProducerXML;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
+import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
@@ -109,6 +111,22 @@ public class TestSpecificationHibernateDAO extends TestCase {
 		assertNotNull(spec2);
 	}
 
+	public void testRetrieveAndReload() {
+		try {
+			DAO myDAO = getDAO();
+			myDAO.save(testSpec);
+			YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, myDAO.getKey(testSpec));	
+			assertNotNull(spec);
+						
+			YNetRunner runner = new YNetRunner(spec.getRootNet(), null);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Exception should not be thrown");
+		}
+	
+	}
+	
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.getKey(YSpecification)'
 	 */

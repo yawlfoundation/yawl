@@ -16,6 +16,7 @@ import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 public class TestDataContext extends TestCase implements DataProxyStateChangeListener {
 
@@ -49,7 +50,7 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
 //		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
 		DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
 		DataContext context = new DataContext(memdao);
-        DataProxy<YSpecification> proxy;
+        DataProxy<YSpecification> proxy = null;
         
         DatasourceRoot root = new DatasourceRoot("/home");
         DataProxy rootProxy = context.createProxy(root, this);
@@ -59,14 +60,21 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
 		DataProxy homeProxy = context.createProxy(home,this);
         context.attachProxy(homeProxy, home, rootProxy);
 		
-		createSpecAndProxy(context, "/home/aTest", "aTest", rootProxy);
-		createSpecAndProxy(context, "/home/msandoz/aTest", "aTest", homeProxy);
+		try  {
+			createSpecAndProxy(context, "/home/aTest", "aTest", rootProxy);
+			createSpecAndProxy(context, "/home/msandoz/aTest", "aTest", homeProxy);
+		} catch (YPersistenceException e) {
+			fail("PersistenceException should not have been thrown");
+		}
         
         DatasourceFolder templates = new DatasourceFolder("/home/msandoz/templates",home);
         DataProxy templatesProxy = context.createProxy(templates, this);
         context.attachProxy(templatesProxy, templates, homeProxy);
-        
-		proxy = createSpecAndProxy(context, "/home/msandoz/templates/bTest", "bTest", templatesProxy);
+        try {
+        	proxy = createSpecAndProxy(context, "/home/msandoz/templates/bTest", "bTest", templatesProxy);
+		} catch (YPersistenceException e) {
+			fail("PersistenceException should not have been thrown");
+		}
 		YSpecification spec = proxy.getData();
 		DataProxy proxy2 = context.getDataProxy(spec);
 	
@@ -83,7 +91,11 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
 		assertEquals(lastEvent.getPropertyName(), "name");
 		assertEquals(lastEvent.getOldValue(), "bTest");
 		assertEquals(lastEvent.getNewValue(), "aNewName");
-		context.save(proxy);
+		try  {
+			context.save(proxy);
+		} catch (YPersistenceException e) {
+			fail("PersistenceException should not have been thrown");
+		}
 		context.delete(proxy);
 		try {
 			context.getKeyFor(proxy2);
@@ -92,7 +104,7 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
 	}
 
 	public DataProxy<YSpecification> createSpecAndProxy(
-            DataContext dc, String uri, String name, DataProxy parent) {
+            DataContext dc, String uri, String name, DataProxy parent) throws YPersistenceException {
 		YSpecification spec = new YSpecification(uri);
 		spec.setName(name);
 		DataProxy<YSpecification> dp = dc.createProxy(spec,this);
