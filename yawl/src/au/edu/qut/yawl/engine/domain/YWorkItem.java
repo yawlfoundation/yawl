@@ -768,6 +768,7 @@ public class YWorkItem {
     	_specificationID = specificationID;
     }
 
+    @Transient
     public boolean isEnabledSuspended() {
         return _status.equals(Status.Suspended) && _prevStatus.equals(Status.Enabled);
     }
