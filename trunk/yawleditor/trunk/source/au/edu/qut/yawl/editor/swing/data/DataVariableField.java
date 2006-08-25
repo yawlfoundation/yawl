@@ -76,10 +76,10 @@ class VariableVerifier extends InputVerifier {
     if (field.getText().equals(null) || field.getText().equals("")) {
       return false;
     }
-    if (field.getVariableScope().isValidUserDefinedName(field.getText())) {
+    if (field.getText().equals(field.getVariable().getName())) {
       return true;
     }
-    if (field.getText().equals(field.getVariable().getName())) {
+    if (field.getVariableScope().isValidUserDefinedName(field.getText())) {
       return true;
     }
     

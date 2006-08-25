@@ -1,4 +1,4 @@
-Version 1.4.3 (??/??/????) "Deltapoint"
+Version 1.4.3 (25/08/2006) "Deltapoint"
   * There is now a new palette menu item allowing users to drag the visible window of a 
     net around.
   * Fixed a couple of bugs that stopped the "Label Element" dialog from ensuring that 
@@ -16,7 +16,13 @@ Version 1.4.3 (??/??/????) "Deltapoint"
     net menu allows a particular net to have a background colour other than the default.
   * Fixed a bug where the Parameter Update dialog required the user to press one of the
     XQuery generating buttons before the done button for the dialog would be enabled.
-
+  * Fixed a bug where selection of new variables for manipulation in a multiple-instance
+    task would leave XQueries around for the old variables.
+  * Small change to how the Task Variable update dialog decides whether a variable name is
+    valid or not.  This is an attempt to stop intermittent, hard to reproduce problems where
+    the done button on the task variable update screen will occasionally become disabled
+    for no discernable reason.
+	
 Version 1.4.2 (13/07/2006) "Ironforge"
   * Fixed a bug where the "Set Label" dialog box was remembering the last thing
     typed into it, and refusing to set the text of a new element if the newly

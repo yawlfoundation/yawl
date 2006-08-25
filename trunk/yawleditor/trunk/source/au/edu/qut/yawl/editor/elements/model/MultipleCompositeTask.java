@@ -113,6 +113,16 @@ public class MultipleCompositeTask extends YAWLTask
   }
   
   public void setMultipleInstanceVariable(DataVariable variable) {
+    
+    if ( getMultipleInstanceVariable() != null && 
+        !getMultipleInstanceVariable().equals(variable)) {
+
+     // destroy now defunct accessor query for multiple instance variable */
+      getParameterLists().getInputParameters().remove(
+          getMultipleInstanceVariable()
+      );
+    }
+    
     serializationProofAttributeMap.put("multipleInstanceVariable",variable);
   }
   
@@ -165,6 +175,15 @@ public class MultipleCompositeTask extends YAWLTask
   }
   
   public void setResultNetVariable(DataVariable variable) {
+    if ( getResultNetVariable() != null && 
+        !getResultNetVariable().equals(variable)) {
+
+     // destroy now defunct instance query for result net variable */
+      getParameterLists().getOutputParameters().remove(
+          getResultNetVariable()
+      );
+    }
+
     serializationProofAttributeMap.put("resultNetVariable",variable);
   }
   
