@@ -230,7 +230,7 @@ public class WorkletRecord {
         }
 
         if (tree != null)
-            _searchPair = RdrConversionTools.stringToSearchPair(_searchPairStr, tree);
+            _searchPair = RDRConversionTools.stringToSearchPair(_searchPairStr, tree);
     }
 
     public void ObjectPersisted() {

@@ -57,7 +57,6 @@ public class InterfaceD_XForm extends InterfaceD_Client{
 		
 		queryMap.put("userID", userID);
 		queryMap.put("sessionHandle", sessionHandle);
-		
 		return executePost(_interfaceDServerURI, queryMap, workItem);
 	}
 }

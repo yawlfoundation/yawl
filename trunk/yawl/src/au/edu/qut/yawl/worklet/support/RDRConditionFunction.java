@@ -38,7 +38,7 @@ import org.apache.log4j.*;
  *  v0.8 04/07/2006
  */
 
-public class RdrConditionFunction {
+public class RDRConditionFunction {
 
     private static final ExceptionService _es = ExceptionService.getInst();
     private static Logger _log =

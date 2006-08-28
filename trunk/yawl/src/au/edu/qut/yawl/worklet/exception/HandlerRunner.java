@@ -168,7 +168,7 @@ public class HandlerRunner extends WorkletRecord {
      /** called when an action suspends the item or parent case of this HandlerRunner */
     public void setSuspendedList(List<WorkItemRecord> items) {
         _suspendedItems = items ;
-        _suspList = RdrConversionTools.WIRListToString(items);
+        _suspList = RDRConversionTools.WIRListToString(items);
          persistThis();
     }
 
@@ -231,15 +231,15 @@ public class HandlerRunner extends WorkletRecord {
         _rdrConc = new RdrConclusion(JDOMConversionTools.stringToElement(_rdrConcStr));
 
         if (_wirStr != null) {                                      // if item runner
-            _wir = RdrConversionTools.xmlStringtoWIR(_wirStr);
+            _wir = RDRConversionTools.xmlStringtoWIR(_wirStr);
             _datalist = _wir.getWorkItemData();
         }
 
         // reconstitute the susp items list
-        List<String> list = RdrConversionTools.StringToStringList(_suspList);
+        List<String> list = RDRConversionTools.StringToStringList(_suspList);
         if (list != null) {
             for (String xmlItem : list) {
-                _suspendedItems.add(RdrConversionTools.xmlStringtoWIR(xmlItem));
+                _suspendedItems.add(RDRConversionTools.xmlStringtoWIR(xmlItem));
             }
         }
     }

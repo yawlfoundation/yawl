@@ -26,7 +26,7 @@ import java.util.*;
  *  v0.8, 04/07/2006
  */
 
-public class RdrConversionTools {
+public class RDRConversionTools {
 
     /******************************************************************************/
 

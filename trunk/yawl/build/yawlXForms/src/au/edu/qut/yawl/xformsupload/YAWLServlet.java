@@ -15,9 +15,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.log4j.Logger;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.chiba.tools.schemabuilder.Schema2XForms;
+import org.chiba.xml.xforms.connector.http.AbstractHTTPConnector;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -38,51 +40,45 @@ import org.xml.sax.SAXException;
 public class YAWLServlet extends HttpServlet{
 	
 	private static final long serialVersionUID = 1L;
-	private boolean debug = false; // TODO log4j 
+	private static Logger logger = Logger.getLogger(YAWLServlet.class);
 	private SortedSet s = Collections.synchronizedSortedSet(new TreeSet());
-	private String sessionHandle;
-	private String userID;
-	private String specID;
-	private String workItemID;
 	
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 	throws ServletException, IOException {
-		
-		if (debug) System.out.println("--- YAWLXForms Servlet ---");
-		
-		sessionHandle = request.getParameter("sessionHandle");
-        if (debug) System.out.println("sessionHandle: "+sessionHandle);
+/*		
+        javax.servlet.http.Cookie[] cookiesIn = request.getCookies();
+        if (cookiesIn != null) {
+            for (int i = 0; i < cookiesIn.length; i++) {
+                javax.servlet.http.Cookie c = cookiesIn[i];
+                System.out.println("YAWLServlet request Cookie: "+c.getName()+", "+c.getValue());
+            }
+        }
+        else{
+        	System.out.println("No Cookies found on YAWLServlet request");
+        }
+*/       	
+		String sessionHandle = request.getParameter("sessionHandle");
+        String jsessionid = request.getParameter("JSESSIONID");
         
-		userID = request.getParameter("userID");
-        if (debug) System.out.println("userID: "+userID);
-		
+        System.out.println("YS JSESSIONID: "+jsessionid);
+        
+		String userID = request.getParameter("userID");
 		String root = request.getParameter("root");
-        if (debug) System.out.println("root: "+root);
-		
-        specID = request.getParameter("specID");
-        if (debug) System.out.println("specID: "+specID);
-        
-        workItemID = request.getParameter("workItemID");
-        if (debug) System.out.println("workItemID: "+workItemID);
-        
+        String specID = request.getParameter("specID");
+        String workItemID = request.getParameter("workItemID");
         String task = request.getParameter("task");
-        if (debug) System.out.println("XF form name: "+task);
-
         String wir = request.getParameter("workitem");
-        if (debug) System.out.println("WIR XML: "+wir);
         
 		if (request.getParameter("schema") != null){
-			if (debug) System.out.println("schema = "+request.getParameter("schema"));
 			processUpload(request.getParameter("schema"), "schema", task);
 		}
 		
 		if (request.getParameter("instance") != null){
-			if (debug) System.out.println("instance = "+request.getParameter("instance"));
 			processUpload(request.getParameter("instance"), "instance", task);
 		}
 		
-        // inputParams will appear separated by commas in the format below
+        // the inputParams will be separated by commas in the format below
         // eg: nameofartist,nameofrecord,nameofsong,
         String inputParams = request.getParameter("inputparams");
         int start = 0;
@@ -90,20 +86,18 @@ public class YAWLServlet extends HttpServlet{
         if (inputParams != null){
 	        if (inputParams.compareTo("") != 0){
 		        int end = inputParams.length();
-		        if (debug) System.out.println("input params: "+inputParams);
+		        logger.debug("input params: "+inputParams);
 		        
 		        // finish parsing when start = end
 		        while (start < end){
 		        	int newstart = inputParams.indexOf(',', start);
-		        	if (debug) System.out.println("start: "+start+", newstart: "+newstart);
 		        	s.add(inputParams.substring(start, newstart));
-		        	if (debug) System.out.println("string: "+inputParams.substring(start, newstart));
 		        	start = newstart+1;
 		        }
 	        }
         }
         // begin Schema2XForms process
-        buildForm(task+".xsd", task+".xml", task, root);
+        buildForm(task+".xsd", task+".xml", task, root, workItemID, sessionHandle, userID, specID, jsessionid);
 	}
 	
 	
@@ -124,9 +118,6 @@ public class YAWLServlet extends HttpServlet{
         
         File f = new File(filePath);
         f.createNewFile();
-        
-        if (debug)
-        	System.out.println("New file = "+f.getAbsolutePath());
        
         BufferedWriter bw = null;
         
@@ -146,7 +137,9 @@ public class YAWLServlet extends HttpServlet{
     }
     
     
-	private void buildForm(String schema, String instance, String form, String root){
+	private void buildForm(String schema, String instance, String form, String root,
+			String workItemID, String sessionHandle, String userID, String specID,
+			String jsessionid){
 		
 		Schema2XForms builder = new Schema2XForms(); 
 		
@@ -154,28 +147,28 @@ public class YAWLServlet extends HttpServlet{
 	    String filePath = RP.getRealPath(File.separator+"forms");   
 		
 		// if schema != null etc. set directory to forms, not Tomcat/bin
-		if (debug) System.out.println("YAWLServlet: setInputURI to "+schema);
+		logger.debug("YAWLServlet: setInputURI to "+schema);
 		try{
 			builder.setInputURI(filePath+File.separator+schema);
 		}
 		catch(IOException e){
-			System.out.println("YAWLServlet IOException: "+e.toString());
+			logger.debug("YAWLServlet IOException: "+e.toString());
 		}
 		
 		File f = new File(filePath+File.separator+form+".xhtml");
 		
-		if (debug) System.out.println("YAWLServlet: setInstanceFile to "+instance);
+		logger.debug("YAWLServlet: setInstanceFile to "+instance);
 		try{
 			builder.setInstanceFile(filePath+File.separator+instance);
 		}
 		catch(IOException e){
-			System.out.println("IOException: "+e.toString());
+			logger.debug("IOException: "+e.toString());
 		}
 		
 		builder.setInstanceHref("http://www.w3.org/2001/XMLSchema-instance");
 		
 		// EG: YAWL = "http://localhost:8080/worklist/yawlFormServlet";
-		builder.setAction(RP.getInitParameter("YAWL")+"?userID="+userID+
+		builder.setAction(RP.getInitParameter("YAWL")+";JSESSIONID="+jsessionid+"?userID="+userID+
 				"&sessionHandle="+sessionHandle+"&specID="+specID+
 				"&workItemID="+workItemID);
 		
@@ -242,13 +235,11 @@ public class YAWLServlet extends HttpServlet{
 	    
 		// create temporary instance XML writer
 		try{
-			if (debug){
-				System.out.println("formFilePath: "+f.toString());
-			}
+			logger.debug("formFilePath: "+f.toString());
 			bw = new BufferedWriter(new FileWriter(f, false));
 		}
 		catch(IOException e){
-			System.out.println("--IO file error: "+e.toString());
+			logger.debug("--IO file error: "+e.toString());
 		}
 
 		// write new XML instance
@@ -256,10 +247,10 @@ public class YAWLServlet extends HttpServlet{
 			OutputFormat format = new OutputFormat(document);
 			XMLSerializer output = new XMLSerializer(bw, format);
 			output.serialize(document);
-			if (debug) System.out.println("XForm EDITED/OVERWRITTEN: "+f.toString());
+			logger.debug("XForm EDITED/OVERWRITTEN: "+f.toString());
 		}
 		catch (IOException e) {
-		  System.out.println(e);
+			logger.debug(e);
 		}
 	}
 	
@@ -275,7 +266,7 @@ public class YAWLServlet extends HttpServlet{
 		// check if element
 		if (type == Node.ELEMENT_NODE) {
 			
-			if (debug) System.out.println("Node Name: "+node.getNodeName());
+			logger.debug("Node Name: "+node.getNodeName());
 			
 			// check if the node has any attributes, important for filtering out
 			// anonymous complex types, which we don't want to add
@@ -285,11 +276,7 @@ public class YAWLServlet extends HttpServlet{
 				NamedNodeMap AttributesList = node.getAttributes();
 				
 				for (int j = 0; j < AttributesList.getLength(); j++) {
-					if (debug){
-						System.out.println("Attribute Name: "+AttributesList.item(j).getNodeName());
-						System.out.println("Attribute Value: "+AttributesList.item(j).getNodeValue());
-						System.out.println("Attribute Type: "+AttributesList.item(j).getNodeType());
-					}
+
 					// cycle thru attributes, report match if the element is "xforms:bind"
 					// and "xforms:nodeset" equals the name of an input parameter.
 					if ( (AttributesList.item(j).getNodeName().compareTo("xforms:nodeset") == 0) &&
@@ -303,13 +290,12 @@ public class YAWLServlet extends HttpServlet{
 							if (AttributesList.item(i).getNodeName().compareTo("xforms:required") == 0){
 								// edit the required attribute from this node to be false
 								//AttributesList.item(j).setNodeValue("false()");
-								if (debug) System.out.println("XFORMS:REQUIRED FOUND");
+								logger.debug("XFORMS:REQUIRED FOUND");
 								Attr sa = factory.createAttribute("xforms:required");
 								sa.setValue("false()");
 								element.setAttributeNode(sa);
 							}
 						}
-
 						Attr specifiedAttribute = factory.createAttribute("xforms:readonly");
 						specifiedAttribute.setValue("true()");
 						element.setAttributeNode(specifiedAttribute);
@@ -320,19 +306,15 @@ public class YAWLServlet extends HttpServlet{
 		else if (type == Node.TEXT_NODE) {
 			// check if text node
 			Content = node.getNodeValue();
-			if (debug){
-				if (!Content.trim().equals("")){
-					System.out.println ("Character data: " + Content);
-				}
+			if (!Content.trim().equals("")){
+				logger.debug("Character data: " + Content);
 			}
 		}
 		else if (type == Node.COMMENT_NODE) {
 			// check if comment node
 			Content = node.getNodeValue();
-			if (debug){	              
-				if (!Content.trim().equals("")){
-					System.out.println ("Comment: " + Content);
-				}
+			if (!Content.trim().equals("")){
+				System.out.println ("Comment: " + Content);
 			}
 		}
 	

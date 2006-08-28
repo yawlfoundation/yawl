@@ -22,12 +22,12 @@ package au.edu.qut.yawl.worklet.support;
  *  v0.7, 10/12/2005
  */
 
-public class RdrConditionException extends Exception {
-   RdrConditionException() {
+public class RDRConditionException extends Exception {
+   RDRConditionException() {
        super();
    }
    
-   RdrConditionException(String message) {
+   RDRConditionException(String message) {
        super(message);
    }
 

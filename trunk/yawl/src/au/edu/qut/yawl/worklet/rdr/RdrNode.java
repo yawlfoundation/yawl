@@ -213,7 +213,7 @@ public class RdrNode {
 	            }
 	        }
 	    }
-	    catch( RdrConditionException rde ) {      // bad condition found
+	    catch( RDRConditionException rde ) {      // bad condition found
             _log.error("Search Exception", rde) ;
             pair[0] = null ;
             pair[1] = null ;
