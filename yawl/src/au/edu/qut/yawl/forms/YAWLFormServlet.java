@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -28,45 +29,58 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * This is the  servlet  that receives POST  submissions from  3rd-party applications.  If
+ * This servlet can receive POST submissions from 3rd-party applications.  If
  * launching a case in YAWL then the servlet sets up a RequestDispatcher to the LaunchCase
  * jsp and sends it the case data along with the spec ID. Otherwise if editing a work item
  * then  the servlet sets  up a  RequestDispatcher to the  WorkItemProcessor jsp page  and
  * transfers  the XML in  the  POST  input  stream  into  work item  output  that the YAWL
  * WorkListController can check in.
+ * 
  * @author Guy Redding 20/05/2005
  */
 public class YAWLFormServlet extends HttpServlet {
-
+	
 	private static final long serialVersionUID = 1L;
 	private WorklistController _worklistController = null;
-    private boolean debug = false; // TODO log4j 
-
-
+	
+	private static Logger logger = Logger.getLogger(YAWLFormServlet.class);
+	
+	
     /* (non-Javadoc)
      * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+    	
+    	
+        javax.servlet.http.Cookie[] cookiesIn = request.getCookies();
+        if (cookiesIn != null) {
+            for (int i = 0; i < cookiesIn.length; i += 1) {
+                System.out.println("YFS - New cookie: "+cookiesIn[i].getName()+", "+cookiesIn[i].getValue());
+            }
+        }
+        else{
+        	System.out.println("YFS - No cookies found on request.");
+        }
+    	
         String inputData = null;
         String outputData = null;
-
+        
         response.setContentType("text/html");
-
+        
         StringBuffer theInstanceData = new StringBuffer();
         ServletInputStream in = request.getInputStream();
-
+        
         int i = in.read();
         while (i != -1) {
             theInstanceData.append((char) i);
             i = in.read();
         }
-
+        
         ServletContext context = getServletContext();
         _worklistController = (WorklistController) context.getAttribute(
                 "au.edu.qut.yawl.worklist.model.WorklistController");
-
+        
         if (_worklistController == null) {
             _worklistController = new WorklistController();
             _worklistController.setUpInterfaceBClient(context.getInitParameter("InterfaceB_BackEnd"));
@@ -74,12 +88,12 @@ public class YAWLFormServlet extends HttpServlet {
             context.setAttribute("au.edu.qut.yawl.worklist.model.WorklistController",
                     _worklistController);
         }
-
+        
         String specID = request.getParameter("specID");
         String workItemID = request.getParameter("workItemID");
         String sessionHandle = request.getParameter("sessionHandle");
         String userid = request.getParameter("userID");
-
+        
         request.setAttribute("sessionHandle", sessionHandle);
         request.setAttribute("userid", userid);
         
@@ -92,8 +106,7 @@ public class YAWLFormServlet extends HttpServlet {
 	                inputData = workitem.getDataListString();
 	                outputData = new String(theInstanceData);
                 }
-                //System.out.println("XFormOUTPUT: " + outputData);
-                //System.out.println("XFormInput: " + inputData);
+                
                 Element inputDataEl = null;
                 Element outputDataEl = null;
                 SAXBuilder _builder = new SAXBuilder();
@@ -125,11 +138,11 @@ public class YAWLFormServlet extends HttpServlet {
                 rd.forward(request, response);
             }
             else {
-                if (debug) System.out.println("Both workItemID and specID were 'null'. ");
+                logger.debug("Both workItemID and specID were 'null'. ");
             }
-        } 
+        }
         else {
-        	if (debug) System.out.println("theInstanceData = " + theInstanceData);
+        	logger.debug("theInstanceData = " + theInstanceData);
         }
     }
 }

@@ -15,7 +15,7 @@
     </appender>
 
     <category name="org.chiba.adapter">
-        <priority value="FATAL"/>
+        <priority value="DEBUG"/>
     </category>
 
     <root>

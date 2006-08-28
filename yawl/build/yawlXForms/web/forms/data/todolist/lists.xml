@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lists>
+  <status>
+      <status id="1">New</status>
+      <status id="2">Accepted</status>
+      <status id="3">Closed</status>
+  </status>
+  <priorities>
+      <priority id="1">Lowest</priority>
+      <priority id="2">Low</priority>
+      <priority id="3">Normal</priority>
+      <priority id="4">High</priority>
+      <priority id="5">Highest</priority>
+  </priorities>
+  <categories>
+      <category id="1">Chiba Web</category>
+      <category id="2">Chiba Core</category>
+      <category id="3">Chicoon</category>
+  </categories>
+</lists>

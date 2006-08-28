@@ -20,6 +20,8 @@ import java.util.TreeMap;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.httpclient.Cookie;
+import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.elements.data.YParameter;
@@ -43,12 +45,10 @@ import au.edu.qut.yawl.worklist.model.YParametersSchema;
  * Handles the interaction between the YAWL worklist and 3rd party applications,
  * using Interface D.
  * @author Guy Redding 26/11/2004
- *
  */
 public class WorkItemProcessor {
 
-    // TODO Add log4j comments
-    private boolean debug = false;
+	private static Logger logger = Logger.getLogger(WorkItemProcessor.class);
     
    
     /**
@@ -73,8 +73,9 @@ public class WorkItemProcessor {
      * @throws JDOMException
      * @throws URISyntaxException 
      */
-    public void executeCasePost(ServletContext context, String caseID, 
-    	String sessionHandle, WorklistController _worklistController, String userID)
+	public void executeCasePost(ServletContext context, String caseID, 
+    	String sessionHandle, WorklistController _worklistController, String userID,
+    	String jsessionid)
             throws YSchemaBuildingException, YSyntaxException, IOException,
             JDOMException, URISyntaxException {
 
@@ -103,6 +104,8 @@ public class WorkItemProcessor {
         
         // set specID
         parameters.put("specID", specData.getID());
+        
+        parameters.put("JSESSIONID", jsessionid);
         
         // send (post) data to yawlXForms thru interfaceD
         idx.sendWorkItemData(parameters, userID, specData.getID(), sessionHandle);
@@ -134,13 +137,13 @@ public class WorkItemProcessor {
             YParameter inputParam = (YParameter) inputParams.get(i);
 
             if (null != inputParam.getElementName()) {
-                if (debug) System.out.println("CASE input param REUSE element name: " + inputParam.getElementName());
+                logger.debug("CASE input param REUSE element name: " + inputParam.getElementName());
                 String elementName = inputParam.getElementName();
                 ElementReuseInstruction instruction = new ElementReuseInstruction(elementName);
                 instructions.add(instruction);
             } 
             else if (null != inputParam.getDataTypeName()) {
-                if (debug) System.out.println("CASE input param CREATION data type name: " + inputParam.getDataTypeName());
+            	logger.debug("CASE input param CREATION data type name: " + inputParam.getDataTypeName());
                 String elementName = inputParam.getName();
                 String typeName = inputParam.getDataTypeName();
                 boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(inputParam.getDataTypeNameSpace());
@@ -159,7 +162,7 @@ public class WorkItemProcessor {
                 //UntypedElementInstruction instruction = new UntypedElementInstruction();
                 //instructions.add(instruction);
 
-                if (debug) System.out.println("CASE input param CREATION (untyped) data type name: " + inputParam.getDataTypeName());
+            	logger.debug("CASE input param CREATION (untyped) data type name: " + inputParam.getDataTypeName());
                 String elementName = inputParam.getName();
                 //String typeName = inputParam.getDataTypeName();
                 String typeName = "boolean";
@@ -204,7 +207,8 @@ public class WorkItemProcessor {
      * @throws JDOMException
      */
     public void executeWorkItemPost(ServletContext context, String workItemID, 
-    	String sessionHandle, WorklistController _worklistController, String userID)
+    	String sessionHandle, WorklistController _worklistController, String userID,
+    	String jsessionid)
             throws YSchemaBuildingException, YSyntaxException, IOException,
             JDOMException {
 
@@ -237,6 +241,8 @@ public class WorkItemProcessor {
         
         parameters.put("workItemID", item.getID());
         
+        parameters.put("JSESSIONID", jsessionid);
+        
         // send (post) data to yawlXForms thru interfaceD
         idx.sendWorkItemData(parameters, item, userID, sessionHandle);
     }
@@ -248,10 +254,12 @@ public class WorkItemProcessor {
      * @param specData
      * @return the redirect URL to the form to launch a case.
      */
-    public String getRedirectURL(ServletContext context, SpecificationData specData) {
+    public String getRedirectURL(ServletContext context, SpecificationData specData,
+    		String jsessionid) {
         String url = context.getInitParameter("YAWLXForms") +
                 "/XFormsServlet?form=/forms/" + this.getFormName(specData) +
-                "&css=yawl.css&xslt=html4yawl.xsl";
+                "&css=yawl.css&xslt=html4yawl.xsl&" +
+                "action_url=http://localhost:8080/yawlXForms/PlainHtml;jsessionid="+jsessionid;
 
         return url;
     }
@@ -319,16 +327,14 @@ public class WorkItemProcessor {
                 YParameter inputParam = (YParameter) inputParams.get(i);
 
                 if (null != inputParam.getElementName()) {
-                    if (debug) {
-                        System.out.println("input param REUSE element name: " + inputParam.getElementName());
-                    }
+                	logger.debug("input param REUSE element name: " + inputParam.getElementName());
+
                     String elementName = inputParam.getElementName();
                     ElementReuseInstruction instruction = new ElementReuseInstruction(elementName);
                     instructions.add(instruction);
                 } else if (null != inputParam.getDataTypeName()) {
-                    if (debug) {
-                        System.out.println("input param CREATION data type name: " + inputParam.getDataTypeName());
-                    }
+                	logger.debug("input param CREATION data type name: " + inputParam.getDataTypeName());
+
                     String elementName = inputParam.getName();
                     String typeName = inputParam.getDataTypeName();
                     boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(inputParam.getDataTypeNameSpace());
@@ -342,9 +348,8 @@ public class WorkItemProcessor {
                     //UntypedElementInstruction instruction = new UntypedElementInstruction();
                     //instructions.add(instruction);
 
-                    if (debug) {
-                        System.out.println("input param CREATION (untyped) data type name: " + inputParam.getDataTypeName());
-                    }
+                	logger.debug("input param CREATION (untyped) data type name: " + inputParam.getDataTypeName());
+
                     String elementName = inputParam.getName();
                     //String typeName = inputParam.getDataTypeName();
                     String typeName = "boolean";
@@ -353,7 +358,6 @@ public class WorkItemProcessor {
                             elementName, typeName, isPrimitiveType);
                     instructions.add(instruction);
                 }
-                if (debug) System.out.println();
             }
             
             //for each output param build an instruction
@@ -364,9 +368,8 @@ public class WorkItemProcessor {
                 YParameter outputParam = (YParameter) outputParams.get(i);
 
                 if (null != outputParam.getElementName()) {
-                    if (debug) {
-                        System.out.println("output param REUSE element name: " + outputParam.getElementName());
-                    }
+                	logger.debug("output param REUSE element name: " + outputParam.getElementName());
+
                     String elementName = outputParam.getElementName();
                     ElementReuseInstruction instruction = new ElementReuseInstruction(elementName);
 
@@ -384,16 +387,13 @@ public class WorkItemProcessor {
                         }
                     } 
                     else {
-                        if (debug) {
-                            System.out.println("No matching element REUSE instruction found: " + elementName);
-                        }
+                    	logger.debug("No matching element REUSE instruction found: " + elementName);
                     }
 
                     instructions.add(instruction);
                 } else if (null != outputParam.getDataTypeName()) {
-                    if (debug) {
-                        System.out.println("output param CREATION data type name: " + outputParam.getDataTypeName());
-                    }
+                	logger.debug("output param CREATION data type name: " + outputParam.getDataTypeName());
+
                     String elementName = outputParam.getName();
                     String typeName = outputParam.getDataTypeName();
                     boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(outputParam.getDataTypeNameSpace());
@@ -428,9 +428,8 @@ public class WorkItemProcessor {
                 else if (outputParam.isUntyped()) {
                     //UntypedElementInstruction instruction = new UntypedElementInstruction();
                     //instructions.add(instruction);
-                    if (debug) {
-                        System.out.println("output param CREATION (untyped) data type name: " + outputParam.getDataTypeName());
-                    }
+                	logger.debug("output param CREATION (untyped) data type name: " + outputParam.getDataTypeName());
+
                     String elementName = outputParam.getName();
                     //String typeName = outputParam.getDataTypeName();
                     String typeName = "boolean";
@@ -445,7 +444,7 @@ public class WorkItemProcessor {
                     boolean match = false;
 
                     for (int j = 0; j < ins.length; j++) {
-                        if (debug) System.out.println(j + ".");
+                    	logger.debug(j + ".");
                         if (ins[j].getElementName().compareTo(elementName) == 0) {
                             match = true;
                             ins[j] = instruction; // replace old instruction with this one
@@ -463,7 +462,6 @@ public class WorkItemProcessor {
                         instructions.add(instruction);
                     }
                 }
-                if (debug) System.out.println();
             }
 
             XMLToolsForYAWL xmlToolsForYawl = new XMLToolsForYAWL();
@@ -514,11 +512,11 @@ public class WorkItemProcessor {
 	    	if (found == false){ 
 	    		if (inputParam.getElementName() != null){
 	    			input.append(inputParam.getElementName() + ",");
-		    		if (debug) System.out.println("Add inputonly param element name: "+inputParam.getElementName());
+	    			logger.debug("Add inputonly param element name: "+inputParam.getElementName());
 	    		}
 	    		else if (found == false && (inputParam.getName() != null)){
 		    		input.append(inputParam.getName() + ",");
-		    		if (debug) System.out.println("Add inputonly element name: "+inputParam.getName());
+		    		logger.debug("Add inputonly element name: "+inputParam.getName());
 		    	}
 	    	}
 	    	found = false;
@@ -532,7 +530,7 @@ public class WorkItemProcessor {
      * @param taskInfo
      * @return
      */
-    private String getFormName(TaskInformation taskInfo){ 
+    private String getFormName(TaskInformation taskInfo){
         return (taskInfo.getTaskName()+".xhtml");
     }
     
@@ -542,7 +540,7 @@ public class WorkItemProcessor {
      * @param specData
      * @return
      */
-    private String getFormName(SpecificationData specData){ 
+    private String getFormName(SpecificationData specData){
         return (specData.getID()+".xhtml");
     }
 
@@ -558,7 +556,7 @@ public class WorkItemProcessor {
 
 		HashMap map = new HashMap();
 	
-		if (debug) System.out.println("workitem is: " + item.getDataListString());
+		logger.debug("workitem is: " + item.getDataListString());
 	
 		StringBuffer xmlBuff = new StringBuffer();
 		xmlBuff.append("<workItem>");
@@ -578,7 +576,7 @@ public class WorkItemProcessor {
 		map.put("workitem",xmlBuff.toString());
 		map.put("username",_worklistController.getUsername());
 		Interface_Client.executePost("http://localhost:8080/worklist/handler",map);
-		if (debug) System.out.println("Calling the pdf handler");
+		logger.debug("Calling the pdf handler");
 		
 		return item.getSpecificationID()+item.getTaskID()+item.getUniqueID()+".pdf";
     }

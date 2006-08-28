@@ -63,20 +63,11 @@
                     <td height="30" align="center"><input type="radio" name="workItemID"
                         value="<%= id %>"/></td>
                     <td/>
-                    
-                    <td align="center"><%= id %></td>
+                    <td align="center">
+                    	<a href="<%= contextPath %>/workItemProcessor?submit=Edit Work Item&workItemID=<%= id %>"><%= id %></a>
+                    </td>
                     <td/>
-                    <!-- <td align="center"><a
-                        href="<%= contextPath %>/itemViewer?workItemID=<%= id %>"><%= id %></a></td>
-                    <td/> -->
-                    
-                    <!-- <td align="center"><a
-                        href="<%= contextPath %>/workItemProcessor?submit=Edit Work Item&workItemID=<%= id %>"><%= id %></a></td>
-                    <td/> -->
-                    
-                    <td align="center"><%= taskInfo != null ?
-                                            taskInfo.getTaskName() :
-                                            null %></td>
+                    <td align="center"><%= taskInfo != null ? taskInfo.getTaskName() : null %></td>
                     <td/>
                     <td align="center"><%= item.getEnablementTime() %></td>
                     <td/>

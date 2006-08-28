@@ -89,7 +89,7 @@ public class CheckedOutChildItem extends WorkletRecord {
 
     // restore stringified objects
     public void initNonPersistedItems() {
-        _wir = RdrConversionTools.xmlStringtoWIR(_wirStr);
+        _wir = RDRConversionTools.xmlStringtoWIR(_wirStr);
         _datalist = _wir.getWorkItemData();
     }
 

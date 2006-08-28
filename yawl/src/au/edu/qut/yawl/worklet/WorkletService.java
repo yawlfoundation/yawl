@@ -1264,7 +1264,7 @@ public class WorkletService extends InterfaceBWebsideController {
            Iterator itr = items.iterator();
            while (itr.hasNext()) {
                coi = (CheckedOutItem) itr.next();
-               coi.setItem(RdrConversionTools.xmlStringtoWIR(coi.get_wirStr()));     // restore wir
+               coi.setItem(RDRConversionTools.xmlStringtoWIR(coi.get_wirStr()));     // restore wir
                coi.initNonPersistedItems();
                loadTree(coi.getSpecId());             // needed when child items restore
                result.put(coi.getParentID(), coi);

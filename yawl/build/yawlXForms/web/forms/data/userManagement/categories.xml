@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<categories>
+    <roles>
+        <role id="1">Designer</role>
+        <role id="2">Architect</role>
+        <role id="3">Management</role>
+    </roles>
+    <genders>
+        <gender id="1">Female</gender>
+        <gender id="2">Male</gender>
+    </genders>
+</categories>

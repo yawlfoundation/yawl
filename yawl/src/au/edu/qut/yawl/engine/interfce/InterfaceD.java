@@ -18,6 +18,7 @@ import java.util.*;
 /**
  * The interface that the YAWL worklist uses for connecting to 3rd-party applications using HTTP.
  * @author Guy Redding 15/05/2005
+ * @deprecated 14/08/2006 please use classes in package interfaceD_WorkItemExecution instead.
  */
 public class InterfaceD {
 

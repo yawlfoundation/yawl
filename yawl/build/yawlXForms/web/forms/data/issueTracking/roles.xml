@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<roles>
+  <role id="1">
+    <name>Programming</name>
+    <desc>Description of the programming role</desc>
+  </role>
+  <role id="2">
+    <name>Documentation</name>
+    <desc>Description of the documentation role</desc>  
+  </role>
+  <role id="3">
+    <name>Designing</name>
+    <desc>Description of the designing role</desc>  
+  </role>
+  <role id="4">
+    <name>Management</name>
+    <desc>Description of the management role</desc>  
+  </role>
+</roles>
