@@ -3,8 +3,7 @@
                  au.edu.qut.yawl.elements.data.YParameter,
                  au.edu.qut.yawl.worklist.model.Marshaller,
                  au.edu.qut.yawl.elements.YSpecification,
-				 au.edu.qut.yawl.worklist.WorkItemProcessor,
-				 javax.servlet.http.Cookie"%>
+				 au.edu.qut.yawl.worklist.WorkItemProcessor"%>
 				 
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -30,11 +29,8 @@
 				wip.executeCasePost(getServletContext(), specID, sessionHandle,
 					_worklistController, userID, session.getId());
 
-				String url = wip.getRedirectURL(getServletContext(), specData, sessionHandle);
+				String url = wip.getRedirectURL(getServletContext(), specData, session.getId());
 				System.out.println("LC jsessionid: "+session.getId());
-				
-				//Cookie cookie = new Cookie("JSESSIONID", sessionHandle);
-				//response.addCookie(new Cookie("JSESSIONID", sessionHandle));
 				
 				response.sendRedirect(response.encodeURL(url));
 			}

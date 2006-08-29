@@ -199,6 +199,7 @@ public class SubmissionResponseServlet extends HttpServlet {
                     }
 
                     value = (String) headerMap.get(name);
+                    //System.out.println("SRS added header: " + name + "=" + value);
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("added header: " + name + "=" + value);
                     }

@@ -20,7 +20,6 @@ import java.util.TreeMap;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.httpclient.Cookie;
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
 
@@ -157,8 +156,8 @@ public class WorkItemProcessor {
             //if (inputParam.getElementName() != null) { // work item input param
             //    input.append(inputParam.getElementName()).append(",");
             //}
-            else if (inputParam.isUntyped()) {             // due to a bug, YAWL converts untyped parameters into creation parameters
-                //System.out.println("input param isUntyped.");
+            else if (inputParam.isUntyped()) {
+//            	 due to a bug, YAWL converts untyped parameters into creation parameters
                 //UntypedElementInstruction instruction = new UntypedElementInstruction();
                 //instructions.add(instruction);
 
@@ -258,8 +257,7 @@ public class WorkItemProcessor {
     		String jsessionid) {
         String url = context.getInitParameter("YAWLXForms") +
                 "/XFormsServlet?form=/forms/" + this.getFormName(specData) +
-                "&css=yawl.css&xslt=html4yawl.xsl&" +
-                "action_url=http://localhost:8080/yawlXForms/PlainHtml;jsessionid="+jsessionid;
+                "&css=yawl.css&xslt=html4yawl.xsl&JSESSIONID="+jsessionid;
 
         return url;
     }
@@ -271,11 +269,12 @@ public class WorkItemProcessor {
      * @param taskInfo
      * @return the redirect URL to the form to edit a task.
      */
-    public String getRedirectURL(ServletContext context, TaskInformation taskInfo){
+    public String getRedirectURL(ServletContext context, TaskInformation taskInfo,
+    		String jsessionid){
 
       String url = context.getInitParameter("YAWLXForms") +
               "/XFormsServlet?form=/forms/" + this.getFormName(taskInfo) +
-              "&css=yawl.css&xslt=html4yawl.xsl";
+              "&css=yawl.css&xslt=html4yawl.xsl&JSESSIONID="+jsessionid;
 
       return url;
   }
@@ -344,7 +343,6 @@ public class WorkItemProcessor {
                 }
                 // currently we convert untyped parameters into creation parameters, due to a bug in YAWL
                 else if (inputParam.isUntyped()) {
-                    //System.out.println("input param isUntyped.");
                     //UntypedElementInstruction instruction = new UntypedElementInstruction();
                     //instructions.add(instruction);
 
