@@ -52,17 +52,6 @@ public class YAWLFormServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
     	
-    	
-        javax.servlet.http.Cookie[] cookiesIn = request.getCookies();
-        if (cookiesIn != null) {
-            for (int i = 0; i < cookiesIn.length; i += 1) {
-                System.out.println("YFS - New cookie: "+cookiesIn[i].getName()+", "+cookiesIn[i].getValue());
-            }
-        }
-        else{
-        	System.out.println("YFS - No cookies found on request.");
-        }
-    	
         String inputData = null;
         String outputData = null;
         

@@ -31,9 +31,9 @@
 
                 //application.getRequestDispatcher("/checkedOut").forward(request, response);
                 wip.executeWorkItemPost(getServletContext(), checkedOutItem.getID(),
-                        sessionHandle, _worklistController, userID);
+                        sessionHandle, _worklistController, userID, session.getId());
 
-                String url = wip.getRedirectURL(getServletContext(), taskInfo);
+                String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());
 
                 response.sendRedirect(response.encodeURL(url));
             } else {

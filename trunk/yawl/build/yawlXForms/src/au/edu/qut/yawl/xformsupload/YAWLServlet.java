@@ -59,10 +59,10 @@ public class YAWLServlet extends HttpServlet{
         }
 */       	
 		String sessionHandle = request.getParameter("sessionHandle");
-        String jsessionid = request.getParameter("JSESSIONID");
-        
-        System.out.println("YS JSESSIONID: "+jsessionid);
-        
+
+		String jsessionid = request.getParameter("JSESSIONID");
+		System.out.println("YS JSESSIONID: "+jsessionid);
+		
 		String userID = request.getParameter("userID");
 		String root = request.getParameter("root");
         String specID = request.getParameter("specID");
@@ -168,9 +168,9 @@ public class YAWLServlet extends HttpServlet{
 		builder.setInstanceHref("http://www.w3.org/2001/XMLSchema-instance");
 		
 		// EG: YAWL = "http://localhost:8080/worklist/yawlFormServlet";
-		builder.setAction(RP.getInitParameter("YAWL")+";JSESSIONID="+jsessionid+"?userID="+userID+
+		builder.setAction(RP.getInitParameter("YAWL")+"?userID="+userID+
 				"&sessionHandle="+sessionHandle+"&specID="+specID+
-				"&workItemID="+workItemID);
+				"&workItemID="+workItemID+"&JSESSIONID="+jsessionid);
 		
 		// EG: FormBase = "http://localhost:8080/YAWLXForms/"
 		builder.setBase(RP.getInitParameter("FormBase"));

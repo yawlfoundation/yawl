@@ -150,6 +150,8 @@ public class ChibaServlet extends HttpServlet {
 
     private static final String HTML_CONTENT_TYPE = "text/html;charset=UTF-8";
 
+    private static String YAWLID = new String(); // edited
+    
     /*
      * It is not thread safe to modify these variables once the
      * init(ServletConfig) method has been called
@@ -280,6 +282,8 @@ public class ChibaServlet extends HttpServlet {
 
         XFormsSession xFormsSession = new XFormsSession();
 
+        YAWLID = request.getParameter("JSESSIONID");
+        
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("--------------- new XForms session ---------------");
             Enumeration keys = session.getAttributeNames();
@@ -296,6 +300,7 @@ public class ChibaServlet extends HttpServlet {
         }
 
         request.setCharacterEncoding("UTF-8");
+        
         try {
             // determine Form to load
             String formURI = getRequestURI(request) + request.getParameter(FORM_PARAM_NAME);
@@ -313,34 +318,35 @@ public class ChibaServlet extends HttpServlet {
                 fluxAdapter.setSession(session);
                 fluxAdapter.setXFormsSession(xFormsSession);
                 adapter = fluxAdapter;
-                actionURL = getActionURL(request, response,true);
+                actionURL = getActionURL(request, response, true);
             }else{
                 //do standard browser support without scripting
                 adapter = new ServletAdapter();
-                actionURL = getActionURL(request, response,false);
+                actionURL = getActionURL(request, response, false);
             }
             //setup Adapter
-            adapter = setupAdapter(adapter,xFormsSession.getKey(), formURI);
-            setContextParams(request, adapter);
+            adapter = setupAdapter(adapter, xFormsSession.getKey(), formURI);
             storeCookies(request,adapter);
+            setContextParams(request, adapter);            
             adapter.init();
-
+            
             // todo: remove deprecated stuff, check for load/replace/message somehow            
             if(load(adapter, response)) return;
             if(replaceAll(adapter, response)) return;
-
+            
             response.setContentType(HTML_CONTENT_TYPE);
             Writer writer = response.getWriter();
-            UIGenerator uiGenerator = createUIGenerator(request, xFormsSession.getKey() , actionURL, xslFile, javascriptPresent);
+            UIGenerator uiGenerator = createUIGenerator(request, xFormsSession.getKey(), 
+            		actionURL, xslFile, javascriptPresent);
             uiGenerator.setInputNode(adapter.getXForms());
             uiGenerator.setOutput(writer);
             uiGenerator.generate();
-
+            
             //store adapter in session
             xFormsSession.setAdapter(adapter);
             //store UIGenerator in session
             xFormsSession.setUIGenerator(uiGenerator);
-            session.setAttribute(xFormsSession.getKey(),xFormsSession);
+            session.setAttribute(xFormsSession.getKey(), xFormsSession);
         } catch (XFormsException e) {
             shutdown(adapter, session, e, response, request, xFormsSession.getKey());
         }catch(URISyntaxException ue){
@@ -359,7 +365,7 @@ public class ChibaServlet extends HttpServlet {
      *
      * If you'd like to use a different source of XForms documents e.g. DOM you should extend this class and
      * overwrite this method. Please take care to also set the baseURI of the processor to a reasonable value
-     * cause this will be the fundament for all URI resolutions taking place.
+     * cause this will be the fundamental for all URI resolutions taking place.
      *
      * @param adapter  the ChibaAdapter implementation to setup
      * @param formPath  - the relative location where forms are stored
@@ -392,20 +398,36 @@ public class ChibaServlet extends HttpServlet {
      * @param request the servlet request
      * @param adapter the Chiba adapter instance
      */
-    protected void storeCookies(HttpServletRequest request,ChibaAdapter adapter){
+    protected void storeCookies(HttpServletRequest request, ChibaAdapter adapter){
           javax.servlet.http.Cookie[] cookiesIn = request.getCookies();
           if (cookiesIn != null) {
               Cookie[] commonsCookies = new org.apache.commons.httpclient.Cookie[cookiesIn.length];
               for (int i = 0; i < cookiesIn.length; i += 1) {
                   javax.servlet.http.Cookie c = cookiesIn[i];
-                  commonsCookies[i] = new Cookie(c.getDomain(),
-                                                c.getName(),
-                                                c.getValue(),
-                                                c.getPath(),
-                                                c.getMaxAge(),
-                                                c.getSecure());
+                  
+                  if (c.getName().compareTo("JSESSIONID") == 0){
+	                  commonsCookies[i] = new Cookie(c.getDomain(),
+	                                                c.getName(),
+	                                                YAWLID,
+	                                                c.getPath(),
+	                                                c.getMaxAge(),
+	                                                c.getSecure());
+	                  LOGGER.debug("CS Stored Overwritten Cookie: "+c.getDomain()+", "+c.getName()+", "
+	                		  +c.getValue()+", "+c.getPath()+", "+c.getMaxAge()+", "+c.getSecure());
+                  }
+                  else{
+                	  commonsCookies[i] = new Cookie(c.getDomain(),
+                              c.getName(),
+                              c.getValue(),
+                              c.getPath(),
+                              c.getMaxAge(),
+                              c.getSecure());
+					  LOGGER.debug("CS Stored Cookie: "+c.getDomain()+", "+c.getName()+", "
+								  +c.getValue()+", "+c.getPath()+", "+c.getMaxAge()+", "+c.getSecure());
+                  }
               }
-              adapter.setContextParam(AbstractHTTPConnector.REQUEST_COOKIE,commonsCookies);
+              
+              adapter.setContextParam(AbstractHTTPConnector.REQUEST_COOKIE, commonsCookies);
           }
     }
 
@@ -490,6 +512,7 @@ public class ChibaServlet extends HttpServlet {
                 String value = request.getParameter(s);
                 //servletAdapter.setContextProperty(s, value);
                 chibaAdapter.setContextParam(s, value);
+                
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("added request param '" + s + "' added to context");
                 }
@@ -528,28 +551,33 @@ public class ChibaServlet extends HttpServlet {
     private String getActionURL(HttpServletRequest request, HttpServletResponse response, boolean scripted) {
 
         String defaultActionURL=null;
-        if(scripted){
-
+        if (scripted){
             defaultActionURL = getRequestURI(request) + ajax_agent;
-        }else{
+        } else{
             defaultActionURL = getRequestURI(request) + plain_html_agent;
         }
         String encodedDefaultActionURL = response.encodeURL(defaultActionURL);
+        //System.out.println("CS encodedDefaultActionURL: "+encodedDefaultActionURL);
         int sessIdx = encodedDefaultActionURL.indexOf(";jsession");
         String sessionId = null;
         if (sessIdx > -1) {
             sessionId = encodedDefaultActionURL.substring(sessIdx);
+            //sessionId = YAWLID;
+            //System.out.println("CS YAWLID: "+YAWLID);
         }
         String actionURL = request.getParameter(ACTIONURL_PARAM_NAME);
         if (null == actionURL) {
             actionURL = encodedDefaultActionURL;
+            //actionURL += ";jsessionid="+YAWLID;
+            //System.out.println("actionURL = encodedDefaultActionURL: "+actionURL);
         } else if (null != sessionId) {
             actionURL += sessionId;
+            //System.out.println("actionURL += sessionId: "+actionURL);
         }
-
-        LOGGER.debug("actionURL: " + actionURL);
+        
         // encode the URL to allow for session id rewriting
         actionURL = response.encodeURL(actionURL);
+        LOGGER.debug("actionURL: " + actionURL);
         return actionURL;
     }
 

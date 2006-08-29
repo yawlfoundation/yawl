@@ -118,6 +118,8 @@ import java.io.IOException;
  */
 public class PlainHtmlServlet extends ChibaServlet {
 
+	private static String YAWLID = new String(); // edited
+	
     /**
      * Returns a short description of the servlet.
      *
@@ -151,12 +153,14 @@ public class PlainHtmlServlet extends ChibaServlet {
         ChibaAdapter chibaAdapter =null;
 
         String key = request.getParameter("sessionKey");
+        
         try {
             XFormsSession xFormsSession = (XFormsSession) session.getAttribute(key);
             chibaAdapter =  xFormsSession.getAdapter();
             if (chibaAdapter == null) {
                 throw new ServletException(Config.getInstance().getErrorMessage("session-invalid"));
             }
+            
             ChibaEvent chibaEvent = new DefaultChibaEventImpl();
             chibaEvent.initEvent("http-request",null,request);
             chibaAdapter.dispatch(chibaEvent);
@@ -166,13 +170,14 @@ public class PlainHtmlServlet extends ChibaServlet {
             if(replaceAll(chibaAdapter, response)) return;
 
             response.setContentType("text/html");
-
+            
             UIGenerator uiGenerator = xFormsSession.getUIGenerator();
             uiGenerator.setInputNode(chibaAdapter.getXForms());
             uiGenerator.setOutput(response.getWriter());
             uiGenerator.generate();
             response.getWriter().close();
         } catch (Exception e) {
+        	e.printStackTrace();
             shutdown(chibaAdapter, session, e, response, request, key);
         }
     }

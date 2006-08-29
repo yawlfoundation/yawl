@@ -111,11 +111,11 @@
 						if (taskInfo.getAttribute("formtype")==null || !taskInfo.getAttribute("formtype").equalsIgnoreCase("pdf")) {
 				
 						 	wip.executeWorkItemPost( getServletContext(), workItemID, 
-								sessionHandle, _worklistController, userID );
+								sessionHandle, _worklistController, userID, session.getId() );
 						
-							String url = wip.getRedirectURL( getServletContext(), taskInfo );
+							String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());
 						
-							response.sendRedirect( response.encodeURL(url) );						
+							response.sendRedirect(response.encodeURL(url));						
 						} else {
  						 	String filename = wip.executePDFWorkItemPost( getServletContext(), workItemID, taskInfo.getDecompositionID(),
 						  			sessionHandle, _worklistController, userID );
