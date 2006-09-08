@@ -28,13 +28,15 @@ import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
 
 /**
  * @author Lindsay Bradford
  *
  */
-public class CopyAction extends YAWLBaseAction implements TooltipTogglingWidget {
+public class CopyAction extends YAWLBaseAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
 
   /**
    * 
@@ -51,7 +53,16 @@ public class CopyAction extends YAWLBaseAction implements TooltipTogglingWidget 
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control C"));
   }
   
-  private CopyAction() {};  
+  private CopyAction() {
+    SpecificationSelectionListener.getInstance().subscribe(
+        this,
+        new int[] { 
+          SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
+          SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED,
+          SpecificationSelectionListener.STATE_COPYABLE_ELEMENTS_SELECTED
+        }
+    );
+  };  
   
   public static CopyAction getInstance() {
     return INSTANCE; 
@@ -80,5 +91,18 @@ public class CopyAction extends YAWLBaseAction implements TooltipTogglingWidget 
   public String getDisabledTooltipText() {
     return " You must have a number of net elements selected" + 
            " to copy them ";
+  }
+  
+  public void receiveSubscription(int state) {
+    switch(state) {
+      case SpecificationSelectionListener.STATE_COPYABLE_ELEMENTS_SELECTED: {
+        setEnabled(true);
+        break;
+      }
+      default: {
+        setEnabled(false);
+        break;
+      }
+    }
   }
 }

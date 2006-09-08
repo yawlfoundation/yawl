@@ -33,9 +33,10 @@ import java.awt.Dimension;
 
 
 import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 
-public class ZoomSelectedElementsAction extends YAWLSelectedNetAction {
+public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements SpecificationSelectionSubscriber  {
 
   private static final int ZOOM_PADDING = 20;
   /**
@@ -50,7 +51,15 @@ public class ZoomSelectedElementsAction extends YAWLSelectedNetAction {
     putValue(Action.SMALL_ICON, getIconByName("ZoomSelectedElements"));
   }
   
-  private ZoomSelectedElementsAction() {};  
+  private ZoomSelectedElementsAction() {
+    SpecificationSelectionListener.getInstance().subscribe(
+        this,
+        new int[] { 
+          SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
+          SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED
+        }
+    );
+  };  
   
   public static ZoomSelectedElementsAction getInstance() {
     return INSTANCE; 
@@ -94,5 +103,18 @@ public class ZoomSelectedElementsAction extends YAWLSelectedNetAction {
         bounds.getMaxY() + ZOOM_PADDING
     );
     return bounds;
+  }
+  
+  public void receiveSubscription(int state) {
+    switch(state) {
+      case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED: {
+        setEnabled(false);
+        break;
+      }
+      case SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED: {
+        setEnabled(true);
+        break;
+      }
+    }
   }
 }

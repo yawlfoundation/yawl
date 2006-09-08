@@ -28,9 +28,11 @@ import javax.swing.Action;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 
-public class AlignBottomAction extends YAWLSelectedNetAction implements TooltipTogglingWidget {
+public class AlignBottomAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
 
   /**
    * 
@@ -46,7 +48,16 @@ public class AlignBottomAction extends YAWLSelectedNetAction implements TooltipT
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
   }
   
-  private AlignBottomAction() {};  
+  private AlignBottomAction() {
+    SpecificationSelectionListener.getInstance().subscribe(
+        this,
+        new int[] { 
+          SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
+          SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED,
+          SpecificationSelectionListener.STATE_MORE_THAN_ONE_VERTEX_SELECTED
+        }
+    );
+  };  
   
   public static AlignBottomAction getInstance() {
     return INSTANCE; 
@@ -66,5 +77,18 @@ public class AlignBottomAction extends YAWLSelectedNetAction implements TooltipT
   public String getDisabledTooltipText() {
     return " You must have a number of net elements selected" + 
            " to align them ";
+  }
+  
+  public void receiveSubscription(int state) {
+    switch(state) {
+      case SpecificationSelectionListener.STATE_MORE_THAN_ONE_VERTEX_SELECTED: {
+        setEnabled(true);
+        break;
+      }
+      default: {
+        setEnabled(false);
+        break;
+      }
+    }
   }
 }

@@ -31,9 +31,11 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 
-public class DeleteAction extends YAWLSelectedNetAction implements TooltipTogglingWidget {
+public class DeleteAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
   
   /**
    * 
@@ -50,7 +52,16 @@ public class DeleteAction extends YAWLSelectedNetAction implements TooltipToggli
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE,0));
   }
   
-  private DeleteAction() {};  
+  private DeleteAction() {
+    SpecificationSelectionListener.getInstance().subscribe(
+        this,
+        new int[] { 
+          SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
+          SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED,
+          SpecificationSelectionListener.STATE_DELETABLE_ELEMENTS_SELECTED
+        }
+    );
+  };  
   
   public static DeleteAction getInstance() {
     return INSTANCE; 
@@ -70,5 +81,18 @@ public class DeleteAction extends YAWLSelectedNetAction implements TooltipToggli
   public String getDisabledTooltipText() {
     return " You must have a number of net elements selected" + 
            " to delete them ";
+  }
+
+  public void receiveSubscription(int state) {
+    switch(state) {
+      case SpecificationSelectionListener.STATE_DELETABLE_ELEMENTS_SELECTED: {
+        setEnabled(true);
+        break;
+      }
+      default: {
+        setEnabled(false);
+        break;
+      }
+    }
   }
 }
