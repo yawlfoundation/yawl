@@ -29,13 +29,15 @@ import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 
 /**
  * @author Lindsay Bradford
  *
  */
-public class CutAction extends YAWLBaseAction implements TooltipTogglingWidget {
+public class CutAction extends YAWLBaseAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber  {
 
   /**
    * 
@@ -52,7 +54,16 @@ public class CutAction extends YAWLBaseAction implements TooltipTogglingWidget {
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control X"));
   }
   
-  private CutAction() {};  
+  private CutAction() {
+    SpecificationSelectionListener.getInstance().subscribe(
+        this,
+        new int[] { 
+          SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
+          SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED,
+          SpecificationSelectionListener.STATE_DELETABLE_ELEMENTS_SELECTED
+        }
+    );
+  };  
   
   public static CutAction getInstance() {
     return INSTANCE; 
@@ -83,5 +94,18 @@ public class CutAction extends YAWLBaseAction implements TooltipTogglingWidget {
   public String getDisabledTooltipText() {
     return " You must have a number of net elements selected" + 
            " to cut them ";
+  }
+  
+  public void receiveSubscription(int state) {
+    switch(state) {
+      case SpecificationSelectionListener.STATE_DELETABLE_ELEMENTS_SELECTED: {
+        setEnabled(true);
+        break;
+      }
+      default: {
+        setEnabled(false);
+        break;
+      }
+    }
   }
 }

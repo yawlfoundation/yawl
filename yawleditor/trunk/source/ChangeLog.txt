@@ -1,3 +1,6 @@
+Version 1.4.4 (??/??/??) "blah"
+  * Removed excess modality when applying decorators to tasks.
+
 Version 1.4.3 (25/08/2006) "Deltapoint"
   * There is now a new palette menu item allowing users to drag the visible window of a 
     net around.

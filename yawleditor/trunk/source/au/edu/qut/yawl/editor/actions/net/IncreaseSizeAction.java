@@ -32,9 +32,11 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
+import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 
-public class IncreaseSizeAction extends YAWLSelectedNetAction implements TooltipTogglingWidget {
+public class IncreaseSizeAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber  {
 
   /**
    * 
@@ -51,7 +53,15 @@ public class IncreaseSizeAction extends YAWLSelectedNetAction implements Tooltip
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,InputEvent.CTRL_MASK));
   }
   
-  private IncreaseSizeAction() {}  
+  private IncreaseSizeAction() {
+    SpecificationSelectionListener.getInstance().subscribe(
+        this,
+        new int[] { 
+          SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
+          SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED
+        }
+    );
+  }  
   
   public static IncreaseSizeAction getInstance() {
     return INSTANCE; 
@@ -71,5 +81,18 @@ public class IncreaseSizeAction extends YAWLSelectedNetAction implements Tooltip
   public String getDisabledTooltipText() {
     return " You must have a number of net elements selected" + 
            " to increase their size ";
+  }
+  
+  public void receiveSubscription(int state) {
+    switch(state) {
+      case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED: {
+        setEnabled(false);
+        break;
+      }
+      case SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED: {
+        setEnabled(true);
+        break;
+      }
+    }
   }
 }
