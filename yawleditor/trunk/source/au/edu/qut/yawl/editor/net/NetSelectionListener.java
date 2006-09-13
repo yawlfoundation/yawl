@@ -39,10 +39,10 @@ public class NetSelectionListener implements GraphSelectionListener {
   }
   
   public void valueChanged(GraphSelectionEvent event) {
-    SpecificationSelectionListener.getInstance().publishSubscriptions(model);
+    SpecificationSelectionListener.getInstance().publishSubscriptions(model, event);
   }
   
   public void forceActionUpdate() {
-    SpecificationSelectionListener.getInstance().publishSubscriptions(model);
+    SpecificationSelectionListener.getInstance().publishSubscriptions(model, null);
   }
 }

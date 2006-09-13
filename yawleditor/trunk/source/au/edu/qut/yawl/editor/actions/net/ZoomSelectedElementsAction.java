@@ -27,6 +27,9 @@ package au.edu.qut.yawl.editor.actions.net;
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
+
+import org.jgraph.event.GraphSelectionEvent;
+
 import java.awt.geom.Rectangle2D;
 import java.awt.Point;
 import java.awt.Dimension;
@@ -77,8 +80,6 @@ public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements
 
      graph.setScale(usedZoomFraction);
 
-     //NetUtilities.resizeNetToBoundCells(graph);
-     
      final Dimension viewportSize = graph.getFrame().getScrollPane().getViewport().getVisibleRect().getSize();
   
      graph.getFrame().getScrollPane().getViewport().setViewPosition(
@@ -105,7 +106,7 @@ public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements
     return bounds;
   }
   
-  public void receiveSubscription(int state) {
+  public void receiveSubscription(int state,GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED: {
         setEnabled(false);

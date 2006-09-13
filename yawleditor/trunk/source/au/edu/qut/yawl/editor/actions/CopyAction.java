@@ -27,6 +27,8 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 
+import org.jgraph.event.GraphSelectionEvent;
+
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
@@ -93,7 +95,7 @@ public class CopyAction extends YAWLBaseAction implements TooltipTogglingWidget,
            " to copy them ";
   }
   
-  public void receiveSubscription(int state) {
+  public void receiveSubscription(int state,GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_COPYABLE_ELEMENTS_SELECTED: {
         setEnabled(true);
