@@ -28,6 +28,8 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 
+import org.jgraph.event.GraphSelectionEvent;
+
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
@@ -96,7 +98,7 @@ public class CutAction extends YAWLBaseAction implements TooltipTogglingWidget, 
            " to cut them ";
   }
   
-  public void receiveSubscription(int state) {
+  public void receiveSubscription(int state,GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_DELETABLE_ELEMENTS_SELECTED: {
         setEnabled(true);

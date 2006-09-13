@@ -44,6 +44,10 @@ public class AtomicTaskView extends VertexView {
   public CellViewRenderer getRenderer() {
     return renderer;
   }
+  
+  public static CellViewRenderer getClassRenderer() {
+    return renderer;
+  }
 }
 
 class AtomicTaskRenderer extends YAWLVertexRenderer {

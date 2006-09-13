@@ -31,6 +31,8 @@ import java.awt.event.KeyEvent;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
+import org.jgraph.event.GraphSelectionEvent;
+
 import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
@@ -85,7 +87,7 @@ public class DecreaseSizeAction extends YAWLSelectedNetAction implements Tooltip
            " to decrease their size ";
   }
 
-  public void receiveSubscription(int state) {
+  public void receiveSubscription(int state,GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED: {
         setEnabled(false);

@@ -43,4 +43,9 @@ abstract class YAWLToolBar extends JToolBar {
   public void addSeparator() {
     super.addSeparator(spacer);
   }
+  
+  public void refresh() {
+    setMaximumSize(getPreferredSize());
+    super.repaint();        
+  }
 } 
