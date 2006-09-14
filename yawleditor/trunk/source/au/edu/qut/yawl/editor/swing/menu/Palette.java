@@ -33,24 +33,34 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
+import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import org.jgraph.event.GraphSelectionEvent;
 
+import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
 import au.edu.qut.yawl.editor.actions.palette.*;
 import au.edu.qut.yawl.editor.elements.model.AtomicTask;
 import au.edu.qut.yawl.editor.elements.model.CompositeTask;
+import au.edu.qut.yawl.editor.elements.model.Decorator;
 import au.edu.qut.yawl.editor.elements.model.MultipleAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.MultipleCompositeTask;
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
@@ -93,9 +103,10 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
 
   protected void buildInterface() {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    setMargin(new Insets(0,0,0,0));
+    setMargin(new Insets(2,2,2,2));
     
     add(CORE_PALETTE);
+    add(Box.createVerticalStrut(2));
     add(SINGLE_TASK_PALETTE);
   }
   
@@ -157,7 +168,7 @@ class CorePalette extends JPanel {
   };
 
   protected void buildInterface() {
-    setLayout(new GridLayout(4,2,0,0));
+    setLayout(new GridLayout(4,2));
     addButtons();
   }
   
@@ -231,20 +242,18 @@ class CorePalette extends JPanel {
   }
 }
 
-class SingleTaskPalette extends JPanel implements SpecificationSelectionSubscriber{
+class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSubscriber{
 
   private JoinPanel joinPanel = new JoinPanel();
   private SplitPanel splitPanel = new SplitPanel();
   
   public SingleTaskPalette() {
-     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
-     add(joinPanel);
-     add(splitPanel);
+    addTab("Join", joinPanel);
+    addTab("Split", splitPanel);
+    
+    setVisible(false);
      
-     setVisible(false);
-     
-     SpecificationSelectionListener.getInstance().subscribe(
+    SpecificationSelectionListener.getInstance().subscribe(
          this,
          new int[] { 
            SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
@@ -253,27 +262,128 @@ class SingleTaskPalette extends JPanel implements SpecificationSelectionSubscrib
          }
      );
   }
+
+  class JoinPanel extends DecoratorPanel {
+    public JoinPanel() {
+      super();
+    }
+    
+    protected String getNoDecorationIconName() {
+      return "PaletteNoJoin";
+    }
+    
+    protected String getAndDecorationIconName() {
+      return "PaletteAndJoin";
+    }
+    
+    protected String getXorDecorationIconName() {
+      return "PaletteXorJoin";
+    }
+
+    protected String getOrDecorationIconName() {
+      return "PaletteOrJoin";
+    }
+
+    public void setTask(Object task) {
+      super.setTask(task);
+      
+      if (getTask().getJoinDecorator() == null) {
+        doTypeSelection(TYPE_NONE);
+      } else {
+        switch(getTask().getJoinDecorator().getType()) {
+          case Decorator.AND_TYPE: {
+            doTypeSelection(TYPE_AND);
+            break;
+          }
+          case Decorator.XOR_TYPE: {
+            doTypeSelection(TYPE_XOR);
+            break;
+          }
+          case Decorator.OR_TYPE: {
+            doTypeSelection(TYPE_OR);
+            break;
+          }
+        }
+      }
+
+      setPositionDisabled(getTask().hasSplitObjectAt());
+      doPositionSelection(getTask().hasJoinObjectAt());
+    }
+  }
+
+  class SplitPanel extends DecoratorPanel {
+    public SplitPanel() {
+      super();
+    }
+    
+    protected String getNoDecorationIconName() {
+      return "PaletteNoSplit";
+    }
+
+    protected String getAndDecorationIconName() {
+      return "PaletteAndSplit";
+    }
+
+    protected String getXorDecorationIconName() {
+      return "PaletteXorSplit";
+    }
+
+    protected String getOrDecorationIconName() {
+      return "PaletteOrSplit";
+    }
+    
+    public void setTask(Object task) {
+      super.setTask(task);
+      
+      if (getTask().getSplitDecorator() == null) {
+        doTypeSelection(TYPE_NONE);
+      } else {
+        switch(getTask().getSplitDecorator().getType()) {
+          case Decorator.AND_TYPE: {
+            doTypeSelection(TYPE_AND);
+            break;
+          }
+          case Decorator.XOR_TYPE: {
+            doTypeSelection(TYPE_XOR);
+            break;
+          }
+          case Decorator.OR_TYPE: {
+            doTypeSelection(TYPE_OR);
+            break;
+          }
+        }
+      }
+
+      setPositionDisabled(getTask().hasJoinObjectAt());
+      doPositionSelection(getTask().hasSplitObjectAt());
+    }
+  }
   
-  class JoinPanel extends JPanel {
+
+  abstract class DecoratorPanel extends JPanel {
+    
+    private YAWLTask task;
     
     protected JRadioButton northRadioButton;
     protected JRadioButton southRadioButton;
     protected JRadioButton eastRadioButton;
     protected JRadioButton westRadioButton;
-    
+
+    protected JRadioButton nowhereRadioButton = new JRadioButton();
+
     private ButtonGroup positionButtonGroup = new ButtonGroup();
+    
+    protected static final int TYPE_NONE = 0;
+    protected static final int TYPE_AND  = 1;
+    protected static final int TYPE_XOR  = 2;
+    protected static final int TYPE_OR   = 3;
+    
+    protected JToggleButton[] typeButtons;
     
     private JLabel taskLabel;
     
-    public void setVisible(boolean visible) {
-      
-      super.setVisible(visible);
-    }
-    
-    public JoinPanel() {
-      setBorder(
-          new TitledBorder("Join")    
-      );
+    public DecoratorPanel() {
+      setBorder(new EmptyBorder(2,2,2,2));
       buildContent();
     }
     
@@ -293,20 +403,24 @@ class SingleTaskPalette extends JPanel implements SpecificationSelectionSubscrib
 
       gbc.gridy++;
       gbc.gridwidth = 1;
+      gbc.weightx = 0.5;
       gbc.anchor = GridBagConstraints.EAST;
       add(buildWestRadioButton(), gbc);
 
       gbc.gridx++;
+      gbc.weightx = 0;
       gbc.anchor = GridBagConstraints.CENTER;
       add(buildTaskLabel(), gbc);
 
       gbc.gridx++;
+      gbc.weightx = 0.5;
       gbc.anchor = GridBagConstraints.WEST;
       add(buildEastRadioButton(), gbc);
 
       gbc.gridx = 0;
       gbc.gridy++;
       gbc.gridwidth = 3;
+      gbc.weightx = 0;
       gbc.anchor = GridBagConstraints.CENTER;
       add(buildSouthRadioButton(), gbc);
       
@@ -314,6 +428,10 @@ class SingleTaskPalette extends JPanel implements SpecificationSelectionSubscrib
       positionButtonGroup.add(southRadioButton);
       positionButtonGroup.add(eastRadioButton);
       positionButtonGroup.add(westRadioButton);
+      positionButtonGroup.add(nowhereRadioButton);
+      
+      gbc.gridy++;
+      add(buildDecoratorButtonPanel(), gbc);
 
     }
     
@@ -367,20 +485,26 @@ class SingleTaskPalette extends JPanel implements SpecificationSelectionSubscrib
     
     public void setTask(Object task) {
       if (task instanceof VertexContainer) {
-        task = ((VertexContainer) task).getVertex();
+        this.task = (YAWLTask) ((VertexContainer) task).getVertex();
+      } else {
+        this.task = (YAWLTask) task;
       }
-      if (task instanceof AtomicTask) {
+      if (this.task instanceof AtomicTask) {
         setTaskLabel("PaletteAtomicTask");
       }
-      if (task instanceof MultipleAtomicTask) {
+      if (this.task instanceof MultipleAtomicTask) {
         setTaskLabel("PaletteMultipleAtomicTask");
       }
-      if (task instanceof CompositeTask) {
+      if (this.task instanceof CompositeTask) {
         setTaskLabel("PaletteCompositeTask");
       }
-      if (task instanceof MultipleCompositeTask) {
+      if (this.task instanceof MultipleCompositeTask) {
         setTaskLabel("PaletteMultipleCompositeTask");
       }
+    }
+    
+    public YAWLTask getTask() {
+      return this.task;
     }
     
     private void setTaskLabel(String labelImageName) {
@@ -391,21 +515,186 @@ class SingleTaskPalette extends JPanel implements SpecificationSelectionSubscrib
           )
       );
     }
-  }
-  
-  class SplitPanel extends JPanel {
-    public SplitPanel() {
-      setBorder(
-          new TitledBorder("Split")    
-      );
+    
+    private JPanel buildDecoratorButtonPanel() {
+      JPanel panel = new JPanel();
+      
+      panel.setLayout(new GridLayout(2,2));
+
+      typeButtons = new JToggleButton[] {
+        new JToggleButton(new NoDecoratorAction()),
+        new JToggleButton(new AndDecoratorAction()),
+        new JToggleButton(new XorDecoratorAction()),
+        new JToggleButton(new OrDecoratorAction()),
+      };
+      
+      for (int i = 0; i < typeButtons.length; i++) {
+        typeButtons[i].setVerticalTextPosition(AbstractButton.BOTTOM);
+        typeButtons[i].setHorizontalTextPosition(AbstractButton.CENTER);
+        typeButtons[i].setMargin(new Insets(2,5,2,5));
+        panel.add(typeButtons[i]);   
+      }
+      
+      return panel;
+    }
+
+    class NoDecoratorAction extends YAWLBaseAction {
+      {
+        putValue(Action.SHORT_DESCRIPTION, "NONE");
+        putValue(Action.NAME, "NONE");
+        putValue(Action.LONG_DESCRIPTION, "NONE");
+        putValue(Action.SMALL_ICON, 
+            ResourceLoader.getImageAsIcon(
+                "/au/edu/qut/yawl/editor/resources/menuicons/" 
+                + getNoDecorationIconName() + "16.gif"
+            )
+        );
+      }
+    }
+
+    
+    class AndDecoratorAction extends YAWLBaseAction {
+      {
+        putValue(Action.SHORT_DESCRIPTION, "AND");
+        putValue(Action.NAME, "AND");
+        putValue(Action.LONG_DESCRIPTION, "AND");
+        putValue(Action.SMALL_ICON, 
+            ResourceLoader.getImageAsIcon(
+                "/au/edu/qut/yawl/editor/resources/menuicons/" 
+                + getAndDecorationIconName() + "16.gif"
+            )
+        );
+      }
+    }
+    
+    class XorDecoratorAction extends YAWLBaseAction {
+      {
+        putValue(Action.SHORT_DESCRIPTION, "XOR");
+        putValue(Action.NAME, "XOR");
+        putValue(Action.LONG_DESCRIPTION, "XOR");
+        putValue(Action.SMALL_ICON, 
+            ResourceLoader.getImageAsIcon(
+                "/au/edu/qut/yawl/editor/resources/menuicons/" 
+                + getXorDecorationIconName() + "16.gif"
+            )
+        );
+      }
+    }
+   
+    class OrDecoratorAction extends YAWLBaseAction {
+      {
+        putValue(Action.SHORT_DESCRIPTION, "OR");
+        putValue(Action.NAME, "OR");
+        putValue(Action.LONG_DESCRIPTION, "OR");
+        putValue(Action.SMALL_ICON, 
+            ResourceLoader.getImageAsIcon(
+                "/au/edu/qut/yawl/editor/resources/menuicons/" 
+                + getOrDecorationIconName() + "16.gif"
+            )
+        );
+      }
+    }
+    
+    protected abstract String getNoDecorationIconName();
+    protected abstract String getAndDecorationIconName();
+    protected abstract String getXorDecorationIconName();
+    protected abstract String getOrDecorationIconName();
+    
+    protected void doTypeSelection(int type) {
+      for(int i = 0; i < typeButtons.length; i++) {
+        if (i == type) {
+          typeButtons[i].setSelected(true);
+        } else {
+          typeButtons[i].setSelected(false);
+        }
+      }
+    }
+    
+    protected void doPositionSelection(int position) {
+      switch(position) {
+        case Decorator.TOP: {
+          positionButtonGroup.setSelected(
+              northRadioButton.getModel(), 
+              true
+          );
+          break;
+        }
+        case Decorator.BOTTOM: {
+          positionButtonGroup.setSelected(
+              southRadioButton.getModel(), 
+              true
+          );
+          break;
+        }
+        case Decorator.LEFT: {
+          positionButtonGroup.setSelected(
+              westRadioButton.getModel(), 
+              true
+          );
+          break;
+        }
+        case Decorator.RIGHT: {
+          positionButtonGroup.setSelected(
+              eastRadioButton.getModel(), 
+              true
+          );
+          break;
+        }
+        case YAWLTask.NOWHERE: {
+          positionButtonGroup.setSelected(
+              nowhereRadioButton.getModel(), 
+              true
+          );
+        }
+      }
+    }
+
+    public void setPositionDisabled(int position) {
+      switch (position) {
+        case YAWLTask.TOP: {
+          northRadioButton.setEnabled(false);
+          southRadioButton.setEnabled(true);
+          eastRadioButton.setEnabled(true);
+          westRadioButton.setEnabled(true);
+          break;
+        }
+        case YAWLTask.BOTTOM: {
+          northRadioButton.setEnabled(true);
+          southRadioButton.setEnabled(false);
+          eastRadioButton.setEnabled(true);
+          westRadioButton.setEnabled(true);
+          break;
+        }
+        case YAWLTask.LEFT: {
+          northRadioButton.setEnabled(true);
+          southRadioButton.setEnabled(true);
+          eastRadioButton.setEnabled(true);
+          westRadioButton.setEnabled(false);
+          break;
+        }
+        case YAWLTask.RIGHT: {
+          northRadioButton.setEnabled(true);
+          southRadioButton.setEnabled(true);
+          eastRadioButton.setEnabled(false);
+          westRadioButton.setEnabled(true);
+          break;
+        }
+        default: {
+          northRadioButton.setEnabled(true);
+          southRadioButton.setEnabled(true);
+          eastRadioButton.setEnabled(true);
+          westRadioButton.setEnabled(true);
+          break;
+        }
+      }
     }
   }
-
   
   public void receiveSubscription(int state, GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_SINGLE_TASK_SELECTED: {
         joinPanel.setTask(event.getCell());
+        splitPanel.setTask(event.getCell());
         setVisible(true);
         break;
       }

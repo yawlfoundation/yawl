@@ -32,7 +32,7 @@ import javax.swing.ImageIcon;
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 import au.edu.qut.yawl.editor.swing.menu.Palette;
 
-abstract class YAWLPaletteAction extends AbstractAction {
+public abstract class YAWLPaletteAction extends AbstractAction {
   private int paletteIdentifier = Palette.MARQUEE;
 
   public void actionPerformed(ActionEvent event) {
