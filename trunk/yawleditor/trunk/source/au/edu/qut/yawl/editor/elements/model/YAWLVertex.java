@@ -398,6 +398,6 @@ public abstract class YAWLVertex extends DefaultGraphCell
   }
   
   public String toString() {
-    return getEngineId();
+    return  "["+ this.hashCode() +"]\nengine id: "+ getEngineId();
   }
 }
