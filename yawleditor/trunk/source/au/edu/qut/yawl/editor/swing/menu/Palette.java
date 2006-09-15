@@ -31,7 +31,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.LinkedList;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -40,6 +43,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
@@ -51,6 +55,7 @@ import javax.swing.border.TitledBorder;
 
 import org.jgraph.event.GraphSelectionEvent;
 
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
 import au.edu.qut.yawl.editor.actions.palette.*;
 import au.edu.qut.yawl.editor.elements.model.AtomicTask;
@@ -69,6 +74,7 @@ import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 import au.edu.qut.yawl.editor.swing.JStatusBar;
+import au.edu.qut.yawl.editor.swing.JUtilities;
 import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 
 public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
@@ -108,6 +114,7 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
     add(CORE_PALETTE);
     add(Box.createVerticalStrut(2));
     add(SINGLE_TASK_PALETTE);
+    
   }
   
   public void setSelected(int item) {
@@ -116,6 +123,12 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
   
   public int getSelected() {
     return CORE_PALETTE.getSelected();
+  }
+  
+  public void setEnabled(boolean enabled) {
+    CORE_PALETTE.setEnabled(enabled);
+    SINGLE_TASK_PALETTE.setEnabled(enabled);
+    super.setEnabled(enabled);
   }
   
   public void updateState(int state) {
@@ -168,14 +181,36 @@ class CorePalette extends JPanel {
   };
 
   protected void buildInterface() {
-    setLayout(new GridLayout(4,2));
-    addButtons();
+    
+    GridBagLayout gbl = new GridBagLayout();
+    GridBagConstraints gbc = new GridBagConstraints();
+
+    setLayout(gbl);
+    
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.weightx = 0.5;
+    add(Box.createHorizontalGlue());
+    
+    gbc.gridx++;
+    gbc.weightx = 0;
+    add(buildButtons(),gbc);
+
+    gbc.gridx++;
+    gbc.weightx = 0.5;
+    add(Box.createHorizontalGlue());
   }
   
-  private void addButtons() {
+  private JPanel buildButtons() {
+    JPanel buttonPanel = new JPanel();
+    buttonPanel.setLayout(new GridLayout(4,2));
+
     for (int i = 0; i < buttons.length; i++) {
-      add(buttons[i]);      
+      buttons[i].setMargin(new Insets(3,3,3,3));
+      buttonPanel.add(buttons[i]);      
     }
+    
+    return buttonPanel;
   }
   
   public void setSelected(int item) {
@@ -244,15 +279,18 @@ class CorePalette extends JPanel {
 
 class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSubscriber{
 
-  private JoinPanel joinPanel = new JoinPanel();
-  private SplitPanel splitPanel = new SplitPanel();
+  private JoinPanel joinPanel;
+  private SplitPanel splitPanel;
   
   public SingleTaskPalette() {
+    joinPanel = new JoinPanel(this);
+    splitPanel = new SplitPanel(this);
+    
     addTab("Join", joinPanel);
     addTab("Split", splitPanel);
-    
+
     setVisible(false);
-     
+
     SpecificationSelectionListener.getInstance().subscribe(
          this,
          new int[] { 
@@ -262,10 +300,15 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
          }
      );
   }
+  
+  public void refreshComponentValidity() {
+    joinPanel.updateWidgetConfiguration();
+    splitPanel.updateWidgetConfiguration();
+  }
 
   class JoinPanel extends DecoratorPanel {
-    public JoinPanel() {
-      super();
+    public JoinPanel(SingleTaskPalette parent) {
+      super(parent);
     }
     
     protected String getNoDecorationIconName() {
@@ -286,7 +329,12 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
 
     public void setTask(Object task) {
       super.setTask(task);
-      
+      updateWidgetConfiguration();
+    }
+    
+    public void updateWidgetConfiguration() {
+      typeButtons[TYPE_NONE].setEnabled(true);
+
       if (getTask().getJoinDecorator() == null) {
         doTypeSelection(TYPE_NONE);
       } else {
@@ -304,16 +352,38 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
             break;
           }
         }
+        if (getTask().getIncommingFlowCount() > 1) {
+          typeButtons[TYPE_NONE].setEnabled(false);
+        }
       }
 
       setPositionDisabled(getTask().hasSplitObjectAt());
       doPositionSelection(getTask().hasJoinObjectAt());
+      
+      if (selectedType == Decorator.NO_TYPE) {
+        disableAllPositionButtons();
+      }
+   }
+    
+    protected void applyDecoration() {
+      getNet().setJoinDecorator(
+          getTask(), 
+          selectedType, 
+          selectedPosition
+      );
+      parent.refreshComponentValidity();
+    }
+    
+    protected String getDecoratorString() {
+      return "Join";
     }
   }
 
   class SplitPanel extends DecoratorPanel {
-    public SplitPanel() {
-      super();
+    
+    
+    public SplitPanel(SingleTaskPalette parent) {
+      super(parent);
     }
     
     protected String getNoDecorationIconName() {
@@ -334,7 +404,12 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
     
     public void setTask(Object task) {
       super.setTask(task);
-      
+      updateWidgetConfiguration();      
+    }
+    
+    public void updateWidgetConfiguration() {
+      typeButtons[TYPE_NONE].setEnabled(true);
+
       if (getTask().getSplitDecorator() == null) {
         doTypeSelection(TYPE_NONE);
       } else {
@@ -352,16 +427,37 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
             break;
           }
         }
+        if (getTask().getOutgoingFlowCount() > 1) {
+          typeButtons[TYPE_NONE].setEnabled(false);
+        }
       }
 
       setPositionDisabled(getTask().hasJoinObjectAt());
       doPositionSelection(getTask().hasSplitObjectAt());
+
+      if (selectedType == Decorator.NO_TYPE) {
+        disableAllPositionButtons();
+      }
+    }
+    
+    protected void applyDecoration() {
+      getNet().setSplitDecorator(
+          getTask(), 
+          selectedType, 
+          selectedPosition
+      );
+      parent.refreshComponentValidity();
+    }
+    
+    protected String getDecoratorString() {
+      return "Split";
     }
   }
   
 
   abstract class DecoratorPanel extends JPanel {
     
+    private NetGraph net;
     private YAWLTask task;
     
     protected JRadioButton northRadioButton;
@@ -372,6 +468,8 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
     protected JRadioButton nowhereRadioButton = new JRadioButton();
 
     private ButtonGroup positionButtonGroup = new ButtonGroup();
+    private ButtonGroup typeButtonGroup = new ButtonGroup();
+    
     
     protected static final int TYPE_NONE = 0;
     protected static final int TYPE_AND  = 1;
@@ -380,9 +478,15 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
     
     protected JToggleButton[] typeButtons;
     
+    protected int selectedType = Decorator.NO_TYPE;
+    protected int selectedPosition = YAWLTask.NOWHERE;
+    
     private JLabel taskLabel;
     
-    public DecoratorPanel() {
+    protected SingleTaskPalette parent;
+    
+    public DecoratorPanel(SingleTaskPalette parent) {
+      this.parent = parent;
       setBorder(new EmptyBorder(2,2,2,2));
       buildContent();
     }
@@ -397,9 +501,13 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
       gbc.gridy = 0;
       gbc.gridwidth = 3;
       gbc.anchor = GridBagConstraints.CENTER;
+      gbc.insets = new Insets(0,0,4,0);
+      
+      add(buildDecoratorButtonPanel(), gbc);
+
+      gbc.gridy++;
       gbc.insets = new Insets(0,0,0,0);
       add(buildNorthRadioButton(), gbc);
-
 
       gbc.gridy++;
       gbc.gridwidth = 1;
@@ -430,9 +538,17 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
       positionButtonGroup.add(westRadioButton);
       positionButtonGroup.add(nowhereRadioButton);
       
-      gbc.gridy++;
-      add(buildDecoratorButtonPanel(), gbc);
 
+    }
+
+    private JLabel buildTaskLabel() {
+      taskLabel = new JLabel(
+          ResourceLoader.getImageAsIcon(
+              "/au/edu/qut/yawl/editor/resources/menuicons/" 
+              + "PaletteAtomicTask" + "24.gif"
+          )
+      );
+      return taskLabel;
     }
     
     private JRadioButton buildNorthRadioButton() {
@@ -443,19 +559,21 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
       northRadioButton.setVerticalAlignment(
           SwingConstants.BOTTOM
       );
+      northRadioButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            selectedPosition = YAWLTask.TOP;
+            applyDecoration();
+          }
+        }
+      );
+      northRadioButton.setToolTipText(
+          " Places the " + getDecoratorString().toLowerCase() + 
+          " at the top of the task. "
+      );
       return northRadioButton;
     }
     
-    private JLabel buildTaskLabel() {
-      taskLabel = new JLabel(
-          ResourceLoader.getImageAsIcon(
-              "/au/edu/qut/yawl/editor/resources/menuicons/" 
-              + "PaletteAtomicTask" + "24.gif"
-          )
-      );
-      return taskLabel;
-    }
-
     private JRadioButton buildSouthRadioButton() {
       southRadioButton = new JRadioButton();
       southRadioButton.setHorizontalAlignment(
@@ -463,6 +581,18 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
       );
       southRadioButton.setVerticalAlignment(
           SwingConstants.TOP
+      );
+      southRadioButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            selectedPosition = YAWLTask.BOTTOM;
+            applyDecoration();
+          }
+        }
+      );
+      southRadioButton.setToolTipText(
+          " Places the " + getDecoratorString().toLowerCase() + 
+          " at the bottom of the task. "
       );
       return southRadioButton;
     }
@@ -472,6 +602,18 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
       eastRadioButton.setHorizontalAlignment(
           SwingConstants.RIGHT
       );
+      eastRadioButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            selectedPosition = YAWLTask.RIGHT;
+            applyDecoration();
+          }
+        }
+      );
+      eastRadioButton.setToolTipText(
+          " Places the " + getDecoratorString().toLowerCase() + 
+          " on the right side of the task. "
+      );
       return eastRadioButton;
     }
     
@@ -479,6 +621,18 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
       westRadioButton = new JRadioButton();
       westRadioButton.setHorizontalAlignment(
           SwingConstants.LEFT
+      );
+      westRadioButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            selectedPosition = YAWLTask.LEFT;
+            applyDecoration();
+          }
+        }
+      );
+      westRadioButton.setToolTipText(
+          " Places the " + getDecoratorString().toLowerCase() + 
+          " on the left side of the task. "
       );
       return westRadioButton;
     }
@@ -532,17 +686,38 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
         typeButtons[i].setVerticalTextPosition(AbstractButton.BOTTOM);
         typeButtons[i].setHorizontalTextPosition(AbstractButton.CENTER);
         typeButtons[i].setMargin(new Insets(2,5,2,5));
+        typeButtonGroup.add(typeButtons[i]);
+        
         panel.add(typeButtons[i]);   
       }
       
       return panel;
     }
+    
+    protected void enableAllPositionButtons() {
+      setAllPositionButtonEnablement(true);
+    }
+    
+    protected void disableAllPositionButtons() {
+      setAllPositionButtonEnablement(false);
+    }
+    
+    protected void setAllPositionButtonEnablement(boolean enabled) {
+      northRadioButton.setEnabled(enabled);
+      southRadioButton.setEnabled(enabled);
+      eastRadioButton.setEnabled(enabled);
+      westRadioButton.setEnabled(enabled);
+      positionButtonGroup.setSelected(
+        nowhereRadioButton.getModel(),
+        true
+      );
+    }
 
     class NoDecoratorAction extends YAWLBaseAction {
       {
-        putValue(Action.SHORT_DESCRIPTION, "NONE");
+        putValue(Action.SHORT_DESCRIPTION, " No " + getDecoratorString() + " ");
         putValue(Action.NAME, "NONE");
-        putValue(Action.LONG_DESCRIPTION, "NONE");
+        putValue(Action.LONG_DESCRIPTION, " No " + getDecoratorString() + " ");
         putValue(Action.SMALL_ICON, 
             ResourceLoader.getImageAsIcon(
                 "/au/edu/qut/yawl/editor/resources/menuicons/" 
@@ -550,14 +725,18 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
             )
         );
       }
+      
+      public void actionPerformed(ActionEvent event) {
+          selectedType = Decorator.NO_TYPE;
+          applyDecoration();
+      }
     }
-
     
     class AndDecoratorAction extends YAWLBaseAction {
       {
-        putValue(Action.SHORT_DESCRIPTION, "AND");
+        putValue(Action.SHORT_DESCRIPTION, " AND " + getDecoratorString() + " ");
         putValue(Action.NAME, "AND");
-        putValue(Action.LONG_DESCRIPTION, "AND");
+        putValue(Action.LONG_DESCRIPTION, " AND " + getDecoratorString() + " ");
         putValue(Action.SMALL_ICON, 
             ResourceLoader.getImageAsIcon(
                 "/au/edu/qut/yawl/editor/resources/menuicons/" 
@@ -565,13 +744,18 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
             )
         );
       }
+      
+      public void actionPerformed(ActionEvent event) {
+        selectedType = Decorator.AND_TYPE;
+        applyDecoration();
+      }
     }
     
     class XorDecoratorAction extends YAWLBaseAction {
       {
-        putValue(Action.SHORT_DESCRIPTION, "XOR");
+        putValue(Action.SHORT_DESCRIPTION, " XOR " + getDecoratorString() + " ");
         putValue(Action.NAME, "XOR");
-        putValue(Action.LONG_DESCRIPTION, "XOR");
+        putValue(Action.LONG_DESCRIPTION, " XOR " + getDecoratorString() + " ");
         putValue(Action.SMALL_ICON, 
             ResourceLoader.getImageAsIcon(
                 "/au/edu/qut/yawl/editor/resources/menuicons/" 
@@ -579,13 +763,18 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
             )
         );
       }
+
+      public void actionPerformed(ActionEvent event) {
+        selectedType = Decorator.XOR_TYPE;
+        applyDecoration();
+      }
     }
    
     class OrDecoratorAction extends YAWLBaseAction {
       {
-        putValue(Action.SHORT_DESCRIPTION, "OR");
+        putValue(Action.SHORT_DESCRIPTION, "OR " + getDecoratorString());
         putValue(Action.NAME, "OR");
-        putValue(Action.LONG_DESCRIPTION, "OR");
+        putValue(Action.LONG_DESCRIPTION, "OR " + getDecoratorString());
         putValue(Action.SMALL_ICON, 
             ResourceLoader.getImageAsIcon(
                 "/au/edu/qut/yawl/editor/resources/menuicons/" 
@@ -593,19 +782,26 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
             )
         );
       }
+
+      public void actionPerformed(ActionEvent event) {
+        selectedType = Decorator.OR_TYPE;
+        applyDecoration();
+      }
     }
     
     protected abstract String getNoDecorationIconName();
     protected abstract String getAndDecorationIconName();
     protected abstract String getXorDecorationIconName();
     protected abstract String getOrDecorationIconName();
+    protected abstract String getDecoratorString();
     
     protected void doTypeSelection(int type) {
       for(int i = 0; i < typeButtons.length; i++) {
         if (i == type) {
-          typeButtons[i].setSelected(true);
-        } else {
-          typeButtons[i].setSelected(false);
+          typeButtonGroup.setSelected(
+              typeButtons[i].getModel(),
+              true
+          );
         }
       }
     }
@@ -688,13 +884,27 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
         }
       }
     }
+    
+    abstract void applyDecoration();
+
+    public NetGraph getNet() {
+      return this.net;
+    }
+    
+    public void setNet(NetGraph net) {
+      this.net = net;
+    }
   }
+  
   
   public void receiveSubscription(int state, GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_SINGLE_TASK_SELECTED: {
         joinPanel.setTask(event.getCell());
+        joinPanel.setNet((NetGraph) event.getSource());
         splitPanel.setTask(event.getCell());
+        splitPanel.setNet((NetGraph) event.getSource());
+
         setVisible(true);
         break;
       }
