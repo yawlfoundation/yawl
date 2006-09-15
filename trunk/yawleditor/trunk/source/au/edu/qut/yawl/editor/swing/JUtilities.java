@@ -58,7 +58,7 @@ public class JUtilities {
 	 *  @param window  the window to centre on-screen
 	 */
 
-	public static void centerWindow(Window window) {
+  public static void centerWindow(Window window) {
     final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     final Dimension windowSize = window.getSize();
     final int centerX = screenSize.width  / 2;
