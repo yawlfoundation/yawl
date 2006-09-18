@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.elements;
 
 import java.io.StringReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import java.util.Vector;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Lob;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -57,6 +59,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
+import org.xml.sax.InputSource;
 
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
@@ -138,6 +141,15 @@ public abstract class YTask extends YExternalNetElement {
      */
     public void setI(YIdentifier i) {
         this._i = i;
+    }
+
+    @OneToOne(cascade=CascadeType.ALL) 
+    public YIdentifier getContainingIdentifier() {
+    	return this._i;
+    }
+
+    public void setContainingIdentifier(YIdentifier i) {
+    	this._i = i;
     }
 
     /**
@@ -224,7 +236,7 @@ public abstract class YTask extends YExternalNetElement {
      * @hibernate.one-to-one name="multiInstanceAttributes"
      *    class="au.edu.qut.yawl.elements.YMultiInstanceAttributes"
      */
-    @OneToOne(cascade={CascadeType.ALL})
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @JoinColumn(name="multiinstanceattributes_fk")
     public YMultiInstanceAttributes getMultiInstanceAttributes() {
         return _multiInstAttr;
@@ -305,13 +317,13 @@ public abstract class YTask extends YExternalNetElement {
         return getDataMappingsForTaskCompletion().keySet();
     }
 
-    @OneToMany(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(cascade={CascadeType.ALL})
     @JoinTable(name="yexternalnetelement_removeset")
     public Set<YExternalNetElement> getRemoveSet() {
     	return _removeSet;
     }
 
-    @OneToMany(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(cascade={CascadeType.ALL})
     @JoinTable(name="yexternalnetelement_removeset")
     private void setRemoveSet(Set<YExternalNetElement> s) {
     	_removeSet = s;
@@ -387,7 +399,8 @@ public abstract class YTask extends YExternalNetElement {
 
     /*changed to public for persistance*/
     public void prepareDataDocsForTaskOutput() {
-        if (null == getDecompositionPrototype()) {
+        if (null == getDecompositionPrototype() ||
+        		getDecompositionPrototype().getParent() == null) {
             return;
         }
         _groupedMultiInstanceOutputData = new Document();
@@ -562,8 +575,8 @@ public abstract class YTask extends YExternalNetElement {
             _mi_executing.removeOne(childID);
             _mi_complete.add(childID);
             if (t_isExitEnabled()) {
-//                try{
                 t_exit();
+
 //                } catch (Exception e) {
                 //todo add rollback code to restore previous state
 //                }
@@ -668,6 +681,7 @@ public abstract class YTask extends YExternalNetElement {
         _mi_complete.removeAll();
         _mi_entered.removeAll();
         _mi_executing.removeAll();
+
         synchronized (_random) {
             switch (_splitType) {
                 case YTask._AND:
@@ -681,6 +695,7 @@ public abstract class YTask extends YExternalNetElement {
                     break;
             }
         }
+
         i.removeLocation(this);
         LOG.info("YTask::" + getID() + ".exit() caseID(" + _i + ") " +
                 "_parentDecomposition.getInternalDataDocument() = "
@@ -794,6 +809,7 @@ public abstract class YTask extends YExternalNetElement {
         //and with the default flow occurring last.
         Collections.sort(flows);
         YFlow flow;
+
         for (int i = 0; i < flows.size(); i++) {
             flow = (YFlow) flows.get(i);
             if (flow.isDefaultFlow()) {
@@ -840,6 +856,7 @@ public abstract class YTask extends YExternalNetElement {
 
     private void doAndSplit(YIdentifier tokenToSend) throws YPersistenceException {
         List<YExternalNetElement> postset = getPostsetElements();
+
         for (Iterator iterator = postset.iterator(); iterator.hasNext();) {
             YCondition condition = (YCondition) iterator.next();
             if (tokenToSend == null) {
@@ -856,6 +873,8 @@ public abstract class YTask extends YExternalNetElement {
             return false;
         }
         List<YExternalNetElement> preset = getPresetElements();
+
+        
         YCondition[] conditions =
                 preset.toArray(new YCondition[preset.size()]);
         switch (_joinType) {
@@ -904,6 +923,35 @@ public abstract class YTask extends YExternalNetElement {
             copy._multiInstAttr = (YMultiInstanceAttributes) _multiInstAttr.clone();
             copy._multiInstAttr._myTask = copy;
         }
+        
+        copy.dataMappingsForTaskStartingSet = new HashMap<String, KeyValue>();
+        for( Map.Entry<String, KeyValue> entry : dataMappingsForTaskStartingSet.entrySet() ) {
+            copy.dataMappingsForTaskStartingSet.put(
+                    entry.getKey(),
+                    new KeyValue(
+                            entry.getValue().getType(),
+                            entry.getValue().getKey(),
+                            entry.getValue().getValue(),
+                            copy ) );
+        }
+        
+        copy.dataMappingsForTaskEnablementSet = new HashMap<String, KeyValue>();
+        for( Map.Entry<String, KeyValue> entry : dataMappingsForTaskEnablementSet.entrySet() ) {
+            copy.dataMappingsForTaskEnablementSet.put(
+                    entry.getKey(),
+                    new KeyValue(
+                            entry.getValue().getType(),
+                            entry.getValue().getKey(),
+                            entry.getValue().getValue(),
+                            copy ) );
+        }
+        
+        copy.dataMappingsForTaskCompletionSet = new HashSet<KeyValue>();
+        for( KeyValue kv : dataMappingsForTaskCompletionSet ) {
+            copy.dataMappingsForTaskCompletionSet.add(
+                    new KeyValue( kv.getType(), kv.getKey(), kv.getValue(), copy ) );
+        }
+        
         return copy;
     }
     
@@ -979,7 +1027,7 @@ public abstract class YTask extends YExternalNetElement {
         return childCaseID;
     }
 
-
+    
     private void prepareDataForInstanceStarting(YIdentifier childInstanceID) throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException {
         if (null == getDecompositionPrototype()) {
             return;
@@ -1014,6 +1062,7 @@ public abstract class YTask extends YExternalNetElement {
         //todo replace with param info in task metadata
         addXMLAttributes(getDecompositionPrototype().getAttributes(), dataForChildCase);
 
+        /* Need to restore this somehow */
         _caseToDataMap.put(childInstanceID, dataForChildCase);
     }
 
@@ -1183,7 +1232,25 @@ public abstract class YTask extends YExternalNetElement {
 
     @Transient
     public Element getData(YIdentifier childInstanceID) {
-        return (Element) _caseToDataMap.get(childInstanceID);
+       Element e = (Element) _caseToDataMap.get(childInstanceID);
+       
+       /*
+        * This should only occur after restoring a fired identifier
+        * */
+       try {
+    	   if (e == null) {      
+    		   prepareDataForInstanceStarting(childInstanceID);
+    		   e = (Element) _caseToDataMap.get(childInstanceID);
+    	   }
+       } catch (Exception ex) {
+    	   ex.printStackTrace();
+           LOG.error("Failure in preparing data in task [" +
+                   getName() != null ? getName() : getID() +
+                   "]");
+
+    	   e = null;
+       }
+       return e;
     }
 
 
@@ -1202,24 +1269,36 @@ public abstract class YTask extends YExternalNetElement {
         }
     }
 
-    @Transient
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     public YInternalCondition getMIActive() {
         return _mi_active;
     }
 
-    @Transient
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     public YInternalCondition getMIEntered() {
         return _mi_entered;
     }
 
-    @Transient
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     public YInternalCondition getMIComplete() {
         return _mi_complete;
     }
 
-    @Transient
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     public YInternalCondition getMIExecuting() {
         return _mi_executing;
+    }
+    public void setMIExecuting(YInternalCondition condition) {
+        _mi_executing = condition;
+    }
+    public void setMIActive(YInternalCondition condition) {
+        _mi_active = condition;
+    }
+    public void setMIEntered(YInternalCondition condition) {
+        _mi_entered = condition;
+    }
+    public void setMIComplete(YInternalCondition condition) {
+        _mi_complete = condition;
     }
 
     /**
@@ -1457,16 +1536,17 @@ public abstract class YTask extends YExternalNetElement {
         return expression;
     }
 
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.PERSIST})
     @OnDelete(action=OnDeleteAction.CASCADE)
     public YDecomposition getDecompositionPrototype() {
     	return _decompositionPrototype;    	
     }
 
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.PERSIST})
     @OnDelete(action=OnDeleteAction.CASCADE)
     public void setDecompositionPrototype(YDecomposition decomposition) {
     	_decompositionPrototype = decomposition;
+    	prepareDataDocsForTaskOutput();
         /**
          * AJH: Check if this task is to perform outbound schema validation. This is currently configured
          *      via the tasks UI MetaData.
@@ -1545,14 +1625,14 @@ public abstract class YTask extends YExternalNetElement {
                 result.append( getDecompositionPrototype().getId() );
 				result.append( "</decompositionID>" );
 
-				System.out.println( _decompositionPrototype.getAttributes().keySet() );
+				//System.out.println( _decompositionPrototype.getAttributes().keySet() );
 
 				for( Iterator atts = _decompositionPrototype.getAttributes().keySet().iterator(); atts.hasNext(); ) {
 					result.append( "<attributes>" );
 
 					String key = (String) atts.next();
 					String value = _decompositionPrototype.getAttributes().get( key );
-					System.out.println( key + " : " + value );
+					//System.out.println( key + " : " + value );
 					result.append( "<" + key + ">" + value + "</" + key + ">" );
 
 					result.append( "</attributes>" );
@@ -1877,5 +1957,27 @@ public abstract class YTask extends YExternalNetElement {
     @Transient
     public void setThreshold(String value) {
         this.getInitedMultiInstAttr().setThresholdHibernate(new Integer(value));
+    }
+    
+    @Lob
+    public String getGroupedMultiInstanceData()  {
+    	if (_groupedMultiInstanceOutputData!=null) {
+    		return new XMLOutputter().outputString(_groupedMultiInstanceOutputData);
+    	} return null;
+    }
+    
+    public void setGroupedMultiInstanceData(String xmlString) throws YPersistenceException {
+    	if (xmlString!=null) {
+    		SAXBuilder saxBuilder = new SAXBuilder();
+    		try {  	    	                       
+    			this._groupedMultiInstanceOutputData = saxBuilder.build(new InputSource(new StringReader(xmlString))); 
+    		} catch (JDOMException e) {
+    	        _groupedMultiInstanceOutputData = new Document();
+    	        _groupedMultiInstanceOutputData.setRootElement(
+    	                new Element(getDecompositionPrototype().getRootDataElementName()));  			
+    		} catch (IOException e) {
+    			throw new YPersistenceException("Error when restoring multi instance data - IO");
+    		}
+    	}
     }
 }

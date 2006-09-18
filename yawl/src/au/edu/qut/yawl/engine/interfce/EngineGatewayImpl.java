@@ -31,6 +31,7 @@ import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YAWLException;
@@ -53,7 +54,7 @@ public class EngineGatewayImpl implements EngineGateway {
 
     Logger logger = Logger.getLogger(EngineGatewayImpl.class);
 
-    private AbstractEngine _engine;
+    private YEngineInterface _engine;
     private UserList _userList;
     private boolean enginePersistenceFailure = false;
     private static final String OPEN_FAILURE = "<failure><reason>";
@@ -67,7 +68,12 @@ public class EngineGatewayImpl implements EngineGateway {
      */
     public EngineGatewayImpl(boolean persist) throws YPersistenceException {
 
-        _engine = EngineFactory.createYEngine(persist);
+        //
+    	if (persist) {
+    		_engine = EngineFactory.getTransactionalEngine();
+    	} else {
+    		_engine = EngineFactory.createYEngine(persist);
+    	}
         _userList = UserList.getInstance();
     }
 

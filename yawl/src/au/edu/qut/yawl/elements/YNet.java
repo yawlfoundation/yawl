@@ -181,7 +181,7 @@ public class YNet extends YDecomposition {
      *   class="au.edu.qut.yawl.elements.YExternalNetElement"
      */
     @OneToMany(mappedBy="parent", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    //@OnDelete(action=OnDeleteAction.CASCADE)
     public List<YExternalNetElement> getNetElements() {
         return _netElements;
     }
@@ -190,7 +190,7 @@ public class YNet extends YDecomposition {
      * @param list
      */
     @OneToMany(mappedBy="parent", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    //@OnDelete(action=OnDeleteAction.CASCADE)
     public void setNetElements(List<YExternalNetElement> list) {
     	_netElements = list;
     }
@@ -346,6 +346,7 @@ public class YNet extends YDecomposition {
     @Override
     public Object clone() {
         try {
+        	
             _clone = (YNet) super.clone();
             _clone._netElements = new ArrayList<YExternalNetElement>();
 
@@ -563,7 +564,7 @@ public class YNet extends YDecomposition {
         if (null != variable.getName()) {
             _localVariables.add(variable);
         } else if (null != variable.getElementName()) {
-            _localVariables.add(variable);
+            _localVariables.add(variable);            
         }
     }
 
@@ -742,7 +743,7 @@ public class YNet extends YDecomposition {
         return retval;
     }
     
-    @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="variable_type='variable'")
     public List<YVariable> getLocalVariables() {
@@ -750,7 +751,7 @@ public class YNet extends YDecomposition {
         return _localVariables;
     }
 
-    @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="variable_type='variable'")
     protected void setLocalVariables(List<YVariable> outputParam) {

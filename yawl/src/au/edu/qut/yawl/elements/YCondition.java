@@ -11,10 +11,17 @@ package au.edu.qut.yawl.elements;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+
 import javax.persistence.Transient;
+
+import javax.persistence.ManyToMany;
+
+
 
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.elements.state.YIdentifierBag;
@@ -57,6 +64,7 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
      */
     protected YCondition() {
     	super();
+    	 _bag = new YIdentifierBag(this);
     }
 
     public YCondition(String id, String label, YNet container) {
@@ -112,9 +120,17 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
     }
 
     // FIXME
-    @Transient
+    //@Transient
+    @ManyToMany(cascade={CascadeType.ALL},targetEntity=YIdentifier.class)
+    //@OnDelete(action=OnDeleteAction.CASCADE)
     public List getIdentifiers() {
         return _bag.getIdentifiers();
+    }
+    public void setIdentifiers(List ids) throws YPersistenceException {
+    	removeAll();
+    		for (int i = 0; i < ids.size();i++) {
+    			_bag.addIdentifier((YIdentifier) ids.get(i));
+    		}
     }
 
     @Transient

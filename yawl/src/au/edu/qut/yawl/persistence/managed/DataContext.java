@@ -26,6 +26,7 @@ import au.edu.qut.yawl.elements.Parented;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
@@ -175,8 +176,9 @@ public class DataContext {
     private DataProxy handleRetrievedObject( Object object, DataProxy parentProxy,
     		DataProxyStateChangeListener listener ) {
     	if( object != null && getDataProxy( object ) == null ) {
-    		if( object instanceof YSpecification) {
-                RemoveNetConditionsOperation.removeConditions( (YSpecification) object );
+    		/*if( object instanceof YSpecification) {
+                //WHAT IS THIS HERE FOR?????? - Should be moved to the client/editor
+    			//RemoveNetConditionsOperation.removeConditions( (YSpecification) object );
                 VisitSpecificationOperation.visitSpecification(
                         (YSpecification) object, getData( parentProxy ),
                         new Visitor() {
@@ -199,12 +201,15 @@ public class DataContext {
                                 childProxy.setLabel(childLabel);
                             }
                         });
-        	}
-    		else {
-    			DataProxy proxy = createProxy( object, listener );
-    			attachProxy( proxy, object, parentProxy );
-    		}
+        	}*/
+    		//else {
+    			
+    		//}
+    		
+    		DataProxy proxy = createProxy( object, listener );
+			attachProxy( proxy, object, parentProxy );
     	}
+    	
     	return getDataProxy( object );
     }
     
@@ -212,11 +217,11 @@ public class DataContext {
      * Tells the DAO to save the object that the proxy is a proxy for,
      * if the proxy is in the context.
 	 */
-    public void save(DataProxy dataProxy) {
+    public void save(DataProxy dataProxy) throws YPersistenceException {
     	Object object = getData( dataProxy );
-		System.out.println("saving " + object );
+		//System.out.println("saving " + object );
 		if( object == null ) {
-			throw new RuntimeException( "Cannot persist null as an object!" );
+			throw new YPersistenceException("Cannot persist null as an object!" );
 		}
         dao.save( object );
     }

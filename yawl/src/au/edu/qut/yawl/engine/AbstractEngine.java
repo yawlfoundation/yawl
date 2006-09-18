@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -67,6 +68,7 @@ import au.edu.qut.yawl.util.YDocumentCleaner;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
+import org.springframework.transaction.annotation.Transactional;;
 /**
  *
  * @author Lachlan Aldred
@@ -92,7 +94,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     private InterfaceBClientObserver _interfaceBClient;
     protected ObserverGatewayController observerGatewayController;
     protected static YawlLogServletInterface yawllog;
-    protected static UserList _userList;
+    protected static UserList _userList = UserList.getInstance();
 
     protected static InterfaceX_EngineSideClient _exceptionObserver = null ;
     /*************************************************/
@@ -100,7 +102,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     /**
      * *********************************************
      */
-//    protected static boolean journalising;
+    protected static boolean journalising;
 //    protected static boolean restoring;
     protected static int maxcase = 0;
 //    protected static SessionFactory factory = null;
@@ -123,7 +125,60 @@ public abstract class AbstractEngine implements InterfaceADesign,
          * Currently the only standard gateway is the HTTP driven Servlet client.
          */
         ObserverGateway stdHttpObserverGateway = new InterfaceB_EngineBasedClient();
-        observerGatewayController.addGateway(stdHttpObserverGateway);
+        observerGatewayController.addGateway(stdHttpObserverGateway);     
+    }
+    
+    public void restore() throws YPersistenceException {
+        getDataContext();
+        if (context!=null) {
+        	
+        	List services = context.retrieveAll(YAWLServiceReference.class, null);
+        	for (int i = 0; i < services.size();i++) {
+        		YAWLServiceReference service = (YAWLServiceReference) ((DataProxy) services.get(i)).getData();
+        		System.out.println("RESTORING Service " + service.getURI());
+    			addYawlService(service);
+        	}        	
+        	
+        	List specs = context.retrieveAll(YSpecification.class, null);
+        	for (int i = 0; i < specs.size();i++) {
+        		YSpecification spec = (YSpecification) ((DataProxy) specs.get(i)).getData();
+        		System.out.println("RESTORING SPEC " + spec.getID());
+    			loadSpecification(spec);
+        	}			      	
+        	
+        	List runners = context.retrieveAll(YNetRunner.class, null);    	
+        	for (int i = 0; i < runners.size();i++) {
+        		YNetRunner r = (YNetRunner) ((DataProxy) runners.get(i)).getData();
+        		System.out.println("RESTORING RUNNER" + r.getNet().getParent().getID());
+    			
+       		
+        		/*
+        		 * Ensure that the net (decomposition) has the 
+        		 * updated data
+        		 * */
+        		r.getNet().rebuildData();
+    			
+        		YIdentifier yid = r.getCaseID();
+    			YIdentifier.saveIdentifier(yid,null,null);
+        		
+        		restoreRunner(r,r.getNet().getParent().getID());
+ 		
+
+        	}
+        	
+        	List workItems = context.retrieveAll(YWorkItem.class, null);
+        	for (int i = 0; i < workItems.size();i++) {
+        		YWorkItem item = (YWorkItem) ((DataProxy) workItems.get(i)).getData();
+        		System.out.println("RESTORING WORKITEM" + item.getIDString());
+        		item.addToRepository();
+        	}
+        	
+        	
+        } 
+    }
+    
+    protected void setPersistenceMethod(boolean arg) {
+        journalising = arg;
     }
     
     private static DataContext context;
@@ -134,12 +189,18 @@ public abstract class AbstractEngine implements InterfaceADesign,
     
     public static DataContext getDataContext() {
     	if( context == null ) {
-    		DAO mem = DAOFactory.getDAO( PersistenceType.MEMORY );
-    		context = new DataContext( mem );
+    		if (journalising) {
+    			DAO mem = DAOFactory.getDAO( PersistenceType.SPRING );    		
+    			context = new DataContext( mem );
+    		} else {
+    			DAO mem = DAOFactory.getDAO( PersistenceType.MEMORY );    		
+    			context = new DataContext( mem );    			
+    		}
     	}
     	return context;
     }
 
+    
     /**
      * Restore the engine state from perstistent storage.<P>
      *
@@ -610,6 +671,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
             return false;
     }
 
+
     public YIdentifier startCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YSchemaBuildingException, YDataStateException, YPersistenceException {
         SAXBuilder builder = new SAXBuilder();
         Element data = null;
@@ -658,6 +720,16 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                DaoFactory.createYDao().create(runner);
 //            }
 
+            /*
+             * REMOVE THIS...ONLY USED FOR UNIT TESTS
+             * 
+             * *//*
+            if (true) {
+
+            	YPersistenceException ypers = new YPersistenceException("test");
+            	throw ypers;
+            }*/
+            
             runner.continueIfPossible();
 
             // LOG CASE EVENT
@@ -679,10 +751,21 @@ public abstract class AbstractEngine implements InterfaceADesign,
         }
     }
 
+    public void restoreRunner(YNetRunner runner, String specID) {
+    	try {
+    		_caseIDToNetRunnerMap.put(runner.getCaseID(), runner);    	
+    		_runningCaseIDToSpecIDMap.put(runner.getCaseID(), specID);
+    		runner.start();
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    }
 
     protected void finishCase(YIdentifier caseIDForNet) throws YPersistenceException {
         logger.debug("--> finishCase: Case=" + caseIDForNet.getId());
 
+        YNetRunner runner = (YNetRunner) _caseIDToNetRunnerMap.get(caseIDForNet);
+        
         _caseIDToNetRunnerMap.remove(caseIDForNet);
         _runningCaseIDToSpecIDMap.remove(caseIDForNet);
         YEngine._workItemRepository.cancelNet(caseIDForNet);
@@ -692,7 +775,9 @@ public abstract class AbstractEngine implements InterfaceADesign,
         if (_interfaceBClient != null) {
             _interfaceBClient.removeCase(caseIDForNet.toString());
         }
+        
 
+        
         logger.debug("<-- finishCase");
     }
 
@@ -1168,7 +1253,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                    pmgr.startTransactionalSession();
 //                }
 
-                YNetRunner netRunner;
+                YNetRunner netRunner = null;
                 YWorkItem resultantItem = null;
                 if (workItem != null) {
                     if (workItem.getStatus() == YWorkItem.Status.Enabled) {
@@ -1216,6 +1301,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                     throw new YStateException("No such work item currently available.");
                 }
 
+               // YNetRunner.saveNetRunner(netRunner, null);
                 // COMMIT POINT
 //   TODO             if (journalising) {
 //                    pmgr.commit();
@@ -1315,6 +1401,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                                 Document d = builder.build(new StringReader(data));
                                 Document e = YDocumentCleaner.cleanDocument(d);
                                 doc = e;
+                                workItem.setStatusToComplete(force);
                                 boolean taskExited = netRunner.completeWorkItemInTask(workItem, workItem.getCaseID(), workItem.getTaskID(), e);
                                 if (taskExited) {
                                     //todo AJH:
@@ -1348,8 +1435,18 @@ public abstract class AbstractEngine implements InterfaceADesign,
                                 throw f;
                             }
                         }
-                        workItem.setStatusToComplete(force);
+                        /*
+                         * This method call is inserted purely for logging
+                         * purposes
+                         * */
                         workItem.completeData(doc);
+                        
+                        /*
+                         * Can't save the net runner here, because it could have been
+                         * deleted through cancel methods. 
+                         * */
+                        //YNetRunner.saveNetRunner(netRunner, null);
+                        
                     } else if (workItem.getStatus() == YWorkItem.Status.Deadlocked) {
                         YEngine._workItemRepository.removeWorkItemFamily(workItem);
                     } else {
@@ -1513,6 +1610,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     }
 
    //added method
+    @Deprecated
     public YWorkItem suspendWorkItem(String workItemID) throws YStateException, YPersistenceException {
 
         YWorkItem workItem = YEngine._workItemRepository.getWorkItem(workItemID);
@@ -1521,6 +1619,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 workItem.setStatusToSuspended();  //added
             }
         }
+                
         return workItem ;
     }
 
@@ -1562,6 +1661,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
                         throw new YStateException("Work Item[" + workItemID +
                                 "] is not in executing state.");
                     }
+                    YNetRunner.saveNetRunner( netRunner, null );
+
                 }
 //   TODO             if (pmgr != null) {
 //                    pmgr.commit();
@@ -1603,6 +1704,9 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //  TODO          if (isJournalising()) {
 //                pmgr.commit();
 //            }
+            } catch (YPersistenceException e) {
+            	System.out.println("Abrakadabra");
+            	throw e;
             } catch (Exception e) {
             	StringWriter sw = new StringWriter();
         		sw.write( e.toString() + "\n" );
@@ -2009,7 +2113,15 @@ public abstract class AbstractEngine implements InterfaceADesign,
     /***************************************************************************/
     /** Required methods to enable exception handling service (MJA 04-07/2006) */
     /***************************************************************************/
-
+    /*
+     * Right now this method is only used in testing, to insert a mock
+     * interfaceX client
+     **/
+    public boolean setExceptionObserver(InterfaceX_EngineSideClient ix) {
+    	_exceptionObserver = ix;
+    	return true;
+    }
+    
     public boolean setExceptionObserver(String observerURI){
         _exceptionObserver = new InterfaceX_EngineSideClient(observerURI);
         return (_exceptionObserver != null) ;

@@ -26,6 +26,7 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.exception.ConstraintViolationException;
 
 import au.edu.qut.yawl.elements.KeyValue;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
@@ -43,12 +44,14 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.events.Event;
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
@@ -63,6 +66,7 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	private static Session session;
 	private static Class[] classes = new Class[] {
 						KeyValue.class,
+						YInternalCondition.class,
 						YFlow.class,
 						YMultiInstanceAttributes.class,
 						YCompositeTask.class,
@@ -83,23 +87,26 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 						YSpecification.class,
 						YNetRunner.class,
 						YWorkItem.class,
+						YWorkItemID.class,
 						YIdentifier.class,
 						Event.class
 				};
 	
-	private static void initializeSessions() {
-		if ( sessionFactory != null ) sessionFactory.close();
+	private synchronized static void initializeSessions() {
+		//if ( sessionFactory != null ) sessionFactory.close();
 		try {
 			AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
-	        .setProperty(Environment.SHOW_SQL, "false")
-	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
-	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
-	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
-	        .setProperty(Environment.USER, "capsela")
-			.setProperty(Environment.PASS, "capsela")
-//			.setProperty(Environment.HBM2DDL_AUTO, "create")
+//	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
+//	        .setProperty(Environment.SHOW_SQL, "false")
+//	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
+//	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
+//	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
+//	        .setProperty(Environment.USER, "capsela")
+//	        .setProperty(Environment.PASS, "capsela")
+
+			.setProperty(Environment.HBM2DDL_AUTO, "create")
 //			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
+//			.setProperty(Environment.HBM2DDL_AUTO, "update")
 			;
 			cfg = config;
 	        
@@ -115,12 +122,15 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	}
 	
 	private Session openSession() throws HibernateException {
-		if (session == null) {
+		if (sessionFactory==null) {
 			initializeSessions();
+		} if (session==null) {
+			session = sessionFactory.openSession();
 		}
+		
 		return session;
 	}
-	
+
 	public DelegatedHibernateDAO() {
 		addType( YSpecification.class, new SpecificationHibernateDAO() );
 		addType( YNetRunner.class, new NetRunnerHibernateDAO() );
@@ -153,6 +163,8 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 //				}
 				session.delete( persistedObject );
 				tx.commit();
+				//session.close();
+
 				return true;
 			}
 			catch( ObjectDeletedException ode ) {
@@ -191,10 +203,11 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 				Transaction tx = session.beginTransaction();
 				retval = (Type) session.get( type, (Serializable) key );
 				tx.commit();
+				//session.close();
 				return retval;
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 				LOG.error( e );
 				try {
 					if( session != null && session.isOpen() ) {
@@ -234,6 +247,8 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	            Set set = new HashSet( tmp );
 				List<Type> retval = new ArrayList<Type>( set );
 				tx.commit();
+				//session.close();
+
 				return retval;
 			}
 			catch (Exception e) {
@@ -265,21 +280,28 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 			try {
 				preSave( object );
 				Transaction tx;
-
-
 				session = openSession();
 				tx = session.beginTransaction();
 				session.saveOrUpdate( object );
 				LOG.debug( "Persisting " + getKey( object ) );
 				tx.commit();
+				//session.close();
 			}
 			catch( HibernateException e2 ) {
-				LOG.error( e2 );
-				e2.printStackTrace();
+				// Should be thrown
+				LOG.error( (Throwable) e2 );
+				//if (e2 instanceof ConstraintViolationException) {
+					e2.printStackTrace();
+				//}
+				try {
+					Thread.sleep(100000);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			catch( Exception e ) {
 				LOG.error( e );
-				e.printStackTrace();
+				//e.printStackTrace();
 				try {
 					if( session != null && session.isOpen() ) {
 						if( session.isConnected() ) session.connection().rollback();

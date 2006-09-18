@@ -123,11 +123,13 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     	super.setID(id);
     }
     
-    @ManyToOne(cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    @ManyToOne//(cascade = {CascadeType.ALL})
+    //@OnDelete(action=OnDeleteAction.CASCADE)
+    //@Transient
     public YNet getParent() {return _net;}
-    @ManyToOne(cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    @ManyToOne//(cascade = {CascadeType.ALL})
+    //@OnDelete(action=OnDeleteAction.CASCADE)
+    //@Transient
     public void setParent(YNet net) {_net = net;}
 
     /**
@@ -375,7 +377,9 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
 
 
     public Object clone() throws CloneNotSupportedException {
+    	
         YExternalNetElement copy = (YExternalNetElement) super.clone();
+        copy.setDbID(null);
         copy._net = _net.getCloneContainer();
         copy._net.addNetElement(copy);/* it may appear more natural to add the cloned
         net element into the cloned net in the net class, but when cloning a task with a remove
@@ -493,34 +497,35 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     }
 
 //    @Transient
-    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
+    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     public Collection<YFlow> getPostsetFlows() {
         return _postsetFlows;
     }
 
 //    @Transient
-    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    //@OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
+    //@OnDelete(action=OnDeleteAction.CASCADE)
     public void setPostsetFlows(Collection<YFlow> flows) {
     	this._postsetFlows = flows;
+
 //    	for (YFlow flow: flows) {
 //    		flow.setPriorElement(this);
 //    	}
-//    	_postsetFlows.clear();
+
 //    	_postsetFlows.addAll(flows);
     }
 
 //    @Transient
-    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
+    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     public Collection<YFlow> getPresetFlows() {
         return _presetFlows;
     }
 
 //   @Transient
-    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    //@OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
+    //@OnDelete(action=OnDeleteAction.CASCADE)
     public void setPresetFlows(Collection<YFlow> flows) {
     	_presetFlows = flows;
     }

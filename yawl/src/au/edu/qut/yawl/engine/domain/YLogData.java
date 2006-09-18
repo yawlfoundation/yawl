@@ -12,6 +12,7 @@ package au.edu.qut.yawl.engine.domain;
 import java.io.Serializable;
 
 import javax.persistence.Basic;
+import javax.persistence.Lob;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -69,7 +70,7 @@ public class YLogData implements Serializable {
         this.value = value;
     }
 
-    @Basic
+    @Lob
     public String getValue() {
         return this.value;
     }

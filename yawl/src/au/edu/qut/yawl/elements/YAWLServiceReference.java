@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
@@ -60,7 +61,7 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
     public YAWLServiceReference() {
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     public YAWLServiceGateway getYawlServiceGateway() {
     	return _webServiceGateway;
     }
@@ -138,9 +139,9 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
             service.setDocumentation(docStr);
             return service;
         } catch (JDOMException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return null;
     }
@@ -182,5 +183,16 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
         {
             return null;
         }
+    }
+    
+    public boolean equals(Object o) {
+    	if (!(o instanceof YAWLServiceReference)) {
+    		return false;
+    	}
+    	YAWLServiceReference check = (YAWLServiceReference) o;
+    	if (check.getURI().equals(getURI())) {
+    		return true;
+    	}
+    	return false;
     }
 }

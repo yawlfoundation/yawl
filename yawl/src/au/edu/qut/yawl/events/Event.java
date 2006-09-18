@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class Event {
+public class Event implements Serializable {
 	@Basic
 	private Serializable data;
 	@Id

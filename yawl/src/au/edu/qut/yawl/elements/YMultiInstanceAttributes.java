@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.persistence.Basic;
+import javax.persistence.FetchType;
+import javax.persistence.Lob;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,10 +24,15 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
+import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 
 import au.edu.qut.yawl.util.YVerificationMessage;
+import au.edu.qut.yawl.engine.YEngine;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YStateException;
 
 /**
  * 
@@ -48,6 +55,8 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
 	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
 	 */
 	private static final long serialVersionUID = 2006030080l;
+	
+    private static Logger logger = Logger.getLogger(YMultiInstanceAttributes.class);
 	
     public final static String _creationModeDynamic = "dynamic";
     public final static String _creationModeStatic = "static";
@@ -97,7 +106,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
     }
 
     @Transient
-    public int getMinInstances() {
+    public int getMinInstances()  {
         if (_minInstances != null) {
             return _minInstances.intValue();
         }
@@ -106,7 +115,13 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
             XPath xpath = XPath.newInstance(_minInstancesQuery);
             result = (Number) xpath.selectSingleNode(_myTask._net.getInternalDataDocument());
         } catch (JDOMException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            /*
+             * TODO Tore: Syntax error messages (JDOMExceptions) should be thrown???
+             * Right now assuming that when an error occurs, we default to one
+             * */
+        	result = 1;
+        	logger.debug(e.getMessage());
         } catch (ClassCastException e) {
             throw new RuntimeException("The minInstances query at " + _myTask
                     + " didn't produce numerical output as excepted.");
@@ -140,7 +155,13 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
             XPath xpath = XPath.newInstance(_maxInstancesQuery);
             result = (Number) xpath.selectSingleNode(_myTask._net.getInternalDataDocument());
         } catch (JDOMException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            /*
+             * TODO Tore: Syntax error messages (JDOMExceptions) should be thrown???
+             * Right now assuming that when an error occurs, we default to one
+             * */
+        	result = 1;
+        	logger.debug(e.getMessage());
         } catch (ClassCastException e) {
             throw new RuntimeException("The maxInstances query at " + _myTask
                     + " didn't produce numerical output as excepted.");
@@ -175,7 +196,13 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
             XPath xpath = XPath.newInstance(_thresholdQuery);
             result = (Number) xpath.selectSingleNode(_myTask._net.getInternalDataDocument());
         } catch (JDOMException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            /*
+             * TODO Tore: Syntax error messages (JDOMExceptions) should be thrown???
+             * Right now assuming that when an error occurs, we default to one
+             * */
+        	result = 1;
+        	logger.debug(e.getMessage());
         } catch (ClassCastException e) {
             throw new RuntimeException("The threshold query at " + _myTask
                     + " didn't produce numerical output as excepted.");
@@ -257,6 +284,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
      * @return
      * @hibernate.property column="MI_SPLITTING_QUERY"
      */
+    @Lob
     @Column(name="splitting_query")
     public String getMISplittingQuery() {
         return _inputSplittingQuery;
@@ -274,7 +302,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
      * 
      * @return
      * @hibernate.property column="MI_FORMAL_INPUT_PARAM"
-     */
+     */    
     @Column(name="formal_input_param")
     public String getMIFormalInputParam() {
         return _inputVarName;
@@ -289,6 +317,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
      * @return
      * @hibernate.property column="MI_FORMAL_OUTPUT_QUERY"
      */
+    @Lob
     @Column(name="formal_output_query")
     public String getMIFormalOutputQuery() {
         return _remoteOutputQuery;
@@ -303,6 +332,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
      * @return
      * @hibernate.property column="MI_JOINING_QUERY"
      */
+    @Lob
     @Column(name="joining_query")
     public String getMIJoiningQuery() {
         return _outputProcessingQuery;
@@ -394,7 +424,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
     }
 
 
-	@Basic
+	@Lob
 	public void setMaxInstancesQuery(String instancesQuery) {
 		_maxInstancesQuery = instancesQuery;
 	}
@@ -405,7 +435,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
 	}
 
 
-	@Basic
+	@Lob
 	public void setMinInstancesQuery(String instancesQuery) {
 		_minInstancesQuery = instancesQuery;
 	}
@@ -416,7 +446,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
 	}
 
 
-	@Basic
+	@Lob
 	public void setThresholdQuery(String query) {
 		_thresholdQuery = query;
 	}

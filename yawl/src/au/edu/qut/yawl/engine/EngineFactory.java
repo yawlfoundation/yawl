@@ -9,6 +9,9 @@
 
 package au.edu.qut.yawl.engine;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 /**
@@ -19,18 +22,60 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
  * @created Mar 14, 2006
  */
 public class EngineFactory {
-	
+	private static final String CONTEXT_CONFIG_LOCATION = "applicationContext.xml"; // TODO context config file location
+	private static ApplicationContext application_context = null;
+
+
 	private static YEngine engine;
+	
+	/*
+	 * Store the transactional version of the engine as well
+	 * This is used by the EngineGatewayImpl class
+	 * */
+	private static YEngineInterface transactionalengine;
+
+	public static YEngineInterface getTransactionalEngine() {
+		createYEngine(true);
+		if (transactionalengine==null) {
+			return engine;
+		} 
+		return transactionalengine;
+		
+	}
 	
 	public EngineFactory() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 	
+	public static ApplicationContext getApplicationContext() {
+		return application_context;
+	}
+	public static void setApplicationContext(ApplicationContext context) {
+		application_context = context;
+	}
+	
 	public static YEngine createYEngine(boolean journalising) {
 		try {
-			if (engine == null) {
-				engine = YEngine.createInstance( journalising );
+			if (journalising) {
+				if (application_context==null) {
+					application_context = new ClassPathXmlApplicationContext(CONTEXT_CONFIG_LOCATION);
+				}
+				if (engine==null) {
+					/*
+					 * If this is a journalising engine
+					 * we need to use the spring framework and get the interceptor bean
+					 * to ensure transactionality
+					 * */
+					
+					transactionalengine = (YEngineInterface) application_context.getBean("EngineInterceptor2");
+					//engine = transactionalengine.getYEngine();
+					transactionalengine.setJournalising(journalising);
+					transactionalengine.initialise();
+					
+				} 
+			} else {
+				engine = YEngine.createInstance(journalising);
 			}
 			return engine;
 		}

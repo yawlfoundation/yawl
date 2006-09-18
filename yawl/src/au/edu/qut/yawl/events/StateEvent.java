@@ -19,6 +19,6 @@ public class StateEvent extends Event {
 
 	@Override
 	public String toString() {
-		return "\n\n-----------\n" + state + "\n----------\n";
+		return "";//"\n\n-----------\n" + state + "\n----------\n";
 	}
 }

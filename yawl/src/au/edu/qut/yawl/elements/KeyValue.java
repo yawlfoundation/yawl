@@ -2,7 +2,9 @@ package au.edu.qut.yawl.elements;
 
 import java.io.Serializable;
 
-import javax.persistence.Basic;
+
+import javax.persistence.FetchType;
+import javax.persistence.Lob;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -56,7 +58,7 @@ public class KeyValue implements Serializable, Parented<YTask>{
 	}
 
 
-	@Basic
+	@Lob
 	public String getValue() {
 		return value;
 	}
@@ -65,7 +67,7 @@ public class KeyValue implements Serializable, Parented<YTask>{
 		this.value = value;
 	}
 
-	@Basic
+	@Lob
 	public String getKey() {
 		return key;
 	}

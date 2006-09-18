@@ -26,7 +26,8 @@ import org.hibernate.MappingException;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Environment;
 import org.hibernate.classic.Session;
 
 import sun.misc.BASE64Encoder;
@@ -35,10 +36,16 @@ import au.edu.qut.yawl.admintool.model.HumanResourceRole;
 import au.edu.qut.yawl.admintool.model.Resource;
 import au.edu.qut.yawl.admintool.model.Role;
 import au.edu.qut.yawl.authentication.User;
+
+
+import au.edu.qut.yawl.elements.state.YIdentifier;
+
 import au.edu.qut.yawl.engine.domain.YLogIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemEvent;
+import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
+
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 
@@ -54,7 +61,7 @@ public class DatabaseGatewayImpl {
 
     private boolean persistenceOn = false;
 
-    private Configuration cfg = null;
+    private AnnotationConfiguration cfg = null;
 
     private static SessionFactory _factory = null;
     private MessageFormat binaryRelationFKMissingMsg =
@@ -62,7 +69,18 @@ public class DatabaseGatewayImpl {
                     "Database needs to contain a {0} [{1}] before you can connect it to a [{2}]");
     private static DatabaseGatewayImpl _self;
 
-
+	private static Class[] classes = new Class[] {
+		HumanResourceRole.class,
+		Resource.class,
+		HumanResource.class,
+		Role.class,
+		YWorkItem.class,
+		YWorkItemID.class,
+		YIdentifier.class,
+		YLogIdentifier.class,
+		YWorkItemEvent.class};
+	
+	
     private DatabaseGatewayImpl(boolean persistenceOn) throws HibernateException {
         this.persistenceOn = persistenceOn;
         initialise();
@@ -78,22 +96,15 @@ public class DatabaseGatewayImpl {
     public void initialise() throws HibernateException {
 
         if (persistenceOn) {
-
-            // Create the Hibernate config, do not create database, the engine does this.
-            try {
-                cfg = new Configuration();
-                //cfg.addClass(Capability.class);
-                //cfg.addClass(HResOccupiesPosition.class);
-                cfg.addClass(HumanResourceRole.class);
-                //cfg.addClass(OrgGroup.class);
-                //cfg.addClass(Position.class);
-                cfg.addClass(Resource.class);
-                //cfg.addClass(ResourceCapability.class);
-                cfg.addClass(Role.class);
-
-                cfg.addClass(YWorkItem.class);
-                cfg.addClass(YLogIdentifier.class);
-                cfg.addClass(YWorkItemEvent.class);
+            try {                
+                AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
+    			.setProperty(Environment.HBM2DDL_AUTO, "update")
+    			;
+                
+                cfg = config; 
+    			for (int i=0; i<classes.length; i++) {
+    				cfg.addAnnotatedClass( classes[i] );
+    			}
 
                 _factory = cfg.buildSessionFactory();
 
@@ -203,7 +214,7 @@ public class DatabaseGatewayImpl {
 
     public Resource getResource(String resourceID) throws YPersistenceException {
         try {
-            Query query = createQuery("from " + Resource.class.getName() + " as resource where resource.id = '" + resourceID + "'");
+            Query query = createQuery("from " + Resource.class.getName() + " as resource where resource.rsrcID = '" + resourceID + "'");
             if (query != null) {
                 List resourceLst = query.list();
                 if (resourceLst.size() < 1) {
@@ -211,7 +222,7 @@ public class DatabaseGatewayImpl {
                 }
                 return (Resource) query.iterate().next();
             } else {
-                //  Get the user to the engine
+                //  Get the user from the engine
                 String sessionHandle = new String();
                 try {
                     sessionHandle = iaClient.connect("admin", "YAWL");
@@ -272,7 +283,7 @@ public class DatabaseGatewayImpl {
         try {
             Query roleQuery = createQuery(
                     "from " + HumanResourceRole.class.getName() + " as row where " +
-                    "row.HumanResource = '" + resourceID + "' and row.Role = '" + roleName + "'");
+                    "row.humanResource = '" + resourceID + "' and row.role = '" + roleName + "'");
             List roleLst = roleQuery.list();
             if (roleLst.size() < 1) {
                 return null;
@@ -286,7 +297,7 @@ public class DatabaseGatewayImpl {
     public Resource[] getResourcesPerformingRole(String role) throws YPersistenceException {
         String userids = "";
         try {
-            Query query = createQuery("from au.edu.qut.yawl.admintool.model.HumanResourceRole as hresrole where hresrole.Role = '" + role + "'");
+            Query query = createQuery("from au.edu.qut.yawl.admintool.model.HumanResourceRole as hresrole where hresrole.role = '" + role + "'");
 
             List resourcesinrole = query.list();
             if (resourcesinrole.size() < 1) {
@@ -309,7 +320,7 @@ public class DatabaseGatewayImpl {
         try {
             Query roleQuery = createQuery(
                     "from " + HumanResourceRole.class.getName() + " as hresrole where " +
-                    "hresrole.HumanResource = '" + resourceID + "'");
+                    "hresrole.humanResource = '" + resourceID + "'");
             List humanResourceRoleList = roleQuery.list();
             if (humanResourceRoleList.size() < 1) {
                 return null;
@@ -405,7 +416,7 @@ public class DatabaseGatewayImpl {
           Remove all old roles to human matches
           from eg.Cat as cat where cat.name='Fritz'
         */
-        String query = "from HumanResourceRole as hresrole where hresrole.HumanResource = '" + resourceID + "'";
+        String query = "from HumanResourceRole as hresrole where hresrole.humanResource = '" + resourceID + "'";
         doPersistAction(query, DELETE_OPERATION);
 
         if (resource == null) {
@@ -438,7 +449,7 @@ public class DatabaseGatewayImpl {
               Remove all old role to human matches
               from eg.Cat as cat where cat.name='Fritz'
             */
-            String query = "from HumanResourceRole as hresrole where hresrole.Role = '" + roleID + "'";
+            String query = "from HumanResourceRole as hresrole where hresrole.role = '" + roleID + "'";
             doPersistAction(query, DELETE_OPERATION);
 
             if (role == null) {

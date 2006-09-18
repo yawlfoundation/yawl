@@ -9,18 +9,34 @@
 
 package au.edu.qut.yawl.admintool.model;
 
+
+import javax.persistence.Column;
+
+import javax.persistence.Entity;
+import javax.persistence.Basic;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 /**
  * 
  * @author Lachlan Aldred
  * Date: 23/09/2005
  * Time: 14:19:19
  */
+@Entity
 public class Role {
     private String roleName;
 
+
+
+
+    
     public Role() {
     }
-
+    
+    @Id
+    @Basic
     public String getRoleName() {
         return roleName;
     }

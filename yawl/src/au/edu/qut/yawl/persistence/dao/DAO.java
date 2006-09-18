@@ -10,10 +10,11 @@ package au.edu.qut.yawl.persistence.dao;
 import java.util.List;
 
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 public interface DAO<Type> {
 	public Object getKey(Type object);
-	  public void save(Type object);
+	  public void save(Type object) throws YPersistenceException;
 	  public Type retrieve(Class type, Object key);
 	  public List<Type> retrieveByRestriction(Class type, Restriction restriction);
 	  public boolean delete(Type object);

@@ -20,6 +20,7 @@ import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -300,7 +301,9 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Parented<Y
 
 
     public Object clone() throws CloneNotSupportedException {
-        return (YVariable) super.clone();
+    	YVariable copy = (YVariable) super.clone();
+    	copy.setID(null);
+        return copy;
     }
 
 

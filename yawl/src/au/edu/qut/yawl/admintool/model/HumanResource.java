@@ -14,13 +14,26 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 
 import java.util.List;
 import java.util.ArrayList;
+import javax.persistence.Column;
 
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.Basic;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 /**
  * 
  * @author Lachlan Aldred
  * Date: 22/09/2005
  * Time: 16:23:34
  */
+@Entity
+@DiscriminatorValue("human")
 public class HumanResource extends Resource {
     private String surname;
     private String givenName;
@@ -38,6 +51,7 @@ public class HumanResource extends Resource {
         setIsOfResSerPosType("Resource");
     }
 
+    @Basic
     public String getSurname() {
         return surname;
     }
@@ -46,6 +60,7 @@ public class HumanResource extends Resource {
         this.surname = surname;
     }
 
+    @Basic
     public String getGivenName() {
         return givenName;
     }
@@ -54,6 +69,7 @@ public class HumanResource extends Resource {
         this.givenName = givenName;
     }
 
+    @Basic
     public String getPassword() {
         return password;
     }
@@ -67,6 +83,7 @@ public class HumanResource extends Resource {
         this.password2 = password2;
     }
 
+    @Basic
     public boolean getIsAdministrator() {
         return isAdministrator;
     }
