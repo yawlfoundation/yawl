@@ -11,8 +11,20 @@ package au.edu.qut.yawl.engine.domain;
 
 import java.util.Arrays;
 
-import au.edu.qut.yawl.elements.state.YIdentifier;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import javax.persistence.Basic;
+import javax.persistence.OneToOne;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 /**
  * 
  * @author Lachlan Aldred
@@ -20,12 +32,16 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
  * Time: 14:32:32
  * 
  */
+@Entity
 public class YWorkItemID {
     private static final char[] _uniqifier = UniqueIDGenerator.newAlphas();
     private char[] _uniqueID;
     private YIdentifier _caseID;
     private String _taskID;
 
+    public YWorkItemID() {
+    	
+    }
 
     public YWorkItemID(YIdentifier caseID, String taskID) {
         _uniqueID = (char[]) _uniqifier.clone();
@@ -38,17 +54,47 @@ public class YWorkItemID {
         return _caseID.toString() + ":" + _taskID;
     }
 
+    @OneToOne//(cascade={CascadeType.PERSIST})
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YIdentifier getCaseID() {
         return _caseID;
     }
 
+    public void setCaseID(YIdentifier id) {
+    	this._caseID = id;
+    }
+
+    @Basic
     public String getTaskID() {
         return _taskID;
     }
 
+    public void setTaskID(String taskid) {
+    	this._taskID = taskid;
+    }
+    
+    
+    @Column(name="identifier_id")
     public String getUniqueID() {
+    	if (getId()!=null) {
+    		return getId().toString();
+    	}
         return new String(_uniqueID);
     }
+    public void setUniqueID(String uqid) {
+    	this._uniqueID = uqid.toCharArray();
+    }
+    
+    private Long _id = null;  
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    public Long getId() {
+		return _id;
+	}
+    
+	public void setId( Long id ) {
+		_id = id;
+	}
 }
 
 class UniqueIDGenerator {

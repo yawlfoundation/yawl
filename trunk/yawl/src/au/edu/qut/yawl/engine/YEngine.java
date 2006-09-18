@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 
+
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
@@ -54,8 +55,11 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  *         Time: 13:46:54
  * ©  
  */
-public class YEngine extends AbstractEngine {
-    private static Logger logger = Logger.getLogger(YEngine.class);
+public class YEngine extends AbstractEngine implements YEngineInterface {
+	
+	
+	private static Logger logger = Logger.getLogger(YEngine.class);
+
 
     protected static YWorkItemRepository _workItemRepository;
     private static YEngine _myInstance;
@@ -69,11 +73,22 @@ public class YEngine extends AbstractEngine {
     /**
      * *********************************************
      */
-    private static boolean journalising;
+    private static boolean journalising = true;
     private static boolean restoring;
     private static int maxcase = 0;
 // TODO   private static SessionFactory factory = null;
 
+    /*
+     * May seem strange. But this is used by the
+     * engine factory to get the YEngine of a transactional
+     * engine created through the spring framework
+     * This engine is then accessed by most classes
+     * except the engineGatewayImpl
+     * */
+    public YEngine getYEngine() {
+    	return this;
+    }
+    
     /**
      * AJH: Switch indicating if we generate user interface attributes with a tasks output XML doclet.
      */
@@ -84,7 +99,9 @@ public class YEngine extends AbstractEngine {
      */
     protected YEngine() {
         super();
+    	super.setPersistenceMethod(journalising);
         yawllog = YawlLogServletInterface.getInstance();
+
     }
 
 
@@ -503,89 +520,70 @@ public class YEngine extends AbstractEngine {
      * *********************************************
      */
 
+    public void initialise() throws YPersistenceException {
+    	_myInstance = this;
+   		
+    	restore();
+
+        _userList = UserList.getInstance();
+        _workItemRepository = YWorkItemRepository.getInstance();
+
+
+        /***************************/
+        /**
+         * Delete and re-create the standard engine InterfaceB services
+         */
+        YAWLServiceReference ys;
+        Set s = _myInstance.getYAWLServices();
+        
+
+		if (s.size()==0) {
+			/*
+			 * If the set is empty, there are no services in the database
+			 * initialise the set of standard services
+			 * */
+			ys = new YAWLServiceReference(
+					"http://localhost:8080/yawlWSInvoker/", null);
+			ys.setDocumentation("This YAWL Service enables suitably declared"
+							+ " workflow tasks to invoke RPC style service on the Web.");
+			ys = new YAWLServiceReference(
+					"http://localhost:8080/workletService/ib", null);
+			ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
+			this.addYawlService(ys);
+			ys = new YAWLServiceReference(
+					"http://localhost:8080/yawlSMSInvoker/ib", null);
+			ys.setDocumentation("SMS Message Module. Works if you have an account.");
+			this.addYawlService(ys);
+			ys = new YAWLServiceReference(
+					"http://localhost:8080/timeService/ib", null);
+			ys.setDocumentation("Time service, allows tasks to be a timeout task.");
+			this.addYawlService(ys);
+			// TODO standard services on startup should probably be dynamically loaded from a properties file
+			ys = new YAWLServiceReference(
+					"http://localhost:8080/NexusServiceInvoker/", null);
+			ys.setDocumentation("This service enables YAWL specifications to access"
+							+ " the Nexus Workflow services");
+			this.addYawlService(ys);
+		}            
+		/**
+         * Ensure we have an 'admin' user
+         */
+        try {
+            UserList.getInstance().addUser("admin", "YAWL", true);
+        } catch (YAuthenticationException e) {
+            // User already exists ??? Do nothing
+        }
+
+    }
 
     protected static YEngine createInstance(boolean journalising) throws YPersistenceException {
         if (_myInstance == null) {
             logger = Logger.getLogger("au.edu.qut.yawl.engine.YEngine");
             logger.debug("--> YEngine: Creating initial instance");
             _myInstance = new YEngine();
-            YEngine.setJournalising(journalising);
-            //todo TESTING
-//            _myInstance.setJournalising(false);
-
-            // Initialise the persistence layer
-//   TODO         factory = YPersistenceManager.initialise(journalising);
-            /***************************
-             START POSSIBLE RESTORATION PROCESS
-             */
-
-            _userList = UserList.getInstance();
-            _workItemRepository = YWorkItemRepository.getInstance();
-
-//  TODO          if (isJournalising()) {
-//                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
-//                try {
-//                    pmgr.setRestoring(true);
-//                    pmgr.startTransactionalSession();
-//                    _myInstance.restore(pmgr);
-//                    pmgr.commit();
-//                    pmgr.setRestoring(false);
-//                } catch (YPersistenceException e) {
-//                    logger.fatal("Failure to restart engine from persistence image", e);
-//                    throw new YPersistenceException("Failure to restart engine from persistence image");
-//                }
-//            }
-//            _userList = UserList.getInstance();
-//            _workItemRepository = YWorkItemRepository.getInstance();
-
-            /***************************/
-            /**
-             * Delete and re-create the standard engine InterfaceB services
-             */
-            YAWLServiceReference ys;
-
-            ys = new YAWLServiceReference("http://localhost:8080/yawlWSInvoker/", null);
-            ys.setDocumentation("This YAWL Service enables suitably declared" +
-                    " workflow tasks to invoke RPC style service on the Web.");
-            _myInstance.removeYawlService(ys.getURI());
-            _myInstance.addYawlService( ys );
-
-            ys = new YAWLServiceReference( "http://localhost:8080/workletService/ib", null );
-            ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
-            _myInstance.removeYawlService( ys.getURI() );
-            _myInstance.addYawlService( ys );
-
-            ys = new YAWLServiceReference( "http://localhost:8080/yawlSMSInvoker/ib", null );
-            ys.setDocumentation( "SMS Message Module. Works if you have an account." );
-            _myInstance.removeYawlService(ys.getURI());
-            _myInstance.addYawlService(ys);
-
-            ys = new YAWLServiceReference("http://localhost:8080/timeService/ib", null);
-            ys.setDocumentation("Time service, allows tasks to be a timeout task.");
-            _myInstance.removeYawlService(ys.getURI());
-            _myInstance.addYawlService(ys);
-
-            // TODO standard services on startup should probably be dynamically loaded from a properties file
-            ys = new YAWLServiceReference("http://localhost:8080/NexusServiceInvoker/", null);
-            ys.setDocumentation("This service enables YAWL specifications to access" +
-                    " the Nexus Workflow services");
-            _myInstance.removeYawlService(ys.getURI());
-            _myInstance.addYawlService(ys);
-
-
-
-
-
-
-            /**
-             * Ensure we have an 'admin' user
-             */
-            try {
-                UserList.getInstance().addUser("admin", "YAWL", true);
-            } catch (YAuthenticationException e) {
-                // User already exists ??? Do nothing
-            }
-        }
+            _myInstance.initialise();
+            
+        } 
         return _myInstance;
     }
 
@@ -954,7 +952,6 @@ public class YEngine extends AbstractEngine {
         }
     }
 
-
     public String launchCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException {
         /**
          * SYNC'D External interface
@@ -965,6 +962,31 @@ public class YEngine extends AbstractEngine {
     }
 
 
+    public void cancelCase(YIdentifier id) throws YPersistenceException {
+    /**
+     * SYNC'D External interface
+     */
+    	synchronized (mutex) {
+    		super.cancelCase(id);
+    	}
+	}
+
+	public boolean setExceptionObserver(InterfaceX_EngineSideClient ix) {
+		super.setExceptionObserver(ix);
+		return true;
+	}
+
+	public boolean setExceptionObserver(String observerURI){
+		_exceptionObserver = new InterfaceX_EngineSideClient(observerURI);
+		super.setExceptionObserver(_exceptionObserver);
+		return (_exceptionObserver != null) ;
+	}
+
+
+	public boolean removeExceptionObserver() {
+		super.removeExceptionObserver();
+		return true ;
+	}
 
 
     /**
@@ -1124,7 +1146,7 @@ public class YEngine extends AbstractEngine {
      *
      * @return if the engine if configured to store data in persistence.
      */
-    public static boolean isJournalising() {
+    public boolean isJournalising() {
         return journalising;
     }
 
@@ -1133,7 +1155,7 @@ public class YEngine extends AbstractEngine {
      *
      * @param arg
      */
-    private static void setJournalising(boolean arg) {
+    public void setJournalising(boolean arg) {
         journalising = arg;
     }
 
@@ -1147,10 +1169,6 @@ public class YEngine extends AbstractEngine {
         synchronized (mutex) {
             super.dump();
         }
-    }
-
-    public static YWorkItemRepository getWorkItemRepository() {
-        return _workItemRepository;
     }
 
 // TODO   private static SessionFactory getPMSessionFactory() {

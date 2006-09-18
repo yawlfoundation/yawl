@@ -104,7 +104,6 @@ public class YCompositeTask extends YTask {
                 id,
                 getData(id));
 
-        YNetRunner.saveNetRunner( netRunner, null );
         /*
           INSERTED FOR PERSISTANCE
          */
@@ -113,6 +112,8 @@ public class YCompositeTask extends YTask {
 
         netRunner.continueIfPossible();
         netRunner.start();
+
+        YNetRunner.saveNetRunner( netRunner, null );
     }
 
 
@@ -124,6 +125,7 @@ public class YCompositeTask extends YTask {
                 YIdentifier identifier = (YIdentifier) iter.next();
                 YNetRunner netRunner = _workItemRepository.getNetRunner(identifier);
                 if (netRunner != null) {
+                	super.cancel();
                     netRunner.cancel();
                 }
             }

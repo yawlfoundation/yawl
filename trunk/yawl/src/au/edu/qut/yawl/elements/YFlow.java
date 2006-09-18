@@ -19,6 +19,7 @@ import java.util.Vector;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,7 +35,8 @@ import org.jdom.output.XMLOutputter;
 import org.xml.sax.InputSource;
 
 import au.edu.qut.yawl.util.YVerificationMessage;
-
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 /**
  * 
  * @author Lachlan Aldred
@@ -94,11 +96,13 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
      *    class="au.edu.qut.yawl.elements.YExternalNetElement"
      */
     @ManyToOne
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YExternalNetElement getPriorElement() {
         return _priorElement;
     }
     
     @ManyToOne
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setPriorElement(YExternalNetElement element) {
     	_priorElement = element;
     }
@@ -115,6 +119,7 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
     	return retval;
     }
     
+    @Transient
     public void setParent(Object o) {}
     
 	/**
@@ -123,11 +128,13 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
      * @hibernate.many-to-one column="NET_ELEMENT_ID" class="au.edu.qut.yawl.elements.YExternalNetElement"
      */
     @ManyToOne
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YExternalNetElement getNextElement() {
     	return _nextElement;
     }
     
     @ManyToOne
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public void setNextElement(YExternalNetElement element) {
     	_nextElement = element;
     }
@@ -151,7 +158,7 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
      */
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    protected Long getID() {
+    public Long getID() {
 		return _id;
 	}
 
@@ -159,7 +166,7 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
 	 * Inserted for hibernate use only
 	 * @param id
 	 */
-    protected void setID( Long id ) {
+    public void setID( Long id ) {
 		_id = id;
 	}
 
@@ -237,8 +244,8 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
                 messages.add(new YVerificationMessage(caller, caller + " [error] null next element", YVerificationMessage.ERROR_STATUS));
             }
         } else if (_priorElement._net != _nextElement._net) {
-        	System.out.println("NETVIOL   :" + _priorElement._net + "-->" + _nextElement._net);
-        	System.out.println("NETVIOL-IN:" + _priorElement + "-->" + _nextElement);
+        	//System.out.println("NETVIOL   :" + _priorElement._net + "-->" + _nextElement._net);
+        	//System.out.println("NETVIOL-IN:" + _priorElement + "-->" + _nextElement);
             messages.add(new YVerificationMessage(caller, caller
                     + " any flow from any Element (" + _priorElement +
                     ") to any Element (" + _nextElement + ") " +
@@ -342,13 +349,13 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
         return messages;
     }
 
-
+/*
     public String toString() {
         String className = getClass().getName();
         return className.substring(className.lastIndexOf('.') + 2) +
                 ":from[" + _priorElement + "]to[" + _nextElement + "]";
     }
-
+*/
 
     public String toXML() {
         StringBuffer xml = new StringBuffer();

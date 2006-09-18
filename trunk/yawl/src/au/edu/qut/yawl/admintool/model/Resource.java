@@ -14,18 +14,38 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 
 import java.util.List;
 import java.util.ArrayList;
+import javax.persistence.Column;
 
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.Entity;
+import javax.persistence.Basic;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 /**
  * 
  * @author Lachlan Aldred
  * Date: 22/09/2005
  * Time: 15:21:12
  */
+@Entity
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(
+    name="resource_type",
+    discriminatorType=DiscriminatorType.STRING
+)
 public abstract class Resource implements YVerifiable {
     private String rsrcID;
     private String description;
     private String isOfResSerPosType;
 
+
+
+
+    
     public Resource(String rsrcID) {
         this.rsrcID = rsrcID;
 
@@ -33,7 +53,9 @@ public abstract class Resource implements YVerifiable {
 
     protected Resource() {
     }
-
+    
+    @Id
+    @Basic
     public String getRsrcID() {
         return rsrcID;
     }
@@ -42,6 +64,7 @@ public abstract class Resource implements YVerifiable {
         this.rsrcID = rsrcID;
     }
 
+    @Basic
     public String getDescription() {
         return description;
     }
@@ -62,6 +85,7 @@ public abstract class Resource implements YVerifiable {
         return results;
     }
 
+    @Basic
     public String getIsOfResSerPosType(){
         return isOfResSerPosType;
     }

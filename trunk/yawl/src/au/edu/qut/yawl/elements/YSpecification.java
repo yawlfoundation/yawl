@@ -40,6 +40,7 @@ import javax.persistence.Version;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Where;
 
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
@@ -120,16 +121,19 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
     public YSpecification(String specURI) {
         _specURI = specURI;
         _xmlToolsForYAWL = new XMLToolsForYAWL();
+        
     }
     
     @OneToMany(mappedBy="parent",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    //@OnDelete(action=OnDeleteAction.CASCADE)
+    @Where(clause="clone='false'")
     public void setDecompositions(List<YDecomposition> set) {
-		this._decompositions = set;
+    		this._decompositions = set;    	
 	}
 
     @OneToMany(mappedBy="parent",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    //@OnDelete(action=OnDeleteAction.CASCADE)
+    @Where(clause="clone='false'")
     public List<YDecomposition> getDecompositions() {
     	return _decompositions;
     }
@@ -168,13 +172,14 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
         return _betaVersion;
     }
 
-
     /**
      * Sets the version number of the specification.
      * @param version
      */
     public void setBetaVersion(String version) {
-        if (_Beta2.equals(version) ||
+        if (version!=null) {
+    	
+    	if (_Beta2.equals(version) ||
                 _Beta3.equals(version) ||
                 _Beta4.equals(version) ||
                 _Beta6.equals(version) ||
@@ -185,6 +190,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
         } else {
             throw new IllegalArgumentException("Param version [" +
                     version + "] is not allowed.");
+        }
         }
     }
 
@@ -621,7 +627,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
         return _xmlToolsForYAWL;
     }
 
-    @OneToOne(cascade={CascadeType.ALL})
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @JoinColumn(name="metadata_fk")
     public YMetaData getMetaData() {
         return _metaData;

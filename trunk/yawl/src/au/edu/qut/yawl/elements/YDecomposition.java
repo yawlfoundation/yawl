@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -93,6 +94,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
     protected YSpecification _specification;
     private String _name;
     private String _documentation;
+    private boolean _clone = false;
     /**
      * All accesses to this collection should be done through the getter, {@link #getInputParameters()}.
      * Adding to/removing from the collection should be done directly.
@@ -112,71 +114,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
     /*
   INSERTED FOR PERSISTANCE
  */
-    @ManyToOne(cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    public YSpecification getParent() {return _specification;}
-    @ManyToOne(cascade = {CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    public void setParent(YSpecification spec) {_specification = spec;}
-
-
-    private YCaseData casedata;
-
-    /**
-     * Method for hibernate only
-     */
-    @OneToOne(cascade={CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
-	protected YCaseData getCasedata() {
-		return casedata;
-	}
-
-	/**
-	 * Method for hibernate only
-	 * @param casedata
-	 */
-    @OneToOne(cascade={CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    protected void setCasedata( YCaseData casedata ) {
-		this.casedata = casedata;
-	}
-
-    /**********************************
-     Persistance MethodS
-     */
-    public void initializeDataStore(YCaseData casedata) throws YPersistenceException {
-        this.casedata = casedata;
-        this.casedata.setData(new XMLOutputter().outputString(_data));
-
-//todo AJH - External persistence !!!
-//        if (pmgr != null) {
-//            pmgr.storeObjectFromExternal(this.casedata);
-//        }
-//        DaoFactory.createYDao().create(this.casedata);
-//        YPersistance.getInstance().storeData(this.casedata);
-    }
-
-    public void restoreData(YCaseData casedata) {
-
-        this.casedata = casedata;
-        _data = getNetDataDocument(casedata.getData());
-    }
-
-    @Transient
-    public Document getNetDataDocument(String netData) {
-        SAXBuilder builder = new SAXBuilder();
-        Document document = null;
-        try {
-            document = builder.build(new StringReader(netData));
-            return document;
-        } catch (JDOMException je) {
-            je.printStackTrace();
-        } catch (java.io.IOException ioe) {
-            ioe.printStackTrace();
-        }
-        return document;
-    }
-
+    
     Long _dbid;
 
     @Id
@@ -200,7 +138,75 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
      */
     protected void setId(String id) {
     	_id = id;
+    	if (_specification!=null && !_data.hasRootElement()) {
+    		_data.setRootElement(new Element(getRootDataElementName()));
+    	}
     }
+    
+    @ManyToOne(cascade = {CascadeType.PERSIST})
+    //@OnDelete(action=OnDeleteAction.CASCADE)
+    public YSpecification getParent() {return _specification;}
+    @ManyToOne(cascade = {CascadeType.PERSIST})
+    //@OnDelete(action=OnDeleteAction.CASCADE)
+    public void setParent(YSpecification spec) {
+    	_specification = spec;
+    	if (_id!=null && !_data.hasRootElement()) {
+    		_data.setRootElement(new Element(getRootDataElementName()));
+    	}
+
+    }
+
+    private YCaseData casedata;
+
+        
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OnDelete(action=OnDeleteAction.CASCADE)
+	protected YCaseData getCasedata() {
+		return casedata;
+	}
+
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    protected void setCasedata( YCaseData casedata ) {
+		this.casedata = casedata;		
+	}
+
+    public void initializeDataStore(YCaseData casedata) throws YPersistenceException {
+        
+    	this.casedata = casedata;
+    	
+        this.casedata.setData(new XMLOutputter().outputString(_data));
+
+    }
+
+
+
+    /*
+     * Inserterted for persistence
+     * */
+    public void rebuildData() throws YPersistenceException {
+    	if (casedata!=null && casedata.getData()!=null) {			
+			_data = getNetDataDocument(casedata.getData());			
+		}
+    }
+    
+    
+    @Transient
+    public Document getNetDataDocument(String netData) {
+        SAXBuilder builder = new SAXBuilder();
+        Document document = null;
+        try {
+            document = builder.build(new StringReader(netData));
+            return document;
+        } catch (JDOMException je) {
+            je.printStackTrace();
+        } catch (java.io.IOException ioe) {
+            ioe.printStackTrace();
+        }
+        return document;
+    }
+
+
     
     public void setIdAndSpecification(String id, YSpecification specification) {
 
@@ -268,8 +274,10 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
         if (parameter.isInput()) {
             if (null != parameter.getName()) {
                 _inputParameters.add(parameter);
+                parameter.setParent(this);
             } else if (null != parameter.getElementName()) {
                 _inputParameters.add(parameter);
+                parameter.setParent(this);
             }
         } else {
             throw new RuntimeException("Can't set an output type param as an input param.");
@@ -350,12 +358,24 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
 
     public Object clone() throws CloneNotSupportedException {
         YDecomposition copy = (YDecomposition) super.clone();
+        copy.setClone(true);
+        copy.setDbID(null);
         copy._inputParameters = new ArrayList<YParameter>();
         Collection<YParameter> params = getInputParameters();
         for (YParameter parameter : params) {
             YParameter copyParam = (YParameter) parameter.clone();
             copy.setInputParam(copyParam);
         }
+        
+        copy._outputParameters = new ArrayList<YParameter>();
+        for( YParameter parameter : _outputParameters ) {
+            YParameter cloneParam = (YParameter) parameter.clone();
+            cloneParam.setParent( copy );
+            copy._outputParameters.add( cloneParam );
+        }
+
+        copy._attributes = new HashMap<String,String>( _attributes );
+
         return copy;
     }
     
@@ -365,6 +385,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
     
     protected YDecomposition deepClone( YDecomposition clone ) {
         try {
+        	clone.setClone(true);
             clone._attributes = new HashMap<String,String>( _attributes );
             
             if( _data != null ) {
@@ -395,6 +416,10 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
             
             clone._specification = null;
             
+            /*
+             * MAY be unessary...needs testing to eliminate for sure
+             * 
+             * */
             if( casedata != null ) {
                 clone.casedata = new YCaseData();
                 clone.casedata.setData( casedata.getData() );
@@ -441,7 +466,6 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
         Collections.sort(outputParamsList);
 
         for (YParameter parameter : outputParamsList) {
-            System.out.println("parameter.toXML() = " + parameter.toXML());
             String varElementName =
                     parameter.getName() != null ?
                             parameter.getName() : parameter.getElementName();
@@ -570,7 +594,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
 
     @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @Where(clause="DataTypeName='inputParam'")
+    @Where(clause="Direction='inputParam'")
     public List<YParameter> getInputParameters() {
 //    	List<YParameter> retval = new ArrayList<YParameter>();
 //    	for(YParameter entry:_inputParameters) {
@@ -582,7 +606,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
 	}
     @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @Where(clause="DataTypeName='inputParam'")
+    @Where(clause="Direction='inputParam'")
 	protected void setInputParameters(List<YParameter> inputParam) {
     	_inputParameters = inputParam;
 //    	for (YParameter parm: inputParam) {
@@ -593,7 +617,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
 
     @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @Where(clause="DataTypeName='outputParam'")
+    @Where(clause="Direction='outputParam'")
     public List<YParameter> getOutputParameters() {
     	Collections.sort(_outputParameters);
 //    	List<YParameter> retval = new ArrayList<YParameter>();
@@ -605,7 +629,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
 
     @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @Where(clause="DataTypeName='outputParam'")
+    @Where(clause="Direction='outputParam'")
 	protected void setOutputParameters(List<YParameter> outputParam) {
     	_outputParameters = outputParam;
 //    	for (YParameter parm: outputParam) {
@@ -669,6 +693,18 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
     public void setSkipOutboundSchemaChecks(boolean skipSchemaCheck) {
         _outBoundSchemaChecking = skipSchemaCheck;
     }
+
+    @Basic
+	public boolean getClone() {
+		return _clone;
+	}
+
+	public void setClone(boolean _clone) {
+		this._clone = _clone;
+	}
+    
+    
+    
 
 /*we shouldnt need these if the where clause works.    
     @OneToMany(mappedBy="parent", cascade = {CascadeType.ALL})

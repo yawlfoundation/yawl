@@ -19,16 +19,21 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -244,7 +249,7 @@ public class YWorkItem {
     }
     
     public static void saveWorkItem( YWorkItem item, YWorkItem parent,
-    		DataProxyStateChangeListener listener ) {
+    		DataProxyStateChangeListener listener ) throws YPersistenceException {
     	DataContext context = AbstractEngine.getDataContext();
     	DataProxy proxy = context.getDataProxy( item );
     	DataProxy parentProxy = null;
@@ -262,7 +267,7 @@ public class YWorkItem {
         context.save( proxy );
     }
     
-    public static void deleteWorkItem( YWorkItem item ) {
+    public static void deleteWorkItem( YWorkItem item ) throws YPersistenceException {
     	DataContext context = AbstractEngine.getDataContext();
     	DataProxy proxy = context.getDataProxy( item );
     	assert proxy != null : "attempting to delete a work item that isn't persisted!";
@@ -279,6 +284,7 @@ public class YWorkItem {
         if (this._parent == null) {
             YIdentifier parentCaseID = getWorkItemID().getCaseID();
             if (childCaseID.getParent() != parentCaseID) {
+            	System.out.println("childs parent: " + childCaseID.getParent() + " " + parentCaseID);
                 return null;
             }
             YWorkItem childItem = new YWorkItem(
@@ -302,6 +308,7 @@ public class YWorkItem {
             saveWorkItem( childItem, this, null );
             return childItem;
         }
+    	System.out.println("already has parent: " + _parent);
         return null;
     }
 
@@ -376,6 +383,7 @@ public class YWorkItem {
         DataProxy parentProxy = AbstractEngine.getDataContext().getParentProxy( proxy );
         AbstractEngine.getDataContext().delete( proxy );
         if( parentProxy != null && parentcomplete ) {
+        	
         	AbstractEngine.getDataContext().delete( parentProxy );
         }
 //	YPersistance.getInstance().removeData(this);
@@ -531,7 +539,8 @@ public class YWorkItem {
     //#################################################################################
     //                              accessors
     //#################################################################################
-    @Transient
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YWorkItemID getWorkItemID() {
         return _workItemID;
     }
@@ -665,8 +674,13 @@ public class YWorkItem {
     	_whoStartedMe = person;
     }
 
-    @Basic
+    
     public boolean allowsDynamicCreation() {
+        return _allowsDynamicCreation;
+    }
+    
+    @Basic
+    public boolean getAllowsDynamicCreation() {
         return _allowsDynamicCreation;
     }
     
@@ -755,6 +769,7 @@ public class YWorkItem {
 
     @Transient
     private String getUniqueID() {
+
         return _workItemID.getUniqueID();
     }
 

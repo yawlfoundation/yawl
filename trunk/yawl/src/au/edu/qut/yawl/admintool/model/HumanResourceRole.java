@@ -12,6 +12,15 @@ package au.edu.qut.yawl.admintool.model;
 import java.io.Serializable;
 import java.sql.Statement;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
@@ -22,13 +31,27 @@ import org.hibernate.classic.Session;
  * Date: 23/09/2005
  * Time: 14:46:43
  */
+@Entity
 public class HumanResourceRole implements Serializable {
     private Resource humanResource;
     private Role role;
 
+    private Long _dbid;
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @Column(name="roleid")
+    public Long getDbID() {
+    	return _dbid;
+    }
+
+    public void setDbID(Long id) {
+    	_dbid = id;
+    }
+    
     public HumanResourceRole() {
     }
 
+    @ManyToOne
     public Resource getHumanResource() {
         return humanResource;
     }
@@ -41,6 +64,7 @@ public class HumanResourceRole implements Serializable {
         }
     }
 
+    @ManyToOne(fetch = FetchType.EAGER)
     public Role getRole() {
         return role;
     }

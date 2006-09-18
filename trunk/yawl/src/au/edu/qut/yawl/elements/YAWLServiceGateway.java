@@ -22,9 +22,11 @@ import java.util.Vector;
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.OnDelete;
@@ -78,13 +80,13 @@ public class YAWLServiceGateway extends YDecomposition {
         _yawlServices = new HashSet();
     }
 
-    @OneToMany(mappedBy="decomposition", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy="decomposition", cascade=CascadeType.ALL, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="DataTypeName='enablementParam'")
     protected List<YParameter> getEnablementParameters() {
     	return enablementParam;
     }
-    @OneToMany(mappedBy="decomposition", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy="decomposition", cascade=CascadeType.ALL, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="DataTypeName='enablementParam'")
     protected void setEnablementParameters(List<YParameter> param) {
@@ -143,12 +145,8 @@ public class YAWLServiceGateway extends YDecomposition {
 	 * @hibernate.one-to-many 
 	 *   class="au.edu.qut.yawl.elements.YAWLServiceReference"
      */
-    @OneToMany
-    @JoinTable(
-    	name="YawlServices",
-        joinColumns = { @JoinColumn( name="decomp_id") },
-        inverseJoinColumns = @JoinColumn( name="yawlServiceID")
-    )
+
+    @ManyToMany
     protected Set<YAWLServiceReference> getYawlServices() {
     	return _yawlServices;
     }
@@ -156,9 +154,10 @@ public class YAWLServiceGateway extends YDecomposition {
      * Inserted for hibernate
      * @param yawlServices
      */
+    @ManyToMany
     protected void setYawlServices(Set<YAWLServiceReference> yawlServices) {
-    	_yawlServices.clear();
-    	_yawlServices.addAll(yawlServices);
+    	
+    	this._yawlServices.addAll(yawlServices);
     }
 
     @Transient
@@ -179,7 +178,7 @@ public class YAWLServiceGateway extends YDecomposition {
         return null;
     }
 
-
+    @Transient
     public void setYawlService(YAWLServiceReference yawlService) {
         if (yawlService != null) {
             _yawlServices.add(yawlService);

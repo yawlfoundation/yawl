@@ -18,13 +18,18 @@ import java.util.Vector;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
+import javax.persistence.CascadeType;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
 import org.hibernate.annotations.CollectionOfElements;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YConditionInterface;
@@ -59,7 +64,7 @@ public class YIdentifier implements Serializable {
     /*************************/
     /* INSERTED VARIABLES AND METHODS FOR PERSISTANCE* /
     /**************************/
-    private List<String> locationNames = new Vector<String> ();
+    //private List<String> locationNames = new Vector<String> ();
     private String id = null;
 
     /**
@@ -75,7 +80,7 @@ public class YIdentifier implements Serializable {
     public void setId(String id) {
         this.id = id;
     }
-
+/*
     @CollectionOfElements
     public List<String> getLocationNames() {
         return locationNames;
@@ -84,7 +89,7 @@ public class YIdentifier implements Serializable {
     public void setLocationNames(List<String> names) {
         this.locationNames = names;
     }
-    
+    */
     /************************************************/
 
     private List<YNetElement> _locations = new Vector<YNetElement>();
@@ -94,15 +99,16 @@ public class YIdentifier implements Serializable {
 
     public YIdentifier() {
 //    	 TODO This is bad style, primary key generation should be located elsewhere!!
-    	System.err.println( "FIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-ME" );
+    	//System.err.println( "FIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-ME" );
         id = YawlLogServletInterface.getInstance().getNextCaseId();
+  	
     }
 
     public YIdentifier(String idString) {
         id = idString;
     }
 
-    @OneToMany(mappedBy="parent")
+    @OneToMany(mappedBy="parent",cascade={CascadeType.REMOVE})
     public List<YIdentifier> getChildren() {
         return _children;
     }
@@ -127,7 +133,8 @@ public class YIdentifier implements Serializable {
     }
     
     public static void saveIdentifier( YIdentifier id, YIdentifier parent,
-    		DataProxyStateChangeListener listener ) {
+    		DataProxyStateChangeListener listener ) throws YPersistenceException {
+
     	DataContext context = AbstractEngine.getDataContext();
     	DataProxy proxy = context.getDataProxy( id );
     	DataProxy parentProxy = null;
@@ -208,11 +215,15 @@ public class YIdentifier implements Serializable {
     }
 
 
+    
     @ManyToOne
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public YIdentifier getParent() {
         return _parent;
     }
     
+    @ManyToOne
+    @OnDelete(action=OnDeleteAction.CASCADE)
     protected void setParent(YIdentifier parent) {
     	_parent = parent;
     }
@@ -237,15 +248,15 @@ public class YIdentifier implements Serializable {
 
         /*
           INSERTED FOR PERSISTANCE
-         */
+         
         if ((condition instanceof YCondition) && !(condition instanceof YInputCondition)) {
 
             this.locationNames.add(condition.toString().substring(condition.toString().indexOf(":") + 1, condition.toString().length()));
         } else {
             this.locationNames.add(condition.toString());
         }
-
-        saveIdentifier( this, null, null );
+*/
+        //saveIdentifier( this, null, null );
 //    YPersistance.getInstance().updateData(this);
 // TODO       if (pmgr != null) {
 //            pmgr.updateObjectExternal(this);
@@ -262,14 +273,14 @@ public class YIdentifier implements Serializable {
 
         /*
           INSERTED FOR PERSISTANCE
-         */
+         *//*
         if (condition instanceof YCondition && !(condition instanceof YInputCondition)) {
             this.locationNames.remove(condition.toString().substring(condition.toString().indexOf(":") + 1, condition.toString().length()));
         } else {
             this.locationNames.remove(condition.toString());
         }
-
-        saveIdentifier( this, null, null );
+*/
+        //saveIdentifier( this, null, null );
 //        YPersistance.getInstance().updateData(this);
 // TODO       if (pmgr != null) {
 //            pmgr.updateObjectExternal(this);
@@ -288,10 +299,10 @@ public class YIdentifier implements Serializable {
 
         /*
           INSERTED FOR PERSISTANCE
-         */
+         *//*
         this.locationNames.add(task.getID());
-
-        saveIdentifier( this, null, null );
+*/
+        //saveIdentifier( this, null, null );
 //        YPersistance.getInstance().updateData(this);
 //  TODO      if (pmgr != null) {
 //            pmgr.updateObjectExternal(this);
@@ -309,14 +320,19 @@ public class YIdentifier implements Serializable {
 
         /*
           INSERTED FOR PERSISTANCE
-         */
-        this.locationNames.remove(task.getID());
+         *//*
+        this.locationNames.remove(task.getID());*/
     }
 
     //FIXME do we persist locations or not? (Lachlan?)
     @Transient
+    //@OneToMany(cascade={CascadeType.ALL})
+    //@OnDelete(action=OnDeleteAction.CASCADE)
     public synchronized List<YNetElement> getLocations() {  // TODO Why is this synchronized?  -- DM
         return _locations;
+    }
+    public void setLocations(List<YNetElement> locs) {
+    	_locations = locs;
     }
 
     @Transient

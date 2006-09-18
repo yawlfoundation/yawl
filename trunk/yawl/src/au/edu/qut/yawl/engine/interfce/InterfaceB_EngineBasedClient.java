@@ -58,6 +58,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param workItem the work item to announce,
      */
     public void announceWorkItem(YAWLServiceReference yawlService, YWorkItem workItem) {
+
         Handler myHandler = new Handler(yawlService, workItem, ADDWORKITEM_CMD);
         myHandler.start();
     }

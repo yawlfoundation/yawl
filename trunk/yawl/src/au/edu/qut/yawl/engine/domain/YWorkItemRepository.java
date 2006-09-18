@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
+import au.edu.qut.yawl.engine.AbstractEngine;
 
 /**
  * 
@@ -103,6 +104,8 @@ public class YWorkItemRepository {
         Logger.getLogger(this.getClass()).debug("--> cancelAllWorkItemsInGroupOf: " + workItem.getIDString());
         _idStringToWorkItemsMap.remove(workItem.getIDString());
         //todo Question by Lachlan: add code to remove from DB here?
+       
+        
     }
 
 
@@ -208,7 +211,9 @@ public class YWorkItemRepository {
 
     private void removeItems(Set<String> itemsToRemove) {
         for (String workItemID : itemsToRemove) {
-            _idStringToWorkItemsMap.remove(workItemID);
+        	YWorkItem item = (YWorkItem)_idStringToWorkItemsMap.get(workItemID);
+        	_idStringToWorkItemsMap.remove(workItemID); 
+
         }
     }
 

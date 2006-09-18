@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 public abstract class AbstractDelegatedDAO implements DAO<Object> {
 	private Map<Class,DAO> typeMap = new ClassMap<DAO>();
@@ -29,7 +30,7 @@ public abstract class AbstractDelegatedDAO implements DAO<Object> {
 		return typeMap.get( object.getClass() ).getKey( object );
 	}
 	
-	public final void save( Object object ) {
+	public final void save( Object object ) throws YPersistenceException {
 		checkTypeSupported( object.getClass() );
 		typeMap.get( object.getClass() ).save( object );
 	}

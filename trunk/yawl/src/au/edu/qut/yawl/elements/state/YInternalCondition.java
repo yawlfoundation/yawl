@@ -14,15 +14,16 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
+import javax.persistence.FetchType;
+
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import au.edu.qut.yawl.elements.YConditionInterface;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.events.DispatcherFactory;
 import au.edu.qut.yawl.events.StateEvent;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YStateException;
@@ -48,7 +49,17 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
     private YIdentifierBag _bag;
     public YTask _myTask;
     
+    
     private StateEvent state;
+    
+    /**
+     * Null constructor only used by hibernate
+     *
+     */
+    protected YInternalCondition() {
+    	super();
+    	 _bag = new YIdentifierBag(this);
+    }
     
     public YInternalCondition(StateEvent state, YTask myTask) {
     	this.state = state;
@@ -56,21 +67,19 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
         _myTask = myTask;
     }
 
+    @ManyToMany(cascade={CascadeType.ALL},targetEntity=YIdentifier.class)
+    public List getIdentifiers() {
+        return _bag.getIdentifiers();
+    }
+    public void setIdentifiers(List ids) throws YPersistenceException {
+    	removeAll();
+    		for (int i = 0; i < ids.size();i++) {
+    			_bag.addIdentifier((YIdentifier) ids.get(i));
+    		}
+    }
+
     @OneToOne(cascade={CascadeType.ALL})
-	@JoinTable(
-			name = "IdentifierBagOneToOne",
-			joinColumns = {@JoinColumn(name = "extern_id")},
-			inverseJoinColumns = @JoinColumn(name = "bag_id"))
-    private YIdentifierBag getIdentifierBag() {
-    	return _bag;
-    }
-    
-    private void setIdentifierBag(YIdentifierBag bag) {
-    	_bag = bag;
-    }
-
-
-    @OneToOne
+    @OnDelete(action=OnDeleteAction.CASCADE)
     private YTask getTask() {
     	return _myTask;
     }
@@ -84,7 +93,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      * @param identifier
      */
     public void add(YIdentifier identifier) throws YPersistenceException {
-    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
+    	//DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         _bag.addIdentifier(identifier);
     }
 
@@ -112,20 +121,14 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
         return _bag.getAmount(identifier);
     }
 
-    /**
-     * @return a List of the identifiers in the condition numbering 1 or more.
-     */
-    @Transient
-    public List getIdentifiers() {
-        return _bag.getIdentifiers();
-    }
+
 
     /**
      * Removes one YIdentifier from this condition.  If there are none
      * inside then make no change to the state of this.
      */
     public YIdentifier removeOne() throws YPersistenceException {
-    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
+    	//DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         YIdentifier id = (YIdentifier) getIdentifiers().get(0);
         _bag.remove(id, 1);
         return id;
@@ -137,7 +140,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      * @param identifier
      */
     public void removeOne(YIdentifier identifier) throws YPersistenceException {
-    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
+    	//DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         _bag.remove(identifier, 1);
     }
 
@@ -149,7 +152,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      * held inside this, and further more no change will be made to the state of this.
      */
     public void remove(YIdentifier identifier, int amount) throws YStateException, YPersistenceException {
-    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
+    	//DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         _bag.remove(identifier, amount);
     }
 
@@ -158,16 +161,16 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      * @param identifier
      */
     public void removeAll(YIdentifier identifier) throws YPersistenceException {
-    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
+    	//DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         _bag.remove(identifier, _bag.getAmount(identifier));
     }
 
     public void removeAll() {
-    	DispatcherFactory.getConsoleDispatcher().fireEvent( state );
+    	//DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         _bag.removeAll();
     }
 
     public String toString() {
-        return state.getState() + "[" + _myTask.toString() + "]";
+        return /*state.getState() + */"[" + _myTask.toString() + "]";
     }
 }

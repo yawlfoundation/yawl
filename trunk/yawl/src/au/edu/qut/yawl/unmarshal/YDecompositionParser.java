@@ -135,7 +135,7 @@ public class YDecompositionParser {
 
     //done
     private void parseDecompositionRoles(YDecomposition decomposition, Element decompElem) {
-        String name = decompElem.getChildText("name", _yawlNS);
+    	String name = decompElem.getChildText("name", _yawlNS);
         if (name != null) {
             decomposition.setName(name);
         }
@@ -169,8 +169,10 @@ public class YDecompositionParser {
 
     //done
     private void parseWebServiceGateway(YAWLServiceGateway webServiceGateway, Element decompositionElem) {
+
         List yawlServiceElems = decompositionElem.getChildren("yawlService", _yawlNS);
         for (int i = 0; i < yawlServiceElems.size(); i++) {
+
             Element yawlServiceElem = (Element) yawlServiceElems.get(i);
             String yawlServiceID = yawlServiceElem.getAttributeValue("id");
             YAWLServiceReference yawlService = new YAWLServiceReference(yawlServiceID, webServiceGateway);
@@ -493,6 +495,7 @@ public class YDecompositionParser {
         }
         //the variable either is data typed xor linked to an element declaration
         variable.setDataTypeAndName(dataType, name, namespace);
+
     }
 
 
