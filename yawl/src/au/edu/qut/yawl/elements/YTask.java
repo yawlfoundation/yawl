@@ -1029,9 +1029,11 @@ public abstract class YTask extends YExternalNetElement {
 
     
     private void prepareDataForInstanceStarting(YIdentifier childInstanceID) throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException {
-        if (null == getDecompositionPrototype()) {
+        System.out.println("1: " + getDecompositionPrototype());
+    	if (null == getDecompositionPrototype()) {
             return;
         }
+    	System.out.println("2");
         Element dataForChildCase = produceDataRootElement();
 
         List inputParams = new ArrayList(getDecompositionPrototype().getInputParameters());
@@ -1062,7 +1064,6 @@ public abstract class YTask extends YExternalNetElement {
         //todo replace with param info in task metadata
         addXMLAttributes(getDecompositionPrototype().getAttributes(), dataForChildCase);
 
-        /* Need to restore this somehow */
         _caseToDataMap.put(childInstanceID, dataForChildCase);
     }
 
@@ -1234,13 +1235,24 @@ public abstract class YTask extends YExternalNetElement {
     public Element getData(YIdentifier childInstanceID) {
        Element e = (Element) _caseToDataMap.get(childInstanceID);
        
-       /*
-        * This should only occur after restoring a fired identifier
-        * */
        try {
     	   if (e == null) {      
+
+    		   /*
+    	        * This should only occur after restoring a fired identifier
+    	        * */
+
+    		   if (isMultiInstance()) {
+    			   String queryString = getPreSplittingMIQuery();
+    			   Element dataToSplit = evaluateTreeQuery(queryString, _net.getInternalDataDocument());
+    			   List multiInstanceList = evaluateListQuery(_multiInstAttr.getMISplittingQuery(), dataToSplit);
+    			   _multiInstanceSpecificParamsIterator = multiInstanceList.iterator();
+    		   }
+    		   
     		   prepareDataForInstanceStarting(childInstanceID);
     		   e = (Element) _caseToDataMap.get(childInstanceID);
+   		   
+    		   
     	   }
        } catch (Exception ex) {
     	   ex.printStackTrace();
