@@ -380,7 +380,7 @@ public class YWorkItem {
         /* INSERTED FOR PERSISTANCE */
         /**********************************/
         DataProxy proxy = AbstractEngine.getDataContext().getDataProxy( this );
-        DataProxy parentProxy = AbstractEngine.getDataContext().getParentProxy( proxy );
+        DataProxy parentProxy = AbstractEngine.getDataContext().getDataProxy( this.getParent() );
         AbstractEngine.getDataContext().delete( proxy );
         if( parentProxy != null && parentcomplete ) {
         	
