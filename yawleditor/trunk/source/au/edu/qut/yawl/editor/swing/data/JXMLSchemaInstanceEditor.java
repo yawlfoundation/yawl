@@ -29,7 +29,7 @@ import java.util.LinkedList;
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
-public class JXMLSchemaInstanceEditor extends XMLEditorPane {
+public class JXMLSchemaInstanceEditor extends ValidityEditorPane {
 
   /**
    * 

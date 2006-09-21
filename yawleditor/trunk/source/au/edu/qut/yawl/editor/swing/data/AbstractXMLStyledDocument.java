@@ -34,11 +34,11 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument  {
   
   private LinkedList subscribers = new LinkedList();
   
-  private XMLEditorPane editor;
+  private ValidityEditorPane editor;
   
   private boolean contentValid = true;
   
-  public AbstractXMLStyledDocument(XMLEditorPane editor) {
+  public AbstractXMLStyledDocument(ValidityEditorPane editor) {
     this.editor = editor;
   }
 
@@ -88,7 +88,7 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument  {
     return contentValid;
   }
   
-  public XMLEditorPane getEditor() {
+  public ValidityEditorPane getEditor() {
     return this.editor;
   }
   

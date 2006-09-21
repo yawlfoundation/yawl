@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
-import au.edu.qut.yawl.editor.swing.data.XMLEditorPane;
+import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
 
 public interface YAWLEngineProxyInterface {
   
@@ -73,7 +73,7 @@ public interface YAWLEngineProxyInterface {
   
   public String validateUserSuppliedDataTypeInstance(String variableName, String typeDefinition, String schemeInstance);
   
-  public AbstractXMLStyledDocument getXQueryEditorDocument(XMLEditorPane editor, String extraParseText);
+  public AbstractXMLStyledDocument getXQueryEditorDocument(ValidityEditorPane editor, String extraParseText);
   
   public LinkedList getEngineParametersForRegisteredService(String registeredYAWLServiceURI);
 
