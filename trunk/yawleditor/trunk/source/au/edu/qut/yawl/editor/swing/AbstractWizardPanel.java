@@ -16,8 +16,12 @@ public abstract class AbstractWizardPanel extends JPanel {
     initialise();
   }
   
-  public String getWizardTitle() {
+  public String getWizardStepTitle() {
     return "<no title given>";
+  }
+  
+  public AbstractWizardDialog getDialog() {
+    return this.dialog;
   }
   
   protected abstract void buildInterface();

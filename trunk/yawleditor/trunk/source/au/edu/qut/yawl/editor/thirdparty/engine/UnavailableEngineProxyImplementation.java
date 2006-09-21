@@ -30,7 +30,7 @@ import java.util.List;
 
 import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
-import au.edu.qut.yawl.editor.swing.data.XMLEditorPane;
+import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
 
 public class UnavailableEngineProxyImplementation implements
     YAWLEngineProxyInterface {
@@ -93,7 +93,7 @@ public class UnavailableEngineProxyImplementation implements
     return "always in error";
   }
 
-  public AbstractXMLStyledDocument getXQueryEditorDocument(XMLEditorPane editor, String extraParseText) {
+  public AbstractXMLStyledDocument getXQueryEditorDocument(ValidityEditorPane editor, String extraParseText) {
     return new AlwaysFalseDocument(editor, extraParseText);
   }
   
@@ -113,7 +113,7 @@ class AlwaysFalseDocument extends AbstractXMLStyledDocument{
   private static final long serialVersionUID = 1L;
   private static final List problemList = generateProblemList();
   
-  public AlwaysFalseDocument(XMLEditorPane editor, String extraParseText) {
+  public AlwaysFalseDocument(ValidityEditorPane editor, String extraParseText) {
     super(editor);
   }
     

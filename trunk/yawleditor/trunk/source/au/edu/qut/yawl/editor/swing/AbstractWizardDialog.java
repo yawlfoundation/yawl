@@ -149,8 +149,6 @@ public abstract class AbstractWizardDialog extends JDialog {
     button.addActionListener(new ActionListener(){
         public void actionPerformed(ActionEvent e) {
           doBack();
-          decrementWizardStep();
-          updateButtonState();
         }
       }
     );
@@ -164,8 +162,6 @@ public abstract class AbstractWizardDialog extends JDialog {
     button.addActionListener(new ActionListener(){
         public void actionPerformed(ActionEvent e) {
           doNext();
-          incrementWizardStep();
-          updateButtonState();
         }
       }
     );
@@ -187,29 +183,38 @@ public abstract class AbstractWizardDialog extends JDialog {
     return button; 
   }
   
-  private void incrementWizardStep() {
+  public void doNext() {
     if (currentStep >= (panels.length - 1)) {
       return;
     }
     currentStep++;
-    setPanelTitle(panels[currentStep].getWizardTitle());
-    setCurrentPanel(panels[currentStep]);
+    moveToCurrentStep();
   }
   
   
-  private void decrementWizardStep() {
+  public void doBack() {
     if (currentStep <= 0) {
       return;
     }
     currentStep--;
-    setPanelTitle(panels[currentStep].getWizardTitle());
-    setCurrentPanel(panels[currentStep]);
+    moveToCurrentStep();
   }
   
+  public void doLast() {
+    currentStep = panels.length - 1;
+    moveToCurrentStep();
+  }
+
   public void setCurrentPanel(AbstractWizardPanel panel) {
     housedContentPanel.removeAll();
     housedContentPanel.add(panels[currentStep]);
     repaint();
+  }
+  
+  private void moveToCurrentStep() {
+    setPanelTitle(panels[currentStep].getWizardStepTitle());
+    setCurrentPanel(panels[currentStep]);
+    updateButtonState();
   }
   
   private void updateButtonState() {
@@ -242,15 +247,7 @@ public abstract class AbstractWizardDialog extends JDialog {
   
   protected void setPanels(AbstractWizardPanel[] panels) {
     this.panels = panels;
-    this.setPanelTitle(panels[0].getWizardTitle());
-  }
-  
-  public void doBack() {
-    System.out.println("Back Button Pushed");
-  }
-
-  public void doNext() {
-    System.out.println("Next Button Pushed");
+    this.setPanelTitle(panels[0].getWizardStepTitle());
   }
   
   protected abstract void initialise();

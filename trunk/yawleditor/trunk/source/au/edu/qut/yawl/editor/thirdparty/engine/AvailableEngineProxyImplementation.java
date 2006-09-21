@@ -44,7 +44,7 @@ import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
-import au.edu.qut.yawl.editor.swing.data.XMLEditorPane;
+import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
@@ -284,7 +284,7 @@ public class AvailableEngineProxyImplementation implements
     return instanceValidator.validateUserSuppliedDataTypeInstance(variableName, typeDefinition, schemeInstance);
   }
   
-  public AbstractXMLStyledDocument getXQueryEditorDocument(XMLEditorPane editor, String extraParseText) {
+  public AbstractXMLStyledDocument getXQueryEditorDocument(ValidityEditorPane editor, String extraParseText) {
     return new XQueryStyledDocument(editor);
   }
   
@@ -415,7 +415,7 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument{
   private static final IgnoreBadCharactersFilter IGNORE_BAD_CHARACTERS_FILTER 
       = new IgnoreBadCharactersFilter();
   
-  public XQueryStyledDocument(XMLEditorPane editor) {
+  public XQueryStyledDocument(ValidityEditorPane editor) {
     super(editor);
     setDocumentFilter(IGNORE_BAD_CHARACTERS_FILTER);
     setPreAndPostEditorText("","");

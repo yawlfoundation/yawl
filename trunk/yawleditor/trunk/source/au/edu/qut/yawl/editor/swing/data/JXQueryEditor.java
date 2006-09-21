@@ -25,7 +25,7 @@ package au.edu.qut.yawl.editor.swing.data;
 
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
-public class JXQueryEditor extends XMLEditorPane {
+public class JXQueryEditor extends ValidityEditorPane {
 
   /**
    * 

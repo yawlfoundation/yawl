@@ -35,13 +35,13 @@ public class JProblemReportingEditorPane extends JSplitPane
                                          implements AbstractXMLStyledDocumentValidityListener{
   private static final long serialVersionUID = 1L;
 
-  private XMLEditorPane editor;
+  private ValidityEditorPane editor;
 
   private JScrollPane  problemScrollPane;
   private ProblemTable parseProblemsTable = new ProblemTable();
   
   
-  public JProblemReportingEditorPane(XMLEditorPane editor) {
+  public JProblemReportingEditorPane(ValidityEditorPane editor) {
     super(JSplitPane.VERTICAL_SPLIT);
     setEditor(editor);    
     initialise();
@@ -67,12 +67,12 @@ public class JProblemReportingEditorPane extends JSplitPane
     return problemScrollPane;
   }
   
-  private void setEditor(XMLEditorPane editor) {
+  private void setEditor(ValidityEditorPane editor) {
     this.editor = editor;
     this.editor.acceptValiditySubscription(this);
   }
   
-  public XMLEditorPane getEditor() {
+  public ValidityEditorPane getEditor() {
     return this.editor;
   }
   

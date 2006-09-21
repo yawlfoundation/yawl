@@ -38,7 +38,7 @@ public class JXMLSchemaEditorPane extends JProblemReportingEditorPane {
   }
 }
 
-class JXMLSchemaEditor extends XMLEditorPane {
+class JXMLSchemaEditor extends ValidityEditorPane {
   /**
    * 
    */
@@ -56,7 +56,7 @@ class JXMLSchemaEditor extends XMLEditorPane {
      */
     private static final long serialVersionUID = 1L;
 
-    public XMLSchemaStyledDocument(XMLEditorPane editor) {
+    public XMLSchemaStyledDocument(ValidityEditorPane editor) {
       super(editor);
     }
     

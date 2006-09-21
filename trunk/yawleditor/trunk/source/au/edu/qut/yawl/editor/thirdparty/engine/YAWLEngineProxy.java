@@ -30,7 +30,7 @@ import java.util.LinkedList;
 
 import au.edu.qut.yawl.editor.swing.JStatusBar;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
-import au.edu.qut.yawl.editor.swing.data.XMLEditorPane;
+import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
 
 import au.edu.qut.yawl.editor.swing.specification.ProblemMessagePanel;
 
@@ -126,7 +126,7 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
     }
   }
   
-  public AbstractXMLStyledDocument getXQueryEditorDocument(XMLEditorPane editor, String extraParseText) {
+  public AbstractXMLStyledDocument getXQueryEditorDocument(ValidityEditorPane editor, String extraParseText) {
     return implementation.getXQueryEditorDocument(editor, extraParseText);
   }
   

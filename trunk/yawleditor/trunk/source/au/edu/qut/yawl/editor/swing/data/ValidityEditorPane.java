@@ -30,7 +30,7 @@ import java.awt.Font;
 import javax.swing.JEditorPane;
 import javax.swing.border.EtchedBorder;
 
-public class XMLEditorPane extends JEditorPane implements AbstractXMLStyledDocumentValidityListener {
+public class ValidityEditorPane extends JEditorPane implements AbstractXMLStyledDocumentValidityListener {
 
   /**
    * 
@@ -44,7 +44,7 @@ public class XMLEditorPane extends JEditorPane implements AbstractXMLStyledDocum
   
   private Color enabledBackground;
  
-  public XMLEditorPane() {
+  public ValidityEditorPane() {
     setBorder(new EtchedBorder());
     setFont(COURIER);
     enabledBackground = this.getBackground();
