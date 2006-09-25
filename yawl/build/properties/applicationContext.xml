@@ -47,8 +47,40 @@
                 <value>au.edu.qut.yawl.elements.KeyValue</value>
 		<value>au.edu.qut.yawl.elements.state.YInternalCondition</value>
 		<value>au.edu.qut.yawl.events.Event</value>
+		<value>au.edu.qut.yawl.events.YWorkItemEvent</value>
+		<value>au.edu.qut.yawl.events.YCaseEvent</value>
+		<value>au.edu.qut.yawl.events.YDataEvent</value>
             </list>
         </property>
+</bean>
+
+<!-- 
+ This bean identifies which methods in the engine will be transactional 
+ It should cover all methods which modify engine state, but exclude any
+ read-only operations   
+-->
+<bean id="YAWLInterceptionAdvice" 
+    class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice">
+        <ref local="YAWLTransactionAdvice"/>
+    </property>
+    <property name="patterns">
+        <list>
+            <value>.*create.*</value>
+            <value>.*cancel.*</value>
+            <value>.*launch.*</value>
+            <value>.*start.*</value>
+            <value>.*complete.*</value>
+            <value>.*add.*</value>
+            <value>.*unload.*</value>
+            <value>.*remove.*</value>
+            <value>.*suspend.*</value>
+            <value>.*unsuspend.*</value>
+            <value>.*rollback.*</value>
+            <value>.*update.*</value>
+	    <value>.*init.*</value>
+        </list>
+    </property>
 </bean>
 
 
@@ -58,7 +90,7 @@
     <property name="target"><ref local="EngineBean"/></property>
     <property name="interceptorNames">
         <list>
-            <value>YAWLTransactionAdvice</value>
+            <value>YAWLInterceptionAdvice</value>
         </list>
     </property>
 </bean>
@@ -69,6 +101,18 @@
 
 <bean id="EngineBean" class="au.edu.qut.yawl.engine.YEngine">
 </bean>
+
+<bean id="EventLogger" class="au.edu.qut.yawl.events.YawlEventLogger">
+    <property name="dispatchers">
+        <list>
+            <ref bean="HibernateEventDispatcher"/>
+        </list>
+    </property>
+</bean>
+<bean id="HibernateEventDispatcher" class="au.edu.qut.yawl.events.HibernateEventDispatcher">
+</bean>
+
+
 
 <!--
 
