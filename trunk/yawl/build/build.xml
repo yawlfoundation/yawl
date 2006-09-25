@@ -1588,14 +1588,14 @@
         <CBRelease file="${output}/yawl.war" />
      	<CBRelease file="${output}/${yawl.worklist.app.name}.war" />
 	<CBRelease file="${output}/${nexus.service.jython.app.name}.war" />
-	<CBRelease file="${output}/}/${nexus.service.emailSender.app.name}.war" />
-	<CBRelease file="${output}/}/${nexus.serviceInvoker.app.name}.war" />
-	<CBRelease file="${output}/}/${yawl.webService.app.name}.war" />
-	<CBRelease file="${output}/}/${yawl.smsService.app.name}.war" />
+	<CBRelease file="${output}/${nexus.service.emailSender.app.name}.war" />
+	<CBRelease file="${output}/${nexus.serviceInvoker.app.name}.war" />
+	<CBRelease file="${output}/${yawl.webService.app.name}.war" />
+	<CBRelease file="${output}/${yawl.smsService.app.name}.war" />
     	<CBRelease file="${output}/${yawl.xforms.app.name}.war" />            	
-	<CBRelease file="${output}/}/${yawl.TimeService.app.name}.war" />
-	<CBRelease file="${output}/}/${yawl.admintool.app.name}.war" />
-        <CBRelease file="${output}/}/${yawl.worklet.app.name}.war" />
+	<CBRelease file="${output}/${yawl.TimeService.app.name}.war" />
+	<CBRelease file="${output}/${yawl.admintool.app.name}.war" />
+        <CBRelease file="${output}/${yawl.worklet.app.name}.war" />
 
     <antcall target="cleanup"/>
 
