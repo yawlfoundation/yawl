@@ -9,12 +9,24 @@
 
 package au.edu.qut.yawl.worklist.model;
 
+import java.io.IOException;
+import java.io.StringReader;
+
+import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Category;
 import org.apache.log4j.Logger;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
+
+
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Transient;
 
 /**
  * 
@@ -22,7 +34,12 @@ import au.edu.qut.yawl.engine.domain.YWorkItem;
  * Date: 2/02/2004
  * Time: 18:30:18
  * 
+ * This class is made persistence-enabled in case that a
+ * custom yawl service needs to store it in case of a 
+ * failure
+ * 
  */
+@Entity
 public class WorkItemRecord {
     private String _taskID;
     private String _caseID;
@@ -43,6 +60,7 @@ public class WorkItemRecord {
       Required to generate an empty record
      */
     private String _completionTime;
+
     private Category _logger = Logger.getLogger(getClass());
 
 
@@ -102,57 +120,97 @@ public class WorkItemRecord {
         this._dataList = dataList;
     }
 
+    @Basic
     public String getTaskID() {
         return _taskID;
     }
 
+    @Basic
     public String getCaseID() {
         return _caseID;
     }
 
+    @Basic
     public String getEnablementTime() {
         return _enablementTime;
     }
 
+    @Basic
     public String getFiringTime() {
         return _firingTime;
     }
+    @Basic
     public String getCompletionTime() {
         return _completionTime;
     }
 
+    @Basic
     public String getStartTime() {
         return _startTime;
     }
 
+    @Basic
+    public String getStatusString() {
+    	return _status.name();
+    }
+    public void setStatusString(String status) {
+    	_status = YWorkItem.Status.valueOf(status);
+    }
+    
+    
+    @Transient
     public YWorkItem.Status getStatus() {
         return _status;
     }
 
+    @Basic
     public String getWhoStartedMe() {
         return _whoStartedMe;
     }
+    public void setWhoStartedMe(String person) {
+    	_whoStartedMe = person;
+    }
 
-
+    @Transient
     public Element getWorkItemData() {
         return _dataList;
     }
 
 
+    @Basic
     public String getDataListString() {
         return outPretty.outputString(_dataList);
     }
+    public void setDataListString(String s) {
+    	if (s!=null) {
+    		try {
+				SAXBuilder builder = new SAXBuilder();
+				Document d = builder.build( new StringReader(s));
+				_dataList = d.getRootElement();
+			}
+			catch( JDOMException e ) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch( IOException e ) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
 
-
+    @Transient
     public String getOutputDataString() {
         return "stubbed data";
     }
 
 
+    @Basic
     public String getSpecificationID() {
         return _specificationID;
     }
 
+    @Transient
     public String getID() {
         return _caseID + ":" + _taskID;
     }
@@ -174,6 +232,8 @@ public class WorkItemRecord {
         _uniqueID = uniqueID;
     }
 
+    @Id
+    @Basic
     public String getUniqueID() {
         return _uniqueID;
     }

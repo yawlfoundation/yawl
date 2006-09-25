@@ -48,13 +48,13 @@ import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
 import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
+import au.edu.qut.yawl.events.YawlEventLogger;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.logging.YawlLogServletInterface;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
@@ -93,7 +93,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     private InterfaceAManagementObserver _interfaceAClient;
     private InterfaceBClientObserver _interfaceBClient;
     protected ObserverGatewayController observerGatewayController;
-    protected static YawlLogServletInterface yawllog;
+
     protected static UserList _userList = UserList.getInstance();
 
     protected static InterfaceX_EngineSideClient _exceptionObserver = null ;
@@ -116,7 +116,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * Consructor.
      */
     protected AbstractEngine() {
-        yawllog = YawlLogServletInterface.getInstance();
+        
         observerGatewayController = new ObserverGatewayController();
 
         /**
@@ -733,7 +733,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
             runner.continueIfPossible();
 
             // LOG CASE EVENT
-            yawllog.logCaseCreated(runner.getCaseID().toString(), username, specID);
+            YawlEventLogger.getInstance().logCaseCreated(runner.getCaseID().toString(), username, specID);
 
             runner.start();
             _caseIDToNetRunnerMap.put(runner.getCaseID(), runner);
@@ -771,7 +771,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
         YEngine._workItemRepository.cancelNet(caseIDForNet);
 
         //  LOG CASE EVENT
-        yawllog.logCaseCompleted(caseIDForNet.toString());
+        YawlEventLogger.getInstance().logCaseCompleted(caseIDForNet.toString());
         if (_interfaceBClient != null) {
             _interfaceBClient.removeCase(caseIDForNet.toString());
         }
@@ -876,7 +876,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
             //_runningCaseIDToSpecIDMap.remove(id);
 
             // LOG CASE EVENT
-            yawllog.logCaseCancelled(id.toString());
+            YawlEventLogger.getInstance().logCaseCancelled(id.toString());
             runner.cancel();
 
             YEngine._workItemRepository.removeWorkItemsForCase(id);

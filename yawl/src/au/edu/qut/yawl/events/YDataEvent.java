@@ -7,7 +7,7 @@
  */
 
 
-package au.edu.qut.yawl.engine.domain;
+package au.edu.qut.yawl.events;
 
 import java.io.Serializable;
 
@@ -19,7 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class YLogData implements Serializable {
+public class YDataEvent implements Serializable {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible

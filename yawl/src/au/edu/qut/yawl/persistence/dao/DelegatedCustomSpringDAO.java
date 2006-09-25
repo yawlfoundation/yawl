@@ -53,6 +53,9 @@ import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.events.Event;
+import au.edu.qut.yawl.events.YCaseEvent;
+import au.edu.qut.yawl.events.YDataEvent;
+import au.edu.qut.yawl.events.YWorkItemEvent;
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
@@ -147,6 +150,11 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 		addType( YWorkItem.class, new WorkItemHibernateDAO() );
 		addType( YIdentifier.class, new IdentifierHibernateDAO() );
 		addType( YAWLServiceReference.class, new YAWLServiceReferenceHibernateDAO() );
+
+		addType( YWorkItemEvent.class, new YWorkItemEventDAO() );
+		addType( YDataEvent.class, new YDataEventDAO() );
+		addType( YCaseEvent.class, new YCaseEventDAO() );
+
 	}
 	
 	public List getChildren( Object object ) {
@@ -427,6 +435,29 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 		
 		public Object getKey( YAWLServiceReference item ) {
 			return PersistenceUtilities.getYAWLServiceReferenceDatabaseKey( item );
+		}
+	}
+	private class YWorkItemEventDAO extends AbstractHibernateDAO<YWorkItemEvent> {
+		protected void preSave( YWorkItemEvent item ) {}
+		
+		public Object getKey( YWorkItemEvent item ) {
+			return item.getId();
+		}
+	}
+	
+	private class YCaseEventDAO extends AbstractHibernateDAO<YCaseEvent> {
+		protected void preSave( YCaseEvent item ) {}
+		
+		public Object getKey( YCaseEvent item ) {
+			return item.getIdentifier();
+		}
+	}
+	
+	private class YDataEventDAO extends AbstractHibernateDAO<YDataEvent> {
+		protected void preSave( YDataEvent item ) {}
+		
+		public Object getKey( YDataEvent item ) {
+			return item.getId();
 		}
 	}
 }

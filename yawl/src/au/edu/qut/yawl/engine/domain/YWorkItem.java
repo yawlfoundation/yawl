@@ -43,8 +43,8 @@ import org.jdom.output.XMLOutputter;
 
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.events.YawlEventLogger;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.logging.YawlLogServletInterface;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
@@ -164,7 +164,7 @@ public class YWorkItem {
 
         while (iter.hasNext()) {
             Element child = (Element) iter.next();
-            YawlLogServletInterface.getInstance().logData(child.getName(), child.getValue(), lastevent, "o");
+            YawlEventLogger.getInstance().logData(child.getName(), child.getValue(), lastevent, "o");
         }
 
     }
@@ -195,7 +195,7 @@ public class YWorkItem {
 
         try {
 
-            YawlLogServletInterface.getInstance().logWorkItemEvent(workItemID.getCaseID().toString(),
+            YawlEventLogger.getInstance().logWorkItemEvent(workItemID.getCaseID().toString(),
                     workItemID.getTaskID()
                     , _status, _whoStartedMe, _specificationID);
 	    setThisId(_workItemID.toString() + "!" + _workItemID.getUniqueID());
@@ -236,7 +236,7 @@ public class YWorkItem {
         /***************************/
         /* INSERTED FOR LOGGING/PERSISTANCE */
         /********************/
-        YawlLogServletInterface.getInstance().logWorkItemEvent(workItemID.getCaseID().toString(),
+        YawlEventLogger.getInstance().logWorkItemEvent(workItemID.getCaseID().toString(),
                 workItemID.getTaskID()
                 , _status, _whoStartedMe, _specificationID);
 	setThisId(_workItemID.toString() + "!" + _workItemID.getUniqueID());
@@ -301,9 +301,9 @@ public class YWorkItem {
             setStatus(Status.IsParent);
             _children.add(childItem);
             if (_children.size() == 1) {
-                YawlLogServletInterface.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
+                YawlEventLogger.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
                         _workItemID.getTaskID()
-                        , _status, _whoStartedMe, _specificationID, null);
+                        , _status, _whoStartedMe, _specificationID);
             }
             saveWorkItem( childItem, this, null );
             return childItem;
@@ -342,7 +342,7 @@ public class YWorkItem {
 //        }
 
 
-        lastevent = YawlLogServletInterface.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
                 _workItemID.getTaskID()
                 , _status, _whoStartedMe, _specificationID);
         /****************************/
@@ -398,11 +398,11 @@ public class YWorkItem {
 //        }
 
 
-        YawlLogServletInterface.getInstance().logWorkItemEvent(_parent.getCaseID().toString(),
+        YawlEventLogger.getInstance().logWorkItemEvent(_parent.getCaseID().toString(),
                 _parent.getTaskID()
                 , _status, _whoStartedMe, _specificationID);
 
-        YawlLogServletInterface.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
+        YawlEventLogger.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
                 _workItemID.getTaskID()
                 , _status, _whoStartedMe, _specificationID);
         /************************************/
@@ -442,11 +442,11 @@ public class YWorkItem {
 //            }
 //        }
 
-        YawlLogServletInterface.getInstance().logWorkItemEvent(
+        YawlEventLogger.getInstance().logWorkItemEvent(
                 _parent.getCaseID().toString(), _parent.getTaskID(),
                 _status, _whoStartedMe, _specificationID);
 
-        YawlLogServletInterface.getInstance().logWorkItemEvent(
+        YawlEventLogger.getInstance().logWorkItemEvent(
                 _workItemID.getCaseID().toString(), _workItemID.getTaskID(),
                 _status, _whoStartedMe, _specificationID);
     }
@@ -464,7 +464,7 @@ public class YWorkItem {
 	  MODIFIED FOR PERSISTANCE
 	 */
         setStatus(Status.Fired);
-        YawlLogServletInterface.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
+        YawlEventLogger.getInstance().logWorkItemEvent(_workItemID.getCaseID().toString(),
                 _workItemID.getTaskID()
                 , _status, _whoStartedMe, _specificationID);
         /*************************/
@@ -487,7 +487,7 @@ public class YWorkItem {
             _prevStatus = _status ;
             setStatus(Status.Suspended);
 
-            YawlLogServletInterface.getInstance().logWorkItemEvent(
+            YawlEventLogger.getInstance().logWorkItemEvent(
                     _workItemID.getCaseID().toString(), _workItemID.getTaskID(),
                     _status, _whoStartedMe, _specificationID);
         }
@@ -500,7 +500,7 @@ public class YWorkItem {
         setStatus(_prevStatus);
         _prevStatus = null ;
 
-        YawlLogServletInterface.getInstance().logWorkItemEvent(
+        YawlEventLogger.getInstance().logWorkItemEvent(
                 _workItemID.getCaseID().toString(), _workItemID.getTaskID(),
                 _status, _whoStartedMe, _specificationID);
     }
@@ -530,7 +530,7 @@ public class YWorkItem {
          */
         while (iter.hasNext()) {
             Element child = (Element) iter.next();
-            YawlLogServletInterface.getInstance().logData(child.getName(), child.getValue(), lastevent, "i");
+            YawlEventLogger.getInstance().logData(child.getName(), child.getValue(), lastevent, "i");
         }
 
     }

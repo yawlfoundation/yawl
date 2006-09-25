@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -78,6 +80,64 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     private List<Element> _internalExtensions = new ArrayList<Element>();
     private Long _dbid;
 	private static final long serialVersionUID = 2006030080l;
+	
+
+    //added for reduction rules code
+    private Set _cancelledBySet = new HashSet();
+    
+    //added for reduction rules mapping
+    private Set _yElementsSet = new HashSet();
+	
+    //added for reduction rules mappings
+    @Transient
+    public Set getCancelledBySet(){
+    	if (_cancelledBySet != null) {
+    		return new HashSet(_cancelledBySet);
+    	}
+    	return null;
+    }
+
+    public void addToCancelledBySet(YTask t){
+    	if (t != null && t instanceof YTask)
+    	{	_cancelledBySet.add(t);	
+    	}
+    }
+
+    public void removeFromCancelledBySet(YTask t){
+    	if (t != null && t instanceof YTask)
+    	{/*	for (Iterator i = _cancelledBySet.iterator(); i.hasNext();) {
+             YTask re = (YTask) i.next(); 
+             if (re.getID().equals(t.getID()))
+             {
+              _cancelledBySet.remove(re);
+             }	
+            }	*/	
+    		_cancelledBySet.remove(t); 
+    	}	
+    }
+
+    //added for reduction rules mappings
+    @Transient
+    public Set getYawlMappings()
+    {
+    	if (_yElementsSet != null) {
+    		return new HashSet(_yElementsSet);
+    	}
+    	return null;
+
+    }
+
+    public void addToYawlMappings(YExternalNetElement e){
+    	_yElementsSet.add(e);
+
+    }
+    public void addToYawlMappings(Set elements){
+    	_yElementsSet.addAll(elements);
+
+    }
+
+
+    
 	/**
      * Null constructor for hibernate
      *
