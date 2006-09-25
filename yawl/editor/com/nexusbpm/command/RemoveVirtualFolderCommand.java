@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.util.VisitSpecificationOperation;
@@ -65,7 +66,7 @@ public class RemoveVirtualFolderCommand extends AbstractCommand {
      * Reattaches the folder and its children.
      * (Attach and detach are reversed for remove commands).
      */
-    protected void detach() {
+    protected void detach() throws YPersistenceException {
         for( int index = 0; index < proxies.size(); index++ ) {
             DataProxy proxy = proxies.get( index );
             Object object = data.get( proxy );
