@@ -297,7 +297,21 @@ public abstract class InterfaceBWebsideController {
 
         //Now if this is beta4 or greater then remove all those input only bits of data
         //by first preparing a list of output params to iterate over.
-        WorkItemRecord workitem = this.getCachedWorkItem(workItemID);
+        
+        /*
+         * This method call should not use get cached workitem since
+         * the service may have crashed and been restored. The 
+         * cache would then be empty.
+         * */
+        WorkItemRecord workitem = null;
+        try {
+        	workitem = getWorkItem(workItemID, sessionHandle);
+        } catch (IOException e) {
+        	throw e;
+        } catch (JDOMException e) {
+        	throw e;
+        }
+        
 
         SpecificationData specData = getSpecificationData(
                 workitem.getSpecificationID(), sessionHandle);
@@ -320,9 +334,18 @@ public abstract class InterfaceBWebsideController {
         String result = _interfaceBClient.checkInWorkItem(workItemID, filteredOutputData, sessionHandle);
         _model.removeRemotelyCachedWorkItem(workItemID);
         return result;
+        
     }
 
-
+    
+    public WorkItemRecord getWorkItem(String workItemID,String sessionHandle) throws IOException, JDOMException {
+    	WorkItemRecord record = getCachedWorkItem(workItemID);
+    	if (record==null) {
+    		record = getEngineStoredWorkItem(workItemID, sessionHandle);
+    		_model.addWorkItem(record);
+        }
+    	return record;
+    }
     /**
      * Gets a locally stored copy of a work item.
      * @param workItemID

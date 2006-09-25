@@ -24,13 +24,18 @@ public class YSetOfMarkings {
     private Set _markings = new HashSet();
 
  
-    public void addMarking(YMarking marking) {
-        _markings.add(marking);
-    }
+    public void addMarking(YMarking marking){
+    	   if (!contains(marking)){
+          _markings.add(marking);
+        }	
+     }
     
-   public void addAll(YSetOfMarkings newmarkings){
-        _markings.addAll(newmarkings.getMarkings());	
-   
+    public void addAll(YSetOfMarkings newmarkings){
+        Set markingsToAdd = newmarkings.getMarkings();
+        for (Iterator i = markingsToAdd.iterator(); i.hasNext();)
+        {  YMarking marking = (YMarking) i.next();
+           addMarking(marking);
+        }
     }
 
     //changed by moe - ResetAnalyser
@@ -47,6 +52,29 @@ public class YSetOfMarkings {
      return false;
     }
 
+    public boolean equals(YSetOfMarkings markings) {
+        Set markingsToCompare = markings.getMarkings();
+        if (_markings.size() != markingsToCompare.size()) {
+          return false;
+        }
+        if (containsAll(markingsToCompare)
+            && (markings.containsAll(_markings))) {
+          return true;
+        }
+        return false;
+      }
+    
+    public boolean containsAll(Set markingsToCompare)
+    { YMarking M;
+     for (Iterator i = markingsToCompare.iterator(); i.hasNext();)
+     {	  M = (YMarking) i.next();
+		  if (!this.contains(M))
+	       { return false;
+	       }
+     }
+     return true;	
+    }
+    
    //moe - ResetAnalyser
    public void removeAll(){
     	_markings.clear();

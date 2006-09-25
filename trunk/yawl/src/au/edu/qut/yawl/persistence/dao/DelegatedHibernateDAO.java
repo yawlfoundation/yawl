@@ -53,6 +53,11 @@ import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.events.Event;
+
+import au.edu.qut.yawl.events.YWorkItemEvent;
+import au.edu.qut.yawl.events.YCaseEvent;
+import au.edu.qut.yawl.events.YDataEvent;
+
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
@@ -138,6 +143,8 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 		addType( YWorkItem.class, new WorkItemHibernateDAO() );
 		addType( YIdentifier.class, new IdentifierHibernateDAO() );
 		addType( YAWLServiceReference.class, new YAWLServiceReferenceHibernateDAO() );
+
+		
 	}
 	
 	public List getChildren( Object object ) {
@@ -428,4 +435,6 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 			return PersistenceUtilities.getYAWLServiceReferenceDatabaseKey( item );
 		}
 	}
+	
+
 }

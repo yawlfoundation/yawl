@@ -7,7 +7,7 @@
  */
 
 
-package au.edu.qut.yawl.engine.domain;
+package au.edu.qut.yawl.events;
 
 import java.io.Serializable;
 

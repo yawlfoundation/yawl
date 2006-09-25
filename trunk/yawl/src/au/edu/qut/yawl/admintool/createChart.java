@@ -32,9 +32,9 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 
-import au.edu.qut.yawl.engine.domain.YLogIdentifier;
-import au.edu.qut.yawl.engine.domain.YWorkItemEvent;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
+import au.edu.qut.yawl.events.YCaseEvent;
+import au.edu.qut.yawl.events.YWorkItemEvent;
 import au.edu.qut.yawl.worklist.model.AggregatedWorkItemRecord;
 
 /**
@@ -243,7 +243,7 @@ public class createChart extends HttpServlet{
                     if (resultlist!=null && filter.intervaltime > 0) {
                         int maxSize = (int) (resultlist.size() * filter.intervaltime / 100);
                         for (int j = 0; j < resultlist.size();j++) {
-                            YLogIdentifier ylog = (YLogIdentifier) resultlist.get(j);
+                            YCaseEvent ylog = (YCaseEvent) resultlist.get(j);
                             /*
                               Calculate intervaltime for this identifier...
                               if it is not a percentage based interval
@@ -270,7 +270,7 @@ public class createChart extends HttpServlet{
                                     finalresult.add(ylog);
                                 } else {
                                     for (int k = 0; k < finalresult.size();k++) {
-                                        YLogIdentifier old = (YLogIdentifier) finalresult.get(k);
+                                        YCaseEvent old = (YCaseEvent) finalresult.get(k);
                                         if (filter.LessThan) {
                                             if (old.getTime() > ylog.getTime()) {
                                                 finalresult.remove(old);
@@ -287,14 +287,14 @@ public class createChart extends HttpServlet{
                             }
                         }
                         for (int j = 0; j < finalresult.size();j++) {
-                            YLogIdentifier ylog = (YLogIdentifier) finalresult.get(j);
+                            YCaseEvent ylog = (YCaseEvent) finalresult.get(j);
                             //reallyfinal.add(addCaseParameters(req,ylog));
                             reallyfinal.add(ylog);
                         }
                     } else {
                         finalresult = resultlist;
                         for (int j = 0; j < finalresult.size();j++) {
-                            YLogIdentifier ylog = (YLogIdentifier) finalresult.get(j);
+                            YCaseEvent ylog = (YCaseEvent) finalresult.get(j);
                             ylog.setTime(ylog.getCompleted()-ylog.getCreated());
                             
                             //reallyfinal.add(addCaseParameters(req,ylog));
@@ -490,7 +490,7 @@ public class createChart extends HttpServlet{
                     
                     if (querytype.equals("case")) {
                         
-                        YLogIdentifier ylog = (YLogIdentifier) reallyfinal.get(i);
+                        YCaseEvent ylog = (YCaseEvent) reallyfinal.get(i);
                         System.out.println(ylog.getTime());
                         System.out.println(ylog.getSpecification());
                         Object[] o = new Object[2];
@@ -744,7 +744,7 @@ public class createChart extends HttpServlet{
                 }
 
             } else {
-                YLogIdentifier ylog = (YLogIdentifier) parseList.get(i);
+                YCaseEvent ylog = (YCaseEvent) parseList.get(i);
                 
                 if (columnlist.contains("Completion Time")) {
                     //paramlist.add(DateTransform.convertRelativeTime(ylog.getCompleted()- ylog.getCreated()));
@@ -975,7 +975,7 @@ public class createChart extends HttpServlet{
         HashMap map = new HashMap();
         
         for (int i = 0; i < parseList.size(); i++) {
-            YLogIdentifier ylog = (YLogIdentifier) parseList.get(i);
+            YCaseEvent ylog = (YCaseEvent) parseList.get(i);
             
             /*
               The grouping variable is used as the key
@@ -983,11 +983,11 @@ public class createChart extends HttpServlet{
              */
             
             
-            YLogIdentifier agglog = null;
+            YCaseEvent agglog = null;
             if (grouping.equals("Specification")) {
-                agglog = (YLogIdentifier) map.get(ylog.getSpecification());
+                agglog = (YCaseEvent) map.get(ylog.getSpecification());
             } else if (grouping.equals("Resource")) {
-                agglog = (YLogIdentifier) map.get(ylog.getCreatedby());
+                agglog = (YCaseEvent) map.get(ylog.getCreatedby());
             }  else {
                 return parseList;
             }
@@ -996,7 +996,7 @@ public class createChart extends HttpServlet{
                 /*
                   There is no element within this group yet....
                  */
-                agglog = new YLogIdentifier();
+                agglog = new YCaseEvent();
                 
                 agglog.setSpecification(ylog.getSpecification());
                 System.out.println("new grouping by: " + grouping + " " + ylog.getCreatedby());
@@ -1033,7 +1033,7 @@ public class createChart extends HttpServlet{
         }
         Iterator it = map.values().iterator();
         while (it.hasNext()) {
-            YLogIdentifier ylog = (YLogIdentifier) it.next();
+            YCaseEvent ylog = (YCaseEvent) it.next();
             ylog.setTime(ylog.getTime()/ylog.getCount());
             aggregated.add(ylog);
             System.out.println("Calculating Averages....!!!!!!!!! " + ylog.getTime() + " " + ylog.getCreatedby());

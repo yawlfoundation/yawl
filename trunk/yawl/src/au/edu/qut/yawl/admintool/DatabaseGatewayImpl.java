@@ -40,12 +40,12 @@ import au.edu.qut.yawl.authentication.User;
 
 import au.edu.qut.yawl.elements.state.YIdentifier;
 
-import au.edu.qut.yawl.engine.domain.YLogIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.engine.domain.YWorkItemEvent;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 
+import au.edu.qut.yawl.events.YCaseEvent;
+import au.edu.qut.yawl.events.YWorkItemEvent;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 
@@ -77,7 +77,7 @@ public class DatabaseGatewayImpl {
 		YWorkItem.class,
 		YWorkItemID.class,
 		YIdentifier.class,
-		YLogIdentifier.class,
+		YCaseEvent.class,
 		YWorkItemEvent.class};
 	
 	
@@ -583,7 +583,7 @@ public class DatabaseGatewayImpl {
 	    List items = query.list();
 	    System.out.println("rows: " + items.size());
 	    for (int i = 0; i < items.size(); i++) {
-		YLogIdentifier caseinfo = (YLogIdentifier) items.get(i);
+		YCaseEvent caseinfo = (YCaseEvent) items.get(i);
 		result.add(caseinfo);
 	    }
 	} catch (Exception e) {

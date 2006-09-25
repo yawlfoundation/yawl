@@ -951,8 +951,7 @@ public class YNetRunner implements Serializable // extends Thread
         _workItemRepository.cancelNet(_caseIDForNet);
         
         /*
-         * This is a rather funny way of doing it
-         * but when a composite task completes. This method may actually
+         * when a composite task completes. This method may actually
          * be called twice. This would cause two deletions and the
          * last one would throw an exception. Therefore the cancelling 
          * variable is used to see if this method has been called before

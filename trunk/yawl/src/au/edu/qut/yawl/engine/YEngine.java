@@ -29,13 +29,13 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
+import au.edu.qut.yawl.events.YawlEventLogger;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.logging.YawlLogServletInterface;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -63,7 +63,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
 
     protected static YWorkItemRepository _workItemRepository;
     private static YEngine _myInstance;
-    private static YawlLogServletInterface yawllog = null;
+    private static YawlEventLogger yawllog = null;
     private static UserList _userList;
     private final Object mutex = new Object();
 
@@ -100,7 +100,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     protected YEngine() {
         super();
     	super.setPersistenceMethod(journalising);
-        yawllog = YawlLogServletInterface.getInstance();
+        yawllog = YawlEventLogger.getInstance();
 
     }
 

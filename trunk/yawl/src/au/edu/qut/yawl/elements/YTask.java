@@ -332,8 +332,26 @@ public abstract class YTask extends YExternalNetElement {
     @Transient
     public void setRemovesTokensFrom(List<YExternalNetElement> removeSet) {
         _removeSet.addAll(removeSet);
+        
+        //Add to populate _cancelledBySet.
+        Iterator removeSetIter = removeSet.iterator();
+        while (removeSetIter.hasNext()) {
+ 	      YExternalNetElement element = (YExternalNetElement) removeSetIter.next();
+ 	      element.addToCancelledBySet(this);
+ 	    }     
     }
 
+    public void removeFromRemoveSet(YExternalNetElement e){
+        
+        if (e != null && e instanceof YExternalNetElement)
+      	{ 
+
+          _removeSet.remove(e);	
+      	  e.removeFromCancelledBySet(this);
+      	}
+      	
+      }
+    
     public synchronized List t_fire() throws YStateException, YDataStateException, YQueryException, YPersistenceException {
         YIdentifier id = getI();
         if (!t_enabled(id)) {

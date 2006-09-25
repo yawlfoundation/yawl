@@ -21,12 +21,31 @@ import java.util.*;
 
 public class TimeService extends InterfaceBWebsideController {
 
+	public static TimeService t = null;
+	
+	public TimeService() {
+		super();
+		t = this;
+		
+		List l = DAOFactory.getDAO().retrieveAll();
+		/*
+		 * Restart runners
+		 * */
+		for (int i = 0; i < l.size();i++) {
+			InternalRunner runner = (InternalRunner) l.get(i);
+			runner.start();
+		}
+		
+	}
 
+	public static TimeService getTimeService() {
+		return t;
+	}
+	
     private String _sessionHandle = null;
 
     public void handleEnabledWorkItemEvent(WorkItemRecord workItemRecord) {
         try {
-        	System.out.println("I am in the time service hura");
             if (!checkConnection(_sessionHandle)) {
                 _sessionHandle = connect(DEFAULT_ENGINE_USERNAME, DEFAULT_ENGINE_PASSWORD);
             }
@@ -61,11 +80,12 @@ public class TimeService extends InterfaceBWebsideController {
                         	InternalRunner runner = null;
                             try {
                                 int notify = Integer.parseInt(notifytime);
-                                runner = new InternalRunner(notify, itemRecord, this, _sessionHandle);
+                                runner = new InternalRunner(notify, itemRecord,  _sessionHandle);
                             } catch (Exception e) {
-                                runner=new InternalRunner(notifytime, itemRecord, this, _sessionHandle);
+                                runner=new InternalRunner(notifytime, itemRecord, _sessionHandle);
                             }
                             if (runner.getTime() > 0) {
+                            	runner.saveInternalRunner();
                             	runner.start();
                             }
                         }
@@ -105,21 +125,30 @@ public class TimeService extends InterfaceBWebsideController {
         auth.setProxyAuthentication(userName, password, httpProxyHost, proxyPort);
     }
 
-    public synchronized void finish(WorkItemRecord itemRecord, String _sessionHandle) {
+    public synchronized void finish(WorkItemRecord itemRecord, String _sessionHandle) throws Exception {
         try {
             System.out.println("Checking in work Item: " + itemRecord.getID());
 
-            TaskInformation taskinfo = getTaskInformation(itemRecord.getSpecificationID(),
-                    itemRecord.getTaskID(),
-                    _sessionHandle);
+            if (!checkConnection(_sessionHandle)) {
+                _sessionHandle = connect(DEFAULT_ENGINE_USERNAME, DEFAULT_ENGINE_PASSWORD);
+            }
+            if (!successful(_sessionHandle)) {
+                _logger.error("Unsuccessful");
+            } else {
 
-            checkInWorkItem(itemRecord.getID(),
-                    itemRecord.getWorkItemData(),
-                    new Element(taskinfo.getDecompositionID()),
-                    _sessionHandle);
+            	TaskInformation taskinfo = getTaskInformation(itemRecord.getSpecificationID(),
+            			itemRecord.getTaskID(),
+            			_sessionHandle);
+
+            	checkInWorkItem(itemRecord.getID(),
+            			itemRecord.getWorkItemData(),
+            			new Element(taskinfo.getDecompositionID()),
+            			_sessionHandle);
+            }
 
         } catch (Exception e) {
-            e.printStackTrace();
+        	e.printStackTrace();
+            throw e;
         }
 
     }

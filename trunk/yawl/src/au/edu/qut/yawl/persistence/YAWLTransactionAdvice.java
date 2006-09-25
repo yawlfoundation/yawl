@@ -22,6 +22,7 @@ public class YAWLTransactionAdvice implements ThrowsAdvice, MethodBeforeAdvice, 
 	public void setSessionFactory(SessionFactory fac) {
 		this.sessionFactory = fac;
 		session = sessionFactory.openSession();
+		
 	}
 	
 	public static Session getSession() {
@@ -39,19 +40,39 @@ public class YAWLTransactionAdvice implements ThrowsAdvice, MethodBeforeAdvice, 
 	
 
 	public void before(Method m, Object[] args, Object target) throws Throwable {
-		System.out.println("Entering engine  " + m.getName() + " - > Starting transaction");
-		System.out.println(session.isOpen());
-		tx = session.beginTransaction();
+		try {
+			synchronized (session) {
+				//System.out.println("Entering Engine " + m.getName() + " - > Start Transaction");
+				tx = session.beginTransaction();
+				//System.out.println("Entering Engine " + m.getName() + " - > Transaction Started");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();					
+		}
+		
 	}
 
-	public void afterReturning(Object returnValue, Method m, Object[] args, Object target) throws Throwable {
-		System.out.println("Exiting engine " + m.getName() + " - > Commit");
-		tx.commit();
+	public synchronized void afterReturning(Object returnValue, Method m, Object[] args, Object target) throws Throwable {
+		try {
+			synchronized (session) {
+				//System.out.println("Exiting engine " + m.getName() + " - > Commit");
+				tx.commit();
+				//System.out.println("Exiting engine " + m.getName() + " - > Commit Complete");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();					
+		}
 	}
 
     public void afterThrowing(Exception ex) {
         System.out.println("Exception occured -> Rollback");
-        tx.rollback();
+		synchronized (session) {
+			System.out.println("Exiting engine - > Rollback Initiated");
+			
+        	tx.rollback();
+			System.out.println("Exiting engine  - > Rollback Complete");
+			
+		}
     }
 
 }

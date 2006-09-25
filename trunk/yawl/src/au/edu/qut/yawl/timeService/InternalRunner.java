@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 
-import au.edu.qut.yawl.worklist.model.TaskInformation;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
 /*
@@ -17,10 +16,9 @@ import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 public class InternalRunner extends Thread {
 
     long time = 0;
-    TimeService t = null;
+    String absolutetime = null;
     String id = null;
-    String _sessionHandle = null;
-    TaskInformation taskinfo = null;
+    String _sessionHandle = "";
     WorkItemRecord itemRecord = null;
 
     boolean stopping = false;
@@ -29,8 +27,10 @@ public class InternalRunner extends Thread {
     	return time;
     }
     
-    public InternalRunner(String date, WorkItemRecord itemRecord, TimeService t, String _sessionHandle) {
-        this.t = t;
+    public InternalRunner(String date, WorkItemRecord itemRecord, String _sessionHandle) {
+
+  	
+    	
         this._sessionHandle = _sessionHandle;
         this.itemRecord = itemRecord;
 
@@ -49,7 +49,7 @@ public class InternalRunner extends Thread {
             long to = cal.getTimeInMillis();
             long from = now.getTimeInMillis();
             time = to - from;
-
+            absolutetime = date;
             System.out.println("to: " + to);
             System.out.println("from: " + from);
             System.out.println("time: " + time);
@@ -101,22 +101,46 @@ public class InternalRunner extends Thread {
         stopping = true;
     }
 
-    public InternalRunner(long time, WorkItemRecord itemRecord, TimeService t, String _sessionHandle) {
+    public InternalRunner(long time, WorkItemRecord itemRecord, String _sessionHandle) {
         this.time = time;
-        this.t = t;
         this._sessionHandle = _sessionHandle;
         this.itemRecord = itemRecord;
     }
 
+    private DAO dao = null;
+    public void saveInternalRunner() {
+    	dao = DAOFactory.getDAO();
+    	dao.save(this);
+    }
+    public void setDAO(DAO dao) {
+    	this.dao = dao;    	
+    }
+    
     public void run() {
-
-
-        try {
-            Thread.sleep(time);
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-        if (!stopping)
-            t.finish(itemRecord, _sessionHandle);
+    	boolean retry = true;
+		if (time>0) {
+			try {
+				Thread.sleep(time);
+			} catch (Exception e) {
+				retry = false;
+			}
+		}
+    	
+    	while (retry) {
+    		try {
+    			if (!stopping) {
+    				TimeService.getTimeService().finish(itemRecord, _sessionHandle);
+    				retry = false;
+    				dao.delete();
+    			}
+    		} catch (Exception e) {
+    			retry = true;
+    			try {
+    				Thread.sleep(1000*60);
+    			} catch (Exception e2) {
+    				retry = false;
+    			}
+    		}
+    	}
     }
 }
