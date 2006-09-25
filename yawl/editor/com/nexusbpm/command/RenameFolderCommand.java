@@ -24,7 +24,7 @@ import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
-
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 /**
  * The RenameFolderCommand renames a folder and all its children.
  * 
@@ -67,7 +67,7 @@ public class RenameFolderCommand extends AbstractFileSystemCommand {
         rename( newName, oldName );
     }
     
-    private void rename( String oldName, String newName ) throws URISyntaxException, IOException {
+    private void rename( String oldName, String newName ) throws URISyntaxException, IOException, YPersistenceException {
         String oldPath = folder.getPath();
         String oldURI = "";
         if( folder.isSchemaFile() ) oldURI = folder.getFile().toURI().toASCIIString();
