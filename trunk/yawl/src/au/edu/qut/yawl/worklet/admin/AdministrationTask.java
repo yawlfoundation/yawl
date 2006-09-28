@@ -38,15 +38,14 @@ public class AdministrationTask {
 
     // task types
     public static final int TASKTYPE_REJECTED_SELECTION = 0;
-    public static final int TASKTYPE_NEW_EXTERNAL_TRIGGER = 1;
+    public static final int TASKTYPE_CASE_EXTERNAL_EXCEPTION = 1;
+    public static final int TASKTYPE_ITEM_EXTERNAL_EXCEPTION = 2;
 
     private static Logger _log = Logger.getLogger(
                                  "au.edu.qut.yawl.worklet.admin.AdministrationTask");
 
 
-    public AdministrationTask() {}                        // required for persistence
-
-    /** the constructor */
+    /** the constructors */
     public AdministrationTask(String caseID, String title, String scenario,
                               String process, int taskType) {
         _caseID = caseID ;
@@ -55,6 +54,15 @@ public class AdministrationTask {
         _process = process ;
         _taskType = taskType ;
     }
+
+    /** for item-level task */
+    public AdministrationTask(String caseID, String itemID, String title, String scenario,
+                              String process, int taskType) {
+        this(caseID, title, scenario, process, taskType);
+        _itemID = itemID;
+    }
+
+    public AdministrationTask() {}                        // required for persistence
 
     /***************************************************************************/
 
@@ -128,8 +136,10 @@ public class AdministrationTask {
 
         if (_taskType == TASKTYPE_REJECTED_SELECTION)
             ttype = "Rejected Selection" ;
-        else if (_taskType == TASKTYPE_NEW_EXTERNAL_TRIGGER)
-            ttype = "New External Exception" ;
+        else if (_taskType == TASKTYPE_CASE_EXTERNAL_EXCEPTION)
+            ttype = "New Case-Level External Exception" ;
+        else if (_taskType == TASKTYPE_ITEM_EXTERNAL_EXCEPTION)
+            ttype = "New Item-Level External Exception" ;
 
         s = Library.appendLine(s, "TASK NBR", _wsTaskID);
         s = Library.appendLine(s, "TITLE", _title);

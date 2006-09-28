@@ -14,6 +14,7 @@ import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.jdom.*;
 
@@ -104,11 +105,16 @@ public class HandlerRunner extends WorkletRecord {
     }
 
 
-     /** @return the id of the case the raised the exception */
+    /** @return the id of the case that raised the exception */
     public String getCaseID() {
         return _parentMonitor.getCaseID();
     }
 
+
+    /** @return the id of the spec of the case that raised the exception */
+   public String getSpecID() {
+       return _parentMonitor.getSpecID();
+   }
 
     /** @return the CaseMonitor that is the container for this HandlerRunner */
     public CaseMonitor getOwnerCaseMonitor() {
@@ -236,10 +242,13 @@ public class HandlerRunner extends WorkletRecord {
         }
 
         // reconstitute the susp items list
-        List<String> list = RDRConversionTools.StringToStringList(_suspList);
-        if (list != null) {
-            for (String xmlItem : list) {
-                _suspendedItems.add(RDRConversionTools.xmlStringtoWIR(xmlItem));
+        if (_suspList != null) {
+            List<String> list = RdrConversionTools.StringToStringList(_suspList);
+            if (list != null) {
+                _suspendedItems = new ArrayList();                    // init item list
+                for (String xmlItem : list) {
+                    _suspendedItems.add(RdrConversionTools.xmlStringtoWIR(xmlItem));
+                }
             }
         }
     }

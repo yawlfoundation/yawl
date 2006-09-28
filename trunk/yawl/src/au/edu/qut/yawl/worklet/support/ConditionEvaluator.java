@@ -770,7 +770,7 @@ public class ConditionEvaluator {
 
     /** retrieves the value for a variable or function from the datalist Element */
     private String getVarValue(String var) {
-       String result = null ;
+       String result ;
        _log.debug("in getVarValue, var = " + var) ;
 
        // var "this" refers to the workitem associated with the task named in this rule

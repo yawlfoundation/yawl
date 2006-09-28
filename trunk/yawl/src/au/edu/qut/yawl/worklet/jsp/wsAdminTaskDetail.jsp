@@ -10,10 +10,13 @@
 
     String taskTypeStr = null;
     int taskType = wsTask.getTaskType();
-    if (taskType == AdministrationTask.TASKTYPE_NEW_EXTERNAL_TRIGGER)
-        taskTypeStr = "New External Exception";
+
+    if (taskType == AdministrationTask.TASKTYPE_CASE_EXTERNAL_EXCEPTION)
+       taskTypeStr = "New Case-Level External Exception";
+    else if (taskType == AdministrationTask.TASKTYPE_ITEM_EXTERNAL_EXCEPTION)
+       taskTypeStr = "New Item-Level External Exception";
     else if (taskType == AdministrationTask.TASKTYPE_REJECTED_SELECTION)
-        taskTypeStr = "Rejected Worklet Selection";
+       taskTypeStr = "Rejected Worklet Selection";
 
 %>
 <html xmlns="http://www.w3.org/1999/xhtml">

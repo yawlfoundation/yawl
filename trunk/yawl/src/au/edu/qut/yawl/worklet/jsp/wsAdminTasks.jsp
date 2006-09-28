@@ -40,9 +40,9 @@
             <td width="1"/>
             <td width="250" align="center"><em>Title</em></td>
             <td bgcolor="#000000" width="1"/>
-            <td width="180" align="center"><em>Case ID</em></td>
+            <td width="100" align="center"><em>Case ID</em></td>
             <td bgcolor="#000000" width="1"/>
-            <td width="180" align="center"><em>Task Type</em></td>
+            <td width="300" align="center"><em>Task Type</em></td>
         </tr>
         <tr align="center">
             <td bgcolor="#000000" height="1"/>
@@ -66,8 +66,10 @@
                 wsTask = (AdministrationTask) list.next();
                 wsTaskID = wsTask.getID();
                 taskType = wsTask.getTaskType();
-                if (taskType == AdministrationTask.TASKTYPE_NEW_EXTERNAL_TRIGGER)
-                   taskTypeStr = "New External Exception";
+                if (taskType == AdministrationTask.TASKTYPE_CASE_EXTERNAL_EXCEPTION)
+                   taskTypeStr = "New Case-Level External Exception";
+                else if (taskType == AdministrationTask.TASKTYPE_ITEM_EXTERNAL_EXCEPTION)
+                   taskTypeStr = "New Item-Level External Exception";
                 else if (taskType == AdministrationTask.TASKTYPE_REJECTED_SELECTION)
                    taskTypeStr = "Rejected Worklet Selection";
         %>
@@ -77,9 +79,9 @@
             <td/>
             <td align="center" width="250"><%= wsTask.getTitle() %></td>
             <td/>
-            <td align="center" width="180"><%= wsTask.getCaseID() %></td>
+            <td align="center" width="100"><%= wsTask.getCaseID() %></td>
             <td/>
-            <td align="center" width="180"><%= taskTypeStr %></td>
+            <td align="center" width="300"><%= taskTypeStr %></td>
         </tr>
         <%
             }

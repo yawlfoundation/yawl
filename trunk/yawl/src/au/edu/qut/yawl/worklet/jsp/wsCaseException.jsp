@@ -1,4 +1,5 @@
 <%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.List"%>
 
 <%
     String caseID = request.getParameter("caseID");
@@ -48,50 +49,51 @@
             </tr>
         </table>
 
-        <p>Select the type of exception that has occurred:</p>
+<%
+    List triggers = _exceptionService.getExternalTriggersForCase(caseID);
 
-        <table border="0" cellspacing="0" cellpadding="0">
+    if (triggers == null) {
+%>
+        <p><font color="red">
+            No case-level external exceptions currently defined for this case.
+        </font></p>
+<%
+     }
+%>
 
-            <%
-                String trigger = null;
-                Iterator list = _exceptionService.getExternalTriggersForCase(caseID).iterator();
+    <p>Select the type of exception that has occurred:</p>
 
-                while (list.hasNext()) {
-                    trigger = (String) list.next();
-            %>
+    <table border="0" cellspacing="0" cellpadding="0">
 
+<%
+    if (triggers != null) {
+        String trigger = null;
+        Iterator list = triggers.iterator();
+        while (list.hasNext()) {
+            trigger = (String) list.next();
+%>
             <tr>
                 <td height="30" width="30"/>
                 <td>
-                    <input type="radio" name="trigger" value="<%= trigger %>"/></td>
+                    <input type="radio" name="trigger" value="<%= trigger %>"/>
+                </td>
                 <td width="3"/>
                 <td><%= trigger %></td>
                 <td/>
             </tr>
-
-            <%
-                }
-
-                if (trigger == null) {                              // no triggers found
-            %>
-
-            <h4>
-                <font color="red">No external exceptions currently defined for case.</font>
-            </h4>
-
-            <%
-                }
-            %>
-
-            <tr>
-                <td height="30" width="50"/>
-                <td>
-                    <input type="radio" name="trigger" value="newExternalException"/></td>
-                <td width="3"/>
-                <td><em>New External Exception...</em></td>
-                <td/>
-            </tr>
-        </table>
+<%
+        }
+    }
+%>
+        <tr>
+            <td height="30" width="50"/>
+            <td>
+                <input type="radio" name="trigger" value="newExternalException"/></td>
+            <td width="3"/>
+            <td><em>New External Exception...</em></td>
+            <td/>
+        </tr>
+    </table>
 
         <table border="0" cellspacing="0">
             <tr><td height="30" width="150"/></tr>
