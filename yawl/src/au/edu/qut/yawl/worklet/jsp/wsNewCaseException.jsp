@@ -10,7 +10,7 @@
 
     if ((title != null) && (scenario != null) && (process != null)) {
         _exceptionService.addAdministrationTask(caseID, title, scenario, process,
-                                       AdministrationTask.TASKTYPE_NEW_EXTERNAL_TRIGGER);
+                AdministrationTask.TASKTYPE_CASE_EXTERNAL_EXCEPTION);
        // go back to YAWL worklist
        response.sendRedirect(response.encodeURL("/worklist/availableWork") );
      }

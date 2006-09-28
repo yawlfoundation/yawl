@@ -218,7 +218,7 @@ public class WorkletRecord {
     public void rebuildSearchPair(String specID, String taskID) {
 
         RdrSet ruleSet = new RdrSet(specID);                  // make a new set
-        RdrTree tree = null ;
+        RdrTree tree ;
 
         switch (_reasonType) {
             case WorkletService.XTYPE_CASE_PRE_CONSTRAINTS :
@@ -335,8 +335,11 @@ public class WorkletRecord {
         StringBuffer fName = new StringBuffer(Library.wsSelectedDir) ;
         fName.append(getCaseID()) ;                         // begin with caseID
         fName.append("_") ;
+        fName.append(getSpecID()) ;                         // then spec id
+        fName.append("_") ;
         fName.append(WorkletService.getShortXTypeString(_reasonType));
 
+        // if item-level, add the task name also
         if (_wir != null) {
             fName.append("_");
             fName.append(_wir.getTaskID());

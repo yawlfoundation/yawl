@@ -56,6 +56,16 @@ public class AdminTasksManager {
         return result ;
     }
 
+
+    /** this version is for item level tasks */
+    public AdministrationTask addTask(String caseID, String itemID, String title,
+                                      String scenario, String process, int taskType) {
+        AdministrationTask result = new AdministrationTask(caseID, itemID, title,
+                                                        scenario, process, taskType);
+        addTask(result) ;
+        return result ;
+    }
+
     /******************************************************************************/
 
     /**
@@ -65,7 +75,7 @@ public class AdminTasksManager {
     public void addTask(AdministrationTask task) {
         task.setID(_nextID);
         _tasks.put(_nextID, task);
-        incNextID();                                           // increment the id
+        _nextID = inc(_nextID);                                     // increment the id
     }
 
     /******************************************************************************/
@@ -212,8 +222,8 @@ public class AdminTasksManager {
     /******************************************************************************/
 
     /** increments nextID by one */
-    private String incNextID() {
-        int num = Integer.parseInt(_nextID);
+    private String inc(String numStr) {
+        int num = Integer.parseInt(numStr);
         return String.valueOf(++num);
     }
 

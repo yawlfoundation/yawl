@@ -7,7 +7,6 @@
  */
 package au.edu.qut.yawl.worklet.support;
 
-import au.edu.qut.yawl.worklet.exception.ExceptionService;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 
@@ -30,7 +29,7 @@ import org.apache.log4j.*;
  *
  * Once the function is added, it can be used in any rule's conditional expression
  *
- * Currently only a STUB witch a couple of examples
+ * Currently only a STUB with a couple of examples
  *
  *  @author Michael Adams
  *  BPM Group, QUT Australia
@@ -40,7 +39,8 @@ import org.apache.log4j.*;
 
 public class RDRConditionFunction {
 
-    private static final ExceptionService _es = ExceptionService.getInst();
+    // HEADER //
+
     private static Logger _log =
                         Logger.getLogger("au.edu.qut.yawl.worklet.support.RdrConditionFunction");
 
@@ -65,8 +65,6 @@ public class RDRConditionFunction {
 
     // Note: all args are passed as Strings
     public static String execute(String name, HashMap args) {
-        _log.setLevel(Level.ERROR);
-//        _log.info("execute, name = " + name + ", args = " + args.toString()) ;
         if (name.equalsIgnoreCase("isNotCompleted")) {
             String taskInfo = (String) args.get("this");
             return isNotCompleted(taskInfo);
@@ -79,7 +77,7 @@ public class RDRConditionFunction {
         else if (name.equalsIgnoreCase("min")) {
             int x = getArgAsInt(args, "x");
             int y = getArgAsInt(args, "y");
-            return max(x, y);
+            return min(x, y);
         }
         else if (name.equalsIgnoreCase("today")) {
             return today();
@@ -92,26 +90,25 @@ public class RDRConditionFunction {
 
     // FUNCTION DEFINITIONS //
 
-    public static String max(int x, int y) {
+    private static String max(int x, int y) {
         if (x >= y) return String.valueOf(x) ;
         else return String.valueOf(y) ;
     }
 
-    public static String min(int x, int y) {
+    private static String min(int x, int y) {
         if (x <= y) return String.valueOf(x) ;
         else return String.valueOf(y) ;
     }
 
 
-    public static String isNotCompleted(String itemInfo) {
-        _log.info("in isNotCompleted, info = " + itemInfo);
+    private static String isNotCompleted(String itemInfo) {
         Element eItem = JDOMConversionTools.stringToElement(itemInfo);
         String status = eItem.getChildText("status");
-        _log.info("in isNotCompleted, status = " + status);
         return String.valueOf(! isFinishedStatus(status) );
     }
+    
 
-    public static String today() {
+    private static String today() {
         Date now = new Date() ;
         return now.toString();
     }
@@ -127,7 +124,7 @@ public class RDRConditionFunction {
                status.equals(YWorkItem.Status.Failed) ;
     }
 
-    /** extract the specified argument and reutrns its integer value */
+    /** extract the specified argument and returns its integer value */
     private static  int getArgAsInt(HashMap args, String var) {
         String valStr = (String) args.get(var);
         return Integer.parseInt(valStr);

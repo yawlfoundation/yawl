@@ -1207,6 +1207,7 @@ public class WorkletService extends InterfaceBWebsideController {
 //***************************************************************************//
 //***************************************************************************//
 
+    /** add case-level admin task */
     public void addAdministrationTask(String caseID, String title, String scenario,
                                       String process, int taskType) {
 
@@ -1217,6 +1218,20 @@ public class WorkletService extends InterfaceBWebsideController {
         // suspend case pending admin action
         _exService.suspendCase(caseID);
     }
+
+    
+    /** add item-level admin task */
+    public void addAdministrationTask(String caseID, String itemID, String title,
+                                      String scenario, String process, int taskType) {
+
+        AdministrationTask adminTask =
+               _adminTasksMgr.addTask(caseID, itemID, title, scenario, process, taskType);
+        if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_INSERT) ;
+
+        // suspend item pending admin action
+        _exService.suspendWorkItem(itemID);
+    }
+
 
     public List<String> getAdminTaskTitles() {
         return _adminTasksMgr.getAllTaskTitles() ;

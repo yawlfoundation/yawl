@@ -110,10 +110,6 @@ public class CheckedOutChildItem extends WorkletRecord {
     }
 
 
-    public String toStringSub() {
-        return super.toStringSub();
-    }
-
 //===========================================================================//
 //===========================================================================//
 

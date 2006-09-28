@@ -560,7 +560,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             runner.unsetItemSuspended();
         }
         else if ((target.equalsIgnoreCase("case")) ||
-                 (target.equalsIgnoreCase("allcases"))) {
+                (target.equalsIgnoreCase("allcases")) ||
+                (target.equalsIgnoreCase("ancestorCases"))) {
             unsuspendList(runner);
             runner.unsetCaseSuspended();
         }
@@ -581,6 +582,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             suspendWorkItem(runner);
         else if (target.equalsIgnoreCase("case"))
            suspendCase(runner);
+        else if (target.equalsIgnoreCase("ancestorCases"))
+            suspendAncestorCases(runner);
         else if (target.equalsIgnoreCase("allcases"))
             suspendAllCases(runner);
         else _log.error("Unexpected target type '" + target +
@@ -673,6 +676,23 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 hr.setItem(updateWIR(wir));             // refresh the stored wir
                 children.set(0, hr.getItem());          // ... and the list
                 hr.setSuspendedList(children);          // record the suspended item
+                return true ;
+            }
+        }
+        else
+            _log.error("Can't suspend a workitem with a status of " + wir.getStatus());
+
+        return false ;
+    }
+
+
+    public boolean suspendWorkItem(String itemID) {
+        WorkItemRecord wir = getWorkItemRecord(itemID);
+        ArrayList<WorkItemRecord> children = new ArrayList<WorkItemRecord>();
+
+        if (wir.hasLiveStatus()) {
+            children.add(wir);                          // put item in list for next call
+            if (suspendWorkItemList(children)) {        // suspend the item (list)
                 return true ;
             }
         }
@@ -776,8 +796,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     //***************************************************************************//
 
     /**
-     * Retrieves a list of suspendable workitems for a specified scope (ie.
-     *  enabled, fired or executing).
+     * Retrieves a list of suspendable workitems (ie. enabled, fired or executing)
+     * for a specified scope.
      * @param scope - either case (all items in a case) or spec (all items in all case
      *                instances of that specification) or task (all workitem instances
      *                of that task)
@@ -797,6 +817,25 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         return result ;
     }
 
+    //***************************************************************************//
+
+    /**
+     * Returns all suspendable workitems in the hierarchy of ancestor cases
+     * @param caseID
+     * @return the list of suspendable workitems
+     */
+    private List getListOfSuspendableWorkItemsInChain(String caseID) {
+        List result = getListOfSuspendableWorkItems("case", caseID);
+
+        // if parent is also a worklet, get it's list too
+        while (_handlersStarted.containsKey(caseID)) {
+
+            // get parent's caseID
+            caseID = ((HandlerRunner) _handlersStarted.get(caseID)).getCaseID() ;
+            result.addAll(getListOfSuspendableWorkItems("case", caseID));
+        }
+        return result;
+    }
 
     //***************************************************************************//
 
@@ -822,6 +861,28 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      }
 
     //***************************************************************************//
+
+    /**
+    * Suspends all running worklet cases in the hierarchy of handlers
+    * @param runner - the runner for the child worklet case
+    */
+   private boolean suspendAncestorCases(HandlerRunner runner){
+       String caseID = runner.getCaseID();                    // i.e. id of parent case
+       List<WorkItemRecord> items = getListOfSuspendableWorkItemsInChain(caseID);
+
+       if (suspendWorkItemList(items)) {
+           runner.setSuspendedList(items);
+           runner.setCaseSuspended();
+           _log.info("Completed suspend for all work items in ancestor cases: " + caseID);
+           return true ;
+       }
+       else {
+           _log.error("Attempt to suspend all ancestor cases failed for case: " + caseID);
+           return false ;
+       }
+   }
+
+   //***************************************************************************//
 
     /**
      * Cancels the workitem specified
@@ -920,7 +981,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
         removeCase(caseID);                                // cancel parent case
 
-        // if parent is also a worklet, remove it too
+        // if parent is also a worklet, remove it's parent too
         if (_handlersStarted.containsKey(caseID)) {
              _log.debug("recursing removeAncestorCases with caseId = " + caseID);
              removeAncestorCases(_handlersStarted.get(caseID)) ;
@@ -980,7 +1041,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     private void failWorkItem(WorkItemRecord wir) {
         _log.info("failWorkItem, wir 1 = " + wir.toXML());
         try {
-            // only executing items can be removed, so if its only fired or enabled,
+            // only executing items can be failed, so if its only fired or enabled,
             // move it to executing first
             if (wir.getStatus().equals(YWorkItem.Status.Fired) ||
                 wir.getStatus().equals(YWorkItem.Status.Enabled)) {
@@ -1042,7 +1103,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         else _log.info("No suspended workitems to unsuspend") ;
     }
 
-
+    //***************************************************************************//
     //***************************************************************************//
 
     /*************************/
@@ -1306,7 +1367,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     /**
      * Starts the specified workitem in the engine
      * @param wir - the item to start
-     * @return a list of the satarted item's child items
+     * @return a list of the started item's child items
      */
      private List startItem(WorkItemRecord wir) {
          String itemID = wir.getID() ;
@@ -1439,15 +1500,18 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
             String caseID, taskID;
             WorkItemRecord wir = null;
+            int xLevel ;
 
             if (level.equalsIgnoreCase("case")) {                // if case level
                 caseID = id;
                 taskID = null;
+                xLevel = XTYPE_CASE_EXTERNAL_TRIGGER ;
             }
             else {                                               // else item level
                 wir = getWorkItemRecord(id);
                 caseID = wir.getCaseID();
                 taskID = wir.getTaskID();
+                xLevel = XTYPE_ITEM_EXTERNAL_TRIGGER ;
             }
 
             // get case monitor for this case
@@ -1456,7 +1520,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             monitor.addTrigger(trigger);                 // add trigger value to case data
 
             // get the exception handler for this trigger
-            RdrConclusion conc = getExceptionHandler(monitor, taskID, XTYPE_CASE_EXTERNAL_TRIGGER);
+            RdrConclusion conc = getExceptionHandler(monitor, taskID, xLevel);
 
             // if conc is null there's no rules defined for this type of constraint
             if (conc == null)
@@ -1464,9 +1528,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                         monitor.getSpecID() +
                         ". Unable to raise exception for '" + trigger + "'");
             else if (wir == null)
-                raiseException(monitor, conc, "external", XTYPE_CASE_EXTERNAL_TRIGGER);
+                raiseException(monitor, conc, "external", xLevel);
             else
-                raiseException(monitor, conc, wir, XTYPE_ITEM_EXTERNAL_TRIGGER);
+                raiseException(monitor, conc, wir, xLevel);
 
             monitor.removeTrigger();
         }
@@ -1545,7 +1609,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                case XTYPE_ITEM_POST_CONSTRAINTS : checkConstraints(mon, wir, false); break;
                case XTYPE_WORKITEM_ABORT : break;   // not yet implemented
                case XTYPE_TIMEOUT :
-                       handleTimeoutEvent(wir, wir.getTaskID()); break ;
+                   if (wir != null) handleTimeoutEvent(wir, wir.getTaskID()); break ;
                case XTYPE_RESOURCE_UNAVAILABLE : break;   // not yet implemented
                case XTYPE_CONSTRAINT_VIOLATION : break;   // not yet implemented
                case XTYPE_CASE_EXTERNAL_TRIGGER :
@@ -1576,7 +1640,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
     /** returns true if case specified is a worklet instance */
     public boolean isWorkletCase(String caseID) {
-       return (_handlersStarted.containsKey(caseID) || super.isWorkletCase(caseID)) ;
+        return (_handlersStarted.containsKey(caseID) ||
+                WorkletService.getInstance().isWorkletCase(caseID)) ;
     }
 
     //***************************************************************************//
