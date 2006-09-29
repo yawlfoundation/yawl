@@ -99,7 +99,7 @@ public class TestMiDataOutput extends TestCase {
     public void testRunMultiInstance() {
     	try {
     		YSpecification spec = readSpecification( _spec1File );
-    		runMultiInstance( spec, false );
+    		runMultiInstance( spec );
     	}
     	catch( Exception e ) {
     		StringWriter sw = new StringWriter();
@@ -121,7 +121,7 @@ public class TestMiDataOutput extends TestCase {
     	return _engine.getSpecification( specIDs.get( 0 ) );
     }
     
-    private void runMultiInstance(YSpecification specification, boolean b) throws YStateException,
+    private void runMultiInstance(YSpecification specification) throws YStateException,
 			YSchemaBuildingException, YDataStateException, YPersistenceException, YQueryException {
 		// variables
     	Set<YWorkItem> workItems;
@@ -257,7 +257,7 @@ public class TestMiDataOutput extends TestCase {
 //    		_specification.setBetaVersion(YSpecification._Beta2);
     		YSpecification spec = readSpecification( _spec1File );
     		spec.setBetaVersion(YSpecification._Beta2);
-        	runMultiInstance( spec, false );
+        	runMultiInstance( spec );
 //    		testRunMultiInstance();
     		fail("The proper exception was not thrown.");
     	}
@@ -363,7 +363,7 @@ public class TestMiDataOutput extends TestCase {
     public void testRunMultiInstance3() {
     	try {
     		YSpecification spec = readSpecification( _spec3File );
-    		runMultiInstance( spec, false );
+    		runMultiInstance( spec );
     	}
     	catch( Exception e ) {
     		StringWriter sw = new StringWriter();
@@ -379,7 +379,7 @@ public class TestMiDataOutput extends TestCase {
     		spec.setBetaVersion( YSpecification._Beta2 );
 //    		_specification3.setBetaVersion( YSpecification._Beta2 );
 //    	try {
-    		runMultiInstance( spec, false );
+    		runMultiInstance( spec );
     		fail("An exception should have been thrown");
     	}
     	catch(YDataQueryException e) {
@@ -400,7 +400,7 @@ public class TestMiDataOutput extends TestCase {
     		YAtomicTask task = (YAtomicTask) spec.getRootNet().getNetElement("record");
     		task.getMultiInstanceAttributes().setMinInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 1");
 //    	try {
-    		runMultiInstance( spec, false );
+    		runMultiInstance( spec );
     		fail("An exception should have been thrown");
     	}
     	catch(YQueryException e) {
@@ -422,7 +422,7 @@ public class TestMiDataOutput extends TestCase {
     		task.getMultiInstanceAttributes().setMinInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 1");
     		spec.setBetaVersion( YSpecification._Beta2 );
 //    	try {
-    		runMultiInstance( spec, false );
+    		runMultiInstance( spec );
     		fail("An exception should have been thrown");
     	}
     	catch(YQueryException e) {
@@ -443,7 +443,7 @@ public class TestMiDataOutput extends TestCase {
     		YAtomicTask task = (YAtomicTask) spec.getRootNet().getNetElement("record");
     		task.getMultiInstanceAttributes().setMaxInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 10");
 //    	try {
-    		runMultiInstance(spec, false);
+    		runMultiInstance( spec );
     		fail("An exception should have been thrown");
     	}
     	catch(YQueryException e) {
@@ -465,7 +465,7 @@ public class TestMiDataOutput extends TestCase {
     		task.getMultiInstanceAttributes().setMaxInstancesQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 10");
     		spec.setBetaVersion( YSpecification._Beta2 );
 //    	try {
-    		runMultiInstance( spec, false );
+    		runMultiInstance( spec );
     		fail("An exception should have been thrown");
     	}
     	catch(YQueryException e) {
@@ -486,7 +486,7 @@ public class TestMiDataOutput extends TestCase {
     		YAtomicTask task = (YAtomicTask) spec.getRootNet().getNetElement("record");
     		task.getMultiInstanceAttributes().setThresholdQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 4");
 //    	try {
-    		runMultiInstance( spec, false );
+    		runMultiInstance( spec );
     		fail("An exception should have been thrown");
     	}
     	catch(YSchemaBuildingException e) {
@@ -508,7 +508,7 @@ public class TestMiDataOutput extends TestCase {
     		task.getMultiInstanceAttributes().setThresholdQuery("if ( count(/OverseeMusic/songlist/*) &gt; 0) then ( count(/OverseeMusic/songlist/*) ) else 4");
     		spec.setBetaVersion( YSpecification._Beta2 );
 //    	try {
-    		runMultiInstance( spec, false );
+    		runMultiInstance( spec );
     		fail("An exception should have been thrown");
     	}
     	catch(YDataQueryException e) {

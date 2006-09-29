@@ -46,7 +46,7 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
         lastEvent = evt;
     }
 
-	public void testMemDataContext() {
+	public void testMemDataContext() throws YPersistenceException {
 //		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
 		DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
 		DataContext context = new DataContext(memdao);
@@ -91,11 +91,7 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
 		assertEquals(lastEvent.getPropertyName(), "name");
 		assertEquals(lastEvent.getOldValue(), "bTest");
 		assertEquals(lastEvent.getNewValue(), "aNewName");
-		try  {
-			context.save(proxy);
-		} catch (YPersistenceException e) {
-			fail("PersistenceException should not have been thrown");
-		}
+		context.save(proxy);
 		context.delete(proxy);
 		try {
 			context.getKeyFor(proxy2);

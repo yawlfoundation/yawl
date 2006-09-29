@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.StringProducerXML;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
@@ -30,7 +31,7 @@ public class TestSpecificationFileDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
-	public void testDelete() {
+	public void testDelete() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
@@ -79,7 +80,7 @@ public class TestSpecificationFileDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
 	 */
-	public void testSave() {
+	public void testSave() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		StringProducerXML spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();

@@ -26,7 +26,6 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.exception.ConstraintViolationException;
 
 import au.edu.qut.yawl.elements.KeyValue;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
@@ -53,10 +52,6 @@ import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.events.Event;
-
-import au.edu.qut.yawl.events.YWorkItemEvent;
-import au.edu.qut.yawl.events.YCaseEvent;
-import au.edu.qut.yawl.events.YDataEvent;
 
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
@@ -132,10 +127,9 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 		} if (session==null) {
 			session = sessionFactory.openSession();
 		}
-		
 		return session;
 	}
-
+	
 	public DelegatedHibernateDAO() {
 		addType( YSpecification.class, new SpecificationHibernateDAO() );
 		addType( YNetRunner.class, new NetRunnerHibernateDAO() );
@@ -143,8 +137,6 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 		addType( YWorkItem.class, new WorkItemHibernateDAO() );
 		addType( YIdentifier.class, new IdentifierHibernateDAO() );
 		addType( YAWLServiceReference.class, new YAWLServiceReferenceHibernateDAO() );
-
-		
 	}
 	
 	public List getChildren( Object object ) {
@@ -170,8 +162,6 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 //				}
 				session.delete( persistedObject );
 				tx.commit();
-				//session.close();
-
 				return true;
 			}
 			catch( ObjectDeletedException ode ) {
@@ -210,11 +200,9 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 				Transaction tx = session.beginTransaction();
 				retval = (Type) session.get( type, (Serializable) key );
 				tx.commit();
-				//session.close();
 				return retval;
 			}
 			catch (Exception e) {
-				//e.printStackTrace();
 				LOG.error( e );
 				try {
 					if( session != null && session.isOpen() ) {
@@ -254,8 +242,6 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	            Set set = new HashSet( tmp );
 				List<Type> retval = new ArrayList<Type>( set );
 				tx.commit();
-				//session.close();
-
 				return retval;
 			}
 			catch (Exception e) {
@@ -292,23 +278,12 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 				session.saveOrUpdate( object );
 				LOG.debug( "Persisting " + getKey( object ) );
 				tx.commit();
-				//session.close();
 			}
 			catch( HibernateException e2 ) {
-				// Should be thrown
 				LOG.error( (Throwable) e2 );
-				//if (e2 instanceof ConstraintViolationException) {
-					e2.printStackTrace();
-				//}
-				try {
-					Thread.sleep(100000);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
 			}
 			catch( Exception e ) {
 				LOG.error( e );
-				//e.printStackTrace();
 				try {
 					if( session != null && session.isOpen() ) {
 						if( session.isConnected() ) session.connection().rollback();

@@ -5,6 +5,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.StringProducerXML;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
@@ -34,7 +35,7 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
-	public void testDelete() {
+	public void testDelete() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());
@@ -47,7 +48,7 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.retrieve(Object)'
 	 */
-	public void testRetrieve() {
+	public void testRetrieve() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
 		String pk = testSpec.getID();
@@ -55,7 +56,7 @@ public class TestSpecificationMemoryDAO extends TestCase {
 		assertNotNull(spec);
 	}
 	
-	public void testRetrieveByRestriction() {
+	public void testRetrieveByRestriction() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		
 		testSpec.setDocumentation( "asdf test 1234" );
@@ -93,7 +94,7 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
 	 */
-	public void testSave() {
+	public void testSave() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
 		YSpecification spec2 = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());
@@ -103,7 +104,7 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.getKey(YSpecification)'
 	 */
-	public void testGetKey() {
+	public void testGetKey() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());

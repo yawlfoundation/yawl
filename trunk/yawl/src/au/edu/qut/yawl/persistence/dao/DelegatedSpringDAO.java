@@ -7,16 +7,10 @@
  */
 package au.edu.qut.yawl.persistence.dao;
 
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.criterion.DetachedCriteria;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.context.ApplicationContext;
 
 import au.edu.qut.yawl.elements.YAWLServiceReference;
@@ -25,9 +19,6 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.Problem;
-import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
-import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
-import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 import au.edu.qut.yawl.engine.EngineFactory;
 
 public class DelegatedSpringDAO extends AbstractDelegatedDAO {

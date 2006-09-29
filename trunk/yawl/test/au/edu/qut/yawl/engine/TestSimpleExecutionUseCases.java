@@ -68,11 +68,11 @@ public class TestSimpleExecutionUseCases extends TestCase{
 
 
     public void testUseCase1(){
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 //System.out.println("caseid: " + _caseId);
         YWorkItem item = _engine.getWorkItem(
                 _caseId.toString() +

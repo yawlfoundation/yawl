@@ -28,7 +28,13 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.elements.state.YInternalCondition;
+import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YCaseData;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.engine.domain.YWorkItemID;
+import au.edu.qut.yawl.events.Event;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 
 
@@ -50,25 +56,31 @@ public class StringProducerHibernate extends StringProducerXML {
 //		StringProducerHibernate.deleteAfterRun = deleteAfterRun;
 		if (INSTANCE == null) {
 			Class[] classes = new Class[] {
-						KeyValue.class,
-						YFlow.class,
-						YMultiInstanceAttributes.class,
-						YCompositeTask.class,
-						YAtomicTask.class,
-						YTask.class,
-						YInputCondition.class,
-						YOutputCondition.class,
-						YCondition.class,
-						YExternalNetElement.class,
-						YAWLServiceReference.class,
-						YAWLServiceGateway.class,
-						YVariable.class,
-						YParameter.class,
-						YDecomposition.class,
-						YNet.class,
-						YCaseData.class,
-						YMetaData.class,
-						YSpecification.class
+					KeyValue.class,
+					YInternalCondition.class,
+					YFlow.class,
+					YMultiInstanceAttributes.class,
+					YCompositeTask.class,
+					YAtomicTask.class,
+					YTask.class,
+					YInputCondition.class,
+					YOutputCondition.class,
+					YCondition.class,
+					YExternalNetElement.class,
+					YAWLServiceReference.class,
+					YAWLServiceGateway.class,
+					YVariable.class,
+					YParameter.class,
+					YDecomposition.class,
+					YNet.class,
+					YCaseData.class,
+					YMetaData.class,
+					YSpecification.class,
+					YNetRunner.class,
+					YWorkItem.class,
+					YWorkItemID.class,
+					YIdentifier.class,
+					Event.class
 				};
 			
 			INSTANCE = new StringProducerHibernate();

@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.elements.YSpecification;
 
 public class SpecificationSpringDAO extends AbstractSpringDAO<YSpecification> {

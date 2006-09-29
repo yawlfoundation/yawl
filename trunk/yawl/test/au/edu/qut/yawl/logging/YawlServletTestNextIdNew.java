@@ -12,6 +12,7 @@ package au.edu.qut.yawl.logging;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import au.edu.qut.yawl.events.YawlEventLogger;
 
 public class YawlServletTestNextIdNew extends TestCase {
 
@@ -26,7 +27,7 @@ public class YawlServletTestNextIdNew extends TestCase {
     }
 
     public void testNextId() {
-        YawlLogServletInterface yawllog = YawlLogServletInterface.getInstance();
+        YawlEventLogger yawllog = YawlEventLogger.getInstance();
 
         String x = yawllog.getNextCaseId();
 

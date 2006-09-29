@@ -1,6 +1,8 @@
 package au.edu.qut.yawl.persistence.dao;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,7 +16,6 @@ import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
-import au.edu.qut.yawl.persistence.managed.DataContext;
 import junit.framework.TestCase;
 import au.edu.qut.yawl.persistence.StringProducerXML;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
@@ -68,8 +69,10 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			assertNull(runner3);
 			
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail("No exception should be thrown here");
+			StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 	}
 
@@ -94,9 +97,11 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			System.out.println(r.getNet());
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		System.err.println( sw.toString() );
 		}
-
 	}
 
 	/*
@@ -110,8 +115,10 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
 			assertNotNull(runner2);
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail("No exception should be thrown here");
+			StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 	}
 	
@@ -126,8 +133,10 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			Object runner3 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
 			assertNotNull(runner3);
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail("No exception should be thrown here");
+			StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 	}
 
@@ -149,17 +158,10 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
 			assertNotNull(runner2);
 		} catch (Exception e) {
-			//e.printStackTrace();
-			fail("No exception should be thrown here");
+			StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 	}
-	
-	
-	/*
-	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.getKey(YSpecification)'
-	 */
-	public void testGetKey() {
-	}
-
-
 }
