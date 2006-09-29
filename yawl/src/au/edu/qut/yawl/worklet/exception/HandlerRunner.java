@@ -243,11 +243,11 @@ public class HandlerRunner extends WorkletRecord {
 
         // reconstitute the susp items list
         if (_suspList != null) {
-            List<String> list = RdrConversionTools.StringToStringList(_suspList);
+            List<String> list = RDRConversionTools.StringToStringList(_suspList);
             if (list != null) {
                 _suspendedItems = new ArrayList();                    // init item list
                 for (String xmlItem : list) {
-                    _suspendedItems.add(RdrConversionTools.xmlStringtoWIR(xmlItem));
+                    _suspendedItems.add(RDRConversionTools.xmlStringtoWIR(xmlItem));
                 }
             }
         }

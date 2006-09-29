@@ -349,13 +349,11 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
         return messages;
     }
 
-/*
     public String toString() {
         String className = getClass().getName();
         return className.substring(className.lastIndexOf('.') + 2) +
                 ":from[" + _priorElement + "]to[" + _nextElement + "]";
     }
-*/
 
     public String toXML() {
         StringBuffer xml = new StringBuffer();

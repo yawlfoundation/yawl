@@ -14,9 +14,9 @@ import java.util.List;
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.YNetRunner;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.StringProducerXML;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
-import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
@@ -46,7 +46,7 @@ public class TestSpecificationHibernateDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
-	public void testDelete() {
+	public void testDelete() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
 		Object key = myDAO.getKey(testSpec);
@@ -60,14 +60,14 @@ public class TestSpecificationHibernateDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.retrieve(Object)'
 	 */
-	public void testRetrieve() {
+	public void testRetrieve() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, myDAO.getKey(testSpec));	
 		assertNotNull(spec);
 	}
 	
-	public void testRetrieveByRestriction() {
+	public void testRetrieveByRestriction() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		
 		// TODO we need to clean up possible failed previous runs before we run this test
@@ -104,7 +104,7 @@ public class TestSpecificationHibernateDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
 	 */
-	public void testSave() {
+	public void testSave() throws YPersistenceException {
 		DAO hibernateDAO = getDAO();
 		hibernateDAO.save(testSpec);
 		YSpecification spec2 = (YSpecification) hibernateDAO.retrieve(YSpecification.class,testSpec.getDbID());

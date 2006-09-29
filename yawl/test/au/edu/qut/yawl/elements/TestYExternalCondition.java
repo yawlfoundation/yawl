@@ -74,6 +74,7 @@ public class TestYExternalCondition extends TestCase {
 
     public void testMovingIdentifiers() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
         YIdentifier id = new YIdentifier();
+        YIdentifier.saveIdentifier( id, null, null );
         assertTrue(id.getLocations().size() == 0);
         assertFalse(id.getLocations().contains(_condition));
         _condition.add(id);

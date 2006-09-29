@@ -49,6 +49,10 @@ public class TestHibernateMarshal extends XMLTestCase  {
     public void testDecompMinimal() throws Exception {
     	assertComparison("Comparing a minimal spec", "TestDecompMinimal.xml");
     }
+    
+    public void testGateway() throws Exception {
+    	assertComparison("Comparing a complex spec with a gateway", "TestGateway.xml");
+    }
 	
 //    public void testSpecImportedNet() throws Exception {
 //    	// Ask Lachlan for an imported net example
