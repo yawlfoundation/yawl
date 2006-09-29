@@ -24,10 +24,13 @@
 
 package au.edu.qut.yawl.editor.actions.element;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
@@ -419,7 +422,16 @@ class DistributeToUserAndRoleVariablesPanel extends AbstractWizardPanel {
 }
 
 class SelectionByFamiliarityPanel extends AbstractWizardPanel {
+  
+  private JRadioButton distributeVlaCompletedButton;
+  private JRadioButton distributeViaNonCompleteButton;
+  private JRadioButton noDistirbuteButton;
 
+  private ButtonGroup buttonGroup;
+
+  private JComboBox taskComboBox;
+  private JComboBox familarityTypeComboBox;
+  
   public SelectionByFamiliarityPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
@@ -442,15 +454,106 @@ class SelectionByFamiliarityPanel extends AbstractWizardPanel {
 
     gbc.gridx = 0;
     gbc.gridy = 0;
-    gbc.gridwidth = 3;
+    gbc.gridwidth = 4;
     gbc.weighty = 0;
-    gbc.insets = new Insets(10,0,10,0);
-    gbc.fill = GridBagConstraints.BOTH;
+    gbc.insets = new Insets(5,0,0,0);
+    gbc.fill = GridBagConstraints.NONE;
     gbc.anchor = GridBagConstraints.WEST;
 
-    add(new JLabel("from the following options, selecte how familiarity with this task effects it's allocation."), gbc);
+    add(new JLabel(
+        "From the following options, select how familiarity with a task effects allocation."
+        ), gbc
+    );
+
+    gbc.gridy++;
+    gbc.insets = new Insets(0,5,0,0);
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.WEST;
+
+    add(buildNoDistributionRadioButton(), gbc);
+
+    gbc.gridy++;
+    gbc.insets = new Insets(10,0,0,2);
+
+    add(new JLabel(
+        "Distribute work-items of this task to those users of a running case who:"
+        ), gbc
+    );
+
+    gbc.gridy++;
+    gbc.gridwidth = 1;
+    gbc.insets = new Insets(0,5,0,0);
+
+    add(buildCompletedRadioButton(), gbc);
+
+    gbc.insets = new Insets(0,5,0,0);
+    gbc.gridy++;
     
+    add(buildNonCompletedRadioButton(), gbc);
+
+    buttonGroup = new ButtonGroup();
+    
+    buttonGroup.add(noDistirbuteButton);
+    buttonGroup.add(distributeVlaCompletedButton);
+    buttonGroup.add(distributeViaNonCompleteButton);
+
+    buttonGroup.setSelected(noDistirbuteButton.getModel(),true);
+
+    gbc.gridx = 1;
+    gbc.gridy = gbc.gridy - 1;
+    gbc.insets = new Insets(0,5,0,5);
+    gbc.gridheight = 2;
+    
+    add(new JLabel("the task"),gbc);
+    
+    gbc.gridx++;
+    
+    add(buildTaskComboBox(),gbc);
+
+    gbc.gridx++;
+    
+    add(buildFamiliarityTypeComboBox(),gbc);
   }
+  
+  private JRadioButton buildCompletedRadioButton() {
+    distributeVlaCompletedButton = new JRadioButton("have completed");
+    return distributeVlaCompletedButton;
+  }
+  
+  private JRadioButton buildNonCompletedRadioButton() {
+    distributeViaNonCompleteButton = new JRadioButton("have not completed");
+    return distributeViaNonCompleteButton;
+  }
+
+  private JRadioButton buildNoDistributionRadioButton() {
+    noDistirbuteButton = new JRadioButton("Do not distribute work-items of this task based on familiarity, or");
+    return noDistirbuteButton;
+  }
+  
+  private JComboBox buildFamiliarityTypeComboBox() {
+    familarityTypeComboBox = new JComboBox(
+      new String[] {
+          "the most number of times.",
+          "the least number of times.",
+          "most recently.",
+          "least recently."
+      }
+    );
+    
+    return familarityTypeComboBox;
+  }
+
+  private JComboBox buildTaskComboBox() {
+    taskComboBox = new JComboBox(
+      new String[] {
+          "this task",
+          "some other task"
+      }
+    );
+    
+    return taskComboBox;
+  }
+
   
   public void doBack() {
     System.out.println("some back processing here");
