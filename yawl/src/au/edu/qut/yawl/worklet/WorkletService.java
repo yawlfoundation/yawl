@@ -11,6 +11,7 @@ package au.edu.qut.yawl.worklet;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.worklist.model.*;
 import au.edu.qut.yawl.elements.data.* ;
 import au.edu.qut.yawl.authentication.User;

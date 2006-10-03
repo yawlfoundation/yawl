@@ -168,15 +168,16 @@ public class Marshaller {
      * @param specificationSummaryListXML
      * @return  the list
      */
-    public static List unmarshalSpecificationSummary(String specificationSummaryListXML) {
-        List specSummaryList = new ArrayList();
+    public static List<SpecificationData> unmarshalSpecificationSummary(String specificationSummaryListXML) {
+        List<SpecificationData> specSummaryList =
+                new ArrayList<SpecificationData>();
         Document doc = null;
         try {
             SAXBuilder builder = new SAXBuilder();
             doc = builder.build(new StringReader(specificationSummaryListXML));
             List specSummaryElements = doc.getRootElement().getChildren();
             for (int i = 0; i < specSummaryElements.size(); i++) {
-                SpecificationData specData = null;
+                SpecificationData specData;
                 Element specElement = (Element) specSummaryElements.get(i);
                 String specID = specElement.getChildText("id");
                 String specName = specElement.getChildText("name");

@@ -36,6 +36,7 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
