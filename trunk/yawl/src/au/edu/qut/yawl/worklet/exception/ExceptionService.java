@@ -11,6 +11,7 @@ import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.interfaceX.*;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 
 import au.edu.qut.yawl.worklet.rdr.*;
 import au.edu.qut.yawl.worklet.WorkletService;

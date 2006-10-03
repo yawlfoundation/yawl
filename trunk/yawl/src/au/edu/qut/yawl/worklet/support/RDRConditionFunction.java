@@ -9,6 +9,7 @@ package au.edu.qut.yawl.worklet.support;
 
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.util.JDOMConversionTools;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 
 import java.util.*;
 

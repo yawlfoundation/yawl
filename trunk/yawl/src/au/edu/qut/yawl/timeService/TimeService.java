@@ -13,6 +13,7 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.AuthenticationConfig;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.worklist.model.TaskInformation;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 import org.jdom.Element;
@@ -22,7 +23,7 @@ import java.util.*;
 public class TimeService extends InterfaceBWebsideController {
 
 	public static TimeService t = null;
-	
+
 	public TimeService() {
 		super();
 		t = this;
@@ -55,22 +56,20 @@ public class TimeService extends InterfaceBWebsideController {
                 WorkItemRecord child = checkOut(workItemRecord.getID(), _sessionHandle);
 
                 if (child != null) {
-                    List children = super.getChildren(workItemRecord.getID(), _sessionHandle);
-                    for (int i = 0; i < children.size(); i++) {
-                        WorkItemRecord itemRecord = (WorkItemRecord) children.get(i);
-                        if (YWorkItem.Status.Fired.equals(itemRecord.getStatus())) {
-                            checkOut(itemRecord.getID(), _sessionHandle);
+                    List<WorkItemRecord> children = super.getChildren(workItemRecord.getID(), _sessionHandle);
+                    for (WorkItemRecord workitem : children) {
+                        if (YWorkItem.Status.Fired.equals(workitem.getStatus())) {
+                            checkOut(workitem.getID(), _sessionHandle);
                         }
                     }
                     children = super.getChildren(workItemRecord.getID(), _sessionHandle);
-                    for (int i = 0; i < children.size(); i++) {
-                        WorkItemRecord itemRecord = (WorkItemRecord) children.get(i);
+                    for (WorkItemRecord workitem : children) {
                         //System.out.println("WebServiceController::processEnabledAnnouncement() itemRecord = " + itemRecord);
-                        super._model.addWorkItem(itemRecord);
+                        super._model.addWorkItem(workitem);
 
-                        System.out.println("added: " + itemRecord.getID());
+                        System.out.println("added: " + workitem.getID());
 
-                        Element inputData = itemRecord.getWorkItemData();
+                        Element inputData = workitem.getWorkItemData();
                         System.out.println(inputData);
                         Element element = (Element) inputData.getChildren().get(0);
                         String notifytime = element.getText();
@@ -80,17 +79,17 @@ public class TimeService extends InterfaceBWebsideController {
                         	InternalRunner runner = null;
                             try {
                                 int notify = Integer.parseInt(notifytime);
-                                runner = new InternalRunner(notify, itemRecord,  _sessionHandle);
+                                runner = new InternalRunner(notify, workitem,  _sessionHandle);
                             } catch (Exception e) {
-                                runner=new InternalRunner(notifytime, itemRecord, _sessionHandle);
+                                runner=new InternalRunner(notifytime, workitem, _sessionHandle);
                             }
                             if (runner.getTime() > 0) {
                             	runner.saveInternalRunner();
                             	runner.start();
-                            }
                         }
                     }
                 }
+            }
             }
             //	return report;
         } catch (Exception e) {
@@ -136,18 +135,18 @@ public class TimeService extends InterfaceBWebsideController {
                 _logger.error("Unsuccessful");
             } else {
 
-            	TaskInformation taskinfo = getTaskInformation(itemRecord.getSpecificationID(),
-            			itemRecord.getTaskID(),
-            			_sessionHandle);
+            TaskInformation taskinfo = getTaskInformation(itemRecord.getSpecificationID(),
+                    itemRecord.getTaskID(),
+                    _sessionHandle);
 
-            	checkInWorkItem(itemRecord.getID(),
-            			itemRecord.getWorkItemData(),
-            			new Element(taskinfo.getDecompositionID()),
-            			_sessionHandle);
+            checkInWorkItem(itemRecord.getID(),
+                    itemRecord.getWorkItemData(),
+                    new Element(taskinfo.getDecompositionID()),
+                    _sessionHandle);
             }
 
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
             throw e;
         }
 
