@@ -344,8 +344,8 @@ public class TestEngineGateway extends TestCase {
 		
 		xml = _gateway.getCaseState( _caseID, _session );
 		assertNotNull( xml );
-		assertTrue( xml, xml.equals(
-				"<caseState caseID=\"" + _caseID + "\" specID=\"OneTwoThreeSpec.xml\">" +
+		assertEquals(
+                "<caseState caseID=\"" + _caseID + "\" specID=\"OneTwoThreeSpec.xml\">" +
 					"<task id=\"AtomicTask:one\" name=\"DecompOne\">" +
 						"<internalCondition id=\"active[AtomicTask:one]\">" +
 							"<identifier>" + _caseID + ".1</identifier>" +
@@ -354,8 +354,8 @@ public class TestEngineGateway extends TestCase {
 							"<identifier>" + _caseID + ".1</identifier>" +
 						"</internalCondition>" +
 					"</task>" +
-				"</caseState>" ) );
-		
+				"</caseState>", xml);
+
 		// the item should be executing now
 		Set<WorkItemRecord> items = getWorkItemsWithStatus( YWorkItem.Status.Executing );
 		assertNotNull( items );
