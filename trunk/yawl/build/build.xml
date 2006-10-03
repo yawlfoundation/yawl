@@ -73,6 +73,7 @@
     <!-- AJH - New lines for Tomcat/Ant iface -->
     <property name="tomcat_manager_url" value="${tomcat.protocol}://${tomcat.address}:${tomcat.port}/manager"/>
 
+
     <!-- Tell Ant where to find the custom catalina/tomcat build tasks -->
     <path id="tomcat.tasks.classpath"
 	  path="${env.CATALINA_HOME}/server/lib/catalina-ant.jar" />
@@ -1710,7 +1711,7 @@
     	build_yawlXForms.war,
         build_TimeService.war,
         build_admintool.war,
-	build_PDFforms.war,
+	    build_PDFforms.war,
         build_workletService.war,
         javadoc">
     </target>
@@ -1726,7 +1727,7 @@
   	Compile test source code
     Compiles the source for test cases into the ${classes} directory.
   	-->
-    <target name="compile-test" depends="buildAll">
+    <target name="compile-test" depends="compile">
         <copy todir="${classes}">
             <fileset dir="${test}" excludes="**/*.java"/>
         </copy>
@@ -1743,10 +1744,13 @@
     Run the unit tests
     Invokes the unit tests.
     -->
-    <target name="test" depends="compile-test">
+    <target name="test" depends="compile-test" >
         <java classname="au.edu.qut.yawl.TestAllYAWLSuites" fork="true" failonerror="false">
+            <classpath refid="cp.persist"/>
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
         </java>
     </target>
 
