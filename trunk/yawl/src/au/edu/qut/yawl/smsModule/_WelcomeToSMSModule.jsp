@@ -31,21 +31,23 @@
         if(request.getMethod().equals("GET")){
         %>
         <img src="smsomp.jpg"/>
-		<h3>Please enter your SMS Direct username and password</h3>
+		<h3>Please enter your SMS Account username and password</h3>
 
         <p>This module can send and receive SMS messages and pass the data
         into and out of the workflow engine.</p>
 
         <p>In order to pass the messages
-        onto the mobile network this module relies on a proprietary Web
-        service.
-        <br/>i.e. You need to set up an account with
-        <a href="http://www.directsms.com.au">this company</a> and enter
-        your account info below.</p>
+        onto the mobile network this component relies on a proprietary
+            SMS Gateway style Web service.
+        <br/>i.e. It is currently configured to work with accounts
+            (that you will have to create) with
+        <a href="http://www.valuesms.com.au">valuesms.com.au</a>.
+        </p>
 
-        <p>NB: You do not need to log in to the company Web site, this Web
-        application will log in automatically when the message needs to
-        be sent.</p>
+        <p>Once you have established an account it is necessary to configure
+        this component with your account username and password.  This way when
+        the process engine needs to send/receive SMS messages it uses your account
+        information.</p>
 
 		<center>
 			<form method="post" action="<%= request.getContextPath() %>/smsWelcome">
@@ -86,8 +88,6 @@
 
             String username = request.getParameter("username");
             String password = request.getParameter("password");
-System.out.println("Setting username = " + username);
-System.out.println("Setting password = " + password);
 
             SMSSender _smsController = (SMSSender) application.getAttribute("controller");
 
