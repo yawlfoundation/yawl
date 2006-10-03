@@ -1,140 +1,137 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_SchemaBeta4.xsd">
-  <specification uri="BarnesAndNoble.xml">
-    <name>Invoke Web Service</name>
-    <documentation>Calls the Barnes and Noble book price web service to retrieve the price of a book.  Takes the book's ISBN as input.</documentation>
-    <metaData />
-    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
-    <decomposition id="BarnesNoble" isRootNet="true" xsi:type="NetFactsType">
-      <localVariable>
-        <name>isbn</name>
-        <type>string</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </localVariable>
-      <localVariable>
-        <name>GetBNQuoteResult</name>
-        <type>float</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </localVariable>
-      <processControlElements>
-        <inputCondition id="i">
-          <name>i</name>
-          <flowsInto>
-            <nextElementRef id="enterISBN" />
-          </flowsInto>
-        </inputCondition>
-        <task id="enterISBN">
-          <flowsInto>
-            <nextElementRef id="invokeBarnesAndNoble" />
-          </flowsInto>
-          <join code="xor" />
-          <split code="and" />
-          <completedMappings>
-            <mapping>
-              <expression query="/GetISBN/isbn" />
-              <mapsTo>isbn</mapsTo>
-            </mapping>
-          </completedMappings>
-          <decomposesTo id="GetISBN" />
-        </task>
-        <task id="invokeBarnesAndNoble">
-          <flowsInto>
-            <nextElementRef id="presentBookPrice" />
-          </flowsInto>
-          <join code="xor" />
-          <split code="and" />
-          <startingMappings>
-            <mapping>
-              <expression query="/BarnesNoble/isbn" />
-              <mapsTo>isbn</mapsTo>
-            </mapping>
-            <mapping>
-              <expression query="&lt;YawlWSInvokerWSDLLocation&gt;http://www.abundanttech.com/webservices/bnprice/bnprice.wsdl&lt;/YawlWSInvokerWSDLLocation&gt;" />
-              <mapsTo>YawlWSInvokerWSDLLocation</mapsTo>
-            </mapping>
-            <mapping>
-              <expression query="&lt;YawlWSInvokerPortName&gt;BNPriceSoap&lt;/YawlWSInvokerPortName&gt;" />
-              <mapsTo>YawlWSInvokerPortName</mapsTo>
-            </mapping>
-            <mapping>
-              <expression query="&lt;YawlWSInvokerOperationName&gt;GetBNQuote&lt;/YawlWSInvokerOperationName&gt;" />
-              <mapsTo>YawlWSInvokerOperationName</mapsTo>
-            </mapping>
-          </startingMappings>
-          <completedMappings>
-            <mapping>
-              <expression query="/GetPriceViaWS/GetBNQuoteResult" />
-              <mapsTo>GetBNQuoteResult</mapsTo>
-            </mapping>
-          </completedMappings>
-          <decomposesTo id="GetPriceViaWS" />
-        </task>
-        <task id="presentBookPrice">
-          <flowsInto>
-            <nextElementRef id="o" />
-          </flowsInto>
-          <join code="xor" />
-          <split code="and" />
-          <startingMappings>
-            <mapping>
-              <expression query="/BarnesNoble/GetBNQuoteResult" />
-              <mapsTo>GetBNQuoteResult</mapsTo>
-            </mapping>
-          </startingMappings>
-          <decomposesTo id="DisplayBookPrice" />
-        </task>
-        <outputCondition id="o">
-          <name>o</name>
-        </outputCondition>
-      </processControlElements>
-    </decomposition>
-    <decomposition id="GetPriceViaWS" xsi:type="WebServiceGatewayFactsType">
-      <inputParam>
-        <name>isbn</name>
-        <type>string</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <inputParam>
-        <name>YawlWSInvokerWSDLLocation</name>
-        <type>string</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <inputParam>
-        <name>YawlWSInvokerPortName</name>
-        <type>string</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <inputParam>
-        <name>YawlWSInvokerOperationName</name>
-        <type>string</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <outputParam>
-        <name>GetBNQuoteResult</name>
-        <type>float</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-        <mandatory />
-      </outputParam>
-      <yawlService id="http://localhost:8080/yawlWSInvoker/" />
-    </decomposition>
-    <decomposition id="GetISBN" xsi:type="WebServiceGatewayFactsType">
-      <outputParam>
-        <name>isbn</name>
-        <type>string</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-        <mandatory />
-      </outputParam>
-    </decomposition>
-    <decomposition id="DisplayBookPrice" xsi:type="WebServiceGatewayFactsType">
-      <inputParam>
-        <name>GetBNQuoteResult</name>
-        <type>string</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-    </decomposition>
-  </specification>
+<!-- edited with XML Spy v4.4 U (http://www.xmlspy.com) by Lachlan Aldred (Queensland University of Technology) -->
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ D:/yawl-1.0/trunk/yawl/schema/YAWL_SchemaBeta4.xsd">
+	<specification uri="BarnesAndNoble.xml">
+		<name>Invoke Web Service</name>
+		<documentation>Calls the Barnes and Noble book price web service to retrieve the price of a book.  Takes the book's ISBN as input.</documentation>
+		<metaData/>
+		<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"/>
+		<decomposition id="BarnesNoble" isRootNet="true" xsi:type="NetFactsType">
+			<localVariable>
+				<name>isbn</name>
+				<type>string</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+			</localVariable>
+			<localVariable>
+				<name>GetBNQuoteResult</name>
+				<type>float</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+			</localVariable>
+			<processControlElements>
+				<inputCondition id="i">
+					<name>i</name>
+					<flowsInto>
+						<nextElementRef id="enterISBN"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="enterISBN">
+					<flowsInto>
+						<nextElementRef id="invokeBarnesAndNoble"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<completedMappings>
+						<mapping>
+							<expression query="/GetISBN/isbn"/>
+							<mapsTo>isbn</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="GetISBN"/>
+				</task>
+				<task id="invokeBarnesAndNoble">
+					<flowsInto>
+						<nextElementRef id="presentBookPrice"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/BarnesNoble/isbn"/>
+							<mapsTo>isbn</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;YawlWSInvokerWSDLLocation&gt;http://www.abundanttech.com/webservices/bnprice/bnprice.wsdl&lt;/YawlWSInvokerWSDLLocation&gt;"/>
+							<mapsTo>YawlWSInvokerWSDLLocation</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;YawlWSInvokerPortName&gt;BNPriceSoap&lt;/YawlWSInvokerPortName&gt;"/>
+							<mapsTo>YawlWSInvokerPortName</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="&lt;YawlWSInvokerOperationName&gt;GetBNQuote&lt;/YawlWSInvokerOperationName&gt;"/>
+							<mapsTo>YawlWSInvokerOperationName</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="/GetPriceViaWS/GetBNQuoteResult"/>
+							<mapsTo>GetBNQuoteResult</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="GetPriceViaWS"/>
+				</task>
+				<task id="presentBookPrice">
+					<flowsInto>
+						<nextElementRef id="o"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/BarnesNoble/GetBNQuoteResult"/>
+							<mapsTo>GetBNQuoteResult</mapsTo>
+						</mapping>
+					</startingMappings>
+					<decomposesTo id="DisplayBookPrice"/>
+				</task>
+				<outputCondition id="o">
+					<name>o</name>
+				</outputCondition>
+			</processControlElements>
+		</decomposition>
+		<decomposition id="GetPriceViaWS" xsi:type="WebServiceGatewayFactsType">
+			<inputParam>
+				<name>isbn</name>
+				<type>string</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+			</inputParam>
+			<inputParam>
+				<name>YawlWSInvokerWSDLLocation</name>
+				<type>string</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+			</inputParam>
+			<inputParam>
+				<name>YawlWSInvokerPortName</name>
+				<type>string</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+			</inputParam>
+			<inputParam>
+				<name>YawlWSInvokerOperationName</name>
+				<type>string</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+			</inputParam>
+			<outputParam>
+				<name>GetBNQuoteResult</name>
+				<type>float</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+				<mandatory/>
+			</outputParam>
+			<yawlService id="http://localhost:8080/yawlWSInvoker/"/>
+		</decomposition>
+		<decomposition id="GetISBN" xsi:type="WebServiceGatewayFactsType">
+			<outputParam>
+				<name>isbn</name>
+				<type>string</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+				<mandatory/>
+			</outputParam>
+		</decomposition>
+		<decomposition id="DisplayBookPrice" xsi:type="WebServiceGatewayFactsType">
+			<inputParam>
+				<name>GetBNQuoteResult</name>
+				<type>string</type>
+				<namespace>http://www.w3.org/2001/XMLSchema</namespace>
+			</inputParam>
+		</decomposition>
+	</specification>
 </specificationSet>
-
-
-
-
