@@ -12,9 +12,9 @@ package au.edu.qut.yawl.smsModule;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
 import au.edu.qut.yawl.engine.interfce.Interface_Client;
-import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 import org.jdom.Element;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,13 +32,13 @@ import java.util.*;
 public class SMSSender extends InterfaceBWebsideController implements Runnable {
 
     //sms messages that have as yet received no return messages.
-    private static List _outStandingInteractions = new ArrayList();
+    private static List<Interaction> _outStandingInteractions =
+            new ArrayList<Interaction>();
     //true if the polling thread is running
     private static boolean _running = false;
     //completed two way sms interactions
-    private static List _archivedInteractions = new ArrayList();
-    //the thread that checks for sms replies
-    private static Thread _replyPoller;
+    private static List<Interaction> _archivedInteractions =
+            new ArrayList<Interaction>();
     //username of sms account
     private String _smsUsername;
     //password for sms account
@@ -50,6 +50,8 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
     private static final String SMS_MESSAGE_PARAMNAME = "SMSMessage";
     private static final String SMS_PHONENO_PARAMNAME = "SMSPhoneNumber";
     private static final String SMS_REPLYMESSAGE_PARAMNAME = "SMSReplyMessage";
+
+    private Logger _logger = Logger.getLogger(SMSSender.class);
 
 
     /**
@@ -63,28 +65,23 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
                 _sessionHandle = connect(DEFAULT_ENGINE_USERNAME, DEFAULT_ENGINE_PASSWORD);
             }
             if (successful(_sessionHandle)) {
-                List executingChildren = checkOutAllInstancesOfThisTask(enabledWorkItem, _sessionHandle);
+                List<WorkItemRecord> executingChildren = checkOutAllInstancesOfThisTask(enabledWorkItem, _sessionHandle);
                 String resultsFromService = "";
-                for (int i = 0; i < executingChildren.size(); i++) {
-                    WorkItemRecord itemRecord = (WorkItemRecord) executingChildren.get(i);
-
+                for (WorkItemRecord itemRecord : executingChildren) {
                     Element caseDataBoundForEngine = prepareReplyRootElement(enabledWorkItem, _sessionHandle);
-
-                    //first of all do a connection with the SMS Service
-                    String smsConnectionID = performSMSConnection(_smsUsername, _smsPassword);
 
                     //next get the parameters for message sending.
                     Element paramsData = itemRecord.getWorkItemData();
                     String message = paramsData.getChildText(SMS_MESSAGE_PARAMNAME);
                     String toPhone = paramsData.getChildText(SMS_PHONENO_PARAMNAME);
-                    String msgCorrelationID = itemRecord.getID().substring(0, 12);
 
-                    resultsFromService += performSMSSend(message, toPhone, smsConnectionID, msgCorrelationID);
+
+                    String jobID = performSMSSend(message, toPhone);
 
                     //an outstanding interaction is an object that records the
                     //details of a reply that needs to be polled for.
-                    OutstandingInteraction inter = new OutstandingInteraction();
-                    inter._msgCorrelationID = msgCorrelationID;
+                    Interaction inter = new Interaction();
+                    inter._smsJobID = jobID;
                     inter._archivable = false;
                     inter._timeOfSend = new Date();
                     inter._workItemRecord = itemRecord;
@@ -101,7 +98,7 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
         }
         if (!_running) {
             //this thread polls for a reply while running
-            _replyPoller = new Thread(this, "ReplyPoller");
+            Thread _replyPoller = new Thread(this, "ReplyPoller");
             _replyPoller.start();
         }
     }
@@ -138,51 +135,33 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
     /*
      *performs a sned of an sms message
      */
-    private String performSMSSend(String message, String toPhone, String smsConnectionID, String msgCorrelationID) throws IOException {
-        toPhone = '+' + toPhone;
+    private String performSMSSend(String message, String toPhone) throws IOException {
         System.out.println("performSMSSend::message = " + message);
         System.out.println("performSMSSend::toPhone = " + toPhone);
-        System.out.println("performSMSSend::smsConnectionID = " + smsConnectionID);
-        System.out.println("performSMSSend::msgCorrelationID = " + msgCorrelationID);
+        System.out.println("performSMSSend::username = " + _smsUsername);
+        System.out.println("performSMSSend::password = " + _smsPassword);
 
-        Map params = new HashMap();
-        params.put("connectionid", smsConnectionID);
-        params.put("message", message);
-        params.put("to", toPhone);
-        params.put("messageid", msgCorrelationID);
+        Map<String,String> params = new HashMap<String,String>();
+        params.put("u", _smsUsername);
+        params.put("p", _smsPassword);
+        params.put("d", toPhone);
+        params.put("m", message);
+        params.put("rr", Integer.toString(1));
         String resultFromSMSService =
                 Interface_Client.executePost(
-                        "http://api.directsms.com.au/s3/http/send_two_way_message",
+                        "https://www.valuesms.com/msg.php",
                         params);
         System.out.println("performSMSSend::resultFromSMSService = " + resultFromSMSService);
-        return resultFromSMSService;
-    }
 
-
-    protected static String performSMSConnection(String smsUsername, String smsPassword) throws IOException, YAWLException {
-        String finalResult;
-        Map params = new HashMap();
-
-        params.put("username", smsUsername);
-        params.put("password", smsPassword);
-
-        String resultFromSMSService =
-                Interface_Client.executePost(
-                        "http://api.directsms.com.au/s3/http/connect",
-                        params);
-        if (resultFromSMSService.startsWith("id:")) {
-            resultFromSMSService = resultFromSMSService.trim();
-            finalResult = resultFromSMSService.substring(
-                    4,
-                    resultFromSMSService.length());
-        } else {
-            System.out.println("Error in smsUsername = " + smsUsername);
-            System.out.println("Error in smsPassword = " + smsPassword);
-            throw new YAWLException("Failed to connect with SMS gateway. " +
-                    resultFromSMSService);
+        String [] result = resultFromSMSService.split(" ");
+        if("ACK".equals(result[0])) {
+            return result[1];
         }
-        return finalResult;
+        throw new IOException(result[1]);
     }
+
+
+
 
     /**
      * By implementing this method and deploying a web app containing the implementation
@@ -193,11 +172,11 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
      * the engine.
      */
     public void handleCancelledWorkItemEvent(WorkItemRecord workItemRecord) {
-        synchronized (_outStandingInteractions) {
+        synchronized (this) {
             System.out.println("PreCancel::_outStandingInteractions = " + _outStandingInteractions);
             System.out.println("\tCancel:_archivedInteractions = " + _archivedInteractions);
             for (int i = 0; i < _outStandingInteractions.size(); i++) {
-                OutstandingInteraction inter = (OutstandingInteraction)
+                Interaction inter =
                         _outStandingInteractions.get(i);
                 if (inter._workItemRecord.getID().equals(workItemRecord.getID())) {
                     _outStandingInteractions.remove(i);
@@ -211,77 +190,62 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
     }
 
 
-    public static void main(String[] args) throws YAWLException, IOException {
+    public static void main(String[] args) throws InterruptedException {
         SMSSender sender = new SMSSender();
-
-
-        String connectionID = performSMSConnection(args[0], args[1]);
-//        System.out.println("connectionID = " + connectionID);
-//        String messageID = "34543543535";
-//        String msgID = sender.performSMSSend(
-//                "hello there lachlan",
-//                "+61438330056",
-//                connectionID,
-//                messageID);
-//        System.out.println("resultFromSMS Send = " + msgID);
-//        System.out.println("user provided messageID = " + messageID);
-
-//        String stuff = "replies: 2id: 34543543535  mobile: +61438330056 message: Hello there back to message two                                                                                                                                  when: -847id: 34543543535  mobile: +61438330056 message: Hello there back to message one                                                                                                                                  when: -782";
-//                     = replies: 1id: 3.2:6_Invoke mobile: +61438330056 message: Hi there           when: -702
-
-//        sender.parseReplies(stuff);
-
-        /* clean up standard reply */
-        List replies = sender.getReplies(connectionID, "2.2:6_Invoke");
-        for (int i = 0; i < replies.size(); i++) {
-            Reply reply = (Reply) replies.get(i);
-            System.out.println("\nreply._fromMobile = " + reply._fromMobile);
-            System.out.println("reply._msg  txt   = " + reply._messageTxt);
-            System.out.println("reply._msgCorrelationID = " + reply._msgCorrelationID);
-            System.out.println("reply._when = " + reply._when);
+        if(args.length != 8) {
+            System.out.println("Usage: -m <message> -d <phonenumber>" +
+            "-u <username> -p <password>");
         }
-//        List replies = sender.parseReplies("replies: 1id: 3.2:6_Invoke mobile: +61438330056 message: Hi there           when: -702");
-//        for (int i = 0; i < replies.size(); i++) {
-//            Reply reply = (Reply) replies.get(i);
-//            System.out.println("\nreply._fromMobile = " + reply._fromMobile);
-//            System.out.println("reply._msg  txt   = " + reply._messageTxt);
-//            System.out.println("reply._msgCorrelationID = " + reply._msgCorrelationID);
-//            System.out.println("reply._when = " + reply._when);
-//        }
-//
-//        replies = sender.parseReplies("replies: 2id: 34543:mobile  mobile: +61438330056 message: Hello there back to message two                                                                                                                                  when: -847id: 34543:fred  mobile: +61438330056 message: Hello there back to message one                                                                                                                                  when: -782");
-//        for (int i = 0; i < replies.size(); i++) {
-//            Reply reply = (Reply) replies.get(i);
-//            System.out.println("\nreply._fromMobile = " + reply._fromMobile);
-//            System.out.println("reply._msg  txt   = " + reply._messageTxt);
-//            System.out.println("reply._msgCorrelationID = " + reply._msgCorrelationID);
-//            System.out.println("reply._when = " + reply._when);
-//        }
+        sender.setSMSUsernameAndPassword(args[5], args[7]);
 
+        String smsJobID = null;
+        try {
+            smsJobID = sender.performSMSSend(args[1], args[3]);
+        } catch (IOException e) {
+            System.out.println("e.getMessage() = " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        System.out.println("result = " + smsJobID);
+        Thread.sleep(240000);
+        try {
+            /* clean up standard reply */
+            List<Reply> replies = sender.getReplies("941118");
+            for (Reply reply : replies) {
+                System.out.println("\n");
+                System.out.println("reply._fromPhoneNum = " + reply._fromPhoneNum);
+                System.out.println("reply._msgTxt   = " + reply._messageTxt);
+                System.out.println("reply._replyID = " + reply._replyID);
+                System.out.println("reply._jobID = " + reply._jobID);
+                System.out.println("reply._time = " + reply._timeStr);
+                System.out.println("reply._date = " + reply._dateStr);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //e.g.
+        //7684  940635  2006-07-28  09:44:18    61438330056 "JjjjC"
+
+        //e.g.
+        //7685	941118	2006-07-28	14:34:32	61438330056	"Kjg.Dm"
+        //7686	941118	2006-07-28	14:34:49	61438330056	"Jmwtpgjmwtp"
     }
 
     public void run() {
         _running = true;
         while (_outStandingInteractions.size() > 0) {
-            System.out.println("Run::going round again");
-            String smsConnectionID = null;
-            try {
-                smsConnectionID = SMSSender.performSMSConnection(_smsUsername, _smsPassword);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            synchronized (_outStandingInteractions) {
-                for (int i = 0; i < _outStandingInteractions.size(); i++) {
-                    OutstandingInteraction inter = (OutstandingInteraction)
-                            _outStandingInteractions.get(i);
+            _logger.info("---> Outstandaing interactions loop");
+
+            synchronized (this) {
+                for (Interaction inter : _outStandingInteractions) {
                     try {
-                        List replies = getReplies(smsConnectionID, inter._msgCorrelationID);
+                        List replies = getReplies(inter._smsJobID);
                         if (replies.size() > 0) {
                             inter._replyMessage = (Reply) replies.iterator().next();
-                            System.out.println("Run::reply text = " + inter._replyMessage._messageTxt);
-                            System.out.println("Run::reply from = " + inter._replyMessage._fromMobile);
-                            System.out.println("Run::reply corr = " + inter._replyMessage._msgCorrelationID);
-                            System.out.println("Run::reply when = " + inter._replyMessage._when);
+                            _logger.info("reply text = " + inter._replyMessage._messageTxt);
+                            _logger.info("reply from = " + inter._replyMessage._fromPhoneNum);
+                            _logger.info("reply corr = " + inter._replyMessage._jobID);
+                            _logger.info("reply when = " + inter._replyMessage._timeStr);
                             inter._archivable = true;
                             Element smsReplyMessage = new Element(SMS_REPLYMESSAGE_PARAMNAME);
                             smsReplyMessage.setText(inter._replyMessage._messageTxt);
@@ -290,17 +254,14 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
                                     inter._workItemRecord.getWorkItemData(),
                                     inter._caseDataBoundForEngine,
                                     _sessionHandle);
-                            System.out.println("\tRun::result of work item checkin = " + result);
+                            _logger.info("result of work item checkin = " + result);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                System.out.println("\tRun::_outStandingInteractions = " + _outStandingInteractions);
-                System.out.println("\tRun::_archivedInteractions = " + _archivedInteractions);
                 for (int i = 0; i < _outStandingInteractions.size(); i++) {
-                    OutstandingInteraction inter = (OutstandingInteraction)
-                            _outStandingInteractions.get(i);
+                    Interaction inter = _outStandingInteractions.get(i);
                     if (inter._archivable) {
                         _outStandingInteractions.remove(i);
                         i--;
@@ -308,8 +269,8 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
                     }
                 }
             }
-            System.out.println("\tRun::_outStandingInteractions = " + _outStandingInteractions);
-            System.out.println("\tRun::_archivedInteractions = " + _archivedInteractions);
+            _logger.info("outStandingInteractions = " + _outStandingInteractions);
+            _logger.info("_archivedInteractions = " + _archivedInteractions);
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
@@ -319,82 +280,40 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
         _running = false;
     }
 
-    private List getReplies(String smsConnectionID, String msgCorrelationID) throws IOException {
-        Map params = new HashMap();
-        params.put("connectionid", smsConnectionID);
-        params.put("messageid", msgCorrelationID);
-        params.put("mark_as_read", "mark_as_read");
-        params.put("when", "when");
+    private List<Reply> getReplies(String smsJobID) throws IOException {
+        Map<String, String> params = new HashMap<String,String>();
+        params.put("u", _smsUsername);
+        params.put("p", _smsPassword);
+        params.put("j", smsJobID);
         String resultFromSMSService =
                 Interface_Client.executePost(
-                        "http://api.directsms.com.au/s3/http/get_replies",
+                        "https://www.valuesms.com/rcv.php",
                         params);
         System.out.println("Returned Message FromSMSService = " + resultFromSMSService);
-        List replies = parseReplies(resultFromSMSService);
-        return replies;
+        return parseReplies(resultFromSMSService);
     }
 
-    private List parseReplies(String resultFromSMSService) {
-        List replies = new ArrayList();
 
-        //first get rid of word replies
-        if (resultFromSMSService.length() < 11) {
-            return replies;
-        }
+    private List<Reply> parseReplies(String resultFromSMSService) {
+        List<Reply> replies = new ArrayList<Reply>();
 
-        String[] rawReplies = getRawReplies(resultFromSMSService);
-
-        for (int i = 0; i < rawReplies.length; i++) {
-            String toks = rawReplies[i];
-            String msgCorrelationID = toks.substring(
-                    0,
-                    toks.indexOf(" mobile: ")).trim();
-
-            String phoneNumber = toks.substring(
-                    toks.indexOf(" mobile:") + 9,
-                    toks.indexOf(" message:")).trim();
-
-            String message = toks.substring(
-                    toks.indexOf(" message: ") + 10,
-                    toks.indexOf("when: ")).trim();
-
-            String when = toks.substring(
-                    toks.indexOf(" when: ") + 7,
-                    toks.length()).trim();
-
-            Reply reply = new Reply();
-            reply._msgCorrelationID = msgCorrelationID;
-            reply._fromMobile = phoneNumber;
-            reply._messageTxt = message;
-            reply._when = when;
+        String[] rawreply = resultFromSMSService.split("\n");
+        String[][] preprocessedResult = new String[rawreply.length][];
+        for (int i = 0; i < preprocessedResult.length; i++) {
+            String[] singleReply = rawreply[i].split("\t");
+            System.out.println("rawreply = " + rawreply);
+            if (singleReply.length > 5 ) {
+                Reply reply = new Reply();
+                reply._replyID = singleReply[0];
+                reply._jobID = singleReply[1];
+                reply._dateStr = singleReply[2];
+                reply._timeStr = singleReply[3];
+                reply._fromPhoneNum = singleReply[4];
+                reply._messageTxt = singleReply[5];
             replies.add(reply);
+            }
         }
         return replies;
-    }
-
-    private String[] getRawReplies(String resultFromSMSService) {
-        String numRepliesStr = resultFromSMSService.substring(
-                9,
-                resultFromSMSService.indexOf("id"));
-
-        int numRepliesInt = Integer.parseInt(numRepliesStr);
-
-        int begCurrChunk = resultFromSMSService.indexOf("id: ");
-        int begNextChunk = resultFromSMSService.indexOf("id: ", 4 + begCurrChunk);
-
-        String[] rawReplies = new String[numRepliesInt];
-
-        for (int i = 0; i < rawReplies.length; i++) {
-            String rawReply = resultFromSMSService.substring(
-                    begCurrChunk,
-                    begNextChunk != -1 ? begNextChunk : resultFromSMSService.length()
-            );
-            begCurrChunk = begNextChunk;
-            begNextChunk = resultFromSMSService.indexOf("id: ", 4 + begCurrChunk);
-            rawReplies[i] = rawReply;
-        }
-
-        return rawReplies;
     }
 
     public void setSMSUsernameAndPassword(String username, String password) {
@@ -403,15 +322,18 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
     }
 
 
+    public List<Interaction> getCompletedInteractions() {
+        return _archivedInteractions;
+    }
 }
 
-class OutstandingInteraction {
+class Interaction {
     Date _timeOfSend;
-    String _msgCorrelationID;
     Reply _replyMessage;
     boolean _archivable;
     WorkItemRecord _workItemRecord;
     public Element _caseDataBoundForEngine;
+    public String _smsJobID;
 
     public String toString() {
         return _workItemRecord.getID() + " archivable <" + _archivable + ">";
@@ -420,8 +342,10 @@ class OutstandingInteraction {
 
 
 class Reply {
-    String _msgCorrelationID;
-    String _fromMobile;
+    String _jobID;
+    String _replyID;
+    String _fromPhoneNum;
     String _messageTxt;
-    String _when;
+    String _dateStr;
+    String _timeStr;
 }
