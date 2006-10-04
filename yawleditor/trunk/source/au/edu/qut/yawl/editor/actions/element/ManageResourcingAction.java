@@ -565,7 +565,17 @@ class SelectionByFamiliarityPanel extends AbstractWizardPanel {
 }
 
 class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
+  
+  private JRadioButton distributeToPositionButton;
+  private JRadioButton distributeToNearbyPositionButton;
+  private JRadioButton noDistirbuteButton;
 
+  private ButtonGroup buttonGroup;
+
+  private JComboBox nearbyPositionComboBox;
+  private JList positionList;
+  private JList groupList;
+  
   public SelectionByOrganisationalRequirementsPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
@@ -580,12 +590,170 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
   }
   
   protected void buildInterface() {
-    setLayout(new BorderLayout());
+    
+    GridBagLayout gbl = new GridBagLayout();
+    GridBagConstraints gbc = new GridBagConstraints();
+
+    setLayout(gbl);
+
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.gridwidth = 4;
+    gbc.weighty = 0;
+    gbc.insets = new Insets(5,0,0,0);
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.WEST;
+
     add(new JLabel(
-            "Work in progress"
-        ), BorderLayout.CENTER
-    ); 
+        "From the following options, select how organisation structure effects work allocation."
+        ), gbc
+    );
+
+    gbc.gridy++;
+    gbc.insets = new Insets(0,5,0,0);
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.WEST;
+
+    add(buildNoDistributionRadioButton(), gbc);
+
+    gbc.gridy++;
+    gbc.insets = new Insets(10,0,0,2);
+
+    add(new JLabel(
+        "Distribute work-items of this task to:"
+        ), gbc
+    );
+
+    gbc.gridy++;
+    gbc.gridwidth = 1;
+    gbc.insets = new Insets(0,5,0,0);
+
+    add(buildDistributieToPositionRadioButton(), gbc);
+
+    gbc.gridx++;
+    
+    add(new JLabel("users holding"),gbc);
+    
+    gbc.insets = new Insets(0,5,0,0);
+    gbc.anchor = GridBagConstraints.NORTH;
+    gbc.gridy++;
+    gbc.gridx--;
+    
+    add(buildDistributeToNearbyPositionRadioButton(), gbc);
+
+    buttonGroup = new ButtonGroup();
+    
+    buttonGroup.add(noDistirbuteButton);
+    buttonGroup.add(distributeToPositionButton);
+    buttonGroup.add(distributeToNearbyPositionButton);
+
+    buttonGroup.setSelected(noDistirbuteButton.getModel(),true);
+
+    gbc.insets = new Insets(0,5,5,5);
+    gbc.gridx++;
+    
+    add(buildNearbyPositionComboBox(),gbc);
+
+    gbc.gridy--;
+    gbc.gridx++;
+    gbc.gridheight = 2;
+    
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.fill = GridBagConstraints.NONE;
+    
+    add(new JLabel("the position"),gbc);
+
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.gridx++;
+    gbc.weighty = 0.5;
+    gbc.gridheight = 3;
+    
+    add(buildPositionList(),gbc);
+    
+    gbc.gridy = gbc.gridy + 3;
+    gbc.gridx = 0;
+    gbc.weighty = 0;
+    gbc.gridwidth = 3;
+    gbc.anchor = GridBagConstraints.NORTH;
+    gbc.fill = GridBagConstraints.NONE;
+    
+    add(new JLabel("ïn the following organisational groups:"),gbc);
+
+    gbc.gridx=3;
+    gbc.weighty = 0.5;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.fill = GridBagConstraints.BOTH;
+    
+    add(buildGroupList(),gbc);
   }
+  
+  private JRadioButton buildDistributieToPositionRadioButton() {
+    distributeToPositionButton = new JRadioButton();
+    return distributeToPositionButton;
+  }
+  
+  private JRadioButton buildDistributeToNearbyPositionRadioButton() {
+    distributeToNearbyPositionButton = new JRadioButton();
+    return distributeToNearbyPositionButton;
+  }
+
+  private JRadioButton buildNoDistributionRadioButton() {
+    noDistirbuteButton = new JRadioButton("Do not distribute work-items of this task based on organisation, or");
+    return noDistirbuteButton;
+  }
+  
+  private JScrollPane buildPositionList() {
+
+    final String[] positions = new String[] {
+      "All Positions",
+      "Manager",
+      "General Manager",
+      "Clerk",
+      "Accountant",
+      "Marketing Executive"
+    };
+    
+    positionList = new JList(positions);
+    JScrollPane scrollpane = new JScrollPane(positionList);
+    scrollpane.getViewport().setMaximumSize(
+      positionList.getPreferredScrollableViewportSize()
+    );
+    
+    return scrollpane;
+  }
+
+  private JScrollPane buildGroupList() {
+
+    final String[] groups = new String[] {
+      "All Positions",
+      "Manager",
+      "General Manager",
+      "Clerk",
+      "Accountant",
+      "Marketing Executive"
+    };
+    
+    groupList = new JList(groups);
+    JScrollPane scrollpane = new JScrollPane(groupList);
+    scrollpane.getViewport().setMaximumSize(
+      groupList.getPreferredScrollableViewportSize()
+    );
+    
+    return scrollpane;
+  }
+
+  private JComboBox buildNearbyPositionComboBox() {
+    nearbyPositionComboBox = new JComboBox(
+      new String[] {
+          "All subordinates of",
+          "All superiors of"
+      }
+    );
+    
+    return nearbyPositionComboBox;
+  }
+
   
   public void doBack() {
     System.out.println("some back processing here");
