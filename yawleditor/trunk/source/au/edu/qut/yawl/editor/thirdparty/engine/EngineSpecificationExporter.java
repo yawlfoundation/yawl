@@ -309,7 +309,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
                                                  NetElementSummary editorNetSummary) {
     YInputCondition engineInputCondition = 
       new YInputCondition(
-          getEngineElementID(editorNetSummary.getInputCondition()),
+          editorNetSummary.getInputCondition().getEngineId(),
           engineNet);
     
     if (editorNetSummary.getInputCondition().hasLabel()) {
@@ -331,7 +331,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
                                                   NetElementSummary editorNetSummary) {
     YOutputCondition engineOutputCondition = 
       new YOutputCondition(
-          getEngineElementID(editorNetSummary.getOutputCondition()),
+          editorNetSummary.getOutputCondition().getEngineId(),
           engineNet);
     
     
@@ -368,7 +368,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       
       YCondition engineCondition = 
         new YCondition(
-          getEngineElementID(editorCondition),
+          editorCondition.getEngineId(),
           engineNet);
       
       if (editorCondition.hasLabel()) {
@@ -395,7 +395,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
       YAtomicTask engineAtomicTask = 
         new YAtomicTask(
-          getEngineElementID(editorTask),
+          editorTask.getEngineId(),
           editorToEngineJoin(editorTask),
           editorToEngineSplit(editorTask),   
           engineNet
@@ -578,7 +578,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       
       YCompositeTask engineCompositeTask = 
         new YCompositeTask(
-          getEngineElementID(editorTask),
+          editorTask.getEngineId(),
           editorToEngineJoin(editorTask),
           editorToEngineSplit(editorTask),   
         engineNet
@@ -890,7 +890,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         
         YCondition implicitEngineCondition = 
           new YCondition(
-            getNewUniqueEngineIDNumber() + "_ImplicitCondition",
+            SpecificationModel.getInstance().getUniqueElementNumber() + "_ImplicitCondition",
             engineNet
           );
         
@@ -962,24 +962,6 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
-  private String getEngineElementID(YAWLVertex element) {
-    if (element.getEngineIdNumber() == null || element.getEngineIdNumber().equals("")) {
-      element.setEngineIdNumber(
-          getNewUniqueEngineIDNumber()
-      );
-    }
-    return element.getEngineId();
-  }
-  
-  private String getNewUniqueEngineIDNumber() {
-    SpecificationModel.getInstance().setUniqueElementNumber(
-        SpecificationModel.getInstance().getUniqueElementNumber() + 1
-    );
-    
-    return Long.toString(
-        SpecificationModel.getInstance().getUniqueElementNumber()
-    );  
-  }
 
   private int editorToEngineJoin(YAWLTask task) {
     if (task.hasJoinDecorator()) {

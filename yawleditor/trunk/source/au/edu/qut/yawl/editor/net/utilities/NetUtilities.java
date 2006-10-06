@@ -54,6 +54,30 @@ import au.edu.qut.yawl.editor.net.NetGraphModel;
 public final class NetUtilities {
   
   /**
+   * Scans the current net looking for the largest Engine ID number registered
+   * against the vertex entries of that net.
+   * @param net
+   * @return largest Engine Id Number used in the net.
+   */
+  
+  public static long getLargestEngineIdNumberWithin(NetGraphModel net) {
+    long largestIDSoFar = 0;
+    Object[] cells = NetGraphModel.getRoots(net);
+    for(int i = 0; i < cells.length; i++) {
+      if (cells[i] instanceof VertexContainer) {
+        cells[i] = ((VertexContainer) cells[i]).getVertex();
+      }
+      if (cells[i] instanceof YAWLVertex) {
+        long vertexId = Long.parseLong(((YAWLVertex) cells[i]).getEngineIdNumber());
+        if (vertexId > largestIDSoFar) {
+          largestIDSoFar = vertexId;
+        }
+      }
+    }
+    return largestIDSoFar;
+  }
+  
+  /**
    * Returns all tasks in the selected net. Specifically, 
    * all those verticies in the net that conform to the <code>YAWLTask</code> interface.
    * @param net The net to search within.

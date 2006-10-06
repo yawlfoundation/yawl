@@ -44,6 +44,7 @@ import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
 
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 
 
 public abstract class YAWLVertex extends DefaultGraphCell 
@@ -73,11 +74,23 @@ public abstract class YAWLVertex extends DefaultGraphCell
   
   public YAWLVertex() {
     super();
+    setEngineIdNumber(
+        Long.toString(
+            SpecificationModel.getInstance().getUniqueElementNumber()
+        )
+    );
+
     initialize(new Point(10,10));
   }
 
   public YAWLVertex(Point2D startPoint) {
     super();
+    setEngineIdNumber(
+        Long.toString(
+            SpecificationModel.getInstance().getUniqueElementNumber()
+        )
+    );
+
     initialize(startPoint);
   }
 
@@ -85,7 +98,6 @@ public abstract class YAWLVertex extends DefaultGraphCell
     this.startPoint = startPoint;
     buildElementDefaults();
     buildElement();
-    setEngineIdNumber("");
   }
   
   public void setSerializationProofAttributeMap(HashMap map) {
