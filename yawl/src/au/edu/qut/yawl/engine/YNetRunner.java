@@ -44,7 +44,6 @@ import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YCompositeTask;
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YMultiInstanceAttributes;
 import au.edu.qut.yawl.elements.YNet;
@@ -299,18 +298,10 @@ public class YNetRunner implements Serializable // extends Thread
     public static void saveNetRunner( YNetRunner runner, DataProxyStateChangeListener listener ) throws YPersistenceException {
     	DataContext context = AbstractEngine.getDataContext();
     	DataProxy proxy = context.getDataProxy( runner );
-    	DataProxy parentProxy = null;
-//    	if( parent != null ) {
-//    		parentProxy = context.getDataProxy( parent );
-//    		assert parentProxy != null : "attempting to persist child when parent is not persisted!";
-//    	}
     	if( proxy == null ) {
     		proxy = context.createProxy( runner, listener );
-    		context.attachProxy( proxy, runner, parentProxy );
+    		context.attachProxy( proxy, runner, null );
     	}
-//        if( parent != null ) {
-//        	context.save( parentProxy );
-//        }
         context.save( proxy );
     }
 

@@ -231,7 +231,8 @@ public class ApplicationIcon {
 
         return icon;
       } catch (Exception e) {
-        throw new Error("Cannot continue.  Path to icon: \"" + iconPath + "\" is incorrect!", e);
+    	  throw new Error("Cannot continue.  Path to icon: \""
+				  + iconPath + "\" for \"" + key + "\" is incorrect!", e);
       }
     }
     throw new Error("Cannot continue.  Missing icon file for: " + key + ";path=" + iconPath + ";size=" + size);
