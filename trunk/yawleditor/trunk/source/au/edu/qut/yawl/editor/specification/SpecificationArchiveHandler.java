@@ -30,6 +30,7 @@ import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.beans.ExceptionListener;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import java.io.IOException;
 import java.io.File;
@@ -43,6 +44,8 @@ import java.util.zip.ZipOutputStream;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.net.NetGraph;
+import au.edu.qut.yawl.editor.net.NetGraphModel;
+import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
 
 import au.edu.qut.yawl.editor.foundations.ArchivableNetState;
 import au.edu.qut.yawl.editor.foundations.ArchivableSpecificationState;
@@ -329,7 +332,19 @@ public class SpecificationArchiveHandler {
     SpecificationModel.getInstance().setVersionNumber(state.getVersionNumber());
     SpecificationModel.getInstance().setValidFromTimestamp(state.getValidFromTimestamp());
     SpecificationModel.getInstance().setValidUntilTimestamp(state.getValidUntilTimestamp());
-    SpecificationModel.getInstance().setUniqueElementNumber(state.getUniqueElementNumber());
+    
+    Iterator netIterator = SpecificationModel.getInstance().getNets().iterator();
+    
+    long largestIdSoFar = 0;
+    while(netIterator.hasNext()) {
+      NetGraphModel currentNet = (NetGraphModel) netIterator.next();
+      long largestNetId = NetUtilities.getLargestEngineIdNumberWithin(currentNet);
+      if (largestIdSoFar < largestNetId) {
+        largestIdSoFar = largestNetId;
+      }
+    }
+    SpecificationModel.getInstance().setUniqueElementNumber(largestIdSoFar);
+    
     if (state.getBounds() != null) {
       YAWLEditor.getInstance().setBounds(state.getBounds());
     }

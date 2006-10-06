@@ -732,6 +732,7 @@ public class SpecificationModel {
   }
   
   public long getUniqueElementNumber() {
+    this.uniqueElementNumber++;
     return this.uniqueElementNumber;
   }
 }

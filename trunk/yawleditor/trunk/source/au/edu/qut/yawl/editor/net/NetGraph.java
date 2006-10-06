@@ -133,7 +133,6 @@ public class NetGraph extends JGraph {
     initialize();
   }
   
-  
   public NetGraph(Decomposition decomposition) {
     super();
     initialize();
@@ -688,7 +687,7 @@ public class NetGraph extends JGraph {
   public void decreaseSelectedVertexSize() {
     changeSelectedVertexSize(-getGridSize());
   }
-
+  
   private void changeSelectedVertexSize(double baseSize) {
     getNetModel().beginUpdate();
     Object[] cells = getSelectionCells();
