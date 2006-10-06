@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -821,7 +822,7 @@ public class WorkflowOperation {
                 decomp.getOutputParameters().add( param );
             }
             else if( param.isEnablement() ) {
-                // TODO ????
+            	((YAWLServiceGateway)decomp).setEnablementParameter( param );
             }
         }
     }
@@ -836,7 +837,14 @@ public class WorkflowOperation {
                 parent.getOutputParameters().remove( param );
             }
             else if( param.isEnablement() ) {
-                // TODO ????
+            	for( Iterator<Map.Entry<String, YVariable>> iter =
+            			((YAWLServiceGateway) parent).getEnablementParametersMap().entrySet().iterator();
+            			iter.hasNext(); ) {
+            		Map.Entry<String, YVariable> entry = iter.next();
+            		if( entry.getValue() == param ) {
+            			iter.remove();
+            		}
+            	}
             }
         }
     }

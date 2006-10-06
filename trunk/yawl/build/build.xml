@@ -65,6 +65,7 @@
     <property name="src.home" value="${basedir}/src"/>
     <property file="${build.home}/build.properties"/>
 	
+	<property name="nexus.editor.app.name" value="NexusWorkflowEditor"/>
 	<property name="nexus.serviceInvoker.app.name" value="NexusServiceInvoker"/>
 	<property name="nexus.serviceInvoker.app.path" value="/${nexus.serviceInvoker.app.name}"/>
 	<property name="nexus.service.jython.app.name" value="JythonService"/>
@@ -208,6 +209,7 @@
     <property name="jgraphaddons-1.0.5.jar" value="${basic.libs}/jgraphaddons-1.0.5.jar"/>
     <property name="swing-worker.jar" value="${basic.libs}/swing-worker.jar"/>
 	<property name="jgraphlayout.jar" value="${basic.libs}/jgraphlayout.jar"/>
+	<property name="jcalendar.jar" value="${standAlone.libs}/jcalendar-custom.jar"/>
 
     <!--
     PDF Dependencies
@@ -220,6 +222,11 @@
     XFORM Dependencies
     -->
     <property name="mail.jar" value="${xforms.lib}/mail.jar"/>
+	
+	<!--
+	Quartz scheduler
+	-->
+	<property name="quartz.jar" value="${basic.libs}/quartz-1.5.2.jar"/>
 
     <!-- Log4J Logging Library -->
     <property name="log4j" value="${basic.libs}/log4j-1.2.8.jar"/>
@@ -249,6 +256,8 @@
         <pathelement location="${jdom.jar}"/>
         <pathelement location="${servlet.jar}"/>
         <pathelement location="${log4j}"/>
+    	<pathelement location="${jcalendar.jar}"/>
+    	<pathelement location="${quartz.jar}"/>
     	
     	<fileset dir="${nexus.service.libs}/xfire">
     		<include name="*.jar"/>
@@ -325,10 +334,27 @@
     Editor Classpath
     -->
     <path id="cp.editor">
+        <pathelement location="${cglib}"/>
+        <pathelement location="${common.jar}"/>
+        <pathelement location="${commonsCollections}"/>
+        <pathelement location="${commonsLogging}"/>
+        <pathelement location="${dom4j}"/>
+        <pathelement location="${ecore.jar}"/>
+        <pathelement location="${ejb-persist}"/>
+        <pathelement location="${hibernate}"/>
+        <pathelement location="${hibernate-ann}"/>
+        <pathelement location="${jcalendar.jar}"/>
+        <pathelement location="${jdom.jar}"/>
         <pathelement location="${jgraph-5.4.jar}"/>
         <pathelement location="${jgraphaddons-1.0.5.jar}"/>
-    	<pathelement location="${jgraphlayout.jar}"/>
+        <pathelement location="${jgraphlayout.jar}"/>
+        <pathelement location="${log4j}"/>
+        <pathelement location="${quartz.jar}"/>
+        <pathelement location="${saxon.jar}"/>
         <pathelement location="${swing-worker.jar}"/>
+        <pathelement location="${xerces.jar}"/>
+        <pathelement location="${xsd.resources.jar}"/>
+        <pathelement location="${xsd.jar}"/>
     </path>
 
 
@@ -1580,6 +1606,65 @@
         "Builds a distribution version of all
         the YAWL runtime Web apps and copies to the output directory.">
         <antcall target="cleanup"/>
+    </target>
+
+    <target name="build-editor" depends="compile">
+        <delete dir="${nexus.editor.app.name}"/>
+        <mkdir dir="${nexus.editor.app.name}/lib"/>
+        <copy todir="${nexus.editor.app.name}">
+            <fileset dir="classes">
+                <include name="com/nexusbpm/**/*.class"/>
+                <include name="au/edu/qut/yawl/**/*.class"/>
+            	<include name="au/edu/qut/yawl/**/*.xsd"/>
+            	<include name="operation/*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${nexus.editor.app.name}">
+            <fileset dir="editor">
+                <include name="com/nexusbpm/editor/icon/**/*.png"/>
+                <include name="com/nexusbpm/**/*.properties"/>
+            </fileset>
+        </copy>
+        
+        <jar destfile="output/${nexus.editor.app.name}.jar"
+        	manifest="build/nexusWorkflowEditor/MANIFEST.MF">
+            <fileset dir="${nexus.editor.app.name}"/>
+        </jar>
+        <delete dir="${nexus.editor.app.name}"/>
+    </target>
+    
+    <target name="run-editor">
+        <java classname="com.nexusbpm.editor.WorkflowEditor" fork="true">
+            <classpath>
+            	<pathelement location="${cglib}"/>
+            	        <pathelement location="${common.jar}"/>
+            	        <pathelement location="${commonsCollections}"/>
+            	        <pathelement location="${commonsLogging}"/>
+            	        <pathelement location="${dom4j}"/>
+            	        <pathelement location="${ecore.jar}"/>
+            	        <pathelement location="${ejb-persist}"/>
+            	        <pathelement location="${hibernate}"/>
+            	        <pathelement location="${hibernate-ann}"/>
+            	        <pathelement location="${jcalendar.jar}"/>
+            	        <pathelement location="${jdom.jar}"/>
+            	        <pathelement location="${jgraph-5.4.jar}"/>
+            	        <pathelement location="${jgraphaddons-1.0.5.jar}"/>
+            	        <pathelement location="${jgraphlayout.jar}"/>
+            	        <pathelement location="${log4j}"/>
+            	        <pathelement location="${quartz.jar}"/>
+            	        <pathelement location="${saxon.jar}"/>
+            	        <pathelement location="${swing-worker.jar}"/>
+            	        <pathelement location="${xerces.jar}"/>
+            	        <pathelement location="${xsd.resources.jar}"/>
+            	        <pathelement location="${xsd.jar}"/>
+            	<pathelement location="output/${nexus.editor.app.name}.jar"/>
+            </classpath>
+        </java>
+        <!--
+        <java jar="output/${nexus.editor.app.name}.jar" fork="true">
+            <classpath refid="cp.editor"/>
+        </java>
+        -->
     </target>
 
     <target name="JavaForgeDeploy"
