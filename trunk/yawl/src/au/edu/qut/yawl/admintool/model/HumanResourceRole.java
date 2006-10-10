@@ -20,7 +20,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
@@ -52,6 +53,7 @@ public class HumanResourceRole implements Serializable {
     }
 
     @ManyToOne
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public Resource getHumanResource() {
         return humanResource;
     }
@@ -65,6 +67,7 @@ public class HumanResourceRole implements Serializable {
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public Role getRole() {
         return role;
     }
