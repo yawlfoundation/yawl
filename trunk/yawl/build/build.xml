@@ -1830,6 +1830,14 @@
     Invokes the unit tests.
     -->
     <target name="test" depends="compile-test" >
+
+
+	<!-- This file is required to run the unit tests -->
+
+        <copy file="${property.files}/TEST_hibernate.properties.postgres8"
+            tofile="${classes}/hibernate.properties"/>
+
+
         <java classname="au.edu.qut.yawl.TestAllYAWLSuites" fork="true" failonerror="false">
             <classpath refid="cp.persist"/>
             <classpath refid="cp.standard"/>
