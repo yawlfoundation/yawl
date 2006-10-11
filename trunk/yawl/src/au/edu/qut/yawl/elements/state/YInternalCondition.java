@@ -18,6 +18,8 @@ import javax.persistence.FetchType;
 
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Basic;
+
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -49,6 +51,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
     private YIdentifierBag _bag;
     public YTask _myTask;
     
+
     
     private StateEvent state;
     
@@ -62,9 +65,17 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
     }
     
     public YInternalCondition(StateEvent state, YTask myTask) {
-    	this.state = state;
+    	  this.state = state;
         _bag = new YIdentifierBag(this);
         _myTask = myTask;
+    }
+
+    @Basic
+    public String getState() {
+       return state.getState();
+    }
+    public void setState(String state) {
+       this.state = new StateEvent(state);
     }
 
     @ManyToMany(cascade={CascadeType.ALL},targetEntity=YIdentifier.class)
@@ -171,6 +182,6 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
     }
 
     public String toString() {
-        return /*state.getState() + */"[" + _myTask.toString() + "]";
+        return state.getState() + "[" + _myTask.toString() + "]";
     }
 }
