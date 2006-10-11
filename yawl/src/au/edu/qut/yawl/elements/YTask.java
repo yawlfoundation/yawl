@@ -978,9 +978,7 @@ public abstract class YTask extends YExternalNetElement {
         YTask clone = (YTask) task;
         
         if( _i != null || _caseToDataMap.size() > 0 ||
-                _multiInstanceSpecificParamsIterator != null ||
-                _localVariableNameToReplaceableOuptutData != null ||
-                _groupedMultiInstanceOutputData != null ) {
+                _multiInstanceSpecificParamsIterator != null ) {
             throw new IllegalStateException( "Deep clone of executing tasks is unsupported!" );
         }
         
