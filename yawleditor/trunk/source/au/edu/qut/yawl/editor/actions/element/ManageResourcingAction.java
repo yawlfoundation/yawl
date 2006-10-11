@@ -26,12 +26,14 @@ package au.edu.qut.yawl.editor.actions.element;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.swing.AbstractWizardDialog;
@@ -41,6 +43,7 @@ import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import au.edu.qut.yawl.editor.swing.data.JProblemReportingEditorPane;
 import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
+import au.edu.qut.yawl.editor.swing.resourcing.ResourceAllocationComboBox;
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
@@ -116,12 +119,12 @@ class ManageResourcingDialog extends AbstractWizardDialog {
     setPanels(
         new AbstractWizardPanel[] {
             new GuidedOrAdvancedWizardPanel(this),
+            new WorkDistributionOptionsPanel(this),
             new DistributeToRolesAndIndividualsPanel(this),
             new DistributeToUserAndRoleVariablesPanel(this),
-            new SelectionByFamiliarityPanel(this),
+            new FilteringByFamiliarityPanel(this),
             new SelectionByOrganisationalRequirementsPanel(this),
-            new UserTaskAuthorisationPanel(this),
-            new WorkDistributionOptionsPanel(this),
+//            new UserTaskAuthorisationPanel(this),
             new ReviewResourceAllocationOfferingPanel(this)
         }
     );
@@ -139,7 +142,8 @@ class ManageResourcingDialog extends AbstractWizardDialog {
   }
   
   protected void makeLastAdjustments() {
-    pack();
+    //pack();
+    setSize(800,400);
     //setResizable(false);
   }
   
@@ -421,7 +425,7 @@ class DistributeToUserAndRoleVariablesPanel extends AbstractWizardPanel {
    }     
 }
 
-class SelectionByFamiliarityPanel extends AbstractWizardPanel {
+class FilteringByFamiliarityPanel extends AbstractWizardPanel {
   
   private JRadioButton distributeVlaCompletedButton;
   private JRadioButton distributeViaNonCompleteButton;
@@ -432,17 +436,17 @@ class SelectionByFamiliarityPanel extends AbstractWizardPanel {
   private JComboBox taskComboBox;
   private JComboBox familarityTypeComboBox;
   
-  public SelectionByFamiliarityPanel(ManageResourcingDialog dialog) {
+  public FilteringByFamiliarityPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
   
   public String getWizardStepTitle() {
-    return "Selection By Familiarity";
+    return "Filtering By Familiarity";
   }
 
   
   protected void initialise() {
-    System.out.println("some initialising here");
+    // TODO: widget initialsiation
   }
   
   protected void buildInterface() {
@@ -461,7 +465,7 @@ class SelectionByFamiliarityPanel extends AbstractWizardPanel {
     gbc.anchor = GridBagConstraints.WEST;
 
     add(new JLabel(
-        "From the following options, select how familiarity with a task effects allocation."
+        "From the following options, select how familiarity with a task filters out users to distribute work to."
         ), gbc
     );
 
@@ -476,7 +480,7 @@ class SelectionByFamiliarityPanel extends AbstractWizardPanel {
     gbc.insets = new Insets(10,0,0,2);
 
     add(new JLabel(
-        "Distribute work-items of this task to those users of a running case who:"
+        "Filter allocation of this task to those users of a running case who:"
         ), gbc
     );
 
@@ -526,7 +530,7 @@ class SelectionByFamiliarityPanel extends AbstractWizardPanel {
   }
 
   private JRadioButton buildNoDistributionRadioButton() {
-    noDistirbuteButton = new JRadioButton("Do not distribute work-items of this task based on familiarity, or");
+    noDistirbuteButton = new JRadioButton("Do not filter work-items of this task based on familiarity, or");
     return noDistirbuteButton;
   }
   
@@ -581,12 +585,12 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
   }
   
   public String getWizardStepTitle() {
-    return "Selection By Organisational Requirements";
+    return "Filter By Organisational Requirements";
   }
 
   
   protected void initialise() {
-    System.out.println("some initialising here");
+    // TODO: initialise widgets
   }
   
   protected void buildInterface() {
@@ -605,7 +609,7 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
     gbc.anchor = GridBagConstraints.WEST;
 
     add(new JLabel(
-        "From the following options, select how organisation structure effects work allocation."
+        "From the following options, select how organisation structure filters out users that this task can be allocated to."
         ), gbc
     );
 
@@ -699,7 +703,7 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
   }
 
   private JRadioButton buildNoDistributionRadioButton() {
-    noDistirbuteButton = new JRadioButton("Do not distribute work-items of this task based on organisation, or");
+    noDistirbuteButton = new JRadioButton("Do not filter users that can be alllocated work-items of this task based on organisation, or");
     return noDistirbuteButton;
   }
   
@@ -799,6 +803,13 @@ class UserTaskAuthorisationPanel extends AbstractWizardPanel {
 
 class WorkDistributionOptionsPanel extends AbstractWizardPanel {
 
+  private JComboBox offerTypeComboBox;
+  private JComboBox allocationTypeComboBox;
+  private JComboBox startingTypeComboBox;
+  private JComboBox allocationStrategyComboBox;
+  
+  private JCheckBox singleUserAllocationCheckBox;
+    
   public WorkDistributionOptionsPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
@@ -808,16 +819,124 @@ class WorkDistributionOptionsPanel extends AbstractWizardPanel {
   }
   
   protected void initialise() {
-    System.out.println("some initialising here");
+    // TODO :Widget initialisation.
   }
   
   protected void buildInterface() {
-    setLayout(new BorderLayout());
+    GridBagLayout gbl = new GridBagLayout();
+    GridBagConstraints gbc = new GridBagConstraints();
+
+    setLayout(gbl);
+
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.gridwidth = 3;
+    gbc.weighty = 0;
+    gbc.insets = new Insets(5,5,10,5);
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.WEST;
+
     add(new JLabel(
-            "Work in progress"
-        ), BorderLayout.CENTER
-    ); 
+        "Describe how work items of this task are to be offered, allocated and started below:"
+        ), gbc
+    );
+    
+    gbc.gridy++;
+    gbc.gridwidth = 1;
+    gbc.weightx = 0.333;
+    gbc.insets = new Insets(5,5,2,5);
+    gbc.anchor = GridBagConstraints.WEST;
+    
+    add(new JLabel("Offering:"),gbc);
+    
+    gbc.gridx++;
+    add(new JLabel("Allocation:"),gbc);
+    
+    gbc.gridx++;
+    add(new JLabel("Starting:"),gbc);
+    
+    gbc.gridy++;
+    gbc.gridx = 0;
+    gbc.insets = new Insets(2,5,5,5);
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.anchor = GridBagConstraints.CENTER;
+        
+    add(buildOfferList(), gbc);
+  
+    gbc.gridx++;
+    add(buildAllocationList(), gbc);
+
+    gbc.gridx++;
+    add(buildStartingList(), gbc);
+    
+    gbc.gridx = 0;
+    gbc.gridy++;
+    gbc.gridwidth = 2;
+    gbc.insets = new Insets(10,5,5,5);
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.EAST;
+    
+    add(buildSingleUserAllocationCheckBox(),gbc);
+    
+    
+    gbc.gridx = gbc.gridx + 2;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.anchor = GridBagConstraints.CENTER;
+    
+    add(buildAllocationStrategyList(), gbc);
+    
   }
+  
+  private JComboBox buildOfferList() {
+
+    offerTypeComboBox = new JComboBox(
+        new String[] {
+          "System offers work-item",
+          "Manager offers work-item"
+        }
+    );
+
+    return offerTypeComboBox;
+  }
+  
+  private JCheckBox buildSingleUserAllocationCheckBox() {
+    singleUserAllocationCheckBox = new JCheckBox(
+        "Ensure only one user is allocated the work-item via strategy:"
+    );
+    return singleUserAllocationCheckBox;
+  };
+
+  private JComboBox buildAllocationList() {
+    allocationTypeComboBox = new ResourceAllocationComboBox();
+    return allocationTypeComboBox;
+  }
+
+
+  private JComboBox buildStartingList() {
+
+    startingTypeComboBox = new JComboBox(
+        new String[] {
+          "System starts work-item upon allocation.",
+          "User informs system of work-item commencement."
+        }
+    );
+
+    return startingTypeComboBox;
+  }
+
+  private JComboBox buildAllocationStrategyList() {
+
+    allocationStrategyComboBox = new JComboBox(
+        new String[] {
+          "Random selection",
+          "Round-robin",
+          "Soortest queue"
+        }
+    );
+
+    return allocationStrategyComboBox;
+  }
+
   
   public void doBack() {
     System.out.println("some back processing here");
