@@ -544,9 +544,13 @@ public class YNetRunner implements Serializable // extends Thread
 //            YLocalWorklist.removeWorkItemFamily(item);
         }
 
-        AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
+	  if (AbstractEngine.getDataContext().getDataProxy( this )  !=null) {
+          /* If the proxy is == null that means that the object was never persisted
+		which it should have been. See unit tests testImproperCompletionOfSubnet*/
+          AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
+	    
+	  }
 
-        
         Logger.getLogger(this.getClass()).debug("<-- processCompletedSubnet");
 
     }
