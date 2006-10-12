@@ -184,6 +184,7 @@ public abstract class AbstractWizardDialog extends JDialog {
   }
   
   public void doNext() {
+    getCurrentPanel().doNext();
     if (currentStep >= (panels.length - 1)) {
       return;
     }
@@ -193,10 +194,21 @@ public abstract class AbstractWizardDialog extends JDialog {
   
   
   public void doBack() {
+    getCurrentPanel().doBack();
     if (currentStep <= 0) {
       return;
     }
     currentStep--;
+    moveToCurrentStep();
+  }
+
+  public void doFirst() {
+    currentStep = 0;
+    moveToCurrentStep();
+  }
+  
+  public void doStep(int step) {
+    currentStep = step;
     moveToCurrentStep();
   }
   
@@ -209,6 +221,10 @@ public abstract class AbstractWizardDialog extends JDialog {
     housedContentPanel.removeAll();
     housedContentPanel.add(panels[currentStep]);
     repaint();
+  }
+  
+  public AbstractWizardPanel getCurrentPanel() {
+    return panels[currentStep];
   }
   
   private void moveToCurrentStep() {
