@@ -99,7 +99,6 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
      */
     protected YEngine() {
         super();
-    	super.setPersistenceMethod(journalising);
         yawllog = YawlEventLogger.getInstance();
 
     }
@@ -546,6 +545,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
 					"http://localhost:8080/yawlWSInvoker/", null);
 			ys.setDocumentation("This YAWL Service enables suitably declared"
 							+ " workflow tasks to invoke RPC style service on the Web.");
+			this.addYawlService(ys);
 			ys = new YAWLServiceReference(
 					"http://localhost:8080/workletService/ib", null);
 			ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
@@ -581,7 +581,13 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
             logger = Logger.getLogger("au.edu.qut.yawl.engine.YEngine");
             logger.debug("--> YEngine: Creating initial instance");
             _myInstance = new YEngine();
-            _myInstance.initialise();
+            /*
+             * TODO: One of these are reduntant and
+             * should be removed
+             * */
+            _myInstance.setJournalising(journalising);
+
+            _myInstance.initialise();                        
             
         } 
         return _myInstance;
@@ -1028,6 +1034,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
          */
         synchronized (mutex) {
         	List<DataProxy> proxies = getDataContext().retrieveAll( YAWLServiceReference.class, null );
+        	System.out.println("proxies: " + proxies.size());
         	Set<YAWLServiceReference> references = new HashSet<YAWLServiceReference>();
         	for( DataProxy proxy : proxies ) {
         		references.add( (YAWLServiceReference) proxy.getData() ); 
@@ -1157,6 +1164,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
      */
     public void setJournalising(boolean arg) {
         journalising = arg;
+    	setPersistenceMethod(journalising);
     }
 
     /**
