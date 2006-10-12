@@ -14,13 +14,12 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.persistence.Basic;
-import javax.persistence.FetchType;
-import javax.persistence.Lob;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
@@ -29,10 +28,6 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 
 import au.edu.qut.yawl.util.YVerificationMessage;
-import au.edu.qut.yawl.engine.YEngine;
-import au.edu.qut.yawl.exceptions.YDataStateException;
-import au.edu.qut.yawl.exceptions.YQueryException;
-import au.edu.qut.yawl.exceptions.YStateException;
 
 /**
  * 

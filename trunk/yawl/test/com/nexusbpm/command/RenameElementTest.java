@@ -2,14 +2,9 @@ package com.nexusbpm.command;
 
 import java.lang.reflect.Method;
 
-import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.persistence.dao.DAO;
-import au.edu.qut.yawl.persistence.dao.DAOFactory;
-import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
-import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**

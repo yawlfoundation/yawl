@@ -162,7 +162,6 @@ public class TestYAtomicTask extends TestCase {
         while(i.hasNext() && _atomicTask1.t_isBusy()){
             YIdentifier id = (YIdentifier) i.next();
             _atomicTask1.t_start(id);
-            Document d = new Document(new Element("data"));
             _atomicTask1.cancel();
         }
         // for branch coverage, call cancel again (even though it's already cancelled)

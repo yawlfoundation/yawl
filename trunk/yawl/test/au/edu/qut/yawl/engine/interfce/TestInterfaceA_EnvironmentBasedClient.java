@@ -1,21 +1,14 @@
 package au.edu.qut.yawl.engine.interfce;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Set;
 
+import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YSpecification;
-
-import junit.framework.TestCase;
 
 public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 

@@ -108,6 +108,7 @@
     SAXON library
     -->
     <property name="saxon.jar" value="${basic.libs}/saxon7.jar"/>
+    <property name="saxpath.jar" value="${basic.libs}/saxpath.jar"/>
     <!--
 	JDom library
 	-->
@@ -200,6 +201,7 @@
         <pathelement location="${junit.jar}"/>
         <pathelement location="${xerces.jar}"/>
         <pathelement location="${saxon.jar}"/>
+        <pathelement location="${saxpath.jar}"/>
         <pathelement location="${jdom.jar}"/>
         <pathelement location="${servlet.jar}"/>
         <pathelement location="${log4j}"/>
@@ -1649,7 +1651,7 @@
     Invokes the unit tests.
     -->
     <target name="test" depends="compile-test">
-        <java classname="au.edu.qut.yawl.AllJavaForgeTestSuite" fork="true" failonerror="false">
+        <java classname="au.edu.qut.yawl.TestAllYAWLSuites" fork="true" failonerror="false">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.persist"/>
             <classpath refid="cp.compile"/>

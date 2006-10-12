@@ -1,32 +1,13 @@
 package au.edu.qut.yawl.persistence.dao;
 
-import java.io.File;
-import java.io.StringReader;
-import java.util.List;
 import java.util.Set;
-import java.util.Iterator;
 
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Document;
-import org.jdom.input.SAXBuilder;
-
-import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.engine.AbstractEngine;
-import au.edu.qut.yawl.engine.YNetRunner;
-import au.edu.qut.yawl.persistence.dao.DAO;
-import au.edu.qut.yawl.persistence.dao.DAOFactory;
-import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
-import au.edu.qut.yawl.persistence.managed.DataContext;
 import junit.framework.TestCase;
-import au.edu.qut.yawl.persistence.StringProducerXML;
-import au.edu.qut.yawl.persistence.StringProducerYAWL;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.domain.YWorkItemID;
+import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
+import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 public class TestYIdentifierHibernateDAO extends TestCase {
