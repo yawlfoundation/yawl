@@ -414,7 +414,7 @@
 							<xs:field xpath="@id"/>
 						</xs:keyref>
 						<xs:unique name="VariableUnique">
-							<xs:selector xpath="yawl:inputParam | yawl:localVariable"/>
+							<xs:selector xpath="yawl:inputParam|yawl:localVariable"/>
 							<xs:field xpath="yawl:name"/>
 						</xs:unique>
 						<xs:unique name="OutputExpresionUnique">
