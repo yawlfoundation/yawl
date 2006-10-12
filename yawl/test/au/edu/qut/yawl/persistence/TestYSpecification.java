@@ -41,12 +41,8 @@ public class TestYSpecification extends TestCase {
     private YSpecification _infiniteLoops;
     private YSpecification _originalSpec;
     private YSpecification spec;
-    private String validType1;
-    private String validType2;
-    private String validType3;
-    private String validType4;
 
-
+    
     public TestYSpecification(String name) {
     	super(name);
     }

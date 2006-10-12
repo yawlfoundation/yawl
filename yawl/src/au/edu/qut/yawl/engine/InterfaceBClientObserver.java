@@ -9,19 +9,6 @@
 
 package au.edu.qut.yawl.engine;
 
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.engine.gui.YAdminGUI;
-
-import java.util.List;
-import java.util.Set;
-import java.io.File;
-import java.io.IOException;
-
-import org.jdom.JDOMException;
 
 /**
  * Defines the 'B' interface into the YAWL Engine corresponding to WfMC interfaces 2+3 - Workflow client applications and invoke applications.

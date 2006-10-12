@@ -9,23 +9,14 @@
 
 package au.edu.qut.yawl.admintool.model;
 
-import au.edu.qut.yawl.elements.YVerifiable;
-import au.edu.qut.yawl.util.YVerificationMessage;
-
-import java.util.List;
 import java.util.ArrayList;
-import javax.persistence.Column;
+import java.util.List;
 
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
+import javax.persistence.Basic;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Basic;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+
+import au.edu.qut.yawl.util.YVerificationMessage;
 /**
  * 
  * @author Lachlan Aldred

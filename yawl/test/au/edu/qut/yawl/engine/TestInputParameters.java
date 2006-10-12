@@ -91,11 +91,6 @@ public class TestInputParameters extends TestCase {
     public void testInputParameters1() throws JDOMException, IOException,
     		YPersistenceException, YStateException, YSchemaBuildingException, YDataStateException {
 		// variables
-    	Set<YWorkItem> workItems;
-    	Iterator<YWorkItem> iter;
-    	YWorkItem item;
-    	List<YNetRunner> netRunners = new Vector<YNetRunner>();
-    	List<YIdentifier> ids = new LinkedList<YIdentifier>();
     	String data;
     	
     	// load the specification

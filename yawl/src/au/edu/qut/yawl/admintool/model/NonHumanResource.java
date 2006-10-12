@@ -9,11 +9,6 @@
 
 package au.edu.qut.yawl.admintool.model;
 
-import au.edu.qut.yawl.elements.YVerifiable;
-import au.edu.qut.yawl.util.YVerificationMessage;
-
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * 
