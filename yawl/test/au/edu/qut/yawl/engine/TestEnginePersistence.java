@@ -67,13 +67,13 @@ public class TestEnginePersistence extends TestCase {
         try {
             //Launch a case with a bad piece of XML data
             //(the string 'beef' is not a number).
-            //This will cause a data state exception
+            //This will cause a data validation exception
             _engine.launchCase(
                 null,
                 _specification.getID(),
                 format.format(new String[]{"beef"})
                 , null);
-        } catch (YDataStateException e) {
+        } catch (YDataValidationException e) {
             //Catch the exception.
             // Try to start another case.
             //If it cannot proceed this means that hibernate is stuck.
@@ -89,6 +89,7 @@ public class TestEnginePersistence extends TestCase {
                     }catch(Exception e) {/*do nothing*/}
                 }
             });
+
             nextEngineCall.start();
             Thread.sleep(5000);
             if(nextEngineCall.isAlive()) {
