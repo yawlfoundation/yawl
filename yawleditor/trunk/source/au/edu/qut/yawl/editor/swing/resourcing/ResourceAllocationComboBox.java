@@ -14,7 +14,9 @@ public class ResourceAllocationComboBox extends JComboBox {
   public ResourceAllocationComboBox() {
     super(ALLOCATION_LABELS);
   }
-  
-  
 
+  public int getAllocation() {
+    return getSelectedIndex();
+  }
+  
 }

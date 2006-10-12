@@ -33,17 +33,21 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.swing.AbstractWizardDialog;
 import au.edu.qut.yawl.editor.swing.AbstractWizardPanel;
+import au.edu.qut.yawl.editor.swing.JFormattedAlphaNumericField;
 import au.edu.qut.yawl.editor.swing.JUtilities;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import au.edu.qut.yawl.editor.swing.data.JProblemReportingEditorPane;
 import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
+import au.edu.qut.yawl.editor.swing.resourcing.AllocationStrategyComboBox;
 import au.edu.qut.yawl.editor.swing.resourcing.ResourceAllocationComboBox;
+import au.edu.qut.yawl.editor.swing.resourcing.ResourceOfferingComboBox;
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
@@ -115,6 +119,8 @@ class ManageResourcingDialog extends AbstractWizardDialog {
   private YAWLTask task;
   private NetGraph net;
   
+  private boolean administratorOffersWork = false;
+  
   protected void initialise() {
     setPanels(
         new AbstractWizardPanel[] {
@@ -124,10 +130,18 @@ class ManageResourcingDialog extends AbstractWizardDialog {
             new DistributeToUserAndRoleVariablesPanel(this),
             new FilteringByFamiliarityPanel(this),
             new SelectionByOrganisationalRequirementsPanel(this),
-//            new UserTaskAuthorisationPanel(this),
+            new FilterByCapabilityPanel(this),
             new ReviewResourceAllocationOfferingPanel(this)
         }
     );
+  }
+  
+  public boolean adminsitratorOffersWork() {
+    return this.administratorOffersWork;
+  }
+  
+  public void setAdministratorOffersWork(boolean adminOffersWork) {
+    this.administratorOffersWork = adminOffersWork;
   }
   
   public String getTitlePrefix() {
@@ -266,6 +280,182 @@ class GuidedOrAdvancedWizardPanel extends AbstractWizardPanel {
   public void doNext() {}     
 }
 
+class WorkDistributionOptionsPanel extends AbstractWizardPanel {
+
+  private ResourceOfferingComboBox offerTypeComboBox;
+  private JComboBox startingTypeComboBox;
+  private ResourceAllocationComboBox allocationTypeComboBox;
+  private AllocationStrategyComboBox allocationStrategyComboBox;
+  
+  private JCheckBox singleUserAllocationCheckBox;
+    
+  public WorkDistributionOptionsPanel(ManageResourcingDialog dialog) {
+    super(dialog);
+  }
+  
+  public String getWizardStepTitle() {
+    return "Work Distribution Options";
+  }
+  
+  protected void initialise() {
+    // TODO :Widget initialisation.
+  }
+  
+  protected void buildInterface() {
+    GridBagLayout gbl = new GridBagLayout();
+    GridBagConstraints gbc = new GridBagConstraints();
+
+    setLayout(gbl);
+
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.gridwidth = 3;
+    gbc.weighty = 0;
+    gbc.insets = new Insets(5,5,10,5);
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.WEST;
+
+    add(new JLabel(
+        "Describe how work items of this task are to be offered, allocated and started below:"
+        ), gbc
+    );
+    
+    gbc.gridy++;
+    gbc.gridwidth = 1;
+    gbc.weightx = 0.333;
+    gbc.insets = new Insets(5,5,2,5);
+    gbc.anchor = GridBagConstraints.WEST;
+    
+    add(new JLabel("Offering:"),gbc);
+    
+    gbc.gridx++;
+    add(new JLabel("Allocation:"),gbc);
+    
+    gbc.gridx++;
+    add(new JLabel("Starting:"),gbc);
+    
+    gbc.gridy++;
+    gbc.gridx = 0;
+    gbc.insets = new Insets(2,5,5,5);
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.anchor = GridBagConstraints.CENTER;
+        
+    add(buildOfferList(), gbc);
+  
+    gbc.gridx++;
+    add(buildAllocationList(), gbc);
+
+    gbc.gridx++;
+    add(buildStartingList(), gbc);
+    
+    gbc.gridx = 0;
+    gbc.gridy++;
+    gbc.gridwidth = 2;
+    gbc.insets = new Insets(10,5,5,5);
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.EAST;
+    
+    add(buildSingleUserAllocationCheckBox(),gbc);
+    
+    
+    gbc.gridx = gbc.gridx + 2;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.anchor = GridBagConstraints.CENTER;
+    
+    add(buildAllocationStrategyList(), gbc);
+    
+    bindRelatedWidgetEvents();
+  }
+  
+  private void bindRelatedWidgetEvents() {
+    allocationTypeComboBox.addActionListener(
+      new ActionListener() {
+        public void actionPerformed(ActionEvent event) {
+          if (allocationTypeComboBox.getAllocation() == ResourceAllocationComboBox.SYSTEM_ALLOCATION) {
+            allocationStrategyComboBox.setSystemAllocationRequired(true);
+            singleUserAllocationCheckBox.setEnabled(true);
+          } else {
+            allocationStrategyComboBox.setSystemAllocationRequired(false);
+            singleUserAllocationCheckBox.setEnabled(false);
+          }
+        }
+      }
+    );
+
+    allocationStrategyComboBox.setSystemAllocationRequired(
+        allocationTypeComboBox.getAllocation() == ResourceAllocationComboBox.SYSTEM_ALLOCATION
+    );
+    
+    singleUserAllocationCheckBox.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            allocationStrategyComboBox.setSingleAllocationRequired(
+                singleUserAllocationCheckBox.isSelected()
+            );
+          }
+        }
+    );
+    
+    allocationStrategyComboBox.setSingleAllocationRequired(
+        singleUserAllocationCheckBox.isSelected()
+    );
+  }
+  
+  private ResourceOfferingComboBox buildOfferList() {
+    this.offerTypeComboBox = new ResourceOfferingComboBox();
+    this.offerTypeComboBox.addActionListener(
+      new ActionListener() {
+        public void actionPerformed(ActionEvent event) {
+          ((ManageResourcingDialog) getDialog()).setAdministratorOffersWork(
+              offerTypeComboBox.getOfferType() == ResourceOfferingComboBox.ADMINISTRATOR_OFFERS
+          );
+        }
+      }
+    );
+    
+    return offerTypeComboBox;
+  }
+  
+  private JCheckBox buildSingleUserAllocationCheckBox() {
+    singleUserAllocationCheckBox = new JCheckBox(
+        "Ensure only one user is allocated the work-item via strategy:"
+    );
+    
+    return singleUserAllocationCheckBox;
+  };
+
+  private ResourceAllocationComboBox buildAllocationList() {
+    allocationTypeComboBox = new ResourceAllocationComboBox();
+    return allocationTypeComboBox;
+  }
+
+
+  private JComboBox buildStartingList() {
+
+    startingTypeComboBox = new JComboBox(
+        new String[] {
+          "System starts work-item upon allocation.",
+          "User informs system of work-item commencement."
+        }
+    );
+
+    return startingTypeComboBox;
+  }
+
+  private AllocationStrategyComboBox buildAllocationStrategyList() {
+    allocationStrategyComboBox = new AllocationStrategyComboBox();
+    return allocationStrategyComboBox;
+  }
+  
+  public void doBack() {}
+
+   public void doNext() {
+     if (offerTypeComboBox.getOfferType() == ResourceOfferingComboBox.ADMINISTRATOR_OFFERS) {
+       getDialog().doLast();
+     }
+   }     
+}
+
 class DistributeToRolesAndIndividualsPanel extends AbstractWizardPanel {
 
   public DistributeToRolesAndIndividualsPanel(ManageResourcingDialog dialog) {
@@ -273,12 +463,12 @@ class DistributeToRolesAndIndividualsPanel extends AbstractWizardPanel {
   }
   
   public String getWizardStepTitle() {
-    return "Distribute To Individuals and/or Roles";
+    return "Add Individuals and/or Roles to Distribution Pool";
   }
 
   
   protected void initialise() {
-    System.out.println("some initialising here");
+    // TODO: initialise widgets
   }
   
   protected void buildInterface() {
@@ -384,13 +574,9 @@ class DistributeToRolesAndIndividualsPanel extends AbstractWizardPanel {
     return panel;
   }
 
-  public void doBack() {
-    System.out.println("some back processing here");
-  }
+  public void doBack() {}
 
-   public void doNext() {
-     System.out.println("some next processing here");
-   }     
+   public void doNext() {}     
 }
 
 class DistributeToUserAndRoleVariablesPanel extends AbstractWizardPanel {
@@ -400,12 +586,12 @@ class DistributeToUserAndRoleVariablesPanel extends AbstractWizardPanel {
   }
   
   public String getWizardStepTitle() {
-    return "Distribute To User and/or Role Variables";
+    return "Add Variables identifying users or rolls to Distibution Pool";
   }
 
   
   protected void initialise() {
-    System.out.println("some initialising here");
+    // TODO: Initialise widgets
   }
   
   protected void buildInterface() {
@@ -441,7 +627,7 @@ class FilteringByFamiliarityPanel extends AbstractWizardPanel {
   }
   
   public String getWizardStepTitle() {
-    return "Filtering By Familiarity";
+    return "Filter Distribution Pool By Familiarity";
   }
 
   
@@ -559,13 +745,9 @@ class FilteringByFamiliarityPanel extends AbstractWizardPanel {
   }
 
   
-  public void doBack() {
-    System.out.println("some back processing here");
-  }
+  public void doBack() {}
 
-   public void doNext() {
-     System.out.println("some next processing here");
-   }     
+   public void doNext() {}     
 }
 
 class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
@@ -585,9 +767,8 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
   }
   
   public String getWizardStepTitle() {
-    return "Filter By Organisational Requirements";
+    return "Filter Distribution Pool By Organisational Requirements";
   }
-
   
   protected void initialise() {
     // TODO: initialise widgets
@@ -759,67 +940,24 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
   }
 
   
-  public void doBack() {
-    System.out.println("some back processing here");
-  }
+  public void doBack() {}
 
-   public void doNext() {
-     System.out.println("some next processing here");
-   }     
+   public void doNext() {}     
 }
 
-class UserTaskAuthorisationPanel extends AbstractWizardPanel {
+class FilterByCapabilityPanel extends AbstractWizardPanel {
 
-  public UserTaskAuthorisationPanel(ManageResourcingDialog dialog) {
+  public FilterByCapabilityPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
   
   public String getWizardStepTitle() {
-    return "User Task Authorisation";
+    return "Filter Distirbution Pool by Resource Capabilities";
   }
 
   
   protected void initialise() {
-    System.out.println("some initialising here");
-  }
-  
-  protected void buildInterface() {
-    setLayout(new BorderLayout());
-    add(new JLabel(
-            "Nothing has been supplied UI wise for this step yet."
-        ), BorderLayout.CENTER
-    ); 
-  }
-  
-  public void doBack() {
-    System.out.println("some back processing here");
-  }
-
-   public void doNext() {
-     System.out.println("some next processing here");
-   }     
-}
-
-
-class WorkDistributionOptionsPanel extends AbstractWizardPanel {
-
-  private JComboBox offerTypeComboBox;
-  private JComboBox allocationTypeComboBox;
-  private JComboBox startingTypeComboBox;
-  private JComboBox allocationStrategyComboBox;
-  
-  private JCheckBox singleUserAllocationCheckBox;
-    
-  public WorkDistributionOptionsPanel(ManageResourcingDialog dialog) {
-    super(dialog);
-  }
-  
-  public String getWizardStepTitle() {
-    return "Work Distribution Options";
-  }
-  
-  protected void initialise() {
-    // TODO :Widget initialisation.
+    // TODO: Initialise widgets
   }
   
   protected void buildInterface() {
@@ -830,121 +968,75 @@ class WorkDistributionOptionsPanel extends AbstractWizardPanel {
 
     gbc.gridx = 0;
     gbc.gridy = 0;
-    gbc.gridwidth = 3;
+    gbc.gridwidth = 5;
     gbc.weighty = 0;
-    gbc.insets = new Insets(5,5,10,5);
+    gbc.insets = new Insets(5,5,5,5);
     gbc.fill = GridBagConstraints.NONE;
     gbc.anchor = GridBagConstraints.WEST;
 
     add(new JLabel(
-        "Describe how work items of this task are to be offered, allocated and started below:"
+        "From below, construct a number of capabilities that resources must posses to remain in the distribution pool:"
         ), gbc
     );
     
     gbc.gridy++;
     gbc.gridwidth = 1;
-    gbc.weightx = 0.333;
-    gbc.insets = new Insets(5,5,2,5);
-    gbc.anchor = GridBagConstraints.WEST;
-    
-    add(new JLabel("Offering:"),gbc);
-    
-    gbc.gridx++;
-    add(new JLabel("Allocation:"),gbc);
-    
-    gbc.gridx++;
-    add(new JLabel("Starting:"),gbc);
-    
-    gbc.gridy++;
-    gbc.gridx = 0;
-    gbc.insets = new Insets(2,5,5,5);
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.anchor = GridBagConstraints.CENTER;
-        
-    add(buildOfferList(), gbc);
-  
-    gbc.gridx++;
-    add(buildAllocationList(), gbc);
-
-    gbc.gridx++;
-    add(buildStartingList(), gbc);
-    
-    gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.gridwidth = 2;
-    gbc.insets = new Insets(10,5,5,5);
-    gbc.fill = GridBagConstraints.NONE;
     gbc.anchor = GridBagConstraints.EAST;
     
-    add(buildSingleUserAllocationCheckBox(),gbc);
+    add(new JLabel("Select users with capability"),gbc);
     
-    
-    gbc.gridx = gbc.gridx + 2;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.gridx++;
     gbc.anchor = GridBagConstraints.CENTER;
     
-    add(buildAllocationStrategyList(), gbc);
+    add(new JFormattedAlphaNumericField(15), gbc);
+
+    gbc.gridx++;
+    gbc.weightx = 0;
+    gbc.insets = new Insets(5,2,5,2);
+
+    add(new JLabel("of"),gbc);
+
+    gbc.gridx++;
+    gbc.insets = new Insets(5,5,5,5);
+    gbc.anchor = GridBagConstraints.WEST;
+
+    add(new JFormattedAlphaNumericField(15), gbc);
+
+    gbc.gridx++;
+    gbc.anchor = GridBagConstraints.CENTER;
+
+    add(new JButton("Add"),gbc);
     
+    gbc.gridy++;
+    gbc.gridx = 0;
+    gbc.anchor = GridBagConstraints.NORTHEAST;
+    add(new JLabel("Capabilities:"),gbc);
+    
+    gbc.gridx++;
+    gbc.gridwidth = 3;
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.fill = GridBagConstraints.BOTH;
+    
+    add(new JScrollPane(new JList(new String[] {"\"10 years\" of \"experience\"","\"tastiness\" of \"waffles\"" } )),gbc);
+    
+    gbc.gridx = gbc.gridx + 3;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.fill = GridBagConstraints.NONE;
+    
+    add(new JButton("Remove"),gbc);
+
+    /*  TODO: equalize buttons. 
+    buttonList.add(basicButton);
+    buttonList.add(advancedButton);
+      
+    JUtilities.equalizeComponentSizes(buttonList);
+*/
   }
   
-  private JComboBox buildOfferList() {
+  public void doBack() {}
 
-    offerTypeComboBox = new JComboBox(
-        new String[] {
-          "System offers work-item",
-          "Manager offers work-item"
-        }
-    );
-
-    return offerTypeComboBox;
-  }
-  
-  private JCheckBox buildSingleUserAllocationCheckBox() {
-    singleUserAllocationCheckBox = new JCheckBox(
-        "Ensure only one user is allocated the work-item via strategy:"
-    );
-    return singleUserAllocationCheckBox;
-  };
-
-  private JComboBox buildAllocationList() {
-    allocationTypeComboBox = new ResourceAllocationComboBox();
-    return allocationTypeComboBox;
-  }
-
-
-  private JComboBox buildStartingList() {
-
-    startingTypeComboBox = new JComboBox(
-        new String[] {
-          "System starts work-item upon allocation.",
-          "User informs system of work-item commencement."
-        }
-    );
-
-    return startingTypeComboBox;
-  }
-
-  private JComboBox buildAllocationStrategyList() {
-
-    allocationStrategyComboBox = new JComboBox(
-        new String[] {
-          "Random selection",
-          "Round-robin",
-          "Soortest queue"
-        }
-    );
-
-    return allocationStrategyComboBox;
-  }
-
-  
-  public void doBack() {
-    System.out.println("some back processing here");
-  }
-
-   public void doNext() {
-     System.out.println("some next processing here");
-   }     
+   public void doNext() {}     
 }
 
 class ReviewResourceAllocationOfferingPanel extends AbstractWizardPanel {
@@ -966,16 +1058,16 @@ class ReviewResourceAllocationOfferingPanel extends AbstractWizardPanel {
   }
   
   protected void initialise() {
-    System.out.println("some initialising here");
+    // TODO: Initialise widgets
   }
   
   public void doBack() {
-    System.out.println("some back processing here");
+    if (((ManageResourcingDialog) getDialog()).adminsitratorOffersWork()) {
+      getDialog().doStep(2);
+    } 
   }
 
-   public void doNext() {
-     System.out.println("some next processing here");
-   }     
+  public void doNext() {}     
 }
 
 class ResourcingExpressionEditorPane extends JProblemReportingEditorPane {
