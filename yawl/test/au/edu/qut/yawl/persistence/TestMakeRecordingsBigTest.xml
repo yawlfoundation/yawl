@@ -565,7 +565,7 @@
 				<type>SongType</type>
 			</inputParam>
 			<outputParam>
-				<element>crewmembers</element>
+				<element>crewMembers</element>
 			</outputParam>
 		</decomposition>
 		<decomposition id="RecordTracks" xsi:type="WebServiceGatewayFactsType">
