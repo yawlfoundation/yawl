@@ -148,6 +148,7 @@
     <property name="commonsLogging" value="${persist.libs}/commons-logging-1.0.3.jar"/>
     <property name="dom4j" value="${persist.libs}/dom4j-1.6.1.jar"/>
     <property name="ehcache" value="${persist.libs}/ehcache-0.7.jar"/>
+    <property name="spring" value="${persist.libs}/spring.jar"/>
     <property name="ejb-persist" value="${persist.libs}/ejb3-persistence.jar"/>
     <property name="jboss-ejb" value="${persist.libs}/jboss-ejb3x.jar"/>
 	<property name="jsr173" value="${persist.libs}/jsr173_1.0_api.jar"/>
@@ -288,6 +289,7 @@
         <pathelement location="${ejb-persist}"/>
     	<pathelement location="${jsr173}"/>
     	<pathelement location="${postgres8.path}"/>
+    	<pathelement location="${spring}"/>
     </path>
 
     <!--
