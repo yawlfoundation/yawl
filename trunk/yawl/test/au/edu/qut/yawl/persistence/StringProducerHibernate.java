@@ -106,7 +106,7 @@ public class StringProducerHibernate extends StringProducerXML {
 			}
 			setSessions( getCfg().buildSessionFactory( /*new TestInterceptor()*/ ) );
 		}
-		
+
 		return INSTANCE;
 	}
 	
