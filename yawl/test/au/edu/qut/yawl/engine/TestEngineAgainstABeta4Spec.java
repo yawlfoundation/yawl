@@ -23,7 +23,6 @@ import org.jdom.JDOMException;
 import java.io.IOException;
 import java.io.File;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Set;
 import java.util.ArrayList;
 
@@ -46,7 +45,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
     private File yawlXMLFile;
 
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
+    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
         URL fileURL = getClass().getResource("MakeRecordings(Beta4).xml");
         yawlXMLFile = new File(fileURL.getFile());
         _specification = null;

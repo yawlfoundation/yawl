@@ -46,7 +46,7 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
         super(name);
     }
 
-    public void setUp() throws YSyntaxException, JDOMException, YSchemaBuildingException, IOException {
+    public void setUp() throws YSyntaxException, JDOMException, YSchemaBuildingException, IOException, YPersistenceException {
         URL fileURL = getClass().getResource("ImproperCompletion.xml");
         yawlXMLFile = new File(fileURL.getFile());
         _specification = null;

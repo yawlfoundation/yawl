@@ -47,7 +47,7 @@ public class TestEngineSystem2 extends TestCase {
     }
 
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
+    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
         URL fileURL = getClass().getResource("YAWL_Specification4.xml");
         yawlXMLFile = new File(fileURL.getFile());
         _specification = null;

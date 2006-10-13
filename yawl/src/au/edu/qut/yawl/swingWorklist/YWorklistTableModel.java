@@ -9,21 +9,27 @@
 
 package au.edu.qut.yawl.swingWorklist;
 
-import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.engine.AbstractEngine;
-import au.edu.qut.yawl.engine.EngineFactory;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.worklist.model.Marshaller;
+import java.awt.EventQueue;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Vector;
+
+import javax.swing.table.AbstractTableModel;
+
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import javax.swing.table.AbstractTableModel;
-import java.awt.*;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
-import java.util.List;
+import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.engine.EngineFactory;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.worklist.model.Marshaller;
 
 /**
  * 
@@ -180,7 +186,7 @@ public class YWorklistTableModel extends AbstractTableModel {
     }*/
 
 
-    public String getOutputData(String caseIDStr, String taskID) throws JDOMException, IOException {
+    public String getOutputData(String caseIDStr, String taskID) throws JDOMException, IOException, YPersistenceException {
         Object[] row = (Object[]) _rows.get(caseIDStr + taskID);
         if (row != null && row.length > 8) {
             String outputParamsData = (String) row[8];

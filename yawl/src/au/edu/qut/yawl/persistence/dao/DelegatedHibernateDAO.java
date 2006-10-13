@@ -93,16 +93,15 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 				};
 	
 	private synchronized static void initializeSessions() {
-		//if ( sessionFactory != null ) sessionFactory.close();
 		try {
 			AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-//	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
-//	        .setProperty(Environment.SHOW_SQL, "false")
-//	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
-//	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
-//	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
-//	        .setProperty(Environment.USER, "capsela")
-//	        .setProperty(Environment.PASS, "capsela")
+	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
+	        .setProperty(Environment.SHOW_SQL, "false")
+	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
+	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
+	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/yawl")
+	        .setProperty(Environment.USER, "capsela")
+	        .setProperty(Environment.PASS, "capsela")
 
 			.setProperty(Environment.HBM2DDL_AUTO, "create")
 //			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
@@ -179,15 +178,6 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 					catch( Exception ignore ) {
 						LOG.error( ignore );
 					}
-					try {
-						if( sessionFactory!=null ) {
-							sessionFactory.close();
-							sessionFactory=null;
-						}
-					}
-					catch( Exception ignore ) {
-						LOG.error(ignore);
-					}
 					return false;
 				}
 		}
@@ -211,15 +201,6 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 					}
 				}
 				catch( Exception ignore ) {			
-					LOG.error( ignore );
-				}
-				try {
-					if (sessionFactory!=null) {
-						sessionFactory.close();
-						sessionFactory=null;
-					}
-				}
-				catch( Exception ignore ) {
 					LOG.error( ignore );
 				}
 				return null;
@@ -255,15 +236,6 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 				catch( Exception ignore ) {			
 					LOG.error( ignore );
 				}
-				try {
-					if (sessionFactory!=null) {
-						sessionFactory.close();
-						sessionFactory=null;
-					}
-				}
-				catch( Exception ignore ) {
-					LOG.error( ignore );
-				}
 				return null;
 			}
 		}
@@ -292,15 +264,6 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 				}
 				catch( Exception ignore ) {
 					LOG.error( ignore );
-				}
-				try {
-					if( sessionFactory != null ) {
-						sessionFactory.close();
-						sessionFactory = null;
-					}
-				}
-				catch (Exception ignore) {
-					LOG.error(ignore);
 				}
 			}
 		}

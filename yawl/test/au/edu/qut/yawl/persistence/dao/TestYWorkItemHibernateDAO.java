@@ -1,22 +1,14 @@
 package au.edu.qut.yawl.persistence.dao;
 
-import java.io.File;
 import java.io.StringReader;
-import java.util.List;
 
 import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import junit.framework.TestCase;
-import au.edu.qut.yawl.persistence.StringProducerXML;
-import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
@@ -45,6 +37,7 @@ public class TestYWorkItemHibernateDAO extends TestCase {
 		try {
 			DAO hibernateDAO = getDAO();
 			YIdentifier yid = new YIdentifier("abc");
+			hibernateDAO.save( yid );
 			YWorkItemID itemid = new YWorkItemID(yid,"test_task");			
 			YWorkItem item = new YWorkItem("testspec",itemid,true,false);
 			

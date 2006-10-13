@@ -265,7 +265,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         /**
          * Create engine instance (plus references vai the various interfaces)
          */
-//        try {
+        try {
             _engineManagement =  EngineFactory.createYEngine(journalising);
             _engineClient = EngineFactory.createYEngine(journalising);
 
@@ -275,11 +275,11 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             AbstractEngine obj = (AbstractEngine)_engineClient;
             obj.setGenerateUIMetaData(generateUIMetaData);
 
-//  TODO      } catch (YPersistenceException e) {
-//            logger.fatal("Failure to instanciate engine", e);
-//            logError("Failure to instanciate engine", e);
-//            System.exit(99);
-//        }
+        } catch (YPersistenceException e) {
+            logger.fatal("Failure to instanciate engine", e);
+            logError("Failure to instanciate engine", e);
+            System.exit(99);
+        }
         splash.setProgress(80);
         //AJH: Load up the loaded specs into UI
         {

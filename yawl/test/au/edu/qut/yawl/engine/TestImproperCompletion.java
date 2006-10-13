@@ -48,7 +48,7 @@ public class TestImproperCompletion extends TestCase{
         super(name);
     }
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
+    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
         URL fileURL = getClass().getResource("TestImproperCompletion.xml");
         yawlXMLFile = new File(fileURL.getFile());
         _specification = (YSpecification) YMarshal.
