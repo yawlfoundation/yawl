@@ -39,15 +39,16 @@ public class JythonService implements NexusService {
 	
     private void initialize() {
         if( !initialized ) {
-            initialized = true;
+        	initialized = true;
             // get jython properties
             InputStream in = NexusService.class.getResourceAsStream( "jython.properties" );
+            Properties p = new Properties();
             if( in == null ) {
                 System.out.println( "Could not find jython properties file! Using default properties." );
+                p.setProperty( "python.home", JYTHON_HOME );
             }
             else {
                 try {
-                    Properties p = new Properties();
                     p.load( in );
                     JYTHON_HOME = p.getProperty( "jython.home" );
                     System.out.println( "Using jython home:" + JYTHON_HOME );
@@ -65,11 +66,12 @@ public class JythonService implements NexusService {
             String classPath = System.getProperty( "java.class.path" );
             String jythonJar = jar.getAbsolutePath();
             classPath = classPath + File.pathSeparator + jythonJar;
-            Properties props = new Properties();
-            props.setProperty( "python.verbose", "debug" );
-            props.setProperty( "python.home", JYTHON_HOME );
-            props.setProperty( "java.class.path", classPath );
-            PythonInterpreter.initialize( System.getProperties(), props, new String[ 0 ] );
+            //props.setProperty( "python.verbose", "debug" );
+//            props.setProperty( "python.home", JYTHON_HOME );
+            if( p.getProperty( "java.class.path" ) == null ) {
+            	p.setProperty( "java.class.path", classPath );
+            }
+            PythonInterpreter.initialize( System.getProperties(), p, new String[ 0 ] );
         }
     }
 	

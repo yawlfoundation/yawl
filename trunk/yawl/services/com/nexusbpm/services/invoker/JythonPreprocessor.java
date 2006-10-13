@@ -81,12 +81,13 @@ public class JythonPreprocessor {
             initialized = true;
             // get jython properties
             InputStream in = NexusService.class.getResourceAsStream( "jython.properties" );
+            Properties p = new Properties();
             if( in == null ) {
                 System.out.println( "Could not find jython properties file! Using default properties." );
+                p.setProperty( "python.home", JYTHON_HOME );
             }
             else {
                 try {
-                    Properties p = new Properties();
                     p.load( in );
                     JYTHON_HOME = p.getProperty( "jython.home" );
                     System.out.println( "Using jython home:" + JYTHON_HOME );
@@ -104,11 +105,12 @@ public class JythonPreprocessor {
             String classPath = System.getProperty( "java.class.path" );
             String jythonJar = jar.getAbsolutePath();
             classPath = classPath + File.pathSeparator + jythonJar;
-            Properties props = new Properties();
-            props.setProperty( "python.verbose", "debug" );
-            props.setProperty( "python.home", JYTHON_HOME );
-            props.setProperty( "java.class.path", classPath );
-            PythonInterpreter.initialize( System.getProperties(), props, new String[ 0 ] );
+            //props.setProperty( "python.verbose", "debug" );
+//            props.setProperty( "python.home", JYTHON_HOME );
+            if( p.getProperty( "java.class.path" ) == null ) {
+            	p.setProperty( "java.class.path", classPath );
+            }
+            PythonInterpreter.initialize( System.getProperties(), p, new String[ 0 ] );
         }
     }
     
@@ -164,7 +166,7 @@ public class JythonPreprocessor {
         // for each pass...
         while( recheckQueue.size() > 0 && passes < MAXIMUM_PASSES && evalMore ) {
             passes += 1;
-            System.out.println( "Pass " + passes );
+//            System.out.println( "Pass " + passes );
             
             evalMore = false;
             
@@ -205,7 +207,7 @@ public class JythonPreprocessor {
                     // the variable evaluation is finished
                     includeVars.add( name );
                     evalMore = true;
-                    System.out.println( name + " finished" );
+//                    System.out.println( name + " finished" );
                 }
                 else {
                     // this descriptor couldn't be completely evaluated
@@ -213,7 +215,7 @@ public class JythonPreprocessor {
                     visitedSet.add( val );
                     recheckQueue.add( name );
                     evalMore = true;
-                    System.out.println( name + " not finished, but evaluated" );
+//                    System.out.println( name + " not finished, but evaluated" );
                 }
             }
         }
@@ -243,7 +245,7 @@ public class JythonPreprocessor {
             b.append( indent( "\t", new BufferedReader( new StringReader( writer.toString() ) ) ) );
             
             data.addStatusMessage( b.toString() );
-            System.out.println( b.toString() );
+//            System.out.println( b.toString() );
         }
     }
     
