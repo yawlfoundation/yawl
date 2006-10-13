@@ -30,7 +30,7 @@
     <property name="javadoc" value="javadoc"/>
     <property name="output" value="output"/>
     <property name="pdf.libs" value="./build/3rdParty/pdflibs"/>
-
+	<property name="quartz.jar" value="${basic.libs}/quartz-1.5.2.jar"/>
 
 
 
@@ -140,10 +140,13 @@
     <!--
     Persistence Dependencies
     -->
-    <property name="cglib" value="${persist.libs}/cglib-full-2.0.1.jar"/>
-    <property name="commonsCollections" value="${persist.libs}/commons-collections-2.1.jar"/>
+    <property name="antlr" value="${persist.libs}/antlr-2.7.6rc1.jar"/>
+    <property name="asm" value="${persist.libs}/asm.jar"/>
+    <property name="asm-attrs" value="${persist.libs}/asm-attrs.jar"/>
+    <property name="cglib" value="${persist.libs}/cglib-2.1.3.jar"/>
+    <property name="commonsCollections" value="${persist.libs}/commons-collections-2.1.1.jar"/>
     <property name="commonsLogging" value="${persist.libs}/commons-logging-1.0.3.jar"/>
-    <property name="dom4j" value="${persist.libs}/dom4j-1.4.jar"/>
+    <property name="dom4j" value="${persist.libs}/dom4j-1.6.1.jar"/>
     <property name="ehcache" value="${persist.libs}/ehcache-0.7.jar"/>
     <property name="ejb-persist" value="${persist.libs}/ejb3-persistence.jar"/>
     <property name="jboss-ejb" value="${persist.libs}/jboss-ejb3x.jar"/>
@@ -182,7 +185,7 @@
 
     <!-- Log4J Logging Library -->
     <property name="log4j" value="${basic.libs}/log4j-1.2.8.jar"/>
-
+	<property name="jcalendar.jar" value="${standAlone.libs}/jcalendar-custom.jar"/>
     <!-- ==================== Compilation Classpath =========================== -->
     <!--
       Rather than relying on the CLASSPATH environment variable, Ant includes
@@ -205,6 +208,8 @@
         <pathelement location="${jdom.jar}"/>
         <pathelement location="${servlet.jar}"/>
         <pathelement location="${log4j}"/>
+    	<pathelement location="${quartz.jar}"/>
+    	<pathelement location="${jcalendar.jar}"/>
     	
     	<fileset dir="${nexus.service.libs}/xfire">
     		<include name="*.jar"/>
@@ -264,10 +269,13 @@
     Persistence Classpath
     -->
     <path id="cp.persist">
+        <pathelement location="${asm}"/>
+        <pathelement location="${asm-attrs}"/>
+        <pathelement location="${antlr}"/>
         <pathelement location="${cglib}"/>
+    	<pathelement location="${dom4j}"/>
         <pathelement location="${commonsCollections}"/>
         <pathelement location="${commonsLogging}"/>
-        <pathelement location="${dom4j}"/>
         <pathelement location="${ehcache}"/>
         <pathelement location="${hibernate}"/>
         <pathelement location="${jaxbapi}"/>
@@ -279,6 +287,7 @@
         <pathelement location="${jboss-ejb}"/>
         <pathelement location="${ejb-persist}"/>
     	<pathelement location="${jsr173}"/>
+    	<pathelement location="${postgres8.path}"/>
     </path>
 
     <!--
@@ -1637,7 +1646,7 @@
         <copy todir="${classes}">
             <fileset dir="${test}" excludes="**/*.java"/>
         </copy>
-        <javac srcdir="${test}" destdir="${classes}">
+        <javac srcdir="${test}" destdir="${classes}" debug="true">
             <classpath refid="cp.persist"/>
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>

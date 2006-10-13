@@ -315,7 +315,6 @@
         <pathelement location="${dom4j}"/>
         <pathelement location="${commonsCollections}"/>
         <pathelement location="${commonsLogging}"/>
-        <pathelement location="${dom4j}"/>
         <pathelement location="${ehcache}"/>
         <pathelement location="${hibernate}"/>
         <pathelement location="${jaxbapi}"/>
