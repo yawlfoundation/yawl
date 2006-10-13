@@ -89,8 +89,8 @@ public class JythonPreprocessor {
             else {
                 try {
                     p.load( in );
-                    JYTHON_HOME = p.getProperty( "jython.home" );
-                    System.out.println( "Using jython home:" + JYTHON_HOME );
+//                    JYTHON_HOME = p.getProperty( "jython.home" );
+//                    System.out.println( "Using jython home:" + JYTHON_HOME );
                 }
                 catch( IOException e ) {
                     System.out.println( "Error reading in jython.properties!" );
@@ -98,13 +98,13 @@ public class JythonPreprocessor {
                 }
             }
             
-            // Get the Jython home and jar paths.
-            File home = new File( JYTHON_HOME );
-            File jar = new File( home, "jython.jar" );
-            // Initialize the python interpreter with the correct home directory and classpath.
+//            // Get the Jython home and jar paths.
+//            File home = new File( JYTHON_HOME );
+//            File jar = new File( home, "jython.jar" );
+//            // Initialize the python interpreter with the correct home directory and classpath.
             String classPath = System.getProperty( "java.class.path" );
-            String jythonJar = jar.getAbsolutePath();
-            classPath = classPath + File.pathSeparator + jythonJar;
+//            String jythonJar = jar.getAbsolutePath();
+//            classPath = classPath + File.pathSeparator + jythonJar;
             //props.setProperty( "python.verbose", "debug" );
 //            props.setProperty( "python.home", JYTHON_HOME );
             if( p.getProperty( "java.class.path" ) == null ) {
