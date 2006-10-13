@@ -1045,11 +1045,9 @@ public abstract class YTask extends YExternalNetElement {
 
     
     private void prepareDataForInstanceStarting(YIdentifier childInstanceID) throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException {
-        System.out.println("1: " + getDecompositionPrototype());
     	if (null == getDecompositionPrototype()) {
             return;
         }
-    	System.out.println("2");
         Element dataForChildCase = produceDataRootElement();
 
         List inputParams = new ArrayList(getDecompositionPrototype().getInputParameters());
@@ -1653,14 +1651,12 @@ public abstract class YTask extends YExternalNetElement {
                 result.append( getDecompositionPrototype().getId() );
 				result.append( "</decompositionID>" );
 
-				//System.out.println( _decompositionPrototype.getAttributes().keySet() );
 
 				for( Iterator atts = _decompositionPrototype.getAttributes().keySet().iterator(); atts.hasNext(); ) {
 					result.append( "<attributes>" );
 
 					String key = (String) atts.next();
 					String value = _decompositionPrototype.getAttributes().get( key );
-					//System.out.println( key + " : " + value );
 					result.append( "<" + key + ">" + value + "</" + key + ">" );
 
 					result.append( "</attributes>" );
