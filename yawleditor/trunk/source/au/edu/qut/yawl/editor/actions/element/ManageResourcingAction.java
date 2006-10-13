@@ -207,7 +207,7 @@ class GuidedOrAdvancedWizardPanel extends AbstractWizardPanel {
     gbc.weighty = 0.333;
     gbc.insets = new Insets(10,0,10,0);
     gbc.anchor = GridBagConstraints.WEST;
-
+    
     add(new JLabel("This wizard will help you to construct an expression that tells the " +
             "workflow engine how work for this task should be allocated. "), gbc);
 
@@ -309,7 +309,7 @@ class WorkDistributionOptionsPanel extends AbstractWizardPanel {
 
     gbc.gridx = 0;
     gbc.gridy = 0;
-    gbc.gridwidth = 3;
+    gbc.gridwidth = 4;
     gbc.weighty = 0;
     gbc.insets = new Insets(5,5,10,5);
     gbc.fill = GridBagConstraints.NONE;
@@ -326,13 +326,23 @@ class WorkDistributionOptionsPanel extends AbstractWizardPanel {
     gbc.insets = new Insets(5,5,2,5);
     gbc.anchor = GridBagConstraints.WEST;
     
-    add(new JLabel("Offering:"),gbc);
+    JLabel offeringLabel = new JLabel("Offering:");
+    offeringLabel.setDisplayedMnemonic(KeyEvent.VK_O);
+    
+    add(offeringLabel,gbc);
     
     gbc.gridx++;
-    add(new JLabel("Allocation:"),gbc);
+    
+    JLabel allocationLabel = new JLabel("Allocation:");
+    allocationLabel.setDisplayedMnemonic(KeyEvent.VK_A);
+    
+    add(allocationLabel,gbc);
+    
+    JLabel startingLabel = new JLabel("Starting:");
+    startingLabel.setDisplayedMnemonic(KeyEvent.VK_S);
     
     gbc.gridx++;
-    add(new JLabel("Starting:"),gbc);
+    add(startingLabel,gbc);
     
     gbc.gridy++;
     gbc.gridx = 0;
@@ -341,28 +351,42 @@ class WorkDistributionOptionsPanel extends AbstractWizardPanel {
     gbc.anchor = GridBagConstraints.CENTER;
         
     add(buildOfferList(), gbc);
+    offeringLabel.setLabelFor(offerTypeComboBox);
   
     gbc.gridx++;
     add(buildAllocationList(), gbc);
+    allocationLabel.setLabelFor(allocationTypeComboBox);
 
+    
     gbc.gridx++;
+    gbc.gridwidth = 2;
     add(buildStartingList(), gbc);
+    startingLabel.setLabelFor(startingTypeComboBox);
     
     gbc.gridx = 0;
     gbc.gridy++;
-    gbc.gridwidth = 2;
     gbc.insets = new Insets(10,5,5,5);
     gbc.fill = GridBagConstraints.NONE;
     gbc.anchor = GridBagConstraints.EAST;
     
     add(buildSingleUserAllocationCheckBox(),gbc);
     
-    
     gbc.gridx = gbc.gridx + 2;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.EAST;
+    
+    JLabel allocationStrategyLabel = new JLabel("Use Strategy:");
+    allocationStrategyLabel.setDisplayedMnemonic(KeyEvent.VK_U);
+
+    add(allocationStrategyLabel,gbc);
+    
+    gbc.gridx++;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.anchor = GridBagConstraints.CENTER;
     
     add(buildAllocationStrategyList(), gbc);
+    allocationStrategyLabel.setLabelFor(allocationStrategyComboBox);
+    allocationStrategyComboBox.setLabel(allocationStrategyLabel);
     
     bindRelatedWidgetEvents();
   }
@@ -418,8 +442,9 @@ class WorkDistributionOptionsPanel extends AbstractWizardPanel {
   
   private JCheckBox buildSingleUserAllocationCheckBox() {
     singleUserAllocationCheckBox = new JCheckBox(
-        "Ensure only one user is allocated the work-item via strategy:"
+        "Ensure only one user is allocated the work-item."
     );
+    singleUserAllocationCheckBox.setMnemonic(KeyEvent.VK_E);
     
     return singleUserAllocationCheckBox;
   };
@@ -435,7 +460,7 @@ class WorkDistributionOptionsPanel extends AbstractWizardPanel {
     startingTypeComboBox = new JComboBox(
         new String[] {
           "System starts work-item upon allocation.",
-          "User informs system of work-item commencement."
+          "User informs system of work commencement."
         }
     );
 
@@ -457,6 +482,9 @@ class WorkDistributionOptionsPanel extends AbstractWizardPanel {
 }
 
 class DistributeToRolesAndIndividualsPanel extends AbstractWizardPanel {
+  
+  private JList individualList;
+  private JList roleList;
 
   public DistributeToRolesAndIndividualsPanel(ManageResourcingDialog dialog) {
     super(dialog);
@@ -486,17 +514,36 @@ class DistributeToRolesAndIndividualsPanel extends AbstractWizardPanel {
     gbc.anchor = GridBagConstraints.CENTER;
 
     add(new JLabel("<html><body>Below are lists of available individuals and roles.<p>Chose from both lists, " +
-            "those individuals and/or roles you wish work items of this task to be distributed to. </body></html>"), gbc);
+            "those individuals and/or roles you wish add to the distribution pool for work items of this task. </body></html>"), gbc);
     
     gbc.gridy++;
     gbc.gridwidth = 1;
-    gbc.weighty = 1;
-    gbc.weightx = 0.4;
     gbc.insets = new Insets(10,0,0,0);
     gbc.fill = GridBagConstraints.BOTH;
-    gbc.anchor = GridBagConstraints.EAST;
+    gbc.anchor = GridBagConstraints.SOUTHWEST;
+    
+    
+    JLabel individualsLabel = new JLabel("Individuals:");
+    individualsLabel.setDisplayedMnemonic(KeyEvent.VK_I);
+    
+    add(individualsLabel,gbc);
+    
+    gbc.gridx = gbc.gridx + 2;
+
+    JLabel rolesLabel = new JLabel("Roles:");
+    rolesLabel.setDisplayedMnemonic(KeyEvent.VK_R);
+    
+    add(rolesLabel,gbc);
+    
+    gbc.gridx = 0;
+    gbc.gridy++;
+    gbc.weightx = 0.4;
+    gbc.weighty = 1;
+    gbc.insets = new Insets(2,0,0,0);
     
     add(buildIndividualsPanel(), gbc);
+    
+    individualsLabel.setLabelFor(individualList);
     
     gbc.gridx++;
     gbc.weightx = 0;
@@ -508,21 +555,18 @@ class DistributeToRolesAndIndividualsPanel extends AbstractWizardPanel {
 
     gbc.weightx = 0.4;
     gbc.gridx++;
-    gbc.insets = new Insets(10,0,0,0);
+    gbc.insets = new Insets(2,0,0,0);
     gbc.fill = GridBagConstraints.BOTH;
     gbc.anchor = GridBagConstraints.WEST;
 
     add(buildRolesPanel(), gbc);
+
+    rolesLabel.setLabelFor(roleList);
+
   }
   
   JPanel buildIndividualsPanel() {
     JPanel panel = new JPanel();
-    panel.setBorder(
-      new CompoundBorder(
-        new TitledBorder("Individuals"),
-        new EmptyBorder(0,5,5,5)
-      )    
-    );
     
     // TODO: Source real data
     
@@ -534,12 +578,11 @@ class DistributeToRolesAndIndividualsPanel extends AbstractWizardPanel {
     };
     
     panel.setLayout(new BorderLayout());
-    JList list = new JList(individuals);
-    JScrollPane scrollpane = new JScrollPane(list);
+    individualList = new JList(individuals);
+    JScrollPane scrollpane = new JScrollPane(individualList);
     scrollpane.getViewport().setMaximumSize(
-      list.getPreferredScrollableViewportSize()
+        individualList.getPreferredScrollableViewportSize()
     );
-    
     
     panel.add(scrollpane, BorderLayout.CENTER);
 
@@ -548,12 +591,6 @@ class DistributeToRolesAndIndividualsPanel extends AbstractWizardPanel {
 
   JPanel buildRolesPanel() {
     JPanel panel = new JPanel();
-    panel.setBorder(
-      new CompoundBorder(
-        new TitledBorder("Roles"),
-        new EmptyBorder(0,5,5,5)
-      )    
-    );
 
     // TODO: Source real data
     
@@ -563,10 +600,10 @@ class DistributeToRolesAndIndividualsPanel extends AbstractWizardPanel {
     };
     
     panel.setLayout(new BorderLayout());
-    JList list = new JList(roles);
-    JScrollPane scrollpane = new JScrollPane(list);
+    roleList = new JList(roles);
+    JScrollPane scrollpane = new JScrollPane(roleList);
     scrollpane.getViewport().setMaximumSize(
-      list.getPreferredScrollableViewportSize()
+        roleList.getPreferredScrollableViewportSize()
     );
     
     panel.add(scrollpane, BorderLayout.CENTER);
@@ -586,7 +623,7 @@ class DistributeToUserAndRoleVariablesPanel extends AbstractWizardPanel {
   }
   
   public String getWizardStepTitle() {
-    return "Add Variables identifying users or rolls to Distibution Pool";
+    return "Add Variables that Identify Users or Rolls to Distibution Pool";
   }
 
   
@@ -602,13 +639,9 @@ class DistributeToUserAndRoleVariablesPanel extends AbstractWizardPanel {
     ); 
   }
   
-  public void doBack() {
-    System.out.println("some back processing here");
-  }
+  public void doBack() {}
 
-   public void doNext() {
-     System.out.println("some next processing here");
-   }     
+   public void doNext() {}     
 }
 
 class FilteringByFamiliarityPanel extends AbstractWizardPanel {
@@ -644,7 +677,7 @@ class FilteringByFamiliarityPanel extends AbstractWizardPanel {
 
     gbc.gridx = 0;
     gbc.gridy = 0;
-    gbc.gridwidth = 4;
+    gbc.gridwidth = 5;
     gbc.weighty = 0;
     gbc.insets = new Insets(5,0,0,0);
     gbc.fill = GridBagConstraints.NONE;
@@ -694,29 +727,46 @@ class FilteringByFamiliarityPanel extends AbstractWizardPanel {
     gbc.insets = new Insets(0,5,0,5);
     gbc.gridheight = 2;
     
-    add(new JLabel("the task"),gbc);
+    JLabel taskLabel = new JLabel("the task");
+    taskLabel.setDisplayedMnemonic(KeyEvent.VK_T);
+    taskLabel.setDisplayedMnemonicIndex(4);
+    
+    add(taskLabel,gbc);
     
     gbc.gridx++;
     
     add(buildTaskComboBox(),gbc);
+    taskLabel.setLabelFor(taskComboBox);
 
     gbc.gridx++;
     
+    JLabel familarityTypeLabel = new JLabel("in the following way");
+    familarityTypeLabel.setDisplayedMnemonic(KeyEvent.VK_W);
+    familarityTypeLabel.setDisplayedMnemonicIndex(17);
+    
+    add(familarityTypeLabel,gbc);
+    
+    gbc.gridx++;
+    
     add(buildFamiliarityTypeComboBox(),gbc);
+    familarityTypeLabel.setLabelFor(familarityTypeComboBox);
   }
   
   private JRadioButton buildCompletedRadioButton() {
     distributeVlaCompletedButton = new JRadioButton("have completed");
+    distributeVlaCompletedButton.setMnemonic(KeyEvent.VK_H);
     return distributeVlaCompletedButton;
   }
   
   private JRadioButton buildNonCompletedRadioButton() {
     distributeViaNonCompleteButton = new JRadioButton("have not completed");
+    distributeViaNonCompleteButton.setMnemonic(KeyEvent.VK_O);
     return distributeViaNonCompleteButton;
   }
 
   private JRadioButton buildNoDistributionRadioButton() {
     noDistirbuteButton = new JRadioButton("Do not filter work-items of this task based on familiarity, or");
+    noDistirbuteButton.setMnemonic(KeyEvent.VK_D);
     return noDistirbuteButton;
   }
   
@@ -810,19 +860,15 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
     );
 
     gbc.gridy++;
-    gbc.gridwidth = 1;
+    gbc.gridwidth = 2;
     gbc.insets = new Insets(0,5,0,0);
 
     add(buildDistributieToPositionRadioButton(), gbc);
-
-    gbc.gridx++;
-    
-    add(new JLabel("users holding"),gbc);
     
     gbc.insets = new Insets(0,5,0,0);
+    gbc.gridwidth = 1;
     gbc.anchor = GridBagConstraints.NORTH;
     gbc.gridy++;
-    gbc.gridx--;
     
     add(buildDistributeToNearbyPositionRadioButton(), gbc);
 
@@ -846,7 +892,10 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
     gbc.anchor = GridBagConstraints.CENTER;
     gbc.fill = GridBagConstraints.NONE;
     
-    add(new JLabel("the position"),gbc);
+    JLabel positionLabel = new JLabel("the position");
+    positionLabel.setDisplayedMnemonic(KeyEvent.VK_P);
+    
+    add(positionLabel,gbc);
 
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridx++;
@@ -854,6 +903,7 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
     gbc.gridheight = 3;
     
     add(buildPositionList(),gbc);
+    positionLabel.setLabelFor(positionList);
     
     gbc.gridy = gbc.gridy + 3;
     gbc.gridx = 0;
@@ -862,7 +912,11 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
     gbc.anchor = GridBagConstraints.NORTH;
     gbc.fill = GridBagConstraints.NONE;
     
-    add(new JLabel("ïn the following organisational groups:"),gbc);
+    JLabel organisationalGroupLabel = new JLabel("in the following organisational groups:");
+    organisationalGroupLabel.setDisplayedMnemonic(KeyEvent.VK_G);
+    organisationalGroupLabel.setDisplayedMnemonicIndex(32);
+    
+    add(organisationalGroupLabel,gbc);
 
     gbc.gridx=3;
     gbc.weighty = 0.5;
@@ -871,20 +925,37 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
     gbc.fill = GridBagConstraints.BOTH;
     
     add(buildGroupList(),gbc);
+    organisationalGroupLabel.setLabelFor(groupList);
   }
   
   private JRadioButton buildDistributieToPositionRadioButton() {
-    distributeToPositionButton = new JRadioButton();
+    distributeToPositionButton = new JRadioButton("users holding");
+    distributeToPositionButton.setMnemonic(KeyEvent.VK_U);
     return distributeToPositionButton;
   }
   
   private JRadioButton buildDistributeToNearbyPositionRadioButton() {
-    distributeToNearbyPositionButton = new JRadioButton();
+    distributeToNearbyPositionButton = new JRadioButton("all");
+    distributeToNearbyPositionButton.setMnemonic(KeyEvent.VK_A);
+    
+    distributeToNearbyPositionButton.addActionListener(
+      new ActionListener() {
+        public void actionPerformed(ActionEvent event) {
+          if (distributeToNearbyPositionButton.isSelected()) {
+            if (nearbyPositionComboBox != null) {
+              nearbyPositionComboBox.requestFocus();
+            }
+          }
+        }
+      }
+    );
+    
     return distributeToNearbyPositionButton;
   }
 
   private JRadioButton buildNoDistributionRadioButton() {
     noDistirbuteButton = new JRadioButton("Do not filter users that can be alllocated work-items of this task based on organisation, or");
+    noDistirbuteButton.setMnemonic(KeyEvent.VK_D);
     return noDistirbuteButton;
   }
   
@@ -931,8 +1002,8 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
   private JComboBox buildNearbyPositionComboBox() {
     nearbyPositionComboBox = new JComboBox(
       new String[] {
-          "All subordinates of",
-          "All superiors of"
+          "subordinates of",
+          "superiors of"
       }
     );
     
@@ -946,7 +1017,15 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
 }
 
 class FilterByCapabilityPanel extends AbstractWizardPanel {
-
+  
+  private JFormattedAlphaNumericField valueField;
+  private JFormattedAlphaNumericField capabilityField;
+  
+  private JButton addCapabilityButton;
+  private JButton removeCapabilityButton;
+  
+  private JList capabilityFilterList;
+  
   public FilterByCapabilityPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
@@ -983,57 +1062,110 @@ class FilterByCapabilityPanel extends AbstractWizardPanel {
     gbc.gridwidth = 1;
     gbc.anchor = GridBagConstraints.EAST;
     
-    add(new JLabel("Select users with capability"),gbc);
+    JLabel valueLabel = new JLabel("Select users with value");
+    valueLabel.setDisplayedMnemonic(KeyEvent.VK_V);
+    
+    add(valueLabel,gbc);
     
     gbc.gridx++;
     gbc.anchor = GridBagConstraints.CENTER;
     
-    add(new JFormattedAlphaNumericField(15), gbc);
+    add(buildValueField(), gbc);
+    valueLabel.setLabelFor(valueField);
 
     gbc.gridx++;
     gbc.weightx = 0;
     gbc.insets = new Insets(5,2,5,2);
 
-    add(new JLabel("of"),gbc);
+    
+    JLabel capabilityLabel = new JLabel("of capability");
+    capabilityLabel.setDisplayedMnemonic(KeyEvent.VK_C);
+    
+    add(capabilityLabel,gbc);
 
     gbc.gridx++;
     gbc.insets = new Insets(5,5,5,5);
     gbc.anchor = GridBagConstraints.WEST;
 
-    add(new JFormattedAlphaNumericField(15), gbc);
-
+    add(buildCapabilityField(), gbc);
+    capabilityLabel.setLabelFor(capabilityField);
+    
     gbc.gridx++;
     gbc.anchor = GridBagConstraints.CENTER;
 
-    add(new JButton("Add"),gbc);
+    add(buildAddCapabilityButton(),gbc);
     
     gbc.gridy++;
     gbc.gridx = 0;
     gbc.anchor = GridBagConstraints.NORTHEAST;
-    add(new JLabel("Capabilities:"),gbc);
+    
+    JLabel capabilitiesListLabel = new JLabel("Capabilities:");
+    capabilitiesListLabel.setDisplayedMnemonic(KeyEvent.VK_P);
+    
+    add(capabilitiesListLabel,gbc);
     
     gbc.gridx++;
     gbc.gridwidth = 3;
     gbc.anchor = GridBagConstraints.CENTER;
     gbc.fill = GridBagConstraints.BOTH;
     
-    add(new JScrollPane(new JList(new String[] {"\"10 years\" of \"experience\"","\"tastiness\" of \"waffles\"" } )),gbc);
+    add(buildCapabilityFilterList(),gbc);
+    
+    capabilitiesListLabel.setLabelFor(capabilityFilterList);
     
     gbc.gridx = gbc.gridx + 3;
     gbc.gridwidth = 1;
     gbc.anchor = GridBagConstraints.CENTER;
     gbc.fill = GridBagConstraints.NONE;
     
-    add(new JButton("Remove"),gbc);
+    add(this.buildRemoveCapabilityButton(),gbc);
 
-    /*  TODO: equalize buttons. 
-    buttonList.add(basicButton);
-    buttonList.add(advancedButton);
+    LinkedList buttonList = new LinkedList();
+
+    buttonList.add(addCapabilityButton);
+    buttonList.add(removeCapabilityButton);
       
     JUtilities.equalizeComponentSizes(buttonList);
-*/
+
   }
   
+  private JScrollPane buildCapabilityFilterList() {
+    capabilityFilterList = new JList(
+        new String[] {
+            "\"10 years\" of \"experience\"",
+            "\"tastiness\" of \"waffles\"" 
+        }
+    );
+    
+    JScrollPane scrollPane = new JScrollPane(capabilityFilterList);
+    
+    return scrollPane;
+  }
+  
+  private JFormattedAlphaNumericField buildValueField() {
+    valueField = new JFormattedAlphaNumericField(15);
+    valueField.allowSpaces();
+    return valueField;
+  }
+
+  private JFormattedAlphaNumericField buildCapabilityField() {
+    capabilityField = new JFormattedAlphaNumericField(15);
+    capabilityField.allowSpaces();
+    return capabilityField;
+  }
+  
+  private JButton buildAddCapabilityButton() {
+    addCapabilityButton = new JButton("Add");
+    addCapabilityButton.setMnemonic(KeyEvent.VK_A);
+    return addCapabilityButton;
+  }
+
+  private JButton buildRemoveCapabilityButton() {
+    removeCapabilityButton = new JButton("Remove");
+    removeCapabilityButton.setMnemonic(KeyEvent.VK_R);
+    return removeCapabilityButton;
+  }
+
   public void doBack() {}
 
    public void doNext() {}     
