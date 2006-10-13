@@ -58,6 +58,7 @@ public class EngineFactory {
 	public static YEngine createYEngine(boolean journalising) {
 		try {
 			if (journalising) {
+				System.out.println("Creating engine");
 				if (application_context==null) {
 					application_context = new ClassPathXmlApplicationContext(CONTEXT_CONFIG_LOCATION);
 				}
@@ -69,9 +70,10 @@ public class EngineFactory {
 					 * */
 					
 					transactionalengine = (YEngineInterface) application_context.getBean("EngineInterceptor2");
-					//engine = transactionalengine.getYEngine();
+					//engine = transactionalengine.gffetYEngine();
 					transactionalengine.setJournalising(journalising);
 					transactionalengine.initialise();
+					engine = transactionalengine.getYEngine();
 					
 				} 
 			} else {
@@ -80,7 +82,9 @@ public class EngineFactory {
 			return engine;
 		}
 		catch( YPersistenceException ype ) {
-			// ignored
+			ype.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
