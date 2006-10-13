@@ -20,4 +20,7 @@ public class YStateException extends YAWLException {
     public YStateException(String msg) {
         super(msg);
     }
+	public YStateException( Throwable cause ) {
+		super( cause );
+	}
 }

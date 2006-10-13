@@ -9,11 +9,12 @@
 
 package au.edu.qut.yawl.elements;
 
+import java.util.List;
+
+import junit.framework.TestCase;
+import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
-import junit.framework.TestCase;
-
-import java.util.List;
 
 /**
  * @author aldredl
@@ -40,7 +41,7 @@ public class TestYMultiInstanceAttributes extends TestCase{
     }
 
 
-    public void testValidStuff(){
+    public void testValidStuff() throws YQueryException {
         List messages = this._validMultiInstance.verify();
         assertEquals(this._validMultiInstance.getMinInstances(), 1);
         assertEquals(this._validMultiInstance.getMaxInstances(), 10);

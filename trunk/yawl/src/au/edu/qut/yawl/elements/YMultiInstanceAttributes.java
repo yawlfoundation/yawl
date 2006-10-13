@@ -28,6 +28,7 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 
 import au.edu.qut.yawl.util.YVerificationMessage;
+import au.edu.qut.yawl.exceptions.YQueryException;
 
 /**
  * 
@@ -101,7 +102,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
     }
 
     @Transient
-    public int getMinInstances()  {
+    public int getMinInstances() throws YQueryException {
         if (_minInstances != null) {
             return _minInstances.intValue();
         }
@@ -110,13 +111,9 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
             XPath xpath = XPath.newInstance(_minInstancesQuery);
             result = (Number) xpath.selectSingleNode(_myTask._net.getInternalDataDocument());
         } catch (JDOMException e) {
-            //e.printStackTrace();
-            /*
-             * TODO Tore: Syntax error messages (JDOMExceptions) should be thrown???
-             * Right now assuming that when an error occurs, we default to one
-             * */
-        	result = 1;
         	logger.debug(e.getMessage());
+        	throw new YQueryException("MI query for min instances failed (query:"
+        			+ _minInstancesQuery + ")", e);
         } catch (ClassCastException e) {
             throw new RuntimeException("The minInstances query at " + _myTask
                     + " didn't produce numerical output as excepted.");
@@ -141,7 +138,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
     }
 
     @Transient
-    public int getMaxInstances() {
+    public int getMaxInstances() throws YQueryException {
         if (_maxInstances != null) {
             return _maxInstances.intValue();
         }
@@ -150,13 +147,9 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
             XPath xpath = XPath.newInstance(_maxInstancesQuery);
             result = (Number) xpath.selectSingleNode(_myTask._net.getInternalDataDocument());
         } catch (JDOMException e) {
-            //e.printStackTrace();
-            /*
-             * TODO Tore: Syntax error messages (JDOMExceptions) should be thrown???
-             * Right now assuming that when an error occurs, we default to one
-             * */
-        	result = 1;
         	logger.debug(e.getMessage());
+        	throw new YQueryException("MI query for max instances failed (query:"
+        			+ _maxInstancesQuery + ")", e);
         } catch (ClassCastException e) {
             throw new RuntimeException("The maxInstances query at " + _myTask
                     + " didn't produce numerical output as excepted.");

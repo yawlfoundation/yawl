@@ -111,11 +111,17 @@ public class YAtomicTask extends YTask {
         List messages = new Vector();
         messages.addAll(super.verify());
         if (_decompositionPrototype == null) {
-            if (_multiInstAttr != null && (_multiInstAttr.getMaxInstances() > 1 ||
-                    _multiInstAttr.getThreshold() > 1)) {
-                messages.add(new YVerificationMessage(this, this + " cannot have multiInstances and a "
-                        + " blank work description.", YVerificationMessage.ERROR_STATUS));
-            }
+        	try {
+	            if (_multiInstAttr != null && (_multiInstAttr.getMaxInstances() > 1 ||
+	                    _multiInstAttr.getThreshold() > 1)) {
+	                messages.add(new YVerificationMessage(this, this + " cannot have multiInstances and a "
+	                        + " blank work description.", YVerificationMessage.ERROR_STATUS));
+	            }
+        	}
+        	catch( YQueryException e ) {
+        		messages.add( new YVerificationMessage(this, e.getMessage(),
+        				YVerificationMessage.ERROR_STATUS ) );
+        	}
         } else if( _decompositionPrototype instanceof YAWLServiceGateway ) {
         	messages.addAll(checkEnablementParameterMappings());
         } else /* if (!(_decompositionPrototype instanceof YAWLServiceGateway)) */ {

@@ -303,7 +303,7 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 					e2.printStackTrace();
 				//}
 				try {
-					Thread.sleep(100000);
+					Thread.sleep(100);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

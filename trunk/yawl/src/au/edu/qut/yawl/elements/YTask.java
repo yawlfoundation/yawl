@@ -448,7 +448,7 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    public boolean t_addEnabled(YIdentifier identifier) {
+    public boolean t_addEnabled(YIdentifier identifier) throws YQueryException {
         if (!isMultiInstance()) {
             return false;
         } else {
@@ -485,7 +485,7 @@ public abstract class YTask extends YExternalNetElement {
                     _multiInstAttr.getMISplittingQuery(),
                     dataToSplit,
                     this.getID(),
-                    "The number of instances produced by MI split is too " +
+                    "The number of instances produced by MI split (" + listSize + ") is too " +
                     (listSize > max ? "large" : "small") +
                     ".");
         }
@@ -1962,13 +1962,13 @@ public abstract class YTask extends YExternalNetElement {
 	    return _multiInstAttr;
     }
 
-    public String getMinimum() {
+    public String getMinimum() throws YQueryException {
        	return isMultiInstance() ? Integer.toString(getInitedMultiInstAttr().getMinInstances()) : null;
     }
     public void setMinimum(String value) {
         if (value != null) this.getInitedMultiInstAttr().setMinInstancesHibernate(new Integer(value));
     }
-    public String getMaximum() {
+    public String getMaximum() throws YQueryException {
     	return isMultiInstance() ? Integer.toString(getInitedMultiInstAttr().getMaxInstances()): null;
     }
     public void setMaximum(String value) {
