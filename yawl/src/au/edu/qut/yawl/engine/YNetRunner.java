@@ -1092,7 +1092,7 @@ public class YNetRunner implements Serializable // extends Thread
     }
 
 
-    public boolean isAddEnabled(String taskID, YIdentifier childID)  {
+    public boolean isAddEnabled(String taskID, YIdentifier childID) throws YQueryException {
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         return task.t_addEnabled(childID);
     }
@@ -1214,5 +1214,4 @@ public class YNetRunner implements Serializable // extends Thread
     }
 
 }
-
 

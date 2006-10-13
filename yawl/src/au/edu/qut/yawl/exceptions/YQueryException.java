@@ -23,5 +23,8 @@ public class YQueryException extends YAWLException {
     public YQueryException(String message) {
         super(message);
     }
+	public YQueryException( String message, Throwable cause ) {
+		super( message, cause );
+	}
 
 }

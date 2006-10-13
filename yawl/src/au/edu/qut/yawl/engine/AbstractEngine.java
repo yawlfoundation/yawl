@@ -1510,6 +1510,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
      *                         for the task.
      */
     public void checkElegibilityToAddInstances(String workItemID) throws YStateException {
+    	try {
             YWorkItem item = YEngine._workItemRepository.getWorkItem(workItemID);
             if (item != null) {
                 if (item.getStatus() == YWorkItem.Status.Executing) {
@@ -1538,6 +1539,10 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 throw new YStateException("No work Item Found with id : " +
                         workItemID);
             }
+    	}
+    	catch( YQueryException e ) {
+    		throw new YStateException( e );
+    	}
     }
 
 
