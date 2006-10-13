@@ -52,10 +52,22 @@ public class YWorklistModel {
     private static ParamsDefinitions _paramsDefinitions = new ParamsDefinitions();
 
     // Reference to engine's management interface (used for accessing specifcation definiions)
-    private static InterfaceAManagement _engineManagement =  EngineFactory.createYEngine();
+//    private static InterfaceAManagement _engineManagement =  EngineFactory.createYEngine();
 
     // Reference to engine's client interface (used for worklist driving)
-    private static InterfaceBClient _engineClient = EngineFactory.createYEngine();
+    private static InterfaceBClient _engineClient = null;
+    
+    protected static InterfaceBClient getEngineClient() {
+    	if( _engineClient == null ) {
+	    	try {
+	    		_engineClient = EngineFactory.createYEngine();
+	    	}
+	    	catch( YPersistenceException e ) {
+	    		throw new RuntimeException( "Unable to connect to engine", e );
+	    	}
+    	}
+    	return _engineClient;
+    }
 
     private String _username;
     private YWorklistGUI _gui;
@@ -88,7 +100,7 @@ public class YWorklistModel {
         String caseIDStr = workItem.getCaseID().toString();
         String taskID = workItem.getTaskID();
         String specificationID = workItem.getSpecificationID();
-        YTask task = _engineClient.getTaskDefinition(specificationID, taskID);
+        YTask task = getEngineClient().getTaskDefinition(specificationID, taskID);
         String taskDescription = task.getDecompositionPrototype().getId();
         if (null == taskDescription) {
             taskDescription = taskID;
@@ -103,7 +115,7 @@ public class YWorklistModel {
         String caseIDStr = workItem.getCaseID().toString();
         String taskID = workItem.getTaskID();
         String specificationID = workItem.getSpecificationID();
-        YTask task = _engineClient.getTaskDefinition(specificationID, taskID);
+        YTask task = getEngineClient().getTaskDefinition(specificationID, taskID);
         String taskDescription = task.getDecompositionPrototype().getId();
         if (null == taskDescription) {
             taskDescription = taskID;
@@ -124,14 +136,14 @@ public class YWorklistModel {
         String caseIDStr = item.getCaseID().toString();
         String taskID = item.getTaskID();
         String specificationID = item.getSpecificationID();
-        YTask task = _engineClient.getTaskDefinition(specificationID, taskID);
+        YTask task = getEngineClient().getTaskDefinition(specificationID, taskID);
         String taskDescription = task.getDecompositionPrototype().getId();
         if (null == taskDescription) {
             taskDescription = taskID;
         }
         boolean allowsDynamicInstanceCreation = true;
         try {
-            _engineClient.checkElegibilityToAddInstances(item.getIDString());
+            getEngineClient().checkElegibilityToAddInstances(item.getIDString());
         } catch (YAWLException e) {
             allowsDynamicInstanceCreation = false;
         }
@@ -170,13 +182,13 @@ public class YWorklistModel {
 
     // MUTATORS ############################################################################
     public void applyForWorkItem(String caseID, String taskID) throws YSchemaBuildingException, YPersistenceException {
-        Set workItems = _engineClient.getAvailableWorkItems();
+        Set workItems = getEngineClient().getAvailableWorkItems();
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
-                    _engineClient.startWorkItem(item, _username);
+                    getEngineClient().startWorkItem(item, _username);
 
                 } catch (YStateException e) {
                     logger.error("State Exception", e);
@@ -197,13 +209,13 @@ public class YWorklistModel {
 
 
     public void createNewInstance(String caseID, String taskID, String newInstanceData) throws YPersistenceException {
-        Set workItems = _engineClient.getAllWorkItems();
+        Set workItems = getEngineClient().getAllWorkItems();
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
-                    _engineClient.createNewInstance(item, newInstanceData);
+                    getEngineClient().createNewInstance(item, newInstanceData);
                 } catch (YStateException e) {
                     e.printStackTrace();
                 }
@@ -213,13 +225,13 @@ public class YWorklistModel {
 
 
     public boolean allowsDynamicInstanceCreation(String caseID, String taskID) {
-        Set workItems = _engineClient.getAllWorkItems();
+        Set workItems = getEngineClient().getAllWorkItems();
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
-                    _engineClient.checkElegibilityToAddInstances(item.getIDString());
+                    getEngineClient().checkElegibilityToAddInstances(item.getIDString());
                     return true;
                 } catch (YStateException e) {
                     return false;
@@ -231,14 +243,14 @@ public class YWorklistModel {
 
 
     public void attemptToFinishActiveJob(String caseID, String taskID) {
-        Set workItems = _engineClient.getAllWorkItems();
+        Set workItems = getEngineClient().getAllWorkItems();
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
                     String outputData = _myActiveTasks.getOutputData(caseID, taskID);
-                    _engineClient.completeWorkItem(item, outputData, false);
+                    getEngineClient().completeWorkItem(item, outputData, false);
                 } catch (YDataStateException e) {
                     String errors = e.getMessage();
                     if (errors.indexOf("FAILED TO VALIDATE AGAINST SCHEMA =") != -1) {
@@ -261,13 +273,13 @@ public class YWorklistModel {
 
 
     public void rollBackActiveTask(String caseID, String taskID) throws YPersistenceException {
-        Set workItems = _engineClient.getAllWorkItems();
+        Set workItems = getEngineClient().getAllWorkItems();
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
-                    _engineClient.rollbackWorkItem(item.getIDString(), _username);
+                    getEngineClient().rollbackWorkItem(item.getIDString(), _username);
                 } catch (YStateException e) {
                     e.printStackTrace();
                 }
@@ -296,7 +308,7 @@ public class YWorklistModel {
     }
 
     private void updateSelf() {
-        Set availableWorkItems = _engineClient.getAvailableWorkItems();
+        Set availableWorkItems = getEngineClient().getAvailableWorkItems();
         for (Iterator iterator = availableWorkItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
             if (item.getStatus().equals(YWorkItem.Status.Enabled)) {
@@ -305,7 +317,7 @@ public class YWorklistModel {
                 addFiredWorkItem(item);
             }
         }
-        Set allWorkItems = _engineClient.getAllWorkItems();
+        Set allWorkItems = getEngineClient().getAllWorkItems();
         for (Iterator iterator = allWorkItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
             if (item.getStatus().equals(YWorkItem.Status.Executing)) {
@@ -314,7 +326,7 @@ public class YWorklistModel {
                 }
             }
             if (_paramsDefinitions.getParamsForTask(item.getTaskID()) == null) {
-                YTask task = _engineClient.getTaskDefinition(item.getSpecificationID(), item.getTaskID());
+                YTask task = getEngineClient().getTaskDefinition(item.getSpecificationID(), item.getTaskID());
                 String paramsAsXML = task.getInformation();
                 TaskInformation taskInfo = Marshaller.unmarshalTaskInformation(paramsAsXML);
                 YParametersSchema paramsForTask = taskInfo.getParamSchema();
@@ -337,9 +349,9 @@ public class YWorklistModel {
 
     public String getOutputSkeletonXML(String caseID, String taskID) {
         YParametersSchema params = _paramsDefinitions.getParamsForTask(taskID);
-        YWorkItem item = _engineClient.getWorkItem(caseID + ":" + taskID);
+        YWorkItem item = getEngineClient().getWorkItem(caseID + ":" + taskID);
         String specID = item.getSpecificationID();
-        YTask task = _engineClient.getTaskDefinition(specID, item.getTaskID());
+        YTask task = getEngineClient().getTaskDefinition(specID, item.getTaskID());
         return Marshaller.getOutputParamsInXML(
                 params,
                 task.getDecompositionPrototype().getRootDataElementName());
@@ -429,7 +441,7 @@ class UserInputValidationErrorBox extends JDialog implements ActionListener {
                         BorderFactory.createTitledBorder(
                                 BorderFactory.createEtchedBorder(), "Work Item Details"),
                         BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-        YTask task =  EngineFactory.createYEngine().getTaskDefinition(
+        YTask task = YWorklistModel.getEngineClient().getTaskDefinition(
                 item.getSpecificationID(),
                 item.getTaskID());
         String taskName = task.getName();

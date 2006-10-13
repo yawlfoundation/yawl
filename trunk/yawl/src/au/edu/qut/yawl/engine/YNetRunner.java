@@ -1112,7 +1112,7 @@ public class YNetRunner implements Serializable // extends Thread
      }
 
 
-    public void restoreObservers() {
+    public void restoreObservers() throws YPersistenceException {
     	
         /*
          * Make sure that the engine reference

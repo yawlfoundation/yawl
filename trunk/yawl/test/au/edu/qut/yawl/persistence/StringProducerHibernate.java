@@ -88,28 +88,23 @@ public class StringProducerHibernate extends StringProducerXML {
 				getSessions().close();
 //				return INSTANCE;
 			}
-			try {
-				AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-		        //.setProperty(Environment.USE_SQL_COMMENTS, "true")
-		        //.setProperty(Environment.SHOW_SQL, "true")
-		        //.setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
-		        //.setProperty(Environment.DRIVER, "org.postgresql.Driver")
-		        //.setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
-		        //.setProperty(Environment.USER, "capsela")
-		        //.setProperty(Environment.PASS, "capsela")
-				.setProperty(Environment.HBM2DDL_AUTO, "create")
-//				.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
-				;
-				setCfg( config );
-		        
-				for (int i=0; i<classes.length; i++) {
-					getCfg().addAnnotatedClass( classes[i] );
-				}
-				setSessions( getCfg().buildSessionFactory( /*new TestInterceptor()*/ ) );
+			AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
+	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
+	        .setProperty(Environment.SHOW_SQL, "false")
+	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
+	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
+	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/yawl")
+	        .setProperty(Environment.USER, "capsela")
+	        .setProperty(Environment.PASS, "capsela")
+			.setProperty(Environment.HBM2DDL_AUTO, "create")
+//			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
+			;
+			setCfg( config );
+	        
+			for (int i=0; i<classes.length; i++) {
+				getCfg().addAnnotatedClass( classes[i] );
 			}
-			catch (Error e) {
-				e.printStackTrace();
-			}
+			setSessions( getCfg().buildSessionFactory( /*new TestInterceptor()*/ ) );
 		}
 		
 		return INSTANCE;
@@ -176,17 +171,17 @@ public class StringProducerHibernate extends StringProducerXML {
 	        	session.delete(outputSpec);
 	        }
 			tx.commit();
-			session.close();
-			
-			if ( session!=null && session.isOpen() ) {
-				if ( session.isConnected() ) session.connection().rollback();
-				session.close();
-				session = null;
-				throw new Exception("unclosed session");
-			}
-			else {
-				session=null;
-			}
+//			session.close();
+//			
+//			if ( session!=null && session.isOpen() ) {
+//				if ( session.isConnected() ) session.connection().rollback();
+//				session.close();
+//				session = null;
+//				throw new Exception("unclosed session");
+//			}
+//			else {
+//				session=null;
+//			}
 		}
 		catch (Exception e) {
 			try {
@@ -196,13 +191,13 @@ public class StringProducerHibernate extends StringProducerXML {
 				}
 			}
 			catch (Exception ignore) {}
-			try {
-				if (sessions!=null) {
-					sessions.close();
-					sessions=null;
-				}
-			}
-			catch (Exception ignore) {}
+//			try {
+//				if (sessions!=null) {
+//					sessions.close();
+//					sessions=null;
+//				}
+//			}
+//			catch (Exception ignore) {}
 			throw e;
 		}
 
@@ -235,7 +230,7 @@ public class StringProducerHibernate extends StringProducerXML {
 		        	session.delete(outputSpec);
 			}
 				tx.commit();
-				session.close();
+//				session.close();
 				
 			}
 			catch (Exception e) {

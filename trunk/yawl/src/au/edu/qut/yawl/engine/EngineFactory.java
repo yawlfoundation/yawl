@@ -34,7 +34,7 @@ public class EngineFactory {
 	 * */
 	private static YEngineInterface transactionalengine;
 
-	public static YEngineInterface getTransactionalEngine() {
+	public static YEngineInterface getTransactionalEngine() throws YPersistenceException {
 		createYEngine(true);
 		if (transactionalengine==null) {
 			return engine;
@@ -55,41 +55,33 @@ public class EngineFactory {
 		application_context = context;
 	}
 	
-	public static YEngine createYEngine(boolean journalising) {
-		try {
-			if (journalising) {
-				System.out.println("Creating engine");
-				if (application_context==null) {
-					application_context = new ClassPathXmlApplicationContext(CONTEXT_CONFIG_LOCATION);
-				}
-				if (engine==null) {
-					/*
-					 * If this is a journalising engine
-					 * we need to use the spring framework and get the interceptor bean
-					 * to ensure transactionality
-					 * */
-					
-					transactionalengine = (YEngineInterface) application_context.getBean("EngineInterceptor2");
-					//engine = transactionalengine.gffetYEngine();
-					transactionalengine.setJournalising(journalising);
-					transactionalengine.initialise();
-					engine = transactionalengine.getYEngine();
-					
-				} 
-			} else {
-				engine = YEngine.createInstance(journalising);
+	public static YEngine createYEngine(boolean journalising) throws YPersistenceException {
+		if (journalising) {
+			System.out.println("Creating engine");
+			if (application_context==null) {
+				application_context = new ClassPathXmlApplicationContext(CONTEXT_CONFIG_LOCATION);
 			}
-			return engine;
+			if (engine==null) {
+				/*
+				 * If this is a journalising engine
+				 * we need to use the spring framework and get the interceptor bean
+				 * to ensure transactionality
+				 * */
+				
+				transactionalengine = (YEngineInterface) application_context.getBean("EngineInterceptor2");
+				//engine = transactionalengine.gffetYEngine();
+				transactionalengine.setJournalising(journalising);
+				transactionalengine.initialise();
+				engine = transactionalengine.getYEngine();
+				
+			} 
+		} else {
+			engine = YEngine.createInstance(journalising);
 		}
-		catch( YPersistenceException ype ) {
-			ype.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return engine;
 	}
 	
-	public static YEngine createYEngine() {
+	public static YEngine createYEngine() throws YPersistenceException {
 		return createYEngine(false);
 	}
 
@@ -98,7 +90,7 @@ public class EngineFactory {
 	 * 
 	 * @return
 	 */
-	public static AbstractEngine createEngine() {
+	public static AbstractEngine createEngine() throws YPersistenceException {
 		return createYEngine();
 	}
 	
@@ -108,7 +100,7 @@ public class EngineFactory {
 	 * @param journalising
 	 * @return
 	 */
-	public static AbstractEngine createEngine(boolean journalising) {
+	public static AbstractEngine createEngine(boolean journalising) throws YPersistenceException {
 		return createYEngine(journalising);
 	}
 }

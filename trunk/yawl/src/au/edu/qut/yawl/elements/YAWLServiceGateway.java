@@ -12,21 +12,17 @@ package au.edu.qut.yawl.elements;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.OnDelete;
@@ -63,7 +59,7 @@ public class YAWLServiceGateway extends YDecomposition {
 	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
 	 */
 	private static final long serialVersionUID = 2006030080l;
-    private Set<YAWLServiceReference> _yawlServices;
+	private YAWLServiceReference _yawlService;
 	private List<YParameter>enablementParam = new ArrayList<YParameter>();
 
     /**
@@ -72,12 +68,10 @@ public class YAWLServiceGateway extends YDecomposition {
      */
     protected YAWLServiceGateway() {
     	super();
-    	_yawlServices = new HashSet();
     }
 
     public YAWLServiceGateway(String id, YSpecification specification) {
         super(id, specification);
-        _yawlServices = new HashSet();
     }
 
     @OneToMany(mappedBy="decomposition", cascade=CascadeType.ALL, fetch = FetchType.EAGER)
@@ -102,9 +96,8 @@ public class YAWLServiceGateway extends YDecomposition {
             YParameter parameter = (YParameter) iterator.next();
             messages.addAll(parameter.verify());
         }
-        Collection yawlServices = _yawlServices;
-        for (Iterator iterator = yawlServices.iterator(); iterator.hasNext();) {
-            YAWLServiceReference yawlService = (YAWLServiceReference) iterator.next();
+        if( getYawlService() != null ) {
+            YAWLServiceReference yawlService = getYawlService();
             List<YVerificationMessage> verificationResult = yawlService.verify();
             for (int i = 0; i < verificationResult.size(); i++) {
                 YVerificationMessage message = (YVerificationMessage) verificationResult.get(i);
@@ -126,63 +119,19 @@ public class YAWLServiceGateway extends YDecomposition {
             YParameter parameter = (YParameter) iterator.next();
             xml.append(parameter.toXML());
         }
-		if( _yawlServices.size() > 0 ) {
-			Collection yawlServices = _yawlServices;
-			for( Iterator iterator = yawlServices.iterator(); iterator.hasNext(); ) {
-				YAWLServiceReference service = (YAWLServiceReference) iterator.next();
-				xml.append( service.toXML() );
-			}
+        if( getYawlService() != null ) {
+				xml.append( getYawlService().toXML() );
 		}
 		return xml.toString();
 	}
-    
-    /**
-     * Inserted for hibernate
-	 * @hibernate.map role="yawlServices" cascade="all-delete-orphan"
-	 * @hibernate.key column="DECOMPOSITION_ID"
-	 * @hibernate.index column="YAWL_SERVICE_ID" type="string" length="255" 
-	 *   not-null="true"
-	 * @hibernate.one-to-many 
-	 *   class="au.edu.qut.yawl.elements.YAWLServiceReference"
-     */
 
-    @ManyToMany
-    protected Set<YAWLServiceReference> getYawlServices() {
-    	return _yawlServices;
-    }
-    /**
-     * Inserted for hibernate
-     * @param yawlServices
-     */
-    @ManyToMany
-    protected void setYawlServices(Set<YAWLServiceReference> yawlServices) {
-    	
-    	this._yawlServices.addAll(yawlServices);
-    }
-
-    @Transient
-    public YAWLServiceReference getYawlService(String yawlServiceID) {
-    	for (YAWLServiceReference reference: _yawlServices) {
-    		if (reference.getURI().equals(yawlServiceID)) {
-    			return reference;
-    		}
-    	}
-    	return null;
-    }
-
-    @Transient
+    @OneToOne(cascade = {CascadeType.PERSIST})
     public YAWLServiceReference getYawlService() {
-        if (_yawlServices.size() > 0) {
-            return _yawlServices.iterator().next();
-        }
-        return null;
+    	return _yawlService;
     }
 
-    @Transient
     public void setYawlService(YAWLServiceReference yawlService) {
-        if (yawlService != null) {
-            _yawlServices.add(yawlService);
-        }
+    	_yawlService = yawlService;
     }
 
 
@@ -237,13 +186,14 @@ public class YAWLServiceGateway extends YDecomposition {
         try {
             YAWLServiceGateway clone = (YAWLServiceGateway) gateway;
             
-            clone._yawlServices = new HashSet<YAWLServiceReference>();
-            for( YAWLServiceReference reference : _yawlServices ) {
-                YAWLServiceReference refClone = new YAWLServiceReference();
-                refClone.setDocumentation( reference.getDocumentation() );
-                refClone.setYawlServiceGateway( clone );
-                refClone.setYawlServiceID( reference.getYawlServiceID() );
-                clone._yawlServices.add( refClone );
+            if( getYawlService() != null ) {
+            	clone.setYawlService( new YAWLServiceReference() );
+            	clone.getYawlService().setDocumentation( getYawlService().getDocumentation() );
+            	clone.getYawlService().setYawlServiceGateway( clone );
+            	clone.getYawlService().setYawlServiceID( getYawlService().getYawlServiceID() );
+            }
+            else {
+            	clone.setYawlService( null );
             }
             
             clone.enablementParam = new ArrayList<YParameter>();

@@ -70,7 +70,6 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
     		e.printStackTrace(new PrintWriter(sw));
     		fail( sw.toString() );
 		}
@@ -98,7 +97,6 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
     		e.printStackTrace(new PrintWriter(sw));
     		System.err.println( sw.toString() );
 		}
@@ -116,7 +114,6 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			assertNotNull(runner2);
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
     		e.printStackTrace(new PrintWriter(sw));
     		fail( sw.toString() );
 		}
@@ -134,7 +131,6 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			assertNotNull(runner3);
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
     		e.printStackTrace(new PrintWriter(sw));
     		fail( sw.toString() );
 		}
@@ -159,7 +155,6 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			assertNotNull(runner2);
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
     		e.printStackTrace(new PrintWriter(sw));
     		fail( sw.toString() );
 		}

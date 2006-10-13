@@ -1,5 +1,8 @@
 package au.edu.qut.yawl.persistence.dao;
 
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -18,8 +21,6 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 		DAO hib = DAOFactory.getDAO( PersistenceType.HIBERNATE );
 		DataContext context = new DataContext( hib );
 		AbstractEngine.setDataContext(context);
-
-
 	}
 
 	protected void tearDown() throws Exception {
@@ -47,7 +48,9 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 			assertNotNull(yid3);							
 			
 		} catch (Exception e) {
-			fail("No exception should be thrown");
+			StringWriter sw = new StringWriter();
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 	}
 	
@@ -68,7 +71,9 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 			assertNull(yid3);		
 			
 		} catch (Exception e) {
-			fail("No exception should be thrown");
+			StringWriter sw = new StringWriter();
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 	}
 
@@ -77,8 +82,6 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 	 */
 	
 	public void testRetrieveByRestriction() {
-
-
 	}
 
 	/*
@@ -95,7 +98,9 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 			assertNotNull(yid2);							
 			
 		} catch (Exception e) {
-			fail("No exception should be thrown");
+			StringWriter sw = new StringWriter();
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 	}
 
@@ -109,7 +114,9 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 		} catch (YPersistenceException e) {
 			//success
 		} catch (Exception e) {
-			fail("Wrong exception thrown");
+			StringWriter sw = new StringWriter();
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 	}
 	
@@ -117,7 +124,7 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 		try {
 			DAO hibernateDAO = getDAO();
 			YIdentifier yid = new YIdentifier("abc2");		
-			yid.saveIdentifier(yid, null, null);
+			YIdentifier.saveIdentifier(yid, null, null);
 			
 			DataContext context = AbstractEngine.getDataContext();
 			DataProxy parentProxy = context.getDataProxy( yid );
@@ -136,8 +143,9 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 			assertTrue("Wrong number of decendants",s.size()==4);
 			
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail("No exception should be thrown");
+			StringWriter sw = new StringWriter();
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 		
 	}
@@ -148,20 +156,25 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 	public void testSaveAndRetrieveThenExecute() {
 	
 		try {
-			DAO hibernateDAO = getDAO();
-			YIdentifier yid = new YIdentifier("abc");
-			YIdentifier.saveIdentifier(yid,null,null);
-
 			DAO hib = DAOFactory.getDAO( PersistenceType.HIBERNATE );
 			DataContext context = new DataContext( hib );
 			AbstractEngine.setDataContext(context);
 			
-			YIdentifier yid2 = (YIdentifier) hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
+			DAO hibernateDAO = getDAO();
+			YIdentifier yid = new YIdentifier("abc");
+			YIdentifier.saveIdentifier(yid,null,null);
+			
+//			YIdentifier yid2 = (YIdentifier) hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
+			DataProxy proxy = context.getDataProxy( yid );
+			Serializable key = context.getKeyFor( proxy );
+			YIdentifier yid2 = (YIdentifier) context.retrieve( YIdentifier.class, key, null ).getData();
 			assertNotNull(yid2);
 			yid2.createChild();
 			
 		} catch (Exception e) {
-			fail("No exception should be thrown");
+			StringWriter sw = new StringWriter();
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 	}
 	

@@ -16,6 +16,7 @@ import java.util.Vector;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
@@ -231,7 +232,7 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Parented<Y
 	 * @return
      * @hibernate.property column="INITIAL_VALUE" length="4096"
 	 */
-    @Basic
+    @Column(length=1024*1024)
     public String getInitialValue() {
         return _initialValue;
     }
