@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_Schema.xsd">
+	<specification uri="Timer.xml">
+		<name>Invoke TimeService</name>
+		<documentation> Example calling of the Time Service </documentation>
+		<metaData/>
+		<rootNet id="Decompose">
+			<localVariable name="time-fallback">
+				<type>xs:string</type>
+				<!-- Harry Potter book -->
+				<initialValue>10000</initialValue>
+			</localVariable>
+			<localVariable name="time">
+				<type>xs:string</type>
+			</localVariable>
+
+			<processControlElements>
+				<inputCondition id="i">
+					<name>i</name>
+					<flowsInto>
+						<nextElementRef id="a"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="a">
+					<flowsInto>
+						<nextElementRef id="p"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<completedMappings>
+						<mapping>
+							<expression query="/data/time"/>
+							<mapsTo>time</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="read time"/>
+				</task>
+				<task id="p">
+					<flowsInto>
+						<nextElementRef id="x"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="&lt;time&gt; {if ( /data/time/text() ) then /data/time/text() else /data/time-fallback/text() }&lt;/time&gt;"/>
+							<mapsTo>time</mapsTo>
+						</mapping>
+					</startingMappings>
+					<decomposesTo id="GetTime"/>
+				</task>
+				<task id="x">
+					<flowsInto>
+						<nextElementRef id="o"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="&lt;time&gt; {if ( /data/time/text() ) then /data/time/text() else /data/time-fallback/text() }&lt;/time&gt;"/>
+							<mapsTo>time</mapsTo>
+						</mapping>
+					</startingMappings>										
+
+					<decomposesTo id="q"/>
+				</task>
+				<outputCondition id="o">
+					<name>o</name>
+				</outputCondition>
+			</processControlElements>
+		</rootNet>
+		<decomposition id="read time" xsi:type="WebServiceGatewayFactsType">
+			<outputExpression query="/data/time"/>
+			<outputParam name="time">
+				<type>xs:string</type>
+				<mandatory/>
+			</outputParam>
+		</decomposition>
+		<decomposition id="GetTime" xsi:type="WebServiceGatewayFactsType">
+			<inputParam name="time">
+				<type>xs:string</type>
+			</inputParam>
+			<yawlService id="http://localhost:8080/timeService/ib">
+				<wsdlLocation>http://www.xmethods.net/sd/2001/BNQuoteService.wsdl</wsdlLocation>
+				<operationName>getTime</operationName>
+			</yawlService>
+		</decomposition>
+	<decomposition id="q" xsi:type="WebServiceGatewayFactsType">
+	<inputParam name="time">
+	  <type>xs:string</type> 
+	  </inputParam>
+	  </decomposition>
+	</specification>
+</specificationSet>
