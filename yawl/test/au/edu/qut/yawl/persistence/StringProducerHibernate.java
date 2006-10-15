@@ -89,14 +89,14 @@ public class StringProducerHibernate extends StringProducerXML {
 //				return INSTANCE;
 			}
 			AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
-	        .setProperty(Environment.SHOW_SQL, "false")
-	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
-	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
-	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/yawl")
-	        .setProperty(Environment.USER, "capsela")
-	        .setProperty(Environment.PASS, "capsela")
-			.setProperty(Environment.HBM2DDL_AUTO, "create")
+//	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
+//	        .setProperty(Environment.SHOW_SQL, "false")
+//	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
+//	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
+//	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/yawl")
+//	        .setProperty(Environment.USER, "capsela")
+//	        .setProperty(Environment.PASS, "capsela")
+//			.setProperty(Environment.HBM2DDL_AUTO, "create")
 //			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
 			;
 			setCfg( config );
