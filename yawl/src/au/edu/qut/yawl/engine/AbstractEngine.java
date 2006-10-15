@@ -135,21 +135,21 @@ public abstract class AbstractEngine implements InterfaceADesign,
         	List services = context.retrieveAll(YAWLServiceReference.class, null);
         	for (int i = 0; i < services.size();i++) {
         		YAWLServiceReference service = (YAWLServiceReference) ((DataProxy) services.get(i)).getData();
-        		System.out.println("RESTORING Service " + service.getURI());
+        		logger.debug("RESTORING Service " + service.getURI());
     			addYawlService(service);
         	}        	
         	
         	List specs = context.retrieveAll(YSpecification.class, null);
         	for (int i = 0; i < specs.size();i++) {
         		YSpecification spec = (YSpecification) ((DataProxy) specs.get(i)).getData();
-        		System.out.println("RESTORING SPEC " + spec.getID());
+        		logger.debug("RESTORING SPEC " + spec.getID());
     			loadSpecification(spec);
         	}			      	
         	
         	List runners = context.retrieveAll(YNetRunner.class, null);    	
         	for (int i = 0; i < runners.size();i++) {
         		YNetRunner r = (YNetRunner) ((DataProxy) runners.get(i)).getData();
-        		System.out.println("RESTORING RUNNER" + r.getNet().getParent().getID());
+        		logger.debug("RESTORING RUNNER" + r.getNet().getParent().getID());
     			
        		
         		/*
@@ -169,7 +169,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
         	List workItems = context.retrieveAll(YWorkItem.class, null);
         	for (int i = 0; i < workItems.size();i++) {
         		YWorkItem item = (YWorkItem) ((DataProxy) workItems.get(i)).getData();
-        		System.out.println("RESTORING WORKITEM" + item.getIDString());
+        		logger.debug("RESTORING WORKITEM" + item.getIDString());
         		item.addToRepository();
         	}
         	
@@ -647,7 +647,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                     	DataProxy proxy = getDataContext().createProxy( specification, null );
                     	getDataContext().attachProxy( proxy, specification, null );
                     	getDataContext().save( proxy );
-
+                    	
                         returnIDs.add(specification.getID());
                     } else {//the user has loaded the specification with identical id
                         errorMessages.add(new YVerificationMessage(this,
@@ -1710,7 +1710,6 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                pmgr.commit();
 //            }
             } catch (YPersistenceException e) {
-            	System.out.println("Abrakadabra");
             	throw e;
             } catch (Exception e) {
             	StringWriter sw = new StringWriter();
@@ -1869,7 +1868,6 @@ public abstract class AbstractEngine implements InterfaceADesign,
               INSERTED FOR PERSISTANCE
              */
 //            YAWLServiceReference service = (YAWLServiceReference) _yawlServices.get(serviceURI);
-
             DataProxy<YAWLServiceReference> proxy = getDataContext().retrieve( YAWLServiceReference.class, serviceURI, null );
             YAWLServiceReference service = null;
             if( proxy != null ) {
