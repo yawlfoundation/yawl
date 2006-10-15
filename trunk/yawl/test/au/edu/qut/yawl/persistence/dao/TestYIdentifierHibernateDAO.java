@@ -41,12 +41,13 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 			YIdentifier yid = new YIdentifier("abc");
 			hibernateDAO.save(yid);
 
-			YIdentifier yid2 = new YIdentifier("abc");
+			YIdentifier yid2 = new YIdentifier("abc2");
 			hibernateDAO.save(yid2);
 			
 			Object yid3 = hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
 			assertNotNull(yid3);							
-			
+			hibernateDAO.delete(yid);
+			hibernateDAO.delete(yid2);
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
     		e.printStackTrace(new PrintWriter(sw));
@@ -60,7 +61,7 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 	public void testDelete() {
 		try {
 			DAO hibernateDAO = getDAO();
-			YIdentifier yid = new YIdentifier("abc");
+			YIdentifier yid = new YIdentifier("abc_delete");
 			hibernateDAO.save(yid);
 
 			Object yid2 = hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
@@ -91,12 +92,12 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 	
 		try {
 			DAO hibernateDAO = getDAO();
-			YIdentifier yid = new YIdentifier("abc");
+			YIdentifier yid = new YIdentifier("abc_retreive");
 			hibernateDAO.save(yid);
 
 			Object yid2 = hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
 			assertNotNull(yid2);							
-			
+			hibernateDAO.delete(yid);
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
     		e.printStackTrace(new PrintWriter(sw));
@@ -107,7 +108,7 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 	public void testSaveChildButNotParent() {
 		try {
 			DAO hibernateDAO = getDAO();
-			YIdentifier yid = new YIdentifier("abc");
+			YIdentifier yid = new YIdentifier("abc_ex");
 			YIdentifier yid1 = yid.createChild();
 			
 			fail("Exception should be thrown"); //but which exception
@@ -123,7 +124,7 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 	public void testSaveAndRestoreHierarchy() {
 		try {
 			DAO hibernateDAO = getDAO();
-			YIdentifier yid = new YIdentifier("abc2");		
+			YIdentifier yid = new YIdentifier("abc_restore");		
 			YIdentifier.saveIdentifier(yid, null, null);
 			
 			DataContext context = AbstractEngine.getDataContext();
@@ -141,7 +142,7 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 			
 			Set s = yidparent.getDescendants();
 			assertTrue("Wrong number of decendants",s.size()==4);
-			
+			hibernateDAO.delete(yid);
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
     		e.printStackTrace(new PrintWriter(sw));
@@ -161,7 +162,7 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 			AbstractEngine.setDataContext(context);
 			
 			DAO hibernateDAO = getDAO();
-			YIdentifier yid = new YIdentifier("abc");
+			YIdentifier yid = new YIdentifier("abc_ret");
 			YIdentifier.saveIdentifier(yid,null,null);
 			
 //			YIdentifier yid2 = (YIdentifier) hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
@@ -170,7 +171,7 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 			YIdentifier yid2 = (YIdentifier) context.retrieve( YIdentifier.class, key, null ).getData();
 			assertNotNull(yid2);
 			yid2.createChild();
-			
+			hibernateDAO.delete(yid);
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
     		e.printStackTrace(new PrintWriter(sw));

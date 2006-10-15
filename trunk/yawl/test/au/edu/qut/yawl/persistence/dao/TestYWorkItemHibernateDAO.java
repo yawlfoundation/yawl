@@ -92,6 +92,8 @@ public class TestYWorkItemHibernateDAO extends TestCase {
 			assertTrue("", item2.getWorkItemID().getCaseID().equals("abc")==true);
 			assertTrue("", item2.getWorkItemID().getTaskID().equals("test_task")==true);
 			assertTrue("", item2.getSpecificationID().equals("testspec")==true);
+
+			hibernateDAO.delete(item2);
 			
 			
 		} catch (Exception e) {
@@ -106,7 +108,7 @@ public class TestYWorkItemHibernateDAO extends TestCase {
 	public void testSaveAndRetrieveWithData() {
 		try {
 			DAO hibernateDAO = getDAO();
-			YIdentifier yid = new YIdentifier("abc2");
+			YIdentifier yid = new YIdentifier("abc");
 			YWorkItemID itemid = new YWorkItemID(yid,"test_task2");			
 			YWorkItem item = new YWorkItem("testspec2",itemid,true,false);
 			
@@ -140,11 +142,15 @@ public class TestYWorkItemHibernateDAO extends TestCase {
 			 * Check for correctly restored values as well
 			 * */
 			assertTrue("dynamic creation error", item2.allowsDynamicCreation() == true );
-			assertTrue("case id error", item2.getCaseID().getId().equals("abc2")==true );
-			assertTrue("case id -identifier error", item2.getWorkItemID().getCaseID().equals("abc2")==true);
+			assertTrue("case id error", item2.getCaseID().getId().equals("abc")==true );
+			assertTrue("case id -identifier error", item2.getWorkItemID().getCaseID().equals("abc")==true);
 			assertTrue("task id error", item2.getWorkItemID().getTaskID().equals("test_task2")==true);
 			assertTrue("spec id error", item2.getSpecificationID().equals("testspec2")==true);
 			assertTrue("Data error", item2.getDataString().replaceAll("[\\r\\n]","").replaceAll(" ","").equals(datastring));
+			
+			hibernateDAO.delete(item2);
+
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("No exception should be thrown here");

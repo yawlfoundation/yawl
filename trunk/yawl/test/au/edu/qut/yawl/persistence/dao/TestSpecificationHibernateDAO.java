@@ -65,6 +65,7 @@ public class TestSpecificationHibernateDAO extends TestCase {
 		myDAO.save(testSpec);
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, myDAO.getKey(testSpec));	
 		assertNotNull(spec);
+		myDAO.delete(testSpec);
 	}
 	
 	public void testRetrieveByRestriction() throws YPersistenceException {
@@ -101,16 +102,6 @@ public class TestSpecificationHibernateDAO extends TestCase {
 		myDAO.delete( testSpec );
 	}
 
-	/*
-	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
-	 */
-	public void testSave() throws YPersistenceException {
-		DAO hibernateDAO = getDAO();
-		hibernateDAO.save(testSpec);
-		YSpecification spec2 = (YSpecification) hibernateDAO.retrieve(YSpecification.class,testSpec.getDbID());
-		assertNotNull(spec2);
-	}
-
 	public void testRetrieveAndReload() {
 		try {
 			DAO myDAO = getDAO();
@@ -119,6 +110,7 @@ public class TestSpecificationHibernateDAO extends TestCase {
 			assertNotNull(spec);
 						
 			YNetRunner runner = new YNetRunner(spec.getRootNet(), null);
+			myDAO.delete(testSpec);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
