@@ -26,13 +26,13 @@ hibernate.query.substitutions yes 'Y', no 'N'
 
 ## HypersonicSQL
 
-hibernate.dialect org.hibernate.dialect.HSQLDialect
-hibernate.connection.driver_class org.hsqldb.jdbcDriver
-hibernate.connection.username sa
-hibernate.connection.password
+#hibernate.dialect org.hibernate.dialect.HSQLDialect
+#hibernate.connection.driver_class org.hsqldb.jdbcDriver
+#hibernate.connection.username sa
+#hibernate.connection.password
 #hibernate.connection.url jdbc:hsqldb:hsql://localhost
 #hibernate.connection.url jdbc:hsqldb:test
-hibernate.connection.url jdbc:hsqldb:.
+#hibernate.connection.url jdbc:hsqldb:.
 
 
 ## MySQL
@@ -58,11 +58,11 @@ hibernate.connection.url jdbc:hsqldb:.
 
 ## PostgreSQL
 
-#hibernate.dialect org.hibernate.dialect.PostgreSQLDialect
-#hibernate.connection.driver_class org.postgresql.Driver
-#hibernate.connection.url jdbc:postgresql:template1
-#hibernate.connection.username pg
-#hibernate.connection.password
+hibernate.dialect org.hibernate.dialect.PostgreSQLDialect
+hibernate.connection.driver_class org.postgresql.Driver
+hibernate.connection.url jdbc:postgresql:yawl
+hibernate.connection.username postgres
+hibernate.connection.password admin
 
 
 ## DB2
