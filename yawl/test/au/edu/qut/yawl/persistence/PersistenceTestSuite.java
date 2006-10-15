@@ -13,6 +13,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 import au.edu.qut.yawl.persistence.dao.DAOPersistenceTestSuite;
+import au.edu.qut.yawl.persistence.engine.EngineTestSuite;
 import au.edu.qut.yawl.persistence.managed.TestDataContext;
 
 /**
@@ -39,6 +40,7 @@ public class PersistenceTestSuite extends TestSuite{
     public static Test suite(){
         TestSuite suite = new TestSuite();
         suite.addTest(DAOPersistenceTestSuite.suite());
+        suite.addTest(EngineTestSuite.suite());
         suite.addTestSuite(TestDataParsing.class);
         suite.addTestSuite(TestYCompositeTask.class);
         suite.addTestSuite(TestYExternalTask.class);
@@ -46,7 +48,7 @@ public class PersistenceTestSuite extends TestSuite{
         suite.addTestSuite(TestYSpecification.class);
         suite.addTestSuite(TestHibernateMarshal.class);
         suite.addTestSuite(TestDataContext.class);
-//        suite.addTestSuite(TestJaxbMarshal.class);
+        //suite.addTestSuite(TestJaxbMarshal.class);
         //return
         return suite;
     }

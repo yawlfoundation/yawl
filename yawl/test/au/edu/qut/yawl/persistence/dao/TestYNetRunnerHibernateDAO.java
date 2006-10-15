@@ -38,14 +38,16 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 		File f2 = spx.getTranslatedFile("YAWL_Specification1.xml", true);
 		
         testSpec = (YSpecification) fileDAO.retrieve(YSpecification.class,f.getAbsolutePath());
-
+        getDAO().save(testSpec);
         testSpec_comp = (YSpecification) fileDAO.retrieve(YSpecification.class,f2.getAbsolutePath());
-
+        getDAO().save(testSpec_comp);
         
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		getDAO().delete(testSpec);
+		getDAO().delete(testSpec_comp);
 	}
 
 	private DAO getDAO() {
@@ -93,7 +95,7 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			assertTrue(runners.size()==1);
 			
 			YNetRunner r = (YNetRunner) runners.get(0);
-			System.out.println(r.getNet());
+			hibernateDAO.delete(runner);
 			
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
@@ -112,6 +114,7 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			hibernateDAO.save(runner);
 			Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
 			assertNotNull(runner2);
+			hibernateDAO.delete(runner);
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
     		e.printStackTrace(new PrintWriter(sw));
@@ -129,6 +132,9 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			
 			Object runner3 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
 			assertNotNull(runner3);
+			hibernateDAO.delete(runner);
+			hibernateDAO.delete(runner2);
+
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
     		e.printStackTrace(new PrintWriter(sw));
@@ -153,6 +159,9 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			YNetRunner.saveNetRunner(runner, null);
 			Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
 			assertNotNull(runner2);
+			hibernateDAO.delete(runner);
+			engine.unloadSpecification("YAWL_Specification1.xml");
+
 		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
     		e.printStackTrace(new PrintWriter(sw));
