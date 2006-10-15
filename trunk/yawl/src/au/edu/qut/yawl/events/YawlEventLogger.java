@@ -165,7 +165,6 @@ public class YawlEventLogger {
         ylogid.setSpecification(spec);
         ylogid.setCreated(System.currentTimeMillis());
 
-        System.out.println("size: " + dispatchers.size());
         for (YEventDispatcher dispatcher: dispatchers) {
         	System.out.println("Logging event");
         	dispatcher.fireEvent(ylogid);

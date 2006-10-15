@@ -42,9 +42,7 @@ public class YAWLTransactionAdvice implements ThrowsAdvice, MethodBeforeAdvice, 
 	public void before(Method m, Object[] args, Object target) throws Throwable {
 		try {
 			synchronized (session) {
-				//System.out.println("Entering Engine " + m.getName() + " - > Start Transaction");
 				tx = session.beginTransaction();
-				//System.out.println("Entering Engine " + m.getName() + " - > Transaction Started");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();					
@@ -65,12 +63,9 @@ public class YAWLTransactionAdvice implements ThrowsAdvice, MethodBeforeAdvice, 
 	}
 
     public void afterThrowing(Exception ex) {
-        System.out.println("Exception occured -> Rollback");
 		synchronized (session) {
-			System.out.println("Exiting engine - > Rollback Initiated");
 			
         	tx.rollback();
-			System.out.println("Exiting engine  - > Rollback Complete");
 			
 		}
     }

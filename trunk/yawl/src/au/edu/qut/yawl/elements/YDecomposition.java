@@ -44,6 +44,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.Where;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -229,12 +230,12 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
         _data.setRootElement(new Element(getRootDataElementName()));
     }
 
-    @OneToMany(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @CollectionOfElements(fetch = FetchType.EAGER)
     public Map<String, String> getAttributes() {
         return _attributes;
     }
 
-    @OneToMany(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @CollectionOfElements(fetch = FetchType.EAGER)
     public void setAttributes(Map<String, String> attributes) {
         _attributes = attributes;
     }

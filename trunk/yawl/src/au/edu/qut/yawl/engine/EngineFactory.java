@@ -25,6 +25,9 @@ public class EngineFactory {
 	private static final String CONTEXT_CONFIG_LOCATION = "applicationContext.xml"; // TODO context config file location
 	private static ApplicationContext application_context = null;
 
+	public static void resetEngine() {
+		engine = null;
+	}
 
 	private static YEngine engine;
 	
@@ -57,23 +60,22 @@ public class EngineFactory {
 	
 	public static YEngine createYEngine(boolean journalising) throws YPersistenceException {
 		if (journalising) {
-			System.out.println("Creating engine");
-			if (application_context==null) {
-				application_context = new ClassPathXmlApplicationContext(CONTEXT_CONFIG_LOCATION);
-			}
 			if (engine==null) {
+				if (application_context==null) {
+					application_context = new ClassPathXmlApplicationContext(CONTEXT_CONFIG_LOCATION);
+				}
 				/*
 				 * If this is a journalising engine
 				 * we need to use the spring framework and get the interceptor bean
 				 * to ensure transactionality
 				 * */
-				
+
 				transactionalengine = (YEngineInterface) application_context.getBean("EngineInterceptor2");
 				//engine = transactionalengine.gffetYEngine();
 				transactionalengine.setJournalising(journalising);
 				transactionalengine.initialise();
 				engine = transactionalengine.getYEngine();
-				
+
 			} 
 		} else {
 			engine = YEngine.createInstance(journalising);

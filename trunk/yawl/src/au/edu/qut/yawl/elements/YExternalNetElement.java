@@ -50,7 +50,7 @@ import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YDataValidationException;
 import au.edu.qut.yawl.unmarshal.XMLValidator;
 import au.edu.qut.yawl.util.YVerificationMessage;
-
+import javax.persistence.ManyToMany;
 
 /**
  * 
@@ -88,12 +88,15 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     private Set _yElementsSet = new HashSet();
 	
     //added for reduction rules mappings
-    @Transient
+    @ManyToMany(targetEntity=au.edu.qut.yawl.elements.YTask.class, mappedBy="removeSet")
     public Set getCancelledBySet(){
     	if (_cancelledBySet != null) {
     		return new HashSet(_cancelledBySet);
     	}
     	return null;
+    }
+    public void setCancelledBySet(Set cancel) {
+    	this._cancelledBySet = cancel;
     }
 
     public void addToCancelledBySet(YTask t){

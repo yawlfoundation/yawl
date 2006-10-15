@@ -35,6 +35,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
@@ -317,14 +318,12 @@ public abstract class YTask extends YExternalNetElement {
         return getDataMappingsForTaskCompletion().keySet();
     }
 
-    @OneToMany(cascade={CascadeType.ALL})
+    @ManyToMany
     @JoinTable(name="yexternalnetelement_removeset")
     public Set<YExternalNetElement> getRemoveSet() {
     	return _removeSet;
     }
 
-    @OneToMany(cascade={CascadeType.ALL})
-    @JoinTable(name="yexternalnetelement_removeset")
     private void setRemoveSet(Set<YExternalNetElement> s) {
     	_removeSet = s;
     }
