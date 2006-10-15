@@ -284,7 +284,6 @@ public class YWorkItem {
         if (this._parent == null) {
             YIdentifier parentCaseID = getWorkItemID().getCaseID();
             if (childCaseID.getParent() != parentCaseID) {
-            	System.out.println("childs parent: " + childCaseID.getParent() + " " + parentCaseID);
                 return null;
             }
             YWorkItem childItem = new YWorkItem(

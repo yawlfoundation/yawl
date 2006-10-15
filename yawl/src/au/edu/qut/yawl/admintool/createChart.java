@@ -72,7 +72,6 @@ public class createChart extends HttpServlet{
         String persistOnStr = context.getInitParameter("EnablePersistance");
         boolean _persistanceConfiguredOn = "true".equalsIgnoreCase(persistOnStr);
         if(_persistanceConfiguredOn) {
-            System.out.println("Initializing DB connections for chart creation");
             try {
                 
                 _model = DatabaseGatewayImpl.getInstance(_persistanceConfiguredOn);

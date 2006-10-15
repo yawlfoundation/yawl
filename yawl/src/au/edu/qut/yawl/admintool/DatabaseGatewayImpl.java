@@ -97,9 +97,9 @@ public class DatabaseGatewayImpl {
 
         if (persistenceOn) {
             try {                
-                AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-    			.setProperty(Environment.HBM2DDL_AUTO, "update")
-    			;
+                AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration();
+//    			.setProperty(Environment.HBM2DDL_AUTO, "create")
+//    			;
                 
                 cfg = config; 
     			for (int i=0; i<classes.length; i++) {

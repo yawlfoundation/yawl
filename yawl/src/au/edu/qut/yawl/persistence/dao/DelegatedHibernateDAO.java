@@ -52,6 +52,9 @@ import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.events.Event;
+import au.edu.qut.yawl.events.YCaseEvent;
+import au.edu.qut.yawl.events.YDataEvent;
+import au.edu.qut.yawl.events.YWorkItemEvent;
 
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
@@ -89,21 +92,24 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 						YWorkItem.class,
 						YWorkItemID.class,
 						YIdentifier.class,
-						Event.class
+						Event.class,
+						YWorkItemEvent.class,
+						YCaseEvent.class,
+						YDataEvent.class
 				};
 	
 	private synchronized static void initializeSessions() {
 		try {
 			AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
-	        .setProperty(Environment.SHOW_SQL, "false")
-	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
-	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
-	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/yawl")
-	        .setProperty(Environment.USER, "capsela")
-	        .setProperty(Environment.PASS, "capsela")
+//	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
+//	        .setProperty(Environment.SHOW_SQL, "false")
+//	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
+//	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
+//	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/yawl")
+//	        .setProperty(Environment.USER, "capsela")
+//	        .setProperty(Environment.PASS, "capsela")
 
-			.setProperty(Environment.HBM2DDL_AUTO, "create")
+//			.setProperty(Environment.HBM2DDL_AUTO, "create")
 //			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
 //			.setProperty(Environment.HBM2DDL_AUTO, "update")
 			;
@@ -136,6 +142,11 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 		addType( YWorkItem.class, new WorkItemHibernateDAO() );
 		addType( YIdentifier.class, new IdentifierHibernateDAO() );
 		addType( YAWLServiceReference.class, new YAWLServiceReferenceHibernateDAO() );
+		
+		addType( YWorkItemEvent.class, new YWorkItemEventDAO() );
+		addType( YDataEvent.class, new YDataEventDAO() );
+		addType( YCaseEvent.class, new YCaseEventDAO() );
+
 	}
 	
 	public List getChildren( Object object ) {
@@ -373,6 +384,28 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 			return PersistenceUtilities.getYAWLServiceReferenceDatabaseKey( item );
 		}
 	}
+	private class YWorkItemEventDAO extends AbstractHibernateDAO<YWorkItemEvent> {
+		protected void preSave( YWorkItemEvent item ) {}
+		
+		public Object getKey( YWorkItemEvent item ) {
+			return item.getId();
+		}
+	}
 	
+	private class YCaseEventDAO extends AbstractHibernateDAO<YCaseEvent> {
+		protected void preSave( YCaseEvent item ) {}
+		
+		public Object getKey( YCaseEvent item ) {
+			return item.getIdentifier();
+		}
+	}
+	
+	private class YDataEventDAO extends AbstractHibernateDAO<YDataEvent> {
+		protected void preSave( YDataEvent item ) {}
+		
+		public Object getKey( YDataEvent item ) {
+			return item.getId();
+		}
+	}
 
 }

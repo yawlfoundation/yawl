@@ -534,7 +534,6 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
          */
         YAWLServiceReference ys;
         Set s = _myInstance.getYAWLServices();
-        
 
 		if (s.size()==0) {
 			/*
@@ -1034,7 +1033,6 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
          */
         synchronized (mutex) {
         	List<DataProxy> proxies = getDataContext().retrieveAll( YAWLServiceReference.class, null );
-        	System.out.println("proxies: " + proxies.size());
         	Set<YAWLServiceReference> references = new HashSet<YAWLServiceReference>();
         	for( DataProxy proxy : proxies ) {
         		references.add( (YAWLServiceReference) proxy.getData() ); 
@@ -1142,7 +1140,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     public YAWLServiceReference removeYawlService(String serviceURI) throws YPersistenceException {
         /**
          * SYNC'D External interface
-         */
+         */ 
         synchronized (mutex) {
             return super.removeYawlService(serviceURI);
         }
