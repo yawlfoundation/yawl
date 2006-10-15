@@ -10,10 +10,8 @@
 package au.edu.qut.yawl.elements;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -21,10 +19,9 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 import org.jdom.Document;
@@ -33,7 +30,6 @@ import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.EngineFactory;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
  /**
@@ -58,25 +54,14 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
     public String _yawlServiceID;
     private YAWLServiceGateway _webServiceGateway;
     public String _documentation;
-    public Long _dbid;
 
     /*****************************
       INSERTED FOR PERSISTANCE
      */
     public YAWLServiceReference() {
     }
-    
-    @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    public Long getDbID() {
-    	return _dbid;
-    }
-    
-    public void setDbID(Long dbid) {
-    	_dbid = dbid;
-    }
 
-    @OneToOne//(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     public YAWLServiceGateway getYawlServiceGateway() {
     	return _webServiceGateway;
     }
@@ -88,7 +73,7 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
 	this._yawlServiceID = id;
     }
 
-    @Column
+    @Id
     public String getYawlServiceID() {
     	return _yawlServiceID;
     }
@@ -111,27 +96,23 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
      */ 
     public List<YVerificationMessage> verify() {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
+        AbstractEngine engine = null;
         try {
-	        AbstractEngine engine = EngineFactory.createYEngine();
-	        YAWLServiceReference service = engine.getRegisteredYawlService(_yawlServiceID);
-	        if(service == null){
-	            messages.add(
-	                    new YVerificationMessage(
-	                            this,
-	                            "YAWL service[" + _yawlServiceID + "] " +
-	                            (_webServiceGateway != null
-	                             ? "at WSGateway[" + _webServiceGateway.getId() + "] "
-	                             : " ") + "is not registered with engine.",
-	                            YVerificationMessage.WARNING_STATUS));
-	        }
-        }
-        catch( YPersistenceException e ) {
-        	StringWriter sw = new StringWriter();
-    		e.printStackTrace(new PrintWriter(sw));
-        	messages.add( new YVerificationMessage( this,
-        			"Could not access engine to verify YAWL service[" + _yawlServiceID
-        			+ "] for web service gateway \"" + _webServiceGateway.getId() + "\"\n"
-        			+ sw.toString(), YVerificationMessage.WARNING_STATUS ) );
+		engine = EngineFactory.createYEngine();
+	  } catch (Exception e) {
+            messages.add(new YVerificationMessage(this,"CANNOT ACCESS ENGINE",YVerificationMessage.WARNING_STATUS));
+		return messages;
+	  }
+        YAWLServiceReference service = engine.getRegisteredYawlService(_yawlServiceID);
+        if(service == null){
+            messages.add(
+                    new YVerificationMessage(
+                            this,
+                            "YAWL service[" + _yawlServiceID + "] " +
+                            (_webServiceGateway != null
+                             ? "at WSGateway[" + _webServiceGateway.getId() + "] "
+                             : " ") + "is not registered with engine.",
+                            YVerificationMessage.WARNING_STATUS));
         }
         return messages;
     }
@@ -221,3 +202,4 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
     	return false;
     }
 }
+
