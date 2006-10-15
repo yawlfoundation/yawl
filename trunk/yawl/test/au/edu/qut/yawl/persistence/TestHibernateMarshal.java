@@ -13,6 +13,11 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
+import au.edu.qut.yawl.persistence.dao.DAO;
+import au.edu.qut.yawl.persistence.dao.DAOFactory;
+import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
+import au.edu.qut.yawl.elements.YAWLServiceReference;
+
 import com.nexusbpm.editor.persistence.YDecompositionEditorExtension;
 
 
@@ -51,6 +56,11 @@ public class TestHibernateMarshal extends XMLTestCase  {
     }
     
     public void testGateway() throws Exception {
+
+      DAO hib = DAOFactory.getDAO( PersistenceType.HIBERNATE );
+      YAWLServiceReference ys = new YAWLServiceReference("http://localhost:8080/NexusServiceInvoker/",null);
+      hib.save(ys);
+
     	assertComparison("Comparing a complex spec with a gateway", "TestGateway.xml");
     }
 	
