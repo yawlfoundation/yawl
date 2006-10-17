@@ -6,9 +6,9 @@ import java.io.FileReader;
 import au.edu.qut.yawl.elements.YSpecification;
 
 public class StringProducerRawFile extends StringProducerXML {
-	private static StringProducerXML INSTANCE = new StringProducerRawFile();
+	private static StringProducer INSTANCE = new StringProducerRawFile();
 	
-	public static StringProducerXML getInstance() {return INSTANCE;}
+	public static StringProducer getInstance() {return INSTANCE;}
 
 	@Override
 	public String getXMLString(String fileName, boolean isXmlFileInPackage) throws Exception {
