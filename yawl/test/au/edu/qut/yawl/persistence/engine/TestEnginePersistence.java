@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Set;
 
-import au.edu.qut.yawl.persistence.StringProducerXML;
+import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 
 import junit.framework.TestCase;
@@ -70,7 +70,7 @@ public class TestEnginePersistence extends TestCase {
 		try {	
 
 		
-			StringProducerXML spx = StringProducerYAWL.getInstance();
+			StringProducer spx = StringProducerYAWL.getInstance();
 			File f = spx.getTranslatedFile("Timer.xml", true);
 			
 
@@ -106,7 +106,7 @@ public class TestEnginePersistence extends TestCase {
 	public void testCancelCase() {
 		try {
 						
-			StringProducerXML spx = StringProducerYAWL.getInstance();
+			StringProducer spx = StringProducerYAWL.getInstance();
 			File f = spx.getTranslatedFile("Timer.xml", true);
 			
 			YEngineInterface engine = EngineFactory.getTransactionalEngine();
@@ -151,7 +151,7 @@ public class TestEnginePersistence extends TestCase {
 	public void testStartCaseMultipleInstanceDecomp() {
 		try {
 			
-			StringProducerXML spx = StringProducerYAWL.getInstance();
+			StringProducer spx = StringProducerYAWL.getInstance();
 			File f = spx.getTranslatedFile("YAWL_Specification1.xml", true);
 			YEngineInterface engine = EngineFactory.getTransactionalEngine();
 			DataContext context = AbstractEngine.getDataContext();
@@ -178,7 +178,7 @@ public class TestEnginePersistence extends TestCase {
 	public void testCancelWithBusyTasks() {
 		try {
 			
-			StringProducerXML spx = StringProducerYAWL.getInstance();
+			StringProducer spx = StringProducerYAWL.getInstance();
 			File f = spx.getTranslatedFile("Timer.xml", true);
 			
 			YEngineInterface engine = EngineFactory.getTransactionalEngine();
