@@ -153,6 +153,7 @@
     <property name="jboss-ejb" value="${persist.libs}/jboss-ejb3x.jar"/>
 	<property name="jsr173" value="${persist.libs}/jsr173_1.0_api.jar"/>
     <property name="hibernate-ann" value="${persist.libs}/hibernate-annotations.jar"/>
+    <property name="hsqldb" value="${persist.libs}/hsqldb.jar"/>
     <property name="hibernate" value="${persist.libs}/hibernate3.jar"/>
     <property name="postgres7.jar" value="postgresql-7.4.5.jdbc.jar"/>
     <property name="postgres7.path" value="${basic.libs}/${postgres7.jar}"/>
@@ -279,6 +280,7 @@
         <pathelement location="${commonsLogging}"/>
         <pathelement location="${ehcache}"/>
         <pathelement location="${hibernate}"/>
+        <pathelement location="${hsqldb}"/>
         <pathelement location="${jaxbapi}"/>
         <pathelement location="${jaxbimpl}"/>
     	<pathelement location="${xmlunit}"/>
