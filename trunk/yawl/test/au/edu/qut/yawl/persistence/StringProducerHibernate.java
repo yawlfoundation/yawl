@@ -35,6 +35,9 @@ import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.events.Event;
+import au.edu.qut.yawl.events.YCaseEvent;
+import au.edu.qut.yawl.events.YDataEvent;
+import au.edu.qut.yawl.events.YWorkItemEvent;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 
 
@@ -56,31 +59,34 @@ public class StringProducerHibernate extends StringProducerXML {
 //		StringProducerHibernate.deleteAfterRun = deleteAfterRun;
 		if (INSTANCE == null) {
 			Class[] classes = new Class[] {
+					Event.class,
 					KeyValue.class,
-					YInternalCondition.class,
-					YFlow.class,
-					YMultiInstanceAttributes.class,
-					YCompositeTask.class,
 					YAtomicTask.class,
-					YTask.class,
-					YInputCondition.class,
-					YOutputCondition.class,
-					YCondition.class,
-					YExternalNetElement.class,
-					YAWLServiceReference.class,
 					YAWLServiceGateway.class,
-					YVariable.class,
-					YParameter.class,
-					YDecomposition.class,
-					YNet.class,
+					YAWLServiceReference.class,
 					YCaseData.class,
-					YMetaData.class,
-					YSpecification.class,
-					YNetRunner.class,
-					YWorkItem.class,
-					YWorkItemID.class,
+					YCaseEvent.class,
+					YCompositeTask.class,
+					YCondition.class,
+					YDataEvent.class,
+					YDecomposition.class,
+					YExternalNetElement.class,
+					YFlow.class,
 					YIdentifier.class,
-					Event.class
+					YInputCondition.class,
+					YInternalCondition.class,
+					YMetaData.class,
+					YMultiInstanceAttributes.class,
+					YNet.class,
+					YNetRunner.class,
+					YOutputCondition.class,
+					YParameter.class,
+					YSpecification.class,
+					YTask.class,
+					YVariable.class,
+					YWorkItem.class,
+					YWorkItemEvent.class,
+					YWorkItemID.class
 				};
 			
 			INSTANCE = new StringProducerHibernate();
@@ -94,8 +100,8 @@ public class StringProducerHibernate extends StringProducerXML {
 //	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
 //	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
 //	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/yawl")
-//	        .setProperty(Environment.USER, "capsela")
-//	        .setProperty(Environment.PASS, "capsela")
+//	        .setProperty(Environment.USER, "postgres")
+//	        .setProperty(Environment.PASS, "admin")
 //			.setProperty(Environment.HBM2DDL_AUTO, "create")
 //			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
 			;

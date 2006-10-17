@@ -70,31 +70,34 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 	private static AnnotationConfiguration cfg;
 	private static Session session;
 	private static Class[] classes = new Class[] {
-						KeyValue.class,
-						YInternalCondition.class,
-						YFlow.class,
-						YMultiInstanceAttributes.class,
-						YCompositeTask.class,
-						YAtomicTask.class,
-						YTask.class,
-						YInputCondition.class,
-						YOutputCondition.class,
-						YCondition.class,
-						YExternalNetElement.class,
-						YAWLServiceReference.class,
-						YAWLServiceGateway.class,
-						YVariable.class,
-						YParameter.class,
-						YDecomposition.class,
-						YNet.class,
-						YCaseData.class,
-						YMetaData.class,
-						YSpecification.class,
-						YNetRunner.class,
-						YWorkItem.class,
-						YWorkItemID.class,
-						YIdentifier.class,
-						Event.class
+		Event.class,
+		KeyValue.class,
+		YAtomicTask.class,
+		YAWLServiceGateway.class,
+		YAWLServiceReference.class,
+		YCaseData.class,
+		YCaseEvent.class,
+		YCompositeTask.class,
+		YCondition.class,
+		YDataEvent.class,
+		YDecomposition.class,
+		YExternalNetElement.class,
+		YFlow.class,
+		YIdentifier.class,
+		YInputCondition.class,
+		YInternalCondition.class,
+		YMetaData.class,
+		YMultiInstanceAttributes.class,
+		YNet.class,
+		YNetRunner.class,
+		YOutputCondition.class,
+		YParameter.class,
+		YSpecification.class,
+		YTask.class,
+		YVariable.class,
+		YWorkItem.class,
+		YWorkItemEvent.class,
+		YWorkItemID.class
 				};
 	
 	private synchronized static void initializeSessions() {
@@ -106,8 +109,8 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 //	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
 //	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
 //	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
-//	        .setProperty(Environment.USER, "capsela")
-//	        .setProperty(Environment.PASS, "capsela")
+//	        .setProperty(Environment.USER, "postgres")
+//	        .setProperty(Environment.PASS, "admin")
 
 			.setProperty(Environment.HBM2DDL_AUTO, "create")
 //			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
