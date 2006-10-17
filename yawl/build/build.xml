@@ -674,11 +674,11 @@
         <mkdir dir="${yawl.worklist.app.name}/secure/certificates/"/>
         <mkdir dir="${yawl.worklist.app.name}/secure/genDir/"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence"/>
-        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
     	<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
+    	<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/events"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
@@ -707,6 +707,9 @@
     	<copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
             <fileset dir="${classes}/au/edu/qut/yawl/engine/domain" includes="YWorkItem*.class"/>
         </copy>
+    	<copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/events">
+            <fileset dir="${classes}/au/edu/qut/yawl/events" includes="*.class"/>
+        </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence" includes="*.class"/>
         </copy>
@@ -715,9 +718,6 @@
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb">
-            <fileset dir="${classes}/au/edu/qut/yawl/persistence/jaxb" includes="*.class"/>
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
             <fileset dir="${classes}/au/edu/qut/yawl/exceptions" includes="*.class *.hbm.xml"/>
@@ -989,11 +989,6 @@
 	        	<include name="*.class"/>
 	        </fileset>
 		</copy>
-		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
-	        <fileset dir="${services}/com/nexusbpm/services/data">
-	        	<include name="jaxb.index"/>
-	        </fileset>
-		</copy>
 		<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/com/nexusbpm/services">
 	        <fileset dir="${classes}/com/nexusbpm/services">
 	        	<include name="*.class"/>
@@ -1039,6 +1034,7 @@
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
     	<mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
+        <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/events"/>
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/wsif"/>
         <!-- start copying files into war directory -->
         <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
@@ -1073,6 +1069,9 @@
 
     	<copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
     		<fileset dir="${classes}/au/edu/qut/yawl/engine/domain"/>
+    	</copy>
+    	<copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/events">
+    		<fileset dir="${classes}/au/edu/qut/yawl/events"/>
     	</copy>
         <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset
@@ -1319,13 +1318,13 @@
         -->
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/lib"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
+        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/events"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/admintool"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/admintool/model"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication"/>
@@ -1345,9 +1344,6 @@
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/jaxb">
-            <fileset dir="${classes}/au/edu/qut/yawl/persistence/jaxb" includes="*.class"/>
         </copy>
 
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
@@ -1384,6 +1380,10 @@
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
             <fileset
                 dir="${classes}/au/edu/qut/yawl/engine/domain"/>
+        </copy>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/events">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/events"/>
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/authentication">
             <fileset
@@ -1442,6 +1442,7 @@
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
+        <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/events"/>
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions"/>         
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema" /> 
         <mkdir dir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal"/>
@@ -1483,6 +1484,10 @@
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state">
             <fileset dir="${classes}/au/edu/qut/yawl/elements/state"
                      includes="YIdentifier.class"/>
+        </copy>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/events">
+            <fileset dir="${classes}/au/edu/qut/yawl/events" 
+                includes="*.class" /> 
         </copy>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
             <fileset dir="${classes}/au/edu/qut/yawl/exceptions" 
