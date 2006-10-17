@@ -8,9 +8,9 @@ import au.edu.qut.yawl.unmarshal.YMarshal;
 
 public class StringProducerYAWL extends StringProducerRawFile {
 
-	private static StringProducerXML INSTANCE = new StringProducerYAWL();
+	private static StringProducer INSTANCE = new StringProducerYAWL();
 	
-	public static StringProducerXML getInstance() {return INSTANCE;}
+	public static StringProducer getInstance() {return INSTANCE;}
 
 	@Override
 	public String getXMLString(String fileName, boolean isXmlFileInPackage) {

@@ -38,225 +38,70 @@ import au.edu.qut.yawl.events.Event;
 import au.edu.qut.yawl.events.YCaseEvent;
 import au.edu.qut.yawl.events.YDataEvent;
 import au.edu.qut.yawl.events.YWorkItemEvent;
+import au.edu.qut.yawl.persistence.dao.DelegatedHibernateDAO;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 
 
-public class StringProducerHibernate extends StringProducerXML {
-	
-	private static SessionFactory sessions;
-	private static AnnotationConfiguration cfg;
-	private static boolean deleteAfterRun = false;
-	private Session session;
-	
-	private static StringProducerXML INSTANCE = null;
+public class StringProducerHibernate implements StringProducer  {
+	private static DelegatedHibernateDAO dao;
+	private static StringProducer INSTANCE = null;
 	
 
-	public static StringProducerXML getInstance() {
+	public static StringProducer getInstance() {
 		return StringProducerHibernate.getInstance(true);
 	}
 	
-	public static StringProducerXML getInstance(boolean deleteAfterRun) {
-//		StringProducerHibernate.deleteAfterRun = deleteAfterRun;
-		if (INSTANCE == null) {
-			Class[] classes = new Class[] {
-					Event.class,
-					KeyValue.class,
-					YAtomicTask.class,
-					YAWLServiceGateway.class,
-					YAWLServiceReference.class,
-					YCaseData.class,
-					YCaseEvent.class,
-					YCompositeTask.class,
-					YCondition.class,
-					YDataEvent.class,
-					YDecomposition.class,
-					YExternalNetElement.class,
-					YFlow.class,
-					YIdentifier.class,
-					YInputCondition.class,
-					YInternalCondition.class,
-					YMetaData.class,
-					YMultiInstanceAttributes.class,
-					YNet.class,
-					YNetRunner.class,
-					YOutputCondition.class,
-					YParameter.class,
-					YSpecification.class,
-					YTask.class,
-					YVariable.class,
-					YWorkItem.class,
-					YWorkItemEvent.class,
-					YWorkItemID.class
-				};
-			
+	public static StringProducer getInstance(boolean deleteAfterRun) {
+		if (INSTANCE == null) 
 			INSTANCE = new StringProducerHibernate();
-			if ( getSessions()!=null ) {
-				getSessions().close();
-//				return INSTANCE;
-			}
-			AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-//	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
-//	        .setProperty(Environment.SHOW_SQL, "false")
-//	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
-//	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
-//	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/yawl")
-//	        .setProperty(Environment.USER, "postgres")
-//	        .setProperty(Environment.PASS, "admin")
-//			.setProperty(Environment.HBM2DDL_AUTO, "create")
-//			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
-			;
-			setCfg( config );
-	        
-			for (int i=0; i<classes.length; i++) {
-				getCfg().addAnnotatedClass( classes[i] );
-			}
-			setSessions( getCfg().buildSessionFactory( /*new TestInterceptor()*/ ) );
-		}
-
 		return INSTANCE;
 	}
 	
 	public StringProducerHibernate() {
-		super();
+		dao = new DelegatedHibernateDAO();
 	}
 
-	public Session openSession() throws HibernateException {
-		session = getSessions().openSession();
-		return session;
-	}
-	
-	protected String[] getAnnotatedPackages() {
-		return new String[] {};
-	}
-
-	private static void setSessions(SessionFactory sessions) {
-		StringProducerHibernate.sessions = sessions;
-	}
-
-	protected static SessionFactory getSessions() {
-		return sessions;
-	}
-
-	protected static void setCfg(AnnotationConfiguration cfg) {
-		StringProducerHibernate.cfg = cfg;
-	}
-
-	protected static AnnotationConfiguration getCfg() {
-		return cfg;
-	}
-
-	protected boolean recreateSchema() {
-		return true;
-	}
-
-	@Override
 	public String getXMLString( String fileName, boolean isXmlFileInPackage ) throws Exception {
 		String marshalledSpecs = null;
-		try {
-	        File specificationFile = getTranslatedFile(fileName, isXmlFileInPackage);
-	        List specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());
-	        YSpecification inputSpec = (YSpecification) specifications.iterator().next();
-	        
-			// Create spec
-			Transaction tx;
-			session = openSession();
-			tx = session.beginTransaction();
-			session.persist(inputSpec);
-			tx.commit();
-			Long specID = inputSpec.getDbID();
-			session.close();
+        File specificationFile = getTranslatedFile(fileName, isXmlFileInPackage);
+        List specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());
+        YSpecification inputSpec = (YSpecification) specifications.iterator().next();
+        
+		// Create spec
+		dao.save(inputSpec);
+		Long specID = inputSpec.getDbID();
 
-			// Read spec
-			session = openSession();
-			tx = session.beginTransaction();
-			YSpecification outputSpec = (YSpecification) session.get(YSpecification.class, specID);
-	        marshalledSpecs = YMarshal.marshal(outputSpec);
-
-	        // Delete spec
-	        if (deleteAfterRun) {
-	        	session.delete(outputSpec);
-	        }
-			tx.commit();
-//			session.close();
-//			
-//			if ( session!=null && session.isOpen() ) {
-//				if ( session.isConnected() ) session.connection().rollback();
-//				session.close();
-//				session = null;
-//				throw new Exception("unclosed session");
-//			}
-//			else {
-//				session=null;
-//			}
-		}
-		catch (Exception e) {
-			try {
-				if ( session!=null && session.isOpen() ) {
-					if ( session.isConnected() ) session.connection().rollback();
-					session.close();
-				}
-			}
-			catch (Exception ignore) {}
-//			try {
-//				if (sessions!=null) {
-//					sessions.close();
-//					sessions=null;
-//				}
-//			}
-//			catch (Exception ignore) {}
-			throw e;
-		}
-
+		// Read spec
+		YSpecification outputSpec = (YSpecification) dao.retrieve(YSpecification.class, specID);
+        marshalledSpecs = YMarshal.marshal(outputSpec);
         return marshalledSpecs;
 	}
 
-	@Override
 	public YSpecification getSpecification(String fileName, boolean isXmlFileInPackage) throws Exception {
 	        File specificationFile = getTranslatedFile(fileName, isXmlFileInPackage);
 	        List specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());
 	        YSpecification inputSpec = (YSpecification) specifications.iterator().next();
 	        YSpecification outputSpec = null;
-			try {
 				// Create spec
-				Transaction tx;
-				session = openSession();
-				tx = session.beginTransaction();
-				session.persist(inputSpec);
-				tx.commit();
+				dao.save(inputSpec);
 				Long specID = inputSpec.getDbID();
-				session.close();
 	
 				// Read spec
-				session = openSession();
-				tx = session.beginTransaction();
-				outputSpec = (YSpecification) session.get(YSpecification.class, specID);
-				
-		        // Delete spec
-		        if (deleteAfterRun) {
-		        	session.delete(outputSpec);
-			}
-				tx.commit();
-//				session.close();
-				
-			}
-			catch (Exception e) {
-				try {
-					if ( session!=null && session.isOpen() ) {
-						if ( session.isConnected() ) session.connection().rollback();
-						session.close();
-					}
-				}
-				catch (Exception ignore) {}
-				try {
-					if (sessions!=null) {
-						sessions.close();
-						sessions=null;
-					}
-				}
-				catch (Exception ignore) {}
-				throw e;
-			}
+				outputSpec = (YSpecification) dao.retrieve(YSpecification.class, specID);
         return outputSpec;
 	}
+	/* (non-Javadoc)
+	 * @see au.edu.qut.yawl.persistence.StringProducer#getTranslatedFile(java.lang.String, boolean)
+	 */
+	public File getTranslatedFile(String originalName, boolean isXmlFileInPackage) {
+		File file = null;
+		if (isXmlFileInPackage) {
+			file = new File(StringProducerXML.class.getResource(originalName).getFile());
+		}
+		else {
+			file = new File(originalName);
+		}
+			return file;
+		}
 
 }
