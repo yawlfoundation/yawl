@@ -6,7 +6,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.StringProducerXML;
+import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
@@ -19,7 +19,7 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
-		StringProducerXML spx = StringProducerYAWL.getInstance();
+		StringProducer spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestCompletedMappings.xml", true);
 		testSpec = (YSpecification) fileDAO.retrieve(YSpecification.class, f.getAbsolutePath());
 	}

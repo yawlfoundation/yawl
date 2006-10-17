@@ -7,7 +7,7 @@ import java.net.URISyntaxException;
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.StringProducerXML;
+import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
@@ -33,7 +33,7 @@ public class TestSpecificationFileDAO extends TestCase {
 	 */
 	public void testDelete() throws YPersistenceException {
 		DAO myDAO = getDAO();
-		StringProducerXML spx = StringProducerYAWL.getInstance();
+		StringProducer spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class,pk);
 		spec.setID(new File("DUMMY.XML").toURI().toASCIIString());
@@ -52,7 +52,7 @@ public class TestSpecificationFileDAO extends TestCase {
 	 */
 	public void testRetrieve() {
 		DAO myDAO = getDAO();
-		StringProducerXML spx = StringProducerYAWL.getInstance();
+		StringProducer spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class,pk);	
 		assertNotNull(spec);
@@ -82,7 +82,7 @@ public class TestSpecificationFileDAO extends TestCase {
 	 */
 	public void testSave() throws YPersistenceException {
 		DAO myDAO = getDAO();
-		StringProducerXML spx = StringProducerYAWL.getInstance();
+		StringProducer spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class,pk);
 		spec.setID(new File("DUMMY.XML").toURI().toASCIIString());
@@ -99,7 +99,7 @@ public class TestSpecificationFileDAO extends TestCase {
 	 */
 	public void testGetKey() {
 		DAO myDAO = getDAO();
-		StringProducerXML spx = StringProducerYAWL.getInstance();
+		StringProducer spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class,pk);	
 		assertEquals(spec.getID(), myDAO.getKey(spec));
