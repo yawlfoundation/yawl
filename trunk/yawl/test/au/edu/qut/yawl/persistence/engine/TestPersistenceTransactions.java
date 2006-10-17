@@ -19,7 +19,7 @@ import au.edu.qut.yawl.persistence.managed.DataContext;
 import junit.framework.TestCase;
 import au.edu.qut.yawl.engine.EngineClearer;
 
-import au.edu.qut.yawl.persistence.StringProducerXML;
+import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 
 import org.springframework.context.ApplicationContext;
@@ -46,7 +46,7 @@ public class TestPersistenceTransactions extends TestCase {
 		try {
 		
 			System.out.println("Testing transactions");
-			StringProducerXML spx = StringProducerYAWL.getInstance();
+			StringProducer spx = StringProducerYAWL.getInstance();
 			File f = spx.getTranslatedFile("SingleTask.xml", true);
 			
 			YEngineInterface engine = (YEngineInterface) EngineFactory.getTransactionalEngine();
