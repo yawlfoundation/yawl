@@ -17,7 +17,7 @@ import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import junit.framework.TestCase;
-import au.edu.qut.yawl.persistence.StringProducerXML;
+import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 
 public class TestYNetRunnerHibernateDAO extends TestCase {
@@ -33,7 +33,7 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 		AbstractEngine.setDataContext(context);
 		
 		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
-		StringProducerXML spx = StringProducerYAWL.getInstance();
+		StringProducer spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestMakeRecordingsBigTest.xml", true);		
 		File f2 = spx.getTranslatedFile("YAWL_Specification1.xml", true);
 		
@@ -90,7 +90,7 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 			//hibernateDAO.save(runner2);
 
 			List runners = hibernateDAO.retrieveByRestriction( YNetRunner.class, new PropertyRestriction(
-					"YNetID", Comparison.EQUAL, "file:/D:/Yawlstuff/JavaForgeBuild/trunk/yawl/classes/au/edu/qut/yawl/persistence/TestMakeRecordingsBigTest.xml" ) );
+					"YNetID", Comparison.LIKE, "%TestMakeRecordingsBigTest.xml" ) );
 		
 			assertTrue(runners.size()==1);
 			
@@ -148,7 +148,7 @@ public class TestYNetRunnerHibernateDAO extends TestCase {
 	public void testSaveAndRetrieveComp() {
 		try {
 			
-			StringProducerXML spx = StringProducerYAWL.getInstance();
+			StringProducer spx = StringProducerYAWL.getInstance();
 			File f = spx.getTranslatedFile("YAWL_Specification1.xml", true);
 			AbstractEngine engine = EngineFactory.createEngine(true);
 			LinkedList errors = new LinkedList();
