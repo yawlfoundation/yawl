@@ -53,6 +53,9 @@ import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
+import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
@@ -72,6 +75,8 @@ import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 import com.nexusbpm.editor.tree.SharedNode;
+import com.nexusbpm.editor.util.InterfaceA;
+import com.nexusbpm.editor.util.InterfaceB;
 import com.nexusbpm.editor.worker.CapselaWorker;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
 
@@ -98,7 +103,7 @@ public class GraphEditor extends JPanel
     private NexusGraphModel _graphModel;
 
     private NetEditor _netEditor;
-    private EditorDataProxy _netProxy;
+    private EditorDataProxy<YNet> _netProxy;
 
     private Action _edgeEditModeAction;
     private Action _remove;
@@ -156,6 +161,10 @@ public class GraphEditor extends JPanel
      */
     public void setProxy( EditorDataProxy flowproxy ) {
         _netProxy = flowproxy;
+    }
+    
+    protected YSpecification getParentSpecification() {
+    	return _netProxy.getData().getParent();
     }
     
     private void repaintGraph() {
@@ -1033,8 +1042,29 @@ public class GraphEditor extends JPanel
                 public void actionPerformed(ActionEvent e) {
                     try {
                         LOG.info("Run flow");
-
-                        throw new RuntimeException("implement run");
+                        
+                        YSpecification spec = GraphEditor.this.getParentSpecification();
+                        
+                        // TODO do we need to save the spec?
+                        
+                        InterfaceA_EnvironmentBasedClient client = InterfaceA.getClient();
+                        
+                        LOG.info( "unloading specification...\n" + client.unloadSpecification(
+                        		spec.getID(), InterfaceA.getConnectionHandle() ) );
+                        String response = client.uploadSpecification(
+                        		spec.toXML(), spec.getID(), InterfaceA.getConnectionHandle() );
+                        LOG.info( response );
+                        
+                        if( InterfaceA.successful( response ) ) {
+                        	InterfaceB_EnvironmentBasedClient clientB = InterfaceB.getClient();
+                        	
+                        	LOG.info( clientB.getSpecification( spec.getID(), InterfaceB.getConnectionHandle() ) );
+                        }
+                        else {
+                        	LOG.error( "Error uploading specification!\n" + response );
+                        }
+                        
+//                        throw new RuntimeException("implement run");
 //            GlobalEventQueue.add(new CapselaWorker("Run Button Handler") {
 //              public void run() throws Throwable {
 //                if (_flowEditor.isDirty()) {
@@ -1174,7 +1204,7 @@ public class GraphEditor extends JPanel
         }
 
         if( !_isInstance ) {
-//            if( false ) {
+            if( false ) {
                 // TODO Sugiyama layout crashes capsela client for some reason so we are disabling it for now.
                 // Auto layout:
                 toolbar.add( new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.layout" ) ) {
@@ -1218,7 +1248,7 @@ public class GraphEditor extends JPanel
                         GlobalEventQueue.add( w );
                     }
                 } ).setToolTipText( "Apply Sugiyama layout" );
-//            }
+            }
 
             // Auto size:
             toolbar.add( new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.autosize" ) ) {
