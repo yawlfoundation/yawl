@@ -765,7 +765,7 @@
             <fileset dir="${basic.libs}" includes="jdom.jar"/>
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
+            <fileset dir="${basic.libs}" includes="log4j*.jar commons-logging-1.0.4.jar"/>
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.worklist.app.name}/WEB-INF/classes"/>
@@ -1060,6 +1060,10 @@
             <fileset dir="${basic.libs}" includes="log4j*.jar"/>
         </copy>
 
+        <copy todir="${yawl.webService.app.name}/WEB-INF/lib">
+            <fileset dir="${persist.libs}" includes="commons-logging-1.0.4.jar"/>
+        </copy>
+
          <copy file="${property.files}/log4j.properties" todir="${yawl.webService.app.name}/WEB-INF/classes"/>
          <replace file="${yawl.webService.app.name}/WEB-INF/classes/log4j.properties">
             <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
@@ -1143,6 +1147,9 @@
         </copy>
         <copy todir="${yawl.smsService.app.name}/WEB-INF/lib">
             <fileset dir="${basic.libs}" includes="log4j*.jar"/>
+        </copy>
+        <copy todir="${yawl.smsService.app.name}/WEB-INF/lib">
+            <fileset dir="${persist.libs}" includes="commons-logging-1.0.4.jar"/>
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.smsService.app.name}/WEB-INF/classes"/>
@@ -1262,6 +1269,10 @@
             <fileset dir="${basic.libs}" includes="log4j*.jar"/>
         </copy>
 
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/lib">
+            <fileset dir="${persist.libs}" includes="commons-logging-1.0.4.jar"/>
+        </copy>
+
         <copy file="${property.files}/log4j.properties" todir="${yawl.TimeService.app.name}/WEB-INF/classes"/>
         <replace file="${yawl.TimeService.app.name}/WEB-INF/classes/log4j.properties">
             <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
@@ -1359,7 +1370,7 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar jfreechart-1.0.0-rc1.jar jcommon-1.0.0-rc1.jar"/>
+            <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar jfreechart-1.0.0-rc1.jar jcommon-1.0.0-rc1.jar commons-logging-1.0.4.jar"/>
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.admintool.app.name}/WEB-INF/classes"/>
@@ -1566,7 +1577,7 @@
     	  <copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
     	     <fileset dir="${xsd.libs}" includes="*.jar" />
            <fileset dir="${persist.libs}" includes="*.jar"/>
-           <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar"/>
+           <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar commons-logging-1.0.4.jar"/>
         </copy>
 
         <!-- 4. Copy hibernate & postgres files (assumes version 8) -->
@@ -2017,7 +2028,7 @@
             <fileset dir="${basic.libs}" includes="jdom.jar"/>
         </copy>
         <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
-            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
+            <fileset dir="${basic.libs}" includes="log4j*.jar commons-logging-1.0.4.jar"/>
         </copy>
         <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
             <fileset dir="${pdf.libs}"/>
