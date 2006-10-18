@@ -371,6 +371,7 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
           selectedType, 
           selectedPosition
       );
+      selectEntireTask();
       parent.refreshComponentValidity();
     }
     
@@ -446,6 +447,7 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
           selectedType, 
           selectedPosition
       );
+      selectEntireTask();
       parent.refreshComponentValidity();
     }
     
@@ -537,8 +539,14 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
       positionButtonGroup.add(eastRadioButton);
       positionButtonGroup.add(westRadioButton);
       positionButtonGroup.add(nowhereRadioButton);
-      
-
+    }
+    
+    protected void selectEntireTask() {
+      if (getTask().getParent() != null) {
+        getNet().setSelectionCell(getTask().getParent());
+      } else {
+        getNet().setSelectionCell(getTask());
+      }
     }
 
     private JLabel buildTaskLabel() {
@@ -807,6 +815,7 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
     }
     
     protected void doPositionSelection(int position) {
+      this.selectedPosition = position;
       switch(position) {
         case Decorator.TOP: {
           positionButtonGroup.setSelected(
