@@ -1,39 +1,27 @@
 package au.edu.qut.yawl.persistence.engine;
 
 import java.io.File;
-import java.net.URL;
-import java.util.List;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.LinkedList;
-import java.util.Set;
-
-import au.edu.qut.yawl.persistence.StringProducer;
-import au.edu.qut.yawl.persistence.StringProducerYAWL;
+import java.util.List;
 
 import junit.framework.TestCase;
+import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
-import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
-import au.edu.qut.yawl.engine.YEngine;
 import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
-import au.edu.qut.yawl.persistence.TestHibernateMarshal;
+import au.edu.qut.yawl.persistence.StringProducer;
+import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
-import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.elements.YAtomicTask;
-import au.edu.qut.yawl.util.YVerificationMessage;
-import au.edu.qut.yawl.engine.EngineClearer;
 
 public class TestEnginePersistence extends TestCase {
 
@@ -48,7 +36,7 @@ public class TestEnginePersistence extends TestCase {
 		AbstractEngine.setDataContext(context);
 
 			YEngineInterface engine = EngineFactory.getTransactionalEngine();
-			engine.getYEngine().getWorkItemRepository().clear();
+			AbstractEngine.getWorkItemRepository().clear();
 			ys = new YAWLServiceReference(
 					"http://localhost:8080/timeService/ib", null);
 			ys.setDocumentation("Time service, allows tasks to be a timeout task.");
@@ -60,10 +48,6 @@ public class TestEnginePersistence extends TestCase {
 		super.tearDown();
 		YEngineInterface engine = EngineFactory.getTransactionalEngine();
 		engine.removeYawlService(ys.getYawlServiceID());
-	}
-
-	private DAO getDAO() {
-		return DAOFactory.getDAO( PersistenceType.HIBERNATE );
 	}
 	
 	public void testStartCase() {
@@ -98,8 +82,10 @@ public class TestEnginePersistence extends TestCase {
 
 
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail("No exception should be thrown");
+			StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}	
 	}
 
@@ -133,8 +119,10 @@ public class TestEnginePersistence extends TestCase {
 			
 
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail("No exception should be thrown");
+			StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}		
 	}
 	
@@ -169,8 +157,10 @@ public class TestEnginePersistence extends TestCase {
 			
 			
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail("No exception should be thrown");			
+			StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}	
 
 	}
@@ -202,8 +192,10 @@ public class TestEnginePersistence extends TestCase {
 			engine.unloadSpecification("Timer.xml");
 
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail("No exception should be thrown");
+			StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}		
 
 	

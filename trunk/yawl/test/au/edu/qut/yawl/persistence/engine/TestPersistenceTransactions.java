@@ -1,29 +1,22 @@
 package au.edu.qut.yawl.persistence.engine;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.List;
 
+import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
-import au.edu.qut.yawl.engine.YEngine;
-import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.EngineFactory;
+import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.persistence.dao.DAO;
-import au.edu.qut.yawl.persistence.dao.DAOFactory;
-import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
-import au.edu.qut.yawl.persistence.managed.DataContext;
-import junit.framework.TestCase;
-import au.edu.qut.yawl.engine.EngineClearer;
-
 import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import au.edu.qut.yawl.persistence.managed.DataContext;
 
 public class TestPersistenceTransactions extends TestCase {
 	
@@ -76,8 +69,10 @@ public class TestPersistenceTransactions extends TestCase {
 			
 			
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail("No exception should be thrown");
+			StringWriter sw = new StringWriter();
+    		sw.write( e.toString() + "\n" );
+    		e.printStackTrace(new PrintWriter(sw));
+    		fail( sw.toString() );
 		}
 	}
 
