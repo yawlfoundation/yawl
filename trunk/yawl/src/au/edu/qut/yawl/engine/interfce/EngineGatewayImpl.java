@@ -30,7 +30,6 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
@@ -131,9 +130,9 @@ public class EngineGatewayImpl implements EngineGateway {
             return workItem.toXML();
         } else {
             return
-                    OPEN_FAILURE + "WorkItem with ID (" +
-                    workItemID +
-                    ") not found.<failure><reason>";
+                    OPEN_FAILURE +
+                    "WorkItem with ID (" + workItemID + ") not found." +
+                    CLOSE_FAILURE;
         }
     }
 
@@ -154,9 +153,9 @@ public class EngineGatewayImpl implements EngineGateway {
         YSpecification spec = _engine.getProcessDefinition(specID);
         if (spec == null) {
             return
-                    OPEN_FAILURE + "Specification with ID (" +
-                    specID +
-                    ") not found.<failure><reason>";
+                    OPEN_FAILURE +
+                    "Specification with ID (" + specID + ") not found." +
+                    CLOSE_FAILURE;
         }
         List <YSpecification> specList =
                 new Vector<YSpecification>();
@@ -824,14 +823,12 @@ public class EngineGatewayImpl implements EngineGateway {
                 return service.getDocumentation();
             } else {
                 return OPEN_FAILURE +
-                        "Yawl service [" + yawlServiceURI + "]" +
-                        " has no documentation." +
+                        "Yawl service [" + yawlServiceURI + "] has no documentation." +
                         CLOSE_FAILURE;
             }
         } else {
             return  OPEN_FAILURE +
-                    "Yawl service [" + yawlServiceURI + "] " +
-                    "not found." +
+                    "Yawl service [" + yawlServiceURI + "] not found." +
                     CLOSE_FAILURE;
         }
     }
@@ -861,13 +858,16 @@ public class EngineGatewayImpl implements EngineGateway {
                     return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
                 }
             } else {
-                return OPEN_FAILURE + "Engine has already registered a service with " +
-                        "the same URI [" +
-                        service.toXML() + "]" + ".</reason></failure>";
+                return OPEN_FAILURE +
+                        "Engine has already registered a service with the same URI [" +
+                        service.toXML() + "]" + "." +
+                        CLOSE_FAILURE;
             }
         } else {
-            return OPEN_FAILURE + "Failed to parse yawl service from [" +
-                    serviceStr + "]" + ".</reason></failure>";
+            return OPEN_FAILURE +
+                    "Failed to parse yawl service from [" +
+                    serviceStr + "]" + "." +
+                    CLOSE_FAILURE;
         }
     }
 
@@ -889,8 +889,9 @@ public class EngineGatewayImpl implements EngineGateway {
                 return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
             }
         }
-        return OPEN_FAILURE + "Engine does not contain this YAWL" +
-                " service [ " + serviceURI + " ].</reason></failure>";
+        return OPEN_FAILURE +
+                "Engine does not contain this YAWL service [ " + serviceURI + " ]." +
+                CLOSE_FAILURE;
 
     }
 
