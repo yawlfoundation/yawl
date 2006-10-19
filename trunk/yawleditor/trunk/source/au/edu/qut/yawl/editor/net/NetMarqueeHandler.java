@@ -138,7 +138,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     switch (Palette.getInstance().getSelected()) {
       case Palette.FLOW_RELATION: {
         if (currentPort != null && generatesOutgoingFlows(currentPort)) {
-          setStartPoint(getNearestSnapPoint(graph.toScreen(currentPort.getLocation())));
+          setStartPoint(getNearestSnapPoint(currentPort.getLocation()));
           startPort = currentPort;
         }
         event.consume();
@@ -165,7 +165,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         break;        
       }
       case Palette.DRAG: {
-        setStartPoint(graph.toScreen(event.getPoint()));
+        setStartPoint(event.getPoint());
         event.consume();
         break;
       }
@@ -269,8 +269,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
   }
 
   public PortView getSourcePortAt(Point point) {
-    final Point2D tmp = graph.fromScreen(point);
-    return graph.getPortViewAt(tmp.getX(), tmp.getY());
+    return graph.getPortViewAt(point.getX(), point.getY());
   }
   
   private void hideConnector() {
@@ -284,13 +283,14 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
   protected void paintConnector(Color fg, Color bg, Graphics g) {
     g.setColor(fg);
     g.setXORMode(bg);
-    if (startPort != null && getStartPoint() != null && getCurrentPoint() != null)
+    if (startPort != null && getStartPoint() != null && getCurrentPoint() != null) {
       g.drawLine(
-          (int) getStartPoint().getX(), 
-          (int) getStartPoint().getY(), 
+          (int) graph.toScreen(startPort.getLocation()).getX(), 
+          (int) graph.toScreen(startPort.getLocation()).getY(), 
           (int) getCurrentPoint().getX(), 
           (int) getCurrentPoint().getY()
       );
+    }
   }
  
   protected void hidePort(PortView thisPort) {
@@ -302,7 +302,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
   
   protected void showPort(PortView thisPort) {
     if (thisPort != null) {
-      Rectangle2D portBounds = thisPort.getBounds();
+      Rectangle2D portBounds = graph.toScreen(thisPort.getBounds());
       
       Rectangle2D.Double portViewbox = new Rectangle2D.Double(
         portBounds.getX() - PORT_BUFFER/2, 
