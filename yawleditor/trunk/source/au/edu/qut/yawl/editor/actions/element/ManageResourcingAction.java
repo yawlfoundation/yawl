@@ -1062,8 +1062,9 @@ class FilterByCapabilityPanel extends AbstractWizardPanel {
     gbc.gridwidth = 1;
     gbc.anchor = GridBagConstraints.EAST;
     
-    JLabel valueLabel = new JLabel("Select users with value");
-    valueLabel.setDisplayedMnemonic(KeyEvent.VK_V);
+    JLabel valueLabel = new JLabel("Select users with type");
+    valueLabel.setDisplayedMnemonic(KeyEvent.VK_T);
+    valueLabel.setDisplayedMnemonicIndex(18);
     
     add(valueLabel,gbc);
     
@@ -1099,7 +1100,7 @@ class FilterByCapabilityPanel extends AbstractWizardPanel {
     gbc.gridx = 0;
     gbc.anchor = GridBagConstraints.NORTHEAST;
     
-    JLabel capabilitiesListLabel = new JLabel("Capabilities:");
+    JLabel capabilitiesListLabel = new JLabel("Capability Criteria:");
     capabilitiesListLabel.setDisplayedMnemonic(KeyEvent.VK_P);
     
     add(capabilitiesListLabel,gbc);
