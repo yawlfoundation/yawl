@@ -35,6 +35,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.swing.AbstractWizardDialog;
@@ -157,7 +158,7 @@ class ManageResourcingDialog extends AbstractWizardDialog {
   
   protected void makeLastAdjustments() {
     //pack();
-    setSize(800,400);
+    setSize(800,450);
     //setResizable(false);
   }
   
@@ -1018,13 +1019,19 @@ class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
 
 class FilterByCapabilityPanel extends AbstractWizardPanel {
   
-  private JFormattedAlphaNumericField valueField;
-  private JFormattedAlphaNumericField capabilityField;
+  private JComboBox capabilityTypeComboBox;
+  private JComboBox capabilityComboBox;
+  private JComboBox conditionOperatorComboBox;
+  
+  private JFormattedAlphaNumericField conditionValueField;
   
   private JButton addCapabilityButton;
+  private JButton addConditionButton;
   private JButton removeCapabilityButton;
   
   private JList capabilityFilterList;
+  
+  private JLabel unitsLabel;
   
   public FilterByCapabilityPanel(ManageResourcingDialog dialog) {
     super(dialog);
@@ -1047,7 +1054,7 @@ class FilterByCapabilityPanel extends AbstractWizardPanel {
 
     gbc.gridx = 0;
     gbc.gridy = 0;
-    gbc.gridwidth = 5;
+    gbc.gridwidth = 8;
     gbc.weighty = 0;
     gbc.insets = new Insets(5,5,5,5);
     gbc.fill = GridBagConstraints.NONE;
@@ -1062,39 +1069,99 @@ class FilterByCapabilityPanel extends AbstractWizardPanel {
     gbc.gridwidth = 1;
     gbc.anchor = GridBagConstraints.EAST;
     
-    JLabel valueLabel = new JLabel("Select users with type");
-    valueLabel.setDisplayedMnemonic(KeyEvent.VK_T);
-    valueLabel.setDisplayedMnemonicIndex(18);
+    JLabel capabilityTypeLabel = new JLabel("Select users with type");
+    capabilityTypeLabel.setDisplayedMnemonic(KeyEvent.VK_T);
+    capabilityTypeLabel.setDisplayedMnemonicIndex(18);
     
-    add(valueLabel,gbc);
+    add(capabilityTypeLabel,gbc);
     
     gbc.gridx++;
+    gbc.gridwidth = 2;
+    gbc.weightx = 0.5;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.anchor = GridBagConstraints.CENTER;
     
-    add(buildValueField(), gbc);
-    valueLabel.setLabelFor(valueField);
+    add(buildCapabilityTypeComboBox(), gbc);
+    capabilityTypeLabel.setLabelFor(capabilityTypeComboBox);
 
-    gbc.gridx++;
+    gbc.gridx+=2;
+    gbc.gridwidth = 1;
     gbc.weightx = 0;
+    gbc.fill = GridBagConstraints.NONE;
     gbc.insets = new Insets(5,2,5,2);
-
     
     JLabel capabilityLabel = new JLabel("of capability");
     capabilityLabel.setDisplayedMnemonic(KeyEvent.VK_C);
     
     add(capabilityLabel,gbc);
-
+ 
     gbc.gridx++;
+    gbc.gridwidth = 3;
+    gbc.weightx = 0.5;
     gbc.insets = new Insets(5,5,5,5);
-    gbc.anchor = GridBagConstraints.WEST;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.anchor = GridBagConstraints.CENTER;
 
-    add(buildCapabilityField(), gbc);
-    capabilityLabel.setLabelFor(capabilityField);
+    add(buildCapabilityComboBox(), gbc);
+    capabilityLabel.setLabelFor(capabilityComboBox);
     
-    gbc.gridx++;
+    gbc.gridx+=3;
+    gbc.gridwidth = 1;
+    gbc.weightx = 0;
+    gbc.gridheight = 2;
+    gbc.fill = GridBagConstraints.NONE;
     gbc.anchor = GridBagConstraints.CENTER;
 
     add(buildAddCapabilityButton(),gbc);
+    
+    gbc.gridy++;
+    gbc.gridheight = 1;
+    gbc.gridx = 1;
+    gbc.weightx = 0.5;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.anchor = GridBagConstraints.EAST;
+    
+    JLabel conditionLabel = new JLabel("with condition:");
+    conditionLabel.setDisplayedMnemonic(KeyEvent.VK_O);
+    conditionLabel.setHorizontalAlignment(JLabel.RIGHT);
+    add(conditionLabel,gbc);
+ 
+    gbc.gridx++;
+    gbc.weightx = 0;
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.WEST;
+    
+    add(buildConditionOperatorComboBox(),gbc);
+    conditionLabel.setLabelFor(conditionOperatorComboBox);
+
+    JLabel conditionValueLabel = new JLabel("the value of:");
+    conditionValueLabel.setDisplayedMnemonic(KeyEvent.VK_V);
+
+    gbc.gridx++;
+
+    add(conditionValueLabel,gbc);
+ 
+    gbc.gridx++;
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.weightx = 1;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+   
+    add(buildConditionValueField(),gbc);
+    conditionValueLabel.setLabelFor(conditionValueField);
+
+    gbc.gridx++;
+    gbc.weightx = 0;
+    gbc.anchor = GridBagConstraints.EAST;
+    gbc.fill = GridBagConstraints.NONE;
+    
+    unitsLabel = new JLabel("dollars");
+    
+    add(unitsLabel,gbc);
+    
+    gbc.gridx++;
+    gbc.anchor = GridBagConstraints.CENTER;
+    
+    add(buildAddConditionButton(),gbc);
     
     gbc.gridy++;
     gbc.gridx = 0;
@@ -1106,20 +1173,21 @@ class FilterByCapabilityPanel extends AbstractWizardPanel {
     add(capabilitiesListLabel,gbc);
     
     gbc.gridx++;
-    gbc.gridwidth = 3;
+    gbc.gridwidth = 6;
     gbc.anchor = GridBagConstraints.CENTER;
+    gbc.weighty = 1;
     gbc.fill = GridBagConstraints.BOTH;
     
     add(buildCapabilityFilterList(),gbc);
     
     capabilitiesListLabel.setLabelFor(capabilityFilterList);
     
-    gbc.gridx = gbc.gridx + 3;
+    gbc.gridx+=6;
     gbc.gridwidth = 1;
     gbc.anchor = GridBagConstraints.CENTER;
     gbc.fill = GridBagConstraints.NONE;
     
-    add(this.buildRemoveCapabilityButton(),gbc);
+    add(buildRemoveCapabilityButton(),gbc);
 
     LinkedList buttonList = new LinkedList();
 
@@ -1133,8 +1201,8 @@ class FilterByCapabilityPanel extends AbstractWizardPanel {
   private JScrollPane buildCapabilityFilterList() {
     capabilityFilterList = new JList(
         new String[] {
-            "\"10 years\" of \"experience\"",
-            "\"tastiness\" of \"waffles\"" 
+            "\"Degree\" of \"Bachelor of IT\"",
+            "\"Degree\" of \"Bachelor of Accounting\"" 
         }
     );
     
@@ -1142,27 +1210,63 @@ class FilterByCapabilityPanel extends AbstractWizardPanel {
     
     return scrollPane;
   }
-  
-  private JFormattedAlphaNumericField buildValueField() {
-    valueField = new JFormattedAlphaNumericField(15);
-    valueField.allowSpaces();
-    return valueField;
+
+  private JComboBox buildConditionOperatorComboBox() {
+    conditionOperatorComboBox = new JComboBox(
+      new String[] {
+          "=",
+          ">",
+          "<",
+          ">=",
+          "<="
+      }
+    );
+    return conditionOperatorComboBox;
   }
 
-  private JFormattedAlphaNumericField buildCapabilityField() {
-    capabilityField = new JFormattedAlphaNumericField(15);
-    capabilityField.allowSpaces();
-    return capabilityField;
+  private JFormattedAlphaNumericField buildConditionValueField() {
+    conditionValueField = new JFormattedAlphaNumericField(15);
+    conditionValueField.allowSpaces();
+    return conditionValueField;
+  }
+  
+  private JComboBox buildCapabilityTypeComboBox() {
+    capabilityTypeComboBox = new JComboBox(
+      new String[] {
+          "Degree",
+          "Marital Status"
+      }
+    );
+    capabilityTypeComboBox.setEditable(true);
+    return capabilityTypeComboBox;
+  }
+
+  private JComboBox buildCapabilityComboBox() {
+    capabilityComboBox = new JComboBox(
+        new String[] {
+            "Bachelor of IT",
+            "Bachelor of Accounting"
+        }
+    );
+    capabilityComboBox.setEditable(true);
+    return capabilityComboBox;
   }
   
   private JButton buildAddCapabilityButton() {
-    addCapabilityButton = new JButton("Add");
+    addCapabilityButton = new JButton("Add Capability");
     addCapabilityButton.setMnemonic(KeyEvent.VK_A);
     return addCapabilityButton;
   }
 
+  private JButton buildAddConditionButton() {
+    addConditionButton = new JButton("Add");
+    addConditionButton.setMnemonic(KeyEvent.VK_D);
+    return addConditionButton;
+  }
+
+  
   private JButton buildRemoveCapabilityButton() {
-    removeCapabilityButton = new JButton("Remove");
+    removeCapabilityButton = new JButton("Remove Capability");
     removeCapabilityButton.setMnemonic(KeyEvent.VK_R);
     return removeCapabilityButton;
   }
