@@ -100,6 +100,14 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
     labelField = new JFormattedSafeXMLCharacterField(15);
 
     labelField.setToolTipText(" Enter a label to go under this net element. ");
+    labelField.addActionListener(
+      new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          getDoneButton().doClick();
+        }
+      }
+    );
+    
     return labelField;
   }
 
