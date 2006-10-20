@@ -49,6 +49,5 @@ public class PalettePopupMenu extends JPopupMenu {
     add(new FlowRelationAction());
     add(new MarqueeAction());
     add(new NetDragAction());
-
   }
 }

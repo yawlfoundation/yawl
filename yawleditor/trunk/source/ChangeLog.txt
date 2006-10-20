@@ -2,6 +2,8 @@ Version 1.4.4 (??/??/??) "blah"
   * Now, when a user selects a single task, the palette menu expands to allow the use to modify the
     split and join decorators for the task, without having to go to the popup menu for the task.
   * Fixed a bug where a graph that was scaled would stop the user from being able to draw flows between elements.
+  * Now, on the label Element dialog, hitting enter in the label field will do the same as pressing the done button. 
+    This is a user convenience for quickly making label changes.
   * The upgrade to 5.9.2 of JGraph broke certain cut and paste behaviour.  This is now fixed to work with the 
     latest JGraph.
 
