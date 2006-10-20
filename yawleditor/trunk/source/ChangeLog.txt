@@ -1,4 +1,4 @@
-Version 1.4.4 (??/??/??) "blah"
+Version 1.4.4 (??/??/??) "Wiggles"
   * Now, when a user selects a single task, the palette menu expands to allow the use to modify the
     split and join decorators for the task, without having to go to the popup menu for the task.
   * Fixed a bug where a graph that was scaled would stop the user from being able to draw flows between elements.
