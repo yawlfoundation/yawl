@@ -228,7 +228,7 @@ public final class NetUtilities {
    * This should only be called by the PasteAction class as a cleanup. Trying to 
    * pre-emptively stop invalid flows from being copied/cut/deleted is simply too hard to implement
    * without significant changes to JGraph.  Instead, we allow all flows to be copied/cut, and
-   * then trim out those that no longer have a source or target port on the paste action.
+   * then trim out those that no longer have a valid source or target port on the paste action.
    * @param net
    * @return Object[] a set of objects that are not copyable.
    */
@@ -239,7 +239,7 @@ public final class NetUtilities {
     for(int i = 0; i < flows.length; i++) {
       if (flows[i] instanceof YAWLFlowRelation) {
         YAWLFlowRelation flow = (YAWLFlowRelation) flows[i];
-        if (flow.isBroken()) {
+        if (!net.contains(flow.getSource()) || !net.contains(flow.getTarget())) {
           illegalFlows.add(flow);
         }
       }

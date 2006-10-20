@@ -22,6 +22,7 @@
 
 package au.edu.qut.yawl.editor.net;
 
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.Set;
@@ -196,21 +197,22 @@ public class NetGraphModel extends DefaultGraphModel {
   }
 
   public Map cloneCells(Object[] cells) {
-    Object[] clones = new Object[cells.length];
+    LinkedList clones = new LinkedList();
+    
     int j = 0; 
       
     for(int i = 0; i < cells.length ; i++) {
       if (cells[i] instanceof YAWLVertex) {
         YAWLVertex element = (YAWLVertex) cells[i];
         if (element.isCopyable()) {
-          clones[j++] = cells[i];          
+          clones.add(cells[i]);
         }
       } else {
-        clones[j++] = cells[i];          
+        clones.add(cells[i]);
       }
     }
     
-    Map clonedCells = super.cloneCells(clones);
+    Map clonedCells = super.cloneCells(clones.toArray());
     return clonedCells;
   }
   
