@@ -128,7 +128,8 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	private Session openSession() throws HibernateException {
 		if (sessionFactory==null) {
 			initializeSessions();
-		} if (session==null) {
+		} 
+		if (session==null || !session.isOpen()) {
 			session = sessionFactory.openSession();
 		}
 		return session;
