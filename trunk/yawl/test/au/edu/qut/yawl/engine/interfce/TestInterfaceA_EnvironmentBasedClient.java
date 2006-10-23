@@ -91,11 +91,13 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 		try {
 			String sessionHandle = aConnectionHandle;
 			String text = readFileAsString("exampleSpecs/xml/Maketrip1.xml");
-			String result = iaClient.uploadSpecification(text, "Maketrip1.xml", sessionHandle);
+			String result0 = iaClient.unloadSpecification("Maketrip1.xml", sessionHandle);
+//			String result = iaClient.uploadSpecification(text, "Maketrip1.xml", sessionHandle);
 			String result2 = iaClient.unloadSpecification("Maketrip1.xml", sessionHandle);
-			System.out.println(result);
+			System.out.println(result0);
+//			System.out.println(result);
 			System.out.println(result2);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			fail(e.getMessage());
 		}
 	}
