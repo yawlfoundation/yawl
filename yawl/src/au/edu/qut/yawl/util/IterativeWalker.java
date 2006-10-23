@@ -3,6 +3,12 @@ package au.edu.qut.yawl.util;
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * not yet used but purpose is to provide framework for walking over sets of things...
+ * 
+ * @author matthew sandoz
+ *
+ */
 public abstract class IterativeWalker {
 
 	public void visit(Collection startToVisit, Collection startVisited) {
