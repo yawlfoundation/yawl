@@ -265,7 +265,7 @@ hibernate.proxool.pool_alias pool1
 ## Enable automatic flush during the JTA beforeCompletion() callback
 ## (This setting is relevant with or without the Transaction API)
 
-#hibernate.transaction.flush_before_completion
+hibernate.transaction.flush_before_completion
 
 
 ## Enable automatic session close at the end of transaction
@@ -327,7 +327,7 @@ hibernate.format_sql true
 
 #hibernate.hbm2ddl.auto create-drop
 #hibernate.hbm2ddl.auto create
-#hibernate.hbm2ddl.auto update
+hibernate.hbm2ddl.auto update
 #hibernate.hbm2ddl.auto validate
 
 

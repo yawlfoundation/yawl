@@ -106,10 +106,13 @@
     <property name="dispatchers">
         <list>
             <ref bean="HibernateEventDispatcher"/>
+            <ref bean="JMSEventDispatcher"/>
         </list>
     </property>
 </bean>
 <bean id="HibernateEventDispatcher" class="au.edu.qut.yawl.events.HibernateEventDispatcher">
+</bean>
+<bean id="JMSEventDispatcher" class="au.edu.qut.yawl.events.JMSEventDispatcher">
 </bean>
 
 

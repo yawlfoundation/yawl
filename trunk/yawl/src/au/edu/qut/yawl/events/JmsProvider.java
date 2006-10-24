@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Hashtable;
 import java.util.ResourceBundle;
 
 import javax.jms.Connection;
@@ -32,6 +33,7 @@ import org.exolab.jms.config.ConfigurationManager;
 import org.exolab.jms.config.ConfigurationReader;
 import org.exolab.jms.config.LoggerConfiguration;
 import org.exolab.jms.server.JmsServer;
+import org.exolab.jms.server.ServerException;
 import org.exolab.jms.service.ServiceException;
 
 public class JmsProvider {
@@ -67,8 +69,16 @@ public class JmsProvider {
 	private JmsProvider() {
 		try {
 			bundle = ResourceBundle.getBundle("jndi");
+
 			initServer();
-			context = new InitialContext();
+
+			Hashtable properties = new Hashtable();
+			properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.exolab.jms.jndi.InitialContextFactory");
+			properties.put(Context.PROVIDER_URL, "tcp://localhost:3035/");
+
+			context = new InitialContext(properties);			
+			
+//			context = new InitialContext();
 			connection = getConnection(context);
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		} catch (Exception e) {
@@ -91,9 +101,19 @@ public class JmsProvider {
 		Configuration config = null;
 		config = ConfigurationReader.read(this.getClass().getResourceAsStream(
 				"/openjms.xml"));
-		config.getLoggerConfiguration().setFile(
-				this.getClass().getResource("/log4j.xml").getPath());
-		server = new JmsServer(config);
+//		config.getLoggerConfiguration().setFile(
+//				this.getClass().getResource("/log4j.properties").getPath());
+		server = new JmsServer(config) {
+		    public void init() throws NamingException, ServiceException {
+		    	try {
+		    		registerServices();
+		    		getServices().start();
+		    	} catch (ServiceException exception) {
+		    		throw new ServerException(
+		    				"Failed to start services", exception);
+		    		}
+		    	}			
+			};
 		server.init();
 	}
 
