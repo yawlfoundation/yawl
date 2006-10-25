@@ -41,7 +41,7 @@ public class JmsProviderTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		receiveCount = 0;
-//		provider = JmsProvider.getInstance();
+		provider = JmsProvider.getInstance();
 		context = new InitialContext();
 		connection = getConnection(context);
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -54,7 +54,7 @@ public class JmsProviderTest extends TestCase {
 
 	public void testProvider() {
 		try {
-//			send();
+			send();
 			synchronized(lock) {lock.wait(2000);}
 			assertEquals(1, receiveCount);
 		} catch (Exception e) {
@@ -65,10 +65,10 @@ public class JmsProviderTest extends TestCase {
 	}
 
 	public void testJMSEventDispatcher() {
-//		JMSEventDispatcher ed = new JMSEventDispatcher();
+		JMSEventDispatcher ed = new JMSEventDispatcher();
 		try {
 			createMessageListener();
-//		ed.fireEvent(createEvent());
+		ed.fireEvent(createEvent());
 		synchronized(lock) {lock.wait(2000);}
 		assertEquals(1, receiveCount);
 		} catch (Exception e) {
