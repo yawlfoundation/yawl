@@ -9,7 +9,13 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
-import au.edu.qut.yawl.exceptions.YPersistenceException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.rmi.RemoteException;
+import java.util.Enumeration;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -18,13 +24,10 @@ import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.rmi.RemoteException;
-import java.util.Enumeration;
-import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
+
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 
 /**
@@ -138,17 +141,6 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                             + request.getParameter(name));
                 }
             }
-            StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
-            String secondLastPartOfPath = null;
-            String lastPartOfPath = null;
-            String temp = null;
-            while (tokens.hasMoreTokens()) {
-                secondLastPartOfPath = temp;
-                temp = tokens.nextToken();
-                if (!tokens.hasMoreTokens()) {
-                    lastPartOfPath = temp;
-                }
-            }
             //if parameters exist do the while
             String sessionHandle = request.getParameter("sessionHandle");
             String action = request.getParameter("action");
@@ -163,7 +155,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.getYAWLServices(sessionHandle));
                 }
             }
-            String specid = request.getParameter("specid");
+            String specid = request.getParameter("specID");
             if (specid != null) {
                 msg.append(_engine.getProcessDefinition(specid, sessionHandle));
             }
@@ -197,27 +189,16 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                             + request.getParameter(name));
                 }
             }
-            StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
-            String secondLastPartOfPath = null;
-            String lastPartOfPath = null;
-            String temp = null;
-            while (tokens.hasMoreTokens()) {
-                secondLastPartOfPath = temp;
-                temp = tokens.nextToken();
-                if (!tokens.hasMoreTokens()) {
-                    lastPartOfPath = temp;
-                }
-            }
             //if parameters exist do the while
             String sessionHandle = request.getParameter("sessionHandle");
             String action = request.getParameter("action");
-            if (lastPartOfPath.equals("connect")) {
-                String userID = request.getParameter("userid");
-                String password = request.getParameter("password");
-                msg.append(_engine.connect(userID, password));
-            }
             if (action != null) {
-                if ("createUser".equals(action) || "createAdmin".equals(action)) {
+            	if ("connect".equals(action)) {
+            		String userID = request.getParameter("userid");
+                    String password = request.getParameter("password");
+                    msg.append(_engine.connect(userID, password));
+            	}
+            	else if ("createUser".equals(action) || "createAdmin".equals(action)) {
                     String userName = request.getParameter("userName");
                     String password = request.getParameter("password");
                     boolean isAdmin;
@@ -239,31 +220,44 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 } else if ("removeYAWLService".equals(action)) {
                     String serviceURI = request.getParameter("serviceURI");
                     msg.append(_engine.removeYAWLService(serviceURI, sessionHandle));
+                } else if ("unload".equals(action)) {
+                	String specID = request.getParameter( "specID" );
+                	msg.append( _engine.unloadSpecification( specID, sessionHandle ) );
+                } else if ("upload".equals(action)) {
+                    String fileName = request.getParameter("filename");
+                    String specification = request.getParameter( "specification" );
+                    msg.append(_engine.loadSpecification(
+                            specification.toString(),
+                            fileName,
+                            sessionHandle));
+                } else {
+                	msg.append( "<failure><reason>unrecognized action:" + action + "</reason></failure>" );
                 }
-                if ("specID".equals(secondLastPartOfPath)) {
-                    if ("unload".equals(action)) {
-                        String specID = lastPartOfPath;
-                        msg.append(_engine.unloadSpecification(specID, sessionHandle));
-                    }
+            } else {
+            	System.out.println("\nInterfaceA_EngineBasedServer::doPost() request.getRequestURL = "
+                        + request.getRequestURL());
+                System.out.println("InterfaceA_EngineBasedServer::doPost() request.parameters:");
+                Enumeration paramNms = request.getParameterNames();
+                while (paramNms.hasMoreElements()) {
+                    String name = (String) paramNms.nextElement();
+                    System.out.println("\trequest.getParameter(" + name + ") = "
+                            + request.getParameter(name));
                 }
-            }
-            if (lastPartOfPath.equals("uploader")) {
-                sessionHandle = request.getHeader("YAWLSessionHandle");
-                String fileName = request.getHeader("filename");
-                StringBuffer specification = new StringBuffer();
-                ServletInputStream in = request.getInputStream();
-                int i = in.read();
-                while (i != -1) {
-                    specification.append((char) i);
-                    i = in.read();
-                }
-                msg.append(_engine.loadSpecification(
-                        specification.toString(),
-                        fileName,
-                        sessionHandle));
+            	msg.append( "<failure><reason>No action was specified</reason></failure>" );
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	StringWriter sw = new StringWriter();
+            e.printStackTrace( new PrintWriter( sw ) );
+            try {
+				msg.append(
+						"<failure><reason>" +
+						URLEncoder.encode( sw.toString(), "UTF-8" ) +
+						"</reason></failure>" );
+			}
+			catch( UnsupportedEncodingException e1 ) {
+				// shouldn't ever happen
+				throw new Error( e );
+			}
         }
         if (msg.length() == 0) {
             msg.append(

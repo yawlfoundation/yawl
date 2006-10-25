@@ -199,8 +199,13 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("HANDLE ENABLED WORKITEM EVENT") ;        // note to log
 
         if (connected()) {
-             _log.info("Connection to engine is active") ;
-            handleWorkletSelection(workItemRecord) ;
+             _log.info("Connection to engine is active");
+            try {
+				handleWorkletSelection(workItemRecord) ;
+			}
+			catch( IOException e ) {
+				throw new RuntimeException( e );
+			}
         }
         else _log.error("Could not connect to YAWL engine") ;
     }
@@ -358,7 +363,7 @@ public class WorkletService extends InterfaceBWebsideController {
     /** Attempt to substitute the enabled workitem with a worklet
      *  @param wir - the enabled workitem record
      */
-    private void handleWorkletSelection(WorkItemRecord wir) {
+    private void handleWorkletSelection(WorkItemRecord wir) throws IOException {
 
          String specId = wir.getSpecificationID() ;       // info about item
         String taskId = getDecompID(wir) ;
@@ -479,7 +484,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @param coChild - the info record of the checked out workitem 
      */
     private void ProcessWorkItemSubstitution(RdrTree tree,
-                                             CheckedOutChildItem coChild) {
+                                             CheckedOutChildItem coChild) throws IOException {
 
        String childId = coChild.getItem().getID() ;
 
@@ -685,7 +690,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @param workletName - the name of the worklet specification to upoad
      *  @return true if upload is successful or spec is already loaded
      */
-    protected boolean uploadWorklet(String workletName) {
+    protected boolean uploadWorklet(String workletName) throws IOException {
 
         String fileName = workletName + ".xml" ;
         String fullFileName = _workletsDir + fileName ;
@@ -775,7 +780,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @return a string of messages decribing the success or otherwise of
      *          the process
      */
-       public String replaceWorklet(String itemid) {
+       public String replaceWorklet(String itemid) throws IOException {
 
          String caseid ;
            String result = "Locating workitem '" + itemid +

@@ -480,7 +480,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @param runner the HandlerRunner for this exception handling process
      * @return true if ok for processing to continue
      */
-     private boolean doAction(HandlerRunner runner){
+     private boolean doAction(HandlerRunner runner) {
          String action = runner.getNextAction();
          String target = runner.getNextTarget();
 
@@ -525,6 +525,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
              // launch & run compensatory worklet
              String workletName = runner.getNextTarget();
              runner.setWorkletName(workletName);
+             try {
              if (uploadWorklet(workletName)) {
                  String caseID = launchWorklet(runner, false) ;
                  if (caseID != null) {
@@ -534,6 +535,10 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                  }
                  else _log.error("Unable to load compensatory worklet, will ignore: " +
                                   workletName);
+             }
+             }
+             catch( Throwable t ) {
+            	 
              }
          }
          else if (action.equalsIgnoreCase("rollback")) {

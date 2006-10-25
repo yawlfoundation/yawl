@@ -9,8 +9,17 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
-import au.edu.qut.yawl.authentication.User;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -18,11 +27,8 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
+import au.edu.qut.yawl.authentication.User;
+import au.edu.qut.yawl.elements.YAWLServiceReference;
 
 /**
  /**
@@ -107,7 +113,8 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         Map queryMap = new HashMap();
         queryMap.put("userid", userID);
         queryMap.put("password", password);
-        return executePost(_backEndURIStr + "/connect", queryMap);
+        queryMap.put( "action", "connect" );
+        return executePost(_backEndURIStr, queryMap);
     }
 
 
@@ -187,53 +194,25 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @param sessionHandle
      * @return a result message indicting failure/success and some diagnostics
      */
-    public String uploadSpecification(String specification, String filename, String sessionHandle) {
-        return executeUpload(_backEndURIStr + "/uploader", specification, filename, sessionHandle);
+    public String uploadSpecification(String specification, String filename, String sessionHandle) throws IOException {
+        return executeUpload(specification, filename, sessionHandle);
     }
-
-    private String executeUpload(String urlStr, String specification, String filename, String sessionHandle) {
-        StringBuffer result = new StringBuffer();
-        try {
-            URL url = new URL(urlStr);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("YAWLSessionHandle", sessionHandle);
-            connection.setRequestProperty("filename", filename);
-            connection.setRequestProperty("Content-Type", "text/xml");
-
-            //send query
-            PrintWriter out = new PrintWriter(connection.getOutputStream());
-            out.print(specification);
-            out.flush();
-
-            //retrieve reply
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream()));
-            String inputLine;
-            String newline = System.getProperty("line.separator");
-            while ((inputLine = in.readLine()) != null) {
-                result.append(inputLine).append(newline);
-            }
-            //clean up
-            in.close();
-            out.close();
-            connection.disconnect();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            InterfaceBWebsideController.logContactError(e, _backEndURIStr);
-        }
-        String msg = result.toString();
-        return stripOuterElement(msg);
+    
+    private String executeUpload(String specification, String filename, String sessionHandle) throws IOException {
+    	Map params = new HashMap();
+    	params.put( "action", "upload" );
+    	params.put( "sessionHandle", sessionHandle );
+    	params.put( "filename", filename );
+    	params.put( "specification", specification );
+    	return executePost(_backEndURIStr, params);
     }
 
     public String unloadSpecification(String specID, String sessionHandle) throws IOException {
         Map params = new HashMap();
         params.put("action", "unload");
         params.put("sessionHandle", sessionHandle);
-        return executePost(_backEndURIStr + "/specID/" + specID, params);
+        params.put("specID", specID);
+        return executePost(_backEndURIStr, params);
     }
 
 
