@@ -6,6 +6,8 @@ Version 1.4.4 (??/??/??) "Wiggles"
     This is a user convenience for quickly making label changes.
   * The upgrade to 5.9.2 of JGraph broke certain cut and paste behaviour.  This is now fixed to work with the 
     latest JGraph.
+  * Altered how text is positioned with respect to the graphs upon export to PNG, JPG and print jobs.  The text
+    should now appear above the graph without writing over the top of it.
 
 Version 1.4.3 (25/08/2006) "Deltapoint"
   * There is now a new palette menu item allowing users to drag the visible window of a 
