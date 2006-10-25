@@ -18,6 +18,7 @@ import au.edu.qut.yawl.elements.ElementsTestSuite;
 import au.edu.qut.yawl.elements.data.DataTestSuite;
 import au.edu.qut.yawl.elements.state.StateTestSuite;
 import au.edu.qut.yawl.engine.EngineTestSuite;
+import au.edu.qut.yawl.events.EventsTestSuite;
 import au.edu.qut.yawl.exceptions.ExceptionTestSuite;
 import au.edu.qut.yawl.logging.LoggingTestSuite;
 import au.edu.qut.yawl.persistence.PersistenceTestSuite;
@@ -60,6 +61,7 @@ public class TestAllYAWLSuites extends TestSuite{
         suite.addTest(DataTestSuite.suite());
         suite.addTest(StateTestSuite.suite());
         suite.addTest(EngineTestSuite.suite());
+        suite.addTest(EventsTestSuite.suite());
         suite.addTest(ExceptionTestSuite.suite());
         suite.addTest(LoggingTestSuite.suite());
         suite.addTest(PersistenceTestSuite.suite());

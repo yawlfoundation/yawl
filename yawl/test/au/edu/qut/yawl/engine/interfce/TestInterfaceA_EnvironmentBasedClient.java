@@ -10,23 +10,34 @@ import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
 
+/**
+ * this test will self-skip if theres no local yawl server running 
+ * 
+ * @author SandozM
+ *
+ */
 public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 
+	private static final String SUCCESS = "<success/>";
 	private InterfaceA_EnvironmentBasedClient iaClient;
 	private InterfaceB_EnvironmentBasedClient ibClient;
 	private String aConnectionHandle;
 	private String bConnectionHandle;
+	private String text;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
+		text = readFileAsString("exampleSpecs/xml/MakeRecordings(Beta4).xml");
 	    iaClient = new InterfaceA_EnvironmentBasedClient("http://localhost:8080/yawl/ia");
 	    ibClient = new InterfaceB_EnvironmentBasedClient("http://localhost:8080/yawl/ib");
 	    aConnectionHandle = getAConnectionHandle();
 	    bConnectionHandle = getBConnectionHandle();
+		String result = iaClient.unloadSpecification("MakeRecordings", aConnectionHandle);
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		String result = iaClient.unloadSpecification("MakeRecordings", aConnectionHandle);
 		iaClient = null;
 		ibClient = null;
 	}
@@ -59,55 +70,57 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 		try {
 			getAConnectionHandle();
 		} catch (IOException e) {
-			fail(e.getMessage());
+			System.out.println("Couldnt connect...");
 		}
 	}
 
-	public void testGetRegisteredYAWLServices() {
-		String sessionHandle = aConnectionHandle;
-		Set result = iaClient.getRegisteredYAWLServices(sessionHandle);
-		for (Object thing: result) {
-			System.out.println(thing);
-		}
-	}
-
-	public void testSetYAWLService() {
-		String sessionHandle = aConnectionHandle;
+	public void testSetYAWLServiceLifecycle() {
 		YAWLServiceGateway gateway = new YAWLServiceGateway("april", new YSpecification("bobo"));
-		YAWLServiceReference ref = new YAWLServiceReference("http://www.xyz.com/april", gateway);
+		String refName = "http://www.xyz.com/" + System.currentTimeMillis();
+		YAWLServiceReference ref = new YAWLServiceReference(refName, gateway);
 		try {
-			String result = iaClient.setYAWLService(ref, sessionHandle);
-			System.out.println(result);
+			String result1 = iaClient.setYAWLService(ref, aConnectionHandle);
+			Set result = iaClient.getRegisteredYAWLServices(aConnectionHandle);
+			boolean found = false;
+			for (Object thing: result) {
+				if ((((YAWLServiceReference) thing).getURI().equals(refName))) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {fail("Should have been able to find service reference " + refName);}
+			String result2 = iaClient.removeYAWLService(refName, aConnectionHandle);
+			assertEquals(SUCCESS, result1);
+			assertEquals(SUCCESS, result2);
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}
 	}
 
-	public void testRemoveYAWLService() {
-		fail("Not yet implemented");
-	}
-
-	public void testUploadUnloadSpecification() {
+	public void testUploadSpecification() {
 		try {
-			String sessionHandle = aConnectionHandle;
-			String text = readFileAsString("exampleSpecs/xml/Maketrip1.xml");
-			String result0 = iaClient.unloadSpecification("Maketrip1.xml", sessionHandle);
-//			String result = iaClient.uploadSpecification(text, "Maketrip1.xml", sessionHandle);
-			String result2 = iaClient.unloadSpecification("Maketrip1.xml", sessionHandle);
-			System.out.println(result0);
-//			System.out.println(result);
-			System.out.println(result2);
+			//next line is cleanup - dont check its state...
+			String result = iaClient.uploadSpecification(text, "MakeRecordings", aConnectionHandle);
+			assertEquals(SUCCESS, result);
 		} catch (Exception e) {
-			fail(e.getMessage());
+			System.out.println("Couldnt connect...");
 		}
 	}
 
-	public void test() {
-//		try {
-//			String result = ibClient.launchCase("Maketrip1.xml", "", bConnectionHandle);
-//			System.out.println(result);
-//		} catch (IOException e) {
-//			fail(e.getMessage());
-//		}
+	public void testLaunchCase() {
+		try {
+			String sessionHandle = bConnectionHandle;
+			String result = iaClient.uploadSpecification(text, "MakeRecordings", sessionHandle);
+			String results = ibClient.launchCase("MakeRecordings", "", bConnectionHandle);
+			System.out.println("Launch test:" + results);
+			String fin = ibClient.cancelCase(results, bConnectionHandle);
+			System.out.println(result);
+			System.out.println(results);
+			System.out.println(fin);
+			assertEquals(SUCCESS, result);
+			assertEquals(SUCCESS, fin);
+		} catch (IOException e) {
+			System.out.println("Couldnt connect...");
+		}
 	}
 }
