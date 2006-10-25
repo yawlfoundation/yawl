@@ -67,10 +67,14 @@ public class JmsProvider {
 	Session session;
 
 	private JmsProvider() {
-		try {
 			bundle = ResourceBundle.getBundle("jndi");
 
-			initServer();
+			try {
+				initServer();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			try {
 
 			Hashtable properties = new Hashtable();
 			properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.exolab.jms.jndi.InitialContextFactory");
