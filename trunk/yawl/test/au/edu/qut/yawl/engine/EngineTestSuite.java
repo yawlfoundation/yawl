@@ -19,6 +19,7 @@ import au.edu.qut.yawl.engine.interfce.TestEngineGateway;
 import au.edu.qut.yawl.engine.interfce.TestEngineGatewaySpecifications;
 import au.edu.qut.yawl.engine.interfce.TestEngineGatewayUserFunctionality;
 import au.edu.qut.yawl.engine.interfce.TestEngineGatewayYAWLServices;
+import au.edu.qut.yawl.engine.interfce.TestInterfaceA_EnvironmentBasedClient;
 
 /**
  * 
@@ -58,6 +59,8 @@ public class EngineTestSuite extends TestCase{
         suite.addTestSuite(TestYWorkItem.class);
         suite.addTestSuite(TestYWorkItemID.class);
         suite.addTestSuite(TestYWorkItemRepository.class);
+        suite.addTestSuite(TestInterfaceA_EnvironmentBasedClient.class);
+      
         return suite;
     }
 

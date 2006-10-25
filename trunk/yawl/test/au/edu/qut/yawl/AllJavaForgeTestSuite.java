@@ -14,6 +14,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
+import au.edu.qut.yawl.events.EventsTestSuite;
 import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.engine.EngineFactory;
 
@@ -60,6 +61,7 @@ public class AllJavaForgeTestSuite extends TestSuite{
         suite.addTest(DataTestSuite.suite());
         suite.addTest(StateTestSuite.suite());
         suite.addTest(EngineTestSuite.suite());
+        suite.addTest(EventsTestSuite.suite());
         suite.addTest(ExceptionTestSuite.suite());
         suite.addTest(LoggingTestSuite.suite());
         //suite.addTest(PersistenceTestSuite.suite());
