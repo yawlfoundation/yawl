@@ -86,42 +86,46 @@ public class NetPrintUtilities {
     Object[] cells = net.getRoots();
 
     Rectangle2D bounds = net.getCellBounds(cells);
-    net.toScreen(bounds);
 
     Dimension d = bounds.getBounds().getSize();
+
+    String printoutLabel = "Specification ID: " + SpecificationModel.getInstance().getId() + ", Net ID:  " + net.getName();
+
+    int characterHeight = net.getFontMetrics(net.getFont()).getHeight();
+
     BufferedImage image =
       new BufferedImage(
         d.width  + imageBuffer*2,
-        d.height + imageBuffer*2,
+        d.height + imageBuffer*2 + characterHeight,
         BufferedImage.TYPE_INT_RGB);
 
     Graphics2D graphics = image.createGraphics();
 
-
     graphics.setColor(net.getBackground());
     graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
 
-    graphics.translate(-bounds.getX() + imageBuffer, 
-                       -bounds.getY() + imageBuffer);
-
-    PrettyOutputStateManager stateManager = 
-      new PrettyOutputStateManager(net);
-      
-    stateManager.makeGraphOutputReady();
-    net.paint(graphics);
-    stateManager.revertNetGraphToPreviousState();
-
-    String printoutLabel = "Specification ID: " + SpecificationModel.getInstance().getId() + ", Net ID:  " + net.getName();
 
     graphics.setColor(Color.BLACK);
     graphics.setFont(net.getFont());
     
+    // Note: drawing a string, the coordinates are the _bottom, left_ of the string. We
+    // must cater for the height of the string in its coordinates.
+    
     graphics.drawString(
         printoutLabel,
-        (int) bounds.getX() + imageBuffer, 
-        (int) bounds.getY() + graphics.getFontMetrics(net.getFont()).getHeight()
+        imageBuffer, 
+        imageBuffer/4 + characterHeight
     );
     
+    PrettyOutputStateManager stateManager = 
+      new PrettyOutputStateManager(net);
+      
+    stateManager.makeGraphOutputReady();
+    
+    graphics.drawImage(net.getImage(Color.WHITE,0),imageBuffer, imageBuffer + characterHeight, null);
+
+    stateManager.revertNetGraphToPreviousState();
+
     return image;
   }
   
