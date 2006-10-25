@@ -384,7 +384,7 @@ public class WorklistController extends InterfaceBWebsideController {
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(backEndURI);
     }
 
-    public String uploadSpecification(String specification, String filename, String sessionHandle) {
+    public String uploadSpecification(String specification, String filename, String sessionHandle) throws IOException {
         return _interfaceAClient.uploadSpecification(specification, filename, sessionHandle);
     }
 
