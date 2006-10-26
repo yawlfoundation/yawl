@@ -82,7 +82,7 @@ It must be 5:00 PM, so it's time for the quotes of the day - enjoy...
 			<localVariable>
 				<name>two__toAddress</name>
 				<isUntyped/>
-				<initialValue>text::nathan.rose@ichotelsgroup.com</initialValue>
+				<initialValue>text::matthew.sandoz@ichotelsgroup.com</initialValue>
 			</localVariable>
 			<localVariable>
 				<name>two__fromAddress</name>

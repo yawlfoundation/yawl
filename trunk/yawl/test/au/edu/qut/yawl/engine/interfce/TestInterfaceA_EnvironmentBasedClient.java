@@ -18,6 +18,7 @@ import au.edu.qut.yawl.elements.YSpecification;
  */
 public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 
+	private static final String MAKE_RECORDINGS = "JythonSpecJaxb4.xml";
 	private static final String SUCCESS = "<success/>";
 	private InterfaceA_EnvironmentBasedClient iaClient;
 	private InterfaceB_EnvironmentBasedClient ibClient;
@@ -27,17 +28,17 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		text = readFileAsString("exampleSpecs/xml/MakeRecordings(Beta4).xml");
+		text = readFileAsString("exampleSpecs/xml/JythonSpecJaxb4.xml");
 	    iaClient = new InterfaceA_EnvironmentBasedClient("http://localhost:8080/yawl/ia");
 	    ibClient = new InterfaceB_EnvironmentBasedClient("http://localhost:8080/yawl/ib");
 	    aConnectionHandle = getAConnectionHandle();
 	    bConnectionHandle = getBConnectionHandle();
-		String result = iaClient.unloadSpecification("MakeRecordings", aConnectionHandle);
+		String result = iaClient.unloadSpecification(MAKE_RECORDINGS, aConnectionHandle);
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		String result = iaClient.unloadSpecification("MakeRecordings", aConnectionHandle);
+		String result = iaClient.unloadSpecification(MAKE_RECORDINGS, aConnectionHandle);
 		iaClient = null;
 		ibClient = null;
 	}
@@ -100,7 +101,7 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 	public void testUploadSpecification() {
 		try {
 			//next line is cleanup - dont check its state...
-			String result = iaClient.uploadSpecification(text, "MakeRecordings", aConnectionHandle);
+			String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, aConnectionHandle);
 			assertEquals(SUCCESS, result);
 		} catch (Exception e) {
 			System.out.println("Couldnt connect...");
@@ -110,15 +111,18 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 	public void testLaunchCase() {
 		try {
 			String sessionHandle = bConnectionHandle;
-			String result = iaClient.uploadSpecification(text, "MakeRecordings", sessionHandle);
-			String results = ibClient.launchCase("MakeRecordings", "", bConnectionHandle);
+			String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, sessionHandle);
+			String results = ibClient.launchCase(MAKE_RECORDINGS, "", bConnectionHandle);
 			System.out.println("Launch test:" + results);
-			String fin = ibClient.cancelCase(results, bConnectionHandle);
-			System.out.println(result);
-			System.out.println(results);
-			System.out.println(fin);
+			try {
+				Thread.sleep(15000);
+			} catch (InterruptedException e) {}
+//			String fin = ibClient.cancelCase(results, bConnectionHandle);
+//			System.out.println(result);
+//			System.out.println(results);
+//			System.out.println(fin);
 			assertEquals(SUCCESS, result);
-			assertEquals(SUCCESS, fin);
+//			assertEquals(SUCCESS, fin);
 		} catch (IOException e) {
 			System.out.println("Couldnt connect...");
 		}

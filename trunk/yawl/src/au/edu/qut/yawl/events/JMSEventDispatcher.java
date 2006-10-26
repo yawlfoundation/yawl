@@ -1,6 +1,7 @@
 package au.edu.qut.yawl.events;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,7 +33,11 @@ public class JMSEventDispatcher implements YEventDispatcher {
 					 if (entry.getValue() instanceof Class) {
 							om.setObjectProperty(entry.getKey().toString(), entry
 									.getValue().toString());						 
-					 } else {
+					 }
+					 else if (entry.getValue() instanceof byte[]) {
+						 om.setObjectProperty(entry.getKey().toString(), new String((byte[]) entry.getValue()));
+					 }
+					 else {
 							om.setObjectProperty(entry.getKey().toString(), entry
 									.getValue());
 					 }

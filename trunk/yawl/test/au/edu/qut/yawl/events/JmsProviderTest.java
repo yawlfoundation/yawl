@@ -1,9 +1,6 @@
 package au.edu.qut.yawl.events;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import java.io.Serializable;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -45,6 +42,8 @@ public class JmsProviderTest extends TestCase {
 		context = new InitialContext();
 		connection = getConnection(context);
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+	    connection.start();
+		retrieveAll();
 	}
 
 	protected void tearDown() throws Exception {
@@ -54,8 +53,9 @@ public class JmsProviderTest extends TestCase {
 
 	public void testProvider() {
 		try {
-			send();
-			synchronized(lock) {lock.wait(2000);}
+			send("testProvider");
+			createMessageListener();
+			synchronized(lock) {lock.wait(1000);}
 			assertEquals(1, receiveCount);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -67,25 +67,17 @@ public class JmsProviderTest extends TestCase {
 	public void testJMSEventDispatcher() {
 		JMSEventDispatcher ed = new JMSEventDispatcher();
 		try {
-			createMessageListener();
-		ed.fireEvent(createEvent());
-		synchronized(lock) {lock.wait(2000);}
+		ed.fireEvent("testJMSEventDispatcher");
+		createMessageListener();
+		synchronized(lock) {lock.wait(1000);}
 		assertEquals(1, receiveCount);
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
 	}
 	
-	private YCaseEvent createEvent() {
-        YCaseEvent caseEvent = new YCaseEvent();
-        caseEvent.setCompleted(1);
-        return caseEvent;
-	}
-	
-	private void send() throws Exception {
-		ObjectMessage o = provider.getObjectMessage(createEvent());
-		o.setObjectProperty("completed", 1);
-		createMessageListener();
+	private void send(Serializable s) throws Exception {
+		ObjectMessage o = provider.getObjectMessage(s);
 		provider.sendObjectMessage(o);
     }		
 
@@ -106,14 +98,26 @@ public class JmsProviderTest extends TestCase {
         }
     }
 	
+	private void retrieveAll() throws Exception {
+		Destination dest = (Destination) context.lookup(getContextProperty(JmsProvider.OPENJMS_YAWL_EVENTQUEUE));
+        session = connection.createSession(
+                false, Session.AUTO_ACKNOWLEDGE);
+        MessageConsumer receiver = session.createConsumer(dest);
+        connection.start();
+        Message message = null;
+        do {
+            message = receiver.receive(1000);
+        } while (message != null);	
+	}
+	
 	private void createMessageListener() throws NamingException, JMSException {
 		Destination dest = (Destination) context.lookup(getContextProperty(JmsProvider.OPENJMS_YAWL_EVENTQUEUE));
 	    MessageConsumer receiver = session.createConsumer(dest );
 	    receiver.setMessageListener(new MessageListener() {
 	        public void onMessage(Message message) {
 	        	try {
-					assertTrue(((ObjectMessage)message).getObject().getClass() instanceof Object);
 					message.acknowledge();
+					System.out.println(">>" + ((ObjectMessage)message).getObject().toString());
 					receiveCount++;
 					synchronized(lock) {lock.notify();}
 				} catch (JMSException e) {
@@ -121,7 +125,6 @@ public class JmsProviderTest extends TestCase {
 				}
 	        }
     });
-	    connection.start();
 	}
 
 }
