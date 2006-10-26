@@ -49,6 +49,7 @@ import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
 
 import au.edu.qut.yawl.editor.foundations.ArchivableNetState;
 import au.edu.qut.yawl.editor.foundations.ArchivableSpecificationState;
+import au.edu.qut.yawl.editor.foundations.FileUtilities;
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 import au.edu.qut.yawl.editor.swing.JStatusBar;
 import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
@@ -127,10 +128,17 @@ public class SpecificationArchiveHandler {
     }
     
     JStatusBar.getInstance().updateProgressOverSeconds(2);
-
+    
     try {
+      
+      // We write to a temporary file and then copy to the final file JIC
+      // something goes wrong resulting in a crash. Only the temporary copy will
+      // be in a corrupt state. 
+      
+      File temporarySpec = File.createTempFile("tempYAWLSpecification",null);
+      
       ZipOutputStream outputStream = 
-        new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(fullFileName)));
+        new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temporarySpec.getName())));
       outputStream.putNextEntry(new ZipEntry("specification.xml"));
       XMLEncoder encoder = new XMLEncoder(outputStream);
       encoder.setExceptionListener(new ExceptionListener() {
@@ -142,7 +150,18 @@ public class SpecificationArchiveHandler {
       writeSpecification(encoder);
       encoder.close();
       outputStream.close();
-    } catch (IOException e) {
+      
+      FileUtilities.copy(temporarySpec.getName(), fullFileName);
+      
+      temporarySpec.delete();
+      
+    } catch (Exception e) {
+      JOptionPane.showMessageDialog(
+          YAWLEditor.getInstance(), 
+          "Error discovered whilst writing YAWL Editor save file.\n Save has not been performed.\n",
+          "Editor File Saving Error",
+          JOptionPane.ERROR_MESSAGE
+      );
       e.printStackTrace();
     }
 
