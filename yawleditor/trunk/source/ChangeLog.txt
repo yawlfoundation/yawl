@@ -8,6 +8,8 @@ Version 1.4.4 (??/??/??) "Wiggles"
     latest JGraph.
   * Altered how text is positioned with respect to the graphs upon export to PNG, JPG and print jobs.  The text
     should now appear above the graph without writing over the top of it.
+  * Save files are now saved to a temporary file first and then copied to the final specified file name. If there is
+    an editor crash whilst saving, only the temporary file will be corrupted.
 
 Version 1.4.3 (25/08/2006) "Deltapoint"
   * There is now a new palette menu item allowing users to drag the visible window of a 
