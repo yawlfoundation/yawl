@@ -117,7 +117,7 @@ public class JmsProviderTest extends TestCase {
 	        public void onMessage(Message message) {
 	        	try {
 					message.acknowledge();
-					System.out.println(">>" + ((ObjectMessage)message).getObject().toString());
+//					System.out.println(">>" + ((ObjectMessage)message).getObject().toString());
 					receiveCount++;
 					synchronized(lock) {lock.notify();}
 				} catch (JMSException e) {
