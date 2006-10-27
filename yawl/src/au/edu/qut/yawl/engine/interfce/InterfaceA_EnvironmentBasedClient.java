@@ -11,7 +11,6 @@ package au.edu.qut.yawl.engine.interfce;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,10 +55,10 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
     public String checkConnection(String sessionHandle) {
         try {
-            return executeGet(_backEndURIStr + "?" +
-                    "action=checkConnection" +
-                    "&" +
-                    "sessionHandle=" + sessionHandle);
+        	Map params = new HashMap();
+        	params.put("action", "checkConnection");
+        	params.put("sessionHandle", sessionHandle);
+            return executeGet(_backEndURIStr, params);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -127,10 +126,10 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     public Set getRegisteredYAWLServices(String sessionHandle) {
         Set yawlServices = new HashSet();
         try {
-            String result = executeGet(_backEndURIStr + "?" +
-                    "action=getYAWLServices" +
-                    "&" +
-                    "sessionHandle=" + sessionHandle);
+        	Map params = new HashMap();
+        	params.put("action", "getYAWLServices");
+        	params.put("sessionHandle", sessionHandle);
+            String result = executeGet(_backEndURIStr, params);
             SAXBuilder builder = new SAXBuilder();
             if (result != null && successful(result)) {
                 Document doc = null;
@@ -241,11 +240,10 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     public List getUsers(String sessionHandle) {
         String result = null;
         try {
-            result = executeGet(_backEndURIStr +
-                    "?" +
-                    "action=getUsers" +
-                    "&" +
-                    "sessionHandle=" + sessionHandle);
+        	Map params = new HashMap();
+        	params.put("action", "getUsers");
+        	params.put("sesionHandle", sessionHandle);
+            result = executeGet(_backEndURIStr, params);
         } catch (IOException e) {
             InterfaceBWebsideController.logContactError(e, _backEndURIStr);
         }

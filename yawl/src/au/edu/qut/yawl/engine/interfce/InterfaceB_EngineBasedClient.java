@@ -116,8 +116,9 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
 
         String urlOfYawlService = yawlService.getURI();
 
-        String parametersAsString = Interface_Client.executeGet(
-                urlOfYawlService + "?action=ParameterInfoRequest");
+        Map params = new HashMap();
+        params.put("action", "ParameterInfoRequest");
+        String parametersAsString = Interface_Client.executeGet(urlOfYawlService, params);
         //above should have returned a xml doc containing params descriptions
         //of required params to operate custom service.
         SAXBuilder builder = new SAXBuilder();

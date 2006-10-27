@@ -268,7 +268,10 @@ public class WorklistController extends InterfaceBWebsideController {
             List cases = Marshaller.unmarshalCaseIDs(casesAsXML);
             return cases;
         }
-        return null;
+        else {
+        	System.out.println("Error getting list of cases for spec[" + specID + "], XML:\n" + casesAsXML);
+        }
+        return new ArrayList();
     }
 
     public String getCaseState(String caseID, String sessionHandle) throws IOException {
