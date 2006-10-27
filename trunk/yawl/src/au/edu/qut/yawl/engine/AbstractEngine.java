@@ -1690,8 +1690,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //                pmgr.startTransactionalSession();
 //            }
 
-            try{
-                YIdentifier caseID = startCase(username, specID, caseParams, completionObserver);
+            YIdentifier caseID = startCase(username, specID, caseParams, completionObserver);
 
             if (caseID != null) {
                 caseIDString = caseID.toString();
@@ -1706,17 +1705,6 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //  TODO          if (isJournalising()) {
 //                pmgr.commit();
 //            }
-            } catch (YPersistenceException e) {
-            	throw e;
-            } catch (Exception e) {
-            	StringWriter sw = new StringWriter();
-        		sw.write( e.toString() + "\n" );
-        		e.printStackTrace(new PrintWriter(sw));
-        		System.err.println( sw.toString() );
-//  TODO              if (isJournalising()) {
-//                    pmgr.rollbackTransaction();
-//                }
-            }
             logger.debug("<-- launchCase");
             return caseIDString;
     }

@@ -54,7 +54,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         Map queryMap = new HashMap();
         queryMap.put("userid", userID);
         queryMap.put("password", password);
-        return executePost(_backEndURIStr + "/connect", queryMap);
+        queryMap.put("action", "connect");
+        return executePost(_backEndURIStr, queryMap);
     }
 
 
@@ -70,8 +71,10 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public List getCompleteListOfLiveWorkItems(String sessionHandle) throws IOException, JDOMException {
         String result = null;
 
-        result = executeGet(_backEndURIStr +
-                "?action=verbose&sessionHandle=" + sessionHandle);
+        Map params = new HashMap();
+        params.put("action", "verbose");
+        params.put("sessionHandle", sessionHandle);
+        result = executeGet(_backEndURIStr, params);
 
         SAXBuilder builder = new SAXBuilder();
         List workItems = new ArrayList();
@@ -100,10 +103,10 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public List getSpecificationList(String sessionHandle) throws IOException {
         String result = null;
 
-        result = executeGet(_backEndURIStr +
-                "?action=getSpecificationPrototypesList" +
-                "&" +
-                "sessionHandle=" + sessionHandle);
+        Map params = new HashMap();
+        params.put("action", "getSpecificationPrototypesList");
+        params.put("sessionHandle", sessionHandle);
+        result = executeGet(_backEndURIStr, params);
 
         List specList = Marshaller.unmarshalSpecificationSummary(result);
         return specList;
@@ -119,13 +122,11 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      */
     public String getSpecification(String specID, String sessionHandle) throws IOException {
 
-        return stripOuterElement(executeGet(_backEndURIStr +
-                "?action=getSpecification" +
-                "&" +
-                "specID=" + specID +
-                "&" +
-                "sessionHandle=" + sessionHandle));
-
+    	Map params = new HashMap();
+    	params.put("action", "getSpecification");
+    	params.put("specID", specID);
+    	params.put("sessionHandle", sessionHandle);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
 
@@ -143,7 +144,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         HashMap params = new HashMap();
         params.put("sessionHandle", sessionHandle);
         params.put("action", "checkout");
-        return executePost(_backEndURIStr + "/workItem/" + workItemID, params);
+        params.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -158,14 +160,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      */
     public String getTaskInformationStr(String specificationID, String taskID, String sessionHandle) throws IOException {
         String msg = null;
-        msg = executeGet(
-                _backEndURIStr + "/task/" + taskID +
-                "?" +
-                "action=taskInformation" +
-                "&" +
-                "specID=" + specificationID +
-                "&" +
-                "sessionHandle=" + sessionHandle);
+        Map params = new HashMap();
+        params.put("taskID", taskID);
+        params.put("action", "taskInformation");
+        params.put("specID", specificationID);
+        params.put("sessionHandle", sessionHandle);
+        msg = executeGet(_backEndURIStr, params);
         return msg;
     }
 
@@ -178,11 +178,10 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine cannot be found.
      */
     public String checkConnection(String sessionHandle) throws IOException {
-        return executeGet(_backEndURIStr + "?" +
-                "action=checkConnection" +
-                "&" +
-                "sessionHandle=" + sessionHandle);
-
+    	Map params = new HashMap();
+    	params.put("action", "checkConnection");
+    	params.put("sessionHandle", sessionHandle);
+        return executeGet(_backEndURIStr, params);
     }
 
 
@@ -202,7 +201,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         params.put("sessionHandle", sessionHandle);
         params.put("data", data);
         params.put("action", "checkin");
-        String msg = executePost(_backEndURIStr + "/workItem/" + workItemID, params);
+        params.put("workItemID", workItemID);
+        String msg = executePost(_backEndURIStr, params);
         return msg;
     }
 
@@ -224,11 +224,11 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * for the task.
      */
     public String checkPermissionToAddInstances(String workItemID, String sessionHandle) throws IOException {
-        return executeGet(_backEndURIStr + "/workItem/" + workItemID +
-                "?" +
-                "action=checkAddInstanceEligible" +
-                "&" +
-                "sessionHandle=" + sessionHandle);
+    	Map params = new HashMap();
+    	params.put("workItemID", workItemID);
+    	params.put("action", "checkAddInstanceEligible");
+    	params.put("sessionHandle", sessionHandle);
+        return executeGet(_backEndURIStr, params);
     }
 
 
@@ -247,8 +247,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         paramsMap.put("sessionHandle", sessionHandle);
         paramsMap.put("action", "createInstance");
         paramsMap.put("paramValueForMICreation", paramValueForMICreation);
-        return executePost(_backEndURIStr + "/workItem/" + workItemID,
-                paramsMap);
+        paramsMap.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, paramsMap);
     }
 
 
@@ -263,8 +263,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
          Map paramsMap = new HashMap();
         paramsMap.put("sessionHandle", sessionHandle);
         paramsMap.put("action", "suspend");
-        return executePost(_backEndURIStr + "/workItem/" + workItemID,
-                paramsMap);
+        paramsMap.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, paramsMap);
     }
 
 
@@ -279,8 +279,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         Map paramsMap = new HashMap();
         paramsMap.put("sessionHandle", sessionHandle);
         paramsMap.put("action", "rollback");
-        return executePost(_backEndURIStr + "/workItem/" + workItemID,
-                paramsMap);
+        paramsMap.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, paramsMap);
     }
 
 
@@ -300,14 +300,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine can't be found
      */
     public String launchCase(String specID, String caseParams, String sessionHandle) throws IOException {
-        Map paramsMap = new HashMap();
-        paramsMap.put("sessionHandle", sessionHandle);
-        paramsMap.put("action", "launchCase");
-        if (caseParams != null) {
-            paramsMap.put("caseParams", caseParams);
-        }
-        return executePost(_backEndURIStr + "/specID/" + specID,
-                paramsMap);
+        return launchCase(specID, caseParams, sessionHandle, null);
     }
     
 
@@ -329,12 +322,13 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         Map paramsMap = new HashMap();
         paramsMap.put("sessionHandle", sessionHandle);
         paramsMap.put("action", "launchCase");
+        paramsMap.put("specID", specID);
         if (caseParams != null) 
             paramsMap.put("caseParams", caseParams);
         if (completionObserverURI != null)    
             paramsMap.put("completionObserverURI", completionObserverURI);
 
-        return executePost(_backEndURIStr + "/specID/" + specID, paramsMap);
+        return executePost(_backEndURIStr, paramsMap);
     }
 
 
@@ -348,11 +342,11 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine cannot be found
      */
     public String getCases(String specID, String sessionHandle) throws IOException {
-        return executeGet(_backEndURIStr + "/specID/" + specID +
-                "?" +
-                "action=getCasesForSpecification" +
-                "&" +
-                "sessionHandle=" + sessionHandle);
+    	Map params = new HashMap();
+    	params.put("specID", specID);
+    	params.put("action", "getCasesForSpecification");
+    	params.put("sessionHandle", sessionHandle);
+        return executeGet(_backEndURIStr, params);
     }
 
 
@@ -365,11 +359,11 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine cannot be found
      */
     public String getCaseState(String caseID, String sessionHandle) throws IOException {
-        return stripOuterElement(executeGet(_backEndURIStr + "/caseID/" + caseID +
-                "?" +
-                "action=getState" +
-                "&" +
-                "sessionHandle=" + sessionHandle));
+    	Map params = new HashMap();
+    	params.put("caseID", caseID);
+    	params.put("action", "getState");
+    	params.put("sessionHandle", sessionHandle);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
 
@@ -385,7 +379,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         Map params = new HashMap();
         params.put("action", "cancelCase");
         params.put("sessionHandle", sessionHandle);
-        String result = executePost(_backEndURIStr + "/caseID/" + caseID, params);
+        params.put("caseID", caseID);
+        String result = executePost(_backEndURIStr, params);
         return result;
     }
 
@@ -400,8 +395,11 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public List getChildrenOfWorkItem(String workItemID, String sessionHandle) {
         String result = null;
         try {
-            result = executeGet(_backEndURIStr + "/" + workItemID +
-                    "?action=getChildren&sessionHandle=" + sessionHandle);
+        	Map params = new HashMap();
+        	params.put("action", "getChildren");
+        	params.put("sessionHandle", sessionHandle);
+        	params.put("workItemID", workItemID);
+            result = executeGet(_backEndURIStr, params);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -449,8 +447,10 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     public boolean isAdministrator(String sessionHandle) throws IOException {
-        String result = executeGet(_backEndURIStr +
-                "?action=checkIsAdmin&sessionHandle=" + sessionHandle);
+    	Map params = new HashMap();
+    	params.put("action", "checkIsAdmin");
+    	params.put("sessionHandle", sessionHandle);
+        String result = executeGet(_backEndURIStr, params);
         return result.indexOf("administrator") != -1;
     }
 }

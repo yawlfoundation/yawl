@@ -9,7 +9,12 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
-import au.edu.qut.yawl.exceptions.YPersistenceException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.rmi.RemoteException;
+import java.util.Enumeration;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -17,15 +22,10 @@ import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.rmi.RemoteException;
-import java.util.Enumeration;
-import java.util.StringTokenizer;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.apache.log4j.Logger;
+
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 
 /**
@@ -142,28 +142,18 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                             + request.getParameter(name));
                 }
             }
-            StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
-            String secondLastPartOfPath = null;
-            String lastPartOfPath = null;
-            String temp = null;
-            while (tokens.hasMoreTokens()) {
-                secondLastPartOfPath = temp;
-                temp = tokens.nextToken();
-                if (!tokens.hasMoreTokens()) {
-                    lastPartOfPath = temp;
-                }
-            }
             //if parameters exist do the while
             String sessionHandle = request.getParameter("sessionHandle");
             String action = request.getParameter("action");
+            String workItemID = request.getParameter("workItemID");
+            String specID = request.getParameter("specID");
             if (action != null) {
                 if (action.equals("details")) {
-                    String workItemID = lastPartOfPath;
                     msg.append(_engine.getWorkItemDetails(workItemID, sessionHandle));
                 } else if (action.equals("startOne")) {
                     String userID = request.getParameter("user");
                     if (userID != null && sessionHandle != null) {
-                        msg.append(_engine.startWorkItem(lastPartOfPath, sessionHandle));
+                        msg.append(_engine.startWorkItem(workItemID, sessionHandle));
                     }
                 } else if (action.equals("verbose")) {
                     msg.append(_engine.describeAllWorkItems(sessionHandle));
@@ -171,35 +161,42 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.checkConnection(sessionHandle));
                 } else if (action.equals("taskInformation")) {
                     String specificationID = request.getParameter("specID");
-                    String taskID = lastPartOfPath;
-                    String results = _engine.getTaskInformation(
-                            specificationID, taskID, sessionHandle);
-                    msg.append(results);
+                    String taskID = request.getParameter( "taskID" );
+                    msg.append(_engine.getTaskInformation(specificationID, taskID, sessionHandle));
                 } else if (action.equals("checkAddInstanceEligible")) {
-                    String workItemID = lastPartOfPath;
                     msg.append(_engine.checkElegibilityToAddInstances(
                             workItemID,
                             sessionHandle));
                 } else if (action.equals("getSpecificationPrototypesList")) {
                     msg.append(_engine.getSpecificationList(sessionHandle));
                 } else if (action.equals("getSpecification")) {
-                    String specID = request.getParameter("specID");
                     msg.append(_engine.getProcessDefinition(specID, sessionHandle));
                 } else if (action.equals("getCasesForSpecification")) {
-                    String specID = lastPartOfPath;
                     msg.append(_engine.getCasesForSpecification(specID, sessionHandle));
                 } else if (action.equals("getState")) {
-                    String caseID = lastPartOfPath;
+                    String caseID = request.getParameter( "caseID" );
                     msg.append(_engine.getCaseState(caseID, sessionHandle));
                 } else if (action.equals("getChildren")) {
-                    String workItemID = lastPartOfPath;
                     msg.append(_engine.getChildrenOfWorkItem(workItemID, sessionHandle));
+                } else {
+                	msg.append( "<failure>Unknown action:" + action + "</failure>" );
                 }
-            } else if ("ib".equals(lastPartOfPath)) {
-                msg.append(_engine.getAvailableWorkItemIDs(sessionHandle));
-            } else if ("workItem".equals(secondLastPartOfPath)) {
-                msg.append(_engine.getWorkItemOptions(lastPartOfPath,
-                        request.getRequestURL().toString(), sessionHandle));
+//            } else if ("ib".equals(lastPartOfPath)) {
+//                msg.append(_engine.getAvailableWorkItemIDs(sessionHandle));
+//            } else if ("workItem".equals(secondLastPartOfPath)) {
+//                msg.append(_engine.getWorkItemOptions(lastPartOfPath,
+//                        request.getRequestURL().toString(), sessionHandle));
+            } else {
+            	System.out.println("\nInterfaceB_EngineBasedServer::processGetQuery() request.getRequestURL = "
+                        + request.getRequestURL());
+                System.out.println("InterfaceB_EngineBasedServer::processGetQuery() request.parameters:");
+                Enumeration paramNms = request.getParameterNames();
+                while (paramNms.hasMoreElements()) {
+                    String name = (String) paramNms.nextElement();
+                    System.out.println("\trequest.getParameter(" + name + ") = "
+                            + request.getParameter(name));
+                }
+            	msg.append( "<failure><reason>No action was specified</reason></failure>" );
             }
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -226,51 +223,52 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                             request.getParameter(name));
                 }
             }
-            StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
-            String lastPartOfPath = null;
-            String temp = null;
-            while (tokens.hasMoreTokens()) {
-                temp = tokens.nextToken();
-                if (!tokens.hasMoreTokens()) {
-                    lastPartOfPath = temp;
-                }
-            }
-            if (!"ib".equals(lastPartOfPath)) {
-                if ("connect".equals(lastPartOfPath)) {
+            String sessionHandle = request.getParameter("sessionHandle");
+            String action = request.getParameter("action");
+            String workItemID = request.getParameter("workItemID");
+            if (action != null) {
+                if ("connect".equals(action)) {
                     String userID = request.getParameter("userid");
                     String password = request.getParameter("password");
                     msg.append(_engine.connect(userID, password));
-                } else {
-
-                    String action = request.getParameter("action");
-                    String workItemID = lastPartOfPath;
-                    String sessionHandle = request.getParameter("sessionHandle");
-                    if ("checkout".equals(action)) {
+                } else if ("checkout".equals(action)) {
                         msg.append(_engine.startWorkItem(workItemID, sessionHandle));
-                    } else if (action.equals("checkin")) {
-                        String data = request.getParameter("data");
-                        msg.append(_engine.completeWorkItem(workItemID, data, false, sessionHandle));
-                    } else if (action.equals("createInstance")) {
-                        String paramValueForMICreation =
-                                request.getParameter("paramValueForMICreation");
-                        msg.append(_engine.createNewInstance(
-                                workItemID,
-                                paramValueForMICreation,
-                                sessionHandle));
-                    } else if (action.equals("suspend")) {
-                        msg.append(_engine.suspendWorkItem(workItemID, sessionHandle));
-                    } else if (action.equals("rollback")) {
-                        msg.append(_engine.rollbackWorkItem(workItemID, sessionHandle));
-                    } else if (action.equals("launchCase")) {
-                        String specID = lastPartOfPath;
-                        URI completionObserver = getCompletionObserver(request);
-                        String caseParams = request.getParameter("caseParams");
-                        msg.append(_engine.launchCase(specID, caseParams, completionObserver, sessionHandle));
-                    } else if (action.equals("cancelCase")) {
-                        String caseID = lastPartOfPath;
-                        msg.append(_engine.cancelCase(caseID, sessionHandle));
-                    }
+                } else if (action.equals("checkin")) {
+                    String data = request.getParameter("data");
+                    msg.append(_engine.completeWorkItem(workItemID, data, false, sessionHandle));
+                } else if (action.equals("createInstance")) {
+                    String paramValueForMICreation =
+                            request.getParameter("paramValueForMICreation");
+                    msg.append(_engine.createNewInstance(
+                            workItemID,
+                            paramValueForMICreation,
+                            sessionHandle));
+                } else if (action.equals("suspend")) {
+                    msg.append(_engine.suspendWorkItem(workItemID, sessionHandle));
+                } else if (action.equals("rollback")) {
+                    msg.append(_engine.rollbackWorkItem(workItemID, sessionHandle));
+                } else if (action.equals("launchCase")) {
+                    String specID = request.getParameter("specID");
+                    URI completionObserver = getCompletionObserver(request);
+                    String caseParams = request.getParameter("caseParams");
+                    msg.append(_engine.launchCase(specID, caseParams, completionObserver, sessionHandle));
+                } else if (action.equals("cancelCase")) {
+                    String caseID = request.getParameter("caseID");
+                    msg.append(_engine.cancelCase(caseID, sessionHandle));
+                } else {
+                	msg.append( "<failure><reason>unrecognized action:" + action + "</reason></failure>" );
                 }
+            } else {
+            	System.out.println("\nInterfaceB_EngineBasedServer::doPost() request.getRequestURL = "
+                        + request.getRequestURL());
+                System.out.println("InterfaceB_EngineBasedServer::doPost() request.parameters:");
+                Enumeration paramNms = request.getParameterNames();
+                while (paramNms.hasMoreElements()) {
+                    String name = (String) paramNms.nextElement();
+                    System.out.println("\trequest.getParameter(" + name + ") = "
+                            + request.getParameter(name));
+                }
+            	msg.append( "<failure><reason>No action was specified</reason></failure>" );
             }
         } catch (RemoteException e) {
             e.printStackTrace();

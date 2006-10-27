@@ -11,7 +11,11 @@ package au.edu.qut.yawl.engine.interfce;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,8 +34,8 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.EngineFactory;
+import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
@@ -96,7 +100,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         Set allItems = _engine.getAvailableWorkItems();
         StringBuffer workItemsStr = new StringBuffer();
@@ -123,7 +127,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         YWorkItem workItem = _engine.getWorkItem(workItemID);
         if (workItem != null) {
@@ -148,7 +152,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         YSpecification spec = _engine.getProcessDefinition(specID);
         if (spec == null) {
@@ -192,7 +196,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -219,7 +223,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -241,7 +245,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -270,7 +274,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -302,7 +306,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -332,7 +336,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -347,7 +351,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         return describeWorkItems(_engine.getAllWorkItems());
     }
@@ -364,7 +368,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             return _userList.connect(userID, password);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -379,7 +383,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             return _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -393,7 +397,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             return _userList.checkConnectionForAdmin(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -409,7 +413,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         YTask task = _engine.getTaskDefinition(specificationID, taskID);
         if (task != null) {
@@ -435,7 +439,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -450,7 +454,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         Set specIDs = _engine.getSpecIDs();
         Set specs = new HashSet();
@@ -480,7 +484,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -510,7 +514,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -528,7 +532,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         YIdentifier id = _engine.getCaseID(caseID);
         if (id != null) {
@@ -548,7 +552,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         YIdentifier id = _engine.getCaseID(caseID);
         if (id != null) {
@@ -557,7 +561,7 @@ public class EngineGatewayImpl implements EngineGateway {
                 return SUCCESS;
             } catch (YPersistenceException e) {
                 enginePersistenceFailure = true;
-                return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+                return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
             }
         }
         return OPEN_FAILURE + "Case [" + caseID + "] not found." + CLOSE_FAILURE;
@@ -575,7 +579,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         YWorkItem item = _engine.getWorkItem(workItemID);
         return describeWorkItems(_engine.getChildrenOfWorkItem(item));
@@ -595,7 +599,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         StringBuffer options = new StringBuffer();
         YWorkItem workItem = _engine.getWorkItem(workItemID);
@@ -670,7 +674,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         File temp = new File(fileName);
         if( temp.exists() ) {
@@ -688,7 +692,7 @@ public class EngineGatewayImpl implements EngineGateway {
                 enginePersistenceFailure = true;
             }
             //e.printStackTrace();
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         } finally {
         	temp = new File(fileName);
             if( ! temp.delete() )
@@ -737,7 +741,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -758,7 +762,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -772,7 +776,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         Set users = _userList.getUsers();
         StringBuffer result = new StringBuffer();
@@ -793,7 +797,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         Set yawlServices = _engine.getYAWLServices();
         StringBuffer result = new StringBuffer();
@@ -815,7 +819,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         YAWLServiceReference service = _engine.getRegisteredYawlService(yawlServiceURI);
         if (null != service) {
@@ -845,7 +849,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         YAWLServiceReference service = YAWLServiceReference.unmarshal(serviceStr);
         if (null != service) {
@@ -855,7 +859,7 @@ public class EngineGatewayImpl implements EngineGateway {
                     return SUCCESS;
                 } catch (YPersistenceException e) {
                     enginePersistenceFailure = true;
-                    return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+                    return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
                 }
             } else {
                 return OPEN_FAILURE +
@@ -875,7 +879,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         YAWLServiceReference service = _engine.getRegisteredYawlService(serviceURI);
         if (null != service) {
@@ -886,7 +890,7 @@ public class EngineGatewayImpl implements EngineGateway {
                 }
             } catch (YPersistenceException e) {
                 enginePersistenceFailure = true;
-                return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+                return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
             }
         }
         return OPEN_FAILURE +
@@ -905,7 +909,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -919,7 +923,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -1000,7 +1004,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         return String.valueOf(_engine.updateWorkItemData(workItemID, data));
     }
@@ -1010,7 +1014,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         return String.valueOf(_engine.updateCaseData(caseID, data));
     }
@@ -1020,7 +1024,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         String result = "";
         YWorkItem item = _engine.getWorkItem(workItemID);
@@ -1041,8 +1045,19 @@ public class EngineGatewayImpl implements EngineGateway {
             return SUCCESS ;
         }
         catch (YAuthenticationException e) {
-            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
+    }
+    
+    private static String formatException( Throwable t ) {
+    	StringWriter w = new StringWriter();
+    	t.printStackTrace( new PrintWriter( w ) );
+    	try {
+			return URLEncoder.encode( w.toString(), "UTF-8" );
+		}
+		catch( UnsupportedEncodingException e ) {
+			throw new Error( "UTF-8 encoding should be supported", e );
+		}
     }
 
     /***************************************************************************/
