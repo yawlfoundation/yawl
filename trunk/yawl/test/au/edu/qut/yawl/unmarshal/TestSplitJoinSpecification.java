@@ -11,6 +11,7 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -41,14 +42,14 @@ public class TestSplitJoinSpecification extends TestCase {
         super( name );
     }
 
-    public void setUp() throws YSyntaxException, IOException, YSchemaBuildingException, JDOMException {
+    public void setUp() throws YSyntaxException, IOException, YSchemaBuildingException, JDOMException, YPersistenceException {
         File specificationFile = new File( getClass().getResource( SPEC_FILENAME ).getFile() );
         List<YSpecification> specifications = YMarshal.unmarshalSpecifications( specificationFile.getAbsolutePath() );
-        
+
         _originalSpec = specifications.iterator().next();
-        
+
         String marshalledSpecs = YMarshal.marshal( specifications );
-        
+
         File derivedSpecFile = new File( specificationFile.getParent() + File.separator + TEMP_FILENAME );
         FileWriter fw = new FileWriter( derivedSpecFile );
         fw.write(marshalledSpecs);
@@ -56,9 +57,9 @@ public class TestSplitJoinSpecification extends TestCase {
         fw.close();
         specifications = YMarshal.unmarshalSpecifications( derivedSpecFile.getAbsolutePath() );
         _copy = specifications.iterator().next();
-        
+
         derivedSpecFile.delete();
-        
+
         _originalXMLString = YMarshal.marshal( _originalSpec );
         _copyXMLString = YMarshal.marshal( _copy );
     }

@@ -377,9 +377,9 @@ public class TestYExternalTask extends TestCase{
 
     }
 
-    public void testInvalidMIAttributeVerify() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
+    public void testInvalidMIAttributeVerify() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
         URL fileURL = getClass().getResource("BadMI.xml");
-		File yawlXMLFile = new File(fileURL.getFile());
+        File yawlXMLFile = new File(fileURL.getFile());
         YSpecification specification = null;
 
         specification = (YSpecification) YMarshal.

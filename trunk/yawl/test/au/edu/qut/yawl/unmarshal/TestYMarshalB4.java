@@ -13,6 +13,7 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -48,7 +49,7 @@ public class TestYMarshalB4 extends TestCase {
 
 
 
-    public void setUp() throws YSyntaxException, IOException, YSchemaBuildingException, JDOMException {
+    public void setUp() throws YSyntaxException, IOException, YSchemaBuildingException, JDOMException, YPersistenceException {
         File specificationFile = new File(YMarshal.class.getResource("MakeRecordings(Beta6).xml").getFile());
         List specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());
         _originalSpec = (YSpecification) specifications.iterator().next();
@@ -71,7 +72,7 @@ public class TestYMarshalB4 extends TestCase {
 
 
 
-    public void setUp2() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
+    public void setUp2() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
 //        File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
         File specificationFile = new File(YMarshal.class.getResource(tempfileName).getFile());
         List specifications = null;

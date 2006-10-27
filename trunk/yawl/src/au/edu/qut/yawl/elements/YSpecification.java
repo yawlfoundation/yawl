@@ -98,14 +98,13 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
 
     @Version
     @Column(name="optimistic_lock_version")
-    @Transient
     @SuppressWarnings({"UNUSED_SYMBOL"})
     private Integer getVersion() {
     	return _version;
     }
     
     @SuppressWarnings({"UNUSED_SYMBOL"})
-    private void setVersion(Integer version) {
+    public void setVersion(Integer version) {
     	_version = version;
     }
 
@@ -609,11 +608,13 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
     public String getID() {
         return _specURI;
     }
+
+
     /**
-     * Method inserted for hibernate, do not use!
+     * Method inserted for hibernate.
      * @param id
      */
-	public void setID( String id ) {
+    public void setID( String id ) {
 		_specURI = id;
 	}
 

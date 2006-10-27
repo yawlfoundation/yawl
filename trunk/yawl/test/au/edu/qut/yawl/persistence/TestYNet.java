@@ -203,7 +203,7 @@ public class TestYNet extends TestCase {
     }
 
 
-    public void testCloneWithNewDataModel() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
+    public void testCloneWithNewDataModel() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
         File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
         List specifications = null;
         specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());

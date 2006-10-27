@@ -14,6 +14,7 @@ import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import junit.framework.TestCase;
 
 import java.io.File;
@@ -37,8 +38,8 @@ public class TestYCompositeTask extends TestCase{
         super(name);
     }
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
-		File file1  = new File(getClass().getResource("YAWL_Specification1.xml").getFile());
+    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
+        File file1  = new File(getClass().getResource("YAWL_Specification1.xml").getFile());
         YSpecification specification1 = null;
 
         specification1 = (YSpecification)

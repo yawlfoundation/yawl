@@ -27,22 +27,7 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.criterion.Restrictions;
 
-import au.edu.qut.yawl.elements.KeyValue;
-import au.edu.qut.yawl.elements.YAWLServiceGateway;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.YAtomicTask;
-import au.edu.qut.yawl.elements.YCompositeTask;
-import au.edu.qut.yawl.elements.YCondition;
-import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YFlow;
-import au.edu.qut.yawl.elements.YInputCondition;
-import au.edu.qut.yawl.elements.YMetaData;
-import au.edu.qut.yawl.elements.YMultiInstanceAttributes;
-import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YOutputCondition;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.*;
 import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
@@ -61,6 +46,9 @@ import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 
+/**
+ * @deprecated see DelegatedCustomSpringDAO
+ */
 public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedHibernateDAO.class );
 	
@@ -91,6 +79,7 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 		YOutputCondition.class,
 		YParameter.class,
 		YSpecification.class,
+		SpecVersion.class,
 		YTask.class,
 		YVariable.class,
 		YWorkItem.class,
@@ -128,8 +117,7 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	private Session openSession() throws HibernateException {
 		if (sessionFactory==null) {
 			initializeSessions();
-		} 
-		if (session==null || !session.isOpen()) {
+		} if (session==null) {
 			session = sessionFactory.openSession();
 		}
 		return session;
@@ -137,6 +125,7 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	
 	public DelegatedHibernateDAO() {
 		addType( YSpecification.class, new SpecificationHibernateDAO() );
+		addType( SpecVersion.class, new SpecVersionHibernateDAO() );
 		addType( YNetRunner.class, new NetRunnerHibernateDAO() );
 		addType( Problem.class, new ProblemHibernateDAO() );
 		addType( YWorkItem.class, new WorkItemHibernateDAO() );
@@ -405,6 +394,14 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 		
 		public Object getKey( YDataEvent item ) {
 			return item.getId();
+		}
+	}
+
+    private class SpecVersionHibernateDAO extends AbstractHibernateDAO<SpecVersion> {
+		protected void preSave( SpecVersion item ) {}
+
+		public Object getKey( SpecVersion item ) {
+			return item.getSpecURI();
 		}
 	}
 

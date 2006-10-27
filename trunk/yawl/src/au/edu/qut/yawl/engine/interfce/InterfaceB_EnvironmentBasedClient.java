@@ -286,7 +286,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Launches the case.
-     * @param specID the specification id (see SpecificationData.getID())
+     * @param specID the specification id (see SpecificationData.getSpecURI())
      * @param caseParams the case params in XML. i.e.
      * <pre>
      *    &lt;data&gt;
@@ -315,7 +315,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * Override of launchCase to provide the ability to add a listener
      * for the Case-Completion event (MJA 06/12/05)
      *
-     * @param specID the specification id (see SpecificationData.getID())
+     * @param specID the specification id (see SpecificationData.getSpecURI())
      * @param caseParams the case params in XML. 
      * @param sessionHandle the session handle
      * @param completionObserverURI the URI of the IB service that will listen

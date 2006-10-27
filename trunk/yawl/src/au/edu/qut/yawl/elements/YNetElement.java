@@ -49,7 +49,7 @@ public abstract class YNetElement implements Cloneable, Comparable, Serializable
 
 //    @Override
 //	public int hashCode() {
-//		return getID().hashCode();
+//		return getSpecURI().hashCode();
 //	}
     
     /**

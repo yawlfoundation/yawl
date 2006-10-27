@@ -31,6 +31,7 @@ import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YMessagePrinter;
 
@@ -47,15 +48,15 @@ public class TestYParameter extends TestCase {
 		super(name);
 	}
 	
-	public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
-		// create a couple simple params
-		_param1 = new YParameter();
-		_param2 = new YParameter();
-		
-		// read in a specification that has params
-		File file1  = new File(getClass().getResource("ParametersGoodSpec.xml").getFile());
+	public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
+        // create a couple simple params
+        _param1 = new YParameter();
+        _param2 = new YParameter();
+
+        // read in a specification that has params
+        File file1  = new File(getClass().getResource("ParametersGoodSpec.xml").getFile());
         _goodSpec = (YSpecification) YMarshal.unmarshalSpecifications(file1.getAbsolutePath()).get(0);
-	}
+    }
 	
 	public void testYParameterConstructors() {
 		try {

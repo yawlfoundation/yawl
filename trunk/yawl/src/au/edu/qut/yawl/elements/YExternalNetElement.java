@@ -109,7 +109,7 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     	if (t != null && t instanceof YTask)
     	{/*	for (Iterator i = _cancelledBySet.iterator(); i.hasNext();) {
              YTask re = (YTask) i.next(); 
-             if (re.getID().equals(t.getID()))
+             if (re.getSpecURI().equals(t.getSpecURI()))
              {
               _cancelledBySet.remove(re);
              }	

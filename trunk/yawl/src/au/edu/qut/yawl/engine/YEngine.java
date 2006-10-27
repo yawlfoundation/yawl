@@ -1162,7 +1162,6 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
      */
     public void setJournalising(boolean arg) {
         journalising = arg;
-    	setPersistenceMethod(journalising);
     }
 
     /**

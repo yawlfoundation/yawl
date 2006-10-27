@@ -11,7 +11,6 @@ package au.edu.qut.yawl.worklet;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.worklist.model.*;
 import au.edu.qut.yawl.elements.data.* ;
 import au.edu.qut.yawl.authentication.User;
@@ -113,10 +112,10 @@ public class WorkletService extends InterfaceBWebsideController {
 
     /** running datasets to keep track of what's executing. Mappings:
      *    _handledParentItems:
-     *       - KEY: [String] id of the parent WorkItemRecord (via wir.getID())
+     *       - KEY: [String] id of the parent WorkItemRecord (via wir.getSpecURI())
      *       - VALUE: [CheckedOutItem] obj referring to the parent work item
      *    _handledWorkItems:
-     *       - KEY: [String] id of the child WorkItemRecord (via wir.getID())
+     *       - KEY: [String] id of the child WorkItemRecord (via wir.getSpecURI())
      *       - VALUE: [CheckedOutChildItem] obj referring to the child work item
      *    _casesStarted:
      *       - KEY: [String] case id of a launched worklet case
@@ -199,13 +198,8 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("HANDLE ENABLED WORKITEM EVENT") ;        // note to log
 
         if (connected()) {
-             _log.info("Connection to engine is active");
-            try {
-				handleWorkletSelection(workItemRecord) ;
-			}
-			catch( IOException e ) {
-				throw new RuntimeException( e );
-			}
+             _log.info("Connection to engine is active") ;
+            handleWorkletSelection(workItemRecord) ;
         }
         else _log.error("Could not connect to YAWL engine") ;
     }
@@ -363,7 +357,7 @@ public class WorkletService extends InterfaceBWebsideController {
     /** Attempt to substitute the enabled workitem with a worklet
      *  @param wir - the enabled workitem record
      */
-    private void handleWorkletSelection(WorkItemRecord wir) throws IOException {
+    private void handleWorkletSelection(WorkItemRecord wir) {
 
          String specId = wir.getSpecificationID() ;       // info about item
         String taskId = getDecompID(wir) ;
@@ -484,7 +478,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @param coChild - the info record of the checked out workitem 
      */
     private void ProcessWorkItemSubstitution(RdrTree tree,
-                                             CheckedOutChildItem coChild) throws IOException {
+                                             CheckedOutChildItem coChild) {
 
        String childId = coChild.getItem().getID() ;
 
@@ -690,7 +684,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @param workletName - the name of the worklet specification to upoad
      *  @return true if upload is successful or spec is already loaded
      */
-    protected boolean uploadWorklet(String workletName) throws IOException {
+    protected boolean uploadWorklet(String workletName) {
 
         String fileName = workletName + ".xml" ;
         String fullFileName = _workletsDir + fileName ;
@@ -780,7 +774,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @return a string of messages decribing the success or otherwise of
      *          the process
      */
-       public String replaceWorklet(String itemid) throws IOException {
+       public String replaceWorklet(String itemid) {
 
          String caseid ;
            String result = "Locating workitem '" + itemid +
