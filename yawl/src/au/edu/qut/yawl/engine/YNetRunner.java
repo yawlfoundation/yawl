@@ -222,7 +222,7 @@ public class YNetRunner implements Serializable // extends Thread
     		logger = Logger.getLogger(this.getClass());
             logger.debug("YNetRunner: <init>");
     	}
-//        super("NetRunner:" + netPrototype.getID());
+//        super("NetRunner:" + netPrototype.getSpecURI());
         _caseIDForNet = new YIdentifier();
         YIdentifier.saveIdentifier( _caseIDForNet, null, null );
         
@@ -263,7 +263,7 @@ public class YNetRunner implements Serializable // extends Thread
     	}
 
   	
-    	//        super("NetRunner:" + netPrototype.getID());
+    	//        super("NetRunner:" + netPrototype.getSpecURI());
         _caseIDForNet = caseIDForNet;
         /*****************************/
         _net = (YNet) netPrototype.clone();
@@ -535,7 +535,7 @@ public class YNetRunner implements Serializable // extends Thread
             kick();
 
 //            String caseIDStr = caseIDForSubnet.toString();
-//            String taskIDStr = busyCompositeTask.getID();
+//            String taskIDStr = busyCompositeTask.getSpecURI();
 //            YWorkItem item = _workItemRepository.getEngineStoredWorkItem(
 //                    caseIDStr,
 //                    taskIDStr);
@@ -567,7 +567,7 @@ public class YNetRunner implements Serializable // extends Thread
             /*
              INSERTED FOR PERSISTANCE
             */
-//            enabledTaskNames.remove(task.getID());
+//            enabledTaskNames.remove(task.getSpecURI());
 //            YPersistance.getInstance().updateData(this);
 //  TODO          if (pmgr != null) {
 //                pmgr.updateObject(this);
@@ -578,7 +578,7 @@ public class YNetRunner implements Serializable // extends Thread
             /*
   INSERTED FOR PERSISTANCE
  */
-//            busyTaskNames.add(task.getID());
+//            busyTaskNames.add(task.getSpecURI());
 //            YPersistance.getInstance().updateData(this);
 //  TODO          if (pmgr != null) {
 //                pmgr.updateObject(this);
@@ -686,7 +686,7 @@ public class YNetRunner implements Serializable // extends Thread
 
                                 /*************************/
                                 /* INSERTED FOR PERSISTANCE*/
-//                                enabledTaskNames.add(task.getID());
+//                                enabledTaskNames.add(task.getSpecURI());
 //                                YPersistance.getInstance().updateData(this);
 //  TODO                              if (pmgr != null) {
 //                                    pmgr.updateObject(this);
@@ -714,7 +714,7 @@ public class YNetRunner implements Serializable // extends Thread
 
                             /*************************/
                             /* INSERTED FOR PERSISTANCE*/
-//                            busyTaskNames.add(task.getID());
+//                            busyTaskNames.add(task.getSpecURI());
 //                            YPersistance.getInstance().updateData(this);
 //  TODO                          if (pmgr != null) {
 //                                pmgr.updateObject(this);
@@ -755,11 +755,11 @@ public class YNetRunner implements Serializable // extends Thread
                 } else /*if (!task.t_enabled(_caseIDForNet))*/ {
 
                     if (_enabledTasks.contains(task)) {
-//                        YLocalWorklist.announceToWorklistsNoLongerEnabled(_caseIDForNet, task.getID());
+//                        YLocalWorklist.announceToWorklistsNoLongerEnabled(_caseIDForNet, task.getSpecURI());
                         _enabledTasks.remove(task);
                         /*************************/
                         /* INSERTED FOR PERSISTANCE*/
-//                        enabledTaskNames.remove(task.getID());
+//                        enabledTaskNames.remove(task.getSpecURI());
 
                         /**
                          * AJH: Bugfix: We need to remove from persistence the cancelled task
@@ -903,7 +903,7 @@ public class YNetRunner implements Serializable // extends Thread
             if (!_cancelling) {
             	AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
             }
-//            busyTaskNames.remove(atomicTask.getID());
+//            busyTaskNames.remove(atomicTask.getSpecURI());
 //            YPersistance.getInstance().updateData(this);
 // TODO           if (pmgr != null) {
 //                pmgr.updateObject(this);
@@ -1160,7 +1160,7 @@ public class YNetRunner implements Serializable // extends Thread
         try {
             task.cancel();
             _busyTasks.remove(task);
-//            busyTaskNames.remove(task.getID());
+//            busyTaskNames.remove(task.getSpecURI());
         }
         catch (YPersistenceException ype) {
             logger.fatal("Failure whilst cancelling task: " + taskID, ype);

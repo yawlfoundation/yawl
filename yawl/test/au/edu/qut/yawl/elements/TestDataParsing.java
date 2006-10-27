@@ -11,6 +11,7 @@ package au.edu.qut.yawl.elements;
 
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import junit.framework.TestCase;
 
@@ -37,7 +38,7 @@ public class TestDataParsing extends TestCase {
     }
 
 
-    public void testSchemaCatching() throws JDOMException, IOException, YSchemaBuildingException {
+    public void testSchemaCatching() throws JDOMException, IOException, YSchemaBuildingException, YPersistenceException {
         Exception d = null;
         try {
             File file1 = new File(getClass().getResource("duplicateDataSpecification.xml").getFile());

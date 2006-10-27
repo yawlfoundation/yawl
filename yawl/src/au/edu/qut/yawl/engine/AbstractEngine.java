@@ -68,7 +68,7 @@ import au.edu.qut.yawl.util.YDocumentCleaner;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
-import org.springframework.transaction.annotation.Transactional;;
+import org.springframework.transaction.annotation.Transactional;
 /**
  *
  * @author Lachlan Aldred
@@ -177,10 +177,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
         } 
     }
     
-    protected void setPersistenceMethod(boolean arg) {
-        journalising = arg;
-    }
-    
+   
     private static DataContext context;
     
     public static void setDataContext( DataContext context ) {

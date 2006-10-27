@@ -64,6 +64,8 @@ public class YMetaData implements Cloneable, Serializable {
     private Date validFrom;
     private Date validUntil;
     private String version;
+
+
     public YMetaData() {
     }
 

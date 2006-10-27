@@ -28,22 +28,7 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.ConstraintViolationException;
 
-import au.edu.qut.yawl.elements.KeyValue;
-import au.edu.qut.yawl.elements.YAWLServiceGateway;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.YAtomicTask;
-import au.edu.qut.yawl.elements.YCompositeTask;
-import au.edu.qut.yawl.elements.YCondition;
-import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YFlow;
-import au.edu.qut.yawl.elements.YInputCondition;
-import au.edu.qut.yawl.elements.YMetaData;
-import au.edu.qut.yawl.elements.YMultiInstanceAttributes;
-import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YOutputCondition;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.*;
 import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
@@ -93,6 +78,7 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 		YOutputCondition.class,
 		YParameter.class,
 		YSpecification.class,
+		SpecVersion.class,
 		YTask.class,
 		YVariable.class,
 		YWorkItem.class,
@@ -148,6 +134,7 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 
 	public DelegatedCustomSpringDAO() {
 		addType( YSpecification.class, new SpecificationHibernateDAO() );
+		addType( SpecVersion.class, new SpecVersionHibernateDAO() );
 		addType( YNetRunner.class, new NetRunnerHibernateDAO() );
 		addType( Problem.class, new ProblemHibernateDAO() );
 		addType( YWorkItem.class, new WorkItemHibernateDAO() );
@@ -432,8 +419,16 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 			return PersistenceUtilities.getIdentifierDatabaseKey( item );
 		}
 	}
-	
-	private class YAWLServiceReferenceHibernateDAO extends AbstractHibernateDAO<YAWLServiceReference> {
+
+    private class SpecVersionHibernateDAO extends AbstractHibernateDAO<SpecVersion> {
+        protected void preSave(SpecVersion object) {}
+
+        public Object getKey(SpecVersion object) {
+            return object.getSpecURI();
+        }
+    }
+
+    private class YAWLServiceReferenceHibernateDAO extends AbstractHibernateDAO<YAWLServiceReference> {
 		protected void preSave( YAWLServiceReference item ) {}
 		
 		public Object getKey( YAWLServiceReference item ) {

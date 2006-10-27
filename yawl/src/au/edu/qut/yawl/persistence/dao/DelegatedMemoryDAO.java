@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.SpecVersion;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
@@ -32,6 +33,7 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 
 	public DelegatedMemoryDAO() {
 		addType( YSpecification.class, new SpecificationMemoryDAO() );
+		addType( SpecVersion.class, new SpecVersionMemoryDAO() );
 		addType( YNetRunner.class, new NetRunnerMemoryDAO() );
 		addType( Problem.class, new ProblemMemoryDAO() );
 		addType( YWorkItem.class, new WorkItemMemoryDAO() );
@@ -123,7 +125,16 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 		}
 	}
 
-	private class NetRunnerMemoryDAO extends AbstractMemoryDAO<YNetRunner> {
+    private class SpecVersionMemoryDAO extends AbstractMemoryDAO<SpecVersion> {
+
+        public Object getKey(SpecVersion object) {
+            return object.getSpecURI();
+        }
+
+        protected void preSave(SpecVersion object) { }
+    }
+
+    private class NetRunnerMemoryDAO extends AbstractMemoryDAO<YNetRunner> {
 		protected void preSave( YNetRunner object ) {}
 		public Object getKey( YNetRunner object ) {
 			return PersistenceUtilities.getNetRunnerKey( object );

@@ -17,6 +17,7 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -47,7 +48,7 @@ public class TestYOrJoinUtils extends TestCase{
     }
 
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
+    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
         URL fileURL = getClass().getResource("YAWLOrJoinTestSpecification.xml");
         File yawlXMLFile = new File(fileURL.getFile());
         YSpecification specification = null;

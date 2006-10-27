@@ -9,14 +9,16 @@
 
 package au.edu.qut.yawl.unmarshal;
 
-import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.elements.YMetaData;
-import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.*;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
+import au.edu.qut.yawl.persistence.managed.DataContext;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.engine.AbstractEngine;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -51,7 +53,7 @@ class YSpecificationParser {
      * @throws YSyntaxException
      * @throws YSchemaBuildingException
      */
-    public YSpecificationParser(Element specificationElem, String version) throws YSyntaxException, YSchemaBuildingException {
+    public YSpecificationParser(Element specificationElem, String version) throws YSyntaxException, YSchemaBuildingException, YPersistenceException {
         _yawlNS = specificationElem.getNamespace();
 
         parseSpecification(specificationElem, version);
@@ -60,7 +62,7 @@ class YSpecificationParser {
 
 
     private void parseSpecification(Element specificationElem, String version)
-            throws YSyntaxException, YSchemaBuildingException {
+            throws YSyntaxException, YSchemaBuildingException, YPersistenceException {
         List decompositionElems = specificationElem.getChildren("decomposition", _yawlNS);
         for (int i = 0; i < decompositionElems.size(); i++) {
             Element decompositionElem = (Element) decompositionElems.get(i);
@@ -74,8 +76,8 @@ class YSpecificationParser {
                 _decompAndTypeMap.put(decompID, decompType);
             }
         }
-        String uriString = specificationElem.getAttributeValue("uri");
-        _specification = new YSpecification(uriString);
+        setVersion(specificationElem);
+
         _specification.setBetaVersion(version);
         _specification.setMetaData(parseMetaData(specificationElem));
         String name = specificationElem.getChildText("name", _yawlNS);
@@ -129,11 +131,39 @@ class YSpecificationParser {
                         this,
                         _specification.getBetaVersion());
                 YDecomposition decomposition = _decompositionParser[i].getDecomposition();
-                
+
                 _specification.setDecomposition(decomposition);
             }
         }
         addSchema(specificationElem);
+    }
+
+    private void setVersion(Element specificationElem) throws YPersistenceException {
+        String uriString = specificationElem.getAttributeValue("uri");
+        _specification = new YSpecification(uriString);
+
+        DataContext context = AbstractEngine.getDataContext();
+        PropertyRestriction.Comparison comparison = PropertyRestriction.Comparison.EQUAL;
+        Restriction restriction = new PropertyRestriction("specURI", comparison, uriString);
+        List<DataProxy> proxies = context.retrieveByRestriction(
+                SpecVersion.class, restriction, null);
+        if(proxies.size() > 0) {
+            DataProxy proxy = proxies.get(0);
+            SpecVersion highestVersion = (SpecVersion) proxy.getData();
+            Integer versionX = highestVersion.getHighestVersion();
+            versionX++;
+            highestVersion.setHighestVersion(versionX);
+            _specification.getMetaData().setVersion(
+                    versionX.toString());
+            context.save(proxy);
+        } else {
+            _specification.getMetaData().setVersion("" + 1);
+            SpecVersion specVersion = new SpecVersion(uriString, 1);
+            DataProxy proxy = context.createProxy(specVersion, null);
+
+            context.attachProxy(proxy, specVersion, null);
+            context.save(proxy);
+        }
     }
 
     YMetaData parseMetaData(Element specificationElem) {
@@ -257,28 +287,3 @@ class YSpecificationParser {
 
 }
 
-/*
-    / **
-     * @deprecated
-     * @return
-     * /
-    private YNet getRootNet()
-    {
-        List allContainers = new Vector();
-        List implementationContainers = new Vector();
-        for(int i = 0; i < _decompositionParser.length; i++)
-        {
-            YNet container = _decompositionParser[i].getNet();
-            allContainers.add(container);
-            Map decomposesToIDs = _decompositionParser[i].getDecomposesToIDs();
-            Iterator compTasksIter = decomposesToIDs.keySet().iterator();
-            while(compTasksIter.hasNext())
-            {
-                YCompositeTask compTask = (YCompositeTask) compTasksIter.next();
-                YNet implementation = (YNet) _decompositionMap.get(decomposesToIDs.get(compTask));
-                implementationContainers.add(implementation);
-            }
-        }
-        allContainers.removeAll(implementationContainers);
-        return (YNet) allContainers.get(0);
-    }*/

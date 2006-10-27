@@ -25,6 +25,7 @@ import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
@@ -55,7 +56,7 @@ public class TestYSpecification extends TestCase {
     }
 
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
+    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
         File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
         List specifications = null;
         specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());

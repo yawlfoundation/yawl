@@ -79,7 +79,7 @@ public class DelegatedEJB3DAO extends AbstractDelegatedDAO {
 //					path = path + "/";
 //				}
 //				for( YSpecification spec : objects.values() ) {
-//					String id = spec.getID();
+//					String id = spec.getSpecURI();
 //					if( id != null && id.startsWith( path ) ) {
 //						if( PersistenceUtilities.contains( id, path ) != null ) {
 //							retval.add( new DatasourceFolder(

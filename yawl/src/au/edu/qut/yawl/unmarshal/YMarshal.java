@@ -34,6 +34,7 @@ import org.xml.sax.InputSource;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 /**
  * 
@@ -47,7 +48,7 @@ public class YMarshal {
      * @param specificationSetDoc the JDom element con
      * @return a list of YSpecification objects taken from the XML document.
      */
-    private static List buildSpecifications(Document specificationSetDoc) throws YSchemaBuildingException, YSyntaxException {
+    private static List buildSpecifications(Document specificationSetDoc) throws YSchemaBuildingException, YSyntaxException, YPersistenceException {
         Element specificationSetElem = specificationSetDoc.getRootElement();
         String version = specificationSetElem.getAttributeValue("version");
         if (null == version) {
@@ -73,7 +74,7 @@ public class YMarshal {
      * @return List
      */
     public static List unmarshalSpecifications( String specificationSetXMLString, String specificationSetID )
-            throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
+            throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException, YPersistenceException {
         //first check if is well formed and build a document
         Document document = buildSpecificationSetDocument(
                 new InputSource( new StringReader( specificationSetXMLString ) ) );
@@ -95,7 +96,7 @@ public class YMarshal {
      * @return List
      */
     public static List unmarshalSpecifications(String specificationSetFileID)
-            throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
+            throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException, YPersistenceException {
         //first check if is well formed and build a document
         FileInputStream fis = null;
         try {
@@ -216,12 +217,4 @@ public class YMarshal {
         return marshal(spLst);
     }
 
-
-    public static void main(String[] args) throws IOException, YSchemaBuildingException, YSyntaxException, JDOMException {
-        URL xmlFileURL = YMarshal.class.getResource("MakeRecordings.xml");
-        File file = new File(xmlFileURL.getFile());
-        List <YSpecification> specifications = unmarshalSpecifications(file.getCanonicalPath());
-        String marshalledSpecs = marshal(specifications);
-        System.out.println("\n\n" + marshalledSpecs);
-    }
 }

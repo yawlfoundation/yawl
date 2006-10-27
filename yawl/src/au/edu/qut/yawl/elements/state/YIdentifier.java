@@ -18,22 +18,17 @@ import java.util.Vector;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.ManyToMany;
 import javax.persistence.CascadeType;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
-import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YConditionInterface;
-import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.engine.AbstractEngine;
@@ -69,7 +64,6 @@ public class YIdentifier implements Serializable {
 
     /**
      * @hibernate.id
-     * @return
      */
     @Id
     @Column(name="identifier_id")
@@ -300,7 +294,7 @@ public class YIdentifier implements Serializable {
         /*
           INSERTED FOR PERSISTANCE
          *//*
-        this.locationNames.add(task.getID());
+        this.locationNames.add(task.getSpecURI());
 */
         //saveIdentifier( this, null, null );
 //        YPersistance.getInstance().updateData(this);
@@ -321,7 +315,7 @@ public class YIdentifier implements Serializable {
         /*
           INSERTED FOR PERSISTANCE
          *//*
-        this.locationNames.remove(task.getID());*/
+        this.locationNames.remove(task.getSpecURI());*/
     }
 
     //FIXME do we persist locations or not? (Lachlan?)
