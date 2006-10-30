@@ -1416,7 +1416,7 @@
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/managed" includes="*.class"/>
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
-            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
+            <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao"/>
         </copy>
 
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
