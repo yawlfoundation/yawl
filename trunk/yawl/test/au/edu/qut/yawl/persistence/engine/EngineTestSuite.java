@@ -38,6 +38,7 @@ public class EngineTestSuite extends TestSuite{
         TestSuite suite = new TestSuite();
         suite.addTestSuite(TestEnginePersistence.class);
         suite.addTestSuite(TestPersistenceTransactions.class);
+        suite.addTestSuite(TestServiceInterface.class);
         return suite;
     }
 

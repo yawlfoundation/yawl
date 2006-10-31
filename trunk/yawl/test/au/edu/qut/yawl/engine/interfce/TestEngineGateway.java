@@ -328,7 +328,7 @@ public class TestEngineGateway extends TestCase {
 					"<condition id=\"InputCondition:input\" name=\"null\" documentation=\"null\">" +
 						"<identifier>" + _caseID + "</identifier>" +
 						"<flowsInto><nextElementRef id=\"one\" documentation=\"\"/></flowsInto>" +
-					"</condition>" +
+					"</condition><Errors></Errors>" +
 				"</caseState>" ) );
 		
 		// get the correct work item
@@ -353,7 +353,7 @@ public class TestEngineGateway extends TestCase {
 						"<internalCondition id=\"executing[AtomicTask:one]\">" +
 							"<identifier>" + _caseID + ".1</identifier>" +
 						"</internalCondition>" +
-					"</task>" +
+					"</task><Errors></Errors>" +
 				"</caseState>", xml);
 
 		// the item should be executing now
@@ -385,7 +385,7 @@ public class TestEngineGateway extends TestCase {
 						"<internalCondition id=\"executing[AtomicTask:one]\">" +
 							"<identifier>" + _caseID + ".1</identifier>" +
 						"</internalCondition>" +
-					"</task>" +
+					"</task><Errors></Errors>" +
 				"</caseState>" ) );
 	}
     

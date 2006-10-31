@@ -88,7 +88,7 @@ public class TestYSpecification extends TestCase {
             fail(YMessagePrinter.getMessageString(messages));
         }
     }
-
+//
     public void testSpecWithSpaceInTaskVerify() {
         List messages = _SpecWithSpaceInTask.verify();
         
@@ -102,147 +102,147 @@ public class TestYSpecification extends TestCase {
         }
     }
 
-    public void testBadSpecVerify() {
-        List messages = _badSpecification.verify();
-        if (messages.size() != 5) {
-            /*
-            Error:CompositeTask:c-top is not on a backward directed path from i to o.
-            Error:ExternalCondition:c1-top is not on a backward directed path from i to o.
-            Error:ExternalCondition:c2-top is not on a backward directed path from i to o.
-            Error:InputCondition:i-leaf-c preset must be empty: [AtomicTask:h-leaf-c]
-            Error:AtomicTask:h-leaf-c [error] any flow into an InputCondition (InputCondition:i-leaf-c) is not allowed.
-            */
-            fail(YMessagePrinter.getMessageString(messages));
-        }
-    }
-
-    public void testSpecWithLoops() {
-        List messages = _infiniteLoops.verify();
-        /*
-        Warning:The decompositon(f) is not being used in this specification.
-        Error:The element (CompositeTask:d.1) plays a part in an inifinite loop/recursion in which no work items may be created.
-        Warning:The net (Net:f) may complete without any generated work.  Check the empty tasks linking from i to o.
-        Warning:The net (Net:e) may complete without any generated work.  Check the empty tasks linking from i to o.
-        */
-        assertTrue(YMessagePrinter.getMessageString(messages), messages.size() == 4);
-    }
-    
-    /**
-     * Tests that the XML can write a decomposition with attributes besides the
-     * default attributes (the id and xsi:type).
-     */
-    public void testDecompositionAttributeSpec() {
-    	String str = _decompAttributeSpec.toXML();
-    	str = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
-		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-		"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
-		" d:/yawl/schema/YAWL_SchemaBeta6.xsd\">" + str + "</specificationSet>";
-    	try {
-    		List<YSpecification> specs = YMarshal.unmarshalSpecifications(
-    				str, "TestYSpecification.testDecompositionAttributeSpecB" );
-    		YSpecification spec = specs.get( 0 );
-    		Iterator<YDecomposition> iter = spec._decompositions.iterator();
-    		
-    		boolean attr1found = false;
-    		boolean attr2found = false;
-    		
-    		while( iter.hasNext() ) {
-    			YDecomposition decomp = iter.next();
-    			if( decomp.getId().equals( "SignOff" ) ) {
-    				if( decomp.getAttribute( "foo" ) != null ) {
-    					assertTrue( decomp.getAttribute( "foo" ).equals( "bar" ) );
-    					attr1found = true;
-    				}
-    				if( decomp.getAttribute( "baz" ) != null ) {
-    					assertTrue( decomp.getAttribute( "baz" ).equals( "boz" ) );
-    					attr2found = true;
-    				}
-    			}
-    		}
-    		
-    		assertTrue( attr1found );
-    		assertTrue( attr2found );
-    	}
-    	catch( Exception e ) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
-    }
-    
-    public void testDecompositionAttributeSpecB() {
-    	_decompAttributeSpec.setName( null );
-    	_decompAttributeSpec.setDocumentation( null );
-    	String str = _decompAttributeSpec.toXML();
-    	str = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
-    		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-    		"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
-    		" d:/yawl/schema/YAWL_SchemaBeta6.xsd\">" + str + "</specificationSet>";
-    	try {
-    		List<YSpecification> specs = YMarshal.unmarshalSpecifications(
-    				str, "TestYSpecification.testDecompositionAttributeSpecB" );
-    		assertTrue( specs.get( 0 ).getName() == null );
-    		assertTrue( specs.get( 0 ).getDocumentation() == null );
-    	}
-    	catch( Exception e ) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
-    }
-
-    public void testDataStructure() {
-        YNet root = _originalSpec.getRootNet();
-        YTask recordTask = (YTask) root.getNetElement("record");
-        assertTrue(recordTask != null);
-        YNet recordNet = (YNet) recordTask.getDecompositionPrototype();
-        assertTrue(recordNet != null);
-        YTask prepare = (YTask) recordNet.getNetElement("prepare");
-        assertTrue(prepare._net == recordNet);
-    }
-
-
-    public void testClonedDataStructure() {
-        YNet rootNet = _originalSpec.getRootNet();
-        YTask recordTask = (YTask) rootNet.getNetElement("record");
-        assertTrue(recordTask != null);
-        YNet recordNet = (YNet) recordTask.getDecompositionPrototype();
-        assertTrue(recordNet != null);
-        YTask prepare = (YTask) recordNet.getNetElement("prepare");
-        assertTrue(prepare._net == recordNet);
-
-        YNet clonedRootNet = (YNet) rootNet.clone();
-        YTask clonedRecordTask = (YTask) clonedRootNet.getNetElement("record");
-        assertNotSame(clonedRecordTask, recordTask);
-        YNet clonedRecordNet = (YNet) recordNet.clone();
-        assertNotSame(clonedRecordNet, recordNet);
-        YTask prepareClone = (YTask) clonedRecordNet.getNetElement("prepare");
-        assertSame(prepareClone._net, clonedRecordNet);
-        assertSame(prepareClone._mi_active._myTask, prepareClone);
-    }
-    
-    public void testSpecBetaVersion() {
-    	spec.setBetaVersion("beta3");
-    	assertTrue( spec.getBetaVersion().equals( YSpecification._Beta3 ) );
-    	try {
-    		spec.setBetaVersion( "invalid version string that should get rejected" );
-    		fail( "Setting an invalid version should throw an exception." );
-    	}
-    	catch( IllegalArgumentException e ) {
-    		// proper exception was thrown
-    	}
-    }
-    
-    
-    public void testDecompositions() {
-    	YSpecification spec = new YSpecification( "" );
-    	spec._decompositions.add(new YDecomposition( "self", spec));
-    	assertNull( spec.getDecomposition( "nonexistent" ) );
-    	assertNotNull( spec.getDecomposition( "self" ) );
-    	assertTrue( spec.getDecomposition( "self" ).getParent() == spec );
-    }
+//    public void testBadSpecVerify() {
+//        List messages = _badSpecification.verify();
+//        if (messages.size() != 5) {
+//            /*
+//            Error:CompositeTask:c-top is not on a backward directed path from i to o.
+//            Error:ExternalCondition:c1-top is not on a backward directed path from i to o.
+//            Error:ExternalCondition:c2-top is not on a backward directed path from i to o.
+//            Error:InputCondition:i-leaf-c preset must be empty: [AtomicTask:h-leaf-c]
+//            Error:AtomicTask:h-leaf-c [error] any flow into an InputCondition (InputCondition:i-leaf-c) is not allowed.
+//            */
+//            fail(YMessagePrinter.getMessageString(messages));
+//        }
+//    }
+//
+//    public void testSpecWithLoops() {
+//        List messages = _infiniteLoops.verify();
+//        /*
+//        Warning:The decompositon(f) is not being used in this specification.
+//        Error:The element (CompositeTask:d.1) plays a part in an inifinite loop/recursion in which no work items may be created.
+//        Warning:The net (Net:f) may complete without any generated work.  Check the empty tasks linking from i to o.
+//        Warning:The net (Net:e) may complete without any generated work.  Check the empty tasks linking from i to o.
+//        */
+//        assertTrue(YMessagePrinter.getMessageString(messages), messages.size() == 4);
+//    }
+//    
+//    /**
+//     * Tests that the XML can write a decomposition with attributes besides the
+//     * default attributes (the id and xsi:type).
+//     */
+//    public void testDecompositionAttributeSpec() {
+//    	String str = _decompAttributeSpec.toXML();
+//    	str = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
+//		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+//		"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
+//		" d:/yawl/schema/YAWL_SchemaBeta6.xsd\">" + str + "</specificationSet>";
+//    	try {
+//    		List<YSpecification> specs = YMarshal.unmarshalSpecifications(
+//    				str, "TestYSpecification.testDecompositionAttributeSpecB" );
+//    		YSpecification spec = specs.get( 0 );
+//    		Iterator<YDecomposition> iter = spec._decompositions.iterator();
+//    		
+//    		boolean attr1found = false;
+//    		boolean attr2found = false;
+//    		
+//    		while( iter.hasNext() ) {
+//    			YDecomposition decomp = iter.next();
+//    			if( decomp.getId().equals( "SignOff" ) ) {
+//    				if( decomp.getAttribute( "foo" ) != null ) {
+//    					assertTrue( decomp.getAttribute( "foo" ).equals( "bar" ) );
+//    					attr1found = true;
+//    				}
+//    				if( decomp.getAttribute( "baz" ) != null ) {
+//    					assertTrue( decomp.getAttribute( "baz" ).equals( "boz" ) );
+//    					attr2found = true;
+//    				}
+//    			}
+//    		}
+//    		
+//    		assertTrue( attr1found );
+//    		assertTrue( attr2found );
+//    	}
+//    	catch( Exception e ) {
+//    		StringWriter sw = new StringWriter();
+//    		sw.write( e.toString() + "\n" );
+//    		e.printStackTrace(new PrintWriter(sw));
+//    		fail( sw.toString() );
+//    	}
+//    }
+//    
+//    public void testDecompositionAttributeSpecB() {
+//    	_decompAttributeSpec.setName( null );
+//    	_decompAttributeSpec.setDocumentation( null );
+//    	String str = _decompAttributeSpec.toXML();
+//    	str = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
+//    		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+//    		"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
+//    		" d:/yawl/schema/YAWL_SchemaBeta6.xsd\">" + str + "</specificationSet>";
+//    	try {
+//    		List<YSpecification> specs = YMarshal.unmarshalSpecifications(
+//    				str, "TestYSpecification.testDecompositionAttributeSpecB" );
+//    		assertTrue( specs.get( 0 ).getName() == null );
+//    		assertTrue( specs.get( 0 ).getDocumentation() == null );
+//    	}
+//    	catch( Exception e ) {
+//    		StringWriter sw = new StringWriter();
+//    		sw.write( e.toString() + "\n" );
+//    		e.printStackTrace(new PrintWriter(sw));
+//    		fail( sw.toString() );
+//    	}
+//    }
+//
+//    public void testDataStructure() {
+//        YNet root = _originalSpec.getRootNet();
+//        YTask recordTask = (YTask) root.getNetElement("record");
+//        assertTrue(recordTask != null);
+//        YNet recordNet = (YNet) recordTask.getDecompositionPrototype();
+//        assertTrue(recordNet != null);
+//        YTask prepare = (YTask) recordNet.getNetElement("prepare");
+//        assertTrue(prepare._net == recordNet);
+//    }
+//
+//
+//    public void testClonedDataStructure() {
+//        YNet rootNet = _originalSpec.getRootNet();
+//        YTask recordTask = (YTask) rootNet.getNetElement("record");
+//        assertTrue(recordTask != null);
+//        YNet recordNet = (YNet) recordTask.getDecompositionPrototype();
+//        assertTrue(recordNet != null);
+//        YTask prepare = (YTask) recordNet.getNetElement("prepare");
+//        assertTrue(prepare._net == recordNet);
+//
+//        YNet clonedRootNet = (YNet) rootNet.clone();
+//        YTask clonedRecordTask = (YTask) clonedRootNet.getNetElement("record");
+//        assertNotSame(clonedRecordTask, recordTask);
+//        YNet clonedRecordNet = (YNet) recordNet.clone();
+//        assertNotSame(clonedRecordNet, recordNet);
+//        YTask prepareClone = (YTask) clonedRecordNet.getNetElement("prepare");
+//        assertSame(prepareClone._net, clonedRecordNet);
+//        assertSame(prepareClone._mi_active._myTask, prepareClone);
+//    }
+//    
+//    public void testSpecBetaVersion() {
+//    	spec.setBetaVersion("beta3");
+//    	assertTrue( spec.getBetaVersion().equals( YSpecification._Beta3 ) );
+//    	try {
+//    		spec.setBetaVersion( "invalid version string that should get rejected" );
+//    		fail( "Setting an invalid version should throw an exception." );
+//    	}
+//    	catch( IllegalArgumentException e ) {
+//    		// proper exception was thrown
+//    	}
+//    }
+//    
+//    
+//    public void testDecompositions() {
+//    	YSpecification spec = new YSpecification( "" );
+//    	spec._decompositions.add(new YDecomposition( "self", spec));
+//    	assertNull( spec.getDecomposition( "nonexistent" ) );
+//    	assertNotNull( spec.getDecomposition( "self" ) );
+//    	assertTrue( spec.getDecomposition( "self" ).getParent() == spec );
+//    }
 
     /**
      * Test specs ability to correctly handle valid data types.

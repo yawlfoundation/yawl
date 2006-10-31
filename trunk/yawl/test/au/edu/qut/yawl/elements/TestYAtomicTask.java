@@ -661,7 +661,6 @@ public class TestYAtomicTask extends TestCase {
     		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
     		List<YDecomposition> decomps = spec.getDecompositions();
     		
-    		System.out.println(decomps.size());
     		for(int index = 0; index < decomps.size(); index++) {
     			YDecomposition temp = decomps.get(index);
     			if( "OverseeMusic".equals( temp.getId() ) ) {
