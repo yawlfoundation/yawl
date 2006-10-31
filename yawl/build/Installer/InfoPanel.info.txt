@@ -1,0 +1,12 @@
+Please download the following software:
+
+Java 1.5
+URL: 
+
+Tomcat web-server (5.5 or greater):
+URL:
+
+Database:
+URL:
+
+

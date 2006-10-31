@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+
+<installation version="1.0">
+	
+    <!-- 
+        The info section.
+        The meaning of the tags should be natural ...
+    -->
+    <info>
+        <appname>YAWL - Workflow System</appname>
+        <appversion>1.0</appversion>
+        <authors>
+            <author name="Arthur H.M. ter Hofstede" email="a.terhofstede@qut.edu.au"/>
+            <author name="Lachlan Aldred" email="l.aldred@qut.edu.au"/>
+            <author name="Lindsay Bradford" email="l.bradford@qut.edu.au"/>
+            <author name="Tore Fjellheim" email="t.fjellheim@qut.edu.au"/>
+            <author name="Guy Redding" email="g.redding@qut.edu.au"/>
+        </authors>
+        <url>http://www.yawl-system.com/</url>
+	<webdir>http://localhost:8080/yawlpackages</webdir>
+	<javaversion> 1.5 </javaversion>
+    </info>
+    
+
+    <!-- 
+        The gui preferences indication.
+        Sets the installer window to 640x480. It will not be able to change the size.
+    -->
+    <guiprefs width="640" height="320" resizable="no"/>
+    
+    <!-- 
+        The locale section.
+        Asks here to include the English and French langpacks.
+        
+    -->
+    <locale>
+        <langpack iso3="eng"/>
+	 </locale>
+
+	<!-- needed for windows shortcuts -->
+	<native	type="izpack" name="ShellLink.dll"/>
+
+
+<res src="C:\MyDocuments\Installer\default_shortcut_specification.xml"
+id="shortcutSpec.xml"/>
+
+    <!-- 
+        The resources section.
+        The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.
+    -->
+
+    <resources>
+               <res id="userInputSpec.xml" src="userInputSpec.xml"/>
+                <res id="shortcutSpec.xml" src="shortcutSpec.xml"/>
+                <res id="InfoPanel.info" src="InfoPanel.info.txt"/>
+                <res id="TargetPanel.dir.windows" src="TargetPanel.dir.windows.xml"/>
+	        <res id="Installer.image" src="..\..\graphics\yawl_rotate.jpg" />
+		<res id="LicencePanel.licence" src="Licencepanel.txt" />
+		<res id="ProcessPanel.Spec.xml" src="ProcessPanel.xml"/>
+
+    </resources>
+   
+    <!-- 
+        The panels section.
+        We indicate here which panels we want to use. The order will be respected.
+    -->
+    <panels>
+        <panel classname="HelloPanel"/>
+
+        <panel classname="LicencePanel"/>
+	<panel classname="PacksPanel"/>
+        <panel classname="PackageDependentUserInputPanel"/>
+	<panel classname="PackageDependentUserInputPanel"/>
+        <panel classname="TargetPanel"/>
+        <panel classname="InstallPanel"/>
+        <panel classname="ProcessPanel"/>
+        <panel classname="ShortcutPanel"/> 
+        <panel classname="SimpleFinishPanel"/>
+    </panels>
+  
+
+
+<variables>
+  <variable name="PackageDependency.0" value="Tomcat WebServer"/>
+  <variable name="PackageDependency.1" value="PostgreSQL Database"/>
+  <variable name="tomcat_home" value="C:\Program Files\Apache Software Foundation\Tomcat 5.5"/>
+</variables>
+
+    <!-- 
+        The packs section.
+        We specify here our packs.
+   -->
+
+
+    <packs>
+        <pack name="YAWL Engine" required="yes">
+            <description>Main YAWL Engine parts</description>
+            <file src="yawl" targetdir="$INSTALL_PATH"/>
+            <file src="library" targetdir="$INSTALL_PATH"/>
+            <file src="worklist" targetdir="$INSTALL_PATH"/>
+            <file src="graphics" targetdir="$INSTALL_PATH"/>
+
+            <file src="adminTool" targetdir="$INSTALL_PATH"/>
+            <file src="EmailSenderService" targetdir="$INSTALL_PATH"/>
+            <file src="JythonService" targetdir="$INSTALL_PATH"/>
+            <file src="NexusServiceInvoker" targetdir="$INSTALL_PATH"/>
+            <file src="PDFforms" targetdir="$INSTALL_PATH"/>
+            <file src="timeService" targetdir="$INSTALL_PATH"/>
+            <file src="workletService" targetdir="$INSTALL_PATH"/>
+            <file src="yawlSMSInvoker" targetdir="$INSTALL_PATH"/>
+            <file src="yawlWSInvoker" targetdir="$INSTALL_PATH"/>
+
+
+	    <singlefile src="..\properties\applicationContextInstaller.xml" target="$INSTALL_PATH\yawl\web-inf\classes\applicationContext.xml"/>
+	    <singlefile src="..\engine\webInstaller.xml" target="$INSTALL_PATH\yawl\web-inf\web.xml"/>
+	    <singlefile src="admin.url" target="$INSTALL_PATH\yawl\admin.url"/>
+	    <singlefile src="yawlXForms.war" target="$INSTALL_PATH\yawlXForms.war"/>
+	    <singlefile src="CPAU.exe" target="$INSTALL_PATH\CPAU.exe"/>
+
+
+	    <parsable targetfile="$INSTALL_PATH\yawl\web-inf\web.xml"/>
+	    <parsable targetfile="$INSTALL_PATH\yawl\web-inf\classes\applicationContext.xml"/>
+	    <parsable targetfile="$INSTALL_PATH\yawl\web-inf\classes\applicationContext.xml"/> 
+        </pack>
+	<pack name="YAWL Editor" required="no">
+            <description>YAWL Workflow Editor</description>
+	    <singlefile src="YAWLEditor1.4.jar" target="$INSTALL_PATH\YAWLEditor1.4.jar"/>
+	</pack>
+        <pack name="PostgreSQL Database" required="no">
+            <description>Postgres Database</description>
+	    <singlefile src="postgresql-8.0-int.msi" target="$INSTALL_PATH\postgresql-8.1-int.msi"/>
+        </pack>
+        <pack name="Tomcat WebServer" required="no">
+            <description>Tomcat Web Container</description>
+	    <singlefile src="apache-tomcat-5.5.17.exe" target="$INSTALL_PATH\apache-tomcat-5.5.17.exe"/>
+        </pack>
+
+
+    </packs>
+
+
+     
+</installation>

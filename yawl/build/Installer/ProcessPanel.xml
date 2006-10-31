@@ -1,0 +1,209 @@
+
+<processing>
+ <job name="Installing Tomcat Web Container">
+  <os family="windows" />
+  <executefile name="$INSTALL_PATH/apache-tomcat-5.5.17.exe">
+  <arg>/S</arg>
+  <arg>/D=C:\Program Files\Apache Software Foundation\Tomcat 5.5\</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job>
+
+
+
+<job name="Installing Postgres Database">
+  <os family="windows" />
+  <executefile name="msiexec">
+  <arg>/i</arg>
+  <arg>&quot;$INSTALL_PATH\postgresql-8.1-int.msi&quot;</arg>
+  <arg>/qr</arg>
+  <arg>INTERNALLAUNCH=1</arg>
+  <arg>ADDLOCAL=server,psql,pgadmin</arg>
+  <arg>SUPERPASSWORD=&quot;admin&quot;</arg>
+  <arg>BASEDIR=&quot;c:\postgres&quot;</arg>
+  <arg>SERVICEPASSWORD=&quot;fjellheim&quot;</arg>
+  <arg>CREATESERVICEUSER=1</arg>
+  <arg>DOINITDB=0</arg>
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+
+<job name="Initialising Database">
+  <os family="windows" />
+  <executefile name="$INSTALL_PATH\CPAU.exe">
+  <arg>-u</arg>
+  <arg>postgres</arg>
+  <arg>-p</arg>
+  <arg>fjellheim</arg>
+  <arg>-ex</arg>
+  <arg>&quot;c:\postgres\bin\initdb -D c:\postgres\data\yawldatabase&quot;</arg>
+  <arg>-lwp</arg>
+  <arg>-wait</arg>
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+
+<job name="Starting Database Server">
+  <os family="windows" />
+  <executefile name="$INSTALL_PATH\CPAU.exe">
+  <arg>-u</arg>
+  <arg>postgres</arg>
+  <arg>-p</arg>
+  <arg>fjellheim</arg>
+  <arg>-ex</arg>
+  <arg>&quot;c:\postgres\bin\pg_ctl start -D c:\postgres\data\yawldatabase&quot;</arg>
+  <arg>-lwp</arg>
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+
+ <job name="Initialising Libraries on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\library\*&quot;</arg>
+  <arg>&quot;$tomcat_home\common\lib\&quot;</arg>
+  </executefile>
+ </job>
+
+
+ <job name="Initialising YAWL on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/yawl.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/yawl&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>
+
+ <job name="Initialising Worklist on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/worklist.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/worklist&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>
+
+ <job name="Initialising Admintool on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/adminTool.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/adminTool&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>
+
+ <job name="Initialising Email Service on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/EmailSenderService.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/EmailSenderService&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>
+
+ <job name="Initialising Jython Service on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/JythonService.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/JythonService&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>
+
+ <job name="Initialising Nexus Service Invoker on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/NexusServiceInvoker.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/NexusServiceInvoker&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>
+
+ <job name="Initialising PDF forms on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/PDFforms.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/PDFforms&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>
+
+
+ <job name="Initialising Time Service on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/timeService.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/timeService&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>
+
+ <job name="Initialising Worklet Service on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/workletService.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/workletService&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>
+   
+
+ <job name="Initialising SMS Service on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/yawlSMSInvoker.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/yawlSMSInvoker&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>
+
+ <job name="Initialising Web Service Invoker on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="jar">
+  <arg>cf0</arg>
+  <arg>&quot;$tomcat_home/webapps/yawlWSInvoker.war&quot;</arg>
+  <arg>-C</arg>
+  <arg>&quot;$INSTALL_PATH/yawlWSInvoker&quot;</arg>
+  <arg>.</arg>
+  </executefile>
+ </job>         
+
+
+
+<job name="Creating Database">
+  <os family="windows" />
+  <executefile name="c:\postgres\bin\createdb.exe">
+  <arg>yawl</arg>
+  <arg>-U</arg>
+  <arg>postgres</arg>
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+
+
+</processing> 
+
+
