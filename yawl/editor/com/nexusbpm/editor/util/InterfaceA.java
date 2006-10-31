@@ -9,6 +9,8 @@ package com.nexusbpm.editor.util;
 
 import java.io.IOException;
 
+import com.nexusbpm.editor.EditorConfiguration;
+
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.Interface_Client;
 
@@ -20,7 +22,7 @@ public final class InterfaceA {
 	
 	private static void initializeClient() {
 		if( iaClient == null ) {
-			iaClient = new InterfaceA_EnvironmentBasedClient("http://localhost:8080/yawl/ia");
+			iaClient = new InterfaceA_EnvironmentBasedClient(EditorConfiguration.getInstance().getServerUri() + "/ia");
 		}
 	}
 	

@@ -1,6 +1,8 @@
 package au.edu.qut.yawl.events;
 
+import java.io.FileInputStream;
 import java.io.Serializable;
+import java.util.Properties;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -39,7 +41,9 @@ public class JmsProviderTest extends TestCase {
 		super.setUp();
 		receiveCount = 0;
 		provider = JmsProvider.getInstance();
-		context = new InitialContext();
+		Properties p = new Properties();
+		p.load(new FileInputStream("editor.properties"));
+		context = new InitialContext(p);
 		connection = getConnection(context);
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	    connection.start();

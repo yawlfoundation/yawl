@@ -84,6 +84,7 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 			Set result = iaClient.getRegisteredYAWLServices(aConnectionHandle);
 			boolean found = false;
 			for (Object thing: result) {
+				System.out.println(((YAWLServiceReference) thing).getURI().toString());
 				if ((((YAWLServiceReference) thing).getURI().equals(refName))) {
 					found = true;
 					break;
