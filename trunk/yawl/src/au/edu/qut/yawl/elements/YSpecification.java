@@ -618,6 +618,20 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
 		_specURI = id;
 	}
 
+	/*
+	 * Temporal database concepts
+	 * inserted valid start time and valid end time for a particular
+	 * specification. This can be used for the log to check which specification
+	 * was actually used at a particular time.   
+	 * */
+	
+
+	boolean archived = false;
+	
+	
+	public void markArchived() {
+    	archived = true;
+	}
 
     /**
      * Returns the XML tools for YAWL.
@@ -712,4 +726,11 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
             throw new Error( e );
         }
     }
+    @Basic
+	public boolean getArchived() {
+		return archived;
+	}
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
 }

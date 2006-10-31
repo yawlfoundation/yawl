@@ -8,6 +8,7 @@
 
 package au.edu.qut.yawl.engine.interfce.interfaceX;
 
+import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.Interface_Client;
 import au.edu.qut.yawl.util.JDOMConversionTools;
@@ -115,6 +116,19 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
         new Handler(_observerURI, item, NOTIFY_RESOURCE_UNAVAILABLE).start();
     }
 
+    /*
+     * Not currently supported by remote services
+     * */
+    public void announceServiceUnavailable(YWorkItem item, YAWLServiceReference ref){
+        //new Handler(_observerURI, item, NOTIFY_SERVICE_UNAVAILABLE).start();
+    }
+    
+    /*
+     * Not currently supported by remote services
+     * */
+    public void announceServiceError(YWorkItem item, YAWLServiceReference ref){
+        //new Handler(_observerURI, item, NOTIFY_SERVICE_ERROR).start();
+    }
 
     public void announceConstraintViolation(YWorkItem item){
         new Handler(_observerURI, item, NOTIFY_CONSTRAINT_VIOLATION).start();

@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,7 +48,9 @@ import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
+import au.edu.qut.yawl.engine.interfce.interfaceX.ExceptionGateway;
 import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
+import au.edu.qut.yawl.events.YErrorEvent;
 import au.edu.qut.yawl.events.YawlEventLogger;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
@@ -59,6 +62,7 @@ import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -96,7 +100,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
     protected static UserList _userList = UserList.getInstance();
 
-    protected static InterfaceX_EngineSideClient _exceptionObserver = null ;
+    protected static List<ExceptionGateway> _exceptionObservers = new ArrayList();
+    
     /*************************************************/
     /*INSERTED VARIABLES AND METHODS FOR PERSISTANCE */
     /**
@@ -143,26 +148,29 @@ public abstract class AbstractEngine implements InterfaceADesign,
         	for (int i = 0; i < specs.size();i++) {
         		YSpecification spec = (YSpecification) ((DataProxy) specs.get(i)).getData();
         		logger.debug("RESTORING SPEC " + spec.getID());
-    			loadSpecification(spec);
+        		if (!spec.getArchived()) {
+        			loadSpecification(spec);
+        		}
         	}			      	
         	
-        	List runners = context.retrieveAll(YNetRunner.class, null);    	
+        	List runners = context.retrieveAll(YNetRunner.class ,null);    	
         	for (int i = 0; i < runners.size();i++) {
         		YNetRunner r = (YNetRunner) ((DataProxy) runners.get(i)).getData();
-        		logger.debug("RESTORING RUNNER" + r.getNet().getParent().getID());
+                  if (!r.getArchived()) {
+          		   logger.debug("RESTORING RUNNER" + r.getNet().getParent().getID());
     			
        		
-        		/*
-        		 * Ensure that the net (decomposition) has the 
-        		 * updated data
-        		 * */
-        		r.getNet().rebuildData();
+        		  /*
+        		   * Ensure that the net (decomposition) has the 
+        		   * updated data
+        		   * */
+        		  r.getNet().rebuildData();
     			
-        		YIdentifier yid = r.getCaseID();
-    			YIdentifier.saveIdentifier(yid,null,null);
+        		  YIdentifier yid = r.getCaseID();
+    			  YIdentifier.saveIdentifier(yid,null,null);
         		
-        		restoreRunner(r,r.getNet().getParent().getID());
- 		
+        		  restoreRunner(r,r.getNet().getParent().getID());
+ 		      }
 
         	}
         	
@@ -173,6 +181,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
         		item.addToRepository();
         	}
         	
+            
         	
         } 
     }
@@ -189,9 +198,11 @@ public abstract class AbstractEngine implements InterfaceADesign,
     		if (journalising) {
     			DAO mem = DAOFactory.getDAO( PersistenceType.SPRING );    		
     			context = new DataContext( mem );
+    			System.out.println("spring");
     		} else {
     			DAO mem = DAOFactory.getDAO( PersistenceType.MEMORY );    		
     			context = new DataContext( mem );    			
+    			System.out.println("memory");
     		}
     	}
     	return context;
@@ -685,15 +696,16 @@ public abstract class AbstractEngine implements InterfaceADesign,
         }
 
         YSpecification specification = (YSpecification) _specifications.get(specID);
+        
+        //Go to the database if the specification is not found, error
+        //if the specification is not in the database either
+        
         if (specification != null) {
             YNetRunner runner = new YNetRunner(specification.getRootNet(), data);
 
             // register exception service with the net runner (MJA 4/4/06)
-            if (_exceptionObserver != null) {
-                announceCheckCaseConstraints(_exceptionObserver, specID,
+                announceCheckCaseConstraints(specID,
                                              runner.getCaseID().toString(), caseParams, true);
-                runner.setExceptionObserver(_exceptionObserver);
-            }
 
             if(completionObserver != null) {
                 YAWLServiceReference observer = getRegisteredYawlService(completionObserver.toString());
@@ -765,7 +777,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
         
         _caseIDToNetRunnerMap.remove(caseIDForNet);
         _runningCaseIDToSpecIDMap.remove(caseIDForNet);
-        YEngine._workItemRepository.cancelNet(caseIDForNet);
+        //YEngine._workItemRepository.cancelNet(caseIDForNet);
 
         //  LOG CASE EVENT
         YawlEventLogger.getInstance().logCaseCompleted(caseIDForNet.toString());
@@ -808,16 +820,30 @@ public abstract class AbstractEngine implements InterfaceADesign,
 //AJH           yper.removeData(yspec);
 //                if (pmgr != null) {
 //                    pmgr.deleteObject(yspec);
-//                }
+//                }\
+                
+                LogicalRestriction restrict = new LogicalRestriction(new PropertyRestriction( "ID", Comparison.EQUAL, specID ),
+                		LogicalRestriction.Operation.AND,
+                		new PropertyRestriction( "archived", Comparison.EQUAL, false ));
+                
 //  TODO              DaoFactory.createYDao().delete(yspec);
                 List<DataProxy> list = getDataContext().retrieveByRestriction( YSpecification.class,
-                		new PropertyRestriction( "ID", Comparison.EQUAL, specID ),
+                		restrict,
                 		null );
                 assert list.size() == 1 : "there should only be 1 specification with the given ID";
 //                .retrieveSpecificationProxy( specID );
-            	getDataContext().delete( list.get( 0 ) );
+
 
                 YSpecification toUnload = (YSpecification) _specifications.remove(specID);
+                
+                DataProxy<YSpecification> proxy = list.get( 0 );
+                YSpecification spec = (YSpecification) proxy.getData();
+                spec.markArchived();
+                
+                
+                getDataContext().save( list.get( 0 ) );
+                
+                
                 _unloadedSpecifications.put(specID, toUnload);
             } else {
 
@@ -881,8 +907,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
             finishCase(id);
 
             // announce cancellation to exception service (if required)
-            if (_exceptionObserver != null)
-                announceCancellationToExceptionService(_exceptionObserver, id) ;
+                announceCancellationToExceptionService(id) ;
 
         } catch (YPersistenceException e) {
             throw new YPersistenceException("Failure whilst persisting new specification", e);
@@ -1052,19 +1077,69 @@ public abstract class AbstractEngine implements InterfaceADesign,
             return stateText.toString();
     }
 
+    public String getStateForCase(String caseID) {
+
+       //PropertyRestriction restriction = new PropertyRestriction("archived", PropertyRestriction.Comparison.EQUAL , new Boolean(false));
+       PropertyRestriction restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , caseID);
+       List runners = context.retrieveByRestriction(YNetRunner.class, restriction ,null);
+
+       if (runners.size()==0) {
+           restriction = new PropertyRestriction("basicCaseId", 
+        		   PropertyRestriction.Comparison.EQUAL , 
+        		   caseID.substring(0,caseID.indexOf(".")));
+           runners = context.retrieveByRestriction(YNetRunner.class, restriction ,null);    	   
+       }
+       
+       
+       //
+    	Set allLocations = new HashSet();    	
+       
+    	if (!(runners.size()>1)) {
+    		DataProxy<YNetRunner> proxy = (DataProxy) runners.get(0);
+    		YNetRunner r = proxy.getData();
+    		YIdentifier yid = r.getCaseID();
+        	List l = r.getNet().getNetElements();
+        	for (int i = 0; i < l.size(); i++) {
+        		YNetElement elem = (YNetElement) l.get(i);
+        		if (elem instanceof YCondition) {
+        			if (((YCondition) elem).contains(yid)) {
+        				allLocations.add(elem);
+        			}    			
+        		} else if (elem instanceof YTask) {
+    				YIdentifier contained = ((YTask) elem).getContainingIdentifier();
+        			if (contained!=null && contained.equals(yid)) {
+        				allLocations.add(elem);    				    				
+        			}
+        		}
+        	}
+            return evaluateStateForCase(yid, allLocations, r.getNet().getParent().getID()); 
+    	} else {
+    		//multiple runners with same caseid, this is wrong
+    	}
+    	    	
+    	return "";
+
+    }
 
     public String getStateForCase(YIdentifier caseID) {
-            Set allChildren = caseID.getDescendants();
-            Set allLocations = new HashSet();
-            for (Iterator childIter = allChildren.iterator(); childIter.hasNext();) {
-                YIdentifier identifier = (YIdentifier) childIter.next();
-                allLocations.addAll(identifier.getLocations());
-            }
+        Set allChildren = caseID.getDescendants();
+        Set allLocations = new HashSet();
+        for (Iterator childIter = allChildren.iterator(); childIter.hasNext();) {
+            YIdentifier identifier = (YIdentifier) childIter.next();
+            allLocations.addAll(identifier.getLocations());
+        }
+        
+        return evaluateStateForCase(caseID, allLocations, _runningCaseIDToSpecIDMap.get(caseID).toString());
+        
+    }  
+    
+
+    public String evaluateStateForCase(YIdentifier caseID, Set allLocations, String spec) {
             StringBuffer stateText = new StringBuffer();
             stateText.append("<caseState " + "caseID=\"")
                     .append(caseID)
                     .append("\" " + "specID=\"")
-                    .append(_runningCaseIDToSpecIDMap.get(caseID))
+                    .append(spec)
                     .append("\">");
             for (Iterator locationsIter = allLocations.iterator(); locationsIter.hasNext();) {
                 YNetElement element = (YNetElement) locationsIter.next();
@@ -1159,6 +1234,13 @@ public abstract class AbstractEngine implements InterfaceADesign,
                     stateText.append("</task>");
                 }
             }
+            stateText.append("<Errors>");
+            List<YErrorEvent> errorlist = caseID.getErrors();
+            for (int j = 0; j < errorlist.size(); j++) {
+            	stateText.append(errorlist.get(j).toXML());            	
+            }
+            stateText.append("</Errors>");
+            
             stateText.append("</caseState>");
             return stateText.toString();
     }
@@ -1386,12 +1468,10 @@ public abstract class AbstractEngine implements InterfaceADesign,
                         YNetRunner netRunner = YEngine._workItemRepository.getNetRunner(workItem.getCaseID().getParent());
                         synchronized (netRunner) {
 
-                            if (_exceptionObserver != null) {
                                 if (netRunner.isTimeServiceTask(workItem)) {
                                     List timeOutSet = netRunner.getTimeOutTaskSet(workItem);
-                                    announceTimeOutToExceptionService(_exceptionObserver, workItem, timeOutSet);
+                                    announceTimeOutToExceptionService(workItem, timeOutSet);
                                 }
-                            }
                             SAXBuilder builder = new SAXBuilder();
                             //doing this because saxon can't do an effective query when the whitespace is there
                             try {
@@ -1764,22 +1844,24 @@ public abstract class AbstractEngine implements InterfaceADesign,
     public void addYawlService(YAWLServiceReference yawlService) throws YPersistenceException {
             logger.debug("--> addYawlService: Service=" + yawlService.getURI());
 
-//            _yawlServices.put(yawlService.getURI(), yawlService);
 
             /*
-              INSERTED FOR PERSISTANCE
-             */
-//  TODO          if (!restoring && isJournalising()) {
-//
-//                logger.info("Persisting YAWL Service " + yawlService.getURI() + " with ID " + yawlService.get_yawlServiceID());
-//                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
-//                pmgr.startTransactionalSession();
-//                pmgr.storeObject(yawlService);
-//                pmgr.commit();
-//            }
-            DataProxy proxy = getDataContext().createProxy( yawlService, null );
-            getDataContext().attachProxy( proxy, yawlService, null );
-            getDataContext().save( proxy );
+             * Check if the service already exists
+             * */
+            DataProxy<YAWLServiceReference> proxy = getDataContext().retrieve( YAWLServiceReference.class, yawlService.getURI(), null );
+            YAWLServiceReference service = null;
+            if( proxy != null ) {
+            	//service exists, update data
+            	service = proxy.getData();
+            	service.setEnabled(yawlService.getEnabled());
+            	service.setDocumentation(yawlService.getDocumentation());            	
+            	getDataContext().save( proxy );
+            } else {
+            	//new service, just store it
+            	proxy = getDataContext().createProxy( yawlService, null );
+            	getDataContext().attachProxy( proxy, yawlService, null );
+            	getDataContext().save( proxy );
+            }
 
             logger.debug("<-- addYawlService");
     }
@@ -1857,7 +1939,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
             YAWLServiceReference service = null;
             if( proxy != null ) {
             	service = proxy.getData();
-            	getDataContext().delete( proxy );
+            	service.setEnabled(false);
+            	getDataContext().save( proxy );
             }
 //            if (service != null) {
 // TODO               if (isJournalising()) {
@@ -1893,9 +1976,9 @@ public abstract class AbstractEngine implements InterfaceADesign,
      *
      * @param arg
      */
-// TODO   private static void setJournalising(boolean arg) {
-//        journalising = arg;
-//    }
+    public static void setPersistence(boolean arg) {
+    	journalising = arg;
+    }
 
     /**
      * Performs a diagnostic dump of the engine internal tables and state to trace.<P>
@@ -2105,38 +2188,37 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * Right now this method is only used in testing, to insert a mock
      * interfaceX client
      **/
-    public boolean setExceptionObserver(InterfaceX_EngineSideClient ix) {
-    	_exceptionObserver = ix;
+    public boolean addExceptionObserver(ExceptionGateway ix) {
+    	_exceptionObservers.add(ix);
     	return true;
     }
     
-    public boolean setExceptionObserver(String observerURI){
-        _exceptionObserver = new InterfaceX_EngineSideClient(observerURI);
-        return (_exceptionObserver != null) ;
+    public void addExceptionObserver(String observerURI){
+        _exceptionObservers.add(new InterfaceX_EngineSideClient(observerURI));        
     }
 
 
-    public boolean removeExceptionObserver() {
-        _exceptionObserver = null ;
-        return true ;
+    public void removeExceptionObservers() {
+        _exceptionObservers = new ArrayList();
     }
 
     protected abstract void announceCheckWorkItemConstraints(
-                                   InterfaceX_EngineSideClient ixClient, YWorkItem item,
+                                   YWorkItem item,
                                    Document data, boolean preCheck);
 
     protected abstract void announceCheckCaseConstraints(
-                                   InterfaceX_EngineSideClient ixClient,String specID,
+                                   String specID,
                                    String caseID, String data, boolean preCheck);
 
     public abstract void announceCancellationToExceptionService(
-                                   InterfaceX_EngineSideClient ixClient,
                                    YIdentifier caseID);
 
     public abstract void announceTimeOutToExceptionService(
-                                   InterfaceX_EngineSideClient ixClient,
                                    YWorkItem item, List timeOutTaskIds);
-
+    
+    public abstract void announceServiceUnavailable(YWorkItem item, YAWLServiceReference ref);
+    
+    public abstract void announceServiceError(YWorkItem item, YAWLServiceReference ref);
 
 
     public boolean updateWorkItemData(String workItemID, String data) {

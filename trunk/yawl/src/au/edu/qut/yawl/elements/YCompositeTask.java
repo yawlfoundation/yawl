@@ -98,6 +98,8 @@ public class YCompositeTask extends YTask {
         _mi_entered.removeOne(id);
         //todo Creating anotehr YNetRunner thread
 
+        System.out.println("starting new net runner in composite task");
+        
         YNetRunner netRunner = new YNetRunner(
                 (YNet) _decompositionPrototype,
                 this,
@@ -113,7 +115,10 @@ public class YCompositeTask extends YTask {
         netRunner.continueIfPossible();
         netRunner.start();
 
+        System.out.println("abra");
         YNetRunner.saveNetRunner( netRunner, null );
+        System.out.println("kadabra");
+        
     }
 
 

@@ -698,17 +698,21 @@ public class WorkletService extends InterfaceBWebsideController {
         String wSpec = Library.FileToString(fullFileName);  // needs spec as String
 
         if (wSpec != null) {
-           if (successful(_interfaceAClient.uploadSpecification(wSpec,
-                            fileName, _sessionHandle))) {
-               _log.debug("Successfully uploaded worklet specification: "
-                            + workletName) ;
-               return true ;
-           }
-           else {
-              _log.debug("Unsuccessful worklet specification upload : "
-                           + workletName)	;
-              return false ;
-           }
+        	try {
+        		if (successful(_interfaceAClient.uploadSpecification(wSpec,
+        				fileName, _sessionHandle))) {
+        			_log.debug("Successfully uploaded worklet specification: "
+        					+ workletName) ;
+        			return true ;
+        		}
+        		else {
+        			_log.debug("Unsuccessful worklet specification upload : "
+        					+ workletName)	;
+        			return false ;
+        		}
+        	} catch (IOException e) {
+        		return false;
+        	}
         }
           else {
               _log.debug("Rule search found: " + workletName +

@@ -92,7 +92,7 @@ public class YIdentifierBag implements Serializable{
         	_idToQtyMap.put(identifier, new BagCount());
         }
         _idToQtyMap.get(identifier).incrementCount();
-        identifier.addLocation(_condition);
+        //identifier.addLocation(_condition);
     }
 
 
@@ -158,9 +158,9 @@ public class YIdentifierBag implements Serializable{
         while (keys.hasNext()) {
             YIdentifier identifier = (YIdentifier) keys.next();
             _idToQtyMap.remove(identifier);
-            while (identifier.getLocations().contains(_condition)) {
-                identifier.getLocations().remove(_condition);
-            }
+//            while (identifier.getLocations().contains(_condition)) {
+//                identifier.getLocations().remove(_condition);
+//          /}
         }
     }
 }

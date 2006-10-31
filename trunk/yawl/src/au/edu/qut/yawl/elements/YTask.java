@@ -559,7 +559,7 @@ public abstract class YTask extends YExternalNetElement {
                 //Now we check that the resulting transformation produced data according
                 //to the net variable's type.
                 if (_net.getParent().isSchemaValidating() &&
-                        !query.equals(getPreJoiningMIQuery())) {
+                        !query.equals(getPreJoiningMIQuery())) {          	
                     YVariable var = _net.getLocalVariable(localVarThatQueryResultGetsAppliedTo);
                     Set<YVariable> col = new HashSet<YVariable>();
                     col.add(var);

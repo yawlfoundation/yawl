@@ -22,7 +22,9 @@ public class SpecVersion {
    private String _specURI; 
    private Integer _highestVersion; 
 
-
+   public SpecVersion() { 
+   } 
+   
    public SpecVersion(String specURI, Integer highestVersion) { 
        _specURI = specURI; 
        _highestVersion = highestVersion; 

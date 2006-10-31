@@ -10,8 +10,10 @@
 package au.edu.qut.yawl.elements.state;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -29,11 +31,17 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import au.edu.qut.yawl.elements.YConditionInterface;
+import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YNetElement;
+import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.engine.YNetRunner;
+import au.edu.qut.yawl.events.YErrorEvent;
 import au.edu.qut.yawl.events.YawlEventLogger;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
@@ -179,7 +187,7 @@ public class YIdentifier implements Serializable {
         }
         String childNumStr = "" + childNum;
         for (int i = 0; i < _children.size(); i++) {
-            YIdentifier identifier = (YIdentifier) _children.get(i);
+            YIdentifier identifier = _children.get(i);
             String exisitingChildNumString = identifier.toString();
             String lastPartOfExisistingChildNumString =
                     exisitingChildNumString.substring(exisitingChildNumString.lastIndexOf('.') + 1);
@@ -228,7 +236,8 @@ public class YIdentifier implements Serializable {
     }
 
 
-    public String toString() {
+    @Override
+	public String toString() {
     	if( id == null ) return "null";
         return this.id;
     }
@@ -319,15 +328,57 @@ public class YIdentifier implements Serializable {
     }
 
     //FIXME do we persist locations or not? (Lachlan?)
+    /**
+     * @return
+     */
     @Transient
     //@OneToMany(cascade={CascadeType.ALL})
     //@OnDelete(action=OnDeleteAction.CASCADE)
-    public synchronized List<YNetElement> getLocations() {  // TODO Why is this synchronized?  -- DM
-        return _locations;
+    public synchronized List<YNetElement> getLocations() {
+    	List<YNetElement> retval = new LinkedList<YNetElement>();
+
+        List<DataProxy> runners2 = AbstractEngine.getDataContext().retrieveAll(YNetRunner.class, null);
+        
+        PropertyRestriction restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , this.toString());
+        List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction(YNetRunner.class, restriction ,null);
+
+        if (runners.size()==0) {
+        	restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , this.getParent().toString());
+            runners = AbstractEngine.getDataContext().retrieveByRestriction(YNetRunner.class, restriction ,null);        	
+        }
+        
+        YNetRunner runner = (YNetRunner) runners.get(0).getData();
+        
+//        YNetRunner runner = YWorkItemRepository.getInstance().getNetRunner(this);
+//   	if (runner==null) {
+//    		runner = YWorkItemRepository.getInstance().getNetRunner(this.getParent());
+//    	}
+
+    	YNet net = runner.getNet();
+    	List l = net.getNetElements();
+
+    	for (int i = 0; i < l.size(); i++) {
+    		YNetElement elem = (YNetElement) l.get(i);
+    		if (elem instanceof YCondition) {
+    			if (((YCondition) elem).contains(this)) {
+    				for (int j = 0; j < ((YCondition) elem).getAmount(this); j++) {
+    					retval.add(elem);
+    				}
+    			}    			
+    		} else if (elem instanceof YTask) {
+				YIdentifier contained = ((YTask) elem).getContainingIdentifier();
+    			if (contained!=null && contained.equals(this)) {
+    				retval.add(elem);    				
+    			}
+    		}
+    	}
+    	
+    	// TODO Why is this synchronized?  -- DM
+        return retval;
     }
-    public void setLocations(List<YNetElement> locs) {
-    	_locations = locs;
-    }
+//    public void setLocations(List<YNetElement> locs) {
+//    	_locations = locs;
+//    }
 
     @Transient
     public YIdentifier getAncestor() {
@@ -338,12 +389,29 @@ public class YIdentifier implements Serializable {
     }
 
 
-    public boolean equals(Object another) {
+    @Override
+	public boolean equals(Object another) {
         if (another.toString().equals(this.toString())) {
             return true;
         } else
             return false;
     }
+    
+    /*
+     * Error log
+     * */
+    List<YErrorEvent> errors = new ArrayList();
+    public void addError(YErrorEvent error ) {
+    	errors.add(error);
+    }
+    
+    @OneToMany(cascade = {CascadeType.ALL})
+    public List<YErrorEvent> getErrors() {
+    	return errors;
+    }
+    public void setErrors(List<YErrorEvent> errors) {
+		this.errors = errors;
+	}
 
     /**
      * Returns a hash code value for the object. This method is
@@ -380,7 +448,8 @@ public class YIdentifier implements Serializable {
      * @see Object#equals(Object)
      * @see java.util.Hashtable
      */
-    public int hashCode()
+    @Override
+	public int hashCode()
     {
         return this.toString().hashCode();
     }

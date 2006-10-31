@@ -108,11 +108,11 @@ public class YNetRunner implements Serializable // extends Thread
     private String containingTaskID = null;
     private YCaseData casedata = null;
     private YAWLServiceReference _caseObserver;
-    private InterfaceX_EngineSideClient _exceptionObserver;
+    //private InterfaceX_EngineSideClient _exceptionObserver;
 
     // inserted to persist observers
     private String _caseObserverStr = null ;
-    protected String _exceptionObserverStr = null ;
+    //protected String _exceptionObserverStr = null ;
 
     /*****************************/
 
@@ -211,7 +211,7 @@ public class YNetRunner implements Serializable // extends Thread
     /**
      * Needed for hibernate to work.
      */
-    private YNetRunner() {
+    public YNetRunner() {
         logger = Logger.getLogger(this.getClass());
         logger.debug("YNetRunner: <init>");
     }
@@ -417,12 +417,12 @@ public class YNetRunner implements Serializable // extends Thread
                 }
 
                 // notify exception checkpoint to service if available (post's for case end)
-                if (_exceptionObserver != null) {
+//                if (_exceptionObserver != null) {
                     Document data = _net.getInternalDataDocument();
-                    _engine.announceCheckCaseConstraints(_exceptionObserver, null,
+                    _engine.announceCheckCaseConstraints(null,
                                        _caseIDForNet.toString(),
                                        JDOMConversionTools.documentToString(data), false);
-                }
+//                }
 
                 Logger.getLogger(this.getClass()).debug("Asking engine to finish case");
                 _engine.finishCase(_caseIDForNet);
@@ -629,8 +629,8 @@ public class YNetRunner implements Serializable // extends Thread
             boolean success = completeTask(workItem, task, caseID, outputData);
 
             // notify exception checkpoint to service if available
-            if (_exceptionObserver != null)
-                _engine.announceCheckWorkItemConstraints(_exceptionObserver, workItem, outputData, false);
+
+            _engine.announceCheckWorkItemConstraints(workItem, outputData, false);
 
             logger.debug("<-- completeWorkItemInTask");
             return success;
@@ -679,8 +679,8 @@ public class YNetRunner implements Serializable // extends Thread
                                 if (ys != null) {
                                     _engine.announceEnabledTask(ys, item);
                                 }
-                                if (_exceptionObserver != null)
-                                    _engine.announceCheckWorkItemConstraints(_exceptionObserver, item, _net.getInternalDataDocument(), true);
+
+                                _engine.announceCheckWorkItemConstraints(item, _net.getInternalDataDocument(), true);
 
                                 _enabledTasks.add(task);
 
@@ -942,7 +942,6 @@ public class YNetRunner implements Serializable // extends Thread
                 ((YCondition) netElement).removeAll();
             }
         }
-        
         _workItemRepository.cancelNet(_caseIDForNet);
         
         /*
@@ -953,16 +952,18 @@ public class YNetRunner implements Serializable // extends Thread
          * 
          * */
         if (!_cancelling) {
-        	DataContext context = AbstractEngine.getDataContext();
-        	DataProxy runner_proxy = context.getDataProxy( this );
-        	context.delete(runner_proxy);
+        	//DataContext context = AbstractEngine.getDataContext();
+        	//DataProxy runner_proxy = context.getDataProxy( this );
+        	//context.delete(runner_proxy);
+            setArchived(true);
+            YNetRunner.saveNetRunner(this,null);
             /*
              * If we just deleted the root net, then also delete all identifiers
              * since the case is completed
              * */
-            if (this.isRootNet()) {
-            	context.delete( context.getDataProxy( this.getCaseID() ));
-            }
+            //if (this.isRootNet()) {
+            //	context.delete( context.getDataProxy( this.getCaseID() ));
+            //}
         }
         
         _cancelling = true;
@@ -1022,7 +1023,7 @@ public class YNetRunner implements Serializable // extends Thread
 
 
 	
-    @ManyToOne(cascade=CascadeType.PERSIST, fetch = FetchType.EAGER) 
+    @ManyToOne(cascade=CascadeType.PERSIST) 
     //@OnDelete(action=OnDeleteAction.CASCADE)
     public YIdentifier getCaseID() {
         return _caseIDForNet;
@@ -1036,6 +1037,15 @@ public class YNetRunner implements Serializable // extends Thread
     	_workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
     }
 
+    @Basic
+    private String basicCaseId;
+    public String getBasicCaseId() {
+    	return _caseIDForNet.getId();
+    }
+    public void setBasicCaseId(String caseid) {
+    	
+    }
+    
     @Transient
     public boolean isCompleted() {
         if (_net.getOutputCondition().containsIdentifier()) {
@@ -1062,6 +1072,17 @@ public class YNetRunner implements Serializable // extends Thread
         }
         return true;
     }
+
+    private boolean archived = false;
+    @Basic
+    public boolean getArchived() {
+       return archived;
+    }
+
+    public void setArchived(boolean archived) {
+       this.archived = archived;
+    }
+
 
     @OneToMany(cascade={CascadeType.ALL}, fetch= FetchType.EAGER)
     @JoinTable(
@@ -1106,54 +1127,39 @@ public class YNetRunner implements Serializable // extends Thread
     /***************************************************************************/
     /** The following methods have been added to support the exception service */
 
-    public void setExceptionObserver(InterfaceX_EngineSideClient observer){
-        _exceptionObserver = observer;
-        _exceptionObserverStr = observer.getURI();                  // for persistence
-     }
 
 
-    public void restoreObservers() throws YPersistenceException {
-    	
-        /*
-         * Make sure that the engine reference
-         * is restored in case of failure
-         * */
-        _engine = EngineFactory.createYEngine();
-    	
-        if(_caseObserverStr != null) {
-            YAWLServiceReference caseObserver =
-                                    _engine.getRegisteredYawlService(_caseObserverStr);
-            if (caseObserver != null) setObserver(caseObserver);
-        }
-        if (_exceptionObserverStr != null) {
-            InterfaceX_EngineSideClient exObserver =
-                                new InterfaceX_EngineSideClient(_exceptionObserverStr);
-            setExceptionObserver(exObserver);
-            _engine.setExceptionObserver(_exceptionObserverStr);
-        }
-    }
+
+//    public void restoreObservers() throws YPersistenceException {
+//    	
+//        /*
+//         * Make sure that the engine reference
+//         * is restored in case of failure
+//         * */
+//        _engine = EngineFactory.createYEngine();
+//    	
+//        if(_caseObserverStr != null) {
+//            YAWLServiceReference caseObserver =
+//                                    _engine.getRegisteredYawlService(_caseObserverStr);
+//            if (caseObserver != null) setObserver(caseObserver);
+//        }
+//        if (_exceptionObserverStr != null) {
+//            InterfaceX_EngineSideClient exObserver =
+//                                new InterfaceX_EngineSideClient(_exceptionObserverStr);
+//            setExceptionObserver(exObserver);
+//            _engine.setExceptionObserver(_exceptionObserverStr);
+//        }
+//    }
 
 
     private String get_caseObserverStr() {
         return _caseObserverStr ;
     }
-
-
-    private String get_exceptionObserverStr() {
-        return _exceptionObserverStr ;
+    private void set_caseObserverStr(String observerstr) {
+        _caseObserverStr = observerstr;
     }
 
 
-    private void set_caseObserverStr(String obStr) {
-        _caseObserverStr = obStr ;
-    }
-
-
-    private void set_exceptionObserverStr(String obStr) {
-        _exceptionObserverStr = obStr ;
-    }
-
-    
     public void cancelTask(String taskID) {
         YAtomicTask task = (YAtomicTask) getNetElement(taskID);
 

@@ -21,6 +21,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.apache.log4j.Category;
+import au.edu.qut.yawl.engine.EngineFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -194,8 +195,9 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     Interface_Client.executePost(urlOfYawlService, paramsMap);
                 }
             } catch (IOException e) {
-                logger.error("failed to call YAWL service", e);
-                e.printStackTrace();
+                logger.error("failed to call YAWL service", e); 
+                EngineFactory.getExistingEngine().announceServiceUnavailable(_workItem, _yawlService);                                
+                //e.printStackTrace();
             }            
         }
     }

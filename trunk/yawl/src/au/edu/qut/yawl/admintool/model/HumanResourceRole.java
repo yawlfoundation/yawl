@@ -12,13 +12,16 @@ package au.edu.qut.yawl.admintool.model;
 import java.io.Serializable;
 import java.sql.Statement;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -33,6 +36,7 @@ import org.hibernate.classic.Session;
  * Time: 14:46:43
  */
 @Entity
+@Table(name="hresperformsrole")
 public class HumanResourceRole implements Serializable {
     private Resource humanResource;
     private Role role;
@@ -52,8 +56,26 @@ public class HumanResourceRole implements Serializable {
     public HumanResourceRole() {
     }
 
-    @ManyToOne
+    /*
+     * Property inserted for backward compatability to old
+     * yawl editors
+     * */
+    /*
+    private String hresid = null;
+    
+    @Basic
+    @Column(name="hresid")
+    public String getHresid() {
+		return hresid;
+	}
+
+	public void setHresid(String hresid) {
+		this.hresid = hresid;
+	}
+*/
+	@ManyToOne
     @OnDelete(action=OnDeleteAction.CASCADE)
+    @JoinColumn(name="hresid")
     public Resource getHumanResource() {
         return humanResource;
     }
@@ -61,6 +83,7 @@ public class HumanResourceRole implements Serializable {
     public void setHumanResource(Resource humanResource) {
         if(humanResource instanceof HumanResource) {
             this.humanResource = humanResource;
+            
         } else {
             throw new IllegalArgumentException("<resource> is not instance of HumanResource");
         }
@@ -68,6 +91,7 @@ public class HumanResourceRole implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
+    @JoinColumn(name="rolename")
     public Role getRole() {
         return role;
     }

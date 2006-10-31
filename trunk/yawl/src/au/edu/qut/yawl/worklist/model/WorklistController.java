@@ -57,18 +57,25 @@ public class WorklistController extends InterfaceBWebsideController {
     private static final String YAWL_ALLOCATION_QUERY = "YawlResourceAllocationQuery";
 
     public WorklistController() {
+        _orgModelConnectionOK = false;
+    }
+    
+    public WorklistController(boolean persistenceon) {
         super();
-        try {
-            _dbConnector = WorklistDBConnector.getInstance();
-            _orgModelConnectionOK = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(
-                    "\n##################################################\n" +
-                    "#\tFAILED TO CONNECT TO YAWL DB CONTAINING ORG MODEL.\n" +
-                    "#\tWORKLIST CANNOT ASSIGN TASKS TO ROLES.\n" +
-                    "##################################################\n");
-            _orgModelConnectionOK = false;
+        _orgModelConnectionOK = false;
+        
+        if (persistenceon) {
+        
+        	try {
+        		_dbConnector = WorklistDBConnector.getInstance();
+        		_orgModelConnectionOK = true;
+        	} catch (Exception e) {
+        		System.out.println(
+        				"\n##################################################\n" +
+        				"#\tFAILED TO CONNECT TO YAWL DB CONTAINING ORG MODEL.\n" +
+        				"#\tWORKLIST CANNOT ASSIGN TASKS TO ROLES.\n" +
+                    	"##################################################\n");
+        	}
         }
     }
 

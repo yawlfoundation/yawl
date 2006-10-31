@@ -853,8 +853,9 @@ public class EngineGatewayImpl implements EngineGateway {
         }
         YAWLServiceReference service = YAWLServiceReference.unmarshal(serviceStr);
         if (null != service) {
-            if (null == _engine.getRegisteredYawlService(service.getURI())) {
-                try {
+        	YAWLServiceReference ref = _engine.getRegisteredYawlService(service.getURI());
+            if (null == ref || !ref.getEnabled()) {
+                try {                	
                     _engine.addYawlService(service);
                     return SUCCESS;
                 } catch (YPersistenceException e) {
@@ -987,15 +988,18 @@ public class EngineGatewayImpl implements EngineGateway {
     /** The following methods are called by an Exception Service via Interface_X */
 
     public String setExceptionObserver(String observerURI) {
-       if (_engine.setExceptionObserver(observerURI))
-           return SUCCESS;
-       else
+       try {
+    	   _engine.addExceptionObserver(observerURI);
+    	   return SUCCESS;
+       } catch (Exception e) {
            return OPEN_FAILURE + "setExceptionObserver failed" + CLOSE_FAILURE ;
+    	   
+       }                 
     }
 
 
     public String removeExceptionObserver() {
-       _engine.removeExceptionObserver();
+       _engine.removeExceptionObservers();
         return SUCCESS;
     }
 

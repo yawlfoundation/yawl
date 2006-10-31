@@ -36,11 +36,15 @@ public class SpecificationBrowser extends HttpServlet {
         controller = (WorklistController) context.getAttribute(
                 "au.edu.qut.yawl.worklist.model.WorklistController");
         if (controller == null) {
-            controller = new WorklistController();
+            controller = new WorklistController(Boolean.parseBoolean(context.getInitParameter("EnablePersistance")));
             controller.setUpInterfaceBClient(context.getInitParameter("InterfaceB_BackEnd"));
             controller.setUpInterfaceAClient(context.getInitParameter("InterfaceA_BackEnd"));
             context.setAttribute("au.edu.qut.yawl.worklist.model.WorklistController", controller);
+            
+            
+            
         }
+        
         response.setContentType("text/xml");
         StringBuffer output = new StringBuffer();
         PrintWriter outputWriter = response.getWriter();

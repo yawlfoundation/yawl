@@ -489,7 +489,6 @@ public class YNet extends YDecomposition {
         if (locations.containsAll(preSet)) {
             return true;
         }
-
         boolean callORjoin = false;
         for (Iterator locIter = locations.iterator(); locIter.hasNext();) {
             YNetElement element = (YNetElement) locIter.next();
@@ -499,6 +498,7 @@ public class YNet extends YDecomposition {
         }
 
         if (callORjoin) {
+
             try {
                 E2WFOJNet e2Net = new E2WFOJNet(this, orJoin);
                 e2Net.restrictNet(actualMarking);
@@ -510,6 +510,7 @@ public class YNet extends YDecomposition {
 
         }
 //dont waste time on an orjoin with no tokens in preset
+
         return false;
     }
 
@@ -736,6 +737,7 @@ public class YNet extends YDecomposition {
     	YVariable retval = null;
     	if (name != null) {
 	        for(YVariable entry:getLocalVariables()) {
+
 	        	if (name.equals(entry.getName()) || name.equals(entry.getElementName())) {
 	        		retval = entry;
 	        	}
