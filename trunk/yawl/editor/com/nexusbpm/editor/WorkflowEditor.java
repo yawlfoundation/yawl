@@ -48,6 +48,7 @@ import com.nexusbpm.command.CommandExecutor.ExecutionResult;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.editors.ComponentEditor;
+import com.nexusbpm.editor.editors.ConfigurationDialog;
 import com.nexusbpm.editor.editors.DataTransferEditor;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
@@ -74,7 +75,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
 	private static WorkflowEditor singleton = null;
     
     private static final Log LOG = LogFactory.getLog( WorkflowEditor.class );
-    
+    ConfigurationDialog configurationDialog;
     private JFrame _componentsFrame;
 	
     /**
@@ -114,6 +115,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
             e.printStackTrace();
         }
         
+        configurationDialog = new ConfigurationDialog(this);
         
         ///////////////////////
         // create the file menu
@@ -182,7 +184,17 @@ public class WorkflowEditor extends javax.swing.JFrame {
         deleteMenuItem = new JMenuItem();
         deleteMenuItem.setText("Delete");
         editMenu.add(deleteMenuItem);
-        
+
+        preferencesMenuItem = new JMenuItem();
+        preferencesMenuItem.setText("Preferences");
+        editMenu.add(preferencesMenuItem);
+
+        preferencesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                configurationDialog.setVisible(true);
+            }
+        });
+
         
         /////////////////////////
         // create the window menu
@@ -717,6 +729,7 @@ public class WorkflowEditor extends javax.swing.JFrame {
     private JMenuItem copyMenuItem;
     private JMenuItem pasteMenuItem;
     private JMenuItem deleteMenuItem;
+    private JMenuItem preferencesMenuItem;
     
     // options under the window menu
     private JMenuItem noWindowOpenItem;
