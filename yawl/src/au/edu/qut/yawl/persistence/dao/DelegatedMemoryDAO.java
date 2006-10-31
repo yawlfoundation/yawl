@@ -23,6 +23,9 @@ import au.edu.qut.yawl.elements.SpecVersion;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.events.YCaseEvent;
+import au.edu.qut.yawl.events.YDataEvent;
+import au.edu.qut.yawl.events.YWorkItemEvent;
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionEvaluator;
@@ -39,6 +42,10 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 		addType( YWorkItem.class, new WorkItemMemoryDAO() );
 		addType( YIdentifier.class, new IdentifierMemoryDAO() );
 		addType( YAWLServiceReference.class, new YAWLServiceReferenceMemoryDAO() );
+		
+		addType( YWorkItemEvent.class, new YWorkItemEventDAO() );
+		addType( YDataEvent.class, new YDataEventDAO() );
+		addType( YCaseEvent.class, new YCaseEventDAO() );
 	}
 	
 	public List getChildren( Object object ) {
@@ -135,7 +142,12 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
     }
 
     private class NetRunnerMemoryDAO extends AbstractMemoryDAO<YNetRunner> {
-		protected void preSave( YNetRunner object ) {}
+		long maxID = 0;
+		protected void preSave( YNetRunner object ) {
+			if( object.getId() == null ) {
+				object.setId( Long.valueOf( maxID++ ) );
+			}
+		}
 		public Object getKey( YNetRunner object ) {
 			return PersistenceUtilities.getNetRunnerKey( object );
 		}
@@ -178,6 +190,30 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 		}
 		public Object getKey( YAWLServiceReference item ) {
 			return PersistenceUtilities.getYAWLServiceReferenceKey( item );
+		}
+	}
+	
+	private class YWorkItemEventDAO extends AbstractMemoryDAO<YWorkItemEvent> {
+		protected void preSave( YWorkItemEvent item ) {}
+		
+		public Object getKey( YWorkItemEvent item ) {
+			return item.getId();
+		}
+	}
+	
+	private class YCaseEventDAO extends AbstractMemoryDAO<YCaseEvent> {
+		protected void preSave( YCaseEvent item ) {}
+		
+		public Object getKey( YCaseEvent item ) {
+			return item.getIdentifier();
+		}
+	}
+	
+	private class YDataEventDAO extends AbstractMemoryDAO<YDataEvent> {
+		protected void preSave( YDataEvent item ) {}
+		
+		public Object getKey( YDataEvent item ) {
+			return item.getId();
 		}
 	}
 }

@@ -110,6 +110,10 @@ public class RestrictionEvaluator {
 				String val = (String) property.getReadMethod().invoke( object, (Object[]) null );
 				String val2 = (String) restriction.getValue();
 				return compareStrings( val, restriction.getComparison(), val2 );
+			} else if (property.getPropertyType().equals( boolean.class ) ) {
+				boolean val = (Boolean) property.getReadMethod().invoke( object, (Object[]) null );
+				boolean val2 = (Boolean) restriction.getValue();
+				return compareBool( val, restriction.getComparison(), val2);
 			}
 			else {
 				throw new UnsupportedOperationException( "Cannot compare properties of type " +
@@ -202,6 +206,20 @@ public class RestrictionEvaluator {
 			case GREATER_THAN_OR_EQUAL:
 				return actual != null && expected != null &&
 					actual.compareTo( expected ) >= 0;
+			default:
+				throw new UnsupportedOperationException(
+						"Unsupported comparison for strings: " + comparison );
+		}
+	}
+	
+	private static boolean compareBool( boolean actual, Comparison comparison, boolean expected ) {
+		switch( comparison ) {
+			case EQUAL:
+				return actual == expected;
+					
+			case NOT_EQUAL:
+				return actual != expected;
+				
 			default:
 				throw new UnsupportedOperationException(
 						"Unsupported comparison for strings: " + comparison );

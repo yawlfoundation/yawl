@@ -46,10 +46,19 @@ public class Interface_Client {
         	url = new URL(urlStr);
         }
         
+
         connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput("POST".equals( requestMethod ));
         connection.setDoInput(true);
         connection.setRequestMethod(requestMethod);
+
+        /*
+         * Inserted by Tore to ensure that we can
+         * check timeouts on read operations occuring
+         * for POSTS on location which are running
+         * but not accepting the post
+         * */
+        connection.setReadTimeout(10000);
         //send query
         if( "POST".equals( requestMethod ) ) {
         	PrintWriter out = new PrintWriter(connection.getOutputStream());

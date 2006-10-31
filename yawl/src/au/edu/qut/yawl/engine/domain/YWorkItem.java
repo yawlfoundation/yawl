@@ -418,6 +418,9 @@ public class YWorkItem {
         }
         setStatus(completionStatus);
 
+        YawlEventLogger.getInstance().logWorkItemEvent(_parent.getCaseID().toString(),
+                _parent.getTaskID()
+                , _status, _whoStartedMe, _specificationID);
         /*
          * Check if all siblings  are completed, if so then
          * the parent is completed too.

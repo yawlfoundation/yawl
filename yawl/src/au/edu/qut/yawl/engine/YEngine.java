@@ -28,6 +28,8 @@ import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.engine.interfce.interfaceX.EngineExceptionLogger;
+import au.edu.qut.yawl.engine.interfce.interfaceX.ExceptionGateway;
 import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import au.edu.qut.yawl.events.YawlEventLogger;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
@@ -527,6 +529,11 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
         _userList = UserList.getInstance();
         _workItemRepository = YWorkItemRepository.getInstance();
 
+        /*
+         * Add internal exception logger
+         * */
+        this.addExceptionObserver(new EngineExceptionLogger());
+        
 
         /***************************/
         /**
@@ -535,6 +542,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
         YAWLServiceReference ys;
         Set s = _myInstance.getYAWLServices();
 
+        
 		if (s.size()==0) {
 			/*
 			 * If the set is empty, there are no services in the database
@@ -976,21 +984,18 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     	}
 	}
 
-	public boolean setExceptionObserver(InterfaceX_EngineSideClient ix) {
-		super.setExceptionObserver(ix);
-		return true;
+	public void addExceptionObserver(InterfaceX_EngineSideClient ix) {
+		super.addExceptionObserver(ix);
 	}
 
-	public boolean setExceptionObserver(String observerURI){
-		_exceptionObserver = new InterfaceX_EngineSideClient(observerURI);
-		super.setExceptionObserver(_exceptionObserver);
-		return (_exceptionObserver != null) ;
+	public void addExceptionObserver(String observerURI){
+		super.addExceptionObserver(new InterfaceX_EngineSideClient(observerURI));
 	}
 
 
-	public boolean removeExceptionObserver() {
-		super.removeExceptionObserver();
-		return true ;
+	public void removeExceptionObservers() {
+		super.removeExceptionObservers();
+
 	}
 
 
@@ -1035,10 +1040,13 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
         	List<DataProxy> proxies = getDataContext().retrieveAll( YAWLServiceReference.class, null );
         	Set<YAWLServiceReference> references = new HashSet<YAWLServiceReference>();
         	for( DataProxy proxy : proxies ) {
-        		references.add( (YAWLServiceReference) proxy.getData() ); 
+        		YAWLServiceReference ref = (YAWLServiceReference) proxy.getData();
+        		if (ref.getEnabled()) {
+        			references.add( ref );
+        		}
         	}
         	return references;
-//            return new HashSet(_yawlServices.values());
+
         }
     }
 
@@ -1161,7 +1169,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
      * @param arg
      */
     public void setJournalising(boolean arg) {
-        journalising = arg;
+        AbstractEngine.setPersistence(arg);
     }
 
     /**
@@ -1249,35 +1257,68 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     }
 
 
-    protected void announceCheckWorkItemConstraints(InterfaceX_EngineSideClient ixClient,
-                                                    YWorkItem item, Document data, boolean preCheck) {
-        logger.debug("Announcing Check Constraints for task " + ((item == null) ? "{null}" : item.getIDString()) +
-                     " on client " + ixClient.toString());
-        ixClient.announceCheckWorkItemConstraints(item, data, preCheck);
+    protected void announceCheckWorkItemConstraints(YWorkItem item, Document data, boolean preCheck) {
+        
+    	/*
+    	 * Parse through available exception handler services
+    	 * */
+    	for (int i = 0; i < _exceptionObservers.size();i++) {
+    	
+    		ExceptionGateway ixClient = _exceptionObservers.get(i);
+    		logger.debug("Announcing Check Constraints for task " + ((item == null) ? "{null}" : item.getIDString()) +
+    				" on client " + ixClient.toString());
+    		ixClient.announceCheckWorkItemConstraints(item, data, preCheck);
+    	}
     }
 
 
-    protected void announceCheckCaseConstraints(InterfaceX_EngineSideClient ixClient,
-                                                String specID, String caseID, String data, boolean preCheck) {
-        logger.debug("Announcing Check Constraints for case " + caseID +
+    protected void announceCheckCaseConstraints(String specID, String caseID, String data, boolean preCheck) {
+    	for (int i = 0; i < _exceptionObservers.size();i++) {
+        	
+    		ExceptionGateway ixClient = _exceptionObservers.get(i);logger.debug("Announcing Check Constraints for case " + caseID +
                      " on client " + ixClient.toString());
-        ixClient.announceCheckCaseConstraints(specID, caseID, data, preCheck);
+    		ixClient.announceCheckCaseConstraints(specID, caseID, data, preCheck);
+    	}
     }
 
 
-    public void announceCancellationToExceptionService(InterfaceX_EngineSideClient ixClient,
-                                                       YIdentifier caseID) {
-        logger.debug("Announcing Cancel Case for case " + caseID.toString() +
+    public void announceCancellationToExceptionService(YIdentifier caseID) {
+    	for (int i = 0; i < _exceptionObservers.size();i++) {
+        	
+    		ExceptionGateway ixClient = _exceptionObservers.get(i);logger.debug("Announcing Cancel Case for case " + caseID.toString() +
                      " on client " + ixClient.toString());
             ixClient.announceCaseCancellation(caseID.toString());
+    	}
     }
 
 
-    public void announceTimeOutToExceptionService(InterfaceX_EngineSideClient ixClient,
-                                                  YWorkItem item, List timeOutTaskIds) {
-        logger.debug("Announcing Time Out for item " + item.getWorkItemID() +
+    public void announceTimeOutToExceptionService(YWorkItem item, List timeOutTaskIds) {
+    	for (int i = 0; i < _exceptionObservers.size();i++) {
+        	
+    		ExceptionGateway ixClient = _exceptionObservers.get(i);
+    		logger.debug("Announcing Time Out for item " + item.getWorkItemID() +
                      " on client " + ixClient.toString());
             ixClient.announceTimeOut(item, timeOutTaskIds);
+    	}
     }
-
+    
+    public void announceServiceUnavailable(YWorkItem item, YAWLServiceReference ref) {
+    	for (int i = 0; i < _exceptionObservers.size();i++) {
+        	
+    		ExceptionGateway ixClient = _exceptionObservers.get(i);
+    		logger.debug("Announcing Service unavailability for item " + item.getWorkItemID() +
+                     " on client " + ixClient.toString());
+            ixClient.announceServiceUnavailable(item, ref);
+    	}
+    }
+    
+    public void announceServiceError(YWorkItem item, YAWLServiceReference ref) {
+    	for (int i = 0; i < _exceptionObservers.size();i++) {
+        	
+    		ExceptionGateway ixClient = _exceptionObservers.get(i);
+    		logger.debug("Announcing Service unavailability for item " + item.getWorkItemID() +
+                     " on client " + ixClient.toString());
+            ixClient.announceServiceUnavailable(item, ref);
+    	}
+    }
 }

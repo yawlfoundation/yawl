@@ -47,6 +47,7 @@ import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverte
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 
 import au.edu.qut.yawl.persistence.YAWLTransactionAdvice;
+import au.edu.qut.yawl.elements.SpecVersion;
 
 public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedCustomSpringDAO.class );

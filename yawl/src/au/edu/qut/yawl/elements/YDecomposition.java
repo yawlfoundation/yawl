@@ -627,6 +627,20 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
 //    	}
     	return _outputParameters;
 	}
+    
+    @Transient
+    public YVariable getParameter(String name) {
+    	YVariable retval = null;
+    	if (name != null) {
+	        for(YParameter entry:getOutputParameters()) {
+
+	        	if (name.equals(entry.getName()) || name.equals(entry.getElementName())) {
+	        		retval = entry;
+	        	}
+	        }
+    	}
+        return retval;
+    }
 
     @OneToMany(mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)

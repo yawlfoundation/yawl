@@ -39,12 +39,15 @@ import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.events.Event;
 import au.edu.qut.yawl.events.YCaseEvent;
 import au.edu.qut.yawl.events.YDataEvent;
+import au.edu.qut.yawl.events.YErrorEvent;
+import au.edu.qut.yawl.events.YServiceError;
 import au.edu.qut.yawl.events.YWorkItemEvent;
 
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
+import au.edu.qut.yawl.elements.SpecVersion;
 
 /**
  * @deprecated see DelegatedCustomSpringDAO
@@ -84,7 +87,9 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 		YVariable.class,
 		YWorkItem.class,
 		YWorkItemEvent.class,
-		YWorkItemID.class				};
+		YWorkItemID.class,
+		YErrorEvent.class,
+		YServiceError.class};
 	
 	private synchronized static void initializeSessions() {
 		try {

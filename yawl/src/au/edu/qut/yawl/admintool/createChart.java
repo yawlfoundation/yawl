@@ -1107,11 +1107,11 @@ public class createChart extends HttpServlet{
         String element = req.getParameter("selectelement");
         if (element!=null) {
             if (element.equals("Cases")) {
-                querystartstring = new String("Select distinct from au.edu.qut.yawl.engine.YLogIdentifier as element");
+                querystartstring = new String("from au.edu.qut.yawl.events.YCaseEvent as element");
                 querytype = "case";
                 querylist = new CommonQuery(req.getParameter("queryname"));
             } else {
-                querystartstring = new String("Select distinct from au.edu.qut.yawl.engine.YWorkItemEvent as element");
+                querystartstring = new String("from au.edu.qut.yawl.events.YWorkItemEvent as element");
                 querytype = "task";
                 querylist = new CommonQuery(req.getParameter("queryname"));
             }

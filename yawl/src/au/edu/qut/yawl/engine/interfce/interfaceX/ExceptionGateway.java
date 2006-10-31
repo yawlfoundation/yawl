@@ -7,6 +7,7 @@
  */
 package au.edu.qut.yawl.engine.interfce.interfaceX;
 
+import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import org.jdom.Document;
 
@@ -63,7 +64,22 @@ public interface ExceptionGateway
      */
     void announceCaseCancellation(String caseID);
 
+    
+    /*
+     * Announced by the engine when a particular service cannot
+     * be contacted
+     * */
+    void announceServiceUnavailable(YWorkItem item, YAWLServiceReference ref);
 
+
+    /*
+     * Announced by the engine when a particular service
+     * returns an error
+     * */
+    void announceServiceError(YWorkItem item, YAWLServiceReference ref);
+
+    
+    
     /************** FOR FUTURE IMPLEMENTATION *************/
     void announceWorkitemAbort(YWorkItem item);
 

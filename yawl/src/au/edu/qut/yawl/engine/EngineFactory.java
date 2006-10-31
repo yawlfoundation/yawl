@@ -27,6 +27,7 @@ public class EngineFactory {
 
 	public static void resetEngine() {
 		engine = null;
+		transactionalengine = null;
 	}
 
 	private static YEngine engine;
@@ -49,6 +50,10 @@ public class EngineFactory {
 	public EngineFactory() {
 		super();
 		// TODO Auto-generated constructor stub
+	}
+	
+	public static YEngine getExistingEngine() {
+		return engine;
 	}
 	
 	public static ApplicationContext getApplicationContext() {

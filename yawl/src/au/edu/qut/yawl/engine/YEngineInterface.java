@@ -36,6 +36,7 @@ public interface YEngineInterface {
     public YIdentifier getCaseID(String caseIDStr);
     public String getStateTextForCase(YIdentifier caseID);
     public String getStateForCase(YIdentifier caseID);
+    public String getStateForCase(String caseID);
     public void registerInterfaceAClient(InterfaceAManagementObserver observer);
     public void registerInterfaceBObserver(InterfaceBClientObserver observer);
     public void registerInterfaceBObserverGateway(ObserverGateway gateway);
@@ -72,19 +73,17 @@ public interface YEngineInterface {
 
     public void cancelWorkItem(YWorkItem workItem, boolean statusFail);
     
-    public void announceCancellationToExceptionService(InterfaceX_EngineSideClient ixClient,
-                                                     YIdentifier caseID);
+    public void announceCancellationToExceptionService(YIdentifier caseID);
 
-    public void announceTimeOutToExceptionService(InterfaceX_EngineSideClient ixClient,
-                                                  YWorkItem item, List timeOutTaskIds);
+    public void announceTimeOutToExceptionService(YWorkItem item, List timeOutTaskIds);
     
     public void cancelCase(YIdentifier id) throws YPersistenceException;
-   	public boolean setExceptionObserver(InterfaceX_EngineSideClient ix);
+   	public void addExceptionObserver(InterfaceX_EngineSideClient ix);
 
-   	public boolean setExceptionObserver(String observerURI);
+   	public void addExceptionObserver(String observerURI);
 
 
-  	public boolean removeExceptionObserver();
+  	public void removeExceptionObservers();
   	
   	public YEngine getYEngine();
     

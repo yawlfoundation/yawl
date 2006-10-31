@@ -45,6 +45,7 @@ import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 
 import au.edu.qut.yawl.events.YCaseEvent;
+import au.edu.qut.yawl.events.YErrorEvent;
 import au.edu.qut.yawl.events.YWorkItemEvent;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
@@ -78,11 +79,13 @@ public class DatabaseGatewayImpl {
 		YWorkItemID.class,
 		YIdentifier.class,
 		YCaseEvent.class,
-		YWorkItemEvent.class};
+		YWorkItemEvent.class,
+		YErrorEvent.class};
 	
 	
     private DatabaseGatewayImpl(boolean persistenceOn) throws HibernateException {
         this.persistenceOn = persistenceOn;
+        System.out.println("persistence on: " + persistenceOn);
         initialise();
     }
 
@@ -485,7 +488,7 @@ public class DatabaseGatewayImpl {
 
         try {
 
-            String hql = "Select count(item._status),item._status from au.edu.qut.yawl.engine.YWorkItem as item group by item._status";
+            String hql = "Select count(item._status),item._status from au.edu.qut.yawl.engine.domain.YWorkItem as item group by item._status";
 
             //insert where query on specid here
             if (!specid.equalsIgnoreCase("All Specifications")) {
@@ -510,7 +513,7 @@ public class DatabaseGatewayImpl {
         List items = new LinkedList();
         List resultitems = new LinkedList();
         try {
-            String hql = "Select yawlcase.created, yawlcase.completed,yawlcase.specification from au.edu.qut.yawl.engine.YLogIdentifier as yawlcase";
+            String hql = "Select yawlcase.created, yawlcase.completed,yawlcase.specification from au.edu.qut.yawl.events.YCaseEvent as yawlcase";
             Query query = createQuery(hql);
             items = query.list();
             System.out.println("rows for average spec times: " + items.size());
@@ -615,7 +618,7 @@ public class DatabaseGatewayImpl {
         List items = null;
         List caseitems = new LinkedList();
         try {
-            String hql = "Select yawlcase.created, yawlcase.completed, yawlcase.identifier from au.edu.qut.yawl.engine.YLogIdentifier as yawlcase";
+            String hql = "Select yawlcase.created, yawlcase.completed, yawlcase.identifier from au.edu.qut.yawl.events.YCaseEvent as yawlcase";
 
             if (!specid.equalsIgnoreCase("All Specifications")) {
                 hql = hql + " where yawlcase.specification='" + specid + "'";
@@ -673,7 +676,7 @@ public class DatabaseGatewayImpl {
         List items = new LinkedList();
         String[] specids = null;
         try {
-            String hql = "Select distinct yawlcase.specification from au.edu.qut.yawl.engine.YLogIdentifier as yawlcase";
+            String hql = "Select distinct yawlcase.specification from au.edu.qut.yawl.events.YCaseEvent as yawlcase";
             Query query = createQuery(hql);
             items = query.list();
             specids = new String[items.size()];
@@ -693,7 +696,7 @@ public class DatabaseGatewayImpl {
         List items = new LinkedList();
         String[] caseids = null;
         try {
-            String hql = "Select distinct yawlcase.identifier from au.edu.qut.yawl.engine.YLogIdentifier as yawlcase";
+            String hql = "Select distinct yawlcase.identifier from au.edu.qut.yawl.events.YCaseEvent as yawlcase";
             Query query = createQuery(hql);
             items = query.list();
             caseids = new String[items.size()];
@@ -717,7 +720,7 @@ public class DatabaseGatewayImpl {
 	    /*
 	      Need to remove null values from this list
 	     */
-            String hql = "Select distinct yawlevent.resource from au.edu.qut.yawl.engine.YWorkItemEvent as yawlevent";
+            String hql = "Select distinct yawlevent.resource from au.edu.qut.yawl.events.YWorkItemEvent as yawlevent";
             Query query = createQuery(hql);
             items = query.list();
             resourceids = new LinkedList();
@@ -748,7 +751,7 @@ public class DatabaseGatewayImpl {
         List items = new LinkedList();
         String[] taskids = null;
         try {
-            String hql = "Select distinct yawlevent.taskid from au.edu.qut.yawl.engine.YWorkItemEvent as yawlevent";
+            String hql = "Select distinct yawlevent.taskid from au.edu.qut.yawl.events.YWorkItemEvent as yawlevent";
             Query query = createQuery(hql);
             items = query.list();
             taskids = new String[items.size()];
@@ -768,7 +771,7 @@ public class DatabaseGatewayImpl {
         List items = new LinkedList();
         String[] workitemids = null;
         try {
-            String hql = "Select distinct yawlevent.identifier from au.edu.qut.yawl.engine.YWorkItemEvent as yawlevent";
+            String hql = "Select distinct yawlevent.identifier from au.edu.qut.yawl.events.YWorkItemEvent as yawlevent";
             Query query = createQuery(hql);
             items = query.list();
             workitemids = new String[items.size()];
