@@ -64,13 +64,7 @@ ShowUninstDetails show
 Section -Main SEC0000
     SetOutPath $INSTDIR\lib
         SetOverwrite on
-        File ..\..\build\3rdParty\lib\*.jar
-        File ..\..\build\3rdParty\persistenceLibs\*.jar
-        File ..\..\build\3rdParty\serviceLibs\jython\*.jar
-        File ..\..\build\3rdParty\serviceLibs\xfire\*.jar
-        File ..\..\build\3rdParty\standAlone-libs\*.jar
-        File ..\..\build\3rdParty\wsif-lib\*.jar
-        File ..\..\build\3rdParty\xsdlib\*.jar
+        File /r ..\..\build\nexusWorkflowEditor\*.jar
     SetOutPath $INSTDIR\examples
         SetOverwrite on
         File /r ..\..\exampleSpecs\xml\*.x*
