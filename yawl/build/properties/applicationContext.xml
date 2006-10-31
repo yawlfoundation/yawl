@@ -34,6 +34,7 @@
                 <value>au.edu.qut.yawl.elements.YCondition</value>
                 <value>au.edu.qut.yawl.elements.YExternalNetElement</value>
                 <value>au.edu.qut.yawl.elements.YSpecification</value>
+                <value>au.edu.qut.yawl.elements.SpecVersion</value>
                 <value>au.edu.qut.yawl.elements.YDecomposition</value>
                 <value>au.edu.qut.yawl.elements.YFlow</value>
                 <value>au.edu.qut.yawl.elements.YDecomposition</value>
@@ -50,6 +51,7 @@
 		<value>au.edu.qut.yawl.events.YWorkItemEvent</value>
 		<value>au.edu.qut.yawl.events.YCaseEvent</value>
 		<value>au.edu.qut.yawl.events.YDataEvent</value>
+		<value>au.edu.qut.yawl.events.YErrorEvent</value>
             </list>
         </property>
 </bean>
