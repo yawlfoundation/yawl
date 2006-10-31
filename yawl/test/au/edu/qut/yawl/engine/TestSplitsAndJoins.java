@@ -536,7 +536,6 @@ public class TestSplitsAndJoins extends TestCase {
 		assertFalse( task.getMIComplete().containsIdentifier() );
 		assertFalse( task.getMIEntered().containsIdentifier() );
 		assertFalse( task.getMIExecuting().containsIdentifier() );
-		
 		try {
 			task.t_complete( item.getCaseID(), null );
 			fail("An exception should have been thrown");
@@ -547,8 +546,7 @@ public class TestSplitsAndJoins extends TestCase {
 		
 		// start it
     	item = _engine.startWorkItem( item, "admin" );
-    	
-    	System.out.println( _engine.getStateForCase( item.getCaseID() ) );
+    	System.out.println( _engine.getStateForCase( item.getCaseID().toString() ) );
     	System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
     	
     	sleep( SLEEP_TIME );
@@ -577,8 +575,8 @@ public class TestSplitsAndJoins extends TestCase {
 		// make sure to roll back the status of the work item too...
 		// (it should probably be done in YNetRunner.rollbackWorkItem(), but it's not)
 		item.rollBackStatus();
-		
-		System.out.println( _engine.getStateForCase( item.getCaseID() ) );
+
+		System.out.println( _engine.getStateForCase( item.getCaseID().toString() ) );
 		System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
 		
 		assertTrue( task.getMIActive().containsIdentifier() );
@@ -637,7 +635,7 @@ public class TestSplitsAndJoins extends TestCase {
 		// restart it (should work since it was rolled back earlier)
 		item = _engine.startWorkItem( item, "admin" );
 		
-		System.out.println( _engine.getStateForCase( item.getCaseID() ) );
+		System.out.println( _engine.getStateForCase( item.getCaseID().toString() ) );
 		System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
 		
 		sleep( SLEEP_TIME );
@@ -650,8 +648,8 @@ public class TestSplitsAndJoins extends TestCase {
     	// and finally complete it
     	_engine.completeWorkItem( item, item.getDataString(), false );
     	
-    	System.out.println( _engine.getStateForCase( item.getCaseID() ) );
-    	System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
+    	System.out.println( _engine.getStateForCase( item.getCaseID().toString() ) );
+    	//System.out.println( _engine.getStateTextForCase( item.getCaseID().toString() ) );
     }
     
     public void testStartNonExistingSpec() throws YSchemaBuildingException, YDataStateException, YPersistenceException {

@@ -162,7 +162,7 @@ public class TestEngineGatewayYAWLServices extends TestCase {
 //    	System.out.println( keys );
     	
     	assertTrue( keys, refs.containsKey( "http://localhost:8080/yawlSMSInvoker/ib" ) );
-    	assertTrue( keys, refs.containsKey( "mock://mockedURL/testingEngineGateway" ) );
+    	assertTrue( keys, refs.containsKey( "mock://mockedURL/testingAddingYAWLService" ) );
     	assertTrue( keys, refs.containsKey( "http://localhost:8080/timeService/ib" ) );
     	assertTrue( keys, refs.containsKey( "http://localhost:8080/yawlWSInvoker/" ) );
     	assertTrue( keys, refs.containsKey( "http://localhost:8080/workletService/ib" ) );

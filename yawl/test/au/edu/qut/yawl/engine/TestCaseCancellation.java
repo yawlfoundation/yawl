@@ -67,6 +67,7 @@ public class TestCaseCancellation extends TestCase {
         }
         _engine.addYawlService(service);
 
+
         _repository = YWorkItemRepository.getInstance();
         URL fileURL = getClass().getResource("CaseCancellation.xml");
         File yawlXMLFile = new File(fileURL.getFile());
@@ -75,7 +76,8 @@ public class TestCaseCancellation extends TestCase {
 
         _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         _idForTopNet = _engine.startCase(null, _specification.getID(), null, serviceURI);
-
+   
+        
         ObserverGateway og = new ObserverGateway() {
             public void cancelAllWorkItemsInGroupOf(
                     YAWLServiceReference ys,

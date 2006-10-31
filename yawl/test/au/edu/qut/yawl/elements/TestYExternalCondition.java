@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.elements;
 
 import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.exceptions.*;
@@ -18,6 +19,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 import au.edu.qut.yawl.engine.*;
 import au.edu.qut.yawl.engine.domain.YCaseData;
+import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.engine.YNetRunner;
 
 /**
  * @author aldredl
@@ -47,11 +50,14 @@ public class TestYExternalCondition extends TestCase {
         YSpecification spec = new YSpecification("");
         spec.setBetaVersion(YSpecification._Beta2);
         _net = new YNet("aNetName", spec);
+       
         YVariable v = new YVariable(null);
         v.setName("stubList");
         v.setUntyped(true);
         v.setInitialValue("<stub/><stub/><stub/>");
         _net.setLocalVariable(v);
+
+        
         YCaseData casedata = new YCaseData();
         _net.initializeDataStore(casedata);
         _net.initialise();
@@ -62,6 +68,11 @@ public class TestYExternalCondition extends TestCase {
         _aTask.setPreset(f);
         f = new YFlow(_aTask, _condition2);
         _aTask.setPostset(f);
+
+        _net.addNetElement(_condition);
+        _net.addNetElement(_condition2);
+        _net.addNetElement(_aTask);
+
     }
 
 
@@ -74,7 +85,17 @@ public class TestYExternalCondition extends TestCase {
 
     public void testMovingIdentifiers() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
         YIdentifier id = new YIdentifier();
+        
+
+        YNetRunner netRunner = new YNetRunner();
+        netRunner.setNet(_net);
+        netRunner.setCaseID(id);
+        YNetRunner.saveNetRunner(netRunner, null);
+        
         YIdentifier.saveIdentifier( id, null, null );
+       
+       
+        
         assertTrue(id.getLocations().size() == 0);
         assertFalse(id.getLocations().contains(_condition));
         _condition.add(id);

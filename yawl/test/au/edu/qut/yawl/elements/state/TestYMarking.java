@@ -10,6 +10,8 @@
 package au.edu.qut.yawl.elements.state;
 
 import au.edu.qut.yawl.elements.*;
+import au.edu.qut.yawl.engine.YNetRunner;
+import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
@@ -60,9 +62,16 @@ public class TestYMarking extends TestCase{
 
 
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
-        _conditionArr = new YCondition[6];
+        
+
+        YSpecification spec = new YSpecification("");
+        spec.setBetaVersion(YSpecification._Beta2);
+        YNet _net = new YNet("aNetName", spec);
+        
+    	_conditionArr = new YCondition[6];
         for (int i = 0; i < _conditionArr.length; i++) {
             _conditionArr[i] = new YCondition("ct"+i, "YConditionInterface " + i, null);
+            _net.addNetElement(_conditionArr[i]);
         }
         YIdentifier id1, id2, id3, id4, id5, id6;
         id1 = new YIdentifier();
@@ -72,44 +81,81 @@ public class TestYMarking extends TestCase{
         id5 = new YIdentifier();
         id6 = new YIdentifier();
 
-        id1.addLocation(_conditionArr[0]);
-        id1.addLocation(_conditionArr[1]);
-        id1.addLocation(_conditionArr[2]);
-        id1.addLocation(_conditionArr[3]);
-        id1.addLocation(_conditionArr[4]);
+        YNetRunner netRunner = new YNetRunner();
+        netRunner.setNet(_net);
+        netRunner.setCaseID(id1);
+        netRunner.setId(new Long(1));
+        YNetRunner.saveNetRunner(netRunner, null);
+
+        netRunner = new YNetRunner();
+        netRunner.setNet(_net);
+        netRunner.setCaseID(id2);
+        netRunner.setId(new Long(2));
+        YNetRunner.saveNetRunner(netRunner, null);
+
+        netRunner = new YNetRunner();
+        netRunner.setNet(_net);
+        netRunner.setCaseID(id3);
+        netRunner.setId(new Long(3));
+        YNetRunner.saveNetRunner(netRunner, null);
+
+        netRunner = new YNetRunner();
+        netRunner.setNet(_net);
+        netRunner.setCaseID(id4);
+        netRunner.setId(new Long(4));
+        YNetRunner.saveNetRunner(netRunner, null);
+
+        netRunner = new YNetRunner();
+        netRunner.setNet(_net);
+        netRunner.setCaseID(id5);
+        netRunner.setId(new Long(5));
+        YNetRunner.saveNetRunner(netRunner, null);
+
+        netRunner = new YNetRunner();
+        netRunner.setNet(_net);
+        netRunner.setCaseID(id6);
+        netRunner.setId(new Long(6));
+        YNetRunner.saveNetRunner(netRunner, null);
+
+       
+        _conditionArr[0].add(id1);
+        _conditionArr[1].add(id1);
+        _conditionArr[2].add(id1);
+        _conditionArr[3].add(id1);
+        _conditionArr[4].add(id1);
         _marking1 = new YMarking(id1);
 
-        id2.addLocation(_conditionArr[0]);
-        id2.addLocation(_conditionArr[1]);
-        id2.addLocation(_conditionArr[2]);
-        id2.addLocation(_conditionArr[3]);
-        id2.addLocation(_conditionArr[4]);
+        _conditionArr[0].add(id2);
+        _conditionArr[1].add(id2);
+        _conditionArr[2].add(id2);
+        _conditionArr[3].add(id2);
+        _conditionArr[4].add(id2);
         _marking2 = new YMarking(id2);
 
-        id3.addLocation(_conditionArr[0]);
-        id3.addLocation(_conditionArr[1]);
-        id3.addLocation(_conditionArr[2]);
-        id3.addLocation(_conditionArr[3]);
+        _conditionArr[0].add(id3);
+        _conditionArr[1].add(id3);
+        _conditionArr[2].add(id3);
+        _conditionArr[3].add(id3);
         _marking3 = new YMarking(id3);
 
-        id4.addLocation(_conditionArr[0]);
-        id4.addLocation(_conditionArr[1]);
-        id4.addLocation(_conditionArr[2]);
-        id4.addLocation(_conditionArr[3]);
-        id4.addLocation(_conditionArr[4]);
-        id4.addLocation(_conditionArr[4]);
+        _conditionArr[0].add(id4);
+        _conditionArr[1].add(id4);
+        _conditionArr[2].add(id4);
+        _conditionArr[3].add(id4);
+        _conditionArr[4].add(id4);
+        _conditionArr[4].add(id4);
         _marking4 = new YMarking(id4);
 
-        id5.addLocation(_conditionArr[4]);
-        id5.addLocation(_conditionArr[5]);
+        _conditionArr[4].add(id5);
+        _conditionArr[5].add(id5);
         _marking5 = new YMarking(id5);
 
-        id6.addLocation(_conditionArr[0]);
-        id6.addLocation(_conditionArr[1]);
-        id6.addLocation(_conditionArr[2]);
-        id6.addLocation(_conditionArr[2]);
-        id6.addLocation(_conditionArr[3]);
-        id6.addLocation(_conditionArr[4]);
+        _conditionArr[0].add(id6);
+        _conditionArr[1].add(id6);
+        _conditionArr[2].add(id6);
+        _conditionArr[2].add(id6);
+        _conditionArr[3].add(id6);
+        _conditionArr[4].add(id6);
         _marking6 = new YMarking(id6);
 
         int xor = YTask._XOR;
@@ -134,7 +180,11 @@ public class TestYMarking extends TestCase{
             _andJoinOrSplit .setPostset(new YFlow(_andJoinOrSplit, _conditionArr[i + 3]));
             _conditionArr[i] .add(id);
         }
+        netRunner = new YNetRunner();
+        netRunner.setNet(_net);netRunner.setCaseID(id);netRunner.setId(new Long(7));
+        YNetRunner.saveNetRunner(netRunner, null);
         _marking7 = new YMarking(id);
+
 
         URL fileURL = getClass().getResource("YAWLOrJoinTestSpecificationLongLoops.xml");
         File yawlXMLFile = new File(fileURL.getFile());
@@ -142,15 +192,27 @@ public class TestYMarking extends TestCase{
         specification = (YSpecification) YMarshal.
                             unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         _loopedNet  = specification.getRootNet();
+
+
+        
         id = new YIdentifier();
-        id.addLocation((YCondition)_loopedNet.getNetElement("c{w_d}"));
+        netRunner = new YNetRunner();
+        netRunner.setNet(_loopedNet);netRunner.setCaseID(id);netRunner.setId(new Long(8));
+        YNetRunner.saveNetRunner(netRunner, null);
+        ((YCondition)_loopedNet.getNetElement("c{w_d}")).add(id);
         _marking8 = new YMarking(id);
         id = new YIdentifier();
+        netRunner = new YNetRunner();
+        netRunner.setNet(_loopedNet);netRunner.setCaseID(id);netRunner.setId(new Long(9));
+        YNetRunner.saveNetRunner(netRunner, null);
         _marking9 = new YMarking(id);
-        id.addLocation((YCondition)_loopedNet.getNetElement("cA"));
+        ((YCondition)_loopedNet.getNetElement("cA")).add(id);
         _marking10 = new YMarking(id);
         id = new YIdentifier();
-        id.addLocation((YCondition)_loopedNet.getNetElement("i-top"));
+        netRunner = new YNetRunner();
+        netRunner.setNet(_loopedNet);netRunner.setCaseID(id);netRunner.setId(new Long(10));
+        YNetRunner.saveNetRunner(netRunner, null);
+        ((YCondition)_loopedNet.getNetElement("i-top")).add(id);
         _marking11 = new YMarking(id);
     }
 
@@ -168,18 +230,27 @@ public class TestYMarking extends TestCase{
         assertTrue(_marking1.strictlyGreaterThanOrEqualWithSupports(_marking2));
         assertTrue(_marking2.strictlyGreaterThanOrEqualWithSupports(_marking1));
         //XPathSaxonUser m4[0 1 2 3 4 4] m2[0 1 2 3 4]
+
         assertTrue(_marking4.strictlyGreaterThanOrEqualWithSupports(_marking2));
         //XPathSaxonUser strictly lesser marking with supports
+
         assertFalse(_marking2.strictlyGreaterThanOrEqualWithSupports(_marking4));
         //XPathSaxonUser m2[0 1 2 3 4] m3[0 1 2 3]
+
         assertFalse(_marking2.strictlyGreaterThanOrEqualWithSupports(_marking3));
+
         //XPathSaxonUser m4[0 1 2 3 4 4] m6[0 1 2 2 3 4]
+
         assertFalse(_marking4.strictlyGreaterThanOrEqualWithSupports(_marking6));
         //XPathSaxonUser m6[0 1 2 2 3 4] m4[0 1 2 3 4 4]
+
         assertFalse(_marking6.strictlyGreaterThanOrEqualWithSupports(_marking4));
         //XPathSaxonUser m5[4 5] m3[0 1 2 3]
+
         assertFalse(_marking5.strictlyGreaterThanOrEqualWithSupports(_marking3));
+
         assertFalse(_marking3.strictlyGreaterThanOrEqualWithSupports(_marking5));
+
     }
 
 

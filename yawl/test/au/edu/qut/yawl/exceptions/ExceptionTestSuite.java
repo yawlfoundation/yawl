@@ -29,7 +29,7 @@ public class ExceptionTestSuite extends TestSuite{
         TestSuite suite = new TestSuite();
         suite.addTestSuite(TestYConnectivityException.class);
         suite.addTestSuite(TestYSyntaxException.class);
-
+        suite.addTestSuite(TestServiceConnectionException.class);
         return suite;
     }
 }
