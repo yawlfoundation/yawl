@@ -408,7 +408,9 @@
     Creates necessary directories prior to building.
   	-->
     <target name="init" depends="clean">
-        <mkdir dir="${classes}/au"/>
+    	<!-- Copy and patch SPRING properties file in for free-standing engine -->    	
+        <copy file="${property.files}/applicationContext.xml" todir="${classes}" overwrite="true"/>
+    	<mkdir dir="${classes}/au"/>
     	<mkdir dir="${classes}/com/nexusbpm"/>
         <mkdir dir="${output}"/>
         <mkdir dir="${output}/${javadoc}"/>
