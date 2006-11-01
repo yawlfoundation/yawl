@@ -404,8 +404,14 @@
         <pathelement location="${xerces.jar}"/>
         <pathelement location="${xsd.resources.jar}"/>
         <pathelement location="${xsd.jar}"/>
+        <pathelement location="${openjms-0.7.7-alpha-3.jar}"/>
+        <pathelement location="${openjms-common-0.7.7-alpha-3.jar}"/>
+        <pathelement location="${openjms-net-0.7.7-alpha-3.jar}"/>
+        <pathelement location="${commons-codec-1.3.jar}"/>
+        <pathelement location="${jms-1.1.jar}"/>
+        <pathelement location="${jndi-1.2.1.jar}"/>
+        <pathelement location="${spice-jndikit-20050704.053804.jar}"/>
     </path>
-
 
     <!--
     Mail Service Classpath
@@ -1714,26 +1720,26 @@
         <java classname="com.nexusbpm.editor.WorkflowEditor" fork="true">
             <classpath>
             	<pathelement location="${cglib}"/>
-            	        <pathelement location="${common.jar}"/>
-            	        <pathelement location="${commonsCollections}"/>
-            	        <pathelement location="${commonsLogging}"/>
-            	        <pathelement location="${dom4j}"/>
-            	        <pathelement location="${ecore.jar}"/>
-            	        <pathelement location="${ejb-persist}"/>
-            	        <pathelement location="${hibernate}"/>
-            	        <pathelement location="${hibernate-ann}"/>
-            	        <pathelement location="${jcalendar.jar}"/>
-            	        <pathelement location="${jdom.jar}"/>
-            	        <pathelement location="${jgraph-5.4.jar}"/>
-            	        <pathelement location="${jgraphaddons-1.0.5.jar}"/>
-            	        <pathelement location="${jgraphlayout.jar}"/>
-            	        <pathelement location="${log4j}"/>
-            	        <pathelement location="${quartz.jar}"/>
-            	        <pathelement location="${saxon.jar}"/>
-            	        <pathelement location="${swing-worker.jar}"/>
-            	        <pathelement location="${xerces.jar}"/>
-            	        <pathelement location="${xsd.resources.jar}"/>
-            	        <pathelement location="${xsd.jar}"/>
+    	        <pathelement location="${common.jar}"/>
+    	        <pathelement location="${commonsCollections}"/>
+    	        <pathelement location="${commonsLogging}"/>
+    	        <pathelement location="${dom4j}"/>
+    	        <pathelement location="${ecore.jar}"/>
+    	        <pathelement location="${ejb-persist}"/>
+    	        <pathelement location="${hibernate}"/>
+    	        <pathelement location="${hibernate-ann}"/>
+    	        <pathelement location="${jcalendar.jar}"/>
+    	        <pathelement location="${jdom.jar}"/>
+    	        <pathelement location="${jgraph-5.4.jar}"/>
+    	        <pathelement location="${jgraphaddons-1.0.5.jar}"/>
+    	        <pathelement location="${jgraphlayout.jar}"/>
+    	        <pathelement location="${log4j}"/>
+    	        <pathelement location="${quartz.jar}"/>
+    	        <pathelement location="${saxon.jar}"/>
+    	        <pathelement location="${swing-worker.jar}"/>
+    	        <pathelement location="${xerces.jar}"/>
+    	        <pathelement location="${xsd.resources.jar}"/>
+    	        <pathelement location="${xsd.jar}"/>
             	<pathelement location="output/${nexus.editor.app.name}.jar"/>
             </classpath>
         </java>
