@@ -8,9 +8,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 import javax.swing.AbstractAction;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -56,6 +61,7 @@ import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.STree;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
+import com.nexusbpm.editor.util.JmsClient;
 import com.nexusbpm.services.NexusServiceInfo;
 
 /**
@@ -63,7 +69,7 @@ import com.nexusbpm.services.NexusServiceInfo;
  * @author  SandozM
  * @author Nathan Rose
  */
-public class WorkflowEditor extends javax.swing.JFrame {
+public class WorkflowEditor extends javax.swing.JFrame implements MessageListener {
     
 	private final static int DEFAULT_CLIENT_WIDTH = 800;
 	private final static int DEFAULT_CLIENT_HEIGHT = 692;
@@ -471,6 +477,14 @@ public class WorkflowEditor extends javax.swing.JFrame {
         
         getContentPane().add(componentEditorSplitPane, BorderLayout.CENTER);
         
+		JmsClient c = new JmsClient();
+		try {
+			c.start();
+			c.attachListener(this);
+		} catch(Exception e) {
+			LOG.error(e);
+		}
+        
         pack();
         
         
@@ -514,6 +528,23 @@ public class WorkflowEditor extends javax.swing.JFrame {
         _componentsFrame.setVisible( true );
         
         componentsTreeModel.nodeStructureChanged( componentsRootNode );
+    }
+    
+    public void onMessage(Message o) {
+		ObjectMessage om = (ObjectMessage) o;
+		try {
+			Enumeration e = om.getPropertyNames();
+			StringBuilder sb = new StringBuilder("Message: {");
+			while (e.hasMoreElements()) {
+				String name = e.nextElement().toString();
+				String value = om.getStringProperty(name);
+				sb.append(name + ":" + value + " ");
+			}
+			sb.append("}");
+			LOG.warn(sb.toString());
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
     }
     
     private SharedNode setupComponentsList( SharedNode root ) {
