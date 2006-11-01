@@ -29,7 +29,7 @@ public class JmsClient extends TestCase {
 
 	private Session session;
 
-	protected void start() throws Exception {
+	public void start() throws Exception {
 		super.setUp();
 		Properties p = new Properties();
 		p.load(new FileInputStream("editor.properties"));
@@ -41,7 +41,7 @@ public class JmsClient extends TestCase {
 		connection.start();
 	}
 
-	protected void end() throws Exception {
+	public void end() throws Exception {
 		if (context != null) {
 			try {
 				context.close();

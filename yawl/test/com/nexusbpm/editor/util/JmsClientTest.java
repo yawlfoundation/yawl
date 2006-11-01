@@ -27,8 +27,8 @@ public class JmsClientTest extends TestCase implements MessageListener {
 			while(true) {Thread.sleep(1000);}
 //			c.end();
 		} catch (Exception e) {
-			fail(e.getMessage());
 			e.printStackTrace();
+			fail(e.getMessage());
 		}
 	}
 
