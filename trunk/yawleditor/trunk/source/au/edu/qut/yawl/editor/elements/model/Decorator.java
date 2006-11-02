@@ -73,6 +73,9 @@ public abstract class Decorator extends DefaultGraphCell
   
   public Decorator(YAWLTask task, int type, int position) {
     initialize(task, type, position);
+    if (task != null) {
+      bindPorts();
+    }
   }
   
   public void setSerializationProofAttributeMap(HashMap map) {
@@ -89,7 +92,6 @@ public abstract class Decorator extends DefaultGraphCell
     setTask(task);
     if (task != null) {
       buildElement();
-      bindPorts();
     }
   }
   
