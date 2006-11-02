@@ -33,6 +33,7 @@ import javax.swing.WindowConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
+import org.quartz.SchedulerException;
 
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
@@ -55,6 +56,7 @@ import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.editors.ComponentEditor;
 import com.nexusbpm.editor.editors.ConfigurationDialog;
 import com.nexusbpm.editor.editors.DataTransferEditor;
+import com.nexusbpm.editor.editors.schedule.SchedulerCalendar;
 import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
@@ -202,6 +204,35 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         });
 
         
+        
+        /////////////////////////////
+        // create the monitoring menu
+        monitoringMenu = new JMenu();
+        monitoringMenu.setText( "Monitoring" );
+        monitoringMenu.setMnemonic( KeyEvent.VK_M );
+        
+        instancesMenuItem = new JMenuItem();
+        instancesMenuItem.setText( "View All Instances" );
+        instancesMenuItem.setEnabled( false );
+        monitoringMenu.add( instancesMenuItem );
+        
+        monitoringMenu.add( new JSeparator() );
+        
+        scheduledEventsMenuItem = new JMenuItem();
+        scheduledEventsMenuItem.setText( "Scheduled Events" );
+        scheduledEventsMenuItem.setEnabled( false );
+        monitoringMenu.add( scheduledEventsMenuItem );
+        
+        workflowScheduleMenuItem = new JMenuItem( new AbstractAction() {
+			public void actionPerformed( ActionEvent e ) {
+				WorkflowEditor.this.openSchedulingCalendar();
+			}
+        } );
+        workflowScheduleMenuItem.setText( "Workflow Schedule" );
+        workflowScheduleMenuItem.setEnabled( true );
+        monitoringMenu.add( workflowScheduleMenuItem );
+        
+        
         /////////////////////////
         // create the window menu
         windowMenu = new JMenu();
@@ -237,6 +268,7 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
+        menuBar.add(monitoringMenu);
         menuBar.add(windowMenu);
         menuBar.add(helpMenu);
         
@@ -588,6 +620,23 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         System.exit(0);
     }
     
+    private void openSchedulingCalendar() {
+    	try {
+	    	try {
+				openEditor( SchedulerCalendar.createCalendar(), null );
+			}
+			catch( SchedulerException e ) {
+				LOG.error( "Error connecting to remote scheduler!", e );
+				// TODO remove the testing calendar later
+				LOG.warn( "OPENING TESTING CALENDAR" );
+				openEditor( SchedulerCalendar.createTestCalendar(), null );
+			}
+    	}
+		catch( Exception e ) {
+			LOG.error( "Error opening scheduling calendar!", e );
+		}
+    }
+    
     /**
      * Opens an editor centered at the given location or maximized if the location
      * is null.
@@ -744,6 +793,7 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
     // top level menu options
     private JMenu fileMenu;
     private JMenu editMenu;
+    private JMenu monitoringMenu;
     private JMenu windowMenu;
     private JMenu helpMenu;
     
@@ -761,6 +811,11 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
     private JMenuItem pasteMenuItem;
     private JMenuItem deleteMenuItem;
     private JMenuItem preferencesMenuItem;
+    
+    // options under the monitoring menu
+    private JMenuItem instancesMenuItem;
+    private JMenuItem scheduledEventsMenuItem;
+    private JMenuItem workflowScheduleMenuItem;
     
     // options under the window menu
     private JMenuItem noWindowOpenItem;
