@@ -31,6 +31,7 @@ import javax.swing.SwingUtilities;
 
 import java.util.Hashtable;
 
+import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLCell;
 
@@ -64,6 +65,16 @@ public class NetPopupListener extends MouseAdapter {
         getCellPopup(container.getVertex()).show(graph,event.getX(), event.getY());
       }
       if (cell == null) {
+        
+        // Nasty hack below to solve problem where the pallet popup menu appears
+        // after a user has removed a knee from a flow relation.
+        
+        if (graph.getSelectionCell() instanceof YAWLFlowRelation) {
+          return;
+        }
+        
+        // Back to your regularly scheduled program ...
+        
         palettePopup.show(graph,event.getX(), event.getY());
       }
     }

@@ -12,6 +12,8 @@ Version 1.4.4 (??/??/??) "Wiggles"
     an editor crash whilst saving, only the temporary file will be corrupted.
   * Fixed a bug where saving a specification with a task that has a single flow coming into or going out of it, then
     reloading the specification ses the user unable to add a decorator for that flow.
+  * Fixed a bug where right-clicking on the knee of a flow would see the pallet popup menu appear whenever the redrawn
+    flow no longer lay underneath the mouse after knee removal.
 
 Version 1.4.3 (25/08/2006) "Deltapoint"
   * There is now a new palette menu item allowing users to drag the visible window of a 
