@@ -143,6 +143,7 @@ public abstract class YAWLTask extends YAWLVertex {
 
   public YAWLFlowRelation getOnlyIncommingFlow() {
     if (getPositionOfIncommingFlow() != NOWHERE) {
+
       return (YAWLFlowRelation) 
         (getPortAt(getPositionOfIncommingFlow()).getEdges().toArray())[0];
     }

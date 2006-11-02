@@ -92,12 +92,12 @@ public abstract class YAWLVertex extends DefaultGraphCell
     );
 
     initialize(startPoint);
+    addDefaultPorts();
   }
 
   private void initialize(Point2D startPoint) {
     this.startPoint = startPoint;
     buildElementDefaults();
-    buildElement();
   }
   
   public void setSerializationProofAttributeMap(HashMap map) {
@@ -178,19 +178,27 @@ public abstract class YAWLVertex extends DefaultGraphCell
   }
   
   protected void addDefaultLeftPort() {
-    addPort(0, GraphConstants.PERMILLE / 2, LEFT);  
+    if (getPortAt(LEFT) == null) {
+      addPort(0, GraphConstants.PERMILLE / 2, LEFT);  
+    }
   }
 
   protected void addDefaultRightPort() {
-    addPort(GraphConstants.PERMILLE, GraphConstants.PERMILLE / 2, RIGHT);
+    if (getPortAt(RIGHT) == null) {
+      addPort(GraphConstants.PERMILLE, GraphConstants.PERMILLE / 2, RIGHT);
+    }
   }
   
   protected void addDefaultTopPort() {
-    addPort(GraphConstants.PERMILLE / 2, 0, TOP);  
+    if (getPortAt(TOP) == null) {
+      addPort(GraphConstants.PERMILLE / 2, 0, TOP);  
+    }
   }
   
   protected void addDefaultBottomPort() {
-    addPort(GraphConstants.PERMILLE / 2, GraphConstants.PERMILLE, BOTTOM);
+    if (getPortAt(BOTTOM) == null) {
+      addPort(GraphConstants.PERMILLE / 2, GraphConstants.PERMILLE, BOTTOM);
+    }
   }
   
   private void addPort(int x, int y, int position) {
@@ -298,10 +306,6 @@ public abstract class YAWLVertex extends DefaultGraphCell
   
   public boolean acceptsIncommingFlows() {
     return true; 
-  }
-  
-  protected void buildElement() {
-    addDefaultPorts();
   }
   
   public YAWLPort[] getPorts() {

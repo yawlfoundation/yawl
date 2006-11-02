@@ -32,7 +32,6 @@ import java.beans.ExceptionListener;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import java.io.IOException;
 import java.io.File;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -151,9 +150,7 @@ public class SpecificationArchiveHandler {
       encoder.close();
       outputStream.close();
       
-      FileUtilities.copy(temporarySpec.getName(), fullFileName);
-      
-      temporarySpec.delete();
+      FileUtilities.move(temporarySpec.getName(), fullFileName);
       
     } catch (Exception e) {
       JOptionPane.showMessageDialog(
@@ -384,11 +381,11 @@ public class SpecificationArchiveHandler {
                                             archivedNet.getMaximised(),
                                             net);
                                             
-    net.getGraphLayoutCache().insert(archivedNet.getCells(), 
-                                     archivedNet.getCellViewAttributes(),
-                                     archivedNet.toConnectionSet(archivedNet.getConnectionHashMap()), 
-                                     archivedNet.toParentMap(archivedNet.getParentMap()),
-                                     null);
+    net.getNetModel().insert(archivedNet.getCells(), 
+                             archivedNet.getCellViewAttributes(),
+                             archivedNet.toConnectionSet(archivedNet.getConnectionHashMap()), 
+                             archivedNet.toParentMap(archivedNet.getParentMap()),
+                             null);
 
     SpecificationModel.getInstance().addNetNotUndoable(net.getNetModel());
     net.changeCancellationSet(archivedNet.getTriggeringTaskOfVisibleCancellationSet());
