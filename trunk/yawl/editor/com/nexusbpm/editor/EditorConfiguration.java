@@ -15,7 +15,7 @@ public class EditorConfiguration {
 	private String quartzUri;
 	
 	
-	public static synchronized EditorConfiguration getInstance() {
+	public static synchronized EditorConfiguration getInstance() throws IOException {
 		if (INSTANCE == null) {
 			INSTANCE = new EditorConfiguration();
 		}
@@ -43,7 +43,9 @@ public class EditorConfiguration {
 		quartzUri = p.getProperty("nexuseditor.quartzUri");
 	}
 	
-	private EditorConfiguration() {}
+	private EditorConfiguration() throws IOException {
+		load();
+	}
 
 	public String getJmsUri() {
 		return jmsUri;

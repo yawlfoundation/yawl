@@ -20,7 +20,7 @@ public final class InterfaceA {
 	
 	private InterfaceA() {}
 	
-	private static void initializeClient() {
+	private static void initializeClient() throws IOException {
 		if( iaClient == null ) {
 			iaClient = new InterfaceA_EnvironmentBasedClient(EditorConfiguration.getInstance().getServerUri() + "/ia");
 		}
