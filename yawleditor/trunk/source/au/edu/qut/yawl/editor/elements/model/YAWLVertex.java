@@ -54,7 +54,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
   public static final int BOTTOM    = Decorator.BOTTOM;
   public static final int LEFT      = Decorator.LEFT;
   public static final int RIGHT     = Decorator.RIGHT;
-  public static final int NOWHERE   = -2;
+  public static final int NOWHERE   = Decorator.NOWHERE;
   
   protected transient Point2D startPoint;
   

@@ -114,7 +114,6 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
     add(CORE_PALETTE);
     add(Box.createVerticalStrut(2));
     add(SINGLE_TASK_PALETTE);
-    
   }
   
   public void setSelected(int item) {
@@ -127,6 +126,7 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
   
   public void setEnabled(boolean enabled) {
     CORE_PALETTE.setEnabled(enabled);
+    SINGLE_TASK_PALETTE.setVisible(enabled);
     SINGLE_TASK_PALETTE.setEnabled(enabled);
     super.setEnabled(enabled);
   }
@@ -329,11 +329,28 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
 
     public void setTask(Object task) {
       super.setTask(task);
+      
+      if (getTask().getJoinDecorator() != null) {
+        this.selectedType = getTask().getJoinDecorator().getType();
+      } else {
+        this.selectedType = Decorator.NO_TYPE;
+      }
+      
+      this.selectedPosition = getTask().hasJoinObjectAt();
+
+      if (this.selectedPosition == Decorator.NOWHERE) {
+        if (getTask().hasSplitObjectAt() != Decorator.LEFT) {
+          this.selectedPosition = Decorator.LEFT;
+        } else {
+          this.selectedPosition = Decorator.RIGHT;
+        }
+      }
+      
       updateWidgetConfiguration();
     }
     
     public void updateWidgetConfiguration() {
-      typeButtons[TYPE_NONE].setEnabled(true);
+      enableAllPositionButtons();
 
       if (getTask().getJoinDecorator() == null) {
         doTypeSelection(TYPE_NONE);
@@ -358,12 +375,12 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
       }
 
       setPositionDisabled(getTask().hasSplitObjectAt());
-      doPositionSelection(getTask().hasJoinObjectAt());
-      
+      doPositionSelection(this.selectedPosition);
+
       if (selectedType == Decorator.NO_TYPE) {
         disableAllPositionButtons();
       }
-   }
+    }
     
     protected void applyDecoration() {
       getNet().setJoinDecorator(
@@ -405,6 +422,23 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
     
     public void setTask(Object task) {
       super.setTask(task);
+      
+      if (getTask().getSplitDecorator() != null) {
+        this.selectedType = getTask().getSplitDecorator().getType();
+      } else {
+        this.selectedType = Decorator.NO_TYPE;
+      }
+      
+      this.selectedPosition = getTask().hasSplitObjectAt();
+      
+      if (this.selectedPosition == Decorator.NOWHERE) {
+        if (getTask().hasJoinObjectAt() != Decorator.RIGHT) {
+          this.selectedPosition = Decorator.RIGHT;
+        } else {
+          this.selectedPosition = Decorator.LEFT;
+        }
+      }
+      
       updateWidgetConfiguration();      
     }
     
@@ -434,7 +468,7 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
       }
 
       setPositionDisabled(getTask().hasJoinObjectAt());
-      doPositionSelection(getTask().hasSplitObjectAt());
+      doPositionSelection(this.selectedPosition);
 
       if (selectedType == Decorator.NO_TYPE) {
         disableAllPositionButtons();
@@ -471,7 +505,6 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
 
     private ButtonGroup positionButtonGroup = new ButtonGroup();
     private ButtonGroup typeButtonGroup = new ButtonGroup();
-    
     
     protected static final int TYPE_NONE = 0;
     protected static final int TYPE_AND  = 1;
@@ -715,10 +748,6 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
       southRadioButton.setEnabled(enabled);
       eastRadioButton.setEnabled(enabled);
       westRadioButton.setEnabled(enabled);
-      positionButtonGroup.setSelected(
-        nowhereRadioButton.getModel(),
-        true
-      );
     }
 
     class NoDecoratorAction extends YAWLBaseAction {
@@ -815,7 +844,6 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
     }
     
     protected void doPositionSelection(int position) {
-      this.selectedPosition = position;
       switch(position) {
         case Decorator.TOP: {
           positionButtonGroup.setSelected(
@@ -850,6 +878,7 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
               nowhereRadioButton.getModel(), 
               true
           );
+          break;
         }
       }
     }

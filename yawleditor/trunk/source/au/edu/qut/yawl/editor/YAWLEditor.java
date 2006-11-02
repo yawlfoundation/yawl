@@ -239,9 +239,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     
   private JPanel getPalettePanel() {
     JPanel palettePanel = new JPanel();
-    palettePanel.setLayout(new BoxLayout(palettePanel, BoxLayout.Y_AXIS));
-    palettePanel.add(this.paletteBar);
-    palettePanel.add(Box.createHorizontalGlue());
+    palettePanel.setLayout(new BorderLayout());
+    palettePanel.add(this.paletteBar, BorderLayout.NORTH);
     return palettePanel;
   }
   
