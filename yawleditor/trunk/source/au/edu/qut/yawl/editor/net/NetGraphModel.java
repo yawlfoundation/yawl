@@ -494,7 +494,7 @@ public class NetGraphModel extends DefaultGraphModel {
     
     if (task.hasJoinDecorator()) {
       
-      if (task.getJoinDecorator().getType()     == type && 
+      if (task.getJoinDecorator().getType()             == type && 
           task.getJoinDecorator().getCardinalPosition() == position) {
            return;
       }
