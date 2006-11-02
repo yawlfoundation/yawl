@@ -8,9 +8,13 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JList;
@@ -24,6 +28,10 @@ import com.toedter.calendar.JSpinnerDateEditor;
 import javax.swing.JSpinner;
 import com.toedter.components.JSpinField;
 import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import java.awt.SystemColor;
+import java.awt.Cursor;
 
 public class SchedulerDialog extends JDialog {
 
@@ -89,19 +97,37 @@ public class SchedulerDialog extends JDialog {
 
 	private JPanel spacer = null;
 
-	private JSpinField jSpinField = null;
-
-	private JButton jButton = null;
-
 	private JList hoursList = null;
 
-	private JSpinField jSpinField1 = null;
+	private JPanel minutePanel = null;
 
-	private JButton jButton1 = null;
+	private JPanel hourPanel = null;
 
 	private JPanel jPanel = null;
 
 	private JPanel jPanel1 = null;
+
+	private JPanel jPanel2 = null;
+
+	private JPanel buttonPanel = null;
+
+	private JButton okButton = null;
+
+	private JButton cancelButton = null;
+
+	private JTextField uriTextField = null;
+
+	private JLabel jLabel = null;
+
+	private JScrollPane hourScrollPane = null;
+
+	private JScrollPane minuteScrollPane = null;
+
+	private DefaultListModel hoursModel = null; 
+
+	private DefaultListModel minutesModel = null; 
+
+	private DefaultListModel daysOfMonthModel = null;  //  @jve:decl-index=0:visual-constraint="484,56"
 
 	/**
 	 * @param owner
@@ -117,8 +143,14 @@ public class SchedulerDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(465, 389);
+		this.setSize(465, 318);
+		this.setBackground(SystemColor.control);
 		this.setContentPane( getJContentPane() );
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+			public void windowClosing(java.awt.event.WindowEvent e) {
+				System.out.println("windowClosing()"); // TODO Auto-generated Event stub windowClosing()
+			}
+		});
 	}
 
 	/**
@@ -128,9 +160,28 @@ public class SchedulerDialog extends JDialog {
 	 */
 	private JPanel getJContentPane() {
 		if( jContentPane == null ) {
+			GridBagConstraints gridBagConstraints33 = new GridBagConstraints();
+			gridBagConstraints33.gridx = 0;
+			gridBagConstraints33.ipadx = 0;
+			gridBagConstraints33.weightx = 1.0;
+			gridBagConstraints33.weighty = 1.0;
+			gridBagConstraints33.insets = new Insets(10, 10, 10, 10);
+			gridBagConstraints33.fill = GridBagConstraints.BOTH;
+			gridBagConstraints33.anchor = GridBagConstraints.EAST;
+			gridBagConstraints33.gridy = 1;
+			GridBagConstraints gridBagConstraints32 = new GridBagConstraints();
+			gridBagConstraints32.fill = GridBagConstraints.BOTH;
+			gridBagConstraints32.gridy = 0;
+			gridBagConstraints32.ipadx = 62;
+			gridBagConstraints32.ipady = 2;
+			gridBagConstraints32.weightx = 1.0;
+			gridBagConstraints32.weighty = 1.0;
+			gridBagConstraints32.gridx = 0;
 			jContentPane = new JPanel();
-			jContentPane.setLayout( new BorderLayout() );
-			jContentPane.add(getJTabbedPane(), BorderLayout.CENTER);
+			jContentPane.setLayout(new GridBagLayout());
+			jContentPane.setBackground(SystemColor.control);
+			jContentPane.add(getJTabbedPane(), gridBagConstraints32);
+			jContentPane.add(getButtonPanel(), gridBagConstraints33);
 		}
 		return jContentPane;
 	}
@@ -143,6 +194,9 @@ public class SchedulerDialog extends JDialog {
 	private JTabbedPane getJTabbedPane() {
 		if( jTabbedPane == null ) {
 			jTabbedPane = new JTabbedPane();
+			jTabbedPane.setPreferredSize(new Dimension(395, 250));
+			jTabbedPane.setBackground(SystemColor.control);
+			jTabbedPane.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			jTabbedPane.addTab("time", null, getTime(), null);
 			jTabbedPane.addTab("days", null, getDays(), null);
 			jTabbedPane.addTab("months", null, getMonth(), null);
@@ -173,8 +227,9 @@ public class SchedulerDialog extends JDialog {
 			gridBagConstraints111.gridy = 0;
 			time = new JPanel();
 			time.setLayout(new GridBagLayout());
-			time.add(getJPanel(), gridBagConstraints111);
-			time.add(getJPanel1(), gridBagConstraints121);
+			time.setBackground(SystemColor.control);
+			time.add(getMinutePanel(), gridBagConstraints111);
+			time.add(getHourPanel(), gridBagConstraints121);
 		}
 		return time;
 	}
@@ -201,6 +256,7 @@ public class SchedulerDialog extends JDialog {
 			gridBagConstraints13.gridy = 0;
 			days = new JPanel();
 			days.setLayout(new GridBagLayout());
+			days.setBackground(SystemColor.control);
 			days.add(getDaysOfWeek(), gridBagConstraints21);
 			days.add(getDaysOfMonth(), gridBagConstraints13);
 		}
@@ -214,104 +270,16 @@ public class SchedulerDialog extends JDialog {
 	 */
 	private JPanel getMonth() {
 		if( month == null ) {
-			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
-			gridBagConstraints12.gridx = 1;
-			gridBagConstraints12.anchor = GridBagConstraints.WEST;
-			gridBagConstraints12.weightx = 1.0;
-			gridBagConstraints12.ipadx = 0;
-			gridBagConstraints12.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints12.gridy = 4;
-			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
-			gridBagConstraints11.gridx = 1;
-			gridBagConstraints11.anchor = GridBagConstraints.WEST;
-			gridBagConstraints11.weightx = 1.0;
-			gridBagConstraints11.ipadx = 0;
-			gridBagConstraints11.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints11.gridy = 11;
-			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
-			gridBagConstraints10.gridx = 1;
-			gridBagConstraints10.anchor = GridBagConstraints.WEST;
-			gridBagConstraints10.weightx = 1.0;
-			gridBagConstraints10.ipadx = 0;
-			gridBagConstraints10.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints10.gridy = 10;
-			GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
-			gridBagConstraints9.gridx = 1;
-			gridBagConstraints9.anchor = GridBagConstraints.WEST;
-			gridBagConstraints9.weightx = 1.0;
-			gridBagConstraints9.ipadx = 0;
-			gridBagConstraints9.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints9.gridy = 9;
-			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
-			gridBagConstraints8.gridx = 1;
-			gridBagConstraints8.anchor = GridBagConstraints.WEST;
-			gridBagConstraints8.weightx = 1.0;
-			gridBagConstraints8.ipadx = 0;
-			gridBagConstraints8.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints8.gridy = 8;
-			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
-			gridBagConstraints7.gridx = 1;
-			gridBagConstraints7.anchor = GridBagConstraints.WEST;
-			gridBagConstraints7.weightx = 1.0;
-			gridBagConstraints7.ipadx = 0;
-			gridBagConstraints7.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints7.gridy = 7;
-			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-			gridBagConstraints6.gridx = 1;
-			gridBagConstraints6.anchor = GridBagConstraints.WEST;
-			gridBagConstraints6.weightx = 1.0;
-			gridBagConstraints6.ipadx = 0;
-			gridBagConstraints6.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints6.gridy = 6;
-			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-			gridBagConstraints5.gridx = 1;
-			gridBagConstraints5.anchor = GridBagConstraints.WEST;
-			gridBagConstraints5.weightx = 1.0;
-			gridBagConstraints5.ipadx = 0;
-			gridBagConstraints5.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints5.gridy = 5;
-			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-			gridBagConstraints4.gridx = 1;
-			gridBagConstraints4.anchor = GridBagConstraints.WEST;
-			gridBagConstraints4.weightx = 1.0;
-			gridBagConstraints4.ipadx = 0;
-			gridBagConstraints4.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints4.gridy = 3;
-			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-			gridBagConstraints3.gridx = 1;
-			gridBagConstraints3.anchor = GridBagConstraints.WEST;
-			gridBagConstraints3.weightx = 1.0;
-			gridBagConstraints3.ipadx = 0;
-			gridBagConstraints3.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints3.gridy = 2;
-			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-			gridBagConstraints2.gridx = 1;
-			gridBagConstraints2.anchor = GridBagConstraints.WEST;
-			gridBagConstraints2.weightx = 1.0;
-			gridBagConstraints2.ipadx = 0;
-			gridBagConstraints2.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints2.gridy = 1;
-			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-			gridBagConstraints1.gridx = 1;
-			gridBagConstraints1.anchor = GridBagConstraints.WEST;
-			gridBagConstraints1.weightx = 1.0;
-			gridBagConstraints1.ipadx = 0;
-			gridBagConstraints1.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints1.gridy = 0;
+			GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
+			gridBagConstraints31.weightx = 1.0;
+			gridBagConstraints31.fill = GridBagConstraints.BOTH;
+			gridBagConstraints31.ipadx = 1;
+			gridBagConstraints31.insets = new Insets(10, 10, 10, 10);
+			gridBagConstraints31.weighty = 1.0;
 			month = new JPanel();
 			month.setLayout(new GridBagLayout());
-			month.add(getJanuary(), gridBagConstraints1);
-			month.add(getFebruary(), gridBagConstraints2);
-			month.add(getMarch(), gridBagConstraints3);
-			month.add(getApril(), gridBagConstraints4);
-			month.add(getMay(), gridBagConstraints12);
-			month.add(getJune(), gridBagConstraints5);
-			month.add(getJuly(), gridBagConstraints6);
-			month.add(getAugust(), gridBagConstraints7);
-			month.add(getSeptember(), gridBagConstraints8);
-			month.add(getOctober(), gridBagConstraints9);
-			month.add(getNovember(), gridBagConstraints10);
-			month.add(getDecember(), gridBagConstraints11);
+			month.setBackground(SystemColor.control);
+			month.add(getJPanel2(), gridBagConstraints31);
 		}
 		return month;
 	}
@@ -321,10 +289,18 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JList	
 	 */
-	private JList getMinutesList() {
+	public JList getMinutesList() {
 		if( minutesList == null ) {
 			minutesList = new JList();
-			minutesList.setPreferredSize(new Dimension(150, 200));
+			minutesList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			minutesModel = new DefaultListModel();
+			minutesList.setModel(minutesModel);
+			minutesList.setCellRenderer(new AlternatingListCellRenderer(TextRenderer.getMinutelyInstance()));
+			Calendar c = new GregorianCalendar();
+			for (int i = 0; i < 60; i = i + 5) {
+				c.set(0, 0, 0, 0, i);
+				minutesModel.addElement(c.getTime());
+			}
 		}
 		return minutesList;
 	}
@@ -334,10 +310,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getJanuary() {
+	public JCheckBox getJanuary() {
 		if( January == null ) {
 			January = new JCheckBox();
 			January.setText("January");
+			January.setBackground(SystemColor.control);
 			January.setSelected(true);
 		}
 		return January;
@@ -348,10 +325,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getFebruary() {
+	public JCheckBox getFebruary() {
 		if( February == null ) {
 			February = new JCheckBox();
 			February.setText("February");
+			February.setBackground(SystemColor.control);
 			February.setSelected(true);
 		}
 		return February;
@@ -362,10 +340,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getMarch() {
+	public JCheckBox getMarch() {
 		if( March == null ) {
 			March = new JCheckBox();
 			March.setText("March");
+			March.setBackground(SystemColor.control);
 			March.setSelected(true);
 		}
 		return March;
@@ -376,10 +355,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getApril() {
+	public JCheckBox getApril() {
 		if( April == null ) {
 			April = new JCheckBox();
 			April.setText("April");
+			April.setBackground(SystemColor.control);
 			April.setSelected(true);
 		}
 		return April;
@@ -390,10 +370,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getMay() {
+	public JCheckBox getMay() {
 		if( May == null ) {
 			May = new JCheckBox();
 			May.setText("May");
+			May.setBackground(SystemColor.control);
 			May.setSelected(true);
 		}
 		return May;
@@ -404,10 +385,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getJune() {
+	public JCheckBox getJune() {
 		if( June == null ) {
 			June = new JCheckBox();
 			June.setText("June");
+			June.setBackground(SystemColor.control);
 			June.setSelected(true);
 		}
 		return June;
@@ -418,10 +400,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getJuly() {
+	public JCheckBox getJuly() {
 		if( July == null ) {
 			July = new JCheckBox();
 			July.setText("July");
+			July.setBackground(SystemColor.control);
 			July.setSelected(true);
 		}
 		return July;
@@ -432,10 +415,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getAugust() {
+	public JCheckBox getAugust() {
 		if( August == null ) {
 			August = new JCheckBox();
 			August.setText("August");
+			August.setBackground(SystemColor.control);
 			August.setSelected(true);
 		}
 		return August;
@@ -446,10 +430,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getSeptember() {
+	public JCheckBox getSeptember() {
 		if( September == null ) {
 			September = new JCheckBox();
 			September.setText("September");
+			September.setBackground(SystemColor.control);
 			September.setSelected(true);
 		}
 		return September;
@@ -460,10 +445,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getOctober() {
+	public JCheckBox getOctober() {
 		if( October == null ) {
 			October = new JCheckBox();
 			October.setText("October");
+			October.setBackground(SystemColor.control);
 			October.setSelected(true);
 		}
 		return October;
@@ -474,10 +460,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getNovember() {
+	public JCheckBox getNovember() {
 		if( November == null ) {
 			November = new JCheckBox();
 			November.setText("November");
+			November.setBackground(SystemColor.control);
 			November.setSelected(true);
 		}
 		return November;
@@ -488,10 +475,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getDecember() {
+	public JCheckBox getDecember() {
 		if( December == null ) {
 			December = new JCheckBox();
 			December.setText("December");
+			December.setBackground(SystemColor.control);
 			December.setSelected(true);
 		}
 		return December;
@@ -512,6 +500,7 @@ public class SchedulerDialog extends JDialog {
 			daysOfMonth.setLayout(new GridBagLayout());
 			daysOfMonth.setPreferredSize(new Dimension(100, 100));
 			daysOfMonth.setBorder(BorderFactory.createTitledBorder(null, "Days of the Month", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+			daysOfMonth.setBackground(SystemColor.control);
 			daysOfMonth.add(getDaysOfMonthScroll(), gridBagConstraints23);
 		}
 		return daysOfMonth;
@@ -581,6 +570,7 @@ public class SchedulerDialog extends JDialog {
 			daysOfWeek.setLayout(new GridBagLayout());
 			daysOfWeek.setPreferredSize(new Dimension(100, 200));
 			daysOfWeek.setBorder(BorderFactory.createTitledBorder(null, "Days of the Week", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+			daysOfWeek.setBackground(SystemColor.control);
 			daysOfWeek.add(getSunday(), gridBagConstraints14);
 			daysOfWeek.add(getMonday(), gridBagConstraints15);
 			daysOfWeek.add(getTuesday(), gridBagConstraints16);
@@ -598,10 +588,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getSunday() {
+	public JCheckBox getSunday() {
 		if( Sunday == null ) {
 			Sunday = new JCheckBox();
 			Sunday.setText("Sunday");
+			Sunday.setBackground(SystemColor.control);
 		}
 		return Sunday;
 	}
@@ -611,10 +602,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getMonday() {
+	public JCheckBox getMonday() {
 		if( Monday == null ) {
 			Monday = new JCheckBox();
 			Monday.setText("Monday");
+			Monday.setBackground(SystemColor.control);
 			Monday.setSelected(true);
 		}
 		return Monday;
@@ -625,10 +617,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getTuesday() {
+	public JCheckBox getTuesday() {
 		if( Tuesday == null ) {
 			Tuesday = new JCheckBox();
 			Tuesday.setText("Tuesday");
+			Tuesday.setBackground(SystemColor.control);
 			Tuesday.setSelected(true);
 		}
 		return Tuesday;
@@ -639,10 +632,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getWednesday() {
+	public JCheckBox getWednesday() {
 		if( Wednesday == null ) {
 			Wednesday = new JCheckBox();
 			Wednesday.setText("Wednesday");
+			Wednesday.setBackground(SystemColor.control);
 			Wednesday.setSelected(true);
 		}
 		return Wednesday;
@@ -653,10 +647,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getThursday() {
+	public JCheckBox getThursday() {
 		if( Thursday == null ) {
 			Thursday = new JCheckBox();
 			Thursday.setText("Thursday");
+			Thursday.setBackground(SystemColor.control);
 			Thursday.setSelected(true);
 		}
 		return Thursday;
@@ -667,10 +662,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getFriday() {
+	public JCheckBox getFriday() {
 		if( Friday == null ) {
 			Friday = new JCheckBox();
 			Friday.setText("Friday");
+			Friday.setBackground(SystemColor.control);
 			Friday.setSelected(true);
 		}
 		return Friday;
@@ -681,10 +677,11 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */
-	private JCheckBox getSaturday() {
+	public JCheckBox getSaturday() {
 		if( Saturday == null ) {
 			Saturday = new JCheckBox();
 			Saturday.setText("Saturday");
+			Saturday.setBackground(SystemColor.control);
 		}
 		return Saturday;
 	}
@@ -694,14 +691,50 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JList	
 	 */
-	private JList getDaysOfMonthList() {
+	public JList getDaysOfMonthList() {
 		if( daysOfMonthList == null ) {
-			daysOfMonthList = new JList(new Object[]
+		    daysOfMonthModel = new DefaultListModel();
+		    daysOfMonthList = new JList();
+		    daysOfMonthList.setModel(daysOfMonthModel);
+		    daysOfMonthList.setCellRenderer(new AlternatingListCellRenderer(TextRenderer.getDailyInstance()));
+			Object[] values = new Object[]
 			{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
 			16,17,18,19,20,21,22,23,24,25,26,27,
-			28,29,30,31,"last","last weekday"});
-			daysOfMonthList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			
+			28,29,30,31,"L","LW"};
+			for (Object o: values) {
+				daysOfMonthModel.addElement(o);
+			}
+			daysOfMonthList.setSelectionModel(new DefaultListSelectionModel() {
+				@Override
+				public void addSelectionInterval(int index0, int index1) {
+					boolean found = false;
+					for (int i = Math.min(index0, index1); i < 1 + Math.max(index0, index1); i++) {
+						Object o = SchedulerDialog.this.getDaysOfMonthModel().getElementAt(i);
+						if (o instanceof String) {
+							super.clearSelection();
+							super.addSelectionInterval(i, i);
+							found = true;
+							break;							
+						} 
+					}
+					if (!found) super.addSelectionInterval(index0, index1);
+				}
+				@Override
+				public void setSelectionInterval(int index0, int index1) {
+					boolean found = false;
+					for (int i = Math.min(index0, index1); i < 1 + Math.max(index0, index1); i++) {
+						Object o = SchedulerDialog.this.getDaysOfMonthModel().getElementAt(i);
+						if (o instanceof String) {
+							super.clearSelection();
+							super.setSelectionInterval(i, i);
+							found = true;
+							break;							
+						} 
+					}
+					if (!found) super.setSelectionInterval(index0, index1);
+				}
+			});
+			daysOfMonthList.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		}
 		return daysOfMonthList;
 	}
@@ -714,7 +747,6 @@ public class SchedulerDialog extends JDialog {
 	private JScrollPane getDaysOfMonthScroll() {
 		if( daysOfMonthScroll == null ) {
 			daysOfMonthScroll = new JScrollPane();
-			daysOfMonthScroll.setFont(new Font("Dialog", Font.PLAIN, 12));
 			daysOfMonthScroll.setViewportView(getDaysOfMonthList());
 		}
 		return daysOfMonthScroll;
@@ -729,35 +761,9 @@ public class SchedulerDialog extends JDialog {
 		if( spacer == null ) {
 			spacer = new JPanel();
 			spacer.setLayout(new GridBagLayout());
+			spacer.setBackground(SystemColor.control);
 		}
 		return spacer;
-	}
-
-	/**
-	 * This method initializes jSpinField	
-	 * 	
-	 * @return com.toedter.components.JSpinField	
-	 */
-	private JSpinField getJSpinField() {
-		if( jSpinField == null ) {
-			jSpinField = new JSpinField();
-			jSpinField.setMaximum(59);
-			jSpinField.setMinimum(0);
-		}
-		return jSpinField;
-	}
-
-	/**
-	 * This method initializes jButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */
-	private JButton getJButton() {
-		if( jButton == null ) {
-			jButton = new JButton();
-			jButton.setText("add");
-		}
-		return jButton;
 	}
 
 	/**
@@ -765,39 +771,60 @@ public class SchedulerDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JList	
 	 */
-	private JList getHoursList() {
+	public JList getHoursList() {
 		if( hoursList == null ) {
 			hoursList = new JList();
-			hoursList.setPreferredSize(new Dimension(150, 200));
+			hoursList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			hoursModel = new DefaultListModel();
+			hoursList.setModel(hoursModel);
+			hoursList.setCellRenderer(new AlternatingListCellRenderer(TextRenderer.getHourlyInstance()));
+			Calendar c = new GregorianCalendar();
+			for (int i = 0; i < 24; i++) {
+				c.set(0, 0, 0, i, 0);
+				hoursModel.addElement(c.getTime());
+			}
 		}
 		return hoursList;
 	}
 
 	/**
-	 * This method initializes jSpinField1	
+	 * This method initializes minutePanel	
 	 * 	
-	 * @return com.toedter.components.JSpinField	
+	 * @return javax.swing.JPanel	
 	 */
-	private JSpinField getJSpinField1() {
-		if( jSpinField1 == null ) {
-			jSpinField1 = new JSpinField();
-			jSpinField1.setMaximum(59);
-			jSpinField1.setMinimum(0);
+	private JPanel getMinutePanel() {
+		if( minutePanel == null ) {
+			GridBagConstraints gridBagConstraints110 = new GridBagConstraints();
+			gridBagConstraints110.fill = GridBagConstraints.BOTH;
+			gridBagConstraints110.weighty = 1.0;
+			gridBagConstraints110.weightx = 1.0;
+			minutePanel = new JPanel();
+			minutePanel.setLayout(new GridBagLayout());
+			minutePanel.setBorder(BorderFactory.createTitledBorder(null, "Minutes", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+			minutePanel.setBackground(SystemColor.control);
+			minutePanel.add(getMinuteScrollPane(), gridBagConstraints110);
 		}
-		return jSpinField1;
+		return minutePanel;
 	}
 
 	/**
-	 * This method initializes jButton1	
+	 * This method initializes hourPanel	
 	 * 	
-	 * @return javax.swing.JButton	
+	 * @return javax.swing.JPanel	
 	 */
-	private JButton getJButton1() {
-		if( jButton1 == null ) {
-			jButton1 = new JButton();
-			jButton1.setText("add");
+	private JPanel getHourPanel() {
+		if( hourPanel == null ) {
+			GridBagConstraints gridBagConstraints27 = new GridBagConstraints();
+			gridBagConstraints27.fill = GridBagConstraints.BOTH;
+			gridBagConstraints27.weighty = 1.0;
+			gridBagConstraints27.weightx = 1.0;
+			hourPanel = new JPanel();
+			hourPanel.setLayout(new GridBagLayout());
+			hourPanel.setBorder(BorderFactory.createTitledBorder(null, "Hours", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+			hourPanel.setBackground(SystemColor.control);
+			hourPanel.add(getHourScrollPane(), gridBagConstraints27);
 		}
-		return jButton1;
+		return hourPanel;
 	}
 
 	/**
@@ -806,33 +833,70 @@ public class SchedulerDialog extends JDialog {
 	 * @return javax.swing.JPanel	
 	 */
 	private JPanel getJPanel() {
-		if( jPanel == null ) {
-			GridBagConstraints gridBagConstraints25 = new GridBagConstraints();
-			gridBagConstraints25.gridx = 1;
-			gridBagConstraints25.anchor = GridBagConstraints.EAST;
-			gridBagConstraints25.insets = new Insets(0, 0, 0, 10);
-			gridBagConstraints25.gridy = 1;
-			GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
-			gridBagConstraints24.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints24.gridy = 1;
-			gridBagConstraints24.weightx = 1.0;
-			gridBagConstraints24.insets = new Insets(0, 10, 0, 0);
-			gridBagConstraints24.gridx = 0;
-			GridBagConstraints gridBagConstraints = new GridBagConstraints();
-			gridBagConstraints.anchor = GridBagConstraints.CENTER;
-			gridBagConstraints.gridwidth = 2;
-			gridBagConstraints.gridx = 0;
-			gridBagConstraints.gridy = 0;
-			gridBagConstraints.weightx = 0.0;
-			gridBagConstraints.weighty = 1.0;
-			gridBagConstraints.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints.fill = GridBagConstraints.BOTH;
+		if (jPanel == null) {
+			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+			gridBagConstraints5.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints5.gridx = 0;
+			gridBagConstraints5.gridy = 5;
+			gridBagConstraints5.ipadx = 0;
+			gridBagConstraints5.weightx = 1.0;
+			gridBagConstraints5.fill = GridBagConstraints.BOTH;
+			gridBagConstraints5.weighty = 1.0;
+			gridBagConstraints5.insets = new Insets(0, 20, 0, 10);
+			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
+			gridBagConstraints12.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints12.gridx = 0;
+			gridBagConstraints12.gridy = 4;
+			gridBagConstraints12.ipadx = 0;
+			gridBagConstraints12.weightx = 1.0;
+			gridBagConstraints12.fill = GridBagConstraints.BOTH;
+			gridBagConstraints12.weighty = 1.0;
+			gridBagConstraints12.insets = new Insets(0, 20, 0, 10);
+			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
+			gridBagConstraints4.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints4.gridx = 0;
+			gridBagConstraints4.gridy = 3;
+			gridBagConstraints4.ipadx = 0;
+			gridBagConstraints4.weightx = 1.0;
+			gridBagConstraints4.fill = GridBagConstraints.BOTH;
+			gridBagConstraints4.weighty = 1.0;
+			gridBagConstraints4.insets = new Insets(0, 20, 0, 10);
+			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+			gridBagConstraints3.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints3.gridx = 0;
+			gridBagConstraints3.gridy = 2;
+			gridBagConstraints3.ipadx = 0;
+			gridBagConstraints3.weightx = 1.0;
+			gridBagConstraints3.fill = GridBagConstraints.BOTH;
+			gridBagConstraints3.weighty = 1.0;
+			gridBagConstraints3.insets = new Insets(0, 20, 0, 10);
+			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+			gridBagConstraints2.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints2.gridx = 0;
+			gridBagConstraints2.gridy = 1;
+			gridBagConstraints2.ipadx = 0;
+			gridBagConstraints2.weightx = 1.0;
+			gridBagConstraints2.fill = GridBagConstraints.BOTH;
+			gridBagConstraints2.weighty = 1.0;
+			gridBagConstraints2.insets = new Insets(0, 20, 0, 10);
+			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+			gridBagConstraints1.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints1.gridx = 0;
+			gridBagConstraints1.gridy = 0;
+			gridBagConstraints1.ipadx = 0;
+			gridBagConstraints1.weightx = 1.0;
+			gridBagConstraints1.fill = GridBagConstraints.BOTH;
+			gridBagConstraints1.weighty = 1.0;
+			gridBagConstraints1.insets = new Insets(0, 20, 0, 10);
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			jPanel.setBorder(BorderFactory.createTitledBorder(null, "Minutes", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
-			jPanel.add(getMinutesList(), gridBagConstraints);
-			jPanel.add(getJSpinField(), gridBagConstraints24);
-			jPanel.add(getJButton(), gridBagConstraints25);
+			jPanel.setBackground(SystemColor.control);
+			jPanel.add(getJanuary(), gridBagConstraints1);
+			jPanel.add(getFebruary(), gridBagConstraints2);
+			jPanel.add(getMarch(), gridBagConstraints3);
+			jPanel.add(getApril(), gridBagConstraints4);
+			jPanel.add(getMay(), gridBagConstraints12);
+			jPanel.add(getJune(), gridBagConstraints5);
 		}
 		return jPanel;
 	}
@@ -843,40 +907,254 @@ public class SchedulerDialog extends JDialog {
 	 * @return javax.swing.JPanel	
 	 */
 	private JPanel getJPanel1() {
-		if( jPanel1 == null ) {
-			GridBagConstraints gridBagConstraints28 = new GridBagConstraints();
-			gridBagConstraints28.gridx = 1;
-			gridBagConstraints28.anchor = GridBagConstraints.EAST;
-			gridBagConstraints28.insets = new Insets(0, 0, 0, 10);
-			gridBagConstraints28.gridy = 1;
-			GridBagConstraints gridBagConstraints27 = new GridBagConstraints();
-			gridBagConstraints27.gridx = 0;
-			gridBagConstraints27.weightx = 1.0;
-			gridBagConstraints27.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints27.anchor = GridBagConstraints.EAST;
-			gridBagConstraints27.insets = new Insets(0, 10, 0, 0);
-			gridBagConstraints27.gridy = 1;
-			GridBagConstraints gridBagConstraints26 = new GridBagConstraints();
-			gridBagConstraints26.fill = GridBagConstraints.BOTH;
-			gridBagConstraints26.gridx = 0;
-			gridBagConstraints26.gridy = 0;
-			gridBagConstraints26.weightx = 1.0;
-			gridBagConstraints26.weighty = 1.0;
-			gridBagConstraints26.anchor = GridBagConstraints.WEST;
-			gridBagConstraints26.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints26.gridwidth = 2;
+		if (jPanel1 == null) {
+			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
+			gridBagConstraints11.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints11.gridx = 0;
+			gridBagConstraints11.gridy = 5;
+			gridBagConstraints11.ipadx = 0;
+			gridBagConstraints11.weightx = 1.0;
+			gridBagConstraints11.weighty = 1.0;
+			gridBagConstraints11.fill = GridBagConstraints.BOTH;
+			gridBagConstraints11.insets = new Insets(0, 20, 0, 10);
+			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
+			gridBagConstraints10.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints10.gridx = 0;
+			gridBagConstraints10.gridy = 4;
+			gridBagConstraints10.ipadx = 0;
+			gridBagConstraints10.weightx = 1.0;
+			gridBagConstraints10.weighty = 1.0;
+			gridBagConstraints10.fill = GridBagConstraints.BOTH;
+			gridBagConstraints10.insets = new Insets(0, 20, 0, 10);
+			GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
+			gridBagConstraints9.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints9.gridx = 0;
+			gridBagConstraints9.gridy = 3;
+			gridBagConstraints9.ipadx = 0;
+			gridBagConstraints9.weightx = 1.0;
+			gridBagConstraints9.weighty = 1.0;
+			gridBagConstraints9.fill = GridBagConstraints.BOTH;
+			gridBagConstraints9.insets = new Insets(0, 20, 0, 10);
+			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
+			gridBagConstraints8.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints8.gridx = 0;
+			gridBagConstraints8.gridy = 2;
+			gridBagConstraints8.ipadx = 0;
+			gridBagConstraints8.weightx = 1.0;
+			gridBagConstraints8.weighty = 1.0;
+			gridBagConstraints8.fill = GridBagConstraints.BOTH;
+			gridBagConstraints8.insets = new Insets(0, 20, 0, 10);
+			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+			gridBagConstraints7.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints7.gridx = 0;
+			gridBagConstraints7.gridy = 1;
+			gridBagConstraints7.ipadx = 0;
+			gridBagConstraints7.weightx = 1.0;
+			gridBagConstraints7.weighty = 1.0;
+			gridBagConstraints7.fill = GridBagConstraints.BOTH;
+			gridBagConstraints7.insets = new Insets(0, 20, 0, 10);
+			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+			gridBagConstraints6.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints6.gridx = 0;
+			gridBagConstraints6.gridy = 0;
+			gridBagConstraints6.ipadx = 0;
+			gridBagConstraints6.weightx = 1.0;
+			gridBagConstraints6.weighty = 1.0;
+			gridBagConstraints6.fill = GridBagConstraints.BOTH;
+			gridBagConstraints6.insets = new Insets(0, 20, 0, 10);
 			jPanel1 = new JPanel();
 			jPanel1.setLayout(new GridBagLayout());
-			jPanel1.setBorder(BorderFactory.createTitledBorder(null, "Hours", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
-			jPanel1.add(getHoursList(), gridBagConstraints26);
-			jPanel1.add(getJSpinField1(), gridBagConstraints27);
-			jPanel1.add(getJButton1(), gridBagConstraints28);
+			jPanel1.setBackground(SystemColor.control);
+			jPanel1.add(getJuly(), gridBagConstraints6);
+			jPanel1.add(getAugust(), gridBagConstraints7);
+			jPanel1.add(getSeptember(), gridBagConstraints8);
+			jPanel1.add(getOctober(), gridBagConstraints9);
+			jPanel1.add(getNovember(), gridBagConstraints10);
+			jPanel1.add(getDecember(), gridBagConstraints11);
 		}
 		return jPanel1;
+	}
+
+	/**
+	 * This method initializes jPanel2	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getJPanel2() {
+		if (jPanel2 == null) {
+			GridBagConstraints gridBagConstraints30 = new GridBagConstraints();
+			gridBagConstraints30.gridx = -1;
+			gridBagConstraints30.weightx = 1.0;
+			gridBagConstraints30.weighty = 1.0;
+			gridBagConstraints30.fill = GridBagConstraints.BOTH;
+			gridBagConstraints30.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints30.insets = new Insets(10, 10, 10, 10);
+			gridBagConstraints30.gridy = -1;
+			GridBagConstraints gridBagConstraints29 = new GridBagConstraints();
+			gridBagConstraints29.gridx = -1;
+			gridBagConstraints29.weightx = 1.0;
+			gridBagConstraints29.weighty = 1.0;
+			gridBagConstraints29.fill = GridBagConstraints.BOTH;
+			gridBagConstraints29.insets = new Insets(10, 10, 10, 10);
+			gridBagConstraints29.gridy = -1;
+			jPanel2 = new JPanel();
+			jPanel2.setLayout(new GridBagLayout());
+			jPanel2.setBorder(BorderFactory.createTitledBorder(null, "Months of the Year", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+			jPanel2.setBackground(SystemColor.control);
+			jPanel2.add(getJPanel(), gridBagConstraints29);
+			jPanel2.add(getJPanel1(), gridBagConstraints30);
+		}
+		return jPanel2;
+	}
+
+	/**
+	 * This method initializes buttonPanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getButtonPanel() {
+		if (buttonPanel == null) {
+			GridBagConstraints gridBagConstraints25 = new GridBagConstraints();
+			gridBagConstraints25.insets = new Insets(1, 0, 0, 10);
+			jLabel = new JLabel();
+			jLabel.setText("URI to run:");
+			GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
+			gridBagConstraints24.fill = GridBagConstraints.BOTH;
+			gridBagConstraints24.weighty = 1.0;
+			gridBagConstraints24.gridx = 1;
+			gridBagConstraints24.gridy = 0;
+			gridBagConstraints24.weightx = 1.0;
+			GridBagConstraints gridBagConstraints35 = new GridBagConstraints();
+			gridBagConstraints35.weightx = 0.0;
+			gridBagConstraints35.gridx = 3;
+			gridBagConstraints35.gridy = 0;
+			gridBagConstraints35.ipadx = 0;
+			gridBagConstraints35.ipady = 0;
+			gridBagConstraints35.insets = new Insets(0, 10, 0, 10);
+			gridBagConstraints35.weighty = 1.0;
+			GridBagConstraints gridBagConstraints34 = new GridBagConstraints();
+			gridBagConstraints34.weightx = 0.0;
+			gridBagConstraints34.gridx = 2;
+			gridBagConstraints34.gridy = 0;
+			gridBagConstraints34.ipadx = 0;
+			gridBagConstraints34.ipady = 0;
+			gridBagConstraints34.insets = new Insets(0, 10, 0, 10);
+			gridBagConstraints34.weighty = 1.0;
+			buttonPanel = new JPanel();
+			buttonPanel.setLayout(new GridBagLayout());
+			buttonPanel.setBackground(SystemColor.control);
+			buttonPanel.add(jLabel, gridBagConstraints25);
+			buttonPanel.add(getUriTextField(), gridBagConstraints24);
+			buttonPanel.add(getOkButton(), gridBagConstraints34);
+			buttonPanel.add(getCancelButton(), gridBagConstraints35);
+		}
+		return buttonPanel;
+	}
+
+	/**
+	 * This method initializes okButton	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */
+	private JButton getOkButton() {
+		if (okButton == null) {
+			okButton = new JButton();
+			okButton.setText("OK");
+			okButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					System.out.println("actionPerformed()" + new ScheduleMarshaller().marshal(SchedulerDialog.this)); // TODO Auto-generated Event stub actionPerformed()
+					new ScheduleMarshaller().unmarshal("0 0,15,30,45 3,7,22 26,27,28,29 1,2,3,4,5,9,10,11,12 2,3,5,6", SchedulerDialog.this);
+				}
+			});
+		}
+		return okButton;
+	}
+
+	/**
+	 * This method initializes cancelButton	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */
+	private JButton getCancelButton() {
+		if (cancelButton == null) {
+			cancelButton = new JButton();
+			cancelButton.setText("Cancel");
+			cancelButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					System.out.println("actionPerformed()"); // TODO Auto-generated Event stub actionPerformed()
+				}
+			});
+		}
+		return cancelButton;
+	}
+
+	/**
+	 * This method initializes uriTextField	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	public JTextField getUriTextField() {
+		if (uriTextField == null) {
+			uriTextField = new JTextField();
+			uriTextField.setText("");
+		}
+		return uriTextField;
+	}
+
+	/**
+	 * This method initializes hourScrollPane	
+	 * 	
+	 * @return javax.swing.JScrollPane	
+	 */
+	private JScrollPane getHourScrollPane() {
+		if (hourScrollPane == null) {
+			hourScrollPane = new JScrollPane();
+			hourScrollPane.setViewportView(getHoursList());
+		}
+		return hourScrollPane;
+	}
+
+	/**
+	 * This method initializes minuteScrollPane	
+	 * 	
+	 * @return javax.swing.JScrollPane	
+	 */
+	private JScrollPane getMinuteScrollPane() {
+		if (minuteScrollPane == null) {
+			minuteScrollPane = new JScrollPane();
+			minuteScrollPane.setViewportView(getMinutesList());
+		}
+		return minuteScrollPane;
 	}
 
 	public static void main( String[] args ) {
 		SchedulerDialog d = new SchedulerDialog( null );
 		d.setVisible( true );
 	}
+
+	public DefaultListModel getDaysOfMonthModel() {
+		return daysOfMonthModel;
+	}
+
+	public void setDaysOfMonthModel(DefaultListModel daysOfMonthModel) {
+		this.daysOfMonthModel = daysOfMonthModel;
+	}
+
+	public DefaultListModel getHoursModel() {
+		return hoursModel;
+	}
+
+	public void setHoursModel(DefaultListModel hoursModel) {
+		this.hoursModel = hoursModel;
+	}
+
+	public DefaultListModel getMinutesModel() {
+		return minutesModel;
+	}
+
+	public void setMinutesModel(DefaultListModel minutesModel) {
+		this.minutesModel = minutesModel;
+	}
+
+
 }  //  @jve:decl-index=0:visual-constraint="10,10"
