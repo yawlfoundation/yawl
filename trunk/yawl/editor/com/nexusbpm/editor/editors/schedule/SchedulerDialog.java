@@ -36,7 +36,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
-
+import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.JTextFieldDateEditor;
 import com.toedter.calendar.JSpinnerDateEditor;
 
 public class SchedulerDialog extends JDialog {
@@ -146,6 +147,9 @@ public class SchedulerDialog extends JDialog {
 	private JSpinnerDateEditor startSpinnerDateEditor = null;
 	private JSpinnerDateEditor endSpinnerDateEditor = null;
 	private boolean cancelled = false;
+	private JPanel namePanel = null;
+	private JTextField nameTextField = null;
+	private JLabel nameLabel = null;
 	public String getCronExpression() {
 		return cronExpression;
 	}
@@ -174,15 +178,12 @@ public class SchedulerDialog extends JDialog {
 			this.endSpinnerDateEditor.setDate(info.getEndDate());
 			this.useEndDateCheckBox.setSelected(true);
 		}
-		else {
-			this.endSpinnerDateEditor.setEnabled(false);
-			this.endSpinnerDateEditor.setDate(new Date());
-		}
+		this.getNameTextField().setText(info.getScheduleName());
 		ScheduleMarshaller.getInstance().unmarshal(this.cronExpression, this);
 	}
 
 	public static ScheduleInformation showSchedulerDialog(Frame parent, ScheduleInformation info) {
-		SchedulerDialog dialog = new SchedulerDialog(parent, info == null ? new ScheduleInformation(null, null, null, null) : info);
+		SchedulerDialog dialog = new SchedulerDialog(parent, info == null ? new ScheduleInformation(null,null, null, null, null) : info);
 		dialog.setVisible(true);
 		dialog.dispose();
 		Date startDate = dialog.useStartDateCheckBox.isSelected() ? dialog.startSpinnerDateEditor.getDate() : null; 
@@ -191,7 +192,7 @@ public class SchedulerDialog extends JDialog {
 			return null;
 		}
 		else {
-			return new ScheduleInformation(dialog.getUriTextField().getText(), dialog.getCronExpression(), startDate, endDate);
+			return new ScheduleInformation(dialog.getNameTextField().getText(), dialog.getUriTextField().getText(), dialog.getCronExpression(), startDate, endDate);
 		}
 	}
 	
@@ -257,7 +258,7 @@ public class SchedulerDialog extends JDialog {
 			jTabbedPane.setPreferredSize(new Dimension(395, 250));
 			jTabbedPane.setBackground(SystemColor.control);
 			jTabbedPane.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-			jTabbedPane.addTab("Start and End ", null, getStartAndEndDates(), null);
+			jTabbedPane.addTab("General", null, getStartAndEndDates(), null);
 			jTabbedPane.addTab("Time", null, getTime(), null);
 			jTabbedPane.addTab("Days", null, getDays(), null);
 			jTabbedPane.addTab("Months", null, getMonth(), null);
@@ -1206,17 +1207,23 @@ public class SchedulerDialog extends JDialog {
 	 */
 	private JPanel getStartAndEndDates() {
 		if (startAndEndDates == null) {
+			GridBagConstraints gridBagConstraints112 = new GridBagConstraints();
+			gridBagConstraints112.gridy = 0;
+			gridBagConstraints112.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints112.insets = new Insets(10, 10, 5, 10);
+			gridBagConstraints112.gridx = 0;
 			GridBagConstraints gridBagConstraints = new GridBagConstraints();
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.weightx = 1.0;
 			gridBagConstraints.weighty = 1.0;
 			gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints.insets = new Insets(10, 10, 10, 10);
-			gridBagConstraints.gridy = 0;
+			gridBagConstraints.insets = new Insets(5, 10, 10, 10);
+			gridBagConstraints.gridy = 1;
 			startAndEndDates = new JPanel();
 			startAndEndDates.setLayout(new GridBagLayout());
 			startAndEndDates.setBackground(SystemColor.control);
+			startAndEndDates.add(getNamePanel(), gridBagConstraints112);
 			startAndEndDates.add(getStartAndEndPanel(), gridBagConstraints);
 		}
 		return startAndEndDates;
@@ -1331,8 +1338,51 @@ public class SchedulerDialog extends JDialog {
 		return endSpinnerDateEditor;
 	}
 
+	/**
+	 * This method initializes namePanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getNamePanel() {
+		if (namePanel == null) {
+			GridBagConstraints gridBagConstraints39 = new GridBagConstraints();
+			gridBagConstraints39.gridx = 0;
+			gridBagConstraints39.weightx = 0.0;
+			gridBagConstraints39.insets = new Insets(5, 5, 5, 5);
+			gridBagConstraints39.fill = GridBagConstraints.VERTICAL;
+			gridBagConstraints39.gridy = 0;
+			nameLabel = new JLabel();
+			nameLabel.setText("Event Name");
+			GridBagConstraints gridBagConstraints38 = new GridBagConstraints();
+			gridBagConstraints38.fill = GridBagConstraints.BOTH;
+			gridBagConstraints38.gridy = 0;
+			gridBagConstraints38.weightx = 1.0;
+			gridBagConstraints38.insets = new Insets(5, 5, 5, 5);
+			gridBagConstraints38.gridx = 1;
+			namePanel = new JPanel();
+			namePanel.setLayout(new GridBagLayout());
+			namePanel.setBorder(BorderFactory.createTitledBorder(null, "Enter the Name of the Event to Schedule", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+			namePanel.setBackground(SystemColor.control);
+			namePanel.add(getNameTextField(), gridBagConstraints38);
+			namePanel.add(nameLabel, gridBagConstraints39);
+		}
+		return namePanel;
+	}
+
+	/**
+	 * This method initializes nameTextField	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getNameTextField() {
+		if (nameTextField == null) {
+			nameTextField = new JTextField();
+		}
+		return nameTextField;
+	}
+
 	public static void main( String[] args ) {
-		ScheduleInformation s = SchedulerDialog.showSchedulerDialog(null, new ScheduleInformation("MakeRecordings", DEFAULT_CRON_STRING, new Date(), new Date()));
+		ScheduleInformation s = SchedulerDialog.showSchedulerDialog(null, new ScheduleInformation("Weekly Recording Session", "MakeRecordings", DEFAULT_CRON_STRING, new Date(), new Date()));
 		System.out.println(s);
 	}
 
