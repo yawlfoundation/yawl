@@ -12,6 +12,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -127,8 +129,6 @@ public class SchedulerDialog extends JDialog {
 
 	private JTextField uriTextField = null;
 
-	private JLabel jLabel = null;
-
 	private JScrollPane hourScrollPane = null;
 
 	private JScrollPane minuteScrollPane = null;
@@ -142,7 +142,6 @@ public class SchedulerDialog extends JDialog {
 	private String cronExpression;  //  @jve:decl-index=0:
 	private JPanel startAndEndDates = null;
 	private JPanel startAndEndPanel = null;
-	private JCheckBox useStartDateCheckBox = null;
 	private JCheckBox useEndDateCheckBox = null;
 	private JSpinnerDateEditor startSpinnerDateEditor = null;
 	private JSpinnerDateEditor endSpinnerDateEditor = null;
@@ -150,6 +149,9 @@ public class SchedulerDialog extends JDialog {
 	private JPanel namePanel = null;
 	private JTextField nameTextField = null;
 	private JLabel nameLabel = null;
+	private JLabel useStartDateLabel = null;
+	private JLabel specNameLabel = null;
+	private JPanel emptyMonthPanel = null;
 	public String getCronExpression() {
 		return cronExpression;
 	}
@@ -168,15 +170,17 @@ public class SchedulerDialog extends JDialog {
 		this.uriTextField.setText(info.getUri() == null ? "" : info.getUri());
 		if (info.getStartDate() != null) {
 			this.startSpinnerDateEditor.setDate(info.getStartDate());
-			this.useStartDateCheckBox.setSelected(true);
 		}
 		else {
-			this.startSpinnerDateEditor.setEnabled(false);
 			this.startSpinnerDateEditor.setDate(new Date());
 		}
 		if (info.getEndDate() != null) {
 			this.endSpinnerDateEditor.setDate(info.getEndDate());
 			this.useEndDateCheckBox.setSelected(true);
+		}
+		else {
+			this.endSpinnerDateEditor.setDate(new Date());
+			this.endSpinnerDateEditor.setEnabled(false);
 		}
 		this.getNameTextField().setText(info.getScheduleName());
 		ScheduleMarshaller.getInstance().unmarshal(this.cronExpression, this);
@@ -186,7 +190,7 @@ public class SchedulerDialog extends JDialog {
 		SchedulerDialog dialog = new SchedulerDialog(parent, info == null ? new ScheduleInformation(null,null, null, null, null) : info);
 		dialog.setVisible(true);
 		dialog.dispose();
-		Date startDate = dialog.useStartDateCheckBox.isSelected() ? dialog.startSpinnerDateEditor.getDate() : null; 
+		Date startDate = dialog.startSpinnerDateEditor.getDate(); 
 		Date endDate = dialog.useEndDateCheckBox.isSelected() ? dialog.endSpinnerDateEditor.getDate() : null;
 		if( dialog.cancelled ) {
 			return null;
@@ -202,7 +206,7 @@ public class SchedulerDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(465, 318);
+		this.setSize(465, 326);
 		this.setTitle("Specification Scheduler");
 		this.setModal(true);
 		this.setBackground(SystemColor.control);
@@ -225,18 +229,19 @@ public class SchedulerDialog extends JDialog {
 			gridBagConstraints33.gridx = 0;
 			gridBagConstraints33.ipadx = 0;
 			gridBagConstraints33.weightx = 1.0;
-			gridBagConstraints33.weighty = 1.0;
+			gridBagConstraints33.weighty = 0.0;
 			gridBagConstraints33.insets = new Insets(10, 10, 10, 10);
 			gridBagConstraints33.fill = GridBagConstraints.BOTH;
-			gridBagConstraints33.anchor = GridBagConstraints.EAST;
+			gridBagConstraints33.anchor = GridBagConstraints.NORTH;
 			gridBagConstraints33.gridy = 1;
 			GridBagConstraints gridBagConstraints32 = new GridBagConstraints();
 			gridBagConstraints32.fill = GridBagConstraints.BOTH;
 			gridBagConstraints32.gridy = 0;
-			gridBagConstraints32.ipadx = 62;
+			gridBagConstraints32.ipadx = 2;
 			gridBagConstraints32.ipady = 2;
 			gridBagConstraints32.weightx = 1.0;
 			gridBagConstraints32.weighty = 1.0;
+			gridBagConstraints32.insets = new Insets(5, 10, 0, 10);
 			gridBagConstraints32.gridx = 0;
 			jContentPane = new JPanel();
 			jContentPane.setLayout(new GridBagLayout());
@@ -304,15 +309,15 @@ public class SchedulerDialog extends JDialog {
 	private JPanel getDays() {
 		if( days == null ) {
 			GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
-			gridBagConstraints21.weightx = 1.0;
+			gridBagConstraints21.weightx = 0.2;
 			gridBagConstraints21.fill = GridBagConstraints.BOTH;
-			gridBagConstraints21.insets = new Insets(0, 10, 0, 10);
-			gridBagConstraints21.weighty = 1.0;
+			gridBagConstraints21.insets = new Insets(10, 10, 5, 10);
+			gridBagConstraints21.weighty = 0.0;
 			gridBagConstraints21.anchor = GridBagConstraints.WEST;
 			GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
 			gridBagConstraints13.gridx = 1;
 			gridBagConstraints13.weightx = 1.0;
-			gridBagConstraints13.insets = new Insets(0, 10, 0, 10);
+			gridBagConstraints13.insets = new Insets(10, 10, 5, 10);
 			gridBagConstraints13.fill = GridBagConstraints.BOTH;
 			gridBagConstraints13.weighty = 1.0;
 			gridBagConstraints13.gridy = 0;
@@ -337,6 +342,7 @@ public class SchedulerDialog extends JDialog {
 			gridBagConstraints31.fill = GridBagConstraints.BOTH;
 			gridBagConstraints31.ipadx = 1;
 			gridBagConstraints31.insets = new Insets(10, 10, 10, 10);
+			gridBagConstraints31.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints31.weighty = 1.0;
 			month = new JPanel();
 			month.setLayout(new GridBagLayout());
@@ -1048,20 +1054,30 @@ public class SchedulerDialog extends JDialog {
 	 */
 	private JPanel getJPanel2() {
 		if (jPanel2 == null) {
+			GridBagConstraints gridBagConstraints41 = new GridBagConstraints();
+			gridBagConstraints41.gridx = 2;
+			gridBagConstraints41.fill = GridBagConstraints.BOTH;
+			gridBagConstraints41.weightx = 1.0;
+			gridBagConstraints41.weighty = 1.0;
+			gridBagConstraints41.insets = new Insets(0, 0, 0, 0);
+			gridBagConstraints41.ipadx = 0;
+			gridBagConstraints41.ipady = 0;
+			gridBagConstraints41.gridy = 0;
 			GridBagConstraints gridBagConstraints30 = new GridBagConstraints();
 			gridBagConstraints30.gridx = -1;
-			gridBagConstraints30.weightx = 1.0;
-			gridBagConstraints30.weighty = 1.0;
-			gridBagConstraints30.fill = GridBagConstraints.BOTH;
+			gridBagConstraints30.weightx = 0.0;
+			gridBagConstraints30.weighty = 0.0;
+			gridBagConstraints30.fill = GridBagConstraints.NONE;
 			gridBagConstraints30.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints30.insets = new Insets(10, 10, 10, 10);
 			gridBagConstraints30.gridy = -1;
 			GridBagConstraints gridBagConstraints29 = new GridBagConstraints();
 			gridBagConstraints29.gridx = -1;
-			gridBagConstraints29.weightx = 1.0;
-			gridBagConstraints29.weighty = 1.0;
-			gridBagConstraints29.fill = GridBagConstraints.BOTH;
+			gridBagConstraints29.weightx = 0.0;
+			gridBagConstraints29.weighty = 0.0;
+			gridBagConstraints29.fill = GridBagConstraints.NONE;
 			gridBagConstraints29.insets = new Insets(10, 10, 10, 10);
+			gridBagConstraints29.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints29.gridy = -1;
 			jPanel2 = new JPanel();
 			jPanel2.setLayout(new GridBagLayout());
@@ -1069,6 +1085,7 @@ public class SchedulerDialog extends JDialog {
 			jPanel2.setBackground(SystemColor.control);
 			jPanel2.add(getJPanel(), gridBagConstraints29);
 			jPanel2.add(getJPanel1(), gridBagConstraints30);
+			jPanel2.add(getEmptyMonthPanel(), gridBagConstraints41);
 		}
 		return jPanel2;
 	}
@@ -1080,40 +1097,28 @@ public class SchedulerDialog extends JDialog {
 	 */
 	private JPanel getButtonPanel() {
 		if (buttonPanel == null) {
-			GridBagConstraints gridBagConstraints25 = new GridBagConstraints();
-			gridBagConstraints25.insets = new Insets(1, 0, 0, 10);
-			jLabel = new JLabel();
-			jLabel.setText("Specification");
-			GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
-			gridBagConstraints24.fill = GridBagConstraints.BOTH;
-			gridBagConstraints24.weighty = 1.0;
-			gridBagConstraints24.gridx = 1;
-			gridBagConstraints24.gridy = 0;
-			gridBagConstraints24.weightx = 10.0;
 			GridBagConstraints gridBagConstraints35 = new GridBagConstraints();
-			gridBagConstraints35.weightx = 1.0;
+			gridBagConstraints35.weightx = 0.0;
 			gridBagConstraints35.gridx = 3;
 			gridBagConstraints35.gridy = 0;
 			gridBagConstraints35.ipadx = 0;
 			gridBagConstraints35.ipady = 0;
-			gridBagConstraints35.insets = new Insets(0, 10, 0, 10);
+			gridBagConstraints35.insets = new Insets(0, 10, 0, 0);
 			gridBagConstraints35.anchor = GridBagConstraints.EAST;
 			gridBagConstraints35.weighty = 1.0;
 			GridBagConstraints gridBagConstraints34 = new GridBagConstraints();
-			gridBagConstraints34.weightx = 1.0;
+			gridBagConstraints34.weightx = 0.0;
 			gridBagConstraints34.gridx = 2;
 			gridBagConstraints34.gridy = 0;
 			gridBagConstraints34.ipadx = 0;
 			gridBagConstraints34.ipady = 0;
 			gridBagConstraints34.insets = new Insets(0, 10, 0, 0);
-			gridBagConstraints34.fill = GridBagConstraints.BOTH;
+			gridBagConstraints34.fill = GridBagConstraints.NONE;
 			gridBagConstraints34.anchor = GridBagConstraints.EAST;
 			gridBagConstraints34.weighty = 1.0;
 			buttonPanel = new JPanel();
 			buttonPanel.setLayout(new GridBagLayout());
 			buttonPanel.setBackground(SystemColor.control);
-			buttonPanel.add(jLabel, gridBagConstraints25);
-			buttonPanel.add(getUriTextField(), gridBagConstraints24);
 			buttonPanel.add(getOkButton(), gridBagConstraints34);
 			buttonPanel.add(getCancelButton(), gridBagConstraints35);
 		}
@@ -1236,15 +1241,23 @@ public class SchedulerDialog extends JDialog {
 	 */
 	private JPanel getStartAndEndPanel() {
 		if (startAndEndPanel == null) {
+			GridBagConstraints gridBagConstraints40 = new GridBagConstraints();
+			gridBagConstraints40.gridx = 1;
+			gridBagConstraints40.anchor = GridBagConstraints.EAST;
+			gridBagConstraints40.insets = new Insets(5, 5, 5, 9);
+			gridBagConstraints40.weighty = 1.0;
+			gridBagConstraints40.gridy = 0;
+			useStartDateLabel = new JLabel();
+			useStartDateLabel.setText("Start date");
 			GridBagConstraints gridBagConstraints28 = new GridBagConstraints();
-			gridBagConstraints28.gridx = 1;
+			gridBagConstraints28.gridx = 2;
 			gridBagConstraints28.insets = new Insets(5, 5, 5, 5);
 			gridBagConstraints28.anchor = GridBagConstraints.WEST;
 			gridBagConstraints28.weightx = 1.0;
 			gridBagConstraints28.weighty = 1.0;
 			gridBagConstraints28.gridy = 1;
 			GridBagConstraints gridBagConstraints26 = new GridBagConstraints();
-			gridBagConstraints26.gridx = 1;
+			gridBagConstraints26.gridx = 2;
 			gridBagConstraints26.insets = new Insets(5, 5, 5, 5);
 			gridBagConstraints26.anchor = GridBagConstraints.WEST;
 			gridBagConstraints26.weightx = 1.0;
@@ -1252,47 +1265,22 @@ public class SchedulerDialog extends JDialog {
 			gridBagConstraints26.gridy = 0;
 			GridBagConstraints gridBagConstraints37 = new GridBagConstraints();
 			gridBagConstraints37.gridx = 0;
-			gridBagConstraints37.anchor = GridBagConstraints.WEST;
+			gridBagConstraints37.anchor = GridBagConstraints.EAST;
 			gridBagConstraints37.insets = new Insets(5, 5, 5, 5);
 			gridBagConstraints37.weightx = 0.0;
 			gridBagConstraints37.weighty = 1.0;
+			gridBagConstraints37.gridwidth = 2;
 			gridBagConstraints37.gridy = 1;
-			GridBagConstraints gridBagConstraints36 = new GridBagConstraints();
-			gridBagConstraints36.gridx = 0;
-			gridBagConstraints36.anchor = GridBagConstraints.WEST;
-			gridBagConstraints36.insets = new Insets(5, 5, 5, 5);
-			gridBagConstraints36.weightx = 0.0;
-			gridBagConstraints36.weighty = 1.0;
-			gridBagConstraints36.gridy = 0;
 			startAndEndPanel = new JPanel();
 			startAndEndPanel.setLayout(new GridBagLayout());
 			startAndEndPanel.setBackground(SystemColor.control);
 			startAndEndPanel.setBorder(BorderFactory.createTitledBorder(null, "Select Start and End Dates", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
 			startAndEndPanel.add(getStartSpinnerDateEditor(), gridBagConstraints26);
 			startAndEndPanel.add(getEndSpinnerDateEditor(), gridBagConstraints28);
-			startAndEndPanel.add(getUseStartDateCheckBox(), gridBagConstraints36);
 			startAndEndPanel.add(getUseEndDateCheckBox(), gridBagConstraints37);
+			startAndEndPanel.add(useStartDateLabel, gridBagConstraints40);
 		}
 		return startAndEndPanel;
-	}
-
-	/**
-	 * This method initializes useStartDateCheckBox	
-	 * 	
-	 * @return javax.swing.JCheckBox	
-	 */
-	private JCheckBox getUseStartDateCheckBox() {
-		if (useStartDateCheckBox == null) {
-			useStartDateCheckBox = new JCheckBox();
-			useStartDateCheckBox.setText("Use start date");
-			useStartDateCheckBox.setBackground(SystemColor.control);
-			useStartDateCheckBox.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					SchedulerDialog.this.startSpinnerDateEditor.setEnabled(SchedulerDialog.this.useStartDateCheckBox.isSelected());
-				}
-			});
-		}
-		return useStartDateCheckBox;
 	}
 
 	/**
@@ -1345,11 +1333,30 @@ public class SchedulerDialog extends JDialog {
 	 */
 	private JPanel getNamePanel() {
 		if (namePanel == null) {
+			GridBagConstraints gridBagConstraints36 = new GridBagConstraints();
+			gridBagConstraints36.gridx = 0;
+			gridBagConstraints36.insets = new Insets(5, 5, 5, 5);
+			gridBagConstraints36.anchor = GridBagConstraints.EAST;
+			gridBagConstraints36.gridy = 1;
+			specNameLabel = new JLabel();
+			specNameLabel.setText("Specification URI");
+			GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
+			gridBagConstraints24.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints24.gridy = 1;
+			gridBagConstraints24.weightx = 10.0;
+			gridBagConstraints24.weighty = 1.0;
+			gridBagConstraints24.insets = new Insets(5, 5, 5, 5);
+			gridBagConstraints24.gridx = 2;
+			GridBagConstraints gridBagConstraints25 = new GridBagConstraints();
+			gridBagConstraints25.insets = new Insets(1, 5, 0, 10);
+			gridBagConstraints25.gridy = 1;
+			gridBagConstraints25.gridx = 0;
 			GridBagConstraints gridBagConstraints39 = new GridBagConstraints();
 			gridBagConstraints39.gridx = 0;
 			gridBagConstraints39.weightx = 0.0;
 			gridBagConstraints39.insets = new Insets(5, 5, 5, 5);
 			gridBagConstraints39.fill = GridBagConstraints.VERTICAL;
+			gridBagConstraints39.anchor = GridBagConstraints.EAST;
 			gridBagConstraints39.gridy = 0;
 			nameLabel = new JLabel();
 			nameLabel.setText("Event Name");
@@ -1358,13 +1365,15 @@ public class SchedulerDialog extends JDialog {
 			gridBagConstraints38.gridy = 0;
 			gridBagConstraints38.weightx = 1.0;
 			gridBagConstraints38.insets = new Insets(5, 5, 5, 5);
-			gridBagConstraints38.gridx = 1;
+			gridBagConstraints38.gridx = 2;
 			namePanel = new JPanel();
 			namePanel.setLayout(new GridBagLayout());
-			namePanel.setBorder(BorderFactory.createTitledBorder(null, "Enter the Name of the Event to Schedule", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+			namePanel.setBorder(BorderFactory.createTitledBorder(null, "Event to Schedule", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
 			namePanel.setBackground(SystemColor.control);
 			namePanel.add(getNameTextField(), gridBagConstraints38);
 			namePanel.add(nameLabel, gridBagConstraints39);
+			namePanel.add(getUriTextField(), gridBagConstraints24);
+			namePanel.add(specNameLabel, gridBagConstraints36);
 		}
 		return namePanel;
 	}
@@ -1379,6 +1388,21 @@ public class SchedulerDialog extends JDialog {
 			nameTextField = new JTextField();
 		}
 		return nameTextField;
+	}
+
+	/**
+	 * This method initializes emptyMonthPanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getEmptyMonthPanel() {
+		if (emptyMonthPanel == null) {
+			emptyMonthPanel = new JPanel();
+			emptyMonthPanel.setLayout(new GridBagLayout());
+			emptyMonthPanel.setPreferredSize(new Dimension(10, 10));
+			emptyMonthPanel.setBackground(SystemColor.control);
+		}
+		return emptyMonthPanel;
 	}
 
 	public static void main( String[] args ) {
