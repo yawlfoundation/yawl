@@ -32,8 +32,12 @@ import javax.swing.JTextField;
 import javax.swing.JLabel;
 import java.awt.SystemColor;
 import java.awt.Cursor;
+import javax.swing.border.SoftBevelBorder;
 
 public class SchedulerDialog extends JDialog {
+
+	private static final String SAMPLE_CRON_STRING = "0 0,15,30,45 3,7,22 26,27,28,29 1,2,3,4,5,9,10,11,12 2,3,5,6";  //  @jve:decl-index=0:
+	private static final String DEFAULT_CRON_STRING = "0 0 0 ? 1,2,3,4,5,6,7,8,9,10,11,12 2,3,4,5,6";
 
 	private static final long serialVersionUID = 1L;
 
@@ -127,16 +131,35 @@ public class SchedulerDialog extends JDialog {
 
 	private DefaultListModel minutesModel = null; 
 
-	private DefaultListModel daysOfMonthModel = null;  //  @jve:decl-index=0:visual-constraint="484,56"
+	private DefaultListModel daysOfMonthModel = null;  //  @jve:decl-index=0:visual-constraint="489,64"
+
+	private String cronExpression;  //  @jve:decl-index=0:
+	
+	public String getCronExpression() {
+		return cronExpression;
+	}
+
+	public void setCronExpression(String cronExpression) {
+		this.cronExpression = cronExpression;
+	}
 
 	/**
 	 * @param owner
 	 */
-	public SchedulerDialog( Frame owner ) {
+	public SchedulerDialog( Frame owner, String cronExpression ) {
 		super( owner );
+		this.cronExpression = cronExpression == null ? DEFAULT_CRON_STRING : cronExpression;
 		initialize();
+		ScheduleMarshaller.getInstance().unmarshal(cronExpression, this);
 	}
 
+	public static String[] showSchedulerDialog(Frame parent, String cronExpression) {
+		SchedulerDialog dialog = new SchedulerDialog(parent, cronExpression);
+		dialog.setVisible(true);
+		dialog.dispose();
+		return new String[] {dialog.getCronExpression(), dialog.getUriTextField().getText()};
+	}
+	
 	/**
 	 * This method initializes this
 	 * 
@@ -144,11 +167,12 @@ public class SchedulerDialog extends JDialog {
 	 */
 	private void initialize() {
 		this.setSize(465, 318);
+		this.setModal(true);
 		this.setBackground(SystemColor.control);
 		this.setContentPane( getJContentPane() );
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
-				System.out.println("windowClosing()"); // TODO Auto-generated Event stub windowClosing()
+				SchedulerDialog.this.setVisible(false);
 			}
 		});
 	}
@@ -293,6 +317,7 @@ public class SchedulerDialog extends JDialog {
 		if( minutesList == null ) {
 			minutesList = new JList();
 			minutesList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			minutesList.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED));
 			minutesModel = new DefaultListModel();
 			minutesList.setModel(minutesModel);
 			minutesList.setCellRenderer(new AlternatingListCellRenderer(TextRenderer.getMinutelyInstance()));
@@ -695,6 +720,7 @@ public class SchedulerDialog extends JDialog {
 		if( daysOfMonthList == null ) {
 		    daysOfMonthModel = new DefaultListModel();
 		    daysOfMonthList = new JList();
+		    daysOfMonthList.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED));
 		    daysOfMonthList.setModel(daysOfMonthModel);
 		    daysOfMonthList.setCellRenderer(new AlternatingListCellRenderer(TextRenderer.getDailyInstance()));
 			Object[] values = new Object[]
@@ -775,6 +801,7 @@ public class SchedulerDialog extends JDialog {
 		if( hoursList == null ) {
 			hoursList = new JList();
 			hoursList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			hoursList.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED));
 			hoursModel = new DefaultListModel();
 			hoursList.setModel(hoursModel);
 			hoursList.setCellRenderer(new AlternatingListCellRenderer(TextRenderer.getHourlyInstance()));
@@ -1017,7 +1044,7 @@ public class SchedulerDialog extends JDialog {
 			GridBagConstraints gridBagConstraints25 = new GridBagConstraints();
 			gridBagConstraints25.insets = new Insets(1, 0, 0, 10);
 			jLabel = new JLabel();
-			jLabel.setText("URI to run:");
+			jLabel.setText("Specification");
 			GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
 			gridBagConstraints24.fill = GridBagConstraints.BOTH;
 			gridBagConstraints24.weighty = 1.0;
@@ -1062,8 +1089,8 @@ public class SchedulerDialog extends JDialog {
 			okButton.setText("OK");
 			okButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					System.out.println("actionPerformed()" + new ScheduleMarshaller().marshal(SchedulerDialog.this)); // TODO Auto-generated Event stub actionPerformed()
-					new ScheduleMarshaller().unmarshal("0 0,15,30,45 3,7,22 26,27,28,29 1,2,3,4,5,9,10,11,12 2,3,5,6", SchedulerDialog.this);
+					cronExpression = ScheduleMarshaller.getInstance().marshal(SchedulerDialog.this);
+					SchedulerDialog.this.setVisible(false);
 				}
 			});
 		}
@@ -1081,7 +1108,8 @@ public class SchedulerDialog extends JDialog {
 			cancelButton.setText("Cancel");
 			cancelButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					System.out.println("actionPerformed()"); // TODO Auto-generated Event stub actionPerformed()
+					ScheduleMarshaller.getInstance().unmarshal(getCronExpression(), SchedulerDialog.this);
+					SchedulerDialog.this.setVisible(false);
 				}
 			});
 		}
@@ -1097,6 +1125,7 @@ public class SchedulerDialog extends JDialog {
 		if (uriTextField == null) {
 			uriTextField = new JTextField();
 			uriTextField.setText("");
+			uriTextField.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED));
 		}
 		return uriTextField;
 	}
@@ -1128,8 +1157,8 @@ public class SchedulerDialog extends JDialog {
 	}
 
 	public static void main( String[] args ) {
-		SchedulerDialog d = new SchedulerDialog( null );
-		d.setVisible( true );
+		String cron = SchedulerDialog.showSchedulerDialog(null, DEFAULT_CRON_STRING)[0];
+		System.out.println(cron);
 	}
 
 	public DefaultListModel getDaysOfMonthModel() {

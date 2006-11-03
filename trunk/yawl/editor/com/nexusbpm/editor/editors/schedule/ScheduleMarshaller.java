@@ -10,14 +10,14 @@ import java.util.StringTokenizer;
 
 public class ScheduleMarshaller {
 
-	//dont share these :)
+	private static ScheduleMarshaller INSTANCE;
 	
-	private String secondExpression = "0";
-	private String minuteExpression = "0";
-	private String hourExpression = "0";
-	private String dayOfMonthExpression = "*";
-	private String monthExpression = "*";
-	private String dayOfWeekExpression = "*";
+	public static synchronized ScheduleMarshaller getInstance() {
+		if (INSTANCE == null) INSTANCE = new ScheduleMarshaller();
+		return INSTANCE;		
+	}
+	
+	private ScheduleMarshaller() {}
 	
 	private String marshalMinutes(SchedulerDialog dialog) {
 		String retval = "";
@@ -226,7 +226,7 @@ public class ScheduleMarshaller {
 
 	public void unmarshal(String cron, SchedulerDialog dialog) {
 		StringTokenizer st = new StringTokenizer(cron);
-		String seconds = st.nextToken();
+		st.nextToken(); // we dont do seconds...
 		String minutes = st.nextToken();
 		String hours = st.nextToken();
 		String daysOfMonth = st.nextToken();
