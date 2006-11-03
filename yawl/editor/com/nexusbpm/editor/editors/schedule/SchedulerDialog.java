@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.SystemColor;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 import javax.swing.BorderFactory;
@@ -27,6 +28,10 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
+import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.JTextFieldDateEditor;
+import com.toedter.calendar.JSpinnerDateEditor;
+import java.awt.event.KeyEvent;
 
 public class SchedulerDialog extends JDialog {
 
@@ -128,7 +133,12 @@ public class SchedulerDialog extends JDialog {
 	private DefaultListModel daysOfMonthModel = null;  //  @jve:decl-index=0:visual-constraint="489,64"
 
 	private String cronExpression;  //  @jve:decl-index=0:
-	
+	private JPanel startAndEndDates = null;
+	private JPanel startAndEndPanel = null;
+	private JCheckBox useStartDateCheckBox = null;
+	private JCheckBox useEndDateCheckBox = null;
+	private JSpinnerDateEditor startSpinnerDateEditor = null;
+	private JSpinnerDateEditor endSpinnerDateEditor = null;
 	public String getCronExpression() {
 		return cronExpression;
 	}
@@ -140,19 +150,29 @@ public class SchedulerDialog extends JDialog {
 	/**
 	 * @param owner
 	 */
-	public SchedulerDialog( Frame owner, String cronExpression, String uri ) {
+	public SchedulerDialog( Frame owner, ScheduleInformation info) {
 		super( owner );
-		this.cronExpression = cronExpression == null ? DEFAULT_CRON_STRING : cronExpression;
+		this.cronExpression = info.getCronExpression() == null ? DEFAULT_CRON_STRING : info.getCronExpression();
 		initialize();
-		this.uriTextField.setText(uri == null ? "" : uri);
-		ScheduleMarshaller.getInstance().unmarshal(cronExpression, this);
+		this.uriTextField.setText(info.getUri() == null ? "" : info.getUri());
+		if (info.getStartDate() != null) {
+			this.startSpinnerDateEditor.setDate(info.getStartDate());
+			this.useStartDateCheckBox.setSelected(true);
+		}
+		if (info.getEndDate() != null) {
+			this.endSpinnerDateEditor.setDate(info.getEndDate());
+			this.useEndDateCheckBox.setSelected(true);
+		}
+		ScheduleMarshaller.getInstance().unmarshal(this.cronExpression, this);
 	}
 
-	public static String[] showSchedulerDialog(Frame parent, String cronExpression, String uri) {
-		SchedulerDialog dialog = new SchedulerDialog(parent, cronExpression, uri);
+	public static ScheduleInformation showSchedulerDialog(Frame parent, ScheduleInformation info) {
+		SchedulerDialog dialog = new SchedulerDialog(parent, info);
 		dialog.setVisible(true);
 		dialog.dispose();
-		return new String[] {dialog.getCronExpression(), dialog.getUriTextField().getText()};
+		Date startDate = dialog.useStartDateCheckBox.isSelected() ? dialog.startSpinnerDateEditor.getDate() : null; 
+		Date endDate = dialog.useEndDateCheckBox.isSelected() ? dialog.endSpinnerDateEditor.getDate() : null; 
+		return new ScheduleInformation(dialog.getUriTextField().getText(), dialog.getCronExpression(), startDate, endDate);
 	}
 	
 	/**
@@ -217,9 +237,10 @@ public class SchedulerDialog extends JDialog {
 			jTabbedPane.setPreferredSize(new Dimension(395, 250));
 			jTabbedPane.setBackground(SystemColor.control);
 			jTabbedPane.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-			jTabbedPane.addTab("time", null, getTime(), null);
-			jTabbedPane.addTab("days", null, getDays(), null);
-			jTabbedPane.addTab("months", null, getMonth(), null);
+			jTabbedPane.addTab("Start and End ", null, getStartAndEndDates(), null);
+			jTabbedPane.addTab("Time", null, getTime(), null);
+			jTabbedPane.addTab("Days", null, getDays(), null);
+			jTabbedPane.addTab("Months", null, getMonth(), null);
 		}
 		return jTabbedPane;
 	}
@@ -1047,22 +1068,25 @@ public class SchedulerDialog extends JDialog {
 			gridBagConstraints24.weighty = 1.0;
 			gridBagConstraints24.gridx = 1;
 			gridBagConstraints24.gridy = 0;
-			gridBagConstraints24.weightx = 1.0;
+			gridBagConstraints24.weightx = 10.0;
 			GridBagConstraints gridBagConstraints35 = new GridBagConstraints();
-			gridBagConstraints35.weightx = 0.0;
+			gridBagConstraints35.weightx = 1.0;
 			gridBagConstraints35.gridx = 3;
 			gridBagConstraints35.gridy = 0;
 			gridBagConstraints35.ipadx = 0;
 			gridBagConstraints35.ipady = 0;
 			gridBagConstraints35.insets = new Insets(0, 10, 0, 10);
+			gridBagConstraints35.anchor = GridBagConstraints.EAST;
 			gridBagConstraints35.weighty = 1.0;
 			GridBagConstraints gridBagConstraints34 = new GridBagConstraints();
-			gridBagConstraints34.weightx = 0.0;
+			gridBagConstraints34.weightx = 1.0;
 			gridBagConstraints34.gridx = 2;
 			gridBagConstraints34.gridy = 0;
 			gridBagConstraints34.ipadx = 0;
 			gridBagConstraints34.ipady = 0;
-			gridBagConstraints34.insets = new Insets(0, 10, 0, 10);
+			gridBagConstraints34.insets = new Insets(0, 10, 0, 0);
+			gridBagConstraints34.fill = GridBagConstraints.BOTH;
+			gridBagConstraints34.anchor = GridBagConstraints.EAST;
 			gridBagConstraints34.weighty = 1.0;
 			buttonPanel = new JPanel();
 			buttonPanel.setLayout(new GridBagLayout());
@@ -1084,6 +1108,7 @@ public class SchedulerDialog extends JDialog {
 		if (okButton == null) {
 			okButton = new JButton();
 			okButton.setText("OK");
+			okButton.setPreferredSize(new Dimension(73, 26));
 			okButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					cronExpression = ScheduleMarshaller.getInstance().marshal(SchedulerDialog.this);
@@ -1103,6 +1128,7 @@ public class SchedulerDialog extends JDialog {
 		if (cancelButton == null) {
 			cancelButton = new JButton();
 			cancelButton.setText("Cancel");
+			cancelButton.setMnemonic(KeyEvent.VK_UNDEFINED);
 			cancelButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					ScheduleMarshaller.getInstance().unmarshal(getCronExpression(), SchedulerDialog.this);
@@ -1155,9 +1181,141 @@ public class SchedulerDialog extends JDialog {
 		return minuteScrollPane;
 	}
 
+	/**
+	 * This method initializes startAndEndDates	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getStartAndEndDates() {
+		if (startAndEndDates == null) {
+			GridBagConstraints gridBagConstraints = new GridBagConstraints();
+			gridBagConstraints.gridx = 0;
+			gridBagConstraints.weightx = 1.0;
+			gridBagConstraints.weighty = 1.0;
+			gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints.insets = new Insets(10, 10, 10, 10);
+			gridBagConstraints.gridy = 0;
+			startAndEndDates = new JPanel();
+			startAndEndDates.setLayout(new GridBagLayout());
+			startAndEndDates.setBackground(SystemColor.control);
+			startAndEndDates.add(getStartAndEndPanel(), gridBagConstraints);
+		}
+		return startAndEndDates;
+	}
+
+	/**
+	 * This method initializes startAndEndPanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getStartAndEndPanel() {
+		if (startAndEndPanel == null) {
+			GridBagConstraints gridBagConstraints28 = new GridBagConstraints();
+			gridBagConstraints28.gridx = 1;
+			gridBagConstraints28.insets = new Insets(5, 5, 5, 5);
+			gridBagConstraints28.anchor = GridBagConstraints.WEST;
+			gridBagConstraints28.weightx = 1.0;
+			gridBagConstraints28.weighty = 1.0;
+			gridBagConstraints28.gridy = 1;
+			GridBagConstraints gridBagConstraints26 = new GridBagConstraints();
+			gridBagConstraints26.gridx = 1;
+			gridBagConstraints26.insets = new Insets(5, 5, 5, 5);
+			gridBagConstraints26.anchor = GridBagConstraints.WEST;
+			gridBagConstraints26.weightx = 1.0;
+			gridBagConstraints26.weighty = 1.0;
+			gridBagConstraints26.gridy = 0;
+			GridBagConstraints gridBagConstraints37 = new GridBagConstraints();
+			gridBagConstraints37.gridx = 0;
+			gridBagConstraints37.anchor = GridBagConstraints.WEST;
+			gridBagConstraints37.insets = new Insets(5, 5, 5, 5);
+			gridBagConstraints37.weightx = 0.0;
+			gridBagConstraints37.weighty = 1.0;
+			gridBagConstraints37.gridy = 1;
+			GridBagConstraints gridBagConstraints36 = new GridBagConstraints();
+			gridBagConstraints36.gridx = 0;
+			gridBagConstraints36.anchor = GridBagConstraints.WEST;
+			gridBagConstraints36.insets = new Insets(5, 5, 5, 5);
+			gridBagConstraints36.weightx = 0.0;
+			gridBagConstraints36.weighty = 1.0;
+			gridBagConstraints36.gridy = 0;
+			startAndEndPanel = new JPanel();
+			startAndEndPanel.setLayout(new GridBagLayout());
+			startAndEndPanel.setBackground(SystemColor.control);
+			startAndEndPanel.setBorder(BorderFactory.createTitledBorder(null, "Select Start and End Dates", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+			startAndEndPanel.add(getStartSpinnerDateEditor(), gridBagConstraints26);
+			startAndEndPanel.add(getEndSpinnerDateEditor(), gridBagConstraints28);
+			startAndEndPanel.add(getUseStartDateCheckBox(), gridBagConstraints36);
+			startAndEndPanel.add(getUseEndDateCheckBox(), gridBagConstraints37);
+		}
+		return startAndEndPanel;
+	}
+
+	/**
+	 * This method initializes useStartDateCheckBox	
+	 * 	
+	 * @return javax.swing.JCheckBox	
+	 */
+	private JCheckBox getUseStartDateCheckBox() {
+		if (useStartDateCheckBox == null) {
+			useStartDateCheckBox = new JCheckBox();
+			useStartDateCheckBox.setText("Use start date");
+			useStartDateCheckBox.setBackground(SystemColor.control);
+			useStartDateCheckBox.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					SchedulerDialog.this.startSpinnerDateEditor.setEnabled(SchedulerDialog.this.useStartDateCheckBox.isSelected());
+				}
+			});
+		}
+		return useStartDateCheckBox;
+	}
+
+	/**
+	 * This method initializes useEndDateCheckBox	
+	 * 	
+	 * @return javax.swing.JCheckBox	
+	 */
+	private JCheckBox getUseEndDateCheckBox() {
+		if (useEndDateCheckBox == null) {
+			useEndDateCheckBox = new JCheckBox();
+			useEndDateCheckBox.setText("Use end date");
+			useEndDateCheckBox.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					SchedulerDialog.this.endSpinnerDateEditor.setEnabled(SchedulerDialog.this.useEndDateCheckBox.isSelected());
+				}
+			});
+			useEndDateCheckBox.setBackground(SystemColor.control);
+		}
+		return useEndDateCheckBox;
+	}
+
+	/**
+	 * This method initializes startSpinnerDateEditor	
+	 * 	
+	 * @return com.toedter.calendar.JSpinnerDateEditor	
+	 */
+	private JSpinnerDateEditor getStartSpinnerDateEditor() {
+		if (startSpinnerDateEditor == null) {
+			startSpinnerDateEditor = new JSpinnerDateEditor();
+		}
+		return startSpinnerDateEditor;
+	}
+
+	/**
+	 * This method initializes endSpinnerDateEditor	
+	 * 	
+	 * @return com.toedter.calendar.JSpinnerDateEditor	
+	 */
+	private JSpinnerDateEditor getEndSpinnerDateEditor() {
+		if (endSpinnerDateEditor == null) {
+			endSpinnerDateEditor = new JSpinnerDateEditor();
+		}
+		return endSpinnerDateEditor;
+	}
+
 	public static void main( String[] args ) {
-		String cron = SchedulerDialog.showSchedulerDialog(null, DEFAULT_CRON_STRING, "MakeRecordings")[0];
-		System.out.println(cron);
+		ScheduleInformation s = SchedulerDialog.showSchedulerDialog(null, new ScheduleInformation("MakeRecordings", DEFAULT_CRON_STRING, new Date(), new Date()));
+		System.out.println(s);
 	}
 
 	public DefaultListModel getDaysOfMonthModel() {
