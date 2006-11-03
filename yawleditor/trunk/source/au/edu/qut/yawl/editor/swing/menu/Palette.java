@@ -23,10 +23,6 @@
 package au.edu.qut.yawl.editor.swing.menu;
 
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -34,16 +30,13 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.LinkedList;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
@@ -51,11 +44,9 @@ import javax.swing.SwingConstants;
 
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 
 import org.jgraph.event.GraphSelectionEvent;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
 import au.edu.qut.yawl.editor.actions.palette.*;
 import au.edu.qut.yawl.editor.elements.model.AtomicTask;
@@ -65,7 +56,6 @@ import au.edu.qut.yawl.editor.elements.model.MultipleAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.MultipleCompositeTask;
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
@@ -74,8 +64,6 @@ import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 import au.edu.qut.yawl.editor.swing.JStatusBar;
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 
 public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
 
@@ -350,6 +338,7 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
     }
     
     public void updateWidgetConfiguration() {
+      typeButtons[TYPE_NONE].setEnabled(true);
       enableAllPositionButtons();
 
       if (getTask().getJoinDecorator() == null) {
@@ -444,6 +433,7 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
     
     public void updateWidgetConfiguration() {
       typeButtons[TYPE_NONE].setEnabled(true);
+      enableAllPositionButtons();
 
       if (getTask().getSplitDecorator() == null) {
         doTypeSelection(TYPE_NONE);
