@@ -8,9 +8,17 @@ public class ScheduleInformation {
 	private String cronExpression;
 	private Date startDate;
 	private Date endDate;
+	private String scheduleName;
 	
-	public ScheduleInformation(String uri, String cronExpression, Date startDate, Date endDate) {
+	public String getScheduleName() {
+		return scheduleName;
+	}
+	public void setScheduleName(String scheduleName) {
+		this.scheduleName = scheduleName;
+	}
+	public ScheduleInformation(String scheduleName, String uri, String cronExpression, Date startDate, Date endDate) {
 		super();
+		this.scheduleName = scheduleName;
 		this.uri = uri;
 		this.cronExpression = cronExpression;
 		this.startDate = startDate;
@@ -42,6 +50,6 @@ public class ScheduleInformation {
 	}
 	@Override
 	public String toString() {
-		return "run " + uri + "@cron {" + cronExpression + "} from " + startDate + " through " + endDate; 
+		return "run '" + scheduleName + "' {" + uri + " (" + startDate + "-" + endDate + ")}" + "@cron {" + cronExpression + "}" ; 
 	}
 }
