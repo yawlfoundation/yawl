@@ -13,9 +13,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
@@ -33,6 +36,8 @@ import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.editors.schedule.ScheduledContentProvider.ScheduledContent;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
 import com.nexusbpm.editor.worker.Worker;
+import com.nexusbpm.scheduler.AbstractJob;
+import com.nexusbpm.scheduler.CronTriggerEx;
 import com.toedter.calendar.CalendarSelectionListener;
 import com.toedter.calendar.JCalendar;
 
@@ -88,8 +93,24 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 			create.setText( "Create new Workflow Schedule" );
 			
 			p.add( create );
+			
+			Set<ScheduledContent> items = new HashSet<ScheduledContent>();
+			
 			for( int i = 0; i < selected.length; i++ ) {
-				p.add( new JMenuItem( new EditExistingScheduleAction( (ScheduledContent) selected[i] ) ) );
+				if( items.contains( selected[i] ) ) {
+					continue;
+				}
+				items.add( (ScheduledContent) selected[i] );
+				
+				p.addSeparator();
+				
+				JMenuItem item = new JMenuItem( new EditExistingScheduleAction( (ScheduledContent) selected[i] ) );
+				item.setText( "Edit schedule '" + ((ScheduledContent) selected[i] ).getTrigger().getName() + "'" );
+				p.add( item );
+				
+				item = new JMenuItem( new DeleteExistingScheduleAction( (ScheduledContent) selected[i] ) );
+				item.setText( "Delete schedule '" + ((ScheduledContent) selected[i] ).getTrigger().getName() + "'" );
+				p.add( item );
 			}
 			p.show( (Component) event.getSource(), event.getX(), event.getY() );
 		}
@@ -110,8 +131,12 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 				
 				scheduleJob( new JobDetail("new", "group", AbstractJob.class), t );
 				
+				scheduler.getTriggerState( t.getName(), t.getGroup() );
+				
+				LOG.info( "Workflow Schedule '" + t.getName() + "' created." );
+				
 				// force the calendar (the UI) to update
-				calendar.setCalendar( calendar.getCalendar() );
+				refresh();
 			}
 			catch( SchedulerException e ) {
 				LOG.error( "Error scheduling trigger for specification " + i.getUri(), e );
@@ -119,8 +144,7 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 			catch( ParseException e ) {
 				LOG.error( "Scheduler Dialog created an invalid cron expression!", e );
 			}
-			// TODO remove once finished debugging/testing
-			LOG.info( i.toString() );
+			LOG.debug( i.toString() );
 		}
 	}
 	
@@ -140,7 +164,7 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 				t.setEndTime( i.getEndDate() );
 				t.setStartTime( i.getStartDate() );
 				t.setJobName( trigger.getJobName() );
-				t.setGroup( trigger.getGroup() );
+				t.setJobGroup( trigger.getJobGroup() );
 				
 				JobDataMap data = new JobDataMap();
 				data.put( "specID", i.getUri() );
@@ -148,15 +172,68 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 				
 				scheduler.rescheduleJob( oldName, "DEFAULT", t );
 				
+				scheduler.getTriggerState( t.getName(), t.getGroup() );
+				
+				Trigger t2 = scheduler.getTrigger( t.getName(), t.getGroup() );
+				
+				LOG.debug( t.toString() );
+				LOG.debug( t2 == null ? "null" : t2.toString() );
+				
+				String msg = "Workflow Schedule '" + oldName + "' updated";
+				if( ! oldName.equals( t.getName() ) ) {
+					msg += " and renamed to '" + t.getName() + "'";
+				}
+				LOG.info( msg );
+				
 				// force the calendar (the UI) to update
-				calendar.setCalendar( calendar.getCalendar() );
+				refresh();
 			}
 			catch( SchedulerException e ) {
-				LOG.error( "TODO: error msg", e );
+				LOG.error( "Error modifying schedule '" + oldName
+						+ "' for specification " + i.getUri(), e );
 			}
 			catch( ParseException e ) {
 				LOG.error( "Scheduler Dialog created an invalid cron expression!", e );
 			}
+		}
+	}
+	
+	private void deleteExistingSchedule( Trigger trigger ) {
+		int selection = JOptionPane.showConfirmDialog(
+				WorkflowEditor.getInstance(),
+				"Do you really want to delete the schedule '" + trigger.getName() + "'?",
+				"Delete Workflow Schedule?",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE );
+		if( selection == JOptionPane.YES_OPTION ) {
+			try {
+				scheduler.unscheduleJob( trigger.getName(), trigger.getGroup() );
+				
+				LOG.info( "Workflow Schedule '" + trigger.getName() + "' deleted." );
+				
+				// force the calendar (the UI) to update
+				refresh();
+			}
+			catch( SchedulerException e ) {
+				LOG.error( "Error unscheduling Workflow!", e );
+			}
+		}
+	}
+	
+	/**
+	 * Forces the calendar (thet UI) to update.
+	 */
+	private void refresh() {
+		Runnable r = new Runnable() {
+			public void run() {
+				calendar.setCalendar( calendar.getCalendar() );
+			}
+		};
+		if( SwingUtilities.isEventDispatchThread() ) {
+			r.run();
+		}
+		else {
+			SwingUtilities.invokeLater( r );
 		}
 	}
 	
@@ -187,6 +264,29 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 				public void execute() {
 					if( content.getTrigger() instanceof CronTriggerEx ) {
 						editExistingSchedule( (CronTriggerEx) content.getTrigger() );
+					}
+					else {
+						LOG.warn( "Invalid Workflow Schedule trigger type!" );
+					}
+				}
+			};
+			GlobalEventQueue.add( worker );
+		}
+	}
+	
+	private class DeleteExistingScheduleAction extends AbstractAction {
+		private ScheduledContent content;
+		public DeleteExistingScheduleAction( ScheduledContent content ) {
+			this.content = content;
+		}
+		public void actionPerformed( ActionEvent e ) {
+			Worker worker = new Worker() {
+				public String getName() {
+					return "Delete existing Workflow Schedule";
+				}
+				public void execute() {
+					if( content.getTrigger() instanceof Trigger ) {
+						deleteExistingSchedule( (Trigger) content.getTrigger() );
 					}
 					else {
 						LOG.warn( "Invalid Workflow Schedule trigger type!" );
