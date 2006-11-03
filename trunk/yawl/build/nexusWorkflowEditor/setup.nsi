@@ -62,9 +62,12 @@ ShowUninstDetails show
 
 # Installer sections
 Section -Main SEC0000
+    SetOutPath $INSTDIR
+        SetOverwrite on
+        File /r ..\..\editor.properties
     SetOutPath $INSTDIR\lib
         SetOverwrite on
-        File /r ..\..\build\nexusWorkflowEditor\*.jar
+        File /r ..\..\build\nexusWorkflowEditor\lib\*.jar
     SetOutPath $INSTDIR\examples
         SetOverwrite on
         File /r ..\..\exampleSpecs\xml\*.x*
