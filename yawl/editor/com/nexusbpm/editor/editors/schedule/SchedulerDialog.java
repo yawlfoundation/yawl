@@ -167,6 +167,7 @@ public class SchedulerDialog extends JDialog {
 	 */
 	private void initialize() {
 		this.setSize(465, 318);
+		this.setTitle("Specification Scheduler");
 		this.setModal(true);
 		this.setBackground(SystemColor.control);
 		this.setContentPane( getJContentPane() );
