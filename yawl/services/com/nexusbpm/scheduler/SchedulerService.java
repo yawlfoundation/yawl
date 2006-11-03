@@ -12,8 +12,6 @@ import org.quartz.Trigger;
 import org.quartz.TriggerUtils;
 import org.quartz.impl.StdSchedulerFactory;
 
-import com.nexusbpm.editor.editors.schedule.CronTriggerEx;
-import com.nexusbpm.editor.editors.schedule.SimpleTriggerEx;
 
 public class SchedulerService {
 	private Scheduler scheduler;

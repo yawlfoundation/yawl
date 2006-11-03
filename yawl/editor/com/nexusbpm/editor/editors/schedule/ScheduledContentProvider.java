@@ -13,6 +13,7 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
+import com.nexusbpm.scheduler.TriggerEx;
 import com.toedter.calendar.CalendarContentProvider;
 
 

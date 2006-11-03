@@ -1,4 +1,4 @@
-package com.nexusbpm.editor.editors.schedule;
+package com.nexusbpm.scheduler;
 
 import java.util.ArrayList;
 import java.util.Date;

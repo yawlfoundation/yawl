@@ -1,4 +1,4 @@
-package com.nexusbpm.editor.editors.schedule;
+package com.nexusbpm.scheduler;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -83,5 +83,10 @@ public class CronTriggerEx extends CronTrigger implements TriggerEx {
 	
 	public Date getFireTimeAfterEx( Date afterTime ) {
 		return getFireTimeAfter( afterTime );
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + " cronExpression: " + getCronExpression();
 	}
 }
