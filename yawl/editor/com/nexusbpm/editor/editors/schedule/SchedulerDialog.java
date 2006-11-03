@@ -1,3 +1,10 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * individuals and organisations who are commited to improving workflow technology.
+ *
+ */
 package com.nexusbpm.editor.editors.schedule;
 
 import java.awt.Color;
@@ -9,6 +16,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.SystemColor;
+import java.awt.event.KeyEvent;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -28,10 +36,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
-import com.toedter.calendar.JDateChooser;
-import com.toedter.calendar.JTextFieldDateEditor;
+
 import com.toedter.calendar.JSpinnerDateEditor;
-import java.awt.event.KeyEvent;
 
 public class SchedulerDialog extends JDialog {
 
@@ -139,6 +145,7 @@ public class SchedulerDialog extends JDialog {
 	private JCheckBox useEndDateCheckBox = null;
 	private JSpinnerDateEditor startSpinnerDateEditor = null;
 	private JSpinnerDateEditor endSpinnerDateEditor = null;
+	private boolean cancelled = false;
 	public String getCronExpression() {
 		return cronExpression;
 	}
@@ -159,20 +166,33 @@ public class SchedulerDialog extends JDialog {
 			this.startSpinnerDateEditor.setDate(info.getStartDate());
 			this.useStartDateCheckBox.setSelected(true);
 		}
+		else {
+			this.startSpinnerDateEditor.setEnabled(false);
+			this.startSpinnerDateEditor.setDate(new Date());
+		}
 		if (info.getEndDate() != null) {
 			this.endSpinnerDateEditor.setDate(info.getEndDate());
 			this.useEndDateCheckBox.setSelected(true);
+		}
+		else {
+			this.endSpinnerDateEditor.setEnabled(false);
+			this.endSpinnerDateEditor.setDate(new Date());
 		}
 		ScheduleMarshaller.getInstance().unmarshal(this.cronExpression, this);
 	}
 
 	public static ScheduleInformation showSchedulerDialog(Frame parent, ScheduleInformation info) {
-		SchedulerDialog dialog = new SchedulerDialog(parent, info);
+		SchedulerDialog dialog = new SchedulerDialog(parent, info == null ? new ScheduleInformation(null, null, null, null) : info);
 		dialog.setVisible(true);
 		dialog.dispose();
 		Date startDate = dialog.useStartDateCheckBox.isSelected() ? dialog.startSpinnerDateEditor.getDate() : null; 
-		Date endDate = dialog.useEndDateCheckBox.isSelected() ? dialog.endSpinnerDateEditor.getDate() : null; 
-		return new ScheduleInformation(dialog.getUriTextField().getText(), dialog.getCronExpression(), startDate, endDate);
+		Date endDate = dialog.useEndDateCheckBox.isSelected() ? dialog.endSpinnerDateEditor.getDate() : null;
+		if( dialog.cancelled ) {
+			return null;
+		}
+		else {
+			return new ScheduleInformation(dialog.getUriTextField().getText(), dialog.getCronExpression(), startDate, endDate);
+		}
 	}
 	
 	/**
@@ -1131,9 +1151,7 @@ public class SchedulerDialog extends JDialog {
 			cancelButton.setMnemonic(KeyEvent.VK_UNDEFINED);
 			cancelButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					ScheduleMarshaller.getInstance().unmarshal(getCronExpression(), SchedulerDialog.this);
-					SchedulerDialog.this.setCronExpression(null);
-					SchedulerDialog.this.uriTextField.setText(null);
+					cancelled = true;
 					SchedulerDialog.this.setVisible(false);
 				}
 			});
