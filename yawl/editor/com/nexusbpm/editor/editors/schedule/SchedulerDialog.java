@@ -37,7 +37,7 @@ import javax.swing.border.SoftBevelBorder;
 public class SchedulerDialog extends JDialog {
 
 	private static final String SAMPLE_CRON_STRING = "0 0,15,30,45 3,7,22 26,27,28,29 1,2,3,4,5,9,10,11,12 2,3,5,6";  //  @jve:decl-index=0:
-	private static final String DEFAULT_CRON_STRING = "0 0 0 ? 1,2,3,4,5,6,7,8,9,10,11,12 2,3,4,5,6";
+	private static final String DEFAULT_CRON_STRING = "0 0 0 ? 1,2,3,4,5,6,7,8,9,10,11,12 2,3,4,5,6";  //  @jve:decl-index=0:
 
 	private static final long serialVersionUID = 1L;
 
@@ -146,15 +146,16 @@ public class SchedulerDialog extends JDialog {
 	/**
 	 * @param owner
 	 */
-	public SchedulerDialog( Frame owner, String cronExpression ) {
+	public SchedulerDialog( Frame owner, String cronExpression, String uri ) {
 		super( owner );
 		this.cronExpression = cronExpression == null ? DEFAULT_CRON_STRING : cronExpression;
 		initialize();
+		this.uriTextField.setText(uri == null ? "" : uri);
 		ScheduleMarshaller.getInstance().unmarshal(cronExpression, this);
 	}
 
-	public static String[] showSchedulerDialog(Frame parent, String cronExpression) {
-		SchedulerDialog dialog = new SchedulerDialog(parent, cronExpression);
+	public static String[] showSchedulerDialog(Frame parent, String cronExpression, String uri) {
+		SchedulerDialog dialog = new SchedulerDialog(parent, cronExpression, uri);
 		dialog.setVisible(true);
 		dialog.dispose();
 		return new String[] {dialog.getCronExpression(), dialog.getUriTextField().getText()};
@@ -722,6 +723,7 @@ public class SchedulerDialog extends JDialog {
 		    daysOfMonthModel = new DefaultListModel();
 		    daysOfMonthList = new JList();
 		    daysOfMonthList.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED));
+		    daysOfMonthList.setToolTipText("Choose as many days as needed or Last or Last Weekday");
 		    daysOfMonthList.setModel(daysOfMonthModel);
 		    daysOfMonthList.setCellRenderer(new AlternatingListCellRenderer(TextRenderer.getDailyInstance()));
 			Object[] values = new Object[]
@@ -1158,7 +1160,7 @@ public class SchedulerDialog extends JDialog {
 	}
 
 	public static void main( String[] args ) {
-		String cron = SchedulerDialog.showSchedulerDialog(null, DEFAULT_CRON_STRING)[0];
+		String cron = SchedulerDialog.showSchedulerDialog(null, DEFAULT_CRON_STRING, "MakeRecordings")[0];
 		System.out.println(cron);
 	}
 
