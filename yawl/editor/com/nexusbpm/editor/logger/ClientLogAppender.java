@@ -1,5 +1,8 @@
 package com.nexusbpm.editor.logger;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -19,12 +22,26 @@ public class ClientLogAppender extends AppenderSkeleton { // extends LogAppender
         LogRecordI record = null;
         if( logEvent.getThrowableInformation() != null &&
                 logEvent.getThrowableInformation().getThrowable() != null ) {
-            record = new LogRecordVO(logEvent.level.toInt(), LogRecordI.SOURCE_CLIENT, logEvent.getStartTime(), 0l, (String) logEvent.getMessage(), logEvent.getThrowableInformation().getThrowable());
+            record = new LogRecordVO(logEvent.level.toInt(), LogRecordI.SOURCE_CLIENT, logEvent.getStartTime(), 0l, eventMessageToString( logEvent.getMessage() ), logEvent.getThrowableInformation().getThrowable());
         }
         else {
-            record = new LogRecordVO(logEvent.level.toInt(), LogRecordI.SOURCE_CLIENT, logEvent.getStartTime(), 0l, (String) logEvent.getMessage());
+            record = new LogRecordVO(logEvent.level.toInt(), LogRecordI.SOURCE_CLIENT, logEvent.getStartTime(), 0l, eventMessageToString( logEvent.getMessage() ) );
         }
 		CapselaLog.log( record );
+	}
+	
+	private static String eventMessageToString( Object message ) {
+		if( message instanceof Throwable ) {
+			StringWriter sw = new StringWriter();
+    		((Throwable) message ).printStackTrace( new PrintWriter( sw ) );
+    		return sw.toString();
+		}
+		else if( message != null ) {
+			return message.toString();
+		}
+		else {
+			return null;
+		}
 	}
 
 	public boolean requiresLayout() {
