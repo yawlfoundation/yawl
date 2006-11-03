@@ -1,38 +1,32 @@
 package com.nexusbpm.editor.editors.schedule;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.SystemColor;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.border.TitledBorder;
-
-import com.toedter.calendar.JSpinnerDateEditor;
-import javax.swing.JSpinner;
-import com.toedter.components.JSpinField;
-import javax.swing.JButton;
 import javax.swing.JTextField;
-import javax.swing.JLabel;
-import java.awt.SystemColor;
-import java.awt.Cursor;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.SoftBevelBorder;
+import javax.swing.border.TitledBorder;
 
 public class SchedulerDialog extends JDialog {
 
@@ -1112,6 +1106,8 @@ public class SchedulerDialog extends JDialog {
 			cancelButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					ScheduleMarshaller.getInstance().unmarshal(getCronExpression(), SchedulerDialog.this);
+					SchedulerDialog.this.setCronExpression(null);
+					SchedulerDialog.this.uriTextField.setText(null);
 					SchedulerDialog.this.setVisible(false);
 				}
 			});
