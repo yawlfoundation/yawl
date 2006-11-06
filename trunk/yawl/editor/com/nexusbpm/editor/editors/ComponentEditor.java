@@ -124,7 +124,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 		public void actionPerformed( ActionEvent e ) {
 			LOG.debug( "isDirtyActionListener.actionPerformed: " + e.paramString() );
 			ComponentEditor.this.setDirty( true );
-			System.out.println("pressed a key on the editor");
+//			System.out.println("pressed a key on the editor");
 		}
 	};
 
@@ -136,7 +136,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 		public void keyPressed( KeyEvent e ) {
 			LOG.debug( "isDirtyKeyAdapter.keyPressed: " + e.paramString() );
 			ComponentEditor.this.setDirty( true );
-			System.out.println("pressed a key on the editor");
+//			System.out.println("pressed a key on the editor");
 		}
 	};
 
@@ -156,7 +156,7 @@ public abstract class ComponentEditor extends CapselaInternalFrame implements Da
 			LOG.debug( "isDirtyInputHandler.keyPressed: " + e.paramString() );
 			ComponentEditor.this.setDirty( true );
 			super.keyPressed( e );
-			System.out.println("pressed a key on the editor");
+//			System.out.println("pressed a key on the editor");
 		}
 	}
 

@@ -299,6 +299,7 @@ public class EmailSenderEditor extends ComponentEditor {
 	public void saveAttributes() {
         data.setPlain( "toAddress", _toAddressField.getText() );
         data.setPlain( "ccAddress", _ccAddressField.getText() );
+        data.setPlain( "fromAddress", _fromAddressField.getText() );
         data.setPlain( "bccAddress", _bccAddressField.getText() );
         data.setPlain( "host", _hostField.getText() );
         data.setPlain( "subject", _subjectField.getText() );
