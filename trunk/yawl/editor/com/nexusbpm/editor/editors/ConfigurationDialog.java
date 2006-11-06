@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
+ * individuals and organiations who are commited to improving workflow technology.
+ *
+ */
+
 package com.nexusbpm.editor.editors;
 
 import java.awt.Dialog;
@@ -19,6 +27,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import com.nexusbpm.editor.EditorConfiguration;
+import java.awt.SystemColor;
 
 public class ConfigurationDialog extends Dialog {
 
@@ -120,6 +129,7 @@ public class ConfigurationDialog extends Dialog {
 			gridBagConstraints2.gridx = 0;
 			text = new JPanel();
 			text.setLayout(new GridBagLayout());
+			text.setBackground(SystemColor.control);
 			serverUriLabel = new JLabel();
 			serverUriLabel.setText("Server URI");
 			serverUriLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -177,6 +187,7 @@ public class ConfigurationDialog extends Dialog {
 			gridBagConstraints.gridx = 0;
 			buttons = new JPanel();
 			buttons.setLayout(new GridBagLayout());
+			buttons.setBackground(SystemColor.control);
 			JButton ok = new JButton("OK");
 			ok.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -195,6 +206,7 @@ public class ConfigurationDialog extends Dialog {
 				}
 			});
 			JPanel spacer = new JPanel();
+			spacer.setBackground(SystemColor.control);
 			buttons.add(spacer, gridBagConstraints);
 			buttons.add(ok, gridBagConstraints1);
 			buttons.add(cancel, gridBagConstraints2);
@@ -302,6 +314,7 @@ public class ConfigurationDialog extends Dialog {
 			gridBagConstraints8.gridx = 0;
 			grid = new JPanel();
 			grid.setLayout(new GridBagLayout());
+			grid.setBackground(SystemColor.control);
 			grid.add(getTextPanel(), gridBagConstraints9);
 			grid.add(getButtonPanel(), gridBagConstraints8);
 		}
