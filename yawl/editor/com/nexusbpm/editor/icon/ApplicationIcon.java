@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.nexusbpm.editor.exception.EditorException;
+import java.util.Properties;
 
 /**
  * This class will be a properties-file managed class. This way we can specify
