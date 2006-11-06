@@ -1,0 +1,29 @@
+<project default="addlicense" basedir="./..">
+	<target name="addlicense">
+		<taskdef resource="net/sf/antcontrib/antcontrib.properties" >
+			<classpath>
+				<fileset dir="./build/ant-extensions">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</taskdef>
+		<loadfile srcfile="build/license-java.txt" property="license"/>
+		<propertyregex property="license.1stLine"
+                       input="${license}"
+                       regexp="(.*)${line.separator}.*"
+                       select="\1"
+                       casesensitive="false" />
+		<replaceregexp flags="s" match="(.*)" replace="${license}\1">
+			<fileset dir=".">
+				<include name="src/**/*.java"/>
+				<include name="test/**/*.java"/>
+				<include name="mock/**/*.java"/>
+				<include name="services/**/*.java"/>
+				<include name="editor/**/*.java"/>
+				<not>
+					<contains text="This file is made available under the terms of the LGPL licence"/>
+				</not>
+			</fileset>
+		</replaceregexp>
+	</target>
+</project>
