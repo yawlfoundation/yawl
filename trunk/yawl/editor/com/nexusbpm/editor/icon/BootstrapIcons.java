@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
+import java.util.Properties;
 
 /**
  * This class is used in the build process to copy only the necessary icons
