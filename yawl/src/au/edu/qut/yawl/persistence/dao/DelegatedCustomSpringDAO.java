@@ -126,7 +126,7 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 			session = YAWLTransactionAdvice.getSession();
 		}
 		
-		if (session==null) {
+		if (session==null || !session.isOpen()) {
 			session = sessionFactory.openSession();
 		}
 		
