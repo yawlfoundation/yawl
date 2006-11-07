@@ -33,7 +33,7 @@ public class JMSEventDispatcher implements YEventDispatcher {
 	public void fireEvent(Serializable event) {
 		try {
 			ObjectMessage om = JmsProvider.getInstance()
-					.getObjectMessage(event);
+					.createObjectMessage(event);
 			Map<String, Object> p = BeanMap.getBeanMap(event);
 			// just put all the bean properties into the message properties
 			for (Map.Entry<String, Object> entry : p.entrySet()) {
