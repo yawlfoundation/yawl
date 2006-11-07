@@ -9,6 +9,11 @@
 package com.nexusbpm.scheduler;
 
 import java.util.Calendar;
+import java.util.Properties;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 
 import org.quartz.Job;
 import org.quartz.JobDetail;
@@ -21,18 +26,45 @@ import org.quartz.TriggerUtils;
 import org.quartz.impl.StdSchedulerFactory;
 
 
-public class SchedulerService {
+public class SchedulerService extends HttpServlet{
 	private Scheduler scheduler;
+	
+	
+	
+	@Override
+	public void init(ServletConfig arg0) throws ServletException {
+		super.init(arg0);
+		try {
+			start();
+		} catch (SchedulerException e) {
+			log("Unable to start quartz scheduler", e);
+		}
+	}
+
 	public void start() throws SchedulerException {
-		System.setProperty( "org.quartz.properties", "quartz.server.properties" );
-		
+
+		Properties p = new Properties();
+		p.setProperty("org.quartz.scheduler.instanceName","RMIScheduler");
+		p.setProperty("org.quartz.scheduler.rmi.export","true");
+		p.setProperty("org.quartz.scheduler.rmi.registryHost","localhost");
+		p.setProperty("org.quartz.scheduler.rmi.registryPort","1099");
+		p.setProperty("org.quartz.scheduler.rmi.createRegistry","true");
+		p.setProperty("org.quartz.scheduler.rmi.serverPort","0");
+		p.setProperty("org.quartz.threadPool.class","org.quartz.simpl.SimpleThreadPool");
+		p.setProperty("org.quartz.threadPool.threadCount","10");
+		p.setProperty("org.quartz.threadPool.threadPriority","5");
+
+		p.setProperty("org.quartz.jobStore.misfireThreshold","60000");
+		p.setProperty("org.quartz.jobStore.class","org.quartz.simpl.RAMJobStore");
+		System.getProperties().putAll(p);
 		System.out.println( "starting scheduler..." );
 		
 		scheduler = StdSchedulerFactory.getDefaultScheduler();
 		
 		scheduler.start();
 		
-		System.out.println( "scheduler startup completed." );
+		
+		System.out.println( "scheduler startup completed for " + scheduler.getClass().getName() + ":" + scheduler.getSchedulerInstanceId());
 		
 		JobDetail jobDetail = new JobDetail("job", "group", new Job() {
 			public void execute( JobExecutionContext context ) throws JobExecutionException {
