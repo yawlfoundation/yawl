@@ -11,6 +11,7 @@ package au.edu.qut.yawl.events;
 import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.Properties;
+import java.util.concurrent.Semaphore;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -65,10 +66,16 @@ public class JmsProviderTest extends TestCase {
 
 	public void testProvider() {
 		try {
-			send("testProvider");
+			receiveCount = 10;
 			createMessageListener();
-			synchronized(lock) {lock.wait(1000);}
-			assertEquals(1, receiveCount);
+			createMessageListener();
+			createMessageListener();
+			createMessageListener();
+			createMessageListener();
+			send("test the Provider");
+			send("test the Provider2");
+			synchronized(lock) {lock.wait(10000);}
+			assertEquals(receiveCount, 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -78,18 +85,19 @@ public class JmsProviderTest extends TestCase {
 
 	public void testJMSEventDispatcher() {
 		JMSEventDispatcher ed = new JMSEventDispatcher();
+		receiveCount = 1;
 		try {
-		ed.fireEvent("testJMSEventDispatcher");
 		createMessageListener();
-		synchronized(lock) {lock.wait(1000);}
-		assertEquals(1, receiveCount);
+		ed.fireEvent("testJMSEventDispatcher");
+		synchronized(lock) {lock.wait(10000);}
+		assertEquals(0, receiveCount);
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
 	}
 	
 	private void send(Serializable s) throws Exception {
-		ObjectMessage o = provider.getObjectMessage(s);
+		ObjectMessage o = provider.createObjectMessage(s);
 		provider.sendObjectMessage(o);
     }		
 
@@ -121,17 +129,25 @@ public class JmsProviderTest extends TestCase {
             message = receiver.receive(1000);
         } while (message != null);	
 	}
-	
+	private int numl = 0;
 	private void createMessageListener() throws NamingException, JMSException {
 		Destination dest = (Destination) context.lookup(getContextProperty(JmsProvider.OPENJMS_YAWL_EVENTQUEUE));
 	    MessageConsumer receiver = session.createConsumer(dest );
 	    receiver.setMessageListener(new MessageListener() {
+	    	int lnum = 0;
+	    	int getnum() {
+	    		if (lnum == 0) {lnum = numl++;}
+	    		return lnum;
+	    	}
 	        public void onMessage(Message message) {
 	        	try {
 					message.acknowledge();
-//					System.out.println(">>" + ((ObjectMessage)message).getObject().toString());
-					receiveCount++;
-					synchronized(lock) {lock.notify();}
+//					System.out.println(getnum() + ">>" + ((ObjectMessage)message).getObject().toString());
+					receiveCount--;
+//					System.out.println("count now = " + receiveCount);
+					if (receiveCount == 0) {
+						synchronized(lock) {lock.notify();}
+					}
 				} catch (JMSException e) {
 					fail("error getting message");
 				}
