@@ -874,7 +874,43 @@
         </jar>
         <delete dir="${yawl.worklist.app.name}"/>
     </target>
-	
+
+    <!--build quartz webapp-->
+    <target name="build_quartz.war" depends="compile">
+        <!-- copy files into temp war directory -->
+        <copy todir="quartzService">
+            <fileset dir="build/quartzService"
+                includes="**"/>
+        </copy>
+        <copy todir="quartzService/WEB-INF/classes/">
+            <fileset dir="${classes}"
+                includes="com/nexusbpm/scheduler/**/*.class"/>
+        </copy>
+        <!-- prepare Web ARchive file -->
+        <jar destfile="${output}/quartzService.war">
+            <fileset dir="quartzService"/>
+        </jar>
+        <delete dir="quartzService"/>
+    </target>
+    <!--build jms webapp-->
+    <target name="build_jms.war" depends="compile">
+        <!-- copy files into temp war directory -->
+        <copy todir="jmsService">
+            <fileset dir="build/jmsService"
+                includes="**"/>
+        </copy>
+        <copy todir="jmsService/WEB-INF/classes/">
+            <fileset dir="${classes}"
+                includes="com/nexusbpm/services/jms/**/*.class"/>
+        </copy>
+        <!-- prepare Web ARchive file -->
+        <jar destfile="${output}/jmsService.war">
+            <fileset dir="jmsService"/>
+        </jar>
+        <delete dir="jmsService"/>
+    </target>
+
+
 	<target name="build_JythonService.war" depends="compile">
 		<!-- create directory structure for the WAR -->
 		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/lib"/>
@@ -1683,7 +1719,9 @@
         build_TimeService.war,
         build_admintool.war,
         build_yawlXForms.war,
-	build_PDFforms.war,
+    	build_quartz.war,
+    	build_jms.war,
+		build_PDFforms.war,
         build_workletService.war"
         description=
         "Builds a distribution version of all
