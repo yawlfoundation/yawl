@@ -43,20 +43,8 @@ public class SchedulerService extends HttpServlet{
 
 	public void start() throws SchedulerException {
 
-		Properties p = new Properties();
-		p.setProperty("org.quartz.scheduler.instanceName","RMIScheduler");
-		p.setProperty("org.quartz.scheduler.rmi.export","true");
-		p.setProperty("org.quartz.scheduler.rmi.registryHost","localhost");
-		p.setProperty("org.quartz.scheduler.rmi.registryPort","1099");
-		p.setProperty("org.quartz.scheduler.rmi.createRegistry","true");
-		p.setProperty("org.quartz.scheduler.rmi.serverPort","0");
-		p.setProperty("org.quartz.threadPool.class","org.quartz.simpl.SimpleThreadPool");
-		p.setProperty("org.quartz.threadPool.threadCount","10");
-		p.setProperty("org.quartz.threadPool.threadPriority","5");
-
-		p.setProperty("org.quartz.jobStore.misfireThreshold","60000");
-		p.setProperty("org.quartz.jobStore.class","org.quartz.simpl.RAMJobStore");
-		System.getProperties().putAll(p);
+		String path = this.getServletContext().getRealPath("quartz.server.properties");
+		System.setProperty( "org.quartz.properties", path);
 		System.out.println( "starting scheduler..." );
 		
 		scheduler = StdSchedulerFactory.getDefaultScheduler();
