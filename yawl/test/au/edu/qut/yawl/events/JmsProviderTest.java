@@ -75,7 +75,7 @@ public class JmsProviderTest extends TestCase {
 			send("test the Provider");
 			send("test the Provider2");
 			synchronized(lock) {lock.wait(10000);}
-			assertEquals(receiveCount, 0);
+			assertEquals(0, receiveCount);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());

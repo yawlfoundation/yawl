@@ -5,13 +5,13 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-	<display-name>
-		Auxiliary Messaging Services
-	</display-name>
-	<description>Embedded OpenJMs server</description>
+	<display-name>Messaging Service</display-name>
+	<description>Embedded OpenJms server</description>
 	<servlet>
 		<servlet-name>messageService</servlet-name>
-		<servlet-class>com.nexusbpm.services.jms.JmsService</servlet-class>
+		<servlet-class>
+			com.nexusbpm.services.jms.JmsService
+		</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>

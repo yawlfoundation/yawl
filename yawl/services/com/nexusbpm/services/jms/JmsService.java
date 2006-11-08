@@ -16,10 +16,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import javax.naming.NamingException;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.ValidationException;
@@ -31,12 +32,15 @@ import org.exolab.jms.service.ServiceException;
 import org.exolab.jms.tools.admin.OnlineConnection;
 
 /**
- * Provides an OpenJms server inside a servlet container 
+ * Provides an OpenJms server inside a servlet container
  */
 public class JmsService extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	protected Configuration config;
+
+	protected static Configuration config;
+
+	private static JmsServer server;
 
 	protected void createDatabase() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SQLException,
@@ -52,8 +56,8 @@ public class JmsService extends HttpServlet {
 		Class.forName(driver).newInstance();
 		java.sql.Connection conn = DriverManager.getConnection(url, user,
 				passwd);
-		String setupDb = readStreamAsString(this.getClass()
-				.getResourceAsStream("/create_hsql.sql"));
+		String setupDb = readStreamAsString(this.getServletContext()
+				.getResourceAsStream("/sql/create_hsql.sql"));
 		PreparedStatement s = conn.prepareStatement(setupDb);
 		s.execute();
 	}
@@ -71,33 +75,39 @@ public class JmsService extends HttpServlet {
 	}
 
 	@Override
-	public void init() throws ServletException {
-		super.init();
+	public void init(ServletConfig sc) throws ServletException {
+		super.init(sc);
+		System.out.println("starting JmsService init");
 		try {
 			startServer();
-			log("started jms init");
-		} catch (Exception e) {
-			log("failed to start jms init", e);
+			System.out.println("JmsService init completed successfully");
+		} catch (Throwable ex) {
+			System.out.println("JmsService init failed due to "
+					+ ex.getMessage());
+			ex.printStackTrace();
 		}
 	}
 
 	@Override
-	public void service(ServletRequest arg0, ServletResponse arg1)
-			throws ServletException, IOException {
-		super.service(arg0, arg1);
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		request.setAttribute("jmsServer", server);
+		request.setAttribute("configuration", config);
+		getServletConfig().getServletContext().getRequestDispatcher(
+				"/jmsStatus.jsp").forward(request, response);
 	}
 
 	public final void startServer() throws NamingException, ServiceException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException,
 			MarshalException, ValidationException {
-		config = ConfigurationReader.read(this.getClass().getResourceAsStream(
+		config = ConfigurationReader.read(this.getServletContext().getRealPath(
 				"/openjms.xml"));
 		if (config.getDatabaseConfiguration().getRdbmsDatabaseConfiguration()
 				.getUrl().startsWith("jdbc:hsqldb:mem:")) {
 			createDatabase();
 		}
-		JmsServer server = new JmsServer(config) {
+		server = new JmsServer(config) {
 			@Override
 			public void init() throws NamingException, ServiceException {
 				try {
