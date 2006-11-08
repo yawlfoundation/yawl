@@ -46,8 +46,8 @@
       <Subscriber name="sub1" />
       <Subscriber name="sub2" />
     </AdministeredTopic>
-  
-    <AdministeredQueue name="events" />
+    <AdministeredTopic name="events">
+    </AdministeredTopic>
   </AdministeredDestinations>
 
   <!-- Optional. If not specified, no users will be created -->

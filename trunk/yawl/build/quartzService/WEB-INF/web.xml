@@ -5,13 +5,13 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-	<display-name>
-		Auxiliary Scheduling Services
-	</display-name>
+	<display-name>Scheduling Service</display-name>
 	<description>Embedded Quartz server</description>
 	<servlet>
 		<servlet-name>quartzService</servlet-name>
-		<servlet-class>com.nexusbpm.scheduler.SchedulerService</servlet-class>
+		<servlet-class>
+			com.nexusbpm.scheduler.SchedulerService
+		</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
