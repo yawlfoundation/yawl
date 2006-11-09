@@ -2,6 +2,8 @@ package com.nexusbpm.services;
 
 import java.util.Properties;
 
+import junit.framework.TestCase;
+
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -9,15 +11,16 @@ import org.quartz.SchedulerFactory;
 
 import com.nexusbpm.scheduler.AbstractJob;
 
-public class TestQuartzConnection {
+public class TestQuartzConnection extends TestCase{
 
-	public static void main(String[] args) {
+	public void testQuartzServer() {
 		try {
 			Properties p = new Properties();
-			p.setProperty("org.quartz.scheduler.instanceName", "RMIScheduler");
+			p.setProperty("org.quartz.scheduler.instanceName", "YAWLQuartzScheduler");
 			p.setProperty("org.quartz.scheduler.rmi.proxy","true");
 			p.setProperty("org.quartz.scheduler.rmi.registryHost","localhost");
-			p.setProperty("org.quartz.scheduler.rmi.registryPort","1099");
+			p.setProperty("org.quartz.scheduler.rmi.registryPort","1098");
+			p.setProperty("java.rmi.server.useCodebaseOnly", "true");
 			System.getProperties().putAll(p);
 			SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 			Scheduler sched = schedFact.getScheduler();
@@ -33,11 +36,3 @@ public class TestQuartzConnection {
 		}
 	}
 }
-/*
- * 
- * 
- *
- * 
- * 
- *
- */
