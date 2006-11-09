@@ -33,10 +33,9 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
-import com.nexusbpm.editor.editors.schedule.ScheduledContentProvider.ScheduledContent;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
 import com.nexusbpm.editor.worker.Worker;
-import com.nexusbpm.scheduler.AbstractJob;
+import com.nexusbpm.scheduler.CaseStarterJob;
 import com.nexusbpm.scheduler.CronTriggerEx;
 import com.toedter.calendar.CalendarSelectionListener;
 import com.toedter.calendar.JCalendar;
@@ -79,7 +78,7 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
     	
     	this.scheduler = scheduler;
     	
-    	calendar = new JCalendar( null, null, true, false, new ScheduledContentProvider( scheduler ), this );
+    	calendar = new JCalendar( null, null, true, false, new HistoricContentProvider( scheduler ), this );
     	
     	getContentPane().removeAll();
     	getContentPane().add( calendar );
@@ -129,7 +128,7 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 				data.put( "specID", i.getUri() );
 				t.setJobDataMap( data );
 				
-				scheduleJob( new JobDetail("new", "group", AbstractJob.class), t );
+				scheduleJob( new JobDetail("LaunchCase", "DEFAULT", CaseStarterJob.class), t );
 				
 				scheduler.getTriggerState( t.getName(), t.getGroup() );
 				

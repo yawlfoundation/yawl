@@ -5,7 +5,6 @@
  * individuals and organiations who are commited to improving workflow technology.
  *
  */
-
 package com.nexusbpm.editor.editors.schedule;
 
 import java.util.Calendar;
@@ -35,22 +34,8 @@ public class ScheduledContentProvider implements CalendarContentProvider {
 	}
 
 	public void setContent( Date date, DefaultListModel model ) {
-		Calendar c = Calendar.getInstance();
-		c.setTime( date );
-		
-		c.set( Calendar.HOUR_OF_DAY , c.getActualMinimum( Calendar.HOUR_OF_DAY ) );
-		c.set( Calendar.MINUTE, c.getActualMinimum( Calendar.MINUTE ) );
-		c.set( Calendar.SECOND, c.getActualMinimum( Calendar.SECOND ) );
-		c.set( Calendar.MILLISECOND, c.getActualMinimum( Calendar.MILLISECOND ) );
-		
-		Date min = c.getTime();
-		
-		c.set( Calendar.HOUR_OF_DAY , c.getActualMaximum( Calendar.HOUR_OF_DAY ) );
-		c.set( Calendar.MINUTE, c.getActualMaximum( Calendar.MINUTE ) );
-		c.set( Calendar.SECOND, c.getActualMaximum( Calendar.SECOND ) );
-		c.set( Calendar.MILLISECOND, c.getActualMaximum( Calendar.MILLISECOND ) );
-		
-		Date max = c.getTime();
+		Date min = getMinDate( date );
+		Date max = getMaxDate( date );
 		
 		try {
 			String[] triggerGroups = scheduler.getTriggerGroupNames();
@@ -84,93 +69,31 @@ public class ScheduledContentProvider implements CalendarContentProvider {
 		catch( SchedulerException e ) {
 			LOG.error( e );
 			model.clear();
-			model.addElement( "ERROR" );
+			model.addElement( e );
 		}
 	}
 	
-	public static class ScheduledContent implements Comparable {
-		private Date date;
-		private Trigger trigger;
-		private Calendar calendar;
+	protected final Date getMinDate( Date date ) {
+		Calendar c = Calendar.getInstance();
+		c.setTime( date );
 		
-		public ScheduledContent( Date date, Trigger trigger ) {
-			this.date = date;
-			this.trigger = trigger;
-			calendar = Calendar.getInstance();
-			calendar.setTime( date );
-		}
+		c.set( Calendar.HOUR_OF_DAY , c.getActualMinimum( Calendar.HOUR_OF_DAY ) );
+		c.set( Calendar.MINUTE, c.getActualMinimum( Calendar.MINUTE ) );
+		c.set( Calendar.SECOND, c.getActualMinimum( Calendar.SECOND ) );
+		c.set( Calendar.MILLISECOND, c.getActualMinimum( Calendar.MILLISECOND ) );
 		
-		public Date getDate() {
-			return date;
-		}
+		return c.getTime();
+	}
+	
+	protected final Date getMaxDate( Date date ) {
+		Calendar c = Calendar.getInstance();
+		c.setTime( date );
 		
-		public void setDate( Date date ) {
-			this.date = date;
-		}
+		c.set( Calendar.HOUR_OF_DAY , c.getActualMaximum( Calendar.HOUR_OF_DAY ) );
+		c.set( Calendar.MINUTE, c.getActualMaximum( Calendar.MINUTE ) );
+		c.set( Calendar.SECOND, c.getActualMaximum( Calendar.SECOND ) );
+		c.set( Calendar.MILLISECOND, c.getActualMaximum( Calendar.MILLISECOND ) );
 		
-		public Trigger getTrigger() {
-			return trigger;
-		}
-		
-		public void setTrigger( Trigger trigger ) {
-			this.trigger = trigger;
-		}
-		
-		public int compareTo( Object o ) {
-			if( o instanceof ScheduledContent ) {
-				ScheduledContent c = (ScheduledContent) o;
-				if( this.date.before( c.date ) ) {
-					return -1;
-				}
-				else if( this.date.after( c.date ) ) {
-					return 1;
-				}
-				else {
-					return this.trigger.getName().compareTo( c.trigger.getName() );
-				}
-			}
-			else {
-				return -1;
-			}
-		}
-
-		@Override
-		public String toString() {
-			
-			return getTimeString() + trigger.getName();
-		}
-		
-		private String getTimeString() {
-			StringBuffer b = new StringBuffer();
-			
-			if( calendar.get( Calendar.HOUR ) > 0 ) {
-				b.append( digit( calendar.get( Calendar.HOUR ) ) );
-			}
-			else {
-				b.append( "12" );
-			}
-			
-			b.append( ":" );
-			
-			b.append( digit( calendar.get( Calendar.MINUTE ) ) );
-			
-			if( calendar.get( Calendar.AM_PM ) == Calendar.AM ) {
-				b.append( " AM - " );
-			}
-			else {
-				b.append( " PM - " );
-			}
-			
-			return b.toString();
-		}
-		
-		private String digit( int val ) {
-			if( val < 10 ) {
-				return "0" + val;
-			}
-			else {
-				return String.valueOf( val );
-			}
-		}
+		return c.getTime();
 	}
 }
