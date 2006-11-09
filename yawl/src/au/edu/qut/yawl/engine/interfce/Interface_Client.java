@@ -126,8 +126,8 @@ public class Interface_Client {
             int beginClipping = inputXML.indexOf(">") + 1;
             int endClipping = inputXML.lastIndexOf("<");
             if (beginClipping >= 0 && endClipping >= 0) {
-            	System.out.println( "front-clip:" + inputXML.substring( 0, beginClipping ) );
-            	System.out.println( "back-clip:" + inputXML.substring( endClipping ) );
+//            	System.out.println( "front-clip:" + inputXML.substring( 0, beginClipping ) );
+//            	System.out.println( "back-clip:" + inputXML.substring( endClipping ) );
                 inputXML = inputXML.substring(beginClipping, endClipping);
                 return inputXML;
             }
