@@ -35,7 +35,7 @@ import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
 import com.nexusbpm.editor.worker.Worker;
-import com.nexusbpm.scheduler.CaseStarterJob;
+import com.nexusbpm.scheduler.StartYawlCaseJob;
 import com.nexusbpm.scheduler.CronTriggerEx;
 import com.toedter.calendar.CalendarSelectionListener;
 import com.toedter.calendar.JCalendar;
@@ -125,10 +125,10 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 				t.setStartTime( i.getStartDate() );
 				
 				JobDataMap data = new JobDataMap();
-				data.put( "specID", i.getUri() );
+				data.put( StartYawlCaseJob.MAP_KEY_SPEC_ID, i.getUri() );
 				t.setJobDataMap( data );
 				
-				scheduleJob( new JobDetail("LaunchCase", "DEFAULT", CaseStarterJob.class), t );
+				scheduleJob( new JobDetail("LaunchCase", "DEFAULT", StartYawlCaseJob.class), t );
 				
 				scheduler.getTriggerState( t.getName(), t.getGroup() );
 				

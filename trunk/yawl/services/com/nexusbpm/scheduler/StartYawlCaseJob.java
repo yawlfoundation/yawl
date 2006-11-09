@@ -26,24 +26,28 @@ import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
 
 import com.nexusbpm.editor.util.InterfaceB;
 
-public class CaseStarterJob implements Job {
+public class StartYawlCaseJob implements Job {
+	public static final String MAP_KEY_SPEC_ID = "specID";
+	public static final String MAP_KEY_CASE_ID = "caseID";
+
 	private static final boolean DEBUG = false;
+
+	private static final Log LOG = LogFactory.getLog( StartYawlCaseJob.class );
 	
-	HistoryPersister persistance;
-	
-	private static final Log LOG = LogFactory.getLog( CaseStarterJob.class );
+	public StartYawlCaseJob() {
+	}
 	
 	public void execute( JobExecutionContext context ) throws JobExecutionException {
-		Trigger trigger = context.getTrigger();
-		String triggerName = trigger.getName();
+
+//		Trigger trigger = context.getTrigger();
+//		String triggerName = trigger.getName();
 		
-		// log the time the job started
-		LOG.debug( triggerName + " fired at " + new Date() );
-		
+//		// log the time the job started
+//		LOG.debug( triggerName + " fired at " + new Date() );
 		// get the ID of the spec to run
 		JobDetail jobDetail = context.getJobDetail();
 		JobDataMap dataMap = jobDetail.getJobDataMap();
-		String specID = dataMap.getString( "specID" );
+		String specID = dataMap.getString( MAP_KEY_SPEC_ID );
 		
 		String result = "";
 		
@@ -54,42 +58,23 @@ public class CaseStarterJob implements Job {
 			if( DEBUG ) {
 				LOG.info( clientB.getSpecification( specID, InterfaceB.getConnectionHandle() ) );
 			}
-			
 			// launch the case
 			result = clientB.launchCase( specID, "", InterfaceB.getConnectionHandle() );
-			
+			context.setResult(result);
 			LOG.debug( result );
 			
 			// try to convert the result into a number. If the case was launched it will
 			// be an ID and this will succeed, if it wasn't launched this will fail
 			long id = Long.parseLong( result );
-			
-			persistance.logCaseStarted(
-					triggerName,
-					context.getScheduledFireTime(),
-					context.getFireTime(),
-					result );
 		}
 		catch( IOException e ) {
 			LOG.error( "Error starting case for specification '" + specID + "'", e );
 			
 			StringWriter sw = new StringWriter();
     		e.printStackTrace( new PrintWriter( sw ) );
-    		
-			persistance.logCaseStartFailure(
-					triggerName,
-					context.getScheduledFireTime(),
-					context.getFireTime(),
-					sw.toString() );
-		}
+		}	
 		catch( NumberFormatException e ) {
 			LOG.error( "Error starting case for specification '" + specID + "'", e );
-			
-			persistance.logCaseStartFailure(
-					triggerName,
-					context.getScheduledFireTime(),
-					context.getFireTime(),
-					result );
 		}
 	}
 }
