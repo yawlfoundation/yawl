@@ -8,7 +8,11 @@
 
 package com.nexusbpm.scheduler;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.Calendar;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -35,16 +39,19 @@ public class SchedulerService extends HttpServlet {
 		super.init(arg0);
 		try {
 			start();
-		} catch (SchedulerException e) {
-			log("Unable to start quartz scheduler", e);
+		} catch (Exception e) {
+			System.out.println("Unable to start quartz scheduler");
+			e.printStackTrace();
 		}
 	}
 
-	public void start() throws SchedulerException {
+	public void start() throws SchedulerException, IOException {
 
-		String path = this.getServletContext().getRealPath(
-				"quartz.server.properties");
-		System.setProperty("org.quartz.properties", path);
+		Properties p = new Properties();
+		InputStream inStream = this.getServletContext().getResourceAsStream("/quartz.server.properties");
+		p.load(inStream);
+		p.list(System.out);
+		System.getProperties().putAll(p);
 		System.out.println("starting scheduler...");
 
 		scheduler = StdSchedulerFactory.getDefaultScheduler();
@@ -94,7 +101,7 @@ public class SchedulerService extends HttpServlet {
 		}
 	}
 
-	public static void main(String[] args) throws SchedulerException {
+	public static void main(String[] args) throws SchedulerException, IOException {
 		SchedulerService scheduler = new SchedulerService();
 		scheduler.start();
 	}
