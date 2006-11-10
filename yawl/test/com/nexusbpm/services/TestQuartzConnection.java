@@ -93,26 +93,22 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 		System.getProperties().putAll(getRemoteProperties());
 		SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 		Scheduler sched = schedFact.getScheduler();
-		JobDetail jobDetail = new JobDetail("name", "group", AbstractJob.class);
-		CronTrigger trigger = new CronTrigger("name", "group");
-		trigger.setCronExpression("0 0 12 ? * SUN");
+		SimpleTrigger trigger = getTrigger();
+		JobDetail jobDetail = new JobDetail("name","group", StartYawlCaseJob.class);
 		sched.deleteJob(trigger.getName(), trigger.getGroup());
 		sched.scheduleJob(jobDetail, trigger);
+		Thread.sleep(1000);
 		sched.deleteJob(trigger.getName(), trigger.getGroup());
 	}
 	
-	public void testLocalQuartzServer() throws Exception{
+	public void atestLocalQuartzServer() throws Exception{
 		QuartzSchema.createIfMissing();
 		SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 		Scheduler sched = schedFact.getScheduler();
 		sched.start();
 		sched.addGlobalJobListener(this);
+		SimpleTrigger trigger = getTrigger();
 		JobDetail jobDetail = new JobDetail("name","group", StartYawlCaseJob.class);
-
-		SimpleTrigger trigger = new SimpleTrigger("name","group");
-		JobDataMap data = new JobDataMap();
-		data.put( StartYawlCaseJob.MAP_KEY_SPEC_ID, "MakeRecordings");
-		trigger.setJobDataMap(data);
 		sched.deleteJob(trigger.getName(), trigger.getGroup());
 		fired = false;
 		sched.scheduleJob(jobDetail, trigger);
@@ -133,6 +129,14 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 		assertTrue(qel.size() > 0);			
 	}
 
+	private SimpleTrigger getTrigger() {
+		SimpleTrigger trigger = new SimpleTrigger("name","group");
+		JobDataMap data = new JobDataMap();
+		data.put( StartYawlCaseJob.MAP_KEY_SPEC_ID, "MakeRecordings");
+		trigger.setJobDataMap(data);
+		return trigger;
+	}
+	
 	private static String readStreamAsString(InputStream stream)
 			throws java.io.IOException {
 		StringBuffer fileData = new StringBuffer(1000);
