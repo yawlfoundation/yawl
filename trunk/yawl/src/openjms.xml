@@ -42,17 +42,16 @@
     
   <!-- Optional. If not specified, no destinations will be created -->
   <AdministeredDestinations>
-    <AdministeredTopic name="topic1">
-      <Subscriber name="sub1" />
-      <Subscriber name="sub2" />
+    <AdministeredTopic name="events">
     </AdministeredTopic>
   
-    <AdministeredQueue name="events" />
+    <!-- AdministeredQueue name="events" /-->
   </AdministeredDestinations>
 
   <!-- Optional. If not specified, no users will be created -->
   <Users>
     <User name="admin" password="openjms" /> 
+    <User name="anonymous" password="" /> 
   </Users>
 
 </Configuration>
