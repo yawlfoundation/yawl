@@ -27,8 +27,8 @@ import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
 import com.nexusbpm.editor.util.InterfaceB;
 
 public class StartYawlCaseJob implements Job {
-	public static final String MAP_KEY_SPEC_ID = "specID";
-	public static final String MAP_KEY_CASE_ID = "caseID";
+	public static final String MAP_KEY_SPEC_ID = "specId";
+	public static final String MAP_KEY_CASE_ID = "caseId";
 
 	private static final boolean DEBUG = false;
 
@@ -39,12 +39,6 @@ public class StartYawlCaseJob implements Job {
 	
 	public void execute( JobExecutionContext context ) throws JobExecutionException {
 
-//		Trigger trigger = context.getTrigger();
-//		String triggerName = trigger.getName();
-		
-//		// log the time the job started
-//		LOG.debug( triggerName + " fired at " + new Date() );
-		// get the ID of the spec to run
 		JobDetail jobDetail = context.getJobDetail();
 		JobDataMap dataMap = jobDetail.getJobDataMap();
 		String specID = dataMap.getString( MAP_KEY_SPEC_ID );

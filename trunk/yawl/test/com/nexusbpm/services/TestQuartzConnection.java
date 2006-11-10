@@ -1,5 +1,12 @@
 package com.nexusbpm.services;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.util.Date;
 import java.util.Properties;
 
 import junit.framework.TestCase;
@@ -13,10 +20,14 @@ import org.quartz.JobListener;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerFactory;
 import org.quartz.SimpleTrigger;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.nexusbpm.scheduler.AbstractJob;
+import com.nexusbpm.scheduler.QuartzEvent;
+import com.nexusbpm.scheduler.QuartzEventDao;
+import com.nexusbpm.scheduler.SchedulerService;
 import com.nexusbpm.scheduler.StartYawlCaseJob;
-import com.nexusbpm.scheduler.SimpleTriggerEx;
 
 public class TestQuartzConnection extends TestCase implements JobListener{
 
@@ -49,9 +60,20 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 	public Properties getLocalProperties() {
 		Properties p = new Properties();
 		p.setProperty("org.quartz.scheduler.instanceName", "YAWLLocalQuartzScheduler");
-		p.setProperty("org.quartz.plugin.nexus.class", "com.nexusbpm.scheduler.NexusWorkflowTriggerExecutionPlugin");
+		p.setProperty("org.quartz.plugin.yawlevent.class", "com.nexusbpm.scheduler.YawlTriggerExecutionPlugin");
+		p.setProperty("org.quartz.plugin.yawlevent.appContextUrl", "testresources/applicationContext.xml");
+		
 		p.setProperty("org.quartz.scheduler.rmi.proxy","false");
 		p.setProperty("java.rmi.server.useCodebaseOnly", "false");
+		p.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
+		p.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate");
+		p.setProperty("org.quartz.jobStore.dataSource", "yawlDS");
+		p.setProperty("org.quartz.dataSource.yawlDS.driver", "org.postgresql.Driver");
+		p.setProperty("org.quartz.dataSource.yawlDS.URL", "jdbc:postgresql:yawl");
+		p.setProperty("org.quartz.dataSource.yawlDS.user", "postgres");
+		p.setProperty("org.quartz.dataSource.yawlDS.password", "admin");
+		p.setProperty("org.quartz.dataSource.yawlDS.maxConnections", "10");
+		p.setProperty("org.quartz.dataSource.yawlDS.runScript", "tables_postgres.sql");
 		return p;
 	}
 	
@@ -61,40 +83,82 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 			System.getProperties().putAll(getRemoteProperties());
 			SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 			Scheduler sched = schedFact.getScheduler();
-			JobDetail jobDetail = new JobDetail("Income Report",
-					"Report Generation", AbstractJob.class);
-
-			CronTrigger trigger = new CronTrigger("Income Report",
-					"Report Generation");
+			JobDetail jobDetail = new JobDetail("name", "group", AbstractJob.class);
+			CronTrigger trigger = new CronTrigger("name", "group");
 			trigger.setCronExpression("0 0 12 ? * SUN");
 			sched.deleteJob(trigger.getName(), trigger.getGroup());
 			sched.scheduleJob(jobDetail, trigger);
 			sched.deleteJob(trigger.getName(), trigger.getGroup());
 		} catch (Exception e) {
 			e.printStackTrace();
+			fail(e.getMessage());
 		}
 	}
 	public void testLocalQuartzServer() {
 		try {
 			System.getProperties().putAll(getLocalProperties());
+			Class.forName(System.getProperty("org.quartz.dataSource.yawlDS.driver"));
+			Connection c = DriverManager.getConnection(System.getProperty("org.quartz.dataSource.yawlDS.URL"), 
+					System.getProperty("org.quartz.dataSource.yawlDS.user"),
+					System.getProperty("org.quartz.dataSource.yawlDS.password")
+					);
+			String t = readStreamAsString(SchedulerService.class.getResourceAsStream("scripts/" + System.getProperty("org.quartz.dataSource.yawlDS.runScript")));
+			try {
+				Statement s = c.createStatement();
+				s.execute(t);
+				c.commit();
+				s.close();
+				c.close();
+			} catch(Exception e) {}
+			
+			String[] paths = {"testresources/applicationContext.xml"};
+			ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
+			QuartzEventDao dao = (QuartzEventDao) ctx.getBean("quartzDao");
+			QuartzEvent qe = new QuartzEvent();
+			qe.setActualFireTime(new Date());
+			qe.setCaseId("sssss");
+			qe.setFireStatus("done");
+			qe.setTriggerName("aa");
+			qe.setScheduledFireTime(new Date());
+			dao.saveRecord(qe);
+			
 			SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 			Scheduler sched = schedFact.getScheduler();
 			sched.start();
 			sched.addGlobalJobListener(this);
-			JobDetail jobDetail = new JobDetail("start a case now","case starts", StartYawlCaseJob.class);
+			JobDetail jobDetail = new JobDetail("name","group", StartYawlCaseJob.class);
 
-			SimpleTrigger trigger = new SimpleTrigger("start a case now","case starts");
+			SimpleTrigger trigger = new SimpleTrigger("name","group");
 			JobDataMap data = new JobDataMap();
 			data.put( StartYawlCaseJob.MAP_KEY_SPEC_ID, "MakeRecordings");
 			jobDetail.setJobDataMap( data );
+			sched.deleteJob(trigger.getName(), trigger.getGroup());
 			fired = false;
 			sched.scheduleJob(jobDetail, trigger);
 			synchronized(lock) {lock.wait(1000);}
-			assertTrue("The job must have actually started to succeed.", fired);
+			assertTrue("The job must have started if it is to succeed.", fired);
 			sched.deleteJob(trigger.getName(), trigger.getGroup());
 			sched.shutdown(true);
 		} catch (Exception e) {
 			e.printStackTrace();
+			fail(e.getMessage());
 		}
 	}
+
+	private static String readStreamAsString(InputStream stream)
+			throws java.io.IOException {
+		StringBuffer fileData = new StringBuffer(1000);
+		BufferedReader reader = new BufferedReader(
+				new InputStreamReader(stream));
+		char[] buf = new char[1024];
+		int numRead = 0;
+		while ((numRead = reader.read(buf)) != -1) {
+			String readData = String.valueOf(buf, 0, numRead);
+			fileData.append(readData);
+			buf = new char[1024];
+		}
+		reader.close();
+		return fileData.toString();
+	}
+
 }
