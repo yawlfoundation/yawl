@@ -37,6 +37,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.nexusbpm.scheduler.AbstractJob;
 import com.nexusbpm.scheduler.QuartzEvent;
 import com.nexusbpm.scheduler.QuartzEventDao;
+import com.nexusbpm.scheduler.QuartzSchema;
 import com.nexusbpm.scheduler.SchedulerService;
 import com.nexusbpm.scheduler.StartYawlCaseJob;
 
@@ -70,7 +71,7 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 	
 	public Properties getLocalProperties() {
 		Properties p = new Properties();
-		p.setProperty("org.quartz.scheduler.instanceName", "YAWLLocalQuartzScheduler");
+		p.setProperty("org.quartz.scheduler.instanceName", "YAWLLocalTestQuartzScheduler");
 		p.setProperty("org.quartz.plugin.yawlevent.class", "com.nexusbpm.scheduler.YawlTriggerExecutionPlugin");
 		p.setProperty("org.quartz.plugin.yawlevent.appContextUrl", "testresources/applicationContext.xml");
 		
@@ -88,73 +89,48 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 		return p;
 	}
 	
-	
-	public void atestRemoteQuartzServer() {
-		try {
-			System.getProperties().putAll(getRemoteProperties());
-			SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
-			Scheduler sched = schedFact.getScheduler();
-			JobDetail jobDetail = new JobDetail("name", "group", AbstractJob.class);
-			CronTrigger trigger = new CronTrigger("name", "group");
-			trigger.setCronExpression("0 0 12 ? * SUN");
-			sched.deleteJob(trigger.getName(), trigger.getGroup());
-			sched.scheduleJob(jobDetail, trigger);
-			sched.deleteJob(trigger.getName(), trigger.getGroup());
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
+	public void testRemoteQuartzServer() throws Exception{
+		System.getProperties().putAll(getRemoteProperties());
+		SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
+		Scheduler sched = schedFact.getScheduler();
+		JobDetail jobDetail = new JobDetail("name", "group", AbstractJob.class);
+		CronTrigger trigger = new CronTrigger("name", "group");
+		trigger.setCronExpression("0 0 12 ? * SUN");
+		sched.deleteJob(trigger.getName(), trigger.getGroup());
+		sched.scheduleJob(jobDetail, trigger);
+		sched.deleteJob(trigger.getName(), trigger.getGroup());
 	}
-	public void testLocalQuartzServer() {
-		try {
-			System.getProperties().putAll(getLocalProperties());
-			Class.forName(System.getProperty("org.quartz.dataSource.yawlDS.driver"));
-			Connection c = DriverManager.getConnection(System.getProperty("org.quartz.dataSource.yawlDS.URL"), 
-					System.getProperty("org.quartz.dataSource.yawlDS.user"),
-					System.getProperty("org.quartz.dataSource.yawlDS.password")
-					);
-			String t = readStreamAsString(SchedulerService.class.getResourceAsStream("scripts/" + System.getProperty("org.quartz.dataSource.yawlDS.runScript")));
-			try {
-				Statement s = c.createStatement();
-				s.execute(t);
-				c.commit();
-				s.close();
-				c.close();
-			} catch(Exception e) {}
-			
-			SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
-			Scheduler sched = schedFact.getScheduler();
-			sched.start();
-			sched.addGlobalJobListener(this);
-			JobDetail jobDetail = new JobDetail("name","group", StartYawlCaseJob.class);
+	
+	public void testLocalQuartzServer() throws Exception{
+		QuartzSchema.createIfMissing();
+		SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
+		Scheduler sched = schedFact.getScheduler();
+		sched.start();
+		sched.addGlobalJobListener(this);
+		JobDetail jobDetail = new JobDetail("name","group", StartYawlCaseJob.class);
 
-			SimpleTrigger trigger = new SimpleTrigger("name","group");
-			JobDataMap data = new JobDataMap();
-			data.put( StartYawlCaseJob.MAP_KEY_SPEC_ID, "MakeRecordings");
-//			jobDetail.setJobDataMap( data );
-			trigger.setJobDataMap(data);
-			sched.deleteJob(trigger.getName(), trigger.getGroup());
-			fired = false;
-			sched.scheduleJob(jobDetail, trigger);
-			synchronized(lock) {lock.wait(1000);}
-			assertTrue("The job must have started if it is to succeed.", fired);
-			sched.deleteJob(trigger.getName(), trigger.getGroup());
-			sched.shutdown(true);
-			
-			String[] paths = {"testresources/applicationContext.xml"};
-			ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
-			QuartzEventDao dao = (QuartzEventDao) ctx.getBean("quartzDao");
-			Calendar start = new GregorianCalendar();
-			start.roll(Calendar.DATE, false);
-			Calendar end = new GregorianCalendar();
-			end.roll(Calendar.DATE, true);
-			List<QuartzEvent> qel = dao.getRecords(start.getTime(), end.getTime());
-			assertNotNull(qel);
-			assertTrue(qel.size() > 0);			
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
+		SimpleTrigger trigger = new SimpleTrigger("name","group");
+		JobDataMap data = new JobDataMap();
+		data.put( StartYawlCaseJob.MAP_KEY_SPEC_ID, "MakeRecordings");
+		trigger.setJobDataMap(data);
+		sched.deleteJob(trigger.getName(), trigger.getGroup());
+		fired = false;
+		sched.scheduleJob(jobDetail, trigger);
+		synchronized(lock) {lock.wait(1000);}
+		assertTrue("The job must have started if it is to succeed.", fired);
+		sched.deleteJob(trigger.getName(), trigger.getGroup());
+		sched.shutdown(true);
+		
+		String[] paths = {"testresources/applicationContext.xml"};
+		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
+		QuartzEventDao dao = (QuartzEventDao) ctx.getBean("quartzDao");
+		Calendar start = new GregorianCalendar();
+		start.roll(Calendar.DATE, false);
+		Calendar end = new GregorianCalendar();
+		end.roll(Calendar.DATE, true);
+		List<QuartzEvent> qel = dao.getRecords(start.getTime(), end.getTime());
+		assertNotNull(qel);
+		assertTrue(qel.size() > 0);			
 	}
 
 	private static String readStreamAsString(InputStream stream)

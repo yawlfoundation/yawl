@@ -38,6 +38,7 @@ public class SchedulerService extends HttpServlet {
 	public void init(ServletConfig arg0) throws ServletException {
 		super.init(arg0);
 		try {
+			QuartzSchema.createIfMissing();
 			start();
 		} catch (Exception e) {
 			System.out.println("Unable to start quartz scheduler");
