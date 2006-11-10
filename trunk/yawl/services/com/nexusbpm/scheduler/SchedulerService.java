@@ -11,6 +11,7 @@ package com.nexusbpm.scheduler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Properties;
 
@@ -38,7 +39,6 @@ public class SchedulerService extends HttpServlet {
 	public void init(ServletConfig arg0) throws ServletException {
 		super.init(arg0);
 		try {
-			QuartzSchema.createIfMissing();
 			start();
 		} catch (Exception e) {
 			System.out.println("Unable to start quartz scheduler");
@@ -53,7 +53,10 @@ public class SchedulerService extends HttpServlet {
 		p.load(inStream);
 		p.list(System.out);
 		System.getProperties().putAll(p);
-		System.out.println("starting scheduler...");
+		System.out.println("checking schema existence...");
+		try {
+			QuartzSchema.createIfMissing();
+		} catch (Exception e) {} 
 
 		scheduler = StdSchedulerFactory.getDefaultScheduler();
 
@@ -62,32 +65,6 @@ public class SchedulerService extends HttpServlet {
 		System.out.println("scheduler startup completed for "
 				+ scheduler.getClass().getName() + ":"
 				+ scheduler.getSchedulerInstanceId());
-
-		JobDetail jobDetail = new JobDetail("job", "group", new Job() {
-			public void execute(JobExecutionContext context)
-					throws JobExecutionException {
-			}
-		}.getClass(), false, true, false);
-
-		Trigger trigger = new SimpleTriggerEx(TriggerUtils.makeHourlyTrigger(3,
-				260));
-		trigger.setName("testTriggerName");
-
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.MONTH, 1);
-		c.set(Calendar.DAY_OF_MONTH, 30);
-
-		trigger.setStartTime(c.getTime());
-
-		scheduleJob(jobDetail, trigger);
-
-		Trigger t2 = new CronTriggerEx(TriggerUtils.makeWeeklyTrigger(
-				TriggerUtils.SUNDAY, 15, 30));
-		t2.setName("Weekly_Trigger");
-
-		scheduleJob(jobDetail, t2);
-
-		System.out.println("default jobs are scheduled.");
 	}
 
 	public void scheduleJob(JobDetail job, Trigger trigger) {
