@@ -6,7 +6,10 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Properties;
 
 import junit.framework.TestCase;
@@ -111,17 +114,6 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 				c.close();
 			} catch(Exception e) {}
 			
-			String[] paths = {"testresources/applicationContext.xml"};
-			ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
-			QuartzEventDao dao = (QuartzEventDao) ctx.getBean("quartzDao");
-			QuartzEvent qe = new QuartzEvent();
-			qe.setActualFireTime(new Date());
-			qe.setCaseId("sssss");
-			qe.setFireStatus("done");
-			qe.setTriggerName("aa");
-			qe.setScheduledFireTime(new Date());
-			dao.saveRecord(qe);
-			
 			SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 			Scheduler sched = schedFact.getScheduler();
 			sched.start();
@@ -139,6 +131,17 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 			assertTrue("The job must have started if it is to succeed.", fired);
 			sched.deleteJob(trigger.getName(), trigger.getGroup());
 			sched.shutdown(true);
+			
+			String[] paths = {"testresources/applicationContext.xml"};
+			ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
+			QuartzEventDao dao = (QuartzEventDao) ctx.getBean("quartzDao");
+			Calendar start = new GregorianCalendar();
+			start.roll(Calendar.DATE, false);
+			Calendar end = new GregorianCalendar();
+			end.roll(Calendar.DATE, true);
+			List<QuartzEvent> qel = dao.getRecords(start.getTime(), end.getTime());
+			assertNotNull(qel);
+			assertTrue(qel.size() > 0);			
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
