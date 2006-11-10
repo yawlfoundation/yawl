@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
+ * individuals and organiations who are commited to improving workflow technology.
+ *
+ */
+
 package com.nexusbpm.services;
 
 import java.io.BufferedReader;
@@ -123,7 +131,8 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 			SimpleTrigger trigger = new SimpleTrigger("name","group");
 			JobDataMap data = new JobDataMap();
 			data.put( StartYawlCaseJob.MAP_KEY_SPEC_ID, "MakeRecordings");
-			jobDetail.setJobDataMap( data );
+//			jobDetail.setJobDataMap( data );
+			trigger.setJobDataMap(data);
 			sched.deleteJob(trigger.getName(), trigger.getGroup());
 			fired = false;
 			sched.scheduleJob(jobDetail, trigger);

@@ -1,8 +1,18 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
+ * individuals and organiations who are commited to improving workflow technology.
+ *
+ */
+
 package com.nexusbpm.scheduler;
 
 import java.util.Date;
 
 import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.JobListener;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -12,12 +22,16 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class YawlTriggerExecutionPlugin implements SchedulerPlugin,
-		TriggerListener {
+		TriggerListener, JobListener {
 
 	private String name;
+
 	private String appContextUrl;
+
 	QuartzEventDao dao;
-	public YawlTriggerExecutionPlugin() {}
+
+	public YawlTriggerExecutionPlugin() {
+	}
 
 	/**
 	 * <p>
@@ -26,32 +40,25 @@ public class YawlTriggerExecutionPlugin implements SchedulerPlugin,
 	 * </p>
 	 * 
 	 * @throws SchedulerConfigException
-	 *           if there is an error initializing.
+	 *             if there is an error initializing.
 	 */
 	public void initialize(String name, Scheduler scheduler)
 			throws SchedulerException {
 		this.name = name;
-		String[] paths = {getAppContextUrl()};
+		String[] paths = { getAppContextUrl() };
 		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
 		dao = (QuartzEventDao) ctx.getBean("quartzDao");
 		scheduler.addGlobalTriggerListener(this);
+		scheduler.addGlobalJobListener(this);
 	}
 
 	protected void saveEvent(QuartzEvent qe) {
 		dao.saveRecord(qe);
 	}
-	
-	
+
 	public void start() {
 	}
 
-	/**
-	 * <p>
-	 * Called in order to inform the <code>SchedulerPlugin</code> that it
-	 * should free up all of it's resources because the scheduler is shutting
-	 * down.
-	 * </p>
-	 */
 	public void shutdown() {
 	}
 
@@ -60,47 +67,27 @@ public class YawlTriggerExecutionPlugin implements SchedulerPlugin,
 	}
 
 	public void triggerFired(Trigger trigger, JobExecutionContext context) {
-		Object[] args = { trigger.getName(), trigger.getGroup(),
-				trigger.getPreviousFireTime(), trigger.getNextFireTime(),
-				new java.util.Date(), context.getJobDetail().getName(),
-				context.getJobDetail().getGroup(),
-				new Integer(context.getRefireCount()) };
-		QuartzEvent qe = new QuartzEvent(trigger.getName(), trigger.getPreviousFireTime(), new Date(), null, "fired");
+		QuartzEvent qe = new QuartzEvent(trigger.getName(), trigger
+				.getPreviousFireTime(), new Date(), null,
+				QuartzEvent.State.FIRED.toString());
 		saveEvent(qe);
 	}
 
 	public void triggerMisfired(Trigger trigger) {
-		Object[] args = { trigger.getName(), trigger.getGroup(),
-				trigger.getPreviousFireTime(), trigger.getNextFireTime(),
-				new java.util.Date(), trigger.getJobGroup(),
-				trigger.getJobGroup() };
-		QuartzEvent qe = new QuartzEvent(trigger.getName(), trigger.getPreviousFireTime(), new Date(), null, "misfired");
+		QuartzEvent qe = new QuartzEvent(trigger.getName(), trigger
+				.getPreviousFireTime(), new Date(), null,
+				QuartzEvent.State.MISFIRED.toString());
 		saveEvent(qe);
 	}
 
 	public void triggerComplete(Trigger trigger, JobExecutionContext context,
 			int triggerInstructionCode) {
-		String instrCode = "UNKNOWN";
-		if (triggerInstructionCode == Trigger.INSTRUCTION_DELETE_TRIGGER) {
-			instrCode = "DELETE TRIGGER";
-		} else if (triggerInstructionCode == Trigger.INSTRUCTION_NOOP) {
-			instrCode = "DO NOTHING";
-		} else if (triggerInstructionCode == Trigger.INSTRUCTION_RE_EXECUTE_JOB) {
-			instrCode = "RE-EXECUTE JOB";
-		} else if (triggerInstructionCode == Trigger.INSTRUCTION_SET_ALL_JOB_TRIGGERS_COMPLETE) {
-			instrCode = "SET ALL OF JOB'S TRIGGERS COMPLETE";
-		} else if (triggerInstructionCode == Trigger.INSTRUCTION_SET_TRIGGER_COMPLETE) {
-			instrCode = "SET THIS TRIGGER COMPLETE";
+		if (context.getResult() != null) {
+			QuartzEvent qe = new QuartzEvent(trigger.getName(), trigger
+					.getPreviousFireTime(), new Date(), context.getResult()
+					.toString(), QuartzEvent.State.COMPLETED.toString());
+			saveEvent(qe);
 		}
-
-		Object[] args = { trigger.getName(), trigger.getGroup(),
-				trigger.getPreviousFireTime(), trigger.getNextFireTime(),
-				new java.util.Date(), context.getJobDetail().getName(),
-				context.getJobDetail().getGroup(),
-				new Integer(context.getRefireCount()),
-				new Integer(triggerInstructionCode), instrCode };
-		QuartzEvent qe = new QuartzEvent(trigger.getName(), trigger.getPreviousFireTime(), new Date(), context.getResult().toString(), "fired");
-		saveEvent(qe);
 	}
 
 	public boolean vetoJobExecution(Trigger trigger, JobExecutionContext context) {
@@ -113,6 +100,23 @@ public class YawlTriggerExecutionPlugin implements SchedulerPlugin,
 
 	public void setAppContextUrl(String appContextUrl) {
 		this.appContextUrl = appContextUrl;
+	}
+
+	public void jobExecutionVetoed(JobExecutionContext context) {
+	}
+
+	public void jobToBeExecuted(JobExecutionContext context) {
+	}
+
+	public void jobWasExecuted(JobExecutionContext context,
+			JobExecutionException jobException) {
+		if (jobException != null) {
+			QuartzEvent qe = new QuartzEvent(context.getTrigger().getName(),
+					context.getTrigger().getPreviousFireTime(), new Date(),
+					null, QuartzEvent.State.ERRORED.toString(), jobException
+							.getMessage());
+			saveEvent(qe);
+		}
 	}
 
 }

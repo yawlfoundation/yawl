@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
+ * individuals and organiations who are commited to improving workflow technology.
+ *
+ */
+
 package com.nexusbpm.scheduler;
 
 import java.util.Date;
@@ -11,11 +19,14 @@ import javax.persistence.IdClass;
 @IdClass(QuartzEventPk.class)
 public class QuartzEvent {
 
+	public enum State{COMPLETED, ERRORED, FIRED, MISFIRED, UNKNOWN};
+	
 	@Id private String triggerName;
-	@Id private Date actualFireTime;
-	@Column private Date scheduledFireTime; 
+	@Id private Date scheduledFireTime; 
+	@Column private Date actualFireTime;
 	@Column private String caseId;
 	@Column private String fireStatus;
+	@Column(length=4096) private String message;
 
 	public QuartzEvent() {}
 	
@@ -28,6 +39,16 @@ public class QuartzEvent {
 		this.fireStatus = fireStatus;
 	}
 
+	public QuartzEvent(String triggerName, Date scheduledFireTime, Date actualFireTime, String caseId, String fireStatus, String message) {
+		super();
+		this.triggerName = triggerName;
+		this.actualFireTime = actualFireTime;
+		this.scheduledFireTime = scheduledFireTime;
+		this.caseId = caseId;
+		this.fireStatus = fireStatus;
+		this.message = message;
+	}
+	
 	public Date getActualFireTime() {
 		return actualFireTime;
 	}
@@ -57,6 +78,14 @@ public class QuartzEvent {
 	}
 	public void setTriggerName(String triggerName) {
 		this.triggerName = triggerName;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 	
 }
