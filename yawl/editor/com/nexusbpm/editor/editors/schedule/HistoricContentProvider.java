@@ -15,6 +15,8 @@ import javax.swing.DefaultListModel;
 
 import org.quartz.Scheduler;
 
+import com.nexusbpm.scheduler.QuartzEvent;
+
 public class HistoricContentProvider extends ScheduledContentProvider {
 	public HistoricContentProvider( Scheduler scheduler ) {
 		super( scheduler );
@@ -33,8 +35,45 @@ public class HistoricContentProvider extends ScheduledContentProvider {
 		Date max = getMaxDate( date );
 		
 		// TODO ask the cache for events between min and max times
-		List<ScheduledContent> events = new LinkedList<ScheduledContent>();
+		List<QuartzEvent> events = new LinkedList<QuartzEvent>();
+		// TODO remove the following testing event
+		// add a quartz event for testing
+		if( model.size() > 0 ) {
+			ScheduledContent content = (ScheduledContent) model.get( 0 );
+			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
+				events.add( new QuartzEvent(
+						content.getTrigger().getName(),
+						content.getScheduledFireTime(),
+						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
+						"12345",
+						"TESTING" ) );
+			}
+		}
 		
-		// TODO merge events
+		// merge events
+		for( QuartzEvent event : events ) {
+			String name = event.getTriggerName();
+			Date scheduledAt = event.getScheduledFireTime();
+			Date firedAt = event.getActualFireTime();
+			boolean added = false;
+			for( int index = 0; !added && index < model.size(); index++ ) {
+				ScheduledContent content = (ScheduledContent) model.get( index );
+				if( content.getTrigger() != null && name.equals( content.getTrigger().getName() ) &&
+						scheduledAt.equals( content.getScheduledFireTime() ) ) {
+					content.setEvent( event );
+					added = true;
+				}
+				else if( content.getScheduledFireTime() != null &&
+						content.getScheduledFireTime().after( firedAt ) ||
+						content.getActualFireTime() != null &&
+						content.getActualFireTime().after( firedAt ) ) {
+					model.add( index, new ScheduledContent( event ) );
+					added = true;
+				}
+			}
+			if( ! added ) {
+				model.addElement( new ScheduledContent( event ) );
+			}
+		}
 	}
 }

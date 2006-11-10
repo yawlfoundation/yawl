@@ -12,28 +12,37 @@ import java.util.Date;
 
 import org.quartz.Trigger;
 
+import com.nexusbpm.scheduler.QuartzEvent;
+
 public class ScheduledContent implements Comparable {
-	private String caseID;
 	private Date actualFireTime;
 	private Date scheduledFireTime;
 	private Trigger trigger;
-	private Calendar calendar;
+	private QuartzEvent event;
 	
 	public ScheduledContent( Date scheduledFireTime, Trigger trigger ) {
-		this( null, null, scheduledFireTime, trigger );
+		this( null, scheduledFireTime, null, trigger );
+	}
+	
+	/**
+	 * Constructor for content that was scheduled and run (and so it appears
+	 * in the history), but the original trigger is gone or modified (so the
+	 * occurence is no longer tied to a specific firing from an existing
+	 * trigger).
+	 */
+	public ScheduledContent( QuartzEvent event ) {
+		this( event.getActualFireTime(), event.getScheduledFireTime(), event, null );
 	}
 	
 	public ScheduledContent(
-			String caseID,
 			Date actualFireTime,
 			Date scheduledFireTime,
+			QuartzEvent event,
 			Trigger trigger ) {
-		this.caseID = caseID;
 		this.actualFireTime = actualFireTime;
 		this.scheduledFireTime = scheduledFireTime;
+		this.event = event;
 		this.trigger = trigger;
-		calendar = Calendar.getInstance();
-		calendar.setTime( scheduledFireTime );
 	}
 	
 	public Trigger getTrigger() {
@@ -42,6 +51,14 @@ public class ScheduledContent implements Comparable {
 	
 	public void setTrigger( Trigger trigger ) {
 		this.trigger = trigger;
+	}
+	
+	public QuartzEvent getEvent() {
+		return event;
+	}
+	
+	public void setEvent( QuartzEvent event ) {
+		this.event = event;
 	}
 	
 	public int compareTo( Object o ) {
@@ -61,14 +78,29 @@ public class ScheduledContent implements Comparable {
 			return -1;
 		}
 	}
-
+	
 	@Override
 	public String toString() {
-		
-		return getTimeString() + trigger.getName();
+		if( trigger != null ) {
+			if( event != null ) {
+				return getTimeString( scheduledFireTime ) +
+					"(" + getTimeString( event.getActualFireTime() ) + ") " + trigger.getName();
+			}
+			else {
+				return getTimeString( scheduledFireTime ) + " - " + trigger.getName();
+			}
+		}
+		else if( event != null ) {
+			return getTimeString( actualFireTime ) + ">" + event.getTriggerName();
+		}
+		else {
+			return "NULL SCHEDULED EVENT";
+		}
 	}
 	
-	private String getTimeString() {
+	private String getTimeString( Date date ) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime( date );
 		StringBuffer b = new StringBuffer();
 		
 		if( calendar.get( Calendar.HOUR ) > 0 ) {
@@ -83,10 +115,10 @@ public class ScheduledContent implements Comparable {
 		b.append( digit( calendar.get( Calendar.MINUTE ) ) );
 		
 		if( calendar.get( Calendar.AM_PM ) == Calendar.AM ) {
-			b.append( " AM - " );
+			b.append( " AM" );
 		}
 		else {
-			b.append( " PM - " );
+			b.append( " PM" );
 		}
 		
 		return b.toString();
@@ -100,44 +132,20 @@ public class ScheduledContent implements Comparable {
 			return String.valueOf( val );
 		}
 	}
-
 	
 	public Date getActualFireTime() {
 		return actualFireTime;
 	}
-
 	
 	public void setActualFireTime( Date actualFireTime ) {
 		this.actualFireTime = actualFireTime;
 	}
-
-	
-	public String getCaseID() {
-		return caseID;
-	}
-
-	
-	public void setCaseID( String caseID ) {
-		this.caseID = caseID;
-	}
-
 	
 	public Date getScheduledFireTime() {
 		return scheduledFireTime;
 	}
-
 	
 	public void setScheduledFireTime( Date scheduledFireTime ) {
 		this.scheduledFireTime = scheduledFireTime;
-	}
-
-	
-	public Calendar getCalendar() {
-		return calendar;
-	}
-
-	
-	public void setCalendar( Calendar calendar ) {
-		this.calendar = calendar;
 	}
 }
