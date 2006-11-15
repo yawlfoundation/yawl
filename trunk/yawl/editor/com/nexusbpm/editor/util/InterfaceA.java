@@ -9,7 +9,11 @@ package com.nexusbpm.editor.util;
 
 import java.io.IOException;
 
-import com.nexusbpm.editor.EditorConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.nexusbpm.editor.PropertiesBasedYawlClientConfigurationFactory;
+import com.nexusbpm.services.YawlClientConfigurationFactory;
 
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.Interface_Client;
@@ -17,12 +21,13 @@ import au.edu.qut.yawl.engine.interfce.Interface_Client;
 public final class InterfaceA {
 	private static InterfaceA_EnvironmentBasedClient iaClient;
 	private static String aConnectionHandle;
+	private static String serverUri;
 	
 	private InterfaceA() {}
 	
 	private static void initializeClient() throws IOException {
 		if( iaClient == null ) {
-			iaClient = new InterfaceA_EnvironmentBasedClient(EditorConfiguration.getInstance().getServerUri() + "/ia");
+			iaClient = new InterfaceA_EnvironmentBasedClient(serverUri + "/ia");
 		}
 	}
 	
@@ -38,7 +43,8 @@ public final class InterfaceA {
 		}
 	}
 	
-	public static InterfaceA_EnvironmentBasedClient getClient() throws IOException {
+	public static InterfaceA_EnvironmentBasedClient getClient(String serverUri) throws IOException {
+		InterfaceA.serverUri = serverUri;
 		initializeConnection();
 		return iaClient;
 	}

@@ -15,6 +15,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
@@ -42,6 +44,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
 import org.quartz.SchedulerException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
@@ -72,7 +76,9 @@ import com.nexusbpm.editor.tree.STree;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 import com.nexusbpm.editor.util.JmsClient;
+import com.nexusbpm.scheduler.QuartzEventDao;
 import com.nexusbpm.services.NexusServiceInfo;
+import com.nexusbpm.services.YawlClientConfigurationFactory;
 
 /**
  *
@@ -91,7 +97,6 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 	private static WorkflowEditor singleton = null;
     
     private static final Log LOG = LogFactory.getLog( WorkflowEditor.class );
-    ConfigurationDialog configurationDialog;
     private JFrame _componentsFrame;
 	
     /**
@@ -130,8 +135,6 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         catch (Exception e) {
             e.printStackTrace();
         }
-        
-        configurationDialog = new ConfigurationDialog(this);
         
         ///////////////////////
         // create the file menu
@@ -207,7 +210,17 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 
         preferencesMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                configurationDialog.setVisible(true);
+        		String[] paths = { "YawlClientApplicationContext.xml" };
+        		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
+            	YawlClientConfigurationFactory configFactory = (YawlClientConfigurationFactory) ctx.getBean("yawlClientConfigurationFactory");  
+                boolean shouldSave = ConfigurationDialog.showConfigurationDialog(WorkflowEditor.this, configFactory.getConfiguration());
+                if (shouldSave) {
+                	try {
+                		configFactory.saveConfiguration();
+					} catch (IOException e) {
+						JOptionPane.showMessageDialog(null, "Unable to save configuration due to " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+					}
+                }
             }
         });
 
