@@ -9,7 +9,11 @@ package com.nexusbpm.editor.util;
 
 import java.io.IOException;
 
-import com.nexusbpm.editor.EditorConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.nexusbpm.editor.PropertiesBasedYawlClientConfigurationFactory;
+import com.nexusbpm.services.YawlClientConfigurationFactory;
 
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.Interface_Client;
@@ -17,12 +21,13 @@ import au.edu.qut.yawl.engine.interfce.Interface_Client;
 public final class InterfaceB {
 	private static InterfaceB_EnvironmentBasedClient ibClient;
 	private static String aConnectionHandle;
-	
+	private static String serverUri;
 	private InterfaceB() {}
 	
 	private static void initializeClient() throws IOException {
 		if( ibClient == null ) {
-			ibClient = new InterfaceB_EnvironmentBasedClient(EditorConfiguration.getInstance().getServerUri() + "/ib");
+			ibClient = new InterfaceB_EnvironmentBasedClient(serverUri + "/ib");
+			System.out.println("Interface b client pointing to " + serverUri + "/ib");
 		}
 	}
 	
@@ -38,7 +43,8 @@ public final class InterfaceB {
 		}
 	}
 	
-	public static InterfaceB_EnvironmentBasedClient getClient() throws IOException {
+	public static InterfaceB_EnvironmentBasedClient getClient(String serverUri) throws IOException {
+		InterfaceB.serverUri = serverUri;
 		initializeConnection();
 		return ibClient;
 	}

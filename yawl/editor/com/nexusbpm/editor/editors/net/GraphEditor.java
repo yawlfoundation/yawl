@@ -55,6 +55,8 @@ import org.jgraph.graph.Port;
 import org.jgraph.layout.SugiyamaLayoutAlgorithm;
 import org.jgraph.util.JGraphParallelEdgeRouter;
 import org.jgraph.util.JGraphUtilities;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.edu.qut.yawl.elements.ExtensionListContainer;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -89,6 +91,7 @@ import com.nexusbpm.editor.util.InterfaceA;
 import com.nexusbpm.editor.util.InterfaceB;
 import com.nexusbpm.editor.worker.CapselaWorker;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
+import com.nexusbpm.services.YawlClientConfigurationFactory;
 
 /**
  * A graph editor, usually contained in a tab within a flow editor.
@@ -1056,8 +1059,11 @@ public class GraphEditor extends JPanel
                         YSpecification spec = GraphEditor.this.getParentSpecification();
                         
                         // TODO do we need to save the spec?
-                        
-                        InterfaceA_EnvironmentBasedClient client = InterfaceA.getClient();
+                		String[] paths = { "YawlClientApplicationContext.xml" };
+                		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
+                    	YawlClientConfigurationFactory configFactory = (YawlClientConfigurationFactory) ctx.getBean("yawlClientConfigurationFactory");  
+
+                        InterfaceA_EnvironmentBasedClient client = InterfaceA.getClient(configFactory.getConfiguration().getServerUri());
                         
                         LOG.info( "unloading specification...\n" + client.unloadSpecification(
                         		spec.getID(), InterfaceA.getConnectionHandle() ) );
@@ -1068,7 +1074,7 @@ public class GraphEditor extends JPanel
                         LOG.info( response );
                         
                         if( InterfaceA.successful( response ) ) {
-                        	InterfaceB_EnvironmentBasedClient clientB = InterfaceB.getClient();
+                        	InterfaceB_EnvironmentBasedClient clientB = InterfaceB.getClient(configFactory.getConfiguration().getServerUri());
                         	
                         	LOG.info( clientB.getSpecification( spec.getID(), InterfaceB.getConnectionHandle() ) );
                         }

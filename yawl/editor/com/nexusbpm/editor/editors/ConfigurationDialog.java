@@ -8,28 +8,35 @@
 
 package com.nexusbpm.editor.editors;
 
-import java.awt.Dialog;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
+import java.awt.SystemColor;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.swing.BorderFactory;
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import com.nexusbpm.editor.EditorConfiguration;
-import java.awt.SystemColor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class ConfigurationDialog extends Dialog {
+import com.nexusbpm.editor.WorkflowEditor;
+import com.nexusbpm.services.YawlClientConfiguration;
+import com.nexusbpm.services.YawlClientConfigurationFactory;
+
+public class ConfigurationDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JTextField serverUri = null;
@@ -38,16 +45,49 @@ public class ConfigurationDialog extends Dialog {
 	private JLabel serverUriLabel = null;
 	private JLabel jmsUriLabel = null;
 	private JLabel quartzUriLabel = null;
-	private boolean isDirty = false;
 	JPanel buttons = null;
 	JPanel text = null;
 	private JPanel grid = null;
+	private YawlClientConfiguration config;
+	private boolean shouldSave = false;
+	
+	public static boolean showConfigurationDialog(Frame owner, YawlClientConfiguration configuration) {
+		ConfigurationDialog cd = new ConfigurationDialog(owner, configuration);
+		cd.getServerUri().setText(configuration.getServerUri());
+		cd.getJmsUri().setText(configuration.getJmsUri());
+		cd.getQuartzUri().setText(configuration.getQuartzUri());
+		cd.setVisible(true);
+		cd.dispose();
+		return cd.shouldSave;
+	}
 
+	public boolean isDirty() {
+		boolean dirty = false;
+		String newServerUri = getServerUri().getText();
+		String newJmsUri = getJmsUri().getText();
+		String newQuartzUri = getQuartzUri().getText();
+		String oldServerUri = config.getServerUri();
+		String oldJmsUri = config.getJmsUri();
+		String oldQuartzUri = config.getQuartzUri();
+			if (newServerUri != null && !newServerUri.equals(oldServerUri)) {
+				dirty = true;
+			}
+			if (newJmsUri != null && !newJmsUri.equals(oldJmsUri)) {
+				dirty = true;
+			}
+			if (newQuartzUri != null && !newQuartzUri.equals(oldQuartzUri)) {
+				dirty = true;
+			}
+		return dirty;
+	}
+	
+	
 	/**
 	 * @param owner
 	 */
-	public ConfigurationDialog(Frame owner) {
+	private ConfigurationDialog(Frame owner, YawlClientConfiguration config) {
 		super(owner);
+		this.config = config;
 		initialize();
 	}
 
@@ -69,22 +109,24 @@ public class ConfigurationDialog extends Dialog {
 		gridBagConstraints10.gridx = 0;
 		this.setLayout(new GridBagLayout());
 		this.setTitle("Configuration");
+		this.setModal(true);
+		this.setBackground(SystemColor.control);
 		this.add(getGrid(), gridBagConstraints10);
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
+				if (isDirty()) {
 				int reply = JOptionPane.showConfirmDialog(null, "Would you like to save your changes first", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION);
 				switch (reply) {
-					case 0: 
-						try {
-							ConfigurationDialog.this.save();
-						} catch (IOException e1) {
-							JOptionPane.showMessageDialog(null, "Error saving configuration.", "Error", JOptionPane.ERROR_MESSAGE);
-						}						
+					case JOptionPane.YES_OPTION:
+						ConfigurationDialog.this.updateConfiguration();
+						shouldSave = true;
 						ConfigurationDialog.this.setVisible(false);
 						break;
-					case 1: 
+					case JOptionPane.NO_OPTION: 
 						ConfigurationDialog.this.setVisible(false);
 					default:break;
+				}
+				
 				}
 			}
 		});
@@ -191,18 +233,21 @@ public class ConfigurationDialog extends Dialog {
 			JButton ok = new JButton("OK");
 			ok.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					try {
-						ConfigurationDialog.this.save();
-					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(null, "Error saving configuration.", "Error", JOptionPane.ERROR_MESSAGE);
-					}						
+					ConfigurationDialog.this.updateConfiguration();
+					shouldSave = true;
 					ConfigurationDialog.this.setVisible(false);
 				}
 			});
 			JButton cancel = new JButton("Cancel");
 			cancel.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					ConfigurationDialog.this.setVisible(false);
+					int shouldClose = JOptionPane.YES_OPTION;
+					if (isDirty()) {
+						shouldClose = JOptionPane.showConfirmDialog(ConfigurationDialog.this, "Close configuration without saving updates?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION);
+					}
+					if (shouldClose == JOptionPane.YES_OPTION) {
+						ConfigurationDialog.this.setVisible(false);
+					}
 				}
 			});
 			JPanel spacer = new JPanel();
@@ -225,37 +270,26 @@ public class ConfigurationDialog extends Dialog {
 			serverUri.setName("serverUri");
 			serverUri.setFont(new Font("Dialog", Font.PLAIN, 14));
 			serverUri.setBorder(BorderFactory.createLoweredBevelBorder());
+			serverUri.setInputVerifier(new InputVerifier() {
+				@Override public boolean verify(JComponent input) {
+					boolean verify = false;
+					try {
+						new URI(((JTextField)input).getText());
+						verify = true;
+					} catch (URISyntaxException e) {
+						JOptionPane.showMessageDialog(null, "Please enter a valid URI.", "Error", JOptionPane.ERROR_MESSAGE);
+					}
+					return verify;
+				}
+			});
 		}
 		return serverUri;
 	}
 
-
-	@Override
-	public void setVisible(boolean b) {
-		if (b) {
-			try {
-				this.load();
-			} catch (IOException e) {
-				JOptionPane.showMessageDialog(null, "Error loading configuration.", "Error", JOptionPane.ERROR_MESSAGE);
-			}
-		}
-		super.setVisible(b);
-	}
-
-	public void load() throws IOException {
-		EditorConfiguration.getInstance().load();
-		serverUri.setText(EditorConfiguration.getInstance().getServerUri());
-		jmsUri.setText(EditorConfiguration.getInstance().getJmsUri());
-		quartzUri.setText(EditorConfiguration.getInstance().getQuartzUri());
-		isDirty = false;
-	}
-
-	public void save() throws IOException {
-		EditorConfiguration.getInstance().setServerUri(serverUri.getText());
-		EditorConfiguration.getInstance().setJmsUri(jmsUri.getText());
-		EditorConfiguration.getInstance().setQuartzUri(quartzUri.getText());
-		EditorConfiguration.getInstance().persist();
-		isDirty = false;
+	public void updateConfiguration() {
+		config.setServerUri(getServerUri().getText());
+		config.setJmsUri(getJmsUri().getText());
+		config.setQuartzUri(getQuartzUri().getText());
 	}
 	
 	/**
@@ -269,6 +303,18 @@ public class ConfigurationDialog extends Dialog {
 			jmsUri.setName("jmsUri");
 			jmsUri.setFont(new Font("Dialog", Font.PLAIN, 14));
 			jmsUri.setBorder(BorderFactory.createLoweredBevelBorder());
+			jmsUri.setInputVerifier(new InputVerifier() {
+				@Override public boolean verify(JComponent input) {
+					boolean verify = false;
+					try {
+						new URI(((JTextField)input).getText());
+						verify = true;
+					} catch (URISyntaxException e) {
+						JOptionPane.showMessageDialog(null, "Please enter a valid URI.", "Error", JOptionPane.ERROR_MESSAGE);
+					}
+					return verify;
+				}
+			});
 		}
 		return jmsUri;
 	}
@@ -285,6 +331,18 @@ public class ConfigurationDialog extends Dialog {
 			quartzUri.setName("quartzUri");
 			quartzUri.setFont(new Font("Dialog", Font.PLAIN, 14));
 			quartzUri.setBorder(BorderFactory.createLoweredBevelBorder());
+			quartzUri.setInputVerifier(new InputVerifier() {
+				@Override public boolean verify(JComponent input) {
+					boolean verify = false;
+					try {
+						new URI(((JTextField)input).getText());
+						verify = true;
+					} catch (URISyntaxException e) {
+						JOptionPane.showMessageDialog(null, "Please enter a valid URI.", "Error", JOptionPane.ERROR_MESSAGE);
+					}
+					return verify;
+				}
+			});
 		}
 		return quartzUri;
 	}
@@ -321,9 +379,27 @@ public class ConfigurationDialog extends Dialog {
 		return grid;
 	}
 
+	private String fileName;
+	
 	public static void main(String[] args) {
-		JFrame f = new JFrame();
-		ConfigurationDialog cd = new ConfigurationDialog(f);
-		cd.setVisible(true);
+		String[] paths = { "YawlClientApplicationContext.xml" };
+		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
+    	YawlClientConfigurationFactory configFactory = (YawlClientConfigurationFactory) ctx.getBean("yawlClientConfigurationFactory");  
+        boolean shouldSave = ConfigurationDialog.showConfigurationDialog(null, configFactory.getConfiguration());
+        if (shouldSave) {
+        	try {
+				configFactory.saveConfiguration();
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, "Unable to save configuration due to " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+        }
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"
