@@ -14,9 +14,13 @@ import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
 
 import com.nexusbpm.editor.util.InterfaceB;
+import com.nexusbpm.services.YawlClientConfigurationFactory;
 
 public class StartYawlCaseJob implements Job {
 	public static final String MAP_KEY_SPEC_ID = "specId";
@@ -33,7 +37,11 @@ public class StartYawlCaseJob implements Job {
 				MAP_KEY_SPEC_ID);
 		try {
 			// get the client to the engine
-			InterfaceB_EnvironmentBasedClient clientB = InterfaceB.getClient();
+    		String[] paths = { "YawlClientApplicationContext.xml" };
+    		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
+        	YawlClientConfigurationFactory configFactory = (YawlClientConfigurationFactory) ctx.getBean("yawlClientConfigurationFactory");  
+
+			InterfaceB_EnvironmentBasedClient clientB = InterfaceB.getClient(configFactory.getConfiguration().getServerUri());
 
 			if (DEBUG) {
 				LOG.info(clientB.getSpecification(specID, InterfaceB
@@ -50,12 +58,12 @@ public class StartYawlCaseJob implements Job {
 			Long.parseLong(result);
 			context.setResult(result);
 		} catch (IOException e) {
-			System.out.println(e);
+			e.printStackTrace();
 			throw new JobExecutionException(
 					"Error starting case for specification '" + specID + "'",
 					e, false);
 		} catch (NumberFormatException e) {
-			System.out.println(e);
+			e.printStackTrace();
 			throw new JobExecutionException(
 					"Error starting case for specification '" + specID + "'\n"
 							+ result);

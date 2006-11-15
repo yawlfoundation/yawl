@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Calendar;
 import java.util.Date;
@@ -74,7 +75,7 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 		p.setProperty("org.quartz.scheduler.instanceName", "YAWLLocalTestQuartzScheduler");
 		p.setProperty("org.quartz.plugin.yawlevent.class", "com.nexusbpm.scheduler.YawlTriggerExecutionPlugin");
 		p.setProperty("org.quartz.plugin.yawlevent.appContextUrl", "testresources/applicationContext.xml");
-		
+
 		p.setProperty("org.quartz.scheduler.rmi.proxy","false");
 		p.setProperty("java.rmi.server.useCodebaseOnly", "false");
 		p.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
@@ -101,8 +102,11 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 		sched.deleteJob(trigger.getName(), trigger.getGroup());
 	}
 	
-	public void atestLocalQuartzServer() throws Exception{
+	public void testLocalQuartzServer() throws Exception{
+		System.getProperties().putAll(getLocalProperties());
+		try {
 		QuartzSchema.createIfMissing();
+		} catch(SQLException e) {}
 		SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 		Scheduler sched = schedFact.getScheduler();
 		sched.start();
