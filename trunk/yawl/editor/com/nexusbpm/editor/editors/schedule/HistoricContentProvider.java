@@ -33,11 +33,12 @@ public class HistoricContentProvider extends ScheduledContentProvider {
 		
 		Date min = getMinDate( date );
 		Date max = getMaxDate( date );
+		Date now = new Date();
 		
 		// TODO ask the cache for events between min and max times
 		List<QuartzEvent> events = new LinkedList<QuartzEvent>();
-		// TODO remove the following testing event
-		// add a quartz event for testing
+		// add quartz events for testing
+		// TODO remove the following testing events
 		if( model.size() > 0 ) {
 			ScheduledContent content = (ScheduledContent) model.get( 0 );
 			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
@@ -46,7 +47,51 @@ public class HistoricContentProvider extends ScheduledContentProvider {
 						content.getScheduledFireTime(),
 						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
 						"12345",
-						"TESTING" ) );
+						QuartzEvent.State.COMPLETED.toString() ) );
+			}
+		}
+		if( model.size() > 1 ) {
+			ScheduledContent content = (ScheduledContent) model.get( 1 );
+			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
+				events.add( new QuartzEvent(
+						content.getTrigger().getName(),
+						content.getScheduledFireTime(),
+						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
+						"12345",
+						QuartzEvent.State.ERRORED.toString() ) );
+			}
+		}
+		if( model.size() > 2 ) {
+			ScheduledContent content = (ScheduledContent) model.get( 2 );
+			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
+				events.add( new QuartzEvent(
+						content.getTrigger().getName(),
+						content.getScheduledFireTime(),
+						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
+						"12345",
+						QuartzEvent.State.FIRED.toString() ) );
+			}
+		}
+		if( model.size() > 3 ) {
+			ScheduledContent content = (ScheduledContent) model.get( 3 );
+			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
+				events.add( new QuartzEvent(
+						content.getTrigger().getName(),
+						content.getScheduledFireTime(),
+						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
+						"12345",
+						QuartzEvent.State.MISFIRED.toString() ) );
+			}
+		}
+		if( model.size() > 4 ) {
+			ScheduledContent content = (ScheduledContent) model.get( 4 );
+			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
+				events.add( new QuartzEvent(
+						content.getTrigger().getName(),
+						content.getScheduledFireTime(),
+						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
+						"12345",
+						QuartzEvent.State.UNKNOWN.toString() ) );
 			}
 		}
 		
@@ -54,7 +99,6 @@ public class HistoricContentProvider extends ScheduledContentProvider {
 		for( QuartzEvent event : events ) {
 			String name = event.getTriggerName();
 			Date scheduledAt = event.getScheduledFireTime();
-			Date firedAt = event.getActualFireTime();
 			boolean added = false;
 			for( int index = 0; !added && index < model.size(); index++ ) {
 				ScheduledContent content = (ScheduledContent) model.get( index );
@@ -64,15 +108,23 @@ public class HistoricContentProvider extends ScheduledContentProvider {
 					added = true;
 				}
 				else if( content.getScheduledFireTime() != null &&
-						content.getScheduledFireTime().after( firedAt ) ||
-						content.getActualFireTime() != null &&
-						content.getActualFireTime().after( firedAt ) ) {
+						content.getScheduledFireTime().after( scheduledAt ) ) {
 					model.add( index, new ScheduledContent( event ) );
 					added = true;
 				}
 			}
 			if( ! added ) {
 				model.addElement( new ScheduledContent( event ) );
+			}
+		}
+		
+		// remove scheduled events from the past that never ran
+		for( int index = 0; index < model.size(); index++ ) {
+			ScheduledContent content = (ScheduledContent) model.get( index );
+			
+			if( content.getScheduledFireTime().before( now ) && content.getEvent() == null ) {
+				model.remove( index );
+				index -= 1;
 			}
 		}
 	}
