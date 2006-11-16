@@ -205,7 +205,7 @@ id="shortcutSpec.xml"/>
 
 
 	    <singlefile src="config.jar" target="$INSTALL_PATH\config.jar"/>
-	    <singlefile src="yawlhelp.chm" target="$INSTALL_PATH\yawlhelp.chm"/>
+
 
         </pack>
 	<pack name="YAWL Editor" required="no">
