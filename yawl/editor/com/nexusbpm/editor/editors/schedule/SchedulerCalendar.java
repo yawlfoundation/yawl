@@ -78,7 +78,8 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
     	
     	this.scheduler = scheduler;
     	
-    	calendar = new JCalendar( null, null, true, false, new HistoricContentProvider( scheduler ), this );
+    	calendar = new JCalendar( null, null, true, false,
+    			new HistoricContentProvider( scheduler ), this, new SchedulerListCellRenderer() );
     	
     	getContentPane().removeAll();
     	getContentPane().add( calendar );
@@ -220,7 +221,7 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 	}
 	
 	/**
-	 * Forces the calendar (thet UI) to update.
+	 * Forces the calendar (the UI) to update.
 	 */
 	private void refresh() {
 		Runnable r = new Runnable() {
