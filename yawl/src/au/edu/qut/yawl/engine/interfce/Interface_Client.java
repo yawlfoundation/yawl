@@ -121,7 +121,7 @@ public class Interface_Client {
         return builder.toString();
     }
 
-    protected static String stripOuterElement(String inputXML) {
+    public static String stripOuterElement(String inputXML) {
         if (inputXML != null) {
             int beginClipping = inputXML.indexOf(">") + 1;
             int endClipping = inputXML.lastIndexOf("<");
