@@ -55,6 +55,8 @@ public class YParameter extends YVariable implements Serializable  {
 	 * with older revisions if method signatures have not changed. 
 	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
 	 */
+	private int _ordering;
+	
 	private static final long serialVersionUID = 2006030080l;
 	
     private boolean _mandatory = false;
@@ -134,6 +136,9 @@ public class YParameter extends YVariable implements Serializable  {
         }
     }
 
+    public void setOrdering(int ordering) {
+           _ordering = ordering;
+    }
 
     /**
      * 
