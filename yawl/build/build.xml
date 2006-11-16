@@ -235,7 +235,7 @@
     <property name="jgraphaddons-1.0.5.jar" value="${basic.libs}/jgraphaddons-1.0.5.jar"/>
     <property name="swing-worker.jar" value="${basic.libs}/swing-worker.jar"/>
 	<property name="jgraphlayout.jar" value="${basic.libs}/jgraphlayout.jar"/>
-	<property name="jcalendar.jar" value="${standAlone.libs}/jcalendar-custom.jar"/>
+	<property name="jcalendar.jar" value="./build/nexusWorkflowEditor/lib/jcalendar-custom.jar"/>
 
     <!--
     PDF Dependencies
