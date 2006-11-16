@@ -324,35 +324,37 @@ public class DataContext {
     		for (Object o: l) {
                 assert o != null : "data proxy returned a null child!" + parent.toString();
                 handleRetrievedObject( o, parent, null );
-//    			if (o instanceof YSpecification) {
-//                    RemoveNetConditionsOperation.removeConditions( (YSpecification) o );
-//                    VisitSpecificationOperation.visitSpecification(
-//                            (YSpecification) o, getData( parent ),
-//                            new Visitor() {
-//                                public void visit(Object child, Object parent, String childLabel) {
-//                                    DataProxy childProxy;
-//                                    if( DataContext.this.getDataProxy( child ) == null ) {
-//                                        childProxy = DataContext.this.createProxy(child, null);
-//                                        
-//                                        DataProxy parentProxy = DataContext.this.getDataProxy(parent);
-//                                        DataContext.this.attachProxy( childProxy, child, parentProxy );
-//                                    }
-//                                    else {
-//                                        // TODO FIXME this shouldn't really happen... but it does
-//                                        LOG.warn( "Revisiting child:" + child );
-//                                        childProxy = DataContext.this.getDataProxy( child );
-//                                    }
-//                                    if( childLabel == null ) {
-//                                        childLabel = "null";
-//                                    }
-//                                    childProxy.setLabel(childLabel);
-//                                }
-//                            });
-//    			}
-//    			else {
-//    				DataProxy dp = createProxy(o, null);
-//                    attachProxy(dp, o, parent);
-//    			}
+                //this statement had been commented out but doesnt appear to be used by the engine
+                //so im leaving it uncommented - it removes the net conditions
+    			if (o instanceof YSpecification) {
+                    RemoveNetConditionsOperation.removeConditions( (YSpecification) o );
+                    VisitSpecificationOperation.visitSpecification(
+                            (YSpecification) o, getData( parent ),
+                            new Visitor() {
+                                public void visit(Object child, Object parent, String childLabel) {
+                                    DataProxy childProxy;
+                                    if( DataContext.this.getDataProxy( child ) == null ) {
+                                        childProxy = DataContext.this.createProxy(child, null);
+                                        
+                                        DataProxy parentProxy = DataContext.this.getDataProxy(parent);
+                                        DataContext.this.attachProxy( childProxy, child, parentProxy );
+                                    }
+                                    else {
+                                        // TODO FIXME this shouldn't really happen... but it does
+                                        LOG.warn( "Revisiting child:" + child );
+                                        childProxy = DataContext.this.getDataProxy( child );
+                                    }
+                                    if( childLabel == null ) {
+                                        childLabel = "null";
+                                    }
+                                    childProxy.setLabel(childLabel);
+                                }
+                            });
+    			}
+    			else {
+    				DataProxy dp = createProxy(o, null);
+                    attachProxy(dp, o, parent);
+    			}
     		}
     	}
     	else {
