@@ -8,6 +8,7 @@
 
 package com.nexusbpm.scheduler;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -17,7 +18,7 @@ import javax.persistence.IdClass;
 
 @Entity
 @IdClass(QuartzEventPk.class)
-public class QuartzEvent {
+public class QuartzEvent implements Serializable{
 
 	public enum State{COMPLETED, ERRORED, FIRED, MISFIRED, UNKNOWN};
 	

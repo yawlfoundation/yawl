@@ -11,10 +11,9 @@ package com.nexusbpm.services;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -23,7 +22,6 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.quartz.CronTrigger;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -35,11 +33,11 @@ import org.quartz.SimpleTrigger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.nexusbpm.scheduler.AbstractJob;
 import com.nexusbpm.scheduler.QuartzEvent;
 import com.nexusbpm.scheduler.QuartzEventDao;
+import com.nexusbpm.scheduler.QuartzEventDataSource;
+import com.nexusbpm.scheduler.QuartzEventDataSourceFactory;
 import com.nexusbpm.scheduler.QuartzSchema;
-import com.nexusbpm.scheduler.SchedulerService;
 import com.nexusbpm.scheduler.StartYawlCaseJob;
 
 public class TestQuartzConnection extends TestCase implements JobListener{
@@ -67,6 +65,7 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 		p.setProperty("org.quartz.scheduler.rmi.registryHost","localhost");
 		p.setProperty("org.quartz.scheduler.rmi.registryPort","1098");
 		p.setProperty("java.rmi.server.useCodebaseOnly", "true");
+		p.setProperty("org.quartz.plugin.yawlevent.appContextUrl", "testresources/applicationContext.xml");
 		return p;
 	}
 	
@@ -100,6 +99,14 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 		sched.scheduleJob(jobDetail, trigger);
 		Thread.sleep(1000);
 		sched.deleteJob(trigger.getName(), trigger.getGroup());
+		Calendar c = new GregorianCalendar();
+		c.add(Calendar.DAY_OF_YEAR, -1);
+		Date startDate = c.getTime();
+		c.add(Calendar.DAY_OF_YEAR, +2);
+		Date endDate = c.getTime();
+		QuartzEventDataSource source = QuartzEventDataSourceFactory.getDataSource(true);
+		List<QuartzEvent> events = source.getEventsBetween(startDate, endDate);
+		assertNotSame("No events found", 0, events.size());
 	}
 	
 	public void testLocalQuartzServer() throws Exception{
@@ -120,17 +127,23 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 		assertTrue("The job must have started if it is to succeed.", fired);
 		sched.deleteJob(trigger.getName(), trigger.getGroup());
 		sched.shutdown(true);
-		
-		String[] paths = {"testresources/applicationContext.xml"};
-		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
-		QuartzEventDao dao = (QuartzEventDao) ctx.getBean("quartzDao");
-		Calendar start = new GregorianCalendar();
-		start.roll(Calendar.DATE, false);
-		Calendar end = new GregorianCalendar();
-		end.roll(Calendar.DATE, true);
-		List<QuartzEvent> qel = dao.getRecords(start.getTime(), end.getTime());
-		assertNotNull(qel);
-		assertTrue(qel.size() > 0);			
+
+		Calendar c = new GregorianCalendar();
+		c.add(Calendar.DAY_OF_YEAR, -1);
+		Date startDate = c.getTime();
+		c.add(Calendar.DAY_OF_YEAR, +2);
+		Date endDate = c.getTime();
+
+//		String[] paths = {"testresources/applicationContext.xml"};
+//		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
+//		QuartzEventDao dao = (QuartzEventDao) ctx.getBean("quartzDao");
+//		List<QuartzEvent> qel = dao.getRecords(start.getTime(), end.getTime());
+//		assertNotNull(qel);
+//		assertTrue(qel.size() > 0);		
+
+		QuartzEventDataSource source = QuartzEventDataSourceFactory.getDataSource(true);
+		List<QuartzEvent> events = source.getEventsBetween(startDate, endDate);
+		assertNotSame("No events found", 0, events.size());
 	}
 
 	private SimpleTrigger getTrigger() {
