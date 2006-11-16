@@ -191,7 +191,7 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 	private void editExistingSchedule( CronTriggerEx trigger ) {
 		ScheduleInformation i = new ScheduleInformation(
 				trigger.getName(),
-				trigger.getJobDataMap().getString( "specID" ),
+				trigger.getJobDataMap().getString( StartYawlCaseJob.MAP_KEY_SPEC_ID ),
 				trigger.getCronExpression(),
 				trigger.getStartTime(),
 				trigger.getEndTime() );
