@@ -81,9 +81,77 @@ id="shortcutSpec.xml"/>
 
 
 <variables>
+  <variable name="hibernatedbdialect" value="hibernate.dialect org.hibernate.dialect.PostgreSQLDialect"/>
+  <variable name="hibernatedbdriver" value="hibernate.connection.driver_class org.postgresql.Driver"/>
+  <variable name="hibernatedburi" value="hibernate.connection.url ${uri}"/>
+  <variable name="hibernatedbusername" value="hibernate.connection.username ${username}"/>
+  <variable name="hibernatedbpassword" value="hibernate.connection.password ${password}"/>
+
+
+  <variable name="password" value="admin"/>
+  <variable name="username" value="postgres"/>
+  <variable name="uri" value="jdbc:postgresql:yawl"/>
+
   <variable name="PackageDependency.0" value="Tomcat WebServer"/>
   <variable name="PackageDependency.1" value="PostgreSQL Database"/>
   <variable name="tomcat_home" value="C:\Program Files\Apache Software Foundation\Tomcat 5.5"/>
+  <variable name="persistent" value="true"/>
+  <variable name="dbtype" value="
+<bean id=&quot;dataSource&quot; class=&quot;org.springframework.jdbc.datasource.DriverManagerDataSource&quot;>
+         <property name=&quot;driverClassName&quot; value=&quot;org.postgresql.Driver&quot; />
+         <property name=&quot;url&quot; value=&quot;${uri}&quot; />
+         <property name=&quot;username&quot; value=&quot;${username}&quot; />
+         <property name=&quot;password&quot; value=&quot;${password}&quot; />
+    </bean>
+
+<bean id=&quot;sessionFactory&quot; class=&quot;org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean&quot;>
+        <property name=&quot;dataSource&quot; ref=&quot;dataSource&quot; />
+        <property name=&quot;hibernateProperties&quot;>
+            <props>
+                <prop key=&quot;hibernate.dialect&quot;>org.hibernate.dialect.PostgreSQLDialect</prop>
+                <prop key=&quot;hibernate.hbm2ddl.auto&quot;>update</prop>
+                <prop key=&quot;hibernate.current_session_context_class&quot;>thread</prop>
+                <prop key=&quot;hibernate.transaction.factory_class&quot;>org.hibernate.transaction.JDBCTransactionFactory</prop>                 
+            </props>
+        </property>
+        <property name=&quot;annotatedClasses&quot;>
+            <list>
+                <value>au.edu.qut.yawl.engine.YNetRunner</value>
+                <value>au.edu.qut.yawl.elements.YNet</value>
+                <value>au.edu.qut.yawl.engine.domain.YWorkItem</value>
+                <value>au.edu.qut.yawl.engine.domain.YWorkItemID</value>
+                <value>au.edu.qut.yawl.elements.state.YIdentifier</value>
+                <value>au.edu.qut.yawl.elements.YInputCondition</value>
+                <value>au.edu.qut.yawl.elements.YOutputCondition</value>
+                <value>au.edu.qut.yawl.elements.YCompositeTask</value>
+                <value>au.edu.qut.yawl.elements.YAtomicTask</value>
+                <value>au.edu.qut.yawl.elements.YTask</value>
+                <value>au.edu.qut.yawl.elements.YCondition</value>
+                <value>au.edu.qut.yawl.elements.YExternalNetElement</value>
+                <value>au.edu.qut.yawl.elements.YSpecification</value>
+                <value>au.edu.qut.yawl.elements.YDecomposition</value>
+                <value>au.edu.qut.yawl.elements.YFlow</value>
+                <value>au.edu.qut.yawl.elements.YDecomposition</value>
+                <value>au.edu.qut.yawl.elements.YMultiInstanceAttributes</value>
+                <value>au.edu.qut.yawl.elements.YAWLServiceReference</value>
+                <value>au.edu.qut.yawl.elements.YAWLServiceGateway</value>
+                <value>au.edu.qut.yawl.engine.domain.YCaseData</value>
+                <value>au.edu.qut.yawl.elements.data.YVariable</value>
+                <value>au.edu.qut.yawl.elements.data.YParameter</value>
+                <value>au.edu.qut.yawl.elements.YMetaData</value>
+                <value>au.edu.qut.yawl.elements.KeyValue</value>
+		<value>au.edu.qut.yawl.elements.state.YInternalCondition</value>
+		<value>au.edu.qut.yawl.events.Event</value>
+		<value>au.edu.qut.yawl.events.YWorkItemEvent</value>
+		<value>au.edu.qut.yawl.events.YCaseEvent</value>
+		<value>au.edu.qut.yawl.events.YDataEvent</value>
+		<value>au.edu.qut.yawl.events.YErrorEvent</value>
+		<value>au.edu.qut.yawl.elements.SpecVersion</value>
+            </list>
+        </property>
+</bean>"/>
+
+
 </variables>
 
     <!-- 
@@ -95,32 +163,50 @@ id="shortcutSpec.xml"/>
     <packs>
         <pack name="YAWL Engine" required="yes">
             <description>Main YAWL Engine parts</description>
-            <file src="yawl" targetdir="$INSTALL_PATH"/>
+            <file src="yawl.war" targetdir="$INSTALL_PATH"/>
             <file src="library" targetdir="$INSTALL_PATH"/>
-            <file src="worklist" targetdir="$INSTALL_PATH"/>
+            <file src="examples" targetdir="$INSTALL_PATH"/>                        
+            <file src="repository" targetdir="$INSTALL_PATH"/>
+            <file src="worklist.war" targetdir="$INSTALL_PATH"/>
             <file src="graphics" targetdir="$INSTALL_PATH"/>
 
-            <file src="adminTool" targetdir="$INSTALL_PATH"/>
-            <file src="EmailSenderService" targetdir="$INSTALL_PATH"/>
-            <file src="JythonService" targetdir="$INSTALL_PATH"/>
-            <file src="NexusServiceInvoker" targetdir="$INSTALL_PATH"/>
-            <file src="PDFforms" targetdir="$INSTALL_PATH"/>
-            <file src="timeService" targetdir="$INSTALL_PATH"/>
-            <file src="workletService" targetdir="$INSTALL_PATH"/>
-            <file src="yawlSMSInvoker" targetdir="$INSTALL_PATH"/>
-            <file src="yawlWSInvoker" targetdir="$INSTALL_PATH"/>
+            <file src="adminTool.war" targetdir="$INSTALL_PATH"/>
+            <file src="EmailSenderService.war" targetdir="$INSTALL_PATH"/>
+            <file src="JythonService.war" targetdir="$INSTALL_PATH"/>
+            <file src="NexusServiceInvoker.war" targetdir="$INSTALL_PATH"/>
+            <file src="PDFforms.war" targetdir="$INSTALL_PATH"/>
+            <file src="timeService.war" targetdir="$INSTALL_PATH"/>
+            <file src="workletService.war" targetdir="$INSTALL_PATH"/>
+            <file src="yawlSMSInvoker.war" targetdir="$INSTALL_PATH"/>
+            <file src="yawlWSInvoker.war" targetdir="$INSTALL_PATH"/>
 
 
-	    <singlefile src="..\properties\applicationContextInstaller.xml" target="$INSTALL_PATH\yawl\web-inf\classes\applicationContext.xml"/>
-	    <singlefile src="..\engine\webInstaller.xml" target="$INSTALL_PATH\yawl\web-inf\web.xml"/>
+	    <singlefile src="..\properties\applicationContextInstaller.xml" target="$INSTALL_PATH\applicationContext.xml"/>
+	    <singlefile src="..\properties\Installerhibernate.properties" target="$INSTALL_PATH\hibernate.properties"/>
+
+
 	    <singlefile src="admin.url" target="$INSTALL_PATH\yawl\admin.url"/>
 	    <singlefile src="yawlXForms.war" target="$INSTALL_PATH\yawlXForms.war"/>
 	    <singlefile src="CPAU.exe" target="$INSTALL_PATH\CPAU.exe"/>
+	    <singlefile src="web.xml" target="$INSTALL_PATH\web.xml"/>
+
+	    <singlefile src="webEnabled.xml" target="$INSTALL_PATH\webEnabled.xml"/>
+	    <singlefile src="webDisabled.xml" target="$INSTALL_PATH\webDisabled.xml"/>
 
 
-	    <parsable targetfile="$INSTALL_PATH\yawl\web-inf\web.xml"/>
-	    <parsable targetfile="$INSTALL_PATH\yawl\web-inf\classes\applicationContext.xml"/>
-	    <parsable targetfile="$INSTALL_PATH\yawl\web-inf\classes\applicationContext.xml"/> 
+	    <parsable targetfile="$INSTALL_PATH\web.xml"/>
+	    <parsable targetfile="$INSTALL_PATH\web.xml"/>
+
+	    <parsable targetfile="$INSTALL_PATH\applicationContext.xml"/>
+	    <parsable targetfile="$INSTALL_PATH\applicationContext.xml"/> 
+
+	    <parsable targetfile="$INSTALL_PATH\hibernate.properties"/>
+	    <parsable targetfile="$INSTALL_PATH\hibernate.properties"/>
+
+
+	    <singlefile src="config.jar" target="$INSTALL_PATH\config.jar"/>
+	    <singlefile src="yawlhelp.chm" target="$INSTALL_PATH\yawlhelp.chm"/>
+
         </pack>
 	<pack name="YAWL Editor" required="no">
             <description>YAWL Workflow Editor</description>
@@ -128,7 +214,10 @@ id="shortcutSpec.xml"/>
 	</pack>
         <pack name="PostgreSQL Database" required="no">
             <description>Postgres Database</description>
-	    <singlefile src="postgresql-8.0-int.msi" target="$INSTALL_PATH\postgresql-8.1-int.msi"/>
+	    <singlefile src="postgresql-8.0-int.msi" target="$INSTALL_PATH\postgresql-8.0-int.msi"/>
+	    <singlefile src="createuser.bat" target="$INSTALL_PATH\createuser.bat"/>
+	    <singlefile src="checkuser.bat" target="$INSTALL_PATH\checkuser.bat"/>
+	    <singlefile src="createdb.bat" target="$INSTALL_PATH\createdb.bat"/>
         </pack>
         <pack name="Tomcat WebServer" required="no">
             <description>Tomcat Web Container</description>

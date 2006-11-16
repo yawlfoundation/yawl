@@ -29,10 +29,11 @@ id="staticText.text1"/>
 txt="Configure your database in this step."
 id="staticText.text1"/>
 
+
 <field type="divider" align="center"/> 
 
 <field type="staticText" align="left"
-txt="Please select if you want database support"
+txt="Please select if you want to enable database support"
 id="staticText.text3"/>
 
 <field type="check" variable="persistent">
@@ -41,10 +42,11 @@ id="staticText.text3"/>
 set="false"/>
 </field>
 
+
 <field type="divider" align="center"/> 
 
 <field type="staticText" align="left"
-txt="If you selected to have a database, please enter the configuration options below."
+txt="If you already have a database installed, please enter the configuration options below. If not, please ignore this screen"
 id="staticText.text5"/>
 
 <field type="combo" variable="dbtype">
@@ -99,9 +101,13 @@ id="staticText.text5"/>
 		<value>au.edu.qut.yawl.events.YWorkItemEvent</value>
 		<value>au.edu.qut.yawl.events.YCaseEvent</value>
 		<value>au.edu.qut.yawl.events.YDataEvent</value>
+		<value>au.edu.qut.yawl.events.YErrorEvent</value>
+		<value>au.edu.qut.yawl.elements.SpecVersion</value>
             </list>
         </property>
 </bean>">
+<assign variable="hibernatedbdialect" value="hibernate.dialect org.hibernate.dialect.PostgreSQLDialect" />
+<assign variable="hibernatedbdriver" value="hibernate.connection.driver_class org.postgresql.Driver" />
 
 </choice>
 
@@ -154,9 +160,14 @@ id="staticText.text5"/>
 		<value>au.edu.qut.yawl.events.YWorkItemEvent</value>
 		<value>au.edu.qut.yawl.events.YCaseEvent</value>
 		<value>au.edu.qut.yawl.events.YDataEvent</value>
+		<value>au.edu.qut.yawl.events.YErrorEvent</value>
+		<value>au.edu.qut.yawl.elements.SpecVersion</value>
             </list>
         </property>
-</bean>"/>
+</bean>">
+<assign variable="hibernatedbdialect" value="hibernate.dialect org.hibernate.dialect.MySQLDialect" />
+<assign variable="hibernatedbdriver" value="hibernate.connection.driver_class mysql" />
+</choice>
 
 <choice txt="Oracle" id="pg" value=""/>
 <choice txt="SAP DB" id="pg" value=""/>
@@ -180,6 +191,7 @@ id="staticText.text5"/>
 		<spec txt="Enter database password:" id="text.label" size="15" set="admin"/>
 	    </field>
 	</panel>
+
     </userInput>
 
   

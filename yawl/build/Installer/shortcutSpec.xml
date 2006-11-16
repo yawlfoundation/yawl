@@ -24,7 +24,7 @@ name="Stop YAWL Service"
 target="net"
 commandLine="stop tomcat5"
 description="This stops YAWL"
-iconFile="$INSTALL_PATH\graphics\yawl.ico"
+iconFile="$INSTALL_PATH\graphics\yawlstop.ico"
 iconIndex="0"
 initialState="normal"
 programGroup="yes"
@@ -40,37 +40,6 @@ target="$INSTALL_PATH\yawl\admin.url"
 commandLine=""
 description="This starts YAWL administration"
 iconFile="$INSTALL_PATH\graphics\admin.ico"
-iconIndex="0"
-initialState="normal"
-programGroup="yes"
-desktop="no"
-applications="no"
-startMenu="no"
-startup="no">
-</shortcut>
-
-
-<shortcut
-name="Start Database"
-target="$INSTALL_PATH\CPAU.exe"
-commandLine="-u postgres -p fjellheim -ex &quot;c:\postgres\bin\pg_ctl start -D c:\postgres\data\yawldatabase&quot; -lwp"
-description="Start Database"
-iconFile="$INSTALL_PATH\graphics\db.ico"
-iconIndex="0"
-initialState="normal"
-programGroup="yes"
-desktop="no"
-applications="no"
-startMenu="no"
-startup="no">
-</shortcut>
-
-<shortcut
-name="Stop Database"
-target="$INSTALL_PATH\CPAU.exe"
-commandLine="-u postgres -p fjellheim -ex &quot;c:\postgres\bin\pg_ctl stop -D c:\postgres\data\yawldatabase&quot; -lwp"
-description="Stop Database"
-iconFile="$INSTALL_PATH\graphics\dbstop.ico"
 iconIndex="0"
 initialState="normal"
 programGroup="yes"
@@ -99,10 +68,77 @@ startup="no">
 
 <shortcut
 name="YAWL Editor"
-target="$JAVA_HOME\bin\java"
+target="$JAVA_HOME\bin\javaw"
 commandLine="-jar &quot;$INSTALL_PATH\YAWLEditor1.4.jar&quot;"
-description="Uninstall YAWL"
+description="Start YAWL Editor"
 iconFile="$INSTALL_PATH\graphics\editor.ico"
+iconIndex="0"
+initialState="noShow"
+programGroup="yes"
+desktop="no"
+applications="no"
+startMenu="no"
+startup="no">
+</shortcut>
+
+
+
+
+<shortcut
+name="Configure"
+target="$JAVA_HOME\bin\javaw"
+commandLine="-jar &quot;$INSTALL_PATH\config.jar&quot; &quot;$INSTALL_PATH&quot; &quot;$tomcat_home\conf&quot;"
+description="Configure YAWL"
+iconFile="$INSTALL_PATH\graphics\config.ico"
+iconIndex="0"
+initialState="noShow"
+programGroup="yes"
+desktop="no"
+applications="no"
+startMenu="no"
+startup="no">
+</shortcut>
+
+
+<shortcut
+name="Start Database"
+target="$INSTALL_PATH\CPAU.exe"
+commandLine="-u postgres -p postgresyawl -ex &quot;c:\postgres\bin\pg_ctl start -D c:\postgres\data\yawldatabase&quot; -lwp"
+description="Start Database"
+iconFile="$INSTALL_PATH\graphics\db.ico"
+iconIndex="0"
+initialState="normal"
+programGroup="yes"
+desktop="no"
+applications="no"
+startMenu="no"
+startup="no">
+<createForPack name="PostgreSQL Database"/>
+</shortcut>
+
+<shortcut
+name="Stop Database"
+target="$INSTALL_PATH\CPAU.exe"
+commandLine="-u postgres -p postgresyawl -ex &quot;c:\postgres\bin\pg_ctl stop -D c:\postgres\data\yawldatabase&quot; -lwp"
+description="Stop Database"
+iconFile="$INSTALL_PATH\graphics\dbstop.ico"
+iconIndex="0"
+initialState="normal"
+programGroup="yes"
+desktop="no"
+applications="no"
+startMenu="no"
+startup="no">
+<createForPack name="PostgreSQL Database"/>
+</shortcut>
+
+
+<shortcut
+name="Help"
+target="net"
+commandLine="yawlhelp.chm"
+description="YAWL Help"
+iconFile="$INSTALL_PATH\graphics\help.ico"
 iconIndex="0"
 initialState="normal"
 programGroup="yes"
