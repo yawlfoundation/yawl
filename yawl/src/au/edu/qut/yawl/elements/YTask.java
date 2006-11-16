@@ -305,6 +305,9 @@ public abstract class YTask extends YExternalNetElement {
     protected Set getParamNamesForTaskEnablement() {
         return new HashSet(getDataMappingsForEnablement().keySet());
     }
+    
+    
+    
 
 
     @Transient
@@ -1420,7 +1423,18 @@ public abstract class YTask extends YExternalNetElement {
     public Map<String, KeyValue> getDataMappingsForEnablement() {
     	return dataMappingsForTaskEnablementSet;
     }
+ 
+    /**
+     * Connects the query to a decomposition enablement parameter.
+     * @param query a query applied to the net enablement variable in the net
+     *      containing this task.
+     * @param paramName the enablement decomposition parameter to which to apply the result.
+     */
+    public void setDataBindingForEnablementParam(String query, String paramName) {
+    	dataMappingsForTaskEnablementSet.put(query, new KeyValue(KeyValue.ENABLEMENT, query, paramName, this));
+    }
 
+    
     public String toXML() {
         StringBuffer xml = new StringBuffer();
         xml.append("<task id=\"").append(this.getID()).append("\"");
@@ -1621,6 +1635,24 @@ public abstract class YTask extends YExternalNetElement {
     	dataMappingsForTaskCompletionSet.add(new KeyValue(KeyValue.COMPLETION, query, netVarName, this));
     }
 
+    /**
+     * Returns the query to a decomposition output parameter.
+     * @param paramName the decomposition output parameter.
+     * @return the data binding query for that parameter.
+     */
+    @Transient
+    public String getDataBindingForOutputParam( String paramName ) {
+    	Iterator taskCompletionMappingIterator = getDataMappingsForTaskCompletion().keySet().iterator();
+    	while( taskCompletionMappingIterator.hasNext() ) {
+    		String outputParameterQuery = (String) taskCompletionMappingIterator.next();
+    		String outputParameter = getDataMappingsForTaskCompletion().get( outputParameterQuery );
+    		if( paramName.equals( outputParameter ) ) { return outputParameterQuery; }
+    	}
+    	return null;
+    }
+    
+    
+    
     @Transient
     public String getInformation() {
         try {
