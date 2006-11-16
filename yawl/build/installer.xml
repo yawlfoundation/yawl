@@ -37,9 +37,6 @@
 
 
 
-	<!-- The various Hibernate database types. Set one of these to 'true' for the required database type -->
-	<property name="use_postgres7" value="false"/>
-	<property name="use_postgres8" value="true"/>
 
 	<!-- <property file="${user.home}/build.properties"/>-->
 	<!--
@@ -170,12 +167,44 @@
 	<property name="xmlunit" value="${basic.libs}/xmlunit1.0.jar"/>
 
 	<!--
+    OpenJMS Dependencies
+    -->
+    <property name="antlr-2.7.2.jar" value="${basic.libs}/antlr-2.7.2.jar"/>
+    <property name="castor-0.9.5.jar" value="${basic.libs}/castor-0.9.5.jar"/>
+    <property name="commons-codec-1.3.jar" value="${basic.libs}/commons-codec-1.3.jar"/>
+    <property name="commons-codec-1.3.jar" value="${basic.libs}/commons-codec-1.3.jar"/>
+    <property name="commons-collections-2.1.jar" value="${basic.libs}/commons-collections-2.1.jar"/>
+    <property name="commons-dbcp-1.2.1.jar" value="${basic.libs}/commons-dbcp-1.2.1.jar"/>
+    <property name="commons-logging-1.0.4.jar" value="${basic.libs}/commons-logging-1.0.4.jar"/>
+    <property name="commons-pool-1.2.jar" value="${basic.libs}/commons-pool-1.2.jar"/>
+    <property name="concurrent-1.3.4.jar" value="${basic.libs}/concurrent-1.3.4.jar"/>
+    <property name="jdbc-2.0.jar" value="${basic.libs}/jdbc-2.0.jar"/>
+    <property name="jms-1.1.jar" value="${basic.libs}/jms-1.1.jar"/>
+    <property name="jndi-1.2.1.jar" value="${basic.libs}/jndi-1.2.1.jar"/>
+    <property name="jta-1.0.1.jar" value="${basic.libs}/jta-1.0.1.jar"/>
+    <property name="log4j-1.2.11.jar" value="${basic.libs}/log4j-1.2.11.jar"/>
+    <property name="openjms-0.7.7-alpha-3.jar" value="${basic.libs}/openjms-0.7.7-alpha-3.jar"/>
+    <property name="openjms-common-0.7.7-alpha-3.jar" value="${basic.libs}/openjms-common-0.7.7-alpha-3.jar"/>
+    <property name="openjms-net-0.7.7-alpha-3.jar" value="${basic.libs}/openjms-net-0.7.7-alpha-3.jar"/>
+    <property name="openjms-tools-0.7.7-alpha-3.jar" value="${basic.libs}/openjms-tools-0.7.7-alpha-3.jar"/>
+    <property name="oro-2.0.8.jar" value="${basic.libs}/oro-2.0.8.jar"/>
+    <property name="spice-jndikit-20050704.053804.jar" value="${basic.libs}/spice-jndikit-20050704.053804.jar"/>
+    <property name="xerces-2.4.0.jar" value="${basic.libs}/xerces-2.4.0.jar"/>
+    <property name="xml-apis-1.0.b2.jar" value="${basic.libs}/xml-apis-1.0.b2.jar"/>
+
+	<!--
     Editor Dependencies
     -->
 	<property name="jgraph-5.4.jar" value="${basic.libs}/jgraph-5.4.jar"/>
 	<property name="jgraphaddons-1.0.5.jar" value="${basic.libs}/jgraphaddons-1.0.5.jar"/>
 	<property name="swing-worker.jar" value="${basic.libs}/swing-worker.jar"/>
 	<property name="jgraphlayout.jar" value="${basic.libs}/jgraphlayout.jar"/>
+	<property name="jcalendar.jar" value="${standAlone.libs}/jcalendar-custom.jar"/>
+
+	<!--
+	Quartz scheduler
+	-->
+	<property name="quartz.jar" value="${basic.libs}/quartz-1.5.2.jar"/>
 
 	<!--
     PDF Dependencies
@@ -211,9 +240,36 @@
 		<pathelement location="${xerces.jar}"/>
 		<pathelement location="${saxon.jar}"/>
 		<pathelement location="${saxpath.jar}"/>
+	    	<pathelement location="${jcalendar.jar}"/>
 		<pathelement location="${jdom.jar}"/>
 		<pathelement location="${servlet.jar}"/>
 		<pathelement location="${log4j}"/>
+    	<pathelement location="${jcalendar.jar}"/>
+    	<pathelement location="${quartz.jar}"/>
+
+    	<pathelement location="${antlr-2.7.2.jar}"/>
+    	<pathelement location="${castor-0.9.5.jar}"/>
+    	<pathelement location="${commons-codec-1.3.jar}"/>
+    	<pathelement location="${commons-collections-2.1.jar}"/>
+    	<pathelement location="${commons-dbcp-1.2.1.jar}"/>
+    	<pathelement location="${commons-logging-1.0.4.jar}"/>
+    	<pathelement location="${commons-pool-1.2.jar}"/>
+    	<pathelement location="${concurrent-1.3.4.jar}"/>
+    	<pathelement location="${derby-10.1.1.0.jar}"/>
+    	<pathelement location="${jdbc-2.0.jar}"/>
+    	<pathelement location="${jms-1.1.jar}"/>
+    	<pathelement location="${jndi-1.2.1.jar}"/>
+    	<pathelement location="${jta-1.0.1.jar}"/>
+    	<pathelement location="${log4j-1.2.11.jar}"/>
+    	<pathelement location="${openjms-0.7.7-alpha-3.jar}"/>
+    	<pathelement location="${openjms-common-0.7.7-alpha-3.jar}"/>
+    	<pathelement location="${openjms-net-0.7.7-alpha-3.jar}"/>
+    	<pathelement location="${openjms-tools-0.7.7-alpha-3.jar}"/>
+    	<pathelement location="${openjms-tunnel-0.7.7-alpha-3.war}"/>
+    	<pathelement location="${oro-2.0.8.jar}"/>
+    	<pathelement location="${spice-jndikit-20050704.053804.jar}"/>
+    	<pathelement location="${xerces-2.4.0.jar}"/>
+    	<pathelement location="${xml-apis-1.0.b2.jar}"/>
 
 		<fileset dir="${nexus.service.libs}/xfire">
 			<include name="*.jar"/>
@@ -221,17 +277,8 @@
 
 		<!-- Should be self contained completely - This will be removed -->
 		<!-- Include all elements that Tomcat exposes to applications -->
-		<pathelement location="${env.CATALINA_HOME}/common/classes"/>
-		<fileset dir="${env.CATALINA_HOME}/common/endorsed">
-			<include name="*.jar"/>
-		</fileset>
-		<fileset dir="${env.CATALINA_HOME}/common/lib">
-			<include name="*.jar"/>
-		</fileset>
-		<pathelement location="${env.CATALINA_HOME}/shared/classes"/>
-		<fileset dir="${env.CATALINA_HOME}/shared/lib">
-			<include name="*.jar"/>
-		</fileset>
+
+
 
 		<fileset dir="${nexus.service.libs}/xfire">
 			<include name="*.jar"/>
@@ -304,6 +351,8 @@
 		<pathelement location="${jgraphaddons-1.0.5.jar}"/>
 		<pathelement location="${jgraphlayout.jar}"/>
 		<pathelement location="${swing-worker.jar}"/>
+	    	<pathelement location="${jcalendar.jar}"/>
+
 	</path>
 
 
@@ -403,21 +452,6 @@
 		</replace>
 	</target>
 
-	<target name="decidePostgresVersion">
-		<!-- Ascertain which Hibernate properties file to deploy for persistence -->
-		<condition property="using_postgres7" value="true">
-			<and>
-				<contains string="${use_postgres7}" substring="true"/>
-			</and>
-		</condition>
-		<condition property="using_postgres8" value="true">
-			<and>
-				<contains string="${use_postgres8}" substring="true"/>
-			</and>
-		</condition>
-		<antcall target="hibernate_postgres7"/>
-		<antcall target="hibernate_postgres8"/>
-	</target>
 
 	<!--
     Build the application jar/war files
@@ -440,7 +474,6 @@
 		<!--=======================================================================
         Create a self contained jar of the YAWL library
         -->
-		<antcall target="decidePostgresVersion"/>
 		<jar destfile="${output}/YAWL${app.version}.jar">
 			<fileset dir="${classes}"/>
 			<fileset dir="${enumeratedClasses}"/>
@@ -505,57 +538,23 @@
 		</replace>
 
 		<!-- Copy SPRING properties file  -->
-		<copy file="${property.files}/applicationContext.xml" todir="${yawl.eng.app.name}/WEB-INF/classes"/>
+		<copy file="${property.files}/applicationContext.xml" todir="${basedir}/build/Installer/"/>
 
-		<copy todir="${yawl.eng.app.name}/WEB-INF">
-			<fileset file="${build.home}/engine/web.xml"/>
-		</copy>
 		<copy todir="${yawl.eng.app.name}/WEB-INF/lib" >
 			<fileset dir="${basic.libs}" includes="log4j*.jar commons-logging-1.0.4.jar"/>
 		</copy>
 		<copy todir="${yawl.eng.app.name}/WEB-INF/lib" >
 			<fileset dir="${persist.libs}" includes="commons-logging*.jar"/>
 		</copy>
-		<antcall target="decidePostgresVersion"/>
+
+
+		<copy tofile="${yawl.eng.app.name}/WEB-INF/web.xml">
+			<fileset file="${build.home}/engine/webInstaller.xml"/>
+		</copy>
 
 	</target>
 
-	<target name="hibernate_postgres7" if="using_postgres7">
-		<echo message="Copying Hibernate properties for PostgreSQL7"/>
-		<copy file="${postgres7.path}" tofile="${yawl.eng.app.name}/WEB-INF/lib/${postgres7.jar}"/>
-		<copy file="${property.files}/hibernate.properties.postgres7"
-              tofile="${yawl.eng.app.name}/WEB-INF/classes/hibernate.properties"/>
-		<copy file="${property.files}/hibernate.properties.postgres7"
-              tofile="${classes}/hibernate.properties"/>
 
-		<copy file="${postgres7.path}" tofile="${yawl.admintool.app.name}/WEB-INF/lib/${postgres7.jar}"/>
-		<copy file="${property.files}/hibernate.properties.postgres7" tofile="${yawl.admintool.app.name}/WEB-INF/classes/hibernate.properties"/>
-
-		<copy file="${postgres7.path}" tofile="${yawl.worklist.app.name}/WEB-INF/lib/${postgres7.jar}"/>
-		<copy file="${property.files}/hibernate.properties.postgres7" tofile="${yawl.worklist.app.name}/WEB-INF/classes/hibernate.properties"/>
-
-		<copy file="${postgres7.path}" tofile="${yawl.TimeService.app.name}/WEB-INF/lib/${postgres7.jar}"/>
-		<copy file="${property.files}/hibernate.properties.postgres7"
-            tofile="${yawl.TimeService.app.name}/WEB-INF/classes/hibernate.properties"/>
-	</target>
-
-	<target name="hibernate_postgres8" if="using_postgres8">
-		<echo message="Copying Hibernate properties for PostgreSQL8"/>
-		<copy file="${postgres8.path}" tofile="${yawl.eng.app.name}/WEB-INF/lib/${postgres8.jar}"/>
-		<copy file="${property.files}/hibernate.properties.postgres8"
-            tofile="${yawl.eng.app.name}/WEB-INF/classes/hibernate.properties"/>
-		<copy file="${property.files}/hibernate.properties.postgres8"
-            tofile="${classes}/hibernate.properties"/>
-
-		<copy file="${postgres8.path}" tofile="${yawl.admintool.app.name}/WEB-INF/lib/${postgres8.jar}"/>
-		<copy file="${property.files}/hibernate.properties.postgres8"
-            tofile="${yawl.admintool.app.name}/WEB-INF/classes/hibernate.properties"/>
-
-		<copy file="${postgres8.path}" tofile="${yawl.worklist.app.name}/WEB-INF/lib/${postgres8.jar}"/>
-		<copy file="${property.files}/hibernate.properties.postgres8"
-            tofile="${yawl.worklist.app.name}/WEB-INF/classes/hibernate.properties"/>
-
-	</target>
 
 
 	<!--
@@ -595,7 +594,7 @@
 		<copy todir="${yawl.worklist.app.name}/WEB-INF/lib" >
 			<fileset dir="${persist.libs}" includes="commons-logging*.jar"/>
 		</copy>
-		<antcall target="decidePostgresVersion"/>
+
 		<copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine">
 			<fileset dir="${classes}/au/edu/qut/yawl/engine" includes="*.class"/>
 		</copy>
@@ -679,11 +678,11 @@
 				<exclude name="*.class"/>
 			</fileset>
 		</copy>
-		<copy todir="${yawl.worklist.app.name}/WEB-INF">
-			<fileset file="${build.home}/${yawl.worklist.app.name}/web.xml"/>
-		</copy>
 		<copy todir="${yawl.worklist.app.name}/graphics">
 			<fileset dir="${basedir}/graphics"/>
+		</copy>
+		<copy tofile="${yawl.worklist.app.name}/WEB-INF/web.xml">
+			<fileset file="${build.home}/${yawl.worklist.app.name}/webInstaller.xml"/>
 		</copy>
 
 	</target>
@@ -1164,9 +1163,6 @@
 			<replacefilter token="\" value="/" />
 		</replace>
 
-		<copy file="${postgres8.path}" tofile="${yawl.TimeService.app.name}/WEB-INF/lib/${postgres8.jar}"/>
-		<copy file="${property.files}/hibernate.properties.postgres8"
-            tofile="${yawl.TimeService.app.name}/WEB-INF/classes/hibernate.properties"/>
 
 
 		<copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
@@ -1272,7 +1268,7 @@
 		</replace>
 
 
-		<antcall target="decidePostgresVersion"/>
+
 		<copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
 			<fileset
                 dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
@@ -1315,11 +1311,10 @@
 		<copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
 			<fileset dir="${classes}/au/edu/qut/yawl/exceptions"/>
 		</copy>
-		<copy todir="${yawl.admintool.app.name}/WEB-INF">
-			<fileset file="${build.home}/${yawl.admintool.app.name}/web.xml"/>
+
+		<copy tofile="${yawl.admintool.app.name}/WEB-INF/web.xml">
+			<fileset file="${build.home}/${yawl.admintool.app.name}/webInstaller.xml"/>
 		</copy>
-
-
 	</target>
 
 
@@ -1457,13 +1452,10 @@
 			<fileset dir="${persist.libs}" includes="commons-logging*.jar"/>
 		</copy>
 
-		<!-- 4. Copy hibernate & postgres files (assumes version 8) -->
-		<copy file="${postgres8.path}" tofile="${yawl.worklet.app.name}/WEB-INF/lib/${postgres8.jar}"/>
-		<copy file="${property.files}/hibernate.properties.postgres8"
-            tofile="${yawl.worklet.app.name}/WEB-INF/classes/hibernate.properties"/>
 
-		<!-- 5. Copy web.xml file into dir structure -->
-		<copy todir="${yawl.worklet.app.name}/WEB-INF" file="${build.home}/workletService/web.xml"/>
+		<copy tofile="${yawl.worklet.app.name}/WEB-INF/web.xml">
+			<fileset file="${build.home}/${yawl.worklet.app.name}/webInstaller.xml"/>
+		</copy>
 
 	</target>
 
@@ -1488,43 +1480,53 @@
         build_NexusServiceInvoker.war,
         build_EmailSenderService.war,
         build_JythonService.war">
-        
-          <move todir="${basedir}/build/Installer/${yawl.pdfforms.app.name}">
-    		<fileset dir="${yawl.pdfforms.app.name}"/>
-	  	 </move>
-          <move todir="${basedir}/build/Installer/${yawl.eng.app.name}">
-    		<fileset dir="${yawl.eng.app.name}"/>
-	  	 </move>
-          <move todir="${basedir}/build/Installer/${yawl.worklet.app.name}">
-    		<fileset dir="${yawl.worklet.app.name}"/>
-	  	 </move>
-	  	 
 
-	  	 
-          <move todir="${basedir}/build/Installer/${yawl.admintool.app.name}">
-    		<fileset dir="${yawl.admintool.app.name}"/>
-	  	 </move>
-          <move todir="${basedir}/build/Installer/${yawl.TimeService.app.name}">
-    		<fileset dir="${yawl.TimeService.app.name}"/>
-	  	 </move>
-          <move todir="${basedir}/build/Installer/${yawl.smsService.app.name}">
-    		<fileset dir="${yawl.smsService.app.name}"/>
-	  	 </move>
-          <move todir="${basedir}/build/Installer/${yawl.webService.app.name}">
-    		<fileset dir="${yawl.webService.app.name}"/>
-	  	 </move>
-          <move todir="${basedir}/build/Installer/${yawl.worklist.app.name}">
-    		<fileset dir="${yawl.worklist.app.name}"/>
-	  	 </move>
-          <move todir="${basedir}/build/Installer/${nexus.serviceInvoker.app.name}">
-    		<fileset dir="${nexus.serviceInvoker.app.name}"/>
-	  	 </move>
-            <move todir="${basedir}/build/Installer/${nexus.service.jython.app.name}">
-    		<fileset dir="${nexus.service.jython.app.name}"/>
-	  	 </move>
-            <move todir="${basedir}/build/Installer/${nexus.service.emailSender.app.name}">
-    		<fileset dir="${nexus.service.emailSender.app.name}"/>
-	  	 </move>
+        <jar destfile="${basedir}/build/Installer/yawl.war">
+            <fileset dir="${yawl.eng.app.name}"/>
+        </jar>
+	<delete dir="${yawl.eng.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${yawl.worklet.app.name}.war">
+            <fileset dir="${yawl.worklet.app.name}"/>
+        </jar>
+	<delete dir="${yawl.worklet.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${yawl.pdfforms.app.name}.war">
+            <fileset dir="${yawl.pdfforms.app.name}"/>
+        </jar>
+	<delete dir="${yawl.pdfforms.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${yawl.admintool.app.name}.war">
+            <fileset dir="${yawl.admintool.app.name}"/>
+        </jar>
+	<delete dir="${yawl.admintool.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${yawl.TimeService.app.name}.war">
+            <fileset dir="${yawl.TimeService.app.name}"/>
+        </jar>
+	<delete dir="${yawl.TimeService.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${yawl.smsService.app.name}.war">
+            <fileset dir="${yawl.smsService.app.name}"/>
+        </jar>
+	<delete dir="${yawl.smsService.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${yawl.webService.app.name}.war">
+            <fileset dir="${yawl.webService.app.name}"/>
+        </jar>
+	<delete dir="${yawl.webService.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${yawl.worklist.app.name}.war">
+            <fileset dir="${yawl.worklist.app.name}"/>
+        </jar>
+	<delete dir="${yawl.worklist.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${nexus.serviceInvoker.app.name}.war">
+            <fileset dir="${nexus.serviceInvoker.app.name}"/>
+        </jar>
+	<delete dir="${nexus.serviceInvoker.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${nexus.service.jython.app.name}.war">
+            <fileset dir="${nexus.service.jython.app.name}"/>
+        </jar>
+	<delete dir="${nexus.service.jython.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${nexus.service.emailSender.app.name}.war">
+            <fileset dir="${nexus.service.emailSender.app.name}"/>
+        </jar>
+	<delete dir="${nexus.service.emailSender.app.name}"/>
+
+
             <move todir="${basedir}/build/Installer/library">
     		<fileset dir="library"/>
 	  	 </move>
@@ -1622,12 +1624,39 @@
 	</target>
 
 
+       <target name="collectexamples"> 
+	   
+  	<mkdir dir="build/Installer/examples"/>
+		<copy todir="build/Installer/examples">
+			<fileset file="exampleSpecs/xml/*.xml"/>
+		</copy>
+	
 
+       </target>
+
+
+       <target name="build_configtool"> 
+	   
+  	<mkdir dir="configtool"/>
+           <javac srcdir="ConfigurationTool" debug="true" destdir="configtool"/>
+
+               <manifest file="manifest">
+               <attribute name="Main-Class" value="au.edu.qut.yawl.config.Config" />
+               <attribute name="Class-Path" value="config.jar" />
+               </manifest>
+
+         <jar jarfile="build/Installer/config.jar"
+           basedir="configtool"
+           manifest="manifest"/>
+
+    	  <delete dir="configtool"/>
+    	  <delete file="manifest"/>
+       </target>
 
 
 	<!-- Installation targets-->
 
-	<target name="izInit" depends="buildAll">
+	<target name="izInit" >
 		<taskdef name="izpack" classname="com.izforge.izpack.ant.IzPackTask">
 
 			<classpath>
@@ -1653,6 +1682,12 @@
 	</target>
 
 
+	<target name="create_config" depends="izInit">
+		<izpack input="${basedir}/build/installer/YAWL-configurer.xml"
+    			output="${basedir}/build/installer/config.jar"
+    			installerType="standard" basedir="${basedir}/build/installer"
+    			izPackDir="${basedir}/build/installer/libs"/>
+	</target>
 
 	<target name="create_web_installer" depends="izInit">
 		<unzip src="${basedir}/output/yawl.war" dest="${basedir}/build/installer/yawl"/>
