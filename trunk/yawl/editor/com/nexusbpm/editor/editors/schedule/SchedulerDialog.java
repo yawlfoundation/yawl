@@ -1174,7 +1174,6 @@ public class SchedulerDialog extends JDialog {
 		if (uriTextField == null) {
 			uriTextField = new JTextField();
 			uriTextField.setText("");
-			uriTextField.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED));
 		}
 		return uriTextField;
 	}
