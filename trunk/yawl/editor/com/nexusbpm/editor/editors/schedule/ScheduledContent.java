@@ -8,7 +8,8 @@
 package com.nexusbpm.editor.editors.schedule;
 
 import java.awt.Color;
-import java.util.Calendar;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.quartz.Trigger;
@@ -19,6 +20,8 @@ public class ScheduledContent implements Comparable {
 	public static final Color COMPLETED_COLOR = deriveColor( Color.BLUE, .65, Color.BLACK, .35 );
 	public static final Color ERRORED_COLOR = deriveColor( Color.RED, .6, Color.DARK_GRAY, .4 );
 	public static final Color FIRED_COLOR = deriveColor( Color.BLUE, .5, Color.CYAN, .5 );
+	
+	private static final DateFormat format = new SimpleDateFormat( "hh:mm a" );
 	
 	private Date actualFireTime;
 	private Date scheduledFireTime;
@@ -87,16 +90,10 @@ public class ScheduledContent implements Comparable {
 	@Override
 	public String toString() {
 		if( trigger != null ) {
-			if( event != null ) {
-				return getTimeString( scheduledFireTime ) +
-					"(" + getTimeString( event.getActualFireTime() ) + ") " + trigger.getName();
-			}
-			else {
-				return getTimeString( scheduledFireTime ) + " - " + trigger.getName();
-			}
+			return format.format( scheduledFireTime ) + " - " + trigger.getName();
 		}
 		else if( event != null ) {
-			return getTimeString( actualFireTime ) + ">" + event.getTriggerName();
+			return format.format( scheduledFireTime ) + " - " + event.getTriggerName();
 		}
 		else {
 			return "NULL SCHEDULED EVENT";
@@ -134,41 +131,6 @@ public class ScheduledContent implements Comparable {
 				(int) ( ( weight1 * color1.getRed() + weight2 * color2.getRed() ) / (weight1 + weight2) ),
 				(int) ( ( weight1 * color1.getGreen() + weight2 * color2.getGreen() ) / (weight1 + weight2) ),
 				(int) ( ( weight1 * color1.getBlue() + weight2 * color2.getBlue() ) / (weight1 + weight2) ) );
-	}
-	
-	private String getTimeString( Date date ) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime( date );
-		StringBuffer b = new StringBuffer();
-		
-		if( calendar.get( Calendar.HOUR ) > 0 ) {
-			b.append( digit( calendar.get( Calendar.HOUR ) ) );
-		}
-		else {
-			b.append( "12" );
-		}
-		
-		b.append( ":" );
-		
-		b.append( digit( calendar.get( Calendar.MINUTE ) ) );
-		
-		if( calendar.get( Calendar.AM_PM ) == Calendar.AM ) {
-			b.append( " AM" );
-		}
-		else {
-			b.append( " PM" );
-		}
-		
-		return b.toString();
-	}
-	
-	private String digit( int val ) {
-		if( val < 10 ) {
-			return "0" + val;
-		}
-		else {
-			return String.valueOf( val );
-		}
 	}
 	
 	public Date getActualFireTime() {
