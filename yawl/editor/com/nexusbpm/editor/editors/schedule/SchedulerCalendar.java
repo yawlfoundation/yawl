@@ -11,7 +11,9 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,8 +37,9 @@ import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
 import com.nexusbpm.editor.worker.Worker;
-import com.nexusbpm.scheduler.StartYawlCaseJob;
 import com.nexusbpm.scheduler.CronTriggerEx;
+import com.nexusbpm.scheduler.QuartzEvent;
+import com.nexusbpm.scheduler.StartYawlCaseJob;
 import com.toedter.calendar.CalendarSelectionListener;
 import com.toedter.calendar.JCalendar;
 
@@ -51,6 +54,8 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
     private JCalendar calendar;
     
     private Scheduler scheduler;
+    
+    private static final DateFormat format = new SimpleDateFormat( "hh:mm a" ); 
     
     public static SchedulerCalendar createCalendar() throws SchedulerException {
     	LOG.trace( "creating calendar" );
@@ -86,7 +91,20 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
     }
     
 	public void mouseClicked( MouseEvent event, Object[] selected, Date date ) {
-		if( SwingUtilities.isRightMouseButton( event ) ) {
+		if( SwingUtilities.isLeftMouseButton( event ) &&
+				event.getClickCount() == 2 &&
+				selected != null &&
+				selected.length == 1 ) {
+			ScheduledContent content = (ScheduledContent) selected[0];
+			
+			if( content.getEvent() != null ) {
+				new ViewInstanceStatusAction( content.getEvent() ).actionPerformed( null );
+			}
+			else if( content.getTrigger() != null ) {
+				new EditExistingScheduleAction( content ).actionPerformed( null );
+			}
+		}
+		else if( SwingUtilities.isRightMouseButton( event ) ) {
 			JPopupMenu p = new JPopupMenu();
 			
 			JMenuItem create = new JMenuItem( new CreateNewScheduleAction() );
@@ -94,23 +112,45 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 			
 			p.add( create );
 			
-			Set<ScheduledContent> items = new HashSet<ScheduledContent>();
+			Set<Trigger> items = new HashSet<Trigger>();
 			
 			for( int i = 0; i < selected.length; i++ ) {
-				if( items.contains( selected[i] ) ) {
-					continue;
+				ScheduledContent content = (ScheduledContent) selected[i];
+				
+				if( content.getTrigger() != null ) {
+					if( items.contains( content.getTrigger() ) ) {
+						continue;
+					}
+					items.add( content.getTrigger() );
+					
+					p.addSeparator();
+					
+					JMenuItem item = new JMenuItem( new EditExistingScheduleAction( (ScheduledContent) selected[i] ) );
+					item.setText( "Edit schedule '" + ((ScheduledContent) selected[i] ).getTrigger().getName() + "'" );
+					p.add( item );
+					
+					item = new JMenuItem( new DeleteExistingScheduleAction( (ScheduledContent) selected[i] ) );
+					item.setText( "Delete schedule '" + ((ScheduledContent) selected[i] ).getTrigger().getName() + "'" );
+					p.add( item );
 				}
-				items.add( (ScheduledContent) selected[i] );
+			}
+			
+			for( int i = 0; i < selected.length; i++ ) {
+				ScheduledContent content = (ScheduledContent) selected[i];
 				
-				p.addSeparator();
-				
-				JMenuItem item = new JMenuItem( new EditExistingScheduleAction( (ScheduledContent) selected[i] ) );
-				item.setText( "Edit schedule '" + ((ScheduledContent) selected[i] ).getTrigger().getName() + "'" );
-				p.add( item );
-				
-				item = new JMenuItem( new DeleteExistingScheduleAction( (ScheduledContent) selected[i] ) );
-				item.setText( "Delete schedule '" + ((ScheduledContent) selected[i] ).getTrigger().getName() + "'" );
-				p.add( item );
+				if( content.getEvent() != null ) {
+					p.addSeparator();
+					
+					JMenuItem item = new JMenuItem( new ViewInstanceStatusAction( content.getEvent() ) );
+					item.setText( "View status for '" + content.getEvent().getTriggerName() + "' at " +
+							format.format( content.getScheduledFireTime() ) );
+					p.add( item );
+					
+					item = new JMenuItem( new ViewInstanceAction( content.getEvent() ) );
+					item.setText( "View instance for '" + content.getEvent().getTriggerName() + "' at " +
+							format.format( content.getScheduledFireTime() ) );
+					p.add( item );
+				}
 			}
 			p.show( (Component) event.getSource(), event.getX(), event.getY() );
 		}
@@ -220,6 +260,14 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 		}
 	}
 	
+	private void viewInstanceStatus( QuartzEvent event ) {
+		// TODO open a dialog showing instance status
+	}
+	
+	private void viewInstance( QuartzEvent event ) {
+		// TODO open up the instance
+	}
+	
 	/**
 	 * Forces the calendar (the UI) to update.
 	 */
@@ -291,6 +339,42 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 					else {
 						LOG.warn( "Invalid Workflow Schedule trigger type!" );
 					}
+				}
+			};
+			GlobalEventQueue.add( worker );
+		}
+	}
+	
+	private class ViewInstanceStatusAction extends AbstractAction {
+		private QuartzEvent event;
+		public ViewInstanceStatusAction( QuartzEvent event ) {
+			this.event = event;
+		}
+		public void actionPerformed( ActionEvent e ) {
+			Worker worker = new Worker() {
+				public String getName() {
+					return "View Instance Status";
+				}
+				public void execute() {
+					viewInstanceStatus( event );
+				}
+			};
+			GlobalEventQueue.add( worker );
+		}
+	}
+	
+	private class ViewInstanceAction extends AbstractAction {
+		private QuartzEvent event;
+		public ViewInstanceAction( QuartzEvent event ) {
+			this.event = event;
+		}
+		public void actionPerformed( ActionEvent e ) {
+			Worker worker = new Worker() {
+				public String getName() {
+					return "View Instance";
+				}
+				public void execute() {
+					viewInstance( event );
 				}
 			};
 			GlobalEventQueue.add( worker );
