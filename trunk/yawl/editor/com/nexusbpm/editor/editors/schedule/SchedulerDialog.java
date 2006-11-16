@@ -1173,7 +1173,6 @@ public class SchedulerDialog extends JDialog {
 	public JTextField getUriTextField() {
 		if (uriTextField == null) {
 			uriTextField = new JTextField();
-			uriTextField.setText("");
 		}
 		return uriTextField;
 	}
