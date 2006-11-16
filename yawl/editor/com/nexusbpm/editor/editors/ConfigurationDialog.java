@@ -28,11 +28,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.services.YawlClientConfiguration;
 import com.nexusbpm.services.YawlClientConfigurationFactory;
 
@@ -112,6 +112,7 @@ public class ConfigurationDialog extends JDialog {
 		this.setModal(true);
 		this.setBackground(SystemColor.control);
 		this.add(getGrid(), gridBagConstraints10);
+		this.setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
 				if (isDirty()) {
@@ -124,6 +125,7 @@ public class ConfigurationDialog extends JDialog {
 						break;
 					case JOptionPane.NO_OPTION: 
 						ConfigurationDialog.this.setVisible(false);
+						break;
 					default:break;
 				}
 				
@@ -243,7 +245,7 @@ public class ConfigurationDialog extends JDialog {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					int shouldClose = JOptionPane.YES_OPTION;
 					if (isDirty()) {
-						shouldClose = JOptionPane.showConfirmDialog(ConfigurationDialog.this, "Close configuration without saving updates?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION);
+						shouldClose = JOptionPane.showConfirmDialog(ConfigurationDialog.this, "Close configuration without saving updates?", "Confirm close", JOptionPane.YES_NO_OPTION);
 					}
 					if (shouldClose == JOptionPane.YES_OPTION) {
 						ConfigurationDialog.this.setVisible(false);
