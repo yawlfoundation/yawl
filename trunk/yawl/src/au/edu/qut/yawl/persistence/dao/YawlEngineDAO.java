@@ -36,23 +36,14 @@ import au.edu.qut.yawl.util.XmlUtilities;
 public class YawlEngineDAO implements DAO {
 
 	private InterfaceA_EnvironmentBasedClient iaClient;
-
 	private InterfaceB_EnvironmentBasedClient ibClient;
-
 	private String sessionHandle;
-
 	private String engineUri = "http://localhost:8080/yawl";
-	
 	private String user = "admin";
-	
 	private String password = "YAWL";
-
 	private boolean configurationDirty = true;
 	
-	public YawlEngineDAO() {
-	}
-
-	public synchronized void resetConnection() throws IOException {
+	protected synchronized void resetConnection() throws IOException {
 		iaClient = new InterfaceA_EnvironmentBasedClient(
 				engineUri + "/ia");
 		ibClient = new InterfaceB_EnvironmentBasedClient(
@@ -144,10 +135,6 @@ public class YawlEngineDAO implements DAO {
 	}
 
 	public List retrieveByRestriction(Class type, Restriction restriction) {
-		/*
-		 * we need the restriction converter if we can get the engine to return
-		 * the specs based on it.
-		 */
 		try {
 			return (List) execute(new RetrieveByRestrictionCommand(type, restriction));
 		} catch (Exception e) {
@@ -162,17 +149,6 @@ public class YawlEngineDAO implements DAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static void main(String[] args) {
-			YawlEngineDAO dao = new YawlEngineDAO();
-			Object o;
-			try {
-				o = dao.retrieve(YSpecification.class, "MakeRecordings");
-				System.out.println(o);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 	}
 
 	public String getEngineUri() {
@@ -236,6 +212,7 @@ public class YawlEngineDAO implements DAO {
 		public YSpecification object;
 		public SaveCommand(YSpecification object) {this.object = object;}
 		public Object execute() throws Exception {
+				iaClient.unloadSpecification(object.getID(), sessionHandle);
 				String xml = YMarshal.marshal((YSpecification) object);
 				String returnXml = iaClient.uploadSpecification(xml, ((YSpecification) object).getID(), sessionHandle);
 				Exception e = XmlUtilities.getError(returnXml);
@@ -256,6 +233,10 @@ public class YawlEngineDAO implements DAO {
 	}
 
 	public class RetrieveByRestrictionCommand implements RemoteCommand {
+		/*
+		 * we need the restriction converter if we can get the engine to return
+		 * the specs based on it.
+		 */
 		public Class type;
 		public Restriction restriction;
 		public RetrieveByRestrictionCommand(Class type, Restriction restriction) {
