@@ -29,7 +29,7 @@ import java.util.HashSet;
 /**
  *  Data structure for Storage of RMarkings.
  *
- **/
+ */
 
 public class RSetOfMarkings {
     private Set _markings = new HashSet();
@@ -58,17 +58,23 @@ public class RSetOfMarkings {
     }
     
     public void addAll(RSetOfMarkings newmarkings){
-        _markings.addAll(newmarkings.getMarkings());	
-   
-    }
+     	
+    Set markingsToAdd = newmarkings.getMarkings();
+     for (Iterator i = markingsToAdd.iterator(); i.hasNext();)
+     {  RMarking marking = (RMarking) i.next();
+        addMarking(marking);
+     }
+ 
+   //   _markings.addAll(newmarkings.getMarkings()); 
+    } 
     
     public boolean equals(RSetOfMarkings markings) {
     Set markingsToCompare = markings.getMarkings();
     if (_markings.size() != markingsToCompare.size()) {
       return false;
     }
-    if (_markings.containsAll(markingsToCompare)
-        && (markingsToCompare.containsAll(_markings))) {
+    if (containsAll(markingsToCompare)
+        && (markings.containsAll(_markings))) {
       return true;
     }
     return false;
@@ -88,6 +94,18 @@ public class RSetOfMarkings {
    	
     }
     
+    public boolean containsAll(Set markingsToCompare)
+    { RMarking M;
+     for (Iterator i = markingsToCompare.iterator(); i.hasNext();)
+     {	  M = (RMarking) i.next();
+		  if (!this.contains(M))
+	       { return false;
+	       }
+     }
+     return true;	
+    }
+
+
     public boolean containsBiggerEqual(RMarking m)
     {
      for (Iterator i = _markings.iterator(); i.hasNext();)

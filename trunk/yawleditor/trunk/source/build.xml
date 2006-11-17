@@ -26,11 +26,8 @@
             value="${distribution.directory}/${source.archive.root}" />
   <property name="javadoc.directory" value="${basedir}/javadoc" />
 
-  <property name="source.release" value="1.4" />
+  <property name="source.release" value="1.5" />
 
-  <property name="base.engine.name" value="yawl" />
-  <property name="engine.jar.file"
-            value="${library.directory}/${base.engine.name}.jar" />
 
   <property name="editor.jar.file.base"
             value="${distribution.directory}/${root.class.name}${editor.release.number}" />
@@ -52,11 +49,16 @@
   <filter token="EditorReleaseNumber" value="${editor.release.number}" />
   <filter token="EditorContributors" value="${editor.contributors}" />
   <filter token="CompatibleEngineReleaseNumber" value="${compatible.engine.release.number}" />
+  <filter token="CompatibleEngineJarName" value="${compatible.engine.jar.name}" />
+  
   <filter token="CompatibleJavaReleaseNumber" value="${compatible.java.release.number}" />
   <filter token="JGraphReleaseNumber" value="${jgraph.release.number}" />
   <filter token="ProguardReleaseNumber" value="${proguard.release.number}" />
   <filter token="WofYawlReleaseNumber" value="${wofyawl.release.number}" />
-  
+ 
+  <property name="base.engine.name" value="yawl" />
+  <property name="engine.jar.file"
+            value="${library.directory}/${compatible.engine.jar.name}" />
  
   <target name="initialize"
           description="Initialisation of properties and directories.">
@@ -65,8 +67,6 @@
 
     <!-- Create the distribution directory -->
     <mkdir dir="${distribution.directory}" />
-    <available file="${engine.jar.file}"
-               property="engine.repackage.unnecessary" />
   </target>
 
   <target name="clean" description="Resetting environment to source-only.">
@@ -75,57 +75,13 @@
     <delete file="${editor.jar.file}" />
     <delete file="${lite.editor.jar.file}" />
     <delete file="${engine.jar.file}" />
-    <delete file="${distribution.directory}/${base.engine.name}.jar" />
+    <delete file="${distribution.directory}/${compatible.engine.jar.name}" />
     <delete file="${source.archive}" />
     <delete file="${web.page.archive}" />
   </target>
 
-  <target name="repackage.engine"
-          unless="engine.repackage.unnecessary"
-          description="Repackages the engine .war into an easier to manipulate .jar">
-    <property name="engine.war.archive"
-              value="${library.directory}/${base.engine.name}.war" />
-    <property name="base.engine.directory"
-              value="${library.directory}/WEB-INF" />
-    <property name="engine.class.directory"
-              value="${base.engine.directory}/classes" />
-
-    <!-- decompress .war -->
-    <unzip src="${engine.war.archive}" dest="${library.directory}" />
-    <!-- decompress .war's support libraries and add them to its classes directory  -->
-   
-    <unzip dest="${engine.class.directory}">
-      <fileset dir="${base.engine.directory}/lib">
-        <include name="**/*.jar" />
-      	<exclude name="**/MANIFEST.MF" />
-        <exclude name="**/tmp*.zip" />
-      </fileset>
-      <fileset dir="${library.directory}">
-        <include name="xmlParserAPIs.jar" />
-        <exclude name="**/tmp*.zip" />
-      </fileset>
-    </unzip>
-    
-    <!-- Blowing away the engine log4j.properties file ensures that the        -->
-    <!-- logger doesn't try doing anything when I'm using the engine libraries -->
-    <!-- in the editor.                                                        --> 
-    
-    <delete file="${engine.class.directory}/log4j.properties" />
-
-    <!-- recompress everything into an uberjar. -->
-    
-    <jar jarfile="${engine.jar.file}" basedir="${engine.class.directory}" />
-
-    <delete dir="${base.engine.directory}" />
-    <delete dir="${library.directory}/META-INF" />
-
-    <copy file="${library.directory}/${base.engine.name}.jar"
-          todir="${distribution.directory}"
-          overwrite="yes" />
-  </target>
-
   <target name="compile"  
-          depends="initialize, repackage.engine"
+          depends="initialize"
           description="Compilation of Source.">
     <!-- Compile the java code from ${srcDir} into ${build.directory} -->
 
@@ -200,7 +156,7 @@
 
     <manifest file="${manifestFile}">
       <attribute name="Main-Class" value="${source.file.class.path}" />
-      <attribute name="Class-Path" value="${base.engine.name}.jar" />
+      <attribute name="Class-Path" value="${compatible.engine.jar.name}" />
     </manifest>
 
     <jar jarfile="${lite.editor.jar.file}"
@@ -257,7 +213,7 @@
   </target>
 
   <target name="fuse.engine"
-          depends="optimise,repackage.engine"
+          depends="optimise"
           description="Fuses the editor with requisite engine classes">
     <echo message="Fusing ${editor.jar.file} with required engine classes." />
    
@@ -306,7 +262,7 @@
   </target>
 
   <target name="document"
-          depends="initialize,repackage.engine"
+          depends="initialize"
           description="Generate Javadocs for the source-code">
     <mkdir dir="${javadoc.directory}" />
     <javadoc packagenames="au.edu.qut.yawl.editor.*"
@@ -333,7 +289,7 @@
 		<zip destfile="${source.archive}">
       <zipfileset dir="${source.directory}" prefix="source"/>
 		  <zipfileset dir="${library.directory}" prefix="lib">
-		    <exclude name="${base.engine.name}.jar" />
+		    <exclude name="${compatible.engine.jar.name}" />
 		  </zipfileset>
 		  <zipfileset dir="${tool.directory}" prefix="tools" />
 		</zip>

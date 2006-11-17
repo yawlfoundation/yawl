@@ -35,24 +35,28 @@ import java.util.Set;
  */
 
 public class RMarking {
-    private Map _markedPlaces = new HashMap();
+    private Map _markedPlaces;
   
 
     public RMarking(List locations){
     	
     	//Convert to internal representation
-    	for (Iterator iterator = locations.iterator(); iterator.hasNext();) {
+       
+    	int count;
+     	for (Iterator iterator = locations.iterator(); iterator.hasNext();) {
     		RElement netElement = (RElement) iterator.next();
     		String netElementName = netElement.getID();    		
-    		Integer tokenCount = new Integer(1);
     		if (_markedPlaces.containsKey(netElementName))
     		{ Integer countString = (Integer) _markedPlaces.get(netElementName);
-    		  int count = countString.intValue();
+    		  count = countString.intValue();
     		  count ++;
-    		  tokenCount = new Integer(count);
-     		    		  
+    		  countString = new Integer(count);
+     		  _markedPlaces.put(netElementName,countString);  		  
     		}
-    	    _markedPlaces.put(netElementName,tokenCount);
+    	    else
+    	    {   Integer tokenCount = new Integer(1);
+    	    	_markedPlaces.put(netElementName,tokenCount);
+    	    }
     		
         }
         		
@@ -74,16 +78,15 @@ public class RMarking {
             return false;
         }
         RMarking marking = (RMarking) omarking;
-        Map otherMarking = new HashMap(marking.getMarkedPlaces());
-     	Set otherPlaces = otherMarking.keySet();
+       	Set otherPlaces = marking.getMarkedPlaces().keySet();
     	Set myPlaces = _markedPlaces.keySet();
-    	
-    	if (myPlaces.equals(otherPlaces))
-    	{
+       	if (myPlaces.equals(otherPlaces))
+    	{ String netElement;
+    	  Integer mycount,othercount;
     	  for (Iterator iterator = myPlaces.iterator(); iterator.hasNext();){
-    		String netElement = (String) iterator.next();
-    	    Integer mycount = (Integer) _markedPlaces.get(netElement);
-    		Integer othercount = (Integer) otherMarking.get(netElement);
+    		netElement = (String) iterator.next();
+    	    mycount = (Integer) _markedPlaces.get(netElement);
+    		othercount = (Integer) marking.getMarkedPlaces().get(netElement);
     		if (mycount.intValue() != othercount.intValue())
     		  { return false;
     		  }
@@ -95,17 +98,15 @@ public class RMarking {
 
     public boolean isBiggerThanOrEqual(RMarking marking){
     	
-        Map otherMarking = marking.getMarkedPlaces();
-    	Set otherPlaces = otherMarking.keySet();
+       	Set otherPlaces = marking.getMarkedPlaces().keySet();
     	Set myPlaces = _markedPlaces.keySet();
-    	
-    	Integer mycount, othercount;
     	if (myPlaces.containsAll(otherPlaces))
-    	{
+    	{   Integer mycount, othercount;
+    		String netElement;
     	    for (Iterator iterator = otherPlaces.iterator(); iterator.hasNext();){
-   			String netElement = (String) iterator.next();
+   			netElement = (String) iterator.next();
    	   		mycount = (Integer) _markedPlaces.get(netElement);
-    		othercount = (Integer) otherMarking.get(netElement);
+    		othercount = (Integer) marking.getMarkedPlaces().get(netElement);
     		if (mycount.intValue() < othercount.intValue())
 	    		{ return false; }
 	    	}
@@ -116,18 +117,17 @@ public class RMarking {
     }
     
     public boolean isBiggerThan(RMarking marking){
-        Map otherMarking = marking.getMarkedPlaces();
-    	Set otherPlaces = otherMarking.keySet();
+       	Set otherPlaces = marking.getMarkedPlaces().keySet();
     	Set myPlaces = _markedPlaces.keySet();
     	boolean isBigger = false;
-    	// boolean isEqual = false;
-    	Integer mycount, othercount;
+       	
     	if (myPlaces.containsAll(otherPlaces))
-    	{
+    	{  Integer mycount, othercount;
+    	   String netElement;
     	    for (Iterator iterator = otherPlaces.iterator(); iterator.hasNext();){
-   			String netElement = (String) iterator.next();
+   			netElement = (String) iterator.next();
    	   		mycount = (Integer) _markedPlaces.get(netElement);
-    		othercount = (Integer) otherMarking.get(netElement);
+    		othercount = (Integer) marking.getMarkedPlaces().get(netElement);
 	    		if (mycount.intValue() < othercount.intValue())
 		    		{ return false; }
 		      	else if (mycount.intValue() > othercount.intValue())
@@ -153,23 +153,24 @@ public class RMarking {
      
   public Map getMarkedPlaces()
     {
-      return _markedPlaces;
+      return new HashMap(_markedPlaces);
     }
    
     /** This is used for coverable check: x' <= x 
      *
      **/   
     public boolean isLessThanOrEqual(RMarking marking){
-    	Map otherMarking =marking.getMarkedPlaces();
-    	Set myPlaces = _markedPlaces.keySet();
-    	Set otherPlaces = otherMarking.keySet();
+      	Set myPlaces = _markedPlaces.keySet();
+    	Set otherPlaces = marking.getMarkedPlaces().keySet();
     	//other places mark all my places
     	if (otherPlaces.containsAll(myPlaces))
-    	{ 
-    	  for (Iterator iterator = myPlaces.iterator(); iterator.hasNext();){
-   			String netElement = (String) iterator.next();
-   	   		Integer mycount = (Integer) _markedPlaces.get(netElement);
-    		Integer othercount = (Integer) otherMarking.get(netElement);
+    	{ Integer mycount, othercount;
+    	  String netElement;
+    	  for (Iterator iterator = myPlaces.iterator(); iterator.hasNext();)
+    	  {
+   			netElement = (String) iterator.next();
+   	   		mycount = (Integer) _markedPlaces.get(netElement);
+    		othercount = (Integer) marking.getMarkedPlaces().get(netElement);
     		if (mycount.intValue() > othercount.intValue())
     	    {return false;}  
     	  }

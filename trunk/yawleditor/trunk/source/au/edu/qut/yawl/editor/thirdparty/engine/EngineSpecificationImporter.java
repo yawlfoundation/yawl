@@ -88,7 +88,7 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 
 import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.unmarshal.YMetaData;
+import au.edu.qut.yawl.elements.YMetaData;
 
 public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
@@ -212,7 +212,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private NetGraphModel convertEngineNet(YSpecification engineSpecification, YNet engineNet) {
 
     NetGraph editorNet = new NetGraph();
-    editorNet.setName(engineNet.getID());
+    editorNet.setName(engineNet.getId());
     
     convertDecompositionParameters(
         engineNet, 
@@ -238,11 +238,10 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private void convertNetLocalVariables(YNet engineNet, 
                                         NetGraph editorNet) {
 
-    Iterator localVariableKeyIterator = engineNet.getLocalVariables().keySet().iterator();
+    Iterator localVariableKeyIterator = engineNet.getLocalVariables().iterator();
 
     while(localVariableKeyIterator.hasNext()) {
-      String variableKey = (String) localVariableKeyIterator.next();
-      YVariable engineVariable = (YVariable) engineNet.getLocalVariables().get(variableKey);
+      YVariable engineVariable = (YVariable) localVariableKeyIterator.next();
 
       createEditorVariable(
           editorNet.getNetModel().getDecomposition(),
@@ -267,11 +266,11 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
                                                    Decomposition editorDecomposition) {
     
     Iterator inputIterator = 
-      engineDecomposition.getInputParameters().keySet().iterator();
+      engineDecomposition.getInputParameters().iterator();
     
     while(inputIterator.hasNext()) {
       
-      YParameter engineParameter = (YParameter) engineDecomposition.getInputParameters().get(inputIterator.next());
+      YParameter engineParameter = (YParameter) inputIterator.next();
       
       createEditorVariable(
           editorDecomposition,
@@ -287,11 +286,11 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private void convertDecompositionOutputParameters(YDecomposition engineDecomposition, 
                                                     Decomposition editorDecomposition) {
 
-    Iterator outputIterator = engineDecomposition.getOutputParameters().keySet().iterator();
+    Iterator outputIterator = engineDecomposition.getOutputParameters().iterator();
 
     while (outputIterator.hasNext()) {
 
-      YParameter engineParameter = (YParameter) engineDecomposition.getOutputParameters().get(outputIterator.next());
+      YParameter engineParameter = (YParameter) outputIterator.next();
 
       createEditorVariable(
           editorDecomposition, 
@@ -339,7 +338,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
         YAWLServiceGateway engineGateway = (YAWLServiceGateway) engineDecomposition;
         WebServiceDecomposition editorDecomposition = new WebServiceDecomposition();
 
-        editorDecomposition.setLabel(engineGateway.getID());
+        editorDecomposition.setLabel(engineGateway.getId());
         
         if (engineGateway.getYawlService() != null) {
           editorDecomposition.setYawlServiceID(
@@ -446,7 +445,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private void setEditorTaskLabel(NetGraph editorNet, YAWLTask editorTask, YTask engineTask) {
     if (engineTask.getName() == null && engineTask.getDecompositionPrototype() != null) {
-      editorNet.setElementLabel(editorTask, engineTask.getDecompositionPrototype().getID());
+      editorNet.setElementLabel(editorTask, engineTask.getDecompositionPrototype().getId());
       return;
     } 
     editorNet.setElementLabel(editorTask, engineTask.getName());
@@ -510,7 +509,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
     
     WebServiceDecomposition editorDecomposition = (WebServiceDecomposition) SpecificationModel.getInstance().getDecompositionFromLabel(
-      engineAtomicTask.getDecompositionPrototype().getID()    
+      engineAtomicTask.getDecompositionPrototype().getId()    
     );
     
     editorAtomicTask.setDecomposition(editorDecomposition);
@@ -528,7 +527,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
     
     WebServiceDecomposition editorDecomposition = (WebServiceDecomposition) SpecificationModel.getInstance().getDecompositionFromLabel(
-      engineAtomicTask.getDecompositionPrototype().getID()    
+      engineAtomicTask.getDecompositionPrototype().getId()    
     );
     
     editorMultipleAtomicTask.setDecomposition(editorDecomposition);
@@ -547,51 +546,55 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private void setMultipleInstanceDetail(YMultiInstanceAttributes engineMIAttributes, 
                                          YTask                    engineTask, 
                                          YAWLMultipleInstanceTask editorTask) {
-    editorTask.setMinimumInstances(
-        engineMIAttributes.getMinInstances()    
-    );
-    editorTask.setMaximumInstances(
-        engineMIAttributes.getMaxInstances()    
-    );
-    editorTask.setContinuationThreshold(
-        engineMIAttributes.getThreshold()    
-    );
-    editorTask.setContinuationThreshold(
-        engineMIAttributes.getThreshold()    
-    );
-    editorTask.setInstanceCreationType(
-        engineToEditorMultiInstanceCreationMode(
-            engineMIAttributes.getCreationMode()
+    try {
+      editorTask.setMinimumInstances(
+          engineMIAttributes.getMinInstances()    
+      );
+      editorTask.setMaximumInstances(
+          engineMIAttributes.getMaxInstances()    
+      );
+      editorTask.setContinuationThreshold(
+          engineMIAttributes.getThreshold()    
+      );
+      editorTask.setContinuationThreshold(
+          engineMIAttributes.getThreshold()    
+      );
+      editorTask.setInstanceCreationType(
+          engineToEditorMultiInstanceCreationMode(
+              engineMIAttributes.getCreationMode()
+          )
+      );
+
+      editorTask.setMultipleInstanceVariable(
+        ((YAWLTask) editorTask).getVariables().getVariableWithName(
+          engineMIAttributes.getMIFormalInputParam()
         )
-    );
+      );
+      
+      editorTask.setAccessorQuery(
+          engineTask.getPreSplittingMIQuery()
+      );
 
-    editorTask.setMultipleInstanceVariable(
-      ((YAWLTask) editorTask).getVariables().getVariableWithName(
-        engineMIAttributes.getMIFormalInputParam()
-      )
-    );
-    
-    editorTask.setAccessorQuery(
-        engineTask.getPreSplittingMIQuery()
-    );
+      editorTask.setSplitterQuery(
+        engineMIAttributes.getMISplittingQuery()    
+      );
+      
+      editorTask.setInstanceQuery(
+          engineMIAttributes.getMIFormalOutputQuery()    
+      );
 
-    editorTask.setSplitterQuery(
-      engineMIAttributes.getMISplittingQuery()    
-    );
-    
-    editorTask.setInstanceQuery(
-        engineMIAttributes.getMIFormalOutputQuery()    
-    );
+      editorTask.setAggregateQuery(
+          XMLUtilities.stripOutermostTags(engineMIAttributes.getMIJoiningQuery())    
+      );
 
-    editorTask.setAggregateQuery(
-        XMLUtilities.stripOutermostTags(engineMIAttributes.getMIJoiningQuery())    
-    );
-
-    editorTask.setResultNetVariable(
-        ((YAWLTask) editorTask).getParameterLists().getOutputParameters().getVariableWithName(
-          engineTask.getMIOutputAssignmentVar(engineMIAttributes.getMIFormalOutputQuery())
-        )
-    );
+      editorTask.setResultNetVariable(
+          ((YAWLTask) editorTask).getParameterLists().getOutputParameters().getVariableWithName(
+            engineTask.getMIOutputAssignmentVar(engineMIAttributes.getMIFormalOutputQuery())
+          )
+      );
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
     // Below we are overwriting the existing query recorded against the result net 
     // variable, because when it was establised in the generic task conversion code earleir, 
@@ -634,7 +637,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     CompositeTask editorCompositeTask = new CompositeTask(new Point(0,0));
     
     NetGraphModel decomposedEditorNet = SpecificationModel.getInstance().getNetModelFromName(
-      engineCompositeTask.getDecompositionPrototype().getID()    
+      engineCompositeTask.getDecompositionPrototype().getId()    
     );
     
     editorCompositeTask.setDecomposition(decomposedEditorNet.getDecomposition());
@@ -648,7 +651,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     MultipleCompositeTask editorMultipleCompositeTask = new MultipleCompositeTask(new Point(0,0));
 
     NetGraphModel decomposedEditorNet = SpecificationModel.getInstance().getNetModelFromName(
-        engineCompositeTask.getDecompositionPrototype().getID()    
+        engineCompositeTask.getDecompositionPrototype().getId()    
       );
       
     editorMultipleCompositeTask.setDecomposition(decomposedEditorNet.getDecomposition());

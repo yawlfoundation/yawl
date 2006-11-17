@@ -33,6 +33,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
@@ -1163,8 +1164,16 @@ class FilterByCapabilityPanel extends AbstractWizardPanel {
     
     add(buildAddConditionButton(),gbc);
     
+    gbc.gridx = 0;
+    gbc.gridy++;
+    gbc.gridwidth = 8;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+
+    add(new JSeparator(),gbc);  
+    
     gbc.gridy++;
     gbc.gridx = 0;
+    gbc.gridwidth = 1;
     gbc.anchor = GridBagConstraints.NORTHEAST;
     
     JLabel capabilitiesListLabel = new JLabel("Capability Criteria:");

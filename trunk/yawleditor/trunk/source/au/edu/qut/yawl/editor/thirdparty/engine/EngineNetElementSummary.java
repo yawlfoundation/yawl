@@ -55,11 +55,10 @@ public class EngineNetElementSummary {
 
   private void parseEngineNet() {
     
-    Iterator engineNetElementIterator = engineNet.getNetElements().keySet().iterator();
+    Iterator engineNetElementIterator = engineNet.getNetElements().iterator();
 
     while(engineNetElementIterator.hasNext()) {
-      Object engineNetElementKey = engineNetElementIterator.next();
-      Object engineNetElement = engineNet.getNetElement((String) engineNetElementKey);
+      Object engineNetElement = engineNetElementIterator.next();
       
       if (engineNetElement instanceof YInputCondition) {
         inputCondition = (YInputCondition) engineNetElement;
