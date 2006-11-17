@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
+import java.net.ConnectException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 import au.edu.qut.yawl.unmarshal.YMarshal;
+import au.edu.qut.yawl.util.XmlUtilities;
 
 public class YawlEngineDAO implements DAO {
 
@@ -37,34 +39,33 @@ public class YawlEngineDAO implements DAO {
 
 	private InterfaceB_EnvironmentBasedClient ibClient;
 
-	private String sessionAHandle;
+	private String sessionHandle;
 
-	private String sessionBHandle;
-	
-	private String engineUri = "http://localhost:8080/yawl/";
+	private String engineUri = "http://localhost:8080/yawl";
 	
 	private String user = "admin";
 	
 	private String password = "YAWL";
 
+	private boolean configurationDirty = true;
+	
 	public YawlEngineDAO() {
 	}
 
-	public void initialize() throws IOException {
+	public synchronized void resetConnection() throws IOException {
 		iaClient = new InterfaceA_EnvironmentBasedClient(
 				engineUri + "/ia");
-		sessionAHandle = iaClient.connect(user, password);
 		ibClient = new InterfaceB_EnvironmentBasedClient(
 				engineUri + "/ib");
-		sessionBHandle = iaClient.connect(user, password);
+		sessionHandle = iaClient.connect(user, password);
+		configurationDirty = false;
 	}
-	
 	
 	public boolean delete(Object object) {
 		try {
-			iaClient.unloadSpecification(object.toString(), sessionAHandle);
+			execute(new DeleteCommand(object.toString()));
 			return true;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}
@@ -121,79 +122,25 @@ public class YawlEngineDAO implements DAO {
 		return null;
 	}
 
-	public Exception getError(String xml) {
-		Exception retval = null;
-		if (!Interface_Client.successful(xml)) {
-			try {
-				String error = URLDecoder.decode(Interface_Client.stripOuterElement(
-						Interface_Client.stripOuterElement(xml)), "UTF-8");
-				InputStream is = new ByteArrayInputStream(((String) error).getBytes());
-				BufferedReader br = new BufferedReader(new InputStreamReader(is));
-				String s = br.readLine();
-				StringTokenizer st = new StringTokenizer(s, ":");
-				String name = st.nextElement().toString();
-				String message = st.nextElement().toString();
-				List<StackTraceElement> list = new ArrayList<StackTraceElement>();
-				while ((s = br.readLine()) != null) {
-					st = new StringTokenizer(s, "(:) ");
-					st.nextElement();
-					String fqName = st.nextElement().toString();
-					int whereislastdot = fqName.lastIndexOf(".");
-					String method = fqName.substring(whereislastdot + 1);
-					String clazz = fqName.substring(0, whereislastdot);
-					String sourceFile = st.nextElement().toString();
-					int lineNumber = -1;
-					try {
-						lineNumber = Integer.parseInt(st.nextElement().toString());
-					} catch (Exception nfe) {
-					}
-					StackTraceElement e = new StackTraceElement(clazz, method, sourceFile, lineNumber);
-					list.add(e);
-				}
-				Constructor c = Class.forName(name).getConstructor(new Class[] {String.class});
-				retval = (Exception) c.newInstance(new Object[] {message});
-				retval.setStackTrace(list.toArray(new StackTraceElement[] {}));
-			} catch (Exception e) {
-				retval = e;
+	protected Object execute(RemoteCommand c) throws Exception{
+		try {
+			if (configurationDirty) {
+				resetConnection();
 			}
+			return c.execute();
+		} catch (YAuthenticationException e) {
+				resetConnection();
+				return c.execute();
 		}
-		return retval;
 	}
 	
 	//this is a very rough prototype of the connection logic eventually to be shared by the entire engine dao.	
 	public Object retrieve(Class type, Object key) {
-		YSpecification retval = null;
-		String xml;
-		Exception e;
-		try {
-			if (sessionBHandle == null) {
-				initialize();
+			try {
+				return execute(new RetrieveCommand(key.toString()));
+			} catch (Exception e) {
+				return null;
 			}
-			xml = ibClient.getSpecification(key.toString(), sessionBHandle);
-			e = getError(xml);
-			if (e == null) {
-				List l = YMarshal.unmarshalSpecifications(xml, "imported");
-				if (l != null && l.size() == 1) {
-					retval = (YSpecification) l.get(0);
-				}
-			} else {
-				initialize();
-				xml = ibClient.getSpecification(key.toString(), sessionBHandle);
-				e = getError(xml);
-				if (e == null) {
-					List l = YMarshal.unmarshalSpecifications(xml, "imported");
-					if (l != null && l.size() == 1) {
-						retval = (YSpecification) l.get(0);
-					}
-				} else {
-					throw e;
-				}
-			}			
-		} catch (Exception e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		return retval;
 	}
 
 	public List retrieveByRestriction(Class type, Restriction restriction) {
@@ -201,36 +148,31 @@ public class YawlEngineDAO implements DAO {
 		 * we need the restriction converter if we can get the engine to return
 		 * the specs based on it.
 		 */
-		List retval = null;
 		try {
-			retval = ibClient.getSpecificationList(sessionBHandle);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			return (List) execute(new RetrieveByRestrictionCommand(type, restriction));
+		} catch (Exception e) {
 			e.printStackTrace();
+			return null;
 		}
-		return retval;
 	}
 
 	public void save(Object object) throws YPersistenceException {
 		try {
-			if (object instanceof YSpecification) {
-				String xml = YMarshal.marshal((YSpecification) object);
-				iaClient.uploadSpecification(xml, ((YSpecification) object)
-						.getID(), sessionAHandle);
-			}
-			iaClient.uploadSpecification(sessionAHandle, sessionBHandle,
-					sessionAHandle);
+			execute(new SaveCommand((YSpecification) object));
 		} catch (Exception e) {
-			YPersistenceException ype = new YPersistenceException(
-					"engine dao unable to save specification", e);
-			throw ype;
+			e.printStackTrace();
 		}
 	}
 
 	public static void main(String[] args) {
 			YawlEngineDAO dao = new YawlEngineDAO();
-			Object o = dao.retrieve(YSpecification.class, "MakeRecordings");
-			System.out.println(o);
+			Object o;
+			try {
+				o = dao.retrieve(YSpecification.class, "MakeRecordings");
+				System.out.println(o);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 	}
 
 	public String getEngineUri() {
@@ -239,6 +181,9 @@ public class YawlEngineDAO implements DAO {
 
 	public void setEngineUri(String engineUri) {
 		this.engineUri = engineUri;
+		if (this.engineUri == null || !this.engineUri.equals(engineUri)) {
+			configurationDirty = true;
+		}
 	}
 
 	public String getPassword() {
@@ -247,6 +192,9 @@ public class YawlEngineDAO implements DAO {
 
 	public void setPassword(String password) {
 		this.password = password;
+		if (this.password == null || !this.password.equals(password)) {
+			configurationDirty = true;
+		}
 	}
 
 	public String getUser() {
@@ -255,6 +203,67 @@ public class YawlEngineDAO implements DAO {
 
 	public void setUser(String user) {
 		this.user = user;
+		if (this.user == null || !this.user.equals(user)) {
+			configurationDirty = true;
+		}
 	}
 
+	public interface RemoteCommand {
+		public Object execute() throws Exception;
+	}
+	
+	public class RetrieveCommand implements RemoteCommand{
+		private String key;
+		public RetrieveCommand(String key) {this.key = key;}
+		public Object execute() throws Exception{
+			Exception e;
+			YSpecification retval = null;
+			String xml = ibClient.getSpecification(key.toString(), YawlEngineDAO.this.sessionHandle);
+			e = XmlUtilities.getError(xml);
+			if (e == null) {
+				List l = YMarshal.unmarshalSpecifications(xml, "imported");
+				if (l != null && l.size() == 1) {
+					retval = (YSpecification) l.get(0);
+				}
+			} else {
+				throw e;
+			}
+			return retval;
+		}
+	} 
+
+	public class SaveCommand implements RemoteCommand {
+		public YSpecification object;
+		public SaveCommand(YSpecification object) {this.object = object;}
+		public Object execute() throws Exception {
+				String xml = YMarshal.marshal((YSpecification) object);
+				String returnXml = iaClient.uploadSpecification(xml, ((YSpecification) object).getID(), sessionHandle);
+				Exception e = XmlUtilities.getError(returnXml);
+				if (e != null) throw e;
+				else return null;
+		}
+	}
+
+	public class DeleteCommand implements RemoteCommand {
+		public String id;
+		public DeleteCommand(String id) {this.id = id;}
+		public Object execute() throws Exception {
+			String xml = iaClient.unloadSpecification(id, sessionHandle);
+				Exception e = XmlUtilities.getError(xml);
+				if (e != null) throw e;
+				else return null;
+		}
+	}
+
+	public class RetrieveByRestrictionCommand implements RemoteCommand {
+		public Class type;
+		public Restriction restriction;
+		public RetrieveByRestrictionCommand(Class type, Restriction restriction) {
+			this.type = type;
+			this.restriction = restriction;
+		}
+		public Object execute() throws Exception {
+			return ibClient.getSpecificationList(sessionHandle);
+		}
+	}
 }
