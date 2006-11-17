@@ -237,6 +237,7 @@
     <property name="swing-worker.jar" value="${editor.libs}/swing-worker.jar"/>
 	<property name="jgraphlayout.jar" value="${editor.libs}/jgraphlayout.jar"/>
 	<property name="jcalendar.jar" value="./build/nexusWorkflowEditor/lib/jcalendar-custom.jar"/>
+	<property name="spring.jar" value="${persist.libs}/spring.jar"/>
 
     <!--
     PDF Dependencies
@@ -1772,9 +1773,12 @@
     	        <pathelement location="${jgraph-5.4.jar}"/>
     	        <pathelement location="${jgraphaddons-1.0.5.jar}"/>
     	        <pathelement location="${jgraphlayout.jar}"/>
+                <pathelement location="${jms-1.1.jar}"/>
+                <pathelement location="${junit.jar}"/>
     	        <pathelement location="${log4j}"/>
     	        <pathelement location="${quartz.jar}"/>
     	        <pathelement location="${saxon.jar}"/>
+                <pathelement location="${spring.jar}"/>
     	        <pathelement location="${swing-worker.jar}"/>
     	        <pathelement location="${xerces.jar}"/>
     	        <pathelement location="${xsd.resources.jar}"/>
@@ -1782,11 +1786,6 @@
             	<pathelement location="output/${nexus.editor.app.name}.jar"/>
             </classpath>
         </java>
-        <!--
-        <java jar="output/${nexus.editor.app.name}.jar" fork="true">
-            <classpath refid="cp.editor"/>
-        </java>
-        -->
     </target>
 
     <target name="JavaForgeDeploy"
