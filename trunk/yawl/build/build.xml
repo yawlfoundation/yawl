@@ -886,7 +886,7 @@
         </copy>
         <copy todir="quartzService/WEB-INF/classes/">
             <fileset dir="${classes}"
-                includes="com/nexusbpm/scheduler/**/*.class"/>
+            	includes="**"/>
         </copy>
         <!-- prepare Web ARchive file -->
         <jar destfile="${output}/quartzService.war">

@@ -122,7 +122,7 @@ public class YAWLException extends Exception {
      */
 	static private ThreadLocal _logging = new ThreadLocal() {
 		protected synchronized Object initialValue() {
-			return Boolean.TRUE;
+			return Boolean.FALSE;
 		}
 	};
 	/**
