@@ -45,7 +45,6 @@ import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLMultipleInstanceTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 import au.edu.qut.yawl.editor.net.NetElementSummary;
@@ -75,7 +74,7 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 
 import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.unmarshal.YMetaData;
+import au.edu.qut.yawl.elements.YMetaData;
 
 public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
@@ -921,7 +920,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
       
       if (editorFlow.hasXorSplitAsSource() || editorFlow.hasOrSplitAsSource()) {
-        firstEngineFlow.setIsDefaultFlow(editorFlow.isDefaultFlow());
+        firstEngineFlow.setDefaultFlow(editorFlow.isDefaultFlow());
         if (editorFlow.hasOrSplitAsSource()) {
           firstEngineFlow.setXpathPredicate(editorFlow.getPredicate());
           // The Engine is quoting these

@@ -18,7 +18,7 @@ public class ResetNetAnalysisResultsParser extends AnalysisResultsParser {
     }
     
     try {
-      return ANALYSER.analyse(tempEngineFile, getOptionParameters());
+      return ANALYSER.analyse(tempEngineFile, getOptionParameters(),getParameterForYAWLReductionRules(),getParameterForResetReductionRules());
     } catch (Exception e) {
       e.printStackTrace();
       return null;
@@ -63,6 +63,18 @@ public class ResetNetAnalysisResultsParser extends AnalysisResultsParser {
     return "";
   }
 
+ private boolean getParameterForYAWLReductionRules() {
+    
+    return prefs.getBoolean(YAWLResetAnalyser.USE_YAWLREDUCTIONRULES_PREFERENCE, true);
+     
+ }
+ 
+ private boolean getParameterForResetReductionRules() {
+    
+    return prefs.getBoolean(YAWLResetAnalyser.USE_RESETREDUCTIONRULES_PREFERENCE, true);
+     
+ }
+  
   protected void parseRawResultsIntoList(List resultsList, String rawAnalysisXML) {
    parseResetNetAnalysisResultsIntoList(resultsList, rawAnalysisXML);
   }

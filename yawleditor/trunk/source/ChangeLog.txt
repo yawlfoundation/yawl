@@ -14,6 +14,11 @@ Version 1.4.4 (??/??/??) "Wiggles"
     reloading the specification ses the user unable to add a decorator for that flow.
   * Fixed a bug where right-clicking on the knee of a flow would see the pallet popup menu appear whenever the redrawn
     flow no longer lay underneath the mouse after knee removal.
+  * Upgraded the editor to use Engine 1.0-CR1. This includes switching the editor from using the
+    engine war to the standalone engine jar for getting the engine library it needs. This is to better
+    support the engine's installer including just the lite editor for distribution, but with full engine-enabled
+    functionality.
+  * Upgraded the editor to include a new type of analysis based on reset nets.
 
 Version 1.4.3 (25/08/2006) "Deltapoint"
   * There is now a new palette menu item allowing users to drag the visible window of a 

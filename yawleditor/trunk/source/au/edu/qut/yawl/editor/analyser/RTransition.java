@@ -24,6 +24,7 @@ package au.edu.qut.yawl.editor.analyser;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Iterator;
    
 public class RTransition extends RElement {
   private Set _removeSet = new HashSet();
@@ -33,11 +34,19 @@ public class RTransition extends RElement {
   }
 
   public void setRemoveSet(Set removeSet) {
-    _removeSet.addAll(removeSet);
+  	
+  	 _removeSet.addAll(removeSet);
+  	 //Add to populate _cancelledBySet.
+     Iterator removeSetIter = removeSet.iterator();
+     while (removeSetIter.hasNext()) {
+	    RElement element = (RElement) removeSetIter.next();
+	    element.addToCancelledBySet(this);
+     }      
   }
 
   public void setRemoveSet(RPlace p) {
     _removeSet.add(p);
+    p.addToCancelledBySet(this);
   }
 
   public Set getRemoveSet() {
@@ -47,6 +56,10 @@ public class RTransition extends RElement {
     return null;
   }
 
+  public void removeFromRemoveSet(RPlace p){
+  	_removeSet.remove(p);
+  }
+  
   public boolean isCancelTransition() {
     return _removeSet.size() > 0;
   }
