@@ -203,6 +203,8 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         deleteMenuItem = new JMenuItem();
         deleteMenuItem.setText("Delete");
         editMenu.add(deleteMenuItem);
+        
+        editMenu.add( new JSeparator() );
 
         preferencesMenuItem = new JMenuItem();
         preferencesMenuItem.setText("Preferences");
@@ -225,21 +227,28 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         });
 
         
-        
         /////////////////////////////
         // create the monitoring menu
         monitoringMenu = new JMenu();
         monitoringMenu.setText( "Monitoring" );
         monitoringMenu.setMnemonic( KeyEvent.VK_M );
         
-        instancesMenuItem = new JMenuItem();
+        instancesMenuItem = new JMenuItem( new AbstractAction() {
+        	public void actionPerformed( ActionEvent e ) {
+        		// TODO
+        	}
+        } );
         instancesMenuItem.setText( "View All Instances" );
         instancesMenuItem.setEnabled( false );
         monitoringMenu.add( instancesMenuItem );
         
         monitoringMenu.add( new JSeparator() );
         
-        scheduledEventsMenuItem = new JMenuItem();
+        scheduledEventsMenuItem = new JMenuItem( new AbstractAction() {
+        	public void actionPerformed( ActionEvent e ) {
+        		// TODO
+        	}
+        } );
         scheduledEventsMenuItem.setText( "Scheduled Events" );
         scheduledEventsMenuItem.setEnabled( false );
         monitoringMenu.add( scheduledEventsMenuItem );

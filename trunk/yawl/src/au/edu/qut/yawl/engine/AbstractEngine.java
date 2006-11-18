@@ -198,11 +198,9 @@ public abstract class AbstractEngine implements InterfaceADesign,
     		if (journalising) {
     			DAO mem = DAOFactory.getDAO( PersistenceType.SPRING );    		
     			context = new DataContext( mem );
-    			System.out.println("spring");
     		} else {
     			DAO mem = DAOFactory.getDAO( PersistenceType.MEMORY );    		
     			context = new DataContext( mem );    			
-    			System.out.println("memory");
     		}
     	}
     	return context;
