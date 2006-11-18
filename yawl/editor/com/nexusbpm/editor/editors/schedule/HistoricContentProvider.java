@@ -7,8 +7,9 @@
  */
 package com.nexusbpm.editor.editors.schedule;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -16,10 +17,14 @@ import javax.swing.DefaultListModel;
 import org.quartz.Scheduler;
 
 import com.nexusbpm.scheduler.QuartzEvent;
+import com.nexusbpm.scheduler.QuartzEventDataSource;
+import com.nexusbpm.scheduler.QuartzEventDataSourceFactory;
 
 public class HistoricContentProvider extends ScheduledContentProvider {
-	public HistoricContentProvider( Scheduler scheduler ) {
+	private QuartzEventDataSource history;
+	public HistoricContentProvider( Scheduler scheduler ) throws RemoteException, NotBoundException {
 		super( scheduler );
+		this.history = QuartzEventDataSourceFactory.getDataSource( false, true );
 	}
 	
 	@Override
@@ -35,87 +40,39 @@ public class HistoricContentProvider extends ScheduledContentProvider {
 		Date max = getMaxDate( date );
 		Date now = new Date();
 		
-		// TODO ask the cache for events between min and max times
-		List<QuartzEvent> events = new LinkedList<QuartzEvent>();
-		// add quartz events for testing
-		// TODO remove the following testing events
-		if( model.size() > 0 ) {
-			ScheduledContent content = (ScheduledContent) model.get( 0 );
-			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
-				events.add( new QuartzEvent(
-						content.getTrigger().getName(),
-						content.getScheduledFireTime(),
-						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
-						"12345",
-						QuartzEvent.State.COMPLETED.toString() ) );
-			}
-		}
-		if( model.size() > 1 ) {
-			ScheduledContent content = (ScheduledContent) model.get( 1 );
-			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
-				events.add( new QuartzEvent(
-						content.getTrigger().getName(),
-						content.getScheduledFireTime(),
-						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
-						"12345",
-						QuartzEvent.State.ERRORED.toString() ) );
-			}
-		}
-		if( model.size() > 2 ) {
-			ScheduledContent content = (ScheduledContent) model.get( 2 );
-			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
-				events.add( new QuartzEvent(
-						content.getTrigger().getName(),
-						content.getScheduledFireTime(),
-						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
-						"12345",
-						QuartzEvent.State.FIRED.toString() ) );
-			}
-		}
-		if( model.size() > 3 ) {
-			ScheduledContent content = (ScheduledContent) model.get( 3 );
-			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
-				events.add( new QuartzEvent(
-						content.getTrigger().getName(),
-						content.getScheduledFireTime(),
-						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
-						"12345",
-						QuartzEvent.State.MISFIRED.toString() ) );
-			}
-		}
-		if( model.size() > 4 ) {
-			ScheduledContent content = (ScheduledContent) model.get( 4 );
-			if( content.getScheduledFireTime() != null && content.getTrigger() != null ) {
-				events.add( new QuartzEvent(
-						content.getTrigger().getName(),
-						content.getScheduledFireTime(),
-						new Date( (long)( content.getScheduledFireTime().getTime() + 1000 * 60 * 60 * 2.25 ) ),
-						"12345",
-						QuartzEvent.State.UNKNOWN.toString() ) );
-			}
+		if( min.after( now ) ) {
+			return;
 		}
 		
-		// merge events
-		for( QuartzEvent event : events ) {
-			String name = event.getTriggerName();
-			Date scheduledAt = event.getScheduledFireTime();
-			boolean added = false;
-			for( int index = 0; !added && index < model.size(); index++ ) {
-				ScheduledContent content = (ScheduledContent) model.get( index );
-				if( content.getTrigger() != null && name.equals( content.getTrigger().getName() ) &&
-						scheduledAt.equals( content.getScheduledFireTime() ) ) {
-					content.setEvent( event );
-					added = true;
+		try {
+			// ask the cache for events between min and max times
+			List<QuartzEvent> events = history.getEventsBetween( min, max );
+			
+			// merge events
+			for( QuartzEvent event : events ) {
+				String name = event.getTriggerName();
+				Date scheduledAt = event.getScheduledFireTime();
+				boolean added = false;
+				for( int index = 0; !added && index < model.size(); index++ ) {
+					ScheduledContent content = (ScheduledContent) model.get( index );
+					if( content.getTrigger() != null && name.equals( content.getTrigger().getName() ) &&
+							scheduledAt.equals( content.getScheduledFireTime() ) ) {
+						content.setEvent( event );
+						added = true;
+					}
+					else if( content.getScheduledFireTime() != null &&
+							content.getScheduledFireTime().after( scheduledAt ) ) {
+						model.add( index, new ScheduledContent( event ) );
+						added = true;
+					}
 				}
-				else if( content.getScheduledFireTime() != null &&
-						content.getScheduledFireTime().after( scheduledAt ) ) {
-					model.add( index, new ScheduledContent( event ) );
-					added = true;
+				if( ! added ) {
+					model.addElement( new ScheduledContent( event ) );
 				}
 			}
-			if( ! added ) {
-				model.addElement( new ScheduledContent( event ) );
-			}
+		}
+		catch( RemoteException e ) {
+			
 		}
 		
 		// remove scheduled events from the past that never ran

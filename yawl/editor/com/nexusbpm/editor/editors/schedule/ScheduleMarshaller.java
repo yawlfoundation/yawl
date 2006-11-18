@@ -11,9 +11,6 @@ package com.nexusbpm.editor.editors.schedule;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 public class ScheduleMarshaller {
@@ -171,9 +168,7 @@ public class ScheduleMarshaller {
 			Object o = st.nextToken();
 			for (int i = 0; i < dialog.getDaysOfMonthModel().size(); i++) {
 				Object o2 = dialog.getDaysOfMonthModel().elementAt(i);
-//				System.out.println(o + " d " + dialog.getDaysOfMonthModel().elementAt(i));
 				if (o.equals(o2.toString())) {
-//					System.out.println(o + " d " + dialog.getDaysOfMonthModel().elementAt(i));
 					dialog.getDaysOfMonthList().addSelectionInterval(i, i);
 				}
 			}

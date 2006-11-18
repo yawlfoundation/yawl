@@ -16,10 +16,12 @@ import javax.swing.DefaultListModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.CronTrigger;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
+import com.nexusbpm.scheduler.CronTriggerEx;
 import com.nexusbpm.scheduler.TriggerEx;
 import com.toedter.calendar.CalendarContentProvider;
 
@@ -27,10 +29,10 @@ import com.toedter.calendar.CalendarContentProvider;
 public class ScheduledContentProvider implements CalendarContentProvider {
 	private static final Log LOG = LogFactory.getLog( ScheduledContentProvider.class );
 	
-	private Scheduler scheduler;
+	private TriggerCache cache;
 	
 	public ScheduledContentProvider( Scheduler scheduler ) {
-		this.scheduler = scheduler;
+		this.cache = new TriggerCache( scheduler );
 	}
 
 	public void setContent( Date date, DefaultListModel model ) {
@@ -38,17 +40,21 @@ public class ScheduledContentProvider implements CalendarContentProvider {
 		Date max = getMaxDate( date );
 		
 		try {
-			String[] triggerGroups = scheduler.getTriggerGroupNames();
+			String[] triggerGroups = cache.getTriggerGroupNames();
 			
 			model.clear();
 			
 			TreeSet<ScheduledContent> ts = new TreeSet<ScheduledContent>();
 			
 			for( int index = 0; index < triggerGroups.length; index++ ) {
-				String[] triggers = scheduler.getTriggerNames( triggerGroups[ index ] );
+				String[] triggers = cache.getTriggerNames( triggerGroups[ index ] );
 				
 				for( int trigger = 0; trigger < triggers.length; trigger++ ) {
-					Trigger t = scheduler.getTrigger( triggers[ trigger ], triggerGroups[ index ] );
+					Trigger t = cache.getTrigger( triggers[ trigger ], triggerGroups[ index ] );
+					
+					if( t instanceof CronTrigger && ! ( t instanceof TriggerEx ) ) {
+						t = new CronTriggerEx( t );
+					}
 					
 					if( t instanceof TriggerEx ) {
 						TriggerEx ex = (TriggerEx) t;

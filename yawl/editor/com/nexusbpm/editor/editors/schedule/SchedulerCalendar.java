@@ -40,6 +40,7 @@ import com.nexusbpm.editor.worker.Worker;
 import com.nexusbpm.scheduler.CronTriggerEx;
 import com.nexusbpm.scheduler.QuartzEvent;
 import com.nexusbpm.scheduler.StartYawlCaseJob;
+import com.toedter.calendar.CalendarContentProvider;
 import com.toedter.calendar.CalendarSelectionListener;
 import com.toedter.calendar.JCalendar;
 
@@ -61,6 +62,7 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
     	LOG.trace( "creating calendar" );
     	
     	System.setProperty( "org.quartz.properties", "quartz.client.properties" );
+    	System.setProperty( "java.rmi.server.useCodebaseOnly", "true" );
     	
     	return new SchedulerCalendar( StdSchedulerFactory.getDefaultScheduler() );
     }
@@ -83,8 +85,18 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
     	
     	this.scheduler = scheduler;
     	
+    	CalendarContentProvider contentProvider;
+    	
+    	try {
+			contentProvider = new HistoricContentProvider( scheduler );
+		}
+		catch( Exception e ) {
+			LOG.error( "Error opening history! Only showing schedule!", e );
+			contentProvider = new ScheduledContentProvider( scheduler );
+		}
+		
     	calendar = new JCalendar( null, null, true, false,
-    			new HistoricContentProvider( scheduler ), this, new SchedulerListCellRenderer() );
+    			contentProvider, this, new SchedulerListCellRenderer() );
     	
     	getContentPane().removeAll();
     	getContentPane().add( calendar );

@@ -81,10 +81,7 @@ public class RemoveNetElementCommand extends AbstractCommand {
             flows.add( flow );
         }
         
-        System.out.println( "removing element " + element );
-        
         for( YFlow flow : flows ) {
-            System.out.println( "removing flow for element:" + flow );
             RemoveFlowCommand c = new RemoveFlowCommand( context.getDataProxy( flow ) );
             c.perform();
             flowCommands.add( c );
