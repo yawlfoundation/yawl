@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<project name="Experimental Editor Build file" default="build-editor" basedir="..">
+
+	<property name="classes" value="classes"/>
+    <path id="source.dirs">
+		<pathelement location="editor"/>
+		<pathelement location="services"/>
+	</path>
+    <path id="classes.dir" location="${classes}"/>
+
+	<target name="clean">
+		<echo>Cleaning...</echo>
+		<delete dir="${classes}"/>
+	</target>
+
+	<target name="compile" depends="clean">
+		<echo>Compiling Nexus Editor...</echo>
+		<mkdir dir="${classes}"/>
+		<javac debug="true" destdir="${classes}">
+			<src>
+				<path refid="source.dirs"/>
+			</src>
+			<classpath>
+				<fileset dir="build/nexusWorkflowEditor/lib/" includes="*.jar"/>
+				<fileset dir="build/3rdParty/serviceLibs/" includes="**/*.jar"/>
+				<fileset dir="build/3rdParty/lib/">
+					<include name="jms-1.1.jar"/>
+					<include name="openjms*.jar"/>
+				</fileset>
+			</classpath>
+		</javac>
+		<copy todir="${classes}">
+			<fileset dir="editor">
+			    <exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+	</target>
+
+
+	<target name="build-editor" depends="compile">
+		<jar destfile="build/nexusWorkflowEditor/lib/NexusEditor.jar"
+        	manifest="build/nexusWorkflowEditor/MANIFEST.MF">
+			<fileset dir="classes">
+				<include name="**/*"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="run-editor">
+		<java classname="com.nexusbpm.editor.WorkflowEditor" fork="true">
+			<classpath>
+				<fileset dir="build/nexusWorkflowEditor/lib/" includes="**/*.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+
+</project>

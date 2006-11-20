@@ -4,7 +4,7 @@
 Name "Nexus Editor"
 # Defines
 !define REGKEY "SOFTWARE\$(^Name)"
-!define VERSION 1.0
+!define VERSION 1.0 CR 1
 !define COMPANY "Nexus"
 !define URL http://www.nexusworkflow.com
 
@@ -13,9 +13,9 @@ Name "Nexus Editor"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT HKLM
 !define MUI_STARTMENUPAGE_NODISABLE
-!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\Nexus Editor"
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\YAWL\Nexus Editor"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME StartMenuGroup
-!define MUI_STARTMENUPAGE_DEFAULT_FOLDER "Nexus Editor"
+!define MUI_STARTMENUPAGE_DEFAULT_FOLDER "YAWL\Nexus Editor"
 !define MUI_CUSTOMFUNCTION_GUIINIT CustomGUIInit
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall-blue.ico"
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
@@ -45,7 +45,7 @@ Var StartMenuGroup
 
 # Installer attributes
 OutFile setup.exe
-InstallDir "$PROGRAMFILES\Nexus Editor"
+InstallDir "$PROGRAMFILES\YAWL\Nexus Editor"
 CRCCheck on
 XPStyle on
 ShowInstDetails show
@@ -62,22 +62,20 @@ ShowUninstDetails show
 
 # Installer sections
 Section -Main SEC0000
-    SetOutPath $INSTDIR
-        SetOverwrite on
-        File /r ..\..\editor.properties
-    SetOutPath $INSTDIR\lib
-        SetOverwrite on
-        File /r ..\..\build\nexusWorkflowEditor\lib\*.jar
     SetOutPath $INSTDIR\examples
         SetOverwrite on
         File /r ..\..\exampleSpecs\xml\*.x*
-    SetOutPath $INSTDIR\classes
-        SetOverwrite on
-        File /r ..\..\build\classes\*
-        File /r ..\..\build\properties\*
     SetOutPath $INSTDIR\bin
         SetOverwrite on
-        File /r ..\..\build\nexusWorkflowEditor\bin\*.bat
+        File /r ..\..\build\nexusWorkflowEditor\bin\*
+    SetOutPath $INSTDIR\lib
+        SetOverwrite on
+        File /r ..\..\build\nexusWorkflowEditor\lib\*
+    SetOutPath $INSTDIR
+        SetOverwrite on
+        File /r ..\..\build\nexusWorkflowEditor\applicationContext.xml
+        File /r ..\..\build\nexusWorkflowEditor\*.properties
+        File /r ..\..\build\nexusWorkflowEditor\NexusEditor.exe
     WriteRegStr HKLM "${REGKEY}\Components" Main 1
 SectionEnd
 
@@ -85,8 +83,8 @@ Section -post SEC0001
     WriteRegStr HKLM "${REGKEY}" Path $INSTDIR
     WriteUninstaller $INSTDIR\uninstall.exe
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-    SetOutPath $SMPROGRAMS\$StartMenuGroup
-    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk" $INSTDIR\bin\start.bat
+    SetOutPath $INSTDIR
+    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk" "$INSTDIR\nexusEditor.exe"
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Uninstall $(^Name).lnk" $INSTDIR\uninstall.exe
     !insertmacro MUI_STARTMENU_WRITE_END
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayName "$(^Name)"
@@ -141,7 +139,7 @@ Function CustomGUIInit
     BgImage::SetBg /NOUNLOAD /GRADIENT "0 0 128 0 0 0"
     Pop $R1
     Strcmp $R1 success 0 error
-    File /oname=$PLUGINSDIR\bgimage.bmp "C:\WINDOWS\Coffee Bean.bmp"
+    File /oname=$PLUGINSDIR\bgimage.bmp "D:\workspace\yawl\build\nexusWorkflowEditor\NexusSplash.bmp"
     System::call "user32::GetSystemMetrics(i 0)i.R1"
     System::call "user32::GetSystemMetrics(i 1)i.R2"
     IntOp $R1 $R1 - 128
