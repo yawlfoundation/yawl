@@ -20,7 +20,6 @@ import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +55,6 @@ import org.jgraph.layout.SugiyamaLayoutAlgorithm;
 import org.jgraph.util.JGraphParallelEdgeRouter;
 import org.jgraph.util.JGraphUtilities;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.edu.qut.yawl.elements.ExtensionListContainer;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -65,11 +63,10 @@ import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
-import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
+import au.edu.qut.yawl.persistence.dao.YawlEngineDAO;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
-import au.edu.qut.yawl.unmarshal.YMarshal;
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CompoundCommand;
@@ -87,11 +84,8 @@ import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 import com.nexusbpm.editor.tree.SharedNode;
-import com.nexusbpm.editor.util.InterfaceA;
-import com.nexusbpm.editor.util.InterfaceB;
 import com.nexusbpm.editor.worker.CapselaWorker;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
-import com.nexusbpm.services.YawlClientConfigurationFactory;
 
 /**
  * A graph editor, usually contained in a tab within a flow editor.
@@ -1055,33 +1049,12 @@ public class GraphEditor extends JPanel
                 public void actionPerformed(ActionEvent e) {
                     try {
                         LOG.info("Run flow");
-                        
                         YSpecification spec = GraphEditor.this.getParentSpecification();
-                        
                         // TODO do we need to save the spec?
-                		String[] paths = { "YawlClientApplicationContext.xml" };
-                		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
-                    	YawlClientConfigurationFactory configFactory = (YawlClientConfigurationFactory) ctx.getBean("yawlClientConfigurationFactory");  
-
-                        InterfaceA_EnvironmentBasedClient client = InterfaceA.getClient(configFactory.getConfiguration().getServerUri());
-                        
-                        LOG.info( "unloading specification...\n" + client.unloadSpecification(
-                        		spec.getID(), InterfaceA.getConnectionHandle() ) );
-                        String str = YMarshal.marshal( spec );
-                        LOG.info( str );
-                        String response = client.uploadSpecification(
-                        		str, "asdf", InterfaceA.getConnectionHandle() );
-                        LOG.info( response );
-                        
-                        if( InterfaceA.successful( response ) ) {
-                        	InterfaceB_EnvironmentBasedClient clientB = InterfaceB.getClient(configFactory.getConfiguration().getServerUri());
-                        	
-                        	LOG.info( clientB.getSpecification( spec.getID(), InterfaceB.getConnectionHandle() ) );
-                        }
-                        else {
-                        	LOG.error( "Error uploading specification!\n" + response );
-                        }
-                        
+                        ApplicationContext ac = BootstrapConfiguration.getInstance().getApplicationContext();
+                        YawlEngineDAO dao = (YawlEngineDAO) ac.getBean("yawlEngineDao");
+                        dao.save(spec);
+                        dao.executeStatement(spec.getID(), "");
 //                        throw new RuntimeException("implement run");
 //            GlobalEventQueue.add(new CapselaWorker("Run Button Handler") {
 //              public void run() throws Throwable {

@@ -8,28 +8,21 @@
 
 package com.nexusbpm.editor.util;
 
-import java.io.FileInputStream;
-import java.io.Serializable;
 import java.util.Properties;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import au.edu.qut.yawl.events.JmsProvider;
-
-import junit.framework.TestCase;
-
-public class JmsClient extends TestCase {
+public class JmsClient  {
 
 	private Context context;
 
@@ -37,16 +30,31 @@ public class JmsClient extends TestCase {
 
 	private Session session;
 
+	private String namingProvider;
+	private String userName;
+	private String password;
+	private String homeDirectory;
+	private String queueName;
+	private MessageProducer sender;
+	
+	public MessageProducer getSender() {
+		return sender;
+	}
+
 	public void start() throws Exception {
-		super.setUp();
 		Properties p = new Properties();
-		p.load(new FileInputStream("editor.properties"));
+		p.setProperty("java.naming.provider.url", namingProvider);
+		p.setProperty("openjms.home",  homeDirectory);
+
 		context = new InitialContext(p);
 		ConnectionFactory factory = (ConnectionFactory) context
 				.lookup("ConnectionFactory");
 		connection = factory.createConnection();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		connection.start();
+		Destination dest = (Destination) context.lookup(queueName);
+
+		sender = session.createProducer(dest);
 	}
 
 	public void end() throws Exception {
@@ -65,17 +73,60 @@ public class JmsClient extends TestCase {
 			}
 		}
 	}
+	
+	
 
 	public void attachListener(MessageListener ml) {
 		try {
-			Destination dest = (Destination) context.lookup(context
-					.getEnvironment().get(JmsProvider.OPENJMS_YAWL_EVENTQUEUE)
-					.toString());
+			Destination dest = (Destination) context.lookup(queueName);
 			MessageConsumer receiver = session.createConsumer(dest);
 			receiver.setMessageListener(ml);
 		} catch (Exception e) {
 			e.printStackTrace();
-			fail(e.getMessage());
 		}
+	}
+
+	public String getNamingProvider() {
+		return namingProvider;
+	}
+
+	public void setNamingProvider(String namingProvider) {
+		this.namingProvider = namingProvider;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getHomeDirectory() {
+		return homeDirectory;
+	}
+
+	public void setHomeDirectory(String homeDirectory) {
+		this.homeDirectory = homeDirectory;
+	}
+
+	public String getQueueName() {
+		return queueName;
+	}
+
+	public void setQueueName(String queueName) {
+		this.queueName = queueName;
+	}
+
+	public Session getSession() {
+		return session;
 	}
 }

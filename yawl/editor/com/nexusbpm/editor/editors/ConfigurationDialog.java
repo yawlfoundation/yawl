@@ -17,6 +17,7 @@ import java.awt.SystemColor;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Properties;
 
 import javax.swing.BorderFactory;
 import javax.swing.InputVerifier;
@@ -33,9 +34,6 @@ import javax.swing.WindowConstants;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.nexusbpm.services.YawlClientConfiguration;
-import com.nexusbpm.services.YawlClientConfigurationFactory;
-
 public class ConfigurationDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
@@ -48,14 +46,14 @@ public class ConfigurationDialog extends JDialog {
 	JPanel buttons = null;
 	JPanel text = null;
 	private JPanel grid = null;
-	private YawlClientConfiguration config;
+	private Properties props;
 	private boolean shouldSave = false;
 	
-	public static boolean showConfigurationDialog(Frame owner, YawlClientConfiguration configuration) {
-		ConfigurationDialog cd = new ConfigurationDialog(owner, configuration);
-		cd.getServerUri().setText(configuration.getServerUri());
-		cd.getJmsUri().setText(configuration.getJmsUri());
-		cd.getQuartzUri().setText(configuration.getQuartzUri());
+	public static boolean showConfigurationDialog(Frame owner, Properties p) {
+		ConfigurationDialog cd = new ConfigurationDialog(owner, p);
+		cd.getServerUri().setText(p.getProperty(""));
+		cd.getJmsUri().setText(p.getProperty(""));
+		cd.getQuartzUri().setText(p.getProperty(""));
 		cd.setVisible(true);
 		cd.dispose();
 		return cd.shouldSave;
@@ -63,21 +61,21 @@ public class ConfigurationDialog extends JDialog {
 
 	public boolean isDirty() {
 		boolean dirty = false;
-		String newServerUri = getServerUri().getText();
-		String newJmsUri = getJmsUri().getText();
-		String newQuartzUri = getQuartzUri().getText();
-		String oldServerUri = config.getServerUri();
-		String oldJmsUri = config.getJmsUri();
-		String oldQuartzUri = config.getQuartzUri();
-			if (newServerUri != null && !newServerUri.equals(oldServerUri)) {
-				dirty = true;
-			}
-			if (newJmsUri != null && !newJmsUri.equals(oldJmsUri)) {
-				dirty = true;
-			}
-			if (newQuartzUri != null && !newQuartzUri.equals(oldQuartzUri)) {
-				dirty = true;
-			}
+//		String newServerUri = getServerUri().getText();
+//		String newJmsUri = getJmsUri().getText();
+//		String newQuartzUri = getQuartzUri().getText();
+//		String oldServerUri = config.getServerUri();
+//		String oldJmsUri = config.getJmsUri();
+//		String oldQuartzUri = config.getQuartzUri();
+//			if (newServerUri != null && !newServerUri.equals(oldServerUri)) {
+//				dirty = true;
+//			}
+//			if (newJmsUri != null && !newJmsUri.equals(oldJmsUri)) {
+//				dirty = true;
+//			}
+//			if (newQuartzUri != null && !newQuartzUri.equals(oldQuartzUri)) {
+//				dirty = true;
+//			}
 		return dirty;
 	}
 	
@@ -85,9 +83,9 @@ public class ConfigurationDialog extends JDialog {
 	/**
 	 * @param owner
 	 */
-	private ConfigurationDialog(Frame owner, YawlClientConfiguration config) {
+	private ConfigurationDialog(Frame owner, Properties props) {
 		super(owner);
-		this.config = config;
+		this.props = props;
 		initialize();
 	}
 
@@ -289,9 +287,9 @@ public class ConfigurationDialog extends JDialog {
 	}
 
 	public void updateConfiguration() {
-		config.setServerUri(getServerUri().getText());
-		config.setJmsUri(getJmsUri().getText());
-		config.setQuartzUri(getQuartzUri().getText());
+//		config.setServerUri(getServerUri().getText());
+//		config.setJmsUri(getJmsUri().getText());
+//		config.setQuartzUri(getQuartzUri().getText());
 	}
 	
 	/**
@@ -384,17 +382,14 @@ public class ConfigurationDialog extends JDialog {
 	private String fileName;
 	
 	public static void main(String[] args) {
-		String[] paths = { "YawlClientApplicationContext.xml" };
-		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
-    	YawlClientConfigurationFactory configFactory = (YawlClientConfigurationFactory) ctx.getBean("yawlClientConfigurationFactory");  
-        boolean shouldSave = ConfigurationDialog.showConfigurationDialog(null, configFactory.getConfiguration());
-        if (shouldSave) {
-        	try {
-				configFactory.saveConfiguration();
-			} catch (IOException e) {
-				JOptionPane.showMessageDialog(null, "Unable to save configuration due to " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			}
-        }
+//        boolean shouldSave = ConfigurationDialog.showConfigurationDialog(null, );
+//        if (shouldSave) {
+//        	try {
+//				configFactory.saveConfiguration();
+//			} catch (IOException e) {
+//				JOptionPane.showMessageDialog(null, "Unable to save configuration due to " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+//			}
+//        }
 	}
 
 	public String getFileName() {

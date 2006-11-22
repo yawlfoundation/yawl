@@ -9,12 +9,6 @@ package com.nexusbpm.editor.util;
 
 import java.io.IOException;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import com.nexusbpm.editor.PropertiesBasedYawlClientConfigurationFactory;
-import com.nexusbpm.services.YawlClientConfigurationFactory;
-
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.Interface_Client;
 

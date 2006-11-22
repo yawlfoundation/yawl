@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -55,6 +56,7 @@ import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CommandExecutor;
@@ -63,6 +65,7 @@ import com.nexusbpm.command.CreateNexusComponentCommand;
 import com.nexusbpm.command.CreateSpecificationCommand;
 import com.nexusbpm.command.CommandExecutor.CommandCompletionListener;
 import com.nexusbpm.command.CommandExecutor.ExecutionResult;
+import com.nexusbpm.editor.configuration.NexusClientConfiguration;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.editors.ComponentEditor;
@@ -76,9 +79,7 @@ import com.nexusbpm.editor.tree.STree;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 import com.nexusbpm.editor.util.JmsClient;
-import com.nexusbpm.scheduler.QuartzEventDao;
 import com.nexusbpm.services.NexusServiceInfo;
-import com.nexusbpm.services.YawlClientConfigurationFactory;
 
 /**
  *
@@ -96,7 +97,7 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 	private static CommandExecutor executor;
 	private static WorkflowEditor singleton = null;
     
-    private static final Log LOG = LogFactory.getLog( WorkflowEditor.class );
+	private static final Log LOG = LogFactory.getLog( WorkflowEditor.class );
     private JFrame _componentsFrame;
 	
     /**
@@ -107,7 +108,10 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         // can setup the singleton command executor
         WorkflowEditor.singleton = this;
 		PropertyConfigurator.configure( WorkflowEditor.class.getResource( "client.logging.properties" ) );
-    	initComponents();
+
+		BootstrapConfiguration.setInstance(NexusClientConfiguration.getInstance());
+
+		initComponents();
         
         this.pack();
     	this.setSize(DEFAULT_CLIENT_WIDTH,DEFAULT_CLIENT_HEIGHT);
@@ -212,13 +216,16 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 
         preferencesMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-        		String[] paths = { "YawlClientApplicationContext.xml" };
-        		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
-            	YawlClientConfigurationFactory configFactory = (YawlClientConfigurationFactory) ctx.getBean("yawlClientConfigurationFactory");  
-                boolean shouldSave = ConfigurationDialog.showConfigurationDialog(WorkflowEditor.this, configFactory.getConfiguration());
+
+            	NexusClientConfiguration config =  (NexusClientConfiguration) BootstrapConfiguration.getInstance();
+            	Properties p = null;
+				try {
+					p = config.getProperties();
+				} catch (IOException e1) {e1.printStackTrace();}
+            	boolean shouldSave = ConfigurationDialog.showConfigurationDialog(WorkflowEditor.this, p);
                 if (shouldSave) {
                 	try {
-                		configFactory.saveConfiguration();
+                		config.saveProperties();
 					} catch (IOException e) {
 						JOptionPane.showMessageDialog(null, "Unable to save configuration due to " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 					}
@@ -538,8 +545,7 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         this.setIconImage(ApplicationIcon.getIcon("NexusFrame.window_icon", ApplicationIcon.LARGE_SIZE).getImage());
         
         getContentPane().add(componentEditorSplitPane, BorderLayout.CENTER);
-        
-		JmsClient c = new JmsClient();
+        JmsClient c = (JmsClient) BootstrapConfiguration.getInstance().getApplicationContext().getBean("jmsClient");
 		try {
 			c.start();
 			c.attachListener(this);
