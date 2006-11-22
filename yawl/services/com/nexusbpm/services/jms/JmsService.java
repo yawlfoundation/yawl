@@ -8,9 +8,12 @@
 package com.nexusbpm.services.jms;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -40,6 +43,9 @@ public class JmsService extends HttpServlet {
 
 	protected static Configuration config;
 
+	private String configPath;
+	private String sqlPath;
+	
 	private static JmsServer server;
 
 	protected void createDatabase() throws InstantiationException,
@@ -56,8 +62,7 @@ public class JmsService extends HttpServlet {
 		Class.forName(driver).newInstance();
 		java.sql.Connection conn = DriverManager.getConnection(url, user,
 				passwd);
-		String setupDb = readStreamAsString(this.getServletContext()
-				.getResourceAsStream("/sql/create_hsql.sql"));
+		String setupDb = readStreamAsString(sqlPath);
 		PreparedStatement s = conn.prepareStatement(setupDb);
 		s.execute();
 	}
@@ -78,6 +83,8 @@ public class JmsService extends HttpServlet {
 	public void init(ServletConfig sc) throws ServletException {
 		super.init(sc);
 		System.out.println("starting JmsService init");
+		configPath = this.getServletContext().getRealPath("/openjms.xml");
+		sqlPath = this.getServletContext().getRealPath("/sql/create_hsql.sql");
 		try {
 			startServer();
 			System.out.println("JmsService init completed successfully");
@@ -101,8 +108,7 @@ public class JmsService extends HttpServlet {
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException,
 			MarshalException, ValidationException {
-		config = ConfigurationReader.read(this.getServletContext().getRealPath(
-				"/openjms.xml"));
+		config = ConfigurationReader.read(configPath);
 		if (config.getDatabaseConfiguration().getRdbmsDatabaseConfiguration()
 				.getUrl().startsWith("jdbc:hsqldb:mem:")) {
 			createDatabase();
@@ -142,8 +148,9 @@ public class JmsService extends HttpServlet {
 		}
 	}
 
-	private static String readStreamAsString(InputStream stream)
+	private static String readStreamAsString(String url)
 			throws java.io.IOException {
+		InputStream stream = new FileInputStream(url);
 		StringBuffer fileData = new StringBuffer(1000);
 		BufferedReader reader = new BufferedReader(
 				new InputStreamReader(stream));
@@ -156,6 +163,14 @@ public class JmsService extends HttpServlet {
 		}
 		reader.close();
 		return fileData.toString();
+	}
+
+	public void setConfigPath(String configPath) {
+		this.configPath = configPath;
+	}
+
+	public void setSqlPath(String sqlPath) {
+		this.sqlPath = sqlPath;
 	}
 
 }

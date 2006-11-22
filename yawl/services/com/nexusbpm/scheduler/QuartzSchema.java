@@ -17,23 +17,27 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+
 public class QuartzSchema {
 
-	public static void createIfMissing() throws ClassNotFoundException, SQLException,
+	private String driver;
+	private String url;
+	private String userName;
+	private String password;
+	private String scriptName;
+	
+	public void createIfMissing() throws ClassNotFoundException, SQLException,
 			IOException {
-		Class.forName(System.getProperty("org.quartz.dataSource.yawlDS.driver"));
-		Connection c = DriverManager.getConnection(System
-				.getProperty("org.quartz.dataSource.yawlDS.URL"), System
-				.getProperty("org.quartz.dataSource.yawlDS.user"), System
-				.getProperty("org.quartz.dataSource.yawlDS.password"));
+		Class.forName(driver);
+		Connection c = DriverManager.getConnection(url, userName, password);
 		String t = readStreamAsString(SchedulerService.class
-				.getResourceAsStream("scripts/"
-						+ System.getProperty("org.quartz.dataSource.yawlDS.runScript")));
-			Statement s = c.createStatement();
-			s.execute(t);
-			c.commit();
-			s.close();
-			c.close();
+				.getResourceAsStream("scripts/" + scriptName));
+		Statement s = c.createStatement();
+		s.execute(t);
+		c.commit();
+		s.close();
+		c.close();
 	}
 
 	public static void delete() {
@@ -54,6 +58,46 @@ public class QuartzSchema {
 		}
 		reader.close();
 		return fileData.toString();
+	}
+
+	public String getDriver() {
+		return driver;
+	}
+
+	public void setDriver(String driver) {
+		this.driver = driver;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getScriptName() {
+		return scriptName;
+	}
+
+	public void setScriptName(String scriptName) {
+		this.scriptName = scriptName;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String user) {
+		this.userName = user;
 	}
 
 }

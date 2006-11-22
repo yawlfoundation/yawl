@@ -11,13 +11,19 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class QuartzEventDataSourceFactory {
 
-	public static QuartzEventDataSource getDataSource(boolean isLocal, boolean isCached) throws RemoteException, NotBoundException {
+	public String rmiHost;
+	public String rmiPort;
+	public String registeredName;
+	public QuartzEventDao localDao;
+	
+	public QuartzEventDataSource getDataSource(boolean isLocal, boolean isCached) throws RemoteException, NotBoundException {
 		QuartzEventDataSource source = getDataSource(isLocal);
 		if (isCached) {
 			source = new CachedQuartzEventDataSource(source);
@@ -25,20 +31,61 @@ public class QuartzEventDataSourceFactory {
 		return source;
 	}
 	
-	public static QuartzEventDataSource getDataSource(boolean isLocal) throws RemoteException, NotBoundException{
+	public QuartzEventDataSource getDataSource(boolean isLocal) throws RemoteException, NotBoundException{
 		QuartzEventDataSource source;
 		if (isLocal) {
-			String path = System.getProperty("org.quartz.plugin.yawlevent.appContextUrl");
-			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] {path});
-			QuartzEventDao dao = (QuartzEventDao) ctx.getBean("quartzDao");
-			source = new QuartzEventDataSourceImpl(dao);
+			source = new QuartzEventDataSourceImpl(localDao);
 		} else {
-			String host = System.getProperty("org.quartz.scheduler.rmi.registryHost", "localhost");
-			int port = Integer.parseInt(System.getProperty("org.quartz.scheduler.rmi.registryPort", "1098"));
-			Registry registry = LocateRegistry.getRegistry(host, port);
-			source = (QuartzEventDataSource) registry.lookup("QuartzEventDataSource");
+			Registry registry = LocateRegistry.getRegistry(rmiHost, Integer.parseInt(rmiPort));
+			for (int i = 0; i < registry.list().length; i++) {
+				System.out.println(registry.list()[i]);
+			}
+			source = (QuartzEventDataSource) registry.lookup(registeredName);
 		}
 		return source;
+	}
+	
+	public void registerDataSource() throws RemoteException {
+		try {
+			LocateRegistry.createRegistry(Integer.parseInt(rmiPort));
+		} catch (RemoteException e) {}//dont worry about it...
+		QuartzEventDataSource engine = new QuartzEventDataSourceImpl(localDao);
+        QuartzEventDataSource stub =
+            (QuartzEventDataSource) UnicastRemoteObject.exportObject(engine, 0);
+        Registry registry = LocateRegistry.getRegistry(rmiHost, Integer.parseInt(rmiPort));
+        registry.rebind(registeredName, stub);
+	}
+
+	public String getRegisteredName() {
+		return registeredName;
+	}
+
+	public void setRegisteredName(String registryName) {
+		this.registeredName = registryName;
+	}
+
+	public String getRmiHost() {
+		return rmiHost;
+	}
+
+	public void setRmiHost(String rmiUri) {
+		this.rmiHost = rmiUri;
+	}
+
+	public String getRmiPort() {
+		return rmiPort;
+	}
+
+	public void setRmiPort(String rmiPort) {
+		this.rmiPort = rmiPort;
+	}
+
+	public QuartzEventDao getLocalDao() {
+		return localDao;
+	}
+
+	public void setLocalDao(QuartzEventDao localDao) {
+		this.localDao = localDao;
 	}
 
 }
