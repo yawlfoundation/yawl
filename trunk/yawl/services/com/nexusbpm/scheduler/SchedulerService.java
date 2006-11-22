@@ -34,6 +34,8 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+
 public class SchedulerService extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -52,32 +54,20 @@ public class SchedulerService extends HttpServlet {
 	}
 
 	public void start() throws SchedulerException, IOException {
-
-		Properties p = new Properties();
-		InputStream inStream = this.getServletContext().getResourceAsStream("/quartz.server.properties");
-		p.load(inStream);
-		p.list(System.out);
-		System.getProperties().putAll(p);
+		ApplicationContext ac = BootstrapConfiguration.getInstance().getApplicationContext();
 		System.out.println("checking schema existence...");
 		try {
-			QuartzSchema.createIfMissing();
-		} catch (Exception e) {} 
-
-		scheduler = StdSchedulerFactory.getDefaultScheduler();
-
+			QuartzSchema schema = (QuartzSchema) ac.getBean("quartzSchema");
+			schema.createIfMissing();
+		} catch (Exception e) {
+			if (!(e instanceof SQLException)) {
+				e.printStackTrace();
+			}
+		} 
+		scheduler = ((StdSchedulerFactory) ac.getBean("schedulerFactory")).getDefaultScheduler();
         try {
-    		String[] paths = { p.getProperty("org.quartz.plugin.yawlevent.appContextUrl") };
-    		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
-    		QuartzEventDao dao = (QuartzEventDao) ctx.getBean("quartzDao");
-
-            String name = "QuartzEventDataSource";
-            QuartzEventDataSource engine = new QuartzEventDataSourceImpl(dao);
-            QuartzEventDataSource stub =
-                (QuartzEventDataSource) UnicastRemoteObject.exportObject(engine, 0);
-            String host = p.getProperty("org.quartz.scheduler.rmi.registryHost");
-            int port = Integer.parseInt(p.getProperty("org.quartz.scheduler.rmi.registryPort"));
-            Registry registry = LocateRegistry.getRegistry(host, port);
-            registry.rebind(name, stub);
+        	QuartzEventDataSourceFactory factory = (QuartzEventDataSourceFactory) ac.getBean("quartzEventDataSourceFactory");
+        	factory.registerDataSource();
             System.out.println("QuartzEventDataSource bound");
         } catch (Exception e) {
             System.err.println("QuartzEventDataSource exception:");
@@ -90,4 +80,7 @@ public class SchedulerService extends HttpServlet {
 				+ scheduler.getSchedulerInstanceId());
 	}
 
+	public Scheduler getScheduler() {
+		return scheduler;
+	}
 }

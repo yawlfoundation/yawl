@@ -9,6 +9,8 @@
 package com.nexusbpm.scheduler;
 
 import java.io.IOException;
+import java.sql.SQLException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
@@ -17,10 +19,13 @@ import org.quartz.JobExecutionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
+import au.edu.qut.yawl.persistence.dao.DAO;
+import au.edu.qut.yawl.persistence.dao.YawlEngineDAO;
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
 import com.nexusbpm.editor.util.InterfaceB;
-import com.nexusbpm.services.YawlClientConfigurationFactory;
 
 public class StartYawlCaseJob implements Job {
 	public static final String MAP_KEY_SPEC_ID = "specId";
@@ -37,19 +42,19 @@ public class StartYawlCaseJob implements Job {
 				MAP_KEY_SPEC_ID);
 		try {
 			// get the client to the engine
-    		String[] paths = { "YawlClientApplicationContext.xml" };
-    		ApplicationContext ctx = new ClassPathXmlApplicationContext(paths);
-        	YawlClientConfigurationFactory configFactory = (YawlClientConfigurationFactory) ctx.getBean("yawlClientConfigurationFactory");  
 
-			InterfaceB_EnvironmentBasedClient clientB = InterfaceB.getClient(configFactory.getConfiguration().getServerUri());
+			BootstrapConfiguration bc = BootstrapConfiguration.getInstance();
+        	YawlEngineDAO dao = (YawlEngineDAO) bc.getApplicationContext().getBean("yawlEngineDao"); 
+//			InterfaceB_EnvironmentBasedClient clientB = InterfaceB.getClient(configFactory.getConfiguration().getServerUri());
 
 			if (DEBUG) {
-				LOG.info(clientB.getSpecification(specID, InterfaceB
-						.getConnectionHandle()));
+				LOG.info(dao.retrieve(YSpecification.class, specID));
 			}
 			// launch the case
-			result = clientB.launchCase(specID, "", InterfaceB
-					.getConnectionHandle());
+			Object resultObject = dao.executeStatement(specID, "");
+			if (resultObject != null) {
+				result = resultObject.toString();
+			}
 
 			// try to convert the result into a number. If the case was launched
 			// it will
@@ -57,16 +62,22 @@ public class StartYawlCaseJob implements Job {
 			// fail
 			Long.parseLong(result);
 			context.setResult(result);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new JobExecutionException(
-					"Error starting case for specification '" + specID + "'",
-					e, false);
-		} catch (NumberFormatException e) {
+			if (result == null) {
+				JobExecutionException e = new JobExecutionException(
+					"Error starting case for specification '" + specID + "'");
+				e.printStackTrace();
+				throw e; 
+			}			
+		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new JobExecutionException(
 					"Error starting case for specification '" + specID + "'\n"
-							+ result);
-		}
+							+ result, e, false);
+	} catch (NumberFormatException e) {
+		e.printStackTrace();
+		throw new JobExecutionException(
+				"Error starting case for specification '" + specID + "'\n"
+						+ result);
+	}
 	}
 }
