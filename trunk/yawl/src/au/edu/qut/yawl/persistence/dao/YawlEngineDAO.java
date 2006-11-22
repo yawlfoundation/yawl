@@ -1,33 +1,17 @@
 package au.edu.qut.yawl.persistence.dao;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Constructor;
-import java.net.ConnectException;
-import java.net.URLDecoder;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
-
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
-import au.edu.qut.yawl.engine.interfce.Interface_Client;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 import au.edu.qut.yawl.unmarshal.YMarshal;
@@ -38,9 +22,9 @@ public class YawlEngineDAO implements DAO {
 	private InterfaceA_EnvironmentBasedClient iaClient;
 	private InterfaceB_EnvironmentBasedClient ibClient;
 	private String sessionHandle;
-	private String engineUri = "http://localhost:8080/yawl";
-	private String user = "admin";
-	private String password = "YAWL";
+	private String engineUri;
+	private String userName;
+	private String password;
 	private boolean configurationDirty = true;
 	
 	protected synchronized void resetConnection() throws IOException {
@@ -48,7 +32,7 @@ public class YawlEngineDAO implements DAO {
 				engineUri + "/ia");
 		ibClient = new InterfaceB_EnvironmentBasedClient(
 				engineUri + "/ib");
-		sessionHandle = iaClient.connect(user, password);
+		sessionHandle = iaClient.connect(userName, password);
 		configurationDirty = false;
 	}
 	
@@ -125,14 +109,23 @@ public class YawlEngineDAO implements DAO {
 		}
 	}
 	
-	//this is a very rough prototype of the connection logic eventually to be shared by the entire engine dao.	
 	public Object retrieve(Class type, Object key) {
-			try {
-				return execute(new RetrieveCommand(key.toString()));
-			} catch (Exception e) {
-				return null;
-			}
-	}
+		try {
+			return execute(new RetrieveCommand(key.toString()));
+		} catch (Exception e) {
+			return null;
+		}
+}
+
+	public Object executeStatement(String query, String params) throws SQLException{
+		try {
+			return execute(new ExecuteStatementCommand(query, params));
+		} catch (Exception e) {
+			SQLException s = new SQLException(e.getMessage());
+			s.initCause(e);
+			throw s;
+		}
+}
 
 	public List retrieveByRestriction(Class type, Restriction restriction) {
 		try {
@@ -173,13 +166,13 @@ public class YawlEngineDAO implements DAO {
 		}
 	}
 
-	public String getUser() {
-		return user;
+	public String getUserName() {
+		return userName;
 	}
 
-	public void setUser(String user) {
-		this.user = user;
-		if (this.user == null || !this.user.equals(user)) {
+	public void setUserName(String user) {
+		this.userName = user;
+		if (this.userName == null || !this.userName.equals(user)) {
 			configurationDirty = true;
 		}
 	}
@@ -245,6 +238,21 @@ public class YawlEngineDAO implements DAO {
 		}
 		public Object execute() throws Exception {
 			return ibClient.getSpecificationList(sessionHandle);
+		}
+	}
+	
+	public class ExecuteStatementCommand implements RemoteCommand {
+		public String query;
+		public String params = "";
+		public ExecuteStatementCommand(String query, String params) {
+			this.query = query;
+			this.params = params;
+		}
+		public Object execute() throws Exception {
+			String xml = ibClient.launchCase(query, params, sessionHandle);
+				Exception e = XmlUtilities.getError(xml);
+				if (e != null) throw e;
+				else return xml;
 		}
 	}
 }
