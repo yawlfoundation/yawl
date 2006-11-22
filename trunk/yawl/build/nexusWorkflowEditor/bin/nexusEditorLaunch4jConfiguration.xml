@@ -30,6 +30,7 @@
     <cp>D:\workspace\yawl\build\nexusWorkflowEditor\lib\jms-1.1.jar</cp>
     <cp>D:\workspace\yawl\build\nexusWorkflowEditor\lib\jndi-1.2.1.jar</cp>
     <cp>D:\workspace\yawl\build\nexusWorkflowEditor\lib\junit.jar</cp>
+    <cp>D:\workspace\yawl\build\nexusWorkflowEditor\lib\l2fprod-common-sheet.jar</cp>
     <cp>D:\workspace\yawl\build\nexusWorkflowEditor\lib\log4j-1.2.11.jar</cp>
     <cp>D:\workspace\yawl\build\nexusWorkflowEditor\lib\openjms-0.7.7-alpha-3.jar</cp>
     <cp>D:\workspace\yawl\build\nexusWorkflowEditor\lib\openjms-common-0.7.7-alpha-3.jar</cp>
