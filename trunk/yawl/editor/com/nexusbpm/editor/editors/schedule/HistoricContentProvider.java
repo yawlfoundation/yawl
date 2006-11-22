@@ -24,7 +24,7 @@ public class HistoricContentProvider extends ScheduledContentProvider {
 	private QuartzEventDataSource history;
 	public HistoricContentProvider( Scheduler scheduler ) throws RemoteException, NotBoundException {
 		super( scheduler );
-		this.history = QuartzEventDataSourceFactory.getDataSource( false, true );
+		this.history = new QuartzEventDataSourceFactory().getDataSource( false, true );
 	}
 	
 	@Override
