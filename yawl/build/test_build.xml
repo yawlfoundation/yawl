@@ -29,7 +29,6 @@
     <property name="enumeratedClasses" value="./build/3rdParty/enumerated3rdPartyClasses"/>
     <property name="javadoc" value="javadoc"/>
     <property name="output" value="output"/>
-    <property name="pdf.libs" value="./build/3rdParty/pdflibs"/>
 	<property name="quartz.jar" value="${basic.libs}/quartz-1.5.2.jar"/>
 
 
@@ -44,7 +43,6 @@
     These are insterted from the Apache Build file.
     Some may have no relevance.
     -->
-    <property name="yawl.pdfforms.app.name" value="PDFforms"/>
     <property name="yawl.eng.app.name" value="yawl"/>
     <property name="yawl.worklist.app.name" value="worklist"/>
     <property name="yawl.webService.app.name" value="yawlWSInvoker"/>
@@ -198,13 +196,7 @@
     <property name="jgraphaddons-1.0.5.jar" value="${basic.libs}/jgraphaddons-1.0.5.jar"/>
     <property name="swing-worker.jar" value="${basic.libs}/swing-worker.jar"/>
 	<property name="jgraphlayout.jar" value="${basic.libs}/jgraphlayout.jar"/>
-
-    <!--
-    PDF Dependencies
-    -->
-    <property name="itext" value="${pdf.libs}/itext-1.4.jar"/>
-    <property name="bcprov" value="${pdf.libs}/bcprov-jdk14-130.jar"/>
-    <property name="fileupload" value="${pdf.libs}/commons-fileupload-1.0.jar"/>
+	<property name="l2fprod-common-sheet.jar" value="./build/nexusWorkflowEditor/lib/l2fprod-common-sheet.jar"/>
 
     <!--
     XFORM Dependencies
@@ -261,8 +253,9 @@
 	<pathelement location="${oro-2.0.8.jar}"/>
 	<pathelement location="${spice-jndikit-20050704.053804.jar}"/>
 	<pathelement location="${xerces-2.4.0.jar}"/>
-	<pathelement location="${xml-apis-1.0.b2.jar}"/>
-
+   	<pathelement location="${xml-apis-1.0.b2.jar}"/>
+   	<pathelement location="${l2fprod-common-sheet.jar}"/>
+    	
 
     	<fileset dir="${nexus.service.libs}/xfire">
     		<include name="*.jar"/>
@@ -353,6 +346,7 @@
         <pathelement location="${jgraphaddons-1.0.5.jar}"/>
     	<pathelement location="${jgraphlayout.jar}"/>
         <pathelement location="${swing-worker.jar}"/>
+        <pathelement location="${l2fprod-common-sheet.jar}"/>
     </path>
 
 
@@ -363,15 +357,6 @@
         <pathelement location="${mail.jar}"/>
     </path>
 
-
-    <!--
-    PDF Forms Classpath
-    -->
-    <path id="cp.pdfforms">
-        <pathelement location="${itext}"/>
-        <pathelement location="${bcprov}"/>
-        <pathelement location="${fileupload}"/>
-    </path>
     <!--
     Do the necessary copying all essential files
     -->
@@ -428,7 +413,6 @@
             <classpath refid="cp.wsif"/>
             <classpath refid="cp.xsd"/>
             <classpath refid="cp.persist"/>
-            <classpath refid="cp.pdfforms"/>
             <classpath refid="cp.editor"/>
             <classpath refid="cp.mail"/>
         </javac>
@@ -636,8 +620,6 @@
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao1"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
     	<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
-        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms"/>
-        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
@@ -688,15 +670,6 @@
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/forms">
             <fileset dir="${classes}/au/edu/qut/yawl/forms" includes="*.class"/>
         </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms">
-            <fileset dir="${classes}/au/edu/qut/yawl/PDFforms" includes="*.class"/>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature">
-            <fileset dir="${classes}/au/edu/qut/yawl/PDFforms/signature" includes="*.class"/>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/repository">
-            <fileset dir="${build.home}/PDFforms/repository"/>
-        </copy>
         <!-- start copying files into war directory -->
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state">
             <fileset dir="${classes}/au/edu/qut/yawl/elements/state"
@@ -717,9 +690,6 @@
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
             <fileset dir="${classes}/au/edu/qut/yawl/elements/data"
                 includes="YParameter.class YVariable.class"/>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib" >
-            <fileset dir="${pdf.libs}"/>
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
             <fileset dir="${basic.libs}" includes="jdom.jar"/>
@@ -1567,7 +1537,6 @@
         build_admintool.war,
         build_yawlXForms.war,
         build_admintool.war,
-	build_PDFforms.war,
         build_workletService.war"
         description=
         "Builds a distribution version of all
@@ -1623,14 +1592,6 @@
         <antcall target="cleanup"/>
     </target>
 
-    <target name="deployPDFforms" depends="build_PDFforms.war">
-        <!-- Deploy Admin Tool -->
-        <copy todir="${env.CATALINA_HOME}/webapps">
-            <fileset file="${output}/${yawl.pdfforms.app.name}.war"/>
-        </copy>
-        <antcall target="cleanup"/>
-    </target>
-
     <target name="deployXForms" depends="build_yawlXForms.war">
         <!-- Deploy XForms -->
         <copy todir="${env.CATALINA_HOME}/webapps">
@@ -1657,7 +1618,6 @@
         deployTimeService,
         deployXForms,
         deployAdminTool,
-	deployPDFforms,
         deployWorkletService"
         description=
         "Deploys all of the web apps to Tomcat, and if tomcat is on it forces a reload.">
@@ -1683,7 +1643,6 @@
     	build_yawlXForms.war,
         build_TimeService.war,
         build_admintool.war,
-	build_PDFforms.war,
         build_workletService.war,
         javadoc">
     </target>
@@ -1755,102 +1714,5 @@
     </target>
 
 
-    <target name="build_PDFforms.war" depends="compile">
-        <!-- ======================================================================
-        Prepare YAWL PDF form WebApplication
-        -->
-        <mkdir dir="${yawl.pdfforms.app.name}/repository/"/>
-        <mkdir dir="${yawl.pdfforms.app.name}/secure/"/>
-        <mkdir dir="${yawl.pdfforms.app.name}/secure/certificates/"/>
-        <mkdir dir="${yawl.pdfforms.app.name}/secure/db/"/>
-        <mkdir dir="${yawl.pdfforms.app.name}/secure/genDir/"/>
-        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/lib"/>
-        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
-        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
-        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
-        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms"/>
-        <mkdir dir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature"/>
-        <!-- start copying files into war directory -->
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data">
-            <fileset
-                dir="${classes}/au/edu/qut/yawl/elements/data"
-                />
-        </copy>
-        <!-- start copying files into war directory -->
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
-            <fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
-        </copy>
-        <!-- start copying files into war directory -->
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
-            <fileset
-                dir="${classes}/au/edu/qut/yawl/unmarshal"
-                includes="YDecompositionParser.class"/>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
-            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
-            <fileset dir="${pdf.libs}"/>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
-            <fileset dir="${persist.libs}"/>
-        </copy>
-
-        <copy file="${property.files}/log4j.properties" todir="${yawl.pdfforms.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.pdfforms.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
-
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
-            <fileset
-                dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce/interfaceD_WorkItemExecution">
-            <fileset
-                dir="${classes}/au/edu/qut/yawl/engine/interfce/interfaceD_WorkItemExecution"/>
-        </copy>
-        <!-- copy all supportive jsps & graphis into webapp -->
-        <copy todir="${yawl.pdfforms.app.name}">
-            <fileset dir="${classes}/au/edu/qut/yawl/PDFforms">
-                <include name="*.jsp"/>
-            </fileset>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/graphics">
-            <fileset dir="${basedir}/graphics"/>
-        </copy>
-        <!-- copy all major support classes into webapp -->
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms">
-            <fileset dir="${classes}/au/edu/qut/yawl/PDFforms">
-                <include name="*.class"/>
-            </fileset>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/repository">
-            <fileset dir="${build.home}/PDFforms/repository"/>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature">
-            <fileset dir="${classes}/au/edu/qut/yawl/PDFforms/signature">
-                <include name="*.class"/>
-            </fileset>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
-            <fileset dir="${classes}/au/edu/qut/yawl/worklist/model"/>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
-            <fileset dir="${classes}/au/edu/qut/yawl/exceptions"/>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF">
-            <fileset file="${build.home}/${yawl.pdfforms.app.name}/web.xml"/>
-        </copy>
-        <!-- prepare Web Archive file -->
-        <jar destfile="${output}/${yawl.pdfforms.app.name}.war">
-            <fileset dir="${yawl.pdfforms.app.name}"/>
-        </jar>
-        <delete dir="${yawl.pdfforms.app.name}"/>
-    </target>
 
 </project>
