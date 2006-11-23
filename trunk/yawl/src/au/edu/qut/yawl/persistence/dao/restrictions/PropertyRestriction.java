@@ -25,6 +25,34 @@ public class PropertyRestriction implements Restriction {
 		GREATER_THAN_OR_EQUAL
 	};
 	
+	public static Comparison getComparison( String comparison ) {
+		if( Comparison.EQUAL.toString().equals( comparison ) ) {
+			return Comparison.EQUAL;
+		}
+		else if( Comparison.LIKE.toString().equals( comparison ) ) {
+			return Comparison.LIKE;
+		}
+		else if( Comparison.NOT_EQUAL.toString().equals( comparison ) ) {
+			return Comparison.NOT_EQUAL;
+		}
+		else if( Comparison.LESS_THAN.toString().equals( comparison ) ) {
+			return Comparison.LESS_THAN;
+		}
+		else if( Comparison.LESS_THAN_OR_EQUAL.toString().equals( comparison ) ) {
+			return Comparison.LESS_THAN_OR_EQUAL;
+		}
+		else if( Comparison.GREATER_THAN.toString().equals( comparison ) ) {
+			return Comparison.GREATER_THAN;
+		}
+		else if( Comparison.GREATER_THAN_OR_EQUAL.toString().equals( comparison ) ) {
+			return Comparison.GREATER_THAN_OR_EQUAL;
+		}
+		else {
+			throw new IllegalArgumentException(
+					"The string '" + comparison + "' is not a valid Comparison!" );
+		}
+	}
+	
 	private String propertyName;
 	private Comparison comparison;
 	private Object value;

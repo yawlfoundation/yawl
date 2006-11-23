@@ -34,12 +34,15 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionStringConverter;
+import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -172,6 +175,34 @@ public class EngineGatewayImpl implements EngineGateway {
         }
     }
 
+    /**
+     * Retrieves a set of specifications based on which ones fit the given restriction.
+     * @see au.edu.qut.yawl.persistence.dao.restrictions.Restriction
+     * @see au.edu.qut.yawl.persistence.dao.restrictions.RestrictionStringConverter
+     */
+    public String getSpecificationsByRestriction(String restriction, String sessionHandle) {
+    	try {
+            _userList.checkConnection(sessionHandle);
+        } catch (YAuthenticationException e) {
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
+        }
+        List<DataProxy> specs = AbstractEngine.getDataContext().retrieveByRestriction(
+        		YSpecification.class, RestrictionStringConverter.stringToRestriction( restriction ), null );
+        List<YSpecification> specList = new ArrayList<YSpecification>();
+        for( DataProxy proxy : specs ) {
+        	if( proxy.getData() instanceof YSpecification ) {
+        		specList.add( (YSpecification) proxy.getData() );
+        	}
+        }
+        try {
+            return YMarshal.marshal(specList);
+        } catch (Exception e) {
+            logger.error("Failed to marshal a specification into XML.", e);
+            return OPEN_FAILURE +
+            	formatException( e ) +
+            	CLOSE_FAILURE;
+        }
+    }
 
     /**
      *

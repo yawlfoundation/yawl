@@ -226,10 +226,6 @@ public class YawlEngineDAO implements DAO {
 	}
 
 	public class RetrieveByRestrictionCommand implements RemoteCommand {
-		/*
-		 * we need the restriction converter if we can get the engine to return
-		 * the specs based on it.
-		 */
 		public Class type;
 		public Restriction restriction;
 		public RetrieveByRestrictionCommand(Class type, Restriction restriction) {
@@ -237,7 +233,7 @@ public class YawlEngineDAO implements DAO {
 			this.restriction = restriction;
 		}
 		public Object execute() throws Exception {
-			return ibClient.getSpecificationList(sessionHandle);
+			return ibClient.getSpecificationsByRestriction(restriction, sessionHandle);
 		}
 	}
 	

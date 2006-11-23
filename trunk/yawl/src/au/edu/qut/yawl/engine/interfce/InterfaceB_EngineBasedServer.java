@@ -178,6 +178,9 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.getCaseState(caseID, sessionHandle));
                 } else if (action.equals("getChildren")) {
                     msg.append(_engine.getChildrenOfWorkItem(workItemID, sessionHandle));
+                } else if (action.equals("getSpecificationsByRestriction")) {
+                	String restriction = request.getParameter("restriction");
+                	msg.append(_engine.getSpecificationsByRestriction(restriction, sessionHandle));
                 } else {
                 	msg.append( "<failure>Unknown action:" + action + "</failure>" );
                 }
