@@ -82,6 +82,8 @@ public interface EngineGateway extends Remote {
     public String checkElegibilityToAddInstances(String workItemID, String sessionHandle) throws RemoteException;
 
     public String getSpecificationList(String sessionHandle) throws RemoteException;
+    
+    public String getSpecificationsByRestriction(String restriction, String sessionHandle) throws RemoteException;
 
     public String launchCase(String specID, String caseParams, URI completionObserverURI,String sessionHandle) throws RemoteException;
 

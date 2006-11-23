@@ -13,7 +13,7 @@ package au.edu.qut.yawl.persistence.dao.restrictions;
  * 
  * @author Nathan Rose
  */
-public class NegatedRestriction {
+public class NegatedRestriction implements Restriction {
 	private Restriction restriction;
 	
 	public NegatedRestriction( Restriction restriction ) {

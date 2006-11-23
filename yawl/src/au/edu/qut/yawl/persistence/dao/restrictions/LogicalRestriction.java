@@ -49,4 +49,25 @@ public class LogicalRestriction implements Restriction {
 	public void setRestriction2( Restriction restriction2 ) {
 		this.restriction2 = restriction2;
 	}
+	
+	public static Operation getOperation( String operation ) {
+		if( Operation.AND.toString().equals( operation ) ) {
+			return Operation.AND;
+		}
+		else if( Operation.OR.toString().equals( operation ) ) {
+			return Operation.OR;
+		}
+		else if( Operation.XOR.toString().equals( operation ) ) {
+			return Operation.XOR;
+		}
+		else if( Operation.NOR.toString().equals( operation ) ) {
+			return Operation.NOR;
+		}
+		else if( Operation.NAND.toString().equals( operation ) ) {
+			return Operation.NAND;
+		}
+		else {
+			throw new IllegalArgumentException( "Operation '" + operation + "' is not a legal operation!" );
+		}
+	}
 }

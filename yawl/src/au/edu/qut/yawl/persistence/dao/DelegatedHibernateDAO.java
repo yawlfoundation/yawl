@@ -24,7 +24,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.cfg.Environment;
 import org.hibernate.criterion.Restrictions;
 
 import au.edu.qut.yawl.elements.*;
@@ -241,7 +240,7 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 				catch( Exception ignore ) {			
 					LOG.error( ignore );
 				}
-				return null;
+				return new ArrayList<Type>();
 			}
 		}
 

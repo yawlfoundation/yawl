@@ -9,17 +9,26 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
-import au.edu.qut.yawl.worklist.model.Marshaller;
-import au.edu.qut.yawl.worklist.model.TaskInformation;
-import au.edu.qut.yawl.worklist.model.WorkItemRecord;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionStringConverter;
+import au.edu.qut.yawl.unmarshal.YMarshal;
+import au.edu.qut.yawl.util.XmlUtilities;
+import au.edu.qut.yawl.worklist.model.Marshaller;
+import au.edu.qut.yawl.worklist.model.TaskInformation;
+import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
 /**
  * 
@@ -112,6 +121,25 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         return specList;
     }
 
+    public List getSpecificationsByRestriction(Restriction restriction, String sessionHandle)
+    throws Exception {
+    	String result = null;
+    	
+    	Map params = new HashMap();
+    	params.put("action", "getSpecificationsByRestriction");
+    	params.put("restriction", RestrictionStringConverter.restrictionToString(restriction));
+    	params.put("sessionHandle", sessionHandle);
+    	result = executeGet(_backEndURIStr, params);
+    	
+    	Exception e = XmlUtilities.getError( result );
+    	
+    	if(e != null) {
+    		throw e;
+    	}
+    	
+    	return YMarshal.unmarshalSpecifications(
+    			stripOuterElement( result ), "InterfaceB.getSpecificationsByRestriction" );
+    }
 
     /**
      * Gets an XML representation of a workflow specification.

@@ -7,6 +7,8 @@
  */
 package au.edu.qut.yawl.persistence.dao.restrictions;
 
+import java.io.Serializable;
+
 /**
  * A Restriction is applied to the values in a DAO to determine which values should
  * be returned. Only those values which fit the restriction should be returned.
@@ -21,5 +23,5 @@ package au.edu.qut.yawl.persistence.dao.restrictions;
  * 
  * @author Nathan Rose
  */
-public interface Restriction {
+public interface Restriction extends Serializable {
 }
