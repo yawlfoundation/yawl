@@ -13,7 +13,11 @@
 		<delete dir="${classes}"/>
 	</target>
 
-	<target name="compile" depends="clean">
+	<target name="getEngineJar">
+		<ant antfile="build/build.engine.xml"/>
+		<copy todir="build/nexusWorkflowEditor/lib/" file="yawlEngine/lib/yawlEngine.jar"/>
+	</target>
+	<target name="compile" depends="clean, getEngineJar">
 		<echo>Compiling Nexus Editor...</echo>
 		<mkdir dir="${classes}"/>
 		<javac debug="true" destdir="${classes}">
@@ -39,7 +43,7 @@
 
 	<target name="build-editor" depends="compile">
 		<jar destfile="build/nexusWorkflowEditor/lib/NexusEditor.jar"
-        	manifest="build/nexusWorkflowEditor/MANIFEST.MF">
+        	manifest="build/nexusWorkflowEditor/setup/MANIFEST.MF">
 			<fileset dir="classes">
 				<include name="**/*"/>
 			</fileset>
