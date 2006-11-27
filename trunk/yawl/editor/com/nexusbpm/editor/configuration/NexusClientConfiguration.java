@@ -33,7 +33,9 @@ public class NexusClientConfiguration extends BootstrapConfiguration{
 	
 	public Properties getProperties() throws IOException{
 		UpdateablePropertiesFactoryBean b = (UpdateablePropertiesFactoryBean) applicationContext.getBean("propertyConfigurer");
-		return b.getProperties();
+		Properties p = b.getProperties();
+		if (p == null) p = new Properties();
+		return p;
 	}
 	
 	public void saveProperties() throws IOException{

@@ -58,6 +58,7 @@ import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
+import com.l2fprod.common.propertysheet.Property;
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CommandExecutor;
 import com.nexusbpm.command.CreateNetCommand;
@@ -65,11 +66,11 @@ import com.nexusbpm.command.CreateNexusComponentCommand;
 import com.nexusbpm.command.CreateSpecificationCommand;
 import com.nexusbpm.command.CommandExecutor.CommandCompletionListener;
 import com.nexusbpm.command.CommandExecutor.ExecutionResult;
+import com.nexusbpm.editor.configuration.ConfigurationDialog;
 import com.nexusbpm.editor.configuration.NexusClientConfiguration;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.desktop.DesktopPane;
 import com.nexusbpm.editor.editors.ComponentEditor;
-import com.nexusbpm.editor.editors.ConfigurationDialog;
 import com.nexusbpm.editor.editors.DataTransferEditor;
 import com.nexusbpm.editor.editors.schedule.SchedulerCalendar;
 import com.nexusbpm.editor.icon.ApplicationIcon;
@@ -222,12 +223,18 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 				try {
 					p = config.getProperties();
 				} catch (IOException e1) {e1.printStackTrace();}
-            	boolean shouldSave = ConfigurationDialog.showConfigurationDialog(WorkflowEditor.this, p);
+				ConfigurationDialog dialog = new ConfigurationDialog(WorkflowEditor.this, p);
+            	boolean shouldSave = dialog.ask();
                 if (shouldSave) {
-                	try {
-                		config.saveProperties();
-					} catch (IOException e) {
-						JOptionPane.showMessageDialog(null, "Unable to save configuration due to " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+        			Property[] pa = dialog.getProperties();
+        			for (Property prop: pa) {
+        				p.setProperty(prop.getName(), prop.getValue().toString());
+        				try {
+        					config.saveProperties();
+        					config.refresh();
+        				} catch (IOException e) {
+    						JOptionPane.showMessageDialog(null, "Unable to save configuration due to " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+        				}
 					}
                 }
             }
