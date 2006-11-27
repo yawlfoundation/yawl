@@ -30,7 +30,8 @@
     <property name="javadoc" value="javadoc"/>
     <property name="output" value="output"/>
 	<property name="quartz.jar" value="${basic.libs}/quartz-1.5.2.jar"/>
-
+	<property name="servlet.jar" value="${basic.libs}/servlet-api.jar"/>
+	
 
 
 
@@ -205,7 +206,7 @@
 
     <!-- Log4J Logging Library -->
     <property name="log4j" value="${basic.libs}/log4j-1.2.8.jar"/>
-	<property name="jcalendar.jar" value="${standAlone.libs}/jcalendar-custom.jar"/>
+	<property name="jcalendar.jar" value="./build/nexusWorkflowEditor/lib/jcalendar-custom.jar"/>
     <!-- ==================== Compilation Classpath =========================== -->
     <!--
       Rather than relying on the CLASSPATH environment variable, Ant includes
@@ -251,10 +252,12 @@
 	<pathelement location="${openjms-tools-0.7.7-alpha-3.jar}"/>
 	<pathelement location="${openjms-tunnel-0.7.7-alpha-3.war}"/>
 	<pathelement location="${oro-2.0.8.jar}"/>
+	<pathelement location="${servlet.jar}"/>
 	<pathelement location="${spice-jndikit-20050704.053804.jar}"/>
 	<pathelement location="${xerces-2.4.0.jar}"/>
    	<pathelement location="${xml-apis-1.0.b2.jar}"/>
    	<pathelement location="${l2fprod-common-sheet.jar}"/>
+    	
     	
 
     	<fileset dir="${nexus.service.libs}/xfire">
