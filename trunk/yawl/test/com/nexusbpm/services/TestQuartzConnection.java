@@ -8,46 +8,27 @@
 
 package com.nexusbpm.services;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Properties;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 
 import junit.framework.TestCase;
 
-import org.apache.jasper.servlet.JspCServletContext;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 import org.quartz.Scheduler;
-import org.quartz.SchedulerFactory;
 import org.quartz.SimpleTrigger;
-import org.quartz.impl.StdSchedulerFactory;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 import util.MockServletConfig;
-
 import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
-import com.nexusbpm.editor.configuration.NexusClientConfiguration;
 import com.nexusbpm.scheduler.QuartzEvent;
 import com.nexusbpm.scheduler.QuartzEventDataSource;
 import com.nexusbpm.scheduler.QuartzEventDataSourceFactory;
-import com.nexusbpm.scheduler.QuartzSchema;
 import com.nexusbpm.scheduler.SchedulerService;
 import com.nexusbpm.scheduler.StartYawlCaseJob;
 
@@ -132,9 +113,9 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 		BootstrapConfiguration bc = BootstrapConfiguration.getInstance();
 
 		Calendar c = new GregorianCalendar();
-		c.add(Calendar.DAY_OF_YEAR, -1);
+		c.add(Calendar.YEAR, -1);
 		Date startDate = c.getTime();
-		c.add(Calendar.DAY_OF_YEAR, +2);
+		c.add(Calendar.YEAR, +2);
 		Date endDate = c.getTime();
 
 		QuartzEventDataSourceFactory f = (QuartzEventDataSourceFactory) bc.getApplicationContext().getBean("quartzEventDataSourceFactory");
