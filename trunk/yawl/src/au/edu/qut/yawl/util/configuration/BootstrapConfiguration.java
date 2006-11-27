@@ -4,7 +4,7 @@ import org.springframework.context.ApplicationContext;
 
 public class BootstrapConfiguration {
 
-	private static BootstrapConfiguration instance = new BootstrapConfiguration(false);
+	protected static BootstrapConfiguration instance = new BootstrapConfiguration(false);
 	
     protected BootstrapConfiguration()  
     {  
