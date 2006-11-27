@@ -64,18 +64,16 @@ ShowUninstDetails show
 Section -Main SEC0000
     SetOutPath $INSTDIR\examples
         SetOverwrite on
-        File /r ..\..\exampleSpecs\xml\*.x*
+        File /r ..\..\..\exampleSpecs\xml\*.x*
     SetOutPath $INSTDIR\bin
         SetOverwrite on
-        File /r ..\..\build\nexusWorkflowEditor\bin\*
+        File /r ..\bin\*
     SetOutPath $INSTDIR\lib
         SetOverwrite on
-        File /r ..\..\build\nexusWorkflowEditor\lib\*
-    SetOutPath $INSTDIR
+        File /r ..\lib\*
+    SetOutPath $INSTDIR\properties
         SetOverwrite on
-        File /r ..\..\build\nexusWorkflowEditor\applicationContext.xml
-        File /r ..\..\build\nexusWorkflowEditor\*.properties
-        File /r ..\..\build\nexusWorkflowEditor\NexusEditor.exe
+        File /r ..\properties\*
     WriteRegStr HKLM "${REGKEY}\Components" Main 1
 SectionEnd
 
@@ -141,7 +139,7 @@ Function CustomGUIInit
     BgImage::SetBg /NOUNLOAD /GRADIENT "0 0 128 0 0 0"
     Pop $R1
     Strcmp $R1 success 0 error
-    File /oname=$PLUGINSDIR\bgimage.bmp "..\..\build\nexusWorkflowEditor\NexusSplash.bmp"
+    File /oname=$PLUGINSDIR\bgimage.bmp "NexusSplash.bmp"
     System::call "user32::GetSystemMetrics(i 0)i.R1"
     System::call "user32::GetSystemMetrics(i 1)i.R2"
     IntOp $R1 $R1 - 128
@@ -169,7 +167,7 @@ FunctionEnd
 Function .onInit
     InitPluginsDir
     Push $R1
-    File /oname=$PLUGINSDIR\spltmp.bmp "..\..\build\nexusWorkflowEditor\NexusSplash.bmp"
+    File /oname=$PLUGINSDIR\spltmp.bmp "NexusSplash.bmp"
     advsplash::show 1000 1000 1000 -1 $PLUGINSDIR\spltmp
     Pop $R1
     Pop $R1
