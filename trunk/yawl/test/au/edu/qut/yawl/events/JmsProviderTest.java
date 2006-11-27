@@ -26,6 +26,11 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+
+import com.nexusbpm.services.LocalClientConfiguration;
+import com.nexusbpm.services.jms.JmsService;
+
 import junit.framework.TestCase;
 
 public class JmsProviderTest extends TestCase {
@@ -36,6 +41,7 @@ public class JmsProviderTest extends TestCase {
 	private Session session;
 	private JmsProvider provider;
 	private int receiveCount;
+	private JmsService service;
 	private String getContextProperty(String name) throws NamingException {
 		return context.getEnvironment().get(name).toString();
 	}
@@ -48,6 +54,25 @@ public class JmsProviderTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
+
+		LocalClientConfiguration lc = new LocalClientConfiguration(
+				"/testresources/jmsClientApplicationContext.xml",
+				"/testresources/jms.client.properties"
+		);
+		BootstrapConfiguration.setInstance(lc);
+		BootstrapConfiguration bc = BootstrapConfiguration.getInstance();
+		
+		service = new JmsService();
+		String jmsPath = ClassLoader.getSystemResource("testresources/openjms.xml").getPath();
+		String sqlPath = ClassLoader.getSystemResource("testresources/create_hsql.sql").getPath();
+		System.out.println(jmsPath);
+		System.out.println(sqlPath);
+		service.setConfigPath(jmsPath);
+		service.setSqlPath(sqlPath);
+		try {
+			service.startServer();
+		} catch (Exception e) {e.printStackTrace();}		
+		
 		receiveCount = 0;
 		provider = JmsProvider.getInstance();
 		Properties p = new Properties();
@@ -87,11 +112,12 @@ public class JmsProviderTest extends TestCase {
 		JMSEventDispatcher ed = new JMSEventDispatcher();
 		receiveCount = 1;
 		try {
-		createMessageListener();
-		ed.fireEvent("testJMSEventDispatcher");
-		synchronized(lock) {lock.wait(10000);}
-		assertEquals(0, receiveCount);
+			createMessageListener();
+			ed.fireEvent("testJMSEventDispatcher");
+			synchronized(lock) {lock.wait(10000);}
+			assertEquals(0, receiveCount);
 		} catch (Exception e) {
+			e.printStackTrace();
 			fail(e.getMessage());
 		}
 	}
