@@ -323,13 +323,13 @@ public abstract class InterfaceBWebsideController {
                     workitem.getSpecificationID(),
                     workitem.getTaskID(), sessionHandle);
             List outputParams = taskInfo.getParamSchema().getOutputParams();
-	    System.out.println(mergedlOutputData);
+
             filteredOutputData = Marshaller.filterDataAgainstOutputParams(
                     mergedlOutputData, outputParams);
         } else {
             filteredOutputData = mergedlOutputData;
         }
-        System.out.println( "filtered output data:" + filteredOutputData);
+
 
         String result = _interfaceBClient.checkInWorkItem(workItemID, filteredOutputData, sessionHandle);
         _model.removeRemotelyCachedWorkItem(workItemID);

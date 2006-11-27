@@ -135,8 +135,8 @@ startup="no">
 
 <shortcut
 name="Help"
-target="net"
-commandLine="yawlhelp.chm"
+target="&quot;$INSTALL_PATH\yawlhelp.chm&quot;"
+commandLine=""
 description="YAWL Help"
 iconFile="$INSTALL_PATH\graphics\help.ico"
 iconIndex="0"

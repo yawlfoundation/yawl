@@ -13,6 +13,7 @@ import au.edu.qut.yawl.worklist.model.SpecificationData;
 import au.edu.qut.yawl.worklist.model.WorklistController;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +30,20 @@ import java.io.PrintWriter;
  */
 public class SpecificationBrowser extends HttpServlet {
 
-
+    public void init() throws ServletException {
+        WorklistController controller = null;
+        ServletContext context = getServletContext();
+        controller = (WorklistController) context.getAttribute(
+                "au.edu.qut.yawl.worklist.model.WorklistController");
+        if (controller == null) {
+            controller = new WorklistController(Boolean.parseBoolean(context.getInitParameter("EnablePersistance")));
+            controller.setUpInterfaceBClient(context.getInitParameter("InterfaceB_BackEnd"));
+            controller.setUpInterfaceAClient(context.getInitParameter("InterfaceA_BackEnd"));
+            context.setAttribute("au.edu.qut.yawl.worklist.model.WorklistController", controller);                                   
+        }
+    }
+    
+    
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         WorklistController controller = null;
         ServletContext context = getServletContext();

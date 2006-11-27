@@ -3,7 +3,7 @@
  
 Name "Java Launcher"
 Caption "Java Launcher"
-Icon "Java Launcher.ico"
+Icon "nwlogo.ico"
 OutFile "Java Launcher.exe"
  
 SilentInstall silent

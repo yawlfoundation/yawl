@@ -42,7 +42,7 @@ public class WorkletGateway extends HttpServlet {
                  Library.setHomeDir(context.getRealPath("/"));
                  Library.setRepositoryDir(context.getInitParameter("Repository"));
 
-                 String persistStr = context.getInitParameter("EnablePersistence");
+                 String persistStr = context.getInitParameter("EnablePersistance");
                  Library.setPersist(persistStr.equalsIgnoreCase("TRUE"));
          
                  WorkletService.getInstance().completeInitialisation();

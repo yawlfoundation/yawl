@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <!-- General description of your web application -->
+    <display-name>YAWL Worklist Client</display-name>
+    <description>
+        This is the YAWL Worklist Interface.   It performs the presentation and interaction
+        with the YAWL Workflow engine.
+        Author: Lachlan Aldred
+        Date: 28/1/2004
+        Time: 15:44:01
+    </description>
+
+    <!-- Context initialization parameters that define shared
+         String constants used within your application
+    -->
+    <context-param>
+        <param-name>YAWLAdmin</param-name>
+        <param-value>you@yourDomain.com.au</param-value>
+        <description>
+            The EMAIL address of the administrator to whom questions
+            and comments about YAWL Administration should be addressed.
+        </description>
+    </context-param>
+
+
+    <context-param>
+        <param-name>InterfaceB_BackEnd</param-name>
+        <param-value>http://localhost:8080/yawl/ib</param-value>
+        <description>
+            The URL location of the REST-ful interface B.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>InterfaceA_BackEnd</param-name>
+        <param-value>http://localhost:8080/yawl/ia</param-value>
+        <description>
+            The URL location of the REST-ful interface A.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>YAWLXForms</param-name>
+        <param-value>http://localhost:8080/yawlXForms</param-value>
+        <description>
+            The URL location of YAWLXForms (Chiba). Set to "localhost" by default.
+        </description>
+    </context-param>
+
+    <!-- This param, when available, enables the worklet exception service add-ins
+         to the worklist. If the exception service is enabled in the engine, then this
+         param should also be made available. If it is disabled in the engine, the
+         entire param should be commented out. -->
+    <!--
+    <context-param>
+        <param-name>InterfaceX_BackEnd</param-name>
+        <param-value>http://localhost:8080/workletService</param-value>
+        <description>
+            The URL location of the worklet exception service.
+        </description>
+    </context-param>
+    -->
+    
+     <!-- Servlet definitions for the servlets that make up
+         your web application, including initialization
+         parameters.
+    -->
+    <servlet>
+        <servlet-name>LoginJSP</servlet-name>
+        <description>
+            Performs the necessary functionality of supporting logging-in.
+        </description>
+        <jsp-file>/_Login.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>AvailableWorkJSP</servlet-name>
+        <description>
+            Presents to the user the available work items elebible to be checked-out.
+        </description>
+        <jsp-file>/_AvailableWork.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>CheckedOutWorkJSP</servlet-name>
+        <description>
+            Presents to the user the available work items elebible to be checked-out.
+        </description>
+        <jsp-file>/_CheckedOutWork.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>LogoutJSP</servlet-name>
+        <description>
+            Logs the user out.
+        </description>
+        <jsp-file>/_Logout.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ItemViewerJSP</servlet-name>
+        <description>
+            Allows the user to view and edit work items.
+        </description>
+        <jsp-file>/_ItemViewer.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>YAWLFormServlet</servlet-name>
+        <description>
+            Provides a place for xml instance submission for a task from a Chiba form.
+        </description>
+        <servlet-class>au.edu.qut.yawl.forms.YAWLFormServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ItemProcessorJSP</servlet-name>
+        <description>
+            Processes submitted work item edits.
+        </description>
+        <jsp-file>/_WorkItemProcessor.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>InstanceAdderJSP</servlet-name>
+        <description>
+            Adds new Instances to an eligible multi Instance Task.
+        </description>
+        <jsp-file>/_InstanceAdder.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ViewSpecificationsJSP</servlet-name>
+        <description>
+            Allows users to view specifications.
+        </description>
+        <jsp-file>/_ViewSpecifications.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>SpecBrowserServlet</servlet-name>
+        <description>
+            Allows users to view a spec as xml.
+        </description>
+        <servlet-class>au.edu.qut.yawl.worklist.SpecificationBrowser</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>LaunchCaseJSP</servlet-name>
+        <description>
+            Allows users to launch cases via Interface B.
+        </description>
+        <jsp-file>/_LaunchCase.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>CaseViewerJSP</servlet-name>
+        <description>
+            Allows users to view/modify cases.
+        </description>
+        <jsp-file>/_CaseViewer.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>AdministrateJSP</servlet-name>
+        <description>
+            Allows users to administrate YAWL.
+        </description>
+        <jsp-file>/_Administrate.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>UploadJSP</servlet-name>
+        <description>
+            Allows users to upload YAWL.
+        </description>
+        <jsp-file>/_Upload.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ProcessAdminJSP</servlet-name>
+        <description>
+            Processes requests from the AdministrateJSP.
+        </description>
+        <jsp-file>/_ProcessAdmin.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>SchemaValidationJSP</servlet-name>
+        <description>
+            Allows for schema validation.
+        </description>
+        <jsp-file>/_SchemaValidationPage.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+
+    <!-- Define mappings that are used by the servlet container to
+         translate a particular request URI (context-relative) to a
+         particular servlet.
+    -->
+    <servlet-mapping>
+        <servlet-name>LoginJSP</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>LogoutJSP</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+
+<!-- GUY ADDED THIS -->
+    <servlet-mapping>
+        <servlet-name>YAWLFormServlet</servlet-name>
+        <url-pattern>/yawlFormServlet</url-pattern>
+    </servlet-mapping>
+<!-- ============== -->
+
+    <servlet-mapping>
+        <servlet-name>AvailableWorkJSP</servlet-name>
+        <url-pattern>/availableWork</url-pattern>
+    </servlet-mapping>
+
+     <servlet-mapping>
+        <servlet-name>CheckedOutWorkJSP</servlet-name>
+        <url-pattern>/checkedOut</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ItemViewerJSP</servlet-name>
+        <url-pattern>/itemViewer</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ItemProcessorJSP</servlet-name>
+        <url-pattern>/workItemProcessor</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>InstanceAdderJSP</servlet-name>
+        <url-pattern>/instanceAdder</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ViewSpecificationsJSP</servlet-name>
+        <url-pattern>/viewSpecifications</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>SpecBrowserServlet</servlet-name>
+        <url-pattern>/specBrowser</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>LaunchCaseJSP</servlet-name>
+        <url-pattern>/launchCase</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>CaseViewerJSP</servlet-name>
+        <url-pattern>/caseViewer</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>AdministrateJSP</servlet-name>
+        <url-pattern>/admin</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>UploadJSP</servlet-name>
+        <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ProcessAdminJSP</servlet-name>
+        <url-pattern>/processAdmin</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>SchemaValidationJSP</servlet-name>
+        <url-pattern>/validationProblem</url-pattern>
+    </servlet-mapping>
+
+	<servlet>
+	  <servlet-name>PDFhandler</servlet-name>
+	  <servlet-class>au.edu.qut.yawl.PDFforms.PDFHandler</servlet-class>
+	  <load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+	  <servlet-name>PDFhandler</servlet-name>
+	  <url-pattern>/handler</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+	  <servlet-name>CreateSignature</servlet-name>
+	  <servlet-class>au.edu.qut.yawl.PDFforms.signature.SignatureProvider</servlet-class>
+	  <load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+	  <servlet-name>CreateSignature</servlet-name>
+	  <url-pattern>/createid</url-pattern>
+	</servlet-mapping>
+
+    <session-config>
+        <session-timeout>30</session-timeout><!-- 30 minutes -->
+    </session-config>
+
+    <!--
+        Define welcome file list.
+    -->
+    <welcome-file-list>
+        <welcome-file>_Login.jsp</welcome-file>
+    </welcome-file-list>
+
+</web-app>

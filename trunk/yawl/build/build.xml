@@ -232,6 +232,8 @@
 	<property name="jgraphlayout.jar" value="${editor.libs}/jgraphlayout.jar"/>
 	<property name="jcalendar.jar" value="./build/nexusWorkflowEditor/lib/jcalendar-custom.jar"/>
 	<property name="spring.jar" value="${persist.libs}/spring.jar"/>
+	<property name="l2fprod" value="./build/nexusWorkflowEditor/lib/l2fprod-common-sheet.jar"/>
+    <property name="jasper" value="${env.CATALINA_HOME}/common/lib/jasper-compiler.jar"/>
 
     <!--
     XFORM Dependencies
@@ -372,6 +374,9 @@
     Editor Classpath
     -->
     <path id="cp.editor">
+
+        <pathelement location="${jasper}"/>
+        <pathelement location="${l2fprod}"/>
         <pathelement location="${cglib}"/>
         <pathelement location="${common.jar}"/>
         <pathelement location="${commonsCollections}"/>
@@ -492,7 +497,7 @@
     Compile all source
     Compiles main project source into ${classes}.
     -->
-    <target name="compile" depends="init">
+    <target name="compile" >
 	<echo>Compiling YAWL...</echo>
 
         <javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
@@ -1895,6 +1900,7 @@
         </copy>
         <javac srcdir="${test}" destdir="${classes}">
             <classpath refid="cp.persist"/>
+            <classpath refid="cp.editor"/>
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>

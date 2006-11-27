@@ -10,11 +10,7 @@
         <appname>YAWL - Workflow System</appname>
         <appversion>1.0</appversion>
         <authors>
-            <author name="Arthur H.M. ter Hofstede" email="a.terhofstede@qut.edu.au"/>
-            <author name="Lachlan Aldred" email="l.aldred@qut.edu.au"/>
-            <author name="Lindsay Bradford" email="l.bradford@qut.edu.au"/>
-            <author name="Tore Fjellheim" email="t.fjellheim@qut.edu.au"/>
-            <author name="Guy Redding" email="g.redding@qut.edu.au"/>
+            <author name="YAWL Foundation" email=" enquiry@yawlfoundation.org"/>
         </authors>
         <url>http://www.yawl-system.com/</url>
 	<webdir>http://localhost:8080/yawlpackages</webdir>
@@ -170,6 +166,9 @@ id="shortcutSpec.xml"/>
             <file src="worklist.war" targetdir="$INSTALL_PATH"/>
             <file src="graphics" targetdir="$INSTALL_PATH"/>
 
+            <file src="..\..\exampleSpecs\xml" targetdir="$INSTALL_PATH"/>
+
+
             <file src="adminTool.war" targetdir="$INSTALL_PATH"/>
             <file src="EmailSenderService.war" targetdir="$INSTALL_PATH"/>
             <file src="JythonService.war" targetdir="$INSTALL_PATH"/>
@@ -179,6 +178,9 @@ id="shortcutSpec.xml"/>
             <file src="workletService.war" targetdir="$INSTALL_PATH"/>
             <file src="yawlSMSInvoker.war" targetdir="$INSTALL_PATH"/>
             <file src="yawlWSInvoker.war" targetdir="$INSTALL_PATH"/>
+
+            <file src="YAWLBeta7.1.jar" targetdir="$INSTALL_PATH"/>
+            <file src="yawlhelp.chm" targetdir="$INSTALL_PATH"/>
 
 
 	    <singlefile src="..\properties\applicationContextInstaller.xml" target="$INSTALL_PATH\applicationContext.xml"/>

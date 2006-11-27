@@ -76,14 +76,19 @@ public class EngineFactory {
 				 * */
 
 				transactionalengine = (YEngineInterface) application_context.getBean("EngineInterceptor2");
+				engine = transactionalengine.getYEngine();
 				//engine = transactionalengine.gffetYEngine();
 				transactionalengine.setJournalising(journalising);
 				transactionalengine.initialise();
-				engine = transactionalengine.getYEngine();
+
 
 			} 
-		} else {
-			engine = YEngine.createInstance(journalising);
+		} else {			
+			if (engine==null) {
+				engine = YEngine.createInstance(journalising);
+				engine.initialise();
+			}
+
 		}
 		return engine;
 	}
