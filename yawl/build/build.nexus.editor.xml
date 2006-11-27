@@ -47,9 +47,10 @@
 	</target>
 
 	<target name="run-editor">
-		<java classname="com.nexusbpm.editor.WorkflowEditor" fork="true">
+		<java classname="com.nexusbpm.editor.WorkflowEditor" fork="true" dir="build/nexusWorkflowEditor">
 			<classpath>
 				<fileset dir="build/nexusWorkflowEditor/lib/" includes="**/*.jar"/>
+				<pathelement location="build/nexusWorkflowEditor/"/>
 			</classpath>
 		</java>
 	</target>
