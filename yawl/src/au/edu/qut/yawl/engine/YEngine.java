@@ -28,6 +28,8 @@ import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
+import au.edu.qut.yawl.engine.interfce.InterfaceB_InternalEngineBasedClient;
 import au.edu.qut.yawl.engine.interfce.interfaceX.EngineExceptionLogger;
 import au.edu.qut.yawl.engine.interfce.interfaceX.ExceptionGateway;
 import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
@@ -526,6 +528,15 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
    		
     	restore();
 
+        /**
+         * Initialise the standard Observer Gateways.
+         */
+        ObserverGateway stdHttpObserverGateway = new InterfaceB_EngineBasedClient();
+        observerGatewayController.addGateway(stdHttpObserverGateway);  
+    	
+        ObserverGateway stdInternalObserverGateway = new InterfaceB_InternalEngineBasedClient();
+        observerGatewayController.addGateway(stdInternalObserverGateway);    
+    	
         _userList = UserList.getInstance();
         _workItemRepository = YWorkItemRepository.getInstance();
 
@@ -592,9 +603,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
              * TODO: One of these are reduntant and
              * should be removed
              * */
-            _myInstance.setJournalising(journalising);
-
-            _myInstance.initialise();                        
+            _myInstance.setJournalising(journalising);                    
             
         } 
         return _myInstance;

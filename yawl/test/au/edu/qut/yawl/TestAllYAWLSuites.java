@@ -25,7 +25,7 @@ import au.edu.qut.yawl.persistence.PersistenceTestSuite;
 import au.edu.qut.yawl.schema.SchemaTestSuite;
 import au.edu.qut.yawl.unmarshal.UnmarshallerTestSuite;
 import au.edu.qut.yawl.util.UtilTestSuite;
-
+import au.edu.qut.yawl.deployment.AutoDeploymentTestSuite;
 import au.edu.qut.yawl.exceptions.YAWLException;
 
 import com.nexusbpm.command.CommandTestSuite;
@@ -56,7 +56,7 @@ public class TestAllYAWLSuites extends TestSuite{
     	YAWLException.setLogging(false);
     	
         TestSuite suite = new TestSuite();
-//        suite.addTest(AdminToolTestSuite.suite());
+        //suite.addTest(AdminToolTestSuite.suite());
         suite.addTest(ElementsTestSuite.suite());
         suite.addTest(DataTestSuite.suite());
         suite.addTest(StateTestSuite.suite());
@@ -74,6 +74,7 @@ public class TestAllYAWLSuites extends TestSuite{
         suite.addTest(CommandTestSuite.suite());
         suite.addTest(NexusServiceTestSuite.suite());
         suite.addTest(OperationTestSuite.suite());
+        suite.addTest(AutoDeploymentTestSuite.suite());
         return suite;
     }
 

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="InternalTest.xml">
+    <metaData>
+      <creator>fjellhei</creator>
+      <description>No description has been given.</description>
+      <version>0.1</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="New_Net_1" isRootNet="true" xsi:type="NetFactsType">
+      <localVariable>
+        <name>nettest</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>100</initialValue>
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <flowsInto>
+            <nextElementRef id="a_3" />
+          </flowsInto>
+        </inputCondition>
+        <task id="a_3">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;test&gt;{/New_Net_1/nettest/text()}&lt;/test&gt;" />
+              <mapsTo>test</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="a" />
+        </task>
+        <outputCondition id="OutputCondition_2" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="a" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>test</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+    			<yawlService id="internal://au.edu.qut.yawl.deployment.InternalTestService">
+			</yawlService>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+

@@ -141,7 +141,7 @@ Function CustomGUIInit
     BgImage::SetBg /NOUNLOAD /GRADIENT "0 0 128 0 0 0"
     Pop $R1
     Strcmp $R1 success 0 error
-    File /oname=$PLUGINSDIR\bgimage.bmp "D:\workspace\yawl\build\nexusWorkflowEditor\NexusSplash.bmp"
+    File /oname=$PLUGINSDIR\bgimage.bmp "..\..\build\nexusWorkflowEditor\NexusSplash.bmp"
     System::call "user32::GetSystemMetrics(i 0)i.R1"
     System::call "user32::GetSystemMetrics(i 1)i.R2"
     IntOp $R1 $R1 - 128

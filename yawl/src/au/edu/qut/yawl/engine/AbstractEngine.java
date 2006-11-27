@@ -48,6 +48,7 @@ import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
+import au.edu.qut.yawl.engine.interfce.InterfaceB_InternalEngineBasedClient;
 import au.edu.qut.yawl.engine.interfce.interfaceX.ExceptionGateway;
 import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import au.edu.qut.yawl.events.YErrorEvent;
@@ -124,16 +125,14 @@ public abstract class AbstractEngine implements InterfaceADesign,
         
         observerGatewayController = new ObserverGatewayController();
 
-        /**
-         * Initialise the standard Observer Gateways.
-         *
-         * Currently the only standard gateway is the HTTP driven Servlet client.
-         */
-        ObserverGateway stdHttpObserverGateway = new InterfaceB_EngineBasedClient();
-        observerGatewayController.addGateway(stdHttpObserverGateway);     
+   
+
+
     }
     
     public void restore() throws YPersistenceException {
+     
+    	
         getDataContext();
         if (context!=null) {
         	

@@ -12,7 +12,7 @@
 
 <job name="Installing Postgres Database">
   <os family="windows" />
-  <executefile name="$INSTALL_PATH/checkuser.bat">
+  <executefile name="&quot;$INSTALL_PATH/checkuser.bat&quot;">
   </executefile>
   <executeForPack name="PostgreSQL Database"/>
  </job>

@@ -15,6 +15,7 @@
 	<property name="backup" value="backup"/>
 	<property name="thirdParty.home" value="${build.home}/thirdParty"/>
 	<property name="basic.libs" value="./build/3rdParty/lib"/>
+	<property name="editor.libs" value="./build/3rdParty/editor-libs"/>
 	<property name="wsif.libs" value="./build/3rdParty/wsif-lib"/>
 	<property name="xsd.libs" value="./build/3rdParty/xsdlib"/>
 	<property name="persist.libs" value="./build/3rdParty/persistenceLibs"/>
@@ -94,7 +95,7 @@
 	<!--
      JBOSS
      -->
-	<property name="jbossall-client.jar" value="${basic.libs}/jbossall-client.jar"/>
+	<property name="jbossall-client.jar" value="${editor.libs}/jbossall-client.jar"/>
 
 	<!--
     Unit test support libraries
@@ -195,11 +196,12 @@
 	<!--
     Editor Dependencies
     -->
-	<property name="jgraph-5.4.jar" value="${basic.libs}/jgraph-5.4.jar"/>
-	<property name="jgraphaddons-1.0.5.jar" value="${basic.libs}/jgraphaddons-1.0.5.jar"/>
-	<property name="swing-worker.jar" value="${basic.libs}/swing-worker.jar"/>
-	<property name="jgraphlayout.jar" value="${basic.libs}/jgraphlayout.jar"/>
-	<property name="jcalendar.jar" value="${standAlone.libs}/jcalendar-custom.jar"/>
+    <property name="jgraph-5.4.jar" value="${editor.libs}/jgraph-5.4.jar"/>
+    <property name="jgraphaddons-1.0.5.jar" value="${editor.libs}/jgraphaddons-1.0.5.jar"/>
+    <property name="swing-worker.jar" value="${editor.libs}/swing-worker.jar"/>
+	<property name="jgraphlayout.jar" value="${editor.libs}/jgraphlayout.jar"/>
+	<property name="jcalendar.jar" value="./build/nexusWorkflowEditor/lib/jcalendar-custom.jar"/>
+	<property name="spring.jar" value="${persist.libs}/spring.jar"/>
 
 	<!--
 	Quartz scheduler
@@ -233,17 +235,16 @@
 	<path id="cp.compile">
 		<!-- Include all JAR files that will be included in /WEB-INF/lib -->
 		<!-- *** CUSTOMIZE HERE AS REQUIRED BY YOUR APPLICATION *** -->
-		<pathelement location="${jbossall-client.jar}"/>
-		<pathelement location="${jfreechart.jar}"/>
-		<pathelement location="${jcommon.jar}"/>
-		<pathelement location="${junit.jar}"/>
-		<pathelement location="${xerces.jar}"/>
-		<pathelement location="${saxon.jar}"/>
-		<pathelement location="${saxpath.jar}"/>
-	    	<pathelement location="${jcalendar.jar}"/>
-		<pathelement location="${jdom.jar}"/>
-		<pathelement location="${servlet.jar}"/>
-		<pathelement location="${log4j}"/>
+        <pathelement location="${jbossall-client.jar}"/>
+        <pathelement location="${jfreechart.jar}"/>
+        <pathelement location="${jcommon.jar}"/>
+        <pathelement location="${junit.jar}"/>
+        <pathelement location="${xerces.jar}"/>
+        <pathelement location="${saxon.jar}"/>
+        <pathelement location="${saxpath.jar}"/>
+        <pathelement location="${jdom.jar}"/>
+        <pathelement location="${servlet.jar}"/>
+        <pathelement location="${log4j}"/>
     	<pathelement location="${jcalendar.jar}"/>
     	<pathelement location="${quartz.jar}"/>
 
@@ -419,7 +420,7 @@
     Compile all source
     Compiles main project source into ${classes}.
     -->
-	<target name="compile">
+	<target name="compile" depends="init">
 		<javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
 			<classpath refid="cp.standard"/>
 			<classpath refid="cp.compile"/>
@@ -1656,7 +1657,7 @@
 
 	<!-- Installation targets-->
 
-	<target name="izInit" >
+	<target name="izInit" depends="buildAll">
 		<taskdef name="izpack" classname="com.izforge.izpack.ant.IzPackTask">
 
 			<classpath>
