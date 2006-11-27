@@ -67,13 +67,14 @@ Section -Main SEC0000
         File /r ..\..\..\exampleSpecs\xml\*.x*
     SetOutPath $INSTDIR\bin
         SetOverwrite on
-        File /r ..\bin\*
+        File /r ..\bin\*.exe
     SetOutPath $INSTDIR\lib
         SetOverwrite on
-        File /r ..\lib\*
+        File /r ..\lib\*.jar
     SetOutPath $INSTDIR\properties
         SetOverwrite on
-        File /r ..\properties\*
+        File /r ..\properties\*.properties
+        File /r ..\properties\*.xml
     WriteRegStr HKLM "${REGKEY}\Components" Main 1
 SectionEnd
 
@@ -82,9 +83,9 @@ Section -post SEC0001
     WriteUninstaller $INSTDIR\uninstall.exe
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     SetOutPath $INSTDIR
-    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk" "$INSTDIR\nexusEditor.exe"
+    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk" "$INSTDIR\bin\nexusEditor.exe"
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Uninstall $(^Name).lnk" $INSTDIR\uninstall.exe
-    CreateShortCut "$DESKTOP\Nexus Editor.lnk" "$INSTDIR\NexusEditor.exe" ""
+    CreateShortCut "$DESKTOP\Nexus Editor.lnk" "$INSTDIR\bin\NexusEditor.exe" ""
 
     !insertmacro MUI_STARTMENU_WRITE_END
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayName "$(^Name)"
@@ -112,10 +113,10 @@ done${UNSECTION_ID}:
 
 # Uninstaller sections
 Section /o un.Main UNSEC0000
-    RmDir /r /REBOOTOK $INSTDIR\classes
     RmDir /r /REBOOTOK $INSTDIR\examples
     RmDir /r /REBOOTOK $INSTDIR\lib
     RmDir /r /REBOOTOK $INSTDIR\bin
+    RmDir /r /REBOOTOK $INSTDIR\properties
     DeleteRegValue HKLM "${REGKEY}\Components" Main
 SectionEnd
 
