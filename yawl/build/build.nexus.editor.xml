@@ -17,7 +17,7 @@
 		<ant antfile="build/build.engine.xml"/>
 		<copy todir="build/nexusWorkflowEditor/lib/" file="yawlEngine/lib/yawlEngine.jar"/>
 	</target>
-	<target name="compile" depends="clean, getEngineJar">
+	<target name="compile" depends="getEngineJar, clean">
 		<echo>Compiling Nexus Editor...</echo>
 		<mkdir dir="${classes}"/>
 		<javac debug="true" destdir="${classes}">
@@ -36,6 +36,7 @@
 		<copy todir="${classes}">
 			<fileset dir="editor">
 			    <exclude name="**/*.java"/>
+			    <exclude name="**/editor.properties"/>
 			</fileset>
 		</copy>
 	</target>
@@ -54,7 +55,7 @@
 		<java classname="com.nexusbpm.editor.WorkflowEditor" fork="true" dir="build/nexusWorkflowEditor">
 			<classpath>
 				<fileset dir="build/nexusWorkflowEditor/lib/" includes="**/*.jar"/>
-				<pathelement location="build/nexusWorkflowEditor/"/>
+				<pathelement location="build/nexusWorkflowEditor/properties"/>
 			</classpath>
 		</java>
 	</target>

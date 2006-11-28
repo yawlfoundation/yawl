@@ -11,6 +11,7 @@
   <icon>nwlogo.ico</icon>
   <classPath>
     <mainClass>com.nexusbpm.editor.WorkflowEditor</mainClass>
+    <cp>properties</cp>
     <cp>lib\asm.jar</cp>
     <cp>lib\cglib-2.1.3.jar</cp>
     <cp>lib\common.jar</cp>
@@ -46,7 +47,6 @@
     <cp>lib\xsd.jar</cp>
     <cp>lib\xsd.resources.jar</cp>
     <cp>lib\yawlEngine.jar</cp>
-    <cp>properties</cp>
   </classPath>
   <jre>
     <path></path>

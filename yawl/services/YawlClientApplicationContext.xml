@@ -13,7 +13,6 @@
 	<bean id="quartzSchema" class="com.nexusbpm.scheduler.QuartzSchema">
 	</bean>
 
-
 	<bean id="quartzEventDataSourceFactory" class="com.nexusbpm.scheduler.QuartzEventDataSourceFactory">
 		<property name="rmiHost" value="${org.quartz.scheduler.rmi.registryHost}" />
 		<property name="rmiPort" value="${org.quartz.scheduler.rmi.registryPort}" />
@@ -25,13 +24,13 @@
 
 	<bean id="propertyConfigurer" 
 		class="com.nexusbpm.services.UpdateablePropertiesFactoryBean">
-		<property name="properties" ref="properties" />
+		<property name="location" value="classpath:${yawl.environment.propertyfilename}" />
 		<property name="ignoreInvalidKeys" value="true" />
 	</bean>
 
 	<bean id="standardPropertyConfigurer" 
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="properties" ref="properties" />
+		<property name="location" value="classpath:${yawl.environment.propertyfilename}" />
 	</bean>
 
 	<bean id="properties" 
