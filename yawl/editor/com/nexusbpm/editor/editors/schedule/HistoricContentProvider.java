@@ -16,6 +16,8 @@ import javax.swing.DefaultListModel;
 
 import org.quartz.Scheduler;
 
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+
 import com.nexusbpm.scheduler.QuartzEvent;
 import com.nexusbpm.scheduler.QuartzEventDataSource;
 import com.nexusbpm.scheduler.QuartzEventDataSourceFactory;
@@ -24,7 +26,8 @@ public class HistoricContentProvider extends ScheduledContentProvider {
 	private QuartzEventDataSource history;
 	public HistoricContentProvider( Scheduler scheduler ) throws RemoteException, NotBoundException {
 		super( scheduler );
-		this.history = new QuartzEventDataSourceFactory().getDataSource( false, true );
+		QuartzEventDataSourceFactory factory = (QuartzEventDataSourceFactory) BootstrapConfiguration.getInstance().getApplicationContext().getBean("quartzEventDataSourceFactory");
+		this.history = factory.getDataSource( false, true );
 	}
 	
 	@Override

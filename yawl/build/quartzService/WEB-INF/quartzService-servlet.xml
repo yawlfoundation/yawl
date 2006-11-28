@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
 "http://www.springframework.org/dtd/spring-beans.dtd">
-
 <beans>
+	<bean id="yawlEngineDao"
+		class="au.edu.qut.yawl.persistence.dao.YawlEngineDAO">
+	</bean>
+	<bean id="quartzSchema"
+		class="com.nexusbpm.scheduler.QuartzSchema">
+	</bean>
+	<bean id="quartzEventDataSourceFactory"
+		class="com.nexusbpm.scheduler.QuartzEventDataSourceFactory">
+		<property name="localDao" ref="quartzDao" />
+	</bean>
+	<bean id="schedulerFactory"
+		class="org.quartz.impl.StdSchedulerFactory">
+		<constructor-arg index="0" ref="properties" />
+	</bean>
+	<bean id="propertyConfigurer"
+		class="com.nexusbpm.services.UpdateablePropertiesFactoryBean">
+		<property name="properties" ref="properties"/>
+		<property name="ignoreInvalidKeys" value="true" />
+	</bean>
+	<bean id="properties" 
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location"
+			value="${nexus.service.properties.filename}" />
+	</bean>
 	<bean id="dataSource"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="org.postgresql.Driver" />
-		<property name="url" value="jdbc:postgresql:yawl" />
-		<property name="username" value="postgres" />
-		<property name="password" value="admin" />
 	</bean>
 
 	<!-- Hibernate SessionFactory -->
@@ -36,16 +55,19 @@
 		</property>
 	</bean>
 	<!-- Transaction manager for a single Hibernate SessionFactory (alternative to JTA) -->
-<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
- <property name="sessionFactory"><ref local="sessionFactory"/></property>
-</bean>
-<!-- 	<bean id="transactionManager"
-		class="org.springframework.orm.hibernate.HibernateTransactionManager">
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
 		<property name="sessionFactory">
 			<ref local="sessionFactory" />
 		</property>
 	</bean>
--->
+	<!-- 	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate.HibernateTransactionManager">
+		<property name="sessionFactory">
+		<ref local="sessionFactory" />
+		</property>
+		</bean>
+	-->
 	<bean id="quartzDao"
 		class="com.nexusbpm.scheduler.SpringHibernateQuartzEventDao">
 		<property name="sessionFactory">
