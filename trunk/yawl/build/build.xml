@@ -297,6 +297,7 @@
     	<pathelement location="${openjms-tunnel-0.7.7-alpha-3.war}"/>
     	<pathelement location="${oro-2.0.8.jar}"/>
     	<pathelement location="${spice-jndikit-20050704.053804.jar}"/>
+    	<pathelement location="${spring.jar}"/>
     	<pathelement location="${xerces-2.4.0.jar}"/>
     	<pathelement location="${xml-apis-1.0.b2.jar}"/>
     	
@@ -365,6 +366,7 @@
         <pathelement location="${jta}"/>
         <pathelement location="${odmg}"/>
         <pathelement location="${jboss-ejb}"/>
+        <pathelement location="${spring.jar}"/>
         <pathelement location="${ejb-persist}"/>
     	<pathelement location="${jsr173}"/>
     	<pathelement location="${postgres8.path}"/>
@@ -858,6 +860,8 @@
         </copy>
         <copy todir="quartzService/WEB-INF/classes/">
             <fileset dir="${src}"
+            	excludes="**/*.java"/>
+            <fileset dir="${services}"
             	excludes="**/*.java"/>
         </copy>
         <!-- prepare Web ARchive file -->

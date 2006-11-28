@@ -30,8 +30,11 @@ import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
+
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
@@ -61,10 +64,9 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
     public static SchedulerCalendar createCalendar() throws SchedulerException {
     	LOG.trace( "creating calendar" );
     	
-    	System.setProperty( "org.quartz.properties", "quartz.client.properties" );
     	System.setProperty( "java.rmi.server.useCodebaseOnly", "true" );
-    	
-    	return new SchedulerCalendar( StdSchedulerFactory.getDefaultScheduler() );
+    	StdSchedulerFactory factory = (StdSchedulerFactory ) BootstrapConfiguration.getInstance().getApplicationContext().getBean("schedulerFactory");
+    	return new SchedulerCalendar( factory.getScheduler() );
     }
     
     public static SchedulerCalendar createTestCalendar() {

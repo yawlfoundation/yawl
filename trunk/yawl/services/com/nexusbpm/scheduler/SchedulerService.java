@@ -9,32 +9,20 @@
 package com.nexusbpm.scheduler;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerUtils;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+
+import com.nexusbpm.services.ServiceConfiguration;
 
 public class SchedulerService extends HttpServlet {
 
@@ -46,6 +34,9 @@ public class SchedulerService extends HttpServlet {
 	public void init(ServletConfig arg0) throws ServletException {
 		super.init(arg0);
 		try {
+			System.setProperty("java.rmi.server.useCodebaseOnly", "true");
+			ServiceConfiguration sc = new ServiceConfiguration(arg0);
+			BootstrapConfiguration.setInstance(sc);
 			start();
 		} catch (Exception e) {
 			System.out.println("Unable to start quartz scheduler");

@@ -8,10 +8,14 @@
 
 package com.nexusbpm.services;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 
 import junit.framework.TestCase;
 
@@ -21,6 +25,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
 
 import util.MockServletConfig;
@@ -88,7 +93,19 @@ public class TestQuartzConnection extends TestCase implements JobListener{
 		);
 		BootstrapConfiguration.setInstance(lc);
 		BootstrapConfiguration bc = BootstrapConfiguration.getInstance();
-		SchedulerService sc = new SchedulerService();
+		SchedulerService sc = new SchedulerService() {
+
+			@Override
+			public void init(ServletConfig arg0) throws ServletException {
+				try {
+					start(); 
+				} catch (Exception e) {
+					e.printStackTrace();
+					fail(e.getMessage());
+				}
+			}
+			
+		};
 		sc.init(new MockServletConfig());
 		Scheduler sched = sc.getScheduler();
 		sched.addGlobalJobListener(this);
