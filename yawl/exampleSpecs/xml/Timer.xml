@@ -21,7 +21,7 @@
 						<nextElementRef id="a"/>
 					</flowsInto>
 				</inputCondition>
-				<task id="ø">
+				<task id="a">
 					<flowsInto>
 						<nextElementRef id="p"/>
 					</flowsInto>
@@ -35,7 +35,7 @@
 					</completedMappings>
 					<decomposesTo id="read time"/>
 				</task>
-				<task id="å">
+				<task id="p">
 					<flowsInto>
 						<nextElementRef id="x"/>
 					</flowsInto>
