@@ -229,13 +229,12 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         			Property[] pa = dialog.getProperties();
         			for (Property prop: pa) {
         				p.setProperty(prop.getName(), prop.getValue().toString());
-        				try {
-        					config.saveProperties();
-        					config.refresh();
-        				} catch (IOException e) {
-    						JOptionPane.showMessageDialog(null, "Unable to save configuration due to " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-        				}
 					}
+    				try {
+    					config.saveProperties();
+    				} catch (IOException e) {
+						JOptionPane.showMessageDialog(null, "Unable to save configuration due to " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+    				}
                 }
             }
         });

@@ -9,6 +9,9 @@
 package com.nexusbpm.scheduler;
 
 import java.io.IOException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 
 import javax.servlet.ServletConfig;
@@ -55,7 +58,7 @@ public class SchedulerService extends HttpServlet {
 				e.printStackTrace();
 			}
 		} 
-		scheduler = ((StdSchedulerFactory) ac.getBean("schedulerFactory")).getDefaultScheduler();
+		scheduler = ((StdSchedulerFactory) ac.getBean("schedulerFactory")).getScheduler();
         try {
         	QuartzEventDataSourceFactory factory = (QuartzEventDataSourceFactory) ac.getBean("quartzEventDataSourceFactory");
         	factory.registerDataSource();

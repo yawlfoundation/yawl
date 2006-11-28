@@ -1,17 +1,13 @@
 package com.nexusbpm.editor.configuration;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
 import java.util.Properties;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.nexusbpm.services.UpdateablePropertiesFactoryBean;
-
 import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+
+import com.nexusbpm.services.UpdateablePropertiesFactoryBean;
 
 public class NexusClientConfiguration extends BootstrapConfiguration{
 	
@@ -27,7 +23,7 @@ public class NexusClientConfiguration extends BootstrapConfiguration{
 	
 	public void refresh() {
 		synchronized(applicationContext) {
-			applicationContext = new ClassPathXmlApplicationContext(APPLICATION_CONTEXT_FILE_NAME);
+			((ClassPathXmlApplicationContext) applicationContext).refresh();
 		}
 	}
 	
@@ -41,6 +37,7 @@ public class NexusClientConfiguration extends BootstrapConfiguration{
 	public void saveProperties() throws IOException{
 		UpdateablePropertiesFactoryBean b = (UpdateablePropertiesFactoryBean) applicationContext.getBean("propertyConfigurer");
 		b.save();
+		refresh();
 	}
 	public synchronized static BootstrapConfiguration getInstance() {
 			return new NexusClientConfiguration();
