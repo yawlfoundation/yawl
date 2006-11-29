@@ -43,6 +43,8 @@
 				<pathelement location="build/3rdParty/lib/jndi-1.2.1.jar"/>
 				<pathelement location="build/3rdParty/lib/jta-1.0.1.jar"/>
 				<pathelement location="build/3rdParty/lib/junit.jar"/>
+				<pathelement location="build/3rdParty/lib/junit.jar"/>
+				<pathelement location="build/3rdParty/lib/openjms-0.7.7-alpha-3.jar"/>
 				<pathelement location="build/3rdParty/lib/log4j-1.2.11.jar"/>
 				<pathelement location="build/3rdParty/lib/oro-2.0.8.jar"/>
 				<pathelement location="build/3rdParty/lib/saxon7.jar"/>

@@ -28,7 +28,7 @@ public class ServiceConfiguration extends BootstrapConfiguration {
 		((XmlWebApplicationContext) applicationContext).setServletConfig(config);
 		((XmlWebApplicationContext) applicationContext).setConfigLocations(new String[] {"WEB-INF/" + config.getServletName() + "-servlet.xml"});
 		
-		String propertiesFileName = ((XmlWebApplicationContext) applicationContext).getServletConfig().getServletName() + "-servlet.properties";
+		String propertiesFileName = config.getServletName() + "-servlet.properties";
 		try {
 			propertiesFileName = config.getServletContext().getResource("/WEB-INF/" + propertiesFileName).toString();
 		} catch (Exception e) {
