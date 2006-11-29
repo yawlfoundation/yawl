@@ -1,4 +1,12 @@
 <?xml version="1.0"?>
+<!-- 
+	I was going to add NSIS and Launch4J targets to these but....
+	
+	1. we're probably going to ditch NSIS eventually
+	2. both need pathing to the external installations of those utilities
+	   which isnt going to be very portable - or we'd have to embed them
+	   into the project which is even less desireable.
+-->
 <project name="Experimental Editor Build file" default="build-editor" basedir="..">
 
 	<property name="classes" value="classes"/>
