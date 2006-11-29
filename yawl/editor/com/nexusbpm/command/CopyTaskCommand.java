@@ -11,7 +11,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import operation.WorkflowOperation;
+import com.nexusbpm.operation.WorkflowOperation;
+
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YNet;

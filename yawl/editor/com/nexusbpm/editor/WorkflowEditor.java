@@ -378,7 +378,7 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         STree hibernateComponentListTree = null;
         try {
 //            SpecificationDAO hibernatedao = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE).getSpecificationModelDAO();
-        	DAO hibernatedao = DAOFactory.getDAO( PersistenceType.HIBERNATE );
+        	DAO hibernatedao = DAOFactory.getDAO( PersistenceType.SPRING );
             DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
             
             DatasourceRoot hibernateRoot = new DatasourceRoot("hibernate://home/");

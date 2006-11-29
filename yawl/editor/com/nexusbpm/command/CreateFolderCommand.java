@@ -11,10 +11,11 @@ import java.io.File;
 import java.net.URI;
 import java.util.List;
 
-import operation.WorkflowOperation;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.nexusbpm.operation.WorkflowOperation;
 
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.managed.DataContext;

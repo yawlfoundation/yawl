@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.KeyValue;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YTask;
@@ -21,7 +20,8 @@ import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
-import com.nexusbpm.NexusWorkflow;
+import com.nexusbpm.operation.WorkflowOperation;
+import com.nexusbpm.services.NexusServiceConstants;
 import com.nexusbpm.services.data.NexusServiceData;
 
 /**
@@ -168,7 +168,7 @@ public class SaveDataTransferChangesCommand extends AbstractCommand {
         for( String name : oldData.getVariableNames() ) {
             if( newData.getType( name ) == null ) {
                 deleteSet.add( name );
-                YVariable var = net.getLocalVariable( task.getID() + NexusWorkflow.NAME_SEPARATOR + name );
+                YVariable var = net.getLocalVariable( task.getID() + NexusServiceConstants.NAME_SEPARATOR + name );
                 assert var != null : "trying to remove a null variable";
                 deleteSetVariables.add( var );
                 for( YParameter param : task.getDecompositionPrototype().getInputParameters() ) {
@@ -214,11 +214,11 @@ public class SaveDataTransferChangesCommand extends AbstractCommand {
                             mapping.sourceElementID,
                             mapping.sourceVariableName ) );
             newOutputMappings.put(
-                    task.getID() + NexusWorkflow.NAME_SEPARATOR + mapping.targetVariable,
+                    task.getID() + NexusServiceConstants.NAME_SEPARATOR + mapping.targetVariable,
                     WorkflowOperation.createOutputBindingString(
                             net.getId(),
                             task.getID(),
-                            task.getID() + NexusWorkflow.NAME_SEPARATOR + mapping.targetVariable,
+                            task.getID() + NexusServiceConstants.NAME_SEPARATOR + mapping.targetVariable,
                             mapping.targetVariable ) );
         }
     }

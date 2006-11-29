@@ -31,7 +31,6 @@ import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
-import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
 import com.nexusbpm.editor.desktop.ComponentEditorFrameListener;
 import com.nexusbpm.editor.editors.ComponentEditor;
@@ -44,6 +43,7 @@ import com.nexusbpm.editor.icon.ApplicationIcon;
 import com.nexusbpm.editor.icon.RenderingHints;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.services.NexusServiceInfo;
+import com.nexusbpm.services.NexusServiceConstants;
 
 public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferable {
 	/** A <tt>graph cell</tt> is the displayed JGraph object for a component. */
@@ -225,8 +225,8 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 		if (getData() instanceof YAtomicTask) {
 			YAtomicTask task = (YAtomicTask) getData();
 			String serviceName = task.getID() 
-				+ NexusWorkflow.NAME_SEPARATOR 
-				+ NexusWorkflow.SERVICENAME_VAR;
+				+ NexusServiceConstants.NAME_SEPARATOR 
+				+ NexusServiceConstants.SERVICENAME_VAR;
 			String value = null;
 			if (task.getParent() != null) {
 				YVariable var = task.getParent().getLocalVariable(serviceName);
@@ -340,8 +340,8 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 		} else if (getData() instanceof YAtomicTask) {
 			YAtomicTask task = (YAtomicTask) getData();
 			YVariable var = task.getParent().getLocalVariable(
-					task.getID() + NexusWorkflow.NAME_SEPARATOR
-							+ NexusWorkflow.SERVICENAME_VAR);
+					task.getID() + NexusServiceConstants.NAME_SEPARATOR
+							+ NexusServiceConstants.SERVICENAME_VAR);
 			if (var != null) {
 				NexusServiceInfo service = NexusServiceInfo
 						.getServiceWithName(var.getInitialValue());

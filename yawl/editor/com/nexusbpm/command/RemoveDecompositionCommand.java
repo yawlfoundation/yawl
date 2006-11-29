@@ -10,7 +10,8 @@ package com.nexusbpm.command;
 import java.util.LinkedList;
 import java.util.List;
 
-import operation.WorkflowOperation;
+import com.nexusbpm.operation.WorkflowOperation;
+
 
 
 import au.edu.qut.yawl.elements.YDecomposition;

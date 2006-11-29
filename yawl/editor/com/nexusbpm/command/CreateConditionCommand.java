@@ -7,7 +7,8 @@
  */
 package com.nexusbpm.command;
 
-import operation.WorkflowOperation;
+import com.nexusbpm.operation.WorkflowOperation;
+
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.persistence.managed.DataContext;

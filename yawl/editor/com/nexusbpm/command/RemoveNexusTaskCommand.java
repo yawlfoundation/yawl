@@ -10,7 +10,6 @@ package com.nexusbpm.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YNet;
@@ -19,7 +18,8 @@ import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
-import com.nexusbpm.NexusWorkflow;
+import com.nexusbpm.operation.WorkflowOperation;
+import com.nexusbpm.services.NexusServiceConstants;
 
 /**
  * The RemoveNexusTaskCommand removes a task from a network.
@@ -81,7 +81,7 @@ public class RemoveNexusTaskCommand extends RemoveNetElementCommand {
         gateway = (YAWLServiceGateway) task.getDecompositionPrototype();
         gatewayProxy = context.getDataProxy( gateway );
         
-        String namePrefix = task.getID() + NexusWorkflow.NAME_SEPARATOR;
+        String namePrefix = task.getID() + NexusServiceConstants.NAME_SEPARATOR;
         netVariables = new ArrayList<YVariable>();
         
         for( YVariable var : net.getLocalVariables() ) {
