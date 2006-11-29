@@ -18,7 +18,6 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 
-import operation.WorkflowOperation;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +32,7 @@ import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 import com.nexusbpm.editor.persistence.EditorDataProxy;
+import com.nexusbpm.operation.WorkflowOperation;
 
 public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxyStateChangeListener {
 

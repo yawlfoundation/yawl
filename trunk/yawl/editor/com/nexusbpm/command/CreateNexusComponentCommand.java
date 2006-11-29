@@ -9,7 +9,6 @@ package com.nexusbpm.command;
 
 import java.util.List;
 
-import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YNet;
@@ -18,6 +17,7 @@ import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
+import com.nexusbpm.operation.WorkflowOperation;
 import com.nexusbpm.services.NexusServiceInfo;
 
 /**

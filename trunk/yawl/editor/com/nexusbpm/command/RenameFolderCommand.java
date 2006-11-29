@@ -14,10 +14,11 @@ import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
-import operation.WorkflowOperation;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.nexusbpm.operation.WorkflowOperation;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;

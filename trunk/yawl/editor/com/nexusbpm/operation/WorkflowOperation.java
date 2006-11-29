@@ -5,7 +5,7 @@
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
-package operation;
+package com.nexusbpm.operation;
 
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
@@ -42,10 +42,10 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.util.HashBag;
 
-import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 import com.nexusbpm.editor.persistence.YTaskEventExtension;
 import com.nexusbpm.services.NexusServiceInfo;
+import com.nexusbpm.services.NexusServiceConstants;
 import com.nexusbpm.services.data.NexusServiceData;
 
 /**
@@ -102,7 +102,7 @@ public class WorkflowOperation {
         
         spec = new YSpecification( id );
         spec.setName( name );
-        spec.setBetaVersion(NexusWorkflow.CURRENT_VERSION);
+        spec.setBetaVersion(NexusServiceConstants.CURRENT_VERSION);
         spec.setDocumentation("");
         
         return spec;
@@ -248,15 +248,15 @@ public class WorkflowOperation {
                         String newGatewayId;
                         if( isTaskANexusTask( task ) ) {
                             if( changeId ) {
-                                newGatewayId = newId + NexusWorkflow.NAME_SEPARATOR + task.getID();
+                                newGatewayId = newId + NexusServiceConstants.NAME_SEPARATOR + task.getID();
                             }
                             else {
                                 newGatewayId = gateway.getId();
                             }
                             
                             NexusServiceInfo info = NexusServiceInfo.getServiceWithName(
-                                    net.getLocalVariable( task.getID() + NexusWorkflow.NAME_SEPARATOR +
-                                            NexusWorkflow.SERVICENAME_VAR ).getInitialValue() );
+                                    net.getLocalVariable( task.getID() + NexusServiceConstants.NAME_SEPARATOR +
+                                            NexusServiceConstants.SERVICENAME_VAR ).getInitialValue() );
                             for( int index = 0; index < info.getVariableNames().length; index++ ) {
                                 // for each variable just remove the old mappings and put new ones in
                                 task.getDataMappingsForTaskStartingSet().remove(
@@ -264,7 +264,7 @@ public class WorkflowOperation {
                                 for( Iterator<KeyValue> iter =
                                     task.getDataMappingsForTaskCompletionSet().iterator(); iter.hasNext(); ) {
                                     if( iter.next().getValue().equals(
-                                            task.getID() + NexusWorkflow.NAME_SEPARATOR +
+                                            task.getID() + NexusServiceConstants.NAME_SEPARATOR +
                                             info.getVariableNames()[ index ] ) ) {
                                         iter.remove();
                                     }
@@ -275,9 +275,9 @@ public class WorkflowOperation {
                                         varName, task.getID(), varName),
                                         varName);
                                 task.setDataBindingForOutputExpression(createOutputBindingString(
-                                        newId, task.getID(), task.getID() + NexusWorkflow.NAME_SEPARATOR
+                                        newId, task.getID(), task.getID() + NexusServiceConstants.NAME_SEPARATOR
                                                 + varName, varName), task.getID()
-                                        + NexusWorkflow.NAME_SEPARATOR + varName);
+                                        + NexusServiceConstants.NAME_SEPARATOR + varName);
                             }
                         }
                         else {
@@ -330,7 +330,7 @@ public class WorkflowOperation {
         for( String name : sourceTask.getDecompositionPrototype().getInputParameterNames() ) {
             names.add( name );
             YParameter iparam = new YParameter( gateway, YParameter._INPUT_PARAM_TYPE );
-            iparam.setDataTypeAndName( NexusWorkflow.VARTYPE_STRING, name, NexusWorkflow.XML_SCHEMA_URL );
+            iparam.setDataTypeAndName( NexusServiceConstants.VARTYPE_STRING, name, NexusServiceConstants.XML_SCHEMA_URL );
             gateway.setInputParam( iparam );
             task.setDataBindingForInputParam(
                     WorkflowOperation.createInputBindingString(
@@ -343,24 +343,24 @@ public class WorkflowOperation {
         for( String name : sourceTask.getDecompositionPrototype().getOutputParamNames() ) {
             names.add( name );
             YParameter oparam = new YParameter( gateway, YParameter._OUTPUT_PARAM_TYPE );
-            oparam.setDataTypeAndName( NexusWorkflow.VARTYPE_STRING, name, NexusWorkflow.XML_SCHEMA_URL );
+            oparam.setDataTypeAndName( NexusServiceConstants.VARTYPE_STRING, name, NexusServiceConstants.XML_SCHEMA_URL );
             gateway.setOutputParameter( oparam );
             task.setDataBindingForOutputExpression(
                     WorkflowOperation.createOutputBindingString(
                             targetNet.getId(),
                             taskID,
-                            taskID + NexusWorkflow.NAME_SEPARATOR + name,
-                            name ), taskID + NexusWorkflow.NAME_SEPARATOR + name );
+                            taskID + NexusServiceConstants.NAME_SEPARATOR + name,
+                            name ), taskID + NexusServiceConstants.NAME_SEPARATOR + name );
         }
         
         for( String name : names ) {
             YVariable var = new YVariable( null );
             var.setDataTypeAndName(
-                    NexusWorkflow.VARTYPE_STRING,
-                    taskID + NexusWorkflow.NAME_SEPARATOR + name,
-                    NexusWorkflow.XML_SCHEMA_URL );
+                    NexusServiceConstants.VARTYPE_STRING,
+                    taskID + NexusServiceConstants.NAME_SEPARATOR + name,
+                    NexusServiceConstants.XML_SCHEMA_URL );
             var.setInitialValue( sourceTask.getParent().getLocalVariable(
-                    sourceTask.getID() + NexusWorkflow.NAME_SEPARATOR + name ).getInitialValue() );
+                    sourceTask.getID() + NexusServiceConstants.NAME_SEPARATOR + name ).getInitialValue() );
             vars.add( var );
         }
         
@@ -616,26 +616,26 @@ public class WorkflowOperation {
                     createOutputBindingString(
                             net.getId(),
                             taskID,
-                            taskID + NexusWorkflow.NAME_SEPARATOR + varName,
+                            taskID + NexusServiceConstants.NAME_SEPARATOR + varName,
                             varName),
-                    taskID + NexusWorkflow.NAME_SEPARATOR + varName );
+                    taskID + NexusServiceConstants.NAME_SEPARATOR + varName );
 		}
         
         // create input and output mappings that appear on all nexus tasks
 		task.setDataBindingForInputParam(
                 createInputBindingString(
                         net.getId(),
-                        NexusWorkflow.SERVICENAME_VAR,
+                        NexusServiceConstants.SERVICENAME_VAR,
                         taskID,
-                        NexusWorkflow.SERVICENAME_VAR ),
-                NexusWorkflow.SERVICENAME_VAR );
+                        NexusServiceConstants.SERVICENAME_VAR ),
+                NexusServiceConstants.SERVICENAME_VAR );
 		task.setDataBindingForOutputExpression(
                 createOutputBindingString(
                         net.getId(),
                         taskID,
-                        taskID + NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.STATUS_VAR,
-                        NexusWorkflow.STATUS_VAR ),
-				taskID + NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.STATUS_VAR );
+                        taskID + NexusServiceConstants.NAME_SEPARATOR + NexusServiceConstants.STATUS_VAR,
+                        NexusServiceConstants.STATUS_VAR ),
+				taskID + NexusServiceConstants.NAME_SEPARATOR + NexusServiceConstants.STATUS_VAR );
         
 		return task;
 	}
@@ -658,11 +658,11 @@ public class WorkflowOperation {
 	 */
 	public static YAWLServiceGateway createNexusGateway(String taskID, YNet net, NexusServiceInfo serviceInfo) {
 		YAWLServiceGateway gateway = new YAWLServiceGateway(
-                net.getId() + NexusWorkflow.NAME_SEPARATOR + taskID,
+                net.getId() + NexusServiceConstants.NAME_SEPARATOR + taskID,
                 net.getParent() );
         gateway.setParent( null );
 		YAWLServiceReference yawlService = new YAWLServiceReference(
-				NexusWorkflow.LOCAL_INVOKER_URI,
+				NexusServiceConstants.LOCAL_INVOKER_URI,
                 gateway);
 		gateway.setYawlService(yawlService);
         
@@ -672,13 +672,13 @@ public class WorkflowOperation {
 			YParameter oparam = new YParameter( gateway, YParameter._OUTPUT_PARAM_TYPE );
             
 			iparam.setDataTypeAndName(
-                    NexusWorkflow.VARTYPE_STRING,
+                    NexusServiceConstants.VARTYPE_STRING,
                     serviceInfo.getVariableNames()[i],
-                    NexusWorkflow.XML_SCHEMA_URL );
+                    NexusServiceConstants.XML_SCHEMA_URL );
 			oparam.setDataTypeAndName(
-                    NexusWorkflow.VARTYPE_STRING,
+                    NexusServiceConstants.VARTYPE_STRING,
                     serviceInfo.getVariableNames()[i],
-                    NexusWorkflow.XML_SCHEMA_URL );
+                    NexusServiceConstants.XML_SCHEMA_URL );
             
 			gateway.setInputParam( iparam );
 			gateway.setOutputParameter( oparam );
@@ -689,13 +689,13 @@ public class WorkflowOperation {
 		YParameter oparam = new YParameter( gateway, YParameter._OUTPUT_PARAM_TYPE );
         
 		iparam.setDataTypeAndName(
-                NexusWorkflow.VARTYPE_STRING,
-				NexusWorkflow.SERVICENAME_VAR,
-                NexusWorkflow.XML_SCHEMA_URL );
+                NexusServiceConstants.VARTYPE_STRING,
+				NexusServiceConstants.SERVICENAME_VAR,
+                NexusServiceConstants.XML_SCHEMA_URL );
 		oparam.setDataTypeAndName(
-                NexusWorkflow.VARTYPE_STRING,
-				NexusWorkflow.STATUS_VAR,
-                NexusWorkflow.XML_SCHEMA_URL );
+                NexusServiceConstants.VARTYPE_STRING,
+				NexusServiceConstants.STATUS_VAR,
+                NexusServiceConstants.XML_SCHEMA_URL );
         
 		gateway.setInputParam( iparam );
 		gateway.setOutputParameter( oparam );
@@ -710,11 +710,11 @@ public class WorkflowOperation {
      */
     public static YAWLServiceGateway createGateway( String taskID, YNet net ) {
         YAWLServiceGateway gateway = new YAWLServiceGateway(
-                net.getId() + NexusWorkflow.NAME_SEPARATOR + taskID,
+                net.getId() + NexusServiceConstants.NAME_SEPARATOR + taskID,
                 net.getParent() );
         gateway.setParent( null );
         YAWLServiceReference yawlService = new YAWLServiceReference(
-                NexusWorkflow.LOCAL_INVOKER_URI,
+                NexusServiceConstants.LOCAL_INVOKER_URI,
                 gateway);
         gateway.setYawlService(yawlService);
         
@@ -744,9 +744,9 @@ public class WorkflowOperation {
             
             YVariable var = new YVariable( null );
             var.setDataTypeAndName(
-                    NexusWorkflow.VARTYPE_STRING,
-                    taskID + NexusWorkflow.NAME_SEPARATOR + name,
-                    NexusWorkflow.XML_SCHEMA_URL );
+                    NexusServiceConstants.VARTYPE_STRING,
+                    taskID + NexusServiceConstants.NAME_SEPARATOR + name,
+                    NexusServiceConstants.XML_SCHEMA_URL );
             var.setInitialValue( data.getEncodedValue( name ) );
             variables.add( var );
 		}
@@ -754,12 +754,12 @@ public class WorkflowOperation {
 		variables.add(
                 createStringVariable(
                         taskID,
-                        NexusWorkflow.SERVICENAME_VAR,
+                        NexusServiceConstants.SERVICENAME_VAR,
                         serviceInfo.getServiceName() ) );
 		variables.add(
                 createStringVariable(
                         taskID,
-                        NexusWorkflow.STATUS_VAR,
+                        NexusServiceConstants.STATUS_VAR,
 						null ) );
         return variables;
 	}
@@ -772,9 +772,9 @@ public class WorkflowOperation {
 		YVariable var = new YVariable( null );
         
 		var.setDataTypeAndName(
-                NexusWorkflow.VARTYPE_STRING,
-                taskID + NexusWorkflow.NAME_SEPARATOR + varName,
-				NexusWorkflow.XML_SCHEMA_URL );
+                NexusServiceConstants.VARTYPE_STRING,
+                taskID + NexusServiceConstants.NAME_SEPARATOR + varName,
+				NexusServiceConstants.XML_SCHEMA_URL );
 		if( initialValue != null ) {
 			var.setInitialValue( initialValue );
 		}
@@ -808,7 +808,7 @@ public class WorkflowOperation {
      */
     public static YParameter createStringParameter( String name, int type ) {
         YParameter param = new YParameter( null, type );
-        param.setDataTypeAndName( NexusWorkflow.VARTYPE_STRING, name, NexusWorkflow.XML_SCHEMA_URL );
+        param.setDataTypeAndName( NexusServiceConstants.VARTYPE_STRING, name, NexusServiceConstants.XML_SCHEMA_URL );
         return param;
     }
     
@@ -889,7 +889,7 @@ public class WorkflowOperation {
 	public static String createInputBindingString(String netID, String elementName,
 			String taskID, String variableName) {
 		return "<" + elementName + ">" + "{" + "/" + netID + "/" +
-				taskID + NexusWorkflow.NAME_SEPARATOR + variableName + "/text()" + "}" +
+				taskID + NexusServiceConstants.NAME_SEPARATOR + variableName + "/text()" + "}" +
                 "</" + elementName + ">";
 	}
 
@@ -907,7 +907,7 @@ public class WorkflowOperation {
 	public static String createOutputBindingString(String netID, String taskID,
 			String elementName, String variableName) {
 		return "<" + elementName + ">" + "{" + "/" +
-                netID + NexusWorkflow.NAME_SEPARATOR + taskID + "/" + variableName
+                netID + NexusServiceConstants.NAME_SEPARATOR + taskID + "/" + variableName
 				+ "/text()" + "}" + "</" + elementName + ">";
 	}
 
@@ -945,7 +945,7 @@ public class WorkflowOperation {
 	public static YTask getNexusTask(YVariable var) {
 		YTask retval = null;
 		YNet net = (YNet) var.getParent();
-		int separatorAt = var.getName().indexOf(NexusWorkflow.NAME_SEPARATOR);
+		int separatorAt = var.getName().indexOf(NexusServiceConstants.NAME_SEPARATOR);
 		if (separatorAt != -1) {
 			String id = var.getName().substring(0, separatorAt);
 			retval = (YTask) net.getNetElement(id);
@@ -962,10 +962,10 @@ public class WorkflowOperation {
 	 */
 	public static String getNexusSimpleVarName(YVariable var) {
 		String retval = null;
-		int separatorAt = var.getName().indexOf(NexusWorkflow.NAME_SEPARATOR);
+		int separatorAt = var.getName().indexOf(NexusServiceConstants.NAME_SEPARATOR);
 		if (separatorAt != -1) {
 			retval = var.getName().substring(
-					separatorAt + NexusWorkflow.NAME_SEPARATOR.length());
+					separatorAt + NexusServiceConstants.NAME_SEPARATOR.length());
 		}
 		return retval;
 	}
@@ -986,7 +986,7 @@ public class WorkflowOperation {
             for( int index = 0; index < info.getVariableNames().length; index++ ) {
                 String var = info.getVariableNames()[ index ];
                 isNexus = isNexus && parent.getLocalVariable(
-                        taskId + NexusWorkflow.NAME_SEPARATOR + var ) != null;
+                        taskId + NexusServiceConstants.NAME_SEPARATOR + var ) != null;
                 isNexus = isNexus && task.getDataMappingsForTaskStarting().get( var ) != null;
                 isNexus = isNexus && task.getDataMappingsForTaskCompletion().get( var ) != null;
                 isNexus = isNexus && decomp.getInputParameterNames().contains( var );
@@ -1008,9 +1008,9 @@ public class WorkflowOperation {
             String parentId = parent.getId();
             String decompId = decomp.getId();
             
-            if( decompId.equals( parentId + NexusWorkflow.NAME_SEPARATOR + taskId ) ) {
+            if( decompId.equals( parentId + NexusServiceConstants.NAME_SEPARATOR + taskId ) ) {
                 YVariable serviceNameVar = parent.getLocalVariable( taskId +
-                        NexusWorkflow.NAME_SEPARATOR + NexusWorkflow.SERVICENAME_VAR );
+                        NexusServiceConstants.NAME_SEPARATOR + NexusServiceConstants.SERVICENAME_VAR );
                 if( serviceNameVar != null &&
                         serviceNameVar.getInitialValue() != null ) {
                     return NexusServiceInfo.getServiceWithName( serviceNameVar.getInitialValue() );

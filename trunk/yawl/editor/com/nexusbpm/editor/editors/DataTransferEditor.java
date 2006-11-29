@@ -40,7 +40,6 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import operation.WorkflowOperation;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +53,7 @@ import au.edu.qut.yawl.elements.YTask;
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.SaveDataTransferChangesCommand;
 import com.nexusbpm.editor.exception.EditorException;
+import com.nexusbpm.operation.WorkflowOperation;
 import com.nexusbpm.services.NexusServiceInfo;
 import com.nexusbpm.services.data.NexusServiceData;
 import com.nexusbpm.services.data.Variable;

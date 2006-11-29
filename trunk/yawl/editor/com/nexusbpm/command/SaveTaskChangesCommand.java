@@ -10,12 +10,12 @@ package com.nexusbpm.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
-import com.nexusbpm.NexusWorkflow;
+import com.nexusbpm.operation.WorkflowOperation;
+import com.nexusbpm.services.NexusServiceConstants;
 import com.nexusbpm.services.data.NexusServiceData;
 
 /**
@@ -60,7 +60,7 @@ public class SaveTaskChangesCommand extends AbstractCommand {
         }
         for( String name : new ArrayList<String>( addedVariables ) ) {
             addedVariables.remove( name );
-            addedVariables.add( taskProxy.getData().getID() + NexusWorkflow.NAME_SEPARATOR + name );
+            addedVariables.add( taskProxy.getData().getID() + NexusServiceConstants.NAME_SEPARATOR + name );
         }
         WorkflowOperation.detachVariablesFromNet( taskProxy.getData().getParent(), addedVariables );
         oldData.marshal( taskProxy.getData().getParent(), taskProxy.getData().getID() );

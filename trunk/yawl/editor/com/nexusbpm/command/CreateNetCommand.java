@@ -9,7 +9,8 @@ package com.nexusbpm.command;
 
 import java.awt.geom.Rectangle2D;
 
-import operation.WorkflowOperation;
+import com.nexusbpm.operation.WorkflowOperation;
+
 import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
