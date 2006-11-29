@@ -19,7 +19,7 @@ import au.edu.qut.yawl.elements.YSpecification;
 
 public class SpecificationSpringDAO extends AbstractSpringDAO<YSpecification> {
 
-	private static final Log LOG = LogFactory.getLog( DelegatedSpringDAO.class );
+	private static final Log LOG = LogFactory.getLog( SpecificationSpringDAO.class );
 
 	protected void preSave( YSpecification spec ) {
 		try {
