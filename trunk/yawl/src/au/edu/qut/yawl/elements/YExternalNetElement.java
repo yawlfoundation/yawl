@@ -181,7 +181,7 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
      * @param id
      */
     @Column(name="net_id")
-    protected void setID(String id) {
+    public void setID(String id) {
     	super.setID(id);
     }
     
