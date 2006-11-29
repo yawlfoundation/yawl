@@ -53,6 +53,7 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
+import au.edu.qut.yawl.persistence.dao.YawlEngineDAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -378,10 +379,11 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         STree hibernateComponentListTree = null;
         try {
 //            SpecificationDAO hibernatedao = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE).getSpecificationModelDAO();
-        	DAO hibernatedao = DAOFactory.getDAO( PersistenceType.SPRING );
+
+        	DAO hibernatedao = (DAO) BootstrapConfiguration.getInstance().getApplicationContext().getBean("yawlEngineDao");
             DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
             
-            DatasourceRoot hibernateRoot = new DatasourceRoot("hibernate://home/");
+            DatasourceRoot hibernateRoot = new DatasourceRoot("YawlEngine://home/");
             EditorDataProxy hibdp = (EditorDataProxy) hibdc.createProxy(hibernateRoot, null);
             hibdc.attachProxy(hibdp, hibernateRoot, null);
             

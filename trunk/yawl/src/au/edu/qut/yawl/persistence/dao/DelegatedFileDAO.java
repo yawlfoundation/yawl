@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 
@@ -101,6 +102,12 @@ public class DelegatedFileDAO extends AbstractDelegatedDAO {
 				else {
 					loadedObjects.put( specLocation, null );
 				}
+			}
+			catch(YSyntaxException yse) {
+				//this is currently normal and expected on many files...
+			}
+			catch(NullPointerException npe) {
+				//this is currently normal and expected on many files...
 			}
 			catch( Exception e ) {
 				LOG.error( "error retrieving file " + specURI.toASCIIString(), e );
