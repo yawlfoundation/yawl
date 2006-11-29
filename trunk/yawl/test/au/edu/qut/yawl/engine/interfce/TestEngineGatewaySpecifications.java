@@ -11,7 +11,9 @@ package au.edu.qut.yawl.engine.interfce;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import junit.framework.Test;
@@ -22,6 +24,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.authentication.UserList;
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.EngineTestSuite;
@@ -31,6 +34,11 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.dao.restrictions.NegatedRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionStringConverter;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.worklist.model.Marshaller;
 import au.edu.qut.yawl.worklist.model.SpecificationData;
 
@@ -50,6 +58,10 @@ public class TestEngineGatewaySpecifications extends TestCase {
 //    private List _taskCancellationReceived = new ArrayList();
 //    private YWorkItemRepository _repository;
 //    private List _caseCompletionReceived = new ArrayList();
+    
+    private static final String SPEC_ONE_ID = "OneTwoThreeSpec.xml";
+    private static final String SPEC_TWO_ID = "SimpleSpec.xml";
+    private static final String SPEC_THREE_ID = "TestInputParameters1.xml";
 
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException,
     		YStateException, YPersistenceException, YDataStateException, URISyntaxException,
@@ -69,14 +81,14 @@ public class TestEngineGatewaySpecifications extends TestCase {
         EngineClearer.clear( EngineFactory.createYEngine() );
         
         TestEngineGateway.loadSpecification(
-        		getClass().getResource("OneTwoThreeSpec.xml"), _gateway, _session );
+        		getClass().getResource( SPEC_ONE_ID ), _gateway, _session );
         TestEngineGateway.loadSpecification(
-        		EngineTestSuite.class.getResource( "SimpleSpec.xml" ), _gateway, _session );
+        		EngineTestSuite.class.getResource( SPEC_TWO_ID ), _gateway, _session );
         TestEngineGateway.loadSpecification(
-        		EngineTestSuite.class.getResource( "TestInputParameters1.xml" ), _gateway, _session );
+        		EngineTestSuite.class.getResource( SPEC_THREE_ID ), _gateway, _session );
         
         // the spec ID for this spec happens to be the same as the filename
-        _specID = "OneTwoThreeSpec.xml";
+        _specID = SPEC_ONE_ID;
     }
     
     public void testLoadSpecificationSuccess() throws IOException {
@@ -88,7 +100,7 @@ public class TestEngineGatewaySpecifications extends TestCase {
     
     public void testLoadSpecificationIDInUseFailure() throws IOException {
     	String result = TestEngineGateway.loadSpecification(
-    			getClass().getResource( "OneTwoThreeSpec.xml" ), _gateway, _session );
+    			getClass().getResource( SPEC_ONE_ID ), _gateway, _session );
     	assertNotNull( result );
     	assertTrue( result, result.startsWith( "<failure" ) );
     }
@@ -125,16 +137,55 @@ public class TestEngineGatewaySpecifications extends TestCase {
     	
     	List<SpecificationData> specs = Marshaller.unmarshalSpecificationSummary(
     			"<rootTag>" + str + "</rootTag>" );
+    	Map<String, SpecificationData> specMap = new HashMap<String, SpecificationData>();
     	
-    	assertTrue( "" + specs.size(), specs.size() == 3 );
-    	
-    	for( int i = 0; i < specs.size(); i++ ) {
-    		SpecificationData data = specs.get( i );
-    		assertTrue( data.getID(),
-    				data.getID().equals( "OneTwoThreeSpec.xml" ) ||
-    				data.getID().equals( "SimpleSpec.xml" ) ||
-    				data.getID().equals( "TestInputParameters1.xml" ) );
+    	for( SpecificationData spec : specs ) {
+    		specMap.put( spec.getID(), spec );
     	}
+    	
+    	assertTrue( "spec list size:" + specs.size(), specs.size() == 3 );
+    	assertTrue( specMap.containsKey( SPEC_ONE_ID ) );
+    	assertTrue( specMap.containsKey( SPEC_TWO_ID ) );
+    	assertTrue( specMap.containsKey( SPEC_THREE_ID ) );
+    }
+    
+    public void testGetSpecificationsByRestriction1() throws YSyntaxException,
+    		YSchemaBuildingException, YPersistenceException, JDOMException, IOException {
+    	String str = _gateway.getSpecificationsByRestriction(
+    			RestrictionStringConverter.restrictionToString(
+    					new PropertyRestriction( "ID", Comparison.LIKE, "%Spec.xml" ) ), _session );
+    	
+    	List<YSpecification> specs = YMarshal.unmarshalSpecifications( str, "TestingRetrieveByRestriction" );
+    	Map<String, YSpecification> specMap = new HashMap<String, YSpecification>();
+    	
+    	for( YSpecification spec : specs ) {
+    		specMap.put( spec.getID(), spec );
+    	}
+    	
+    	assertTrue( "spec list size:" + specs.size(), specs.size() == 2 );
+    	assertTrue( specMap.containsKey( SPEC_ONE_ID ) );
+    	assertTrue( specMap.containsKey( SPEC_TWO_ID ) );
+    	assertFalse( specMap.containsKey( SPEC_THREE_ID ) );
+    }
+    
+    public void testGetSpecificationsByRestriction2() throws YSyntaxException,
+    		YSchemaBuildingException, YPersistenceException, JDOMException, IOException {
+    	String str = _gateway.getSpecificationsByRestriction(
+		RestrictionStringConverter.restrictionToString(
+				new NegatedRestriction( new PropertyRestriction( "ID", Comparison.LIKE, "%Spec.xml" ) ) ),
+				_session );
+    	
+    	List<YSpecification> specs = YMarshal.unmarshalSpecifications( str, "TestingRetrieveByRestriction" );
+    	Map<String, YSpecification> specMap = new HashMap<String, YSpecification>();
+    	
+    	for( YSpecification spec : specs ) {
+    		specMap.put( spec.getID(), spec );
+    	}
+    	
+    	assertTrue( "spec list size:" + specs.size(), specs.size() == 1 );
+    	assertFalse( specMap.containsKey( SPEC_ONE_ID ) );
+    	assertFalse( specMap.containsKey( SPEC_TWO_ID ) );
+    	assertTrue( specMap.containsKey( SPEC_THREE_ID ) );
     }
     
     public void testGetProcessDefinitionFailure() throws RemoteException {

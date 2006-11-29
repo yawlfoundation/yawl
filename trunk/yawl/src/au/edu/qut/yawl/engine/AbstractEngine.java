@@ -5,15 +5,11 @@
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
-
-
 package au.edu.qut.yawl.engine;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -47,8 +42,6 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
-import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
-import au.edu.qut.yawl.engine.interfce.InterfaceB_InternalEngineBasedClient;
 import au.edu.qut.yawl.engine.interfce.interfaceX.ExceptionGateway;
 import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import au.edu.qut.yawl.events.YErrorEvent;
@@ -73,7 +66,6 @@ import au.edu.qut.yawl.util.YDocumentCleaner;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
-import org.springframework.transaction.annotation.Transactional;
 /**
  *
  * @author Lachlan Aldred
