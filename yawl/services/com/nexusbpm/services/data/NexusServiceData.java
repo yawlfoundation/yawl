@@ -25,7 +25,7 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YVariable;
 
-import com.nexusbpm.NexusWorkflow;
+import com.nexusbpm.services.NexusServiceConstants;
 
 /**
  * Data container for Nexus Services. Instances of this class contain a list of dynamic
@@ -237,16 +237,16 @@ public class NexusServiceData implements Cloneable {
         String taskID = task.getID();
         
         for( String varName : task.getDataMappingsForTaskStarting().keySet() ) {
-            if( !( varName.equals( NexusWorkflow.SERVICENAME_VAR )
-                    || ( varName.equals( NexusWorkflow.STATUS_VAR ) && !includeStatusVariable )
+            if( !( varName.equals( NexusServiceConstants.SERVICENAME_VAR )
+                    || ( varName.equals( NexusServiceConstants.STATUS_VAR ) && !includeStatusVariable )
                     || varName.equals( "YawlWSInvokerWSDLLocation" )
                     || varName.equals( "YawlWSInvokerOperationName" )
                     || varName.equals( "YawlWSInvokerPortName" ) ) ) {
                 String val = null;
                 if( task.getParent().getLocalVariable(
-                        taskID + NexusWorkflow.NAME_SEPARATOR + varName ) != null ) {
+                        taskID + NexusServiceConstants.NAME_SEPARATOR + varName ) != null ) {
                     val = task.getParent().getLocalVariable(
-                            taskID + NexusWorkflow.NAME_SEPARATOR + varName ).getInitialValue();
+                            taskID + NexusServiceConstants.NAME_SEPARATOR + varName ).getInitialValue();
                 }
                 
                 data.unmarshalVariable( varName, val );
@@ -320,7 +320,7 @@ public class NexusServiceData implements Cloneable {
     public void marshal( YNet net, String taskID ) {
         
         for( Variable v : variable ) {
-            String name = taskID + NexusWorkflow.NAME_SEPARATOR + v.name;
+            String name = taskID + NexusServiceConstants.NAME_SEPARATOR + v.name;
             String value = v.getEncodedValue();
             
             if( net.getLocalVariable( name ) != null ) {
@@ -328,7 +328,7 @@ public class NexusServiceData implements Cloneable {
             }
             else {
                 YVariable var = new YVariable( net );
-                var.setDataTypeAndName(NexusWorkflow.VARTYPE_STRING, name, NexusWorkflow.XML_SCHEMA_URL);
+                var.setDataTypeAndName(NexusServiceConstants.VARTYPE_STRING, name, NexusServiceConstants.XML_SCHEMA_URL);
                 var.setInitialValue( value );
                 net.setLocalVariable( var );
             }
