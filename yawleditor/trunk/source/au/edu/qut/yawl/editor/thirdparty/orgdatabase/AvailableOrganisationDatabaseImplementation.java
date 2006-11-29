@@ -118,7 +118,7 @@ public class AvailableOrganisationDatabaseImplementation implements Organisation
     try {
       Statement statement = databaseConnection.createStatement();
       ResultSet results = statement.executeQuery(
-          "SELECT ID,GivenName,SurName FROM ResSerPosID WHERE IsOfResourceType = 'Human';"
+          "SELECT rsrcid,GivenName,SurName FROM Resource WHERE Resource_Type = 'human';"
       );
 
       while(results.next()) {
@@ -178,7 +178,7 @@ public class AvailableOrganisationDatabaseImplementation implements Organisation
   }
   
   public String getQueryToIdentifyResource(String resourceIdentifier) {
-    return "select ID FROM ResSerPosID WHERE IsOfResourceType = 'Human' and ID='" + resourceIdentifier.trim() + "'";
+    return "select rsrcid FROM Resource WHERE Resource_Type = 'Human' and rsrcid='" + resourceIdentifier.trim() + "'";
   }
 
   public String getQueryToIdentifyRole(String roleIdentifier) {

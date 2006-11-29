@@ -1,4 +1,4 @@
-Version 1.4.4 (??/??/??) "Wiggles"
+Version 1.4.5 (??/??/??) "Wiggles"
   * Now, when a user selects a single task, the palette menu expands to allow the use to modify the
     split and join decorators for the task, without having to go to the popup menu for the task.
   * Fixed a bug where a graph that was scaled would stop the user from being able to draw flows between elements.
@@ -18,7 +18,9 @@ Version 1.4.4 (??/??/??) "Wiggles"
     engine war to the standalone engine jar for getting the engine library it needs. This is to better
     support the engine's installer including just the lite editor for distribution, but with full engine-enabled
     functionality.
-  * Upgraded the editor to include a new type of analysis based on reset nets.
+
+Version 1.4.4 (29/11/2006) "MoreMoe"
+  * Upgraded the editor to fix some bugs in reset net analysis and to include reduction rules.
 
 Version 1.4.3 (25/08/2006) "Deltapoint"
   * There is now a new palette menu item allowing users to drag the visible window of a 
