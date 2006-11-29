@@ -24,35 +24,15 @@
 
 package au.edu.qut.yawl.editor.actions.element;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.SwingConstants;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.swing.AbstractWizardDialog;
-import au.edu.qut.yawl.editor.swing.AbstractWizardPanel;
-import au.edu.qut.yawl.editor.swing.JFormattedAlphaNumericField;
-import au.edu.qut.yawl.editor.swing.JUtilities;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
-import au.edu.qut.yawl.editor.swing.data.JProblemReportingEditorPane;
-import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
-import au.edu.qut.yawl.editor.swing.resourcing.AllocationStrategyComboBox;
-import au.edu.qut.yawl.editor.swing.resourcing.ResourceAllocationComboBox;
-import au.edu.qut.yawl.editor.swing.resourcing.ResourceOfferingComboBox;
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import au.edu.qut.yawl.editor.swing.element.AbstractTaskDoneDialog;
 import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import au.edu.qut.yawl.editor.thirdparty.orgdatabase.OrganisationDatabaseProxy;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -61,14 +41,19 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.util.LinkedList;
+
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Action;
-import javax.swing.border.CompoundBorder;
+import javax.swing.Box;
+import javax.swing.ButtonGroup;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+
 
 public class ManageResourcingAction extends YAWLSelectedNetAction
                                     implements TooltipTogglingWidget {
@@ -117,1257 +102,740 @@ public class ManageResourcingAction extends YAWLSelectedNetAction
   }
 }
 
-class ManageResourcingDialog extends AbstractWizardDialog {
-  private YAWLTask task;
-  private NetGraph net;
+class ManageResourcingDialog extends AbstractTaskDoneDialog {
   
-  private boolean administratorOffersWork = false;
-  
-  protected void initialise() {
-    setPanels(
-        new AbstractWizardPanel[] {
-            new GuidedOrAdvancedWizardPanel(this),
-            new WorkDistributionOptionsPanel(this),
-            new DistributeToRolesAndIndividualsPanel(this),
-            new DistributeToUserAndRoleVariablesPanel(this),
-            new FilteringByFamiliarityPanel(this),
-            new SelectionByOrganisationalRequirementsPanel(this),
-            new FilterByCapabilityPanel(this),
-            new ReviewResourceAllocationOfferingPanel(this)
-        }
-    );
-  }
-  
-  public boolean adminsitratorOffersWork() {
-    return this.administratorOffersWork;
-  }
-  
-  public void setAdministratorOffersWork(boolean adminOffersWork) {
-    this.administratorOffersWork = adminOffersWork;
-  }
-  
-  public String getTitlePrefix() {
-    return "Manage Resourcing Wizard for ";
-  }
-  
-  public String getTitleSuffix() {
-    if (task.getLabel() != null && !task.getLabel().equals("")) {
-      return " \"" + task.getLabel() + "\"";
-    }
-    return "";
-  }
-  
-  protected void makeLastAdjustments() {
-    //pack();
-    setSize(800,450);
-    //setResizable(false);
-  }
-  
-  public void setTask(YAWLTask task, NetGraph net) {
-    this.task = task;
-    this.net = net;
-
-    setTitle(getTitlePrefix() + task.getType() + getTitleSuffix());
-  }
-  
-  public void doFinish() {
-    System.out.println("Finish Button Pressed");
-  }
-  
-  public void setVisible(boolean state) {
-    if (state == true) {
-      JUtilities.centreWindowUnderVertex(net, this, task, 10);
-    }
-    super.setVisible(state);
-  }
-}
-
-class GuidedOrAdvancedWizardPanel extends AbstractWizardPanel {
-  
-  private JButton basicButton;
-  private JButton advancedButton;
-
-  public GuidedOrAdvancedWizardPanel(ManageResourcingDialog dialog) {
-    super(dialog);
-  }
-  
-  public String getWizardStepTitle() {
-    return "Choose Basic or Advanced Resource Management";
-  }
-  
-  protected void initialise() {}
-  
-  protected void buildInterface() {
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    setLayout(gbl);
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.gridwidth = 2;
-    gbc.weighty = 0.333;
-    gbc.insets = new Insets(10,0,10,0);
-    gbc.anchor = GridBagConstraints.WEST;
-    
-    add(new JLabel("This wizard will help you to construct an expression that tells the " +
-            "workflow engine how work for this task should be allocated. "), gbc);
-
-    gbc.gridy++;
-    gbc.gridwidth = 1;
-    gbc.weighty = 0;
-    gbc.anchor = GridBagConstraints.EAST;
-
-    add(new JLabel("To be guided through the process of building the expression click here: "), gbc);
-    
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.CENTER;
-    
-    add(buildBasicButton(),gbc);
-    
-    gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.anchor = GridBagConstraints.EAST;
-
-    add(new JLabel("If you are familiar with resourcing expressions, you can skip to the end by clicking here: "), gbc);
-
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.CENTER;
-    
-    add(buildAdvancedButton(),gbc);
-    
-    gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.gridwidth = 2;
-    gbc.weighty = 0.666;
-    gbc.anchor = GridBagConstraints.CENTER;
-    add(new JLabel(),gbc);
-
-    LinkedList buttonList = new LinkedList();
-
-    buttonList.add(basicButton);
-    buttonList.add(advancedButton);
-      
-    JUtilities.equalizeComponentSizes(buttonList);
-   }
-  
-  private JButton buildBasicButton() {
-    basicButton = new JButton("Begin Wizard");
-    basicButton.setMnemonic(KeyEvent.VK_B);
-    basicButton.setMargin(new Insets(2,11,3,12));
-    basicButton.addActionListener(new ActionListener(){
-        public void actionPerformed(ActionEvent e) {
-          getDialog().doNext();
-        }
-      }
-    );
-    return basicButton; 
-  }
-
-  private JButton buildAdvancedButton() {
-    advancedButton = new JButton("Edit Resource Expression");
-    advancedButton.setMnemonic(KeyEvent.VK_E);
-    advancedButton.setMargin(new Insets(2,11,3,12));
-    advancedButton.addActionListener(new ActionListener(){
-        public void actionPerformed(ActionEvent e) {
-          getDialog().doLast();
-        }
-      }
-    );
-    return advancedButton; 
-  }
-
-  public void doBack() {}
-
-  public void doNext() {}     
-}
-
-class WorkDistributionOptionsPanel extends AbstractWizardPanel {
-
-  private ResourceOfferingComboBox offerTypeComboBox;
-  private JComboBox startingTypeComboBox;
-  private ResourceAllocationComboBox allocationTypeComboBox;
-  private AllocationStrategyComboBox allocationStrategyComboBox;
-  
-  private JCheckBox singleUserAllocationCheckBox;
-    
-  public WorkDistributionOptionsPanel(ManageResourcingDialog dialog) {
-    super(dialog);
-  }
-  
-  public String getWizardStepTitle() {
-    return "Work Distribution Options";
-  }
-  
-  protected void initialise() {
-    // TODO :Widget initialisation.
-  }
-  
-  protected void buildInterface() {
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    setLayout(gbl);
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.gridwidth = 4;
-    gbc.weighty = 0;
-    gbc.insets = new Insets(5,5,10,5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    add(new JLabel(
-        "Describe how work items of this task are to be offered, allocated and started below:"
-        ), gbc
-    );
-    
-    gbc.gridy++;
-    gbc.gridwidth = 1;
-    gbc.weightx = 0.333;
-    gbc.insets = new Insets(5,5,2,5);
-    gbc.anchor = GridBagConstraints.WEST;
-    
-    JLabel offeringLabel = new JLabel("Offering:");
-    offeringLabel.setDisplayedMnemonic(KeyEvent.VK_O);
-    
-    add(offeringLabel,gbc);
-    
-    gbc.gridx++;
-    
-    JLabel allocationLabel = new JLabel("Allocation:");
-    allocationLabel.setDisplayedMnemonic(KeyEvent.VK_A);
-    
-    add(allocationLabel,gbc);
-    
-    JLabel startingLabel = new JLabel("Starting:");
-    startingLabel.setDisplayedMnemonic(KeyEvent.VK_S);
-    
-    gbc.gridx++;
-    add(startingLabel,gbc);
-    
-    gbc.gridy++;
-    gbc.gridx = 0;
-    gbc.insets = new Insets(2,5,5,5);
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.anchor = GridBagConstraints.CENTER;
-        
-    add(buildOfferList(), gbc);
-    offeringLabel.setLabelFor(offerTypeComboBox);
-  
-    gbc.gridx++;
-    add(buildAllocationList(), gbc);
-    allocationLabel.setLabelFor(allocationTypeComboBox);
-
-    
-    gbc.gridx++;
-    gbc.gridwidth = 2;
-    add(buildStartingList(), gbc);
-    startingLabel.setLabelFor(startingTypeComboBox);
-    
-    gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.insets = new Insets(10,5,5,5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.EAST;
-    
-    add(buildSingleUserAllocationCheckBox(),gbc);
-    
-    gbc.gridx = gbc.gridx + 2;
-    gbc.gridwidth = 1;
-    gbc.anchor = GridBagConstraints.EAST;
-    
-    JLabel allocationStrategyLabel = new JLabel("Use Strategy:");
-    allocationStrategyLabel.setDisplayedMnemonic(KeyEvent.VK_U);
-
-    add(allocationStrategyLabel,gbc);
-    
-    gbc.gridx++;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.anchor = GridBagConstraints.CENTER;
-    
-    add(buildAllocationStrategyList(), gbc);
-    allocationStrategyLabel.setLabelFor(allocationStrategyComboBox);
-    allocationStrategyComboBox.setLabel(allocationStrategyLabel);
-    
-    bindRelatedWidgetEvents();
-  }
-  
-  private void bindRelatedWidgetEvents() {
-    allocationTypeComboBox.addActionListener(
-      new ActionListener() {
-        public void actionPerformed(ActionEvent event) {
-          if (allocationTypeComboBox.getAllocation() == ResourceAllocationComboBox.SYSTEM_ALLOCATION) {
-            allocationStrategyComboBox.setSystemAllocationRequired(true);
-            singleUserAllocationCheckBox.setEnabled(true);
-          } else {
-            allocationStrategyComboBox.setSystemAllocationRequired(false);
-            singleUserAllocationCheckBox.setEnabled(false);
-          }
-        }
-      }
-    );
-
-    allocationStrategyComboBox.setSystemAllocationRequired(
-        allocationTypeComboBox.getAllocation() == ResourceAllocationComboBox.SYSTEM_ALLOCATION
-    );
-    
-    singleUserAllocationCheckBox.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent event) {
-            allocationStrategyComboBox.setSingleAllocationRequired(
-                singleUserAllocationCheckBox.isSelected()
-            );
-          }
-        }
-    );
-    
-    allocationStrategyComboBox.setSingleAllocationRequired(
-        singleUserAllocationCheckBox.isSelected()
-    );
-  }
-  
-  private ResourceOfferingComboBox buildOfferList() {
-    this.offerTypeComboBox = new ResourceOfferingComboBox();
-    this.offerTypeComboBox.addActionListener(
-      new ActionListener() {
-        public void actionPerformed(ActionEvent event) {
-          ((ManageResourcingDialog) getDialog()).setAdministratorOffersWork(
-              offerTypeComboBox.getOfferType() == ResourceOfferingComboBox.ADMINISTRATOR_OFFERS
-          );
-        }
-      }
-    );
-    
-    return offerTypeComboBox;
-  }
-  
-  private JCheckBox buildSingleUserAllocationCheckBox() {
-    singleUserAllocationCheckBox = new JCheckBox(
-        "Ensure only one user is allocated the work-item."
-    );
-    singleUserAllocationCheckBox.setMnemonic(KeyEvent.VK_E);
-    
-    return singleUserAllocationCheckBox;
-  };
-
-  private ResourceAllocationComboBox buildAllocationList() {
-    allocationTypeComboBox = new ResourceAllocationComboBox();
-    return allocationTypeComboBox;
-  }
-
-
-  private JComboBox buildStartingList() {
-
-    startingTypeComboBox = new JComboBox(
-        new String[] {
-          "System starts work-item upon allocation.",
-          "User informs system of work commencement."
-        }
-    );
-
-    return startingTypeComboBox;
-  }
-
-  private AllocationStrategyComboBox buildAllocationStrategyList() {
-    allocationStrategyComboBox = new AllocationStrategyComboBox();
-    return allocationStrategyComboBox;
-  }
-  
-  public void doBack() {}
-
-   public void doNext() {
-     if (offerTypeComboBox.getOfferType() == ResourceOfferingComboBox.ADMINISTRATOR_OFFERS) {
-       getDialog().doLast();
-     }
-   }     
-}
-
-class DistributeToRolesAndIndividualsPanel extends AbstractWizardPanel {
-  
-  private JList individualList;
-  private JList roleList;
-
-  public DistributeToRolesAndIndividualsPanel(ManageResourcingDialog dialog) {
-    super(dialog);
-  }
-  
-  public String getWizardStepTitle() {
-    return "Add Individuals and/or Roles to Distribution Pool";
-  }
-
-  
-  protected void initialise() {
-    // TODO: initialise widgets
-  }
-  
-  protected void buildInterface() {
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    setLayout(gbl);
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.gridwidth = 3;
-    gbc.weighty = 0;
-    gbc.insets = new Insets(10,0,10,0);
-    gbc.fill = GridBagConstraints.BOTH;
-    gbc.anchor = GridBagConstraints.CENTER;
-
-    add(new JLabel("<html><body>Below are lists of available individuals and roles.<p>Chose from both lists, " +
-            "those individuals and/or roles you wish add to the distribution pool for work items of this task. </body></html>"), gbc);
-    
-    gbc.gridy++;
-    gbc.gridwidth = 1;
-    gbc.insets = new Insets(10,0,0,0);
-    gbc.fill = GridBagConstraints.BOTH;
-    gbc.anchor = GridBagConstraints.SOUTHWEST;
-    
-    
-    JLabel individualsLabel = new JLabel("Individuals:");
-    individualsLabel.setDisplayedMnemonic(KeyEvent.VK_I);
-    
-    add(individualsLabel,gbc);
-    
-    gbc.gridx = gbc.gridx + 2;
-
-    JLabel rolesLabel = new JLabel("Roles:");
-    rolesLabel.setDisplayedMnemonic(KeyEvent.VK_R);
-    
-    add(rolesLabel,gbc);
-    
-    gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.weightx = 0.4;
-    gbc.weighty = 1;
-    gbc.insets = new Insets(2,0,0,0);
-    
-    add(buildIndividualsPanel(), gbc);
-    
-    individualsLabel.setLabelFor(individualList);
-    
-    gbc.gridx++;
-    gbc.weightx = 0;
-    gbc.insets = new Insets(20,10,10,10);
-    gbc.fill = GridBagConstraints.VERTICAL;
-    gbc.anchor = GridBagConstraints.CENTER;
-
-    add(new JLabel("and/or"),gbc);
-
-    gbc.weightx = 0.4;
-    gbc.gridx++;
-    gbc.insets = new Insets(2,0,0,0);
-    gbc.fill = GridBagConstraints.BOTH;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    add(buildRolesPanel(), gbc);
-
-    rolesLabel.setLabelFor(roleList);
-
-  }
-  
-  JPanel buildIndividualsPanel() {
-    JPanel panel = new JPanel();
-    
-    // TODO: Source real data
-    
-    String individuals[] = {"All Staff", "John", 
-        "Eric", "Moses", "Elijah", 
-        "Arthur", "Henry", "Frederick", 
-        "Adam", "Michael", "Johnathon",
-        "Lindsay", "Tore", "Lachlan"
-    };
-    
-    panel.setLayout(new BorderLayout());
-    individualList = new JList(individuals);
-    JScrollPane scrollpane = new JScrollPane(individualList);
-    scrollpane.getViewport().setMaximumSize(
-        individualList.getPreferredScrollableViewportSize()
-    );
-    
-    panel.add(scrollpane, BorderLayout.CENTER);
-
-    return panel;
-  }
-
-  JPanel buildRolesPanel() {
-    JPanel panel = new JPanel();
-
-    // TODO: Source real data
-    
-    String roles[] = {"All Roles", "Safety Officer", 
-        "Approving Officer", "Admin Officer", "Pantry IC", 
-        "Meeting IC"
-    };
-    
-    panel.setLayout(new BorderLayout());
-    roleList = new JList(roles);
-    JScrollPane scrollpane = new JScrollPane(roleList);
-    scrollpane.getViewport().setMaximumSize(
-        roleList.getPreferredScrollableViewportSize()
-    );
-    
-    panel.add(scrollpane, BorderLayout.CENTER);
-
-    return panel;
-  }
-
-  public void doBack() {}
-
-   public void doNext() {}     
-}
-
-class DistributeToUserAndRoleVariablesPanel extends AbstractWizardPanel {
-
-  public DistributeToUserAndRoleVariablesPanel(ManageResourcingDialog dialog) {
-    super(dialog);
-  }
-  
-  public String getWizardStepTitle() {
-    return "Add Variables that Identify Users or Rolls to Distibution Pool";
-  }
-
-  
-  protected void initialise() {
-    // TODO: Initialise widgets
-  }
-  
-  protected void buildInterface() {
-    setLayout(new BorderLayout());
-    add(new JLabel(
-            "Don't understand what's being asked for here. Discuss."
-        ), BorderLayout.CENTER
-    ); 
-  }
-  
-  public void doBack() {}
-
-   public void doNext() {}     
-}
-
-class FilteringByFamiliarityPanel extends AbstractWizardPanel {
-  
-  private JRadioButton distributeVlaCompletedButton;
-  private JRadioButton distributeViaNonCompleteButton;
-  private JRadioButton noDistirbuteButton;
-
-  private ButtonGroup buttonGroup;
-
-  private JComboBox taskComboBox;
-  private JComboBox familarityTypeComboBox;
-  
-  public FilteringByFamiliarityPanel(ManageResourcingDialog dialog) {
-    super(dialog);
-  }
-  
-  public String getWizardStepTitle() {
-    return "Filter Distribution Pool By Familiarity";
-  }
-
-  
-  protected void initialise() {
-    // TODO: widget initialsiation
-  }
-  
-  protected void buildInterface() {
-    
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    setLayout(gbl);
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.gridwidth = 5;
-    gbc.weighty = 0;
-    gbc.insets = new Insets(5,0,0,0);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    add(new JLabel(
-        "From the following options, select how familiarity with a task filters out users to distribute work to."
-        ), gbc
-    );
-
-    gbc.gridy++;
-    gbc.insets = new Insets(0,5,0,0);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    add(buildNoDistributionRadioButton(), gbc);
-
-    gbc.gridy++;
-    gbc.insets = new Insets(10,0,0,2);
-
-    add(new JLabel(
-        "Filter allocation of this task to those users of a running case who:"
-        ), gbc
-    );
-
-    gbc.gridy++;
-    gbc.gridwidth = 1;
-    gbc.insets = new Insets(0,5,0,0);
-
-    add(buildCompletedRadioButton(), gbc);
-
-    gbc.insets = new Insets(0,5,0,0);
-    gbc.gridy++;
-    
-    add(buildNonCompletedRadioButton(), gbc);
-
-    buttonGroup = new ButtonGroup();
-    
-    buttonGroup.add(noDistirbuteButton);
-    buttonGroup.add(distributeVlaCompletedButton);
-    buttonGroup.add(distributeViaNonCompleteButton);
-
-    buttonGroup.setSelected(noDistirbuteButton.getModel(),true);
-
-    gbc.gridx = 1;
-    gbc.gridy = gbc.gridy - 1;
-    gbc.insets = new Insets(0,5,0,5);
-    gbc.gridheight = 2;
-    
-    JLabel taskLabel = new JLabel("the task");
-    taskLabel.setDisplayedMnemonic(KeyEvent.VK_T);
-    taskLabel.setDisplayedMnemonicIndex(4);
-    
-    add(taskLabel,gbc);
-    
-    gbc.gridx++;
-    
-    add(buildTaskComboBox(),gbc);
-    taskLabel.setLabelFor(taskComboBox);
-
-    gbc.gridx++;
-    
-    JLabel familarityTypeLabel = new JLabel("in the following way");
-    familarityTypeLabel.setDisplayedMnemonic(KeyEvent.VK_W);
-    familarityTypeLabel.setDisplayedMnemonicIndex(17);
-    
-    add(familarityTypeLabel,gbc);
-    
-    gbc.gridx++;
-    
-    add(buildFamiliarityTypeComboBox(),gbc);
-    familarityTypeLabel.setLabelFor(familarityTypeComboBox);
-  }
-  
-  private JRadioButton buildCompletedRadioButton() {
-    distributeVlaCompletedButton = new JRadioButton("have completed");
-    distributeVlaCompletedButton.setMnemonic(KeyEvent.VK_H);
-    return distributeVlaCompletedButton;
-  }
-  
-  private JRadioButton buildNonCompletedRadioButton() {
-    distributeViaNonCompleteButton = new JRadioButton("have not completed");
-    distributeViaNonCompleteButton.setMnemonic(KeyEvent.VK_O);
-    return distributeViaNonCompleteButton;
-  }
-
-  private JRadioButton buildNoDistributionRadioButton() {
-    noDistirbuteButton = new JRadioButton("Do not filter work-items of this task based on familiarity, or");
-    noDistirbuteButton.setMnemonic(KeyEvent.VK_D);
-    return noDistirbuteButton;
-  }
-  
-  private JComboBox buildFamiliarityTypeComboBox() {
-    familarityTypeComboBox = new JComboBox(
-      new String[] {
-          "the most number of times.",
-          "the least number of times.",
-          "most recently.",
-          "least recently."
-      }
-    );
-    
-    return familarityTypeComboBox;
-  }
-
-  private JComboBox buildTaskComboBox() {
-    taskComboBox = new JComboBox(
-      new String[] {
-          "this task",
-          "some other task"
-      }
-    );
-    
-    return taskComboBox;
-  }
-
-  
-  public void doBack() {}
-
-   public void doNext() {}     
-}
-
-class SelectionByOrganisationalRequirementsPanel extends AbstractWizardPanel {
-  
-  private JRadioButton distributeToPositionButton;
-  private JRadioButton distributeToNearbyPositionButton;
-  private JRadioButton noDistirbuteButton;
-
-  private ButtonGroup buttonGroup;
-
-  private JComboBox nearbyPositionComboBox;
-  private JList positionList;
-  private JList groupList;
-  
-  public SelectionByOrganisationalRequirementsPanel(ManageResourcingDialog dialog) {
-    super(dialog);
-  }
-  
-  public String getWizardStepTitle() {
-    return "Filter Distribution Pool By Organisational Requirements";
-  }
-  
-  protected void initialise() {
-    // TODO: initialise widgets
-  }
-  
-  protected void buildInterface() {
-    
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    setLayout(gbl);
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.gridwidth = 4;
-    gbc.weighty = 0;
-    gbc.insets = new Insets(5,0,0,0);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    add(new JLabel(
-        "From the following options, select how organisation structure filters out users that this task can be allocated to."
-        ), gbc
-    );
-
-    gbc.gridy++;
-    gbc.insets = new Insets(0,5,0,0);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    add(buildNoDistributionRadioButton(), gbc);
-
-    gbc.gridy++;
-    gbc.insets = new Insets(10,0,0,2);
-
-    add(new JLabel(
-        "Distribute work-items of this task to:"
-        ), gbc
-    );
-
-    gbc.gridy++;
-    gbc.gridwidth = 2;
-    gbc.insets = new Insets(0,5,0,0);
-
-    add(buildDistributieToPositionRadioButton(), gbc);
-    
-    gbc.insets = new Insets(0,5,0,0);
-    gbc.gridwidth = 1;
-    gbc.anchor = GridBagConstraints.NORTH;
-    gbc.gridy++;
-    
-    add(buildDistributeToNearbyPositionRadioButton(), gbc);
-
-    buttonGroup = new ButtonGroup();
-    
-    buttonGroup.add(noDistirbuteButton);
-    buttonGroup.add(distributeToPositionButton);
-    buttonGroup.add(distributeToNearbyPositionButton);
-
-    buttonGroup.setSelected(noDistirbuteButton.getModel(),true);
-
-    gbc.insets = new Insets(0,5,5,5);
-    gbc.gridx++;
-    
-    add(buildNearbyPositionComboBox(),gbc);
-
-    gbc.gridy--;
-    gbc.gridx++;
-    gbc.gridheight = 2;
-    
-    gbc.anchor = GridBagConstraints.CENTER;
-    gbc.fill = GridBagConstraints.NONE;
-    
-    JLabel positionLabel = new JLabel("the position");
-    positionLabel.setDisplayedMnemonic(KeyEvent.VK_P);
-    
-    add(positionLabel,gbc);
-
-    gbc.fill = GridBagConstraints.BOTH;
-    gbc.gridx++;
-    gbc.weighty = 0.5;
-    gbc.gridheight = 3;
-    
-    add(buildPositionList(),gbc);
-    positionLabel.setLabelFor(positionList);
-    
-    gbc.gridy = gbc.gridy + 3;
-    gbc.gridx = 0;
-    gbc.weighty = 0;
-    gbc.gridwidth = 3;
-    gbc.anchor = GridBagConstraints.NORTH;
-    gbc.fill = GridBagConstraints.NONE;
-    
-    JLabel organisationalGroupLabel = new JLabel("in the following organisational groups:");
-    organisationalGroupLabel.setDisplayedMnemonic(KeyEvent.VK_G);
-    organisationalGroupLabel.setDisplayedMnemonicIndex(32);
-    
-    add(organisationalGroupLabel,gbc);
-
-    gbc.gridx=3;
-    gbc.weighty = 0.5;
-    gbc.gridwidth = 1;
-    gbc.anchor = GridBagConstraints.CENTER;
-    gbc.fill = GridBagConstraints.BOTH;
-    
-    add(buildGroupList(),gbc);
-    organisationalGroupLabel.setLabelFor(groupList);
-  }
-  
-  private JRadioButton buildDistributieToPositionRadioButton() {
-    distributeToPositionButton = new JRadioButton("users holding");
-    distributeToPositionButton.setMnemonic(KeyEvent.VK_U);
-    return distributeToPositionButton;
-  }
-  
-  private JRadioButton buildDistributeToNearbyPositionRadioButton() {
-    distributeToNearbyPositionButton = new JRadioButton("all");
-    distributeToNearbyPositionButton.setMnemonic(KeyEvent.VK_A);
-    
-    distributeToNearbyPositionButton.addActionListener(
-      new ActionListener() {
-        public void actionPerformed(ActionEvent event) {
-          if (distributeToNearbyPositionButton.isSelected()) {
-            if (nearbyPositionComboBox != null) {
-              nearbyPositionComboBox.requestFocus();
-            }
-          }
-        }
-      }
-    );
-    
-    return distributeToNearbyPositionButton;
-  }
-
-  private JRadioButton buildNoDistributionRadioButton() {
-    noDistirbuteButton = new JRadioButton("Do not filter users that can be alllocated work-items of this task based on organisation, or");
-    noDistirbuteButton.setMnemonic(KeyEvent.VK_D);
-    return noDistirbuteButton;
-  }
-  
-  private JScrollPane buildPositionList() {
-
-    final String[] positions = new String[] {
-      "All Positions",
-      "Manager",
-      "General Manager",
-      "Clerk",
-      "Accountant",
-      "Marketing Executive"
-    };
-    
-    positionList = new JList(positions);
-    JScrollPane scrollpane = new JScrollPane(positionList);
-    scrollpane.getViewport().setMaximumSize(
-      positionList.getPreferredScrollableViewportSize()
-    );
-    
-    return scrollpane;
-  }
-
-  private JScrollPane buildGroupList() {
-
-    final String[] groups = new String[] {
-      "All Positions",
-      "Manager",
-      "General Manager",
-      "Clerk",
-      "Accountant",
-      "Marketing Executive"
-    };
-    
-    groupList = new JList(groups);
-    JScrollPane scrollpane = new JScrollPane(groupList);
-    scrollpane.getViewport().setMaximumSize(
-      groupList.getPreferredScrollableViewportSize()
-    );
-    
-    return scrollpane;
-  }
-
-  private JComboBox buildNearbyPositionComboBox() {
-    nearbyPositionComboBox = new JComboBox(
-      new String[] {
-          "subordinates of",
-          "superiors of"
-      }
-    );
-    
-    return nearbyPositionComboBox;
-  }
-
-  
-  public void doBack() {}
-
-   public void doNext() {}     
-}
-
-class FilterByCapabilityPanel extends AbstractWizardPanel {
-  
-  private JComboBox capabilityTypeComboBox;
-  private JComboBox capabilityComboBox;
-  private JComboBox conditionOperatorComboBox;
-  
-  private JFormattedAlphaNumericField conditionValueField;
-  
-  private JButton addCapabilityButton;
-  private JButton addConditionButton;
-  private JButton removeCapabilityButton;
-  
-  private JList capabilityFilterList;
-  
-  private JLabel unitsLabel;
-  
-  public FilterByCapabilityPanel(ManageResourcingDialog dialog) {
-    super(dialog);
-  }
-  
-  public String getWizardStepTitle() {
-    return "Filter Distirbution Pool by Resource Capabilities";
-  }
-
-  
-  protected void initialise() {
-    // TODO: Initialise widgets
-  }
-  
-  protected void buildInterface() {
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    setLayout(gbl);
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.gridwidth = 8;
-    gbc.weighty = 0;
-    gbc.insets = new Insets(5,5,5,5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    add(new JLabel(
-        "From below, construct a number of capabilities that resources must posses to remain in the distribution pool:"
-        ), gbc
-    );
-    
-    gbc.gridy++;
-    gbc.gridwidth = 1;
-    gbc.anchor = GridBagConstraints.EAST;
-    
-    JLabel capabilityTypeLabel = new JLabel("Select users with type");
-    capabilityTypeLabel.setDisplayedMnemonic(KeyEvent.VK_T);
-    capabilityTypeLabel.setDisplayedMnemonicIndex(18);
-    
-    add(capabilityTypeLabel,gbc);
-    
-    gbc.gridx++;
-    gbc.gridwidth = 2;
-    gbc.weightx = 0.5;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.anchor = GridBagConstraints.CENTER;
-    
-    add(buildCapabilityTypeComboBox(), gbc);
-    capabilityTypeLabel.setLabelFor(capabilityTypeComboBox);
-
-    gbc.gridx+=2;
-    gbc.gridwidth = 1;
-    gbc.weightx = 0;
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.insets = new Insets(5,2,5,2);
-    
-    JLabel capabilityLabel = new JLabel("of capability");
-    capabilityLabel.setDisplayedMnemonic(KeyEvent.VK_C);
-    
-    add(capabilityLabel,gbc);
- 
-    gbc.gridx++;
-    gbc.gridwidth = 3;
-    gbc.weightx = 0.5;
-    gbc.insets = new Insets(5,5,5,5);
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.anchor = GridBagConstraints.CENTER;
-
-    add(buildCapabilityComboBox(), gbc);
-    capabilityLabel.setLabelFor(capabilityComboBox);
-    
-    gbc.gridx+=3;
-    gbc.gridwidth = 1;
-    gbc.weightx = 0;
-    gbc.gridheight = 2;
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.CENTER;
-
-    add(buildAddCapabilityButton(),gbc);
-    
-    gbc.gridy++;
-    gbc.gridheight = 1;
-    gbc.gridx = 1;
-    gbc.weightx = 0.5;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.anchor = GridBagConstraints.EAST;
-    
-    JLabel conditionLabel = new JLabel("with condition:");
-    conditionLabel.setDisplayedMnemonic(KeyEvent.VK_O);
-    conditionLabel.setHorizontalAlignment(JLabel.RIGHT);
-    add(conditionLabel,gbc);
- 
-    gbc.gridx++;
-    gbc.weightx = 0;
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.WEST;
-    
-    add(buildConditionOperatorComboBox(),gbc);
-    conditionLabel.setLabelFor(conditionOperatorComboBox);
-
-    JLabel conditionValueLabel = new JLabel("the value of:");
-    conditionValueLabel.setDisplayedMnemonic(KeyEvent.VK_V);
-
-    gbc.gridx++;
-
-    add(conditionValueLabel,gbc);
- 
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.CENTER;
-    gbc.weightx = 1;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-   
-    add(buildConditionValueField(),gbc);
-    conditionValueLabel.setLabelFor(conditionValueField);
-
-    gbc.gridx++;
-    gbc.weightx = 0;
-    gbc.anchor = GridBagConstraints.EAST;
-    gbc.fill = GridBagConstraints.NONE;
-    
-    unitsLabel = new JLabel("dollars");
-    
-    add(unitsLabel,gbc);
-    
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.CENTER;
-    
-    add(buildAddConditionButton(),gbc);
-    
-    gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.gridwidth = 8;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-
-    add(new JSeparator(),gbc);  
-    
-    gbc.gridy++;
-    gbc.gridx = 0;
-    gbc.gridwidth = 1;
-    gbc.anchor = GridBagConstraints.NORTHEAST;
-    
-    JLabel capabilitiesListLabel = new JLabel("Capability Criteria:");
-    capabilitiesListLabel.setDisplayedMnemonic(KeyEvent.VK_P);
-    
-    add(capabilitiesListLabel,gbc);
-    
-    gbc.gridx++;
-    gbc.gridwidth = 6;
-    gbc.anchor = GridBagConstraints.CENTER;
-    gbc.weighty = 1;
-    gbc.fill = GridBagConstraints.BOTH;
-    
-    add(buildCapabilityFilterList(),gbc);
-    
-    capabilitiesListLabel.setLabelFor(capabilityFilterList);
-    
-    gbc.gridx+=6;
-    gbc.gridwidth = 1;
-    gbc.anchor = GridBagConstraints.CENTER;
-    gbc.fill = GridBagConstraints.NONE;
-    
-    add(buildRemoveCapabilityButton(),gbc);
-
-    LinkedList buttonList = new LinkedList();
-
-    buttonList.add(addCapabilityButton);
-    buttonList.add(removeCapabilityButton);
-      
-    JUtilities.equalizeComponentSizes(buttonList);
-
-  }
-  
-  private JScrollPane buildCapabilityFilterList() {
-    capabilityFilterList = new JList(
-        new String[] {
-            "\"Degree\" of \"Bachelor of IT\"",
-            "\"Degree\" of \"Bachelor of Accounting\"" 
-        }
-    );
-    
-    JScrollPane scrollPane = new JScrollPane(capabilityFilterList);
-    
-    return scrollPane;
-  }
-
-  private JComboBox buildConditionOperatorComboBox() {
-    conditionOperatorComboBox = new JComboBox(
-      new String[] {
-          "=",
-          ">",
-          "<",
-          ">=",
-          "<="
-      }
-    );
-    return conditionOperatorComboBox;
-  }
-
-  private JFormattedAlphaNumericField buildConditionValueField() {
-    conditionValueField = new JFormattedAlphaNumericField(15);
-    conditionValueField.allowSpaces();
-    return conditionValueField;
-  }
-  
-  private JComboBox buildCapabilityTypeComboBox() {
-    capabilityTypeComboBox = new JComboBox(
-      new String[] {
-          "Degree",
-          "Marital Status"
-      }
-    );
-    capabilityTypeComboBox.setEditable(true);
-    return capabilityTypeComboBox;
-  }
-
-  private JComboBox buildCapabilityComboBox() {
-    capabilityComboBox = new JComboBox(
-        new String[] {
-            "Bachelor of IT",
-            "Bachelor of Accounting"
-        }
-    );
-    capabilityComboBox.setEditable(true);
-    return capabilityComboBox;
-  }
-  
-  private JButton buildAddCapabilityButton() {
-    addCapabilityButton = new JButton("Add Capability");
-    addCapabilityButton.setMnemonic(KeyEvent.VK_A);
-    return addCapabilityButton;
-  }
-
-  private JButton buildAddConditionButton() {
-    addConditionButton = new JButton("Add");
-    addConditionButton.setMnemonic(KeyEvent.VK_D);
-    return addConditionButton;
-  }
-
-  
-  private JButton buildRemoveCapabilityButton() {
-    removeCapabilityButton = new JButton("Remove Capability");
-    removeCapabilityButton.setMnemonic(KeyEvent.VK_R);
-    return removeCapabilityButton;
-  }
-
-  public void doBack() {}
-
-   public void doNext() {}     
-}
-
-class ReviewResourceAllocationOfferingPanel extends AbstractWizardPanel {
-
-  public ReviewResourceAllocationOfferingPanel(ManageResourcingDialog dialog) {
-    super(dialog);
-  }
-  
-  protected void buildInterface() {
-
-    setLayout(new BorderLayout());
-    setBorder(new EmptyBorder(12,12,0,11));
-
-    add(new ResourcingExpressionEditorPane(),BorderLayout.CENTER);
-  }
-
-  public String getWizardStepTitle() {
-    return "Review Resource Allocation/Offering Expression";
-  }
-  
-  protected void initialise() {
-    // TODO: Initialise widgets
-  }
-  
-  public void doBack() {
-    if (((ManageResourcingDialog) getDialog()).adminsitratorOffersWork()) {
-      getDialog().doStep(2);
-    } 
-  }
-
-  public void doNext() {}     
-}
-
-class ResourcingExpressionEditorPane extends JProblemReportingEditorPane {
-
-  public ResourcingExpressionEditorPane() {
-    super(new ResourcingExpressionEditor());
-  }
-}
-
-class ResourcingExpressionEditor extends ValidityEditorPane {
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
+  private AllocationPanel allocationPanel;
+  private AuthorisationPanel authorisationPanel;
+  
+  private HashMap humanResourceNames; 
+  private List roleNames; 
+  
+  public ManageResourcingDialog() {
+    super(null, false, true);
+    setContentPanel(getPanel());
+    getDoneButton().addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            allocationPanel.commitValues();
+            authorisationPanel.commitValues();
+          }
+        }
+    );
+  }
+  
+  public void setTask(YAWLTask task, NetGraph graph) {
+    super.setTask(task,graph);
+    allocationPanel.setTask(task);
+    authorisationPanel.setTask(task);
+  }
+  
+  public String getTitlePrefix() {
+    return "Manage Resourcing of ";
+  }
+    
+  private JPanel getPanel() {
+    JPanel panel = new JPanel(new BorderLayout());
+    
+    panel.setBorder(new EmptyBorder(12,12,0,11));
 
-  public ResourcingExpressionEditor() {
-    super();
-    setDocument(new ResourceExpressionDocument(this));
-    this.setText("Resource is \"Safety Officer\'\n  and is \"supervisor\"...");
+    panel.add(getAuthorisationPanel(), BorderLayout.NORTH);
+    panel.add(Box.createRigidArea(new Dimension(10,0)), BorderLayout.CENTER);
+    panel.add(getAllocationPanel(), BorderLayout.SOUTH);
+
+    return panel;
+  }
+  
+  private JPanel getAllocationPanel() {
+    JPanel panel = new JPanel(new BorderLayout());
+
+    panel.setBorder(new TitledBorder("Task Allocation"));
+    allocationPanel = new AllocationPanel(this);
+    panel.add(allocationPanel, BorderLayout.CENTER);
+
+    return panel;    
   }
 
-  class ResourceExpressionDocument extends AbstractXMLStyledDocument {
+  private JPanel getAuthorisationPanel() {
+    JPanel panel = new JPanel(new BorderLayout());
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+    panel.setBorder(new TitledBorder("Task Authorisation"));
+    authorisationPanel = new AuthorisationPanel(this);
+    panel.add(authorisationPanel, BorderLayout.CENTER);
 
-    public ResourceExpressionDocument(ValidityEditorPane editor) {
-      super(editor);
-    }
-    
-    public List getProblemList() {
-      /* TODO:
-      return YAWLEngineProxy.getInstance().getSchemaValidationResults(
-          getEditor().getText()
-      );*/
-      return null;
-    }
-    
-    public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
-      // deliberately does nothing.
-    }
+    return panel;
+  }
+  
+  public void setVisible(boolean visible) {
+    if (visible) {
+      humanResourceNames = OrganisationDatabaseProxy.getInstance().getAllHumanResourceNames();
+      roleNames = OrganisationDatabaseProxy.getInstance().getAllRoles();
 
-    public void checkValidity() {
+      authorisationPanel.setContent();
+      allocationPanel.setContent();
       
-      if (getEditor().getText().equals("")) {
-        setContentValid(true);
+      pack();
+    }
+    super.setVisible(visible);
+  }
+  
+  public HashMap getAllHumanResource() {
+    return humanResourceNames;
+  }
+  
+  public List getAllRoles() {
+    return roleNames;
+  }
+}
+
+abstract class ResourcingPanel extends JPanel implements ActionListener {
+  private YAWLTask task;
+  
+  abstract void commitValues();
+  abstract void setContent();
+  
+  public void setTask(YAWLTask task) {
+    this.task = task;
+  }
+  
+  public YAWLTask getTask() {
+    return this.task;
+  }
+}
+
+class AllocationPanel extends ResourcingPanel {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private JRadioButton anyoneAllocationRadioButton;
+  private JRadioButton directAllocationRadioButton;
+  private JRadioButton roleAllocationRadioButton;
+  
+  private ButtonGroup allocationButtonGroup = new ButtonGroup();
+  
+  private JComboBox directAllocationBox;
+  private JComboBox roleAllocationBox;
+  
+  private ManageResourcingDialog dialog;
+  
+  private int mappingType = ResourceMapping.ALLOCATE_TO_ANYONE;
+  
+  public AllocationPanel(ManageResourcingDialog dialog) {
+    super();
+    this.dialog = dialog;
+    buildContent();
+  }
+  
+  private void buildContent() {
+    GridBagLayout gbl = new GridBagLayout();
+    GridBagConstraints gbc = new GridBagConstraints();
+
+    setLayout(gbl);
+
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.insets = new Insets(0,0,5,5);
+    gbc.weightx = 1;
+    gbc.anchor = GridBagConstraints.WEST;
+    
+    add(getAnyoneAllocationRadioButton(),gbc);
+
+    gbc.gridx = 0;
+    gbc.gridy++;
+    gbc.weightx = 1;
+
+    
+    add(getDirectAllocationRadioButton(), gbc);
+
+    gbc.weightx = 0;
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.gridx++;
+    
+    add(getDirectAllocationComboBox(),gbc);
+    
+    gbc.gridx = 0;
+    gbc.gridy++;
+    gbc.weightx = 1;
+
+    add(getRoleAllocationRadioButton(), gbc);
+
+    gbc.weightx = 0;
+    gbc.gridx++;
+
+    add(getRoleAllocationComboBox(),gbc);
+    
+    allocationButtonGroup.add(anyoneAllocationRadioButton);
+    allocationButtonGroup.add(directAllocationRadioButton);
+    allocationButtonGroup.add(roleAllocationRadioButton);
+    setWidgetStateBasedOnSelectedRadioButton();
+  }
+
+  private JRadioButton getAnyoneAllocationRadioButton() {
+    anyoneAllocationRadioButton = new JRadioButton("Allocate to anyone.");
+
+    anyoneAllocationRadioButton.setMnemonic('a');
+    anyoneAllocationRadioButton.setDisplayedMnemonicIndex(2);
+    
+    anyoneAllocationRadioButton.setEnabled(false);
+    anyoneAllocationRadioButton.addActionListener(this);
+    
+    anyoneAllocationRadioButton.addActionListener(
+      new ActionListener() {
+        public void actionPerformed(ActionEvent event) {
+          if (!anyoneAllocationRadioButton.isEnabled()) {
+            return;
+          }
+          if (anyoneAllocationRadioButton.isSelected()) {
+            mappingType = ResourceMapping.ALLOCATE_TO_ANYONE;
+          }
+        }
+      }
+    );
+    
+    return anyoneAllocationRadioButton;
+  }
+  
+  private JRadioButton getDirectAllocationRadioButton() {
+    directAllocationRadioButton = new JRadioButton("Allocate directly to person:");
+    directAllocationRadioButton.setMnemonic('d');
+    directAllocationRadioButton.setEnabled(false);
+
+    directAllocationRadioButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            if (!directAllocationRadioButton.isEnabled()) {
+              return;
+            }
+            if (directAllocationRadioButton.isSelected()) {
+              mappingType = ResourceMapping.ALLOCATE_DIRECTLY;
+            }
+          }
+        }
+    );
+    
+    return directAllocationRadioButton;
+  }
+  
+  private JComboBox getDirectAllocationComboBox() {
+    directAllocationBox = new JComboBox();
+    
+    directAllocationRadioButton.addActionListener(this);
+    directAllocationBox.setEnabled(false);
+
+    return directAllocationBox;
+  }
+
+  private JRadioButton getRoleAllocationRadioButton() {
+    roleAllocationRadioButton = new JRadioButton("Allocate to the role:");
+    roleAllocationRadioButton.setMnemonic('e');
+    roleAllocationRadioButton.setEnabled(false);
+
+    roleAllocationRadioButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            if (!roleAllocationRadioButton.isEnabled()) {
+              return;
+            }
+            if (roleAllocationRadioButton.isSelected()) {
+              mappingType = ResourceMapping.ALLOCATE_TO_ROLE;
+            }
+          }
+        }
+    );
+    
+    return roleAllocationRadioButton;
+  }
+  
+  private JComboBox getRoleAllocationComboBox() {
+    roleAllocationBox = new JComboBox();
+
+    roleAllocationRadioButton.addActionListener(this);
+    roleAllocationBox.setEnabled(false);
+
+    return roleAllocationBox;
+  }
+  
+  public void actionPerformed(ActionEvent event) {
+    setWidgetStateBasedOnSelectedRadioButton();
+  }
+  
+  private void setWidgetStateBasedOnSelectedRadioButton() {
+    directAllocationBox.setEnabled(false);
+    roleAllocationBox.setEnabled(false);
+    
+    if (directAllocationRadioButton.isSelected()) {
+      directAllocationBox.setEnabled(true);
+    } 
+    if (roleAllocationRadioButton.isSelected()) {
+      roleAllocationBox.setEnabled(true);
+    }
+  }
+  
+  public void setContent() {
+    disableRadioButtons();
+    
+    setDirectAllocationBoxContent();
+    setRoleAllocationBoxContent();
+    selectCorrectWidgetOptions();
+    
+    enableRadioButtonsWhereAppropriate();
+    setWidgetStateBasedOnSelectedRadioButton();
+  }
+  
+  private void disableRadioButtons() {
+    anyoneAllocationRadioButton.setEnabled(false);
+    directAllocationRadioButton.setEnabled(false);
+    roleAllocationRadioButton.setEnabled(false);
+  }
+
+  private void enableRadioButtonsWhereAppropriate() {
+    if (roleAllocationBox.getItemCount() > 0) {
+      roleAllocationRadioButton.setEnabled(true);
+      roleAllocationRadioButton.requestFocus();
+    }
+    if (directAllocationBox.getItemCount() > 0) {
+      directAllocationRadioButton.setEnabled(true);
+      directAllocationRadioButton.requestFocus();
+    }
+    anyoneAllocationRadioButton.setEnabled(true);
+    anyoneAllocationRadioButton.requestFocus();
+  }
+  
+  private void selectCorrectWidgetOptions() {
+    if (getTask().getAllocationResourceMapping() == null) {
+      anyoneAllocationRadioButton.setSelected(true);
+      anyoneAllocationRadioButton.requestFocus();
+      return;
+    }
+    
+    mappingType = getTask().getAllocationResourceMapping().getMappingType();
+
+    switch(mappingType) {
+      case ResourceMapping.ALLOCATE_TO_ANYONE: {
+        anyoneAllocationRadioButton.setSelected(true);
+        anyoneAllocationRadioButton.requestFocus();
+        break;
+      }
+      case ResourceMapping.ALLOCATE_DIRECTLY: {
+        directAllocationRadioButton.setSelected(true);
+        directAllocationRadioButton.requestFocus();
+        directAllocationBox.setSelectedItem(
+            getTask().getAllocationResourceMapping().getLabel()    
+        );
+        break;
+      }
+      case ResourceMapping.ALLOCATE_TO_ROLE: {
+        roleAllocationRadioButton.setSelected(true);
+        roleAllocationRadioButton.requestFocus();
+        roleAllocationBox.setSelectedItem(
+            getTask().getAllocationResourceMapping().getIdentifier()    
+        );
+        break;
+      }
+      default: {
+        anyoneAllocationRadioButton.setSelected(true);
+        anyoneAllocationRadioButton.requestFocus();
+        break;
+      }
+    }
+    setWidgetStateBasedOnSelectedRadioButton();
+  }
+  
+  private void setDirectAllocationBoxContent() {
+    directAllocationBox.removeAllItems();
+    
+    if (dialog.getAllHumanResource().size() == 0) {
+      // recreating selectable data from what's been stored locally.
+      if (getTask().getAllocationResourceMapping().getMappingType() != 
+          ResourceMapping.ALLOCATE_DIRECTLY) {
         return;
       }
       
-      List validationResults = getProblemList();
- 
-      setContentValid(validationResults == null ? true : false);
+      dialog.getAllHumanResource().put(
+          getTask().getAllocationResourceMapping().getLabel(),
+          getTask().getAllocationResourceMapping().getIdentifier()
+      );
+      directAllocationBox.addItem(getTask().getAllocationResourceMapping().getLabel());
+    }
+    
+    Iterator peopleIterator = dialog.getAllHumanResource().keySet().iterator();
+    while(peopleIterator.hasNext()) {
+      directAllocationBox.addItem(peopleIterator.next());
+    }
+  }
+  
+  private void setRoleAllocationBoxContent() {
+    roleAllocationBox.removeAllItems();
+    
+    if (dialog.getAllRoles().size() == 0) {
+      // recreating selectable data from what's been stored locally.
+
+      if (getTask().getAllocationResourceMapping().getMappingType() != 
+        ResourceMapping.ALLOCATE_TO_ROLE) {
+      return;
+    }
+
+      dialog.getAllRoles().add(
+          getTask().getAllocationResourceMapping().getIdentifier()
+      );
+    }
+    
+    Iterator roleIterator = dialog.getAllRoles().iterator();
+    while(roleIterator.hasNext()) {
+      roleAllocationBox.addItem(roleIterator.next());
+    }
+  }
+  
+  public void commitValues() {
+    ResourceMapping mapping = getTask().getAllocationResourceMapping();
+
+    if (mapping == null) {
+      mapping = new ResourceMapping();
+      getTask().setAllocationResourceMapping(mapping);
+    }
+
+    mapping.setMappingType(mappingType);
+
+    switch(mappingType) {
+      case ResourceMapping.ALLOCATE_TO_ANYONE: {
+        mapping.setIdentifier(null);
+        mapping.setLabel(null);
+        break;
+      }
+      case ResourceMapping.ALLOCATE_DIRECTLY: {
+        mapping.setIdentifier((String)
+            dialog.getAllHumanResource().get(
+                directAllocationBox.getSelectedItem()
+            )
+        );
+        mapping.setLabel(
+            (String) directAllocationBox.getSelectedItem()
+        );
+        break;
+      }
+      case ResourceMapping.ALLOCATE_TO_ROLE: {
+        mapping.setIdentifier(
+          (String) roleAllocationBox.getSelectedItem()    
+        );
+        mapping.setLabel(null);
+        break;
+      }
+    }
+  }
+}
+
+class AuthorisationPanel extends ResourcingPanel {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private JRadioButton noAuthorisationRadioButton;
+  private JRadioButton directAuthorisationRadioButton;
+  private JRadioButton roleAuthorisationRadioButton;
+  
+  private ButtonGroup authorisationButtonGroup = new ButtonGroup();
+
+  private JComboBox directAuthorisationBox;
+  private JComboBox roleAuthorisationBox;
+  
+  private ManageResourcingDialog dialog;
+  
+  private int mappingType = ResourceMapping.AUTHORISATION_UNNECESSARY;
+  
+  public AuthorisationPanel(ManageResourcingDialog dialog) {
+    super();
+    this.dialog = dialog;
+    buildContent();
+  }
+  
+  private void buildContent() {
+    GridBagLayout gbl = new GridBagLayout();
+    GridBagConstraints gbc = new GridBagConstraints();
+
+    setLayout(gbl);
+
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.insets = new Insets(0,0,5,5);
+    gbc.weightx = 1;
+    gbc.anchor = GridBagConstraints.WEST;
+
+    add(getNoAuthorisationRadioButton(), gbc);
+
+    gbc.gridx = 0;
+    gbc.gridy++;
+    
+    add(getDirectAuthorisationRadioButton(), gbc);
+
+    gbc.gridx++;
+
+    add(getDirectAuthorisationComboBox(),gbc);
+
+    gbc.gridx = 0;
+    gbc.gridy++;
+
+    add(getRoleAuthorisationRadioButton(), gbc);
+
+    gbc.gridx++;
+
+    add(getRoleAuthorisationComboBox(),gbc);
+    
+    authorisationButtonGroup.add(noAuthorisationRadioButton);
+    authorisationButtonGroup.add(directAuthorisationRadioButton);
+    authorisationButtonGroup.add(roleAuthorisationRadioButton);
+    setWidgetStateBasedOnSelectedRadioButton();
+  }
+  
+  private JRadioButton getNoAuthorisationRadioButton() {
+    noAuthorisationRadioButton = new JRadioButton("All are authorised.");
+
+    noAuthorisationRadioButton.setMnemonic('A');
+    
+    noAuthorisationRadioButton.setSelected(true);
+    noAuthorisationRadioButton.addActionListener(this);
+    
+    noAuthorisationRadioButton.setEnabled(false);
+    noAuthorisationRadioButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            if (!noAuthorisationRadioButton.isEnabled()) {
+              return;
+            }
+            if (noAuthorisationRadioButton.isSelected()) {
+              mappingType = ResourceMapping.AUTHORISATION_UNNECESSARY;
+            }
+          }
+        }
+    );
+    
+    return noAuthorisationRadioButton;
+  }
+
+  
+  private JRadioButton getDirectAuthorisationRadioButton() {
+    directAuthorisationRadioButton = new JRadioButton("Only this person is authorised:");
+    directAuthorisationRadioButton.setMnemonic('p');
+    directAuthorisationRadioButton.setEnabled(false);
+
+    directAuthorisationRadioButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            if (!directAuthorisationRadioButton.isEnabled()) {
+              return;
+            }
+            if (directAuthorisationRadioButton.isSelected()) {
+              mappingType = ResourceMapping.AUTHORISED_DIRECTLY;
+            }
+          }
+        }
+    );
+
+    return directAuthorisationRadioButton;
+  }
+  
+  private JComboBox getDirectAuthorisationComboBox() {
+    directAuthorisationBox = new JComboBox();
+    
+    directAuthorisationRadioButton.addActionListener(this);
+    
+    return directAuthorisationBox;
+  }
+
+  private JRadioButton getRoleAuthorisationRadioButton() {
+    roleAuthorisationRadioButton = new JRadioButton("Only this role is authorised:");
+    roleAuthorisationRadioButton.setMnemonic('r');
+    roleAuthorisationRadioButton.setEnabled(false);
+
+    roleAuthorisationRadioButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            if (!roleAuthorisationRadioButton.isEnabled()) {
+              return;
+            }
+            if (roleAuthorisationRadioButton.isSelected()) {
+              mappingType = ResourceMapping.AUTHORISATION_VIA_ROLE;
+            }
+          }
+        }
+    );
+
+    return roleAuthorisationRadioButton;
+  }
+  
+  private JComboBox getRoleAuthorisationComboBox() {
+    roleAuthorisationBox = new JComboBox();
+    
+    roleAuthorisationRadioButton.addActionListener(this);
+    roleAuthorisationBox.setEnabled(false);
+    
+    return roleAuthorisationBox;
+  }
+  
+  public void actionPerformed(ActionEvent event) {
+    setWidgetStateBasedOnSelectedRadioButton();
+  }
+
+  private void setWidgetStateBasedOnSelectedRadioButton() {
+    directAuthorisationBox.setEnabled(false);
+    roleAuthorisationBox.setEnabled(false);
+    
+    if (directAuthorisationRadioButton.isSelected()) {
+      directAuthorisationBox.setEnabled(true);
+    } 
+    if (roleAuthorisationRadioButton.isSelected()) {
+      roleAuthorisationBox.setEnabled(true);
+    }
+  }
+  
+  public void setContent() {
+    disableRadioButtons();
+    
+    setDirectAuthorisationBoxContent();
+    setRoleAuthorisationBoxContent();
+    selectCorrectWidgetOptions();
+    
+    enableRadioButtonsWhereAppropriate();
+  }
+  
+  private void disableRadioButtons() {
+    noAuthorisationRadioButton.setEnabled(false);
+    directAuthorisationRadioButton.setEnabled(false);
+    roleAuthorisationRadioButton.setEnabled(false);
+  }
+  
+  private void enableRadioButtonsWhereAppropriate() {
+    if (roleAuthorisationBox.getItemCount() > 0) {
+      roleAuthorisationRadioButton.setEnabled(true);
+      roleAuthorisationRadioButton.requestFocus();
+    }
+    if (directAuthorisationBox.getItemCount() > 0) {
+      directAuthorisationRadioButton.setEnabled(true);
+      directAuthorisationRadioButton.requestFocus();
+    }
+    noAuthorisationRadioButton.setEnabled(true);
+    noAuthorisationRadioButton.requestFocus();
+  }
+  
+  private void selectCorrectWidgetOptions() {
+    if (getTask().getAllocationResourceMapping() == null) {
+      noAuthorisationRadioButton.setSelected(true);
+      noAuthorisationRadioButton.requestFocus();
+      return;
+    }
+    
+    mappingType = getTask().getAuthorisationResourceMapping().getMappingType();
+
+    switch(mappingType) {
+      case ResourceMapping.AUTHORISATION_UNNECESSARY: {
+        noAuthorisationRadioButton.setSelected(true);
+        noAuthorisationRadioButton.requestFocus();
+        break;
+      }
+      case ResourceMapping.AUTHORISED_DIRECTLY: {
+        directAuthorisationRadioButton.setSelected(true);
+        directAuthorisationRadioButton.requestFocus();
+        directAuthorisationBox.setSelectedItem(
+            getTask().getAuthorisationResourceMapping().getLabel()    
+        );
+        break;
+      }
+      case ResourceMapping.AUTHORISATION_VIA_ROLE: {
+        roleAuthorisationRadioButton.setSelected(true);
+        roleAuthorisationRadioButton.requestFocus();
+        roleAuthorisationBox.setSelectedItem(
+            getTask().getAuthorisationResourceMapping().getIdentifier()    
+        );
+        break;
+      }
+      default: {
+        noAuthorisationRadioButton.setSelected(true);
+        noAuthorisationRadioButton.requestFocus();
+        break;
+      }
+    }
+    setWidgetStateBasedOnSelectedRadioButton();
+  }
+  
+  private void setDirectAuthorisationBoxContent() {
+    directAuthorisationBox.removeAllItems();
+    
+    if (dialog.getAllHumanResource().size() == 0) {
+      // recreating selectable data from what's been stored locally.
+      if (getTask().getAuthorisationResourceMapping().getMappingType() != 
+          ResourceMapping.AUTHORISED_DIRECTLY) {
+        return;
+      }
+      
+      dialog.getAllHumanResource().put(
+          getTask().getAuthorisationResourceMapping().getLabel(),
+          getTask().getAuthorisationResourceMapping().getIdentifier()
+      );
+      directAuthorisationBox.addItem(getTask().getAuthorisationResourceMapping().getLabel());
+    }
+    
+    Iterator peopleIterator = dialog.getAllHumanResource().keySet().iterator();
+    while(peopleIterator.hasNext()) {
+      directAuthorisationBox.addItem(peopleIterator.next());
+    }
+  }
+  
+  private void setRoleAuthorisationBoxContent() {
+    roleAuthorisationBox.removeAllItems();
+    
+    if (dialog.getAllRoles().size() == 0) {
+      // recreating selectable data from what's been stored locally.
+
+      if (getTask().getAuthorisationResourceMapping().getMappingType() != 
+        ResourceMapping.AUTHORISATION_VIA_ROLE) {
+      return;
+    }
+
+      dialog.getAllRoles().add(
+          getTask().getAuthorisationResourceMapping().getIdentifier()
+      );  
+    }
+    
+    Iterator roleIterator = dialog.getAllRoles().iterator();
+    while(roleIterator.hasNext()) {
+      roleAuthorisationBox.addItem(roleIterator.next());
+    }
+  }
+  
+  
+  public void commitValues() {
+    ResourceMapping mapping = getTask().getAuthorisationResourceMapping();
+    mapping.setMappingType(mappingType);
+
+    switch(mappingType) {
+      case ResourceMapping.AUTHORISATION_UNNECESSARY: {
+        mapping.setIdentifier(null);
+        mapping.setLabel(null);
+        break;
+      }
+      case ResourceMapping.AUTHORISED_DIRECTLY: {
+        mapping.setIdentifier((String)
+            dialog.getAllHumanResource().get(
+                directAuthorisationBox.getSelectedItem()
+            )
+        );
+        mapping.setLabel(
+            (String) directAuthorisationBox.getSelectedItem()
+        );
+        break;
+      }
+      case ResourceMapping.AUTHORISATION_VIA_ROLE: {
+        mapping.setIdentifier(
+          (String) roleAuthorisationBox.getSelectedItem()    
+        );
+        mapping.setLabel(null);
+        break;
+      }
     }
   }
 }
