@@ -12,12 +12,20 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.NegatedRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
 /**
  * this test will self-skip if theres no local yawl server running 
@@ -121,6 +129,57 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 		} catch (Exception e) {
 			System.out.println("Couldnt connect...");
 		}
+	}
+	
+	/**
+	 * This test will fail if the engine isn't running.
+	 */
+	public void testRetrieveByRestriction1() throws Exception {
+		String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, aConnectionHandle);
+		assertEquals(SUCCESS, result);
+		List<YSpecification> specs = ibClient.getSpecificationsByRestriction(
+				new PropertyRestriction("ID", Comparison.LIKE, "Jython%"), bConnectionHandle );
+		Map<String,YSpecification> specMap = new HashMap<String, YSpecification>();
+		String ids = "Specifiaction URIs:\n";
+		for( YSpecification spec : specs ) {
+			ids += spec.getID() + "\n";
+			specMap.put( spec.getID(), spec );
+		}
+		
+		assertTrue( "" + specs.size(), specs.size() >= 1 );
+		assertTrue( ids, specMap.containsKey( MAKE_RECORDINGS ) );
+	}
+	
+	/**
+	 * This test will fail if the engine isn't running.
+	 */
+	public void testRetrieveByRestriction2() throws Exception {
+		String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, aConnectionHandle);
+		assertEquals(SUCCESS, result);
+		/* TODO we don't want to filter out things that start with "Timer" and "TestGateway"
+		 * but a current (2006-11-29) mismatch between the service reference toXML and the
+		 * schema causes some issues with certain example specs that may be in the database.
+		 */
+		List<YSpecification> specs = ibClient.getSpecificationsByRestriction(
+				new LogicalRestriction(
+				new LogicalRestriction(
+						new NegatedRestriction(
+								new PropertyRestriction( "ID", Comparison.LIKE, "Jython%" ) ),
+						Operation.AND,
+						new NegatedRestriction( // TODO remove this property restriction
+								new PropertyRestriction( "ID", Comparison.LIKE, "Timer%" ) ) ),
+						Operation.AND,
+						new NegatedRestriction( // TODO remove this property restriction
+								new PropertyRestriction( "ID", Comparison.LIKE, "TestGateway%" ) ) ),
+				bConnectionHandle );
+		Map<String,YSpecification> specMap = new HashMap<String, YSpecification>();
+		String ids = "Specifiaction URIs:\n";
+		for( YSpecification spec : specs ) {
+			ids += spec.getID() + "\n";
+			specMap.put( spec.getID(), spec );
+		}
+		
+		assertFalse( ids, specMap.containsKey( MAKE_RECORDINGS ) );
 	}
 
 	public void testLaunchCase() {
