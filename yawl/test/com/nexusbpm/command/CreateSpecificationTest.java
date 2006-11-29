@@ -8,7 +8,6 @@
 
 package com.nexusbpm.command;
 
-import operation.WorkflowOperation;
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YInputCondition;
@@ -17,6 +16,7 @@ import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
+import com.nexusbpm.operation.WorkflowOperation;
 import com.nexusbpm.services.NexusServiceInfo;
 
 /**

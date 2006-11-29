@@ -9,7 +9,6 @@
 
 package au.edu.qut.yawl;
 
-import operation.OperationTestSuite;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
@@ -29,6 +28,7 @@ import au.edu.qut.yawl.deployment.AutoDeploymentTestSuite;
 import au.edu.qut.yawl.exceptions.YAWLException;
 
 import com.nexusbpm.command.CommandTestSuite;
+import com.nexusbpm.operation.OperationTestSuite;
 import com.nexusbpm.services.NexusServiceTestSuite;
 
 /**
