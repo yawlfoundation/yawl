@@ -5,7 +5,7 @@
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
-package au.edu.qut.yawl.elements;
+package com.nexusbpm.editor;
 
 import java.awt.geom.Rectangle2D;
 import java.net.URI;
@@ -13,13 +13,21 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
-import operation.WorkflowOperation;
+import au.edu.qut.yawl.elements.YAWLServiceGateway;
+import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.elements.YAtomicTask;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YInputCondition;
+import au.edu.qut.yawl.elements.YMetaData;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YOutputCondition;
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
-import com.nexusbpm.NexusWorkflow;
 import com.nexusbpm.command.Command;
 import com.nexusbpm.command.CreateFlowCommand;
 import com.nexusbpm.command.CreateNetCommand;
@@ -28,7 +36,9 @@ import com.nexusbpm.command.CreateSpecificationCommand;
 import com.nexusbpm.editor.persistence.YTaskEditorExtension;
 import com.nexusbpm.editor.tree.SharedNode;
 import com.nexusbpm.editor.tree.SharedNodeTreeModel;
+import com.nexusbpm.operation.WorkflowOperation;
 import com.nexusbpm.services.NexusServiceInfo;
+import com.nexusbpm.services.NexusServiceConstants;
 
 /**
  * The purpose of theMockYSpecification is to provide an example of how to build
@@ -39,7 +49,7 @@ import com.nexusbpm.services.NexusServiceInfo;
  * @author Matthew Sandoz
  * @author Nathan Rose
  */
-public class MockYSpecification {
+public class MockNexusSpecification {
     // TODO this class needs to be refactored to use the operations in WorkflowOperation
 	private static final String SCHEMA_URL = "http://www.w3.org/2001/XMLSchema";
 
@@ -189,7 +199,7 @@ public class MockYSpecification {
 	private static void generateTaskVariables(YNet net,
 			YAWLServiceGateway gate, YAtomicTask task, String[] props,
 			String[] vals) {
-		String taskPath = task.getID() + NexusWorkflow.NAME_SEPARATOR;
+		String taskPath = task.getID() + NexusServiceConstants.NAME_SEPARATOR;
 		String path = "/" + net.getId() + "/" + taskPath;
 		String gatewayPath = "/" + gate.getId() + "/";
 		task.setDecompositionPrototype(gate);
@@ -200,7 +210,7 @@ public class MockYSpecification {
 		}
 		for (int i = 0; i < props.length; i++) {
 			YVariable var = new YVariable(net);
-			var.setDataTypeAndName("string", task.getID() + NexusWorkflow.NAME_SEPARATOR + props[i],
+			var.setDataTypeAndName("string", task.getID() + NexusServiceConstants.NAME_SEPARATOR + props[i],
 					SCHEMA_URL);
 			var.setInitialValue(vals[i]);
 			net.setLocalVariable(var);
@@ -210,7 +220,7 @@ public class MockYSpecification {
 	private static void generateTaskWebserviceVariables(YNet net,
 			YAWLServiceGateway gate, YAtomicTask task, String[] props,
 			String[] vals) {
-		String taskPath = task.getID() + NexusWorkflow.NAME_SEPARATOR;
+		String taskPath = task.getID() + NexusServiceConstants.NAME_SEPARATOR;
 		String path = "/" + net.getId() + "/" + taskPath;
 		String gatewayPath = "/" + gate.getId() + "/";
 		task.setDecompositionPrototype(gate);
