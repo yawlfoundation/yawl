@@ -68,7 +68,7 @@ public class VariableParameterComboBox extends DataVariableComboBox {
       if (parameter.getVariable() != null && parameter.getVariable().equals(variable)) {
           addItem(variable.getName());
       }
-      if (!parameter.getList().usesVariableName(variable.getName())) {
+      if (parameter.getList() != null && !parameter.getList().usesVariableName(variable.getName())) {
           addItem(variable.getName());
       }
     }

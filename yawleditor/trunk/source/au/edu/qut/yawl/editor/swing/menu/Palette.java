@@ -30,12 +30,14 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.LinkedList;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
@@ -64,6 +66,7 @@ import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 import au.edu.qut.yawl.editor.swing.JStatusBar;
+import au.edu.qut.yawl.editor.swing.JUtilities;
 
 public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
 
@@ -102,6 +105,12 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
     add(CORE_PALETTE);
     add(Box.createVerticalStrut(2));
     add(SINGLE_TASK_PALETTE);
+    
+    LinkedList<JComponent> palettes = new LinkedList<JComponent>();
+    palettes.add(CORE_PALETTE);
+    palettes.add(SINGLE_TASK_PALETTE);
+    
+    JUtilities.equalizeComponentWidths(palettes);
   }
   
   public void setSelected(int item) {
