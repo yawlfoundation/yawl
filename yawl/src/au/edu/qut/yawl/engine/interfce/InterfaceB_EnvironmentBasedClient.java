@@ -138,7 +138,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     	}
     	
     	return YMarshal.unmarshalSpecifications(
-    			stripOuterElement( result ), "InterfaceB.getSpecificationsByRestriction" );
+    			stripOuterElement( result ),
+    			"InterfaceB.getSpecificationsByRestriction" + params.get( "restriction" ) );
     }
 
     /**
