@@ -38,6 +38,7 @@ import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
 import com.nexusbpm.editor.WorkflowEditor;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
+import com.nexusbpm.editor.logger.NexusInfoDialog;
 import com.nexusbpm.editor.worker.GlobalEventQueue;
 import com.nexusbpm.editor.worker.Worker;
 import com.nexusbpm.scheduler.CronTriggerEx;
@@ -275,7 +276,28 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 	}
 	
 	private void viewInstanceStatus( QuartzEvent event ) {
-		// TODO open a dialog showing instance status
+		StringBuilder sb = new StringBuilder();
+		String delimiter = "\n";
+		sb.append("Trigger Name:").
+		append(event.getTriggerName()).
+		append(delimiter).
+		append("Scheduled Fire Time:").
+		append(event.getScheduledFireTime()). 
+		append(delimiter).
+		append("Actual Fire Time:").
+		append(event.getActualFireTime()).
+		append(delimiter).
+		append("Case ID:").
+		append(event.getCaseId()).
+		append(delimiter).
+		append("Fire Status:").		
+		append(event.getFireStatus()).
+		append(delimiter).
+		append("Message:").
+		append(event.getMessage());
+		String message = sb.toString();
+		
+		NexusInfoDialog.showDialog(null, "Scheduled Event", message, true);
 	}
 	
 	private void viewInstance( QuartzEvent event ) {

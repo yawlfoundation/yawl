@@ -41,7 +41,7 @@ import java.awt.SystemColor;
  * @author Matthew Sandoz
  * @created November 29, 2006
  */
-class LogRecordDialog extends JDialog{
+public class NexusInfoDialog extends JDialog{
 	
 	private JPanel mainPanel = null;
 	private JScrollPane messageScrollPane = null;
@@ -50,12 +50,12 @@ class LogRecordDialog extends JDialog{
 	private JPanel buttonPanel = null;
 	private JButton okButton = null;
 
-	public LogRecordDialog(Frame owner, String title, String contents, boolean modal) throws HeadlessException {
+	public NexusInfoDialog(Frame owner, String title, String contents, boolean modal) throws HeadlessException {
 		super(owner, title, modal);
 		initialize(contents);
 	}
 
-	public LogRecordDialog(Frame owner, LogRecordI record, boolean modal) throws HeadlessException {
+	public NexusInfoDialog(Frame owner, LogRecordI record, boolean modal) throws HeadlessException {
 		super(owner, "Log Record Details", modal);
 		String msg = record.getMessage();
 		if( record.getThrowableMessage() != null && record.getThrowableMessage().length() > 0 ) {
@@ -68,11 +68,15 @@ class LogRecordDialog extends JDialog{
 	}
 
 	public static void showDialog(Frame owner, String title, String contents, boolean modal) throws HeadlessException {
-		new LogRecordDialog(owner, title, contents, modal).setVisible(true);
+		NexusInfoDialog dialog = new NexusInfoDialog(owner, title, contents, modal);
+		dialog.setVisible(true);
+		dialog.dispose();
 	}
 	
 	public static void showDialog(Frame owner, LogRecordI record, boolean modal) throws HeadlessException {
-		new LogRecordDialog(owner, record, modal).setVisible(true);
+		NexusInfoDialog dialog = new NexusInfoDialog(owner, record, modal);
+		dialog.setVisible(true);
+		dialog.dispose();
 	}
 	
 	private void initialize(String contents) {
@@ -199,7 +203,7 @@ class LogRecordDialog extends JDialog{
 			okButton.setSelected(false);
 			okButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					LogRecordDialog.this.setVisible(false);
+					NexusInfoDialog.this.setVisible(false);
 				}
 			});
 		}
@@ -210,8 +214,8 @@ class LogRecordDialog extends JDialog{
 		Exception e2 = new Exception("Test Exception", e);
 		
 		LogRecordI record = new LogRecordVO(1,1,new Date().getTime(), 1, "test", e2);
-		LogRecordDialog.showDialog(null, record, true); 
-		LogRecordDialog.showDialog(null, "Event History", "Something was going to happen here." , true); 
+		NexusInfoDialog.showDialog(null, record, true); 
+		NexusInfoDialog.showDialog(null, "Event History", "Something was going to happen here." , true); 
 	}
 	
 }  //  @jve:decl-index=0:visual-constraint="10,10"
