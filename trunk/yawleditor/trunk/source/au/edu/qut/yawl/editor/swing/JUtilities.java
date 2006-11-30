@@ -80,6 +80,36 @@ public class JUtilities {
 			resizeComponent((JComponent) components.get(i), maxComponentSize);
     }
   }
+  
+  public static void equalizeComponentWidths(List components) {
+    double maxComponentWidth = getMaxDimension(components).getWidth();
+    for (int i = 0; i < components.size(); ++i) {
+            resizeComponentWidth((JComponent) components.get(i), maxComponentWidth);
+    }
+  }
+  
+  private static void resizeComponentWidth(JComponent currentComponent,  double maxComponentWidth) {
+    currentComponent.setPreferredSize(
+        new Dimension(
+          (int) maxComponentWidth,
+          (int) currentComponent.getPreferredSize().getHeight()
+        )
+    );
+    
+    currentComponent.setMaximumSize(
+      new Dimension(
+          (int) maxComponentWidth,
+          (int) currentComponent.getMaximumSize().getHeight()
+      )
+    );
+    
+    currentComponent.setMinimumSize(
+        new Dimension(
+            (int) maxComponentWidth,
+            (int) currentComponent.getMinimumSize().getHeight()
+        )
+    );
+  }
 
 	private static void resizeComponent(JComponent currentComponent, 
 	                                    Dimension maxComponentSize) {
