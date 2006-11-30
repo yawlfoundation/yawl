@@ -56,7 +56,7 @@ public class LogTableMouseListener extends MouseAdapter implements ClipboardOwne
 			int row = _table.rowAtPoint(e.getPoint());
 			CapselaLog log = (CapselaLog) _table.getModel();
 			LogRecordI record = (LogRecordI) log.getElementAt(row);
-			LogRecordDialog.showDialog(null, record, true);
+			NexusInfoDialog.showDialog(null, record, true);
 		}
 		else if(clicks == 1 && button == MouseEvent.BUTTON3)
 		{
