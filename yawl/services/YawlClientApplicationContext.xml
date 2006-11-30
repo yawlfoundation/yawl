@@ -10,9 +10,6 @@
 		class="com.nexusbpm.editor.util.JmsClient" singleton="true">
 	</bean>
 
-	<bean id="quartzSchema" class="com.nexusbpm.scheduler.QuartzSchema">
-	</bean>
-
 	<bean id="quartzEventDataSourceFactory" class="com.nexusbpm.scheduler.QuartzEventDataSourceFactory">
 		<property name="rmiHost" value="${org.quartz.scheduler.rmi.registryHost}" />
 		<property name="rmiPort" value="${org.quartz.scheduler.rmi.registryPort}" />
