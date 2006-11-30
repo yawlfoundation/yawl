@@ -20,13 +20,13 @@ import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
-import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.XmlUtilities;
 
 public class YawlEngineDAO implements DAO {
-
 	private InterfaceA_EnvironmentBasedClient iaClient;
 	private InterfaceB_EnvironmentBasedClient ibClient;
 	private String sessionHandle;
@@ -49,8 +49,7 @@ public class YawlEngineDAO implements DAO {
 			execute(new DeleteCommand(object.toString()));
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
+			throw new RuntimeException( e );
 		}
 	}
 
@@ -68,9 +67,11 @@ public class YawlEngineDAO implements DAO {
 				filter = filter + "/";
 			}
 			// this method is stolen from hibernatedao but for the next line...
-			// which needs to be changed to add a restriction regarding uri match	
+			// which needs to be changed to add a restriction regarding uri match
 			List tmp = retrieveByRestriction(YSpecification.class,
-					new Unrestricted());
+					new PropertyRestriction( "ID", Comparison.LIKE, filter + "%" ) );
+//			List tmp = retrieveByRestriction(YSpecification.class,
+//					new Unrestricted());
 
 			Set traversal = new HashSet(tmp);
 
@@ -121,7 +122,7 @@ public class YawlEngineDAO implements DAO {
 		try {
 			return execute(new RetrieveCommand(key.toString()));
 		} catch (Exception e) {
-			return null;
+			throw new RuntimeException( e );
 		}
 }
 
@@ -139,8 +140,7 @@ public class YawlEngineDAO implements DAO {
 		try {
 			return (List) execute(new RetrieveByRestrictionCommand(type, restriction));
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new RuntimeException( e );
 		}
 	}
 
@@ -148,7 +148,7 @@ public class YawlEngineDAO implements DAO {
 		try {
 			execute(new SaveCommand((YSpecification) object));
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new YPersistenceException( e );
 		}
 	}
 
