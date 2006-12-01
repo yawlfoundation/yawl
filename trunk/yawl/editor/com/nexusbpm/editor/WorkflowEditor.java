@@ -13,13 +13,10 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -28,18 +25,17 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
@@ -47,15 +43,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
 import org.quartz.SchedulerException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
-import au.edu.qut.yawl.persistence.dao.YawlEngineDAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -67,8 +60,6 @@ import com.nexusbpm.command.CommandExecutor;
 import com.nexusbpm.command.CreateNetCommand;
 import com.nexusbpm.command.CreateNexusComponentCommand;
 import com.nexusbpm.command.CreateSpecificationCommand;
-import com.nexusbpm.command.CommandExecutor.CommandCompletionListener;
-import com.nexusbpm.command.CommandExecutor.ExecutionResult;
 import com.nexusbpm.editor.configuration.ConfigurationDialog;
 import com.nexusbpm.editor.configuration.NexusClientConfiguration;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
@@ -87,27 +78,33 @@ import com.nexusbpm.services.NexusServiceInfo;
 
 /**
  * 
- * @author  SandozM
+ * @author  Matthew Sandoz
  * @author Nathan Rose
  */
-public class WorkflowEditor extends javax.swing.JFrame implements MessageListener {
+public class WorkflowEditor extends JFrame implements MessageListener {
     
-	private final static int DEFAULT_CLIENT_WIDTH = 800;
+
 	private final static int DEFAULT_CLIENT_HEIGHT = 692;
-    private final static int DEFAULT_COMPONENTS_WIDTH = 170;
+	private final static int DEFAULT_CLIENT_WIDTH = 800;
+    private final static int DEFAULT_COMMAND_STACK_SIZE = 20;
     private final static int DEFAULT_COMPONENTS_HEIGHT = 692;
     
-	private final static int DEFAULT_COMMAND_STACK_SIZE = 20;
+	private final static int DEFAULT_COMPONENTS_WIDTH = 170;
 	private static CommandExecutor executor;
-	private static WorkflowEditor singleton = null;
-    private static NexusSplashScreen splash;
 	private static final Log LOG = LogFactory.getLog( WorkflowEditor.class );
+    private static WorkflowEditor singleton = null;
+	private static NexusSplashScreen splash;
     private JFrame _componentsFrame;
-    private JPanel fileDaoPanel; 
-    private JPanel remoteDaoPanel; 
-    private JPanel memoryDaoPanel; 
-    
-	
+    /** The panel that contains the component tree split panes. */
+    private JPanel componentTreesPanel; 
+
+    private JPanel desktopAndStatusPanel;
+    private JDesktopPane desktopPane;
+    private JPanel fileDaoPanel;
+    private JPanel memoryDaoPanel;
+    private JPanel remoteDaoPanel;
+    private JInternalFrame selectedInternalFrame;
+
     /**
      * Creates new form WorkflowEditor 
      */
@@ -125,44 +122,22 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
                 (int)( this.getLocation().getX() - DEFAULT_COMPONENTS_WIDTH ),
                 (int) this.getLocation().getY() );
     }
-    
-    public static WorkflowEditor getInstance() {
-    	if (WorkflowEditor.singleton == null) {
-    		WorkflowEditor.singleton = new WorkflowEditor();
-    	}
-    	return singleton;
-    }
-
-    private JPanel getMemoryDaoPanel() {
-    	if (memoryDaoPanel == null) {
-        DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
-        DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
-        
-        DatasourceRoot virtualRoot = new DatasourceRoot("virtual://memory/home/");
-        EditorDataProxy memdp = (EditorDataProxy) memdc.createProxy(virtualRoot, null);
-        memdc.attachProxy(memdp, virtualRoot, null);
-        
-//        SharedNode memRootNode = new SharedNode(memdp, o);
-        SharedNode memRootNode = memdp.getTreeNode();
-        
-        SharedNodeTreeModel memTreeModel = new SharedNodeTreeModel(memRootNode);
-        memRootNode.setTreeModel(memTreeModel);
-        
-        STree memoryComponentListTree = new STree(memTreeModel);
-        memoryComponentListTree.setShowsRootHandles(false);
-        memoryComponentListTree.setRootVisible(true);
-        memoryComponentListTree.setRowHeight(26);
-        
-        
-        /////////////////////////////////////////////////
-        // create the top component pane (memory context)
-        memoryDaoPanel = new TreePanel( memoryComponentListTree, true );
-    	}
-    	return memoryDaoPanel;
-    	
+    public void addInternalFrameMenuItem( CapselaInternalFrame frame ) {
+        assert frame != null : "attempting to add menu item for null frame!";
+        WorkflowMenuBar bar = (WorkflowMenuBar) this.getJMenuBar();
+        JMenuItem newMenuItem = bar.addWindowItem(frame);
+        newMenuItem.setAction( new WindowFocusAction( frame ) );
+        setSelectedInternalFrameMenuItem( frame );
     }
     
-    private JPanel getFileDaoPanel() {
+    public void setSelectedInternalFrameMenuItem(JInternalFrame frame) {
+    	WorkflowEditor.getInstance().setTitle("Nexus Editor - " + frame.getTitle());
+    }
+    
+    public JDesktopPane getDesktopPane() {
+		return desktopPane;
+	}
+    public JPanel getFileDaoPanel() {
 		if (fileDaoPanel == null) {
 			DAO filedao = DAOFactory.getDAO(PersistenceType.FILE);
 			DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
@@ -190,7 +165,35 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 		return fileDaoPanel;
 
 	}
-
+    
+    public JPanel getMemoryDaoPanel() {
+    	if (memoryDaoPanel == null) {
+        DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
+        DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
+        
+        DatasourceRoot virtualRoot = new DatasourceRoot("virtual://memory/home/");
+        EditorDataProxy memdp = (EditorDataProxy) memdc.createProxy(virtualRoot, null);
+        memdc.attachProxy(memdp, virtualRoot, null);
+        
+//        SharedNode memRootNode = new SharedNode(memdp, o);
+        SharedNode memRootNode = memdp.getTreeNode();
+        
+        SharedNodeTreeModel memTreeModel = new SharedNodeTreeModel(memRootNode);
+        memRootNode.setTreeModel(memTreeModel);
+        
+        STree memoryComponentListTree = new STree(memTreeModel);
+        memoryComponentListTree.setShowsRootHandles(false);
+        memoryComponentListTree.setRootVisible(true);
+        memoryComponentListTree.setRowHeight(26);
+        
+        
+        /////////////////////////////////////////////////
+        // create the top component pane (memory context)
+        memoryDaoPanel = new TreePanel( memoryComponentListTree, true );
+    	}
+    	return memoryDaoPanel;
+    	
+    }
     public JPanel getRemoteDaoPanel() {
     	if (remoteDaoPanel == null) {
     		STree hibernateComponentListTree = null;
@@ -229,7 +232,86 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
     	}
         return remoteDaoPanel;
     }
+    public void onMessage(Message o) {
+		ObjectMessage om = (ObjectMessage) o;
+		try {
+			Enumeration e = om.getPropertyNames();
+			StringBuilder sb = new StringBuilder("Message: {");
+			while (e.hasMoreElements()) {
+				String name = e.nextElement().toString();
+				String value = om.getStringProperty(name);
+				sb.append(name + ":" + value + " ");
+			}
+			sb.append("}");
+			LOG.warn(sb.toString());
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+    }
+    /**
+     * Opens an editor centered at the given location or maximized if the location
+     * is null.
+     */
+    public void openComponentEditor( EditorDataProxy proxy, Point location ) throws Exception {
+        CapselaInternalFrame editor = proxy.getEditor();
+        openEditor( editor, location );
+    }
+    public void openDataEditor( EditorDataProxy proxy, Point location ) throws Exception {
+        ComponentEditor editor = new DataTransferEditor();
+        
+        editor.resetTitle( proxy );
+        editor.addInternalFrameListener( proxy.getInternalFrameListener( editor ) );
+        
+        openEditor( editor, location );
+    }
+    public void openEditor( CapselaInternalFrame editor, Point location ) throws Exception {
+        if (editor != null && !editor.isVisible()) {
+            JDesktopPane desktop = getDesktopPane();
+            
+            editor.pack();
+            int locx = 0;
+            int locy = 0;
+            if( location != null ) {
+                locx = (int)location.getX();
+                locy = (int)location.getY();
+            }
+            int width = desktop.getWidth();
+            int height = desktop.getHeight();
+            
+            if( width > 450 ) width = 450;
+            if( height > 400 ) height = 400;
+            
+            int x = (int)( locx - width / 2 );
+            int y = (int)( locy - height / 2 );
+            
+            if( x < 0 ) x = 0;
+            else if( ( x + width ) > desktop.getWidth() ) x = desktop.getWidth() - width;
+            if( y < 0 ) y = 0;
+            else if( ( y + height ) > desktop.getHeight() ) y = desktop.getHeight() - height;
+            
+            editor.setSize(width, height);
+            editor.setLocation(x, y);
+            
+            editor.setVisible(true);
+            
+            getDesktopPane().add(editor);
+            
+            editor.setSelected( true );
+            editor.toFront();
+            editor.setMaximum( location == null );
+        }
+        else if( editor != null ) {
+            editor.toFront();
+            editor.setSelected( true );
+        }
+    }
     
+//    public void setSelectedInternalFrameMenuItem( CapselaInternalFrame frame ) {
+//        for( CapselaInternalFrame key : windowItems.keySet() ) {
+//            windowItems.get( key ).setSelected( key == frame );
+//        }
+//    }
+//
     /**
 	 * This method is called from within the constructor to initialize the form.
 	 */
@@ -242,182 +324,13 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
             e.printStackTrace();
         }
         
-        ///////////////////////
-        // create the file menu
-        fileMenu = new JMenu();
-        fileMenu.setText("File");
-        fileMenu.setMnemonic( KeyEvent.VK_F );
-        
-        openMenuItem = new JMenuItem();
-        openMenuItem.setText("Open");
-        fileMenu.add(openMenuItem);
-        
-        saveMenuItem = new JMenuItem();
-        saveMenuItem.setText("Save");
-        fileMenu.add(saveMenuItem);
-        
-        saveAsMenuItem = new JMenuItem();
-        saveAsMenuItem.setText("Save As ...");
-        fileMenu.add(saveAsMenuItem);
-        
-        exitMenuItem = new JMenuItem();
-        exitMenuItem.setText("Exit");
-        exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exitMenuItemActionPerformed(evt);
-            }
-        });
-        fileMenu.add(exitMenuItem);
-        
-        
-        ///////////////////////
-        // create the edit menu
-        editMenu = new JMenu();
-        editMenu.setText("Edit");
-        editMenu.setMnemonic( KeyEvent.VK_E );
-        
-        undoMenuItem = new JMenuItem( new AbstractAction( "Undo" ) {
-            public void actionPerformed( ActionEvent e ) {
-                getExecutor().undo();
-            }
-        });
-        undoMenuItem.setEnabled( false );
-        editMenu.add( undoMenuItem );
-        
-        redoMenuItem = new JMenuItem( new AbstractAction( "Redo" ) {
-            public void actionPerformed( ActionEvent e ) {
-                getExecutor().redo();
-            }
-        });
-        redoMenuItem.setEnabled( false );
-        editMenu.add( redoMenuItem );
-        
-        editMenu.add( new JSeparator() );
-        
-        cutMenuItem = new JMenuItem();
-        cutMenuItem.setText("Cut");
-        editMenu.add(cutMenuItem);
-        
-        copyMenuItem = new JMenuItem();
-        copyMenuItem.setText("Copy");
-        editMenu.add(copyMenuItem);
-        
-        pasteMenuItem = new JMenuItem();
-        pasteMenuItem.setText("Paste");
-        editMenu.add(pasteMenuItem);
-        
-        deleteMenuItem = new JMenuItem();
-        deleteMenuItem.setText("Delete");
-        editMenu.add(deleteMenuItem);
-        
-        editMenu.add( new JSeparator() );
-
-        preferencesMenuItem = new JMenuItem();
-        preferencesMenuItem.setText("Preferences");
-        editMenu.add(preferencesMenuItem);
-
-        preferencesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-
-            	NexusClientConfiguration config =  (NexusClientConfiguration) BootstrapConfiguration.getInstance();
-            	Properties p = null;
-				try {
-					p = config.getProperties();
-				} catch (IOException e1) {e1.printStackTrace();}
-				ConfigurationDialog dialog = new ConfigurationDialog(WorkflowEditor.this, p);
-            	boolean shouldSave = dialog.ask();
-                if (shouldSave) {
-        			Property[] pa = dialog.getProperties();
-        			for (Property prop: pa) {
-        				p.setProperty(prop.getName(), prop.getValue().toString());
-					}
-    				try {
-    					config.saveProperties();
-    				} catch (IOException e) {
-						JOptionPane.showMessageDialog(null, "Unable to save configuration due to " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-    				}
-                }
-            }
-        });
-
-        
-        /////////////////////////////
-        // create the monitoring menu
-        monitoringMenu = new JMenu();
-        monitoringMenu.setText( "Monitoring" );
-        monitoringMenu.setMnemonic( KeyEvent.VK_M );
-        
-        instancesMenuItem = new JMenuItem( new AbstractAction() {
-        	public void actionPerformed( ActionEvent e ) {
-        		// TODO
-        	}
-        } );
-        instancesMenuItem.setText( "View All Instances" );
-        instancesMenuItem.setEnabled( false );
-        monitoringMenu.add( instancesMenuItem );
-        
-        monitoringMenu.add( new JSeparator() );
-        
-        scheduledEventsMenuItem = new JMenuItem( new AbstractAction() {
-        	public void actionPerformed( ActionEvent e ) {
-        		// TODO
-        	}
-        } );
-        scheduledEventsMenuItem.setText( "Scheduled Events" );
-        scheduledEventsMenuItem.setEnabled( false );
-        monitoringMenu.add( scheduledEventsMenuItem );
-        
-        workflowScheduleMenuItem = new JMenuItem( new AbstractAction() {
-			public void actionPerformed( ActionEvent e ) {
-				WorkflowEditor.this.openSchedulingCalendar();
-			}
-        } );
-        workflowScheduleMenuItem.setText( "Workflow Schedule" );
-        workflowScheduleMenuItem.setEnabled( true );
-        monitoringMenu.add( workflowScheduleMenuItem );
-        
-        
-        /////////////////////////
-        // create the window menu
-        windowMenu = new JMenu();
-        windowMenu.setText("Window");
-        windowMenu.setMnemonic( KeyEvent.VK_W );
-        
-        noWindowOpenItem = new JMenuItem();
-        noWindowOpenItem.setText("None");
-        noWindowOpenItem.setEnabled(false);
-        windowMenu.add(noWindowOpenItem);
-        
-        windowItems = new HashMap<CapselaInternalFrame,JMenuItem>();
-        
-        
-        ///////////////////////
-        // create the help menu
-        helpMenu = new JMenu();
-        helpMenu.setText("Help");
-        helpMenu.setMnemonic( KeyEvent.VK_H );
-        
-        contentsMenuItem = new JMenuItem();
-        contentsMenuItem.setText("Contents");
-        helpMenu.add(contentsMenuItem);
-        
-        aboutMenuItem = new JMenuItem();
-        aboutMenuItem.setText("About");
-        helpMenu.add(aboutMenuItem);
-        
-        
-        ///////////////////////////////
-        // create and set the main menu
-        menuBar = new JMenuBar();
-        
-        menuBar.add(fileMenu);
-        menuBar.add(editMenu);
-        menuBar.add(monitoringMenu);
-        menuBar.add(windowMenu);
-        menuBar.add(helpMenu);
-        
-        setJMenuBar(menuBar);
-        
+        WorkflowMenuBar bar = new WorkflowMenuBar();
+        setJMenuBar(bar);
+        bar.setAction(bar.getExitMenuItem(), new ExitAction());
+        bar.setAction(bar.getScheduledEventsMenuItem(), new OpenSchedulingCalendarAction());
+        bar.setAction(bar.getPreferencesMenuItem(), new EditPreferencesAction());
+        bar.setAction(bar.getRedoMenuItem(), new RedoAction());
+        bar.setAction(bar.getUndoMenuItem(), new UndoAction());
         //////////////////////////////////
         // setup the component tree panels
         componentTreesPanel = new JPanel();
@@ -427,13 +340,13 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         JSplitPane componentTreesTopSplitPane = new JSplitPane();
         componentTreesTopSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
         
-        if( componentList3Panel == null ) {
-            // only 2 panels since not connected to hibernate
-            componentTreesTopSplitPane.setDividerLocation(300);
-            componentTreesTopSplitPane.setTopComponent(getMemoryDaoPanel());
-            componentTreesTopSplitPane.setBottomComponent(getFileDaoPanel());
-        }
-        else {
+//        if( componentList3Panel == null ) {
+//            // only 2 panels since not connected to hibernate
+//            componentTreesTopSplitPane.setDividerLocation(300);
+//            componentTreesTopSplitPane.setTopComponent(getMemoryDaoPanel());
+//            componentTreesTopSplitPane.setBottomComponent(getFileDaoPanel());
+//        }
+//        else {
             // all 3 panels since we're connected to hibernate
             JSplitPane componentTreesBottomSplitPane = new JSplitPane();
             componentTreesBottomSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -447,7 +360,7 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 //        	}});
             componentTreesBottomSplitPane.setTopComponent(getFileDaoPanel());
             componentTreesBottomSplitPane.setBottomComponent(getRemoteDaoPanel());
-        }
+//        }
         
         componentTreesPanel.add(componentTreesTopSplitPane);
         
@@ -604,24 +517,29 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         
         componentsTreeModel.nodeStructureChanged( componentsRootNode );
     }
-    
-    public void onMessage(Message o) {
-		ObjectMessage om = (ObjectMessage) o;
-		try {
-			Enumeration e = om.getPropertyNames();
-			StringBuilder sb = new StringBuilder("Message: {");
-			while (e.hasMoreElements()) {
-				String name = e.nextElement().toString();
-				String value = om.getStringProperty(name);
-				sb.append(name + ":" + value + " ");
+
+	private void openSchedulingCalendar() {
+    	try {
+	    	try {
+				openEditor( SchedulerCalendar.createCalendar(), null );
 			}
-			sb.append("}");
-			LOG.warn(sb.toString());
-		} catch (JMSException e) {
-			e.printStackTrace();
+			catch( SchedulerException e ) {
+				LOG.error( "Error connecting to remote scheduler!", e );
+				// TODO remove the testing calendar later
+				LOG.warn( "OPENING TESTING CALENDAR" );
+				openEditor( SchedulerCalendar.createTestCalendar(), null );
+			}
+    	}
+		catch( Exception e ) {
+			LOG.error( "Error opening scheduling calendar!", e );
 		}
     }
     
+	public void removeInternalFrameMenuItem(JInternalFrame frame) {
+        WorkflowMenuBar bar = (WorkflowMenuBar) this.getJMenuBar();
+        bar.removeWindowItem(frame);
+	}
+	
     private SharedNode setupComponentsList( SharedNode root ) {
         SharedNode newRoot = root;
         try {
@@ -658,136 +576,22 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         }
         return newRoot;
     }
-
-    private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {                                             
-        System.exit(0);
-    }
+    public static CommandExecutor getExecutor() {
+        if( executor == null ) {
+            executor = new CommandExecutor(DEFAULT_COMMAND_STACK_SIZE);
+            executor.addCommandCompletionListener( (WorkflowMenuBar) getInstance().getJMenuBar() );
+        }
+		return executor;
+	}
     
-    private void openSchedulingCalendar() {
-    	try {
-	    	try {
-				openEditor( SchedulerCalendar.createCalendar(), null );
-			}
-			catch( SchedulerException e ) {
-				LOG.error( "Error connecting to remote scheduler!", e );
-				// TODO remove the testing calendar later
-				LOG.warn( "OPENING TESTING CALENDAR" );
-				openEditor( SchedulerCalendar.createTestCalendar(), null );
-			}
+	public static WorkflowEditor getInstance() {
+    	if (WorkflowEditor.singleton == null) {
+    		WorkflowEditor.singleton = new WorkflowEditor();
     	}
-		catch( Exception e ) {
-			LOG.error( "Error opening scheduling calendar!", e );
-		}
+    	return singleton;
     }
-    
-    /**
-     * Opens an editor centered at the given location or maximized if the location
-     * is null.
-     */
-    public void openComponentEditor( EditorDataProxy proxy, Point location ) throws Exception {
-        CapselaInternalFrame editor = proxy.getEditor();
-        openEditor( editor, location );
-    }
-    
-    public void openEditor( CapselaInternalFrame editor, Point location ) throws Exception {
-        if (editor != null && !editor.isVisible()) {
-            JDesktopPane desktop = getDesktopPane();
-            
-            editor.pack();
-            int locx = 0;
-            int locy = 0;
-            if( location != null ) {
-                locx = (int)location.getX();
-                locy = (int)location.getY();
-            }
-            int width = desktop.getWidth();
-            int height = desktop.getHeight();
-            
-            if( width > 450 ) width = 450;
-            if( height > 400 ) height = 400;
-            
-            int x = (int)( locx - width / 2 );
-            int y = (int)( locy - height / 2 );
-            
-            if( x < 0 ) x = 0;
-            else if( ( x + width ) > desktop.getWidth() ) x = desktop.getWidth() - width;
-            if( y < 0 ) y = 0;
-            else if( ( y + height ) > desktop.getHeight() ) y = desktop.getHeight() - height;
-            
-            editor.setSize(width, height);
-            editor.setLocation(x, y);
-            
-            editor.setVisible(true);
-            
-            getDesktopPane().add(editor);
-            
-            editor.setSelected( true );
-            editor.toFront();
-            editor.setMaximum( location == null );
-        }
-        else if( editor != null ) {
-            editor.toFront();
-            editor.setSelected( true );
-        }
-    }
-    
-    public void openDataEditor( EditorDataProxy proxy, Point location ) throws Exception {
-        ComponentEditor editor = new DataTransferEditor();
-        
-        editor.resetTitle( proxy );
-        editor.addInternalFrameListener( proxy.getInternalFrameListener( editor ) );
-        
-        openEditor( editor, location );
-    }
-    
-    public void addInternalFrameMenuItem( CapselaInternalFrame frame ) {
-        assert frame != null : "attempting to add menu item for null frame!";
-        windowMenu.remove( noWindowOpenItem );
-        JMenuItem item = new JRadioButtonMenuItem();
-        item.setAction( new WindowFocusAction( frame ) );
-        item.setText( frame.getTitle() );
-        windowMenu.add( item );
-        windowItems.put( frame, item );
-        setSelectedInternalFrameMenuItem( frame );
-    }
-    
-    private class WindowFocusAction extends AbstractAction {
-        private CapselaInternalFrame frame;
-        private WindowFocusAction( CapselaInternalFrame frame ) {
-            this.frame = frame;
-        }
-        public void actionPerformed( ActionEvent e ) {
-            frame.toFront();
-            try {
-                frame.setSelected( true );
-            }
-            catch( Exception ex ) {
-                // ignore
-            }
-        }
-    }
-    
-    public void setSelectedInternalFrameMenuItem( CapselaInternalFrame frame ) {
-        for( CapselaInternalFrame key : windowItems.keySet() ) {
-            windowItems.get( key ).setSelected( key == frame );
-        }
-    }
-    
-    public void removeInternalFrameMenuItem( CapselaInternalFrame frame ) {
-        if( windowItems.containsKey( frame ) ) {
-            JMenuItem item = windowItems.get( frame );
-            windowMenu.remove( item );
-            windowItems.remove( frame );
-            if( windowItems.size() == 0 ) {
-                windowMenu.add( noWindowOpenItem );
-            }
-        }
-        else {
-            LOG.warn( "Internal window was closed, but it wasn't on the window menu!" );
-        }
-    }
-    
-    /**
+
+	/**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -809,100 +613,76 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         });
     }
     
-    /**
-     * Split pane that splits the entire window left to right, with
-     * the trees on the left and the desktop and log on the right.
-     */
-//    private JSplitPane componentEditorSplitPane;
-//    
-//    private JSplitPane componentTreesTopSplitPane;
-//    private JSplitPane componentTreesBottomSplitPane;
-//    private JSplitPane desktopLogSplitPane;
-    
-    /** The panel that contains the component tree split panes. */
-    private JPanel componentTreesPanel;
-    
-    private TreePanel componentList1Panel;
-    private TreePanel componentList2Panel;
-    private TreePanel componentList3Panel;
-    
-//    private JScrollPane componentList1ScrollPane;
-//    private JScrollPane componentList2ScrollPane;
-//    private JScrollPane componentList3ScrollPane;
-    
-    
-//    private STree memoryComponentListTree;
-//    private STree fileComponentListTree;
-    
-    private JPanel desktopAndStatusPanel;
-    
-    private JDesktopPane desktopPane;
-//    private JPanel desktopPanel;
-//    private JScrollPane desktopScrollPane;
-//    private CapselaLogPanel logPanel;
-    
-    // main menu
-    private JMenuBar menuBar;
-    
-    // top level menu options
-    private JMenu fileMenu;
-    private JMenu editMenu;
-    private JMenu monitoringMenu;
-    private JMenu windowMenu;
-    private JMenu helpMenu;
-    
-    // options under the file menu
-    private JMenuItem openMenuItem;
-    private JMenuItem saveMenuItem;
-    private JMenuItem saveAsMenuItem;
-    private JMenuItem exitMenuItem;
-    
-    // options under the edit menu
-    private JMenuItem undoMenuItem;
-    private JMenuItem redoMenuItem;
-    private JMenuItem cutMenuItem;
-    private JMenuItem copyMenuItem;
-    private JMenuItem pasteMenuItem;
-    private JMenuItem deleteMenuItem;
-    private JMenuItem preferencesMenuItem;
-    
-    // options under the monitoring menu
-    private JMenuItem instancesMenuItem;
-    private JMenuItem scheduledEventsMenuItem;
-    private JMenuItem workflowScheduleMenuItem;
-    
-    // options under the window menu
-    private JMenuItem noWindowOpenItem;
-    private Map<CapselaInternalFrame,JMenuItem> windowItems;
-    
-    // options under the help menu
-    private JMenuItem contentsMenuItem;
-    private JMenuItem aboutMenuItem;
-    
-	public JDesktopPane getDesktopPane() {
-		return desktopPane;
-	}
-
-	public static CommandExecutor getExecutor() {
-        if( executor == null ) {
-            executor = new CommandExecutor(DEFAULT_COMMAND_STACK_SIZE);
-            executor.addCommandCompletionListener( getInstance().createCommandMenuUpdater() );
-        }
-		return executor;
-	}
-    
-    private CommandMenuUpdater createCommandMenuUpdater() {
-        return new CommandMenuUpdater();
-    }
-    
-    private class CommandMenuUpdater implements CommandCompletionListener {
-        public void commandCompleted( ExecutionResult result ) {
-            WorkflowEditor.this.undoMenuItem.setEnabled( result.canUndo() );
-            WorkflowEditor.this.redoMenuItem.setEnabled( result.canRedo() );
-        }
-    }
-
-	public static void setExecutor(CommandExecutor executor) {
+    public static void setExecutor(CommandExecutor executor) {
 		WorkflowEditor.executor = executor;
 	}
-}
+    
+
+	private class WindowFocusAction extends AbstractAction {
+        private CapselaInternalFrame frame;
+        private WindowFocusAction( CapselaInternalFrame frame ) {
+            this.frame = frame;
+        }
+        public void actionPerformed( ActionEvent e ) {
+            frame.toFront();
+            try {
+                frame.setSelected( true );
+            }
+            catch( Exception ex ) {
+                // ignore
+            }
+        }
+    }
+	private class UndoAction  extends AbstractAction {
+		public void actionPerformed(ActionEvent e) {
+			getExecutor().undo();
+		}
+	};
+	
+	private class RedoAction  extends AbstractAction {
+		public void actionPerformed(ActionEvent e) {
+			getExecutor().redo();
+		}
+	};
+
+	private class ExitAction  extends AbstractAction {
+		public void actionPerformed(ActionEvent e) {
+			System.exit(0);
+		}
+	};
+	
+	private class OpenSchedulingCalendarAction  extends AbstractAction {
+		public void actionPerformed(ActionEvent e) {
+			WorkflowEditor.this.openSchedulingCalendar();
+		}
+	};
+
+	private class EditPreferencesAction  extends AbstractAction {
+		public void actionPerformed(ActionEvent e) {
+			NexusClientConfiguration config = (NexusClientConfiguration) BootstrapConfiguration
+			.getInstance();
+			Properties p = null;
+			try {
+				p = config.getProperties();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			ConfigurationDialog dialog = new ConfigurationDialog(null, p);
+			boolean shouldSave = dialog.ask();
+			if (shouldSave) {
+				Property[] pa = dialog.getProperties();
+				for (Property prop : pa) {
+					p.setProperty(prop.getName(), prop.getValue().toString());
+				}
+				try {
+					config.saveProperties();
+				} catch (IOException ex) {
+					JOptionPane.showMessageDialog(null,
+							"Unable to save configuration due to "
+									+ ex.getMessage() + ".",
+							"Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}	
+		}
+	};
+	}
