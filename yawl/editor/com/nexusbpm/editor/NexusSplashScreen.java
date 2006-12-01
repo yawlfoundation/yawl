@@ -27,7 +27,7 @@ import java.awt.Cursor;
 import javax.swing.border.SoftBevelBorder;
 
 public class NexusSplashScreen extends JWindow {
-	  private JProgressBar loadProgressBar = null;
+	private JProgressBar loadProgressBar = null;
 	private JPanel mainPanel = null;
 	private JLabel nameLabel = null;
 	private JButton iconButton = null;
