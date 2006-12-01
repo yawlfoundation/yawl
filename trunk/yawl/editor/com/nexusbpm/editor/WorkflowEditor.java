@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
@@ -84,7 +86,7 @@ import com.nexusbpm.editor.util.JmsClient;
 import com.nexusbpm.services.NexusServiceInfo;
 
 /**
- *
+ * 
  * @author  SandozM
  * @author Nathan Rose
  */
@@ -98,9 +100,10 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 	private final static int DEFAULT_COMMAND_STACK_SIZE = 20;
 	private static CommandExecutor executor;
 	private static WorkflowEditor singleton = null;
-    
+    private static NexusSplashScreen splash;
 	private static final Log LOG = LogFactory.getLog( WorkflowEditor.class );
     private JFrame _componentsFrame;
+    private JPanel fileDaoPanel; 
 	
     /**
      * Creates new form WorkflowEditor 
@@ -109,9 +112,6 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         // we need to set the singleton instance before the constructor returns so the constructor
         // can setup the singleton command executor
         WorkflowEditor.singleton = this;
-		PropertyConfigurator.configure( WorkflowEditor.class.getResource( "client.logging.properties" ) );
-
-		BootstrapConfiguration.setInstance(NexusClientConfiguration.getInstance());
 
 		initComponents();
         
@@ -130,9 +130,40 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
     	return singleton;
     }
     
-    /** This method is called from within the constructor to
-     * initialize the form.
-     */
+    private JPanel getFileDaoPanel() {
+		if (fileDaoPanel == null) {
+			DAO filedao = DAOFactory.getDAO(PersistenceType.FILE);
+			DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
+
+			File fileRootObject = new File(new File(".").getAbsoluteFile()
+					.toURI().normalize());
+			DatasourceRoot fileRoot = new DatasourceRoot(fileRootObject);
+			EditorDataProxy filedp = (EditorDataProxy) filedc.createProxy(
+					fileRoot, null);
+			filedc.attachProxy(filedp, fileRoot, null);
+
+			// SharedNode fileRootNode = new SharedNode(filedp, o);
+			SharedNode fileRootNode = filedp.getTreeNode();
+
+			SharedNodeTreeModel fileTreeModel = new SharedNodeTreeModel(
+					fileRootNode);
+			fileRootNode.setTreeModel(fileTreeModel);
+
+			STree fileComponentListTree = new STree(fileTreeModel);
+			fileComponentListTree.setShowsRootHandles(false);
+			fileComponentListTree.setRootVisible(true);
+			fileComponentListTree.setRowHeight(26);
+
+			fileDaoPanel = new TreePanel(fileComponentListTree, true);
+		}
+		return fileDaoPanel;
+
+	}
+    
+    
+    /**
+	 * This method is called from within the constructor to initialize the form.
+	 */
     private void initComponents() {
 	    JFrame.setDefaultLookAndFeelDecorated(true);
 		try {
@@ -318,7 +349,6 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         
         setJMenuBar(menuBar);
         
-        
         ////////////////////////////
         // create the memory context
 //        SpecificationDAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
@@ -344,35 +374,6 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         /////////////////////////////////////////////////
         // create the top component pane (memory context)
         componentList1Panel = new TreePanel( memoryComponentListTree, true );
-        
-        
-        //////////////////////////
-        // create the file context
-//        SpecificationDAO filedao = DAOFactory.getDAOFactory(DAOFactory.Type.FILE).getSpecificationModelDAO();
-        DAO filedao = DAOFactory.getDAO( PersistenceType.FILE );
-        DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
-        
-        File fileRootObject= new File( new File(".").getAbsoluteFile().toURI().normalize() );
-        DatasourceRoot fileRoot = new DatasourceRoot(fileRootObject);
-        EditorDataProxy filedp = (EditorDataProxy) filedc.createProxy(fileRoot, null);
-        filedc.attachProxy(filedp, fileRoot, null);
-        
-//        SharedNode fileRootNode = new SharedNode(filedp, o);
-        SharedNode fileRootNode = filedp.getTreeNode();
-        
-        SharedNodeTreeModel fileTreeModel = new SharedNodeTreeModel(fileRootNode);
-        fileRootNode.setTreeModel(fileTreeModel);
-        
-        STree fileComponentListTree = new STree(fileTreeModel);
-        fileComponentListTree.setShowsRootHandles(false);
-        fileComponentListTree.setRootVisible(true);
-        fileComponentListTree.setRowHeight(26);
-        
-        
-        //////////////////////////////////////////////////
-        // create the middle component pane (file context)
-        componentList2Panel = new TreePanel( fileComponentListTree, true );
-        
         
         ///////////////////////////////
         // create the hibernate context
@@ -434,7 +435,7 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
             // only 2 panels since not connected to hibernate
             componentTreesTopSplitPane.setDividerLocation(300);
             componentTreesTopSplitPane.setTopComponent(componentList1Panel);
-            componentTreesTopSplitPane.setBottomComponent(componentList2Panel);
+            componentTreesTopSplitPane.setBottomComponent(getFileDaoPanel());
         }
         else {
             // all 3 panels since we're connected to hibernate
@@ -446,7 +447,9 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
             componentTreesTopSplitPane.setBottomComponent(componentTreesBottomSplitPane);
             
             componentTreesBottomSplitPane.setDividerLocation(200);
-            componentTreesBottomSplitPane.setTopComponent(componentList2Panel);
+//            SwingUtilities.invokeLater(new Runnable() {public void run() {
+//        	}});
+            componentTreesBottomSplitPane.setTopComponent(getFileDaoPanel());
             componentTreesBottomSplitPane.setBottomComponent(componentList3Panel);
         }
         
@@ -792,9 +795,20 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        try {java.awt.EventQueue.invokeAndWait(new Runnable() {public void run() {
+	    	WorkflowEditor.splash = new NexusSplashScreen();
+	    	WorkflowEditor.splash.setVisible(true);
+	    }});} catch (Exception e) {e.printStackTrace();		}
+    	splash.update(5, "Initializing Application");
+		PropertyConfigurator.configure( WorkflowEditor.class.getResource( "client.logging.properties" ) );
+    	splash.update(35, "Loading Configuration");
+		BootstrapConfiguration.setInstance(NexusClientConfiguration.getInstance());
+    	splash.update(75, "Starting Client");
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 WorkflowEditor.getInstance().setVisible(true);
+                splash.setVisible(false);
+                splash.dispose();
             }
         });
     }
