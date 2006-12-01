@@ -78,6 +78,9 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
   }
   
   private boolean isTaskPort(Object port) {
+    if (port == null) {
+      return false;
+    }
     YAWLPort yawlPort = (YAWLPort) port;
     if(yawlPort.getParent() instanceof YAWLTask ||
        yawlPort.getParent() instanceof Decorator) {

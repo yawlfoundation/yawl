@@ -85,15 +85,16 @@ public final class NetUtilities {
    * @see au.edu.qut.yawl.editor.elements.model.YAWLTask
    */
   
-  public static Set getAllTasks(NetGraphModel net) {
-    HashSet tasks = new HashSet();
-    Object[] cells = NetGraphModel.getRoots(net);
-    for(int i = 0; i < cells.length; i++) {
-      if (cells[i] instanceof VertexContainer) {
-        cells[i] = ((VertexContainer) cells[i]).getVertex();
+  public static Set<YAWLTask> getAllTasks(NetGraphModel net) {
+    HashSet<YAWLTask> tasks = new HashSet<YAWLTask>();
+    
+    for(Object root: NetGraphModel.getRoots(net)) {
+      Object cell = root;  // so as to not screw with the root iterator variable
+      if (cell instanceof VertexContainer) {
+        cell = ((VertexContainer) cell).getVertex();
       }
-      if (cells[i] instanceof YAWLTask) {
-        tasks.add(cells[i]);
+      if (cell instanceof YAWLTask) {
+        tasks.add((YAWLTask) cell);
       }
     }
     return tasks;
@@ -102,7 +103,7 @@ public final class NetUtilities {
   /**
    * Returns all atomic tasks in the selected net. Specifically, 
    * all those verticies in the net that conform to the <code>YAWLAtomicTask</code> interface.
-   * @param net The net to search within.
+   * @param net ThSe net to search within.
    * @return The set of <code>YAWLAtomicTask</code> objects within the selected net.
    * @see au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask
    */

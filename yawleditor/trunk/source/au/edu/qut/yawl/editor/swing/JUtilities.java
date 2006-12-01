@@ -81,6 +81,12 @@ public class JUtilities {
     }
   }
   
+  /**
+   * Makes the supplied list of Component objects the same width as the largest 
+   *width  component in the list.
+   * @param components  the list of components that are to be nmatched in width.
+   */
+
   public static void equalizeComponentWidths(List components) {
     double maxComponentWidth = getMaxDimension(components).getWidth();
     for (int i = 0; i < components.size(); ++i) {

@@ -54,11 +54,17 @@ public class VertexContainer extends DefaultGraphCell
   }
   
   public boolean isRemovable() {
-    return true;
+    if (getVertex() == null) {
+      return true;
+    }
+    return getVertex().isRemovable();
   }
   
   public boolean isCopyable() {
-    return true;
+    if (getVertex() == null) {
+      return true;
+    }
+    return getVertex().isCopyable();
   }
   
   public boolean acceptsIncommingFlows() {

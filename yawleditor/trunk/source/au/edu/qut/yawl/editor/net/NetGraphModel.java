@@ -202,9 +202,9 @@ public class NetGraphModel extends DefaultGraphModel {
     int j = 0; 
       
     for(int i = 0; i < cells.length ; i++) {
-      if (cells[i] instanceof YAWLVertex) {
-        YAWLVertex element = (YAWLVertex) cells[i];
-        if (element.isCopyable()) {
+      if (cells[i] instanceof YAWLCell) {
+        YAWLCell cell = (YAWLCell) cells[i];
+        if (cell.isCopyable()) {
           clones.add(cells[i]);
         }
       } else {
