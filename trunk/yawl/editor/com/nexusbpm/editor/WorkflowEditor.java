@@ -104,6 +104,9 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 	private static final Log LOG = LogFactory.getLog( WorkflowEditor.class );
     private JFrame _componentsFrame;
     private JPanel fileDaoPanel; 
+    private JPanel remoteDaoPanel; 
+    private JPanel memoryDaoPanel; 
+    
 	
     /**
      * Creates new form WorkflowEditor 
@@ -129,6 +132,35 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
     	}
     	return singleton;
     }
+
+    private JPanel getMemoryDaoPanel() {
+    	if (memoryDaoPanel == null) {
+        DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
+        DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
+        
+        DatasourceRoot virtualRoot = new DatasourceRoot("virtual://memory/home/");
+        EditorDataProxy memdp = (EditorDataProxy) memdc.createProxy(virtualRoot, null);
+        memdc.attachProxy(memdp, virtualRoot, null);
+        
+//        SharedNode memRootNode = new SharedNode(memdp, o);
+        SharedNode memRootNode = memdp.getTreeNode();
+        
+        SharedNodeTreeModel memTreeModel = new SharedNodeTreeModel(memRootNode);
+        memRootNode.setTreeModel(memTreeModel);
+        
+        STree memoryComponentListTree = new STree(memTreeModel);
+        memoryComponentListTree.setShowsRootHandles(false);
+        memoryComponentListTree.setRootVisible(true);
+        memoryComponentListTree.setRowHeight(26);
+        
+        
+        /////////////////////////////////////////////////
+        // create the top component pane (memory context)
+        memoryDaoPanel = new TreePanel( memoryComponentListTree, true );
+    	}
+    	return memoryDaoPanel;
+    	
+    }
     
     private JPanel getFileDaoPanel() {
 		if (fileDaoPanel == null) {
@@ -141,7 +173,6 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 			EditorDataProxy filedp = (EditorDataProxy) filedc.createProxy(
 					fileRoot, null);
 			filedc.attachProxy(filedp, fileRoot, null);
-
 			// SharedNode fileRootNode = new SharedNode(filedp, o);
 			SharedNode fileRootNode = filedp.getTreeNode();
 
@@ -159,7 +190,45 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
 		return fileDaoPanel;
 
 	}
-    
+
+    public JPanel getRemoteDaoPanel() {
+    	if (remoteDaoPanel == null) {
+    		STree hibernateComponentListTree = null;
+    		try {
+    			DAO hibernatedao = (DAO) BootstrapConfiguration.getInstance().getApplicationContext().getBean("yawlEngineDao");
+	            DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
+	            
+	            DatasourceRoot hibernateRoot = new DatasourceRoot("YawlEngine://home/");
+	            EditorDataProxy hibdp = (EditorDataProxy) hibdc.createProxy(hibernateRoot, null);
+	            hibdc.attachProxy(hibdp, hibernateRoot, null);
+	            SharedNode hibernateRootNode = hibdp.getTreeNode();
+            
+	            SharedNodeTreeModel hibernateTreeModel = new SharedNodeTreeModel(hibernateRootNode);
+	            hibernateRootNode.setTreeModel(hibernateTreeModel);
+	            
+	            hibernateComponentListTree = new STree(hibernateTreeModel);
+	            hibernateComponentListTree.setShowsRootHandles(false);
+	            hibernateComponentListTree.setRootVisible(true);
+	            hibernateComponentListTree.setRowHeight(26);
+    		} catch( Exception e ) {
+	            LOG.error( "Error connecting to database!", e );
+	            hibernateComponentListTree = null;
+	        }
+    		if( hibernateComponentListTree != null ) {
+	            try {
+	                remoteDaoPanel = new TreePanel( hibernateComponentListTree, true );
+	            }
+	            catch( Exception e ) {
+	                LOG.error( "Error displaying database component list!", e );
+	                remoteDaoPanel = new JPanel();
+	            }
+    		}
+    		else {
+    			remoteDaoPanel = new JPanel();
+    		}    	
+    	}
+        return remoteDaoPanel;
+    }
     
     /**
 	 * This method is called from within the constructor to initialize the form.
@@ -349,79 +418,6 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         
         setJMenuBar(menuBar);
         
-        ////////////////////////////
-        // create the memory context
-//        SpecificationDAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
-        DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
-        DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
-        
-        DatasourceRoot virtualRoot = new DatasourceRoot("virtual://memory/home/");
-        EditorDataProxy memdp = (EditorDataProxy) memdc.createProxy(virtualRoot, null);
-        memdc.attachProxy(memdp, virtualRoot, null);
-        
-//        SharedNode memRootNode = new SharedNode(memdp, o);
-        SharedNode memRootNode = memdp.getTreeNode();
-        
-        SharedNodeTreeModel memTreeModel = new SharedNodeTreeModel(memRootNode);
-        memRootNode.setTreeModel(memTreeModel);
-        
-        STree memoryComponentListTree = new STree(memTreeModel);
-        memoryComponentListTree.setShowsRootHandles(false);
-        memoryComponentListTree.setRootVisible(true);
-        memoryComponentListTree.setRowHeight(26);
-        
-        
-        /////////////////////////////////////////////////
-        // create the top component pane (memory context)
-        componentList1Panel = new TreePanel( memoryComponentListTree, true );
-        
-        ///////////////////////////////
-        // create the hibernate context
-        STree hibernateComponentListTree = null;
-        try {
-//            SpecificationDAO hibernatedao = DAOFactory.getDAOFactory(DAOFactory.Type.HIBERNATE).getSpecificationModelDAO();
-
-        	DAO hibernatedao = (DAO) BootstrapConfiguration.getInstance().getApplicationContext().getBean("yawlEngineDao");
-            DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
-            
-            DatasourceRoot hibernateRoot = new DatasourceRoot("YawlEngine://home/");
-            EditorDataProxy hibdp = (EditorDataProxy) hibdc.createProxy(hibernateRoot, null);
-            hibdc.attachProxy(hibdp, hibernateRoot, null);
-            
-//            SharedNode hibernateRootNode = new SharedNode(hibdp, o);
-            SharedNode hibernateRootNode = hibdp.getTreeNode();
-            
-            SharedNodeTreeModel hibernateTreeModel = new SharedNodeTreeModel(hibernateRootNode);
-            hibernateRootNode.setTreeModel(hibernateTreeModel);
-            
-            hibernateComponentListTree = new STree(hibernateTreeModel);
-            hibernateComponentListTree.setShowsRootHandles(false);
-            hibernateComponentListTree.setRootVisible(true);
-            hibernateComponentListTree.setRowHeight(26);
-        }
-        catch( Exception e ) {
-            LOG.error( "Error connecting to database!", e );
-            hibernateComponentListTree = null;
-        }
-        
-        
-        ///////////////////////////////////////////////////////
-        // create the bottom component pane (hibernate context)
-        if( hibernateComponentListTree != null ) {
-            try {
-                componentList3Panel = new TreePanel( hibernateComponentListTree, true );
-            }
-            catch( Exception e ) {
-                LOG.error( "Error displaying database component list!", e );
-                componentList3Panel = null;
-            }
-        }
-        else {
-            componentList3Panel = null;
-        }
-        
-        
-        
         //////////////////////////////////
         // setup the component tree panels
         componentTreesPanel = new JPanel();
@@ -434,7 +430,7 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
         if( componentList3Panel == null ) {
             // only 2 panels since not connected to hibernate
             componentTreesTopSplitPane.setDividerLocation(300);
-            componentTreesTopSplitPane.setTopComponent(componentList1Panel);
+            componentTreesTopSplitPane.setTopComponent(getMemoryDaoPanel());
             componentTreesTopSplitPane.setBottomComponent(getFileDaoPanel());
         }
         else {
@@ -443,14 +439,14 @@ public class WorkflowEditor extends javax.swing.JFrame implements MessageListene
             componentTreesBottomSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
             
             componentTreesTopSplitPane.setDividerLocation(200);
-            componentTreesTopSplitPane.setTopComponent(componentList1Panel);
+            componentTreesTopSplitPane.setTopComponent(getMemoryDaoPanel());
             componentTreesTopSplitPane.setBottomComponent(componentTreesBottomSplitPane);
             
             componentTreesBottomSplitPane.setDividerLocation(200);
 //            SwingUtilities.invokeLater(new Runnable() {public void run() {
 //        	}});
             componentTreesBottomSplitPane.setTopComponent(getFileDaoPanel());
-            componentTreesBottomSplitPane.setBottomComponent(componentList3Panel);
+            componentTreesBottomSplitPane.setBottomComponent(getRemoteDaoPanel());
         }
         
         componentTreesPanel.add(componentTreesTopSplitPane);
