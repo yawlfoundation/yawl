@@ -14,10 +14,23 @@ import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
 public class TestRestrictionStringConverter extends TestCase {
+	private Restriction a = new PropertyRestriction( "a", Comparison.EQUAL, "a" );
+	private Restriction notA = new NegatedRestriction( a );
+	private Restriction b = new PropertyRestriction( "b", Comparison.EQUAL, "b" );
+	private Restriction notB = new NegatedRestriction( b );
+	
 	Restriction[] r = {
+			// make sure Unrestricted works
 			new Unrestricted(),
+			
+			// make sure basic property restrictions work
 			new PropertyRestriction( "foo", Comparison.LIKE, "asdf%" ),
+			
+			// make sure negated restrictions work
 			new NegatedRestriction( new PropertyRestriction( "bar", Comparison.EQUAL, "asdf" ) ),
+			
+			// make sure logical restrictions work, and
+			// test different kinds of values and operations for property restrictions
 			new LogicalRestriction(
 					new PropertyRestriction( "q", Comparison.EQUAL, null),
 					Operation.AND,
@@ -34,7 +47,21 @@ public class TestRestrictionStringConverter extends TestCase {
 			new LogicalRestriction(
 					new Unrestricted(),
 					Operation.NAND,
-					new Unrestricted() )
+					new Unrestricted() ),
+			
+			// make sure nested logical restrictions work
+			new LogicalRestriction(
+					new LogicalRestriction( a, Operation.AND, notB ),
+					Operation.OR,
+					new LogicalRestriction( b, Operation.AND, notA ) ),
+			
+			// make sure all kinds of weird strings for property names and values work
+			new PropertyRestriction( "qwerty", Comparison.EQUAL, "a ( asdf" ),
+			new PropertyRestriction( "qwerty", Comparison.EQUAL, "a ) asdf" ),
+			new PropertyRestriction( "qwerty", Comparison.EQUAL, "a ' asdf" ),
+			new PropertyRestriction( "qwe(ty", Comparison.EQUAL, "asdf" ),
+			new PropertyRestriction( "qwe'ty", Comparison.EQUAL, "asdf" ),
+			new PropertyRestriction( "qwe)ty", Comparison.EQUAL, "asdf" )
 	};
 	
 	public void testRestrictions() {

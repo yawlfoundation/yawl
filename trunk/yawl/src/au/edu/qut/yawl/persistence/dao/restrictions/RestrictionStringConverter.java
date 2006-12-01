@@ -35,8 +35,9 @@ public final class RestrictionStringConverter {
 			String property = nextToken( restriction.substring( "(property ".length() ), " " );
 			String comparison = nextToken(
 					restriction.substring( "(property  ".length() + property.length() ), " " );
-			Object value = stringToObject( nextToken( restriction.substring(
-					"(property   ".length() + property.length() + comparison.length() ), ")" ) );
+			Object value = stringToObject( restriction.substring(
+					"(property   ".length() + property.length() + comparison.length(),
+					restriction.length() - 1 ) );
 			
 			return new PropertyRestriction(
 					property,
@@ -108,7 +109,20 @@ public final class RestrictionStringConverter {
 		
 		while( depth > 0 ) {
 			b.append( string.charAt( index ) );
-			if( string.charAt( index ) == '(' ) {
+			if( string.charAt( index ) == '\'' ) {
+				index += 1;
+				
+				while( string.charAt( index ) != '\'' ) {
+					b.append( string.charAt( index ) );
+					if( string.charAt( index ) == '\\' ) {
+						index += 1;
+						b.append( string.charAt( index ) );
+					}
+					index += 1;
+				}
+				b.append( string.charAt( index ) );
+			}
+			else if( string.charAt( index ) == '(' ) {
 				depth += 1;
 			}
 			else if( string.charAt( index ) == ')' ) {
@@ -130,7 +144,7 @@ public final class RestrictionStringConverter {
 			b.append( "'" );
 			for( int index = 0; index < str.length(); index++ ) {
 				if( str.charAt( index ) == '\'' ) {
-					b.append( "\\" );
+					b.append( "\\'" );
 				}
 				else if( str.charAt( index ) == '\\' ) {
 					b.append( "\\\\" );
@@ -170,7 +184,7 @@ public final class RestrictionStringConverter {
 		else if( string.startsWith( "'" ) ) {
 			StringBuilder b = new StringBuilder();
 			for( int index = 1; index < string.length() - 1; index++ ) {
-				if( string.charAt( index ) == '\'' ) {
+				if( string.charAt( index ) == '\\' ) {
 					b.append( string.charAt( index + 1 ) );
 					index += 1;
 				}
