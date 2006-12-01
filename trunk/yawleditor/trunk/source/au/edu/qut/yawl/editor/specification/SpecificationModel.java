@@ -60,7 +60,7 @@ public class SpecificationModel {
   public static final int SOME_NET_SELECTED = 3;
 
   private int netCount;
-  private HashSet nets;
+  private HashSet<NetGraphModel> nets;
   private int state;
   
   public static final int   DEFAULT_FONT_SIZE = 15;
@@ -73,7 +73,7 @@ public class SpecificationModel {
   
   private transient LinkedList subscribers = new LinkedList();
   
-  private HashSet decompositions = new HashSet();
+  private HashSet<Decomposition> decompositions = new HashSet<Decomposition>();
   private long    uniqueElementNumber = 0;
   private int     fontSize            = DEFAULT_FONT_SIZE;
   private int     defaultNetBackgroundColor =  DEFAULT_NET_BACKGROUND_COLOR;
@@ -379,19 +379,17 @@ public class SpecificationModel {
     return this.decompositions;
   }
   
-  public Set getUsedDecompositions() {
-    HashSet usedDecompositions = new HashSet();
-    
-    Iterator netIterator = nets.iterator();
-    while(netIterator.hasNext()) {
-      NetGraphModel net = (NetGraphModel) netIterator.next();
-      if (getDecompositionFromLabel(net.getName()) != null) {
+  public HashSet<Decomposition> getUsedDecompositions() {
+    HashSet<Decomposition> usedDecompositions = new HashSet<Decomposition>();
+
+    for(NetGraphModel net: nets) {
+      if (net.getDecomposition() != null) {
         usedDecompositions.add(net.getDecomposition());
       }
-      Iterator taskIterator = NetUtilities.getAllTasks(net).iterator();
-      while(taskIterator.hasNext()) {
-        YAWLTask task = (YAWLTask) taskIterator.next();
-        if (getDecompositionFromLabel(task.getLabel()) != null) {
+      
+      for(Object taskAsObject: NetUtilities.getAllTasks(net)) {
+        YAWLTask task = (YAWLTask) taskAsObject;
+        if (task.getDecomposition()!= null) {
           usedDecompositions.add(task.getDecomposition());
         }
       }
@@ -408,9 +406,10 @@ public class SpecificationModel {
   }
   
   public Decomposition getDecompositionFromLabel(String label) {
-    Iterator iterator = decompositions.iterator();
-    while(iterator.hasNext()) {
-      Decomposition decomposition = (Decomposition) iterator.next();
+    for(Decomposition decomposition: decompositions) {
+      if (decomposition == null) {
+        continue;
+      }
       if (decomposition.getLabel().equals(label)) {
         return decomposition;
       }

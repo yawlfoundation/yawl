@@ -100,7 +100,7 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
 
   protected void buildInterface() {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    setMargin(new Insets(2,2,2,2));
+    setMargin(new Insets(3,2,2,3));
     
     add(CORE_PALETTE);
     add(Box.createVerticalStrut(2));
