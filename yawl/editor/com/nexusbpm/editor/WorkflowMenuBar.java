@@ -188,6 +188,7 @@ public class WorkflowMenuBar extends JMenuBar implements
 	public void setAction(JMenuItem item, Action action) {
 		String oldValue = item.getText();
 		boolean isEnabled = item.isEnabled();
+		item.setAction(action);
 		if ((action.getValue(Action.NAME) == null || action.getValue(Action.NAME).equals(""))
 				&& (oldValue != null && !oldValue.equals(""))) {
 			item.setText(oldValue);
