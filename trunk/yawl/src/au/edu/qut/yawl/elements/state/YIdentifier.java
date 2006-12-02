@@ -334,10 +334,10 @@ public class YIdentifier implements Serializable {
     @Transient
     //@OneToMany(cascade={CascadeType.ALL})
     //@OnDelete(action=OnDeleteAction.CASCADE)
-    public synchronized List<YNetElement> getLocations() {
+    public synchronized List<YNetElement> getLocations() throws YPersistenceException {
     	List<YNetElement> retval = new LinkedList<YNetElement>();
 
-        List<DataProxy> runners2 = AbstractEngine.getDataContext().retrieveAll(YNetRunner.class, null);
+        //List<DataProxy> runners2 = AbstractEngine.getDataContext().retrieveAll(YNetRunner.class, null);
         
         PropertyRestriction restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , this.toString());
         List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction(YNetRunner.class, restriction ,null);

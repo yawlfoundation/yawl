@@ -142,10 +142,6 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 
 	}
 	
-	public List getChildren( Object object ) {
-		return getDAOForType( YSpecification.class ).getChildren( object );
-	}
-
 	private abstract class AbstractHibernateDAO<Type> implements DAO<Type> {
 		/**
 		 * Hook for subclassers to take care of any operation necessary before the object is saved.

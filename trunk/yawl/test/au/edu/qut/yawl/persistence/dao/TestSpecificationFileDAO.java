@@ -58,7 +58,7 @@ public class TestSpecificationFileDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.retrieve(Object)'
 	 */
-	public void testRetrieve() {
+	public void testRetrieve() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		StringProducer spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
@@ -66,7 +66,7 @@ public class TestSpecificationFileDAO extends TestCase {
 		assertNotNull(spec);
 	}
 	
-	public void testRetrieveByRestriction() {
+	public void testRetrieveByRestriction() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		try {
 			myDAO.retrieveByRestriction( YSpecification.class, new Unrestricted() );
@@ -105,7 +105,7 @@ public class TestSpecificationFileDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.getKey(YSpecification)'
 	 */
-	public void testGetKey() {
+	public void testGetKey() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		StringProducer spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();

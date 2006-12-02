@@ -18,7 +18,6 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -27,6 +26,7 @@ import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.state.YInternalCondition;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
@@ -231,7 +231,13 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
         if( parent.initialized == false ) {
             List<SharedNode> children = new ArrayList<SharedNode>();
             EditorDataProxy proxy = parent.getProxy();
-            Set<DataProxy> set = proxy.getContext().getChildren(proxy, false);
+            Set<DataProxy> set = null;
+            try {
+            	set = proxy.getContext().getChildren(proxy, false);
+            }
+            catch( YPersistenceException e ) {
+            	LOG.error( e );
+            }
             if( set != null ) {
                 for( DataProxy childProxy: set ) {
                     SharedNode node = ((EditorDataProxy)childProxy).getTreeNode();

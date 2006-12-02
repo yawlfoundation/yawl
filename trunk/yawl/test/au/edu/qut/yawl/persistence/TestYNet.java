@@ -248,7 +248,7 @@ public class TestYNet extends TestCase {
     }
 
 
-    public void testORJoinEnabled() {
+    public void testORJoinEnabled() throws YPersistenceException {
         //XPathSaxonUser an orjoin with two tokens before the or join and a token that may arrive soon.
         assertFalse(_loopedNet.orJoinEnabled((YTask) _loopedNet.getNetElement("f"), _id1));
         //XPathSaxonUser a marking with a token before the orjoin and a token hidden in front of annother

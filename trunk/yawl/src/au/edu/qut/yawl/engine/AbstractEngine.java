@@ -996,7 +996,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     }
 
 
-    public String getStateTextForCase(YIdentifier caseID) {
+    public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException {
             logger.debug("--> getStateTextForCase: ID=" + caseID.getId());
 
             Set allChildren = caseID.getDescendants();
@@ -1066,7 +1066,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
             return stateText.toString();
     }
 
-    public String getStateForCase(String caseID) {
+    public String getStateForCase(String caseID) throws YPersistenceException {
 
        //PropertyRestriction restriction = new PropertyRestriction("archived", PropertyRestriction.Comparison.EQUAL , new Boolean(false));
        PropertyRestriction restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , caseID);
@@ -1110,7 +1110,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
     }
 
-    public String getStateForCase(YIdentifier caseID) {
+    public String getStateForCase(YIdentifier caseID) throws YPersistenceException {
         Set allChildren = caseID.getDescendants();
         Set allLocations = new HashSet();
         for (Iterator childIter = allChildren.iterator(); childIter.hasNext();) {
@@ -1263,13 +1263,24 @@ public abstract class AbstractEngine implements InterfaceADesign,
         }
 
             if (logger.isDebugEnabled()) {
-                logger.debug("--> getAvailableWorkItems: Enabled=" + YEngine._workItemRepository.getEnabledWorkItems().size() +
-                        " Fired=" + YEngine._workItemRepository.getFiredWorkItems().size());
+            	try {
+            		logger.debug("--> getAvailableWorkItems: Enabled=" + YEngine._workItemRepository.getEnabledWorkItems().size() +
+            				" Fired=" + YEngine._workItemRepository.getFiredWorkItems().size());
+            	}
+            	catch( YPersistenceException e ) {
+            		logger.debug( "error logging debug information", e );
+            	}
             }
 
             Set<YWorkItem> allItems = new HashSet<YWorkItem>();
-            allItems.addAll(YEngine._workItemRepository.getEnabledWorkItems());
-            allItems.addAll(YEngine._workItemRepository.getFiredWorkItems());
+            try {
+            	allItems.addAll(YEngine._workItemRepository.getEnabledWorkItems());
+            	allItems.addAll(YEngine._workItemRepository.getFiredWorkItems());
+            }
+            catch( YPersistenceException e ) {
+            	// FIXME
+            	throw new RuntimeException( e );
+            }
 
             logger.debug("<-- getAvailableWorkItems");
             return allItems;
@@ -1806,9 +1817,15 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
 
     public YAWLServiceReference getRegisteredYawlService(String yawlServiceID) {
-    	DataProxy proxy = getDataContext().retrieve( YAWLServiceReference.class, yawlServiceID, null );
-    	if( proxy != null ) {
-    		return (YAWLServiceReference) proxy.getData();
+    	try {
+    		DataProxy proxy = getDataContext().retrieve( YAWLServiceReference.class, yawlServiceID, null );
+    		if( proxy != null ) {
+    			return (YAWLServiceReference) proxy.getData();
+    		}
+    	}
+    	catch( YPersistenceException e ) {
+    		// FIXME
+    		throw new RuntimeException( e );
     	}
     	return null;
 //            return (YAWLServiceReference) _yawlServices.get(yawlServiceID);
@@ -1820,7 +1837,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
      *
      * @return the set of current YAWL services
      */
-    public abstract Set getYAWLServices();
+    public abstract Set getYAWLServices() throws YPersistenceException;
 
 
     /**

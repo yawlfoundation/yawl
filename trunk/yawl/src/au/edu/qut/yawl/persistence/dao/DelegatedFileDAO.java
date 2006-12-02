@@ -32,10 +32,6 @@ public class DelegatedFileDAO extends AbstractDelegatedDAO {
 //		addType( YNetRunner.class, new NetRunnerFileDAO() );
 	}
 	
-	public List getChildren( Object object ) {
-		return getDAOForType( YSpecification.class ).getChildren( object );
-	}
-	
 	private abstract class AbstractFileDAO<Type> implements DAO<Type> {
 		/* cache the loaded objects so we're not constantly going back out to the file system. */
 		protected Map<Object, Type> loadedObjects = new HashMap<Object, Type>();

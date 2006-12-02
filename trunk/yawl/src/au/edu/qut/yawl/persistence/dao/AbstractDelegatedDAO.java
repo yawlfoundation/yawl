@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 public abstract class AbstractDelegatedDAO implements DAO<Object> {
@@ -25,7 +26,7 @@ public abstract class AbstractDelegatedDAO implements DAO<Object> {
 		return typeMap.get( type );
 	}
 	
-	public final Object getKey( Object object ) {
+	public final Object getKey( Object object ) throws YPersistenceException {
 		checkTypeSupported( object.getClass() );
 		return typeMap.get( object.getClass() ).getKey( object );
 	}
@@ -35,19 +36,23 @@ public abstract class AbstractDelegatedDAO implements DAO<Object> {
 		typeMap.get( object.getClass() ).save( object );
 	}
 	
-	public final Object retrieve( Class type, Object key ) {
+	public final Object retrieve( Class type, Object key ) throws YPersistenceException {
 		checkTypeSupported( type );
 		return typeMap.get( type ).retrieve( type, key );
 	}
 	
-	public final List<Object> retrieveByRestriction( Class type, Restriction restriction ) {
+	public final List<Object> retrieveByRestriction( Class type, Restriction restriction ) throws YPersistenceException {
 		checkTypeSupported( type );
 		return typeMap.get( type ).retrieveByRestriction( type, restriction );
 	}
 	
-	public final boolean delete( Object object ) {
+	public final boolean delete( Object object ) throws YPersistenceException {
 		checkTypeSupported( object.getClass() );
 		return typeMap.get( object.getClass() ).delete( object );
+	}
+	
+	public List getChildren( Object object ) throws YPersistenceException {
+		return getDAOForType( YSpecification.class ).getChildren( object );
 	}
 	
 	private final void checkTypeSupported( Class type ) {

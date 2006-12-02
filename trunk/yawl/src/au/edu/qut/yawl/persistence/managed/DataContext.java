@@ -147,18 +147,18 @@ public class DataContext {
 	 * Retrieves the specification with the given key from the DAO and
      * generates proxies for the specification and its children.
 	 */
-    public DataProxy retrieve(Class type, Serializable key, DataProxyStateChangeListener listener) {
+    public DataProxy retrieve(Class type, Serializable key, DataProxyStateChangeListener listener) throws YPersistenceException {
     	Object object = dao.retrieve(type, key);
     	// TODO how do we handle the parent proxy?
     	return handleRetrievedObject( object, null, listener );
     }
     
-    public List<DataProxy> retrieveAll( Class type, DataProxyStateChangeListener listener ) {
+    public List<DataProxy> retrieveAll( Class type, DataProxyStateChangeListener listener ) throws YPersistenceException {
     	return retrieveByRestriction( type, new Unrestricted(), null );
     }
     
     public List<DataProxy> retrieveByRestriction( Class type, Restriction restriction,
-    		DataProxyStateChangeListener listener ) {
+    		DataProxyStateChangeListener listener ) throws YPersistenceException {
     	List<DataProxy> retval = new ArrayList<DataProxy>();
     	List objects = dao.retrieveByRestriction( type, restriction );
     	
@@ -231,7 +231,7 @@ public class DataContext {
      * and removes the proxy and data from the context.
      * TODO remove the detach proxy part
 	 */
-    public void delete(DataProxy dataProxy) {
+    public void delete(DataProxy dataProxy) throws YPersistenceException {
         Object data = getData(dataProxy);
         DataProxy parent = getParentProxy(dataProxy);
         
@@ -242,7 +242,7 @@ public class DataContext {
     /**
 	 * @see au.edu.qut.yawl.persistence.dao.DAO#getKey(Object)
 	 */
-    public Serializable getKeyFor(DataProxy t) {
+    public Serializable getKeyFor(DataProxy t) throws YPersistenceException {
     	return (Serializable) dao.getKey(getData(t));
     }
     
@@ -318,7 +318,7 @@ public class DataContext {
 //        LOG.info("removing " + proxy.getLabel() + " from maps.");
     }
    
-    public Set<DataProxy> getChildren(DataProxy parent, boolean forceUpdate) {
+    public Set<DataProxy> getChildren(DataProxy parent, boolean forceUpdate) throws YPersistenceException {
     	if (hierarchy.get(parent) == null || forceUpdate) {
     		List<Parented> l = dao.getChildren(parent.getData());
     		for (Object o: l) {

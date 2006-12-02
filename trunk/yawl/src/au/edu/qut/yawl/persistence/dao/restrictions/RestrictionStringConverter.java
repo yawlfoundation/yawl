@@ -171,6 +171,9 @@ public final class RestrictionStringConverter {
 		else if( object instanceof Long ) {
 			return "long:" + object;
 		}
+		else if( object instanceof Boolean ) {
+			return "boolean:" + object;
+		}
 		else {
 			throw new IllegalArgumentException(
 					"Illegal type for property value! (" + object.getClass().toString() + ")" );
@@ -208,6 +211,9 @@ public final class RestrictionStringConverter {
 		}
 		else if( string.startsWith( "long:" ) ) {
 			return new Long( string.substring( "long:".length() ) );
+		}
+		else if( string.startsWith( "boolean:" ) ) {
+			return new Boolean( string.substring( "boolean:".length() ) );
 		}
 		else {
 			throw new IllegalArgumentException( "String cannot be converted to object! (" + string + ")" );

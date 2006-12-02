@@ -186,18 +186,19 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        List<DataProxy> specs = AbstractEngine.getDataContext().retrieveByRestriction(
-        		YSpecification.class, RestrictionStringConverter.stringToRestriction( restriction ), null );
-        List<YSpecification> specList = new ArrayList<YSpecification>();
-        for( DataProxy proxy : specs ) {
-        	if( proxy.getData() instanceof YSpecification ) {
-        		specList.add( (YSpecification) proxy.getData() );
-        	}
-        }
         try {
+	        List<DataProxy> specs = AbstractEngine.getDataContext().retrieveByRestriction(
+	        		YSpecification.class, RestrictionStringConverter.stringToRestriction( restriction ), null );
+	        List<YSpecification> specList = new ArrayList<YSpecification>();
+	        for( DataProxy proxy : specs ) {
+	        	if( proxy.getData() instanceof YSpecification ) {
+	        		specList.add( (YSpecification) proxy.getData() );
+	        	}
+	        }
+	        
             return YMarshal.marshal(specList);
         } catch (Exception e) {
-            logger.error("Failed to marshal a specification into XML.", e);
+            logger.error("Failed to retrieve specifications by restriction! " + restriction, e);
             return OPEN_FAILURE +
             	formatException( e ) +
             	CLOSE_FAILURE;
@@ -565,11 +566,19 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        YIdentifier id = _engine.getCaseID(caseID);
-        if (id != null) {
-            return _engine.getStateForCase(id);
+        try {
+        	YIdentifier id = _engine.getCaseID(caseID);
+        	if (id != null) {
+        		return _engine.getStateForCase(id);
+        	}
+        	return OPEN_FAILURE + "Case [" + caseID + "] not found." + CLOSE_FAILURE;
         }
-        return OPEN_FAILURE + "Case [" + caseID + "] not found." + CLOSE_FAILURE;
+        catch( YPersistenceException e ) {
+        	if (e instanceof YPersistenceException) {
+                enginePersistenceFailure = true;
+            }
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
+        }
     }
 
 
@@ -830,13 +839,21 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        Set yawlServices = _engine.getYAWLServices();
-        StringBuffer result = new StringBuffer();
-        for (Iterator iterator = yawlServices.iterator(); iterator.hasNext();) {
-            YAWLServiceReference service = (YAWLServiceReference) iterator.next();
-            result.append(service.toXML());
+        try {
+	        Set yawlServices = _engine.getYAWLServices();
+	        StringBuffer result = new StringBuffer();
+	        for (Iterator iterator = yawlServices.iterator(); iterator.hasNext();) {
+	            YAWLServiceReference service = (YAWLServiceReference) iterator.next();
+	            result.append(service.toXML());
+	        }
+	        return result.toString();
         }
-        return result.toString();
+        catch( YPersistenceException e ) {
+        	if (e instanceof YPersistenceException) {
+                enginePersistenceFailure = true;
+            }
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
+        }
     }
 
 

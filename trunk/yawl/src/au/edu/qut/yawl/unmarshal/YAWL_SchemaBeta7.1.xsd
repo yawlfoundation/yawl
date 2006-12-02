@@ -375,7 +375,9 @@
 									<xs:element name="wsdlLocation" type="xs:anyURI"/>
 									<xs:element name="operationName" type="xs:NMTOKEN"/>
 								</xs:sequence>
-								<xs:sequence/>
+								<xs:sequence>
+									<xs:element name="documentation" type="yawl:DocumentationType" minOccurs="0" maxOccurs="1"/>
+								</xs:sequence>
 							</xs:choice>
 							<xs:attribute name="id" type="yawl:YAWLServiceIDType" use="required"/>
 						</xs:complexType>
@@ -465,7 +467,7 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:SpecificationSetType">
 				<xs:sequence>
-					<xs:element name="specification" type="yawl:YAWLSpecificationFactsType" maxOccurs="unbounded"/>
+					<xs:element name="specification" type="yawl:YAWLSpecificationFactsType" minOccurs="0" maxOccurs="unbounded"/>
 				</xs:sequence>
 				<xs:attribute name="version" use="required">
 					<xs:simpleType>

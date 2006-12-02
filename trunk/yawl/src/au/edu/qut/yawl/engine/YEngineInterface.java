@@ -14,7 +14,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
-import org.jdom.Document;
 import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.elements.YAWLServiceReference;
@@ -42,9 +41,9 @@ public interface YEngineInterface {
     public Set getLoadedSpecifications();
     public YSpecification getSpecification(String specID);
     public YIdentifier getCaseID(String caseIDStr);
-    public String getStateTextForCase(YIdentifier caseID);
-    public String getStateForCase(YIdentifier caseID);
-    public String getStateForCase(String caseID);
+    public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException;
+    public String getStateForCase(YIdentifier caseID) throws YPersistenceException;
+    public String getStateForCase(String caseID) throws YPersistenceException;
     public void registerInterfaceAClient(InterfaceAManagementObserver observer);
     public void registerInterfaceBObserver(InterfaceBClientObserver observer);
     public void registerInterfaceBObserverGateway(ObserverGateway gateway);
@@ -64,7 +63,7 @@ public interface YEngineInterface {
     public String launchCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException;
     public Set getCasesForSpecification(String specID);
     public YAWLServiceReference getRegisteredYawlService(String yawlServiceID);
-    public Set getYAWLServices();
+    public Set getYAWLServices() throws YPersistenceException;
     public void addYawlService(YAWLServiceReference yawlService) throws YPersistenceException;
     public Set getChildrenOfWorkItem(YWorkItem workItem);
     public void announceCancellationToEnvironment(YAWLServiceReference yawlService, YWorkItem item);

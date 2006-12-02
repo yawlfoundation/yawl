@@ -7,8 +7,6 @@
  */
 package au.edu.qut.yawl.persistence.dao;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -36,10 +34,4 @@ public class DelegatedSpringDAO extends AbstractDelegatedDAO {
 			addType( YAWLServiceReference.class, (DAO) context.getBean("ServiceRefSpringDAO") );
 		}
 	}
-	
-	public List getChildren( Object object ) {
-		return getDAOForType( YSpecification.class ).getChildren( object );
-	}
-
-
 }

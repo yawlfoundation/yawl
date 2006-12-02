@@ -35,10 +35,6 @@ public class DelegatedEJB3DAO extends AbstractDelegatedDAO {
 		addType( YNetRunner.class, new NetRunnerEJB3DAO() );
 	}
 	
-	public List getChildren( Object object ) {
-		return getDAOForType( YSpecification.class ).getChildren( object );
-	}
-	
 	private abstract class AbstractEJB3DAO<Type> implements DAO<Type> {
 		public final boolean delete( Type object ) {
 			manager.remove( object );

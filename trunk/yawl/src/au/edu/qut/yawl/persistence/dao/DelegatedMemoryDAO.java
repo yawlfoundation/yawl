@@ -27,6 +27,7 @@ import au.edu.qut.yawl.events.YCaseEvent;
 import au.edu.qut.yawl.events.YDataEvent;
 import au.edu.qut.yawl.events.YWorkItemEvent;
 import au.edu.qut.yawl.exceptions.Problem;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionEvaluator;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
@@ -48,10 +49,6 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 		addType( YCaseEvent.class, new YCaseEventDAO() );
 	}
 	
-	public List getChildren( Object object ) {
-		return getDAOForType( YSpecification.class ).getChildren( object );
-	}
-	
 	private abstract class AbstractMemoryDAO<Type> implements DAO<Type> {
 		protected abstract void preSave( Type object );
 		protected Map<Object, Type> objects = new HashMap<Object, Type>();
@@ -68,7 +65,7 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 			}
 		}
 
-		public final boolean delete( Type object ) {
+		public final boolean delete( Type object ) throws YPersistenceException {
 			return objects.remove( getKey( object ) ) != null;
 		}
 
@@ -90,7 +87,7 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 			return retval;
 		}
 		
-		public final void save( Type object ) {
+		public final void save( Type object ) throws YPersistenceException {
 			preSave( object );
 			objects.put( getKey( object ), object );
 		}

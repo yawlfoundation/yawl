@@ -9,17 +9,18 @@
 
 package au.edu.qut.yawl.util;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YConditionInterface;
 import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.elements.state.YInternalCondition;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 /**
  * 
@@ -30,7 +31,7 @@ import java.util.Set;
  */
 public class YStateInspector {
 
-    public static String inspectState(YIdentifier parentID) {
+    public static String inspectState(YIdentifier parentID) throws YPersistenceException {
         //###########################################################################
         //##########            BEGIN State inspection code             #############
         //###########################################################################

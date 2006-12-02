@@ -10,15 +10,14 @@ package com.nexusbpm.editor.configuration;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 
-import com.nexusbpm.services.UpdateablePropertiesFactoryBean;
-
+import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.dao.YawlEngineDAO;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
-import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
-import junit.framework.TestCase;
+
+import com.nexusbpm.services.UpdateablePropertiesFactoryBean;
 
 public class NexusClientConfigurationTest extends TestCase {
 
@@ -57,7 +56,7 @@ public class NexusClientConfigurationTest extends TestCase {
 		assertTrue(b.getProperties().getProperty("testname").equals("testvalue"));
 	}
 
-	public void testGetEngine() {
+	public void testGetEngine() throws YPersistenceException {
 		YawlEngineDAO dao = (YawlEngineDAO) new NexusClientConfiguration().getApplicationContext().getBean("yawlEngineDao");
 		List<YSpecification> list = dao.retrieveByRestriction(YSpecification.class, new Unrestricted());
 		assertTrue(list.size() > 0);

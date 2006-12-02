@@ -20,6 +20,7 @@ import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 /**
  * 
@@ -32,7 +33,7 @@ public class YMarking {
     private List _locations;
 
 
-    public YMarking(YIdentifier identifier) {
+    public YMarking(YIdentifier identifier) throws YPersistenceException {
         _locations = new Vector(identifier.getLocations());
     }
 
