@@ -327,6 +327,7 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:ExternalNetElementType">
 				<xs:sequence>
+					<xs:element name="extension"  type="yawl:ExtensionType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="name" minOccurs="0"/>
 					<xs:element name="documentation" minOccurs="0"/>
 				</xs:sequence>
@@ -374,13 +375,16 @@
 									<xs:element name="wsdlLocation" type="xs:anyURI"/>
 									<xs:element name="operationName" type="xs:NMTOKEN"/>
 								</xs:sequence>
-								<xs:sequence/>
+								<xs:sequence>
+									<xs:element name="documentation" type="yawl:DocumentationType" minOccurs="0" maxOccurs="1"/>
+								</xs:sequence>
 							</xs:choice>
 							<xs:attribute name="id" type="yawl:YAWLServiceIDType" use="required"/>
 						</xs:complexType>
 					</xs:element>
 				</xs:sequence>
 				<!-- Extended Attributes (AJH) -->
+                <!-- todo Lachlan reccomendation: please merge this with the 'extension' element by IHG --> 
                 <xs:anyAttribute processContents="skip"/>
 			</xs:extension>
 		</xs:complexContent>
@@ -412,7 +416,7 @@
 							<xs:field xpath="@id"/>
 						</xs:keyref>
 						<xs:unique name="VariableUnique">
-							<xs:selector xpath="yawl:inputParam | yawl:localVariable"/>
+							<xs:selector xpath="yawl:inputParam|yawl:localVariable"/>
 							<xs:field xpath="yawl:name"/>
 						</xs:unique>
 						<xs:unique name="OutputExpresionUnique">
@@ -463,7 +467,7 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:SpecificationSetType">
 				<xs:sequence>
-					<xs:element name="specification" type="yawl:YAWLSpecificationFactsType" maxOccurs="unbounded"/>
+					<xs:element name="specification" type="yawl:YAWLSpecificationFactsType" minOccurs="0" maxOccurs="unbounded"/>
 				</xs:sequence>
 				<xs:attribute name="version" use="required">
 					<xs:simpleType>

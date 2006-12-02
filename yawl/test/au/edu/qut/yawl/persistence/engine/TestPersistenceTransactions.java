@@ -22,19 +22,14 @@ import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.persistence.dao.DAO;
-import au.edu.qut.yawl.persistence.dao.DAOFactory;
-import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
+import au.edu.qut.yawl.persistence.StringProducer;
+import au.edu.qut.yawl.persistence.StringProducerYAWL;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
-import junit.framework.TestCase;
-import au.edu.qut.yawl.engine.EngineClearer;
-
-import au.edu.qut.yawl.persistence.StringProducer;
-import au.edu.qut.yawl.persistence.StringProducerYAWL;
-import au.edu.qut.yawl.persistence.managed.DataContext;
 
 public class TestPersistenceTransactions extends TestCase {
 	
@@ -71,7 +66,10 @@ public class TestPersistenceTransactions extends TestCase {
 			System.out.println(engine.getStateForCase(caseid_string));
 
             List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction( YNetRunner.class,
+            		new LogicalRestriction(
             		new PropertyRestriction( "archived", Comparison.EQUAL, false),
+            		Operation.AND,
+            		new PropertyRestriction( "YNetID", Comparison.EQUAL, "singletask" ) ),
             		null );
             
             /*
@@ -83,7 +81,7 @@ public class TestPersistenceTransactions extends TestCase {
 			//System.out.println(runners.size());
 			//System.out.println(items.size());
 			
-			assertTrue(runners.size()==1);
+			assertTrue("" + runners.size(), runners.size()==1);
 			//assertTrue(items.size()==1);
 
 			YIdentifier caseid = engine.getCaseID(caseid_string);

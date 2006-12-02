@@ -9,7 +9,6 @@
 package au.edu.qut.yawl.persistence.dao;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,10 +17,13 @@ import java.util.Set;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
+import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.XmlUtilities;
@@ -44,16 +46,16 @@ public class YawlEngineDAO implements DAO {
 		configurationDirty = false;
 	}
 	
-	public boolean delete(Object object) {
+	public boolean delete(Object object) throws YPersistenceException {
 		try {
 			execute(new DeleteCommand(object.toString()));
 			return true;
 		} catch (Exception e) {
-			throw new RuntimeException( e );
+			throw new YPersistenceException( e );
 		}
 	}
 
-	public List getChildren(Object parent) {
+	public List getChildren(Object parent) throws YPersistenceException {
 		/*
 		 * needs to see if this is a folder; if so, look for matching specs.
 		 */
@@ -69,7 +71,10 @@ public class YawlEngineDAO implements DAO {
 			// this method is stolen from hibernatedao but for the next line...
 			// which needs to be changed to add a restriction regarding uri match
 			List tmp = retrieveByRestriction(YSpecification.class,
-					new PropertyRestriction( "ID", Comparison.LIKE, filter + "%" ) );
+					new LogicalRestriction(
+					new PropertyRestriction( "ID", Comparison.LIKE, filter + "%" ),
+					Operation.AND,
+					new PropertyRestriction( "archived", Comparison.EQUAL, Boolean.FALSE ) ) );
 //			List tmp = retrieveByRestriction(YSpecification.class,
 //					new Unrestricted());
 
@@ -106,7 +111,7 @@ public class YawlEngineDAO implements DAO {
 		return null;
 	}
 
-	protected Object execute(RemoteCommand c) throws Exception{
+	protected Object execute(RemoteCommand c) throws Exception {
 		try {
 			if (configurationDirty) {
 				resetConnection();
@@ -118,29 +123,27 @@ public class YawlEngineDAO implements DAO {
 		}
 	}
 	
-	public Object retrieve(Class type, Object key) {
+	public Object retrieve(Class type, Object key) throws YPersistenceException {
 		try {
 			return execute(new RetrieveCommand(key.toString()));
 		} catch (Exception e) {
-			throw new RuntimeException( e );
+			throw new YPersistenceException( e );
 		}
 }
 
-	public Object executeStatement(String query, String params) throws SQLException{
+	public Object startCase(String caseID, String params) throws YAWLException {
 		try {
-			return execute(new ExecuteStatementCommand(query, params));
+			return execute(new StartCaseCommand(caseID, params));
 		} catch (Exception e) {
-			SQLException s = new SQLException(e.getMessage());
-			s.initCause(e);
-			throw s;
+			throw new YAWLException( e );
 		}
 }
 
-	public List retrieveByRestriction(Class type, Restriction restriction) {
+	public List retrieveByRestriction(Class type, Restriction restriction) throws YPersistenceException {
 		try {
 			return (List) execute(new RetrieveByRestrictionCommand(type, restriction));
 		} catch (Exception e) {
-			throw new RuntimeException( e );
+			throw new YPersistenceException( e );
 		}
 	}
 
@@ -157,10 +160,10 @@ public class YawlEngineDAO implements DAO {
 	}
 
 	public void setEngineUri(String engineUri) {
-		this.engineUri = engineUri;
 		if (this.engineUri == null || !this.engineUri.equals(engineUri)) {
 			configurationDirty = true;
 		}
+		this.engineUri = engineUri;
 	}
 
 	public String getPassword() {
@@ -168,10 +171,10 @@ public class YawlEngineDAO implements DAO {
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
 		if (this.password == null || !this.password.equals(password)) {
 			configurationDirty = true;
 		}
+		this.password = password;
 	}
 
 	public String getUserName() {
@@ -179,10 +182,10 @@ public class YawlEngineDAO implements DAO {
 	}
 
 	public void setUserName(String user) {
-		this.userName = user;
 		if (this.userName == null || !this.userName.equals(user)) {
 			configurationDirty = true;
 		}
+		this.userName = user;
 	}
 
 	public interface RemoteCommand {
@@ -215,7 +218,7 @@ public class YawlEngineDAO implements DAO {
 		public Object execute() throws Exception {
 				iaClient.unloadSpecification(object.getID(), sessionHandle);
 				String xml = YMarshal.marshal((YSpecification) object);
-				String returnXml = iaClient.uploadSpecification(xml, ((YSpecification) object).getID(), sessionHandle);
+				String returnXml = iaClient.uploadSpecification(xml, "asdf", sessionHandle);
 				Exception e = XmlUtilities.getError(returnXml);
 				if (e != null) throw e;
 				else return null;
@@ -245,15 +248,15 @@ public class YawlEngineDAO implements DAO {
 		}
 	}
 	
-	public class ExecuteStatementCommand implements RemoteCommand {
-		public String query;
+	public class StartCaseCommand implements RemoteCommand {
+		public String caseID;
 		public String params = "";
-		public ExecuteStatementCommand(String query, String params) {
-			this.query = query;
+		public StartCaseCommand(String caseID, String params) {
+			this.caseID = caseID;
 			this.params = params;
 		}
 		public Object execute() throws Exception {
-			String xml = ibClient.launchCase(query, params, sessionHandle);
+			String xml = ibClient.launchCase(caseID, params, sessionHandle);
 				Exception e = XmlUtilities.getError(xml);
 				if (e != null) throw e;
 				else return xml;

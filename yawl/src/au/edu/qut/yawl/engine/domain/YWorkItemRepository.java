@@ -23,6 +23,7 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**
@@ -143,7 +144,7 @@ public class YWorkItemRepository {
      * Cancels the net runner and removes any workitems that belong to it.
      * @param caseIDForNet
      */
-    public void cancelNet(YIdentifier caseIDForNet) {
+    public void cancelNet(YIdentifier caseIDForNet) throws YPersistenceException {
         _caseToNetRunnerMap.remove(caseIDForNet);
         Set<String> itemsToRemove = new HashSet<String>();
         List<YWorkItem> allWorkItems = new ArrayList<YWorkItem>(_idStringToWorkItemsMap.values());
@@ -181,7 +182,7 @@ public class YWorkItemRepository {
     /**
      * Side effect: deletes dead items from the repository.
      */
-    public Set <YWorkItem> getEnabledWorkItems() {
+    public Set <YWorkItem> getEnabledWorkItems() throws YPersistenceException {
         Logger.getLogger(this.getClass()).debug("--> getEnabledWorkItems: _idStringToWorkItemsMap=" + _idStringToWorkItemsMap.size() + " _caseToNetRunnerMap=" + _caseToNetRunnerMap.size());
         Set<YWorkItem> aSet = new HashSet<YWorkItem>();
         Set<String> itemsToRemove = new HashSet<String>();
@@ -210,7 +211,7 @@ public class YWorkItemRepository {
     }
 
 
-    private void removeItems(Set<String> itemsToRemove) {
+    private void removeItems(Set<String> itemsToRemove) throws YPersistenceException {
         for (String workItemID : itemsToRemove) {
         	YWorkItem item = (YWorkItem)_idStringToWorkItemsMap.get(workItemID);
         	_idStringToWorkItemsMap.remove(workItemID); 
@@ -234,7 +235,7 @@ public class YWorkItemRepository {
     /**
      * Side effect: deletes dead items from the repository.
      */
-    public Set<YWorkItem> getFiredWorkItems() {
+    public Set<YWorkItem> getFiredWorkItems() throws YPersistenceException {
         Set<YWorkItem> aSet = new HashSet<YWorkItem>();
         Set<String> itemsToRemove = new HashSet<String>();
         for (YWorkItem workitem : _idStringToWorkItemsMap.values()) {
@@ -275,7 +276,7 @@ public class YWorkItemRepository {
     /**
      * Side effect: deletes dead items from the repository.
      */
-    public Set<YWorkItem> getExecutingWorkItems(String userName) {
+    public Set<YWorkItem> getExecutingWorkItems(String userName) throws YPersistenceException {
         Set<YWorkItem> aSet = new HashSet<YWorkItem>();
         Set<String> itemsToRemove = new HashSet<String>();
 
@@ -331,7 +332,7 @@ public class YWorkItemRepository {
     /**
      * Side effect: deletes dead items from the repository.
      */
-    public Set<YWorkItem> getWorkItems() {
+    public Set<YWorkItem> getWorkItems() throws YPersistenceException {
         Set<YWorkItem> aSet = new HashSet<YWorkItem>();
         Set<String> itemsToRemove = new HashSet<String>();
         //rather than just return the work items we have to chek that the items in the
@@ -391,7 +392,7 @@ public class YWorkItemRepository {
      * @param caseID must be a case id, (not a child of a caseid).
      */
     //todo LA Ques: Link to persistance??
-    public void removeWorkItemsForCase(YIdentifier caseID) {
+    public void removeWorkItemsForCase(YIdentifier caseID) throws YPersistenceException {
         if (caseID == null || caseID.getParent() != null) {
             throw new IllegalArgumentException("the argument <caseID> is not valid.");
         }

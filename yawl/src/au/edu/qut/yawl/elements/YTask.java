@@ -887,7 +887,7 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    public synchronized boolean t_enabled(YIdentifier id) {
+    public synchronized boolean t_enabled(YIdentifier id) throws YPersistenceException {
         //busy tasks are never enabled
         if (_i != null) {
             return false;

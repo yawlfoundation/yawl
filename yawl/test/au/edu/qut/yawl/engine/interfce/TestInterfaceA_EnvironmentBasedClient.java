@@ -188,9 +188,9 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 			String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, sessionHandle);
 			String results = ibClient.launchCase(MAKE_RECORDINGS, "", bConnectionHandle);
 			System.out.println("Launch test:" + results);
-			try {
-				Thread.sleep(15000);
-			} catch (InterruptedException e) {}
+//			try {
+//				Thread.sleep(15000);
+//			} catch (InterruptedException e) {}
 //			String fin = ibClient.cancelCase(results, bConnectionHandle);
 //			System.out.println(result);
 //			System.out.println(results);

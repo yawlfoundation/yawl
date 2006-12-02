@@ -8,24 +8,16 @@
 
 package com.nexusbpm.scheduler;
 
-import java.io.IOException;
-import java.sql.SQLException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
-import au.edu.qut.yawl.persistence.dao.DAO;
+import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.persistence.dao.YawlEngineDAO;
 import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
-
-import com.nexusbpm.editor.util.InterfaceB;
 
 public class StartYawlCaseJob implements Job {
 	public static final String MAP_KEY_SPEC_ID = "specId";
@@ -51,7 +43,7 @@ public class StartYawlCaseJob implements Job {
 				LOG.info(dao.retrieve(YSpecification.class, specID));
 			}
 			// launch the case
-			Object resultObject = dao.executeStatement(specID, "");
+			Object resultObject = dao.startCase(specID, "");
 			if (resultObject != null) {
 				result = resultObject.toString();
 			}
@@ -68,7 +60,7 @@ public class StartYawlCaseJob implements Job {
 				e.printStackTrace();
 				throw e; 
 			}			
-		} catch (SQLException e) {
+		} catch (YAWLException e) {
 			e.printStackTrace();
 			throw new JobExecutionException(
 					"Error starting case for specification '" + specID + "'\n"

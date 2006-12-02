@@ -47,7 +47,7 @@ public class RemoveVirtualFolderCommand extends AbstractCommand {
      * Removes the folder and its children.
      * (Attach and detach are reversed for remove commands).
      */
-    protected void attach() {
+    protected void attach() throws YPersistenceException {
         for( int index = proxies.size() - 1; index >= 0; index-- ) {
             DataProxy proxy = proxies.get( index );
             Object object = data.get( proxy );

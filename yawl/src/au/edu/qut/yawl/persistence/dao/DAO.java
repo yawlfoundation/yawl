@@ -13,10 +13,10 @@ import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 public interface DAO<Type> {
-	public Object getKey(Type object);
+	public Object getKey(Type object) throws YPersistenceException;
 	  public void save(Type object) throws YPersistenceException;
-	  public Type retrieve(Class type, Object key);
-	  public List<Type> retrieveByRestriction(Class type, Restriction restriction);
-	  public boolean delete(Type object);
-	  public List getChildren(Object object);
+	  public Type retrieve(Class type, Object key) throws YPersistenceException;
+	  public List<Type> retrieveByRestriction(Class type, Restriction restriction) throws YPersistenceException;
+	  public boolean delete(Type object) throws YPersistenceException;
+	  public List getChildren(Object object) throws YPersistenceException;
 }

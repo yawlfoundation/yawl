@@ -340,13 +340,13 @@ public class WorkflowEditor extends JFrame implements MessageListener {
         JSplitPane componentTreesTopSplitPane = new JSplitPane();
         componentTreesTopSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
         
-//        if( componentList3Panel == null ) {
-//            // only 2 panels since not connected to hibernate
-//            componentTreesTopSplitPane.setDividerLocation(300);
-//            componentTreesTopSplitPane.setTopComponent(getMemoryDaoPanel());
-//            componentTreesTopSplitPane.setBottomComponent(getFileDaoPanel());
-//        }
-//        else {
+        if( ! ( getRemoteDaoPanel() instanceof TreePanel ) ) {
+            // only 2 panels since not connected to hibernate
+            componentTreesTopSplitPane.setDividerLocation(300);
+            componentTreesTopSplitPane.setTopComponent(getMemoryDaoPanel());
+            componentTreesTopSplitPane.setBottomComponent(getFileDaoPanel());
+        }
+        else {
             // all 3 panels since we're connected to hibernate
             JSplitPane componentTreesBottomSplitPane = new JSplitPane();
             componentTreesBottomSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -356,11 +356,9 @@ public class WorkflowEditor extends JFrame implements MessageListener {
             componentTreesTopSplitPane.setBottomComponent(componentTreesBottomSplitPane);
             
             componentTreesBottomSplitPane.setDividerLocation(200);
-//            SwingUtilities.invokeLater(new Runnable() {public void run() {
-//        	}});
             componentTreesBottomSplitPane.setTopComponent(getFileDaoPanel());
             componentTreesBottomSplitPane.setBottomComponent(getRemoteDaoPanel());
-//        }
+        }
         
         componentTreesPanel.add(componentTreesTopSplitPane);
         

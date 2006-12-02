@@ -115,9 +115,7 @@ public class YCompositeTask extends YTask {
         netRunner.continueIfPossible();
         netRunner.start();
 
-        System.out.println("abra");
         YNetRunner.saveNetRunner( netRunner, null );
-        System.out.println("kadabra");
         
     }
 

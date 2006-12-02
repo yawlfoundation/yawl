@@ -494,7 +494,7 @@ public class YNetRunner implements Serializable // extends Thread
      * Assumption: there are no enabled tasks
      * @return if deadlocked
      */
-    private boolean deadLocked() {
+    private boolean deadLocked() throws YPersistenceException {
         List locations = _caseIDForNet.getLocations();
         for (int i = 0; i < locations.size(); i++) {
             Object o = locations.get(i);

@@ -9,33 +9,30 @@
 
 package au.edu.qut.yawl.elements;
 
-import au.edu.qut.yawl.elements.state.TestYMarking;
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.elements.YCondition;
-import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.engine.TestEngineAgainstImproperCompletionOfASubnet;
-import au.edu.qut.yawl.engine.YNetRunner;
-import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.util.YMessagePrinter;
-import au.edu.qut.yawl.util.YVerificationMessage;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 import org.jdom.JDOMException;
+
+import au.edu.qut.yawl.elements.state.TestYMarking;
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.TestEngineAgainstImproperCompletionOfASubnet;
+import au.edu.qut.yawl.engine.YNetRunner;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.unmarshal.YMarshal;
+import au.edu.qut.yawl.util.YMessagePrinter;
+import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  * @author aldredl
@@ -233,7 +230,7 @@ public class TestYNet extends TestCase {
     }
 
 
-    public void testORJoinEnabled() {
+    public void testORJoinEnabled() throws YPersistenceException {
         //XPathSaxonUser an orjoin with two tokens before the or join and a token that may arrive soon.
         assertFalse(_loopedNet.orJoinEnabled((YTask) _loopedNet.getNetElement("f"), _id1));
         //XPathSaxonUser a marking with a token before the orjoin and a token hidden in front of annother

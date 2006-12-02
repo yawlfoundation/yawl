@@ -14,9 +14,9 @@ import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
 public class TestRestrictionStringConverter extends TestCase {
-	private Restriction a = new PropertyRestriction( "a", Comparison.EQUAL, "a" );
+	private Restriction a = new PropertyRestriction( "a", Comparison.EQUAL, Boolean.TRUE );
 	private Restriction notA = new NegatedRestriction( a );
-	private Restriction b = new PropertyRestriction( "b", Comparison.EQUAL, "b" );
+	private Restriction b = new PropertyRestriction( "b", Comparison.EQUAL, Boolean.FALSE );
 	private Restriction notB = new NegatedRestriction( b );
 	
 	Restriction[] r = {

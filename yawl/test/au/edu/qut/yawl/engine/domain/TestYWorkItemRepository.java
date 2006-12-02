@@ -106,7 +106,7 @@ public class TestYWorkItemRepository extends TestCase {
     			_workitemRepository.getCompletedWorkItems().size() == 2 );
     }
     
-    public void testRemoveWorkItemsForNullCase() {
+    public void testRemoveWorkItemsForNullCase() throws YPersistenceException {
     	try {
     		_workitemRepository.removeWorkItemsForCase( null );
     		fail( "An exception should have been thrown." );
@@ -116,7 +116,7 @@ public class TestYWorkItemRepository extends TestCase {
     	}
     }
 
-    public void testChildren() {
+    public void testChildren() throws YPersistenceException {
         Set enabledItems = _workitemRepository.getFiredWorkItems();
         Iterator iter = _parentWorkItem.getChildren().iterator();
         while (iter.hasNext()) {

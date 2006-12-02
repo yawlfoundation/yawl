@@ -472,7 +472,7 @@ public class YNet extends YDecomposition {
     }
 */
     @Transient
-    public boolean orJoinEnabled(YTask orJoin, YIdentifier caseID) {
+    public boolean orJoinEnabled(YTask orJoin, YIdentifier caseID) throws YPersistenceException {
 
         if ((orJoin == null) || (caseID == null)) {
             throw new RuntimeException("Irrelavant to check the enabledness of an orjoin if " +
@@ -713,7 +713,7 @@ public class YNet extends YDecomposition {
     }
 
     @Transient
-    public Set<YExternalNetElement> getEnabledTasks(YIdentifier id) {
+    public Set<YExternalNetElement> getEnabledTasks(YIdentifier id) throws YPersistenceException {
         Set<YExternalNetElement> enabledTasks = new HashSet<YExternalNetElement>();
         for (Iterator iterator = _netElements.iterator(); iterator.hasNext();) {
             YExternalNetElement element = (YExternalNetElement) iterator.next();

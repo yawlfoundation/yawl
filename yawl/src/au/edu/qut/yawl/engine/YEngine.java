@@ -756,7 +756,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     }
 
 
-    public String getStateTextForCase(YIdentifier caseID) {
+    public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -766,7 +766,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     }
 
 
-    public String getStateForCase(YIdentifier caseID) {
+    public String getStateForCase(YIdentifier caseID) throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -1041,7 +1041,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
      *
      * @return the set of current YAWL services
      */
-    public Set getYAWLServices() {
+    public Set getYAWLServices() throws YPersistenceException{
         /**
          * SYNC'D External interface
          */

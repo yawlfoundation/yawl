@@ -67,7 +67,7 @@ public class TestSimpleExecutionUseCases extends TestCase{
     }
 
 
-    public void testUseCase1(){
+    public void testUseCase1() throws YPersistenceException {
 //        try {
 //            Thread.sleep(1000);
 //        } catch (InterruptedException e) {
