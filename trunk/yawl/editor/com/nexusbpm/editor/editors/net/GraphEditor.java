@@ -1054,7 +1054,7 @@ public class GraphEditor extends JPanel
                         ApplicationContext ac = BootstrapConfiguration.getInstance().getApplicationContext();
                         YawlEngineDAO dao = (YawlEngineDAO) ac.getBean("yawlEngineDao");
                         dao.save(spec);
-                        dao.executeStatement(spec.getID(), "");
+                        dao.startCase(spec.getID(), "");
 //                        throw new RuntimeException("implement run");
 //            GlobalEventQueue.add(new CapselaWorker("Run Button Handler") {
 //              public void run() throws Throwable {
