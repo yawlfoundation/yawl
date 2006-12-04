@@ -22,6 +22,7 @@
     <cp>lib\dom4j-1.6.1.jar</cp>
     <cp>lib\ecore.jar</cp>
     <cp>lib\ejb3-persistence.jar</cp>
+    <cp>lib\flexdock-0.4.0.jar</cp>
     <cp>lib\hibernate-annotations.jar</cp>
     <cp>lib\hibernate3.jar</cp>
     <cp>lib\jcalendar-custom.jar</cp>
