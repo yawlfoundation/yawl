@@ -10,14 +10,15 @@ package com.nexusbpm.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.jms.JMSException;
@@ -25,23 +26,33 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
+import javax.swing.JLabel;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
+import org.flexdock.docking.DockingManager;
+import org.flexdock.docking.drag.effects.EffectsManager;
+import org.flexdock.docking.drag.preview.GhostPreview;
+import org.flexdock.perspective.PerspectiveManager;
+import org.flexdock.perspective.persist.FilePersistenceHandler;
+import org.flexdock.perspective.persist.PersistenceHandler;
+import org.flexdock.view.View;
+import org.flexdock.view.Viewport;
 import org.quartz.SchedulerException;
 
 import au.edu.qut.yawl.elements.YNet;
@@ -60,6 +71,7 @@ import com.nexusbpm.command.CommandExecutor;
 import com.nexusbpm.command.CreateNetCommand;
 import com.nexusbpm.command.CreateNexusComponentCommand;
 import com.nexusbpm.command.CreateSpecificationCommand;
+import com.nexusbpm.editor.DockableApplicationFrame.MyPerspectiveFactory;
 import com.nexusbpm.editor.configuration.ConfigurationDialog;
 import com.nexusbpm.editor.configuration.NexusClientConfiguration;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
@@ -81,9 +93,9 @@ import com.nexusbpm.services.NexusServiceInfo;
  * @author  Matthew Sandoz
  * @author Nathan Rose
  */
-public class WorkflowEditor extends JFrame implements MessageListener {
-    
+public class WorkflowEditor extends DockableApplicationFrame implements MessageListener {
 
+	private static final long serialVersionUID = 1L;
 	private final static int DEFAULT_CLIENT_HEIGHT = 692;
 	private final static int DEFAULT_CLIENT_WIDTH = 800;
     private final static int DEFAULT_COMMAND_STACK_SIZE = 20;
@@ -94,21 +106,22 @@ public class WorkflowEditor extends JFrame implements MessageListener {
 	private static final Log LOG = LogFactory.getLog( WorkflowEditor.class );
     private static WorkflowEditor singleton = null;
 	private static NexusSplashScreen splash;
-    private JFrame _componentsFrame;
     /** The panel that contains the component tree split panes. */
     private JPanel componentTreesPanel; 
 
     private JPanel desktopAndStatusPanel;
     private JDesktopPane desktopPane;
-    private JPanel fileDaoPanel;
-    private JPanel memoryDaoPanel;
-    private JPanel remoteDaoPanel;
-    private JInternalFrame selectedInternalFrame;
-
+    protected static JPanel fileDaoPanel;
+    protected static JPanel memoryDaoPanel;
+    protected static JPanel remoteDaoPanel;
+    protected CapselaLogPanel logPanel;
+    protected TreePanel componentsTreePanel;
+    protected JPanel desktopPanel;
     /**
      * Creates new form WorkflowEditor 
      */
     private WorkflowEditor() {
+    	super("Nexus Editor");
         // we need to set the singleton instance before the constructor returns so the constructor
         // can setup the singleton command executor
         WorkflowEditor.singleton = this;
@@ -118,9 +131,6 @@ public class WorkflowEditor extends JFrame implements MessageListener {
         this.pack();
     	this.setSize(DEFAULT_CLIENT_WIDTH,DEFAULT_CLIENT_HEIGHT);
         this.setLocationRelativeTo( null );
-        _componentsFrame.setLocation(
-                (int)( this.getLocation().getX() - DEFAULT_COMPONENTS_WIDTH ),
-                (int) this.getLocation().getY() );
     }
     public void addInternalFrameMenuItem( CapselaInternalFrame frame ) {
         assert frame != null : "attempting to add menu item for null frame!";
@@ -137,101 +147,27 @@ public class WorkflowEditor extends JFrame implements MessageListener {
     public JDesktopPane getDesktopPane() {
 		return desktopPane;
 	}
-    public JPanel getFileDaoPanel() {
+    public static JPanel getFileDaoPanel() {
 		if (fileDaoPanel == null) {
-			DAO filedao = DAOFactory.getDAO(PersistenceType.FILE);
-			DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
-
-			File fileRootObject = new File(new File(".").getAbsoluteFile()
-					.toURI().normalize());
-			DatasourceRoot fileRoot = new DatasourceRoot(fileRootObject);
-			EditorDataProxy filedp = (EditorDataProxy) filedc.createProxy(
-					fileRoot, null);
-			filedc.attachProxy(filedp, fileRoot, null);
-			// SharedNode fileRootNode = new SharedNode(filedp, o);
-			SharedNode fileRootNode = filedp.getTreeNode();
-
-			SharedNodeTreeModel fileTreeModel = new SharedNodeTreeModel(
-					fileRootNode);
-			fileRootNode.setTreeModel(fileTreeModel);
-
-			STree fileComponentListTree = new STree(fileTreeModel);
-			fileComponentListTree.setShowsRootHandles(false);
-			fileComponentListTree.setRootVisible(true);
-			fileComponentListTree.setRowHeight(26);
-
-			fileDaoPanel = new TreePanel(fileComponentListTree, true);
+			fileDaoPanel = DaoPanelFactory.getFileDaoPanel();
 		}
 		return fileDaoPanel;
-
 	}
-    
-    public JPanel getMemoryDaoPanel() {
-    	if (memoryDaoPanel == null) {
-        DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
-        DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
-        
-        DatasourceRoot virtualRoot = new DatasourceRoot("virtual://memory/home/");
-        EditorDataProxy memdp = (EditorDataProxy) memdc.createProxy(virtualRoot, null);
-        memdc.attachProxy(memdp, virtualRoot, null);
-        
-//        SharedNode memRootNode = new SharedNode(memdp, o);
-        SharedNode memRootNode = memdp.getTreeNode();
-        
-        SharedNodeTreeModel memTreeModel = new SharedNodeTreeModel(memRootNode);
-        memRootNode.setTreeModel(memTreeModel);
-        
-        STree memoryComponentListTree = new STree(memTreeModel);
-        memoryComponentListTree.setShowsRootHandles(false);
-        memoryComponentListTree.setRootVisible(true);
-        memoryComponentListTree.setRowHeight(26);
-        
-        
-        /////////////////////////////////////////////////
-        // create the top component pane (memory context)
-        memoryDaoPanel = new TreePanel( memoryComponentListTree, true );
-    	}
-    	return memoryDaoPanel;
-    	
-    }
-    public JPanel getRemoteDaoPanel() {
+
+    public static JPanel getMemoryDaoPanel() {
+		if (memoryDaoPanel == null) {
+			memoryDaoPanel = DaoPanelFactory.getMemoryDaoPanel();
+		}
+		return memoryDaoPanel;
+	}
+
+    public static JPanel getRemoteDaoPanel() {
     	if (remoteDaoPanel == null) {
-    		STree hibernateComponentListTree = null;
-    		try {
-    			DAO hibernatedao = (DAO) BootstrapConfiguration.getInstance().getApplicationContext().getBean("yawlEngineDao");
-	            DataContext hibdc = new DataContext(hibernatedao, EditorDataProxy.class);
-	            
-	            DatasourceRoot hibernateRoot = new DatasourceRoot("YawlEngine://home/");
-	            EditorDataProxy hibdp = (EditorDataProxy) hibdc.createProxy(hibernateRoot, null);
-	            hibdc.attachProxy(hibdp, hibernateRoot, null);
-	            SharedNode hibernateRootNode = hibdp.getTreeNode();
-            
-	            SharedNodeTreeModel hibernateTreeModel = new SharedNodeTreeModel(hibernateRootNode);
-	            hibernateRootNode.setTreeModel(hibernateTreeModel);
-	            
-	            hibernateComponentListTree = new STree(hibernateTreeModel);
-	            hibernateComponentListTree.setShowsRootHandles(false);
-	            hibernateComponentListTree.setRootVisible(true);
-	            hibernateComponentListTree.setRowHeight(26);
-    		} catch( Exception e ) {
-	            LOG.error( "Error connecting to database!", e );
-	            hibernateComponentListTree = null;
-	        }
-    		if( hibernateComponentListTree != null ) {
-	            try {
-	                remoteDaoPanel = new TreePanel( hibernateComponentListTree, true );
-	            }
-	            catch( Exception e ) {
-	                LOG.error( "Error displaying database component list!", e );
-	                remoteDaoPanel = new JPanel();
-	            }
-    		}
-    		else {
-    			remoteDaoPanel = new JPanel();
-    		}    	
+    		remoteDaoPanel = DaoPanelFactory.getRemoteDaoPanel();
     	}
         return remoteDaoPanel;
     }
+
     public void onMessage(Message o) {
 		ObjectMessage om = (ObjectMessage) o;
 		try {
@@ -306,28 +242,15 @@ public class WorkflowEditor extends JFrame implements MessageListener {
         }
     }
     
-//    public void setSelectedInternalFrameMenuItem( CapselaInternalFrame frame ) {
-//        for( CapselaInternalFrame key : windowItems.keySet() ) {
-//            windowItems.get( key ).setSelected( key == frame );
-//        }
-//    }
-//
     /**
 	 * This method is called from within the constructor to initialize the form.
 	 */
     private void initComponents() {
-	    JFrame.setDefaultLookAndFeelDecorated(true);
-		try {
-	        UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-	    }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        
+       
         WorkflowMenuBar bar = new WorkflowMenuBar();
         setJMenuBar(bar);
         bar.setAction(bar.getExitMenuItem(), new ExitAction());
-        bar.setAction(bar.getScheduledEventsMenuItem(), new OpenSchedulingCalendarAction());
+        bar.setAction(bar.getWorkflowScheduleMenuItem(), new OpenSchedulingCalendarAction());
         bar.setAction(bar.getPreferencesMenuItem(), new EditPreferencesAction());
         bar.setAction(bar.getRedoMenuItem(), new RedoAction());
         bar.setAction(bar.getUndoMenuItem(), new UndoAction());
@@ -336,7 +259,7 @@ public class WorkflowEditor extends JFrame implements MessageListener {
         componentTreesPanel = new JPanel();
         componentTreesPanel.setLayout(new BorderLayout());
         
-        // create the top split pane
+        // create the split panes
         JSplitPane componentTreesTopSplitPane = new JSplitPane();
         componentTreesTopSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
         
@@ -371,14 +294,14 @@ public class WorkflowEditor extends JFrame implements MessageListener {
         JScrollPane desktopScrollPane = new javax.swing.JScrollPane();
         desktopScrollPane.setViewportView(desktopPane);
         
-        JPanel desktopPanel = new JPanel();
+        desktopPanel = new JPanel();
         desktopPanel.setLayout(new java.awt.GridLayout(1, 0));
         desktopPanel.add(desktopScrollPane);
         
         
         //////////////////////
         // setup the log panel
-        CapselaLogPanel logPanel = new CapselaLogPanel();
+        logPanel = new CapselaLogPanel();
         
         
         ////////////////////////////////////
@@ -411,13 +334,13 @@ public class WorkflowEditor extends JFrame implements MessageListener {
         ////////////////////////////////////////////////////
         // final setup of the main window/setup misc options
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("NexusWorkflow Process Editor");
+        setTitle("Nexus Process Editor");
         setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setForeground(Color.lightGray);
-        setName("NexusWorkflow Process Editor");
+        setName("Nexus Process Editor");
         this.setIconImage(ApplicationIcon.getIcon("NexusFrame.window_icon", ApplicationIcon.LARGE_SIZE).getImage());
         
-        getContentPane().add(componentEditorSplitPane, BorderLayout.CENTER);
+//        getContentPane().add(componentEditorSplitPane, BorderLayout.CENTER);
         JmsClient c = (JmsClient) BootstrapConfiguration.getInstance().getApplicationContext().getBean("jmsClient");
 		try {
 			c.start();
@@ -425,10 +348,7 @@ public class WorkflowEditor extends JFrame implements MessageListener {
 		} catch(Exception e) {
 			LOG.error(e);
 		}
-        
-        pack();
-        
-        
+		
         /////////////////////////
         // setup components panel
 //        SpecificationDAO componentsDAO = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
@@ -452,25 +372,76 @@ public class WorkflowEditor extends JFrame implements MessageListener {
         
         STree componentsListTree = new STree(componentsTreeModel);
         componentsListTree.setShowsRootHandles(false);
-        componentsListTree.setRootVisible(true);
         componentsListTree.setRowHeight(26);
         
-        
-        
-        
-        /////////////////////////
+        		
+	       /////////////////////////
         // setup components frame
-        _componentsFrame = new JFrame( "Components" );
-        _componentsFrame.setIconImage( ApplicationIcon.getIcon( "NexusFrame.window_icon", ApplicationIcon.LARGE_SIZE ).getImage() );
-        TreePanel componentsTreePanel = new TreePanel( componentsListTree, false );
-        _componentsFrame.getContentPane().add( componentsTreePanel );
-        _componentsFrame.setSize( DEFAULT_COMPONENTS_WIDTH, DEFAULT_COMPONENTS_HEIGHT );
-        _componentsFrame.setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
-        _componentsFrame.setVisible( true );
-        
+        componentsTreePanel = new TreePanel(componentsListTree, true);
         componentsTreeModel.nodeStructureChanged( componentsRootNode );
-    }
 
+        //Dockable stuff start
+//		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		Viewport port = new Viewport();
+		DockingManager.setDockableFactory(this);
+		DockingManager.setMainDockingPort(this, PALETTE);
+		PerspectiveManager.setFactory(new MyPerspectiveFactory());
+		PerspectiveManager.getInstance().setCurrentPerspective(PERSPECTIVE_ID,
+				true);
+		PersistenceHandler persister = FilePersistenceHandler
+				.createDefault(PERSISTANCE_FILE);
+		PerspectiveManager.setPersistenceHandler(persister);
+		EffectsManager.setPreview(new GhostPreview());
+		try {
+			DockingManager.loadLayoutModel();
+		} catch (Exception e) {
+			logger.fine("Docking layout not loaded.");
+		}
+		//DockingManager.setAutoPersist(true);
+		port.setPreferredSize(new Dimension(640, 480));
+		getContentPane().add(port);
+		DockingManager.restoreLayout();
+		//Dockable stuff end
+		
+		
+		
+        pack();
+        
+        
+
+        
+        
+     }
+
+	protected Component createComponent(String id) {
+		Container comp = null;
+		boolean closable = false;
+		boolean pinnable = true;
+		if (EDITOR.equals(id)) {
+			comp = desktopPanel;
+		} else if (DAO.equals(id)) {
+			comp = memoryDaoPanel;
+		} else if (FILE_DAO.equals(id)) {
+			comp = fileDaoPanel;
+		} else if (REMOTE_DAO.equals(id)) {
+			comp = remoteDaoPanel;
+		} else if (PALETTE.equals(id)) {
+			comp = componentsTreePanel;
+		} else if (LOGS.equals(id)) {
+			comp = logPanel;
+		} else {
+			comp = new JButton(id);
+		}
+		View view = new View(id, id);
+		// The order of actions matter. Close should be leftmost.
+		if (closable)
+			view.addAction(View.CLOSE_ACTION);
+		if (pinnable)
+			view.addAction(View.PIN_ACTION);
+		view.setContentPane(comp);
+		return view;
+	}
+    
 	private void openSchedulingCalendar() {
     	try {
 	    	try {
@@ -542,28 +513,6 @@ public class WorkflowEditor extends JFrame implements MessageListener {
     		WorkflowEditor.singleton = new WorkflowEditor();
     	}
     	return singleton;
-    }
-
-	/**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        try {java.awt.EventQueue.invokeAndWait(new Runnable() {public void run() {
-	    	WorkflowEditor.splash = new NexusSplashScreen();
-	    	WorkflowEditor.splash.setVisible(true);
-	    }});} catch (Exception e) {e.printStackTrace();		}
-    	splash.update(5, "Initializing Application");
-		PropertyConfigurator.configure( WorkflowEditor.class.getResource( "client.logging.properties" ) );
-    	splash.update(35, "Loading Configuration");
-		BootstrapConfiguration.setInstance(NexusClientConfiguration.getInstance());
-    	splash.update(75, "Starting Client");
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                WorkflowEditor.getInstance().setVisible(true);
-                splash.setVisible(false);
-                splash.dispose();
-            }
-        });
     }
     
     public static void setExecutor(CommandExecutor executor) {
@@ -637,5 +586,38 @@ public class WorkflowEditor extends JFrame implements MessageListener {
 				}
 			}	
 		}
-	};
 	}
+
+
+	/**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+	    JFrame.setDefaultLookAndFeelDecorated(true);
+		try {
+	        UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+	    }
+        catch (Exception e) {}
+     	WorkflowEditor.splash = new NexusSplashScreen();
+    	WorkflowEditor.splash.setVisible(true);
+    	splash.updateRelative(10, "initializing client");
+		PropertyConfigurator.configure( WorkflowEditor.class.getResource( "client.logging.properties" ) );
+    	splash.updateRelative(10, "loading configuration");
+		BootstrapConfiguration.setInstance(NexusClientConfiguration.getInstance());
+    	WorkflowEditor.getMemoryDaoPanel();
+    	splash.updateRelative(10, "connecting to server");
+    	WorkflowEditor.getRemoteDaoPanel();
+    	splash.updateRelative(20, "parsing existing workflow files");
+    	WorkflowEditor.getFileDaoPanel();
+    	splash.updateRelative(40, "starting client");
+        WorkflowEditor.getInstance();
+        WorkflowEditor.getInstance().setVisible(true);
+        splash.setVisible(false);
+        splash.setVisible(true);
+    	splash.updateRelative(10, "started");
+        try {Thread.sleep(2000);} catch (Exception e) {}
+        splash.setVisible(false);
+        splash.dispose();
+    }
+	
+}

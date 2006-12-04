@@ -19,7 +19,7 @@ public abstract class AbstractCommand implements Command {
                     this.getClass().getName() );
         }
         done = true;
-        System.err.println( "Executing abstract command:" + this.getClass().getName() );
+//        System.err.println( "Executing abstract command:" + this.getClass().getName() );
         perform();
         attach();
     }
