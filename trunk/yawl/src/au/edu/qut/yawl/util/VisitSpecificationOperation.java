@@ -107,7 +107,7 @@ public class VisitSpecificationOperation {
     public static void visitNetElement(YExternalNetElement yene, Visitor v) {
         String label;
         if (findType(yene) == Type.CONDITION) {
-            LOG.error(yene.getClass().getName());
+//            LOG.error(yene.getClass().getName());
             label = "{connector}";
         } else {
             label = getLabelFor(yene);

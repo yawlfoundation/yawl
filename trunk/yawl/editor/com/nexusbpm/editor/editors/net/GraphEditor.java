@@ -1101,47 +1101,11 @@ public class GraphEditor extends JPanel
                     LOG.debug("Zooming out");
                 }
             }).setToolTipText("Zoom Out");
-
-            toolbar.addSeparator();
-            _edgeEditModeAction = new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.select_control_edge" ) ) {
-                public void actionPerformed( ActionEvent e ) {
-                    try {
-                        String iconKey = null;
-                        if( _edgeEditMode == ALL_EDGE_MODE ) {
-                            _edgeEditMode = DATA_EDGE_MODE;
-//                          hideEdges(DATA_EDGE_MODE);
-                            _graph.clearSelection();
-                            iconKey = "GraphEditor.select_data_edge";
-                            LOG.debug( "Changing to data communication edit mode, showing only data edges" );
-                        }
-                        else if( _edgeEditMode == DATA_EDGE_MODE ) {
-                            _edgeEditMode = CONTROL_EDGE_MODE;
-//                          hideEdges(CONTROL_EDGE_MODE);
-                            _graph.clearSelection();
-                            iconKey = "GraphEditor.select_control_edge";
-                            LOG.debug( "Changing to control flow edit mode, showing only control edges" );
-                        }
-                        else if( _edgeEditMode == CONTROL_EDGE_MODE ) {
-                            _edgeEditMode = ALL_EDGE_MODE;
-//                          hideEdges(ALL_EDGE_MODE);
-                            _graph.clearSelection();
-                            iconKey = "GraphEditor.select_control_edge";
-                            LOG.debug( "Changing to control flow edit mode, showing all edges" );
-                        }
-                        if( iconKey != null ) {
-                            putValue( SMALL_ICON, ApplicationIcon.getIcon( iconKey ) );
-                        }
-                    }
-                    catch( Exception ee ) {
-                        LOG.error( "exception thrown in control/data line toggle", ee );
-                    }
-                }
-            };
-            toolbar.add( _edgeEditModeAction ).setToolTipText( "Toggle flow editing state" );
         }
 
         if( !_isInstance ) {
             // Remove button
+            toolbar.addSeparator();
             _remove = new AbstractAction( "Delete", ApplicationIcon.getIcon( "GraphEditor.remove" ) ) {
                 public void actionPerformed( ActionEvent e ) {
                     GraphEditor.this.deleteSelectedItems();

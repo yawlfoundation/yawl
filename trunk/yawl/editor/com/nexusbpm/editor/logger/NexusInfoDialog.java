@@ -8,32 +8,21 @@
 
 package com.nexusbpm.editor.logger;
 
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.GraphicsConfiguration;
-import java.awt.HeadlessException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Date;
-import java.util.logging.LogRecord;
-
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.WindowConstants;
-
-import com.nexusbpm.editor.WorkflowEditor;
-import javax.swing.JPanel;
-import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-import javax.swing.JButton;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.SystemColor;
+import java.util.Date;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 /**
  * The dialog window that pops up when you double click on a log record.
@@ -142,7 +131,7 @@ public class NexusInfoDialog extends JDialog{
 	private JTextArea getMessageTextArea() {
 		if (messageTextArea == null) {
 			messageTextArea = new JTextArea();
-			messageTextArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
+			messageTextArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
 			messageTextArea.setEditable(false);
 			messageTextArea.setTabSize(1);
 			messageTextArea.setLineWrap(true);

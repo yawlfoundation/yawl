@@ -108,8 +108,11 @@ public class NexusSplashScreen extends JWindow {
 			iconButton.setSize(new Dimension(136, 117));
 			iconButton.setAlignmentX(1.0F);
 			iconButton.setAlignmentY(1.0F);
+			iconButton.setBorderPainted(false);
 			iconButton.setBorder(null);
-			iconButton.setBackground(SystemColor.control);
+			iconButton.setContentAreaFilled(false);
+			iconButton.setEnabled(true);
+			iconButton.setRolloverEnabled(false);
 			iconButton.setLocation(new Point(10, 10));
 		}
 		return iconButton;
@@ -134,6 +137,12 @@ public class NexusSplashScreen extends JWindow {
 
 	public void update(int percent, String operation) {
 		this.getLoadProgressBar().setValue(percent);
+		this.getCurrentOperationTextField().setText(operation);
+	}
+
+
+	public void updateRelative(int percent, String operation) {
+		this.getLoadProgressBar().setValue(this.getLoadProgressBar().getValue() + percent);
 		this.getCurrentOperationTextField().setText(operation);
 	}
 	
