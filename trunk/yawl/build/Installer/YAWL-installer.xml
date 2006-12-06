@@ -161,7 +161,7 @@ id="shortcutSpec.xml"/>
             <description>Main YAWL Engine parts</description>
             <file src="yawl.war" targetdir="$INSTALL_PATH"/>
             <file src="library" targetdir="$INSTALL_PATH"/>
-            <file src="examples" targetdir="$INSTALL_PATH"/>                        
+                      
             <file src="repository" targetdir="$INSTALL_PATH"/>
             <file src="worklist.war" targetdir="$INSTALL_PATH"/>
             <file src="graphics" targetdir="$INSTALL_PATH"/>
@@ -173,7 +173,7 @@ id="shortcutSpec.xml"/>
             <file src="EmailSenderService.war" targetdir="$INSTALL_PATH"/>
             <file src="JythonService.war" targetdir="$INSTALL_PATH"/>
             <file src="NexusServiceInvoker.war" targetdir="$INSTALL_PATH"/>
-            <file src="PDFforms.war" targetdir="$INSTALL_PATH"/>
+
             <file src="timeService.war" targetdir="$INSTALL_PATH"/>
             <file src="workletService.war" targetdir="$INSTALL_PATH"/>
             <file src="yawlSMSInvoker.war" targetdir="$INSTALL_PATH"/>
@@ -196,6 +196,9 @@ id="shortcutSpec.xml"/>
 	    <singlefile src="webDisabled.xml" target="$INSTALL_PATH\webDisabled.xml"/>
 
 
+	    <singlefile src="uninstall.bat" target="$INSTALL_PATH\uninstall.bat"/>
+
+
 	    <parsable targetfile="$INSTALL_PATH\web.xml"/>
 	    <parsable targetfile="$INSTALL_PATH\web.xml"/>
 
@@ -204,6 +207,8 @@ id="shortcutSpec.xml"/>
 
 	    <parsable targetfile="$INSTALL_PATH\hibernate.properties"/>
 	    <parsable targetfile="$INSTALL_PATH\hibernate.properties"/>
+
+	    <parsable targetfile="$INSTALL_PATH\uninstall.bat"/>
 
 
 	    <singlefile src="config.jar" target="$INSTALL_PATH\config.jar"/>

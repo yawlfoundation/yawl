@@ -138,16 +138,6 @@
  </job> 
 
 
- <job name="Initialising PDF forms on Tomcat Container...Please Wait">
-  <os family="windows" />
-  <executefile name="cmd">
-  <arg>/c</arg>
-  <arg>copy</arg>
-  <arg>&quot;$INSTALL_PATH\PDFforms.war&quot;</arg>
-  <arg>&quot;$tomcat_home\webapps&quot;</arg>
-  </executefile>
- </job> 
-
  <job name="Initialising Time Service on Tomcat Container...Please Wait">
   <os family="windows" />
   <executefile name="cmd">
@@ -238,6 +228,20 @@
   <arg>-U</arg>
   <arg>postgres</arg>
   <arg>-q</arg>
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+
+<job name="Starting Database Server">
+  <os family="windows" />
+  <executefile name="$INSTALL_PATH\CPAU.exe">
+  <arg>-u</arg>
+  <arg>postgres</arg>
+  <arg>-p</arg>
+  <arg>postgresyawl</arg>
+  <arg>-ex</arg>
+  <arg>&quot;c:\postgres\bin\pg_ctl stop -D c:\postgres\data\yawldatabase&quot;</arg>
+  <arg>-lwp</arg>
   </executefile>
   <executeForPack name="PostgreSQL Database"/>
  </job>

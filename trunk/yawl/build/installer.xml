@@ -199,9 +199,11 @@
     <property name="jgraph-5.4.jar" value="${editor.libs}/jgraph-5.4.jar"/>
     <property name="jgraphaddons-1.0.5.jar" value="${editor.libs}/jgraphaddons-1.0.5.jar"/>
     <property name="swing-worker.jar" value="${editor.libs}/swing-worker.jar"/>
-	<property name="jgraphlayout.jar" value="${editor.libs}/jgraphlayout.jar"/>
-	<property name="jcalendar.jar" value="./build/nexusWorkflowEditor/lib/jcalendar-custom.jar"/>
-	<property name="spring.jar" value="${persist.libs}/spring.jar"/>
+    <property name="jgraphlayout.jar" value="${editor.libs}/jgraphlayout.jar"/>
+    <property name="jcalendar.jar" value="./build/nexusWorkflowEditor/lib/jcalendar-custom.jar"/>
+    <property name="spring.jar" value="${persist.libs}/spring.jar"/>
+    <property name="l2fprod" value="./build/nexusWorkflowEditor/lib/l2fprod-common-sheet.jar"/>
+    <property name="jasper" value="${env.CATALINA_HOME}/common/lib/jasper-compiler.jar"/>
 
 	<!--
 	Quartz scheduler
@@ -348,6 +350,8 @@
     Editor Classpath
     -->
 	<path id="cp.editor">
+        	<pathelement location="${jasper}"/>
+	        <pathelement location="${l2fprod}"/>
 		<pathelement location="${jgraph-5.4.jar}"/>
 		<pathelement location="${jgraphaddons-1.0.5.jar}"/>
 		<pathelement location="${jgraphlayout.jar}"/>
@@ -420,17 +424,16 @@
     Compile all source
     Compiles main project source into ${classes}.
     -->
-	<target name="compile" depends="init">
-		<javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
-			<classpath refid="cp.standard"/>
-			<classpath refid="cp.compile"/>
-			<classpath refid="cp.wsif"/>
-			<classpath refid="cp.xsd"/>
-			<classpath refid="cp.persist"/>
-			<classpath refid="cp.pdfforms"/>
-			<classpath refid="cp.editor"/>
-			<classpath refid="cp.mail"/>
-		</javac>
+	<target name="compile">
+        <javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.persist"/>
+            <classpath refid="cp.editor"/>
+            <classpath refid="cp.mail"/>
+        </javac>
 		<!--rmic base="${classes}" classname="au.edu.qut.yawl.engine.interfce.EngineGatewayImpl"/-->
 		<copy todir="${classes}">
 			<fileset dir="${src}" excludes="**/*.java"/>
@@ -624,9 +627,7 @@
 		<copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms">
 			<fileset dir="${classes}/au/edu/qut/yawl/PDFforms" includes="*.class"/>
 		</copy>
-		<copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature">
-			<fileset dir="${classes}/au/edu/qut/yawl/PDFforms/signature" includes="*.class"/>
-		</copy>
+
 		<copy todir="${yawl.worklist.app.name}/repository">
 			<fileset dir="${build.home}/PDFforms/repository"/>
 		</copy>
@@ -1607,11 +1608,7 @@
 		<copy todir="${yawl.worklist.app.name}/repository">
 			<fileset dir="${build.home}/PDFforms/repository"/>
 		</copy>
-		<copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/PDFforms/signature">
-			<fileset dir="${classes}/au/edu/qut/yawl/PDFforms/signature">
-				<include name="*.class"/>
-			</fileset>
-		</copy>
+
 		<copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist/model">
 			<fileset dir="${classes}/au/edu/qut/yawl/worklist/model"/>
 		</copy>
@@ -1657,7 +1654,7 @@
 
 	<!-- Installation targets-->
 
-	<target name="izInit" depends="buildAll">
+	<target name="izInit">
 		<taskdef name="izpack" classname="com.izforge.izpack.ant.IzPackTask">
 
 			<classpath>
