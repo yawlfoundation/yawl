@@ -234,6 +234,9 @@
 	<property name="spring.jar" value="${persist.libs}/spring.jar"/>
 	<property name="l2fprod" value="./build/nexusWorkflowEditor/lib/l2fprod-common-sheet.jar"/>
     <property name="jasper" value="${env.CATALINA_HOME}/common/lib/jasper-compiler.jar"/>
+    <property name="flexdoc" value="./build/nexusWorkflowEditor/lib/flexdock-0.4.0.jar"/>
+
+
 
     <!--
     XFORM Dependencies
@@ -377,6 +380,7 @@
     -->
     <path id="cp.editor">
 
+        <pathelement location="${flexdoc}"/>
         <pathelement location="${jasper}"/>
         <pathelement location="${l2fprod}"/>
         <pathelement location="${cglib}"/>
@@ -1725,7 +1729,7 @@
         </copy>
         
         <jar destfile="output/${nexus.editor.app.name}.jar"
-        	manifest="build/nexusWorkflowEditor/MANIFEST.MF">
+        	manifest="build/nexusWorkflowEditor/setup/MANIFEST.MF">
             <fileset dir="${nexus.editor.app.name}"/>
         </jar>
         <delete dir="${nexus.editor.app.name}"/>

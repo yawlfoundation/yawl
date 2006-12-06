@@ -327,11 +327,37 @@ public class YIdentifier implements Serializable {
         this.locationNames.remove(task.getSpecURI());*/
     }
 
+    public synchronized List<YNetElement> getLocationsForNet(YNet net) {
+    	List<YNetElement> retval = new LinkedList<YNetElement>();
+
+    	List l = net.getNetElements();
+
+    	for (int i = 0; i < l.size(); i++) {
+    		YNetElement elem = (YNetElement) l.get(i);
+    		if (elem instanceof YCondition) {
+    			if (((YCondition) elem).contains(this)) {
+    				for (int j = 0; j < ((YCondition) elem).getAmount(this); j++) {
+    					retval.add(elem);
+    				}
+    			}    			
+    		} else if (elem instanceof YTask) {
+				YIdentifier contained = ((YTask) elem).getContainingIdentifier();
+    			if (contained!=null && contained.equals(this)) {
+    				retval.add(elem);    				
+    			}
+    		}
+    	}
+    	
+    	// TODO Why is this synchronized?  -- DM
+        return retval;
+    }
+    
     //FIXME do we persist locations or not? (Lachlan?)
     /**
      * @return
      */
     @Transient
+    @Deprecated
     //@OneToMany(cascade={CascadeType.ALL})
     //@OnDelete(action=OnDeleteAction.CASCADE)
     public synchronized List<YNetElement> getLocations() throws YPersistenceException {

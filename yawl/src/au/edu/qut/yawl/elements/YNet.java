@@ -483,7 +483,7 @@ public class YNet extends YDecomposition {
             throw new RuntimeException(orJoin + " must be an OR-Join.");
         }
 
-        YMarking actualMarking = new YMarking(caseID);
+        YMarking actualMarking = new YMarking(caseID, orJoin.getParent());
         List locations = new Vector(actualMarking.getLocations());
         List<YExternalNetElement> preSet = orJoin.getPresetElements();
         if (locations.containsAll(preSet)) {

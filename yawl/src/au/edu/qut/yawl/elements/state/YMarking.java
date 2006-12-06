@@ -33,8 +33,8 @@ public class YMarking {
     private List _locations;
 
 
-    public YMarking(YIdentifier identifier) throws YPersistenceException {
-        _locations = new Vector(identifier.getLocations());
+    public YMarking(YIdentifier identifier, YNet net) throws YPersistenceException {
+        _locations = new Vector(identifier.getLocationsForNet(net));
     }
 
     public YMarking(List locations) {

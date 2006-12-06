@@ -1,13 +1,13 @@
 <shortcuts>
 
 <skipIfNotSupported/>
-<programGroup defaultName="YAWL Software"
+<programGroup defaultName="YAWL"
 location="startMenu"/>
 
 <shortcut
 name="Start YAWL Service"
-target="net"
-commandLine="start tomcat5"
+target="&quot;$tomcat_home\bin\tomcat5.exe&quot;"
+commandLine=""
 description="This starts YAWL"
 iconFile="$INSTALL_PATH\graphics\yawl.ico"
 iconIndex="0"
@@ -21,8 +21,8 @@ startup="no">
 
 <shortcut
 name="Stop YAWL Service"
-target="net"
-commandLine="stop tomcat5"
+target="taskkill"
+commandLine="/F /IM tomcat5.exe"
 description="This stops YAWL"
 iconFile="$INSTALL_PATH\graphics\yawlstop.ico"
 iconIndex="0"
@@ -52,8 +52,8 @@ startup="no">
 
 <shortcut
 name="Uninstall YAWL"
-target="$JAVA_HOME\bin\java"
-commandLine="-jar &quot;$INSTALL_PATH\Uninstaller\uninstaller.jar&quot;"
+target="&quot;$INSTALL_PATH\uninstall.bat&quot;"
+commandLine=""
 description="Uninstall YAWL"
 iconFile="$INSTALL_PATH\graphics\uninstall.ico"
 iconIndex="0"

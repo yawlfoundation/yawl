@@ -123,20 +123,20 @@ public class TestYMarking extends TestCase{
         _conditionArr[2].add(id1);
         _conditionArr[3].add(id1);
         _conditionArr[4].add(id1);
-        _marking1 = new YMarking(id1);
+        _marking1 = new YMarking(id1, _net);
 
         _conditionArr[0].add(id2);
         _conditionArr[1].add(id2);
         _conditionArr[2].add(id2);
         _conditionArr[3].add(id2);
         _conditionArr[4].add(id2);
-        _marking2 = new YMarking(id2);
+        _marking2 = new YMarking(id2, _net);
 
         _conditionArr[0].add(id3);
         _conditionArr[1].add(id3);
         _conditionArr[2].add(id3);
         _conditionArr[3].add(id3);
-        _marking3 = new YMarking(id3);
+        _marking3 = new YMarking(id3, _net);
 
         _conditionArr[0].add(id4);
         _conditionArr[1].add(id4);
@@ -144,11 +144,11 @@ public class TestYMarking extends TestCase{
         _conditionArr[3].add(id4);
         _conditionArr[4].add(id4);
         _conditionArr[4].add(id4);
-        _marking4 = new YMarking(id4);
+        _marking4 = new YMarking(id4, _net);
 
         _conditionArr[4].add(id5);
         _conditionArr[5].add(id5);
-        _marking5 = new YMarking(id5);
+        _marking5 = new YMarking(id5, _net);
 
         _conditionArr[0].add(id6);
         _conditionArr[1].add(id6);
@@ -156,7 +156,7 @@ public class TestYMarking extends TestCase{
         _conditionArr[2].add(id6);
         _conditionArr[3].add(id6);
         _conditionArr[4].add(id6);
-        _marking6 = new YMarking(id6);
+        _marking6 = new YMarking(id6, _net);
 
         int xor = YTask._XOR;
         int and = YTask._AND;
@@ -183,7 +183,7 @@ public class TestYMarking extends TestCase{
         netRunner = new YNetRunner();
         netRunner.setNet(_net);netRunner.setCaseID(id);netRunner.setId(new Long(7));
         YNetRunner.saveNetRunner(netRunner, null);
-        _marking7 = new YMarking(id);
+        _marking7 = new YMarking(id, _net);
 
 
         URL fileURL = getClass().getResource("YAWLOrJoinTestSpecificationLongLoops.xml");
@@ -200,20 +200,20 @@ public class TestYMarking extends TestCase{
         netRunner.setNet(_loopedNet);netRunner.setCaseID(id);netRunner.setId(new Long(8));
         YNetRunner.saveNetRunner(netRunner, null);
         ((YCondition)_loopedNet.getNetElement("c{w_d}")).add(id);
-        _marking8 = new YMarking(id);
+        _marking8 = new YMarking(id, _loopedNet);
         id = new YIdentifier();
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);netRunner.setCaseID(id);netRunner.setId(new Long(9));
         YNetRunner.saveNetRunner(netRunner, null);
-        _marking9 = new YMarking(id);
+        _marking9 = new YMarking(id, _loopedNet);
         ((YCondition)_loopedNet.getNetElement("cA")).add(id);
-        _marking10 = new YMarking(id);
+        _marking10 = new YMarking(id, _loopedNet);
         id = new YIdentifier();
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);netRunner.setCaseID(id);netRunner.setId(new Long(10));
         YNetRunner.saveNetRunner(netRunner, null);
         ((YCondition)_loopedNet.getNetElement("i-top")).add(id);
-        _marking11 = new YMarking(id);
+        _marking11 = new YMarking(id, _loopedNet);
     }
 
 
