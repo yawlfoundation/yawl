@@ -1,6 +1,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:editor="http://www.baloney.org"
-	targetNamespace="http://www.baloney.org" elementFormDefault="qualified"
+	xmlns:editor="http://www.nexusbpm.com"
+	targetNamespace="http://www.nexusbpm.com" elementFormDefault="qualified"
 	attributeFormDefault="unqualified">
 	<xs:element name="editinfo" type="editor:ChoiceType"/>
 	<xs:complexType name="ChoiceType">
