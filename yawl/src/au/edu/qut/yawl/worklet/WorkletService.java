@@ -1,9 +1,9 @@
 /*
  * This file is made available under the terms of the LGPL licence.
  * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
- * individuals and organisations who are commited to improving workflow technology.
- *
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are commited to improving
+ * workflow technology.
  */
 
 package au.edu.qut.yawl.worklet;
@@ -44,43 +44,56 @@ import java.util.*;
  *  handling processes. For selection, it receives an enabled workitem from the
  *  engine and attempts to substitute it with a worklet.
  *
- *  Here's the class hierarchy for the service:
+ *  Here's the class hierarchy for the selection service (see the ExceptionService
+ *  class for how its hierarchy extends from this service):
  *
  *
- *    Interfaces A & B                      RDREditor
+ *    Interfaces A & B                     Rules Editor
  *          ^                                   ^
  *          |                                   |
  * ---------+-----------------------------------+---------------------------- *
  *          |                                   V                             *
- *          |                             +===========+                       *
- *          |    +----------------------> | WorkletGateway |                       *
- *          |    |                        +===========+                       *
- *          |    |                                                            *
- *          V    V                                                            *
- *  +=================+       +========+       +=========+       +=========+  *
- *  | WorkletService  | 1---M | RdrSet | 1---M | RdrTree | 1---M | RdrNode |  *
- *  +=================+       +========+       +=========+       +=========+  *
- *         1                                                         1        *  
- *         |                                                         |        *
- *         |                      +========+                         |        *   
- *         M                      | Logger |                         1        *
- *  +================+            +========+          +====================+  *
- *  | CheckedOutItem |                                | ConditionEvaluator |  *
- *  +================+                                +====================+  *
- *         1                      +=========+                        ^        *            
- *         |                      | Library |                        |        *  
- *         |                      +=========+                        |        *
+ *          |                             +================+                  *
+ *          |   +-----------------------> | WorkletGateway |                  *
+ *          |   |                         +================+                  *
+ *          |   |                                                             *
+ *          |   |                                                             *
+ *          |   |         +==================+        +====================+  *
+ *          |   |   +---1 |AdminTasksManager | 1---M  | AdministrationTask |  *
+ *          |   |   |     +==================+        +====================+  *
+ *          |   |   |                                                         *
+ *          V   V   1                                                         *
+ *  ##################       +========+       +=========+       +=========+   *
+ *  # WorkletService # 1----M | RdrSet | 1---M | RdrTree | 1---M | RdrNode |  *
+ *  ##################       +========+       +=========+       +=========+   *
+ *         1     ^                                                   1        *
+ *         |     |                                                   |        *
+ *         |     +--------------------+                              |        *
+ *         |                    +=============+                      |        *
+ *         M                    | EventLogger |                      1        *
+ *  +================+          +=============+       +====================+  *
+ *  | CheckedOutItem |                ^               | ConditionEvaluator |  *
+ *  +================+                |               +====================+  *
+ *         1                    +==============+                     ^        *
+ *         |                    | WorkletEvent |                     |        *
+ *         |                    +==============+                     |        *
  *         M                                                         V        *   
  *  +=====================+                        +=======================+  *               
  *  | CheckedOutChildItem |                        | RdrConditionException |  *
  *  +=====================+                        +=======================+  * 
+ *         O                                                                  *
+ *         |                                                                  *
+ *         |                                                                  *
+ *  +===============+       +=========+                 +=========+           *
+ *  | WorkletRecord | 1---1 | CaseMap |                 | Library |           *
+ *  +===============+       +=========+                 +=========+           *
  *                                                                            *
  * -------------------------------------------------------------------------- *
  *
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  v0.7, 10/12/2005
+ *  v0.8, 09/10/2006
  */
 
 public class WorkletService extends InterfaceBWebsideController {
@@ -96,7 +109,7 @@ public class WorkletService extends InterfaceBWebsideController {
     public static final int XTYPE_CONSTRAINT_VIOLATION = 7;
     public static final int XTYPE_CASE_EXTERNAL_TRIGGER = 8;
     public static final int XTYPE_ITEM_EXTERNAL_TRIGGER = 9;
-    public static final int XTYPE_SELECTION = 10;             // not really an ex. type
+    public static final int XTYPE_SELECTION = 10;             // 'pseudo' exception type
 
 
     // required data for interfacing with the engine
@@ -112,10 +125,10 @@ public class WorkletService extends InterfaceBWebsideController {
 
     /** running datasets to keep track of what's executing. Mappings:
      *    _handledParentItems:
-     *       - KEY: [String] id of the parent WorkItemRecord (via wir.getSpecURI())
+     *       - KEY: [String] id of the parent WorkItemRecord (via wir.getID())
      *       - VALUE: [CheckedOutItem] obj referring to the parent work item
      *    _handledWorkItems:
-     *       - KEY: [String] id of the child WorkItemRecord (via wir.getSpecURI())
+     *       - KEY: [String] id of the child WorkItemRecord (via wir.getID())
      *       - VALUE: [CheckedOutChildItem] obj referring to the child work item
      *    _casesStarted:
      *       - KEY: [String] case id of a launched worklet case
@@ -159,11 +172,13 @@ public class WorkletService extends InterfaceBWebsideController {
         return _me ;
     }
 
+    /** allows the Exception Service to register an instance of itself */
     protected void registerExceptionService(ExceptionService es) {
         _exService = es ;
     }
 
-    // called from servlet WorkletGateway after contexts are loaded
+    /** completes the initialisation of the service load-up (mainly persistence)
+        called from servlet WorkletGateway after contexts are loaded */
     public void completeInitialisation() {
         _workletsDir = Library.wsWorkletsDir;
         _persisting = Library.wsPersistOn;
@@ -175,7 +190,7 @@ public class WorkletService extends InterfaceBWebsideController {
         // reload running cases data
         if ((_persisting) && (! restored)) restoreDataSets();
     }
-    
+
 //***************************************************************************//
 
 /************************************ 
@@ -223,41 +238,38 @@ public class WorkletService extends InterfaceBWebsideController {
         CheckedOutChildItem coItem ;
         CheckedOutItem coParent ;
         String itemId = workItemRecord.getID() ;
-        String runningCaseId ;
+        boolean cancelled ;
 
         // only interested in child workitems - ignore all others
         if (_handledWorkItems.containsKey(itemId)) {
             _log.info("HANDLE CANCELLED WORKITEM EVENT") ;
 
             if (connected()) {
-                 _log.debug("Connection to engine is active") ;
-                  _log.debug("ID of cancelled workitem: " + itemId ) ;
+                 _log.info("Connection to engine is active") ;
+                  _log.info("ID of cancelled workitem: " + itemId ) ;
 
                 coItem = _handledWorkItems.get(itemId) ;
-                runningCaseId = coItem.getRunningCaseId() ;
-                _log.debug("Worklet case running for the cancelled workitem " +
-                           "has id of: " + runningCaseId) ;
+                cancelled = cancelWorkletList(coItem);
 
-                if (cancelWorkletCase(runningCaseId, coItem)) {
-                      _handledWorkItems.remove(itemId) ;
+                if (cancelled) {
+                    _handledWorkItems.remove(itemId) ;
                     if (_persisting) _dbMgr.persist(coItem, DBManager.DB_DELETE);
-                    _log.debug("Removed from handled child workitems: " + itemId);
+                     _log.info("Removed from handled child workitems: " + itemId);
 
                       // remove child and if last child also remove parent
                       coParent = coItem.getParent() ;
                       coParent.removeChild(coItem) ;
 
                       if (! coParent.hasCheckedOutChildItems()) {
-                       String parentId = coParent.getItem().getID() ;
-                       _log.debug("No more child cases running for workitem: " +
+                         String parentId = coParent.getItem().getID() ;
+                         _log.info("No more child cases running for workitem: " +
                                       parentId);
-                       _handledParentItems.remove(parentId) ;
-                       if (_persisting) _dbMgr.persist(coParent, DBManager.DB_DELETE);
-                       _log.debug("Completed handling of workitem: " + parentId);
-
-                   }
-                   }
-                   else _log.error("Could not cancel case: " + runningCaseId) ;
+                         _handledParentItems.remove(parentId) ;
+                         if (_persisting) _dbMgr.persist(coParent, DBManager.DB_DELETE);
+                         _log.info("Completed handling of workitem: " + parentId);
+                      }
+                  }
+                  else _log.error("Could not cancel worklets for item: " + itemId) ;
             }
             else _log.error("Could not connect to engine") ;
         }
@@ -281,13 +293,13 @@ public class WorkletService extends InterfaceBWebsideController {
 
     public void handleCompleteCaseEvent(String caseID, String casedata) {
         _log.info("HANDLE COMPLETE CASE EVENT") ;     // note to log
-        _log.debug("ID of completed case: " + caseID) ;
+        _log.info("ID of completed case: " + caseID) ;
 
         // reconstruct casedata to JDOM Element
         Element cdata = StringToElement(casedata);
 
         if (connected()) {
-             _log.debug("Connection to engine is active") ;
+             _log.info("Connection to engine is active") ;
             if (_casesStarted.containsKey(caseID))
                 handleCompletingSelectionWorklet(caseID, cdata) ;
             else
@@ -328,26 +340,17 @@ public class WorkletService extends InterfaceBWebsideController {
 
  //***************************************************************************//
 
-
     /** Override of InterfaceB_EnvironmentBasedClient.launchCase() to provide
      *  the ability to send the worklet service as a case completed observer
      */
     private String launchCase(String specID, String caseParams,
                               String sessionHandle, boolean observer)
                                                    throws IOException {
-        Map<String,String> paramsMap = new HashMap<String, String>();
-        paramsMap.put("sessionHandle", sessionHandle);
-        paramsMap.put("action", "launchCase");
-        paramsMap.put("caseParams", caseParams);
-        if (observer) paramsMap.put("completionObserverURI", _workletURI);
-
-        return _interfaceBClient.executePost(
-                "http://localhost:8080/yawl/ib/specID/" + specID, paramsMap);
+        String obsURI = observer? _workletURI : null ;
+        return _interfaceBClient.launchCase(specID, caseParams, sessionHandle, obsURI);
     }
 
-
 //***************************************************************************//
-
 
 
 /****************************************
@@ -359,15 +362,15 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     private void handleWorkletSelection(WorkItemRecord wir) {
 
-         String specId = wir.getSpecificationID() ;       // info about item
+        String specId = wir.getSpecificationID() ;       // info about item
         String taskId = getDecompID(wir) ;
         String itemId = wir.getID() ;
         RdrTree selectionTreeForTask ;                   // rules for task
         CheckedOutItem coItem ;                          // record of item
         CheckedOutChildItem coChild ;                    // child item rec.
 
-        _log.debug("Received workitem for worklet substitution: " + itemId) ;
-        _log.debug("   specId = " + specId);
+        _log.info("Received workitem for worklet substitution: " + itemId) ;
+        _log.info("   specId = " + specId);
 
          // locate rdr ruleset for this task
         selectionTreeForTask = getTree(specId, taskId, XTYPE_SELECTION) ;
@@ -376,7 +379,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
              // OK - this workitem has an associated ruleset so check it out
              // all the child items also get checked out here
-             _log.debug("Ruleset found for workitem: " + itemId) ;
+             _log.info("Ruleset found for workitem: " + itemId) ;
              coItem = checkOutItem(wir) ;
 
             // remember this handling of the parent item (if not a replace)
@@ -401,11 +404,6 @@ public class WorkletService extends InterfaceBWebsideController {
 
    /** Deals with the end of a selection worklet case.
     *
-    *  It checks in the workitem the completing worklet was subbed for and,
-    *  if the original parent workitem has no more children after this workitem
-    *  is checked in, removes its record from the dynamic datsets of currently
-    *  handled workitems
-    *
     *  @param caseId - the id of the completing case
     *  @param wlCasedata - the completing case's datalist Element
     */
@@ -413,59 +411,27 @@ public class WorkletService extends InterfaceBWebsideController {
 
         // get the id of the workitem this worklet was selected for
         String origWorkItemId = _casesStarted.get(caseId);
-        _log.debug("Workitem this worklet case ran in place of is: " +
+        _log.info("Workitem this worklet case ran in place of is: " +
                     origWorkItemId);
 
         // get the checkedoutchilditem record for the original workitem
         CheckedOutChildItem cociOrig = _handledWorkItems.get(origWorkItemId) ;
 
-        // get the actual workitem this worklet case substituted
-           WorkItemRecord childItem = cociOrig.getItem() ;
+        // log the worklet's case completion event
+        EventLogger.log(_dbMgr, EventLogger.eComplete, caseId,
+                        cociOrig.getWorkletName(caseId), "",
+                        cociOrig.getItem().getCaseID(), -1) ;
 
-        if (childItem != null) {
+        // clear the worklet case from the coci
+        cociOrig.removeRunnerByCaseID(caseId);
+        _casesStarted.remove(caseId) ;
+        _log.info("Removed from cases started: " + caseId) ;
 
-            // get the workitem's input data list
-            Element in = cociOrig.getDatalist() ;
-
-            // update workitem's datalist with the worklet's output values
-            Element out = updateDataList(in, wlCasedata) ;
-
-            // log the worklet's case completion event
-            EventLogger.log(_dbMgr, EventLogger.eComplete, caseId,
-                            cociOrig.getWorkletName(), "", cociOrig.getItem().getCaseID(), -1) ;
-
-            // checkin original workitem & clean up dynamic lists
-            if (checkinItem(childItem, in, out)) {
-
-                // get the parent of the original checked out workitem
-                CheckedOutItem coiParent = cociOrig.getParent();
-
-                // remove child workitem reference from parent object
-                coiParent.removeChild(cociOrig) ;
-
-                // and remove it from the dynamic execution datasets
-                _casesStarted.remove(caseId) ;
-                   _log.debug("Removed from cases started: " + caseId) ;
-                   _handledWorkItems.remove(origWorkItemId) ;
-                if (_persisting) _dbMgr.persist(cociOrig, DBManager.DB_DELETE);
-                   _log.debug("Removed from handled child workitems: " +
-                               origWorkItemId) ;
-
-                // if there is no more child cases, we're done with this parent
-                if (! coiParent.hasCheckedOutChildItems()) {
-                    String parentId = coiParent.getItem().getID() ;
-                    _log.debug("No more child cases running for workitem: " +
-                                parentId);
-                    _handledParentItems.remove(parentId) ;
-                    if (_persisting) _dbMgr.persist(coiParent, DBManager.DB_DELETE);
-                    _log.info("Completed handling of workitem: " + parentId);
-                }
-            }
-            else _log.warn("Could not check in child workitem: " +
-                                                      childItem.getID());
-        }
-           else _log.warn("Could not retrieve the substituted workitem " +
-                                "for this worklet case");
+       // if all worklets for this item have completed, check it back in
+       if (! cociOrig.hasRunningWorklet()) {
+           _log.info("Handling of workitem completed - checking it back in to engine");
+          checkInHandledWorkItem(cociOrig, wlCasedata);
+       }
     }
 
 //***************************************************************************//
@@ -482,7 +448,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
        String childId = coChild.getItem().getID() ;
 
-       _log.debug("Processing worklet substitution for workitem: " + childId);
+       _log.info("Processing worklet substitution for workitem: " + childId);
 
          // select appropriate worklet
         RdrConclusion result = new RdrConclusion(tree.search(coChild.getDatalist()));
@@ -490,15 +456,10 @@ public class WorkletService extends InterfaceBWebsideController {
 
          if (wSelected != null) {
 
-             _log.debug("Rule search returned worklet: " + wSelected);
-             coChild.setWorkletName(wSelected) ;
+             _log.info("Rule search returned worklet(s): " + wSelected);
             coChild.setExType(XTYPE_SELECTION);
 
-             // load spec & launch case as substitute for checked out workitem
-            if (uploadWorklet(wSelected)) {
-                String caseID = launchWorklet(coChild, true) ;
-               if (caseID != null) _casesStarted.put(caseID, childId) ;
-
+            if (launchWorkletList(coChild, wSelected)) {
                 // save the search results (if later rule append is needed)
                 coChild.setSearchPair(tree.getLastPair());
                 coChild.saveSearchResults() ;
@@ -515,7 +476,7 @@ public class WorkletService extends InterfaceBWebsideController {
                     }
                 }
             }
-            else _log.warn("could not launch worklet: " + wSelected) ;
+            else _log.warn("could not launch worklet(s): " + wSelected) ;
         }
         else _log.warn("Rule search did not find a worklet to select " +
                             "for workItem: " + coChild.getItem().toXML()) ;
@@ -553,7 +514,7 @@ public class WorkletService extends InterfaceBWebsideController {
     /** checks out the parent enabled workitem */
     protected CheckedOutItem checkOutParentItem(WorkItemRecord wir) {
 
-         _log.debug("Checking parent workitem out of engine: " + wir.getID());
+         _log.info("Checking parent workitem out of engine: " + wir.getID());
 
          if (checkOutWorkItem(wir))
              return new CheckedOutItem(wir) ;
@@ -568,7 +529,7 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     protected void checkOutChildren(CheckedOutItem coi) {
 
-        _log.debug("Checking out child workitems...") ;
+        _log.info("Checking out child workitems...") ;
 
         // get all the child instances of this workitem
         List<WorkItemRecord> children = getChildren(coi.getItem().getID(), _sessionHandle);
@@ -584,7 +545,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
             // if its 'executing', it means it got checked out with the parent
             else if (YWorkItem.Status.Executing.equals(itemRec.getStatus())) {
-                _log.debug("   child already checked out with parent: " +
+                _log.info("   child already checked out with parent: " +
                         itemRec.getID());
                 EventLogger.log(_dbMgr, EventLogger.eCheckOut, itemRec, -1);      // log checkout
             }
@@ -616,11 +577,11 @@ public class WorkletService extends InterfaceBWebsideController {
 
         try {
              if (null != checkOut(wir.getID(), _sessionHandle)) {
-                  _log.debug("   checkout successful: " + wir.getID());
+                  _log.info("   checkout successful: " + wir.getID());
                   return true ;
              }
              else {
-                 _log.debug("   checkout unsuccessful: " + wir.getID());
+                 _log.info("   checkout unsuccessful: " + wir.getID());
                  return false;
              }
          }
@@ -632,6 +593,58 @@ public class WorkletService extends InterfaceBWebsideController {
              _log.error("IO Exception with checkout: " + wir.getID(), ioe);
              return false ;
          }
+    }
+
+//***************************************************************************//
+
+   /**
+     *  Checks in the workitem after its subbed worklets have (all) completed and,
+     *  if the original parent workitem has no more children after this workitem
+     *  is checked in, removes its record from the dynamic datsets of currently
+     *  handled workitems
+     *
+     *  @param coci - the checkedOutChildItem for the workitem in question
+     *  @param wlCasedata - the completing case's datalist Element
+     */
+    private void checkInHandledWorkItem(CheckedOutChildItem coci, Element wlCasedata) {
+        // get the actual workitem this worklet case substituted
+           WorkItemRecord childItem = coci.getItem() ;
+
+        if (childItem != null) {
+
+            // get the workitem's input data list
+            Element in = coci.getDatalist() ;
+
+            // update workitem's datalist with the worklet's output values
+            Element out = updateDataList(in, wlCasedata) ;
+
+            // checkin original workitem & clean up dynamic lists
+            if (checkinItem(childItem, in, out)) {
+
+                // get the parent of the original checked out workitem
+                CheckedOutItem coiParent = coci.getParent();
+
+                // remove child workitem reference from parent object
+                coiParent.removeChild(coci) ;
+
+                // and remove it from the dynamic execution datasets
+                   _handledWorkItems.remove(childItem.getID()) ;
+                if (_persisting) _dbMgr.persist(coci, DBManager.DB_DELETE);
+                   _log.info("Removed from handled child workitems: " +
+                              childItem.getID()) ;
+
+                // if there is no more child cases, we're done with this parent
+                if (! coiParent.hasCheckedOutChildItems()) {
+                    String parentId = coiParent.getItem().getID() ;
+                    _log.info("No more child cases running for workitem: " +
+                                parentId);
+                    _handledParentItems.remove(parentId) ;
+                    if (_persisting) _dbMgr.persist(coiParent, DBManager.DB_DELETE);
+                    _log.info("Completed handling of workitem: " + parentId);
+                }
+            }
+            else _log.warn("Could not check in child workitem: " + childItem.getID());
+        }
     }
 
 //***************************************************************************//
@@ -690,7 +703,7 @@ public class WorkletService extends InterfaceBWebsideController {
         String fullFileName = _workletsDir + fileName ;
 
         if (isUploaded(workletName)) {
-            _log.debug("Worklet specification '" + workletName
+            _log.info("Worklet specification '" + workletName
                         + "' is already loaded in Engine") ;
             return true ;
         }
@@ -699,7 +712,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
         if (wSpec != null) {
            try {
-			if (successful(_interfaceAClient.uploadSpecification(wSpec,
+		 	   if (successful(_interfaceAClient.uploadSpecification(wSpec,
 			                    fileName, _sessionHandle))) {
 			       _log.debug("Successfully uploaded worklet specification: "
 			                    + workletName) ;
@@ -710,14 +723,15 @@ public class WorkletService extends InterfaceBWebsideController {
 			                   + workletName)	;
 			      return false ;
 			   }
-		} catch (IOException e) {
+		   }
+           catch (IOException e) {
 		      _log.error("Errored worklet specification upload : "
 	                   + workletName + e.getMessage(), e)	;
-	      return false ;
-		}
+	          return false ;
+		   }
         }
-          else {
-              _log.debug("Rule search found: " + workletName +
+        else {
+             _log.info("Rule search found: " + workletName +
                        ", but there is no worklet of that name in " +
                        "the repository, or there was a problem " +
                        "opening/reading the worklet specification") ;
@@ -728,36 +742,89 @@ public class WorkletService extends InterfaceBWebsideController {
 //***************************************************************************//
 
     /**
+     * Launches each of the worklets listed in the wr for starting
+     * @param wr - the worklet record containing the list of worklets to launch
+     * @param list - a comma separated list of worklet names
+     * @return true if *any* of the worklets are successfully launched
+     */
+    protected boolean launchWorkletList(WorkletRecord wr, String list) {
+        String childId = wr.getItem().getID() ;
+        String[] wNames = list.split(",");
+        boolean launchSuccess = false;
+
+        // for each worklet listed in the conclusion (in case of multiple worklets)
+        for (String wName : wNames) {
+
+            // load spec & launch case as substitute for checked out workitem
+            if (uploadWorklet(wName)) {
+                String caseID = launchWorklet(wr, wName, true);
+                if (caseID != null) {
+                    _casesStarted.put(caseID, childId);
+                    launchSuccess = true;
+                }
+            }
+        }
+        return launchSuccess ;
+    }
+
+//***************************************************************************//
+
+    /**
+     * Cancels each of the worklets listed in the wr as running
+     * @param wr - the worklet record containing the list of worklets to cancel
+     * @return true if *any* of the worklets are successfully cancelled
+     */
+    protected boolean cancelWorkletList(WorkletRecord wr) {
+        boolean cancelSuccess = false;
+        String caseIdToCancel ;
+
+        // cancel each worklet running for the workitem
+        for (Object o : wr.getRunningCaseIds()) {
+            caseIdToCancel = (String) o;
+            _log.info("Worklet case running for the cancelled workitem " +
+                    "has id of: " + caseIdToCancel);
+            if (cancelWorkletCase(caseIdToCancel, wr)) {
+                _casesStarted.remove(caseIdToCancel);
+                cancelSuccess = true;
+            }
+        }
+
+        return cancelSuccess ;
+    }
+
+//***************************************************************************//
+
+    /**
      *  Starts a worklet case executing in the engine
      *  @param wr - the record of the CheckedOutChildItem or the HandlerRunner
      *              to start the worklet for
      *  @return - the case id of the started worklet case
      */
-    protected String launchWorklet(WorkletRecord wr, boolean setObserver) {
+    protected String launchWorklet(WorkletRecord wr, String wName, boolean setObserver) {
 
         String caseId ;
-        String workletName = wr.getWorkletName() ;
 
         // fill the case params with matching data values from the workitem
-        String caseData = mapItemParamsToWorkletCaseParams(wr);
+        String caseData = mapItemParamsToWorkletCaseParams(wr, wName);
 
         try {
-              // launch case (and set completion observer)
-              caseId = launchCase(workletName, caseData, _sessionHandle, setObserver);
+            // launch case (and set completion observer)
+            caseId = launchCase(wName, caseData, _sessionHandle, setObserver);
+
             if (successful(caseId)) {
 
-                // record case id
-                wr.setRunningCaseId(caseId) ;
+                // save case map
+                wr.addRunner(caseId, wName);
 
-                // and log launch event
-                EventLogger.log(_dbMgr, EventLogger.eLaunch, caseId, workletName, "",
+                // log launch event
+                EventLogger.log(_dbMgr, EventLogger.eLaunch, caseId, wName, "",
                                                 wr.getCaseID(), wr.getReasonType());
-                _log.debug("Launched case for worklet " + workletName +
+                _log.info("Launched case for worklet " + wName +
                            " with ID: " + caseId) ;
                 return caseId ;
             }
             else {
-                _log.warn("Unable to launch worklet: " + workletName) ;
+                _log.warn("Unable to launch worklet: " + wName) ;
                 _log.warn("Diagnostic message: " + caseId) ;
                 return null ;
             }
@@ -776,13 +843,12 @@ public class WorkletService extends InterfaceBWebsideController {
      *  Called by WorkletGateway after a call from the RdrEditor that the ruleset
      *  has been updated.
      *
-     *  @param itemid - the id of the orginal checked out workitem
+     *  @param itemid - the id and type of the orginal checked out case/workitem
      *  @return a string of messages decribing the success or otherwise of
      *          the process
      */
        public String replaceWorklet(String itemid) {
 
-         String caseid ;
            String result = "Locating workitem '" + itemid +
                            "' in the set of currently handled workitems..." ;
 
@@ -791,31 +857,25 @@ public class WorkletService extends InterfaceBWebsideController {
            // if workitem is currently checked out
            if (_handledWorkItems.containsKey(itemid)) {
                result += "found." + Library.newline ;
-               _log.debug("Itemid received found in handleditems: " + itemid);
+               _log.info("Itemid received found in handleditems: " + itemid);
 
            // get the checkedout child item record for this workitem
            CheckedOutChildItem coci = _handledWorkItems.get(itemid) ;
 
-           // get the case id of the running worklet subbed for this workitem
-           caseid = coci.getRunningCaseId() ;
-
            // cancel the worklet running for the workitem
-           result += "Cancelling running worklet case with case id " +
-                     caseid + " for workitem..." ;
-           _log.debug("Running worklet case id for this workitem is: " + caseid);
+           result += "Cancelling running worklet case(s) for workitem..." ;
 
-           if (cancelWorkletCase(caseid, coci)) {
-               _log.debug("Removing case from cases started: " + caseid);
-               _casesStarted.remove(caseid) ;
+           if (cancelWorkletList(coci)) {
 
                result += "done." + Library.newline ;
+               coci.removeAllCases();                        // clear case map
 
                // go through the selection process again
-               result += "Launching new replacement worklet case based on revised ruleset...";
-               _log.debug("Launching new replacement worklet case based on revised ruleset");
+               result += "Launching new replacement worklet case(s) based on revised ruleset...";
+               _log.info("Launching new replacement worklet case(s) based on revised ruleset");
 
                // locate rdr ruleset for this task
-                String specId = coci.getItem().getSpecificationID() ;
+               String specId = coci.getItem().getSpecificationID() ;
                String taskId = getDecompID(coci.getItem()) ;
 
                // refresh ruleset to pickup newly added rule
@@ -824,12 +884,14 @@ public class WorkletService extends InterfaceBWebsideController {
                RdrTree tree = getTree(specId, taskId, XTYPE_SELECTION) ;
 
                if (tree != null) {
-                    _log.debug("Ruleset found for workitem: " + coci.getItemId()) ;
-                    ProcessWorkItemSubstitution(tree, coci) ;
+                   _log.info("Ruleset found for workitem: " + coci.getItemId()) ;
+                   ProcessWorkItemSubstitution(tree, coci) ;
+
+                   HashMap cases = coci.getCaseMapAsCSVList();
                    result += "done. " + Library.newline +
-                       "The worklet '" + coci.getWorkletName() +
-                       "' has been launched for workitem '" + itemid +
-                       "' and has case id: " + coci.getRunningCaseId() +
+                       "The worklet(s) '" + cases.get("workletNames") +
+                       "' have been launched for workitem '" + itemid + Library.newline +
+                       "' and have case id(s): " + cases.get("caseIDs") +
                        Library.newline ;
                }
                else {
@@ -839,7 +901,7 @@ public class WorkletService extends InterfaceBWebsideController {
                }
            }
            else {
-                  _log.warn("Failed to cancel running case: " + caseid) ;
+                  _log.warn("Failed to cancel running case(s)") ;
                   result += "failed." + Library.newline +
                             "Replacement process cannot continue."  ;
            }
@@ -861,17 +923,19 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @param coci - child workitem this case is running for
      *  @return true if case is successfully cancelled
      */
-    private boolean cancelWorkletCase(String caseid,
-                                      CheckedOutChildItem coci) {
-       _log.debug("Cancelling worklet case: " + caseid) ;
+    private boolean cancelWorkletCase(String caseid, WorkletRecord coci) {
+       String wName = coci.getWorkletName(caseid);
+
+       _log.info("Cancelling worklet case: " + caseid) ;
        try {
               _interfaceBClient.cancelCase(caseid, _sessionHandle) ;
 
-              // log successful cancellation event
-              EventLogger.log(_dbMgr, EventLogger.eCancel, caseid, coci.getWorkletName(),
+           // log successful cancellation event
+              EventLogger.log(_dbMgr, EventLogger.eCancel, caseid, wName,
                                   "", coci.getItem().getCaseID(), -1) ;
-              _log.debug("Worklet case successfully cancelled: " + caseid) ;
-              return true ;
+           _log.info("Worklet case successfully cancelled: " + caseid) ;
+
+           return true ;
        }
        catch (IOException ioe) {
            _log.error("IO Exception when attempting to cancel case", ioe) ;
@@ -893,16 +957,18 @@ public class WorkletService extends InterfaceBWebsideController {
    protected Element updateDataList(Element in, Element out) {
 
         // get a copy of the 'in' list   	
-           Element result = (Element) in.clone() ;
+        Element result = (Element) in.clone() ;
 
-           // for each child in 'out' list, get its value and copy to 'in' list
+        // for each child in 'out' list, get its value and copy to 'in' list
         for (Object o : (out.getChildren())) {
             Element e = (Element) o;
 
             // if there's a matching 'in' data item, update its value
             Element resData = result.getChild(e.getName());
-            if (resData != null)
-                resData.setText(e.getText());
+            if (resData != null) {
+                if (resData.getContentSize() > 0) resData.setContent(e.cloneContent()) ;
+                else resData.setText(e.getText());
+            }
         }
         return result ;
   }
@@ -916,16 +982,16 @@ public class WorkletService extends InterfaceBWebsideController {
     *  The input params for the worklet case are required by the interface's
     *  launchcase() method.
     *  @param wr - the CheckedOutChildItem's or HandlerRunner's info object
+    *  @param wlName - the name of the worklet spec
     *  @return the loaded input params of the new worklet case 
     *          (launchCase() requires the input params as a String)
     */
-   private String mapItemParamsToWorkletCaseParams(WorkletRecord wr) {
+   private String mapItemParamsToWorkletCaseParams(WorkletRecord wr, String wlName) {
 
-          String wlName = wr.getWorkletName() ;    // worklet to replace item
-          Element itemData = wr.getDatalist() ;    // get datalist of work item
-          Element wlData = new Element(wlName);      // new datalist for worklet
+        Element itemData = wr.getDatalist() ;       // get datalist of work item
+        Element wlData = new Element(wlName);       // new datalist for worklet
 
-           ArrayList<YParameter> inParams = getInputParams(wlName) ;  // worklet input params
+        ArrayList<YParameter> inParams = getInputParams(wlName) ;  // worklet input params
 
         // if worklet has no net-level inputs, or workitem has no datalist, we're done
         if ((inParams == null) || (itemData == null)) return null;
@@ -986,11 +1052,11 @@ public class WorkletService extends InterfaceBWebsideController {
 
  //***************************************************************************//
 
+    /****************************
+     * 6. RULE SET MGT METHODS *
+     ***************************/
 
-/****************************
- * 6. INFORMATIONAL METHODS *
- ***************************/
-
+    /** returns the rule tree (if any) for the parameters passed */
      protected RdrTree getTree(String specID, String taskID, int treeType) {
 
         RdrSet ruleSet ;
@@ -1017,31 +1083,45 @@ public class WorkletService extends InterfaceBWebsideController {
         return result ;
      }
 
-     protected void RefreshRuleSet(String specID) {
+    //***************************************************************************//
+
+    /** Reloads the rule set from file (after a rule update) for the spec passed */
+    protected void RefreshRuleSet(String specID) {
          RdrSet ruleSet = (RdrSet) _ruleSets.get(specID) ;
          if (ruleSet != null) ruleSet.refresh() ;
      }
 
     //***************************************************************************//
 
-     /**  get the workitem's (task) decomposition id */
-     public String getDecompID(WorkItemRecord wir) {
+    /** loads the rule set for a spec (if not already loaded) */
+    public void loadTree(String specID) {
+        if (! _ruleSets.containsKey(specID)) {
+            RdrSet ruleSet = new RdrSet(specID);                  // make a new set
+            _ruleSets.put(specID, ruleSet) ;                      // & store it
+        }
+    }
 
-         try {
-            TaskInformation taskinfo = getTaskInformation(
-                                              wir.getSpecificationID(),
-                                              wir.getTaskID(), _sessionHandle);
-            return taskinfo.getDecompositionID() ;
-        }
-        catch (IOException ioe) {
-            _log.error("IO Exception in getDecompId ", ioe) ;
-            return null ;
-        }
+    //***************************************************************************//
+
+    /****************************
+     * 7. INFORMATIONAL METHODS *
+     ***************************/
+
+    /**
+     * get the workitem's (task) decomposition id
+     * @param wir - the workitem to get the decomp id for
+     */
+     public String getDecompID(WorkItemRecord wir) {
+         return getDecompID(wir.getSpecificationID(), wir.getTaskID());
      }
 
   //***************************************************************************//
 
-    /**  get the workitem's (task) decomposition id */
+    /**
+     *  gets a task's decomposition id
+     *  @param specID - the specification's id
+     *  @param taskID - the task's id
+     */
     public String getDecompID(String specID, String taskID) {
 
        try {
@@ -1092,23 +1172,14 @@ public class WorkletService extends InterfaceBWebsideController {
     */
    private void iterateAllSpecsInputParams(){
 
-        ArrayList<SpecificationData> specs = _loadedSpecs ;
+       // for each spec
+       for (SpecificationData spec : _loadedSpecs) {
+           ArrayList<YParameter> params = (ArrayList<YParameter>) spec.getInputParams();
+           _log.info("Specification " + spec.getID() + " has these input params:");
 
-           // for each spec
-        Iterator<SpecificationData> sitr = specs.iterator();
-           while (sitr.hasNext()) {
-            SpecificationData spec = sitr.next() ;
-            ArrayList<YParameter> params = (ArrayList<YParameter>) spec.getInputParams() ;
-            _log.info("Specification " + spec.getID() +
-                       " has these input params:");
-
-            // and for each param
-             Iterator<YParameter> pitr = params.iterator();
-               while (pitr.hasNext()) {
-               YParameter y = pitr.next() ;
-               _log.info(y.toXML());
-            }
-        }
+           // and for each param
+           for (YParameter y : params) _log.info(y.toXML());
+       }
    }
 
  //***************************************************************************//
@@ -1129,224 +1200,9 @@ public class WorkletService extends InterfaceBWebsideController {
         }
     }
 
-//***************************************************************************//
+ //***************************************************************************//
 
-
-/**********************
- * 7. BOOLEAN METHODS *
- *********************/
-
-    /** Checks if a worklet spec has already been loaded into engine
-     *  @param workletName
-     *  @return true if the specification is alreaded loaded in the engine
-     */
-    private boolean isUploaded(String workletName) {
-
-         // refresh list of specifications loaded into the engine
-         getLoadedSpecs();
-
-         // check if any loaded specids match the worklet spec selected
-           for (int i=0;i<_loadedSpecs.size();i++) {
-             SpecificationData spec = (SpecificationData) _loadedSpecs.get(i) ;
-             if (workletName.equals(spec.getID())) return true ;
-         }
-         return false ;                                           // no matches
-     }
-
-//***************************************************************************//
-
-    /** Checks if there is a connection to the engine, and
-     *  if there isn't, attempts to connect
-     *  @return true if connected to the engine
-     */
-    protected boolean connected() {
-        try {
-             if (!checkConnection(_sessionHandle))          // if not connected
-                _sessionHandle = connectAsService();
-        }
-        catch (IOException ioe) {
-             _log.error("Exception attempting to connect to engine", ioe);
-        }
-        return (successful(_sessionHandle)) ;
-    }
-
-//***************************************************************************//
-
-    /**
-     * Attempts to logon to the engine using a service id
-     * @return  a sessionHandle for the connection
-     * @throws IOException
-     */
-    private String connectAsService() throws IOException{
-
-        // first connect as default admin user
-        _sessionHandle = connect(_adminUser, _adminPassword);
-
-        // create new user for service if necessary
-        if (! isRegisteredUser(_user))
-           _interfaceAClient.createUser(_user, _password, true, _sessionHandle);
-
-        // logon with service user and return the result
-        return connect(_user, _password);
-    }
-
-//***************************************************************************//
-
-    /**
-     * Checks if a user is currently registered for this session
-     * @param user
-     * @return true if the user is registered in the current session
-     */
-    private boolean isRegisteredUser(String user) {
-
-        // check if service is a registered user
-        ArrayList<User> users = (ArrayList<User>) _interfaceAClient.getUsers(_sessionHandle);
-
-        Iterator<User> itr = users.iterator();
-           while (itr.hasNext()) {
-           User u = itr.next() ;
-           if ( u.getUserID().equals(user) ) return true ;      // user in list
-        }
-        return false;                                       // user not in list
-    }
-
-//***************************************************************************//
-//***************************************************************************//
-
-    /** add case-level admin task */
-    public void addAdministrationTask(String caseID, String title, String scenario,
-                                      String process, int taskType) {
-
-        AdministrationTask adminTask =
-               _adminTasksMgr.addTask(caseID, title, scenario, process, taskType);
-        if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_INSERT) ;
-
-        // suspend case pending admin action
-        _exService.suspendCase(caseID);
-    }
-
-    
-    /** add item-level admin task */
-    public void addAdministrationTask(String caseID, String itemID, String title,
-                                      String scenario, String process, int taskType) {
-
-        AdministrationTask adminTask =
-               _adminTasksMgr.addTask(caseID, itemID, title, scenario, process, taskType);
-        if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_INSERT) ;
-
-        // suspend item pending admin action
-        _exService.suspendWorkItem(itemID);
-    }
-
-
-    public List<String> getAdminTaskTitles() {
-        return _adminTasksMgr.getAllTaskTitles() ;
-    }
-
-    public void completeAdminTask(String adminTaskID) {
-        AdministrationTask adminTask =_adminTasksMgr.removeTask(adminTaskID);
-        if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_DELETE) ;
-    }
-
-    public List<AdministrationTask> getAllAdminTasksAsList() {
-        return _adminTasksMgr.getAllTasksAsList();
-    }
-
-    public AdministrationTask getAdminTask(String id) {
-        return _adminTasksMgr.getTask(id);
-    }
-
-    public boolean isAdminSession(String sessionHandle) {
-        String msg = _interfaceAClient.checkConnection(sessionHandle);
-        return successful(msg);
-    }
-
-    public boolean isWorkletCase(String caseID) {
-        return _casesStarted.containsKey(caseID) ;
-    }
-
-
-    private void restoreDataSets() {
-        if (! restored) {
-            _handledParentItems = restoreHandledParentItems() ;
-            _handledWorkItems = restoreHandledChildItems() ;
-            _adminTasksMgr = restoreAdminTasksManager() ;  // admin tasks
-            // dump();                                    // temp call to dump datasets
-            restored = true;                               // only restore once
-        }
-    }
-
-    private HashMap<String,CheckedOutItem> restoreHandledParentItems() {
-        HashMap<String,CheckedOutItem> result = new HashMap<String, CheckedOutItem>();
-        CheckedOutItem coi ;
-        List items = _dbMgr.getObjectsForClass(CheckedOutItem.class.getName());
-
-        if (items != null) {
-           Iterator itr = items.iterator();
-           while (itr.hasNext()) {
-               coi = (CheckedOutItem) itr.next();
-               coi.setItem(RDRConversionTools.xmlStringtoWIR(coi.get_wirStr()));     // restore wir
-               coi.initNonPersistedItems();
-               loadTree(coi.getSpecId());             // needed when child items restore
-               result.put(coi.getParentID(), coi);
-           }
-       }
-       return result ;
-   }
-
-
-    private HashMap<String,CheckedOutChildItem> restoreHandledChildItems() {
-        HashMap<String,CheckedOutChildItem> result = new HashMap<String, CheckedOutChildItem>();
-        List items = _dbMgr.getObjectsForClass(CheckedOutChildItem.class.getName());
-
-        if (items != null) {
-           Iterator itr = items.iterator();
-           while (itr.hasNext()) {
-               CheckedOutChildItem coci = (CheckedOutChildItem) itr.next();
-
-               // reset data list & wir
-               coci.initNonPersistedItems();
-
-               // restore link child <--> parent
-               CheckedOutItem parent = (CheckedOutItem) _handledParentItems.get(coci.get_parentID());
-               parent.addChild(coci);
-
-               // rebuild search pair nodes
-               coci.rebuildSearchPair(coci.getSpecID(),
-                                   Library.getTaskNameFromId(coci.getItem().getTaskID()));
-
-               // rebuild cases started data
-               String itemID = coci.getItem().getID();
-               _casesStarted.put(coci.getRunningCaseId(), itemID);
-
-               result.put(itemID, coci);
-           }
-       }
-       return result ;
-    }
-
-
-    private AdminTasksManager restoreAdminTasksManager() {
-        AdminTasksManager result = new AdminTasksManager();
-        List<AdministrationTask> items =
-                       _dbMgr.getObjectsForClass(AdministrationTask.class.getName());
-
-        if (items != null) {
-            for (AdministrationTask task : items) result.addTask(task);
-        }
-        return result ;
-    }
-
-
-
-    public void loadTree(String specID) {
-        if (! _ruleSets.containsKey(specID)) {
-            RdrSet ruleSet = new RdrSet(specID);                  // make a new set
-            _ruleSets.put(specID, ruleSet) ;                      // & store it
-        }
-    }
-
-
+    /** dumps data set contents to the log file */
     private void dump() {
         Iterator itr ;
 
@@ -1390,7 +1246,9 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("##### COMPLETED DUMP OF WORKLET SERVICE DATA SETS #####");
     }
 
+ //***************************************************************************//
 
+    /** writes the contents of a HashMap to the log */
     private void iterateMap(HashMap map) {
 
         if (map != null) {
@@ -1405,6 +1263,10 @@ public class WorkletService extends InterfaceBWebsideController {
         }
     }
 
+
+ //***************************************************************************//
+
+    // re-adds checkedout item to local cache after a restore (if required)
     private void checkCacheForWorkItem(WorkItemRecord wir) {
         WorkItemRecord wiTemp = getCachedWorkItem(wir.getID());
         if (wiTemp == null) {
@@ -1416,6 +1278,9 @@ public class WorkletService extends InterfaceBWebsideController {
         }
     }
 
+//***************************************************************************//
+
+    /** returns some text describing the specified rule type */
     public static String getXTypeString(int xType) {
        switch( xType ) {
            case XTYPE_CASE_PRE_CONSTRAINTS : return "Pre-case constraint violation" ;
@@ -1433,6 +1298,7 @@ public class WorkletService extends InterfaceBWebsideController {
        return null;
     }
 
+    /** returns a short text description of the specified rule type */
 
     public static String getShortXTypeString(int xType) {
        switch( xType ) {
@@ -1451,6 +1317,258 @@ public class WorkletService extends InterfaceBWebsideController {
        return null;
     }
 
+
+//***************************************************************************//
+
+/**********************
+ * 8. BOOLEAN METHODS *
+ *********************/
+
+    /** Checks if a worklet spec has already been loaded into engine
+     *  @param workletName
+     *  @return true if the specification is alreaded loaded in the engine
+     */
+    private boolean isUploaded(String workletName) {
+
+        // refresh list of specifications loaded into the engine
+        getLoadedSpecs();
+
+         // check if any loaded specids match the worklet spec selected
+        for (SpecificationData spec : _loadedSpecs)
+            if (workletName.equals(spec.getID())) return true;
+
+        return false ;                                           // no matches
+    }
+
+//***************************************************************************//
+
+    /** returns true if case specified was launched by the worklet service */
+    public boolean isWorkletCase(String caseID) {
+        return _casesStarted.containsKey(caseID) ;
+    }
+
+ //***************************************************************************//
+
+    /** returns true if the session specified is an admin session */
+    public boolean isAdminSession(String sessionHandle) {
+        String msg = _interfaceAClient.checkConnection(sessionHandle);
+        return successful(msg);
+    }
+
+//***************************************************************************//
+
+    /*************************
+     * 9. CONNECTION METHODS *
+     ************************/
+
+    /** Checks if there is a connection to the engine, and
+     *  if there isn't, attempts to connect
+     *  @return true if connected to the engine
+     */
+    protected boolean connected() {
+        try {
+            // if not connected
+             if ((_sessionHandle == null) || (!checkConnection(_sessionHandle)))
+                _sessionHandle = connectAsService();
+        }
+        catch (IOException ioe) {
+             _log.error("Exception attempting to connect to engine", ioe);
+        }
+        return (successful(_sessionHandle)) ;
+    }
+
+//***************************************************************************//
+
+    /**
+     * Attempts to logon to the engine using a service id
+     * @return  a sessionHandle for the connection
+     * @throws IOException
+     */
+    private String connectAsService() throws IOException{
+
+        // first connect as default admin user
+        _sessionHandle = connect(_adminUser, _adminPassword);
+
+        // create new user for service if necessary
+        if (! isRegisteredUser(_user))
+           _interfaceAClient.createUser(_user, _password, true, _sessionHandle);
+
+        // logon with service user and return the result
+        return connect(_user, _password);
+    }
+
+//***************************************************************************//
+
+    /**
+     * Checks if a user is currently registered for this session
+     * @param user
+     * @return true if the user is registered in the current session
+     */
+    private boolean isRegisteredUser(String user) {
+
+        // check if service is a registered user
+        ArrayList<User> users = (ArrayList<User>) _interfaceAClient.getUsers(_sessionHandle);
+
+        Iterator<User> itr = users.iterator();
+        for (User u : users) {
+            if (u.getUserID().equals(user)) return true;      // user in list
+        }
+        return false;                                       // user not in list
+    }
+
+//***************************************************************************//
+//***************************************************************************//
+
+    /*******************************
+     * 10. ADMIN TASKS MGT METHODS *
+     ******************************/
+
+    /** add case-level admin task (called from jsp) */
+    public void addAdministrationTask(String caseID, String title, String scenario,
+                                      String process, int taskType) {
+
+        AdministrationTask adminTask =
+               _adminTasksMgr.addTask(caseID, title, scenario, process, taskType);
+        if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_INSERT) ;
+
+        // suspend case pending admin action
+        _exService.suspendCase(caseID);
+    }
+
+//***************************************************************************//
+
+    /** add item-level admin task (called from jsp) */
+    public void addAdministrationTask(String caseID, String itemID, String title,
+                                      String scenario, String process, int taskType) {
+
+        AdministrationTask adminTask =
+               _adminTasksMgr.addTask(caseID, itemID, title, scenario, process, taskType);
+        if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_INSERT) ;
+
+        // suspend item pending admin action
+        _exService.suspendWorkItem(itemID);
+    }
+
+//***************************************************************************//
+
+   /** returns complete list of titles of all outstanding adimn tasks */
+    public List<String> getAdminTaskTitles() {
+        return _adminTasksMgr.getAllTaskTitles() ;
+    }
+
+//***************************************************************************//
+
+    /** marks the specified task as completed (removes it from list of tasks) */
+    public void completeAdminTask(String adminTaskID) {
+        AdministrationTask adminTask =_adminTasksMgr.removeTask(adminTaskID);
+        if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_DELETE) ;
+    }
+
+//***************************************************************************//
+
+    /** returns complete list of all outstanding adimn tasks */
+    public List getAllAdminTasksAsList() {
+        return _adminTasksMgr.getAllTasksAsList();
+    }
+
+//***************************************************************************//
+
+    /** returns the admin task with the id specified */
+    public AdministrationTask getAdminTask(String id) {
+        return _adminTasksMgr.getTask(id);
+    }
+
+//***************************************************************************//
+
+    /*******************************
+     * 11. PERSISTENCE MGT METHODS *
+     *******************************/
+
+    /** restores class hashmaps from persistence */
+    private void restoreDataSets() {
+        if (! restored) {
+            _handledParentItems = restoreHandledParentItems() ;
+            _handledWorkItems = restoreHandledChildItems() ;
+            _adminTasksMgr = restoreAdminTasksManager() ;      // admin tasks
+            restored = true;                                   // only restore once
+        }
+    }
+
+//***************************************************************************//
+
+    /** restores hashmap of checked out parent workitems from persistence */
+    private HashMap<String,CheckedOutItem> restoreHandledParentItems() {
+        HashMap<String,CheckedOutItem> result = new HashMap<String,CheckedOutItem>();
+        CheckedOutItem coi ;
+        List items = _dbMgr.getObjectsForClass(CheckedOutItem.class.getName());
+
+        if (items != null) {
+           Iterator itr = items.iterator();
+            for (Object item : items) {
+                coi = (CheckedOutItem) item;
+                coi.setItem(RdrConversionTools.xmlStringtoWIR(coi.get_wirStr()));     // restore wir
+                coi.initNonPersistedItems();
+                loadTree(coi.getSpecId());             // needed when child items restore
+                result.put(coi.getParentID(), coi);
+            }
+        }
+       return result ;
+   }
+
+//***************************************************************************//
+
+    /** restores hashmap of checked out child workitems from persistence */
+    private HashMap<String,CheckedOutChildItem> restoreHandledChildItems() {
+        HashMap<String,CheckedOutChildItem> result = new HashMap<String, CheckedOutChildItem>();
+        List items = _dbMgr.getObjectsForClass(CheckedOutChildItem.class.getName());
+
+        if (items != null) {
+            for (Object item : items) {
+                CheckedOutChildItem coci = (CheckedOutChildItem) item;
+
+                // reset data list & wir
+                coci.initNonPersistedItems();
+
+                // restore link child <--> parent
+                CheckedOutItem parent = (CheckedOutItem) _handledParentItems.get(coci.get_parentID());
+                parent.addChild(coci);
+
+                // rebuild search pair nodes
+                coci.rebuildSearchPair(coci.getSpecID(),
+                        Library.getTaskNameFromId(coci.getItem().getTaskID()));
+
+                // rebuild executing caseid <==> worklet name mapping
+                coci.restoreCaseMap();
+
+                // rebuild cases started data
+                String itemID = coci.getItem().getID();
+                Iterator<String> runningIDs = coci.getRunningCaseIds().iterator();
+                while (runningIDs.hasNext()) {
+                    _casesStarted.put(runningIDs.next(), itemID);
+                }
+
+                result.put(itemID, coci);
+            }
+        }
+       return result ;
+    }
+
+//***************************************************************************//
+
+    /** rebuilds admin task manager from persistence */
+    private AdminTasksManager restoreAdminTasksManager() {
+        AdminTasksManager result = new AdminTasksManager();
+        List<AdministrationTask> items =
+                       _dbMgr.getObjectsForClass(AdministrationTask.class.getName());
+
+        if (items != null) {
+            for (AdministrationTask task : items) result.addTask(task);
+        }
+        return result ;
+    }
+
+//***************************************************************************//
+//***************************************************************************//
 
 } // end of WorkletService class
 

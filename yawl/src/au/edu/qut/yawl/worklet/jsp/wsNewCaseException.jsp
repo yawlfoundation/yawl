@@ -1,5 +1,10 @@
 <%@ page import="au.edu.qut.yawl.worklet.admin.AdministrationTask"%>
 
+<!-- *  author Michael Adams
+     *  BPM Group, QUT Australia
+     *  m3.adams@qut.edu.au
+     *  version 0.8, 04-09/2006  -->
+
 <%
     String caseID = request.getParameter("caseID");
     String title = request.getParameter("title");
@@ -10,7 +15,7 @@
 
     if ((title != null) && (scenario != null) && (process != null)) {
         _exceptionService.addAdministrationTask(caseID, title, scenario, process,
-                AdministrationTask.TASKTYPE_CASE_EXTERNAL_EXCEPTION);
+                                  AdministrationTask.TASKTYPE_CASE_EXTERNAL_EXCEPTION);
        // go back to YAWL worklist
        response.sendRedirect(response.encodeURL("/worklist/availableWork") );
      }

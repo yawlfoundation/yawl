@@ -1,6 +1,11 @@
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.List"%>
 
+<!-- *  author Michael Adams
+     *  BPM Group, QUT Australia
+     *  m3.adams@qut.edu.au
+     *  version 0.8, 04-09/2006  -->
+
 <%
     String caseID = request.getParameter("caseID");
     String triggerID = request.getParameter("trigger");
@@ -50,7 +55,7 @@
         </table>
 
 <%
-    List triggers = _exceptionService.getExternalTriggersForCase(caseID);
+    List<String> triggers = _exceptionService.getExternalTriggersForCase(caseID);
 
     if (triggers == null) {
 %>
@@ -67,23 +72,22 @@
 
 <%
     if (triggers != null) {
-        String trigger = null;
-        Iterator list = triggers.iterator();
-        while (list.hasNext()) {
-            trigger = (String) list.next();
+        for (String trigger : triggers) {
 %>
-            <tr>
-                <td height="30" width="30"/>
-                <td>
-                    <input type="radio" name="trigger" value="<%= trigger %>"/>
-                </td>
-                <td width="3"/>
-                <td><%= trigger %></td>
-                <td/>
-            </tr>
+        <tr>
+            <td height="30" width="30"/>
+            <td>
+                <input type="radio" name="trigger" value="<%= trigger %>"/>
+            </td>
+            <td width="3"/>
+            <td><%= trigger %>
+            </td>
+            <td/>
+        </tr>
 <%
         }
     }
+
 %>
         <tr>
             <td height="30" width="50"/>

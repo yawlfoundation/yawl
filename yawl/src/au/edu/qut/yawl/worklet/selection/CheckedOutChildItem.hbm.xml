@@ -14,8 +14,8 @@
 		
        <property name="_parentID"/>
        <property name="_wirStr" type="text"/>
-       <property name="_runningCaseId"/>
-       <property name="_workletName"/>
+       <property name="_runningCaseIdStr"/>
+       <property name="_runningWorkletStr"/>
        <property name="_reasonType" type="int"/>
        <property name="_searchPairStr" type="text"/>
 

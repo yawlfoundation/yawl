@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  v0.8, 04/07/2006
+ *  v0.8, 04-09/2006
  */
 
 public class Library {
@@ -74,7 +74,6 @@ public class Library {
            _log.warn("Please check that the repository path in the WorkletService's " +
                      "'web.xml' is valid and points to the repository files. ");
         }
-        
     }
 
 //===========================================================================//

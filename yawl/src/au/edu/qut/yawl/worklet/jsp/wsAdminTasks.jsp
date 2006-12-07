@@ -1,6 +1,11 @@
 <%@ page import="au.edu.qut.yawl.worklet.admin.AdministrationTask,
                  java.util.Iterator" %>
 
+<!-- *  author Michael Adams
+     *  BPM Group, QUT Australia
+     *  m3.adams@qut.edu.au
+     *  version 0.8, 04-09/2006  -->
+
 <%
     String wsTaskID = request.getParameter("wsTask");
     String buttonText = request.getParameter("submit");

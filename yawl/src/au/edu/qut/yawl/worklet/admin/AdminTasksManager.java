@@ -19,7 +19,7 @@ import java.util.*;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  @version 0.8, 04/07/2006
+ *  @version 0.8, 04-09/2006
  */
 
 public class AdminTasksManager {
@@ -55,7 +55,6 @@ public class AdminTasksManager {
         addTask(result) ;
         return result ;
     }
-
 
     /** this version is for item level tasks */
     public AdministrationTask addTask(String caseID, String itemID, String title,
@@ -159,7 +158,7 @@ public class AdminTasksManager {
     /******************************************************************************/
 
     /**
-     * Retreives a task by its title
+     * Retrieves a task by its title
      * @param taskTitle - the title of the task required
      * @return the task that has that title
      */

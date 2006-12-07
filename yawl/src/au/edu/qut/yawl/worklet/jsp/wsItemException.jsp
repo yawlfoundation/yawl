@@ -2,16 +2,16 @@
 <%@ page import="au.edu.qut.yawl.worklist.model.WorkItemRecord"%>
 <%@ page import="java.util.List"%>
 
+<!-- *  author Michael Adams
+     *  BPM Group, QUT Australia
+     *  m3.adams@qut.edu.au
+     *  version 0.8, 04-09/2006  -->
+
 <%
     String triggerID = request.getParameter("trigger");
-    System.out.println("trigger = " + triggerID);
-
     String workItemID  = request.getParameter("workItemID");
-    System.out.println("workitemid = " + workItemID);
     WorkItemRecord wir = _exceptionService.getWorkItemRecord(workItemID);
-    System.out.println("wir = " + wir.toXML());
     String taskName = _exceptionService.getDecompID(wir) ;
-    System.out.println("taskname = " + taskName);
 
     if (triggerID != null) {
         if (triggerID.equals("newExternalException")) {
@@ -23,8 +23,6 @@
             response.sendRedirect(response.encodeURL("/worklist/availableWork") );
         }
     }
-    System.out.println("end of 1");
-
 %>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -69,7 +67,7 @@
     </table>
 
 <%
-        List triggers = _exceptionService.getExternalTriggersForItem(workItemID);
+        List<String> triggers = _exceptionService.getExternalTriggersForItem(workItemID);
 
         if (triggers == null) {
 %>
@@ -85,24 +83,22 @@
         <table border="0" cellspacing="0" cellpadding="0">
 
 <%
-        if (triggers != null) {
-            String trigger = null;
-            Iterator list = triggers.iterator();
-            while (list.hasNext()) {
-                trigger = (String) list.next();
+    if (triggers != null) {
+        for (String trigger : triggers) {
 %>
-                <tr>
-                    <td height="30" width="30"/>
-                    <td>
-                        <input type="radio" name="trigger" value="<%= trigger %>"/>
-                    </td>
-                    <td width="3"/>
-                    <td><%= trigger %></td>
-                    <td/>
-                </tr>
+            <tr>
+                <td height="30" width="30"/>
+                <td>
+                    <input type="radio" name="trigger" value="<%= trigger %>"/>
+                </td>
+                <td width="3"/>
+                <td><%= trigger %>
+                </td>
+                <td/>
+            </tr>
 <%
-            }
         }
+    }
 %>
             <tr>
                 <td height="30" width="50"/>

@@ -2252,7 +2252,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 Element updatedVars = JDOMConversionTools.stringToElement(data);
                 List<Element> vars = updatedVars.getChildren();
                 for (Element var : vars) {
-                    net.assignData((Element)var.clone());
+                    net.assignData((Element) var.clone());
                 }
                 return true;
             }

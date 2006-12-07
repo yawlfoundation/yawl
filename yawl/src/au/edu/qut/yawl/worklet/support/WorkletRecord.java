@@ -30,16 +30,15 @@ import java.io.*;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  @version 0.7.5, 23/04/2006
+ *  @version 0.8, 04-09/2006
  */
 
 
 public class WorkletRecord {
 
+    protected CaseMap _runners = new CaseMap() ;  // executing caseid <==> name mapping
     protected WorkItemRecord _wir ;          // the child workitem
     protected Element _datalist ;            // data passed to this workitem
-    protected String _runningCaseId ;        // the caseid of the running worklet
-    protected String _workletName ;          // name of worklet used
     protected RdrNode[] _searchPair ;        // rule pair returned from search
     protected int _reasonType ;              // why the worklet was raised
     protected static Logger _log ;           // log file for debug messages
@@ -48,6 +47,8 @@ public class WorkletRecord {
     protected boolean _hasPersisted = false; // set to true when row is inserted
     protected String _searchPairStr ;        // intermediate str for persistence
     protected String _wirStr ;               // intermediate str for persistence
+    protected String _runningCaseIdStr ;     // intermediate str for persistence
+    protected String _runningWorkletStr ;     // intermediate str for persistence
 
 
     /**
@@ -70,8 +71,8 @@ public class WorkletRecord {
     }
 
 
-    public void setWorkletName(String wName) {
-        _workletName = wName ;
+    public void addRunner(String caseID, String wName) {
+        _runners.addCase(caseID, wName);
         if (_hasPersisted) persistThis();
     }
 
@@ -82,20 +83,24 @@ public class WorkletRecord {
     }
 
 
-    public void setRunningCaseId(String caseId) {
-        _runningCaseId = caseId ;
-        if (_hasPersisted) persistThis();
-    }
-
     public void setExType(int xType) {
         _reasonType = xType ;
         if (_hasPersisted) persistThis();
     }
 
 
-    public void removeRunningCaseId() {
-        _runningCaseId = "" ;
+    public void removeRunnerByCaseID(String caseID) {
+        _runners.removeCase(caseID) ;
         if (_hasPersisted) persistThis();
+    }
+
+    public void removeRunnerByWorkletName(String wName) {
+        _runners.removeWorklet(wName);
+        if (_hasPersisted) persistThis();
+    }
+
+    public void removeAllCases() {
+        _runners.removeAllCases();
     }
 
 
@@ -103,8 +108,20 @@ public class WorkletRecord {
 
     //*** GETTERS ***//
 
-    public String getWorkletName() {
-        return _workletName ;
+    public String getWorkletName(String caseID) {
+        return _runners.getWorkletName(caseID) ;
+    }
+
+    public String getWorkletCaseID(String wName) {
+        return _runners.getCaseID(wName) ;
+    }
+
+    public Set getWorkletList() {
+        return _runners.getAllWorkletNames() ;
+    }
+
+    public HashMap getCaseMapAsCSVList() {
+        return _runners.getCaseMapAsCSVLists();
     }
 
 
@@ -123,8 +140,8 @@ public class WorkletRecord {
     }
 
 
-    public String getRunningCaseId() {
-        return _runningCaseId ;                        // the worklet's case id
+    public Set getRunningCaseIds() {
+        return _runners.getAllCaseIDs() ;                      // the worklet case ids
     }
 
 
@@ -144,12 +161,8 @@ public class WorkletRecord {
         return _reasonType ;
     }
 
-
     public boolean hasRunningWorklet() {
-        if (_runningCaseId == null)
-           return false ;
-        else
-            return (_runningCaseId.length() > 0) ;
+        return _runners.hasRunningWorklets();
     }
 
 //===========================================================================//
@@ -169,25 +182,33 @@ public class WorkletRecord {
     }
 
 
-    protected void set_runningCaseId(String s) {
-        _runningCaseId = s;
+    protected void set_runningCaseIdStr(String s) {
+        _runningCaseIdStr = s;
     }
 
-    protected String get_runningCaseId() {
-         return _runningCaseId ;
+    protected String get_runningCaseIdStr() {
+        if (_runners != null) {
+            HashMap cases = _runners.getCaseMapAsCSVLists();
+            _runningCaseIdStr = (String) cases.get("caseIDs");
+        }
+         return _runningCaseIdStr ;
     }
 
 
-    protected void set_workletName(String s) {
-        _workletName = s ;
+    protected void set_runningWorkletStr(String s) {
+        _runningWorkletStr = s ;
     }
 
     protected void set_reasonType(int i) {
         _reasonType = i ;
     }
 
-    protected String get_workletName() {
-        return _workletName ;
+    protected String get_runningWorkletStr() {
+        if (_runners != null) {
+            HashMap cases = _runners.getCaseMapAsCSVLists();
+            _runningWorkletStr = (String) cases.get("workletNames");
+        }
+        return _runningWorkletStr ;
     }
 
     protected int get_reasonType() {
@@ -230,7 +251,11 @@ public class WorkletRecord {
         }
 
         if (tree != null)
-            _searchPair = RDRConversionTools.stringToSearchPair(_searchPairStr, tree);
+            _searchPair = RdrConversionTools.stringToSearchPair(_searchPairStr, tree);
+    }
+
+    public void restoreCaseMap() {
+        _runners.restore(_runningCaseIdStr, _runningWorkletStr) ;
     }
 
     public void ObjectPersisted() {
@@ -265,10 +290,9 @@ public class WorkletRecord {
         Element eSpecid = new Element("specid") ;
         Element eTaskid = new Element("taskid") ;
         Element eCaseid = new Element("caseid") ;
-        Element eRunningCaseId = new Element("runningcaseid") ;
         Element eCaseData = new Element("casedata") ;
         Element eReason = new Element("extype") ;
-        Element eWorklet = new Element("worklet") ;
+        Element eWorklets = new Element("worklets") ;
 
         try {
             // transfer the workitem's data items to the file
@@ -282,9 +306,20 @@ public class WorkletRecord {
             eSpecid.setText(_wir.getSpecificationID());
             eTaskid.setText(WorkletService.getInstance().getDecompID(_wir));
             eCaseid.setText(_wir.getCaseID());
-            eWorklet.setText(_workletName) ;
-            eRunningCaseId.setText(_runningCaseId) ;
             eReason.setText(String.valueOf(_reasonType));
+
+            // add the worklet names and case ids
+            for (Object oName : _runners.getAllWorkletNames()) {
+                Element eWorkletName = new Element("workletName");
+                Element eRunningCaseId = new Element("runningcaseid");
+                Element eWorklet = new Element("worklet");
+                String wName = (String) oName;
+                eWorkletName.setText(wName);
+                eRunningCaseId.setText(_runners.getCaseID(wName));
+                eWorklet.addContent(eWorkletName);
+                eWorklet.addContent(eRunningCaseId);
+                eWorklets.addContent(eWorklet);
+            }
 
             // add the nodeids to the relevent elements
             eSatisfied.setText(_searchPair[0].getNodeIdAsString()) ;
@@ -298,8 +333,7 @@ public class WorkletRecord {
             root.addContent(eSpecid);
             root.addContent(eTaskid);
             root.addContent(eCaseid);
-            root.addContent(eWorklet) ;
-            root.addContent(eRunningCaseId) ;
+            root.addContent(eWorklets) ;
             root.addContent(eReason);
             root.addContent(eLastNode) ;
             root.addContent(eCaseData) ;
@@ -372,8 +406,8 @@ public class WorkletRecord {
         String data = JDOMConversionTools.elementToStringDump(_datalist);
         Library.appendLine(s, "DATALIST", data);
 
-        Library.appendLine(s, "WORKLET NAME", _workletName);
-        Library.appendLine(s, "RUNNING CASE ID", _runningCaseId);
+        Library.appendLine(s, "WORKLET NAMES", _runners.getWorkletCSVList());
+        Library.appendLine(s, "RUNNING CASE IDs", _runners.getCaseIdCSVList());
 
         s.append("SEARCH PAIR: ");
         if (_searchPair != null) {

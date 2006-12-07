@@ -33,7 +33,7 @@ import java.util.ArrayList;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  v0.8, 04/07/2006
+ *  v0.8, 04-09/2006
  */
 
 public class RdrTree {
@@ -43,7 +43,7 @@ public class RdrTree {
     private RdrNode _rootNode = null;
     private RdrNode[] _lastPair = new RdrNode[2];     // see search()
     
-    private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.rdr.RdrTree");
+    //private static Logger _log = Logger.getLogger("au.edu.qut.yawl.worklet.rdr.RdrTree");
 
 
     /** Default constructor */

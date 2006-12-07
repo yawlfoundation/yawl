@@ -20,7 +20,7 @@ import au.edu.qut.yawl.worklet.support.Library;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  @version 0.8, 04/07/2006
+ *  @version 0.8, 04-09/2006
  */
 
 public class AdministrationTask {
@@ -45,6 +45,8 @@ public class AdministrationTask {
                                  "au.edu.qut.yawl.worklet.admin.AdministrationTask");
 
 
+    public AdministrationTask() {}                        // required for persistence
+
     /** the constructors */
     public AdministrationTask(String caseID, String title, String scenario,
                               String process, int taskType) {
@@ -61,8 +63,6 @@ public class AdministrationTask {
         this(caseID, title, scenario, process, taskType);
         _itemID = itemID;
     }
-
-    public AdministrationTask() {}                        // required for persistence
 
     /***************************************************************************/
 
