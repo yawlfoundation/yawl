@@ -404,7 +404,7 @@ data.setPlain("foo","blah blah")</initialValue>
       <processControlElements>
         <inputCondition id="start">
           <extension name="YAWL Editor">
-            <editinfo xmlns="http://www.baloney.org">
+            <editinfo xmlns="http://www.nexusbpm.com">
               <rectangle x1="5.0" y1="100.0" x2="50.0" y2="50.0" />
             </editinfo>
           </extension>
@@ -415,7 +415,7 @@ data.setPlain("foo","blah blah")</initialValue>
         </inputCondition>
         <task id="Jython">
           <extension name="YAWL Editor">
-            <editinfo xmlns="http://www.baloney.org">
+            <editinfo xmlns="http://www.nexusbpm.com">
               <rectangle x1="62.0" y1="193.0" x2="73.0" y2="77.0" />
             </editinfo>
           </extension>
@@ -476,7 +476,7 @@ data.setPlain("foo","blah blah")</initialValue>
         </task>
         <task id="Jython_2">
           <extension name="YAWL Editor">
-            <editinfo xmlns="http://www.baloney.org">
+            <editinfo xmlns="http://www.nexusbpm.com">
               <rectangle x1="142.0" y1="112.0" x2="80.0" y2="70.0" />
             </editinfo>
           </extension>
@@ -537,7 +537,7 @@ data.setPlain("foo","blah blah")</initialValue>
         </task>
         <task id="Jython_3">
           <extension name="YAWL Editor">
-            <editinfo xmlns="http://www.baloney.org">
+            <editinfo xmlns="http://www.nexusbpm.com">
               <rectangle x1="172.0" y1="240.0" x2="80.0" y2="70.0" />
             </editinfo>
           </extension>
@@ -598,7 +598,7 @@ data.setPlain("foo","blah blah")</initialValue>
         </task>
         <task id="EmailSender">
           <extension name="YAWL Editor">
-            <editinfo xmlns="http://www.baloney.org">
+            <editinfo xmlns="http://www.nexusbpm.com">
               <rectangle x1="252.0" y1="22.0" x2="104.0" y2="77.0" />
             </editinfo>
           </extension>
@@ -680,7 +680,7 @@ data.setPlain("foo","blah blah")</initialValue>
         </task>
         <task id="EmailSender_2">
           <extension name="YAWL Editor">
-            <editinfo xmlns="http://www.baloney.org">
+            <editinfo xmlns="http://www.nexusbpm.com">
               <rectangle x1="267.0" y1="104.0" x2="104.0" y2="77.0" />
             </editinfo>
           </extension>
@@ -762,7 +762,7 @@ data.setPlain("foo","blah blah")</initialValue>
         </task>
         <task id="EmailSender_3">
           <extension name="YAWL Editor">
-            <editinfo xmlns="http://www.baloney.org">
+            <editinfo xmlns="http://www.nexusbpm.com">
               <rectangle x1="284.0" y1="185.0" x2="104.0" y2="77.0" />
             </editinfo>
           </extension>
@@ -844,7 +844,7 @@ data.setPlain("foo","blah blah")</initialValue>
         </task>
         <task id="EmailSender_4">
           <extension name="YAWL Editor">
-            <editinfo xmlns="http://www.baloney.org">
+            <editinfo xmlns="http://www.nexusbpm.com">
               <rectangle x1="300.0" y1="270.0" x2="104.0" y2="77.0" />
             </editinfo>
           </extension>
@@ -926,7 +926,7 @@ data.setPlain("foo","blah blah")</initialValue>
         </task>
         <task id="Dummy">
           <extension name="YAWL Editor">
-            <editinfo xmlns="http://www.baloney.org">
+            <editinfo xmlns="http://www.nexusbpm.com">
               <rectangle x1="383.0" y1="153.0" x2="80.0" y2="70.0" />
             </editinfo>
           </extension>
@@ -976,7 +976,7 @@ data.setPlain("foo","blah blah")</initialValue>
         </task>
         <outputCondition id="end">
           <extension name="YAWL Editor">
-            <editinfo xmlns="http://www.baloney.org">
+            <editinfo xmlns="http://www.nexusbpm.com">
               <rectangle x1="465.0" y1="145.0" x2="72.0" y2="77.0" />
             </editinfo>
           </extension>
