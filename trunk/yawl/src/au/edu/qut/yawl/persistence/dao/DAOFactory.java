@@ -46,4 +46,9 @@ public class DAOFactory {
 		}
 		return daoMap.get( type );
 	}
+
+	public static void resetDAO(PersistenceType type) {
+		daoMap.remove(type);
+	}
+
 }

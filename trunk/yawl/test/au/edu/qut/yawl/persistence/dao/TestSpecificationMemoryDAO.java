@@ -25,6 +25,7 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	
 	protected void setUp() throws Exception {
 		super.setUp();
+		DAOFactory.resetDAO(PersistenceType.MEMORY);
 		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
 		StringProducer spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestCompletedMappings.xml", true);
