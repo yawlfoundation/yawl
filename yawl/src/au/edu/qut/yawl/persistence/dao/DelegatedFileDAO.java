@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.unmarshal.YMarshal;
@@ -29,7 +30,6 @@ public class DelegatedFileDAO extends AbstractDelegatedDAO {
 	
 	public DelegatedFileDAO() {
 		addType( YSpecification.class, new SpecificationFileDAO() );
-//		addType( YNetRunner.class, new NetRunnerFileDAO() );
 	}
 	
 	private abstract class AbstractFileDAO<Type> implements DAO<Type> {
@@ -112,16 +112,14 @@ public class DelegatedFileDAO extends AbstractDelegatedDAO {
 			return loadedObjects.get( specLocation );
 		}
 		
-		public boolean delete( YSpecification t ) {
+		public void delete( YSpecification t ) throws YPersistenceException {
 			try {
-				boolean b = new File( new URI( t.getID() ) ).delete();
+				new File( new URI( t.getID() ) ).delete();
 				uncache( t );
-				return b;
 			}
 			catch( Exception e ) {
-				LOG.error( "Error deleting specification from file system!", e );
+				throw new YPersistenceException( "Error deleting specification from file system!", e );
 			}
-			return false;
 		}
 
 		public List getChildren( Object object ) {

@@ -13,30 +13,22 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.hibernate.ObjectDeletedException;
+
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
-public class TestYIdentifierHibernateDAO extends TestCase {
+public class TestYIdentifierHibernateDAO extends AbstractHibernateDAOTestCase {
 	
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		DAO hib = DAOFactory.getDAO( PersistenceType.HIBERNATE );
+		DAO hib = getDAO();
 		DataContext context = new DataContext( hib );
 		AbstractEngine.setDataContext(context);
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
-	private DAO getDAO() {
-		return DAOFactory.getDAO( PersistenceType.HIBERNATE );
 	}
 	
 	/*
@@ -66,23 +58,25 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
-	public void testDelete() {
-		try {
-			DAO hibernateDAO = getDAO();
-			YIdentifier yid = new YIdentifier("abc_delete");
-			hibernateDAO.save(yid);
+	public void testDelete() throws YPersistenceException {
+		DAO hibernateDAO = getDAO();
+		YIdentifier yid = new YIdentifier("abc_delete");
+		hibernateDAO.save(yid);
 
-			Object yid2 = hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
-			assertNotNull(yid2);		
-			
-			hibernateDAO.delete(yid);
-			Object yid3 = hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
-			assertNull(yid3);		
-			
-		} catch (Exception e) {
-			StringWriter sw = new StringWriter();
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
+		Object yid2 = hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
+		assertNotNull(yid2);
+		
+		hibernateDAO.delete(yid);
+		try {
+			Object key = hibernateDAO.getKey(yid);
+			hibernateDAO.retrieve(YIdentifier.class,key);
+			fail( "retrieval should have failed for identifier with key " + key);
+		}
+		catch( YPersistenceException e ) {
+			// proper exception is ObjectDeletedException
+			if( ! ( e.getCause() instanceof ObjectDeletedException ) ) {
+				throw new YPersistenceException( e );
+			}
 		}
 	}
 
@@ -165,7 +159,7 @@ public class TestYIdentifierHibernateDAO extends TestCase {
 	public void testSaveAndRetrieveThenExecute() {
 	
 		try {
-			DAO hib = DAOFactory.getDAO( PersistenceType.HIBERNATE );
+			DAO hib = getDAO();
 			DataContext context = new DataContext( hib );
 			AbstractEngine.setDataContext(context);
 			

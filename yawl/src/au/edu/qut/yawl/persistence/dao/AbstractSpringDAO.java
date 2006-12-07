@@ -58,7 +58,7 @@ public abstract class AbstractSpringDAO<Type> extends HibernateDaoSupport implem
 		return getHibernateTemplate().findByCriteria( criteria );
 	}
 	
-	public final boolean delete( Type object ) {
+	public final void delete( Type object ) {
 
 
 		//Type persistedObject = (Type) getHibernateTemplate().get(
@@ -71,7 +71,6 @@ public abstract class AbstractSpringDAO<Type> extends HibernateDaoSupport implem
 
 
 		getHibernateTemplate().delete( object );
-		return true;
 	}
 	
 	public List getChildren( Object object ) {

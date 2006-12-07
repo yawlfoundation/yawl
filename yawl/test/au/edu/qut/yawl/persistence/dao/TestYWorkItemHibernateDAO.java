@@ -10,58 +10,51 @@ package au.edu.qut.yawl.persistence.dao;
 
 import java.io.StringReader;
 
-import org.jdom.Element;
+import org.hibernate.ObjectDeletedException;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
-import junit.framework.TestCase;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
-public class TestYWorkItemHibernateDAO extends TestCase {
+public class TestYWorkItemHibernateDAO extends AbstractHibernateDAOTestCase {
 	
 	YSpecification testSpec;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
-	private DAO getDAO() {
-		return DAOFactory.getDAO( PersistenceType.HIBERNATE );
 	}
 	
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
-	public void testDelete() {
+	public void testDelete() throws YPersistenceException {
+		DAO hibernateDAO = getDAO();
+		YIdentifier yid = new YIdentifier("abc");
+		hibernateDAO.save( yid );
+		YWorkItemID itemid = new YWorkItemID(yid,"test_task");
+		YWorkItem item = new YWorkItem("testspec",itemid,true,false);
+		
+		hibernateDAO.save(item);
+		
+		YWorkItem item2 = (YWorkItem) hibernateDAO.retrieve(YWorkItem.class,hibernateDAO.getKey(item));
+		assertNotNull(item2);
+		
+		hibernateDAO.delete(item);
 		try {
-			DAO hibernateDAO = getDAO();
-			YIdentifier yid = new YIdentifier("abc");
-			hibernateDAO.save( yid );
-			YWorkItemID itemid = new YWorkItemID(yid,"test_task");			
-			YWorkItem item = new YWorkItem("testspec",itemid,true,false);
-			
-			hibernateDAO.save(item);
-			
-			YWorkItem item2 = (YWorkItem) hibernateDAO.retrieve(YWorkItem.class,hibernateDAO.getKey(item));
-			assertNotNull(item2);
-			
-			hibernateDAO.delete(item);
-			YWorkItem item3 = (YWorkItem) hibernateDAO.retrieve(YWorkItem.class,hibernateDAO.getKey(item));
-			assertNull(item3);
-			
-						
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("No exception should be thrown here");
+			Object key = hibernateDAO.getKey(item);
+			hibernateDAO.retrieve(YWorkItem.class,key);
+			fail( "retrieval should have failed for work item with key " + key);
+		}
+		catch( YPersistenceException e ) {
+			// proper exception is ObjectDeletedException
+			if( ! ( e.getCause() instanceof ObjectDeletedException ) ) {
+				throw new YPersistenceException( e );
+			}
 		}
 	}
 

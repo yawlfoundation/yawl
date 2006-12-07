@@ -21,10 +21,8 @@ import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.NegatedRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
-import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
 /**
@@ -60,7 +58,6 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 		try {
 			String result = iaClient.unloadSpecification(MAKE_RECORDINGS, aConnectionHandle);
 		} catch (ConnectException e) {
-			e.printStackTrace();
 		}
 		iaClient = null;
 		ibClient = null;
@@ -90,15 +87,15 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
         return fileData.toString();
     }	
 
-    public void testConnect() {
+    public void testConnect() throws IOException {
 		try {
 			getAConnectionHandle();
-		} catch (IOException e) {
+		} catch (ConnectException e) {
 			System.out.println("Couldnt connect...");
 		}
 	}
 
-	public void testSetYAWLServiceLifecycle() {
+	public void testSetYAWLServiceLifecycle() throws IOException {
 		YAWLServiceGateway gateway = new YAWLServiceGateway("april", new YSpecification("bobo"));
 		String refName = "http://www.xyz.com/" + System.currentTimeMillis();
 		YAWLServiceReference ref = new YAWLServiceReference(refName, gateway);
@@ -117,72 +114,64 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 			String result2 = iaClient.removeYAWLService(refName, aConnectionHandle);
 			assertEquals(SUCCESS, result1);
 			assertEquals(SUCCESS, result2);
-		} catch (IOException e) {
+		} catch (ConnectException e) {
+			System.out.println("couldn't connect");
 		}
 	}
 
-	public void testUploadSpecification() {
+	public void testUploadSpecification() throws IOException {
 		try {
 			//next line is cleanup - dont check its state...
 			String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, aConnectionHandle);
 			assertEquals(SUCCESS, result);
-		} catch (Exception e) {
+		} catch (ConnectException e) {
 			System.out.println("Couldnt connect...");
 		}
 	}
 	
-	/**
-	 * This test will fail if the engine isn't running.
-	 */
 	public void testRetrieveByRestriction1() throws Exception {
-		String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, aConnectionHandle);
-		assertEquals(SUCCESS, result);
-		List<YSpecification> specs = ibClient.getSpecificationsByRestriction(
-				new PropertyRestriction("ID", Comparison.LIKE, "Jython%"), bConnectionHandle );
-		Map<String,YSpecification> specMap = new HashMap<String, YSpecification>();
-		String ids = "Specifiaction URIs:\n";
-		for( YSpecification spec : specs ) {
-			ids += spec.getID() + "\n";
-			specMap.put( spec.getID(), spec );
+		try {
+			String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, aConnectionHandle);
+			assertEquals(SUCCESS, result);
+			List<YSpecification> specs = ibClient.getSpecificationsByRestriction(
+					new PropertyRestriction("ID", Comparison.LIKE, "Jython%"), bConnectionHandle );
+			Map<String,YSpecification> specMap = new HashMap<String, YSpecification>();
+			String ids = "Specifiaction URIs:\n";
+			for( YSpecification spec : specs ) {
+				ids += spec.getID() + "\n";
+				specMap.put( spec.getID(), spec );
+			}
+			
+			assertTrue( "" + specs.size(), specs.size() >= 1 );
+			assertTrue( ids, specMap.containsKey( MAKE_RECORDINGS ) );
 		}
-		
-		assertTrue( "" + specs.size(), specs.size() >= 1 );
-		assertTrue( ids, specMap.containsKey( MAKE_RECORDINGS ) );
+		catch( ConnectException e ) {
+			System.out.println("couldn't connect");
+		}
 	}
 	
-	/**
-	 * This test will fail if the engine isn't running.
-	 */
 	public void testRetrieveByRestriction2() throws Exception {
-		String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, aConnectionHandle);
-		assertEquals(SUCCESS, result);
-		/* TODO we don't want to filter out things that start with "Timer" and "TestGateway"
-		 * but a current (2006-11-29) mismatch between the service reference toXML and the
-		 * schema causes some issues with certain example specs that may be in the database.
-		 */
-		List<YSpecification> specs = ibClient.getSpecificationsByRestriction(
-				new LogicalRestriction(
-				new LogicalRestriction(
-						new NegatedRestriction(
-								new PropertyRestriction( "ID", Comparison.LIKE, "Jython%" ) ),
-						Operation.AND,
-						new NegatedRestriction( // TODO remove this property restriction
-								new PropertyRestriction( "ID", Comparison.LIKE, "Timer%" ) ) ),
-						Operation.AND,
-						new NegatedRestriction( // TODO remove this property restriction
-								new PropertyRestriction( "ID", Comparison.LIKE, "TestGateway%" ) ) ),
+		try {
+			String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, aConnectionHandle);
+			assertEquals(SUCCESS, result);
+			List<YSpecification> specs = ibClient.getSpecificationsByRestriction(
+				new NegatedRestriction( new PropertyRestriction( "ID", Comparison.LIKE, "Jython%" ) ),
 				bConnectionHandle );
-		Map<String,YSpecification> specMap = new HashMap<String, YSpecification>();
-		String ids = "Specifiaction URIs:\n";
-		for( YSpecification spec : specs ) {
-			ids += spec.getID() + "\n";
-			specMap.put( spec.getID(), spec );
+			Map<String,YSpecification> specMap = new HashMap<String, YSpecification>();
+			String ids = "Specification URIs:\n";
+			for( YSpecification spec : specs ) {
+				ids += spec.getID() + "\n";
+				specMap.put( spec.getID(), spec );
+			}
+			
+			assertFalse( ids, specMap.containsKey( MAKE_RECORDINGS ) );
 		}
-		
-		assertFalse( ids, specMap.containsKey( MAKE_RECORDINGS ) );
+		catch( ConnectException e ) {
+			System.out.println("couldn't connect");
+		}
 	}
 
-	public void testLaunchCase() {
+	public void testLaunchCase() throws IOException {
 		try {
 			String sessionHandle = bConnectionHandle;
 			String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, sessionHandle);
@@ -197,7 +186,7 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 //			System.out.println(fin);
 			assertEquals(SUCCESS, result);
 //			assertEquals(SUCCESS, fin);
-		} catch (IOException e) {
+		} catch (ConnectException e) {
 			System.out.println("Couldnt connect...");
 		}
 	}

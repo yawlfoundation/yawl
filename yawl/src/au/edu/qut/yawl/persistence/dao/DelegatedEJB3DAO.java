@@ -36,9 +36,8 @@ public class DelegatedEJB3DAO extends AbstractDelegatedDAO {
 	}
 	
 	private abstract class AbstractEJB3DAO<Type> implements DAO<Type> {
-		public final boolean delete( Type object ) {
+		public final void delete( Type object ) {
 			manager.remove( object );
-			return true;
 		}
 
 		public final Type retrieve( Class type, Object key ) {

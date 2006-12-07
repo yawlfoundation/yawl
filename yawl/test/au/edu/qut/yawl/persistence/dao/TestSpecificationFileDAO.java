@@ -39,20 +39,16 @@ public class TestSpecificationFileDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
-	public void testDelete() throws YPersistenceException {
+	public void testDelete() throws YPersistenceException, URISyntaxException {
 		DAO myDAO = getDAO();
 		StringProducer spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class,pk);
 		spec.setID(new File("DUMMY.XML").toURI().toASCIIString());
 		myDAO.save(spec);
-		try {
-			assertTrue("file was not found at:" + spec.getID(), new File(new URI(spec.getID())).exists());
-			myDAO.delete(spec);
-			assertFalse(new File(new URI(spec.getID())).exists());
-		} catch (URISyntaxException e) {
-			fail("couldnt handle built uri from " + spec.getID());
-		}
+		assertTrue("file was not found at:" + spec.getID(), new File(new URI(spec.getID())).exists());
+		myDAO.delete(spec);
+		assertFalse(new File(new URI(spec.getID())).exists());
 	}
 
 	/*
@@ -88,18 +84,15 @@ public class TestSpecificationFileDAO extends TestCase {
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
 	 */
-	public void testSave() throws YPersistenceException {
+	public void testSave() throws YPersistenceException, URISyntaxException {
 		DAO myDAO = getDAO();
 		StringProducer spx = StringProducerYAWL.getInstance();
 		String pk = spx.getTranslatedFile("TestCompletedMappings.xml", true).getAbsoluteFile().getAbsolutePath();
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class,pk);
 		spec.setID(new File("DUMMY.XML").toURI().toASCIIString());
 		myDAO.save(spec);
-		try {
-			assertTrue(new File(new URI(spec.getID())).exists());
-		} catch (URISyntaxException e) {
-			fail("couldnt save due to uri problems");
-		}
+		
+		assertTrue(new File(new URI(spec.getID())).exists());
 	}
 
 	/*

@@ -48,7 +48,7 @@ public class SpringEventDispatcher extends HibernateDaoSupport implements EventD
 		return getHibernateTemplate().findByCriteria( criteria );
 	}
 	
-	public final boolean delete( Event object ) {
+	public final void delete( Event object ) {
 		Event persistedObject = (Event) getHibernateTemplate().get(
 				object.getClass(), (Serializable) getKey( object ) );
 		assert persistedObject != null : "attempting to delete object that wasn't persisted";
@@ -57,7 +57,6 @@ public class SpringEventDispatcher extends HibernateDaoSupport implements EventD
 //			return false;
 //		}
 		getHibernateTemplate().delete( persistedObject );
-		return true;
 	}
 
 	public Object getKey( Event event ) {

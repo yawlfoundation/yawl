@@ -9,27 +9,27 @@
 
 package au.edu.qut.yawl.unmarshal;
 
-import au.edu.qut.yawl.elements.*;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.schema.XMLToolsForYAWL;
-import au.edu.qut.yawl.persistence.managed.DataContext;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
-import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
-import au.edu.qut.yawl.engine.AbstractEngine;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import au.edu.qut.yawl.elements.YDecomposition;
+import au.edu.qut.yawl.elements.YMetaData;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.schema.XMLToolsForYAWL;
 
 
 /**
@@ -76,7 +76,8 @@ class YSpecificationParser {
                 _decompAndTypeMap.put(decompID, decompType);
             }
         }
-        setVersion(specificationElem);
+        String uriString = specificationElem.getAttributeValue("uri");
+        _specification = new YSpecification(uriString);
 
         _specification.setBetaVersion(version);
         _specification.setMetaData(parseMetaData(specificationElem));
@@ -136,34 +137,6 @@ class YSpecificationParser {
             }
         }
         addSchema(specificationElem);
-    }
-
-    private void setVersion(Element specificationElem) throws YPersistenceException {
-        String uriString = specificationElem.getAttributeValue("uri");
-        _specification = new YSpecification(uriString);
-
-        DataContext context = AbstractEngine.getDataContext();
-        PropertyRestriction.Comparison comparison = PropertyRestriction.Comparison.EQUAL;
-        Restriction restriction = new PropertyRestriction("specURI", comparison, uriString);
-        List<DataProxy> proxies = context.retrieveByRestriction(
-                SpecVersion.class, restriction, null);
-        if(proxies.size() > 0) {
-            DataProxy proxy = proxies.get(0);
-            SpecVersion highestVersion = (SpecVersion) proxy.getData();
-            Integer versionX = highestVersion.getHighestVersion();
-            versionX++;
-            highestVersion.setHighestVersion(versionX);
-            _specification.getMetaData().setVersion(
-                    versionX.toString());
-            context.save(proxy);
-        } else {
-            _specification.getMetaData().setVersion("" + 1);
-            SpecVersion specVersion = new SpecVersion(uriString, 1);
-            DataProxy proxy = context.createProxy(specVersion, null);
-
-            context.attachProxy(proxy, specVersion, null);
-            context.save(proxy);
-        }
     }
 
     YMetaData parseMetaData(Element specificationElem) {
