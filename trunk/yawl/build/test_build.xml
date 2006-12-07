@@ -198,6 +198,7 @@
     <property name="swing-worker.jar" value="./build/nexusWorkflowEditor/lib/swing-worker.jar"/>
 	<property name="jgraphlayout.jar" value="$./build/nexusWorkflowEditor/lib/jgraphlayout.jar"/>
 	<property name="l2fprod-common-sheet.jar" value="./build/nexusWorkflowEditor/lib/l2fprod-common-sheet.jar"/>
+	<property name="flexdock-0.4.0.jar" value="./build/nexusWorkflowEditor/lib/flexdock-0.4.0.jar"/>
 
     <!--
     XFORM Dependencies
@@ -351,6 +352,7 @@
     	<pathelement location="${jgraphlayout.jar}"/>
         <pathelement location="${swing-worker.jar}"/>
         <pathelement location="${l2fprod-common-sheet.jar}"/>
+        <pathelement location="${flexdock-0.4.0.jar}"/>
     </path>
 
 
