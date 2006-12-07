@@ -31,7 +31,7 @@ import java.util.*;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  v0.8, 04/07/2006
+ *  v0.8, 04-09/2006
  */
 
 public class CheckedOutItem {
@@ -156,10 +156,9 @@ public class CheckedOutItem {
 	
 	/** returns the CheckedOutChildItem object of the childitem with the id */
 	public CheckedOutChildItem getCheckedOutChildItem(String itemId) {
-        for (Object a_myChildren : _myChildren)
-        {                              // for each child
-            CheckedOutChildItem c = (CheckedOutChildItem) a_myChildren;
-            if (itemId.equals(c.getItem().getID())) return c;
+        for (CheckedOutChildItem child : _myChildren)     // for each child
+        {
+             if (itemId.equals(child.getItem().getID())) return child;
         }
         return null ;
 	}

@@ -30,14 +30,13 @@ import org.apache.log4j.Logger;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  v0.8, 04/07/2006
+ *  v0.8, 04-09/2006
  */
 
 public class CheckedOutChildItem extends WorkletRecord {
 	
 	private CheckedOutItem _parent ;       // the 'parent' workitem
     private String _parentID ;             // for persistence link back to parent
-//    private String _persistID ;            // unique id field for persistence
 
     public CheckedOutChildItem() {}        // required for persistence
 
@@ -89,7 +88,7 @@ public class CheckedOutChildItem extends WorkletRecord {
 
     // restore stringified objects
     public void initNonPersistedItems() {
-        _wir = RDRConversionTools.xmlStringtoWIR(_wirStr);
+        _wir = RdrConversionTools.xmlStringtoWIR(_wirStr);
         _datalist = _wir.getWorkItemData();
     }
 

@@ -79,7 +79,7 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
             }
         }
         catch (YPersistenceException e) {
-            InterfaceX_EngineSideServer.logger.fatal("Failure to initialise runtime (persistence failure)", e);
+            logger.fatal("Failure to initialise runtime (persistence failure)", e);
             throw new UnavailableException("Persistence failure");
         }
     }
@@ -95,12 +95,12 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
         output.append("</response>");
         if (_engine.enginePersistenceFailure())
         {
-            InterfaceX_EngineSideServer.logger.fatal("************************************************************");
-            InterfaceX_EngineSideServer.logger.fatal("A failure has occured whilst persisting workflow state to the");
-            InterfaceX_EngineSideServer.logger.fatal("database. Check the satus of the database connection defined");
-            InterfaceX_EngineSideServer.logger.fatal("for the YAWL service, and restart the YAWL web application.");
-            InterfaceX_EngineSideServer.logger.fatal("Further information may be found within the Tomcat log files.");
-            InterfaceX_EngineSideServer.logger.fatal("************************************************************");
+            logger.fatal("************************************************************");
+            logger.fatal("A failure has occured whilst persisting workflow state to the");
+            logger.fatal("database. Check the satus of the database connection defined");
+            logger.fatal("for the YAWL service, and restart the YAWL web application.");
+            logger.fatal("Further information may be found within the Tomcat log files.");
+            logger.fatal("************************************************************");
             response.sendError(500, "Database persistence failure detected");
         }
         outputWriter.write(output.toString());
@@ -119,12 +119,12 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
         output.append("</response>");
         if (_engine.enginePersistenceFailure())
         {
-            InterfaceX_EngineSideServer.logger.fatal("************************************************************");
-            InterfaceX_EngineSideServer.logger.fatal("A failure has occured whilst persisting workflow state to the");
-            InterfaceX_EngineSideServer.logger.fatal("database. Check the satus of the database connection defined");
-            InterfaceX_EngineSideServer.logger.fatal("for the YAWL service, and restart the YAWL web application.");
-            InterfaceX_EngineSideServer.logger.fatal("Further information may be found within the Tomcat log files.");
-            InterfaceX_EngineSideServer.logger.fatal("************************************************************");
+            logger.fatal("************************************************************");
+            logger.fatal("A failure has occured whilst persisting workflow state to the");
+            logger.fatal("database. Check the satus of the database connection defined");
+            logger.fatal("for the YAWL service, and restart the YAWL web application.");
+            logger.fatal("Further information may be found within the Tomcat log files.");
+            logger.fatal("************************************************************");
             response.sendError(500, "Database persistence failure detected");
         }        outputWriter.write(output.toString());
         outputWriter.flush();

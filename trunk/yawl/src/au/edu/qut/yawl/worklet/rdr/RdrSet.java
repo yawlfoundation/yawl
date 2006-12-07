@@ -44,7 +44,7 @@ import org.apache.log4j.Logger;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  v0.8, 04/07/2006
+ *  v0.8, 04-09/2006
  */
 
 public class RdrSet {
@@ -186,18 +186,24 @@ public class RdrSet {
                 String exName = e.getName();
                 if (exName.equalsIgnoreCase("selection")) {
                     _selectionTrees = getRulesFromElement(e);
-                } else if (exName.equalsIgnoreCase("abort")) {
+                }
+                else if (exName.equalsIgnoreCase("abort")) {
                     _abortTrees = getRulesFromElement(e);
-                } else if (exName.equalsIgnoreCase("timeout")) {
+                }
+                else if (exName.equalsIgnoreCase("timeout")) {
                     _timeoutTrees = getRulesFromElement(e);
-                } else if (exName.equalsIgnoreCase("resourceUnavailable")) {
+                }
+                else if (exName.equalsIgnoreCase("resourceUnavailable")) {
                     _resourceTrees = getRulesFromElement(e);
-                } else if (exName.equalsIgnoreCase("violation")) {
+                }
+                else if (exName.equalsIgnoreCase("violation")) {
                     _violationTrees = getRulesFromElement(e);
-                } else if (exName.equalsIgnoreCase("external")) {
-                    getExternalRules(e);
-                } else if (exName.equalsIgnoreCase("constraints")) {
-                    getConstraintRules(e);
+                }
+                else if (exName.equalsIgnoreCase("external")) {
+                    getExternalRules(e) ;
+                }
+                else if (exName.equalsIgnoreCase("constraints")) {
+                    getConstraintRules(e) ;
                 }
 
                 // if 'task' is a child of 'root', this is a version one rules file

@@ -1,5 +1,10 @@
 <%@ page import="au.edu.qut.yawl.worklet.admin.AdministrationTask"%>
 
+<!-- *  author Michael Adams
+     *  BPM Group, QUT Australia
+     *  m3.adams@qut.edu.au
+     *  version 0.8, 04-09/2006  -->
+
 <%
     String wsTaskID = request.getParameter("id");
     String buttonText = request.getParameter("submit");
@@ -16,8 +21,7 @@
     else if (taskType == AdministrationTask.TASKTYPE_ITEM_EXTERNAL_EXCEPTION)
        taskTypeStr = "New Item-Level External Exception";
     else if (taskType == AdministrationTask.TASKTYPE_REJECTED_SELECTION)
-       taskTypeStr = "Rejected Worklet Selection";
-
+       taskTypeStr = "Rejected Worklet Selection";   
 %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>

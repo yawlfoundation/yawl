@@ -182,6 +182,7 @@ public abstract class InterfaceBWebsideController {
      * @throws IOException if the engine cannot be connected with.
      */
     public boolean checkConnection(String sessionHandle) throws IOException {
+        if (sessionHandle == null) return false ;
         String msg = _interfaceBClient.checkConnection(sessionHandle);
         return Interface_Client.successful(msg);
     }

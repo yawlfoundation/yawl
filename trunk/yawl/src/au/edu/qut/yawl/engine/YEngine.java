@@ -45,23 +45,23 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  *
- * This singleton is responsible for storing all of the active process specifications 
- * in object format.  It is also a single control point for all operations over running 
- * process instances, e.g. launching cases, starting work-items (check-out), completing 
- * work-items (check-in), cancelling cases etc.   It delegates some of these process 
- * instance controlling operations to some YNetRunner (see below) objects, however the 
- * engine stores and aggregates each YNetRunner instance and correlates it with the 
+ * This singleton is responsible for storing all of the active process specifications
+ * in object format.  It is also a single control point for all operations over running
+ * process instances, e.g. launching cases, starting work-items (check-out), completing
+ * work-items (check-in), cancelling cases etc.   It delegates some of these process
+ * instance controlling operations to some YNetRunner (see below) objects, however the
+ * engine stores and aggregates each YNetRunner instance and correlates it with the
  * YIdentifier object running through it.
  *
  *
  * @author Lachlan Aldred
  *         Date: 17/06/2003
  *         Time: 13:46:54
- * ©  
+ * ©
  */
 public class YEngine extends AbstractEngine implements YEngineInterface {
-	
-	
+
+
 	private static Logger logger = Logger.getLogger(YEngine.class);
 
 
@@ -92,14 +92,14 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     public YEngine getYEngine() {
     	return this;
     }
-    
+
     /**
      * AJH: Switch indicating if we generate user interface attributes with a tasks output XML doclet.
      */
     private static boolean generateUIMetaData = false;
 
     /**
-     * Consructor.
+     * Constructor.
      */
     protected YEngine() {
         super();
@@ -328,7 +328,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
 //                YNetRunner runner = (YNetRunner) runners.get(i);
 //                runner.restoreObservers();
 //            }
-//    
+//
 //            logger.info("Restoring process instances - Ends");
 //
 //            logger.info("Restoring work items - Starts");
@@ -525,18 +525,18 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
 
     public void initialise() throws YPersistenceException {
     	_myInstance = this;
-   		
+
     	restore();
 
         /**
          * Initialise the standard Observer Gateways.
          */
         ObserverGateway stdHttpObserverGateway = new InterfaceB_EngineBasedClient();
-        observerGatewayController.addGateway(stdHttpObserverGateway);  
-    	
+        observerGatewayController.addGateway(stdHttpObserverGateway);
+
         ObserverGateway stdInternalObserverGateway = new InterfaceB_InternalEngineBasedClient();
-        observerGatewayController.addGateway(stdInternalObserverGateway);    
-    	
+        observerGatewayController.addGateway(stdInternalObserverGateway);
+
         _userList = UserList.getInstance();
         _workItemRepository = YWorkItemRepository.getInstance();
 
@@ -544,7 +544,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
          * Add internal exception logger
          * */
         this.addExceptionObserver(new EngineExceptionLogger());
-        
+
 
         /***************************/
         /**
@@ -553,7 +553,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
         YAWLServiceReference ys;
         Set s = _myInstance.getYAWLServices();
 
-        
+
 		if (s.size()==0) {
 			/*
 			 * If the set is empty, there are no services in the database
@@ -582,7 +582,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
 			ys.setDocumentation("This service enables YAWL specifications to access"
 							+ " the Nexus Workflow services");
 			this.addYawlService(ys);
-		}            
+		}
 		/**
          * Ensure we have an 'admin' user
          */
@@ -603,9 +603,9 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
              * TODO: One of these are reduntant and
              * should be removed
              * */
-            _myInstance.setJournalising(journalising);                    
-            
-        } 
+            _myInstance.setJournalising(journalising);
+
+        }
         return _myInstance;
     }
 
@@ -1157,7 +1157,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     public YAWLServiceReference removeYawlService(String serviceURI) throws YPersistenceException {
         /**
          * SYNC'D External interface
-         */ 
+         */
         synchronized (mutex) {
             return super.removeYawlService(serviceURI);
         }
@@ -1267,12 +1267,12 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
 
 
     protected void announceCheckWorkItemConstraints(YWorkItem item, Document data, boolean preCheck) {
-        
+
     	/*
     	 * Parse through available exception handler services
     	 * */
     	for (int i = 0; i < _exceptionObservers.size();i++) {
-    	
+
     		ExceptionGateway ixClient = _exceptionObservers.get(i);
     		logger.debug("Announcing Check Constraints for task " + ((item == null) ? "{null}" : item.getIDString()) +
     				" on client " + ixClient.toString());
@@ -1283,7 +1283,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
 
     protected void announceCheckCaseConstraints(String specID, String caseID, String data, boolean preCheck) {
     	for (int i = 0; i < _exceptionObservers.size();i++) {
-        	
+
     		ExceptionGateway ixClient = _exceptionObservers.get(i);logger.debug("Announcing Check Constraints for case " + caseID +
                      " on client " + ixClient.toString());
     		ixClient.announceCheckCaseConstraints(specID, caseID, data, preCheck);
@@ -1293,7 +1293,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
 
     public void announceCancellationToExceptionService(YIdentifier caseID) {
     	for (int i = 0; i < _exceptionObservers.size();i++) {
-        	
+
     		ExceptionGateway ixClient = _exceptionObservers.get(i);logger.debug("Announcing Cancel Case for case " + caseID.toString() +
                      " on client " + ixClient.toString());
             ixClient.announceCaseCancellation(caseID.toString());
@@ -1303,27 +1303,27 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
 
     public void announceTimeOutToExceptionService(YWorkItem item, List timeOutTaskIds) {
     	for (int i = 0; i < _exceptionObservers.size();i++) {
-        	
+
     		ExceptionGateway ixClient = _exceptionObservers.get(i);
     		logger.debug("Announcing Time Out for item " + item.getWorkItemID() +
                      " on client " + ixClient.toString());
             ixClient.announceTimeOut(item, timeOutTaskIds);
     	}
     }
-    
+
     public void announceServiceUnavailable(YWorkItem item, YAWLServiceReference ref) {
     	for (int i = 0; i < _exceptionObservers.size();i++) {
-        	
+
     		ExceptionGateway ixClient = _exceptionObservers.get(i);
     		logger.debug("Announcing Service unavailability for item " + item.getWorkItemID() +
                      " on client " + ixClient.toString());
             ixClient.announceServiceUnavailable(item, ref);
     	}
     }
-    
+
     public void announceServiceError(YWorkItem item, YAWLServiceReference ref) {
     	for (int i = 0; i < _exceptionObservers.size();i++) {
-        	
+
     		ExceptionGateway ixClient = _exceptionObservers.get(i);
     		logger.debug("Announcing Service unavailability for item " + item.getWorkItemID() +
                      " on client " + ixClient.toString());

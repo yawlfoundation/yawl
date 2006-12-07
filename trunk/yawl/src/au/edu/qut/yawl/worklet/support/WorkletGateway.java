@@ -42,7 +42,7 @@ public class WorkletGateway extends HttpServlet {
                  Library.setHomeDir(context.getRealPath("/"));
                  Library.setRepositoryDir(context.getInitParameter("Repository"));
 
-                 String persistStr = context.getInitParameter("EnablePersistance");
+                 String persistStr = context.getInitParameter("EnablePersistence");
                  Library.setPersist(persistStr.equalsIgnoreCase("TRUE"));
          
                  WorkletService.getInstance().completeInitialisation();
@@ -79,12 +79,10 @@ public class WorkletGateway extends HttpServlet {
                 "</body></html>";
             }
             else if (action.equalsIgnoreCase("replace")) {
-                _log.info("Received a request from the RDR Editor to replace " +
+                _log.info("Received a request from the Rules Editor to replace " +
                           "a running worklet.");
 
-                String caseID = req.getParameter("caseID");
                 String itemID = req.getParameter("itemID");
-                String trigger = req.getParameter("trigger");
                 int exType = Integer.parseInt(req.getParameter("exType"));
 
                 // get the service instance and call replace
@@ -93,6 +91,8 @@ public class WorkletGateway extends HttpServlet {
         	    	result = ws.replaceWorklet(itemID) ;
                 }
                 else {
+                    String caseID = req.getParameter("caseID");
+                    String trigger = req.getParameter("trigger");
                     ExceptionService ex = ExceptionService.getInst();
                     result = ex.replaceWorklet(exType, caseID, itemID, trigger);
                 }

@@ -1,6 +1,11 @@
 <%@ page import="au.edu.qut.yawl.worklet.admin.AdministrationTask"%>
 <%@ page import="au.edu.qut.yawl.worklist.model.WorkItemRecord"%>
 
+<!-- *  author Michael Adams
+     *  BPM Group, QUT Australia
+     *  m3.adams@qut.edu.au
+     *  version 0.8, 04-09/2006  -->
+
 <%
     String itemID = request.getParameter("itemID");
     WorkItemRecord wir = _exceptionService.getWorkItemRecord(itemID);

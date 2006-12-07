@@ -13,11 +13,9 @@ import au.edu.qut.yawl.worklet.support.*;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 import org.jdom.*;
-
 import org.apache.log4j.Logger;
 
 /** The HandlerRunner class manages an exception handling process. An instance
@@ -32,7 +30,7 @@ import org.apache.log4j.Logger;
  *  @author Michael Adams
  *  BPM Group, QUT Australia
  *  m3.adams@qut.edu.au
- *  @version 0.8, 04/07/2006
+ *  @version 0.8, 04-09/2006
  */
 
 public class HandlerRunner extends WorkletRecord {
@@ -116,6 +114,7 @@ public class HandlerRunner extends WorkletRecord {
        return _parentMonitor.getSpecID();
    }
 
+
     /** @return the CaseMonitor that is the container for this HandlerRunner */
     public CaseMonitor getOwnerCaseMonitor() {
         return _parentMonitor ;
@@ -174,7 +173,7 @@ public class HandlerRunner extends WorkletRecord {
      /** called when an action suspends the item or parent case of this HandlerRunner */
     public void setSuspendedList(List<WorkItemRecord> items) {
         _suspendedItems = items ;
-        _suspList = RDRConversionTools.WIRListToString(items);
+        _suspList = RdrConversionTools.WIRListToString(items);
          persistThis();
     }
 
@@ -237,17 +236,17 @@ public class HandlerRunner extends WorkletRecord {
         _rdrConc = new RdrConclusion(JDOMConversionTools.stringToElement(_rdrConcStr));
 
         if (_wirStr != null) {                                      // if item runner
-            _wir = RDRConversionTools.xmlStringtoWIR(_wirStr);
+            _wir = RdrConversionTools.xmlStringtoWIR(_wirStr);
             _datalist = _wir.getWorkItemData();
         }
 
         // reconstitute the susp items list
         if (_suspList != null) {
-            List<String> list = RDRConversionTools.StringToStringList(_suspList);
+            List<String> list = RdrConversionTools.StringToStringList(_suspList);
             if (list != null) {
                 _suspendedItems = new ArrayList();                    // init item list
                 for (String xmlItem : list) {
-                    _suspendedItems.add(RDRConversionTools.xmlStringtoWIR(xmlItem));
+                    _suspendedItems.add(RdrConversionTools.xmlStringtoWIR(xmlItem));
                 }
             }
         }
@@ -325,10 +324,9 @@ public class HandlerRunner extends WorkletRecord {
         Element eSpecid = new Element("specid") ;
         Element eTaskid = new Element("taskid") ;
         Element eCaseid = new Element("caseid") ;
-        Element eRunningCaseId = new Element("runningcaseid") ;
         Element eCaseData = new Element("casedata") ;
         Element eReason = new Element("extype") ;
-        Element eWorklet = new Element("worklet") ;
+        Element eWorklets = new Element("worklets") ;
 
         try {
            // transfer the workitem's data items to the file
@@ -346,8 +344,19 @@ public class HandlerRunner extends WorkletRecord {
                eTaskid.setText(Library.getTaskNameFromId(_wir.getTaskID()));
             }
 
-            eWorklet.setText(_workletName) ;
-            eRunningCaseId.setText(_runningCaseId) ;
+            // add the worklet names and case ids
+            for (Object oName : _runners.getAllWorkletNames()) {
+                Element eWorkletName = new Element("workletName");
+                Element eRunningCaseId = new Element("runningcaseid");
+                Element eWorklet = new Element("worklet");
+                String wName = (String) oName;
+                eWorkletName.setText(wName);
+                eRunningCaseId.setText(_runners.getCaseID(wName));
+                eWorklet.addContent(eWorkletName);
+                eWorklet.addContent(eRunningCaseId);
+                eWorklets.addContent(eWorklet);
+            }
+
             eReason.setText(String.valueOf(_reasonType));
 
             // add the nodeids to the relevent elements
@@ -362,8 +371,7 @@ public class HandlerRunner extends WorkletRecord {
             root.addContent(eSpecid);
             root.addContent(eTaskid);
             root.addContent(eCaseid);
-            root.addContent(eWorklet) ;
-            root.addContent(eRunningCaseId) ;
+            root.addContent(eWorklets) ;
             root.addContent(eReason);
             root.addContent(eLastNode) ;
             root.addContent(eCaseData) ;

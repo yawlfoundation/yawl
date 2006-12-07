@@ -9,11 +9,11 @@ package au.edu.qut.yawl.worklet.exception;
 
 import au.edu.qut.yawl.util.JDOMConversionTools;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
+
 import au.edu.qut.yawl.worklet.support.*;
 import au.edu.qut.yawl.worklet.WorkletService;
 
 import org.jdom.Element;
-
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -39,7 +39,7 @@ public class CaseMonitor {
     private Element _caseData = null ;                  // current case data params
     private Element _netLevelData = null ;              // case-level decl. data params
     private Logger _log ;
-    private HashMap<String,HandlerRunner> _itemRunners = null ;               // HandlerRunners for workitems
+    private HashMap<String,HandlerRunner> _itemRunners = null ; // HandlerRunners for workitems
     private HandlerRunner _hrPreCase, _hrPostCase ;     // pre & post case runners
     private HandlerRunner _hrCaseExternal ;             // runner for case-level external
     private ArrayList<String> _liveItems = new ArrayList<String>();     // list of executing items
@@ -111,6 +111,7 @@ public class CaseMonitor {
         persistThis();
     }
 
+
     //***************************************************************************//
 
     // PERSISTENCE METHODS //
@@ -162,7 +163,7 @@ public class CaseMonitor {
     public void initNonPersistedItems() {
         _caseData = JDOMConversionTools.stringToElement(_caseDataStr);
         _netLevelData = JDOMConversionTools.stringToElement(_netDataStr);
-        _liveItems = (ArrayList<String>) RDRConversionTools.StringToStringList(_liveItemIDs);
+        _liveItems = (ArrayList<String>) RdrConversionTools.StringToStringList(_liveItemIDs);
         _log = Logger.getLogger("au.edu.qut.yawl.worklet.exception.CaseMonitor");
     }
 
@@ -188,7 +189,7 @@ public class CaseMonitor {
         HandlerRunner runner ;
 
         // runner ids are a string of ids persisted for this CaseMonitor
-        List<String> runnerIDs = RDRConversionTools.StringToStringList(_itemRunnerIDs);
+        List<String> runnerIDs = RdrConversionTools.StringToStringList(_itemRunnerIDs);
         if (runnerIDs != null) {
             for (String runnerID : runnerIDs) {
                 runner = restoreRunner(runnerID, runnerMap);
@@ -388,7 +389,7 @@ public class CaseMonitor {
         for (HandlerRunner runner : _itemRunners.values()) {
             ids.add(String.valueOf(runner.get_id()));
         }
-        _itemRunnerIDs = RDRConversionTools.StringListToString(ids);
+        _itemRunnerIDs = RdrConversionTools.StringListToString(ids);
     }
 
     //***************************************************************************//
@@ -473,7 +474,7 @@ public class CaseMonitor {
         else {
             if (_itemRunners.containsKey(itemID)) {
                 _itemRunners.remove(itemID);
-                _itemRunnerIDs = RDRConversionTools.MapKeySetToString(_itemRunners);
+                _itemRunnerIDs = RdrConversionTools.MapKeySetToString(_itemRunners);
                 persistThis();
             }
             else
@@ -493,7 +494,7 @@ public class CaseMonitor {
         else {
             if (_itemRunners.containsKey(runner.getItemId())) {
                 _itemRunners.remove(runner.getItemId());
-                _itemRunnerIDs = RDRConversionTools.MapKeySetToString(_itemRunners);
+                _itemRunnerIDs = RdrConversionTools.MapKeySetToString(_itemRunners);
                 persistThis();
             }
         }
@@ -524,14 +525,14 @@ public class CaseMonitor {
 
     public void addLiveItem(String taskID) {
         _liveItems.add(taskID);
-        _liveItemIDs = RDRConversionTools.StringListToString(_liveItems);
+        _liveItemIDs = RdrConversionTools.StringListToString(_liveItems);
         persistThis();
     }
 
     public  void removeLiveItem(String taskID) {
         if (_liveItems.contains(taskID)) {
             _liveItems.remove(taskID);
-            _liveItemIDs = RDRConversionTools.StringListToString(_liveItems);
+            _liveItemIDs = RdrConversionTools.StringListToString(_liveItems);
             persistThis();
         }
     }
