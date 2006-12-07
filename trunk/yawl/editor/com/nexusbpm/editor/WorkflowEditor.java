@@ -18,6 +18,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -30,20 +31,16 @@ import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.JTree;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
 import org.flexdock.docking.DockingManager;
 import org.flexdock.docking.drag.effects.EffectsManager;
@@ -71,7 +68,6 @@ import com.nexusbpm.command.CommandExecutor;
 import com.nexusbpm.command.CreateNetCommand;
 import com.nexusbpm.command.CreateNexusComponentCommand;
 import com.nexusbpm.command.CreateSpecificationCommand;
-import com.nexusbpm.editor.DockableApplicationFrame.MyPerspectiveFactory;
 import com.nexusbpm.editor.configuration.ConfigurationDialog;
 import com.nexusbpm.editor.configuration.NexusClientConfiguration;
 import com.nexusbpm.editor.desktop.CapselaInternalFrame;
@@ -80,7 +76,10 @@ import com.nexusbpm.editor.editors.ComponentEditor;
 import com.nexusbpm.editor.editors.DataTransferEditor;
 import com.nexusbpm.editor.editors.schedule.SchedulerCalendar;
 import com.nexusbpm.editor.icon.ApplicationIcon;
+import com.nexusbpm.editor.logger.CapselaLog;
 import com.nexusbpm.editor.logger.CapselaLogPanel;
+import com.nexusbpm.editor.logger.LogRecordI;
+import com.nexusbpm.editor.logger.LogRecordVO;
 import com.nexusbpm.editor.persistence.EditorDataProxy;
 import com.nexusbpm.editor.tree.STree;
 import com.nexusbpm.editor.tree.SharedNode;
@@ -99,9 +98,7 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
 	private final static int DEFAULT_CLIENT_HEIGHT = 692;
 	private final static int DEFAULT_CLIENT_WIDTH = 800;
     private final static int DEFAULT_COMMAND_STACK_SIZE = 20;
-    private final static int DEFAULT_COMPONENTS_HEIGHT = 692;
-    
-	private final static int DEFAULT_COMPONENTS_WIDTH = 170;
+
 	private static CommandExecutor executor;
 	private static final Log LOG = LogFactory.getLog( WorkflowEditor.class );
     private static WorkflowEditor singleton = null;
@@ -141,7 +138,7 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
     }
     
     public void setSelectedInternalFrameMenuItem(JInternalFrame frame) {
-    	WorkflowEditor.getInstance().setTitle("Nexus Editor - " + frame.getTitle());
+    	setTitle("Nexus Editor - " + frame.getTitle());
     }
     
     public JDesktopPane getDesktopPane() {
@@ -179,7 +176,14 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
 				sb.append(name + ":" + value + " ");
 			}
 			sb.append("}");
-			LOG.warn(sb.toString());
+			LogRecordI record = new LogRecordVO(
+					Level.INFO_INT,  
+					LogRecordVO.SOURCE_ENGINE, 
+					new Date().getTime(), 
+					1, 
+					sb.toString()
+			); 
+			CapselaLog.log(record);
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
@@ -402,15 +406,8 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
 		getContentPane().add(port);
 		DockingManager.restoreLayout();
 		//Dockable stuff end
-		
-		
-		
-        pack();
-        
-        
 
-        
-        
+		pack();
      }
 
 	protected Component createComponent(String id) {
@@ -441,23 +438,6 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
 		view.setContentPane(comp);
 		return view;
 	}
-    
-	private void openSchedulingCalendar() {
-    	try {
-	    	try {
-				openEditor( SchedulerCalendar.createCalendar(), null );
-			}
-			catch( SchedulerException e ) {
-				LOG.error( "Error connecting to remote scheduler!", e );
-				// TODO remove the testing calendar later
-				LOG.warn( "OPENING TESTING CALENDAR" );
-				openEditor( SchedulerCalendar.createTestCalendar(), null );
-			}
-    	}
-		catch( Exception e ) {
-			LOG.error( "Error opening scheduling calendar!", e );
-		}
-    }
     
 	public void removeInternalFrameMenuItem(JInternalFrame frame) {
         WorkflowMenuBar bar = (WorkflowMenuBar) this.getJMenuBar();
@@ -555,7 +535,20 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
 	
 	private class OpenSchedulingCalendarAction  extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
-			WorkflowEditor.this.openSchedulingCalendar();
+	    	try {
+		    	try {
+					openEditor( SchedulerCalendar.createCalendar(), null );
+				}
+				catch( SchedulerException e1 ) {
+					WorkflowEditor.LOG.error( "Error connecting to remote scheduler!", e1 );
+					// TODO remove the testing calendar later
+					LOG.warn( "OPENING TESTING CALENDAR" );
+					openEditor( SchedulerCalendar.createTestCalendar(), null );
+				}
+	    	}
+			catch( Exception e2 ) {
+				WorkflowEditor.LOG.error( "Error opening scheduling calendar!", e2 );
+			}
 		}
 	};
 
@@ -569,7 +562,7 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			ConfigurationDialog dialog = new ConfigurationDialog(null, p);
+			ConfigurationDialog dialog = new ConfigurationDialog(WorkflowEditor.this, p);
 			boolean shouldSave = dialog.ask();
 			if (shouldSave) {
 				Property[] pa = dialog.getProperties();
@@ -600,7 +593,7 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
         catch (Exception e) {}
      	WorkflowEditor.splash = new NexusSplashScreen();
     	WorkflowEditor.splash.setVisible(true);
-    	splash.updateRelative(10, "initializing client");
+    	splash.updateRelative(0, "initializing client");
 		PropertyConfigurator.configure( WorkflowEditor.class.getResource( "client.logging.properties" ) );
     	splash.updateRelative(10, "loading configuration");
 		BootstrapConfiguration.setInstance(NexusClientConfiguration.getInstance());
@@ -609,13 +602,14 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
     	WorkflowEditor.getRemoteDaoPanel();
     	splash.updateRelative(20, "parsing existing workflow files");
     	WorkflowEditor.getFileDaoPanel();
-    	splash.updateRelative(40, "starting client");
+    	splash.updateRelative(30, "starting client");
         WorkflowEditor.getInstance();
+    	splash.updateRelative(20, "starting client");
         WorkflowEditor.getInstance().setVisible(true);
         splash.setVisible(false);
         splash.setVisible(true);
     	splash.updateRelative(10, "started");
-        try {Thread.sleep(2000);} catch (Exception e) {}
+        try {Thread.sleep(1500);} catch (Exception e) {}
         splash.setVisible(false);
         splash.dispose();
     }

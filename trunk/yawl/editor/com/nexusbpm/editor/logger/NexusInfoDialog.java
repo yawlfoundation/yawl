@@ -64,13 +64,14 @@ public class NexusInfoDialog extends JDialog{
 	
 	public static void showDialog(Frame owner, LogRecordI record, boolean modal) throws HeadlessException {
 		NexusInfoDialog dialog = new NexusInfoDialog(owner, record, modal);
+		dialog.setResizable(true);
 		dialog.setVisible(true);
 		dialog.dispose();
 	}
 	
 	private void initialize(String contents) {
-		this.setSize(new Dimension(400, 300));
-		this.setPreferredSize(new Dimension(400, 300));
+		this.setSize(new Dimension(500, 500));
+		this.setPreferredSize(new Dimension(500, 500));
 		this.setContentPane(getMainPanel());
 		this.getMessageTextArea().setText(contents);
 		this.getMessageTextArea().setCaretPosition(0); 

@@ -124,7 +124,10 @@ public class NexusGraph extends JGraph implements Printable,
 		setMarqueeHandler(new GraphMarqueeHandler(this, graphEditor));
 		setPortsVisible(true);
 		setGridEnabled(true);
-		setGridSize(5);
+		setGridVisible(true);
+		setGridColor(new Color(240,240,255));
+		setGridMode(LINE_GRID_MODE);
+		setGridSize(10);
 		setTolerance(1);
 		setAntiAliased(true);
 		setHighlightColor(Color.white);

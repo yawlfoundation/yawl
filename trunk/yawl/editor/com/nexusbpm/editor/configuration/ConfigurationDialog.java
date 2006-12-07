@@ -71,11 +71,7 @@ public class ConfigurationDialog extends PropertySheetDialog{
 	
 	public ConfigurationDialog(JFrame f, Properties p) {
 		super(f);
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+
 		LookAndFeelTweaks.tweak();
 		List ps = new ArrayList();
 		for (int propertyCount = 0; propertyCount < propertyValues[0].length; propertyCount++) {

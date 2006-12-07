@@ -222,7 +222,7 @@ public class SchedulerCalendar extends CapselaInternalFrame implements CalendarS
 				t.setJobGroup( trigger.getJobGroup() );
 				
 				JobDataMap data = new JobDataMap();
-				data.put( "specID", i.getUri() );
+				data.put( StartYawlCaseJob.MAP_KEY_SPEC_ID, i.getUri() );
 				t.setJobDataMap( data );
 				
 				scheduler.rescheduleJob( oldName, "DEFAULT", t );

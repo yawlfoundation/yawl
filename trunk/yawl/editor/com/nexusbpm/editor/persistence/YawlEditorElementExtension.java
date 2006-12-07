@@ -15,7 +15,7 @@ import au.edu.qut.yawl.elements.ElementExtension;
 import au.edu.qut.yawl.elements.ExtensionListContainer;
 
 public class YawlEditorElementExtension extends ElementExtension {
-	public static Namespace EDITOR_NAMESPACE = Namespace.getNamespace("http://www.baloney.org");
+	public static Namespace EDITOR_NAMESPACE = Namespace.getNamespace("http://www.nexusbpm.com");
 	public static String EDITOR_ROOT_ELEMENT = "editinfo"; 
 	protected static String domainString = "YAWL Editor";
 	public String getDomain() {return domainString;}

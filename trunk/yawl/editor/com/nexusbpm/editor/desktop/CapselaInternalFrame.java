@@ -84,14 +84,11 @@ implements DropTargetListener
 	public CapselaInternalFrame() {
 
 		super();
-
 		this.setClosable(true);
 		this.setMaximizable(true);
 		this.setResizable(true);
-		this.setIconifiable(false);
-
-		this.setSize(300, 300);
-
+		this.setIconifiable(true);
+		this.putClientProperty ("JInternalFrame.isPalette", Boolean.TRUE);
 		this.setFrameIcon(ApplicationIcon.getIcon("NexusInternalFrame.window_icon"));
 
 		new DropTarget(this, this);
