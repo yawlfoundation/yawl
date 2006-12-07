@@ -46,10 +46,9 @@ public class YawlEngineDAO implements DAO {
 		configurationDirty = false;
 	}
 	
-	public boolean delete(Object object) throws YPersistenceException {
+	public void delete(Object object) throws YPersistenceException {
 		try {
 			execute(new DeleteCommand(object.toString()));
-			return true;
 		} catch (Exception e) {
 			throw new YPersistenceException( e );
 		}

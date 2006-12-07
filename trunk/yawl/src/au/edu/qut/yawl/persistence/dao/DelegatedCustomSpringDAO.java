@@ -19,135 +19,30 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.ObjectDeletedException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.cfg.Environment;
 import org.hibernate.criterion.Restrictions;
 
-import au.edu.qut.yawl.elements.KeyValue;
 import au.edu.qut.yawl.elements.SpecVersion;
-import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.YAtomicTask;
-import au.edu.qut.yawl.elements.YCompositeTask;
-import au.edu.qut.yawl.elements.YCondition;
-import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YFlow;
-import au.edu.qut.yawl.elements.YInputCondition;
-import au.edu.qut.yawl.elements.YMetaData;
-import au.edu.qut.yawl.elements.YMultiInstanceAttributes;
-import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.data.YParameter;
-import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.engine.YNetRunner;
-import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.engine.domain.YWorkItemID;
-import au.edu.qut.yawl.events.Event;
 import au.edu.qut.yawl.events.YCaseEvent;
 import au.edu.qut.yawl.events.YDataEvent;
-import au.edu.qut.yawl.events.YErrorEvent;
-import au.edu.qut.yawl.events.YServiceError;
 import au.edu.qut.yawl.events.YWorkItemEvent;
 import au.edu.qut.yawl.exceptions.Problem;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.YAWLTransactionAdvice;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
 public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedCustomSpringDAO.class );
 	
-	private static SessionFactory sessionFactory;
-	private static AnnotationConfiguration cfg;
-	private static Session session;
-	private static Class[] classes = new Class[] {
-		Event.class,
-		KeyValue.class,
-		YAtomicTask.class,
-		YAWLServiceGateway.class,
-		YAWLServiceReference.class,
-		YCaseData.class,
-		YCaseEvent.class,
-		YCompositeTask.class,
-		YCondition.class,
-		YDataEvent.class,
-		YDecomposition.class,
-		YExternalNetElement.class,
-		YFlow.class,
-		YIdentifier.class,
-		YInputCondition.class,
-		YInternalCondition.class,
-		YMetaData.class,
-		YMultiInstanceAttributes.class,
-		YNet.class,
-		YNetRunner.class,
-		YOutputCondition.class,
-		YParameter.class,
-		YSpecification.class,
-		SpecVersion.class,
-		YTask.class,
-		YVariable.class,
-		YWorkItem.class,
-		YWorkItemEvent.class,
-		YWorkItemID.class,
-		YErrorEvent.class,
-		YServiceError.class};
-	
-	private synchronized static void initializeSessions() {
-		//if ( sessionFactory != null ) sessionFactory.close();
-		try {
-			AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-//	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
-//	        .setProperty(Environment.SHOW_SQL, "false")
-//	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
-//	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
-//	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
-//	        .setProperty(Environment.USER, "postgres")
-//	        .setProperty(Environment.PASS, "admin")
-
-			.setProperty(Environment.HBM2DDL_AUTO, "create")
-//			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
-//			.setProperty(Environment.HBM2DDL_AUTO, "update")
-			;
-			cfg = config;
-	        
-			for (int i=0; i<classes.length; i++) {
-				cfg.addAnnotatedClass( classes[i] );
-			}
-			sessionFactory = cfg.buildSessionFactory();
-			session = sessionFactory.openSession();
-		}
-		catch (Error e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private Session openSession() throws HibernateException {
-		sessionFactory = YAWLTransactionAdvice.getFactory();
-		
-		
-		if (sessionFactory==null) {
-			initializeSessions();
-		} else {
-			session = YAWLTransactionAdvice.getSession();
-		}
-		
-		if (session==null || !session.isOpen()) {
-			session = sessionFactory.openSession();
-		}
-		
-		return session;
-	}
-
 	public DelegatedCustomSpringDAO() {
 		addType( YSpecification.class, new SpecificationHibernateDAO() );
 		addType( SpecVersion.class, new SpecVersionHibernateDAO() );
@@ -160,75 +55,48 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 		addType( YWorkItemEvent.class, new YWorkItemEventDAO() );
 		addType( YDataEvent.class, new YDataEventDAO() );
 		addType( YCaseEvent.class, new YCaseEventDAO() );
-
 	}
 	
 	private abstract class AbstractHibernateDAO<Type> implements DAO<Type> {
 		/**
 		 * Hook for subclassers to take care of any operation necessary before the object is saved.
 		 */
-		protected abstract void preSave( Type object );
+		protected abstract void preSave( Type object ) throws YPersistenceException;
 		
-		public boolean delete( Type object ) {
+		public void delete( Type object ) throws YPersistenceException {
 			Session session = null;
 			try {
-				session = openSession();
+				session = YAWLTransactionAdvice.openSession();
 
 				Type persistedObject = (Type) session.get( object.getClass(), (Serializable) getKey( object ) );
 
 				session.delete( persistedObject );
-
-
-				return true;
 			}
-			catch( ObjectDeletedException ode ) {
-				LOG.error("Deletion failure", ode);
-				return false;
+			catch( HibernateException e ) {
+				throw new YPersistenceException( "Error deleting object " + object, e );
 			}
-			catch( Exception e ) {
-					LOG.error( e );
-					try {
-						if( session!=null && session.isOpen() ) {
-							if( session.isConnected() ) session.connection().rollback();
-							session.close();
-						}
-					}
-					catch( Exception ignore ) {
-						LOG.error( ignore );
-					}
-					return false;
-				}
 		}
 
-		public Type retrieve( Class type, Object key ) {
+		public Type retrieve( Class type, Object key ) throws YPersistenceException {
 			Session session = null;
 			try {
 				Type retval;
-				session = openSession();
+				session = YAWLTransactionAdvice.openSession();
 
 				retval = (Type) session.get( type, (Serializable) key );
 
 				return retval;
 			}
-			catch (Exception e) {
-				LOG.error( e );
-				try {
-					if( session != null && session.isOpen() ) {
-						if ( session.isConnected() ) session.connection().rollback();
-						session.close();
-					}
-				}
-				catch( Exception ignore ) {			
-					LOG.error( ignore );
-				}
-				return null;
+			catch( HibernateException e ) {
+				throw new YPersistenceException( "Error retrieving object of type '" + type +
+						"' with key '" + key + "'", e );
 			}
 		}
 		
-		public List<Type> retrieveByRestriction( Class type, Restriction restriction ) {
+		public List<Type> retrieveByRestriction( Class type, Restriction restriction ) throws YPersistenceException {
 			Session session = null;
 			try {
-				session = openSession();
+				session = YAWLTransactionAdvice.openSession();
 
 	            Criteria query = session.createCriteria( type );
 	            
@@ -240,107 +108,111 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 	            Set set = new HashSet( tmp );
 				List<Type> retval = new ArrayList<Type>( set );
 
-
 				return retval;
 			}
-			catch (Exception e) {
-				e.printStackTrace();
-				LOG.error( e );
-				try {
-					if( session != null && session.isOpen() ) {
-						if ( session.isConnected() ) session.connection().rollback();
-						session.close();
-					}
-				}
-				catch( Exception ignore ) {			
-					LOG.error( ignore );
-				}
-				return new ArrayList<Type>();
+			catch( HibernateException e ) {
+				throw new YPersistenceException(
+						"Retrieve by restriction error " + type + " " + restriction, e );
 			}
 		}
 
-		public void save( Type object ) {
+		public void save( Type object ) throws YPersistenceException {
 			Session session = null;
 			try {
 				preSave( object );
 
-				session = openSession();
+				session = YAWLTransactionAdvice.openSession();
 
 				session.saveOrUpdate( object );
 				LOG.debug( "Persisting " + getKey( object ) );
-
 			}
-			catch( HibernateException e2 ) {
-				LOG.error( (Throwable) e2 );
-			}
-			catch( Exception e ) {
-				LOG.error( e );
-				try {
-					if( session != null && session.isOpen() ) {
-						if( session.isConnected() ) session.connection().rollback();
-						session.close();
-					}
-				}
-				catch( Exception ignore ) {
-					LOG.error( ignore );
-				}
+			catch( HibernateException e ) {
+				throw new YPersistenceException( "Error saving object " + object, e );
 			}
 		}
 		
-		public List getChildren( Object object ) {
-			return new ArrayList();
+		public List getChildren( Object object ) throws YPersistenceException {
+			throw new UnsupportedOperationException( "getChildren not supported for " + object);
 		}
 	}
 
 	private class SpecificationHibernateDAO extends AbstractHibernateDAO<YSpecification> {
-		protected void preSave( YSpecification spec ) {
+		protected void preSave( YSpecification spec ) throws YPersistenceException {
 			try {
 				spec.setID( new URI( spec.getID() ).toASCIIString() );
+				setVersion( spec );
 			}
 			catch( URISyntaxException e ) {
 				LOG.error( e );
 			}
 		}
 		
+		private void setVersion(YSpecification spec) throws YPersistenceException {
+	        String uriString = spec.getID();
+	        
+	        Restriction restriction = new PropertyRestriction("specURI", Comparison.EQUAL, uriString);
+	        List specVersions =
+	        	DelegatedCustomSpringDAO.this.retrieveByRestriction( SpecVersion.class, restriction );
+	        
+	        SpecVersion specVersion;
+	        int nextVersion = 1;
+	        specVersion = new SpecVersion(uriString, nextVersion);
+	        
+	        if( specVersions.size() > 0 ) {
+	        	specVersion = (SpecVersion) specVersions.get( 0 );
+	        	nextVersion = specVersion.getHighestVersion().intValue() + 1;
+	        }
+	        
+	        spec.getMetaData().setVersion( "" + nextVersion );
+	        specVersion.setHighestVersion( nextVersion );
+	        
+	        DelegatedCustomSpringDAO.this.save( specVersion );
+	    }
+		
 		public Object getKey( YSpecification object ) {
 			return PersistenceUtilities.getSpecificationDatabaseKey( object );
 		}
 
-		public List getChildren(Object parent) {
-	        List retval = new ArrayList();
-	        String filter = "";
-	        
-	        if( parent instanceof DatasourceFolder ) {
-	            DatasourceFolder folder = (DatasourceFolder) parent;
-	            filter = folder.getPath();
-	            if( ! filter.endsWith( "/" ) ) {
-	                filter = filter + "/";
-	            }
-	            
-	            Session session = openSession();
-	            Criteria query = session.createCriteria(YSpecification.class)
-	            	.add( Restrictions.like( "ID", filter + "%" ) );
-	            
-	            List tmp = query.list();
-	            
-	            Set traversal = new HashSet( tmp );
-	            
-	            for( Object o : traversal ) {
-	                String id = getID( o );
-	                if( id != null && id.startsWith( filter ) ) {
-	                    if( PersistenceUtilities.contains( id, filter ) != null ) {
-	                        retval.add( new DatasourceFolder(
-	                        		PersistenceUtilities.contains( id, filter ), folder ) );
-	                    } else {
-	                        assert o instanceof YSpecification : "object not a specification";
-	                        retval.add( o );
-	                    }
-	                }
-	            }
-	        }
-	        
-			LOG.debug("retrieving " + retval);
-			return retval;
+		public List getChildren(Object parent) throws YPersistenceException {
+			try {
+		        List retval = new ArrayList();
+		        String filter = "";
+		        
+		        if( parent instanceof DatasourceFolder ) {
+		            DatasourceFolder folder = (DatasourceFolder) parent;
+		            filter = folder.getPath();
+		            if( ! filter.endsWith( "/" ) ) {
+		                filter = filter + "/";
+		            }
+		            
+		            Session session = YAWLTransactionAdvice.openSession();
+		            Criteria query = session.createCriteria(YSpecification.class)
+		            	.add( Restrictions.like( "ID", filter + "%" ) );
+		            
+		            List tmp = query.list();
+		            
+		            Set traversal = new HashSet( tmp );
+		            
+		            for( Object o : traversal ) {
+		                String id = getID( o );
+		                if( id != null && id.startsWith( filter ) ) {
+		                    if( PersistenceUtilities.contains( id, filter ) != null ) {
+		                        retval.add( new DatasourceFolder(
+		                        		PersistenceUtilities.contains( id, filter ), folder ) );
+		                    } else {
+		                        assert o instanceof YSpecification : "object not a specification";
+		                        retval.add( o );
+		                    }
+		                }
+		            }
+		        }
+		        
+				LOG.debug("retrieving " + retval);
+				return retval;
+			}
+			catch( HibernateException e ) {
+				throw new YPersistenceException( "Error retrieving children of " + parent, e );
+			}
 		}
 		
 		private String getID( Object object ) {

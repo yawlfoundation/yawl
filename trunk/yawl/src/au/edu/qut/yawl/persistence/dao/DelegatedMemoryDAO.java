@@ -65,8 +65,8 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 			}
 		}
 
-		public final boolean delete( Type object ) throws YPersistenceException {
-			return objects.remove( getKey( object ) ) != null;
+		public final void delete( Type object ) throws YPersistenceException {
+			objects.remove( getKey( object ) );
 		}
 
 		public final Type retrieve( Class type, Object key ) {

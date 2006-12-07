@@ -46,9 +46,9 @@ public abstract class AbstractDelegatedDAO implements DAO<Object> {
 		return typeMap.get( type ).retrieveByRestriction( type, restriction );
 	}
 	
-	public final boolean delete( Object object ) throws YPersistenceException {
+	public final void delete( Object object ) throws YPersistenceException {
 		checkTypeSupported( object.getClass() );
-		return typeMap.get( object.getClass() ).delete( object );
+		typeMap.get( object.getClass() ).delete( object );
 	}
 	
 	public List getChildren( Object object ) throws YPersistenceException {

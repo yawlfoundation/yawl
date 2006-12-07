@@ -38,10 +38,10 @@ public class DAOPersistenceTestSuite extends TestSuite{
         TestSuite suite = new TestSuite();
         suite.addTestSuite(TestSpecificationFileDAO.class);
         suite.addTestSuite(TestSpecificationHibernateDAO.class);
+        suite.addTestSuite(TestSpecificationMemoryDAO.class);
         suite.addTestSuite(TestYIdentifierHibernateDAO.class);
         suite.addTestSuite(TestYNetRunnerHibernateDAO.class);
         suite.addTestSuite(TestYWorkItemHibernateDAO.class);
-        suite.addTestSuite(TestSpecificationMemoryDAO.class);
         return suite;
     }
 

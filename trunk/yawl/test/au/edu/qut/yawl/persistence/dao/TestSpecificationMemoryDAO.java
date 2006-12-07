@@ -5,7 +5,6 @@
  * individuals and organiations who are commited to improving workflow technology.
  *
  */
-
 package au.edu.qut.yawl.persistence.dao;
 
 import java.io.File;

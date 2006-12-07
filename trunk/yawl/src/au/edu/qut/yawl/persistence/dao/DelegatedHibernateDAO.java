@@ -148,7 +148,7 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 		 */
 		protected abstract void preSave( Type object );
 		
-		public boolean delete( Type object ) {
+		public void delete( Type object ) {
 			Session session = null;
 			try {
 				session = openSession();
@@ -161,11 +161,11 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 //				}
 				session.delete( persistedObject );
 				tx.commit();
-				return true;
+				//return true;
 			}
 			catch( ObjectDeletedException ode ) {
 				LOG.error("Deletion failure", ode);
-				return false;
+				//return false;
 			}
 			catch( Exception e ) {
 					LOG.error( e );
@@ -178,7 +178,7 @@ public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 					catch( Exception ignore ) {
 						LOG.error( ignore );
 					}
-					return false;
+					//return false;
 				}
 		}
 
