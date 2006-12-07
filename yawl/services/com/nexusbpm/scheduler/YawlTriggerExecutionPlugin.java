@@ -83,9 +83,11 @@ public class YawlTriggerExecutionPlugin implements SchedulerPlugin,
 	public void triggerComplete(Trigger trigger, JobExecutionContext context,
 			int triggerInstructionCode) {
 		if (context.getResult() != null) {
-			QuartzEvent qe = new QuartzEvent(trigger.getName(), trigger
-					.getPreviousFireTime(), new Date(), context.getResult()
-					.toString(), QuartzEvent.State.COMPLETED.toString());
+			Date reportedFireTime = trigger.getPreviousFireTime();
+			if (reportedFireTime == null) reportedFireTime = new Date();
+			QuartzEvent qe = new QuartzEvent(trigger.getName(),
+					reportedFireTime, new Date(), context.getResult()
+							.toString(), QuartzEvent.State.COMPLETED.toString());
 			saveEvent(qe);
 		}
 	}
