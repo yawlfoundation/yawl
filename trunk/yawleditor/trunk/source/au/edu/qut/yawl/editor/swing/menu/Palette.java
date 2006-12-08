@@ -285,6 +285,8 @@ class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSub
     
     addTab("Join", joinPanel);
     addTab("Split", splitPanel);
+    
+    setSelectedIndex(1);   // Make split the default
 
     setVisible(false);
 

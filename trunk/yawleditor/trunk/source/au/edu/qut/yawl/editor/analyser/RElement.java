@@ -31,6 +31,7 @@ import java.util.Iterator;
 
 import au.edu.qut.yawl.elements.YExternalNetElement;
 
+
 /**
  *
  * The base class for RTransition and RPlace 
@@ -52,8 +53,10 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
      //used for reduced net mappings between yawl
      private Set _rElementsSet = new HashSet();
     
-   public RElement(String id){
-   	_id = id;
+   public RElement(String id) {
+	   _id = id;
+		  
+	  
    }
    
    public String getID()

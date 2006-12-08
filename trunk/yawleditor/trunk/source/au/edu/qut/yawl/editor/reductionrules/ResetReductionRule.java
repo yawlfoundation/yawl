@@ -23,8 +23,6 @@ package au.edu.qut.yawl.editor.reductionrules;
 import au.edu.qut.yawl.editor.analyser.ResetWFNet;
 import au.edu.qut.yawl.editor.analyser.RElement;
 import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Iterator;
 
 public abstract class ResetReductionRule 

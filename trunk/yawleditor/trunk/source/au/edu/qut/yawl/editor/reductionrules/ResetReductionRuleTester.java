@@ -6,12 +6,10 @@ import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.exceptions.*;
 import au.edu.qut.yawl.editor.analyser.ResetWFNet;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.net.URL;
 import java.util.*;
 import org.jdom.JDOMException;
 

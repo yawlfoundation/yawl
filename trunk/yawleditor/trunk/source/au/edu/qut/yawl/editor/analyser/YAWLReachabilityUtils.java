@@ -61,7 +61,7 @@ public class YAWLReachabilityUtils{
       * only one input place of OJ and not bigger 1
       * more than one input place - 3 and 4
       */
-     private int checkORjoinStatus(YSetOfMarkings RS,Set presetOJ)
+     private int checkORjoinStatus(YSetOfMarkings RS,List presetOJ)
      { 
       List  preSetList = new LinkedList(presetOJ);
        YMarking orJoinANDMarking = new YMarking(preSetList);
@@ -97,7 +97,7 @@ public class YAWLReachabilityUtils{
       * returns true if there is a smaller marking M[preset] < orJoinANDMarking.
       *
       */
-       private boolean containsLessThanMarking(YSetOfMarkings RS, YMarking orJoinANDMarking,Set presetOJ)
+       private boolean containsLessThanMarking(YSetOfMarkings RS, YMarking orJoinANDMarking,List presetOJ)
        {
       
        for(Iterator i = RS.getMarkings().iterator(); i.hasNext();)
@@ -119,7 +119,7 @@ public class YAWLReachabilityUtils{
      /**
       * returns ture if no marking bigger than XOR is found in RS.
       */
-     private boolean checkXOR(YSetOfMarkings RS,YMarking orJoinXORMarking,Set presetOJ)
+     private boolean checkXOR(YSetOfMarkings RS,YMarking orJoinXORMarking,List presetOJ)
        {
      
        for(Iterator i = RS.getMarkings().iterator(); i.hasNext();)
@@ -158,7 +158,7 @@ public class YAWLReachabilityUtils{
         //first identify all OR-joins
         for(Iterator i = orJoins.iterator(); i.hasNext();)
         { YTask orJoin = (YTask) i.next();
-          Set   preSet = CollectionUtils.getSetFromList(orJoin.getPresetElements());
+          List   preSet = orJoin.getPresetElements();
           YSetOfMarkings ojMarkings = (YSetOfMarkings) ojMarkingsMap.get(orJoin.getID());
           if (ojMarkings != null)
           {
@@ -226,7 +226,7 @@ public class YAWLReachabilityUtils{
 	   	 { YTask t = (YTask) e;
      
 	     	if (!t.getRemoveSet().isEmpty())
-	     	{     Set preSet = CollectionUtils.getSetFromList(t.getPresetElements());
+	     	{     List preSet = t.getPresetElements();
 		        //Object[] array = preSet.toArray();
 		        //Assume there is only one place
 		        //RPlace p = (RPlace) array[0];
@@ -618,7 +618,7 @@ public class YAWLReachabilityUtils{
       
   
      private boolean isForwardEnabled(YMarking currentM, YTask t)
-    {   Set preSet = CollectionUtils.getSetFromList(t.getPresetElements());
+    {   List preSet = t.getPresetElements();
           
         int joinType = t.getJoinType();
           switch (joinType) {
@@ -633,6 +633,7 @@ public class YAWLReachabilityUtils{
                     orJoins.add(t); 
                     YIdentifier id = convertMarkingToIdentifier(currentM);
                     boolean isOJEnabled = _yNet.orJoinEnabled(t,id);
+                 
                     //use for unnecessary OR-join enabling markings.
                     if (isOJEnabled) 
                     { 
@@ -713,26 +714,29 @@ public class YAWLReachabilityUtils{
 	 private YIdentifier convertMarkingToIdentifier(YMarking m)
 	 {
 	 	YIdentifier id = new YIdentifier();
-	 	List locations = new LinkedList(m.getLocations());
-	 	
+	 	List locations = m.getLocations();
+	 		 	
 	 	try{
 	 		for (Iterator i= locations.iterator();i.hasNext();)
 		{  YExternalNetElement e = (YExternalNetElement) i.next();
 	   	   if (e instanceof YTask)
 	   	   {  YTask t = (YTask) e;
-	   	      id.addLocation(t);
+	   	      t.setI(id);   
+	   	 
 	   	   }
 	       else if (e instanceof YCondition)
 	   	   {  YCondition c = (YCondition) e;
-	   	      id.addLocation(c);
+	   	      c.add(id);
 	   	   }
+	       
 		}
 	 	}
 	 	catch(YPersistenceException e)
 	 	{
 	 		//do nothing;
-	 		
+	 		System.out.println("Persistence exception in marking conversion");
 	 	}
+	 	
 	 
 	 	return id;
 	 }
@@ -740,7 +744,7 @@ public class YAWLReachabilityUtils{
 	 
 	private String printMarking(YMarking m){
   
-    String printM = "";
+    String printM = " ";
     List mPlaces = m.getLocations();
 	for (Iterator i= mPlaces.iterator();i.hasNext();)
 	{  YExternalNetElement e = (YExternalNetElement) i.next();
@@ -757,7 +761,7 @@ public class YAWLReachabilityUtils{
      *
      */
     private YNet transformNet(YNet net)
-    {
+    { 
     	//for all tasks - split into two
     try {
       for(YExternalNetElement e : net.getNetElements()) {
@@ -779,7 +783,7 @@ public class YAWLReachabilityUtils{
             //change join behaviour and preset of t_start
             t.setJoinType(YTask._XOR);
             
-            Set preSet = CollectionUtils.getSetFromList(t.getPresetElements());
+            List preSet = t.getPresetElements();
             Iterator preFlowIter = preSet.iterator();
             while (preFlowIter.hasNext())
             { YExternalNetElement next = (YExternalNetElement) preFlowIter.next();
@@ -877,13 +881,13 @@ public class YAWLReachabilityUtils{
    }
    
    private YExternalNetElement findYawlMapping(String id){
-   	
-   Map elements = CollectionUtils.getMapFromList(_yNet.getId(), _yNet.getNetElements());
-   YExternalNetElement e = (YExternalNetElement) elements.get(id);
+   
+	
+   YExternalNetElement e = (YExternalNetElement)_yNet.getNetElement(id);
    HashSet mappings;
    YExternalNetElement mappedEle,innerEle;
    if (e == null)
-   	{ for (Iterator i= elements.values().iterator();i.hasNext();)
+   	{ for (Iterator i= _yNet.getNetElements().iterator();i.hasNext();)
    	  {	mappedEle = (YExternalNetElement) i.next();
    	 	mappings = new HashSet(mappedEle.getYawlMappings());
    	 	for (Iterator inner = mappings.iterator();inner.hasNext();)

@@ -38,7 +38,7 @@ public class ReductionRuleTester{
     	
        List specifications = null;
        try {
-         YMarshal.unmarshalSpecifications(fileURL);
+         specifications = YMarshal.unmarshalSpecifications(fileURL);
        } catch (YPersistenceException ype) {
          ype.printStackTrace();
          return null;

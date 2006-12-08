@@ -22,11 +22,9 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
-import au.edu.qut.yawl.editor.analyser.CollectionUtils;
 import au.edu.qut.yawl.elements.*;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
+
+import java.util.List;
 import java.util.Iterator;
 
 /**
@@ -46,8 +44,8 @@ public class FXORrule extends YAWLReductionRule{
      YNet reducedNet = net;
      if (nextElement instanceof YCondition){
         YCondition condition = (YCondition) nextElement;
-        Set postSet = CollectionUtils.getSetFromList(condition.getPostsetElements());
-        Set preSet  = CollectionUtils.getSetFromList(condition.getPresetElements());
+        List postSet = condition.getPostsetElements();
+        List preSet  = condition.getPresetElements();
         if (preSet.size() == 1 && postSet.size() == 1)
          
         {   YTask t = (YTask) preSet.toArray()[0];
@@ -58,8 +56,8 @@ public class FXORrule extends YAWLReductionRule{
              t.getCancelledBySet().isEmpty() && u.getCancelledBySet().isEmpty())
             {
              
-             Set postSetOft = CollectionUtils.getSetFromList(t.getPostsetElements());
-             Set preSetOfu  = CollectionUtils.getSetFromList(u.getPresetElements());
+             List postSetOft = t.getPostsetElements();
+             List preSetOfu  = u.getPresetElements();
              //N>1 and \pre{p} = t and \post{p} = u and p not cancel
             if (preSetOfu.equals(postSetOft) && checkEqualConditions(preSetOfu))
             { 
@@ -70,7 +68,7 @@ public class FXORrule extends YAWLReductionRule{
                  reducedNet.removeNetElement(c);
                       	                   
 	         } //end while
-             Set postSetOfu = CollectionUtils.getSetFromList(u.getPostsetElements());       
+             List postSetOfu = u.getPostsetElements();       
              // set postflows from u to t
              Iterator postFlowIter = postSetOfu.iterator();
              while (postFlowIter.hasNext())
