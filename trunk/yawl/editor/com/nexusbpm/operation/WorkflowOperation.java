@@ -86,11 +86,16 @@ public class WorkflowOperation {
         YSpecification spec = null;
         
         URI u = new URI( parentURI.replaceAll( "\\\\", "/" ) );
+        String path = u.getPath();
+        if( !path.endsWith( "/" ) ) {
+        	path = path + "/";
+        }
+        path = path + convertNameToID( id );
         spec = createSpecification( name,
                 new URI(
                         u.getScheme(),
                         u.getAuthority(),
-                        u.getPath() + "/" + convertNameToID( id ),
+                        path,
                         null,
                         null ).toString() );
         

@@ -48,7 +48,7 @@ public class CreateFlowTest extends CommandTestCase {
 	
 
 	public void proxyAttached( DataProxy proxy, Object data, DataProxy parent ) {
-		assert proxy != null : "Proxy can't be null!";
+		assertNotNull("Proxy can't be null!", proxy);
 		flowProxy = proxy;
 	}
 }

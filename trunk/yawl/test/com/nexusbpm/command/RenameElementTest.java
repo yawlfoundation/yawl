@@ -5,10 +5,7 @@
  * individuals and organiations who are commited to improving workflow technology.
  *
  */
-
 package com.nexusbpm.command;
-
-import java.lang.reflect.Method;
 
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -18,6 +15,7 @@ import au.edu.qut.yawl.persistence.managed.DataProxy;
 /**
  * 
  * @author Dean Mao
+ * @author Nathan Rose
  * @created Aug 4, 2006
  */
 public class RenameElementTest extends CommandTestCase {
@@ -25,44 +23,64 @@ public class RenameElementTest extends CommandTestCase {
 	final String oldName = "my old name";
 	final String newName = "my new name";
 	
-	public void runTestOn(Object obj) throws Exception {
+	public void runTestOn(Object obj, GetterMethod getter) throws Exception {
 		DataProxy proxy = dataContext.createProxy( obj, null );
 		dataContext.attachProxy(proxy, obj, null);
 		
-		Command command = new RenameElementCommand(proxy, oldName, newName);
+		Command command = RenameCommandFactory.getRenameCommand( proxy, newName, oldName );
 		command.execute();
 
-        Method getter = obj.getClass().getMethod( "getName", new Class[] {} );
-        String name = (String) getter.invoke( obj, new Object[] {} );
+        String name = getter.invoke( obj );
         
-		assert name.equals(newName) : "Rename didn't work for " + obj.getClass().toString();
+		assertEquals("Rename didn't work for " + obj.getClass().toString(), name, newName);
 		
 		command.undo();
-		name = (String) getter.invoke( obj, new Object[] {} );
+		name = getter.invoke( obj );
 
-		assert name.equals(oldName) : "Rename undo didn't work for " + obj.getClass().toString();
+		assertEquals("Rename undo didn't work for " + obj.getClass().toString(), name, oldName);
 		
 		command.redo();
-		name = (String) getter.invoke( obj, new Object[] {} );
+		name = getter.invoke( obj );
 		
-		assert name.equals(oldName) : "Rename redo didn't work for " + obj.getClass().toString();
+		assertEquals("Rename redo didn't work for " + obj.getClass().toString(), name, newName);
 	}
 	
 	public void testRenameSpecification() throws Exception {
-		YSpecification specification = new YSpecification();
-		specification.setName(oldName);
-		runTestOn(specification);
+		YSpecification specification = new YSpecification(oldName);
+		runTestOn(specification, new YSpecificationGetter());
 	}
 	
 	public void testRenameDecomposition() throws Exception {
 		YDecomposition decomposition = new YDecomposition();
 		decomposition.setName(oldName);
-		runTestOn(decomposition);
+		runTestOn(decomposition, new YDecompositionGetter());
 	}
 	
 	public void testExternalNetElement() throws Exception {
 		YExternalNetElement element = new YExternalNetElement();
 		element.setName(oldName);
-		runTestOn(element);
+		runTestOn(element, new YExternalNetElementGetter());
+	}
+	
+	private interface GetterMethod<Type> {
+		public String invoke( Type object );
+	}
+	
+	private class YSpecificationGetter implements GetterMethod<YSpecification> {
+		public String invoke( YSpecification object ) {
+			return object.getID();
+		}
+	}
+	
+	private class YDecompositionGetter implements GetterMethod<YDecomposition> {
+		public String invoke( YDecomposition object ) {
+			return object.getName();
+		}
+	}
+	
+	private class YExternalNetElementGetter implements GetterMethod<YExternalNetElement> {
+		public String invoke( YExternalNetElement object ) {
+			return object.getName();
+		}
 	}
 }
