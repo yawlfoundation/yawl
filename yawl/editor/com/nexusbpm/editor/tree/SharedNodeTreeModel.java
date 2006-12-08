@@ -236,7 +236,7 @@ public class SharedNodeTreeModel extends DefaultTreeModel implements DataProxySt
             	set = proxy.getContext().getChildren(proxy, false);
             }
             catch( YPersistenceException e ) {
-            	LOG.error( e );
+            	LOG.error( "Error getting children of node", e );
             }
             if( set != null ) {
                 for( DataProxy childProxy: set ) {

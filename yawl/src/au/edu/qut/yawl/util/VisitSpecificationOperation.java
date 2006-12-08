@@ -58,10 +58,7 @@ public class VisitSpecificationOperation {
     
     private static String getSpecLabel( YSpecification spec ) {
         String val = "";
-        if( spec.getName() != null ) {
-            val = spec.getName();
-        }
-        else if( spec.getID().indexOf( "/" ) >= 0 ) {
+        if( spec.getID().indexOf( "/" ) >= 0 ) {
             val = spec.getID().substring( spec.getID().lastIndexOf( "/" ) + 1 );
         }
         else {

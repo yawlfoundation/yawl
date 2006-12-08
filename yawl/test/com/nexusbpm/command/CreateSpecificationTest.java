@@ -29,7 +29,7 @@ public class CreateSpecificationTest extends CommandTestCase  {
 	DataProxy<YSpecification> specificationProxy;
 
 	public void proxyAttached( DataProxy proxy, Object data, DataProxy parent ) {
-		assert proxy != null : "Proxy can't be null!";
+		assertNotNull("Proxy can't be null!", proxy);
 		specificationProxy = proxy;
 	}
 
@@ -49,7 +49,7 @@ public class CreateSpecificationTest extends CommandTestCase  {
         DataProxy<YNet> netProxy = dataContext.getDataProxy(
         		specificationProxy.getData().getDecompositions().get( 0 ) );
 
-        assert netProxy != null : "net proxy was null";
+        assertNotNull("net proxy was null", netProxy);
         
 
         NexusServiceInfo jython = NexusServiceInfo.getServiceWithName( "Jython" );
@@ -82,9 +82,9 @@ public class CreateSpecificationTest extends CommandTestCase  {
             }
         }
 
-        assert inputProxy != null : "input proxy was null";
-        assert jythonProxy != null : "jython proxy was null";
-        assert outputProxy != null : "output proxy was null";
+        assertNotNull("input proxy was null", inputProxy);
+        assertNotNull("jython proxy was null", jythonProxy);
+        assertNotNull("output proxy was null", outputProxy);
         
         Command flow = new CreateFlowCommand(
                 inputProxy,

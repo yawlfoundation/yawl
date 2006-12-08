@@ -124,11 +124,11 @@ public class DataContext {
                 }
             } else if( object instanceof YSpecification ) {
                 YSpecification spec = (YSpecification) object;
-                if( spec.getName() == null || spec.getName().length() == 0 ) {
-                    dataProxy.setLabel(spec.getID());
+                if( spec.getID().indexOf( "/" ) != -1 ) {
+                	dataProxy.setLabel( spec.getID().substring( spec.getID().lastIndexOf( "/" ) + 1 ) );
                 }
                 else {
-                    dataProxy.setLabel(spec.getName());
+                	dataProxy.setLabel( spec.getID() );
                 }
             } else if( object instanceof DatasourceFolder ) {
                 dataProxy.setLabel( ((DatasourceFolder) object).getName() );

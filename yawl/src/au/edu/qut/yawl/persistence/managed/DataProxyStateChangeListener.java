@@ -13,6 +13,8 @@ public interface DataProxyStateChangeListener extends PropertyChangeListener {
     // constants for state changes
     /** Constant indicating the property changing is a component's name. */
     public static final String PROPERTY_NAME = "NAME";
+    /** Constant indicating the property changing is a component's ID. */
+    public static final String PROPERTY_ID = "ID";
     /** Constant indicating the property changing is a task's variables. */
     public static final String PROPERTY_TASK_VARIABLES = "TASK_VARIABLES";
     /** Constant indicating the property changing is the location of a task (or net element). */
