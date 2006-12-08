@@ -22,9 +22,9 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
-import au.edu.qut.yawl.editor.analyser.CollectionUtils;
 import au.edu.qut.yawl.elements.*;
-import java.util.Map;
+
+import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,16 +46,16 @@ public class FSTYrule extends YAWLReductionRule{
     YNet reducedNet = net;
     if (nextElement instanceof YCondition){
     YCondition condition = (YCondition) nextElement;
-    Set postSet = CollectionUtils.getSetFromList(condition.getPostsetElements());
-    Set preSet  = CollectionUtils.getSetFromList(condition.getPresetElements());
+    List postSet = condition.getPostsetElements();
+    List preSet  = condition.getPresetElements();
     
     //\pre{p} = 1, \post{p} = 1                
     if (preSet.size() == 1 && postSet.size() == 1)   
     {   
          YTask t = (YTask) preSet.toArray()[0];
          YTask u = (YTask) postSet.toArray()[0];
-         Set preSetOfu = CollectionUtils.getSetFromList(u.getPresetElements());
-         Set postSetOfu = CollectionUtils.getSetFromList(u.getPostsetElements());
+         List preSetOfu = u.getPresetElements();
+         List postSetOfu = u.getPostsetElements();
          // t,u and p are not reset 
          // u does not have reset arcs 
          
@@ -98,7 +98,7 @@ public class FSTYrule extends YAWLReductionRule{
  
    return null;
 } 
-private boolean checkReset(Set elements)
+private boolean checkReset(List elements)
 {
 	Iterator eleIter = elements.iterator();
 	while (eleIter.hasNext())

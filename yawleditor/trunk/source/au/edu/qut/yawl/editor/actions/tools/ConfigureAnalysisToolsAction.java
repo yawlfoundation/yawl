@@ -104,6 +104,8 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
   private JCheckBox cancellationCheckBox;
   private JCheckBox orjoinCheckBox;
   private JCheckBox showObservationsCheckBox;
+  private JCheckBox useYAWLReductionRulesCheckBox;
+  private JCheckBox useResetReductionRulesCheckBox;
   
   public ConfigureAnalysisDialog() {
     super("Configure Specification Analysis", true);
@@ -145,6 +147,15 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
     prefs.putBoolean(
         YAWLResetAnalyser.SHOW_OBSERVATIONS_PREFERENCE,
         showObservationsCheckBox.isSelected()
+    );
+    
+     prefs.putBoolean(
+        YAWLResetAnalyser.USE_YAWLREDUCTIONRULES_PREFERENCE,
+        useYAWLReductionRulesCheckBox.isSelected()
+    );
+     prefs.putBoolean(
+        YAWLResetAnalyser.USE_RESETREDUCTIONRULES_PREFERENCE,
+        useResetReductionRulesCheckBox.isSelected()
     );
   }
   
@@ -222,6 +233,12 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
     gbc.insets = new Insets(0,0,5,5);
     gbc.anchor = GridBagConstraints.WEST;
 
+    panel.add(getUseYAWLReductionRulesCheckBox(),gbc);
+    
+    gbc.gridy++;
+    panel.add(getUseResetReductionRulesCheckBox(),gbc);
+    
+    gbc.gridy++;
     panel.add(getWeakSoundnessCheckBox(),gbc);
 
     gbc.gridy++;
@@ -275,12 +292,17 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
       cancellationCheckBox.setEnabled(true);
       orjoinCheckBox.setEnabled(true);
       showObservationsCheckBox.setEnabled(true);
+      useYAWLReductionRulesCheckBox.setEnabled(true);
+      useResetReductionRulesCheckBox.setEnabled(true);
     } else {
       weakSoundnessCheckBox.setEnabled(false);
       soundnessCheckBox.setEnabled(false);
       cancellationCheckBox.setEnabled(false);
       orjoinCheckBox.setEnabled(false);
       showObservationsCheckBox.setEnabled(false);
+      useYAWLReductionRulesCheckBox.setEnabled(false);
+      useResetReductionRulesCheckBox.setEnabled(false);
+
     }
   }
 
@@ -322,6 +344,19 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
     return showObservationsCheckBox;
   }
   
+  private JCheckBox getUseYAWLReductionRulesCheckBox() {
+    useYAWLReductionRulesCheckBox = new JCheckBox("Use YAWL reduction rules before analysis for optimisation.");
+    useYAWLReductionRulesCheckBox.setMnemonic(KeyEvent.VK_Y);
+    useYAWLReductionRulesCheckBox.setSelected(true);
+    return useYAWLReductionRulesCheckBox;
+  }
+  
+  private JCheckBox getUseResetReductionRulesCheckBox() {
+    useResetReductionRulesCheckBox = new JCheckBox("Use Reset reduction rules before analysis for optimisation.");
+    useResetReductionRulesCheckBox.setMnemonic(KeyEvent.VK_R);
+    useResetReductionRulesCheckBox.setSelected(true);
+    return useResetReductionRulesCheckBox;
+  }
   private JPanel getWofYAWLPanel() {
     GridBagLayout gbl = new GridBagLayout();
     GridBagConstraints gbc = new GridBagConstraints();
@@ -459,6 +494,14 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
 
     showObservationsCheckBox.setSelected(
         prefs.getBoolean(YAWLResetAnalyser.SHOW_OBSERVATIONS_PREFERENCE, true)
+    );
+    
+     useYAWLReductionRulesCheckBox.setSelected(
+        prefs.getBoolean(YAWLResetAnalyser.USE_YAWLREDUCTIONRULES_PREFERENCE, true)
+    );
+    
+    useResetReductionRulesCheckBox.setSelected(
+        prefs.getBoolean(YAWLResetAnalyser.USE_RESETREDUCTIONRULES_PREFERENCE, true)
     );
     
     enableResetNetCheckBoxesAsAppropriate();

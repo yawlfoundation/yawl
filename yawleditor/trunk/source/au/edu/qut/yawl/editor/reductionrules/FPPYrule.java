@@ -22,11 +22,10 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
-import au.edu.qut.yawl.editor.analyser.CollectionUtils;
+
 import au.edu.qut.yawl.elements.*;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
+
+import java.util.List;
 import java.util.Iterator;
 
 /**
@@ -47,8 +46,8 @@ public class FPPYrule extends YAWLReductionRule{
       boolean isReducible = false;
       if (nextElement instanceof YCondition){
                 YCondition condition = (YCondition) nextElement;
-                Set postSet = CollectionUtils.getSetFromList(condition.getPostsetElements());
-                Set preSet  = CollectionUtils.getSetFromList(condition.getPresetElements()); 
+                List postSet = condition.getPostsetElements();
+                List preSet  = condition.getPresetElements(); 
                              
                 //check if all pre and post tasks are and-splits and and-joins  
                 if (preSet.size() > 1 && postSet.size()>1 &&
@@ -57,13 +56,13 @@ public class FPPYrule extends YAWLReductionRule{
                   { 
                     // potential candidate exits so now try and find 
                     // one or more other conditions
-                    Map netElements = CollectionUtils.getMapFromList(net.getId(),net.getNetElements());
-                    Iterator netElesIter = netElements.values().iterator();
+                    List netElements = net.getNetElements();
+                    Iterator netElesIter = netElements.iterator();
     				while (netElesIter.hasNext()) {
 	           			 YExternalNetElement element = (YExternalNetElement) netElesIter.next();
 	            		 if (element instanceof YCondition) {
-	                           Set postSet2 = CollectionUtils.getSetFromList(element.getPostsetElements());
-	                           Set preSet2  = CollectionUtils.getSetFromList(element.getPresetElements()); 
+	                           List postSet2 = element.getPostsetElements();
+	                           List preSet2  = element.getPresetElements(); 
 	                           
 		                      //two conditions with same presets and postsets
 		                      //in same cancellation regions
@@ -90,7 +89,7 @@ public class FPPYrule extends YAWLReductionRule{
    return null;
 } 
 
-private boolean checkTaskSplitJoinType(Set elements,boolean checkSplit,int type)
+private boolean checkTaskSplitJoinType(List elements, boolean checkSplit,int type)
 {	Iterator elementsIter = elements.iterator();
 	while (elementsIter.hasNext()){
 	   YExternalNetElement next = (YExternalNetElement) elementsIter.next();

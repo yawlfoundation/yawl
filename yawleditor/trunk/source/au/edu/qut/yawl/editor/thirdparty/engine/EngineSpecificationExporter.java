@@ -799,7 +799,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       taskInstanceVariableName = editorTaskInstanceVariable.getName();
     } 
 
-    HashMap inputMapping = new HashMap();
+    HashMap<String,String> inputMapping = new HashMap<String,String>();
     
     inputMapping.put(
         taskInstanceVariableName,

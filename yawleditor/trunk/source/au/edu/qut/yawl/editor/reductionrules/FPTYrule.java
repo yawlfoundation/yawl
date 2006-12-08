@@ -22,13 +22,9 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
-import au.edu.qut.yawl.editor.analyser.CollectionUtils;
 import au.edu.qut.yawl.elements.*;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Iterator;
-
+import java.util.List;
 /**
  * Reduction rule for YAWL net: FPTY rule
  */
@@ -47,8 +43,8 @@ public class FPTYrule extends YAWLReductionRule{
      boolean isReducible = false;
 	if (nextElement instanceof YTask){
 	        YTask task = (YTask) nextElement;
-	        Set postSet = CollectionUtils.getSetFromList(task.getPostsetElements());
-	        Set preSet  = CollectionUtils.getSetFromList(task.getPresetElements()); 
+	        List postSet = task.getPostsetElements();
+	        List preSet  = task.getPresetElements(); 
 	                     
 	        //check if task is and-split and and-join  
 	        if (preSet.size() > 1 && postSet.size() > 1 &&
@@ -58,13 +54,13 @@ public class FPTYrule extends YAWLReductionRule{
 	          { 
 	            // potential candidate exits so now try and find 
 	            // one or more other tasks
-	            Map netElements = CollectionUtils.getMapFromList(net.getId(), net.getNetElements());
-	            Iterator netElesIter = netElements.values().iterator();
+	            List netElements = net.getNetElements();
+	            Iterator netElesIter = netElements.iterator();
 				while (netElesIter.hasNext()) {
 	       			 YExternalNetElement element = (YExternalNetElement) netElesIter.next();
 	        		 if (element instanceof YTask) {
-	                       Set postSet2 = CollectionUtils.getSetFromList(element.getPostsetElements());
-	                       Set preSet2  = CollectionUtils.getSetFromList(element.getPresetElements()); 
+	                       List postSet2 = element.getPostsetElements();
+	                       List preSet2  = element.getPresetElements(); 
 	                       YTask elementTask = (YTask) element;
 	                       
 	                       //two tasks are identical

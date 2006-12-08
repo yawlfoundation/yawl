@@ -22,9 +22,9 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
-import au.edu.qut.yawl.editor.analyser.CollectionUtils;
 import au.edu.qut.yawl.elements.*;
-import java.util.Map;
+
+import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,14 +46,14 @@ public class FSPYrule extends YAWLReductionRule{
      YNet reducedNet = net;
      if (nextElement instanceof YCondition){
         YCondition condition = (YCondition) nextElement;
-        Set postSet = CollectionUtils.getSetFromList(condition.getPostsetElements());
+        List postSet = condition.getPostsetElements();
         Set postSetConditions = YNet.getPostset(postSet);
         
            //\post{p} = t and \post{t} = q and p is not input place
         if (postSet.size() == 1 && postSetConditions.size() == 1 && !(condition instanceof YInputCondition))
          
         {    YTask t = (YTask) postSet.toArray()[0];
-             Set preSetOft = CollectionUtils.getSetFromList(t.getPresetElements());
+             List preSetOft = t.getPresetElements();
               //pre{t} = p (just one) 
              if (preSetOft.size() == 1)
              {
@@ -97,7 +97,8 @@ public class FSPYrule extends YAWLReductionRule{
             condition.addToYawlMappings(q.getYawlMappings());
             condition.addToYawlMappings(t.getYawlMappings()); 
             setLabel(condition);
-                      
+           
+            
             reducedNet.removeNetElement(q);
             reducedNet.removeNetElement(t);
            

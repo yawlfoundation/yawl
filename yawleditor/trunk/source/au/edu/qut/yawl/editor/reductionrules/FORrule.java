@@ -22,9 +22,9 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
-import au.edu.qut.yawl.editor.analyser.CollectionUtils;
 import au.edu.qut.yawl.elements.*;
-import java.util.Map;
+
+import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
 
@@ -49,21 +49,21 @@ public class FORrule extends YAWLReductionRule{
                //join is OR and no cancellation
                 if (task.getJoinType() == YTask._OR && task.getRemoveSet().isEmpty() && task.getCancelledBySet().isEmpty()) 
                 {
-                    Set preSet = CollectionUtils.getSetFromList(task.getPresetElements());
+                    List preSet = task.getPresetElements();
                     Set preSetTasks = YNet.getPreset(preSet);
                     
                     //join paths come from one task
                     if (preSetTasks.size() == 1)   
                     {                        
                         YTask t = (YTask) preSetTasks.toArray()[0];
-                        Set postSetOft = CollectionUtils.getSetFromList(t.getPostsetElements());
+                        List postSetOft = t.getPostsetElements();
                          // \post{t} = \pre{u} and t cannot cancel && all are cancelled by the same task
                          // Not sure - should be no cancel as with XOR and AND combinations
                         if (t.getRemoveSet().isEmpty() && t.getCancelledBySet().isEmpty() && postSetOft.equals(preSet) && checkEqualConditions(preSet)) 
                         {
                                       
                          // set postflows
-                         Set postFlowElements = CollectionUtils.getSetFromList(task.getPostsetElements());
+                         List postFlowElements = task.getPostsetElements();
                          Iterator postFlowIter = postFlowElements.iterator();
                          while (postFlowIter.hasNext())
                          { YExternalNetElement next = (YExternalNetElement) postFlowIter.next();

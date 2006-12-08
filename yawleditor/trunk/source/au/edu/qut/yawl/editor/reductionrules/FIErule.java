@@ -22,11 +22,12 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
-import au.edu.qut.yawl.editor.analyser.CollectionUtils;
+
 import au.edu.qut.yawl.elements.*;
-import java.util.Map;
+
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -50,7 +51,7 @@ public class FIErule extends YAWLReductionRule{
         //ORjoin 
         if (task.getJoinType() == YTask._OR) 
         {   //all inputs to ORjoin - preSet
-            Set preSet = new HashSet(task.getPresetElements());
+            List preSet = new LinkedList(task.getPresetElements());
             //from two or more places
             if (preSet.size() >=  2)
            { //all input tasks to these places
@@ -58,7 +59,7 @@ public class FIErule extends YAWLReductionRule{
              Iterator preEls = preSetTasks.iterator();
              while (preEls.hasNext()) {
               YTask t = (YTask) preEls.next();
-              Set postSetOft = CollectionUtils.getSetFromList(t.getPostsetElements());
+              List postSetOft = t.getPostsetElements();
               
               preSet.retainAll(postSetOft);
               
