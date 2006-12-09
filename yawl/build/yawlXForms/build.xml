@@ -193,10 +193,10 @@
             <fileset dir="${src.dir}" excludes="org/**/*.java tools/**/*.*"/>
         </copy>
 
-        <replace description="update build number" file="${build.dir}/WEB-INF/classes/org/chiba/adapter/servlet/version.info">
+<!--        <replace description="update build number" file="${build.dir}/WEB-INF/classes/org/chiba/adapter/servlet/version.info">
             <replacefilter token="@version.build@" value="${DSTAMP}/${TSTAMP}"/>
         </replace>
-
+-->
     </target>
 
     <!-- ====================================================================== -->

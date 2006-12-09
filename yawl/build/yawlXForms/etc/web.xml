@@ -79,7 +79,7 @@
     <!-- prestart log4j initialization -->
     <servlet>
         <servlet-name>log4j-init</servlet-name>
-        <servlet-class>org.chiba.adapter.servlet.Log4jInit</servlet-class>
+        <servlet-class>org.chiba.web.servlet.Log4jInit</servlet-class>
 
         <init-param>
             <param-name>log4j-init-file</param-name>
@@ -90,20 +90,43 @@
     </servlet>
     <servlet>
         <servlet-name>XFormsServlet</servlet-name>
-        <servlet-class>org.chiba.adapter.servlet.ChibaServlet</servlet-class>
+        <servlet-class>org.chiba.web.servlet.ChibaServlet</servlet-class>
 
-         <init-param>
+        <init-param>
              <param-name>chiba.config</param-name>
              <param-value>WEB-INF/default.xml</param-value>
          </init-param>
         <init-param>
             <param-name>scriptPath</param-name>
-            <param-value>/forms/scripts/</param-value>
+            <param-value>/resources/scripts/</param-value>
         </init-param>
         <init-param>
             <param-name>CSSPath</param-name>
-            <param-value>/forms/styles/</param-value>
+<!--            <param-value>/resources/styles/</param-value> -->
+			<param-value>/forms/styles/</param-value>
         </init-param>
+        <init-param>
+            <param-name>XFormsSessionChecking</param-name>
+            <param-value>300000</param-value>
+            <description>the amount of time (in millis) between runs of wipe() method checking for expired XForms sessions</description>
+        </init-param>
+        <init-param>
+            <param-name>XFormsSessionTimeout</param-name>
+            <param-value>300000</param-value>
+            <description>the amount of time of inactivity before XFormsSession expires</description>
+        </init-param>
+        <init-param>
+            <param-name>defaultProcessorBase</param-name>
+            <param-value>remote</param-value>
+            <description>optional parameter - 'local' or 'remote' operation of Chiba XForms Processor</description>
+        </init-param>
+<!--
+        <init-param>
+            <param-name>remoteURI</param-name>
+            <param-value></param-value>
+            <description>optional remote URI for XForms Server</description>
+        </init-param>
+-->
     </servlet>
 
 
@@ -125,19 +148,22 @@
 
     <servlet>
         <servlet-name>FluxHelper</servlet-name>
-        <servlet-class>org.chiba.adapter.servlet.FluxHelperServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <servlet-class>org.chiba.web.servlet.FluxHelperServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>PlainHtml</servlet-name>
-        <servlet-class>org.chiba.adapter.servlet.PlainHtmlServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <servlet-class>org.chiba.web.servlet.PlainHtmlServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ViewServlet</servlet-name>
+        <servlet-class>org.chiba.web.servlet.ViewServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>SubmissionResponse</servlet-name>
-        <servlet-class>org.chiba.adapter.servlet.SubmissionResponseServlet</servlet-class>
+        <servlet-class>org.chiba.web.servlet.SubmissionResponseServlet</servlet-class>
     </servlet>
 
 
@@ -164,6 +190,11 @@
     <servlet-mapping>
         <servlet-name>PlainHtml</servlet-name>
         <url-pattern>/PlainHtml/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ViewServlet</servlet-name>
+        <url-pattern>/view</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

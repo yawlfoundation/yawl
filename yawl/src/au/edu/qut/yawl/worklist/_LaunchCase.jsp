@@ -30,7 +30,6 @@
 					_worklistController, userID, session.getId());
 
 				String url = wip.getRedirectURL(getServletContext(), specData, session.getId());
-				System.out.println("LC jsessionid: "+session.getId());
 				
 				response.sendRedirect(response.encodeURL(url));
 			}

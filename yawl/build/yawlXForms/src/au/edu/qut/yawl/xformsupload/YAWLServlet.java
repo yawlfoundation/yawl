@@ -19,13 +19,7 @@ import org.apache.log4j.Logger;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.chiba.tools.schemabuilder.Schema2XForms;
-import org.chiba.xml.xforms.connector.http.AbstractHTTPConnector;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 
@@ -35,40 +29,37 @@ import org.xml.sax.SAXException;
  * a different extension.  Both the uploaded schema and instance are placed 
  * in the forms directory in Chiba with the given filename. Builds an XForm
  * using an automated builder and fixes any input parameters on the form. 
+ * 
  *  @author Guy Redding 26/11/2004
  */
 public class YAWLServlet extends HttpServlet{
 	
-	private static final long serialVersionUID = 1L;
 	private static Logger logger = Logger.getLogger(YAWLServlet.class);
 	private SortedSet s = Collections.synchronizedSortedSet(new TreeSet());
+	private boolean submissionElementsDone = false;
+	private boolean submitElementsDone = false;
+	private boolean launchCase = false;
 	
-	
+	/* (non-Javadoc)
+	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 	throws ServletException, IOException {
-/*		
-        javax.servlet.http.Cookie[] cookiesIn = request.getCookies();
-        if (cookiesIn != null) {
-            for (int i = 0; i < cookiesIn.length; i++) {
-                javax.servlet.http.Cookie c = cookiesIn[i];
-                System.out.println("YAWLServlet request Cookie: "+c.getName()+", "+c.getValue());
-            }
-        }
-        else{
-        	System.out.println("No Cookies found on YAWLServlet request");
-        }
-*/       	
-		String sessionHandle = request.getParameter("sessionHandle");
-
-		String jsessionid = request.getParameter("JSESSIONID");
-		System.out.println("YS JSESSIONID: "+jsessionid);
+ 	
+		submissionElementsDone = false;
+		submitElementsDone = false;
+		launchCase = false;
 		
+		String sessionHandle = request.getParameter("sessionHandle");
 		String userID = request.getParameter("userID");
 		String root = request.getParameter("root");
         String specID = request.getParameter("specID");
         String workItemID = request.getParameter("workItemID");
         String task = request.getParameter("task");
-        String wir = request.getParameter("workitem");
+        
+        if (workItemID == null){
+        	launchCase = true;
+        }
         
 		if (request.getParameter("schema") != null){
 			processUpload(request.getParameter("schema"), "schema", task);
@@ -86,7 +77,7 @@ public class YAWLServlet extends HttpServlet{
         if (inputParams != null){
 	        if (inputParams.compareTo("") != 0){
 		        int end = inputParams.length();
-		        logger.debug("input params: "+inputParams);
+		        //logger.debug("input params: "+inputParams);
 		        
 		        // finish parsing when start = end
 		        while (start < end){
@@ -96,11 +87,21 @@ public class YAWLServlet extends HttpServlet{
 		        }
 	        }
         }
+        
         // begin Schema2XForms process
-        buildForm(task+".xsd", task+".xml", task, root, workItemID, sessionHandle, userID, specID, jsessionid);
+        buildForm(task+".xsd", task+".xml", task, root, 
+        		workItemID, sessionHandle, userID, specID);
 	}
 	
 	
+    /**
+     * Uploads an XML schema or instance file found on the request to the web container. 
+     * 
+     * @param data
+     * @param fileType
+     * @param fileName
+     * @throws IOException
+     */
     private void processUpload(String data, String fileType, String fileName) 
     	throws IOException {
        
@@ -125,7 +126,7 @@ public class YAWLServlet extends HttpServlet{
 			bw = new BufferedWriter(new FileWriter(f, false)); // append = false
 		}
 		catch(IOException ioe){
-			System.out.println(f.getName()+" IO error: "+ioe.toString());
+			logger.debug(f.getName()+" IO error: "+ioe.toString());
 		}
         
 		if (bw != null){
@@ -137,9 +138,20 @@ public class YAWLServlet extends HttpServlet{
     }
     
     
+	/**
+	 * Builds an xform based on the data passed to this servlet.
+	 * 
+	 * @param schema
+	 * @param instance
+	 * @param form
+	 * @param root
+	 * @param workItemID
+	 * @param sessionHandle
+	 * @param userID
+	 * @param specID
+	 */
 	private void buildForm(String schema, String instance, String form, String root,
-			String workItemID, String sessionHandle, String userID, String specID,
-			String jsessionid){
+			String workItemID, String sessionHandle, String userID, String specID){
 		
 		Schema2XForms builder = new Schema2XForms(); 
 		
@@ -147,7 +159,7 @@ public class YAWLServlet extends HttpServlet{
 	    String filePath = RP.getRealPath(File.separator+"forms");   
 		
 		// if schema != null etc. set directory to forms, not Tomcat/bin
-		logger.debug("YAWLServlet: setInputURI to "+schema);
+		//logger.debug("YAWLServlet: setInputURI to "+schema);
 		try{
 			builder.setInputURI(filePath+File.separator+schema);
 		}
@@ -157,7 +169,7 @@ public class YAWLServlet extends HttpServlet{
 		
 		File f = new File(filePath+File.separator+form+".xhtml");
 		
-		logger.debug("YAWLServlet: setInstanceFile to "+instance);
+		//logger.debug("YAWLServlet: setInstanceFile to "+instance);
 		try{
 			builder.setInstanceFile(filePath+File.separator+instance);
 		}
@@ -170,7 +182,7 @@ public class YAWLServlet extends HttpServlet{
 		// EG: YAWL = "http://localhost:8080/worklist/yawlFormServlet";
 		builder.setAction(RP.getInitParameter("YAWL")+"?userID="+userID+
 				"&sessionHandle="+sessionHandle+"&specID="+specID+
-				"&workItemID="+workItemID+"&JSESSIONID="+jsessionid);
+				"&workItemID="+workItemID+"&submit=submit");
 		
 		// EG: FormBase = "http://localhost:8080/YAWLXForms/"
 		builder.setBase(RP.getInitParameter("FormBase"));
@@ -180,17 +192,29 @@ public class YAWLServlet extends HttpServlet{
 		builder.setSubmitMethod("post");
 		builder.setWrapperType("XHTML");
 		builder.execute();
-	
-		// TODO cleanup of temporary schema and instance files in forms directory (if existing)
 		
-		// an input param may be a root node for a complex type, meaning that all of its leaf nodes are input as well.
-		if (s.size() > 0){
-			fixInputParams(f);
-		}
+		deleteTempFile(filePath+File.separator+schema);
+		deleteTempFile(filePath+File.separator+instance);
+		
+		fixFormParams(f);
 		
 		s.clear();
+		f = null;
 	}
     
+	
+	/**
+	 * Attempts to deletes the file passed to this method.
+	 * 
+	 * @param filename
+	 * @return true/false, depending on the success of the deletion operation.
+	 */
+	private boolean deleteTempFile(String filename){
+		
+		File temp = new File(filename);		
+		return temp.delete();
+	}
+	
 	
 	/**
 	 *  now parse the newly created form in DOM.  If a readonly input parameter matches
@@ -198,9 +222,10 @@ public class YAWLServlet extends HttpServlet{
 	 *  the form to file output, overwriting the previously existing form.  if it exists, remove the
 	 *  " xforms:required " attribute for nodes that are readonly, because they might be empty,
 	 *  which means that the form will never submit if a node is required, is empty and is readonly.
-	 * @param f XForms XHTML file with input params to fix.
+	 *  
+	 * @param f xForms .xhtml file with input params to fix.
 	 */
-	private void fixInputParams(File f){
+	private void fixFormParams(File f){
 		
 		Document document = null;
 		
@@ -208,8 +233,6 @@ public class YAWLServlet extends HttpServlet{
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			document = builder.parse(f);
-			
-			// start recursive parse of the schema DOM
 			nodeDetails(document, document);
 		}
 		catch (FactoryConfigurationError e) {
@@ -228,26 +251,23 @@ public class YAWLServlet extends HttpServlet{
 	    BufferedWriter bw = null;
 	    
 	    // attempt to delete any existing xform with the same name
-	    // cauz we can't trust the webapp to overwrite the xform at all
+	    // cauz we can't trust the web container to "overwrite" the xform.
 	    if (f.exists()){
 	    	f.delete();
 	    }
 	    
-		// create temporary instance XML writer
 		try{
-			logger.debug("formFilePath: "+f.toString());
+			//logger.debug("xform filePath: "+f.toString());
 			bw = new BufferedWriter(new FileWriter(f, false));
 		}
-		catch(IOException e){
-			logger.debug("--IO file error: "+e.toString());
+		catch (IOException e){
+			logger.debug("IO file error: "+e.toString());
 		}
 
-		// write new XML instance
 		try {
 			OutputFormat format = new OutputFormat(document);
 			XMLSerializer output = new XMLSerializer(bw, format);
 			output.serialize(document);
-			logger.debug("XForm EDITED/OVERWRITTEN: "+f.toString());
 		}
 		catch (IOException e) {
 			logger.debug(e);
@@ -256,65 +276,77 @@ public class YAWLServlet extends HttpServlet{
 	
 	
 	/**
+	 * Recursive method for traversal of a DOM. Adds necessary information to the xform
+	 * for input only params.
+	 * 
 	 * @param document
 	 * @param node
 	 */
 	private void nodeDetails (Document document, Node node) {
-		String Content = "";
-		int type = node.getNodeType();
 		
-		// check if element
-		if (type == Node.ELEMENT_NODE) {
+		if (node.getNodeType() == Node.ELEMENT_NODE) {
 			
-			logger.debug("Node Name: "+node.getNodeName());
-			
-			// check if the node has any attributes, important for filtering out
-			// anonymous complex types, which we don't want to add
-			if ((node.hasAttributes() == true) && (node.getNodeName().compareTo("xforms:bind") == 0)){
-
-				// if it does, store it in a NamedNodeMap object
-				NamedNodeMap AttributesList = node.getAttributes();
-				
-				for (int j = 0; j < AttributesList.getLength(); j++) {
-
-					// cycle thru attributes, report match if the element is "xforms:bind"
-					// and "xforms:nodeset" equals the name of an input parameter.
-					if ( (AttributesList.item(j).getNodeName().compareTo("xforms:nodeset") == 0) &&
-							(s.contains(AttributesList.item(j).getNodeValue()) == true) ){
-
-						Element element = (Element) node;
-						Document factory = node.getOwnerDocument();
-						
-						// if it exists, edit the "xforms:required" attribute to be false
-						for (int i = 0; i < AttributesList.getLength(); i++) {
-							if (AttributesList.item(i).getNodeName().compareTo("xforms:required") == 0){
-								// edit the required attribute from this node to be false
-								//AttributesList.item(j).setNodeValue("false()");
-								logger.debug("XFORMS:REQUIRED FOUND");
-								Attr sa = factory.createAttribute("xforms:required");
-								sa.setValue("false()");
-								element.setAttributeNode(sa);
+			// if input params exist (s.size()>0), check if the node has any attributes. 
+			// filter out anonymous complex types, which we don't want to add
+			if (s.size() > 0){
+				if ((node.hasAttributes() == true) && (node.getNodeName().compareTo("xforms:bind") == 0)){
+					
+					NamedNodeMap AttributesList = node.getAttributes();
+					
+					for (int j = 0; j < AttributesList.getLength(); j++) {
+	
+						// cycle thru attributes, report match if the element is "xforms:bind"
+						// and "xforms:nodeset" equals the name of an input parameter.
+						if ( (AttributesList.item(j).getNodeName().compareTo("xforms:nodeset") == 0) &&
+								(s.contains(AttributesList.item(j).getNodeValue()) == true) ){
+	
+							Element element = (Element) node;
+							Document factory = node.getOwnerDocument();
+							
+							// if it exists, edit the "xforms:required" attribute to be false
+							for (int i = 0; i < AttributesList.getLength(); i++) {
+								if (AttributesList.item(i).getNodeName().compareTo("xforms:required") == 0){
+									// edit the required attribute from this node to be false
+									Attr newAttrib = factory.createAttribute("xforms:required");
+									newAttrib.setValue("false()");
+									element.setAttributeNode(newAttrib);
+								}
 							}
+							Attr specifiedAttribute = factory.createAttribute("xforms:readonly");
+							specifiedAttribute.setValue("true()");
+							element.setAttributeNode(specifiedAttribute);
 						}
-						Attr specifiedAttribute = factory.createAttribute("xforms:readonly");
-						specifiedAttribute.setValue("true()");
-						element.setAttributeNode(specifiedAttribute);
 					}
 				}
 			}
-		}
-		else if (type == Node.TEXT_NODE) {
-			// check if text node
-			Content = node.getNodeValue();
-			if (!Content.trim().equals("")){
-				logger.debug("Character data: " + Content);
+			
+			
+			if (node.getNodeName().compareTo("xforms:submission") == 0 && submissionElementsDone == false){
+				// create cancel button submission node
+				//eg: <xforms:submission id="submission_1" xforms:action="http://localhost:8080/worklist/yawlFormServlet?userID=admin&amp;sessionHandle=3456218449289224029&amp;specID=null&amp;workItemID=100000.1:Call_for_papers_5&amp;JSESSIONID=D6B01B27183706B536BE90204788DC71&amp;submit=cancel" xforms:method="post"/>
+				
+				// if launching a case, don't add suspend or save elements to a form
+				if (launchCase == false){
+					addSubmissionElement(node, "suspend", 1);
+					addSubmissionElement(node, "save", 2);
+				}
+				
+				addSubmissionElement(node, "cancel", 3);
+				submissionElementsDone = true;
 			}
-		}
-		else if (type == Node.COMMENT_NODE) {
-			// check if comment node
-			Content = node.getNodeValue();
-			if (!Content.trim().equals("")){
-				System.out.println ("Comment: " + Content);
+			if (node.getNodeName().compareTo("xforms:submit") == 0 && submitElementsDone == false){
+				// create submit child
+				//eg: <xforms:submit xforms:id="submit_1" xforms:submission="submission_1">
+				//<xforms:label xforms:id="label_4">Cancel</xforms:label>
+				//</xforms:submit>
+				
+				if (launchCase == false){
+					addSubmitElement(node, "Suspend", 1);
+					addSubmitElement(node, "Save", 2);
+				}
+				
+				addSubmitElement(node, "Cancel", 3);
+				submitElementsDone = true;
 			}
 		}
 	
@@ -328,5 +360,82 @@ public class YAWLServlet extends HttpServlet{
 				nodeDetails(document, children.item(i));
 			}
 		}
+	}
+	
+	
+	/**
+	 * Adds a submission element to a xform.
+	 * @param node
+	 * @param submissionType
+	 * @param number
+	 */
+	private void addSubmissionElement(Node node, String submissionType, int number){
+		
+		Document factory = node.getOwnerDocument();
+		Node parent = node.getParentNode();
+		Element newElement = factory.createElement("xforms:submission");
+		NamedNodeMap AttributesList = node.getAttributes();
+		String action = new String();
+		
+		for (int j = 0; j < AttributesList.getLength(); j++) {
+			if (AttributesList.item(j).getNodeName().compareTo("xforms:action") == 0){
+				action = AttributesList.item(j).getNodeValue();
+				action = action.substring(0, action.indexOf("=submit")).concat("="+submissionType);
+			}
+		}
+
+		Attr newAttrib1 = factory.createAttribute("id");
+		newAttrib1.setValue("submission_"+number);
+		
+		Attr newAttrib2 = factory.createAttribute("xforms:action");
+		newAttrib2.setValue(action);
+
+		Attr newAttrib3 = factory.createAttribute("validate");
+		newAttrib3.setValue("false");
+		
+		Attr newAttrib4 = factory.createAttribute("xforms:method");
+		newAttrib4.setValue("post");
+		
+		newElement.setAttributeNode(newAttrib1);
+		newElement.setAttributeNode(newAttrib2);
+		newElement.setAttributeNode(newAttrib3);
+		newElement.setAttributeNode(newAttrib4);
+		
+		parent.appendChild(newElement);
+	}
+	
+	
+	/**
+	 * Adds a xform submit element. The submit element is bound to a 
+	 * particular submission element indicated by a submission ID.
+	 * @param node
+	 * @param submitType
+	 * @param number
+	 */
+	private void addSubmitElement(Node node, String submitType, int number){
+		
+		Document factory = node.getOwnerDocument();
+		Node parent = node.getParentNode();
+		Element newElement = factory.createElement("xforms:submit");
+		
+		Attr newAttrib1 = factory.createAttribute("xforms:id");
+		newAttrib1.setValue("submit_"+number);
+		
+		Attr newAttrib2 = factory.createAttribute("xforms:submission");
+		newAttrib2.setValue("submission_"+number);
+		
+		newElement.setAttributeNode(newAttrib1);
+		newElement.setAttributeNode(newAttrib2);
+		
+		parent.appendChild(newElement);
+		
+		Element child = factory.createElement("xforms:label");
+		
+		Attr newAttrib3 = factory.createAttribute("xforms:id");
+		newAttrib3.setValue(submitType+"_label");
+		child.setAttributeNode(newAttrib3);
+		child.setTextContent(submitType);
+		
+		newElement.appendChild(child);
 	}
 }
