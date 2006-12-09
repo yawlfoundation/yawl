@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.forms;
 
+import org.apache.log4j.Logger;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.*;
@@ -35,11 +36,9 @@ import java.io.StringWriter;
  */
 public class InstanceBuilder {
 
-	// TODO log4j comments
-    private boolean debug = false;
     private String root;
     private String builtinstance;
-    
+	private static Logger logger = Logger.getLogger(InstanceBuilder.class);
     
     /**
      * Builds a populated XML instance given a schema and task instance data from YAWL.
@@ -48,42 +47,40 @@ public class InstanceBuilder {
      * @param instance String containing the instance data.
      */
     public InstanceBuilder(String schema, String _root, String instance) {
-    			
+    	
         root = _root;
         
         Document document = null;
         Document instanceS = null;
         Document instanceI = null;
-
+        
         // read schema
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            //factory.setValidating(true);
-            //factory.setNamespaceAware(true);
-           
+            
             byte[] xmlByteArray = schema.getBytes();
     		ByteArrayInputStream xmlStream = new ByteArrayInputStream( xmlByteArray );
     		InputSource xmlReader = new InputSource(xmlStream);
-
+    		
             // parse schema
             document = builder.parse(xmlReader);
             
             DOMImplementation impl = builder.getDOMImplementation();
             instanceS = impl.createDocument(null, root, null);
             Element rootElement = instanceS.getDocumentElement();
-
+            
             // start recursive parse of the schema DOM
             nodeDetails(document, instanceS, rootElement);
             
         } catch (FactoryConfigurationError e) {
-            System.out.println("Factory Configuration Error: " + e.toString());
+            logger.debug("Factory Configuration Error: " + e.toString());
         } catch (ParserConfigurationException e) {
-            System.out.println("Parser Configuration Error: " + e.toString());
+            logger.debug("Parser Configuration Error: " + e.toString());
         } catch (SAXException e) {
-            System.out.println("SAX Exception: " + e.toString());
+            logger.debug("SAX Exception: " + e.toString());
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            logger.debug("IO Exception: " + ioe.toString());
         }
         
         if (instance != null){
@@ -92,60 +89,54 @@ public class InstanceBuilder {
 	        try{
 	        	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	        	DocumentBuilder builder = factory.newDocumentBuilder();
-	            //DOMImplementation impl = builder.getDOMImplementation();
-	            //instanceI = impl.createDocument(null, root, null);
 	            
 	            byte[] xmlByteArray = instance.getBytes();
-	    		ByteArrayInputStream xmlStream = new ByteArrayInputStream( xmlByteArray );
+	    		ByteArrayInputStream xmlStream = new ByteArrayInputStream(xmlByteArray);
 	    		InputSource xmlReader = new InputSource(xmlStream);
-	
+	    		
 	            // parse schema
 	            instanceI = builder.parse(xmlReader);
 	            
 	        } catch (FactoryConfigurationError e) {
-	            System.out.println("Factory Configuration Error: " + e.toString());
+	            logger.debug("Factory Configuration Error: " + e.toString());
 	        } catch (ParserConfigurationException e) {
-	            System.out.println("Parser Configuration Error: " + e.toString());
+	            logger.debug("Parser Configuration Error: " + e.toString());
 	        } catch (SAXException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	        	logger.debug("SAX Error: " + e.toString());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.debug("IO Exception: " + e.toString());
 			}
 	        
 	        // Create NodeIterators for both the "empty" and "input" instance documents
 	        // NOTE: must have DOM level 2 to allow DocumentTraversal.
 	        DocumentTraversal traversableS = (DocumentTraversal) instanceS;
 	        NodeIterator iteratorS = traversableS.createNodeIterator(instanceS, NodeFilter.SHOW_ALL, null, true);
-	
+	        
 	        // Iterate over the input instance data
 	        Node nodeS;
 	        Node nodeI;
 	        boolean found = false;
-	
+	        
 	        while ((nodeS = iteratorS.nextNode()) != null) {
-	            if (debug) {
-	                System.out.println("nodeS: " + nodeS.getNodeName());
-	            }
-	
+	            logger.debug("nodeS: " + nodeS.getNodeName());
+	            
 	            if (nodeS.getNodeName().compareTo(root) != 0) { // ignore root element
-	
+	            	
 	                DocumentTraversal traversableI = (DocumentTraversal) instanceI;
 	                NodeIterator iteratorI = traversableI.createNodeIterator(instanceI, NodeFilter.SHOW_ELEMENT, null, true);
-	
+	                
 	                // reset flag
 	                if (found == true) {
 	                    found = false;
 	                }
-	
+	                
 	                while (((nodeI = iteratorI.nextNode()) != null) && (found == false)) {
-	
+	                	
 	                    // if the nodeName for this instance node matches an elements attribute in the schema,
 	                    // overwrite the text value of that node with the text from this node
 	                	// then delete the node from the original instance so that it can't be copied again.
 	                    if (nodeI.getNodeName().compareTo(nodeS.getNodeName()) == 0) {
-	
+	                    	
 	                        try {
 	                            Node newNode = instanceS.importNode(nodeI, true);
 	                            instanceS.getDocumentElement().replaceChild(newNode, nodeS);
@@ -156,8 +147,7 @@ public class InstanceBuilder {
 	                            found = true;
 	
 	                        } catch (DOMException e) {
-	                            System.out.println("DOM Error: ");
-	                            e.printStackTrace();
+	                            logger.debug("DOM Error: "+e.toString());
 	                        }
 	                    }
 	                }
@@ -173,12 +163,12 @@ public class InstanceBuilder {
             XMLSerializer output = new XMLSerializer(sw, format);
             output.serialize(instanceS);
         } catch (IOException e) {
-            System.out.println("IOException: "+e);
+            logger.debug("IOException: "+e.toString());
         }
         
         builtinstance = sw.toString();
 
-        if (debug) System.out.println("InstanceBuilder XML: "+builtinstance);
+        //logger.debug("InstanceBuilder XML: "+builtinstance);
     }
 
 
@@ -191,16 +181,13 @@ public class InstanceBuilder {
      */
     private void nodeDetails(Node node, Document instanceDoc, Element instanceElement) {
     	
-        String Content = "";
         int type = node.getNodeType();
         boolean isQualifiedForm = false;
         boolean isType = false;
 
         // check if element
         if (type == Node.ELEMENT_NODE) {
-            if (debug) {
-                System.out.println("Element: " + node.getNodeName());
-            }
+            logger.debug("Element: " + node.getNodeName());
 
             // if the element is a simpleType or complexType do not include it
             // because this is the empty-instance generation which does not
@@ -240,23 +227,6 @@ public class InstanceBuilder {
                             instanceElement = e;
                         }
                     }
-                }
-            }
-        } else if (type == Node.TEXT_NODE) {
-            // check if text node
-            Content = node.getNodeValue();
-            if (debug) {
-                if (!Content.trim().equals("")) {
-                    System.out.println("Character data: " + Content);
-                } else {
-                }
-            }
-        } else if (type == Node.COMMENT_NODE) {
-            // check if comment node
-            Content = node.getNodeValue();
-            if (debug) {
-                if (!Content.trim().equals("")) {
-                    System.out.println("Comment: " + Content);
                 }
             }
         }

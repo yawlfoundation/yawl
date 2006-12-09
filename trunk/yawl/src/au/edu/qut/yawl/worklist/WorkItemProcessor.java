@@ -41,7 +41,7 @@ import au.edu.qut.yawl.worklist.model.YParametersSchema;
 
 
 /**
- * Handles the interaction between the YAWL worklist and 3rd party applications,
+ * Handles the interaction between the YAWL worklist and 3rd party applications
  * using Interface D.
  * @author Guy Redding 26/11/2004
  */
@@ -95,15 +95,9 @@ public class WorkItemProcessor {
         // set input parameter data (if any)
         //parameters.put("inputparams", getInputOutputParams(specData.getInputParams()));
         
-        // set root tag name
         parameters.put("root", specData.getRootNetID());
-        
-        // set form name
         parameters.put("task", specData.getID());
-        
-        // set specID
         parameters.put("specID", specData.getID());
-        
         parameters.put("JSESSIONID", jsessionid);
         
         // send (post) data to yawlXForms thru interfaceD
@@ -224,6 +218,8 @@ public class WorkItemProcessor {
         TaskInformation taskInfo = _worklistController.getTaskInformation(
                 item.getSpecificationID(), item.getTaskID(), sessionHandle);
         
+        //System.out.println("WIP item.dataliststring: "+item.getDataListString());
+        
         // set instance data
         InstanceBuilder ib = new InstanceBuilder(schema, taskInfo.getDecompositionID(), item.getDataListString());
         parameters.put("instance", ib.getInstance());
@@ -231,15 +227,9 @@ public class WorkItemProcessor {
         // set input params (if any exist)
         YParametersSchema paramsSignature = taskInfo.getParamSchema();
         parameters.put("inputparams", getInputOnlyParams(paramsSignature.getInputParams(), paramsSignature.getOutputParams()));
-        
-        // set root tag name
         parameters.put("root", taskInfo.getDecompositionID());
-        
-        // set form name
         parameters.put("task", taskInfo.getTaskName());
-        
         parameters.put("workItemID", item.getID());
-        
         parameters.put("JSESSIONID", jsessionid);
         
         // send (post) data to yawlXForms thru interfaceD
@@ -255,6 +245,7 @@ public class WorkItemProcessor {
      */
     public String getRedirectURL(ServletContext context, SpecificationData specData,
     		String jsessionid) {
+    	
         String url = context.getInitParameter("YAWLXForms") +
                 "/XFormsServlet?form=/forms/" + this.getFormName(specData) +
                 "&css=yawl.css&xslt=html4yawl.xsl&JSESSIONID="+jsessionid;

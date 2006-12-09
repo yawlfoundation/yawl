@@ -40,9 +40,7 @@ import java.io.StringReader;
  */
 public class YAWLFormServlet extends HttpServlet {
 	
-	private static final long serialVersionUID = 1L;
 	private WorklistController _worklistController = null;
-	
 	private static Logger logger = Logger.getLogger(YAWLFormServlet.class);
 	
 	
@@ -52,8 +50,8 @@ public class YAWLFormServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
     	
-        String inputData = null;
-        String outputData = null;
+        String inputData = new String();
+        String outputData = new String();
         
         response.setContentType("text/html");
         
@@ -82,55 +80,82 @@ public class YAWLFormServlet extends HttpServlet {
         String workItemID = request.getParameter("workItemID");
         String sessionHandle = request.getParameter("sessionHandle");
         String userid = request.getParameter("userID");
+        String submit = request.getParameter("submit");
         
         request.setAttribute("sessionHandle", sessionHandle);
         request.setAttribute("userid", userid);
         
-        if (theInstanceData != null) {
+        Element inputDataEl = null;
+        Element outputDataEl = null;
+        
+        if (workItemID.compareTo("null") != 0) {
+        	if (theInstanceData != null){
+	            WorkItemRecord workitem = _worklistController.getCachedWorkItem(workItemID);
+	            inputData = workitem.getDataListString();
+	            outputData = new String(theInstanceData);
+	            
+	            SAXBuilder _builder = new SAXBuilder();
+	            
+	            try {
+	                Document inputDataDoc = _builder.build(new StringReader(inputData));
+	                inputDataEl = inputDataDoc.getRootElement();
+	                
+	                Document outputDataDoc = _builder.build(new StringReader(outputData));
+	                outputDataEl = outputDataDoc.getRootElement();
+	            } catch (JDOMException e) {
+	                e.printStackTrace();
+	            }
+        	}
+        }
+        
+        if (submit.equals("submit")){
+        	//System.out.println("YFS submit == submit");
         	if (workItemID.compareTo("null") != 0) {
-	    			
-                WorkItemRecord workitem = _worklistController.getCachedWorkItem(workItemID);
-                
-                if (workitem != null) {
-	                inputData = workitem.getDataListString();
-	                outputData = new String(theInstanceData);
-                }
-                
-                Element inputDataEl = null;
-                Element outputDataEl = null;
-                SAXBuilder _builder = new SAXBuilder();
-                
-                try {
-                    Document inputDataDoc = _builder.build(new StringReader(inputData));
-                    inputDataEl = inputDataDoc.getRootElement();
-
-                    Document outputDataDoc = _builder.build(new StringReader(outputData));
-                    outputDataEl = outputDataDoc.getRootElement();
-                } catch (JDOMException e) {
-                    e.printStackTrace();
-                }
-                
-                workitem = null;
-                _worklistController = null; 
-                request.setAttribute("inputData", inputDataEl);
-                request.setAttribute("outputData", outputDataEl);
-                request.setAttribute("workItemID", workItemID);
-                request.setAttribute("submit", "Submit Work Item");
-                RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/workItemProcessor");
-                rd.forward(request, response);
-            }
-    		else if (specID.compareTo("null") != 0) {
-                inputData = new String(theInstanceData);
-                request.setAttribute("caseData", inputData);
-                request.setAttribute("specID", specID);
-                RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/launchCase");
-                rd.forward(request, response);
-            }
+	            request.setAttribute("inputData", inputDataEl); // check for null?
+	            request.setAttribute("outputData", outputDataEl);
+	            request.setAttribute("workItemID", workItemID);
+	            request.setAttribute("submit", "Submit Work Item");
+	            RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/workItemProcessor");
+	            rd.forward(request, response);
+	        }
+			else if (specID.compareTo("null") != 0) {
+	            inputData = new String(theInstanceData);
+	            request.setAttribute("caseData", inputData);
+	            request.setAttribute("specID", specID);
+	            RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/launchCase");
+	            rd.forward(request, response);
+	        }
             else {
                 logger.debug("Both workItemID and specID were 'null'. ");
             }
         }
+        else if (submit.equals("cancel")) {
+        	//System.out.println("YFS submit == cancel");
+        	
+        	request.setAttribute("submit", "Cancel");
+            RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/availableWork");
+            rd.forward(request, response);
+        }
+        else if (submit.equals("suspend")) {
+        	//System.out.println("YFS submit == suspend");
+        	
+        	request.setAttribute("outputData", outputDataEl);
+            request.setAttribute("workItemID", workItemID);
+        	request.setAttribute("submit", "Suspend Task");
+            RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/workItemProcessor");
+            rd.forward(request, response);
+        }
+        else if (submit.equals("save")) {
+        	//System.out.println("YFS submit == save");
+        	
+        	request.setAttribute("outputData", outputDataEl);
+            request.setAttribute("workItemID", workItemID);
+        	request.setAttribute("submit", "Save Work Item");
+            RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/workItemProcessor");
+            rd.forward(request, response);
+        }
         else {
+        	//System.out.println("YFS submit == nothing!");
         	logger.debug("theInstanceData = " + theInstanceData);
         }
     }

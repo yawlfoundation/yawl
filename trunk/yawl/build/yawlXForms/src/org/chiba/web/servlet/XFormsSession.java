@@ -1,4 +1,4 @@
-package org.chiba.adapter.servlet;
+package org.chiba.web.servlet;
 
 import org.chiba.adapter.ChibaAdapter;
 import org.chiba.tools.xslt.UIGenerator;

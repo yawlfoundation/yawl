@@ -527,6 +527,7 @@
             <input type="hidden" id="chibaSessionKey" name="sessionKey" value="{$sessionKey}"/>
             <xsl:if test="$scripted != 'true'">
                 <input type="submit" value="Refresh" class="refresh-button"/>
+<!--                <input type="submit" value="Cancel" class="cancel-button"/> -->
             </xsl:if>
 
             <xsl:apply-templates select="."/>

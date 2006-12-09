@@ -56,7 +56,7 @@
                 TaskInformation taskInfo = _worklistController.getTaskInformation(
                     item.getSpecificationID(),
                     item.getTaskID(),
-                    (String)session.getAttribute("sessionHandle"));
+                    (String) session.getAttribute("sessionHandle"));
                 String id = item.getID();
             %>
                 <tr>
