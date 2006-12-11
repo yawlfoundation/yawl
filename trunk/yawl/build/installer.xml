@@ -1649,7 +1649,7 @@
 
 	<!-- Installation targets-->
 
-	<target name="izInit" depends="compile">
+	<target name="izInit" depends="buildAll">
 		<taskdef name="izpack" classname="com.izforge.izpack.ant.IzPackTask">
 
 			<classpath>
