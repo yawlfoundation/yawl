@@ -1653,7 +1653,7 @@
 		<taskdef name="izpack" classname="com.izforge.izpack.ant.IzPackTask">
 
 			<classpath>
-				<pathelement location="${basedir}/build/installer/libs/lib/compiler.jar"/>
+				<pathelement location="${basedir}/build/Installer/libs/lib/compiler.jar"/>
 
 			</classpath>
 
