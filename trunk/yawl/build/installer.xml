@@ -480,7 +480,7 @@
 		<!--=======================================================================
         Create a self contained jar of the YAWL library
         -->
-		<jar destfile="${output}/YAWL${app.version}.jar">
+		<jar destfile="${basedir}/build/Installer/YAWL${app.version}.jar">
 			<fileset dir="${classes}"/>
 			<fileset dir="${enumeratedClasses}"/>
 			<manifest>
@@ -1692,7 +1692,7 @@
 	</target>
 
 
-        <target name="release" depends="create_standard_installer">
+        <target name="release" depends="build_Standalone, create_standard_installer">
            <CBRelease file="${basedir}/build/Installer/installer.jar" />
         </target>
 
