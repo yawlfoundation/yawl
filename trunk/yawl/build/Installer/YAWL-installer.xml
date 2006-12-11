@@ -50,7 +50,7 @@ id="shortcutSpec.xml"/>
                 <res id="shortcutSpec.xml" src="shortcutSpec.xml"/>
                 <res id="InfoPanel.info" src="InfoPanel.info.txt"/>
                 <res id="TargetPanel.dir.windows" src="TargetPanel.dir.windows.xml"/>
-	        <res id="Installer.image" src="..\..\graphics\yawl_rotate.jpg" />
+	        <res id="Installer.image" src="../../graphics\yawl_rotate.jpg" />
 		<res id="LicencePanel.licence" src="Licencepanel.txt" />
 		<res id="ProcessPanel.Spec.xml" src="ProcessPanel.xml"/>
 
@@ -166,7 +166,7 @@ id="shortcutSpec.xml"/>
             <file src="worklist.war" targetdir="$INSTALL_PATH"/>
             <file src="graphics" targetdir="$INSTALL_PATH"/>
 
-            <file src="..\..\exampleSpecs\xml" targetdir="$INSTALL_PATH"/>
+            <file src="../../exampleSpecs/xml" targetdir="$INSTALL_PATH"/>
 
 
             <file src="adminTool.war" targetdir="$INSTALL_PATH"/>
@@ -183,8 +183,8 @@ id="shortcutSpec.xml"/>
             <file src="yawlhelp.chm" targetdir="$INSTALL_PATH"/>
 
 
-	    <singlefile src="..\properties\applicationContextInstaller.xml" target="$INSTALL_PATH\applicationContext.xml"/>
-	    <singlefile src="..\properties\Installerhibernate.properties" target="$INSTALL_PATH\hibernate.properties"/>
+	    <singlefile src="../properties/applicationContextInstaller.xml" target="$INSTALL_PATH\applicationContext.xml"/>
+	    <singlefile src="../properties/Installerhibernate.properties" target="$INSTALL_PATH\hibernate.properties"/>
 
 
 	    <singlefile src="admin.url" target="$INSTALL_PATH\yawl\admin.url"/>
