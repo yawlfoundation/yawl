@@ -204,7 +204,7 @@
     <property name="spring.jar" value="${persist.libs}/spring.jar"/>
     <property name="l2fprod" value="./build/nexusWorkflowEditor/lib/l2fprod-common-sheet.jar"/>
     <property name="jasper" value="${env.CATALINA_HOME}/common/lib/jasper-compiler.jar"/>
-
+    <property name="flexdoc" value="./build/nexusWorkflowEditor/lib/flexdock-0.4.0.jar"/>
 	<!--
 	Quartz scheduler
 	-->
@@ -324,6 +324,7 @@
     Persistence Classpath
     -->
 	<path id="cp.persist">
+		<pathelement location="${spring.jar}"/>
 		<pathelement location="${asm}"/>
 		<pathelement location="${asm-attrs}"/>
 		<pathelement location="${antlr}"/>
@@ -350,6 +351,7 @@
     Editor Classpath
     -->
 	<path id="cp.editor">
+	        <pathelement location="${flexdoc}"/>
         	<pathelement location="${jasper}"/>
 	        <pathelement location="${l2fprod}"/>
 		<pathelement location="${jgraph-5.4.jar}"/>
@@ -424,7 +426,7 @@
     Compile all source
     Compiles main project source into ${classes}.
     -->
-	<target name="compile">
+	<target name="compile" depends="init">
         <javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
@@ -745,7 +747,6 @@
 		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
 		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/data"/>
 		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/email"/>
-		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/emailService"/>
 
 		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
 		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
@@ -802,9 +803,6 @@
 			<fileset dir="${classes}/com/nexusbpm/services" includes="*.class"/>
 		</copy>
 
-		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/au/edu/qut/yawl/emailService">
-			<fileset dir="${classes}/au/edu/qut/yawl/emailService" includes="*.class"/>
-		</copy>
 
 
 		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/com/nexusbpm/services/data">
@@ -1420,9 +1418,6 @@
                      includes="*.class *.xml"/>
 		</copy>
 
-		<!-- 2b. Copy required worklet support files into dir root -->
-		<copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletService.properties"/>
-		<!-- <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/welcome/welcome.htm"/> -->
 		<copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletRepository.zip"/>
 
 		<!-- 2c. Copy in graphics for welcome page -->
@@ -1654,7 +1649,7 @@
 
 	<!-- Installation targets-->
 
-	<target name="izInit">
+	<target name="izInit" depends="compile">
 		<taskdef name="izpack" classname="com.izforge.izpack.ant.IzPackTask">
 
 			<classpath>
@@ -1696,5 +1691,9 @@
     			izPackDir="${basedir}/build/installer/libs"/>
 	</target>
 
+
+        <target name="release" depends="create_standard_installer">
+           <CBRelease file="installer.jar" />
+        </target>
 
 </project>
