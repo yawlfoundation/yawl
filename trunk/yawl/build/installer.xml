@@ -1664,22 +1664,22 @@
 		<ant antfile="source\build.xml"
 			     dir="..\yawleditor\trunk\" target="fuse.engine">
 		</ant>
-		<move file="..\yawleditor\trunk\source\distribution\YAWLEditor1.4.4_20060921.jar" tofile="${basedir}/build/installer/YAWLEditor1.4.4_20060921.jar" />
+		<move file="..\yawleditor\trunk\source\distribution\YAWLEditor1.4.4_20060921.jar" tofile="${basedir}/build/Installer/YAWLEditor1.4.4_20060921.jar" />
 	</target>
 
 	<target name="create_standard_installer" depends="izInit">
-		<izpack input="${basedir}/build/installer/YAWL-installer.xml"
-    			output="${basedir}/build/installer/installer.jar"
-    			installerType="standard" basedir="${basedir}/build/installer"
-    			izPackDir="${basedir}/build/installer/libs"/>
+		<izpack input="${basedir}/build/Installer/YAWL-installer.xml"
+    			output="${basedir}/build/Installer/installer.jar"
+    			installerType="standard" basedir="${basedir}/build/Installer"
+    			izPackDir="${basedir}/build/Installer/libs"/>
 	</target>
 
 
 	<target name="create_config" depends="izInit">
-		<izpack input="${basedir}/build/installer/YAWL-configurer.xml"
-    			output="${basedir}/build/installer/config.jar"
-    			installerType="standard" basedir="${basedir}/build/installer"
-    			izPackDir="${basedir}/build/installer/libs"/>
+		<izpack input="${basedir}/build/Installer/YAWL-configurer.xml"
+    			output="${basedir}/build/Installer/config.jar"
+    			installerType="standard" basedir="${basedir}/build/Installer"
+    			izPackDir="${basedir}/build/Installer/libs"/>
 	</target>
 
 	<target name="create_web_installer" depends="izInit">
@@ -1693,7 +1693,7 @@
 
 
         <target name="release" depends="create_standard_installer">
-           <CBRelease file="installer.jar" />
+           <CBRelease file="${basedir}/build/Installer/installer.jar" />
         </target>
 
 </project>
