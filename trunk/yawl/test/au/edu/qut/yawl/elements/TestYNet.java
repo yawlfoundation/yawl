@@ -89,11 +89,11 @@ public class TestYNet extends TestCase {
         _id6 = new YIdentifier();
         _id7 = new YIdentifier();
         _id8 = new YIdentifier();
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id1);
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id2);
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id4);
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id5);
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id6);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id1);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id2);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id4);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id5);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id6);
 
         ((YCondition) _loopedNet.getNetElement("cC")).add(_id1);
         ((YCondition) _loopedNet.getNetElement("cC")).add(_id3);
@@ -105,15 +105,15 @@ public class TestYNet extends TestCase {
 
 
         ((YCondition) _loopedNet.getNetElement("i-top")).add(_id4);
-        ((YCondition) _loopedNet.getNetElement("c{b_w}")).add(_id5);
+        ((YCondition) _loopedNet.getNetElement("c(b_w)")).add(_id5);
         ((YTask) _loopedNet.getNetElement("d")).setContainingIdentifier(_id6);
 
 
         ((YCondition) _loopedNet.getNetElement("cB")).add(_id7);
         ((YCondition) _loopedNet.getNetElement("cB")).add(_id8);
         
-        ((YCondition) _loopedNet.getNetElement("c{q_f}")).add(_id7);
-        ((YCondition) _loopedNet.getNetElement("c{q_f}")).add(_id8);
+        ((YCondition) _loopedNet.getNetElement("c(q_f)")).add(_id7);
+        ((YCondition) _loopedNet.getNetElement("c(q_f)")).add(_id8);
         
         
         YNetRunner netRunner = new YNetRunner();
@@ -165,7 +165,7 @@ public class TestYNet extends TestCase {
         
 
         
-//        _id8.addLocation((YCondition)_loopedNet.getNetElement("c{YAtomicTask:a, YAtomicTask:d}"));
+//        _id8.addLocation((YCondition)_loopedNet.getNetElement("c(YAtomicTask:a, YAtomicTask:d)"));
         File file3 = new File(TestEngineAgainstImproperCompletionOfASubnet.class.getResource(
                 "ImproperCompletion.xml").getFile());
         try {
@@ -247,10 +247,10 @@ public class TestYNet extends TestCase {
         //XPathSaxonUser something complex
         assertFalse(_loopedNet.orJoinEnabled((YTask) _loopedNet.getNetElement("f"), _id7));
         //assert that despite exploring the execution tree it hasn't changed the state of the net.
-        assertTrue(_id7.getLocations().contains(_loopedNet.getNetElement("cA")));
-        assertTrue(_id7.getLocations().contains(_loopedNet.getNetElement("cB")));
+        assertTrue(_id7.getLocationsForNet(_loopedNet).contains(_loopedNet.getNetElement("cA")));
+        assertTrue(_id7.getLocationsForNet(_loopedNet).contains(_loopedNet.getNetElement("cB")));
 
-        assertTrue(_id7.getLocations().contains(_loopedNet.getNetElement("c{q_f}")));
+        assertTrue(_id7.getLocationsForNet(_loopedNet).contains(_loopedNet.getNetElement("c(q_f)")));
         assertFalse(_loopedNet.orJoinEnabled((YTask) _loopedNet.getNetElement("f"), _id8));
     }
 

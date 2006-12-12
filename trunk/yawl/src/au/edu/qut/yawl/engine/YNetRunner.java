@@ -522,27 +522,42 @@ public class YNetRunner implements Serializable // extends Thread
         if (compositeTaskExited) {
             _busyTasks.remove(busyCompositeTask);
 
-            /******************
-             INSERTED FOR PERSISTANCE
-             */
-//            YPersistance.getInstance().updateData(this);
-//  TODO          if (pmgr != null) {
-//                pmgr.updateObject(this);
-//            }
-            /***************************/
+            //check to see if completing this task resulted in completing the net.
+            if (this.isCompleted() && _net.getOutputCondition().getIdentifiers().size() == 1) {
+
+                if (_containingCompositeTask != null) {
+                    YNetRunner parentRunner = _workItemRepository.getNetRunner(_caseIDForNet.getParent());
+                    if (parentRunner != null) {
+                        synchronized (parentRunner) {
+                            if (_containingCompositeTask.t_isBusy()) {
+
+                                if (_net.usesSimpleRootData()) {
+                                    parentRunner.processCompletedSubnet(
+                                            _caseIDForNet,
+                                            _containingCompositeTask,
+                                            _net.getInternalDataDocument());
+                                } else {//version is Beta 4 or greater
+                                    parentRunner.processCompletedSubnet(
+                                            _caseIDForNet,
+                                            _containingCompositeTask,
+                                            _net.getOutputData());
+                                }
+                            }
+                        }
+                    }
+                } else if (_engine != null && _containingCompositeTask != null) {
+                    _engine.finishCase(_caseIDForNet);
+                }
+            }
+
+
 
             Logger.getLogger(this.getClass()).debug("NOTIFYING RUNNER");
-//            notify();
+
             kick();
 
-//            String caseIDStr = caseIDForSubnet.toString();
-//            String taskIDStr = busyCompositeTask.getSpecURI();
-//            YWorkItem item = _workItemRepository.getEngineStoredWorkItem(
-//                    caseIDStr,
-//                    taskIDStr);
-//            _workItemRepository.removeWorkItemFamily(item);
-//            YWorkItem item = YLocalWorklist.getEngineStoredWorkItem(caseIDForSubnet.toString(), busyCompositeTask.getURI());
-//            YLocalWorklist.removeWorkItemFamily(item);
+            
+
         }
 
 	  if (AbstractEngine.getDataContext().getDataProxy( this )  !=null) {

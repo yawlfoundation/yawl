@@ -361,7 +361,7 @@ public abstract class YTask extends YExternalNetElement {
                     this + " cannot fire due to not being enabled");
         }
         _i = id;
-        _i.addLocation(this);
+        //_i.addLocation(this);
         List conditions = new Vector(getPresetElements());
         Iterator conditionsIt = getPresetElements().iterator();
         long numToSpawn = determineHowManyInstancesToCreate();
@@ -562,8 +562,34 @@ public abstract class YTask extends YExternalNetElement {
                 //Now we check that the resulting transformation produced data according
                 //to the net variable's type.
                 if (_net.getParent().isSchemaValidating() &&
-                        !query.equals(getPreJoiningMIQuery())) {          	
-                    YVariable var = _net.getLocalVariable(localVarThatQueryResultGetsAppliedTo);
+                        !query.equals(getPreJoiningMIQuery())) {  
+
+                	
+                	/*
+                	 * Go through the input and local variables
+                	 * of the net and find the variable which is mapped
+                	 * to by the local task variable
+                	 * */
+                	YVariable var = null;
+                		
+                	List<YVariable> netvariables = _net.getLocalVariables();
+                	List<YParameter> inputparams = _net.getInputParameters();
+                	
+                	for (int i = 0; i < netvariables.size(); i++) {
+                		if (netvariables.get(i).getName().equals(localVarThatQueryResultGetsAppliedTo)) {
+                			var = netvariables.get(i);                			
+                		}
+                	}
+                	
+                	for (int i = 0; i < inputparams.size(); i++) {
+                		if (inputparams.get(i).getName().equals(localVarThatQueryResultGetsAppliedTo)) {
+                			var = inputparams.get(i);
+                		}
+                	}
+                	
+                	
+                            
+                    //YVariable var = _net.getLocalVariable(localVarThatQueryResultGetsAppliedTo);
                     Set<YVariable> col = new HashSet<YVariable>();
                     col.add(var);
                     String schemaForVariable = buildSchema(col);
@@ -716,7 +742,7 @@ public abstract class YTask extends YExternalNetElement {
             }
         }
 
-        i.removeLocation(this);
+        //i.removeLocation(this);
         LOG.info("YTask::" + getID() + ".exit() caseID(" + _i + ") " +
                 "_parentDecomposition.getInternalDataDocument() = "
                 + new XMLOutputter(Format.getPrettyFormat()).outputString(_net.getInternalDataDocument()).trim());
@@ -1292,7 +1318,7 @@ public abstract class YTask extends YExternalNetElement {
         _mi_entered.removeAll();
         _mi_executing.removeAll();
         if (_i != null) {
-            _i.removeLocation(this);
+            //_i.removeLocation(this);
             _i = null;
         }
     }

@@ -34,7 +34,7 @@ public class EditRoleAction extends HttpServlet{
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         ServletContext context = servletConfig.getServletContext();
-        String persistOnStr = context.getInitParameter("EnablePersistance");
+        String persistOnStr = context.getInitParameter("EnablePersistence");
         boolean _persistanceConfiguredOn = "true".equalsIgnoreCase(persistOnStr);
         if(_persistanceConfiguredOn) {
             try {

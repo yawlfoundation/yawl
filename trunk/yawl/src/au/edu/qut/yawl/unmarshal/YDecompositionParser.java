@@ -662,9 +662,15 @@ public class YDecompositionParser {
                         YExternalNetElement netElement = ((YNet) _decomposition).getNetElement(flowStruct._flowInto);
 
                         if (netElement instanceof YTask)
-                        /*in other words if one task flows to another task then we create an
-                        anonymous condition and insert it between the two tasks. */ {
-                            String anonID = "c{" + currentNetElement.getID() + "_" + netElement.getID() + "}";
+                        /* in other words if one task flows to another task then we create an
+                        anonymous condition and insert it between the two tasks. */ 
+                        /* Moe: anonID has been changed from using "{" to "(".
+                         * This is because "{" cannot be used as xml id element when implicit conditions are made explicit
+                         * in the reduced net and exported back to xml. Currently, it only effects reduction rules testing.
+                         * But later, if we want to visualise the reduced net, this will become important.    
+                         */
+                        {
+                            String anonID = "c(" + currentNetElement.getID() + "_" + netElement.getID() + ")";
                             YCondition condition =
                                     new YCondition(anonID, (YNet) _decomposition);
                             condition.setImplicit(true);
