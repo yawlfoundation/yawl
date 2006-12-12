@@ -55,7 +55,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
   DATABASE IS ENABLED/DISABLED
 */
         try {
-            String persistOn = context.getInitParameter("EnablePersistance") ;
+            String persistOn = context.getInitParameter("EnablePersistence") ;
             boolean enablePersist = "true".equalsIgnoreCase(persistOn);
 
             _engine = (EngineGateway) context.getAttribute("engine");

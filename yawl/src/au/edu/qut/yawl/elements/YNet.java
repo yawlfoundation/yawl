@@ -472,7 +472,7 @@ public class YNet extends YDecomposition {
     }
 */
     @Transient
-    public boolean orJoinEnabled(YTask orJoin, YIdentifier caseID) throws YPersistenceException {
+    public boolean orJoinEnabled(YTask orJoin, YIdentifier caseID)  {
 
         if ((orJoin == null) || (caseID == null)) {
             throw new RuntimeException("Irrelavant to check the enabledness of an orjoin if " +

@@ -17,6 +17,7 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
@@ -50,6 +51,8 @@ import java.util.ArrayList;
 public class TestYNetRunner extends TestCase {
     private YNetRunner _netRunner1;
     private YIdentifier _id1;
+    private YIdentifier _id2;
+    
     private Document _d;
     private AbstractEngine _engine;
 
@@ -71,191 +74,229 @@ public class TestYNetRunner extends TestCase {
         _netRunner1 = getYNetRunner(_engine, _id1);
         _d = new Document();
         _d.setRootElement(new Element("data"));
+        
+        
+       
+        
     }
 
     public static YNetRunner getYNetRunner(AbstractEngine engine, YIdentifier id) {
         return (YNetRunner) engine._caseIDToNetRunnerMap.get(id);
     }
 
-    private YWorkItem getWorkItem( YNetRunner runner, String taskID ) {
-    	return _engine.getWorkItem( runner.getCaseID() + ":" + taskID );
+//    private YWorkItem getWorkItem( YNetRunner runner, String taskID ) {
+//    	return _engine.getWorkItem( runner.getCaseID() + ":" + taskID );
+//    }
+//
+//    public void testBasicFireAtomic() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+//        assertTrue(_netRunner1.getEnabledTasks().contains(_netRunner1.getNetElement("a-top")));
+//        assertTrue(_netRunner1.getEnabledTasks().size() == 1);
+//        List children = null;
+//        try {
+//            children = _netRunner1.attemptToFireAtomicTask("b-top");
+//        } catch (YDataStateException e) {
+//            e.printStackTrace();
+//            fail();
+//        }
+//        assertTrue(children == null);
+//        try {
+//            children = _netRunner1.attemptToFireAtomicTask("a-top");
+//        } catch (YDataStateException e) {
+//            e.printStackTrace();
+//            fail();
+//        }
+//        assertFalse(((YCondition) _netRunner1.getNetElement("i-top"))
+//                .containsIdentifier());
+//        assertTrue(children.size() == 1);
+//        assertTrue(_netRunner1.isAlive());
+//        assertTrue(_netRunner1.getEnabledTasks().size() == 0);
+//        assertTrue(_netRunner1.getBusyTasks().size() == 1);
+//        _netRunner1.startWorkItemInTask((YIdentifier) children.get(0), "a-top");
+//        assertTrue(
+//        		_netRunner1.completeWorkItemInTask(
+//        				getWorkItem( _netRunner1, "a-top" ),
+//        				(YIdentifier) children.get(0),
+//        				"a-top",
+//        				_d));
+//        YCondition anonC = ((YCondition) _netRunner1.getNetElement(
+//                "c{a-top_b-top}"));
+//        assertTrue(anonC.contains(_id1));
+//        assertTrue(_id1.getLocations().contains(anonC));
+//        assertTrue(((YTask) _netRunner1._net.getNetElement("b-top")).t_enabled(null));
+//        assertTrue(_netRunner1.isAlive());
+//        assertTrue("" + _id1.getLocations(), _netRunner1.getEnabledTasks().size() == 1);
+//        YAtomicTask btop = (YAtomicTask) _netRunner1.getNetElement("b-top");
+//        List btopChildren = null;
+//        try {
+//            btopChildren = _netRunner1.attemptToFireAtomicTask("b-top");
+//        } catch (YDataStateException e) {
+//            e.printStackTrace();
+//            fail();
+//        }
+//        int i = 0;
+//        for (; i < btopChildren.size() && i < btop.getMultiInstanceAttributes().getThreshold();
+//             i++) {
+//            _netRunner1.startWorkItemInTask((YIdentifier) btopChildren.get(i), "b-top");
+//
+//            if (i + 1 == btopChildren.size() || i + 1 == btop.getMultiInstanceAttributes().getThreshold()) {
+//                assertTrue(_netRunner1.completeWorkItemInTask(
+//                		getWorkItem( _netRunner1, "b-top" ),
+//                		(YIdentifier) btopChildren.get(i),
+//                		"b-top",
+//                		_d));
+//            } else {
+//                assertFalse(_netRunner1.completeWorkItemInTask(
+//                		getWorkItem( _netRunner1, "b-top" ),
+//                		(YIdentifier) btopChildren.get(i),
+//                		"b-top",
+//                		_d));
+////System.out.println("i " + i + " childrensize  " + btopChildren.size());
+//            }
+//        }
+//        if (i < btopChildren.size()) {
+////System.out.println("got here");
+//            Exception f = null;
+//            try {
+//                _netRunner1.completeWorkItemInTask(
+//                		getWorkItem( _netRunner1, "b-top" ),
+//                		(YIdentifier) btopChildren.get(i),
+//                		"b-top",
+//                		_d);
+//            } catch (Exception e) {
+//                f = e;
+//            }
+//            assertNotNull(f);
+//        }
+//        assertTrue("locations (should be one or zero in here): " +_id1.getLocations(),
+//                _id1.getLocations().size() == 1
+//                ||
+//                _id1.getLocations().size() == 0);
+///*
+//        synchronized (_netRunner1) {
+//            notify();
+//        }
+//*/
+//        try {
+//            Thread.sleep(200);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        assertFalse(_netRunner1.isAlive());
+//    }
+//
+//
+//    public void testAddInstance() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+//        List children = null;
+//        try {
+//            children = _netRunner1.attemptToFireAtomicTask("a-top");
+//        } catch (YDataStateException e) {
+//            e.printStackTrace();
+//            fail();
+//        }
+//        _netRunner1.startWorkItemInTask((YIdentifier) children.get(0), "a-top");
+//        _netRunner1.completeWorkItemInTask(
+//        		getWorkItem( _netRunner1, "a-top" ),
+//        		(YIdentifier) children.get(0),
+//        		"a-top",
+//        		_d);
+//        try {
+//            children = _netRunner1.attemptToFireAtomicTask("b-top");
+//        } catch (YDataStateException e) {
+//            e.printStackTrace();
+//            fail();
+//        } catch (YStateException e) {
+//            e.printStackTrace();
+//        }
+//        YIdentifier extraID = _netRunner1.addNewInstance("b-top", null, null);
+//        assertNull(extraID);
+//        YIdentifier id = (YIdentifier)children.iterator().next();
+//        _netRunner1.startWorkItemInTask(id, "b-top");
+//        extraID = _netRunner1.addNewInstance("b-top", id, new Element("stub"));
+//        assertTrue(children.size() == 7 || extraID.getParent().equals(id.getParent()));
+//    }
+//
+//    public void testCancelYawlServiceSpec() {
+//        String fileName = "TestCancelYawlServiceSpec.xml";
+//        boolean isXmlFileInPackage = true;
+//
+//        YSpecification spec = null;
+//        YNet root = null;
+//
+//        try {
+//            spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+//            List<YDecomposition> decomps = spec.getDecompositions();
+//
+//            for(int index = 0; index < decomps.size(); index++) {
+//                YDecomposition temp = decomps.get(index);
+//                if( "OverseeMusic".equals( temp.getId() ) ) {
+//                    assert temp instanceof YNet : "decomposition 'OverseeMusic' should be a net!";
+//                    root = (YNet) temp;
+//                }
+//            }
+//
+//            if( root == null ) {
+//                fail( fileName + " should have a net called 'OverseeMusic'" );
+//            }
+//
+//            YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
+//
+//            AbstractEngine engine2 = EngineFactory.createYEngine();
+//            EngineClearer.clear(engine2);
+//            engine2.loadSpecification(spec);
+//            String idString = engine2.launchCase("SYSTEM", spec.getID(), null, null);
+//            YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
+//            Document d = new Document();
+//            d.setRootElement(new Element("data"));
+//
+//            List children = netRunner1.attemptToFireAtomicTask("decideName");
+//            assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
+//
+//            netRunner1.cancel();
+//
+//            assertFalse(task.t_isBusy());
+//        }
+//        catch(Exception e) {
+//            StringWriter sw = new StringWriter();
+//            sw.write( e.toString() + "\n" );
+//            e.printStackTrace(new PrintWriter(sw));
+//            fail( sw.toString() );
+//        }
+//    }
+
+    public void testCompletionOfDecomposedSpec() {
+        try {
+        	URL decomposedSpec = getClass().getResource("andrewserror.xml");
+        File yawlXMLFile2 = new File(decomposedSpec.getFile());
+        YSpecification decspec = (YSpecification) YMarshal.
+        		unmarshalSpecifications(yawlXMLFile2.getAbsolutePath()).get(0);
+        
+        _engine.addSpecifications(yawlXMLFile2, false, new ArrayList());
+        _id2 = _engine.startCase(null,decspec.getID(),null,null);
+        java.util.Set s = _engine.getAllWorkItems();
+        java.util.Iterator it = s.iterator();
+        while (it.hasNext()) {
+        	YWorkItem work = (YWorkItem) it.next();
+        	System.out.println(work.getIDString());
+        }
+		YWorkItem workItem = _engine.getWorkItem(_id2.toString() + ".1.1:ChildC_12");
+		
+		_engine.startWorkItem(workItem, "tore");
+		//_engine.completeWorkItem(workItem, null, true);
+        
+		s = YWorkItemRepository.getInstance().getExecutingWorkItems();	
+		it = s.iterator();
+        while (it.hasNext()) {
+        	YWorkItem work = (YWorkItem) it.next();
+        	_engine.completeWorkItem(work, "<ChildC></ChildC>", true);
+        	System.out.println(work.getIDString());
+        }
+		System.out.println(_engine.getStateForCase(_id2.toString()));
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+		
     }
-
-    public void testBasicFireAtomic() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
-        assertTrue(_netRunner1.getEnabledTasks().contains(_netRunner1.getNetElement("a-top")));
-        assertTrue(_netRunner1.getEnabledTasks().size() == 1);
-        List children = null;
-        try {
-            children = _netRunner1.attemptToFireAtomicTask("b-top");
-        } catch (YDataStateException e) {
-            e.printStackTrace();
-            fail();
-        }
-        assertTrue(children == null);
-        try {
-            children = _netRunner1.attemptToFireAtomicTask("a-top");
-        } catch (YDataStateException e) {
-            e.printStackTrace();
-            fail();
-        }
-        assertFalse(((YCondition) _netRunner1.getNetElement("i-top"))
-                .containsIdentifier());
-        assertTrue(children.size() == 1);
-        assertTrue(_netRunner1.isAlive());
-        assertTrue(_netRunner1.getEnabledTasks().size() == 0);
-        assertTrue(_netRunner1.getBusyTasks().size() == 1);
-        _netRunner1.startWorkItemInTask((YIdentifier) children.get(0), "a-top");
-        assertTrue(
-        		_netRunner1.completeWorkItemInTask(
-        				getWorkItem( _netRunner1, "a-top" ),
-        				(YIdentifier) children.get(0),
-        				"a-top",
-        				_d));
-        YCondition anonC = ((YCondition) _netRunner1.getNetElement(
-                "c{a-top_b-top}"));
-        assertTrue(anonC.contains(_id1));
-        assertTrue(_id1.getLocations().contains(anonC));
-        assertTrue(((YTask) _netRunner1._net.getNetElement("b-top")).t_enabled(null));
-        assertTrue(_netRunner1.isAlive());
-        assertTrue("" + _id1.getLocations(), _netRunner1.getEnabledTasks().size() == 1);
-        YAtomicTask btop = (YAtomicTask) _netRunner1.getNetElement("b-top");
-        List btopChildren = null;
-        try {
-            btopChildren = _netRunner1.attemptToFireAtomicTask("b-top");
-        } catch (YDataStateException e) {
-            e.printStackTrace();
-            fail();
-        }
-        int i = 0;
-        for (; i < btopChildren.size() && i < btop.getMultiInstanceAttributes().getThreshold();
-             i++) {
-            _netRunner1.startWorkItemInTask((YIdentifier) btopChildren.get(i), "b-top");
-
-            if (i + 1 == btopChildren.size() || i + 1 == btop.getMultiInstanceAttributes().getThreshold()) {
-                assertTrue(_netRunner1.completeWorkItemInTask(
-                		getWorkItem( _netRunner1, "b-top" ),
-                		(YIdentifier) btopChildren.get(i),
-                		"b-top",
-                		_d));
-            } else {
-                assertFalse(_netRunner1.completeWorkItemInTask(
-                		getWorkItem( _netRunner1, "b-top" ),
-                		(YIdentifier) btopChildren.get(i),
-                		"b-top",
-                		_d));
-//System.out.println("i " + i + " childrensize  " + btopChildren.size());
-            }
-        }
-        if (i < btopChildren.size()) {
-//System.out.println("got here");
-            Exception f = null;
-            try {
-                _netRunner1.completeWorkItemInTask(
-                		getWorkItem( _netRunner1, "b-top" ),
-                		(YIdentifier) btopChildren.get(i),
-                		"b-top",
-                		_d);
-            } catch (Exception e) {
-                f = e;
-            }
-            assertNotNull(f);
-        }
-        assertTrue("locations (should be one or zero in here): " +_id1.getLocations(),
-                _id1.getLocations().size() == 1
-                ||
-                _id1.getLocations().size() == 0);
-/*
-        synchronized (_netRunner1) {
-            notify();
-        }
-*/
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertFalse(_netRunner1.isAlive());
-    }
-
-
-    public void testAddInstance() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
-        List children = null;
-        try {
-            children = _netRunner1.attemptToFireAtomicTask("a-top");
-        } catch (YDataStateException e) {
-            e.printStackTrace();
-            fail();
-        }
-        _netRunner1.startWorkItemInTask((YIdentifier) children.get(0), "a-top");
-        _netRunner1.completeWorkItemInTask(
-        		getWorkItem( _netRunner1, "a-top" ),
-        		(YIdentifier) children.get(0),
-        		"a-top",
-        		_d);
-        try {
-            children = _netRunner1.attemptToFireAtomicTask("b-top");
-        } catch (YDataStateException e) {
-            e.printStackTrace();
-            fail();
-        } catch (YStateException e) {
-            e.printStackTrace();
-        }
-        YIdentifier extraID = _netRunner1.addNewInstance("b-top", null, null);
-        assertNull(extraID);
-        YIdentifier id = (YIdentifier)children.iterator().next();
-        _netRunner1.startWorkItemInTask(id, "b-top");
-        extraID = _netRunner1.addNewInstance("b-top", id, new Element("stub"));
-        assertTrue(children.size() == 7 || extraID.getParent().equals(id.getParent()));
-    }
-
-    public void testCancelYawlServiceSpec() {
-        String fileName = "TestCancelYawlServiceSpec.xml";
-        boolean isXmlFileInPackage = true;
-
-        YSpecification spec = null;
-        YNet root = null;
-
-        try {
-            spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-            List<YDecomposition> decomps = spec.getDecompositions();
-
-            for(int index = 0; index < decomps.size(); index++) {
-                YDecomposition temp = decomps.get(index);
-                if( "OverseeMusic".equals( temp.getId() ) ) {
-                    assert temp instanceof YNet : "decomposition 'OverseeMusic' should be a net!";
-                    root = (YNet) temp;
-                }
-            }
-
-            if( root == null ) {
-                fail( fileName + " should have a net called 'OverseeMusic'" );
-            }
-
-            YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
-
-            AbstractEngine engine2 = EngineFactory.createYEngine();
-            EngineClearer.clear(engine2);
-            engine2.loadSpecification(spec);
-            String idString = engine2.launchCase("SYSTEM", spec.getID(), null, null);
-            YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
-            Document d = new Document();
-            d.setRootElement(new Element("data"));
-
-            List children = netRunner1.attemptToFireAtomicTask("decideName");
-            assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
-
-            netRunner1.cancel();
-
-            assertFalse(task.t_isBusy());
-        }
-        catch(Exception e) {
-            StringWriter sw = new StringWriter();
-            sw.write( e.toString() + "\n" );
-            e.printStackTrace(new PrintWriter(sw));
-            fail( sw.toString() );
-        }
-    }
-
+    
 
     public static Test suite(){
         TestSuite suite = new TestSuite();

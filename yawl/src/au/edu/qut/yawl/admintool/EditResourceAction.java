@@ -49,7 +49,7 @@ public class EditResourceAction extends HttpServlet {
         super.init(servletConfig);
 
         ServletContext context = servletConfig.getServletContext();
-        String persistOnStr = context.getInitParameter("EnablePersistance");
+        String persistOnStr = context.getInitParameter("EnablePersistence");
         _persistanceConfiguredOn = "true".equalsIgnoreCase(persistOnStr);
         if (_persistanceConfiguredOn) {
             try {

@@ -51,13 +51,13 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         ServletContext context = getServletContext();
 
         /*
-        ADDED FOR PERSISTANCE TO CHECK IF
+        ADDED FOR PERSISTENCE TO CHECK IF
         DATABASE IS ENABLED/DISABLED
         */
         try {
             _engine = (EngineGateway) context.getAttribute("engine");
             if (_engine == null) {
-                String persistOn = context.getInitParameter("EnablePersistance");
+                String persistOn = context.getInitParameter("EnablePersistence");
                 boolean persist = "true".equalsIgnoreCase(persistOn);
                 _engine = new EngineGatewayImpl(persist);
                 context.setAttribute("engine", _engine);
@@ -202,7 +202,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             	msg.append( "<failure><reason>No action was specified</reason></failure>" );
             }
         } catch (RemoteException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         if (logger.isDebugEnabled()) {
             logger.debug("InterfaceB_EngineBasedServer::doGet() result = " + msg);
@@ -274,7 +274,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             	msg.append( "<failure><reason>No action was specified</reason></failure>" );
             }
         } catch (RemoteException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         if (logger.isDebugEnabled()) {
             logger.debug("InterfaceB_EngineBasedServer::doPost() result = " + msg);

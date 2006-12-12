@@ -33,6 +33,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
@@ -208,9 +209,10 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
      * Used by hibernate annotations only!
      * 
      * @return the schema XML string
+     * The string may be very long
      */
     @SuppressWarnings({"UNUSED_SYMBOL"})
-    @Column(name="schema", length=4096)
+    @Lob
     private String getSchema() {
     	return _xmlToolsForYAWL.getSchemaString();
     }

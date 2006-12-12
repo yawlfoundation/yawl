@@ -199,7 +199,7 @@ public class TestYMarking extends TestCase{
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);netRunner.setCaseID(id);netRunner.setId(new Long(8));
         YNetRunner.saveNetRunner(netRunner, null);
-        ((YCondition)_loopedNet.getNetElement("c{w_d}")).add(id);
+        ((YCondition)_loopedNet.getNetElement("c(w_d)")).add(id);
         _marking8 = new YMarking(id, _loopedNet);
         id = new YIdentifier();
         netRunner = new YNetRunner();

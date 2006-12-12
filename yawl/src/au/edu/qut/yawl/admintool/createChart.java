@@ -69,7 +69,7 @@ public class createChart extends HttpServlet{
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         ServletContext context = config.getServletContext();
-        String persistOnStr = context.getInitParameter("EnablePersistance");
+        String persistOnStr = context.getInitParameter("EnablePersistence");
         boolean _persistanceConfiguredOn = "true".equalsIgnoreCase(persistOnStr);
         if(_persistanceConfiguredOn) {
             try {

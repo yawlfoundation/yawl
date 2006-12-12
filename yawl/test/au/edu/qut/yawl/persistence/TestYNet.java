@@ -106,12 +106,12 @@ public class TestYNet extends TestCase {
         _id6 = new YIdentifier();
         _id7 = new YIdentifier();
         _id8 = new YIdentifier();
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id1);
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id1);
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id2);
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id4);
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id5);
-        ((YCondition) _loopedNet.getNetElement("c{d_f}")).add(_id6);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id1);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id1);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id2);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id4);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id5);
+        ((YCondition) _loopedNet.getNetElement("c(d_f)")).add(_id6);
 
         ((YCondition) _loopedNet.getNetElement("cC")).add(_id1);
         ((YCondition) _loopedNet.getNetElement("cC")).add(_id3);
@@ -123,15 +123,15 @@ public class TestYNet extends TestCase {
 
 
         ((YCondition) _loopedNet.getNetElement("i-top")).add(_id4);
-        ((YCondition) _loopedNet.getNetElement("c{b_w}")).add(_id5);
+        ((YCondition) _loopedNet.getNetElement("c(b_w)")).add(_id5);
         ((YTask) _loopedNet.getNetElement("d")).setContainingIdentifier(_id6);
 
 
         ((YCondition) _loopedNet.getNetElement("cB")).add(_id7);
         ((YCondition) _loopedNet.getNetElement("cB")).add(_id8);
         
-        ((YCondition) _loopedNet.getNetElement("c{q_f}")).add(_id7);
-        ((YCondition) _loopedNet.getNetElement("c{q_f}")).add(_id8);
+        ((YCondition) _loopedNet.getNetElement("c(q_f)")).add(_id7);
+        ((YCondition) _loopedNet.getNetElement("c(q_f)")).add(_id8);
         
         
        
@@ -260,14 +260,14 @@ public class TestYNet extends TestCase {
         assertFalse(_loopedNet.orJoinEnabled((YTask) _loopedNet.getNetElement("f"), _id4));
         //XPathSaxonUser orjoin with a deadlock
         assertTrue(_loopedNet.orJoinEnabled((YTask) _loopedNet.getNetElement("f"), _id5));
-        //XPathSaxonUser busy task
+//        //XPathSaxonUser busy task
         assertTrue(_loopedNet.orJoinEnabled((YTask) _loopedNet.getNetElement("f"), _id6));
-        //XPathSaxonUser something complex
+//        //XPathSaxonUser something complex
         assertFalse(_loopedNet.orJoinEnabled((YTask) _loopedNet.getNetElement("f"), _id7));
-        //assert that despite exploring the execution tree it hasn't changed the state of the net.
-        assertTrue(_id7.getLocations().contains(_loopedNet.getNetElement("cA")));
-        assertTrue(_id7.getLocations().contains(_loopedNet.getNetElement("cB")));
-        assertTrue(_id7.getLocations().contains(_loopedNet.getNetElement("c{q_f}")));
+//        //assert that despite exploring the execution tree it hasn't changed the state of the net.
+        assertTrue(_id7.getLocationsForNet(_loopedNet).contains(_loopedNet.getNetElement("cA")));
+        assertTrue(_id7.getLocationsForNet(_loopedNet).contains(_loopedNet.getNetElement("cB")));
+        assertTrue(_id7.getLocationsForNet(_loopedNet).contains(_loopedNet.getNetElement("c(q_f)")));
         assertFalse(_loopedNet.orJoinEnabled((YTask) _loopedNet.getNetElement("f"), _id8));
     }
 

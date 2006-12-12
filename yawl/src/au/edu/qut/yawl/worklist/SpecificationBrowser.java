@@ -36,7 +36,7 @@ public class SpecificationBrowser extends HttpServlet {
         controller = (WorklistController) context.getAttribute(
                 "au.edu.qut.yawl.worklist.model.WorklistController");
         if (controller == null) {
-            controller = new WorklistController(Boolean.parseBoolean(context.getInitParameter("EnablePersistance")));
+            controller = new WorklistController(Boolean.parseBoolean(context.getInitParameter("EnablePersistence")));
             controller.setUpInterfaceBClient(context.getInitParameter("InterfaceB_BackEnd"));
             controller.setUpInterfaceAClient(context.getInitParameter("InterfaceA_BackEnd"));
             context.setAttribute("au.edu.qut.yawl.worklist.model.WorklistController", controller);                                   
@@ -50,7 +50,7 @@ public class SpecificationBrowser extends HttpServlet {
         controller = (WorklistController) context.getAttribute(
                 "au.edu.qut.yawl.worklist.model.WorklistController");
         if (controller == null) {
-            controller = new WorklistController(Boolean.parseBoolean(context.getInitParameter("EnablePersistance")));
+            controller = new WorklistController(Boolean.parseBoolean(context.getInitParameter("EnablePersistence")));
             controller.setUpInterfaceBClient(context.getInitParameter("InterfaceB_BackEnd"));
             controller.setUpInterfaceAClient(context.getInitParameter("InterfaceA_BackEnd"));
             context.setAttribute("au.edu.qut.yawl.worklist.model.WorklistController", controller);

@@ -94,7 +94,7 @@ public class YIdentifier implements Serializable {
     */
     /************************************************/
 
-    private List<YNetElement> _locations = new Vector<YNetElement>();
+    //private List<YNetElement> _locations = new Vector<YNetElement>();
     private List<YIdentifier> _children = new Vector<YIdentifier>();
     private YIdentifier _parent;
 
@@ -242,91 +242,7 @@ public class YIdentifier implements Serializable {
         return this.id;
     }
 
-
-    public synchronized void addLocation(YConditionInterface condition) throws YPersistenceException {
-        if (condition == null) {
-            throw new RuntimeException("Cannot add null condition to this identifier.");
-        }
-        this._locations.add((YNetElement) condition);
-
-        /*
-          INSERTED FOR PERSISTANCE
-         
-        if ((condition instanceof YCondition) && !(condition instanceof YInputCondition)) {
-
-            this.locationNames.add(condition.toString().substring(condition.toString().indexOf(":") + 1, condition.toString().length()));
-        } else {
-            this.locationNames.add(condition.toString());
-        }
-*/
-        //saveIdentifier( this, null, null );
-//    YPersistance.getInstance().updateData(this);
-// TODO       if (pmgr != null) {
-//            pmgr.updateObjectExternal(this);
-//        }
-    }
-
-
-    public synchronized void removeLocation(YConditionInterface condition) throws YPersistenceException {
-        if (condition == null) {
-            throw new RuntimeException("Cannot remove null condition from this identifier.");
-        }
-
-        this._locations.remove(condition);
-
-        /*
-          INSERTED FOR PERSISTANCE
-         *//*
-        if (condition instanceof YCondition && !(condition instanceof YInputCondition)) {
-            this.locationNames.remove(condition.toString().substring(condition.toString().indexOf(":") + 1, condition.toString().length()));
-        } else {
-            this.locationNames.remove(condition.toString());
-        }
-*/
-        //saveIdentifier( this, null, null );
-//        YPersistance.getInstance().updateData(this);
-// TODO       if (pmgr != null) {
-//            pmgr.updateObjectExternal(this);
-//        }
-
-    }
-
-
-
-
-    public synchronized void addLocation(YTask task) throws YPersistenceException {
-        if (task == null) {
-            throw new RuntimeException("Cannot add null task to this identifier.");
-        }
-        this._locations.add(task);
-
-        /*
-          INSERTED FOR PERSISTANCE
-         *//*
-        this.locationNames.add(task.getSpecURI());
-*/
-        //saveIdentifier( this, null, null );
-//        YPersistance.getInstance().updateData(this);
-//  TODO      if (pmgr != null) {
-//            pmgr.updateObjectExternal(this);
-//        }
-    }
-
-
-    public synchronized void removeLocation( YTask task) throws YPersistenceException {
-        Logger.getLogger(this.getClass()).debug("--> removeLocation: TaskID = " + task.getID());
-
-        if (task == null) {
-            throw new RuntimeException("Cannot remove null task from this identifier.");
-        }
-        this._locations.remove(task);
-
-        /*
-          INSERTED FOR PERSISTANCE
-         *//*
-        this.locationNames.remove(task.getSpecURI());*/
-    }
-
+    @Transient
     public synchronized List<YNetElement> getLocationsForNet(YNet net) {
     	List<YNetElement> retval = new LinkedList<YNetElement>();
 
@@ -352,14 +268,12 @@ public class YIdentifier implements Serializable {
         return retval;
     }
     
-    //FIXME do we persist locations or not? (Lachlan?)
+
     /**
      * @return
      */
     @Transient
     @Deprecated
-    //@OneToMany(cascade={CascadeType.ALL})
-    //@OnDelete(action=OnDeleteAction.CASCADE)
     public synchronized List<YNetElement> getLocations() throws YPersistenceException {
     	List<YNetElement> retval = new LinkedList<YNetElement>();
 

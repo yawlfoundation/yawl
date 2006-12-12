@@ -132,10 +132,10 @@ public class YIdentifierBag implements Serializable{
                         + " from YIdentifierBag:" + _condition + " " + identifier.toString());
             } else if (amountExisting > amountToRemove) {
             	_idToQtyMap.get(identifier).setCount(amountExisting - amountToRemove);
-                identifier.removeLocation(_condition);
+                //identifier.removeLocation(_condition);
             } else if (amountToRemove == amountExisting) {
                 _idToQtyMap.remove(identifier);
-                identifier.removeLocation(_condition);
+                //identifier.removeLocation(_condition);
             } else {
                 throw new RuntimeException("You cannot remove " + amountToRemove
                         + " tokens from YIdentifierBag:" + _condition
