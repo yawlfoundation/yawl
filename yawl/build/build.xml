@@ -531,16 +531,6 @@
         <copy file="${property.files}/openjms.xml" todir="${classes}" overwrite="true" />
         <copy file="${property.files}/jndi.properties" todir="${classes}" overwrite="true" />
         <copy file="${property.files}/create_hsql.sql" todir="${classes}" overwrite="true" />
-
-        <!--
-        <replace file="${classes}/log4j.properties"
-                 token="%TOMCAT_DIR%/logs" value="."/>
-         -->
-        <replace file="${classes}/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
     </target>
 
     <target name="decidePostgresVersion">
@@ -649,11 +639,6 @@
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.eng.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.eng.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <!-- Copy OpenJms properties file -->
         <copy file="${property.files}/openjms.xml" todir="${yawl.eng.app.name}/WEB-INF/classes"/>
@@ -813,11 +798,6 @@
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.worklist.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.worklist.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
@@ -1041,11 +1021,6 @@
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes"/>
-        <replace file="${nexus.serviceInvoker.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
     	<copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
     		<fileset dir="${classes}/au/edu/qut/yawl/engine/domain"/>
@@ -1151,11 +1126,6 @@
         </copy>
 
          <copy file="${property.files}/log4j.properties" todir="${yawl.webService.app.name}/WEB-INF/classes"/>
-         <replace file="${yawl.webService.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
     	<copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain">
     		<fileset dir="${classes}/au/edu/qut/yawl/engine/domain"/>
@@ -1239,11 +1209,6 @@
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.smsService.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.smsService.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <copy todir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset
@@ -1360,11 +1325,6 @@
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.TimeService.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.TimeService.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset
@@ -1460,11 +1420,6 @@
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.admintool.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.admintool.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <copy todir="${yawl.admintool.app.name}/WEB-INF/lib">
             <fileset dir="${persist.libs}"/>
@@ -1653,11 +1608,6 @@
 
         <!-- 2e. Copy log4j properties -->
         <copy file="${property.files}/log4j.properties" todir="${yawl.worklet.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.worklet.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <!-- 3. Copy required 3rd party libraries into dir structure -->    	
     	  <copy todir="${yawl.worklet.app.name}/WEB-INF/lib">

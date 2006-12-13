@@ -15,7 +15,7 @@ Enter the details of the resource you would like to add to the system and click 
 <p>
 <%
 	ServletContext context = getServletContext();
-	String persistOn = context.getInitParameter("EnablePersistance");
+	String persistOn = context.getInitParameter("EnablePersistence");
 	boolean _persistanceConfiguredOn = "true".equalsIgnoreCase(persistOn);
 
         DatabaseGatewayImpl _model = DatabaseGatewayImpl.getInstance(_persistanceConfiguredOn);
