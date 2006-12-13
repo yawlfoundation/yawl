@@ -18,7 +18,7 @@
 
         <% 	
             ServletContext context = getServletContext();
-            String persistOn = context.getInitParameter("EnablePersistance");
+            String persistOn = context.getInitParameter("EnablePersistence");
             boolean _persistanceConfiguredOn = "true".equalsIgnoreCase(persistOn);
             if (_persistanceConfiguredOn) {
                 if (request.getParameter("success") != null){
