@@ -54,6 +54,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
 
     public String checkConnection(String sessionHandle) {
+        if (sessionHandle == null) return null ;
         try {
         	Map params = new HashMap();
         	params.put("action", "checkConnection");

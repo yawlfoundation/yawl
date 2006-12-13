@@ -90,7 +90,6 @@ public class YNetRunner implements Serializable // extends Thread
     protected YNet _net;
     private Set<YExternalNetElement> _enabledTasks = new HashSet<YExternalNetElement>();
     private Set<YExternalNetElement> _busyTasks = new HashSet<YExternalNetElement>();
-    private Set<YExternalNetElement> _suspTasks = new HashSet<YExternalNetElement>();   // added
 
     private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private YIdentifier _caseIDForNet;
@@ -556,7 +555,7 @@ public class YNetRunner implements Serializable // extends Thread
 
             kick();
 
-            
+
 
         }
 
