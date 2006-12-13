@@ -196,7 +196,7 @@ public abstract class InterfaceBWebsideController {
      * @throws IOException if the engine cannot be connected with.
      */
     public String connect(String userID, String password) throws IOException {
-	this.username = userID;
+	    this.username = userID;
         return _interfaceBClient.connect(userID, password);
     }
 
@@ -216,7 +216,6 @@ public abstract class InterfaceBWebsideController {
         }
         
         String msg = _interfaceBClient.checkOutWorkItem(workItemID, sessionHandle);
-        _logger.debug("Response message: " + msg);
         if (successful(msg)) {
             try {
                 Document doc = _builder.build(new StringReader(msg));
