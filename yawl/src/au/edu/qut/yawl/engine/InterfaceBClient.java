@@ -88,5 +88,5 @@ public interface InterfaceBClient {
      * @param taskID          the task id
      * @return the task definition object.
      */
-    YTask getTaskDefinition(String specificationID, String taskID);
+    YTask getTaskDefinition(String specificationID, String taskID) throws YPersistenceException;
 }

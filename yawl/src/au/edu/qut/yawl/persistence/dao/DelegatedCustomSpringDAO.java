@@ -156,15 +156,15 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 	        
 	        SpecVersion specVersion;
 	        int nextVersion = 1;
-	        specVersion = new SpecVersion(uriString, nextVersion);
+	        specVersion = new SpecVersion( uriString, Integer.valueOf( nextVersion ) );
 	        
 	        if( specVersions.size() > 0 ) {
 	        	specVersion = (SpecVersion) specVersions.get( 0 );
 	        	nextVersion = specVersion.getHighestVersion().intValue() + 1;
 	        }
 	        
-	        spec.getMetaData().setVersion( "" + nextVersion );
-	        specVersion.setHighestVersion( nextVersion );
+	        spec.setVersion( Integer.valueOf( nextVersion ) );
+	        specVersion.setHighestVersion( Integer.valueOf( nextVersion ) );
 	        
 	        DelegatedCustomSpringDAO.this.save( specVersion );
 	    }

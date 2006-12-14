@@ -162,9 +162,9 @@ public class YAWLTransactionAdvice implements ThrowsAdvice, MethodBeforeAdvice, 
 
 	public void before(Method m, Object[] args, Object target) throws Throwable {
 		try {
-			synchronized (session) {
+			synchronized (openSession()) {
 				tx = session.beginTransaction();
-				tx.begin();
+                tx.begin();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();					

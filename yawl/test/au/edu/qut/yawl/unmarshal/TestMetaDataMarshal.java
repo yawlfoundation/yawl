@@ -46,7 +46,6 @@ public class TestMetaDataMarshal extends TestCase{
         metaData.setTitle("Meta Data Test");
         metaData.setValidFrom(new Date());
         metaData.setValidUntil(new Date(new Date().getTime() + 86400000));
-        metaData.setVersion("1.1.1");
     }
 
     public void testToXML(){
@@ -65,7 +64,6 @@ public class TestMetaDataMarshal extends TestCase{
                 "<validFrom>"+df.format(new Date())+"</validFrom>" +
                 "<validUntil>"+df.format(new Date(new Date().getTime() + 86400000))+"</validUntil>" +
                 "<created>"+df.format(new Date())+"</created>" +
-                "<version>1.1.1</version>" +
                 "<status>This is not production class meta data</status>" +
                 "</metaData>",
                 metaData.toXML());

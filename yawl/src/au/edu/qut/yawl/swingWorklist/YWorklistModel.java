@@ -12,9 +12,7 @@ package au.edu.qut.yawl.swingWorklist;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.EngineFactory;
-import au.edu.qut.yawl.engine.InterfaceAManagement;
 import au.edu.qut.yawl.engine.InterfaceBClient;
-import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.gui.YAdminGUI;
 import au.edu.qut.yawl.exceptions.*;
@@ -100,14 +98,21 @@ public class YWorklistModel {
         String caseIDStr = workItem.getCaseID().toString();
         String taskID = workItem.getTaskID();
         String specificationID = workItem.getSpecificationID();
-        YTask task = getEngineClient().getTaskDefinition(specificationID, taskID);
-        String taskDescription = task.getDecompositionPrototype().getId();
-        if (null == taskDescription) {
-            taskDescription = taskID;
-        }
+        String taskDescription = getTaskDescription(specificationID, taskID);
         _availableWork.addRow(caseIDStr + taskID,
                 new Object[]{caseIDStr, taskID, taskDescription, "Enabled",
                              _formatter.format(workItem.getEnablementTime()), ""});
+    }
+    
+    private String getTaskDescription(String specificationID, String taskID) {
+        try {
+        	YTask task = getEngineClient().getTaskDefinition(specificationID, taskID);
+        	return task.getDecompositionPrototype().getId();
+        }
+        catch( YPersistenceException e ) {
+        	Logger.getLogger(this.getClass()).error("Error retrieving task definition for task " + taskID, e);
+        	return taskID;
+        }
     }
 
 
@@ -115,11 +120,7 @@ public class YWorklistModel {
         String caseIDStr = workItem.getCaseID().toString();
         String taskID = workItem.getTaskID();
         String specificationID = workItem.getSpecificationID();
-        YTask task = getEngineClient().getTaskDefinition(specificationID, taskID);
-        String taskDescription = task.getDecompositionPrototype().getId();
-        if (null == taskDescription) {
-            taskDescription = taskID;
-        }
+        String taskDescription = getTaskDescription(specificationID, taskID);
         _availableWork.addRow(caseIDStr + taskID,
                 new Object[]{caseIDStr,
                              taskID,
@@ -136,11 +137,7 @@ public class YWorklistModel {
         String caseIDStr = item.getCaseID().toString();
         String taskID = item.getTaskID();
         String specificationID = item.getSpecificationID();
-        YTask task = getEngineClient().getTaskDefinition(specificationID, taskID);
-        String taskDescription = task.getDecompositionPrototype().getId();
-        if (null == taskDescription) {
-            taskDescription = taskID;
-        }
+        String taskDescription = getTaskDescription(specificationID, taskID);
         boolean allowsDynamicInstanceCreation = true;
         try {
             getEngineClient().checkElegibilityToAddInstances(item.getIDString());
@@ -326,11 +323,16 @@ public class YWorklistModel {
                 }
             }
             if (_paramsDefinitions.getParamsForTask(item.getTaskID()) == null) {
-                YTask task = getEngineClient().getTaskDefinition(item.getSpecificationID(), item.getTaskID());
-                String paramsAsXML = task.getInformation();
-                TaskInformation taskInfo = Marshaller.unmarshalTaskInformation(paramsAsXML);
-                YParametersSchema paramsForTask = taskInfo.getParamSchema();
-                _paramsDefinitions.setParamsForTask(item.getTaskID(), paramsForTask);
+            	try {
+            		YTask task = getEngineClient().getTaskDefinition(item.getSpecificationID(), item.getTaskID());
+            		String paramsAsXML = task.getInformation();
+            		TaskInformation taskInfo = Marshaller.unmarshalTaskInformation(paramsAsXML);
+            		YParametersSchema paramsForTask = taskInfo.getParamSchema();
+            		_paramsDefinitions.setParamsForTask(item.getTaskID(), paramsForTask);
+            	}
+            	catch( YPersistenceException e ) {
+            		Logger.getLogger(this.getClass()).error("Error retrieving task definition for task " + item.getTaskID(), e);
+            	}
             }
         }
     }
@@ -351,10 +353,17 @@ public class YWorklistModel {
         YParametersSchema params = _paramsDefinitions.getParamsForTask(taskID);
         YWorkItem item = getEngineClient().getWorkItem(caseID + ":" + taskID);
         String specID = item.getSpecificationID();
-        YTask task = getEngineClient().getTaskDefinition(specID, item.getTaskID());
-        return Marshaller.getOutputParamsInXML(
-                params,
-                task.getDecompositionPrototype().getRootDataElementName());
+        try {
+            YTask task = getEngineClient().getTaskDefinition(specID, item.getTaskID());
+            return Marshaller.getOutputParamsInXML(
+                    params,
+                    task.getDecompositionPrototype().getRootDataElementName());
+        }
+        catch( YPersistenceException e ) {
+            Logger.getLogger(this.getClass()).error("Error retrieving task definition for task " + taskID, e);
+            // FIXME I'm not sure what should be returned here...
+            return "";
+        }
     }
 
 
@@ -441,10 +450,16 @@ class UserInputValidationErrorBox extends JDialog implements ActionListener {
                         BorderFactory.createTitledBorder(
                                 BorderFactory.createEtchedBorder(), "Work Item Details"),
                         BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-        YTask task = YWorklistModel.getEngineClient().getTaskDefinition(
+        String taskName = item.getTaskID();
+        try {
+            YTask task = YWorklistModel.getEngineClient().getTaskDefinition(
                 item.getSpecificationID(),
                 item.getTaskID());
-        String taskName = task.getName();
+            taskName = task.getName();
+        }
+        catch( YPersistenceException e ) {
+            Logger.getLogger(this.getClass()).error("Error retrieving task definition for task " + item.getTaskID(), e);
+        }
 
         String[] text = {
             item.getSpecificationID(),

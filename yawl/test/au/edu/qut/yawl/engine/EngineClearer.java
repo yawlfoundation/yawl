@@ -29,14 +29,13 @@ public class EngineClearer {
 	 * removed!
 	 */
     public static void clear(AbstractEngine engine) throws YPersistenceException {
-        while (engine.getSpecIDs().iterator().hasNext()) {
-            String specID = (String) engine.getSpecIDs().iterator().next();
-            Set caseIDs = engine.getCasesForSpecification(specID);
+        Set<YSpecification> specs = engine.getSpecifications();
+        for( YSpecification spec : specs ) {
+            Set caseIDs = engine.getCasesForSpecification(spec.getID());
             for (Iterator iterator2 = caseIDs.iterator(); iterator2.hasNext();) {
                 YIdentifier identifier = (YIdentifier) iterator2.next();
                 engine.cancelCase(identifier);
             }
-            engine.removeSpecification(specID);
         }
         
     	List<DataProxy> list = AbstractEngine.getDataContext().retrieveByRestriction(

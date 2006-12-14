@@ -60,12 +60,12 @@ public class TestRestServiceMethods extends TestCase{
     }
 
 
-    public void testGetTask(){
+    public void testGetTask() throws YPersistenceException {
         YTask task = _engine.getTaskDefinition(_specification.getID(), "learn");
         assertTrue(task != null);
     }
 
-    public void testGetTaskWithoutSpecification(){
+    public void testGetTaskWithoutSpecification() throws YPersistenceException {
         YTask task = _engine.getTaskDefinition("badSpecName", "irrelevant");
         assertTrue(task == null);
     }

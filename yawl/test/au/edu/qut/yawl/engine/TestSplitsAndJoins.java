@@ -348,9 +348,10 @@ public class TestSplitsAndJoins extends TestCase {
         	fail(e.toString());
         }
         
-        assertFalse(_engine.getSpecIDs().contains("SplitsAndJoins.ywl"));
-        // the next line works because the engine keeps track of which specs have been unloaded
-        assertNotNull(_engine.getSpecification("SplitsAndJoins.ywl"));
+        assertNull(_engine.getSpecification("SplitsAndJoins.ywl"));
+        
+        // the next line will get all archived versions of the spec, which should be at least one
+        assertTrue(_engine.getSpecificationVersions("SplitsAndJoins.ywl", null).size() > 0);
         
         try {
         	// second time should fail because it's already unloaded

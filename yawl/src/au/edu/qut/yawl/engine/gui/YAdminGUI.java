@@ -451,34 +451,34 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         List newSpecIDs = null;
         try {
             newSpecIDs = _engineManagement.addSpecifications(selectedFile, _ignoreErrors, errorMessages);
+
+	        if (newSpecIDs.size() == 0 || errorMessages.size() > 0) {
+	            StringBuffer errorMessageStr = new StringBuffer();
+	
+	            Iterator iterator = errorMessages.iterator();
+	            while (iterator.hasNext()) {
+	                YVerificationMessage message = (YVerificationMessage) iterator.next();
+	                errorMessageStr.append(
+	                        "\r\n" + message.getStatus() +
+	                        ": " + message.getMessage());
+	            }
+	            JOptionPane.showMessageDialog(this,
+	                    "The workflow you loaded contains: " + errorMessageStr,
+	                    "Error Loading Workflow",
+	                    JOptionPane.ERROR_MESSAGE);
+	        }
+	        if (YVerificationMessage.containsNoErrors(errorMessages)) {
+	            for (Iterator iterator = newSpecIDs.iterator(); iterator.hasNext();) {
+	                Object o = iterator.next();
+	                String specID = (String) o;
+	
+	                YSpecification spec = _engineManagement.getSpecification(specID);
+	                _loadedSpecificationsTableModel.addRow(specID, new Object[]{specID, spec.getRootNet().getId()});
+	            }
+	        }
         } catch (Exception e) {
             logError("Failure to load specification", e);
             return;
-        }
-
-        if (newSpecIDs.size() == 0 || errorMessages.size() > 0) {
-            StringBuffer errorMessageStr = new StringBuffer();
-
-            Iterator iterator = errorMessages.iterator();
-            while (iterator.hasNext()) {
-                YVerificationMessage message = (YVerificationMessage) iterator.next();
-                errorMessageStr.append(
-                        "\r\n" + message.getStatus() +
-                        ": " + message.getMessage());
-            }
-            JOptionPane.showMessageDialog(this,
-                    "The workflow you loaded contains: " + errorMessageStr,
-                    "Error Loading Workflow",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        if (YVerificationMessage.containsNoErrors(errorMessages)) {
-            for (Iterator iterator = newSpecIDs.iterator(); iterator.hasNext();) {
-                Object o = iterator.next();
-                String specID = (String) o;
-
-                YSpecification spec = _engineManagement.getSpecification(specID);
-                _loadedSpecificationsTableModel.addRow(specID, new Object[]{specID, spec.getRootNet().getId()});
-            }
         }
     }
 

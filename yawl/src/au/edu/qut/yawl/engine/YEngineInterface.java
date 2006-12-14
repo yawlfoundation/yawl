@@ -35,11 +35,12 @@ public interface YEngineInterface {
 	void initialise() throws YPersistenceException;
     
     public List<String> addSpecifications(File specificationFile, boolean ignoreErors, List<YVerificationMessage> errorMessages) throws JDOMException, IOException, YPersistenceException;
-    public boolean loadSpecification(YSpecification spec);
+    public boolean loadSpecification(YSpecification spec) throws YPersistenceException;
     public void unloadSpecification(String specID) throws YStateException, YPersistenceException;
-    public Set getSpecIDs();
-    public Set getLoadedSpecifications();
-    public YSpecification getSpecification(String specID);
+    public Set getSpecIDs() throws YPersistenceException;
+    public Set getLoadedSpecifications() throws YPersistenceException;
+    public YSpecification getSpecification(String specID) throws YPersistenceException;
+    public Set<YSpecification> getSpecifications() throws YPersistenceException;
     public YIdentifier getCaseID(String caseIDStr);
     public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException;
     public String getStateForCase(YIdentifier caseID) throws YPersistenceException;
@@ -48,11 +49,11 @@ public interface YEngineInterface {
     public void registerInterfaceBObserver(InterfaceBClientObserver observer);
     public void registerInterfaceBObserverGateway(ObserverGateway gateway);
     public Set<YWorkItem> getAvailableWorkItems();
-    public YSpecification getProcessDefinition(String specID);
+    public YSpecification getProcessDefinition(String specID) throws YPersistenceException;
     public YWorkItem getWorkItem(String workItemID);
     public Set getAllWorkItems();
     public YWorkItem startWorkItem(YWorkItem workItem, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
-    public YTask getTaskDefinition(String specificationID, String taskID);
+    public YTask getTaskDefinition(String specificationID, String taskID) throws YPersistenceException;
     public void completeWorkItem(YWorkItem workItem, String data, boolean force)
     	throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
     public void checkElegibilityToAddInstances(String workItemID) throws YStateException;
@@ -68,7 +69,7 @@ public interface YEngineInterface {
     public Set getChildrenOfWorkItem(YWorkItem workItem);
     public void announceCancellationToEnvironment(YAWLServiceReference yawlService, YWorkItem item);
     public Set getUsers();
-    public String getLoadStatus(String specID);
+    public String getLoadStatus(String specID) throws YPersistenceException;
     public YAWLServiceReference removeYawlService(String serviceURI) throws YPersistenceException;
     public boolean isJournalising();
     public void setJournalising(boolean arg);
