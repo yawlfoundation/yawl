@@ -294,7 +294,7 @@ public class AvailableEngineProxyImplementation implements
     
     YAWLServiceReference registeredService = null;
 
-//    System.out.println("registeredYAWLServiceURI: " + registeredYAWLServiceURI);
+//   System.out.println("registeredYAWLServiceURI: " + registeredYAWLServiceURI);
 
     if(!connected()) {
       connect();
@@ -324,6 +324,7 @@ public class AvailableEngineProxyImplementation implements
           engineParametersForService = InterfaceB_EngineBasedClient.getRequiredParamsForService(
               registeredService        
           );
+//          System.out.println("YParameter number returned from InterfaceB = " + engineParametersForService.length);
       } catch (Exception ioe) {
         return null;
       }
@@ -361,8 +362,8 @@ public class AvailableEngineProxyImplementation implements
           if (i != j && iVariable.getName() != null && jVariable.getName()!= null && 
               iVariable.getName().equals(jVariable.getName())) {
             
-            // System.out.println(iVariable.toString());
-            // System.out.println(jVariable.toString());
+//            System.out.println(iVariable.toString());
+//            System.out.println(jVariable.toString());
             
             // assumption: same name more than once means that it's two paramaters
             // of same name and type, one for input and one for output.  That's

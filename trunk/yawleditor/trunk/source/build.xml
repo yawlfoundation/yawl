@@ -74,7 +74,6 @@
     <delete dir="${javadoc.directory}" />
     <delete file="${editor.jar.file}" />
     <delete file="${lite.editor.jar.file}" />
-    <delete file="${engine.jar.file}" />
     <delete file="${distribution.directory}/${compatible.engine.jar.name}" />
     <delete file="${source.archive}" />
     <delete file="${web.page.archive}" />
