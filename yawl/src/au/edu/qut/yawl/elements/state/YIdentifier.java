@@ -20,6 +20,7 @@ import java.util.Vector;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -31,6 +32,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import au.edu.qut.yawl.elements.YConditionInterface;
+import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YCondition;
@@ -82,6 +84,19 @@ public class YIdentifier implements Serializable {
     public void setId(String id) {
         this.id = id;
     }
+    
+    private List<YNetRunner> netRunners;
+    
+    @OneToMany(mappedBy="caseID")
+    public List<YNetRunner> getNetRunners() {
+        return netRunners;
+    }
+    
+    public void setNetRunners(List<YNetRunner> netRunners) {
+    	this.netRunners = netRunners;
+    }
+    
+    
 /*
     @CollectionOfElements
     public List<String> getLocationNames() {
