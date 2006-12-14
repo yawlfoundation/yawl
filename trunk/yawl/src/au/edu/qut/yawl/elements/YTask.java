@@ -24,6 +24,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Lob;
@@ -137,6 +138,8 @@ public abstract class YTask extends YExternalNetElement {
     private E2WFOJNet _resetNet;
 
 
+//    private int numberOfAllocatedItems = 0;
+    
     /*
       INSERTED METHODS FOR PERSISTANCE
      */
@@ -1089,6 +1092,7 @@ public abstract class YTask extends YExternalNetElement {
                     _multiInstAttr.getMIFormalInputParam())) {
                 Element specificMIData = (Element)
                         _multiInstanceSpecificParamsIterator.next();
+//                this.numberOfAllocatedItems++;
 
                 //todo replace with param info in param metadata
                 addXMLAttributes(parameter.getAttributes(), specificMIData);
@@ -1284,11 +1288,19 @@ public abstract class YTask extends YExternalNetElement {
     	        * This should only occur after restoring a fired identifier
     	        * */
 
-    		   if (isMultiInstance()) {
+    		   if (isMultiInstance() && _multiInstanceSpecificParamsIterator==null) {
     			   String queryString = getPreSplittingMIQuery();
     			   Element dataToSplit = evaluateTreeQuery(queryString, _net.getInternalDataDocument());
-    			   List multiInstanceList = evaluateListQuery(_multiInstAttr.getMISplittingQuery(), dataToSplit);
+    			   List multiInstanceList = evaluateListQuery(_multiInstAttr.getMISplittingQuery(), dataToSplit);    			  
     			   _multiInstanceSpecificParamsIterator = multiInstanceList.iterator();
+    			   
+    			   /*
+    			    * We need to iterate through until we are at the correct position again 
+    			    * to allocate data to the multiple instance. 
+    			    * */
+    			   //for (int i = 0; i < numberOfAllocatedItems; i++) {
+    				//   this._multiInstanceSpecificParamsIterator.next();
+    			   //}
     		   }
     		   
     		   prepareDataForInstanceStarting(childInstanceID);
@@ -1388,8 +1400,8 @@ public abstract class YTask extends YExternalNetElement {
      */
     public void setDataMappingsForTaskStarting(Map<String, String> map) {
     	for(Map.Entry entry:map.entrySet()) {
-    		String key = entry.getKey().toString();
-    		String value = entry.getValue().toString();
+    		String key = (String) entry.getKey();
+    		String value = (String) entry.getValue();
     		dataMappingsForTaskStartingSet.put(key, new KeyValue(KeyValue.STARTING, key, value, this));
     	}
     }
@@ -1431,8 +1443,8 @@ public abstract class YTask extends YExternalNetElement {
      */
     public void setDataMappingsForTaskCompletion(Map<String, String> map) {
     	for(Map.Entry entry:map.entrySet()) {
-    		String key = entry.getKey().toString();
-    		String value = entry.getValue().toString();
+    		String key = (String) entry.getKey();
+    		String value = (String) entry.getValue();
     		dataMappingsForTaskCompletionSet.add(new KeyValue(KeyValue.COMPLETION, key, value, this));
     	}
     }
@@ -2061,4 +2073,14 @@ public abstract class YTask extends YExternalNetElement {
     		}
     	}
     }
+
+//    @Basic
+//	public int getNumberOfAllocatedItems() {
+//		return numberOfAllocatedItems;
+//	}
+//
+//    @Basic
+//	public void setNumberOfAllocatedItems(int numberOfAllocatedItems) {
+//		this.numberOfAllocatedItems = numberOfAllocatedItems;
+//	}
 }
