@@ -55,8 +55,10 @@ import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -77,15 +79,10 @@ public abstract class AbstractEngine implements InterfaceADesign,
         InterfaceAManagement,
         InterfaceBClient,
         InterfaceBInterop {
-//    private static final boolean ENGINE_PERSISTS_BY_DEFAULT = false;
     private static Logger logger = Logger.getLogger(YEngine.class);
 
-    private Map _specifications = new HashMap();
-    private Map _unloadedSpecifications = new HashMap();
     protected Map _caseIDToNetRunnerMap = new HashMap();
     private Map _runningCaseIDToSpecIDMap = new HashMap();
-//    protected Map _yawlServices = new HashMap();
-
 
     private InterfaceAManagementObserver _interfaceAClient;
     private InterfaceBClientObserver _interfaceBClient;
@@ -114,70 +111,41 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * Consructor.
      */
     protected AbstractEngine() {
-        
         observerGatewayController = new ObserverGatewayController();
-
-   
-
-
     }
     
     public void restore() throws YPersistenceException {
-     
     	
         getDataContext();
         if (context!=null) {
-        	
-        	List services = context.retrieveAll(YAWLServiceReference.class, null);
-        	for (int i = 0; i < services.size();i++) {
-        		YAWLServiceReference service = (YAWLServiceReference) ((DataProxy) services.get(i)).getData();
-        		logger.debug("RESTORING Service " + service.getURI());
-    			addYawlService(service);
-        	}        	
-        	
-        	List specs = context.retrieveAll(YSpecification.class, null);
-        	for (int i = 0; i < specs.size();i++) {
-        		YSpecification spec = (YSpecification) ((DataProxy) specs.get(i)).getData();
-        		logger.debug("RESTORING SPEC " + spec.getID());
-        		if (!spec.getArchived()) {
-        			loadSpecification(spec);
-        		}
-        	}			      	
-        	
-        	List runners = context.retrieveAll(YNetRunner.class ,null);    	
-        	for (int i = 0; i < runners.size();i++) {
-        		YNetRunner r = (YNetRunner) ((DataProxy) runners.get(i)).getData();
-                  if (!r.getArchived()) {
-          		   logger.debug("RESTORING RUNNER" + r.getNet().getParent().getID());
-    			
-       		
-        		  /*
-        		   * Ensure that the net (decomposition) has the 
-        		   * updated data
-        		   * */
-        		  r.getNet().rebuildData();
-    			
-        		  YIdentifier yid = r.getCaseID();
-    			  YIdentifier.saveIdentifier(yid,null,null);
-        		
-        		  restoreRunner(r,r.getNet().getParent().getID());
- 		      }
-
-        	}
-        	
-        	List workItems = context.retrieveAll(YWorkItem.class, null);
-        	for (int i = 0; i < workItems.size();i++) {
-        		YWorkItem item = (YWorkItem) ((DataProxy) workItems.get(i)).getData();
-        		logger.debug("RESTORING WORKITEM" + item.getIDString());
-        		item.addToRepository();
-        	}
-        	
+            List runners = context.retrieveAll(YNetRunner.class ,null);    	
+            for (int i = 0; i < runners.size();i++) {
+                YNetRunner r = (YNetRunner) ((DataProxy) runners.get(i)).getData();
+                if (!r.getArchived()) {
+                    logger.debug("RESTORING RUNNER" + r.getNet().getParent().getID());
+                    
+                    /*
+                     * Ensure that the net (decomposition) has the 
+                     * updated data
+                     * */
+                    r.getNet().rebuildData();
+                    
+                    YIdentifier yid = r.getCaseID();
+                    YIdentifier.saveIdentifier(yid,null,null);
+                    
+                    restoreRunner(r,r.getNet().getParent().getID());
+                }
+            }
             
-        	
-        } 
+            List workItems = context.retrieveAll(YWorkItem.class, null);
+            for (int i = 0; i < workItems.size();i++) {
+                YWorkItem item = (YWorkItem) ((DataProxy) workItems.get(i)).getData();
+                logger.debug("RESTORING WORKITEM" + item.getIDString());
+                item.addToRepository();
+            }
+        }
     }
     
-   
     private static DataContext context;
     
     public static void setDataContext( DataContext context ) {
@@ -196,378 +164,6 @@ public abstract class AbstractEngine implements InterfaceADesign,
     	}
     	return context;
     }
-
-    
-    /**
-     * Restore the engine state from perstistent storage.<P>
-     *
-     * @throws YPersistenceException
-     */
-//    private void restore(YPersistenceManager pmgr) throws YPersistenceException {
-//        Vector runners = new Vector();
-//        HashMap runnermap = new HashMap();
-//        Map idtoid = new HashMap();
-//
-//        logger.debug("--> restore");
-//
-//        try {
-//            restoring = true;
-//
-//            logger.info("Restoring Users");
-//            Query query = pmgr.createQuery("from au.edu.qut.yawl.admintool.model.Resource" +
-//                    " where IsOfResourceType = 'Human'");
-//
-//            for (Iterator it = query.iterate(); it.hasNext();) {
-//                HumanResource user = (HumanResource) it.next();
-//                logger.debug("Restoring user '" + user.getRsrcID() + "'");
-//                UserList.getInstance().addUser(
-//                        user.getRsrcID(),
-//                        user.getPassword(),
-//                        user.getIsAdministrator());
-//            }
-//
-//
-//            logger.info("Restoring Services");
-//            query = pmgr.createQuery("from au.edu.qut.yawl.elements.YAWLServiceReference");
-//
-//            for (Iterator it = query.iterate(); it.hasNext();) {
-//                YAWLServiceReference service = (YAWLServiceReference) it.next();
-//                addYawlService(service);
-//            }
-//
-//            logger.info("Restoring Specifications - Starts");
-//            query = pmgr.createQuery("from au.edu.qut.yawl.engine.YSpecFile");
-//
-//            for (Iterator it = query.iterate(); it.hasNext();) {
-//                YSpecFile spec = (YSpecFile) it.next();
-//                String xml = spec.getXML();
-//
-//                {
-//                    logger.debug("Restoring specification " + spec.getId());
-//
-//                    File f = File.createTempFile("yawltemp", null);
-//                    BufferedWriter buf = new BufferedWriter(new FileWriter(f));
-//                    buf.write(xml, 0, xml.length());
-//                    buf.close();
-//                    addSpecifications(f.getAbsolutePath());
-//
-//                    f.delete();
-//                }
-//            }
-//            logger.info("Restoring Specifications - Ends");
-//
-//            logger.info("Restoring process instances - Starts");
-//            query = pmgr.createQuery("from au.edu.qut.yawl.engine.YNetRunner order by case_id");
-//            for (Iterator it = query.iterate(); it.hasNext();) {
-//                YNetRunner runner = (YNetRunner) it.next();
-//                runners.add(runner);
-//            }
-//
-//            HashMap map = new HashMap();
-//            for (int i = 0; i < runners.size(); i++) {
-//                YNetRunner runner = (YNetRunner) runners.get(i);
-//                String id = runner.get_caseID();
-//                query = pmgr.createQuery("select from au.edu.qut.yawl.engine.YLogIdentifier where case_id = '" + id + "'");
-//                for (Iterator it = query.iterate(); it.hasNext();) {
-//                    YLogIdentifier ylogid = (YLogIdentifier) it.next();
-//                    map.put(ylogid.getIdentifier(), ylogid);
-//                }
-//            }
-//            YawlLogServletInterface.getInstance().setListofcases(map);
-//
-//            int checkedrunners = 0;
-//
-//            Vector storedrunners = (Vector) runners.clone();
-//
-//            while (checkedrunners < runners.size()) {
-//
-//                for (int i = 0; i < runners.size(); i++) {
-//                    YNetRunner runner = (YNetRunner) runners.get(i);
-//
-//                    if (runner.getContainingTaskID() == null) {
-//
-//                        //This is a root net runner
-//                        YSpecification specification = getSpecification(runner.getYNetID());
-//                        if (specification != null) {
-//                            YNet net = (YNet) specification.getRootNet().clone();
-//                            runner.setNet(net);
-//
-//                            runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
-//                        } else {
-//                            /* This occurs when a specification has been unloaded, but the case is still there
-//                               This case is not persisted, since we must have the specification stored as well.
-//                             */
-//                            // todo AJH Sort this
-//                            pmgr.deleteObject(runner);
-//                            storedrunners.remove(runner);
-//
-//                        }
-//                        checkedrunners++;
-//
-//                    } else {
-//                        //This is not a root net, but a decomposition
-//
-//                        // Find the parent runner
-//                        String myid = runner.get_standin_caseIDForNet().toString();
-//                        String parentid = myid.substring(0, myid.lastIndexOf("."));
-//
-//
-//                        YNetRunner parentrunner = (YNetRunner) runnermap.get(parentid);
-//
-//                        if (parentrunner != null) {
-//                            YNet parentnet = parentrunner.getNet();
-//
-//                            YCompositeTask task = (YCompositeTask) parentnet.getNetElement(runner.getContainingTaskID());
-//                            runner.setTask(task);
-//
-//                            YNet net = (YNet) task.getDecompositionPrototype().clone();
-//                            runner.setNet(net);
-//                            runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
-//
-//                            checkedrunners++;
-//                        }
-//
-//                    }
-//                }
-//            }
-//
-//            runners = storedrunners;
-//
-//            for (int i = 0; i < runners.size(); i++) {
-//
-//                YNetRunner runner = (YNetRunner) runners.get(i);
-//
-//                YNet net = runner.getNet();
-//
-//
-//                P_YIdentifier pid = runner.get_standin_caseIDForNet();
-//
-//                if (runner.getContainingTaskID() == null) {
-//                    // This is a root net runner
-//
-//                    YIdentifier id = restoreYID(pmgr, runnermap, idtoid, pid, null, runner.getYNetID(), net);
-//                    runner.set_caseIDForNet(id);
-//                    addRunner(runner);
-//                }
-//
-//                YIdentifier yid = new YIdentifier(runner.get_caseID());
-//                YWorkItemRepository.getInstance().setNetRunnerToCaseIDBinding(runner, yid);
-//
-//                Set busytasks = runner.getBusyTaskNames();
-//
-//                for (Iterator busyit = busytasks.iterator(); busyit.hasNext();) {
-//                    String name = (String) busyit.next();
-//                    YExternalNetElement element = net.getNetElement(name);
-//
-//                    runner.addBusyTask(element);
-//                }
-//
-//                Set enabledtasks = runner.getEnabledTaskNames();
-//
-//                for (Iterator enabit = enabledtasks.iterator(); enabit.hasNext();) {
-//                    String name = (String) enabit.next();
-//                    YExternalNetElement element = net.getNetElement(name);
-//
-//                    if (element instanceof YTask) {
-//                        YTask externalTask = (YTask) element;
-//                        runner.addEnabledTask(externalTask);
-//                    }
-//
-//                }
-//            }
-//
-//            // restore case & exception observers (where they exist)
-//            for (int i = 0; i < runners.size(); i++) {
-//                YNetRunner runner = (YNetRunner) runners.get(i);
-//                runner.restoreObservers();
-//            }
-//
-//            logger.info("Restoring process instances - Ends");
-//
-//            logger.info("Restoring work items - Starts");
-//            query = pmgr.createQuery("from au.edu.qut.yawl.engine.YWorkItem");
-//            for (Iterator it = query.iterate(); it.hasNext();) {
-//                YWorkItem witem = (YWorkItem) it.next();
-//
-//                if (witem.getStatus().equals(YWorkItem.statusEnabled)) {
-//                    witem.setStatus(YWorkItem.statusEnabled);
-//                }
-//                if (witem.getStatus().equals(YWorkItem.statusFired)) {
-//                    witem.setStatus(YWorkItem.statusFired);
-//                }
-//                if (witem.getStatus().equals(YWorkItem.statusExecuting)) {
-//                    witem.setStatus(YWorkItem.statusExecuting);
-//                }
-//                if (witem.getStatus().equals(YWorkItem.statusComplete)) {
-//                    witem.setStatus(YWorkItem.statusComplete);
-//                }
-//                if (witem.getStatus().equals(YWorkItem.statusIsParent)) {
-//                    witem.setStatus(YWorkItem.statusIsParent);
-//                }
-//                if (witem.getStatus().equals(YWorkItem.statusDeadlocked)) {
-//                    witem.setStatus(YWorkItem.statusDeadlocked);
-//                }
-//                if (witem.getStatus().equals(YWorkItem.statusDeleted)) {
-//                    witem.setStatus(YWorkItem.statusDeleted);
-//                }
-//
-//                if (witem.getData_string() != null) {
-//                    StringReader reader = new StringReader(witem.getData_string());
-//                    SAXBuilder builder = new SAXBuilder();
-//                    Document data = builder.build(reader);
-//                    witem.setInitData(data.getRootElement());
-//                }
-//
-//                java.util.StringTokenizer st = new java.util.StringTokenizer(witem.getThisId(), ":");
-//                String caseandid = st.nextToken();
-//                java.util.StringTokenizer st2 = new java.util.StringTokenizer(caseandid, ".");
-//                //String caseid =
-//                st2.nextToken();
-//                String taskid = st.nextToken();
-//                // AJH: Strip off unique ID to obtain our taskID
-//                {
-//                    java.util.StringTokenizer st3 = new java.util.StringTokenizer(taskid, "!");
-//                    taskid = st3.nextToken();
-//                }
-//                YIdentifier workitemid = (YIdentifier) idtoid.get(caseandid);
-//                if (workitemid != null) {
-//                    witem.setWorkItemID(new YWorkItemID(workitemid, taskid));
-//                    witem.addToRepository();
-//                } else {
-//                    pmgr.deleteObject(witem);
-//                }
-//
-//
-//            }
-//            logger.info("Restoring work items - Ends");
-//
-//            /*
-//              Start net runners. This is a restart of a NetRunner not a clean start, therefore, the net runner should not create any new work items, if they have already been created.
-//             */
-//            logger.info("Restarting restored process instances - Starts");
-//
-//            for (int i = 0; i < runners.size(); i++) {
-//                YNetRunner runner = (YNetRunner) runners.get(i);
-//                logger.debug("Restarting " + runner.get_caseID());
-//                runner.start(pmgr);
-//            }
-//            logger.info("Restarting restored process instances - Ends");
-//
-//            restoring = false;
-//
-//            logger.info("Restore completed OK");
-//
-//            if (logger.isDebugEnabled()) {
-//                dump();
-//            }
-//
-//        } catch (Exception e) {
-//            throw new YPersistenceException("Failure whilst restoring engine session", e);
-//        }
-//    }
-
-// TODO This is only used for persistence purposes so it is commented out for now
-//    public YIdentifier restoreYID(HashMap runnermap, Map idtoid, P_YIdentifier pid, YIdentifier father, String specname, YNet net) throws YPersistenceException {
-//
-//        YIdentifier id = new YIdentifier(pid.toString());
-//
-//        YNet sendnet = net;
-//
-//        id.set_father(father);
-//
-//        List list = pid.get_children();
-//
-//        if (list.size() > 0) {
-//            List idlist = new Vector();
-//
-//            for (int i = 0; i < list.size(); i++) {
-//                P_YIdentifier child = (P_YIdentifier) list.get(i);
-//
-//                YNetRunner netRunner = (YNetRunner) runnermap.get(child.toString());
-//                if (netRunner != null) {
-//                    sendnet = netRunner.getNet();
-//                }
-//                YIdentifier caseid = restoreYID(runnermap, idtoid, child, id, specname, sendnet);
-//
-//                if (netRunner != null) {
-//                    netRunner.set_caseIDForNet(caseid);
-//                }
-//
-//                idlist.add(caseid);
-//            }
-//
-//            id.set_children(idlist);
-//        }
-//
-//
-//        for (int i = 0; i < pid.getLocationNames().size(); i++) {
-//
-//            String name = (String) pid.getLocationNames().get(i);
-//            YExternalNetElement element = net.getNetElement(name);
-//
-//            if (element == null) {
-//                name = name.substring(0, name.length() - 1);
-//                String[] splitname = name.split(":");
-//
-//
-//                /*
-//                  Get the task associated with this condition
-//                */
-//                YTask task;
-//                if (name.indexOf("CompositeTask") != -1) {
-//                    YNetRunner netRunner_temp = (YNetRunner) runnermap.get(father.toString());
-//                    task = (YTask) netRunner_temp.getNet().getNetElement(splitname[1]);
-//                } else {
-//                    task = (YTask) net.getNetElement(splitname[1]);
-//                }
-//                if (task != null) {
-//                    YInternalCondition condition;
-//                    if (splitname[0].startsWith(YInternalCondition._mi_active)) {
-//
-//                        condition = task.getMIActive();
-//                        condition.add(id);
-//
-//                    } else if (splitname[0].startsWith(YInternalCondition._mi_complete)) {
-//
-//                        condition = task.getMIComplete();
-//                        condition.add(id);
-//
-//                    } else if (splitname[0].startsWith(YInternalCondition._mi_entered)) {
-//
-//                        condition = task.getMIEntered();
-//                        condition.add(id);
-//
-//                    } else if (splitname[0].startsWith(YInternalCondition._executing)) {
-//
-//                        condition = task.getMIExecuting();
-//                        condition.add(id);
-//
-//                    } else {
-//                        logger.error("Unknown YInternalCondition state");
-//                    }
-//                } else {
-//                    if (splitname[0].startsWith("InputCondition")) {
-//                        net.getInputCondition().add(id);
-//                    } else if (splitname[0].startsWith("OutputCondition")) {
-//                        net.getOutputCondition().add(id);
-//                    }
-//                }
-//            } else {
-//                if (element instanceof YTask) {
-//                    ((YTask) element).setI(id);
-//                    ((YTask) element).prepareDataDocsForTaskOutput();
-//
-//                } else if (element instanceof YCondition) {
-//
-//                    YConditionInterface cond = (YConditionInterface) element;
-//                    cond.add(id);
-//                }
-//            }
-//        }
-//
-//        idtoid.put(id.toString(), id);
-//        return id;
-//    }
 
     //###################################################################################
     //                                MUTATORS
@@ -619,32 +215,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 if (YVerificationMessage.containsNoErrors(errorMessages)) {
                     boolean success = loadSpecification(specification);
                     if (success) {
-                    	logger.info("Persisting specification loaded from file " + specificationFile.getAbsolutePath());
-//                    	YSpecFile yspec = new YSpecFile(specificationFile.getAbsolutePath());
-                    	
-                        //
-                        //  INSERTED FOR PERSISTANCE
-                        //
-//  TODO                      if (!restoring) {
-//                            logger.info("Persisting specification loaded from file " + specificationFile.getAbsolutePath());
-//                            YSpecFile yspec = new YSpecFile(specificationFile.getAbsolutePath());
-//
-////        TODO                    if (journalising) {
-////                                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
-////                                try {
-////                                    pmgr.startTransactionalSession();
-////                                    pmgr.storeObject(yspec);
-////                                    pmgr.commit();
-////                                } catch (YPersistenceException e) {
-////                                    throw new YPersistenceException("Failrue whilst persisting new specification", e);
-////                                }
-////                            }
-//                        }
-
-                    	DataProxy proxy = getDataContext().createProxy( specification, null );
-                    	getDataContext().attachProxy( proxy, specification, null );
-                    	getDataContext().save( proxy );
-                    	
+                        logger.info("Persisted specification loaded from file " + specificationFile.getAbsolutePath());
                         returnIDs.add(specification.getID());
                     } else {//the user has loaded the specification with identical id
                         errorMessages.add(new YVerificationMessage(this,
@@ -660,12 +231,21 @@ public abstract class AbstractEngine implements InterfaceADesign,
     }
 
 
-    public boolean loadSpecification(YSpecification spec) {
-            if (!_specifications.containsKey(spec.getID())) {
-                _specifications.put(spec.getID(), spec);
-                return true;
-            }
-            return false;
+    public boolean loadSpecification(YSpecification spec) throws YPersistenceException {
+    	List<DataProxy> specs = getDataContext().retrieveByRestriction(
+    			YSpecification.class,
+    			new LogicalRestriction(
+    					new PropertyRestriction( "archived", Comparison.EQUAL, false ),
+    					Operation.AND,
+    					new PropertyRestriction( "ID", Comparison.EQUAL, spec.getID() ) ),
+    			null );
+    	if( specs.size() == 0 ) {
+    		DataProxy proxy = getDataContext().createProxy( spec, null );
+    		getDataContext().attachProxy( proxy, spec, null );
+    		getDataContext().save( proxy );
+    		return true;
+    	}
+    	return false;
     }
 
 
@@ -684,7 +264,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
             }
         }
 
-        YSpecification specification = (YSpecification) _specifications.get(specID);
+        YSpecification specification = getSpecification(specID);
         
         //Go to the database if the specification is not found, error
         //if the specification is not in the database either
@@ -790,73 +370,26 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * @throws YPersistenceException
      */
     public void unloadSpecification(String specID) throws YStateException, YPersistenceException {
-
-//   TODO         YPersistenceManager pmgr = null;
-//
-//            if (isJournalising()) {
-//                pmgr = new YPersistenceManager(getPMSessionFactory());
-//                pmgr.startTransactionalSession();
-//            }
-
-            logger.debug("--> unloadSpecification: ID=" + specID);
-
-            if (_specifications.containsKey(specID)) {
-                /* REMOVE FROM PERSISTANT STORAGE*/
-                logger.info("Removing process specification " + specID);
-//                YSpecFile yspec = new YSpecFile();
-//                yspec.setId(specID);
-
-//AJH           yper.removeData(yspec);
-//                if (pmgr != null) {
-//                    pmgr.deleteObject(yspec);
-//                }\
-                
-                LogicalRestriction restrict = new LogicalRestriction(new PropertyRestriction( "ID", Comparison.EQUAL, specID ),
-                		LogicalRestriction.Operation.AND,
-                		new PropertyRestriction( "archived", Comparison.EQUAL, false ));
-                
-//  TODO              DaoFactory.createYDao().delete(yspec);
-                List<DataProxy> list = getDataContext().retrieveByRestriction( YSpecification.class,
-                		restrict,
-                		null );
-                assert list.size() == 1 : "there should only be 1 specification with the given ID";
-//                .retrieveSpecificationProxy( specID );
-
-
-                YSpecification toUnload = (YSpecification) _specifications.remove(specID);
-                
-                DataProxy<YSpecification> proxy = list.get( 0 );
-                YSpecification spec = (YSpecification) proxy.getData();
-                spec.markArchived();
-                
-                
-                getDataContext().save( list.get( 0 ) );
-                
-                
-                _unloadedSpecifications.put(specID, toUnload);
-            } else {
-
-//     TODO           if (isJournalising()) {
-//                    pmgr.rollbackTransaction();
-//                }
-                throw new YStateException(
-                        "Engine contains no such specification with id [" +
-                        specID + "].");
-            }
-
-//     TODO       if (isJournalising()) {
-//                pmgr.commit();
-//            }
-            logger.debug("<-- unloadSpecification");
+        logger.debug("--> unloadSpecification: ID=" + specID);
+        
+        YSpecification spec = getSpecification(specID);
+        
+        if (spec != null) {
+            /* Mark as archived */
+            logger.info("Removing process specification " + specID);
+            
+            DataProxy<YSpecification> proxy = getDataContext().getDataProxy(spec);
+            spec.markArchived();
+            
+            getDataContext().save( proxy );
+        } else {
+            throw new YStateException(
+            		"Engine contains no such specification with id [" + specID + "].");
+        }
+        
+        logger.debug("<-- unloadSpecification");
     }
 
-    /**
-     * This function is used for testing the engine. It shouldn't be used anywhere else.
-     */
-    protected void removeSpecification(String specID) {
-    	_specifications.remove(specID);
-    	_unloadedSpecifications.remove(specID);
-    }
 
 
     /**
@@ -950,10 +483,22 @@ public abstract class AbstractEngine implements InterfaceADesign,
      *
      * @return a set of spec id strings.
      */
-    public Set getSpecIDs() {
-            Set specids = new HashSet(_specifications.keySet());
-            specids.addAll(_runningCaseIDToSpecIDMap.values());
-            return specids;
+    public Set getSpecIDs() throws YPersistenceException {
+    	List<DataProxy> proxies = getDataContext().retrieveAll( YSpecification.class, null );
+    	Set<String> specIDs = new HashSet<String>();
+    	for( DataProxy<YSpecification> proxy : proxies ) {
+    		specIDs.add( proxy.getData().getID() );
+    	}
+    	return specIDs;
+    }
+    
+    public Set<YSpecification> getSpecifications() throws YPersistenceException {
+    	List<DataProxy> proxies = getDataContext().retrieveAll( YSpecification.class, null );
+    	Set<YSpecification> specs = new HashSet<YSpecification>();
+    	for( DataProxy<YSpecification> proxy : proxies ) {
+    		specs.add( proxy.getData() );
+    	}
+    	return specs;
     }
 
 
@@ -963,22 +508,59 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * @return  A set of specification ids
      */
 
-    public Set getLoadedSpecifications() {
-
-            return new HashSet(_specifications.keySet());
+    public Set getLoadedSpecifications() throws YPersistenceException {
+    	Set<YSpecification> specs = new HashSet<YSpecification>();
+    	List<DataProxy> specList = getDataContext().retrieveByRestriction(
+    			YSpecification.class,
+    			new PropertyRestriction( "archived", Comparison.EQUAL, false ),
+    			null );
+    	for( DataProxy<YSpecification> proxy : specList ) {
+    		specs.add( proxy.getData() );
+    	}
+    	return specs;
     }
 
 
-    public YSpecification getSpecification(String specID) {
-            logger.debug("--> getSpecification: ID=" + specID);
-
-            if (_specifications.containsKey(specID)) {
-                logger.debug("<-- getSpecification: Loaded spec");
-                return (YSpecification) _specifications.get(specID);
-            } else {
-                logger.debug("<-- getSpecification: Unloaded spec");
-                return (YSpecification) _unloadedSpecifications.get(specID);
-            }
+    public YSpecification getSpecification(String specID) throws YPersistenceException {
+    	List<DataProxy> specs = getDataContext().retrieveByRestriction(
+    			YSpecification.class,
+    			new LogicalRestriction(
+    					new PropertyRestriction( "archived", Comparison.EQUAL, false ),
+    					Operation.AND,
+    					new PropertyRestriction( "ID", Comparison.EQUAL, specID ) ),
+    			null );
+    	if( specs != null && specs.size() == 1 ) {
+    		DataProxy<YSpecification> proxy = specs.get( 0 );
+    		return proxy.getData();
+    	}
+    	return null;
+    }
+    
+    /**
+     * Gets all spec
+     * @param specID
+     * @param versions
+     * @return
+     * @throws YPersistenceException
+     */
+    public List<YSpecification> getSpecificationVersions(
+    		String specID, Set<Integer> versions) throws YPersistenceException {
+    	Restriction restriction = new PropertyRestriction("ID", Comparison.EQUAL, specID);
+    	if( versions != null ) {
+    		for( Integer version : versions ) {
+    			restriction = new LogicalRestriction(
+    					new PropertyRestriction("version", Comparison.EQUAL, version),
+    					Operation.OR,
+    					restriction );
+    		}
+    	}
+    	List<DataProxy> proxies = getDataContext().retrieveByRestriction(
+    			YSpecification.class, restriction, null );
+    	List<YSpecification> specs = new ArrayList<YSpecification>( proxies.size() + 1 );
+    	for( DataProxy<YSpecification> proxy : proxies ) {
+    		specs.add( proxy.getData() );
+    	}
+    	return specs;
     }
 
 
@@ -1287,8 +869,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
     }
 
 
-    public YSpecification getProcessDefinition(String specID) {
-            return (YSpecification) _specifications.get(specID);
+    public YSpecification getProcessDefinition(String specID) throws YPersistenceException {
+    	return getSpecification(specID);
     }
 
 
@@ -1423,8 +1005,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * @param taskID          the task id
      * @return the task definition object.
      */
-    public YTask getTaskDefinition(String specificationID, String taskID) {
-            YSpecification specification = (YSpecification) _specifications.get(specificationID);
+    public YTask getTaskDefinition(String specificationID, String taskID) throws YPersistenceException {
+            YSpecification specification = getSpecification(specificationID);
             if (specification != null) {
                 List decompositions = specification.getDecompositions();
                 for (Iterator iterator2 = decompositions.iterator(); iterator2.hasNext();) {
@@ -1801,18 +1383,16 @@ public abstract class AbstractEngine implements InterfaceADesign,
      *         process specification with id = specID
      */
     public Set getCasesForSpecification(String specID) {
-            Set resultSet = new HashSet();
-            if (_specifications.containsKey(specID) || _unloadedSpecifications.containsKey(specID)) {
-                Set caseIDs = _runningCaseIDToSpecIDMap.keySet();
-                for (Iterator iterator = caseIDs.iterator(); iterator.hasNext();) {
-                    YIdentifier caseID = (YIdentifier) iterator.next();
-                    String specIDForCaseID = (String) _runningCaseIDToSpecIDMap.get(caseID);
-                    if (specIDForCaseID.equals(specID)) {
-                        resultSet.add(caseID);
-                    }
-                }
+        Set resultSet = new HashSet();
+        Set caseIDs = _runningCaseIDToSpecIDMap.keySet();
+        for (Iterator iterator = caseIDs.iterator(); iterator.hasNext();) {
+            YIdentifier caseID = (YIdentifier) iterator.next();
+            String specIDForCaseID = (String) _runningCaseIDToSpecIDMap.get(caseID);
+            if (specIDForCaseID.equals(specID)) {
+                resultSet.add(caseID);
             }
-            return resultSet;
+        }
+        return resultSet;
     }
 
 
@@ -1916,15 +1496,14 @@ public abstract class AbstractEngine implements InterfaceADesign,
     /**
      *
      */
-    public String getLoadStatus(String specID) {
-            if (_specifications.containsKey(specID)) {
-                return YSpecification._loaded;
-            } else if (_unloadedSpecifications.containsKey(specID)) {
-                return YSpecification._unloaded;
-            } else {
-                throw new RuntimeException("SpecID [" + specID + "] is neither loaded nor unloaded.");
-            }
-
+    public String getLoadStatus(String specID) throws YPersistenceException {
+        if (getSpecification(specID) != null) {
+            return YSpecification._loaded;
+        } else if (getSpecificationVersions(specID, null).size() > 0) {
+            return YSpecification._unloaded;
+        } else {
+            throw new RuntimeException("SpecID [" + specID + "] is neither loaded nor unloaded.");
+        }
     }
 
     /**
@@ -1990,24 +1569,32 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * Performs a diagnostic dump of the engine internal tables and state to trace.<P>
      */
     public void dump() {
-            logger.debug("*** DUMP OF ENGINE STARTS ***");
+            logger.debug("*** DUMP OF ENGINE STATS ***");
 
-            logger.debug("\n*** DUMPING " + _specifications.size() + " SPECIFICATIONS ***");
-            {
-                Iterator keys = _specifications.keySet().iterator();
-                int sub = 0;
-                while (keys.hasNext()) {
-                    sub++;
-                    String key = (String) keys.next();
-                    YSpecification spec = (YSpecification) _specifications.get(key);
-
-                    logger.debug("Entry " + sub + " Key=" + key);
-                    logger.debug("    ID             " + spec.getID());
-                    logger.debug("    Name           " + spec.getName());
-                    logger.debug("    Beta Version   " + spec.getBetaVersion());
-                }
+            try {
+            	List<DataProxy> proxies = getDataContext().retrieveAll( 
+            			YSpecification.class, null );
+	            logger.debug("\n*** DUMPING " + proxies.size() + " SPECIFICATIONS ***");
+	            {
+	                for( int index = 0; index < proxies.size(); index++ ) {
+	                    DataProxy<YSpecification> proxy = proxies.get( index );
+	                    YSpecification spec = proxy.getData();
+	                	
+	                    logger.debug("Entry " + (index + 1) + ":");
+	                    logger.debug("    DbID           " + spec.getDbID());
+	                    logger.debug("    ID             " + spec.getID());
+	                    logger.debug("    Version        " + spec.getVersion());
+	                    logger.debug("    Name           " + spec.getName());
+	                    logger.debug("    Archived       " + spec.getArchived());
+	                    logger.debug("    Beta Version   " + spec.getBetaVersion());
+	                }
+	            }
+	            logger.debug("*** DUMP OF SPECIFICATIONS ENDS ***");
             }
-            logger.debug("*** DUMP OF SPECIFICATIONS ENDS ***");
+            catch( YPersistenceException e ) {
+            	logger.debug( "*** DUMP OF SPECIFICATIONS FAILED:", e );
+            	logger.debug( "*** END OF SPECIFICATION DUMP ***" );
+            }
 
             logger.debug("\n*** DUMPING " + _caseIDToNetRunnerMap.size() + " ENTRIES IN CASE_ID_2_NETRUNNER MAP ***");
             {
@@ -2101,64 +1688,6 @@ public abstract class AbstractEngine implements InterfaceADesign,
         logger.debug("<-- clearCase");
     }
 
-    /**
-     *
-     *
-     * AJH: Relocated from YPersistance
-     *
-     * @param id
-     * @throws YPersistenceException
-     */
-    private void clearCaseDelegate(YIdentifier id) throws YPersistenceException {
-        Object o = id;
-
-        logger.debug("--> clearCaseDelegate: CaseID = " + id.getId());
-
-//  TODO      if (journalising) {
-//            try {
-//                List list = id.get_children();
-//                for (int i = 0; i < list.size(); i++) {
-//                    YIdentifier child = (YIdentifier) list.get(i);
-//                    clearCaseDelegate(pmgr, child);
-//                }
-//
-//                P_YIdentifier py = pmgr.createPY(o);
-//                o = py;
-//                boolean runnerfound = false;
-//                Query query = pmgr.getSession().createQuery("from au.edu.qut.yawl.engine.YNetRunner where case_id = '" + id.toString() + "'");
-//                for (Iterator it = query.iterate(); it.hasNext();) {
-//                    YNetRunner runner = (YNetRunner) it.next();
-//                    pmgr.deleteObject(runner);
-//                    runnerfound = true;
-//                }
-//                if (!runnerfound) {
-//                    pmgr.deleteObject(o);
-//                }
-//            } catch (Exception e) {
-//                throw new YPersistenceException("Failure whilst clearing case", e);
-//            }
-//        }
-        logger.debug("<-- clearCaseDelegate");
-    }
-
-
-    /**
-     * Returns the next available case number.<P>
-     *
-     * Note: This method replaces that previously included within YPersistance.
-     *
-     */
-    public String getMaxCase() {
-// TODO       if (!isJournalising()) {
-    	// TODO FIXME incrementing identifiers
-    	System.err.println( "FIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-ME" );
-            maxcase++;
-            return Integer.toString(maxcase);
-//        } else {
-// TODO           YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
-//            return pmgr.getMaxCase();
-//        }
-    }
     /**
      * Indicate if user interface metadata is to be generated within a tasks input XML doclet.
      *

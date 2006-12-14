@@ -636,7 +636,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     }
 
 
-    public boolean loadSpecification(YSpecification spec) {
+    public boolean loadSpecification(YSpecification spec) throws YPersistenceException {
 
         /**
          * SYNC'D External interface
@@ -710,7 +710,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
      *
      * @return a set of spec id strings.
      */
-    public Set getSpecIDs() {
+    public Set getSpecIDs() throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -726,7 +726,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
      * @return  A set of specification ids
      */
 
-    public Set getLoadedSpecifications() {
+    public Set getLoadedSpecifications() throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -736,7 +736,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     }
 
 
-    public YSpecification getSpecification(String specID) {
+    public YSpecification getSpecification(String specID) throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -822,7 +822,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     }
 
 
-    public YSpecification getProcessDefinition(String specID) {
+    public YSpecification getProcessDefinition(String specID) throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -882,7 +882,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
      * @param taskID          the task id
      * @return the task definition object.
      */
-    public YTask getTaskDefinition(String specificationID, String taskID) {
+    public YTask getTaskDefinition(String specificationID, String taskID) throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -1135,7 +1135,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     /**
      *
      */
-    public String getLoadStatus(String specID) {
+    public String getLoadStatus(String specID) throws YPersistenceException {
         /**
          * SYNC'D External interface
          */

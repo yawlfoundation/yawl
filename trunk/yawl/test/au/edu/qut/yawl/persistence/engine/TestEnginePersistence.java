@@ -51,7 +51,7 @@ public class TestEnginePersistence extends TestCase {
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		DAO hib = DAOFactory.getDAO( PersistenceType.HIBERNATE );
+		DAO hib = DAOFactory.getDAO( PersistenceType.SPRING );
 		DataContext context = new DataContext( hib );
 		AbstractEngine.setDataContext(context);
 
@@ -98,11 +98,14 @@ public class TestEnginePersistence extends TestCase {
 		/*
 		 * Check that one runner was added to the database
 		 * */
-		assertTrue("" + runners.size(), runners.size()==1);
-		
-		engine.cancelCase(caseid);
-		
-		engine.unloadSpecification("Timer.xml");	
+        try {
+        	assertTrue("" + runners.size(), runners.size()==1);
+        }
+        finally {
+        	engine.cancelCase(caseid);
+        	
+        	engine.unloadSpecification("Timer.xml");
+        }
 	}
 
 	public void testCancelCase() throws YStateException, YPersistenceException, YDataStateException, YSchemaBuildingException, JDOMException, IOException {
@@ -125,12 +128,17 @@ public class TestEnginePersistence extends TestCase {
 		/*
 		 * Check that no runners was added to the database
 		 */
-		assertTrue("" + runners.size(), runners.size()==1);
-		
-		DataProxy runner = (DataProxy) runners.get(0);
-		
-		engine.cancelCase(caseid);			
-		engine.unloadSpecification("Timer.xml");
+        try {
+        	assertTrue("" + runners.size(), runners.size()==1);
+        }
+		finally {
+			if( runners != null && runners.get( 0 ) != null ) {
+				DataProxy runner = (DataProxy) runners.get(0);
+				
+				engine.cancelCase(caseid);			
+				engine.unloadSpecification("Timer.xml");
+			}
+		}
 	}
 	
 	/*
@@ -182,9 +190,12 @@ public class TestEnginePersistence extends TestCase {
         		new PropertyRestriction( "archived", Comparison.EQUAL, false),
         		null );    	
     	
-		assertTrue("" + runners.size(), runners.size()==0);
-		
-		engine.unloadSpecification("Timer.xml");
+        try {
+        	assertTrue("" + runners.size(), runners.size()==0);
+        }
+		finally { 
+			engine.unloadSpecification("Timer.xml");
+		}
 	}
 	
 	/*

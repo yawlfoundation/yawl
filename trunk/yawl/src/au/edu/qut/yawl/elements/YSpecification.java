@@ -90,23 +90,33 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
     public static final String _unloaded = "unloaded";
     private YMetaData _metaData = new YMetaData();
     private Integer _version;
+    private Integer _optimisticLockVersion;
     private Long _dbid;
 
     @Transient
     public Object getParent() {return null;}
     @Transient
     public void setParent(Object something) {}
-
-    @Version
-    @Column(name="optimistic_lock_version")
-    @SuppressWarnings({"UNUSED_SYMBOL"})
-    private Integer getVersion() {
+    
+    @Column(name="version")
+    public Integer getVersion() {
     	return _version;
     }
     
-    @SuppressWarnings({"UNUSED_SYMBOL"})
     public void setVersion(Integer version) {
     	_version = version;
+    }
+    
+    @Version
+    @Column(name="optimistic_lock_version")
+    @SuppressWarnings({"UNUSED_SYMBOL"})
+    private Integer getOptimisticLockVersion() {
+    	return _optimisticLockVersion;
+    }
+    
+    @SuppressWarnings({"UNUSED_SYMBOL"})
+    public void setOptimisticLockVersion(Integer version) {
+    	_optimisticLockVersion = version;
     }
 
     /**

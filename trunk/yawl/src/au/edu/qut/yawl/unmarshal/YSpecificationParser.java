@@ -81,6 +81,10 @@ class YSpecificationParser {
 
         _specification.setBetaVersion(version);
         _specification.setMetaData(parseMetaData(specificationElem));
+        Integer specVersion = null;
+        if(specificationElem.getChildText("version") != null) {
+        	specVersion = new Integer(specificationElem.getChildText("version"));
+        }
         String name = specificationElem.getChildText("name", _yawlNS);
         String documentation = specificationElem.getChildText("documentation", _yawlNS);
 
@@ -98,6 +102,7 @@ class YSpecificationParser {
         if (documentation == null)
             documentation = _specification.getMetaData().getDescription();
 
+        _specification.setVersion(specVersion);
         _specification.setName(name);
         _specification.setDocumentation(documentation);
 
@@ -191,7 +196,6 @@ class YSpecificationParser {
                 e.printStackTrace();
             }
         }
-        metaData.setVersion(metaDataElem.getChildText("version", _yawlNS));
 
         metaData.setStatus(metaDataElem.getChildText("status", _yawlNS));
 

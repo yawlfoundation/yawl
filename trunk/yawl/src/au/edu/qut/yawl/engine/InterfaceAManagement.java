@@ -55,7 +55,7 @@ public interface InterfaceAManagement {
      */
     List addSpecifications(File specificationFile, boolean ignoreErors, List<YVerificationMessage> errorMessages) throws JDOMException, IOException, YPersistenceException;
 
-    boolean loadSpecification(YSpecification spec);
+    boolean loadSpecification(YSpecification spec) throws YPersistenceException;
 
     Set getLoadedSpecifications() throws YPersistenceException;
 
@@ -68,7 +68,7 @@ public interface InterfaceAManagement {
      * @param specID
      * @return
      */
-    YSpecification getSpecification(String specID);
+    YSpecification getSpecification(String specID) throws YPersistenceException;
 
     /**
      * Unloads a specification from the engine.<P>
@@ -149,14 +149,14 @@ public interface InterfaceAManagement {
      * @param specID
      * @return
      */
-    String getLoadStatus(String specID);
+    String getLoadStatus(String specID) throws YPersistenceException;
 
     /**
      * Returns the specification for a loaded specification via the supplied specification ID.<P>
      * @param specID
      * @return
      */
-    YSpecification getProcessDefinition(String specID);
+    YSpecification getProcessDefinition(String specID) throws YPersistenceException;
 
     /**
      * Stores an object within the engine's persistent storage area.<P>

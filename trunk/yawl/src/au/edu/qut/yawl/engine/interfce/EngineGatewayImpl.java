@@ -18,7 +18,6 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -157,7 +156,13 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        YSpecification spec = _engine.getProcessDefinition(specID);
+        YSpecification spec;
+        try {
+        	spec = _engine.getProcessDefinition(specID);
+        }
+        catch (YPersistenceException e) {
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
+        }
         if (spec == null) {
             return
                     OPEN_FAILURE +
@@ -447,11 +452,16 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        YTask task = _engine.getTaskDefinition(specificationID, taskID);
-        if (task != null) {
-            return task.getInformation();
-        } else {
-            return OPEN_FAILURE + "The was no task found with ID " + taskID + CLOSE_FAILURE;
+        try {
+	        YTask task = _engine.getTaskDefinition(specificationID, taskID);
+	        if (task != null) {
+	            return task.getInformation();
+	        } else {
+	            return OPEN_FAILURE + "The was no task found with ID " + taskID + CLOSE_FAILURE;
+	        }
+        }
+        catch( YPersistenceException e ) {
+        	return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
     }
 
@@ -488,14 +498,14 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        Set specIDs = _engine.getSpecIDs();
-        Set specs = new HashSet();
-        for (Iterator iterator = specIDs.iterator(); iterator.hasNext();) {
-            String specID = (String) iterator.next();
-            YSpecification spec = _engine.getSpecification(specID);
-            specs.add(spec);
+        try {
+        	Set<YSpecification> specs = _engine.getSpecifications();
+        	
+        	return getDataForSpecifications(specs);
         }
-        return getDataForSpecifications(specs);
+        catch( YPersistenceException e ) {
+        	return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
+        }
     }
 
 
@@ -1023,9 +1033,12 @@ public class EngineGatewayImpl implements EngineGateway {
                     append(spec.getBetaVersion()).
                     append("</version>");
 
-            specs.append("<status>").
-                    append(_engine.getLoadStatus(spec.getID())).
-                    append("</status>");
+            try {
+            	String status = _engine.getLoadStatus(spec.getID());
+            	specs.append("<status>").append(status).append("</status>");
+            }
+            catch( YPersistenceException e ) {
+            }
             specs.append("</specificationData>");
         }
         return specs.toString();
