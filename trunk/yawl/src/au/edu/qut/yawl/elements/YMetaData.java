@@ -63,7 +63,7 @@ public class YMetaData implements Cloneable, Serializable {
     private String title;
     private Date validFrom;
     private Date validUntil;
-
+    private String version;
 
     public YMetaData() {
     }
@@ -163,6 +163,19 @@ public class YMetaData implements Cloneable, Serializable {
     @Column(name="status")
     public String getStatus() {
         return status;
+    }
+    
+	/**
+     * 
+     * @return
+     * @hibernate.property column="YVERSION"
+     */
+    @Column(name="version")
+    public String getVersion() {
+        return version;
+    }
+    public void setVersion(String version) {
+    	this.version = version;
     }
 
 	/**
@@ -296,6 +309,9 @@ public class YMetaData implements Cloneable, Serializable {
         }
         if (created != null) {
             mds.append("<created>" + YMetaData.dateFormat.format(created) + "</created>");
+        }
+        if (version != null) {
+            mds.append("<version>" + version + "</version>");
         }
         if (status != null) {
             mds.append("<status>" + status + "</status>");
