@@ -255,7 +255,7 @@
             <fileset dir="${web.dir}/${forms.dir}" includes="**/*.gif **/*.jpg **/*.png"/>
         </copy>
 
-        <copy description="copy xforms and resources" todir="${build.dir}/${forms.dir}" filtering="true">
+        <copy description="copy xforms and resources" todir="${build.dir}/${forms.dir}"> <!-- filtering="true"> -->
             <fileset dir="${web.dir}/${forms.dir}"/>
         </copy>
 
@@ -267,9 +267,9 @@
             <fileset dir="${lib.dir}" includes="**/*.jar" excludes="servlet.jar"/>
         </copy>
 
-        <copy description="copy YAWL graphics files" todir="${build.dir}/graphics" filtering="true">
-            <fileset dir="${web.dir}/graphics" />
-        </copy>  
+        <copy description="copy YAWL graphics files" todir="${build.dir}/graphics">
+            <fileset dir="${web.dir}/graphics" includes="yawl.swf subtext.jpg yawlbg2.jpg common.css"/>
+        </copy>
     </target>
 
     <target name="deploy" depends="deploy-prepare" description="deploy Chiba into your webcontainer">

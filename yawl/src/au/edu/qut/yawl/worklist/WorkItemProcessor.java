@@ -130,13 +130,13 @@ public class WorkItemProcessor {
             YParameter inputParam = (YParameter) inputParams.get(i);
 
             if (null != inputParam.getElementName()) {
-                logger.debug("CASE input param REUSE element name: " + inputParam.getElementName());
+
                 String elementName = inputParam.getElementName();
                 ElementReuseInstruction instruction = new ElementReuseInstruction(elementName);
                 instructions.add(instruction);
             } 
             else if (null != inputParam.getDataTypeName()) {
-            	logger.debug("CASE input param CREATION data type name: " + inputParam.getDataTypeName());
+
                 String elementName = inputParam.getName();
                 String typeName = inputParam.getDataTypeName();
                 boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(inputParam.getDataTypeNameSpace());
@@ -155,7 +155,6 @@ public class WorkItemProcessor {
                 //UntypedElementInstruction instruction = new UntypedElementInstruction();
                 //instructions.add(instruction);
 
-            	logger.debug("CASE input param CREATION (untyped) data type name: " + inputParam.getDataTypeName());
                 String elementName = inputParam.getName();
                 //String typeName = inputParam.getDataTypeName();
                 String typeName = "boolean";
@@ -317,13 +316,11 @@ public class WorkItemProcessor {
                 YParameter inputParam = (YParameter) inputParams.get(i);
 
                 if (null != inputParam.getElementName()) {
-                	logger.debug("input param REUSE element name: " + inputParam.getElementName());
 
                     String elementName = inputParam.getElementName();
                     ElementReuseInstruction instruction = new ElementReuseInstruction(elementName);
                     instructions.add(instruction);
                 } else if (null != inputParam.getDataTypeName()) {
-                	logger.debug("input param CREATION data type name: " + inputParam.getDataTypeName());
 
                     String elementName = inputParam.getName();
                     String typeName = inputParam.getDataTypeName();
@@ -336,8 +333,6 @@ public class WorkItemProcessor {
                 else if (inputParam.isUntyped()) {
                     //UntypedElementInstruction instruction = new UntypedElementInstruction();
                     //instructions.add(instruction);
-
-                	logger.debug("input param CREATION (untyped) data type name: " + inputParam.getDataTypeName());
 
                     String elementName = inputParam.getName();
                     //String typeName = inputParam.getDataTypeName();
@@ -357,7 +352,6 @@ public class WorkItemProcessor {
                 YParameter outputParam = (YParameter) outputParams.get(i);
 
                 if (null != outputParam.getElementName()) {
-                	logger.debug("output param REUSE element name: " + outputParam.getElementName());
 
                     String elementName = outputParam.getElementName();
                     ElementReuseInstruction instruction = new ElementReuseInstruction(elementName);
@@ -381,7 +375,6 @@ public class WorkItemProcessor {
 
                     instructions.add(instruction);
                 } else if (null != outputParam.getDataTypeName()) {
-                	logger.debug("output param CREATION data type name: " + outputParam.getDataTypeName());
 
                     String elementName = outputParam.getName();
                     String typeName = outputParam.getDataTypeName();
@@ -417,7 +410,6 @@ public class WorkItemProcessor {
                 else if (outputParam.isUntyped()) {
                     //UntypedElementInstruction instruction = new UntypedElementInstruction();
                     //instructions.add(instruction);
-                	logger.debug("output param CREATION (untyped) data type name: " + outputParam.getDataTypeName());
 
                     String elementName = outputParam.getName();
                     //String typeName = outputParam.getDataTypeName();
@@ -564,7 +556,7 @@ public class WorkItemProcessor {
 		map.put("decompositionID",decompositionID);
 		map.put("workitem",xmlBuff.toString());
 		map.put("username",_worklistController.getUsername());
-		Interface_Client.executePost("http://localhost:8080/worklist/handler",map);
+		Interface_Client.executePost("http://localhost:8080/worklist/handler",map); // TODO: remove localhost reference
 		logger.debug("Calling the pdf handler");
 		
 		return item.getSpecificationID()+item.getTaskID()+item.getUniqueID()+".pdf";
