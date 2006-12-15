@@ -1267,7 +1267,7 @@
 	
 	
     <!-- invoke the external YAWLXforms build script -->
-    <target name="build_yawlXForms.war" depends="build_WIR_toolkit.jar">
+    <target name="build_yawlXForms.war"> <!-- depends="build_WIR_toolkit.jar"> -->
 
       	<mkdir dir="${xforms.dist}"/>
     	

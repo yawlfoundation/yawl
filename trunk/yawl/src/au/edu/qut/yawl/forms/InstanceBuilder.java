@@ -118,7 +118,6 @@ public class InstanceBuilder {
 	        boolean found = false;
 	        
 	        while ((nodeS = iteratorS.nextNode()) != null) {
-	            logger.debug("nodeS: " + nodeS.getNodeName());
 	            
 	            if (nodeS.getNodeName().compareTo(root) != 0) { // ignore root element
 	            	
@@ -187,7 +186,6 @@ public class InstanceBuilder {
 
         // check if element
         if (type == Node.ELEMENT_NODE) {
-            logger.debug("Element: " + node.getNodeName());
 
             // if the element is a simpleType or complexType do not include it
             // because this is the empty-instance generation which does not

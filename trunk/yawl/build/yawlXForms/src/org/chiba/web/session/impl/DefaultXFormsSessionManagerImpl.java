@@ -56,6 +56,9 @@ public class DefaultXFormsSessionManagerImpl extends Thread implements XFormsSes
      * @param milliseconds the interval the wiper is checking for expired sessions
      */
     public void setInterval(int milliseconds) {
+    	if (milliseconds < 0){
+    		milliseconds = 1500;
+    	}
         this.interval = milliseconds;
     }
 

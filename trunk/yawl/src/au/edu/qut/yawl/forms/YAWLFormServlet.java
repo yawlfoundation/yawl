@@ -109,7 +109,6 @@ public class YAWLFormServlet extends HttpServlet {
         }
         
         if (submit.equals("submit")){
-        	//System.out.println("YFS submit == submit");
         	if (workItemID.compareTo("null") != 0) {
 	            request.setAttribute("inputData", inputDataEl); // check for null?
 	            request.setAttribute("outputData", outputDataEl);
@@ -130,24 +129,18 @@ public class YAWLFormServlet extends HttpServlet {
             }
         }
         else if (submit.equals("cancel")) {
-        	//System.out.println("YFS submit == cancel");
-        	
         	request.setAttribute("submit", "Cancel");
             RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/availableWork");
             rd.forward(request, response);
         }
         else if (submit.equals("suspend")) {
-        	//System.out.println("YFS submit == suspend");
-        	
         	request.setAttribute("outputData", outputDataEl);
             request.setAttribute("workItemID", workItemID);
         	request.setAttribute("submit", "Suspend Task");
             RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/workItemProcessor");
             rd.forward(request, response);
         }
-        else if (submit.equals("save")) {
-        	//System.out.println("YFS submit == save");
-        	
+        else if (submit.equals("save")) {        	
         	request.setAttribute("outputData", outputDataEl);
             request.setAttribute("workItemID", workItemID);
         	request.setAttribute("submit", "Save Work Item");
@@ -155,7 +148,6 @@ public class YAWLFormServlet extends HttpServlet {
             rd.forward(request, response);
         }
         else {
-        	//System.out.println("YFS submit == nothing!");
         	logger.debug("theInstanceData = " + theInstanceData);
         }
     }
