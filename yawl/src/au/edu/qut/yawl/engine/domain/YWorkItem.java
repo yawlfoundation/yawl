@@ -617,6 +617,15 @@ public class YWorkItem {
         this._status = status;
     }
 
+    @Basic
+    public Status getPrevStatus() {
+        return _prevStatus;
+    }
+
+    public void setPrevStatus(Status status) {
+        this._prevStatus = status;
+    }
+
     @ManyToOne
     public YWorkItem getParent() {
         return _parent;

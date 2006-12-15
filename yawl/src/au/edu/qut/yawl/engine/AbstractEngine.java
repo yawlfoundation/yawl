@@ -91,7 +91,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     protected static UserList _userList = UserList.getInstance();
 
     protected static List<ExceptionGateway> _exceptionObservers = new ArrayList();
-    
+
     /*************************************************/
     /*INSERTED VARIABLES AND METHODS FOR PERSISTANCE */
     /**
@@ -113,30 +113,30 @@ public abstract class AbstractEngine implements InterfaceADesign,
     protected AbstractEngine() {
         observerGatewayController = new ObserverGatewayController();
     }
-    
+
     public void restore() throws YPersistenceException {
-    	
+
         getDataContext();
         if (context!=null) {
-            List runners = context.retrieveAll(YNetRunner.class ,null);    	
+            List runners = context.retrieveAll(YNetRunner.class ,null);
             for (int i = 0; i < runners.size();i++) {
                 YNetRunner r = (YNetRunner) ((DataProxy) runners.get(i)).getData();
                 if (!r.getArchived()) {
                     logger.debug("RESTORING RUNNER" + r.getNet().getParent().getID());
-                    
+
                     /*
-                     * Ensure that the net (decomposition) has the 
+                     * Ensure that the net (decomposition) has the
                      * updated data
                      * */
                     r.getNet().rebuildData();
-                    
+
                     YIdentifier yid = r.getCaseID();
                     YIdentifier.saveIdentifier(yid,null,null);
-                    
+                    r.restoreObservers();           // case observers via IB
                     restoreRunner(r,r.getNet().getParent().getID());
                 }
             }
-            
+
             List workItems = context.retrieveAll(YWorkItem.class, null);
             for (int i = 0; i < workItems.size();i++) {
                 YWorkItem item = (YWorkItem) ((DataProxy) workItems.get(i)).getData();
@@ -145,21 +145,21 @@ public abstract class AbstractEngine implements InterfaceADesign,
             }
         }
     }
-    
+
     private static DataContext context;
-    
+
     public static void setDataContext( DataContext context ) {
     	AbstractEngine.context = context;
     }
-    
+
     public static DataContext getDataContext() {
     	if( context == null ) {
     		if (journalising) {
-    			DAO mem = DAOFactory.getDAO( PersistenceType.SPRING );    		
+    			DAO mem = DAOFactory.getDAO( PersistenceType.SPRING );
     			context = new DataContext( mem );
     		} else {
-    			DAO mem = DAOFactory.getDAO( PersistenceType.MEMORY );    		
-    			context = new DataContext( mem );    			
+    			DAO mem = DAOFactory.getDAO( PersistenceType.MEMORY );
+    			context = new DataContext( mem );
     		}
     	}
     	return context;
@@ -265,10 +265,10 @@ public abstract class AbstractEngine implements InterfaceADesign,
         }
 
         YSpecification specification = getSpecification(specID);
-        
+
         //Go to the database if the specification is not found, error
         //if the specification is not in the database either
-        
+
         if (specification != null) {
             YNetRunner runner = new YNetRunner(specification.getRootNet(), data);
 
@@ -300,14 +300,14 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
             /*
              * REMOVE THIS...ONLY USED FOR UNIT TESTS
-             * 
+             *
              * *//*
             if (true) {
 
             	YPersistenceException ypers = new YPersistenceException("test");
             	throw ypers;
             }*/
-            
+
             runner.continueIfPossible();
 
             // LOG CASE EVENT
@@ -331,7 +331,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
     public void restoreRunner(YNetRunner runner, String specID) {
     	try {
-    		_caseIDToNetRunnerMap.put(runner.getCaseID(), runner);    	
+    		_caseIDToNetRunnerMap.put(runner.getCaseID(), runner);
     		_runningCaseIDToSpecIDMap.put(runner.getCaseID(), specID);
     		runner.start();
     	} catch (Exception e) {
@@ -343,7 +343,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
         logger.debug("--> finishCase: Case=" + caseIDForNet.getId());
 
         YNetRunner runner = (YNetRunner) _caseIDToNetRunnerMap.get(caseIDForNet);
-        
+
         _caseIDToNetRunnerMap.remove(caseIDForNet);
         _runningCaseIDToSpecIDMap.remove(caseIDForNet);
         //YEngine._workItemRepository.cancelNet(caseIDForNet);
@@ -353,9 +353,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
         if (_interfaceBClient != null) {
             _interfaceBClient.removeCase(caseIDForNet.toString());
         }
-        
 
-        
         logger.debug("<-- finishCase");
     }
 
@@ -371,22 +369,22 @@ public abstract class AbstractEngine implements InterfaceADesign,
      */
     public void unloadSpecification(String specID) throws YStateException, YPersistenceException {
         logger.debug("--> unloadSpecification: ID=" + specID);
-        
+
         YSpecification spec = getSpecification(specID);
-        
+
         if (spec != null) {
             /* Mark as archived */
             logger.info("Removing process specification " + specID);
-            
+
             DataProxy<YSpecification> proxy = getDataContext().getDataProxy(spec);
             spec.markArchived();
-            
+
             getDataContext().save( proxy );
         } else {
             throw new YStateException(
             		"Engine contains no such specification with id [" + specID + "].");
         }
-        
+
         logger.debug("<-- unloadSpecification");
     }
 
@@ -491,7 +489,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     	}
     	return specIDs;
     }
-    
+
     public Set<YSpecification> getSpecifications() throws YPersistenceException {
     	List<DataProxy> proxies = getDataContext().retrieveAll( YSpecification.class, null );
     	Set<YSpecification> specs = new HashSet<YSpecification>();
@@ -535,7 +533,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
     	}
     	return null;
     }
-    
+
     /**
      * Gets all spec
      * @param specID
@@ -655,16 +653,16 @@ public abstract class AbstractEngine implements InterfaceADesign,
        List runners = context.retrieveByRestriction(YNetRunner.class, restriction ,null);
 
        if (runners.size()==0) {
-           restriction = new PropertyRestriction("basicCaseId", 
-        		   PropertyRestriction.Comparison.EQUAL , 
+           restriction = new PropertyRestriction("basicCaseId",
+        		   PropertyRestriction.Comparison.EQUAL ,
         		   caseID.substring(0,caseID.indexOf(".")));
-           runners = context.retrieveByRestriction(YNetRunner.class, restriction ,null);    	   
+           runners = context.retrieveByRestriction(YNetRunner.class, restriction ,null);
        }
-       
-       
+
+
        //
-    	Set allLocations = new HashSet();    	
-       
+    	Set allLocations = new HashSet();
+
     	if (!(runners.size()>1)) {
     		DataProxy<YNetRunner> proxy = (DataProxy) runners.get(0);
     		YNetRunner r = proxy.getData();
@@ -675,19 +673,19 @@ public abstract class AbstractEngine implements InterfaceADesign,
         		if (elem instanceof YCondition) {
         			if (((YCondition) elem).contains(yid)) {
         				allLocations.add(elem);
-        			}    			
+        			}
         		} else if (elem instanceof YTask) {
     				YIdentifier contained = ((YTask) elem).getContainingIdentifier();
         			if (contained!=null && contained.equals(yid)) {
-        				allLocations.add(elem);    				    				
+        				allLocations.add(elem);
         			}
         		}
         	}
-            return evaluateStateForCase(yid, allLocations, r.getNet().getParent().getID()); 
+            return evaluateStateForCase(yid, allLocations, r.getNet().getParent().getID());
     	} else {
     		//multiple runners with same caseid, this is wrong
     	}
-    	    	
+
     	return "";
 
     }
@@ -699,11 +697,11 @@ public abstract class AbstractEngine implements InterfaceADesign,
             YIdentifier identifier = (YIdentifier) childIter.next();
             allLocations.addAll(identifier.getLocations());
         }
-        
+
         return evaluateStateForCase(caseID, allLocations, _runningCaseIDToSpecIDMap.get(caseID).toString());
-        
-    }  
-    
+
+    }
+
 
     public String evaluateStateForCase(YIdentifier caseID, Set allLocations, String spec) {
             StringBuffer stateText = new StringBuffer();
@@ -808,10 +806,10 @@ public abstract class AbstractEngine implements InterfaceADesign,
             stateText.append("<Errors>");
             List<YErrorEvent> errorlist = caseID.getErrors();
             for (int j = 0; j < errorlist.size(); j++) {
-            	stateText.append(errorlist.get(j).toXML());            	
+            	stateText.append(errorlist.get(j).toXML());
             }
             stateText.append("</Errors>");
-            
+
             stateText.append("</caseState>");
             return stateText.toString();
     }
@@ -1099,13 +1097,13 @@ public abstract class AbstractEngine implements InterfaceADesign,
                          * purposes
                          * */
                         workItem.completeData(doc);
-                        
+
                         /*
                          * Can't save the net runner here, because it could have been
-                         * deleted through cancel methods. 
+                         * deleted through cancel methods.
                          * */
                         //YNetRunner.saveNetRunner(netRunner, null);
-                        
+
                     } else if (workItem.getStatus() == YWorkItem.Status.Deadlocked) {
                         YEngine._workItemRepository.removeWorkItemFamily(workItem);
                     } else {
@@ -1283,7 +1281,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                 workItem.setStatusToSuspended();  //added
             }
         }
-                
+
         return workItem ;
     }
 
@@ -1440,7 +1438,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
             	//service exists, update data
             	service = proxy.getData();
             	service.setEnabled(yawlService.getEnabled());
-            	service.setDocumentation(yawlService.getDocumentation());            	
+            	service.setDocumentation(yawlService.getDocumentation());
             	getDataContext().save( proxy );
             } else {
             	//new service, just store it
@@ -1572,7 +1570,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
             logger.debug("*** DUMP OF ENGINE STATS ***");
 
             try {
-            	List<DataProxy> proxies = getDataContext().retrieveAll( 
+            	List<DataProxy> proxies = getDataContext().retrieveAll(
             			YSpecification.class, null );
 	            logger.debug("\n*** DUMPING " + proxies.size() + " SPECIFICATIONS ***");
 	            {
@@ -1680,7 +1678,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
      */
     protected void clearCase(YIdentifier id) throws YPersistenceException {
         logger.debug("--> clearCase: CaseID = " + id.getId());
-        
+
 //  TODO      if (journalising) {
 //            clearCaseDelegate(id);
 //        }
