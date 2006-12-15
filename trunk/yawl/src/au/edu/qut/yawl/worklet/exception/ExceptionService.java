@@ -1137,12 +1137,14 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     //***************************************************************************//
 
     /**
-     * Moves a workitem from 'fired' to executing
+     * Moves a workitem from suspended to its previous status
      * @param wir - the workitem to unsuspend
      * @return the unsuspended workitem (record)
      */
     private WorkItemRecord unsuspendWorkItem(WorkItemRecord wir) {
         WorkItemRecord result = null ;
+
+        wir = updateWIR(wir);                    // refresh the locally cached wir
 
           if (wir.getStatus().equals(YWorkItem.Status.Suspended)) {
             try {
@@ -1169,8 +1171,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         if (suspendedItems != null) {
             for (WorkItemRecord wir : suspendedItems) {
                 runner.setItem(unsuspendWorkItem(wir));
-                wir = updateWIR(wir);                    // refresh the stored wir
-                unsuspendWorkItem(wir);
            }
 
            _log.debug("Completed unsuspend for all suspended work items");
@@ -1199,7 +1199,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             _log.error("IO Exception attempting to update WIR: " + wir.getID(), ioe);
         }
         catch (JDOMException jde){
-            _log.error("JDOM Exception attempting complete workitem: " + wir.getID(), jde);
+            _log.error("JDOM Exception attempting to update WIR: " + wir.getID(), jde);
 
         }
         return wir ;

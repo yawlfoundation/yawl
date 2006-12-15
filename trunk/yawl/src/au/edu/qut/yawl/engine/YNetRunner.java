@@ -111,7 +111,7 @@ public class YNetRunner implements Serializable // extends Thread
     //private InterfaceX_EngineSideClient _exceptionObserver;
 
     // inserted to persist observers
-    private String _caseObserverStr = null ;
+    private String _caseObserverURI = null ;
     //protected String _exceptionObserverStr = null ;
 
     /*****************************/
@@ -1135,44 +1135,41 @@ public class YNetRunner implements Serializable // extends Thread
 
     public void setObserver(YAWLServiceReference observer) {
         _caseObserver = observer;
-        _caseObserverStr = observer.getURI();                       // for persistence
+        _caseObserverURI = observer.getURI();                       // for persistence
     }
 
 
     /***************************************************************************/
     /** The following methods have been added to support the exception service */
 
+    public void restoreObservers() throws YPersistenceException {
 
+        /*
+         * Make sure that the engine reference
+         * is restored in case of failure
+         * */
+        _engine = EngineFactory.createYEngine();
 
-
-//    public void restoreObservers() throws YPersistenceException {
-//
-//        /*
-//         * Make sure that the engine reference
-//         * is restored in case of failure
-//         * */
-//        _engine = EngineFactory.createYEngine();
-//
-//        if(_caseObserverStr != null) {
-//            YAWLServiceReference caseObserver =
-//                                    _engine.getRegisteredYawlService(_caseObserverStr);
-//            if (caseObserver != null) setObserver(caseObserver);
-//        }
+        if(_caseObserverURI != null) {
+            YAWLServiceReference caseObserver =
+                                    _engine.getRegisteredYawlService(_caseObserverURI);
+            if (caseObserver != null) setObserver(caseObserver);
+        }
 //        if (_exceptionObserverStr != null) {
 //            InterfaceX_EngineSideClient exObserver =
 //                                new InterfaceX_EngineSideClient(_exceptionObserverStr);
 //            setExceptionObserver(exObserver);
 //            _engine.setExceptionObserver(_exceptionObserverStr);
 //        }
-//    }
-
-
-    private String get_caseObserverStr() {
-        return _caseObserverStr ;
     }
 
-    private void set_caseObserverStr(String observerstr) {
-        _caseObserverStr = observerstr;
+
+    private String get_caseObserverURI() {
+        return _caseObserverURI ;
+    }
+
+    private void set_caseObserverURI(String observerURI) {
+        _caseObserverURI = observerURI;
     }
 
     /** cancels the specified task */
