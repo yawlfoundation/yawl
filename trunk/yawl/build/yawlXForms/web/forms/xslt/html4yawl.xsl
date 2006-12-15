@@ -322,7 +322,7 @@
 
         <!-- Include YAWL Banner Information -->
 		<br></br>
-		<table width="100%" border="0" cellspacing="0" cellpadding="0" background="forms/graphics/yawlbg2.gif">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0" background="../graphics/yawlbg2.gif">
 			<tr>
                 <!--  width="116" height="55"  -->
                 <td valign="top" width="35%" bgcolor="#6699cc" />
@@ -333,7 +333,7 @@
                     codebase=
                     "http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"
                     WIDTH="209" HEIGHT="47" id="yawl" ALIGN="center">
-                        <PARAM NAME="movie" VALUE="forms/graphics/yawl.swf" />
+                        <PARAM NAME="movie" VALUE="../graphics/yawl.swf" />
                         <PARAM NAME="quality" VALUE="high" />
                     </OBJECT>
                 </td>
@@ -344,7 +344,7 @@
 			<tr>
                 <td bgcolor="#6699cc"/>
 				<td bgcolor="#6699cc" align="center">
-					<img src="forms/graphics/subtext.jpg"/>
+					<img src="../graphics/subtext.jpg"/>
 				</td>
                 <td bgcolor="#6699cc"/>
 			</tr>

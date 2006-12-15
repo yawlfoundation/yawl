@@ -267,8 +267,8 @@
             <fileset dir="${lib.dir}" includes="**/*.jar" excludes="servlet.jar"/>
         </copy>
 
-        <copy description="copy YAWL graphics files" todir="${build.dir}/graphics">
-            <fileset dir="${web.dir}/graphics" includes="*.gif *.jpg yawl.swf common.css"/>
+        <copy description="copy YAWL graphics files" todir="${build.dir}/graphics" filtering="true">
+            <fileset dir="${web.dir}/graphics" />
         </copy>  
     </target>
 
@@ -289,6 +289,7 @@
 
             zipfile="${build.dir}/yawlXForms-web-resource.zip"/>
     </target>
+	
     <!-- ================================================== -->
     <!--    distribution                                    -->
     <!-- ================================================== -->
@@ -327,11 +328,6 @@
         </copy>
 
         <delete dir="${app.name}"/>
-
-        <!-- copy apidocs -->
-        <copy todir="${build.dir}">
-            <fileset dir="${doc.dir}" includes="api/**"/>
-        </copy>
 
         <!-- build war dist -->
         <delete file="${build.dir}/WEB-INF/web.xml"/>
