@@ -73,16 +73,22 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 			return objects.get( key );
 		}
 		
-		public final List<Type> retrieveByRestriction( Class type, Restriction restriction ) {
+		public final List<Type> retrieveByRestriction( Class type, Restriction restriction ) throws YPersistenceException {
 			if( restriction instanceof Unrestricted ) {
 				return new ArrayList<Type>( objects.values() );
 			}
 			initProperties( type );
 			List<Type> retval = new ArrayList<Type>();
 			for( Type object : objects.values() ) {
-				if( RestrictionEvaluator.passesRestriction( object, restriction, typeInfo ) ) {
-					retval.add( object );
-				}
+                try {
+                    if( RestrictionEvaluator.passesRestriction( object, restriction, typeInfo ) ) {
+                        retval.add( object );
+                    }
+                }
+                catch( Exception e ) {
+                    throw new YPersistenceException(
+                            "Retrieve by restriction error " + type + " " + restriction, e );
+                }
 			}
 			return retval;
 		}
@@ -98,7 +104,13 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 	}
 
 	private class SpecificationMemoryDAO extends AbstractMemoryDAO<YSpecification> {
-		protected void preSave( YSpecification spec ) {}
+        long next = 1;
+		protected void preSave( YSpecification spec ) {
+            if( spec.getDbID() == null ) {
+                spec.setDbID( Long.valueOf( next ) );
+                next += 1;
+            }
+        }
 		public Object getKey( YSpecification object ) {
 			return PersistenceUtilities.getSpecificationKey( object );
 		}

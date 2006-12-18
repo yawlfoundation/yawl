@@ -9,6 +9,7 @@ package au.edu.qut.yawl.persistence.dao.restrictions;
 
 import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
@@ -24,7 +25,7 @@ import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparis
 public class RestrictionEvaluator {
 	private static final Log LOG = LogFactory.getLog( RestrictionEvaluator.class );
 	
-	public static boolean passesRestriction( Object object, Restriction r, BeanInfo typeInfo ) {
+	public static boolean passesRestriction( Object object, Restriction r, BeanInfo typeInfo ) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		if( r instanceof Unrestricted ) {
 			return true;
 		}
@@ -69,7 +70,7 @@ public class RestrictionEvaluator {
 			PropertyRestriction restriction = (PropertyRestriction) r;
 			PropertyDescriptor pd = null;
 			for( int index = 0; index < properties.length; index++ ) {
-				if( properties[ index ].getName().equals( restriction.getPropertyName() ) ) {
+				if( properties[ index ].getName().equalsIgnoreCase( restriction.getPropertyName() ) ) {
 					pd = properties[ index ];
 					break;
 				}
@@ -88,41 +89,38 @@ public class RestrictionEvaluator {
 	}
 	
 	private static boolean compare(
-			Object object, PropertyDescriptor property, PropertyRestriction restriction ) {
-		try {
-			if( property.getPropertyType().equals( int.class ) ||
-					property.getPropertyType().equals( Integer.class ) ||
-					property.getPropertyType().equals( long.class ) ||
-					property.getPropertyType().equals( Long.class ) ) {
-				Number val = (Number) property.getReadMethod().invoke( object, (Object[]) null );
-				Number val2 = (Number) restriction.getValue();
-				return compareLongs( val, restriction.getComparison(), val2 );
-			}
-			else if( property.getPropertyType().equals( float.class ) ||
-					property.getPropertyType().equals( Float.class ) ||
-					property.getPropertyType().equals( double.class ) ||
-					property.getPropertyType().equals( Double.class ) ) {
-				Number val = (Number) property.getReadMethod().invoke( object, (Object[]) null );
-				Number val2 = (Number) restriction.getValue();
-				return compareDoubles( val, restriction.getComparison(), val2 );
-			}
-			else if( property.getPropertyType().equals( String.class ) ) {
-				String val = (String) property.getReadMethod().invoke( object, (Object[]) null );
-				String val2 = (String) restriction.getValue();
-				return compareStrings( val, restriction.getComparison(), val2 );
-			} else if (property.getPropertyType().equals( boolean.class ) ) {
-				boolean val = (Boolean) property.getReadMethod().invoke( object, (Object[]) null );
-				boolean val2 = (Boolean) restriction.getValue();
-				return compareBool( val, restriction.getComparison(), val2);
-			}
-			else {
-				throw new UnsupportedOperationException( "Cannot compare properties of type " +
-						property.getPropertyType() );
-			}
+			Object object, PropertyDescriptor property, PropertyRestriction restriction ) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		if( property.getPropertyType().equals( int.class ) ||
+				property.getPropertyType().equals( Integer.class ) ||
+				property.getPropertyType().equals( long.class ) ||
+				property.getPropertyType().equals( Long.class ) ) {
+			Number val = (Number) property.getReadMethod().invoke( object, (Object[]) null );
+			Number val2 = (Number) restriction.getValue();
+			return compareLongs( val, restriction.getComparison(), val2 );
 		}
-		catch( Exception e ) {
-			LOG.error( e );
-			return false;
+		else if( property.getPropertyType().equals( float.class ) ||
+				property.getPropertyType().equals( Float.class ) ||
+				property.getPropertyType().equals( double.class ) ||
+				property.getPropertyType().equals( Double.class ) ) {
+			Number val = (Number) property.getReadMethod().invoke( object, (Object[]) null );
+			Number val2 = (Number) restriction.getValue();
+			return compareDoubles( val, restriction.getComparison(), val2 );
+		}
+		else if( property.getPropertyType().equals( String.class ) ) {
+			String val = (String) property.getReadMethod().invoke( object, (Object[]) null );
+			String val2 = (String) restriction.getValue();
+			return compareStrings( val, restriction.getComparison(), val2 );
+		} else if (property.getPropertyType().equals( boolean.class ) ) {
+			boolean val = (Boolean) property.getReadMethod().invoke( object, (Object[]) null );
+			boolean val2 = (Boolean) restriction.getValue();
+			return compareBool( val, restriction.getComparison(), val2);
+		}
+		else if( restriction.getValue() == null ) {
+            return property.getReadMethod().invoke( object, (Object[]) null ) == null;
+        }
+        else {
+			throw new UnsupportedOperationException( "Cannot compare properties of type " +
+					property.getPropertyType() );
 		}
 	}
 	

@@ -604,17 +604,19 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        YIdentifier id = _engine.getCaseID(caseID);
-        if (id != null) {
-            try {
+        try {
+            YIdentifier id = _engine.getCaseID(caseID);
+            if (id != null) {
                 _engine.cancelCase(id);
                 return SUCCESS;
-            } catch (YPersistenceException e) {
-                enginePersistenceFailure = true;
-                return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
             }
+            else {
+                return OPEN_FAILURE + "Case [" + caseID + "] not found." + CLOSE_FAILURE;
+            }
+        } catch (YPersistenceException e) {
+            enginePersistenceFailure = true;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        return OPEN_FAILURE + "Case [" + caseID + "] not found." + CLOSE_FAILURE;
     }
 
 
@@ -1081,7 +1083,13 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        return String.valueOf(_engine.updateCaseData(caseID, data));
+        try {
+            return String.valueOf(_engine.updateCaseData(caseID, data));
+        } catch (YPersistenceException e) {
+            enginePersistenceFailure = true;
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
+        }
+        
     }
 
 

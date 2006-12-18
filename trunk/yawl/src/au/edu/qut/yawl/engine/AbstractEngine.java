@@ -12,11 +12,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -75,14 +74,12 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  *         Time: 13:46:54
  *
  */
-public abstract class AbstractEngine implements InterfaceADesign,
+public abstract class AbstractEngine implements YEngineInterface,
+        InterfaceADesign,
         InterfaceAManagement,
         InterfaceBClient,
         InterfaceBInterop {
     private static Logger logger = Logger.getLogger(YEngine.class);
-
-    protected Map _caseIDToNetRunnerMap = new HashMap();
-    private Map _runningCaseIDToSpecIDMap = new HashMap();
 
     private InterfaceAManagementObserver _interfaceAClient;
     private InterfaceBClientObserver _interfaceBClient;
@@ -100,7 +97,6 @@ public abstract class AbstractEngine implements InterfaceADesign,
     protected static boolean journalising;
 //    protected static boolean restoring;
     protected static int maxcase = 0;
-//    protected static SessionFactory factory = null;
 
     /**
      * AJH: Switch indicating if we generate user interface attributes with a tasks output XML doclet.
@@ -270,7 +266,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
         //if the specification is not in the database either
 
         if (specification != null) {
-            YNetRunner runner = new YNetRunner(specification.getRootNet(), data);
+            YNetRunner runner = new YNetRunner(specification, data);
+            YNetRunner.saveNetRunner( runner, null );
 
             // register exception service with the net runner (MJA 4/4/06)
                 announceCheckCaseConstraints(specID,
@@ -314,8 +311,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
             YawlEventLogger.getInstance().logCaseCreated(runner.getCaseID().toString(), username, specID);
 
             runner.start();
-            _caseIDToNetRunnerMap.put(runner.getCaseID(), runner);
-            _runningCaseIDToSpecIDMap.put(runner.getCaseID(), specID);
+//            _caseIDToNetRunnerMap.put(runner.getCaseID(), runner);
+//            _runningCaseIDToSpecIDMap.put(runner.getCaseID(), specID);
 
             if (_interfaceBClient != null) {
                 logger.debug("Asking client to add case " + runner.getCaseID().toString());
@@ -331,8 +328,8 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
     public void restoreRunner(YNetRunner runner, String specID) {
     	try {
-    		_caseIDToNetRunnerMap.put(runner.getCaseID(), runner);
-    		_runningCaseIDToSpecIDMap.put(runner.getCaseID(), specID);
+//    		_caseIDToNetRunnerMap.put(runner.getCaseID(), runner);
+//    		_runningCaseIDToSpecIDMap.put(runner.getCaseID(), specID);
     		runner.start();
     	} catch (Exception e) {
     		e.printStackTrace();
@@ -342,10 +339,14 @@ public abstract class AbstractEngine implements InterfaceADesign,
     protected void finishCase(YIdentifier caseIDForNet) throws YPersistenceException {
         logger.debug("--> finishCase: Case=" + caseIDForNet.getId());
 
-        YNetRunner runner = (YNetRunner) _caseIDToNetRunnerMap.get(caseIDForNet);
-
-        _caseIDToNetRunnerMap.remove(caseIDForNet);
-        _runningCaseIDToSpecIDMap.remove(caseIDForNet);
+        YNetRunner runner = getNetRunner(caseIDForNet);
+        
+        if( getDataContext().getDataProxy( runner ) != null )
+            getDataContext().delete( getDataContext().getDataProxy( runner ) );
+        if( getDataContext().getDataProxy( caseIDForNet ) != null )
+            getDataContext().delete( getDataContext().getDataProxy( caseIDForNet ) );
+//        _caseIDToNetRunnerMap.remove(caseIDForNet);
+//        _runningCaseIDToSpecIDMap.remove(caseIDForNet);
         //YEngine._workItemRepository.cancelNet(caseIDForNet);
 
         //  LOG CASE EVENT
@@ -414,7 +415,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
         try {
             clearCase(id);
 
-            YNetRunner runner = (YNetRunner) _caseIDToNetRunnerMap.get(id);
+            YNetRunner runner = getNetRunner(id);
             //commented by LJA because finishCase() 'cause gets performed again in finishCase()
             //_runningCaseIDToSpecIDMap.remove(id);
 
@@ -424,13 +425,13 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
             YEngine._workItemRepository.removeWorkItemsForCase(id);
 
-            finishCase(id);
-
+            //finishCase(id);
+            
             // announce cancellation to exception service (if required)
                 announceCancellationToExceptionService(id) ;
 
         } catch (YPersistenceException e) {
-            throw new YPersistenceException("Failure whilst persisting new specification", e);
+            throw new YPersistenceException("Failure whilst cancelling case " + id, e);
         }
     }
 
@@ -562,19 +563,27 @@ public abstract class AbstractEngine implements InterfaceADesign,
     }
 
 
-    public YIdentifier getCaseID(String caseIDStr) {
-            logger.debug("--> getCaseID");
-
-            Set idSet = _caseIDToNetRunnerMap.keySet();
-            for (Iterator idSetIter = idSet.iterator(); idSetIter.hasNext();) {
-                YIdentifier identifier = (YIdentifier) idSetIter.next();
-                if (identifier.toString().equals(caseIDStr)) {
-                    return identifier;
-                }
-            }
-            return null;
+    public YIdentifier getCaseID(String caseIDStr) throws YPersistenceException {
+        logger.debug("--> getCaseID");
+        
+        Restriction restriction = new PropertyRestriction("id", Comparison.EQUAL, caseIDStr);
+        List<DataProxy> proxies = getDataContext().retrieveByRestriction(
+                YIdentifier.class, restriction, null );
+        if( proxies.size() > 0 ) {
+            return (YIdentifier) proxies.get( 0 ).getData();
+        }
+        return null;
     }
-
+    
+    public YNetRunner getNetRunner(YIdentifier id) throws YPersistenceException {
+        Restriction restriction = new PropertyRestriction("basicCaseId", Comparison.EQUAL, id.getId());
+        List<DataProxy> proxies = getDataContext().retrieveByRestriction(
+                YNetRunner.class, restriction, null );
+        if( proxies.size() > 0 ) {
+            return (YNetRunner) proxies.get( 0 ).getData();
+        }
+        return null;
+    }
 
     public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException {
             logger.debug("--> getStateTextForCase: ID=" + caseID.getId());
@@ -590,7 +599,7 @@ public abstract class AbstractEngine implements InterfaceADesign,
                     "######################\r\n" + "CaseID: ")
                     .append(caseID)
                     .append("\r\n" + "Spec:   ")
-                    .append(_runningCaseIDToSpecIDMap.get(caseID))
+                    .append(getSpecForCase(caseID))
                     .append("\r\n" + "###############################" +
                     "##############################\r\n");
             for (Iterator locationsIter = allLocations.iterator(); locationsIter.hasNext();) {
@@ -648,46 +657,57 @@ public abstract class AbstractEngine implements InterfaceADesign,
 
     public String getStateForCase(String caseID) throws YPersistenceException {
 
-       //PropertyRestriction restriction = new PropertyRestriction("archived", PropertyRestriction.Comparison.EQUAL , new Boolean(false));
-       PropertyRestriction restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , caseID);
-       List runners = context.retrieveByRestriction(YNetRunner.class, restriction ,null);
+        if( getCaseID( caseID ) != null ) {
+            //PropertyRestriction restriction = new PropertyRestriction("archived", PropertyRestriction.Comparison.EQUAL , new Boolean(false));
+            PropertyRestriction restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , caseID);
+            List runners = context.retrieveByRestriction(YNetRunner.class, restriction ,null);
 
-       if (runners.size()==0) {
-           restriction = new PropertyRestriction("basicCaseId",
-        		   PropertyRestriction.Comparison.EQUAL ,
-        		   caseID.substring(0,caseID.indexOf(".")));
-           runners = context.retrieveByRestriction(YNetRunner.class, restriction ,null);
-       }
+            if (runners.size()==0) {
+                restriction = new PropertyRestriction("basicCaseId",
+                        PropertyRestriction.Comparison.EQUAL ,
+                        caseID.substring(0,caseID.indexOf(".")));
+                runners = context.retrieveByRestriction(YNetRunner.class, restriction ,null);
+            }
 
-
-       //
-    	Set allLocations = new HashSet();
-
-    	if (!(runners.size()>1)) {
-    		DataProxy<YNetRunner> proxy = (DataProxy) runners.get(0);
-    		YNetRunner r = proxy.getData();
-    		YIdentifier yid = r.getCaseID();
-        	List l = r.getNet().getNetElements();
-        	for (int i = 0; i < l.size(); i++) {
-        		YNetElement elem = (YNetElement) l.get(i);
-        		if (elem instanceof YCondition) {
-        			if (((YCondition) elem).contains(yid)) {
-        				allLocations.add(elem);
-        			}
-        		} else if (elem instanceof YTask) {
-    				YIdentifier contained = ((YTask) elem).getContainingIdentifier();
-        			if (contained!=null && contained.equals(yid)) {
-        				allLocations.add(elem);
-        			}
-        		}
+        	Set allLocations = new HashSet();
+    
+        	if (!(runners.size()>1)) {
+        		DataProxy<YNetRunner> proxy = (DataProxy) runners.get(0);
+        		YNetRunner r = proxy.getData();
+        		YIdentifier yid = r.getCaseID();
+            	List l = r.getNet().getNetElements();
+            	for (int i = 0; i < l.size(); i++) {
+            		YNetElement elem = (YNetElement) l.get(i);
+            		if (elem instanceof YCondition) {
+            			if (((YCondition) elem).contains(yid)) {
+            				allLocations.add(elem);
+            			}
+            		} else if (elem instanceof YTask) {
+        				YIdentifier contained = ((YTask) elem).getContainingIdentifier();
+            			if (contained!=null && contained.equals(yid)) {
+            				allLocations.add(elem);
+            			}
+            		}
+            	}
+                return evaluateStateForCase(yid, allLocations, r.getNet().getParent().getID());
+        	} else {
+        		//multiple runners with same caseid, this is wrong
         	}
-            return evaluateStateForCase(yid, allLocations, r.getNet().getParent().getID());
-    	} else {
-    		//multiple runners with same caseid, this is wrong
-    	}
+        }
 
     	return "";
-
+    }
+    
+    public YSpecification getSpecForCase(YIdentifier id) throws YPersistenceException {
+        if( id != null ) {
+            Restriction restriction = new PropertyRestriction("dbid", Comparison.EQUAL, id.getSpecID());
+            List<DataProxy> proxies = getDataContext().retrieveByRestriction(
+                    YSpecification.class, restriction, null );
+            if( proxies.size() > 0 ) {
+                return (YSpecification) proxies.get( 0 ).getData();
+            }
+        }
+        return null;
     }
 
     public String getStateForCase(YIdentifier caseID) throws YPersistenceException {
@@ -698,17 +718,15 @@ public abstract class AbstractEngine implements InterfaceADesign,
             allLocations.addAll(identifier.getLocations());
         }
 
-        return evaluateStateForCase(caseID, allLocations, _runningCaseIDToSpecIDMap.get(caseID).toString());
-
+        return evaluateStateForCase(caseID, allLocations, getSpecForCase(caseID).getID());
     }
 
-
-    public String evaluateStateForCase(YIdentifier caseID, Set allLocations, String spec) {
+    public String evaluateStateForCase(YIdentifier caseID, Set allLocations, String specID) {
             StringBuffer stateText = new StringBuffer();
             stateText.append("<caseState " + "caseID=\"")
                     .append(caseID)
                     .append("\" " + "specID=\"")
-                    .append(spec)
+                    .append(specID)
                     .append("\">");
             for (Iterator locationsIter = allLocations.iterator(); locationsIter.hasNext();) {
                 YNetElement element = (YNetElement) locationsIter.next();
@@ -1379,15 +1397,72 @@ public abstract class AbstractEngine implements InterfaceADesign,
      * @param specID the process specification id string.
      * @return a set of YIdentifer caseIDs that are run time instances of the
      *         process specification with id = specID
+     * @throws YPersistenceException 
      */
-    public Set getCasesForSpecification(String specID) {
-        Set resultSet = new HashSet();
-        Set caseIDs = _runningCaseIDToSpecIDMap.keySet();
-        for (Iterator iterator = caseIDs.iterator(); iterator.hasNext();) {
-            YIdentifier caseID = (YIdentifier) iterator.next();
-            String specIDForCaseID = (String) _runningCaseIDToSpecIDMap.get(caseID);
-            if (specIDForCaseID.equals(specID)) {
-                resultSet.add(caseID);
+    public Set getCasesForSpecification(String specID) throws YPersistenceException {
+        return getCasesForSpecification( specID, null );
+    }
+    
+    public Set getCasesForSpecification(String specID, Integer version) throws YPersistenceException {
+        Set<YIdentifier> resultSet = new HashSet<YIdentifier>();
+        
+        Restriction restriction = new PropertyRestriction("ID", Comparison.EQUAL, specID);
+        if( version != null ) {
+            restriction = new LogicalRestriction(
+                    restriction,
+                    Operation.AND,
+                    new PropertyRestriction("version", Comparison.EQUAL, version) );
+        }
+        List<DataProxy> proxies = getDataContext().retrieveByRestriction(
+                YSpecification.class, restriction, null );
+        Comparator<YSpecification> comp = new Comparator<YSpecification>() {
+            public int compare( YSpecification o1, YSpecification o2 ) {
+                if( o1 == null && o2 == null ) {
+                    return 0;
+                }
+                else if( o1 == null ) {
+                    return 1;
+                }
+                else if( o2 == null ) {
+                    return -1;
+                }
+                else if( o1.getVersion() == null && o2.getVersion() == null ) {
+                    if( o1.getArchived() && ! o2.getArchived() ) {
+                        return 1;
+                    }
+                    else if( ! o1.getArchived() && o2.getArchived() ) {
+                        return -1;
+                    }
+                    else {
+                        return 0;
+                    }
+                }
+                else if( o1.getVersion() == null ) {
+                    return 1;
+                }
+                else if( o2.getVersion() == null ) {
+                    return -1;
+                }
+                else {
+                    return (int)(o2.getVersion().longValue() - o1.getVersion().longValue());
+                }
+            }
+        };
+        YSpecification spec = null;
+        for( DataProxy<YSpecification> proxy : proxies ) {
+            if( spec == null || comp.compare( spec, proxy.getData() ) > 0 ) {
+                spec = proxy.getData();
+            }
+        }
+        if( spec != null ) {
+            restriction = new PropertyRestriction("specID", Comparison.EQUAL, spec.getDbID());
+            proxies = getDataContext().retrieveByRestriction(
+                    YIdentifier.class, restriction, null );
+            
+            for( DataProxy<YIdentifier> proxy : proxies ) {
+                YIdentifier id = proxy.getData();
+                if( id.getParent() == null && id.getSpecID() != null && id.toString().indexOf( "." ) < 0 )
+                    resultSet.add( proxy.getData() );
             }
         }
         return resultSet;
@@ -1587,54 +1662,53 @@ public abstract class AbstractEngine implements InterfaceADesign,
 	                    logger.debug("    Beta Version   " + spec.getBetaVersion());
 	                }
 	            }
-	            logger.debug("*** DUMP OF SPECIFICATIONS ENDS ***");
             }
             catch( YPersistenceException e ) {
             	logger.debug( "*** DUMP OF SPECIFICATIONS FAILED:", e );
-            	logger.debug( "*** END OF SPECIFICATION DUMP ***" );
             }
+            
+            logger.debug("*** DUMP OF SPECIFICATIONS ENDS ***");
 
-            logger.debug("\n*** DUMPING " + _caseIDToNetRunnerMap.size() + " ENTRIES IN CASE_ID_2_NETRUNNER MAP ***");
-            {
-                Iterator keys = _caseIDToNetRunnerMap.keySet().iterator();
-                int sub = 0;
-                while (keys.hasNext()) {
-                    sub++;
-                    Object objKey = keys.next();
-                    if (objKey == null) {
-                        logger.debug("Key = NULL !!!");
-                    } else {
-                        YIdentifier key = (YIdentifier) objKey;
-                        YNetRunner runner = (YNetRunner) _caseIDToNetRunnerMap.get(key);
-
-                        logger.debug("Entry " + sub + " Key=" + key.getId());
+            try {
+                List<DataProxy> proxies = getDataContext().retrieveAll( YNetRunner.class, null );
+                logger.debug("\n*** DUMPING " + proxies.size() + " NETRUNNERS ***");
+                {
+                    for( int index = 0; index < proxies.size(); index++ ) {
+                        DataProxy<YNetRunner> proxy = proxies.get( index );
+                        YNetRunner runner = proxy.getData();
+                        
+                        logger.debug("Entry " + (index + 1) + ":");
                         logger.debug(("    CaseID        " + runner.getCaseID().toString()));
                         logger.debug("     YNetID        " + runner.getYNetID());
                     }
                 }
             }
-
-            logger.debug("*** DUMP OF CASE_ID_2_NETRUNNER_MAP ENDS");
-
-            logger.debug("*** DUMP OF RUNNING CASES TO SPEC MAP STARTS ***");
-            {
-                Iterator keys = _runningCaseIDToSpecIDMap.keySet().iterator();
-                int sub = 0;
-                while (keys.hasNext()) {
-                    sub++;
-                    Object objKey = keys.next();
-
-                    if (objKey == null) {
-                        logger.debug("key is NULL !!!");
-                    } else {
-                        YIdentifier key = (YIdentifier) objKey;
-                        String spec = (String) _runningCaseIDToSpecIDMap.get(key);
-                        logger.debug("Entry " + sub + " Key=" + key);
-                        logger.debug("    ID             " + spec);
-                    }
-                }
+            catch( YPersistenceException e ) {
+                logger.debug( "*** DUMP OF NETRUNNERS FAILED:", e );
             }
-            logger.debug("*** DUMP OF RUNNING CASES TO SPEC MAP ENDS ***");
+            
+
+            logger.debug("*** DUMP OF NETRUNNERS ENDS");
+
+//            logger.debug("*** DUMP OF RUNNING CASES TO SPEC MAP STARTS ***");
+//            {
+//                Iterator keys = _runningCaseIDToSpecIDMap.keySet().iterator();
+//                int sub = 0;
+//                while (keys.hasNext()) {
+//                    sub++;
+//                    Object objKey = keys.next();
+//
+//                    if (objKey == null) {
+//                        logger.debug("key is NULL !!!");
+//                    } else {
+//                        YIdentifier key = (YIdentifier) objKey;
+//                        String spec = (String) _runningCaseIDToSpecIDMap.get(key);
+//                        logger.debug("Entry " + sub + " Key=" + key);
+//                        logger.debug("    ID             " + spec);
+//                    }
+//                }
+//            }
+//            logger.debug("*** DUMP OF RUNNING CASES TO SPEC MAP ENDS ***");
 
             if (getWorkItemRepository() != null) {
                 getWorkItemRepository().dump(logger);
@@ -1770,22 +1844,17 @@ public abstract class AbstractEngine implements InterfaceADesign,
     }
 
 
-    public boolean updateCaseData(String idStr, String data) {
-        YNetRunner runner = (YNetRunner) _caseIDToNetRunnerMap.get(getCaseID(idStr));
+    public boolean updateCaseData(String idStr, String data) throws YPersistenceException {
+        YNetRunner runner = getNetRunner(getCaseID(idStr));
 
         if (runner != null) {
-            try {
-                YNet net = runner.getNet();
-                Element updatedVars = JDOMConversionTools.stringToElement(data);
-                List<Element> vars = updatedVars.getChildren();
-                for (Element var : vars) {
-                    net.assignData((Element) var.clone());
-                }
-                return true;
+            YNet net = runner.getNet();
+            Element updatedVars = JDOMConversionTools.stringToElement(data);
+            List<Element> vars = updatedVars.getChildren();
+            for (Element var : vars) {
+                net.assignData((Element) var.clone());
             }
-            catch (Exception e) {
-                logger.error("Problem updating Case Data for case " + idStr, e);
-            }
+            return true;
         }
         return false;
     }

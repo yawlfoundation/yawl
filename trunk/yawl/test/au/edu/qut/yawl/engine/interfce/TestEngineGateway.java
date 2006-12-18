@@ -40,10 +40,10 @@ import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.util.XmlUtilities;
 import au.edu.qut.yawl.worklist.model.Marshaller;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
@@ -103,9 +103,7 @@ public class TestEngineGateway extends TestCase {
 		return gateway.loadSpecification( spec, file, session );
 	}
     
-    public void testExecuteSpecification() throws YDataStateException, YStateException,
-    		YQueryException, YSchemaBuildingException, YPersistenceException,
-    		InterruptedException, URISyntaxException, JDOMException, IOException {
+    public void testExecuteSpecification() throws Exception {
 		launchCase();
 		performTask( "one" );
 		performTask( "two" );
@@ -118,8 +116,7 @@ public class TestEngineGateway extends TestCase {
 		assertTrue( str, root.getContentSize() == 0 );
     }
     
-    public void testExecuteMiSpecification()
-    		throws URISyntaxException, YPersistenceException, JDOMException, IOException {
+    public void testExecuteMiSpecification() throws Exception {
     	loadSpecification( getClass().getResource( "TestSimpleMi.xml" ), _gateway, _session );
     	_specID = "TestSimpleMi.xml";
     	launchCase();
@@ -282,8 +279,7 @@ public class TestEngineGateway extends TestCase {
     	assertTrue( "" + items.size(), items.size() == 1 );
     }
     
-    public void testRestartSuspendedWorkItem()
-			throws YPersistenceException, URISyntaxException, JDOMException, IOException {
+    public void testRestartSuspendedWorkItem() throws Exception {
 		// utilize this other test to start the work item then suspend it
 		testSuspendWorkItem();
 		
@@ -398,8 +394,7 @@ public class TestEngineGateway extends TestCase {
     	assertTrue( result, result.startsWith( "<failure" ) );
     }
     
-    public void testCaseCancel()
-    		throws URISyntaxException, YPersistenceException, JDOMException, IOException {
+    public void testCaseCancel() throws Exception {
     	// start the case and run the first task
     	launchCase();
         performTask("one");
@@ -513,15 +508,15 @@ public class TestEngineGateway extends TestCase {
 
     private void launchCase() throws RemoteException, URISyntaxException {
     	String caseData = "<RootDecomp></RootDecomp>";
-    	String ret = _gateway.launchCase( _specID, caseData,
-    			new URI("mock://mockedURL/testingNonExistent"), _session );
+    	String ret = _gateway.launchCase( _specID, caseData, null, _session );
+//    			new URI("mock://mockedURL/testingNonExistent"), _session );
     	assertNotNull( ret );
     	assertFalse( ret, ret.startsWith( "<failure" ) );
     	Long.parseLong( ret );
     	_caseID = ret;
     }
 
-    private void performTask(String name) throws YPersistenceException, JDOMException, IOException {
+    private void performTask(String name) throws Exception {
         // get all enabled work items
         Map<String, WorkItemRecord> itemsMap = getEnabledWorkItems();
         assertNotNull( itemsMap );
@@ -617,8 +612,7 @@ public class TestEngineGateway extends TestCase {
         }
     }
     
-    private void completeAllExecutingWorkItems()
-    		throws YPersistenceException, RemoteException, JDOMException, IOException {
+    private void completeAllExecutingWorkItems() throws Exception {
     	Set<WorkItemRecord> items;
     	WorkItemRecord item;
     	while( (items = getWorkItemsWithStatus( YWorkItem.Status.Executing )).size() > 0 ) {
@@ -640,6 +634,8 @@ public class TestEngineGateway extends TestCase {
 					" in work item: " + item.getID() );
 			result = _gateway.completeWorkItem( item.getID(), item.getDataListString(), false, _session );
 			assertNotNull( result );
+            if( result.startsWith( "<failure" ) )
+                throw XmlUtilities.getError( result );
 			assertFalse( result, result.startsWith( "<failure" ) );
         }
     }
