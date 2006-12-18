@@ -66,7 +66,7 @@ public class TestEngineSystem2 extends TestCase {
         EngineClearer.clear(_engine);
         _engine.addSpecifications(yawlXMLFile, true, new ArrayList());
         YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
-        _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
+        _netRunner = _engine.getNetRunner(id);
         try {
 //            YNetRunner _netRunner = _basicEngine2.getNetRunner();
 //            YIdentifier _idForBottomNet;
@@ -168,7 +168,7 @@ public class TestEngineSystem2 extends TestCase {
         EngineClearer.clear(_engine);
         _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
-        _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
+        _netRunner = _engine.getNetRunner(id);
         try {
 //            YNetRunner _netRunner = _basicEngine2.getNetRunner();
 //            YIdentifier _idForBottomNet;

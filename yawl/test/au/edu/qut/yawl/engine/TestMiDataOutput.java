@@ -489,7 +489,7 @@ public class TestMiDataOutput extends TestCase {
     		runMultiInstance( spec );
     		fail("An exception should have been thrown");
     	}
-    	catch(YSchemaBuildingException e) {
+    	catch(YStateException e) {
     		// proper exception thrown
     	}
     	catch( Exception e ) {

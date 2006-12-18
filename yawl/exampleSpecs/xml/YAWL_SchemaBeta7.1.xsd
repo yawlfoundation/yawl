@@ -402,6 +402,7 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:SpecificationType">
 				<xs:sequence>
+					<xs:element name="version" type="yawl:PositiveIntegerType" minOccurs="0"/>
 					<xs:element name="name" type="yawl:NameType" minOccurs="0"/>
 					<xs:element name="documentation" type="yawl:DocumentationType" minOccurs="0"/>
 					<xs:element name="metaData" type="yawl:MetaDataType"/>

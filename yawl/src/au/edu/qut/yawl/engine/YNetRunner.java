@@ -48,13 +48,13 @@ import au.edu.qut.yawl.elements.YInputCondition;
 import au.edu.qut.yawl.elements.YMultiInstanceAttributes;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YNetElement;
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
-import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
@@ -103,8 +103,6 @@ public class YNetRunner implements Serializable // extends Thread
      * ***************************
      */
     protected String yNetID = null;
-//    private Set enabledTaskNames = new HashSet();
-//    private Set busyTaskNames = new HashSet();
     private String containingTaskID = null;
     private YCaseData casedata = null;
     private YAWLServiceReference _caseObserver;
@@ -189,22 +187,6 @@ public class YNetRunner implements Serializable // extends Thread
     public void addEnabledTask(YTask ext) {
         _enabledTasks.add(ext);
     }
-//
-//	@CollectionOfElements
-//    public Set<String> getEnabledTaskNames() {
-//        return enabledTaskNames;
-//    }
-//	private void setEnabledTaskNames(Set<String> enabledTaskNames) {
-//		this.enabledTaskNames = enabledTaskNames;
-//	}
-//
-//	@CollectionOfElements
-//    public Set<String> getBusyTaskNames() {
-//        return busyTaskNames;
-//    }
-//	private void setBusyTaskNames(Set<String> busyTaskNames) {
-//		this.busyTaskNames = busyTaskNames;
-//	}
     /************************************************/
 
 
@@ -217,27 +199,18 @@ public class YNetRunner implements Serializable // extends Thread
     }
 
 
-    public YNetRunner(YNet netPrototype, Element paramsData) throws YDataStateException, YSchemaBuildingException, YPersistenceException {
+    public YNetRunner(YSpecification spec, Element paramsData) throws YDataStateException, YSchemaBuildingException, YPersistenceException {
+        YNet netPrototype = spec.getRootNet();
     	if( logger == null ) {
     		logger = Logger.getLogger(this.getClass());
             logger.debug("YNetRunner: <init>");
     	}
-//        super("NetRunner:" + netPrototype.getSpecURI());
         _caseIDForNet = new YIdentifier();
+        _caseIDForNet.setSpecID( spec.getDbID() );
         YIdentifier.saveIdentifier( _caseIDForNet, null, null );
-
-        /*
-        INSERTED FOR PERSISTANCE
-        */
-//        YPersistance.getInstance().storeData(_caseIDForNet);
-// TODO       if (pmgr != null) {
-//            pmgr.storeObject(_caseIDForNet);
-//        }
+        
         /*****************************/
         _net = (YNet) netPrototype.clone();
-        /*
-  INSERTED FOR PERSISTANCE
- */
         casedata = new YCaseData();
         casedata.setId(_caseIDForNet.toString());
         _net.initializeDataStore(casedata);
@@ -261,38 +234,23 @@ public class YNetRunner implements Serializable // extends Thread
     		logger = Logger.getLogger(this.getClass());
             logger.debug("YNetRunner: <init>");
     	}
-
-
-    	//        super("NetRunner:" + netPrototype.getSpecURI());
+        
         _caseIDForNet = caseIDForNet;
         /*****************************/
         _net = (YNet) netPrototype.clone();
-
-		/* *************************  */
-
-        /*
-  INSERTED FOR PERSISTANCE
-*/
+        
         casedata = new YCaseData();
         casedata.setId(_caseIDForNet.toString());
         _net.initializeDataStore(casedata);
         /*****************************/
         _containingCompositeTask = container;
         _engine = EngineFactory.createYEngine();
-
-
-        /*
-          INSERTED FOR PERSISTANCE
-         */
+        
         yNetID = netPrototype.getParent().getID();
         setContainingTaskID(container.getID());
         /******************************/
         prepare();
         _net.setIncomingData(incomingData);
-
-//  TODO      if (pmgr != null) {
-//            pmgr.storeObject(this);
-//        }
     }
 
     public static void saveNetRunner( YNetRunner runner, DataProxyStateChangeListener listener ) throws YPersistenceException {
@@ -318,7 +276,7 @@ public class YNetRunner implements Serializable // extends Thread
     }
 
 
-    /**
+    /* *
      * COPIED INTO KICK METHOD !!!
      */
     /*
@@ -550,24 +508,19 @@ public class YNetRunner implements Serializable // extends Thread
             }
 
 
-
             Logger.getLogger(this.getClass()).debug("NOTIFYING RUNNER");
 
             kick();
-
-
-
         }
 
-	  if (AbstractEngine.getDataContext().getDataProxy( this )  !=null) {
-          /* If the proxy is == null that means that the object was never persisted
-		which it should have been. See unit tests testImproperCompletionOfSubnet*/
-          AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
-
-	  }
+        if (AbstractEngine.getDataContext().getDataProxy( this ) != null) {
+            /* If the proxy is == null that means that the object was never persisted
+		     * which it should have been. See unit tests testImproperCompletionOfSubnet
+             */
+            AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
+        }
 
         Logger.getLogger(this.getClass()).debug("<-- processCompletedSubnet");
-
     }
 
 
@@ -578,27 +531,8 @@ public class YNetRunner implements Serializable // extends Thread
             List newChildIdentifiers = task.t_fire();
             _enabledTasks.remove(task);
 
-            //todo AJH - Why persist twice here ??????
-            /*
-             INSERTED FOR PERSISTANCE
-            */
-//            enabledTaskNames.remove(task.getSpecURI());
-//            YPersistance.getInstance().updateData(this);
-//  TODO          if (pmgr != null) {
-//                pmgr.updateObject(this);
-//            }
-
             /**********************/
             _busyTasks.add(task);
-            /*
-  INSERTED FOR PERSISTANCE
- */
-//            busyTaskNames.add(task.getSpecURI());
-//            YPersistance.getInstance().updateData(this);
-//  TODO          if (pmgr != null) {
-//                pmgr.updateObject(this);
-//            }
-            //AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
 
             /******************************/
             synchronized (this) {
@@ -1039,6 +973,7 @@ public class YNetRunner implements Serializable // extends Thread
 
 
     @ManyToOne(cascade=CascadeType.PERSIST)
+    @JoinColumn(name="caseID")
     //@OnDelete(action=OnDeleteAction.CASCADE)
     public YIdentifier getCaseID() {
         return _caseIDForNet;

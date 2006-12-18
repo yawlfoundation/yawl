@@ -103,7 +103,7 @@ public class TestSpecificationHibernateDAO extends AbstractHibernateDAOTestCase 
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, myDAO.getKey(testSpec));	
 		assertNotNull(spec);
 					
-		YNetRunner runner = new YNetRunner(spec.getRootNet(), null);
+		YNetRunner runner = new YNetRunner(spec, null);
 		myDAO.delete(testSpec);
 	}
 	

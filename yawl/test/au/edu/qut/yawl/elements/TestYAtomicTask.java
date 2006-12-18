@@ -199,8 +199,9 @@ public class TestYAtomicTask extends TestCase {
     
     /**
      * Tests the cancellation of a task that's in the repository and that's tied to an actual YAWL service.
+     * @throws Exception 
      */
-    public void testCancelTaskInWorkItemRepositoryB() throws YPersistenceException, YStateException, YDataStateException, YQueryException, YSchemaBuildingException {
+    public void testCancelTaskInWorkItemRepositoryB() throws Exception {
     	String fileName = "TestCancelYawlServiceSpec.xml";
     	boolean isXmlFileInPackage = true;
     	
@@ -208,59 +209,52 @@ public class TestYAtomicTask extends TestCase {
     	
     	YNet root = null;
     	
-    	try {
-    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		List<YDecomposition> decomps = spec.getDecompositions();
-    		
-    		System.out.println(decomps.size());
-    		for(int index = 0; index < decomps.size(); index++) {
-    			YDecomposition temp = decomps.get(index);
-    			if( "OverseeMusic".equals( temp.getId() ) ) {
-    				assert temp instanceof YNet : "decomposition 'OverseeMusic' should be a net!";
-    				root = (YNet) temp;
-    			}
-    		}
-    		
-    		if( root == null ) {
-    			fail( fileName + " should have a net called 'OverseeMusic'" );
-    		}
-    		
-    		YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
-    		
-    		YIdentifier id = new YIdentifier();
-    		YIdentifier.saveIdentifier( id, null, null );
-        	YWorkItemRepository repos = YWorkItemRepository.getInstance();
-        	repos.clear();
-        	
-        	YWorkItem item = new YWorkItem(task.getParent().getParent().getID(),
-        			new YWorkItemID(id, task.getID()), false, false);
-        	
-        	root.getInputCondition().add(id);
-            List l = null;
-            l = task.t_fire();
-            
-            Iterator i = l.iterator();
-            while(i.hasNext() && task.t_isBusy()){
-                YIdentifier yid = (YIdentifier) i.next();
-                task.t_start(yid);
-                Document d = new Document(new Element("data"));
-                task.cancel();
-            }
-            assertFalse(task.t_isBusy());
-    	}
-    	catch(Exception e) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
+		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+		List<YDecomposition> decomps = spec.getDecompositions();
+		
+		System.out.println(decomps.size());
+		for(int index = 0; index < decomps.size(); index++) {
+			YDecomposition temp = decomps.get(index);
+			if( "OverseeMusic".equals( temp.getId() ) ) {
+				assert temp instanceof YNet : "decomposition 'OverseeMusic' should be a net!";
+				root = (YNet) temp;
+			}
+		}
+		
+		if( root == null ) {
+			fail( fileName + " should have a net called 'OverseeMusic'" );
+		}
+		
+		YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
+		
+		YIdentifier id = new YIdentifier();
+		YIdentifier.saveIdentifier( id, null, null );
+    	YWorkItemRepository repos = YWorkItemRepository.getInstance();
+    	repos.clear();
+    	
+    	YWorkItem item = new YWorkItem(task.getParent().getParent().getID(),
+    			new YWorkItemID(id, task.getID()), false, false);
+    	
+    	root.getInputCondition().add(id);
+        List l = null;
+        l = task.t_fire();
+        
+        Iterator i = l.iterator();
+        while(i.hasNext() && task.t_isBusy()){
+            YIdentifier yid = (YIdentifier) i.next();
+            task.t_start(yid);
+            Document d = new Document(new Element("data"));
+            task.cancel();
+        }
+        assertFalse(task.t_isBusy());
     }
     
     /**
      * Used to test the prepareEnablementData() function in YAtomicTask.<br>
      * TODO need to test having it throw different kinds of exceptions
+     * @throws Exception 
      */
-    public void testEnablementMappingsSpec() {
+    public void testEnablementMappingsSpec() throws Exception {
     	String fileName = "EnablementMappingsSpec.xml";
     	boolean isXmlFileInPackage = true;
     	
@@ -268,90 +262,76 @@ public class TestYAtomicTask extends TestCase {
     	YNet root = null;
     	List children = null;
     	
-    	try {
-    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		spec.verify();
-    		List<YDecomposition> decomps = spec.getDecompositions();
-    		
-    		for(int index = 0; index < decomps.size(); index++) {
-    			YDecomposition temp = decomps.get(index);
-    			if( "Root".equals( temp.getId() ) ) {
-    				assert temp instanceof YNet : "decomposition 'Root' should be a net!";
-    				root = (YNet) temp;
-    			}
-    		}
-    		
-    		if( root == null ) {
-    			fail( fileName + " should have a net called 'Root'" );
-    		}
-    		
-    		AbstractEngine engine2 = EngineFactory.createYEngine();
-            EngineClearer.clear(engine2);
-            engine2.loadSpecification(spec);
-            String idString = engine2.launchCase(null, spec.getID(), null, null);
-            YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
-            Document d = new Document();
-            d.setRootElement(new Element("data"));
-    		
-    		children = netRunner1.attemptToFireAtomicTask("SignOff_3");
-    		assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
-    		
-    		netRunner1.continueIfPossible();
-    	}
-    	catch(Exception e) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
+		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+		spec.verify();
+		List<YDecomposition> decomps = spec.getDecompositions();
+		
+		for(int index = 0; index < decomps.size(); index++) {
+			YDecomposition temp = decomps.get(index);
+			if( "Root".equals( temp.getId() ) ) {
+				assert temp instanceof YNet : "decomposition 'Root' should be a net!";
+				root = (YNet) temp;
+			}
+		}
+		
+		if( root == null ) {
+			fail( fileName + " should have a net called 'Root'" );
+		}
+		
+		AbstractEngine engine2 = EngineFactory.createYEngine();
+        EngineClearer.clear(engine2);
+        engine2.loadSpecification(spec);
+        String idString = engine2.launchCase(null, spec.getID(), null, null);
+        YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
+        Document d = new Document();
+        d.setRootElement(new Element("data"));
+		
+		children = netRunner1.attemptToFireAtomicTask("SignOff_3");
+		assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
+		
+		netRunner1.continueIfPossible();
     }
     
     /**
      * Tests converting the enablement mappings spec to XML.
+     * @throws Exception 
      */
-    public void testEnablementMappingsSpecXML() {
+    public void testEnablementMappingsSpecXML() throws Exception {
     	String fileName = "EnablementMappingsSpec.xml";
     	boolean isXmlFileInPackage = true;
     	
     	YSpecification spec = null;
     	
-    	try {
-    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		
-    		String xml = spec.toXML();
-    		
-    		xml = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
-    			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
-    			" d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">" + xml + "</specificationSet>";
-    		
-    		YSpecification spec2 = (YSpecification) YMarshal.unmarshalSpecifications(
-    				xml, "testEnablementMappingsSpecXML" ).get( 0 );
-    		
-    		// test some things to see if they're the same
-    		// (would be better if there was a .equals for YSpecification that tested
-    		// for example equality)
-    		assertTrue( spec.getDocumentation().equals( spec2.getDocumentation() ) );
-    		assertTrue( spec.getID().equals( spec2.getID() ) );
-    		assertTrue( spec.getDecompositions().size() == spec2.getDecompositions().size() );
-    		assertTrue( spec.getMetaData().toXML().equals( spec2.getMetaData().toXML() ) );
-    		assertTrue( spec.getRootNet().toXML().equals( spec2.getRootNet().toXML() ) );
-    		assertTrue( spec.toXML().equals( spec2.toXML() ) );
-    	}
-    	catch(Exception e) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
+		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+		
+		String xml = spec.toXML();
+		
+		xml = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
+			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
+			" d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">" + xml + "</specificationSet>";
+		
+		YSpecification spec2 = (YSpecification) YMarshal.unmarshalSpecifications(
+				xml, "testEnablementMappingsSpecXML" ).get( 0 );
+		
+		// test some things to see if they're the same
+		// (would be better if there was a .equals for YSpecification that tested
+		// for example equality)
+		assertTrue( spec.getDocumentation().equals( spec2.getDocumentation() ) );
+		assertTrue( spec.getID().equals( spec2.getID() ) );
+		assertTrue( spec.getDecompositions().size() == spec2.getDecompositions().size() );
+		assertTrue( spec.getMetaData().toXML().equals( spec2.getMetaData().toXML() ) );
+		assertTrue( spec.getRootNet().toXML().equals( spec2.getRootNet().toXML() ) );
+		assertTrue( spec.toXML().equals( spec2.toXML() ) );
     }
     
     /**
      * Tests having enablement mappings with a task that decomposes to null (ie: doesn't
      * decompose to anything). Uses an XML file where the task does have a decomposition,
      * then modifies it in the java code.
+     * @throws Exception 
      */
-    public void testEnablementMappingsSpecB() {
+    public void testEnablementMappingsSpecB() throws Exception {
     	String fileName = "EnablementMappingsSpec.xml";
     	boolean isXmlFileInPackage = true;
     	
@@ -359,46 +339,38 @@ public class TestYAtomicTask extends TestCase {
     	YNet root = null;
     	List children = null;
     	
-    	try {
-    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		spec.verify();
-    		List<YDecomposition> decomps = spec.getDecompositions();
-    		
-    		for(int index = 0; index < decomps.size(); index++) {
-    			YDecomposition temp = decomps.get(index);
-    			if( "Root".equals( temp.getId() ) ) {
-    				assert temp instanceof YNet : "decomposition 'Root' should be a net!";
-    				root = (YNet) temp;
-    			}
-    		}
-    		
-    		if( root == null ) {
-    			fail( fileName + " should have a net called 'Root'" );
-    		}
-    		
-    		YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
-    		
-    		task.setDecompositionPrototype(null);
-    		
-    		AbstractEngine engine2 = EngineFactory.createYEngine();
-            EngineClearer.clear(engine2);
-            engine2.loadSpecification(spec);
-            String idString = engine2.launchCase(null, spec.getID(), null, null);
-            YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
-            Document d = new Document();
-            d.setRootElement(new Element("data"));
-    		
-    		children = netRunner1.attemptToFireAtomicTask("SignOff_3");
-    		assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
-    		
-    		netRunner1.continueIfPossible();
-    	}
-    	catch(Exception e) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
+		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+		spec.verify();
+		List<YDecomposition> decomps = spec.getDecompositions();
+		
+		for(int index = 0; index < decomps.size(); index++) {
+			YDecomposition temp = decomps.get(index);
+			if( "Root".equals( temp.getId() ) ) {
+				assert temp instanceof YNet : "decomposition 'Root' should be a net!";
+				root = (YNet) temp;
+			}
+		}
+		
+		if( root == null ) {
+			fail( fileName + " should have a net called 'Root'" );
+		}
+		
+		YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
+		
+		task.setDecompositionPrototype(null);
+		
+		AbstractEngine engine2 = EngineFactory.createYEngine();
+        EngineClearer.clear(engine2);
+        engine2.loadSpecification(spec);
+        String idString = engine2.launchCase(null, spec.getID(), null, null);
+        YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
+        Document d = new Document();
+        d.setRootElement(new Element("data"));
+		
+		children = netRunner1.attemptToFireAtomicTask("SignOff_3");
+		assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
+		
+		netRunner1.continueIfPossible();
     }
     
     /**
@@ -406,8 +378,9 @@ public class TestYAtomicTask extends TestCase {
      * the xml file lines 41 through 44 with lines 45 through 50. Note that this
      * fails under the newer versions (when it checks the schema) but works with
      * older YAWL versions.
+     * @throws Exception 
      */
-    public void testEnablementMappingsSpecC() {
+    public void testEnablementMappingsSpecC() throws Exception {
     	String fileName = "EnablementMappingsSpecC.xml";
     	boolean isXmlFileInPackage = true;
     	
@@ -415,50 +388,41 @@ public class TestYAtomicTask extends TestCase {
     	YNet root = null;
     	List children = null;
     	
-    	try {
-    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		spec.setBetaVersion(YSpecification._Beta2);
-    		spec.verify();
-    		List<YDecomposition> decomps = spec.getDecompositions();
-    		
-    		for(int index = 0; index < decomps.size(); index++) {
-    			YDecomposition temp = decomps.get(index);
-    			if( "Root".equals( temp.getId() ) ) {
-    				assert temp instanceof YNet : "decomposition 'Root' should be a net!";
-    				root = (YNet) temp;
-    			}
-    		}
-    		
-    		if( root == null ) {
-    			fail( fileName + " should have a net called 'Root'" );
-    		}
-    		
-    		AbstractEngine engine2 = EngineFactory.createYEngine();
-            EngineClearer.clear(engine2);
-            engine2.loadSpecification(spec);
-            String idString = engine2.launchCase(null, spec.getID(), null, null);
-            YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
-            Document d = new Document();
-            d.setRootElement(new Element("data"));
-    		
-    		children = netRunner1.attemptToFireAtomicTask("SignOff_3");
-    		assertFalse("Spec input condition contains identifier",
-    				spec.getRootNet().getInputCondition().containsIdentifier());
-    		boolean contains = false;
-    		for( YExternalNetElement element : netRunner1.getBusyTasks() ) {
-    			if( element.getID().equals( "SignOff_3" ) ) {
-    				contains = true;
-    			}
-    		}
-    		assertTrue("Task 'SignOff_3' busy:" + netRunner1.getBusyTasks(), contains);
-    	}
-    	catch(Exception e) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		System.err.println( sw.toString() );
-    		fail( sw.toString() );
-    	}
+		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+		spec.setBetaVersion(YSpecification._Beta2);
+		spec.verify();
+		List<YDecomposition> decomps = spec.getDecompositions();
+		
+		for(int index = 0; index < decomps.size(); index++) {
+			YDecomposition temp = decomps.get(index);
+			if( "Root".equals( temp.getId() ) ) {
+				assert temp instanceof YNet : "decomposition 'Root' should be a net!";
+				root = (YNet) temp;
+			}
+		}
+		
+		if( root == null ) {
+			fail( fileName + " should have a net called 'Root'" );
+		}
+		
+		AbstractEngine engine2 = EngineFactory.createYEngine();
+        EngineClearer.clear(engine2);
+        engine2.loadSpecification(spec);
+        String idString = engine2.launchCase(null, spec.getID(), null, null);
+        YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
+        Document d = new Document();
+        d.setRootElement(new Element("data"));
+		
+		children = netRunner1.attemptToFireAtomicTask("SignOff_3");
+		assertFalse("Spec input condition contains identifier",
+				spec.getRootNet().getInputCondition().containsIdentifier());
+		boolean contains = false;
+		for( YExternalNetElement element : netRunner1.getBusyTasks() ) {
+			if( element.getID().equals( "SignOff_3" ) ) {
+				contains = true;
+			}
+		}
+		assertTrue("Task 'SignOff_3' busy:" + netRunner1.getBusyTasks(), contains);
     }
     
     /**
@@ -501,8 +465,9 @@ public class TestYAtomicTask extends TestCase {
      * Tests verification of a spec containing no root net, and where the enablement
      * mappings of a task and the enablement parameters of the task's decomposition
      * don't match up.
+     * @throws Exception 
      */
-    public void testEnablementMappingsSpecE() {
+    public void testEnablementMappingsSpecE() throws Exception {
     	String fileName = "EnablementMappingsSpecE.xml";
     	boolean isXmlFileInPackage = true;
     	
@@ -510,32 +475,25 @@ public class TestYAtomicTask extends TestCase {
     	YNet root = null;
     	List children = null;
     	
-    	try {
-    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		List<YVerificationMessage> messages = spec.verify();
-    		
-    		boolean errorMsgExists = false;
-    		
-    		for( YVerificationMessage message : messages ) {
-    			if( YVerificationMessage.ERROR_STATUS.equals( message.getStatus() ) ) {
-    				errorMsgExists = true;
-    			}
-    		}
-    		
-    		assertTrue( "Spec validation should return an error message", errorMsgExists );
-    	}
-    	catch(Exception e) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
+		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+		List<YVerificationMessage> messages = spec.verify();
+		
+		boolean errorMsgExists = false;
+		
+		for( YVerificationMessage message : messages ) {
+			if( YVerificationMessage.ERROR_STATUS.equals( message.getStatus() ) ) {
+				errorMsgExists = true;
+			}
+		}
+		
+		assertTrue( "Spec validation should return an error message", errorMsgExists );
     }
     
     /**
      * Provides further branch coverage in YAtomicTask.prepareEnablementData
+     * @throws Exception 
      */
-    public void testEnablementMappingsSpecF() {
+    public void testEnablementMappingsSpecF() throws Exception {
     	String fileName = "EnablementMappingsSpecF.xml";
     	boolean isXmlFileInPackage = true;
     	
@@ -543,89 +501,75 @@ public class TestYAtomicTask extends TestCase {
     	YNet root = null;
     	List children = null;
     	
-    	try {
-    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		spec.verify();
-    		List<YDecomposition> decomps = spec.getDecompositions();
-    		
-    		for(int index = 0; index < decomps.size(); index++) {
-    			YDecomposition temp = decomps.get(index);
-    			if( "Root".equals( temp.getId() ) ) {
-    				assert temp instanceof YNet : "decomposition 'Root' should be a net!";
-    				root = (YNet) temp;
-    			}
-    		}
-    		
-    		if( root == null ) {
-    			fail( fileName + " should have a net called 'Root'" );
-    		}
-    		
-    		AbstractEngine engine2 = EngineFactory.createYEngine();
-            EngineClearer.clear(engine2);
-            engine2.loadSpecification(spec);
-            String idString = engine2.launchCase(null, spec.getID(), null, null);
-            YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
-            Document d = new Document();
-            d.setRootElement(new Element("data"));
-    		
-    		children = netRunner1.attemptToFireAtomicTask("SignOff_3");
-    		assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
-    		
-    		netRunner1.continueIfPossible();
-    	}
-    	catch(Exception e) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
+		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+		spec.verify();
+		List<YDecomposition> decomps = spec.getDecompositions();
+		
+		for(int index = 0; index < decomps.size(); index++) {
+			YDecomposition temp = decomps.get(index);
+			if( "Root".equals( temp.getId() ) ) {
+				assert temp instanceof YNet : "decomposition 'Root' should be a net!";
+				root = (YNet) temp;
+			}
+		}
+		
+		if( root == null ) {
+			fail( fileName + " should have a net called 'Root'" );
+		}
+		
+		AbstractEngine engine2 = EngineFactory.createYEngine();
+        EngineClearer.clear(engine2);
+        engine2.loadSpecification(spec);
+        String idString = engine2.launchCase(null, spec.getID(), null, null);
+        YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));
+        Document d = new Document();
+        d.setRootElement(new Element("data"));
+		
+		children = netRunner1.attemptToFireAtomicTask("SignOff_3");
+		assertFalse(spec.getRootNet().getInputCondition().containsIdentifier());
+		
+		netRunner1.continueIfPossible();
     }
     
     /**
      * Tests converting the enablement mappings spec F to XML.
+     * @throws Exception 
      */
-    public void testEnablementMappingsSpecXML_F() {
+    public void testEnablementMappingsSpecXML_F() throws Exception {
     	String fileName = "EnablementMappingsSpecF.xml";
     	boolean isXmlFileInPackage = true;
     	
     	YSpecification spec = null;
     	
-    	try {
-    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		
-    		String xml = spec.toXML();
-    		
-    		xml = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
-    			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-    			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
-    			" d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">" + xml + "</specificationSet>";
-    		
-    		YSpecification spec2 = (YSpecification) YMarshal.unmarshalSpecifications(
-    				xml, "testEnablementMappingsSpecF_XML" ).get( 0 );
-    		
-    		// test some things to see if they're the same
-    		// (would be better if there was a .equals for YSpecification that tested
-    		// for example equality)
-    		assertTrue( spec.getDocumentation().equals( spec2.getDocumentation() ) );
-    		assertTrue( spec.getID().equals( spec2.getID() ) );
-    		assertTrue( spec.getDecompositions().size() == spec2.getDecompositions().size() );
-    		assertTrue( spec.getMetaData().toXML().equals( spec2.getMetaData().toXML() ) );
-    		assertTrue( spec.getRootNet().toXML().equals( spec2.getRootNet().toXML() ) );
-    		assertTrue( spec.toXML().equals( spec2.toXML() ) );
-    	}
-    	catch(Exception e) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
+		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+		
+		String xml = spec.toXML();
+		
+		xml = "<specificationSet xmlns=\"http://www.yawl.fit.qut.edu.au/\" " +
+			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+			"version=\"Beta 7.1\" xsi:schemaLocation=\"http://www.yawl.fit.qut.edu.au/" +
+			" d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">" + xml + "</specificationSet>";
+		
+		YSpecification spec2 = (YSpecification) YMarshal.unmarshalSpecifications(
+				xml, "testEnablementMappingsSpecF_XML" ).get( 0 );
+		
+		// test some things to see if they're the same
+		// (would be better if there was a .equals for YSpecification that tested
+		// for example equality)
+		assertTrue( spec.getDocumentation().equals( spec2.getDocumentation() ) );
+		assertTrue( spec.getID().equals( spec2.getID() ) );
+		assertTrue( spec.getDecompositions().size() == spec2.getDecompositions().size() );
+		assertTrue( spec.getMetaData().toXML().equals( spec2.getMetaData().toXML() ) );
+		assertTrue( spec.getRootNet().toXML().equals( spec2.getRootNet().toXML() ) );
+		assertTrue( spec.toXML().equals( spec2.toXML() ) );
     }
     
     /**
      * Tests that an atomic task that does not have a decomposition causes the verify
      * function to return verification errors, but not throw any exceptions.
+     * @throws Exception 
      */
-    public void testTaskWithoutDecompositionSpec() {
+    public void testTaskWithoutDecompositionSpec() throws Exception {
     	String fileName = "TaskWithoutDecompositionSpec.xml";
     	boolean isXmlFileInPackage = true;
     	
@@ -645,8 +589,9 @@ public class TestYAtomicTask extends TestCase {
     /**
      * Tests that an atomic task that decomposes to a Net causes the verify function to
      * return verification errors, but not throw any exceptions.
+     * @throws Exception 
      */
-    public void testTaskDecomposesToNetSpec() {
+    public void testTaskDecomposesToNetSpec() throws Exception {
     	String fileName = "TaskDecomposesToNetSpec.xml";
     	boolean isXmlFileInPackage = true;
     	
@@ -657,38 +602,30 @@ public class TestYAtomicTask extends TestCase {
     	
     	List<YVerificationMessage> messages = new LinkedList<YVerificationMessage>();
     	
-    	try {
-    		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		List<YDecomposition> decomps = spec.getDecompositions();
-    		
-    		for(int index = 0; index < decomps.size(); index++) {
-    			YDecomposition temp = decomps.get(index);
-    			if( "OverseeMusic".equals( temp.getId() ) ) {
-    				assert temp instanceof YNet : "decomposition 'OverseeMusic' should be a net!";
-    				root = (YNet) temp;
-    			}
-    			else if( "leaf-c".equals( temp.getId() ) ) {
-    				assert temp instanceof YNet : "decomposition 'leaf-c' should be a net!";
-    				otherNet = (YNet) temp;
-    			}
-    		}
-    		
-    		if( root == null || otherNet == null ) {
-    			fail( fileName + " should have nets called 'OverseeMusic' and 'leaf-c'" + root + " " + otherNet );
-    		}
-    		
-    		YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
-    		
-    		task.setDecompositionPrototype(otherNet);
-    		
-    		messages = verifySpec( spec, fileName );
-    	}
-    	catch(Exception e) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
+		spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+		List<YDecomposition> decomps = spec.getDecompositions();
+		
+		for(int index = 0; index < decomps.size(); index++) {
+			YDecomposition temp = decomps.get(index);
+			if( "OverseeMusic".equals( temp.getId() ) ) {
+				assert temp instanceof YNet : "decomposition 'OverseeMusic' should be a net!";
+				root = (YNet) temp;
+			}
+			else if( "leaf-c".equals( temp.getId() ) ) {
+				assert temp instanceof YNet : "decomposition 'leaf-c' should be a net!";
+				otherNet = (YNet) temp;
+			}
+		}
+		
+		if( root == null || otherNet == null ) {
+			fail( fileName + " should have nets called 'OverseeMusic' and 'leaf-c'" + root + " " + otherNet );
+		}
+		
+		YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
+		
+		task.setDecompositionPrototype(otherNet);
+		
+		messages = verifySpec( spec, fileName );
     	
     	// the specification should contain an error
     	boolean containsError = false;
@@ -704,20 +641,13 @@ public class TestYAtomicTask extends TestCase {
     /**
      * Helper function that reads the specification with the given filename and
      * attempts to verify it and return the verification messages.
+     * @throws Exception 
      */
-    private List<YVerificationMessage> readAndVerifySpec( String fileName, boolean isXmlFileInPackage ) {
+    private List<YVerificationMessage> readAndVerifySpec( String fileName, boolean isXmlFileInPackage ) throws Exception {
     	List<YVerificationMessage> messages = new LinkedList<YVerificationMessage>();
     	
-    	try {
-    		YSpecification spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
-    		messages = verifySpec( spec, fileName );
-    	}
-    	catch( Exception e ) {
-    		StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-    	}
+		YSpecification spec = SpecReader.readSpecification( fileName, isXmlFileInPackage, TestYAtomicTask.class );
+		messages = verifySpec( spec, fileName );
     	
     	return messages;
     }

@@ -18,31 +18,28 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.CascadeType;
 import javax.persistence.Transient;
 
-import org.apache.log4j.Logger;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import au.edu.qut.yawl.elements.YConditionInterface;
-import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YNetElement;
-import au.edu.qut.yawl.elements.YCondition;
+import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.events.YErrorEvent;
 import au.edu.qut.yawl.events.YawlEventLogger;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -76,24 +73,13 @@ public class YIdentifier implements Serializable {
      * @hibernate.id
      */
     @Id
-    @Column(name="identifier_id")
+    @Column(name="id")
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
-    }
-    
-    private List<YNetRunner> netRunners;
-    
-    @OneToMany(mappedBy="caseID")
-    public List<YNetRunner> getNetRunners() {
-        return netRunners;
-    }
-    
-    public void setNetRunners(List<YNetRunner> netRunners) {
-    	this.netRunners = netRunners;
     }
     
     
@@ -112,6 +98,7 @@ public class YIdentifier implements Serializable {
     //private List<YNetElement> _locations = new Vector<YNetElement>();
     private List<YIdentifier> _children = new Vector<YIdentifier>();
     private YIdentifier _parent;
+    private Long specID;
 
 
     public YIdentifier() {
@@ -132,6 +119,15 @@ public class YIdentifier implements Serializable {
     
     protected void setChildren(List<YIdentifier> children) {
     	_children = children;
+    }
+    
+    @Column(name="specID")
+    public Long getSpecID() {
+        return specID;
+    }
+    
+    public void setSpecID(Long specID) {
+        this.specID = specID;
     }
 
     @Transient
@@ -235,12 +231,14 @@ public class YIdentifier implements Serializable {
     
     @ManyToOne
     @OnDelete(action=OnDeleteAction.CASCADE)
+    @JoinColumn(name="parent")
     public YIdentifier getParent() {
         return _parent;
     }
     
     @ManyToOne
     @OnDelete(action=OnDeleteAction.CASCADE)
+    @JoinColumn(name="parent")
     protected void setParent(YIdentifier parent) {
     	_parent = parent;
     }
@@ -291,42 +289,37 @@ public class YIdentifier implements Serializable {
     @Deprecated
     public synchronized List<YNetElement> getLocations() throws YPersistenceException {
     	List<YNetElement> retval = new LinkedList<YNetElement>();
-
-        //List<DataProxy> runners2 = AbstractEngine.getDataContext().retrieveAll(YNetRunner.class, null);
         
         PropertyRestriction restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , this.toString());
         List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction(YNetRunner.class, restriction ,null);
-
-        if (runners.size()==0) {
+        
+        if( runners.size()==0 && getParent() != null ) {
         	restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , this.getParent().toString());
             runners = AbstractEngine.getDataContext().retrieveByRestriction(YNetRunner.class, restriction ,null);        	
         }
         
-        YNetRunner runner = (YNetRunner) runners.get(0).getData();
-        
-//        YNetRunner runner = YWorkItemRepository.getInstance().getNetRunner(this);
-//   	if (runner==null) {
-//    		runner = YWorkItemRepository.getInstance().getNetRunner(this.getParent());
-//    	}
-
-    	YNet net = runner.getNet();
-    	List l = net.getNetElements();
-
-    	for (int i = 0; i < l.size(); i++) {
-    		YNetElement elem = (YNetElement) l.get(i);
-    		if (elem instanceof YCondition) {
-    			if (((YCondition) elem).contains(this)) {
-    				for (int j = 0; j < ((YCondition) elem).getAmount(this); j++) {
-    					retval.add(elem);
-    				}
-    			}    			
-    		} else if (elem instanceof YTask) {
-				YIdentifier contained = ((YTask) elem).getContainingIdentifier();
-    			if (contained!=null && contained.equals(this)) {
-    				retval.add(elem);    				
-    			}
-    		}
-    	}
+        if( runners.size() > 0 ) {
+            YNetRunner runner = (YNetRunner) runners.get(0).getData();
+            
+        	YNet net = runner.getNet();
+        	List l = net.getNetElements();
+            
+        	for (int i = 0; i < l.size(); i++) {
+        		YNetElement elem = (YNetElement) l.get(i);
+        		if (elem instanceof YCondition) {
+        			if (((YCondition) elem).contains(this)) {
+        				for (int j = 0; j < ((YCondition) elem).getAmount(this); j++) {
+        					retval.add(elem);
+        				}
+        			}    			
+        		} else if (elem instanceof YTask) {
+    				YIdentifier contained = ((YTask) elem).getContainingIdentifier();
+        			if (contained!=null && contained.equals(this)) {
+        				retval.add(elem);    				
+        			}
+        		}
+        	}
+        }
     	
     	// TODO Why is this synchronized?  -- DM
         return retval;

@@ -14,7 +14,9 @@ import java.util.Set;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**
@@ -28,7 +30,36 @@ public class EngineClearer {
 	 * the engine is connected to a database, the database will have all specifications
 	 * removed!
 	 */
-    public static void clear(AbstractEngine engine) throws YPersistenceException {
+    public static void clear(YEngineInterface engine) throws YPersistenceException {
+        AbstractEngine.getWorkItemRepository().clear();
+        
+        List<DataProxy> ids = AbstractEngine.getDataContext().retrieveByRestriction( YIdentifier.class,
+                new PropertyRestriction( "parent", Comparison.EQUAL, null),
+                null );
+//        List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction( YNetRunner.class,
+//                new PropertyRestriction( "archived", Comparison.EQUAL, false),
+//                null );
+        
+        for( DataProxy<YIdentifier> proxy : ids ) {
+            YIdentifier id = proxy.getData();
+            if( engine.getNetRunner( id ) == null ) {
+                AbstractEngine.getDataContext().delete( AbstractEngine.getDataContext().getDataProxy( id ) );
+            }
+            else {
+                engine.cancelCase(id);
+            }
+        }
+        
+//        for( DataProxy<YNetRunner> proxy : runners ) {
+//            YNetRunner runner = proxy.getData();
+//            engine.cancelCase( runner.getCaseID() );
+//        }
+        
+        List<DataProxy> runners = AbstractEngine.getDataContext().retrieveAll( YNetRunner.class, null );
+        for( DataProxy<YNetRunner> proxy : runners ) {
+            AbstractEngine.getDataContext().delete( proxy );
+        }
+        
         Set<YSpecification> specs = engine.getSpecifications();
         for( YSpecification spec : specs ) {
             Set caseIDs = engine.getCasesForSpecification(spec.getID());

@@ -62,7 +62,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
             EngineClearer.clear(_engine);
             _engine.addSpecifications(yawlXMLFile, false , new ArrayList());
             YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
-            _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
+            _netRunner = _engine.getNetRunner(id);
             {
                 //execute task "decideName"
                 Set availableItems = _engine.getAvailableWorkItems();
@@ -124,9 +124,8 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                         _engine.startWorkItem(wiRecord_Enabled, "admin");
 
                 assertTrue(wiRecord_Executing.getStatus().equals(YWorkItem.Status.Executing));
-
-
             }
+            _engine.cancelCase(id);
         }
     }
 

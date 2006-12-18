@@ -394,7 +394,7 @@ public class YWorkItemRepository {
     //todo LA Ques: Link to persistance??
     public void removeWorkItemsForCase(YIdentifier caseID) throws YPersistenceException {
         if (caseID == null || caseID.getParent() != null) {
-            throw new IllegalArgumentException("the argument <caseID> is not valid.");
+            throw new IllegalArgumentException("the argument <caseID> is not valid." + caseID);
         }
         Set<YWorkItem> workItems = getWorkItems();
         for (YWorkItem item : workItems) {

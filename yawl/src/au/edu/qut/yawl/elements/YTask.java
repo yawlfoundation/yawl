@@ -638,7 +638,7 @@ public abstract class YTask extends YExternalNetElement {
                     "] is not active, and therefore cannot be completed. "
             );
 
-            throw new RuntimeException(
+            throw new YStateException(
                     "This task [" +
                     getName() != null ? getName() : getID() +
                     "] is not active, and therefore cannot be completed.");

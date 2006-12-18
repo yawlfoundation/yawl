@@ -59,7 +59,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  *         Time: 13:46:54
  * ©
  */
-public class YEngine extends AbstractEngine implements YEngineInterface {
+public class YEngine extends AbstractEngine {
 
 
 	private static Logger logger = Logger.getLogger(YEngine.class);
@@ -746,7 +746,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     }
 
 
-    public YIdentifier getCaseID(String caseIDStr) {
+    public YIdentifier getCaseID(String caseIDStr) throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -994,11 +994,11 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
 	}
 
 	public void addExceptionObserver(InterfaceX_EngineSideClient ix) {
-		super.addExceptionObserver(ix);
+		super.addExceptionObserver((ExceptionGateway)ix);
 	}
 
 	public void addExceptionObserver(String observerURI){
-		super.addExceptionObserver(new InterfaceX_EngineSideClient(observerURI));
+		super.addExceptionObserver((ExceptionGateway)new InterfaceX_EngineSideClient(observerURI));
 	}
 
 
@@ -1016,7 +1016,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
      * @return a set of YIdentifer caseIDs that are run time instances of the
      *         process specification with id = specID
      */
-    public Set getCasesForSpecification(String specID) {
+    public Set getCasesForSpecification(String specID) throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -1252,7 +1252,7 @@ public class YEngine extends AbstractEngine implements YEngineInterface {
     }
 
 
-    public boolean updateCaseData(String idStr, String data) {
+    public boolean updateCaseData(String idStr, String data) throws YPersistenceException {
         synchronized (mutex) {
             return super.updateCaseData(idStr, data);
         }

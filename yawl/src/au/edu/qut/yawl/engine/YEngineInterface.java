@@ -32,67 +32,72 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 
 public interface YEngineInterface {
     
-	void initialise() throws YPersistenceException;
-    
+	public void addExceptionObserver(InterfaceX_EngineSideClient ix);
+    public void addExceptionObserver(String observerURI);
     public List<String> addSpecifications(File specificationFile, boolean ignoreErors, List<YVerificationMessage> errorMessages) throws JDOMException, IOException, YPersistenceException;
-    public boolean loadSpecification(YSpecification spec) throws YPersistenceException;
-    public void unloadSpecification(String specID) throws YStateException, YPersistenceException;
-    public Set getSpecIDs() throws YPersistenceException;
+    public void addYawlService(YAWLServiceReference yawlService) throws YPersistenceException;
+    
+    public void announceCancellationToEnvironment(YAWLServiceReference yawlService, YWorkItem item);
+    public void announceCancellationToExceptionService(YIdentifier caseID);
+    public void announceTimeOutToExceptionService(YWorkItem item, List timeOutTaskIds);
+    public void cancelCase(YIdentifier id) throws YPersistenceException;
+    public void cancelWorkItem(YWorkItem workItem, boolean statusFail);
+    public void checkElegibilityToAddInstances(String workItemID) throws YStateException;
+    public void completeWorkItem(YWorkItem workItem, String data, boolean force)
+    	throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
+    public YWorkItem createNewInstance(YWorkItem workItem, String paramValueForMICreation) throws YStateException, YPersistenceException;
+    
+    public void dump();
+    
+    public Set getAllWorkItems();
+    public Set<YWorkItem> getAvailableWorkItems();
+    public YIdentifier getCaseID(String caseIDStr) throws YPersistenceException;
+    public Set getCasesForSpecification(String specID) throws YPersistenceException;
+    public Set getCasesForSpecification(String specID, Integer version) throws YPersistenceException;
+    public Set getChildrenOfWorkItem(YWorkItem workItem);
     public Set getLoadedSpecifications() throws YPersistenceException;
+    public String getLoadStatus(String specID) throws YPersistenceException;
+    public YNetRunner getNetRunner(YIdentifier id) throws YPersistenceException;
+    public YSpecification getProcessDefinition(String specID) throws YPersistenceException;
+    public YAWLServiceReference getRegisteredYawlService(String yawlServiceID);
+    public Set getSpecIDs() throws YPersistenceException;
     public YSpecification getSpecification(String specID) throws YPersistenceException;
     public Set<YSpecification> getSpecifications() throws YPersistenceException;
-    public YIdentifier getCaseID(String caseIDStr);
-    public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException;
-    public String getStateForCase(YIdentifier caseID) throws YPersistenceException;
     public String getStateForCase(String caseID) throws YPersistenceException;
+    public String getStateForCase(YIdentifier caseID) throws YPersistenceException;
+    public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException;
+    public YTask getTaskDefinition(String specificationID, String taskID) throws YPersistenceException;
+    public Set getUsers();
+    public YWorkItem getWorkItem(String workItemID);
+    public Set getYAWLServices() throws YPersistenceException;
+    public YEngine getYEngine();
+    
+    void initialise() throws YPersistenceException;
+    
+    public boolean isJournalising();
+    public String launchCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException;
+    public boolean loadSpecification(YSpecification spec) throws YPersistenceException;
     public void registerInterfaceAClient(InterfaceAManagementObserver observer);
     public void registerInterfaceBObserver(InterfaceBClientObserver observer);
     public void registerInterfaceBObserverGateway(ObserverGateway gateway);
-    public Set<YWorkItem> getAvailableWorkItems();
-    public YSpecification getProcessDefinition(String specID) throws YPersistenceException;
-    public YWorkItem getWorkItem(String workItemID);
-    public Set getAllWorkItems();
-    public YWorkItem startWorkItem(YWorkItem workItem, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
-    public YTask getTaskDefinition(String specificationID, String taskID) throws YPersistenceException;
-    public void completeWorkItem(YWorkItem workItem, String data, boolean force)
-    	throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
-    public void checkElegibilityToAddInstances(String workItemID) throws YStateException;
-    public YWorkItem createNewInstance(YWorkItem workItem, String paramValueForMICreation) throws YStateException, YPersistenceException;
-    public YWorkItem suspendWorkItem(String workItemID) throws YStateException, YPersistenceException;
-    public YWorkItem unsuspendWorkItem(String workItemID) throws YStateException, YPersistenceException;
-    public void rollbackWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException;
-    public String launchCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException;
-    public Set getCasesForSpecification(String specID);
-    public YAWLServiceReference getRegisteredYawlService(String yawlServiceID);
-    public Set getYAWLServices() throws YPersistenceException;
-    public void addYawlService(YAWLServiceReference yawlService) throws YPersistenceException;
-    public Set getChildrenOfWorkItem(YWorkItem workItem);
-    public void announceCancellationToEnvironment(YAWLServiceReference yawlService, YWorkItem item);
-    public Set getUsers();
-    public String getLoadStatus(String specID) throws YPersistenceException;
+    public void removeExceptionObservers();
     public YAWLServiceReference removeYawlService(String serviceURI) throws YPersistenceException;
-    public boolean isJournalising();
+
+    public void rollbackWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException;
+
     public void setJournalising(boolean arg);
-    public void dump();
+    
+    public YWorkItem startWorkItem(YWorkItem workItem, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
+
     public void storeObject(Object obj) throws YPersistenceException;
-    public boolean updateWorkItemData(String workItemID, String data);
-
-    public boolean updateCaseData(String idStr, String data);
-
-    public void cancelWorkItem(YWorkItem workItem, boolean statusFail);
     
-    public void announceCancellationToExceptionService(YIdentifier caseID);
+    public YWorkItem suspendWorkItem(String workItemID) throws YStateException, YPersistenceException;
+   	public void unloadSpecification(String specID) throws YStateException, YPersistenceException;
 
-    public void announceTimeOutToExceptionService(YWorkItem item, List timeOutTaskIds);
-    
-    public void cancelCase(YIdentifier id) throws YPersistenceException;
-   	public void addExceptionObserver(InterfaceX_EngineSideClient ix);
+   	public YWorkItem unsuspendWorkItem(String workItemID) throws YStateException, YPersistenceException;
 
-   	public void addExceptionObserver(String observerURI);
-
-
-  	public void removeExceptionObservers();
+  	public boolean updateCaseData(String idStr, String data) throws YPersistenceException;
   	
-  	public YEngine getYEngine();
+  	public boolean updateWorkItemData(String workItemID, String data);
     
 }

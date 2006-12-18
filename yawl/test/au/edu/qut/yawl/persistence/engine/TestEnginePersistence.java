@@ -21,6 +21,7 @@ import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.YNetRunner;
@@ -56,7 +57,7 @@ public class TestEnginePersistence extends TestCase {
 		AbstractEngine.setDataContext(context);
 
 		YEngineInterface engine = EngineFactory.getTransactionalEngine();
-		AbstractEngine.getWorkItemRepository().clear();
+		EngineClearer.clear( engine );
 		ys = new YAWLServiceReference(
 				"http://localhost:8080/timeService/ib", null);
 		ys.setDocumentation("Time service, allows tasks to be a timeout task.");

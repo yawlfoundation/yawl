@@ -60,10 +60,14 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
         EngineClearer.clear(engine);
         engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         engine.startCase(null, _specification.getID(), null, null);
-        assertTrue(_workItemRepository.getCompletedWorkItems().size() == 0);
-        assertTrue(_workItemRepository.getEnabledWorkItems().size() == 1);
-        assertTrue(_workItemRepository.getExecutingWorkItems().size() == 0);
-        assertTrue(_workItemRepository.getFiredWorkItems().size() == 0);
+        assertTrue("" + _workItemRepository.getCompletedWorkItems().size(),
+                _workItemRepository.getCompletedWorkItems().size() == 0);
+        assertTrue("" + _workItemRepository.getEnabledWorkItems().size(),
+                _workItemRepository.getEnabledWorkItems().size() == 1);
+        assertTrue("" + _workItemRepository.getExecutingWorkItems().size(),
+                _workItemRepository.getExecutingWorkItems().size() == 0);
+        assertTrue("" + _workItemRepository.getFiredWorkItems().size(),
+                _workItemRepository.getFiredWorkItems().size() == 0);
         while (_workItemRepository.getEnabledWorkItems().size() > 0 ||
                 _workItemRepository.getFiredWorkItems().size() > 0 ||
                 _workItemRepository.getExecutingWorkItems().size() > 0) {

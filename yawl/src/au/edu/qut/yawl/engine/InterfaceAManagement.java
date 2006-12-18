@@ -86,7 +86,7 @@ public interface InterfaceAManagement {
      * @return a set of YIdentifer caseIDs that are run time instances of the
      *         process specification with id = specID
      */
-    Set getCasesForSpecification(String specID);
+    Set getCasesForSpecification(String specID) throws YPersistenceException;
 
     /**
      * Returns the internal engine identifier for a case.<P>

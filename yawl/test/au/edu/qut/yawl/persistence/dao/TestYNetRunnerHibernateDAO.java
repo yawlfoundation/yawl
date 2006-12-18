@@ -53,7 +53,7 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 	 */
 	public void testDelete() throws YDataStateException, YSchemaBuildingException, YPersistenceException {
 		DAO hibernateDAO = getDAO();
-		YNetRunner runner = new YNetRunner(testSpec.getRootNet(), null);
+		YNetRunner runner = new YNetRunner(testSpec, null);
 		hibernateDAO.save(runner);
 		
 		Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
@@ -78,7 +78,7 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 	 */
 	public void testRetrieveByRestriction() throws YDataStateException, YSchemaBuildingException, YPersistenceException {
 		DAO hibernateDAO = getDAO();
-		YNetRunner runner = new YNetRunner(testSpec.getRootNet(), null);
+		YNetRunner runner = new YNetRunner(testSpec, null);
 		hibernateDAO.save(runner);
 
 //		YNetRunner runner2 = new YNetRunner(testSpec.getRootNet(), null);
@@ -98,7 +98,7 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 	 */
 	public void testSaveAndRetrieve() throws YDataStateException, YSchemaBuildingException, YPersistenceException {
 		DAO hibernateDAO = getDAO();
-		YNetRunner runner = new YNetRunner(testSpec.getRootNet(), null);
+		YNetRunner runner = new YNetRunner(testSpec, null);
 		hibernateDAO.save(runner);
 		Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
 		assertNotNull(runner2);
@@ -107,9 +107,9 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 	
 	public void testSaveAndRetrieve2Runners() throws YDataStateException, YSchemaBuildingException, YPersistenceException {
 		DAO hibernateDAO = getDAO();
-		YNetRunner runner = new YNetRunner(testSpec.getRootNet(), null);
+		YNetRunner runner = new YNetRunner(testSpec, null);
 		hibernateDAO.save(runner);
-		YNetRunner runner2 = new YNetRunner(testSpec.getRootNet(), null);
+		YNetRunner runner2 = new YNetRunner(testSpec, null);
 		hibernateDAO.save(runner2);
 		
 		Object runner3 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
@@ -123,7 +123,7 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 	 */
 	public void testSaveAndRetrieveComp() throws YPersistenceException, YDataStateException, YSchemaBuildingException {
 		DAO hibernateDAO = getDAO();
-		YNetRunner runner = new YNetRunner(testSpec_comp.getRootNet(), null);
+		YNetRunner runner = new YNetRunner(testSpec_comp, null);
 		hibernateDAO.save(runner);
 		Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
 		assertNotNull(runner2);

@@ -9,19 +9,25 @@
 package au.edu.qut.yawl.persistence.engine;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.jdom.JDOMException;
 
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
@@ -48,57 +54,49 @@ public class TestPersistenceTransactions extends TestCase {
 		super.tearDown();
 	}
 	
-	public void testTransaction() {
-		try {
+	public void testTransaction() throws YPersistenceException, JDOMException, IOException, YStateException, YDataStateException, YSchemaBuildingException {
+		System.out.println("Testing transactions");
+		StringProducer spx = StringProducerYAWL.getInstance();
+		File f = spx.getTranslatedFile("SingleTask.xml", true);
 		
-			System.out.println("Testing transactions");
-			StringProducer spx = StringProducerYAWL.getInstance();
-			File f = spx.getTranslatedFile("SingleTask.xml", true);
-			
-			YEngineInterface engine = (YEngineInterface) EngineFactory.getTransactionalEngine();
-			DataContext context = AbstractEngine.getDataContext();			
+		YEngineInterface engine = (YEngineInterface) EngineFactory.getTransactionalEngine();
+        EngineClearer.clear(engine);
+		DataContext context = AbstractEngine.getDataContext();			
 
-			LinkedList errors = new LinkedList();
-			engine.addSpecifications(f, false, errors);	
+		LinkedList errors = new LinkedList();
+		engine.addSpecifications(f, false, errors);	
 
-			String caseid_string = engine.launchCase("test", "singletask", null, null);
+		String caseid_string = engine.launchCase("test", "singletask", null, null);
 
-			System.out.println(engine.getStateForCase(caseid_string));
+		System.out.println(engine.getStateForCase(caseid_string));
 
-            List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction( YNetRunner.class,
-            		new LogicalRestriction(
-            		new PropertyRestriction( "archived", Comparison.EQUAL, false),
-            		Operation.AND,
-            		new PropertyRestriction( "YNetID", Comparison.EQUAL, "singletask" ) ),
-            		null );
-            
-            /*
-             * When we cancel a case, should we
-             * delete all its workItems???
-             * */
-			List items = context.retrieveAll(YWorkItem.class, null);    	
+        List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction( YNetRunner.class,
+        		new LogicalRestriction(
+        		new PropertyRestriction( "archived", Comparison.EQUAL, false),
+        		Operation.AND,
+        		new PropertyRestriction( "YNetID", Comparison.EQUAL, "singletask" ) ),
+        		null );
+        
+        /*
+         * When we cancel a case, should we
+         * delete all its workItems???
+         * */
+		List items = context.retrieveAll(YWorkItem.class, null);    	
 
-			//System.out.println(runners.size());
-			//System.out.println(items.size());
-			
-			assertTrue("" + runners.size(), runners.size()==1);
-			//assertTrue(items.size()==1);
+		//System.out.println(runners.size());
+		//System.out.println(items.size());
+		
+		assertTrue("" + runners.size(), runners.size()==1);
+		//assertTrue(items.size()==1);
 
-			YIdentifier caseid = engine.getCaseID(caseid_string);
-			
-			engine.cancelCase(caseid);
-			engine.unloadSpecification("singletask");
-			//EngineClearer.clear(engine);
-					
-			
-			System.out.println(engine.getStateForCase(caseid_string));
-			
-		} catch (Exception e) {
-			StringWriter sw = new StringWriter();
-    		sw.write( e.toString() + "\n" );
-    		e.printStackTrace(new PrintWriter(sw));
-    		fail( sw.toString() );
-		}
+		YIdentifier caseid = engine.getCaseID(caseid_string);
+		
+		engine.cancelCase(caseid);
+		engine.unloadSpecification("singletask");
+		EngineClearer.clear(engine);
+		
+		
+		System.out.println(engine.getStateForCase(caseid_string));
 	}
 
 }

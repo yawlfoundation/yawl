@@ -443,7 +443,7 @@ public class TestSplitsAndJoins extends TestCase {
         	
         	fail( "an error should have been thrown" );
     	}
-    	catch( RuntimeException e ) {
+    	catch( YStateException e ) {
     		// correct exception was thrown.
     	}
     }
@@ -541,7 +541,7 @@ public class TestSplitsAndJoins extends TestCase {
 			task.t_complete( item.getCaseID(), null );
 			fail("An exception should have been thrown");
 		}
-		catch(RuntimeException exc) {
+		catch(YStateException exc) {
 			// proper exception was thrown
 		}
 		
