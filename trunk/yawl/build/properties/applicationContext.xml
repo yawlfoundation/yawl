@@ -26,6 +26,7 @@
                 <value>au.edu.qut.yawl.engine.domain.YWorkItem</value>
                 <value>au.edu.qut.yawl.engine.domain.YWorkItemID</value>
                 <value>au.edu.qut.yawl.elements.state.YIdentifier</value>
+                <value>au.edu.qut.yawl.elements.state.IdentifierSequence</value>
                 <value>au.edu.qut.yawl.elements.YInputCondition</value>
                 <value>au.edu.qut.yawl.elements.YOutputCondition</value>
                 <value>au.edu.qut.yawl.elements.YCompositeTask</value>

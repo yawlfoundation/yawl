@@ -25,6 +25,7 @@ import org.hibernate.criterion.Restrictions;
 import au.edu.qut.yawl.elements.SpecVersion;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.state.IdentifierSequence;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
@@ -50,6 +51,7 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 		addType( Problem.class, new ProblemHibernateDAO() );
 		addType( YWorkItem.class, new WorkItemHibernateDAO() );
 		addType( YIdentifier.class, new IdentifierHibernateDAO() );
+        addType( IdentifierSequence.class, new IdentifierSequenceHibernateDAO() );
 		addType( YAWLServiceReference.class, new YAWLServiceReferenceHibernateDAO() );
 
 		addType( YWorkItemEvent.class, new YWorkItemEventDAO() );
@@ -127,7 +129,8 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 				LOG.debug( "Persisting " + getKey( object ) );
 			}
 			catch( HibernateException e ) {
-				throw new YPersistenceException( "Error saving object " + object, e );
+				throw new YPersistenceException( "Error saving object " + object +
+                        ((object == null) ? "(null)" : "(" + object.getClass() + ")"), e );
 			}
 		}
 		
@@ -140,7 +143,9 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 		protected void preSave( YSpecification spec ) throws YPersistenceException {
 			try {
 				spec.setID( new URI( spec.getID() ).toASCIIString() );
-				setVersion( spec );
+                if( spec.getVersion() == null ) {
+                    setVersion( spec );
+                }
 			}
 			catch( URISyntaxException e ) {
 				LOG.error( e );
@@ -150,18 +155,17 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 		private void setVersion(YSpecification spec) throws YPersistenceException {
 	        String uriString = spec.getID();
 	        
-	        Restriction restriction = new PropertyRestriction("specURI", Comparison.EQUAL, uriString);
-	        List specVersions =
-	        	DelegatedCustomSpringDAO.this.retrieveByRestriction( SpecVersion.class, restriction );
+	        SpecVersion specVersion = (SpecVersion)
+                DelegatedCustomSpringDAO.this.retrieve( SpecVersion.class, uriString );
 	        
-	        SpecVersion specVersion;
 	        int nextVersion = 1;
-	        specVersion = new SpecVersion( uriString, Integer.valueOf( nextVersion ) );
 	        
-	        if( specVersions.size() > 0 ) {
-	        	specVersion = (SpecVersion) specVersions.get( 0 );
-	        	nextVersion = specVersion.getHighestVersion().intValue() + 1;
+	        if( specVersion == null ) {
+                specVersion = new SpecVersion( uriString, Integer.valueOf( nextVersion ) );
 	        }
+            else {
+                nextVersion = specVersion.getHighestVersion().intValue() + 1;
+            }
 	        
 	        spec.setVersion( Integer.valueOf( nextVersion ) );
 	        specVersion.setHighestVersion( Integer.valueOf( nextVersion ) );
@@ -250,12 +254,38 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 	}
 	
 	private class IdentifierHibernateDAO extends AbstractHibernateDAO<YIdentifier> {
-		protected void preSave( YIdentifier item ) {}
-		
+		protected void preSave( YIdentifier item ) throws YPersistenceException {
+            if( item.getId() == null ) {
+                Restriction restriction = new PropertyRestriction("sequence", Comparison.EQUAL, "sequence");
+                List sequences = DelegatedCustomSpringDAO.this.retrieveByRestriction(
+                        IdentifierSequence.class, restriction );
+                
+                int value = 1;
+                IdentifierSequence sequence = new IdentifierSequence( "sequence" );
+                
+                if( sequences.size() > 0 ) {
+                    sequence = (IdentifierSequence) sequences.get( 0 );
+                    value = sequence.getValue().intValue() + 1;
+                }
+                
+                item.setId( String.valueOf( value ) );
+                sequence.setValue( Long.valueOf( value ) );
+                
+                DelegatedCustomSpringDAO.this.save( sequence );
+            }
+        }
+        
 		public Object getKey( YIdentifier item ) {
 			return PersistenceUtilities.getIdentifierDatabaseKey( item );
 		}
 	}
+    
+    private class IdentifierSequenceHibernateDAO extends AbstractHibernateDAO<IdentifierSequence> {
+        protected void preSave( IdentifierSequence sequence ) {}
+        public Object getKey( IdentifierSequence sequence ) {
+            return PersistenceUtilities.getIdentifierSequenceDatabaseKey( sequence );
+        }
+    }
 
     private class SpecVersionHibernateDAO extends AbstractHibernateDAO<SpecVersion> {
         protected void preSave(SpecVersion object) {}

@@ -34,8 +34,9 @@ public class DAOFactory {
 					return new DelegatedFileDAO();
 					//break;
 				case HIBERNATE:
-					daoMap.put( type, new DelegatedHibernateDAO() );
-					break;
+                    throw new IllegalArgumentException("Hibernate is deprecated.");
+//					daoMap.put( type, new DelegatedHibernateDAO() );
+//					break;
 				case SPRING:
 					daoMap.put( type, new DelegatedCustomSpringDAO() );
 					break;

@@ -62,7 +62,7 @@ public interface YEngineInterface {
     public YAWLServiceReference getRegisteredYawlService(String yawlServiceID);
     public Set getSpecIDs() throws YPersistenceException;
     public YSpecification getSpecification(String specID) throws YPersistenceException;
-    public Set<YSpecification> getSpecifications() throws YPersistenceException;
+    public Set<YSpecification> getSpecifications(boolean loadedOnly) throws YPersistenceException;
     public String getStateForCase(String caseID) throws YPersistenceException;
     public String getStateForCase(YIdentifier caseID) throws YPersistenceException;
     public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException;

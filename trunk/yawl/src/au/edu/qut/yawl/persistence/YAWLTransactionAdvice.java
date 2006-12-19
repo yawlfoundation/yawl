@@ -40,6 +40,7 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.elements.state.IdentifierSequence;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.elements.state.YInternalCondition;
 import au.edu.qut.yawl.engine.YNetRunner;
@@ -64,6 +65,7 @@ public class YAWLTransactionAdvice implements ThrowsAdvice, MethodBeforeAdvice, 
 	private static AnnotationConfiguration cfg;
 	private static Class[] classes = new Class[] {
 		Event.class,
+        IdentifierSequence.class,
 		KeyValue.class,
 		YAtomicTask.class,
 		YAWLServiceGateway.class,

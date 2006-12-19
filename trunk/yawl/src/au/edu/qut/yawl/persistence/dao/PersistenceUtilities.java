@@ -11,6 +11,7 @@ import java.io.Serializable;
 
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.state.IdentifierSequence;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
@@ -73,6 +74,14 @@ public class PersistenceUtilities {
 	public static Serializable getIdentifierDatabaseKey( YIdentifier id ) {
 		return id.getId();
 	}
+    
+    public static Object getIdentifierSequenceKey( IdentifierSequence sequence ) {
+        return getIdentifierSequenceDatabaseKey( sequence );
+    }
+    
+    public static Serializable getIdentifierSequenceDatabaseKey( IdentifierSequence sequence ) {
+        return sequence.getSequence();
+    }
 	
 	public static Object getYAWLServiceReferenceKey( YAWLServiceReference reference ) {
 		return getYAWLServiceReferenceDatabaseKey( reference );

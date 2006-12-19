@@ -5,8 +5,6 @@
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
-
-
 package au.edu.qut.yawl.elements.state;
 
 import java.io.Serializable;
@@ -33,12 +31,10 @@ import org.hibernate.annotations.OnDeleteAction;
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YNetElement;
-import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.events.YErrorEvent;
-import au.edu.qut.yawl.events.YawlEventLogger;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.managed.DataContext;
@@ -50,7 +46,6 @@ import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
  * This class has control over data structures that allow for
  * storing an identifer and manging a set of children.
  * @author Lachlan Aldred
- * @hibernate.class table="identifiers"
  * 
  */
 @Entity
@@ -66,11 +61,9 @@ public class YIdentifier implements Serializable {
     /*************************/
     /* INSERTED VARIABLES AND METHODS FOR PERSISTANCE* /
     /**************************/
-    //private List<String> locationNames = new Vector<String> ();
     private String id = null;
 
     /**
-     * @hibernate.id
      */
     @Id
     @Column(name="id")
@@ -82,34 +75,25 @@ public class YIdentifier implements Serializable {
         this.id = id;
     }
     
-    
-/*
-    @CollectionOfElements
-    public List<String> getLocationNames() {
-        return locationNames;
-    }
-
-    public void setLocationNames(List<String> names) {
-        this.locationNames = names;
-    }
-    */
     /************************************************/
 
-    //private List<YNetElement> _locations = new Vector<YNetElement>();
     private List<YIdentifier> _children = new Vector<YIdentifier>();
     private YIdentifier _parent;
-    private Long specID;
+//    private Long specID;
+    private String specURI;
+    private Integer specVersion;
 
 
     public YIdentifier() {
-//    	 TODO This is bad style, primary key generation should be located elsewhere!!
-    	//System.err.println( "FIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-ME" );
-        id = YawlEventLogger.getInstance().getNextCaseId();
-  	
     }
 
     public YIdentifier(String idString) {
         id = idString;
+    }
+    
+    public YIdentifier(String specURI, Integer specVersion) {
+        this.specURI = specURI;
+        this.specVersion = specVersion;
     }
 
     @OneToMany(mappedBy="parent",cascade={CascadeType.REMOVE})
@@ -121,14 +105,32 @@ public class YIdentifier implements Serializable {
     	_children = children;
     }
     
-    @Column(name="specID")
-    public Long getSpecID() {
-        return specID;
+    @Column(name="specURI")
+    public String getSpecURI() {
+        return specURI;
     }
     
-    public void setSpecID(Long specID) {
-        this.specID = specID;
+    public void setSpecURI(String specURI) {
+        this.specURI = specURI;
     }
+    
+    @Column(name="specVersion")
+    public Integer getSpecVersion() {
+        return specVersion;
+    }
+    
+    public void setSpecVersion(Integer specVersion) {
+        this.specVersion = specVersion;
+    }
+    
+//    @Column(name="specID")
+//    public Long getSpecID() {
+//        return specID;
+//    }
+//    
+//    public void setSpecID(Long specID) {
+//        this.specID = specID;
+//    }
 
     @Transient
     public Set getDescendants() {
@@ -173,16 +175,6 @@ public class YIdentifier implements Serializable {
         identifier._parent = this;
         saveIdentifier( identifier, this, null );
 
-        /*
-          INSERTED FOR PERSISTANCE
-         */
-//        if (pmgr != null) {
-////            YPersistance.getInstance().storeData(identifier);
-////            YPersistance.getInstance().updateData(this);
-//            pmgr.storeObjectFromExternal(identifier);
-//            pmgr.updateObjectExternal(this);
-//        }
-//        DaoFactory.createYDao().create(this);
         return identifier;
     }
 
@@ -214,16 +206,6 @@ public class YIdentifier implements Serializable {
 
         saveIdentifier( identifier, this, null );
         
-        /*
-          INSERTED FOR PERSISTANCE
-         */
-//        YPersistance.getInstance().storeData(identifier);
-//        YPersistance.getInstance().updateData(this);
-//  TODO      if (pmgr != null) {
-//            pmgr.storeObjectFromExternal(identifier);
-//            pmgr.updateObjectExternal(this);
-//        }
-
         return identifier;
     }
 
@@ -251,7 +233,7 @@ public class YIdentifier implements Serializable {
 
     @Override
 	public String toString() {
-    	if( id == null ) return "null";
+    	if( id == null ) return "null" + hashCode();
         return this.id;
     }
 
@@ -324,9 +306,6 @@ public class YIdentifier implements Serializable {
     	// TODO Why is this synchronized?  -- DM
         return retval;
     }
-//    public void setLocations(List<YNetElement> locs) {
-//    	_locations = locs;
-//    }
 
     @Transient
     public YIdentifier getAncestor() {
@@ -360,45 +339,4 @@ public class YIdentifier implements Serializable {
     public void setErrors(List<YErrorEvent> errors) {
 		this.errors = errors;
 	}
-
-    /**
-     * Returns a hash code value for the object. This method is
-     * supported for the benefit of hashtables such as those provided by
-     * <code>java.util.Hashtable</code>.
-     * <p/>
-     * The general contract of <code>hashCode</code> is:
-     * <ul>
-     * <li>Whenever it is invoked on the same object more than once during
-     * an execution of a Java application, the <tt>hashCode</tt> method
-     * must consistently return the same integer, provided no information
-     * used in <tt>equals</tt> comparisons on the object is modified.
-     * This integer need not remain consistent from one execution of an
-     * application to another execution of the same application.
-     * <li>If two objects are equal according to the <tt>equals(Object)</tt>
-     * method, then calling the <code>hashCode</code> method on each of
-     * the two objects must produce the same integer result.
-     * <li>It is <em>not</em> required that if two objects are unequal
-     * according to the {@link Object#equals(Object)}
-     * method, then calling the <tt>hashCode</tt> method on each of the
-     * two objects must produce distinct integer results.  However, the
-     * programmer should be aware that producing distinct integer results
-     * for unequal objects may improve the performance of hashtables.
-     * </ul>
-     * <p/>
-     * As much as is reasonably practical, the hashCode method defined by
-     * class <tt>Object</tt> does return distinct integers for distinct
-     * objects. (This is typically implemented by converting the internal
-     * address of the object into an integer, but this implementation
-     * technique is not required by the
-     * Java<font size="-2"><sup>TM</sup></font> programming language.)
-     *
-     * @return a hash code value for this object.
-     * @see Object#equals(Object)
-     * @see java.util.Hashtable
-     */
-    @Override
-	public int hashCode()
-    {
-        return this.toString().hashCode();
-    }
 }

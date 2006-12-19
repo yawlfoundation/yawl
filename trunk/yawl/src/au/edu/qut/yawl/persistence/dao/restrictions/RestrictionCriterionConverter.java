@@ -62,11 +62,17 @@ public class RestrictionCriterionConverter {
 			PropertyRestriction restriction = (PropertyRestriction) r;
 			switch( restriction.getComparison() ) {
 				case EQUAL:
-					return Restrictions.eq( restriction.getPropertyName(), restriction.getValue() );
+                    if( restriction.getValue() == null )
+                        return Restrictions.isNull( restriction.getPropertyName() );
+                    else
+                        return Restrictions.eq( restriction.getPropertyName(), restriction.getValue() );
 				case LIKE:
 					return Restrictions.like( restriction.getPropertyName(), restriction.getValue() );
 				case NOT_EQUAL:
-					return Restrictions.ne( restriction.getPropertyName(), restriction.getValue() );
+                    if( restriction.getValue() == null )
+                        return Restrictions.isNotNull( restriction.getPropertyName() );
+                    else
+                        return Restrictions.ne( restriction.getPropertyName(), restriction.getValue() );
 				case LESS_THAN:
 					return Restrictions.lt( restriction.getPropertyName(), restriction.getValue() );
 				case LESS_THAN_OR_EQUAL:

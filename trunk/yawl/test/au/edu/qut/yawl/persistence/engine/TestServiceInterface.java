@@ -8,78 +8,43 @@
 
 package au.edu.qut.yawl.persistence.engine;
 
-import au.edu.qut.yawl.engine.AbstractEngine;
-import au.edu.qut.yawl.engine.EngineFactory;
-import au.edu.qut.yawl.engine.YEngineInterface;
-import au.edu.qut.yawl.persistence.managed.DataContext;
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.engine.EngineFactory;
+import au.edu.qut.yawl.engine.YEngineInterface;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 
 public class TestServiceInterface extends TestCase {
-
 	public TestServiceInterface(String arg0) {
 		super(arg0);
 	}
 
-	protected void setUp() throws Exception {
-		super.setUp();
+	public void testServiceReferenceLifecycle() throws YPersistenceException {
+		YEngineInterface engine = (YEngineInterface) EngineFactory.getTransactionalEngine();
+		
+		YAWLServiceReference ref = new YAWLServiceReference("http://test.test/testservice" +
+                System.currentTimeMillis(),null);
 
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-	
-
-	public void testAddService() {
-		try {	
-			YEngineInterface engine = (YEngineInterface) EngineFactory.getTransactionalEngine();
-			
-			YAWLServiceReference ref = new YAWLServiceReference("http://test.test/testservice",null);
-
-			int i = engine.getYAWLServices().size();
-			engine.addYawlService(ref);			
-			int j = engine.getYAWLServices().size();
-			
-			assert(i==(j+1));				
-			
-		} catch (Exception e) {
-			fail("Exception thrown when adding a service");
-		}
-	}
-
-	public void testRemoveService() {
-		try {	
-			YEngineInterface engine = (YEngineInterface) EngineFactory.getTransactionalEngine();
-			
-			YAWLServiceReference ref = new YAWLServiceReference("http://test.test/testservice",null);
-
-			int i = engine.getYAWLServices().size();
-			engine.removeYawlService("http://test.test/testservice");			
-			int j = engine.getYAWLServices().size();
-			
-			assert(i==(j-1));				
-			
-		} catch (Exception e) {
-			fail("Exception thrown when removing a service");
-		}
-	}
-	
-	public void testServiceAddAgain() {
-		try {	
-			YEngineInterface engine = (YEngineInterface) EngineFactory.getTransactionalEngine();
-			
-			YAWLServiceReference ref = new YAWLServiceReference("http://test.test/testservice",null);
-
-			int i = engine.getYAWLServices().size();
-			engine.addYawlService(ref);			
-			int j = engine.getYAWLServices().size();
-			
-			assert(i==(j+1));				
-			
-		} catch (Exception e) {
-			fail("Exception thrown when re-adding a service");
-		}
+		int before = engine.getYAWLServices().size();
+		engine.addYawlService(ref);
+		int after = engine.getYAWLServices().size();
+		
+		assertTrue(before + "  " + after, after==(before+1));
+        
+        engine.removeYawlService(ref.getURI());
+        
+        int afterremove = engine.getYAWLServices().size();
+        
+        assertTrue(before + "  " + after + "  " + afterremove, afterremove==(after-1));
+        
+        ref.setEnabled( true );
+        engine.addYawlService(ref);
+        
+        int end = engine.getYAWLServices().size();
+        
+        assertTrue(before + "  " + after + "  " + afterremove + "  " + end, end==(afterremove+1));
+        
+        engine.removeYawlService(ref.getURI());
 	}
 }
