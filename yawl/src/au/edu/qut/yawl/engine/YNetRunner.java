@@ -205,8 +205,7 @@ public class YNetRunner implements Serializable // extends Thread
     		logger = Logger.getLogger(this.getClass());
             logger.debug("YNetRunner: <init>");
     	}
-        _caseIDForNet = new YIdentifier();
-        _caseIDForNet.setSpecID( spec.getDbID() );
+        _caseIDForNet = new YIdentifier(spec.getID(), spec.getVersion());
         YIdentifier.saveIdentifier( _caseIDForNet, null, null );
         
         /*****************************/

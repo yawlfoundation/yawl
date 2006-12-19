@@ -51,6 +51,7 @@
                     List caseIDs = _worklistController.getCases(
                             specification.getID(), sessionHandle);
                     String specID = specification.getID();
+                    if(specification.getStatus().equals(YSpecification._loaded)){
 //System.out.println("_ViewSpecification.jsp:: caseIDs = " + caseIDs);
                     %>
                     <tr>
@@ -104,7 +105,7 @@
                         </td>
                     </tr>
                     <%
-
+                    }
                 }
             }
             %>

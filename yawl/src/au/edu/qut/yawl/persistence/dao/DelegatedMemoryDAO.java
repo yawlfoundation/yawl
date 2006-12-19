@@ -17,9 +17,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.elements.SpecVersion;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.SpecVersion;
+import au.edu.qut.yawl.elements.state.IdentifierSequence;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
@@ -42,6 +43,7 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 		addType( Problem.class, new ProblemMemoryDAO() );
 		addType( YWorkItem.class, new WorkItemMemoryDAO() );
 		addType( YIdentifier.class, new IdentifierMemoryDAO() );
+        addType( IdentifierSequence.class, new IdentifierSequenceMemoryDAO() );
 		addType( YAWLServiceReference.class, new YAWLServiceReferenceMemoryDAO() );
 		
 		addType( YWorkItemEvent.class, new YWorkItemEventDAO() );
@@ -187,12 +189,24 @@ public class DelegatedMemoryDAO extends AbstractDelegatedDAO {
 	}
 	
 	private class IdentifierMemoryDAO extends AbstractMemoryDAO<YIdentifier> {
+        int id = 1;
 		protected void preSave( YIdentifier item ) {
+            if( item.getId() == null ) {
+                item.setId( String.valueOf( id++ ) );
+            }
 		}
 		public Object getKey( YIdentifier item ) {
 			return PersistenceUtilities.getIdentifierKey( item );
 		}
 	}
+    
+    private class IdentifierSequenceMemoryDAO extends AbstractMemoryDAO<IdentifierSequence> {
+        protected void preSave( IdentifierSequence item ) {
+        }
+        public Object getKey( IdentifierSequence item ) {
+            return PersistenceUtilities.getIdentifierSequenceKey( item );
+        }
+    }
 	
 	private class YAWLServiceReferenceMemoryDAO extends AbstractMemoryDAO<YAWLServiceReference> {
 		protected void preSave( YAWLServiceReference item ) {

@@ -64,6 +64,10 @@ public class YErrorEvent {
 		this.workitem = workitem;
 	}
 
+    /** Default constructor for hibernate. */
+    public YErrorEvent() {
+    }
+    
 	public YErrorEvent(String task, String workitem) {
 		super();
 		this.task = task;

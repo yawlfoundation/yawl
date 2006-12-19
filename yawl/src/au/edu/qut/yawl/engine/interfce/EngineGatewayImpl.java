@@ -499,7 +499,7 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-        	Set<YSpecification> specs = _engine.getSpecifications();
+        	Set<YSpecification> specs = _engine.getSpecifications( true );
         	
         	return getDataForSpecifications(specs);
         }

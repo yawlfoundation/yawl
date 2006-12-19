@@ -224,7 +224,7 @@ public class TestYExternalTask extends TestCase{
     }
 
 
-    public void testThrowsAppropriateStateExceptions() throws YDataStateException, YQueryException, YPersistenceException {
+    public void testThrowsAppropriateStateExceptions() throws YDataStateException, YQueryException, YPersistenceException, YStateException {
         Exception f = null;
         try{
             _validTask.t_fire();
@@ -237,12 +237,12 @@ public class TestYExternalTask extends TestCase{
         _aCondition.add( id );
         assertTrue(_validTask.t_enabled(null));
         List childIdentifiers = null;
-        try {
+//        try {
             childIdentifiers = _validTask.t_fire();
-        } catch (YStateException e) {
-            e.printStackTrace();
-            fail();
-        }
+//        } catch (YStateException e) {
+//            e.printStackTrace();
+//            fail();
+//        }
         assertTrue(childIdentifiers.size() == 3);
         try{
             _validTask.t_fire();
