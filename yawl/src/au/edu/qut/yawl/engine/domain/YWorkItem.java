@@ -20,15 +20,15 @@ import java.util.Set;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
-import javax.persistence.Lob;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
@@ -45,9 +45,7 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.events.YawlEventLogger;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.managed.DataContext;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
-import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
+import au.edu.qut.yawl.persistence.dao.DAO;
 
 /**
  * 
@@ -248,35 +246,14 @@ public class YWorkItem {
         /*******************************/
     }
     
-    public static void saveWorkItem( YWorkItem item, YWorkItem parent,
-    		DataProxyStateChangeListener listener ) throws YPersistenceException {
-    	DataContext context = AbstractEngine.getDataContext();
-    	DataProxy proxy = context.getDataProxy( item );
-    	DataProxy parentProxy = null;
-    	if( parent != null ) {
-    		parentProxy = context.getDataProxy( parent );
-    		assert parentProxy != null : "attempting to persist child when parent is not persisted!";
-    	}
-    	if( proxy == null ) {
-    		proxy = context.createProxy( item, listener );
-    		context.attachProxy( proxy, item, parentProxy );
-    	}
-        if( parent != null ) {
-        	context.save( parentProxy );
-        }
-        context.save( proxy );
+    public static void saveWorkItem( YWorkItem item ) throws YPersistenceException {
+    	DAO dao = AbstractEngine.getDao();
+        dao.save( item );
     }
     
     public static void deleteWorkItem( YWorkItem item ) throws YPersistenceException {
-    	DataContext context = AbstractEngine.getDataContext();
-    	DataProxy proxy = context.getDataProxy( item );
-    	assert proxy != null : "attempting to delete a work item that isn't persisted!";
-    	DataProxy parentProxy = context.getParentProxy( proxy );
-    	context.delete( proxy );
-    	if( parentProxy != null ) {
-	    	// TODO not sure if we need to save the parent or not...
-	    	context.save( parentProxy );
-    	}
+    	DAO dao = AbstractEngine.getDao();
+    	dao.delete( item );
     }
 
 
@@ -304,7 +281,7 @@ public class YWorkItem {
                         _workItemID.getTaskID()
                         , _status, _whoStartedMe, _specificationID);
             }
-            saveWorkItem( childItem, this, null );
+            saveWorkItem( childItem );
             return childItem;
         }
     	System.out.println("already has parent: " + _parent);
@@ -331,7 +308,7 @@ public class YWorkItem {
         _startTime = new Date();
         _whoStartedMe = userName;
 
-        saveWorkItem( this, null, null );
+        saveWorkItem( this );
         /*
           INSERTED FOR PERSISTANCE
          */
@@ -378,12 +355,9 @@ public class YWorkItem {
         /********************************/
         /* INSERTED FOR PERSISTANCE */
         /**********************************/
-        DataProxy proxy = AbstractEngine.getDataContext().getDataProxy( this );
-        DataProxy parentProxy = AbstractEngine.getDataContext().getDataProxy( this.getParent() );
-        AbstractEngine.getDataContext().delete( proxy );
-        if( parentProxy != null && parentcomplete ) {
-        	
-        	AbstractEngine.getDataContext().delete( parentProxy );
+        AbstractEngine.getDao().delete( this );
+        if( parentcomplete ) {
+        	AbstractEngine.getDao().delete( _parent );
         }
 //	YPersistance.getInstance().removeData(this);
 //        if (parentcomplete) {
@@ -474,7 +448,7 @@ public class YWorkItem {
         _startTime = null;
         _whoStartedMe = null;
 
-        saveWorkItem( this, null, null );
+        saveWorkItem( this );
         /*
           INSERTED FOR PERSISTANCE
          */
@@ -515,7 +489,7 @@ public class YWorkItem {
         /* FOR PERSISTANCE */
         /*********************/
         data_string = getDataString();
-        saveWorkItem( this, null, null );
+        saveWorkItem( this );
 //	YPersistance.getInstance().updateData(this);
 //  TODO      if (pmgr != null) {
 //            pmgr.updateObject(this);

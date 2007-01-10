@@ -73,6 +73,8 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 				Type persistedObject = (Type) session.get( object.getClass(), (Serializable) getKey( object ) );
 
 				session.delete( persistedObject );
+                session.flush();
+                //session.delete( object );
 			}
 			catch( HibernateException e ) {
 				throw new YPersistenceException( "Error deleting object " + object, e );
@@ -126,6 +128,8 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 				session = YAWLTransactionAdvice.openSession();
 
 				session.saveOrUpdate( object );
+                session.flush();
+                //session.evict( object );
 				LOG.debug( "Persisting " + getKey( object ) );
 			}
 			catch( HibernateException e ) {

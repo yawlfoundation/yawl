@@ -31,29 +31,31 @@ public class JMSEventDispatcher implements YEventDispatcher {
 	}
 
 	public void fireEvent(Serializable event) {
-		try {
-			ObjectMessage om = JmsProvider.getInstance()
-					.createObjectMessage(event);
-			Map<String, Object> p = BeanMap.getBeanMap(event);
-			// just put all the bean properties into the message properties
-			for (Map.Entry<String, Object> entry : p.entrySet()) {
-				if (entry.getValue() instanceof Serializable) {
-					 if (entry.getValue() instanceof Class) {
-							om.setObjectProperty(entry.getKey().toString(), entry
-									.getValue().toString());						 
-					 }
-					 else if (entry.getValue() instanceof byte[]) {
-						 om.setObjectProperty(entry.getKey().toString(), new String((byte[]) entry.getValue()));
-					 }
-					 else {
-							om.setObjectProperty(entry.getKey().toString(), entry
-									.getValue());
-					 }
-				}
-			}
-			JmsProvider.getInstance().sendObjectMessage(om);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        if( JmsProvider.getInstance().started ) {
+    		try {
+    			ObjectMessage om = JmsProvider.getInstance()
+    					.createObjectMessage(event);
+    			Map<String, Object> p = BeanMap.getBeanMap(event);
+    			// just put all the bean properties into the message properties
+    			for (Map.Entry<String, Object> entry : p.entrySet()) {
+    				if (entry.getValue() instanceof Serializable) {
+    					 if (entry.getValue() instanceof Class) {
+    							om.setObjectProperty(entry.getKey().toString(), entry
+    									.getValue().toString());						 
+    					 }
+    					 else if (entry.getValue() instanceof byte[]) {
+    						 om.setObjectProperty(entry.getKey().toString(), new String((byte[]) entry.getValue()));
+    					 }
+    					 else {
+    							om.setObjectProperty(entry.getKey().toString(), entry
+    									.getValue());
+    					 }
+    				}
+    			}
+    			JmsProvider.getInstance().sendObjectMessage(om);
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+        }
 	}
 }

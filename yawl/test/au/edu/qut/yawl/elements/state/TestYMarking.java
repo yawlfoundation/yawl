@@ -11,7 +11,6 @@ package au.edu.qut.yawl.elements.state;
 
 import au.edu.qut.yawl.elements.*;
 import au.edu.qut.yawl.engine.YNetRunner;
-import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
@@ -85,37 +84,37 @@ public class TestYMarking extends TestCase{
         netRunner.setNet(_net);
         netRunner.setCaseID(id1);
         netRunner.setId(new Long(1));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
 
         netRunner = new YNetRunner();
         netRunner.setNet(_net);
         netRunner.setCaseID(id2);
         netRunner.setId(new Long(2));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
 
         netRunner = new YNetRunner();
         netRunner.setNet(_net);
         netRunner.setCaseID(id3);
         netRunner.setId(new Long(3));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
 
         netRunner = new YNetRunner();
         netRunner.setNet(_net);
         netRunner.setCaseID(id4);
         netRunner.setId(new Long(4));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
 
         netRunner = new YNetRunner();
         netRunner.setNet(_net);
         netRunner.setCaseID(id5);
         netRunner.setId(new Long(5));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
 
         netRunner = new YNetRunner();
         netRunner.setNet(_net);
         netRunner.setCaseID(id6);
         netRunner.setId(new Long(6));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
 
        
         _conditionArr[0].add(id1);
@@ -182,7 +181,7 @@ public class TestYMarking extends TestCase{
         }
         netRunner = new YNetRunner();
         netRunner.setNet(_net);netRunner.setCaseID(id);netRunner.setId(new Long(7));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         _marking7 = new YMarking(id, _net);
 
 
@@ -198,20 +197,20 @@ public class TestYMarking extends TestCase{
         id = new YIdentifier();
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);netRunner.setCaseID(id);netRunner.setId(new Long(8));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         ((YCondition)_loopedNet.getNetElement("c(w_d)")).add(id);
         _marking8 = new YMarking(id, _loopedNet);
         id = new YIdentifier();
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);netRunner.setCaseID(id);netRunner.setId(new Long(9));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         _marking9 = new YMarking(id, _loopedNet);
         ((YCondition)_loopedNet.getNetElement("cA")).add(id);
         _marking10 = new YMarking(id, _loopedNet);
         id = new YIdentifier();
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);netRunner.setCaseID(id);netRunner.setId(new Long(10));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         ((YCondition)_loopedNet.getNetElement("i-top")).add(id);
         _marking11 = new YMarking(id, _loopedNet);
     }

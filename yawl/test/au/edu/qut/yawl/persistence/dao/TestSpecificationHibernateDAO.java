@@ -11,8 +11,6 @@ package au.edu.qut.yawl.persistence.dao;
 import java.io.File;
 import java.util.List;
 
-import org.hibernate.ObjectDeletedException;
-
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.exceptions.YDataStateException;
@@ -47,17 +45,9 @@ public class TestSpecificationHibernateDAO extends AbstractHibernateDAOTestCase 
 		YSpecification spec2 = (YSpecification) myDAO.retrieve(YSpecification.class, key);
 		assertNotNull(spec2);
 		myDAO.delete(spec2);
-		try {
-			key = myDAO.getKey(spec2);
-			myDAO.retrieve(YSpecification.class,key);
-			fail( "retrieval should have failed for specification with key " + key);
-		}
-		catch( YPersistenceException e ) {
-			// proper exception is ObjectDeletedException
-			if( ! ( e.getCause() instanceof ObjectDeletedException ) ) {
-				throw new YPersistenceException( e );
-			}
-		}
+		key = myDAO.getKey(spec2);
+		Object o = myDAO.retrieve(YSpecification.class,key);
+        assertNull("" + o, o);
 	}
 
 	/*
@@ -110,7 +100,6 @@ public class TestSpecificationHibernateDAO extends AbstractHibernateDAOTestCase 
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.getKey(YSpecification)'
 	 */
-	public void testGetKey() {
-	}
-
+//	public void testGetKey() {
+//	}
 }

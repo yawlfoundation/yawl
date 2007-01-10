@@ -37,10 +37,10 @@ public class TestYWorkItemRepository extends TestCase {
         _workitemRepository = YWorkItemRepository.getInstance();
         _workitemRepository.clear();
         YIdentifier identifier = new YIdentifier();
-        YIdentifier.saveIdentifier( identifier, null, null );
+        YIdentifier.saveIdentifier( identifier );
         YWorkItemID workItemID = new YWorkItemID(identifier, "task-123");
         _parentWorkItem = new YWorkItem("ASpecID", workItemID, false, false);
-        YWorkItem.saveWorkItem( _parentWorkItem, null, null );
+        YWorkItem.saveWorkItem( _parentWorkItem );
         for (int i = 0; i < 5; i++) {
             _parentWorkItem.createChild(identifier.createChild());
         }

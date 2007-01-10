@@ -11,15 +11,12 @@ package au.edu.qut.yawl.events;
 import java.io.Serializable;
 
 import au.edu.qut.yawl.engine.AbstractEngine;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 public class HibernateEventDispatcher implements YEventDispatcher {
 
 	public void fireEvent(Serializable o) {
         try {
-        	DataProxy dataProxy = AbstractEngine.getDataContext().createProxy(o, null);
-        	AbstractEngine.getDataContext().attachProxy(dataProxy, o, null);
-        	AbstractEngine.getDataContext().save(dataProxy);
+        	AbstractEngine.getDao().save(o);
         } catch (Exception e) {
         	// HERE some event dispatcher exception
         	// should be thrown to indicate that the event

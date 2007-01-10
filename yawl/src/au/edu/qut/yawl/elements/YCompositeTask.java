@@ -115,7 +115,7 @@ public class YCompositeTask extends YTask {
         netRunner.continueIfPossible();
         netRunner.start();
 
-        YNetRunner.saveNetRunner( netRunner, null );
+        YNetRunner.saveNetRunner( netRunner );
         
     }
 

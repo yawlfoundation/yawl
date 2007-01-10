@@ -61,9 +61,7 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.persistence.managed.DataContext;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
-import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
+import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 
 /**
@@ -206,7 +204,7 @@ public class YNetRunner implements Serializable // extends Thread
             logger.debug("YNetRunner: <init>");
     	}
         _caseIDForNet = new YIdentifier(spec.getID(), spec.getVersion());
-        YIdentifier.saveIdentifier( _caseIDForNet, null, null );
+        YIdentifier.saveIdentifier( _caseIDForNet );
         
         /*****************************/
         _net = (YNet) netPrototype.clone();
@@ -252,16 +250,10 @@ public class YNetRunner implements Serializable // extends Thread
         _net.setIncomingData(incomingData);
     }
 
-    public static void saveNetRunner( YNetRunner runner, DataProxyStateChangeListener listener ) throws YPersistenceException {
-    	DataContext context = AbstractEngine.getDataContext();
-    	DataProxy proxy = context.getDataProxy( runner );
-    	if( proxy == null ) {
-    		proxy = context.createProxy( runner, listener );
-    		context.attachProxy( proxy, runner, null );
-    	}
-        context.save( proxy );
+    public static void saveNetRunner( YNetRunner runner ) throws YPersistenceException {
+    	DAO dao = AbstractEngine.getDao();
+        dao.save( runner );
     }
-
 
     private void prepare() throws YPersistenceException {
         _workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
@@ -397,9 +389,7 @@ public class YNetRunner implements Serializable // extends Thread
             }
             cancel();
         } else {
-            DataContext context = AbstractEngine.getDataContext();
-            DataProxy runner_proxy = context.getDataProxy( this );
-            context.save(runner_proxy);
+            saveNetRunner( this );
         }
         logger.debug("<-- YNetRunner.kick");
     }
@@ -440,7 +430,7 @@ public class YNetRunner implements Serializable // extends Thread
                 deadlockWorkItemID,
                 allowsNewInstances,
                 isDeadlocked);
-        YWorkItem.saveWorkItem( item, item.getParent(), null );
+        YWorkItem.saveWorkItem( item );
         //Log to Problems table of database.
         YProblemEvent event  = new YProblemEvent(_net, "Deadlocked", YProblemEvent.RuntimeError);
         event.logProblem();
@@ -512,11 +502,13 @@ public class YNetRunner implements Serializable // extends Thread
             kick();
         }
 
-        if (AbstractEngine.getDataContext().getDataProxy( this ) != null) {
+        if (AbstractEngine.getDao().retrieve(
+                YNetRunner.class,
+                AbstractEngine.getDao().getKey(this)) != null) {
             /* If the proxy is == null that means that the object was never persisted
 		     * which it should have been. See unit tests testImproperCompletionOfSubnet
              */
-            AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
+            AbstractEngine.getDao().save(this);
         }
 
         Logger.getLogger(this.getClass()).debug("<-- processCompletedSubnet");
@@ -714,8 +706,7 @@ public class YNetRunner implements Serializable // extends Thread
                          */
                         YWorkItem wItem = _workItemRepository.getWorkItem(_caseIDForNet.toString(), task.getID());
                         _workItemRepository.removeWorkItemFamily(wItem);
-                        DataProxy proxy = AbstractEngine.getDataContext().retrieve( YWorkItem.class, wItem.getId(), null );
-                        AbstractEngine.getDataContext().delete( proxy );
+                        AbstractEngine.getDao().delete( wItem );
 // TODO                       if (pmgr != null)
 //                        {
 //                            pmgr.deleteObject(wItem);
@@ -738,7 +729,7 @@ public class YNetRunner implements Serializable // extends Thread
         _busyTasks = _net.getBusyTasks();
 
         if (!_cancelling) {
-        	YNetRunner.saveNetRunner(this, null);
+        	YNetRunner.saveNetRunner(this);
         	//AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
         }
 
@@ -781,7 +772,7 @@ public class YNetRunner implements Serializable // extends Thread
             }
             workItem.setData(data);
         }
-        YWorkItem.saveWorkItem( workItem, null, null );
+        YWorkItem.saveWorkItem( workItem );
     }
 
 
@@ -849,7 +840,7 @@ public class YNetRunner implements Serializable // extends Thread
               INSERTED FOR PERSISTANCE
              */
             if (!_cancelling) {
-            	AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
+                saveNetRunner( this );
             }
 //            busyTaskNames.remove(atomicTask.getSpecURI());
 //            YPersistance.getInstance().updateData(this);
@@ -904,7 +895,7 @@ public class YNetRunner implements Serializable // extends Thread
         	//DataProxy runner_proxy = context.getDataProxy( this );
         	//context.delete(runner_proxy);
             setArchived(true);
-            YNetRunner.saveNetRunner(this,null);
+            YNetRunner.saveNetRunner(this);
             /*
              * If we just deleted the root net, then also delete all identifiers
              * since the case is completed

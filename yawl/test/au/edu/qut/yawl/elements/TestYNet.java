@@ -120,48 +120,48 @@ public class TestYNet extends TestCase {
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id1);
         netRunner.setId(new Long(1));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id2);
         netRunner.setId(new Long(2));
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id3);
         netRunner.setId(new Long(3));
 
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id4);
         netRunner.setId(new Long(4));
 
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id5);
         netRunner.setId(new Long(5));
 
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id6);
         netRunner.setId(new Long(6));
 
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id7);
         netRunner.setId(new Long(7));
 
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id8);
         netRunner.setId(new Long(8));
 
-        YNetRunner.saveNetRunner(netRunner, null);
+        YNetRunner.saveNetRunner(netRunner);
         
 
         

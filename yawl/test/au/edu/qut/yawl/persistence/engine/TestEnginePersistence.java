@@ -38,8 +38,6 @@ import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
-import au.edu.qut.yawl.persistence.managed.DataContext;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**
  * XXX: these tests need to be fixed so that they don't depend on the state of the
@@ -53,8 +51,7 @@ public class TestEnginePersistence extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		DAO hib = DAOFactory.getDAO( PersistenceType.SPRING );
-		DataContext context = new DataContext( hib );
-		AbstractEngine.setDataContext(context);
+		AbstractEngine.setDao(hib);
 
 		YEngineInterface engine = EngineFactory.getTransactionalEngine();
 		EngineClearer.clear( engine );
@@ -74,9 +71,6 @@ public class TestEnginePersistence extends TestCase {
 		
 
 		YEngineInterface engine = EngineFactory.getTransactionalEngine();
-
-
-		DataContext context = AbstractEngine.getDataContext();			
 		
 		LinkedList errors = new LinkedList();
 
@@ -92,9 +86,8 @@ public class TestEnginePersistence extends TestCase {
 		
    		
 
-        List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction( YNetRunner.class,
-        		new PropertyRestriction( "archived", Comparison.EQUAL, false),
-        		null );
+        List<YNetRunner> runners = AbstractEngine.getDao().retrieveByRestriction(
+                YNetRunner.class, new PropertyRestriction( "archived", Comparison.EQUAL, false) );
 		
 		/*
 		 * Check that one runner was added to the database
@@ -114,7 +107,6 @@ public class TestEnginePersistence extends TestCase {
 		File f = spx.getTranslatedFile("Timer.xml", true);
 		
 		YEngineInterface engine = EngineFactory.getTransactionalEngine();
-		DataContext context = AbstractEngine.getDataContext();
 		
 		LinkedList errors = new LinkedList();
 		engine.addSpecifications(f, false, errors);	
@@ -122,9 +114,8 @@ public class TestEnginePersistence extends TestCase {
 		String caseid_string = engine.launchCase("test", "Timer.xml", null, null);
 		YIdentifier caseid= engine.getCaseID(caseid_string);
 		
-        List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction( YNetRunner.class,
-        		new PropertyRestriction( "archived", Comparison.EQUAL, false),
-        		null );    	
+        List<YNetRunner> runners = AbstractEngine.getDao().retrieveByRestriction(
+                YNetRunner.class, new PropertyRestriction( "archived", Comparison.EQUAL, false) );    	
     	
 		/*
 		 * Check that no runners was added to the database
@@ -134,8 +125,6 @@ public class TestEnginePersistence extends TestCase {
         }
 		finally {
 			if( runners != null && runners.get( 0 ) != null ) {
-				DataProxy runner = (DataProxy) runners.get(0);
-				
 				engine.cancelCase(caseid);			
 				engine.unloadSpecification("Timer.xml");
 			}
@@ -156,9 +145,7 @@ public class TestEnginePersistence extends TestCase {
 		StringProducer spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("YAWL_Specification1.xml", true);
 		YEngineInterface engine = EngineFactory.getTransactionalEngine();
-		DataContext context = AbstractEngine.getDataContext();
 		engine.addSpecifications(f, false, new LinkedList());
-
 
 		String caseid_string = engine.launchCase("test", "YAWL_Specification1.xml", null, null);
 
@@ -174,7 +161,6 @@ public class TestEnginePersistence extends TestCase {
 		File f = spx.getTranslatedFile("Timer.xml", true);
 		
 		YEngineInterface engine = EngineFactory.getTransactionalEngine();
-		DataContext context = AbstractEngine.getDataContext();			
 		
 		LinkedList errors = new LinkedList();
 		engine.addSpecifications(f, false, errors);	
@@ -187,9 +173,8 @@ public class TestEnginePersistence extends TestCase {
 		
 		engine.cancelCase(caseid);
 
-        List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction( YNetRunner.class,
-        		new PropertyRestriction( "archived", Comparison.EQUAL, false),
-        		null );    	
+        List<YNetRunner> runners = AbstractEngine.getDao().retrieveByRestriction(
+                YNetRunner.class, new PropertyRestriction( "archived", Comparison.EQUAL, false) );
     	
         try {
         	assertTrue("" + runners.size(), runners.size()==0);
