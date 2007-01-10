@@ -11,8 +11,6 @@ package au.edu.qut.yawl.persistence.dao;
 import java.io.File;
 import java.util.List;
 
-import org.hibernate.ObjectDeletedException;
-
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.YNetRunner;
@@ -24,7 +22,6 @@ import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
-import au.edu.qut.yawl.persistence.managed.DataContext;
 
 public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 	YSpecification testSpec;
@@ -34,8 +31,7 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 		super.setUp();
 
 		DAO hib = getDAO();
-		DataContext context = new DataContext( hib );
-		AbstractEngine.setDataContext(context);
+		AbstractEngine.setDao(hib);
 		
 		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
 		StringProducer spx = StringProducerYAWL.getInstance();
@@ -60,17 +56,9 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 		assertNotNull(runner2);
 		
 		hibernateDAO.delete(runner);
-		try {
-			Object key = hibernateDAO.getKey(runner);
-			hibernateDAO.retrieve(YNetRunner.class,key);
-			fail( "retrieval should have failed for net runner with key " + key);
-		}
-		catch( YPersistenceException e ) {
-			// proper exception is ObjectDeletedException
-			if( ! ( e.getCause() instanceof ObjectDeletedException ) ) {
-				throw new YPersistenceException( e );
-			}
-		}
+		Object key = hibernateDAO.getKey(runner);
+		Object o = hibernateDAO.retrieve(YNetRunner.class,key);
+		assertNull("" + o, o);
 	}
 
 	/*

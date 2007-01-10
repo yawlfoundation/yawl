@@ -36,10 +36,8 @@ import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.events.YErrorEvent;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
-import au.edu.qut.yawl.persistence.managed.DataContext;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
-import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
 
 /**
  * 
@@ -147,24 +145,9 @@ public class YIdentifier implements Serializable {
         return descendants;
     }
     
-    public static void saveIdentifier( YIdentifier id, YIdentifier parent,
-    		DataProxyStateChangeListener listener ) throws YPersistenceException {
-
-    	DataContext context = AbstractEngine.getDataContext();
-    	DataProxy proxy = context.getDataProxy( id );
-    	DataProxy parentProxy = null;
-    	if( parent != null ) {
-    		parentProxy = context.getDataProxy( parent );
-    		assert parentProxy != null : "attempting to persist child when parent is not persisted!";
-    	}
-    	if( proxy == null ) {
-    		proxy = context.createProxy( id, listener );
-    		context.attachProxy( proxy, id, parentProxy );
-    	}
-        if( parent != null ) {
-        	context.save( parentProxy );
-        }
-        context.save( proxy );
+    public static void saveIdentifier( YIdentifier id ) throws YPersistenceException {
+        DAO dao = AbstractEngine.getDao();
+        dao.save( id );
     }
 
 
@@ -173,7 +156,7 @@ public class YIdentifier implements Serializable {
                 new YIdentifier(this.id + "." + (_children.size() + 1));
         _children.add(identifier);
         identifier._parent = this;
-        saveIdentifier( identifier, this, null );
+        saveIdentifier( identifier );
 
         return identifier;
     }
@@ -204,7 +187,7 @@ public class YIdentifier implements Serializable {
         _children.add(identifier);
         identifier._parent = this;
 
-        saveIdentifier( identifier, this, null );
+        saveIdentifier( identifier );
         
         return identifier;
     }
@@ -273,15 +256,15 @@ public class YIdentifier implements Serializable {
     	List<YNetElement> retval = new LinkedList<YNetElement>();
         
         PropertyRestriction restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , this.toString());
-        List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction(YNetRunner.class, restriction ,null);
+        List<YNetRunner> runners = AbstractEngine.getDao().retrieveByRestriction(YNetRunner.class, restriction);
         
         if( runners.size()==0 && getParent() != null ) {
         	restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , this.getParent().toString());
-            runners = AbstractEngine.getDataContext().retrieveByRestriction(YNetRunner.class, restriction ,null);        	
+            runners = AbstractEngine.getDao().retrieveByRestriction(YNetRunner.class, restriction);        	
         }
         
         if( runners.size() > 0 ) {
-            YNetRunner runner = (YNetRunner) runners.get(0).getData();
+            YNetRunner runner = runners.get(0);
             
         	YNet net = runner.getNet();
         	List l = net.getNetElements();

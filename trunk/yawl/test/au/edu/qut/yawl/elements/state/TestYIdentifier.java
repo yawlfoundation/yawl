@@ -53,7 +53,7 @@ public class TestYIdentifier extends TestCase {
 	public void testCreateChild() throws YPersistenceException
 	{
 		YIdentifier id = new YIdentifier();
-		YIdentifier.saveIdentifier( id, null, null );
+		YIdentifier.saveIdentifier( id );
 		YIdentifier id3 = id.createChild();
 		assertTrue(id3.isImmediateChildOf(id));
 		assertFalse(id3.isImmediateChildOf(id2));
@@ -66,7 +66,7 @@ public class TestYIdentifier extends TestCase {
 	public void testGetChildren() throws YPersistenceException
 	{
 		YIdentifier id  = new YIdentifier();
-		YIdentifier.saveIdentifier( id, null, null );
+		YIdentifier.saveIdentifier( id );
 		YIdentifier id3 = id.createChild();
 		YIdentifier id4 = id.createChild();
 		List children = id.getChildren();
@@ -80,7 +80,7 @@ public class TestYIdentifier extends TestCase {
 	public void testIsChildOf() throws YPersistenceException
 	{
 		YIdentifier parent = new YIdentifier();
-		YIdentifier.saveIdentifier( parent, null, null );
+		YIdentifier.saveIdentifier( parent );
 		YIdentifier child = parent.createChild();
 		assertTrue(child.isImmediateChildOf(parent));
 		assertFalse(child.isImmediateChildOf(id1));
@@ -92,7 +92,7 @@ public class TestYIdentifier extends TestCase {
 	{
 		List descendants = new Vector();
 		YIdentifier parent = new YIdentifier();
-		YIdentifier.saveIdentifier( parent, null, null );
+		YIdentifier.saveIdentifier( parent );
 		descendants.add(parent);
 		YIdentifier child1 = parent.createChild();
 		descendants.add(child1);

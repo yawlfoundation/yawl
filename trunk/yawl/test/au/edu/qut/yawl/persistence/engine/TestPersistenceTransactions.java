@@ -32,10 +32,9 @@ import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
-import au.edu.qut.yawl.persistence.managed.DataContext;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 public class TestPersistenceTransactions extends TestCase {
 	
@@ -61,27 +60,26 @@ public class TestPersistenceTransactions extends TestCase {
 		
 		YEngineInterface engine = (YEngineInterface) EngineFactory.getTransactionalEngine();
         EngineClearer.clear(engine);
-		DataContext context = AbstractEngine.getDataContext();			
 
 		LinkedList errors = new LinkedList();
-		engine.addSpecifications(f, false, errors);	
+		engine.addSpecifications(f, false, errors);
 
 		String caseid_string = engine.launchCase("test", "singletask", null, null);
 
 		System.out.println(engine.getStateForCase(caseid_string));
 
-        List<DataProxy> runners = AbstractEngine.getDataContext().retrieveByRestriction( YNetRunner.class,
+        List<YNetRunner> runners = AbstractEngine.getDao().retrieveByRestriction(
+                YNetRunner.class,
         		new LogicalRestriction(
-        		new PropertyRestriction( "archived", Comparison.EQUAL, false),
-        		Operation.AND,
-        		new PropertyRestriction( "YNetID", Comparison.EQUAL, "singletask" ) ),
-        		null );
+                        new PropertyRestriction( "archived", Comparison.EQUAL, false),
+                        Operation.AND,
+                        new PropertyRestriction( "YNetID", Comparison.EQUAL, "singletask" ) ) );
         
         /*
          * When we cancel a case, should we
          * delete all its workItems???
          * */
-		List items = context.retrieveAll(YWorkItem.class, null);    	
+		List items = AbstractEngine.getDao().retrieveByRestriction(YWorkItem.class, new Unrestricted());
 
 		//System.out.println(runners.size());
 		//System.out.println(items.size());
@@ -98,5 +96,4 @@ public class TestPersistenceTransactions extends TestCase {
 		
 		System.out.println(engine.getStateForCase(caseid_string));
 	}
-
 }

@@ -24,7 +24,6 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**
  * 
@@ -216,8 +215,7 @@ public class YWorkItemRepository {
         	YWorkItem item = (YWorkItem)_idStringToWorkItemsMap.get(workItemID);
         	_idStringToWorkItemsMap.remove(workItemID); 
 
-        	DataProxy proxy = AbstractEngine.getDataContext().retrieve( YWorkItem.class, item.getId(), null );
-            AbstractEngine.getDataContext().delete( proxy );
+            AbstractEngine.getDao().delete( item );
         }
     }
 

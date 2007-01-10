@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 
-
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
@@ -40,7 +39,8 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
@@ -1046,16 +1046,10 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	List<DataProxy> proxies = getDataContext().retrieveAll( YAWLServiceReference.class, null );
-        	Set<YAWLServiceReference> references = new HashSet<YAWLServiceReference>();
-        	for( DataProxy proxy : proxies ) {
-        		YAWLServiceReference ref = (YAWLServiceReference) proxy.getData();
-        		if (ref.getEnabled()) {
-        			references.add( ref );
-        		}
-        	}
-        	return references;
-
+        	return new HashSet<YAWLServiceReference>(
+                getDao().retrieveByRestriction(
+                        YAWLServiceReference.class,
+                        new PropertyRestriction( "enabled", Comparison.EQUAL, Boolean.valueOf( true ) ) ) );
         }
     }
 

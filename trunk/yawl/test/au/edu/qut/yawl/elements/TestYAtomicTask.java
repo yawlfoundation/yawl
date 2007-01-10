@@ -129,7 +129,7 @@ public class TestYAtomicTask extends TestCase {
 
     public void testFireAtomicTask() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
     	YIdentifier id1 = new YIdentifier();
-    	YIdentifier.saveIdentifier( id1, null, null );
+    	YIdentifier.saveIdentifier( id1 );
         _c1.add(id1);
         List l = null;
         l = _atomicTask1.t_fire();
@@ -153,7 +153,7 @@ public class TestYAtomicTask extends TestCase {
     	_atomicTask1.getParent().getParent().setBetaVersion(YSpecification._Beta7_1);
     	
     	YIdentifier id1 = new YIdentifier();
-    	YIdentifier.saveIdentifier( id1, null, null );
+    	YIdentifier.saveIdentifier( id1 );
         _c1.add(id1);
         List l = null;
         l = _atomicTask1.t_fire();
@@ -176,7 +176,7 @@ public class TestYAtomicTask extends TestCase {
     	_atomicTask1.getParent().getParent().setBetaVersion(YSpecification._Beta7_1);
     	
     	YIdentifier id = new YIdentifier();
-    	YIdentifier.saveIdentifier( id, null, null );
+    	YIdentifier.saveIdentifier( id );
     	YWorkItemRepository repos = YWorkItemRepository.getInstance();
     	repos.clear();
     	
@@ -228,7 +228,7 @@ public class TestYAtomicTask extends TestCase {
 		YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
 		
 		YIdentifier id = new YIdentifier();
-		YIdentifier.saveIdentifier( id, null, null );
+		YIdentifier.saveIdentifier( id );
     	YWorkItemRepository repos = YWorkItemRepository.getInstance();
     	repos.clear();
     	

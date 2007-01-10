@@ -225,7 +225,7 @@ public class TestYExternalTask extends TestCase{
         }
         assertNotNull(f); f= null;
         YIdentifier id1 = new YIdentifier();
-        YIdentifier.saveIdentifier( id1, null, null );
+        YIdentifier.saveIdentifier( id1 );
         _aCondition.add(id1);
         assertTrue(_validTask.t_enabled(null));
         List childIdentifiers = null;
@@ -414,7 +414,7 @@ public class TestYExternalTask extends TestCase{
         l1.add(t1);
         t1.setRemovesTokensFrom(l1);
         YIdentifier id1 = new YIdentifier();
-        YIdentifier.saveIdentifier( id1, null, null );
+        YIdentifier.saveIdentifier( id1 );
         c1.add(id1);
 
         List kids = null;

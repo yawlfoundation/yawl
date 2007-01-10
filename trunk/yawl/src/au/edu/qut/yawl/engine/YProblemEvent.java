@@ -5,8 +5,6 @@
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
-
-
 package au.edu.qut.yawl.engine;
 
 import java.util.Date;
@@ -15,8 +13,6 @@ import org.apache.log4j.Logger;
 
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
-
 
 /**
  * A problem event describes the nature of a runtime execution problem.
@@ -82,9 +78,7 @@ public class YProblemEvent {
         error.setTimeStamp(new Date());
         error.setSource(_source.toString());
 
-        DataProxy proxy = AbstractEngine.getDataContext().createProxy( error, null );
-        AbstractEngine.getDataContext().attachProxy( proxy, error, null );
-        AbstractEngine.getDataContext().save( proxy );
+        AbstractEngine.getDao().save( error );
         /**
          * AJH: Bugfix - Prevent NPE being thrown if persistence switched off
          */

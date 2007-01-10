@@ -11,15 +11,12 @@ package au.edu.qut.yawl.elements;
 
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.exceptions.*;
 import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
-import au.edu.qut.yawl.engine.*;
 import au.edu.qut.yawl.engine.domain.YCaseData;
-import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.engine.YNetRunner;
 
 /**
@@ -85,15 +82,12 @@ public class TestYExternalCondition extends TestCase {
 
     public void testMovingIdentifiers() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
         YIdentifier id = new YIdentifier();
-        
 
         YNetRunner netRunner = new YNetRunner();
         netRunner.setNet(_net);
         netRunner.setCaseID(id);
-        YNetRunner.saveNetRunner(netRunner, null);
-        
-        YIdentifier.saveIdentifier( id, null, null );
-       
+        YIdentifier.saveIdentifier(id);
+        YNetRunner.saveNetRunner(netRunner);
        
         
         assertTrue(id.getLocations().size() == 0);

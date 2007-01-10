@@ -41,7 +41,6 @@ import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionStringConverter;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -192,16 +191,10 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-	        List<DataProxy> specs = AbstractEngine.getDataContext().retrieveByRestriction(
-	        		YSpecification.class, RestrictionStringConverter.stringToRestriction( restriction ), null );
-	        List<YSpecification> specList = new ArrayList<YSpecification>();
-	        for( DataProxy proxy : specs ) {
-	        	if( proxy.getData() instanceof YSpecification ) {
-	        		specList.add( (YSpecification) proxy.getData() );
-	        	}
-	        }
+	        List<YSpecification> specs = AbstractEngine.getDao().retrieveByRestriction(
+	        		YSpecification.class, RestrictionStringConverter.stringToRestriction( restriction ) );
 	        
-            return YMarshal.marshal(specList);
+            return YMarshal.marshal(specs);
         } catch (Exception e) {
             logger.error("Failed to retrieve specifications by restriction! " + restriction, e);
             return OPEN_FAILURE +

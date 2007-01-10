@@ -19,7 +19,6 @@ import au.edu.qut.yawl.persistence.YAWLTransactionAdvice;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
-import au.edu.qut.yawl.persistence.managed.DataProxy;
 
 /**
  * @author Lachlan Aldred
@@ -51,23 +50,20 @@ public class EngineClearer {
                 }
                 else {
                     log("\t\tdeleting");
-                    DataProxy proxy = AbstractEngine.getDataContext().getDataProxy( identifier );
-                    assert proxy != null : "Proxy should not be null";
-                    AbstractEngine.getDataContext().delete( proxy );
+                    assert identifier != null : "Identifier should not be null";
+                    AbstractEngine.getDao().delete( identifier );
                 }
             }
         }
         
-        List<DataProxy> ids = AbstractEngine.getDataContext().retrieveByRestriction( YIdentifier.class,
-                new PropertyRestriction( "parent", Comparison.EQUAL, null ),
-                null );
+        List<YIdentifier> ids = AbstractEngine.getDao().retrieveByRestriction(
+                YIdentifier.class, new PropertyRestriction( "parent", Comparison.EQUAL, null ) );
         log( ids.size() + " identifiers" );
-        for( DataProxy<YIdentifier> proxy : ids ) {
-            YIdentifier id = proxy.getData();
+        for( YIdentifier id : ids ) {
             log( "\t" + id.toString() );
             if( engine.getNetRunner( id ) == null ) {
                 log( "\tdeleting identifier" );
-                AbstractEngine.getDataContext().delete( AbstractEngine.getDataContext().getDataProxy( id ) );
+                AbstractEngine.getDao().delete( id );
             }
             else {
                 log( "\tcancelling case" );
@@ -75,20 +71,20 @@ public class EngineClearer {
             }
         }
         
-        List<DataProxy> runners = AbstractEngine.getDataContext().retrieveAll( YNetRunner.class, null );
+        List<YNetRunner> runners = AbstractEngine.getDao().retrieveByRestriction(
+                YNetRunner.class, new Unrestricted() );
         log( runners.size() + " net runners" );
-        for( DataProxy<YNetRunner> proxy : runners ) {
-            log( "\tdeleting " + proxy.getData() );
-            AbstractEngine.getDataContext().delete( proxy );
+        for( YNetRunner runner : runners ) {
+            log( "\tdeleting " + runner );
+            AbstractEngine.getDao().delete( runner );
         }
         
-    	List<DataProxy> list = AbstractEngine.getDataContext().retrieveByRestriction(
-    			YSpecification.class, new Unrestricted(), null );
+    	List<YSpecification> list = AbstractEngine.getDao().retrieveByRestriction(
+    			YSpecification.class, new Unrestricted() );
         log(list.size() + " specifications");
-    	for( DataProxy proxy : list ) {
-            YSpecification spec = (YSpecification) proxy.getData();
+    	for( YSpecification spec : list ) {
             log("\tdeleting spec " + spec.getID() + ":" + spec.getVersion() + "(" + spec.getDbID() + ")");
-    		AbstractEngine.getDataContext().delete( proxy );
+    		AbstractEngine.getDao().delete( spec );
     	}
         log("clear complete");
     }
@@ -106,7 +102,7 @@ public class EngineClearer {
         log("starting engine");
         EngineFactory.getTransactionalEngine();
         log("starting transaction");
-        a.before( null,null, null );
+        a.before( null, null, null );
         log("clearing database");
         clear( EngineFactory.getTransactionalEngine() );
         log("commiting");
