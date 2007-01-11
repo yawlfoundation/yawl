@@ -26,13 +26,10 @@ import au.edu.qut.yawl.engine.interfce.TestEngineGatewayYAWLServices;
  * Date: 10/25/2006
  * 
  */
-public class EventsTestSuite extends TestCase{
-    public EventsTestSuite(String name) {
-        super(name);
-    }
+public class EventsTestSuite extends TestSuite{
 
     public static Test suite() {
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new EventsTestSuite();
         suite.addTestSuite(HsqlTest.class);
         suite.addTestSuite(JmsProviderTest.class);
         return suite;

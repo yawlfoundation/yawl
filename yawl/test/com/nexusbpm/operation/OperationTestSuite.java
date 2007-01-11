@@ -15,12 +15,9 @@ import junit.textui.TestRunner;
  * @author Nathan Rose
  */
 public class OperationTestSuite extends TestSuite{
-    public OperationTestSuite(String name){
-    	super(name);
-    }
 
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new OperationTestSuite();
         suite.addTestSuite(TestNameAndCounter.class);
         suite.addTestSuite(TestYFlow.class);
         return suite;

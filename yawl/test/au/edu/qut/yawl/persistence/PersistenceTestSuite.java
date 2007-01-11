@@ -26,24 +26,13 @@ import au.edu.qut.yawl.persistence.managed.TestDataContext;
 public class PersistenceTestSuite extends TestSuite{
 
 	/**
-	 * Constructor for AuthenticationTestSuite.
-	 * @param name
-	 */
-    public PersistenceTestSuite(String name){
-    	super(name);
-    }
-
-
-	/**
 	 * Adds all of the testing classes to the suite to run all tests.
 	 */
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new PersistenceTestSuite();
         suite.addTest(DAOPersistenceTestSuite.suite());
         suite.addTest(EngineTestSuite.suite());
         suite.addTestSuite(TestDataParsing.class);
-        suite.addTestSuite(TestYCompositeTask.class);
-        suite.addTestSuite(TestYExternalTask.class);
         suite.addTestSuite(TestYNet.class);
         suite.addTestSuite(TestYSpecification.class);
         suite.addTestSuite(TestHibernateMarshal.class);

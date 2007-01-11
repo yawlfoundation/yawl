@@ -20,13 +20,9 @@ import junit.framework.TestSuite;
  * 
  */
 public class ExceptionTestSuite extends TestSuite{
-    public ExceptionTestSuite(String name)
-    {
-        super(name);
-    }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new ExceptionTestSuite();
         suite.addTestSuite(TestYConnectivityException.class);
         suite.addTestSuite(TestYSyntaxException.class);
         suite.addTestSuite(TestServiceConnectionException.class);

@@ -23,16 +23,11 @@ import junit.textui.TestRunner;
  */
 public class AutoDeploymentTestSuite extends TestSuite{
 
-    public AutoDeploymentTestSuite(String name) {
-        super(name);
-    }
-
-
 	/**
 	 * Adds all of the testing classes to the suite to run all tests.
 	 */
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new AutoDeploymentTestSuite();
         suite.addTestSuite(TestAutoDeployment.class);
         //return
         return suite;

@@ -20,12 +20,9 @@ import junit.framework.TestSuite;
  * 
  */
 public class UtilTestSuite extends TestSuite{
-    public UtilTestSuite(String name){
-        super(name);
-    }
 
-    public static Test suite(){
-        TestSuite suite = new TestSuite();
+  public static Test suite(){
+        TestSuite suite = new UtilTestSuite();
         return suite;
     }
 }

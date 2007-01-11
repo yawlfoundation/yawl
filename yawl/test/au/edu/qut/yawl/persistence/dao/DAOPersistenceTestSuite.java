@@ -23,19 +23,10 @@ import junit.textui.TestRunner;
 public class DAOPersistenceTestSuite extends TestSuite{
 
 	/**
-	 * Constructor for DAOPersistenceTestSuite.
-	 * @param name
-	 */
-    public DAOPersistenceTestSuite(String name){
-    	super(name);
-    }
-
-
-	/**
 	 * Adds all of the testing classes to the suite to run all tests.
 	 */
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new DAOPersistenceTestSuite();
         suite.addTestSuite(TestSpecificationFileDAO.class);
         suite.addTestSuite(TestSpecificationHibernateDAO.class);
         suite.addTestSuite(TestSpecificationMemoryDAO.class);

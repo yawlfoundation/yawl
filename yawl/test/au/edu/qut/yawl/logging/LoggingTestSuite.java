@@ -20,13 +20,9 @@ import junit.framework.TestSuite;
  * 
  */
 public class LoggingTestSuite extends TestSuite{
-    public LoggingTestSuite(String name)
-    {
-        super(name);
-    }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new LoggingTestSuite();
         suite.addTestSuite(YawlServletTestNextIdNew.class);
         return suite;
     }

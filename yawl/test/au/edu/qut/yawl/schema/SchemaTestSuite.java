@@ -21,13 +21,9 @@ import junit.framework.TestSuite;
  * 
  */
 public class SchemaTestSuite extends TestSuite{
-    public SchemaTestSuite(String name)
-    {
-        super(name);
-    }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new SchemaTestSuite();
         suite.addTestSuite(TestXSD4YAWLBuilder.class);
         suite.addTestSuite(TestXMLToolsForYAWL.class);
         return suite;

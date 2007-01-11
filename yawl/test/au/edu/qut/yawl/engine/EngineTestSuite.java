@@ -28,13 +28,10 @@ import au.edu.qut.yawl.engine.interfce.TestInterfaceA_EnvironmentBasedClient;
  * Time: 15:57:52
  * 
  */
-public class EngineTestSuite extends TestCase{
-    public EngineTestSuite(String name) {
-        super(name);
-    }
+public class EngineTestSuite extends TestSuite{
 
     public static Test suite() {
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new EngineTestSuite();
         suite.addTestSuite(TestAddSpecifications.class);
         suite.addTestSuite(TestCaseCancellation.class);
         suite.addTestSuite(TestEngineAgainstABeta4Spec.class);
