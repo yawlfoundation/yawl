@@ -17,16 +17,9 @@ import junit.textui.TestRunner;
  * @created Aug 4, 2006
  */
 public class CommandTestSuite extends TestSuite{
-	/**
-	 * Constructor for NexusCommandTestSuite.
-	 * @param name
-	 */
-    public CommandTestSuite(String name){
-    	super(name);
-    }
 
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new CommandTestSuite();
         suite.addTestSuite(CreateSpecificationTest.class);
         suite.addTestSuite(CopyNetTest.class);
         suite.addTestSuite(RenameElementTest.class);

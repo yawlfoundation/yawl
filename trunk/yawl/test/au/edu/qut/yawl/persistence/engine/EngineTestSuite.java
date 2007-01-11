@@ -23,19 +23,10 @@ import junit.textui.TestRunner;
 public class EngineTestSuite extends TestSuite{
 
 	/**
-	 * Constructor for DAOPersistenceTestSuite.
-	 * @param name
-	 */
-    public EngineTestSuite(String name){
-    	super(name);
-    }
-
-
-	/**
 	 * Adds all of the testing classes to the suite to run all tests.
 	 */
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new EngineTestSuite();
         suite.addTestSuite(TestEnginePersistence.class);
         suite.addTestSuite(TestPersistenceTransactions.class);
         suite.addTestSuite(TestServiceInterface.class);

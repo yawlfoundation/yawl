@@ -30,12 +30,9 @@ import junit.textui.TestRunner;
  * occuring as a _errorsString of using this class.
  */
 public class UnmarshallerTestSuite extends TestSuite {
-    public UnmarshallerTestSuite(String name){
-        super(name);
-    }
 
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new UnmarshallerTestSuite();
         suite.addTestSuite(TestMetaDataMarshal.class);
 //        suite.addTestSuite(TestYMarshal.class);
         suite.addTestSuite(TestYMarshalB4.class);

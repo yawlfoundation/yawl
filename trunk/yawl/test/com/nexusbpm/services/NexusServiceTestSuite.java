@@ -17,19 +17,12 @@ import com.nexusbpm.services.invoker.TestJythonPreprocessor;
  * @author Nathan Rose
  */
 public class NexusServiceTestSuite extends TestSuite{
-	/**
-	 * Constructor for NexusServiceTestSuite.
-	 * @param name
-	 */
-    public NexusServiceTestSuite(String name){
-    	super(name);
-    }
 
 	/**
 	 * Adds all of the testing classes to the suite to run all tests.
 	 */
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new NexusServiceTestSuite();
         suite.addTestSuite(TestJythonPreprocessor.class);
         return suite;
     }

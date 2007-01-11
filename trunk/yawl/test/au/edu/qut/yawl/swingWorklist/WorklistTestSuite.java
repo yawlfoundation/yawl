@@ -21,13 +21,9 @@ import junit.textui.TestRunner;
  * 
  */
 public class WorklistTestSuite extends TestSuite{
-    public WorklistTestSuite(String name){
-        super(name);
-    }
-
 
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new WorklistTestSuite();
         suite.addTestSuite(TestWorklistTableModel.class);
         suite.addTestSuite(TestYWorkAvailablePanel.class);
         return suite;

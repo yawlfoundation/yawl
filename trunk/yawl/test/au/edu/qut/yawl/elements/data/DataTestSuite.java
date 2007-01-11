@@ -17,12 +17,9 @@ import junit.textui.TestRunner;
  * @author Lachlan Aldred
  */
 public class DataTestSuite extends TestSuite {
-    public DataTestSuite(String name){
-        super(name);
-    }
 
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new DataTestSuite();
         suite.addTestSuite(TestYParameter.class);
         return suite;
     }

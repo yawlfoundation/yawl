@@ -21,13 +21,9 @@ import junit.textui.TestRunner;
  * 
  */
 public class StateTestSuite extends TestSuite {
-    public StateTestSuite(String name){
-        super(name);
-    }
-
 
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new StateTestSuite();
         suite.addTestSuite(TestYIdentifier.class);
         suite.addTestSuite(TestYMarking.class);
         suite.addTestSuite(TestYOrJoinUtils.class);

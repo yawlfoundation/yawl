@@ -23,19 +23,10 @@ import junit.textui.TestRunner;
 public class AuthenticationTestSuite extends TestSuite{
 
 	/**
-	 * Constructor for AuthenticationTestSuite.
-	 * @param name
-	 */
-    public AuthenticationTestSuite(String name){
-    	super(name);
-    }
-
-
-	/**
 	 * Adds all of the testing classes to the suite to run all tests.
 	 */
     public static Test suite(){
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new AuthenticationTestSuite();
         suite.addTestSuite(TestUserList.class);
         //return
         return suite;

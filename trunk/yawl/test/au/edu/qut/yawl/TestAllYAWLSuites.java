@@ -40,12 +40,6 @@ import com.nexusbpm.services.NexusServiceTestSuite;
  */
 public class TestAllYAWLSuites extends TestSuite{
 
-    public TestAllYAWLSuites(String name){
-        super(name);
-    }
-
-
-
     public static Test suite(){
     	
     	/*
@@ -55,7 +49,7 @@ public class TestAllYAWLSuites extends TestSuite{
     	*/
     	YAWLException.setLogging(false);
     	
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new TestAllYAWLSuites();
         //suite.addTest(AdminToolTestSuite.suite());
         suite.addTest(ElementsTestSuite.suite());
         suite.addTest(DataTestSuite.suite());
