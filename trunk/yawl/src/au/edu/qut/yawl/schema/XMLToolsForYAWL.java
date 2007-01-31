@@ -60,7 +60,8 @@ public class XMLToolsForYAWL implements Cloneable {
             document = parser.getDocument();
             _xsd4YAWLBuilder.setSchema(document.getDocumentElement());
         } catch (Exception e) {
-            YSchemaBuildingException f = new YSchemaBuildingException(e.getMessage());
+        	e.printStackTrace();
+            YSchemaBuildingException f = new YSchemaBuildingException(e);
             f.setStackTrace(e.getStackTrace());
             throw f;
         }

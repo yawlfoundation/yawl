@@ -9,24 +9,29 @@
 
 package au.edu.qut.yawl.engine;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Set;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+import org.jdom.JDOMException;
+
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.exceptions.*;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Set;
-import java.util.ArrayList;
-
-import org.jdom.JDOMException;
 
 /**
  /**
@@ -36,7 +41,7 @@ import org.jdom.JDOMException;
  * Time: 14:23:09
  * 
  */
-public class TestImproperCompletion extends TestCase{
+public class TestImproperCompletion extends AbstractTransactionalTestCase{
     private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private long _sleepTime = 100;
     private AbstractEngine _engine;
@@ -48,7 +53,8 @@ public class TestImproperCompletion extends TestCase{
         super(name);
     }
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
+    public void setUp() throws Exception {
+    	super.setUp();
         URL fileURL = getClass().getResource("TestImproperCompletion.xml");
         yawlXMLFile = new File(fileURL.getFile());
         _specification = (YSpecification) YMarshal.
@@ -73,19 +79,20 @@ public class TestImproperCompletion extends TestCase{
             YWorkItem item;
             while (_workItemRepository.getEnabledWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getEnabledWorkItems().iterator().next();
-                _engine.startWorkItem(item, "admin");
+                _engine.startWorkItem(item.getIDString(), "admin");
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
             while (_workItemRepository.getFiredWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getFiredWorkItems().iterator().next();
-                _engine.startWorkItem(item, "admin");
+                _engine.startWorkItem(item.getIDString(), "admin");
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
             while (_workItemRepository.getExecutingWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(item, "<data/>", false);
+                System.out.println("OK NOW WERE GOING TO COMPLETE WORK ITEM " + item);
+                _engine.completeWorkItem(item.getIDString(), "<data/>", false);
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
@@ -95,7 +102,7 @@ public class TestImproperCompletion extends TestCase{
         assertTrue("s = " + s, s.contains(_id));
         _engine.cancelCase(_id);
         s = _engine.getCasesForSpecification("TestImproperCompletion");
-        assertFalse("s = " + s, s.contains(_id));
+        assertFalse("case set " + s + " should not contain id " + _id, s.contains(_id));
     }
 
 

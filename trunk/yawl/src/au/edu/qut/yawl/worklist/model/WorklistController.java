@@ -421,7 +421,7 @@ public class WorklistController extends InterfaceBWebsideController {
      * @return result message success / failure ...reason
      */
     public String addYAWLService(String serviceURI, String serviceDocumentation, String sessionHandle) throws IOException {
-        YAWLServiceReference service = new YAWLServiceReference(serviceURI, null);
+        YAWLServiceReference service = new YAWLServiceReference(serviceURI);
         service.setDocumentation(serviceDocumentation);
         return _interfaceAClient.setYAWLService(service, sessionHandle);
     }

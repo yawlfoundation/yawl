@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jdom.Document;
@@ -36,12 +35,8 @@ import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.exceptions.YAuthenticationException;
-import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.util.XmlUtilities;
 import au.edu.qut.yawl.worklist.model.Marshaller;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
@@ -53,7 +48,7 @@ import au.edu.qut.yawl.worklist.model.WorkItemRecord;
  * 
  * @author Nathan Rose
  */
-public class TestEngineGateway extends TestCase {
+public class TestEngineGateway extends AbstractTransactionalTestCase {
 //    private YIdentifier _idForTopNet;
     private EngineGateway _gateway;
     private String _session;
@@ -63,9 +58,8 @@ public class TestEngineGateway extends TestCase {
 //    private YWorkItemRepository _repository;
 //    private List _caseCompletionReceived = new ArrayList();
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException,
-    		YStateException, YPersistenceException, YDataStateException, URISyntaxException,
-    		YAuthenticationException {
+    public void setUp() throws Exception {
+    	super.setUp();
     	// all this is the only way I can figure to remove the admin's old connections...
     	UserList ul = UserList.getInstance();
     	// first create a new user, connect, and delete the admin
@@ -424,7 +418,7 @@ public class TestEngineGateway extends TestCase {
         // ensure that no cases are running
         cases = getCasesForSpec( _specID );
         assertNotNull( cases );
-        assertTrue( "" + cases.size(), cases.size() == 0 );
+        assertEquals( "case count wrong", 0, cases.size() );
     }
     
     public void testMultipleCases() throws URISyntaxException, JDOMException, IOException {

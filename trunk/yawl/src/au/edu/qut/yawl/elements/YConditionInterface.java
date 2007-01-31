@@ -77,7 +77,7 @@ public interface YConditionInterface {
 
 
     /**
-     * Removes all the YIdentifiers equal to identifier.
+     * Removes all the YIdentifiers.
      */
     public void removeAll() throws YPersistenceException;
 

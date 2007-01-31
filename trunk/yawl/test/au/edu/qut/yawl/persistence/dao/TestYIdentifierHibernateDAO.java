@@ -8,20 +8,38 @@
 
 package au.edu.qut.yawl.persistence.dao;
 
-import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.engine.EngineFactory;
+import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 
 public class TestYIdentifierHibernateDAO extends AbstractHibernateDAOTestCase {
 	
-	
 	protected void setUp() throws Exception {
 		super.setUp();
-		DAO hib = getDAO();
-		AbstractEngine.setDao(hib);
+//		EngineFactory.createYEngine();
+//		List<YIdentifier> identifiers = null;
+//		try {
+//			identifiers = getDAO().retrieveByRestriction(YIdentifier.class, new Unrestricted());
+//		}
+//		catch( Exception e ) {
+//			e.printStackTrace();
+//		}
+//		if( identifiers != null ) {
+//			List<YNetRunner> runners = getDAO().retrieveByRestriction(YNetRunner.class, new Unrestricted());
+//			for (YNetRunner runner: runners) {
+//				getDAO().delete(runner);
+//			}
+//			do {
+//				identifiers = getDAO().retrieveByRestriction(YIdentifier.class, new Unrestricted());
+//				if (identifiers.size() > 0) getDAO().delete(identifiers.get(0));
+//				} while (identifiers.size() > 0);
+//		}
 	}
 	
 	/*
@@ -29,14 +47,14 @@ public class TestYIdentifierHibernateDAO extends AbstractHibernateDAOTestCase {
 	 */
 	public void testSaveAndRetrieveTwo() throws YPersistenceException {
 		DAO hibernateDAO = getDAO();
-		YIdentifier yid = new YIdentifier("abc");
+		YIdentifier yid = new YIdentifier();
 		hibernateDAO.save(yid);
 
-		YIdentifier yid2 = new YIdentifier("abc2");
+		YIdentifier yid2 = new YIdentifier();
 		hibernateDAO.save(yid2);
 		
-		Object yid3 = hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
-		assertNotNull(yid3);							
+//		Object yid3 = hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
+//		assertNotNull(yid3);							
 		hibernateDAO.delete(yid);
 		hibernateDAO.delete(yid2);
 	}
@@ -46,7 +64,7 @@ public class TestYIdentifierHibernateDAO extends AbstractHibernateDAOTestCase {
 	 */
 	public void testDelete() throws YPersistenceException {
 		DAO hibernateDAO = getDAO();
-		YIdentifier yid = new YIdentifier("abc_delete");
+		YIdentifier yid = new YIdentifier();
 		hibernateDAO.save(yid);
 
 		Object yid2 = hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
@@ -55,12 +73,13 @@ public class TestYIdentifierHibernateDAO extends AbstractHibernateDAOTestCase {
 		hibernateDAO.delete(yid);
 		Object key = hibernateDAO.getKey(yid);
 		Object o = hibernateDAO.retrieve(YIdentifier.class,key);
-        assertNull("" + o, o);
+		assertNull( "retrieval should have failed for identifier with key " + key, o);
 	}
 
-	/*
-	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.retrieve(Object)'
-	 */
+//	/*
+//	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.retrieve(Object)'
+//	 */
+//	
 //	public void testRetrieveByRestriction() {
 //	}
 
@@ -69,7 +88,7 @@ public class TestYIdentifierHibernateDAO extends AbstractHibernateDAOTestCase {
 	 */
 	public void testSaveAndRetrieve() throws YPersistenceException {
 		DAO hibernateDAO = getDAO();
-		YIdentifier yid = new YIdentifier("abc_retreive");
+		YIdentifier yid = new YIdentifier();
 		hibernateDAO.save(yid);
 
 		Object yid2 = hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
@@ -80,19 +99,19 @@ public class TestYIdentifierHibernateDAO extends AbstractHibernateDAOTestCase {
 	public void testSaveChildButNotParent() {
 		try {
 			DAO hibernateDAO = getDAO();
-			YIdentifier yid = new YIdentifier("abc_ex");
+			YIdentifier yid = new YIdentifier();
 			YIdentifier yid1 = yid.createChild();
-			
+			hibernateDAO.save(yid1);
 			fail("Exception should be thrown"); //but which exception
-		} catch (YPersistenceException e) {
+		} catch (Exception e) {
 			//success
 		}
 	}
 	
 	public void testSaveAndRestoreHierarchy() throws YPersistenceException {
-		DAO hibernateDAO = getDAO();
-		YIdentifier yid = new YIdentifier("abc_restore");		
-		YIdentifier.saveIdentifier(yid);
+		YIdentifier yid = new YIdentifier();		
+		getDAO().save(yid);
+//		YIdentifier.saveIdentifier(yid, null, null);
 					
 		YIdentifier yid1 = yid.createChild();
 		YIdentifier yid2 = yid.createChild();
@@ -101,36 +120,34 @@ public class TestYIdentifierHibernateDAO extends AbstractHibernateDAOTestCase {
 		Set s_old = yid.getDescendants();
 		assertTrue("Wrong number of decendants1",s_old.size()==4);
 		
-		YIdentifier yidparent = (YIdentifier) hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
+		YIdentifier yidparent = (YIdentifier) getDAO().retrieve(YIdentifier.class,getDAO().getKey(yid));
 		assertNotNull(yidparent);							
 		
 		Set s = yidparent.getDescendants();
 		assertTrue("Wrong number of decendants",s.size()==4);
-		hibernateDAO.delete(yid);
+		getDAO().delete(yid);
 	}
 	
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
 	 */
 	public void testSaveAndRetrieveThenExecute() throws YPersistenceException {
-		DAO hib = getDAO();
-		AbstractEngine.setDao(hib);
+		YIdentifier yid = new YIdentifier();
+		getDAO().save(yid);
+//		YIdentifier.saveIdentifier(yid,null,null);
 		
-		DAO hibernateDAO = getDAO();
-		YIdentifier yid = new YIdentifier("abc_ret");
-		YIdentifier.saveIdentifier(yid);
-		
-//		YIdentifier yid2 = (YIdentifier) hibernateDAO.retrieve(YIdentifier.class,hibernateDAO.getKey(yid));
-		Serializable key = (Serializable) hibernateDAO.getKey( yid );
-		YIdentifier yid2 = (YIdentifier) hibernateDAO.retrieve( YIdentifier.class, key );
+		YIdentifier yid2 = (YIdentifier) getDAO().retrieve(YIdentifier.class,getDAO().getKey(yid));
+//		DataProxy proxy = context.getDataProxy( yid );
+//		Serializable key = context.getKeyFor( proxy );
+//		YIdentifier yid2 = (YIdentifier) context.retrieve( YIdentifier.class, key, null ).getData();
 		assertNotNull(yid2);
 		yid2.createChild();
-		hibernateDAO.delete(yid);
+		getDAO().delete(yid);
 	}
 	
-	/*
-	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.getKey(YSpecification)'
-	 */
+//	/*
+//	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.getKey(YSpecification)'
+//	 */
 //	public void testGetKey() {
 //	}
 }

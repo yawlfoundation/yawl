@@ -16,14 +16,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -33,7 +31,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * 
  * @author Nathan Rose
  */
-public class TestAddSpecifications extends TestCase {
+public class TestAddSpecifications extends AbstractTransactionalTestCase {
     private AbstractEngine _engine;
     private File _spec1File;
     private File _spec2File;
@@ -42,12 +40,17 @@ public class TestAddSpecifications extends TestCase {
         super(name);
     }
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, YPersistenceException,
-    		JDOMException, IOException {
+    public void setUp() throws Exception {
+    	super.setUp();
         _spec1File = getFile( "TestAddSpecifications1.xml" );
         _spec2File = getFile( "TestAddSpecifications2.xml" );
-        _engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
+        try {
+			_engine =  EngineFactory.createYEngine();
+			EngineClearer.clear(_engine);
+		} catch (RuntimeException e) {
+			super.tearDown();
+			throw new Exception("Test setup failed", e);
+		}
     }
     
     private static File getFile( String fileName ) {

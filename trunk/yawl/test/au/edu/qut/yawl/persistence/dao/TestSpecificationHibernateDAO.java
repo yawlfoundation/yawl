@@ -28,7 +28,8 @@ public class TestSpecificationHibernateDAO extends AbstractHibernateDAOTestCase 
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
+		DAO fileDAO = new DelegatedFileDAO();
+//		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
 		StringProducer spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestMakeRecordingsBigTest.xml", true);
 
@@ -47,7 +48,7 @@ public class TestSpecificationHibernateDAO extends AbstractHibernateDAOTestCase 
 		myDAO.delete(spec2);
 		key = myDAO.getKey(spec2);
 		Object o = myDAO.retrieve(YSpecification.class,key);
-        assertNull("" + o, o);
+		assertNull( "retrieval should have failed for specification with key " + key, o);
 	}
 
 	/*
@@ -100,6 +101,7 @@ public class TestSpecificationHibernateDAO extends AbstractHibernateDAOTestCase 
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.getKey(YSpecification)'
 	 */
-//	public void testGetKey() {
-//	}
+	public void testGetKey() {
+	}
+
 }

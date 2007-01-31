@@ -64,7 +64,11 @@ public class JmsService extends HttpServlet {
 				passwd);
 		String setupDb = readStreamAsString(sqlPath);
 		PreparedStatement s = conn.prepareStatement(setupDb);
-		s.execute();
+		try {
+			s.execute();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	protected void destroyDatabase() throws SQLException {

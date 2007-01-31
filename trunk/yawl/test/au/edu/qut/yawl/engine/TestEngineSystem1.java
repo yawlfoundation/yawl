@@ -9,25 +9,34 @@
 
 package au.edu.qut.yawl.engine;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+import org.jdom.JDOMException;
+
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YMultiInstanceAttributes;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.exceptions.*;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.*;
-
-import org.jdom.JDOMException;
 
 /**
  * 
@@ -36,7 +45,7 @@ import org.jdom.JDOMException;
  * Time: 12:28:34
  * 
  */
-public class TestEngineSystem1 extends TestCase {
+public class TestEngineSystem1 extends AbstractTransactionalTestCase {
     private YNetRunner _netRunner;
     private YIdentifier _idForTopNet;
     private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
@@ -50,7 +59,8 @@ public class TestEngineSystem1 extends TestCase {
     }
 
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
+    public void setUp() throws Exception {
+    	super.setUp();
         URL fileURL = getClass().getResource("YAWL_Specification3.xml");
         yawlXMLFile = new File(fileURL.getFile());
         _specification = null;
@@ -73,7 +83,7 @@ public class TestEngineSystem1 extends TestCase {
             Thread.sleep(_sleepTime);
             //fire btop
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(anItem.getCaseID().toString(), anItem.getTaskID());
-            anItem = _engine.startWorkItem(anItem, "admin");
+            anItem = _engine.startWorkItem(anItem.getIDString(), "admin");
             currWorkItems = _workItemRepository.getEnabledWorkItems();
             assertTrue(currWorkItems.isEmpty());
             currWorkItems = _workItemRepository.getExecutingWorkItems();
@@ -82,7 +92,7 @@ public class TestEngineSystem1 extends TestCase {
             Thread.sleep(_sleepTime);
             //complete btop
 //            _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-            _engine.completeWorkItem(anItem, "<data/>", false);
+            _engine.completeWorkItem(anItem.getIDString(), "<data/>", false);
             //should atumatically fire multi inst comp task ctop
             //get mi attributes of f-leaf-c
             List leafNetRunners = new Vector();
@@ -111,7 +121,7 @@ public class TestEngineSystem1 extends TestCase {
                 assertTrue(anItem.getStatus() == YWorkItem.Status.Enabled);
                 //fire e-leaf-c
 //                _localWorklist.startOneWorkItemAndSetOthersToFired(anItem.getCaseID().toString(), anItem.getTaskID());
-                _engine.startWorkItem(anItem, "admin");
+                _engine.startWorkItem(anItem.getIDString(), "admin");
                 assertTrue("Item status ("+anItem.getStatus()+") should be is parent."
                         , anItem.getStatus() == YWorkItem.Status.IsParent);
                 Set executingChildren = _workItemRepository.getExecutingWorkItems();
@@ -125,7 +135,7 @@ public class TestEngineSystem1 extends TestCase {
                 anItem = (YWorkItem) v.get(temp);
 //                _localWorklist.setWorkItemToComplete(
 //                        anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", false);
+                _engine.completeWorkItem(anItem.getIDString(), "<data/>", false);
                 assertTrue(_workItemRepository.getWorkItem(
                         anItem.getCaseID().toString(), anItem.getTaskID())
                         == null);
@@ -143,7 +153,7 @@ public class TestEngineSystem1 extends TestCase {
                         || anItem.getTaskID().equals("g-leaf-c"));
 //                _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                        anItem.getCaseID().toString(), anItem.getTaskID());
-                _engine.startWorkItem(anItem, "admin");
+                _engine.startWorkItem(anItem.getIDString(), "admin");
                 if (anItem.getTaskID().equals("g-leaf-c")) {
                     assertTrue(anItem.getChildren().size() == 1);
                     assertTrue(((YWorkItem) anItem.getChildren().iterator().next())
@@ -164,7 +174,7 @@ public class TestEngineSystem1 extends TestCase {
                 assertTrue(anItem.getTaskID().equals("f-leaf-c"));
 //                _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                        anItem.getCaseID().toString(), anItem.getTaskID());
-                _engine.startWorkItem(anItem, "admin");
+                _engine.startWorkItem(anItem.getIDString(), "admin");
                 assertTrue(anItem.getStatus() == YWorkItem.Status.Executing);
                 assertTrue(_workItemRepository.getWorkItems().contains(anItem));
                 Thread.sleep(_sleepTime);
@@ -177,7 +187,7 @@ public class TestEngineSystem1 extends TestCase {
                 assertTrue(anItem.getTaskID().equals("f-leaf-c")
                         || anItem.getTaskID().equals("g-leaf-c"));
 //                _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", false);
+                _engine.completeWorkItem(anItem.getIDString(), "<data/>", false);
                 if (anItem.getTaskID().equals("g-leaf-c")) {
                     assertFalse(_workItemRepository.getWorkItems().contains(anItem));
                 }
@@ -190,7 +200,7 @@ public class TestEngineSystem1 extends TestCase {
                 anItem = (YWorkItem) v.get(temp);
                 assertTrue(anItem.getTaskID().equals("h-leaf-c"));
 //                _localWorklist.startOneWorkItemAndSetOthersToFired(anItem.getCaseID().toString(), anItem.getTaskID());
-                _engine.startWorkItem(anItem, "admin");
+                _engine.startWorkItem(anItem.getIDString(), "admin");
                 assertTrue(anItem.getChildren().size() == 1);
                 assertTrue(((YWorkItem) anItem.getChildren().iterator().next()).getStatus()
                         == YWorkItem.Status.Executing);
@@ -209,7 +219,7 @@ public class TestEngineSystem1 extends TestCase {
                 anItem = (YWorkItem) v.get(temp);
                 assertTrue(anItem.getTaskID().equals("h-leaf-c"));
 //                _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", false);
+                _engine.completeWorkItem(anItem.getIDString(), "<data/>", false);
                 assertFalse(_workItemRepository.getWorkItems().contains(anItem));
                 Thread.sleep(_sleepTime);
             }

@@ -14,7 +14,11 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.EngineFactory;
+import au.edu.qut.yawl.engine.YEngine;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
+import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 
 /**
  * 
@@ -23,36 +27,40 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
  * Time: 15:32:26
  * 
  */
-public class TestYWorkItemRepository extends TestCase {
+public class TestYWorkItemRepository extends AbstractTransactionalTestCase {
     private YWorkItemRepository _workitemRepository;
     private YWorkItem _parentWorkItem;
+    private YEngine _engine;
 
-
-    public TestYWorkItemRepository(String name) {
-        super(name);
+    public TestYWorkItemRepository() {
+        super();
     }
 
 
     public void setUp() throws Exception {
+    	super.setUp();
+        _engine =  EngineFactory.createYEngine();
         _workitemRepository = YWorkItemRepository.getInstance();
-        _workitemRepository.clear();
+//        _workitemRepository.clear();
         YIdentifier identifier = new YIdentifier();
-        YIdentifier.saveIdentifier( identifier );
-        YWorkItemID workItemID = new YWorkItemID(identifier, "task-123");
-        _parentWorkItem = new YWorkItem("ASpecID", workItemID, false, false);
-        YWorkItem.saveWorkItem( _parentWorkItem );
+        _engine.getDao().save(identifier);
+//        YIdentifier.saveIdentifier( identifier, null, null );
+//        YWorkItemID workItemID = new YWorkItemID(identifier, "task-123");
+        _parentWorkItem = new YWorkItem("ASpecID", identifier, "task-123", false, false);
+        _engine.getDao().save(_parentWorkItem);
+//        YWorkItem.saveWorkItem( _parentWorkItem );
         for (int i = 0; i < 5; i++) {
-            _parentWorkItem.createChild(identifier.createChild());
+        	YIdentifier childIdentifier = identifier.createChild();
+        	_engine.getDao().save(childIdentifier);
+            YWorkItem childWorkItem = _parentWorkItem.createChild(childIdentifier);
+            _engine.getDao().save(childWorkItem);
         }
-    }
-
-    public void tearDown() {
-    	_workitemRepository.clear();
+        _engine.getDao().save(_parentWorkItem);
     }
 
     public void testGetItem() throws YPersistenceException {
         assertTrue(_workitemRepository.getEnabledWorkItems().size() == 0);
-        new YWorkItem("A spec", new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+        new YWorkItem("A spec", new YIdentifier(), "task4321", false, false);
         assertEquals(
                 _workitemRepository.getWorkItem(
                         _parentWorkItem.getCaseID().toString(), _parentWorkItem.getTaskID()),
@@ -62,26 +70,41 @@ public class TestYWorkItemRepository extends TestCase {
     }
 
     public void testGetParentItems() throws YPersistenceException {
-    	_workitemRepository.clear();
-    	assertTrue( "" + _workitemRepository.getParentWorkItems().size(),
-    			_workitemRepository.getParentWorkItems().size() == 0 );
+//    	_workitemRepository.clear();
+    	int prevCount = _workitemRepository.getParentWorkItems().size();
+//    	assertEquals( "incorrect number of parent work items in repository", 0, _workitemRepository.getParentWorkItems().size());
     	
     	// create a couple work items
+    	YIdentifier identifier = new YIdentifier();
+    	_engine.getDao().save(identifier);
     	YWorkItem item = new YWorkItem("A spec",
-    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.IsParent );
+    	_engine.getDao().save(item);
+
+    	identifier = new YIdentifier();
+    	_engine.getDao().save(identifier);
     	item = new YWorkItem("A spec",
-    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.Cancelled );
-    	item = new YWorkItem("A spec",
-    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.Status.IsParent );
-    	item = new YWorkItem("A spec",
-    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.Status.Fired );
+    	_engine.getDao().save(item);
     	
-    	assertTrue( "" + _workitemRepository.getParentWorkItems(),
-    			_workitemRepository.getParentWorkItems().size() == 2 );
+    	identifier = new YIdentifier();
+    	_engine.getDao().save(identifier);
+    	item = new YWorkItem("A spec",
+    			identifier, "task4321", false, false);
+    	item.setStatus( YWorkItem.Status.IsParent );
+    	_engine.getDao().save(item);
+
+    	identifier = new YIdentifier();
+    	_engine.getDao().save(identifier);
+    	item = new YWorkItem("A spec",
+    			identifier, "task4321", false, false);
+    	item.setStatus( YWorkItem.Status.Fired );
+    	_engine.getDao().save(item);
+
+    	assertEquals( "repository " + _workitemRepository.getParentWorkItems() + "contains wrong number of items", prevCount + 2, 
+    			_workitemRepository.getParentWorkItems().size());
     }
     
     public void testGetCompletedItems() throws YPersistenceException {
@@ -89,21 +112,35 @@ public class TestYWorkItemRepository extends TestCase {
     			_workitemRepository.getCompletedWorkItems().size() == 0 );
     	
     	// create a couple work items
+    	YIdentifier identifier = new YIdentifier();
+    	_engine.getDao().save(identifier);
     	YWorkItem item = new YWorkItem("A spec",
-    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+    			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.Complete );
-    	item = new YWorkItem("A spec",
-    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.Status.Cancelled );
-    	item = new YWorkItem("A spec",
-    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.Status.IsParent );
-    	item = new YWorkItem("A spec",
-    			new YWorkItemID(new YIdentifier(), "task4321"), false, false);
-    	item.setStatus( YWorkItem.Status.Complete );
+    	_engine.getDao().save(item);
     	
-    	assertTrue( "" + _workitemRepository.getCompletedWorkItems(),
-    			_workitemRepository.getCompletedWorkItems().size() == 2 );
+    	identifier = new YIdentifier();
+    	_engine.getDao().save(identifier);
+    	item = new YWorkItem("A spec",
+    			identifier, "task4321", false, false);
+    	item.setStatus( YWorkItem.Status.Cancelled );
+    	_engine.getDao().save(item);
+
+    	identifier = new YIdentifier();
+    	_engine.getDao().save(identifier);
+    	item = new YWorkItem("A spec",
+    			identifier, "task4321", false, false);
+    	item.setStatus( YWorkItem.Status.IsParent );
+    	_engine.getDao().save(item);
+
+    	identifier = new YIdentifier();
+    	_engine.getDao().save(identifier);
+    	item = new YWorkItem("A spec",
+    			identifier, "task4321", false, false);
+    	item.setStatus( YWorkItem.Status.Complete );
+    	_engine.getDao().save(item);
+    	
+    	assertEquals( "incorrect number of completed work items in repository" + _workitemRepository.getCompletedWorkItems(), 2, _workitemRepository.getCompletedWorkItems().size() );
     }
     
     public void testRemoveWorkItemsForNullCase() throws YPersistenceException {

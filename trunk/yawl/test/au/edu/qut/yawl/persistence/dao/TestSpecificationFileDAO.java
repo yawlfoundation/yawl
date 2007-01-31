@@ -21,11 +21,17 @@ import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
+import au.edu.qut.yawl.util.SpringTestConfiguration;
+import au.edu.qut.yawl.util.SpringTestConfiguration.Configuration;
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
 public class TestSpecificationFileDAO extends TestCase {
 	
+	private DAO dao;
+	
 	protected void setUp() throws Exception {
 		super.setUp();
+		dao = new DelegatedFileDAO();
 	}
 
 	protected void tearDown() throws Exception {
@@ -33,7 +39,7 @@ public class TestSpecificationFileDAO extends TestCase {
 	}
 	
 	private DAO getDAO() {
-		return DAOFactory.getDAO( PersistenceType.FILE );
+		return dao;
 	}
 
 	/*

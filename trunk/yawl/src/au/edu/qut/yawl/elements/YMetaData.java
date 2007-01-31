@@ -95,7 +95,7 @@ public class YMetaData implements Cloneable, Serializable {
      * @return
      * @hibernate.property 
      */
-    @CollectionOfElements
+    @CollectionOfElements(fetch=FetchType.EAGER)
     public Set<String> getContributors() {
         return contributors;
     }
@@ -125,7 +125,7 @@ public class YMetaData implements Cloneable, Serializable {
      * @return
      * @hibernate.property 
      */
-    @CollectionOfElements
+    @CollectionOfElements(fetch=FetchType.EAGER)
     public Set<String> getCreators() {
         return creators;
     }
@@ -183,7 +183,7 @@ public class YMetaData implements Cloneable, Serializable {
      * @return
      * @hibernate.property 
      */
-    @CollectionOfElements
+    @CollectionOfElements(fetch=FetchType.EAGER)
     public Set<String> getSubjects() {
         return subjects;
     }

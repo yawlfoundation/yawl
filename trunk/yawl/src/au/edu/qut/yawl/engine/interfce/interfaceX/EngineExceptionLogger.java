@@ -8,6 +8,7 @@
 
 package au.edu.qut.yawl.engine.interfce.interfaceX;
 
+import java.net.URI;
 import java.util.List;
 
 import org.jdom.Document;
@@ -58,11 +59,11 @@ public class EngineExceptionLogger implements ExceptionGateway {
 
 	}
 	
-    public void announceServiceUnavailable(YWorkItem item, YAWLServiceReference ref){
-    	item.getCaseID().addError(new YServiceError(ref.getURI(), item.getWorkItemID().toString(), item.getTaskID()));
+    public void announceServiceUnavailable(YWorkItem item, URI ref){
+    	item.getCaseID().addError(new YServiceError(ref.toString(), item.getIDString(), item.getTaskID()));
     }
     
-    public void announceServiceError(YWorkItem item, YAWLServiceReference ref){
+    public void announceServiceError(YWorkItem item, URI ref){
     }
 
 	public String getScheme() {

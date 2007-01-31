@@ -39,6 +39,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Where;
 
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
@@ -132,15 +134,12 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
         
     }
     
-    @OneToMany(mappedBy="parent",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
-    //@OnDelete(action=OnDeleteAction.CASCADE)
-    @Where(clause="clone='false'")
     public void setDecompositions(List<YDecomposition> set) {
     		this._decompositions = set;    	
 	}
 
     @OneToMany(mappedBy="parent",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
-    //@OnDelete(action=OnDeleteAction.CASCADE)
+    @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="clone='false'")
     public List<YDecomposition> getDecompositions() {
     	return _decompositions;
@@ -699,6 +698,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
             
             clone._dbid = null;
             clone._metaData = (YMetaData) _metaData.clone();
+            clone._metaData.setID(null);
             clone._xmlToolsForYAWL = (XMLToolsForYAWL) _xmlToolsForYAWL.clone();
             
             clone._decompositions = new ArrayList<YDecomposition>();

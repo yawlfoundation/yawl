@@ -7,6 +7,7 @@
  */
 package au.edu.qut.yawl.elements;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,22 +28,22 @@ public class TestDeepClone extends TestCase {
         super( name );
     }
 
-    public void setUp() {
+    public void setUp() throws Exception{
         specification = new YSpecification( "uri" );
         specification.setBetaVersion( YSpecification._Beta7_1 );
         
         YAWLServiceGateway gateway1 = new YAWLServiceGateway( "gateway_one", specification );
         specification.getDecompositions().add( gateway1 );
-        gateway1.setYawlService( new YAWLServiceReference(
-                "http://localhost:8080/NexusServiceInvoker/", gateway1 ) );
+        gateway1.setYawlService( new URI(
+                "http://localhost:8080/NexusServiceInvoker/") );
         YParameter param1 = new YParameter( gateway1, YParameter._INPUT_PARAM_TYPE );
         param1.setDataTypeAndName( "String", "foo", null );
         gateway1.setInputParam( param1 );
         
         YAWLServiceGateway gateway2 = new YAWLServiceGateway( "gateway_two", specification );
         specification.getDecompositions().add( gateway2 );
-        gateway2.setYawlService( new YAWLServiceReference(
-                "http://localhost:8080/NexusServiceInvoker/", gateway2 ) );
+        gateway2.setYawlService( new URI(
+                "http://localhost:8080/NexusServiceInvoker/") );
         YParameter param2 = new YParameter( gateway2, YParameter._OUTPUT_PARAM_TYPE );
         param2.setDataTypeAndName( "String", "bar", null );
         gateway2.setOutputParameter( param2 );
@@ -258,28 +259,29 @@ public class TestDeepClone extends TestCase {
         if( orig.getYawlService() != null ) {
             assertNotNull( clone.getYawlService() );
             
-            YAWLServiceReference os = orig.getYawlService();
-            YAWLServiceReference cs = clone.getYawlService();
+            URI os = orig.getYawlService();
+            URI cs = clone.getYawlService();
             
-            assertNotNull( cs.getYawlServiceGateway() );
+            assertEquals(os, cs);
+//            assertNotNull( cs.getYawlServiceGateway() );
             
-            if( os.getDocumentation() != null ) {
-                assertNotNull( cs.getDocumentation() );
-                assertTrue( os.getDocumentation() + "\n" + cs.getDocumentation(),
-                        os.getDocumentation().equals( cs.getDocumentation() ) );
-            }
-            else {
-                assertNull( cs.getDocumentation() );
-            }
+//            if( os.getDocumentation() != null ) {
+//                assertNotNull( cs.getDocumentation() );
+//                assertTrue( os.getDocumentation() + "\n" + cs.getDocumentation(),
+//                        os.getDocumentation().equals( cs.getDocumentation() ) );
+//            }
+//            else {
+//                assertNull( cs.getDocumentation() );
+//            }
             
-            if( os.getYawlServiceID() != null ) {
-                assertNotNull( cs.getYawlServiceID() );
-                assertTrue( os.getYawlServiceID() + "\n" + cs.getYawlServiceID(),
-                        os.getYawlServiceID().equals( cs.getYawlServiceID() ) );
-            }
-            else {
-                assertNull( cs.getYawlServiceID() );
-            }
+//            if( os.getYawlServiceID() != null ) {
+//                assertNotNull( cs.getYawlServiceID() );
+//                assertTrue( os.getYawlServiceID() + "\n" + cs.getYawlServiceID(),
+//                        os.getYawlServiceID().equals( cs.getYawlServiceID() ) );
+//            }
+//            else {
+//                assertNull( cs.getYawlServiceID() );
+//            }
         }
         else {
             assertNull( clone.getYawlService() );
@@ -437,9 +439,33 @@ public class TestDeepClone extends TestCase {
         for( Object o : origObjects ) {
             System.out.println( "" + o );
             assertNotNull( o );
-            for( Object o2 : cloneObjects ) {
-                assertFalse( o.getClass().getName() + "\t:\t" + o, o == o2 );
+            if( o instanceof URI ) {
+            	boolean found = false;
+            	for( Object o2 : cloneObjects ) {
+            		if( o == o2 ) {
+            			found = true;
+            			break;
+            		}
+            	}
+            	assertTrue( o.toString(), found );
             }
+            else {
+            	for( Object o2 : cloneObjects ) {
+            		assertFalse( o.getClass().getName() + "\t:\t" + o, o == o2 );
+            	}
+            }
+        }
+        for( Object o : cloneObjects ) {
+        	if( o instanceof YAWLServiceReference ) {
+        		boolean found = false;
+        		for( Object o2 : origObjects ) {
+        			if( o == o2 ) {
+        				found = true;
+        				break;
+        			}
+        		}
+        		assertTrue( o.toString(), found );
+        	}
         }
     }
     

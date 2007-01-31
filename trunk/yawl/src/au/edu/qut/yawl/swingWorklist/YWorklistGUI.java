@@ -60,7 +60,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
         logger = Logger.getLogger(this.getClass());
     }
 
-    public YWorklistGUI(String userName, YWorklistModel worklistModel, JFrame frame) {
+    public YWorklistGUI(String userName, YWorklistModel worklistModel, JFrame frame) throws YPersistenceException{
         _frame = frame;
         _worklistModel = worklistModel;
         _userName = userName;
@@ -133,7 +133,12 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
                     }
 
 
-                    _worklistModel.refreshLists(_userName);
+                    try {
+						_worklistModel.refreshLists(_userName);
+					} catch (YPersistenceException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 }
                 //right click
                 else {
@@ -158,7 +163,12 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     int rowSelected = _activeTable.rowAtPoint(e.getPoint());
-                    createApplicationXPage(rowSelected);
+                    try {
+						createApplicationXPage(rowSelected);
+					} catch (YPersistenceException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 }
                 //right click
                 else {
@@ -184,7 +194,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
         _worklistModel.refreshLists(_userName);
     }
 
-    private void createApplicationXPage(int rowSelected) {
+    private void createApplicationXPage(int rowSelected) throws YPersistenceException{
         Object[] data = _worklistModel.getActiveTableData(
                 (String) _activeTable.getValueAt(rowSelected, 0),
                 (String) _activeTable.getValueAt(rowSelected, 1));
@@ -212,7 +222,12 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
             }
 
 
-            _worklistModel.refreshLists(_userName);
+            try {
+				_worklistModel.refreshLists(_userName);
+			} catch (YPersistenceException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
         } else {
             rowSel = _activeTable.getSelectedRow();
             if (rowSel == -1) {
@@ -222,8 +237,18 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
                 if (rowSel >= 0) {
                     String caseID = (String) _activeTable.getValueAt(rowSel, 0);
                     String taskID = (String) _activeTable.getValueAt(rowSel, 1);
-                    completeWorkItem(caseID, taskID);
-                    _worklistModel.refreshLists(_userName);
+                    try {
+						completeWorkItem(caseID, taskID);
+					} catch (YPersistenceException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+                    try {
+						_worklistModel.refreshLists(_userName);
+					} catch (YPersistenceException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 }
             } else if (command.equals(_newInstanceCommand)) {
                 if (rowSel >= 0) {
@@ -257,17 +282,27 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
                 }
             } else if (command.equals(_viewDataCommand)) {
                 if (rowSel >= 0) {
-                    createApplicationXPage(rowSel);
+                    try {
+						createApplicationXPage(rowSel);
+					} catch (YPersistenceException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 }
             } else if (command.equals(_updateListsCommand)) {
-                _worklistModel.refreshLists(_userName);
+                try {
+					_worklistModel.refreshLists(_userName);
+				} catch (YPersistenceException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
             }
         }
         _rowSelected = -1;
     }
 
 
-    protected void completeWorkItem(String caseID, String taskID) {
+    protected void completeWorkItem(String caseID, String taskID) throws YPersistenceException{
         _worklistModel.attemptToFinishActiveJob(caseID, taskID);
         _newInstanceButton.setEnabled(false);
         _worklistModel.refreshLists(_userName);
@@ -302,11 +337,16 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
             //selectedRow is selected
             String caseID = (String) _activeTable.getValueAt(selectedRow, 0);
             String taskID = (String) _activeTable.getValueAt(selectedRow, 1);
-            if (_worklistModel.allowsDynamicInstanceCreation(caseID, taskID)) {
-                _newInstanceButton.setEnabled(true);
-            } else {
-                _newInstanceButton.setEnabled(false);
-            }
+            try {
+				if (_worklistModel.allowsDynamicInstanceCreation(caseID, taskID)) {
+				    _newInstanceButton.setEnabled(true);
+				} else {
+				    _newInstanceButton.setEnabled(false);
+				}
+			} catch (YPersistenceException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
         }
     }
 

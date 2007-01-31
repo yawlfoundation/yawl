@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jdom.Document;
@@ -38,7 +37,7 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.util.YDocumentCleaner;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
@@ -49,7 +48,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * by an OR split then join, followed by an XOR split then join.
  * @author Nathan Rose
  */
-public class TestSplitsAndJoins extends TestCase {
+public class TestSplitsAndJoins extends AbstractTransactionalTestCase {
     private YIdentifier _idForTopNet;
     private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private static final int SLEEP_TIME = 100;
@@ -61,15 +60,16 @@ public class TestSplitsAndJoins extends TestCase {
         super(name);
     }
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, YPersistenceException,
-    		JDOMException, IOException {
+    public void setUp() throws Exception {
+    	super.setUp();
         URL fileURL = getClass().getResource("SplitsAndJoins.xml");
 //        File yawlXMLFile = new File(fileURL.getFile());
         _specFile = new File( fileURL.getFile() );
 //        _specification = null;
 //        _specification = (YSpecification) YMarshal.
 //                            unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
-        _engine =  EngineFactory.createYEngine();
+        EngineFactory.resetEngine();
+        _engine =  EngineFactory.createEngine(true);
         EngineClearer.clear(_engine);
     }
     
@@ -113,12 +113,12 @@ public class TestSplitsAndJoins extends TestCase {
     	
     	// start task A
     	netRunners.add( _workItemRepository.getNetRunner( item.getCaseID() ) );
-    	item = _engine.startWorkItem( item, "admin" );
+    	item = _engine.startWorkItem( item.getIDString(), "admin" );
     	
     	sleep( SLEEP_TIME );
     	
     	// complete task A
-    	_engine.completeWorkItem( item, item.getDataString(), false );
+    	_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
     	
     	
     	// task A splits to B and C. Make sure there are 2 enabled items.
@@ -130,7 +130,7 @@ public class TestSplitsAndJoins extends TestCase {
     	while( itemIter.hasNext() ) {
     		item = itemIter.next();
     		netRunners.add( _workItemRepository.getNetRunner( item.getCaseID() ) );
-    		_engine.startWorkItem( item, "admin" );
+    		_engine.startWorkItem( item.getIDString(), "admin" );
     	}
     	
     	sleep( SLEEP_TIME );
@@ -145,7 +145,7 @@ public class TestSplitsAndJoins extends TestCase {
     	itemIter = workItems.iterator();
     	while( itemIter.hasNext() ) {
     		item = itemIter.next();
-    		_engine.completeWorkItem( item, item.getDataString(), false );
+    		_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
     	}
     	
     	sleep( SLEEP_TIME );
@@ -157,7 +157,7 @@ public class TestSplitsAndJoins extends TestCase {
     	item = workItems.iterator().next();
     	assertTrue( item.getTaskID(), item.getTaskID().equals( "D_8" ) );
     	netRunners.add( _workItemRepository.getNetRunner( item.getCaseID() ) );
-    	item = _engine.startWorkItem( item, "admin" );
+    	item = _engine.startWorkItem( item.getIDString(), "admin" );
     	
     	sleep( SLEEP_TIME );
     	
@@ -166,7 +166,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
 
     	// complete task D
-    	_engine.completeWorkItem( item, item.getDataString(), false );
+    	_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -177,7 +177,7 @@ public class TestSplitsAndJoins extends TestCase {
     	item = workItems.iterator().next();
     	assertTrue( item.getTaskID(), item.getTaskID().equals( "E_15" ) );
     	netRunners.add( _workItemRepository.getNetRunner( item.getCaseID() ) );
-    	item = _engine.startWorkItem( item, "admin" );
+    	item = _engine.startWorkItem( item.getIDString(), "admin" );
     	
     	sleep( SLEEP_TIME );
 
@@ -186,7 +186,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
     	
     	// complete task E
-    	_engine.completeWorkItem( item, item.getDataString(), false );
+    	_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -200,7 +200,7 @@ public class TestSplitsAndJoins extends TestCase {
     	while( itemIter.hasNext() ) {
     		item = itemIter.next();
     		netRunners.add( _workItemRepository.getNetRunner( item.getCaseID() ) );
-    		_engine.startWorkItem( item, "admin" );
+    		_engine.startWorkItem( item.getIDString(), "admin" );
     	}
     	
     	sleep( SLEEP_TIME );
@@ -215,7 +215,7 @@ public class TestSplitsAndJoins extends TestCase {
     	itemIter = workItems.iterator();
     	while( itemIter.hasNext() ) {
     		item = itemIter.next();
-    		_engine.completeWorkItem( item, item.getDataString(), false );
+    		_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
     	}
     	
     	sleep( SLEEP_TIME );
@@ -227,7 +227,7 @@ public class TestSplitsAndJoins extends TestCase {
     	item = workItems.iterator().next();
     	assertTrue( item.getTaskID(), item.getTaskID().equals( "H_7" ) );
     	netRunners.add( _workItemRepository.getNetRunner( item.getCaseID() ) );
-    	item = _engine.startWorkItem( item, "admin" );
+    	item = _engine.startWorkItem( item.getIDString(), "admin" );
     	
     	sleep( SLEEP_TIME );
 
@@ -236,7 +236,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
     	
     	// complete task H
-    	_engine.completeWorkItem( item, item.getDataString(), false );
+    	_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -247,7 +247,7 @@ public class TestSplitsAndJoins extends TestCase {
     	item = workItems.iterator().next();
     	assertTrue( item.getTaskID(), item.getTaskID().equals( "I_6" ) );
     	netRunners.add( _workItemRepository.getNetRunner( item.getCaseID() ) );
-    	item = _engine.startWorkItem( item, "admin" );
+    	item = _engine.startWorkItem( item.getIDString(), "admin" );
     	
     	sleep( SLEEP_TIME );
 
@@ -256,7 +256,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
     	
     	// complete task I
-    	_engine.completeWorkItem( item, item.getDataString(), false );
+    	_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -267,7 +267,7 @@ public class TestSplitsAndJoins extends TestCase {
     	item = workItems.iterator().next();
     	assertTrue( item.getTaskID(), item.getTaskID().equals( "K_3" ) );
     	netRunners.add( _workItemRepository.getNetRunner( item.getCaseID() ) );
-    	item = _engine.startWorkItem( item, "admin" );
+    	item = _engine.startWorkItem( item.getIDString(), "admin" );
     	
     	sleep( SLEEP_TIME );
 
@@ -276,7 +276,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
     	
     	// complete task K
-    	_engine.completeWorkItem( item, item.getDataString(), false );
+    	_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -291,7 +291,7 @@ public class TestSplitsAndJoins extends TestCase {
     	item = workItems.iterator().next();
     	assertTrue( item.getTaskID(), item.getTaskID().equals( "M_13" ) );
     	netRunners.add( _workItemRepository.getNetRunner( item.getCaseID() ) );
-    	item = _engine.startWorkItem( item, "admin" );
+    	item = _engine.startWorkItem( item.getIDString(), "admin" );
     	
     	sleep( SLEEP_TIME );
 
@@ -300,7 +300,7 @@ public class TestSplitsAndJoins extends TestCase {
     	assertTrue( workItems.size() == 0 );
     	
     	// complete task M
-    	_engine.completeWorkItem( item, item.getDataString(), false );
+    	_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
     	
     	sleep( SLEEP_TIME );
     	
@@ -396,7 +396,7 @@ public class TestSplitsAndJoins extends TestCase {
         	
         	// try to complete it
         	YNetRunner netRunner = _workItemRepository.getNetRunner( item.getCaseID() );
-        	_engine.completeWorkItem( item, "<A/>", false );
+        	_engine.completeWorkItem( item.getIDString(), "<A/>", false );
         	
         	fail( "an error should have been thrown" );
     	}
@@ -546,7 +546,7 @@ public class TestSplitsAndJoins extends TestCase {
 		}
 		
 		// start it
-    	item = _engine.startWorkItem( item, "admin" );
+    	item = _engine.startWorkItem( item.getIDString(), "admin" );
     	System.out.println( _engine.getStateForCase( item.getCaseID().toString() ) );
     	System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
     	
@@ -559,7 +559,7 @@ public class TestSplitsAndJoins extends TestCase {
 		
 		try {
 			// trying to start it again when it's already executing should fail
-			item = _engine.startWorkItem( item, "admin" );
+			item = _engine.startWorkItem( item.getIDString(), "admin" );
 			fail("An exception should have been thrown");
 		}
 		catch(YStateException e) {
@@ -595,7 +595,7 @@ public class TestSplitsAndJoins extends TestCase {
 		assertFalse( task.getMIExecuting().containsIdentifier() );
 		
 		try {
-			_engine.completeWorkItem( item, item.getDataString(), false );
+			_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
 			fail("An exception should have been thrown");
 		}
 		catch(YStateException e) {
@@ -634,7 +634,7 @@ public class TestSplitsAndJoins extends TestCase {
 		}
 		
 		// restart it (should work since it was rolled back earlier)
-		item = _engine.startWorkItem( item, "admin" );
+		item = _engine.startWorkItem( item.getIDString(), "admin" );
 		
 		System.out.println( _engine.getStateForCase( item.getCaseID().toString() ) );
 		System.out.println( _engine.getStateTextForCase( item.getCaseID() ) );
@@ -647,7 +647,7 @@ public class TestSplitsAndJoins extends TestCase {
 		assertTrue( task.getMIExecuting().containsIdentifier() );
     	
     	// and finally complete it
-    	_engine.completeWorkItem( item, item.getDataString(), false );
+    	_engine.completeWorkItem( item.getIDString(), item.getDataString(), false );
     	
     	System.out.println( _engine.getStateForCase( item.getCaseID().toString() ) );
     	//System.out.println( _engine.getStateTextForCase( item.getCaseID().toString() ) );

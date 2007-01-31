@@ -10,22 +10,12 @@
 package au.edu.qut.yawl.elements;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-
-import org.jdom.JDOMException;
-
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
@@ -37,7 +27,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * Time: 14:35:09
  * 
  */
-public class TestYSpecification extends TestCase {
+public class TestYSpecification extends AbstractTransactionalTestCase {
     private YSpecification _goodSpecification;
     private YSpecification _badSpecification;
     private YSpecification _infiniteLoops;
@@ -56,7 +46,8 @@ public class TestYSpecification extends TestCase {
     }
 
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
+    public void setUp() throws Exception {
+    	super.setUp();
         File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
         List specifications = null;
         specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());

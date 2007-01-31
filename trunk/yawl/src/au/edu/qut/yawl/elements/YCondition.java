@@ -15,13 +15,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
-
-import javax.persistence.ManyToMany;
-
-
 
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.elements.state.YIdentifierBag;
@@ -119,9 +114,19 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
         return _bag.getAmount(identifier);
     }
 
-    // FIXME
+    @OneToOne(cascade=CascadeType.ALL)
+    public YIdentifierBag getBag() {
+		return _bag;
+	}
+
+	public void setBag(YIdentifierBag bag) {
+		this._bag = bag;
+	}
+
+	// FIXME
     //@Transient
-    @ManyToMany(cascade={CascadeType.ALL},targetEntity=YIdentifier.class)
+    @Transient
+//    @ManyToMany(cascade={CascadeType.ALL},targetEntity=YIdentifier.class)
     //@OnDelete(action=OnDeleteAction.CASCADE)
     public List getIdentifiers() {
         return _bag.getIdentifiers();
@@ -136,20 +141,20 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
     @Transient
     public YIdentifier removeOne() throws YPersistenceException {
         YIdentifier identifier = (YIdentifier) getIdentifiers().get(0);
-        _bag.remove(identifier, 1);
+        _bag.remove(identifier, getParent(), 1);
         return identifier;
     }
 
     public void removeOne(YIdentifier identifier) throws YPersistenceException {
-        _bag.remove(identifier, 1);
+        _bag.remove(identifier, getParent(), 1);
     }
 
     public void remove(YIdentifier identifier, int amount) throws YPersistenceException {
-        _bag.remove(identifier, amount);
+        _bag.remove(identifier, getParent(), amount);
     }
 
     public void removeAll(YIdentifier identifier) throws YPersistenceException {
-        _bag.remove(identifier, _bag.getAmount(identifier));
+        _bag.remove(identifier, getParent(), _bag.getAmount(identifier));
     }
 
     public synchronized void removeAll() {

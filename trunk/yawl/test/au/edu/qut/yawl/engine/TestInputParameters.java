@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jdom.Document;
@@ -40,7 +39,7 @@ import au.edu.qut.yawl.exceptions.YDataValidationException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -49,7 +48,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * 
  * @author Nathan Rose
  */
-public class TestInputParameters extends TestCase {
+public class TestInputParameters extends AbstractTransactionalTestCase {
 	private YIdentifier _idForTopNet;
     private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private AbstractEngine _engine;
@@ -60,8 +59,8 @@ public class TestInputParameters extends TestCase {
         super(name);
     }
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, YPersistenceException,
-    		JDOMException, IOException {
+    public void setUp() throws Exception {
+    	super.setUp();
         _spec1File = getFile( "TestInputParameters1.xml" );
         _spec2File = getFile( "TestInputParameters2.xml" );
         _engine =  EngineFactory.createYEngine();

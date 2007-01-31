@@ -11,6 +11,8 @@ package au.edu.qut.yawl.persistence.dao;
 import java.io.File;
 import java.util.List;
 
+import org.hibernate.ObjectDeletedException;
+
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.YNetRunner;
@@ -30,17 +32,13 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		DAO hib = getDAO();
-		AbstractEngine.setDao(hib);
-		
-		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
 		StringProducer spx = StringProducerYAWL.getInstance();
-		File f = spx.getTranslatedFile("TestMakeRecordingsBigTest.xml", true);		
+		File f = spx.getTranslatedFile("TestMakeRecordingsBigTest.xml", true);
 		File f2 = spx.getTranslatedFile("YAWL_Specification1.xml", true);
 		
-        testSpec = (YSpecification) fileDAO.retrieve(YSpecification.class,f.getAbsolutePath());
+        testSpec = (YSpecification) new DelegatedFileDAO().retrieve(YSpecification.class,f.getAbsolutePath());
         getDAO().save(testSpec);
-        testSpec_comp = (YSpecification) fileDAO.retrieve(YSpecification.class,f2.getAbsolutePath());
+        testSpec_comp = (YSpecification) new DelegatedFileDAO().retrieve(YSpecification.class,f2.getAbsolutePath());
         getDAO().save(testSpec_comp);
 	}
 
@@ -48,72 +46,67 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
 	public void testDelete() throws YDataStateException, YSchemaBuildingException, YPersistenceException {
-		DAO hibernateDAO = getDAO();
 		YNetRunner runner = new YNetRunner(testSpec, null);
-		hibernateDAO.save(runner);
+		getDAO().save(runner);
 		
-		Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
+		Object runner2 = getDAO().retrieve(YNetRunner.class,getDAO().getKey(runner));
 		assertNotNull(runner2);
 		
-		hibernateDAO.delete(runner);
-		Object key = hibernateDAO.getKey(runner);
-		Object o = hibernateDAO.retrieve(YNetRunner.class,key);
-		assertNull("" + o, o);
+		getDAO().delete(runner);
+		Object key = getDAO().getKey(runner);
+		Object o = getDAO().retrieve(YNetRunner.class,key);
+		assertNull( "retrieval should have failed for net runner with key " + key, o);
 	}
 
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.retrieve(Object)'
 	 */
 	public void testRetrieveByRestriction() throws YDataStateException, YSchemaBuildingException, YPersistenceException {
-		DAO hibernateDAO = getDAO();
 		YNetRunner runner = new YNetRunner(testSpec, null);
-		hibernateDAO.save(runner);
+		getDAO().save(runner);
 
 //		YNetRunner runner2 = new YNetRunner(testSpec.getRootNet(), null);
 		//hibernateDAO.save(runner2);
 
-		List runners = hibernateDAO.retrieveByRestriction( YNetRunner.class, new PropertyRestriction(
+		List runners = getDAO().retrieveByRestriction( YNetRunner.class, new PropertyRestriction(
 				"YNetID", Comparison.LIKE, "%TestMakeRecordingsBigTest.xml" ) );
 	
 		assertTrue(runners.size()==1);
 		
 		YNetRunner r = (YNetRunner) runners.get(0);
-		hibernateDAO.delete(runner);
+		getDAO().delete(runner);
 	}
 
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
 	 */
 	public void testSaveAndRetrieve() throws YDataStateException, YSchemaBuildingException, YPersistenceException {
-		DAO hibernateDAO = getDAO();
 		YNetRunner runner = new YNetRunner(testSpec, null);
-		hibernateDAO.save(runner);
-		Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
+		getDAO().save(runner);
+		Object runner2 = getDAO().retrieve(YNetRunner.class,getDAO().getKey(runner));
 		assertNotNull(runner2);
-		hibernateDAO.delete(runner);
+		getDAO().delete(runner);
 	}
 	
 	public void testSaveAndRetrieve2Runners() throws YDataStateException, YSchemaBuildingException, YPersistenceException {
-		DAO hibernateDAO = getDAO();
 		YNetRunner runner = new YNetRunner(testSpec, null);
-		hibernateDAO.save(runner);
+		getDAO().save(runner);
 		YNetRunner runner2 = new YNetRunner(testSpec, null);
-		hibernateDAO.save(runner2);
+		getDAO().save(runner2);
 		
-		Object runner3 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
+		Object runner3 = getDAO().retrieve(YNetRunner.class,getDAO().getKey(runner));
 		assertNotNull(runner3);
-		hibernateDAO.delete(runner);
-		hibernateDAO.delete(runner2);
+		getDAO().delete(runner);
+		getDAO().delete(runner2);
 	}
 
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.save(YSpecification)'
 	 */
 	public void testSaveAndRetrieveComp() throws YPersistenceException, YDataStateException, YSchemaBuildingException {
-		DAO hibernateDAO = getDAO();
 		YNetRunner runner = new YNetRunner(testSpec_comp, null);
-		hibernateDAO.save(runner);
-		Object runner2 = hibernateDAO.retrieve(YNetRunner.class,hibernateDAO.getKey(runner));
+		getDAO().save(runner);
+		Object runner2 = getDAO().retrieve(YNetRunner.class,getDAO().getKey(runner));
 		assertNotNull(runner2);
 	}
 }

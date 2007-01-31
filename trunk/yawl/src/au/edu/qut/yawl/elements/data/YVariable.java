@@ -27,6 +27,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
@@ -151,15 +152,14 @@ public class YVariable implements Comparable, Cloneable, YVerifiable, Parented<Y
     }
 
     @ManyToOne(cascade={CascadeType.ALL})
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    public void setDecomposition(YDecomposition parent) {
-    	this.parent = parent;
-    }
-    
-    @ManyToOne(cascade={CascadeType.ALL})
+    @JoinColumn(name="decomposition")
     @OnDelete(action=OnDeleteAction.CASCADE)
     public YDecomposition getDecomposition() {
     	return parent;
+    }
+    
+    public void setDecomposition(YDecomposition parent) {
+    	this.parent = parent;
     }
     
     private YDecomposition parent;

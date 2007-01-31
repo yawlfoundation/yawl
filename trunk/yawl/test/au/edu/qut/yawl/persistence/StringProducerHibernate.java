@@ -16,12 +16,16 @@ import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.unmarshal.YMarshal;
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
 
 public class StringProducerHibernate implements StringProducer  {
 	private static DAO dao;
 	private static StringProducer INSTANCE = null;
-	
+
+	public static DAO getDAO() {
+		return dao;
+	}
 
 	public static StringProducer getInstance() {
 		return StringProducerHibernate.getInstance(true);
@@ -34,7 +38,7 @@ public class StringProducerHibernate implements StringProducer  {
 	}
 	
 	public StringProducerHibernate() {
-		dao = DAOFactory.getDAO( PersistenceType.SPRING );
+		dao = ((DAOFactory)BootstrapConfiguration.getInstance().getApplicationContext().getBean("daoFactory")).getDAO( PersistenceType.SPRING );
 	}
 
 	public String getXMLString( String fileName, boolean isXmlFileInPackage ) throws Exception {

@@ -109,7 +109,7 @@ public class EngineGatewayImpl implements EngineGateway {
         for (Iterator iterator = allItems.iterator(); iterator.hasNext();) {
             YWorkItem workItem = (YWorkItem) iterator.next();
             workItemsStr.append("<workItemID>");
-            workItemsStr.append(workItem.getWorkItemID().toString());
+            workItemsStr.append(workItem.getIDString());
             workItemsStr.append("</workItemID>");
         }
         workItemsStr.append("</ids>");
@@ -130,14 +130,19 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        YWorkItem workItem = _engine.getWorkItem(workItemID);
-        if (workItem != null) {
-            return workItem.toXML();
-        } else {
-            return
-                    OPEN_FAILURE +
-                    "WorkItem with ID (" + workItemID + ") not found." +
-                    CLOSE_FAILURE;
+        try {
+	        YWorkItem workItem = _engine.getWorkItem(workItemID);
+	        if (workItem != null) {
+	            return workItem.toXML();
+	        } else {
+	            return
+	                    OPEN_FAILURE +
+	                    "WorkItem with ID (" + workItemID + ") not found." +
+	                    CLOSE_FAILURE;
+	        }
+        }
+        catch(YPersistenceException e) {
+        	return OPEN_FAILURE + formatException(e) + CLOSE_FAILURE;
         }
     }
 
@@ -191,7 +196,7 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-	        List<YSpecification> specs = AbstractEngine.getDao().retrieveByRestriction(
+	        List<YSpecification> specs = _engine.getDao().retrieveByRestriction(
 	        		YSpecification.class, RestrictionStringConverter.stringToRestriction( restriction ) );
 	        
             return YMarshal.marshal(specs);
@@ -293,7 +298,7 @@ public class EngineGatewayImpl implements EngineGateway {
             _userList.checkConnection(sessionHandle);
             YWorkItem workItem = _engine.getWorkItem(workItemID);
             if (workItem != null) {
-                _engine.completeWorkItem(workItem, data, force);
+                _engine.completeWorkItem(workItemID, data, force);
                 return SUCCESS;
             } else {
                 return OPEN_FAILURE +
@@ -323,7 +328,7 @@ public class EngineGatewayImpl implements EngineGateway {
             YWorkItem item = _engine.getWorkItem(workItemID);
             if (item != null) {
                 String userID = _userList.getUserID(sessionHandle);
-                YWorkItem child = _engine.startWorkItem(item, userID);
+                YWorkItem child = _engine.startWorkItem(workItemID, userID);
                 if( child == null ) {
                 	throw new YAWLException(
                 			"Engine failed to start work item " + item.toString() +
@@ -383,7 +388,12 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        return describeWorkItems(_engine.getAllWorkItems());
+        try {
+        	return describeWorkItems(_engine.getAllWorkItems());
+        }
+        catch(YPersistenceException e) {
+        	return OPEN_FAILURE + formatException(e) + CLOSE_FAILURE;
+        }
     }
 
 
@@ -597,6 +607,9 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
+        if (caseID == null) {
+        	return OPEN_FAILURE + "Cannot cancel a case with a null id" + CLOSE_FAILURE;
+        }
         try {
             YIdentifier id = _engine.getCaseID(caseID);
             if (id != null) {
@@ -626,8 +639,13 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        YWorkItem item = _engine.getWorkItem(workItemID);
-        return describeWorkItems(_engine.getChildrenOfWorkItem(item));
+        try {
+        	YWorkItem item = _engine.getWorkItem(workItemID);
+        	return describeWorkItems(_engine.getChildrenOfWorkItem(item));
+        }
+        catch(YPersistenceException e) {
+        	return OPEN_FAILURE + formatException(e) + CLOSE_FAILURE;
+        }
     }
 
 
@@ -646,48 +664,53 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        StringBuffer options = new StringBuffer();
-        YWorkItem workItem = _engine.getWorkItem(workItemID);
-        if (workItem != null) {
-            if (workItem.getStatus() == YWorkItem.Status.Executing) {
-                options.append("<option operation=\"suspend\">" +
-                        "<documentation>Suspend the currently active workItem</documentation>" +
-                        "<style>post</style>" +
-                        "<url>").append(thisURL).append("?action=suspend</url></option>");
-                options.append("<option operation=\"complete\">" +
-                        "<documentation>Notify the engine that the work item is complete</documentation>" +
-                        "<style>post</style>" + "<url>").append(thisURL).append("?action=complete</url>" +
-                        "<bodyContent>Any return data needed for this work item.</bodyContent>" +
-                        "</option>");
-            }
-            try {
-                _engine.checkElegibilityToAddInstances(workItemID);
-                options.append("<option operation=\"addNewInstance\">" +
-                        "<documentation>Add a new Instance similar to this work item</documentation>" +
-                        "<style>post</style>" + "<url>").
-                        append(thisURL).
-                        append("?action=createInstance</url>" +
-                                "<bodyContent>The data for the new instance.</bodyContent>" +
-                                "</option>");
-            } catch (YAWLException e) {
-                //just don't provide that option.
-                if (e instanceof YPersistenceException) {
-                    enginePersistenceFailure = true;
-                }
-            }
-            if (workItem.getStatus() == YWorkItem.Status.Enabled
-                    || workItem.getStatus() == YWorkItem.Status.Fired) {
-                options.append("<option operation=\"start\">" +
-                        "<documentation>Starts a work item</documentation>" +
-                        "<style>post</style>" + "<url>").
-                        append(thisURL).
-                        append("?action=startOne&amp;user=[userID]</url>" +
-                                "<returns>The data provided by the engine for " +
-                                "processing the work item.</returns>" +
-                                "</option>");
-            }
+        try {
+	        StringBuffer options = new StringBuffer();
+	        YWorkItem workItem = _engine.getWorkItem(workItemID);
+	        if (workItem != null) {
+	            if (workItem.getStatus() == YWorkItem.Status.Executing) {
+	                options.append("<option operation=\"suspend\">" +
+	                        "<documentation>Suspend the currently active workItem</documentation>" +
+	                        "<style>post</style>" +
+	                        "<url>").append(thisURL).append("?action=suspend</url></option>");
+	                options.append("<option operation=\"complete\">" +
+	                        "<documentation>Notify the engine that the work item is complete</documentation>" +
+	                        "<style>post</style>" + "<url>").append(thisURL).append("?action=complete</url>" +
+	                        "<bodyContent>Any return data needed for this work item.</bodyContent>" +
+	                        "</option>");
+	            }
+	            try {
+	                _engine.checkElegibilityToAddInstances(workItemID);
+	                options.append("<option operation=\"addNewInstance\">" +
+	                        "<documentation>Add a new Instance similar to this work item</documentation>" +
+	                        "<style>post</style>" + "<url>").
+	                        append(thisURL).
+	                        append("?action=createInstance</url>" +
+	                                "<bodyContent>The data for the new instance.</bodyContent>" +
+	                                "</option>");
+	            } catch (YAWLException e) {
+	                //just don't provide that option.
+	                if (e instanceof YPersistenceException) {
+	                    enginePersistenceFailure = true;
+	                }
+	            }
+	            if (workItem.getStatus() == YWorkItem.Status.Enabled
+	                    || workItem.getStatus() == YWorkItem.Status.Fired) {
+	                options.append("<option operation=\"start\">" +
+	                        "<documentation>Starts a work item</documentation>" +
+	                        "<style>post</style>" + "<url>").
+	                        append(thisURL).
+	                        append("?action=startOne&amp;user=[userID]</url>" +
+	                                "<returns>The data provided by the engine for " +
+	                                "processing the work item.</returns>" +
+	                                "</option>");
+	            }
+	        }
+	        return options.toString();
         }
-        return options.toString();
+        catch(YPersistenceException e) {
+        	return OPEN_FAILURE + formatException(e) + CLOSE_FAILURE;
+        }
     }
 
 
@@ -1092,13 +1115,18 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        String result = "";
-        YWorkItem item = _engine.getWorkItem(workItemID);
-        if (item != null) {
-            item.setStatus(YWorkItem.Status.Enabled);
-            result = startWorkItem(workItemID, sessionHandle);
+        try {
+	        String result = "";
+	        YWorkItem item = _engine.getWorkItem(workItemID);
+	        if (item != null) {
+	            item.setStatus(YWorkItem.Status.Enabled);
+	            result = startWorkItem(workItemID, sessionHandle);
+	        }
+	        return result ;
         }
-        return result ;
+        catch(YPersistenceException e) {
+        	return OPEN_FAILURE + formatException(e) + CLOSE_FAILURE;
+        }
     }
 
 
@@ -1109,6 +1137,9 @@ public class EngineGatewayImpl implements EngineGateway {
             YWorkItem item = _engine.getWorkItem(workItemID);
             _engine.cancelWorkItem(item, fail.equalsIgnoreCase("true")) ;
             return SUCCESS ;
+        }
+        catch(YPersistenceException e) {
+        	return OPEN_FAILURE + formatException(e) + CLOSE_FAILURE;
         }
         catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;

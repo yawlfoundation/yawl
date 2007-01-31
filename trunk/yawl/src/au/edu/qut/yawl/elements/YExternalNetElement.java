@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -27,6 +28,7 @@ import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,6 +40,8 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -73,9 +77,9 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     protected String _documentation;
     public YNet _net;
     @Transient
-    private Collection<YFlow> _presetFlows = new TreeSet<YFlow>();
+    private SortedSet<YFlow> _presetFlows = new TreeSet<YFlow>();
     @Transient
-    private Collection<YFlow> _postsetFlows = new TreeSet<YFlow>();
+    private SortedSet<YFlow> _postsetFlows = new TreeSet<YFlow>();
     private List<Element> _internalExtensions = new ArrayList<Element>();
     private Long _dbid;
 	private static final long serialVersionUID = 2006030080l;
@@ -88,7 +92,7 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     private Set _yElementsSet = new HashSet();
 	
     //added for reduction rules mappings
-    @ManyToMany(targetEntity=au.edu.qut.yawl.elements.YTask.class, mappedBy="removeSet")
+    @ManyToMany(targetEntity=au.edu.qut.yawl.elements.YTask.class, mappedBy="removeSet",fetch=FetchType.EAGER)
     public Set getCancelledBySet(){
     	if (_cancelledBySet != null) {
     		return new HashSet(_cancelledBySet);
@@ -469,8 +473,8 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
             copy.setPreset(postsetElementClone);
         }
 */
-        copy._postsetFlows = new ArrayList<YFlow>();
-        copy._presetFlows = new ArrayList<YFlow>();
+        copy._postsetFlows = new TreeSet<YFlow>();
+        copy._presetFlows = new TreeSet<YFlow>();
         for (Iterator iterator = _postsetFlows.iterator(); iterator.hasNext();) {
             YFlow flow = (YFlow) iterator.next();
             String nextElmID = flow.getNextElement().getID();
@@ -562,16 +566,17 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     }
 
 //    @Transient
-    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    public Collection<YFlow> getPostsetFlows() {
+    @Sort(type=SortType.NATURAL)
+    public SortedSet<YFlow> getPostsetFlows() {
         return _postsetFlows;
     }
 
 //    @Transient
     //@OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
     //@OnDelete(action=OnDeleteAction.CASCADE)
-    public void setPostsetFlows(Collection<YFlow> flows) {
+    public void setPostsetFlows(SortedSet<YFlow> flows) {
     	this._postsetFlows = flows;
 
 //    	for (YFlow flow: flows) {
@@ -582,16 +587,17 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     }
 
 //    @Transient
-    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    public Collection<YFlow> getPresetFlows() {
+    @Sort(type=SortType.NATURAL)
+    public SortedSet<YFlow> getPresetFlows() {
         return _presetFlows;
     }
 
 //   @Transient
     //@OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
     //@OnDelete(action=OnDeleteAction.CASCADE)
-    public void setPresetFlows(Collection<YFlow> flows) {
+    public void setPresetFlows(SortedSet<YFlow> flows) {
     	_presetFlows = flows;
     }
 

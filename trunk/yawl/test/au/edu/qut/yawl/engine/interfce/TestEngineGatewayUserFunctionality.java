@@ -10,11 +10,9 @@ package au.edu.qut.yawl.engine.interfce;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jdom.Document;
@@ -25,12 +23,7 @@ import org.jdom.input.SAXBuilder;
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
-import au.edu.qut.yawl.exceptions.YAuthenticationException;
-import au.edu.qut.yawl.exceptions.YDataStateException;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 
 /**
  * Tests the engine gateway functionality having to do with users
@@ -39,14 +32,15 @@ import au.edu.qut.yawl.exceptions.YSyntaxException;
  * 
  * @author Nathan Rose
  */
-public class TestEngineGatewayUserFunctionality extends TestCase {
+public class TestEngineGatewayUserFunctionality extends AbstractTransactionalTestCase {
     private EngineGateway _gateway;
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException,
-    		YStateException, YPersistenceException, YDataStateException, URISyntaxException,
-    		YAuthenticationException {
+    public void setUp() throws Exception {
+    	super.setUp();
     	_gateway = new EngineGatewayImpl( false );
         EngineClearer.clear( EngineFactory.createYEngine() );
+        UserList.getInstance().clear();
+        UserList.getInstance().addUser( "admin", "YAWL", true );
     }
     
     /**
@@ -362,7 +356,7 @@ public class TestEngineGatewayUserFunctionality extends TestCase {
     	Element root = xmlToRootElement( result );
     	
     	assertNotNull( root );
-    	assertTrue( "" + root.getContentSize(), root.getContentSize() == 2 );
+    	assertEquals( "number of users", 2, root.getContentSize());
     	
     	Element user = (Element) root.getContent( 0 );
     	Element admin = (Element) root.getContent( 1 );

@@ -16,6 +16,7 @@ import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.Lob;
 
 /**
  * 
@@ -84,7 +85,7 @@ public class Problem implements Serializable {
         this._messageType = messageType;
     }
 
-    @Basic
+    @Lob
     public String getMessage() {
         return _message;
     }

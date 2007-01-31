@@ -19,6 +19,7 @@ import java.net.URLStreamHandlerFactory;
 
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
@@ -26,7 +27,7 @@ import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
-public class TestDataContext extends TestCase implements DataProxyStateChangeListener {
+public class TestDataContext extends AbstractHibernateDAOTestCase implements DataProxyStateChangeListener {
 
 	private PropertyChangeEvent lastEvent;
 	
@@ -56,7 +57,7 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
 
 	public void testMemDataContext() throws YPersistenceException {
 //		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
-		DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
+		DAO memdao = getDAO();
 		DataContext context = new DataContext(memdao);
         DataProxy<YSpecification> proxy = null;
         
@@ -72,6 +73,7 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
 			createSpecAndProxy(context, "/home/aTest", "aTest", rootProxy);
 			createSpecAndProxy(context, "/home/msandoz/aTest", "aTest", homeProxy);
 		} catch (YPersistenceException e) {
+			e.printStackTrace();
 			fail("PersistenceException should not have been thrown");
 		}
         
@@ -89,7 +91,7 @@ public class TestDataContext extends TestCase implements DataProxyStateChangeLis
 		assertEquals(proxy, proxy2);
 		Object o = context.getKeyFor(proxy);
 		assertNotNull(o);
-		assertEquals(o, spec.getID());
+		assertEquals(o, spec.getDbID());
 		lastEvent = null;
 		try {
 			proxy.setAttribute("name", "aNewName");

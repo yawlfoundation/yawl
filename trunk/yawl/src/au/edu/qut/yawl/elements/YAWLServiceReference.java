@@ -15,14 +15,15 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.jdom.Document;
@@ -53,7 +54,7 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
     //todo split this class into two - one "partner link class with wsdlLoc and opName and more
     //todo another class for a registered yawl service
     public String _yawlServiceID;
-    private YAWLServiceGateway _webServiceGateway;
+//    private Set<YAWLServiceGateway> _webServiceGateway = new HashSet<YAWLServiceGateway>();
     public String _documentation;
 
     /*****************************
@@ -62,13 +63,14 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
     public YAWLServiceReference() {
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    public YAWLServiceGateway getYawlServiceGateway() {
-    	return _webServiceGateway;
-    }
-    public void setYawlServiceGateway(YAWLServiceGateway serviceGateway) {
-    	_webServiceGateway = serviceGateway;
-    }
+//    @OneToMany
+//    public Set<YAWLServiceGateway> getYawlServiceGateway() {
+//    	return _webServiceGateway;
+//    }
+//    
+//    public void setYawlServiceGateway(Set<YAWLServiceGateway> serviceGateway) {
+//    	_webServiceGateway = serviceGateway;
+//    }
 
     public void setYawlServiceID(String id) {
 	this._yawlServiceID = id;
@@ -91,9 +93,11 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
     
     /***************************************/
 
-    public YAWLServiceReference(String yawlServiceID, YAWLServiceGateway webServiceGateway) {
+    public YAWLServiceReference(String yawlServiceID) {
         this._yawlServiceID = yawlServiceID;
-        this._webServiceGateway = webServiceGateway;
+//        if( webServiceGateway != null )
+//        	getYawlServiceGateway().add(webServiceGateway);
+//        this._webServiceGateway = webServiceGateway;
     }
 
 
@@ -120,9 +124,10 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
                     new YVerificationMessage(
                             this,
                             "YAWL service[" + _yawlServiceID + "] " +
-                            (_webServiceGateway != null
-                             ? "at WSGateway[" + _webServiceGateway.getId() + "] "
-                             : " ") + "is not registered with engine.",
+//                            (_webServiceGateway != null
+//                             ? "at WSGateway[" + _webServiceGateway.iterator().next().getId() + "] "
+//                             : " ") +
+                             "is not registered with engine.",
                             YVerificationMessage.WARNING_STATUS));
         }
         return messages;
@@ -152,7 +157,7 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
             Document doc = builder.build(new StringReader(serialisedService));
             String uri = doc.getRootElement().getAttributeValue("id");
             String docStr = doc.getRootElement().getChildText("documentation");
-            YAWLServiceReference service =  new YAWLServiceReference(uri, null);
+            YAWLServiceReference service =  new YAWLServiceReference(uri);
             service.setDocumentation(docStr);
             return service;
         } catch (JDOMException e) {

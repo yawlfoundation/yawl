@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jdom.Document;
@@ -34,7 +33,7 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -43,7 +42,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * 
  * @author Nathan Rose
  */
-public class TestInterfaceBClientObserver extends TestCase {
+public class TestInterfaceBClientObserver extends AbstractTransactionalTestCase {
     private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private AbstractEngine _engine;
     private YSpecification _specification;
@@ -53,8 +52,8 @@ public class TestInterfaceBClientObserver extends TestCase {
         super(name);
     }
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, YPersistenceException,
-    		JDOMException, IOException {
+    public void setUp() throws Exception {
+    	super.setUp();
     	_engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
         _mockObserver = new MockInterfaceBClientObserver();
@@ -98,7 +97,7 @@ public class TestInterfaceBClientObserver extends TestCase {
     	
     	// start task 'record'
     	netRunner = _workItemRepository.getNetRunner( item.getCaseID() );
-    	item = _engine.startWorkItem( item, "admin" );
+    	item = _engine.startWorkItem( item.getIDString(), "admin" );
     	
     	Thread.yield();
     	

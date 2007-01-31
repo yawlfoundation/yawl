@@ -16,7 +16,7 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 public abstract class AbstractDelegatedDAO implements DAO<Object> {
-	private Map<Class,DAO> typeMap = new ClassMap<DAO>();
+	protected Map<Class,DAO> typeMap = new ClassMap<DAO>();
 	
 	public void addType( Class type, DAO dao ) {
 		typeMap.put( type, dao );

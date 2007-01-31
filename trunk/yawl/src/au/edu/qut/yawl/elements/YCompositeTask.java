@@ -9,13 +9,20 @@
 
 package au.edu.qut.yawl.elements;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
@@ -83,6 +90,8 @@ public class YCompositeTask extends YTask {
             return copyContainer.getNetElement(this.getID());
         }
         YCompositeTask copy = (YCompositeTask) super.clone();
+        List<YNetRunner> copyRunners = new ArrayList<YNetRunner>(runners);
+        copy.setRunners(copyRunners);
         return copy;
     }
 
@@ -98,7 +107,7 @@ public class YCompositeTask extends YTask {
         _mi_entered.removeOne(id);
         //todo Creating anotehr YNetRunner thread
 
-        System.out.println("starting new net runner in composite task");
+//        System.out.println("starting new net runner in composite task");
         
         YNetRunner netRunner = new YNetRunner(
                 (YNet) _decompositionPrototype,
@@ -115,8 +124,7 @@ public class YCompositeTask extends YTask {
         netRunner.continueIfPossible();
         netRunner.start();
 
-        YNetRunner.saveNetRunner( netRunner );
-        
+        netRunner._engine.getDao().save(netRunner);
     }
 
 
@@ -135,4 +143,17 @@ public class YCompositeTask extends YTask {
         }
         super.cancel();
     }
+    
+    private List<YNetRunner> runners = new ArrayList<YNetRunner>();
+    
+    @OneToMany (mappedBy="containingCompositeTask", cascade= {CascadeType.ALL}, fetch=FetchType.EAGER)
+//    @org.hibernate.annotations.IndexColumn(name = "runner_number")
+//	@OnDelete(action=OnDeleteAction.CASCADE)
+	public List<YNetRunner> getRunners() {
+		return runners;
+	}
+
+	public void setRunners(List<YNetRunner> runners) {
+		this.runners = runners;
+	}
 }

@@ -50,17 +50,17 @@ public interface InterfaceBClient {
      *
      * @return  Set of work items
      */
-    public Set getAllWorkItems();
+    public Set getAllWorkItems() throws YPersistenceException;
 
-    YWorkItem startWorkItem(YWorkItem workItem, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
+    YWorkItem startWorkItem(String workItemId, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
 
-    void completeWorkItem(YWorkItem workItem, String data, boolean force) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
+    void completeWorkItem(String workItemId, String data, boolean force) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
 
     void rollbackWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException;
 
     YWorkItem suspendWorkItem(String workItemID) throws YStateException, YPersistenceException;
 
-    YWorkItem getWorkItem(String workItemID);
+    YWorkItem getWorkItem(String workItemID) throws YPersistenceException;
 
     /**
      * Starts an instance of a specification (known as a 'case') within the engine.<P>
@@ -75,11 +75,11 @@ public interface InterfaceBClient {
      */
     String launchCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException;
 
-    void checkElegibilityToAddInstances(String workItemID) throws YStateException;
+    void checkElegibilityToAddInstances(String workItemID) throws YStateException, YPersistenceException;
 
     YWorkItem createNewInstance(YWorkItem workItem, String paramValueForMICreation) throws YStateException, YPersistenceException;
 
-    Set getChildrenOfWorkItem(YWorkItem workItem);
+    Set getChildrenOfWorkItem(YWorkItem workItem) throws YPersistenceException;
 
     /**
      * Returns the task definition, not the task instance.

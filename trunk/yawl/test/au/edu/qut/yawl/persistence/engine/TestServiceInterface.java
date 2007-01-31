@@ -8,14 +8,14 @@
 
 package au.edu.qut.yawl.persistence.engine;
 
-import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 
 
-public class TestServiceInterface extends TestCase {
+public class TestServiceInterface extends AbstractTransactionalTestCase {
 	public TestServiceInterface(String arg0) {
 		super(arg0);
 	}
@@ -24,7 +24,7 @@ public class TestServiceInterface extends TestCase {
 		YEngineInterface engine = (YEngineInterface) EngineFactory.getTransactionalEngine();
 		
 		YAWLServiceReference ref = new YAWLServiceReference("http://test.test/testservice" +
-                System.currentTimeMillis(),null);
+                System.currentTimeMillis());
 
 		int before = engine.getYAWLServices().size();
 		engine.addYawlService(ref);

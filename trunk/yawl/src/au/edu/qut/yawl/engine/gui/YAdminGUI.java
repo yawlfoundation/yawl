@@ -249,7 +249,12 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                 if (e.getClickCount() == 2) {
                     int rowSelected = _activeWorklistsTable.rowAtPoint(e.getPoint());
                     String userName = (String) _activeWorklistsTableModel.getValueAt(rowSelected, 0);
-                    new YWorklistModel(userName, _frame);
+                    try {
+						new YWorklistModel(userName, _frame);
+					} catch (YPersistenceException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 }
             }
         });

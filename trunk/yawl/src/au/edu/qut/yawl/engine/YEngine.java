@@ -39,8 +39,7 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
+import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
@@ -551,7 +550,7 @@ public class YEngine extends AbstractEngine {
          * Delete and re-create the standard engine InterfaceB services
          */
         YAWLServiceReference ys;
-        Set s = _myInstance.getYAWLServices();
+        Set s = getYAWLServices();
 
 
 		if (s.size()==0) {
@@ -560,25 +559,25 @@ public class YEngine extends AbstractEngine {
 			 * initialise the set of standard services
 			 * */
 			ys = new YAWLServiceReference(
-					"http://localhost:8080/yawlWSInvoker/", null);
+					"http://localhost:8080/yawlWSInvoker/");
 			ys.setDocumentation("This YAWL Service enables suitably declared"
 							+ " workflow tasks to invoke RPC style service on the Web.");
 			this.addYawlService(ys);
 			ys = new YAWLServiceReference(
-					"http://localhost:8080/workletService/ib", null);
+					"http://localhost:8080/workletService/ib");
 			ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
 			this.addYawlService(ys);
 			ys = new YAWLServiceReference(
-					"http://localhost:8080/yawlSMSInvoker/ib", null);
+					"http://localhost:8080/yawlSMSInvoker/ib");
 			ys.setDocumentation("SMS Message Module. Works if you have an account.");
 			this.addYawlService(ys);
 			ys = new YAWLServiceReference(
-					"http://localhost:8080/timeService/ib", null);
+					"http://localhost:8080/timeService/ib");
 			ys.setDocumentation("Time service, allows tasks to be a timeout task.");
 			this.addYawlService(ys);
 			// TODO standard services on startup should probably be dynamically loaded from a properties file
 			ys = new YAWLServiceReference(
-					"http://localhost:8080/NexusServiceInvoker/", null);
+					"http://localhost:8080/NexusServiceInvoker/");
 			ys.setDocumentation("This service enables YAWL specifications to access"
 							+ " the Nexus Workflow services");
 			this.addYawlService(ys);
@@ -832,7 +831,7 @@ public class YEngine extends AbstractEngine {
     }
 
 
-    public YWorkItem getWorkItem(String workItemID) {
+    public YWorkItem getWorkItem(String workItemID) throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -842,7 +841,7 @@ public class YEngine extends AbstractEngine {
     }
 
 
-    public Set getAllWorkItems() {
+    public Set getAllWorkItems() throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -865,12 +864,12 @@ public class YEngine extends AbstractEngine {
      *                             states.
      * @throws YDataStateException
      */
-    public YWorkItem startWorkItem(YWorkItem workItem, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    public YWorkItem startWorkItem(String workItemId, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
         /**
          * SYNC'D External interface
          */
         synchronized (mutex) {
-            return super.startWorkItem(workItem, userID);
+            return super.startWorkItem(workItemId, userID);
         }
     }
 
@@ -899,13 +898,13 @@ public class YEngine extends AbstractEngine {
      * @param data
      * @throws YStateException
      */
-    public void completeWorkItem(YWorkItem workItem, String data, boolean force)
+    public void completeWorkItem(String workItemId, String data, boolean force)
             throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
         /**
          * SYNC'D External interface
          */
         synchronized (mutex) {
-            super.completeWorkItem(workItem, data, force);
+            super.completeWorkItem(workItemId, data, force);
         }
     }
 
@@ -921,7 +920,7 @@ public class YEngine extends AbstractEngine {
      *                         or if current number of instances is not less than the maxInstances
      *                         for the task.
      */
-    public void checkElegibilityToAddInstances(String workItemID) throws YStateException {
+    public void checkElegibilityToAddInstances(String workItemID) throws YStateException, YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -1046,10 +1045,15 @@ public class YEngine extends AbstractEngine {
          * SYNC'D External interface
          */
         synchronized (mutex) {
-        	return new HashSet<YAWLServiceReference>(
-                getDao().retrieveByRestriction(
-                        YAWLServiceReference.class,
-                        new PropertyRestriction( "enabled", Comparison.EQUAL, Boolean.valueOf( true ) ) ) );
+        	List<YAWLServiceReference> refs = getDao().retrieveByRestriction( YAWLServiceReference.class, new Unrestricted() );
+        	Set<YAWLServiceReference> references = new HashSet<YAWLServiceReference>();
+        	for( YAWLServiceReference ref : refs ) {
+        		if (ref.getEnabled()) {
+        			references.add( ref );
+        		}
+        	}
+        	return references;
+
         }
     }
 
@@ -1071,7 +1075,7 @@ public class YEngine extends AbstractEngine {
     }
 
 
-    public Set getChildrenOfWorkItem(YWorkItem workItem) {
+    public Set getChildrenOfWorkItem(YWorkItem workItem) throws YPersistenceException {
         /**
          * SYNC'D External interface
          */
@@ -1090,18 +1094,18 @@ public class YEngine extends AbstractEngine {
      * @param yawlService the YAWL service
      * @param item        the work item must be enabled.
      */
-    protected void announceEnabledTask(YAWLServiceReference yawlService, YWorkItem item) {
-        logger.debug("Announcing enabled task " + item.getIDString() + " on service " + yawlService.getYawlServiceID());
+    protected void announceEnabledTask(URI yawlService, YWorkItem item) {
+        logger.debug("Announcing enabled task " + item.getIDString() + " on service " + yawlService.toString());
         observerGatewayController.notifyAddWorkItem(yawlService, item);
     }
 
 
-    public void announceCancellationToEnvironment(YAWLServiceReference yawlService, YWorkItem item) {
-        logger.debug("Announcing task cancellation " + item.getIDString() + " on service " + yawlService.getYawlServiceID());
+    public void announceCancellationToEnvironment(URI yawlService, YWorkItem item) {
+        logger.debug("Announcing task cancellation " + item.getIDString() + " on service " + yawlService.toString());
         observerGatewayController.notifyRemoveWorkItem(yawlService, item);
     }
 
-    protected void announceCaseCompletionToEnvironment(YAWLServiceReference yawlService, YIdentifier caseID, Document casedata) {
+    protected void announceCaseCompletionToEnvironment(URI yawlService, YIdentifier caseID, Document casedata) {
         observerGatewayController.notifyCaseCompletion(yawlService, caseID, casedata);
     }
 
@@ -1299,27 +1303,27 @@ public class YEngine extends AbstractEngine {
     	for (int i = 0; i < _exceptionObservers.size();i++) {
 
     		ExceptionGateway ixClient = _exceptionObservers.get(i);
-    		logger.debug("Announcing Time Out for item " + item.getWorkItemID() +
+    		logger.debug("Announcing Time Out for item " + item.getIDString() +
                      " on client " + ixClient.toString());
             ixClient.announceTimeOut(item, timeOutTaskIds);
     	}
     }
 
-    public void announceServiceUnavailable(YWorkItem item, YAWLServiceReference ref) {
+    public void announceServiceUnavailable(YWorkItem item, URI ref) {
     	for (int i = 0; i < _exceptionObservers.size();i++) {
 
     		ExceptionGateway ixClient = _exceptionObservers.get(i);
-    		logger.debug("Announcing Service unavailability for item " + item.getWorkItemID() +
+    		logger.debug("Announcing Service unavailability for item " + item.getIDString() +
                      " on client " + ixClient.toString());
             ixClient.announceServiceUnavailable(item, ref);
     	}
     }
 
-    public void announceServiceError(YWorkItem item, YAWLServiceReference ref) {
+    public void announceServiceError(YWorkItem item, URI ref) {
     	for (int i = 0; i < _exceptionObservers.size();i++) {
 
     		ExceptionGateway ixClient = _exceptionObservers.get(i);
-    		logger.debug("Announcing Service unavailability for item " + item.getWorkItemID() +
+    		logger.debug("Announcing Service unavailability for item " + item.getIDString() +
                      " on client " + ixClient.toString());
             ixClient.announceServiceUnavailable(item, ref);
     	}

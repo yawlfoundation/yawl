@@ -10,7 +10,6 @@
 package au.edu.qut.yawl.engine;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
@@ -18,22 +17,15 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-
-import org.jdom.JDOMException;
-
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.exceptions.YAWLException;
-import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 
 /**
@@ -43,17 +35,17 @@ import au.edu.qut.yawl.unmarshal.YMarshal;
  * Time: 16:19:02
  * 
  */
-public class TestSimpleExecutionUseCases extends TestCase{
+public class TestSimpleExecutionUseCases extends AbstractTransactionalTestCase {
     private YIdentifier _caseId;
     private YWorkItemRepository _workItemRepository;
     private AbstractEngine _engine;
 
-    public TestSimpleExecutionUseCases(String name){
+    public TestSimpleExecutionUseCases(String name) {
         super(name);
     }
 
-
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException {
+    public void setUp() throws Exception {
+    	super.setUp();
         URL fileURL = getClass().getResource("ImproperCompletion.xml");
 		File yawlXMLFile = new File(fileURL.getFile());
         _workItemRepository = YWorkItemRepository.getInstance();
@@ -78,21 +70,22 @@ public class TestSimpleExecutionUseCases extends TestCase{
                 _caseId.toString() +
                 ":" +
                 "b-top");
-        Exception f = null;
-        try {
-            _engine.startWorkItem(item ,"admin");
-        } catch (YAWLException e) {
-            f =e;
-        }
-        assertNotNull(f);
+        assertNull("The work item for b-top should not be available", item);
+//        Exception f = null;
+//        try {
+//            _engine.startWorkItem(item.getIDString() ,"admin");
+//        } catch (YAWLException e) {
+//            f =e;
+//        }
+//        assertNotNull(f);
 
         item = _engine.getWorkItem(
                 _caseId.toString() +
                 ":" +
                 "a-top");
-        f = null;
+//        f = null;
         try {
-            _engine.startWorkItem(item ,"admin");
+            _engine.startWorkItem(item.getIDString() ,"admin");
         } catch (YAWLException e) {
         	StringWriter sw = new StringWriter();
         	PrintWriter pw = new PrintWriter( sw );
@@ -104,7 +97,7 @@ public class TestSimpleExecutionUseCases extends TestCase{
         Set firedWorkItems = _workItemRepository.getFiredWorkItems();
         item = (YWorkItem) firedWorkItems.iterator().next();
         try {
-            _engine.startWorkItem(item, "admin");
+            _engine.startWorkItem(item.getIDString(), "admin");
         } catch (YAWLException e) {
             fail(e.getMessage());
         }

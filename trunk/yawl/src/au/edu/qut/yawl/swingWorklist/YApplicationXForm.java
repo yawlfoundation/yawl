@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.swingWorklist;
 
 import au.edu.qut.yawl.engine.gui.YAdminGUI;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,7 +43,7 @@ public class YApplicationXForm extends JDialog implements ActionListener {
     private YWorklistGUI _worklistGUI;
 
 
-    YApplicationXForm(JFrame frame, YWorklistGUI worklistGUI, Object[] workItemData, final YWorklistModel model) {
+    YApplicationXForm(JFrame frame, YWorklistGUI worklistGUI, Object[] workItemData, final YWorklistModel model) throws YPersistenceException {
         super(frame, "Form: " + workItemData[2], true);
         _worklistGUI = worklistGUI;
         _caseID = (String) workItemData[0];
@@ -199,10 +200,16 @@ public class YApplicationXForm extends JDialog implements ActionListener {
         if (command.equals(_keepCommand)) {
             storeData();
             this_windowClosing();
-        } else if (command.equals(_releaseCommand)) {
-            storeData();
-            this_windowClosing();
-            _worklistGUI.completeWorkItem(_caseID, _taskID);
-        }
+        } else if (command.equals(_releaseCommand))
+			try {
+				{
+				    storeData();
+				    this_windowClosing();
+				    _worklistGUI.completeWorkItem(_caseID, _taskID);
+				}
+			} catch (YPersistenceException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
     }
 }

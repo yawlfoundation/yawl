@@ -11,6 +11,7 @@ import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import org.jdom.Document;
 
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -69,14 +70,14 @@ public interface ExceptionGateway
      * Announced by the engine when a particular service cannot
      * be contacted
      * */
-    void announceServiceUnavailable(YWorkItem item, YAWLServiceReference ref);
+    void announceServiceUnavailable(YWorkItem item, URI ref);
 
 
     /*
      * Announced by the engine when a particular service
      * returns an error
      * */
-    void announceServiceError(YWorkItem item, YAWLServiceReference ref);
+    void announceServiceError(YWorkItem item, URI ref);
 
     
     

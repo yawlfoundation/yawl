@@ -9,22 +9,28 @@
 
 package au.edu.qut.yawl.engine;
 
-import junit.framework.TestCase;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Set;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import au.edu.qut.yawl.exceptions.*;
+
+import org.jdom.JDOMException;
+
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.unmarshal.YMarshal;
-import org.jdom.JDOMException;
-
-import java.io.IOException;
-import java.io.File;
-import java.net.URL;
-import java.util.Set;
-import java.util.ArrayList;
 
 /**
  * 
@@ -38,14 +44,15 @@ import java.util.ArrayList;
  * For more information about the YAWL licence refer to the 'downloads' section under
  * http://www.yawl-system.com
  */
-public class TestEngineAgainstABeta4Spec extends TestCase {
+public class TestEngineAgainstABeta4Spec extends AbstractTransactionalTestCase {
     private YSpecification _specification;
     private AbstractEngine _engine;
     private YNetRunner _netRunner;
     private File yawlXMLFile;
 
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
+    public void setUp() throws Exception {
+    	super.setUp();
         URL fileURL = getClass().getResource("MakeRecordings(Beta4).xml");
         yawlXMLFile = new File(fileURL.getFile());
         _specification = null;
@@ -71,11 +78,11 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 assertTrue(wiDecideName_Enabled.getTaskID().equals("decideName"));
 
                 YWorkItem wiDecideName_Executing =
-                        _engine.startWorkItem(wiDecideName_Enabled, "admin");
+                        _engine.startWorkItem(wiDecideName_Enabled.getIDString(), "admin");
 
                 assertTrue(wiDecideName_Executing.getStatus().equals(YWorkItem.Status.Executing));
 
-                _engine.completeWorkItem(wiDecideName_Executing,
+                _engine.completeWorkItem(wiDecideName_Executing.getIDString(),
                         "<DecideAlbumName>" +
                         "<nameOfRecord>The Fred experience.</nameOfRecord>" +
                         "</DecideAlbumName>", false);
@@ -88,11 +95,11 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 assertTrue(wiDecideSongs_Enabled.getTaskID().equals("decideSongs"));
 
                 YWorkItem wiDecideSongs_Executing =
-                        _engine.startWorkItem(wiDecideSongs_Enabled, "admin");
+                        _engine.startWorkItem(wiDecideSongs_Enabled.getIDString(), "admin");
 
                 assertTrue(wiDecideSongs_Executing.getStatus().equals(YWorkItem.Status.Executing));
 
-                _engine.completeWorkItem(wiDecideSongs_Executing,
+                _engine.completeWorkItem(wiDecideSongs_Executing.getIDString(),
                         "<DecideWhichSongsToRecord>" +
                             "<songlist>" +
                                 "<song>" +
@@ -116,12 +123,12 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 //execute task "prepare" this is the first task of a decomposition
                 //inside of the multi instance composite task "record"
                 Set availableItems = _engine.getAvailableWorkItems();
-                assertTrue(availableItems.size() == 1);
+                assertTrue("" + availableItems.size(), availableItems.size() == 1);
                 YWorkItem wiRecord_Enabled = (YWorkItem) availableItems.iterator().next();
                 assertTrue(wiRecord_Enabled.getTaskID().equals("prepare"));
 
                 YWorkItem wiRecord_Executing =
-                        _engine.startWorkItem(wiRecord_Enabled, "admin");
+                        _engine.startWorkItem(wiRecord_Enabled.getIDString(), "admin");
 
                 assertTrue(wiRecord_Executing.getStatus().equals(YWorkItem.Status.Executing));
             }

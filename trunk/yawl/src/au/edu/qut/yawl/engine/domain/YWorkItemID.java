@@ -9,22 +9,21 @@
 
 package au.edu.qut.yawl.engine.domain;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-import javax.persistence.CascadeType;
+import javax.persistence.Basic;
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.Embeddable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import javax.persistence.Basic;
 import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import au.edu.qut.yawl.elements.state.YIdentifier;
 /**
  * 
  * @author Lachlan Aldred
@@ -32,8 +31,8 @@ import org.hibernate.annotations.OnDeleteAction;
  * Time: 14:32:32
  * 
  */
-@Entity
-public class YWorkItemID {
+@Embeddable
+public class YWorkItemID implements Serializable {
     private static final char[] _uniqifier = UniqueIDGenerator.newAlphas();
     private char[] _uniqueID;
     private YIdentifier _caseID;

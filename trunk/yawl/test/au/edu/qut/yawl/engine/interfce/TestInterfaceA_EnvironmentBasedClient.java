@@ -21,6 +21,8 @@ import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.StringProducer;
+import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.restrictions.NegatedRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
@@ -33,6 +35,7 @@ import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparis
  */
 public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 
+	private static final String COULDNT_CONNECT = "Couldn't connect...";
 	private static final String MAKE_RECORDINGS = "JythonSpecJaxb4.xml";
 	private static final String SUCCESS = "<success/>";
 	private InterfaceA_EnvironmentBasedClient iaClient;
@@ -43,7 +46,9 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		text = readFileAsString("exampleSpecs/xml/JythonSpecJaxb4.xml");
+		StringProducer spx = StringProducerYAWL.getInstance();
+		text = spx.getXMLString("JythonSpecJaxb4.xml", true);
+//		text = readFileAsString(filename);
 	    iaClient = new InterfaceA_EnvironmentBasedClient("http://localhost:8080/yawl/ia");
 	    ibClient = new InterfaceB_EnvironmentBasedClient("http://localhost:8080/yawl/ib");
 	    try {
@@ -91,14 +96,14 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 		try {
 			getAConnectionHandle();
 		} catch (ConnectException e) {
-			System.out.println("Couldnt connect...");
+			System.out.println(COULDNT_CONNECT);
 		}
 	}
 
 	public void testSetYAWLServiceLifecycle() throws IOException {
 		YAWLServiceGateway gateway = new YAWLServiceGateway("april", new YSpecification("bobo"));
 		String refName = "http://www.xyz.com/" + System.currentTimeMillis();
-		YAWLServiceReference ref = new YAWLServiceReference(refName, gateway);
+		YAWLServiceReference ref = new YAWLServiceReference(refName);
 		try {
 			String result1 = iaClient.setYAWLService(ref, aConnectionHandle);
 			Set result = iaClient.getRegisteredYAWLServices(aConnectionHandle);
@@ -115,7 +120,7 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 			assertEquals(SUCCESS, result1);
 			assertEquals(SUCCESS, result2);
 		} catch (ConnectException e) {
-			System.out.println("couldn't connect");
+			System.out.println(COULDNT_CONNECT);
 		}
 	}
 
@@ -125,7 +130,7 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 			String result = iaClient.uploadSpecification(text, MAKE_RECORDINGS, aConnectionHandle);
 			assertEquals(SUCCESS, result);
 		} catch (ConnectException e) {
-			System.out.println("Couldnt connect...");
+			System.out.println(COULDNT_CONNECT);
 		}
 	}
 	
@@ -146,7 +151,7 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 			assertTrue( ids, specMap.containsKey( MAKE_RECORDINGS ) );
 		}
 		catch( ConnectException e ) {
-			System.out.println("couldn't connect");
+			System.out.println(COULDNT_CONNECT);
 		}
 	}
 	
@@ -167,7 +172,7 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 			assertFalse( ids, specMap.containsKey( MAKE_RECORDINGS ) );
 		}
 		catch( ConnectException e ) {
-			System.out.println("couldn't connect");
+			System.out.println(COULDNT_CONNECT);
 		}
 	}
 
@@ -187,7 +192,7 @@ public class TestInterfaceA_EnvironmentBasedClient extends TestCase {
 			assertEquals(SUCCESS, result);
 //			assertEquals(SUCCESS, fin);
 		} catch (ConnectException e) {
-			System.out.println("Couldnt connect...");
+			System.out.println(COULDNT_CONNECT);
 		}
 	}
 }

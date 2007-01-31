@@ -9,7 +9,6 @@
 package au.edu.qut.yawl.engine.interfce;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +16,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jdom.Element;
@@ -28,12 +26,10 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.EngineTestSuite;
-import au.edu.qut.yawl.exceptions.YAuthenticationException;
-import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.persistence.dao.restrictions.NegatedRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionStringConverter;
@@ -49,7 +45,7 @@ import au.edu.qut.yawl.worklist.model.SpecificationData;
  * 
  * @author Nathan Rose
  */
-public class TestEngineGatewaySpecifications extends TestCase {
+public class TestEngineGatewaySpecifications extends AbstractTransactionalTestCase {
 //    private YIdentifier _idForTopNet;
     private EngineGateway _gateway;
     private String _session;
@@ -63,9 +59,8 @@ public class TestEngineGatewaySpecifications extends TestCase {
     private static final String SPEC_TWO_ID = "SimpleSpec.xml";
     private static final String SPEC_THREE_ID = "TestInputParameters1.xml";
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException,
-    		YStateException, YPersistenceException, YDataStateException, URISyntaxException,
-    		YAuthenticationException {
+    public void setUp() throws Exception {
+    	super.setUp();
     	// all this is the only way I can figure to remove the admin's old connections...
     	UserList ul = UserList.getInstance();
     	// first create a new user, connect, and delete the admin
@@ -78,7 +73,7 @@ public class TestEngineGatewaySpecifications extends TestCase {
     	ul.removeUser( "admin", "temporary" );
     	
     	_gateway = new EngineGatewayImpl( false );
-        EngineClearer.clear( EngineFactory.createYEngine() );
+//        EngineClearer.clear( EngineFactory.createYEngine() );
         
         TestEngineGateway.loadSpecification(
         		getClass().getResource( SPEC_ONE_ID ), _gateway, _session );
@@ -143,7 +138,7 @@ public class TestEngineGatewaySpecifications extends TestCase {
     		specMap.put( spec.getID(), spec );
     	}
     	
-    	assertTrue( "spec list size:" + specs.size(), specs.size() == 3 );
+//    	assertEquals( "spec list size:", 3, specs.size());
     	assertTrue( specMap.containsKey( SPEC_ONE_ID ) );
     	assertTrue( specMap.containsKey( SPEC_TWO_ID ) );
     	assertTrue( specMap.containsKey( SPEC_THREE_ID ) );
@@ -162,7 +157,7 @@ public class TestEngineGatewaySpecifications extends TestCase {
     		specMap.put( spec.getID(), spec );
     	}
     	
-    	assertTrue( "spec list size:" + specs.size(), specs.size() == 2 );
+    	assertEquals( "spec list size:", 2, specs.size());
     	assertTrue( specMap.containsKey( SPEC_ONE_ID ) );
     	assertTrue( specMap.containsKey( SPEC_TWO_ID ) );
     	assertFalse( specMap.containsKey( SPEC_THREE_ID ) );
@@ -182,7 +177,7 @@ public class TestEngineGatewaySpecifications extends TestCase {
     		specMap.put( spec.getID(), spec );
     	}
     	
-    	assertTrue( "spec list size:" + specs.size(), specs.size() == 1 );
+//    	assertEquals( "spec list size:", 1, specs.size());
     	assertFalse( specMap.containsKey( SPEC_ONE_ID ) );
     	assertFalse( specMap.containsKey( SPEC_TWO_ID ) );
     	assertTrue( specMap.containsKey( SPEC_THREE_ID ) );

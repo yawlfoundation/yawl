@@ -9,23 +9,37 @@
 
 package au.edu.qut.yawl.engine;
 
-import au.edu.qut.yawl.elements.*;
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.exceptions.*;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 import org.jdom.JDOMException;
+
+import au.edu.qut.yawl.elements.YCondition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.exceptions.YAuthenticationException;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 
 /**
  * 
@@ -34,7 +48,7 @@ import org.jdom.JDOMException;
  * Time: 12:28:34
  * 
  */
-public class TestEngineSystem2 extends TestCase {
+public class TestEngineSystem2 extends AbstractTransactionalTestCase {
     private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private int _sleepTime = 100;
     private YNetRunner _netRunner;
@@ -46,8 +60,8 @@ public class TestEngineSystem2 extends TestCase {
         super(name);
     }
 
-
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
+    public void setUp() throws Exception {
+    	super.setUp();
         URL fileURL = getClass().getResource("YAWL_Specification4.xml");
         yawlXMLFile = new File(fileURL.getFile());
         _specification = null;
@@ -57,9 +71,6 @@ public class TestEngineSystem2 extends TestCase {
 
         _engine =  EngineFactory.createYEngine();
     }
-
-
-
 
     public void testMultimergeNets() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
         synchronized(this){
@@ -78,7 +89,7 @@ public class TestEngineSystem2 extends TestCase {
                     currWorkItems.size() == 1 && anItem.getTaskID().equals("b-top"));
             Thread.sleep(_sleepTime);
             //fire btop
-            anItem = _engine.startWorkItem(anItem, "admin");
+            anItem = _engine.startWorkItem(anItem.getIDString(), "admin");
             assertTrue(
                     "Expected b-top: got: " + anItem.getTaskID(),
                     anItem.getTaskID().equals("b-top"));
@@ -91,13 +102,13 @@ public class TestEngineSystem2 extends TestCase {
             anItem = (YWorkItem) currWorkItems.iterator().next();
             Thread.sleep(_sleepTime);
             //complete btop
-            _engine.completeWorkItem(anItem, "<data/>", false);
+            _engine.completeWorkItem(anItem.getIDString(), "<data/>", false);
             //c-top and d-top are enabled - fire one
             assertTrue(_workItemRepository.getEnabledWorkItems().size() == 2);
             while(_workItemRepository.getEnabledWorkItems().size() > 1){
                 anItem = (YWorkItem) _workItemRepository.getEnabledWorkItems().iterator().next();
                 assertTrue(anItem.getTaskID(), anItem.getTaskID().equals("c-top") || anItem.getTaskID().equals("d-top"));
-                anItem = _engine.startWorkItem(anItem, "admin");
+                anItem = _engine.startWorkItem(anItem.getIDString(), "admin");
                 assertTrue(anItem != null);
             }
             assertTrue(_workItemRepository.getExecutingWorkItems().size() == 1);
@@ -106,7 +117,7 @@ public class TestEngineSystem2 extends TestCase {
             //complete it
             while(_workItemRepository.getExecutingWorkItems().size() > 0){
                 anItem = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(anItem, "<data/>", false);
+                _engine.completeWorkItem(anItem.getIDString(), "<data/>", false);
             }
             assertTrue(_workItemRepository.getWorkItems().size() == 2);
             //now e-top is enabled and either c-top or d-top are enabled
@@ -123,7 +134,7 @@ public class TestEngineSystem2 extends TestCase {
                     _idForBottomNet.toString() +
                     ":" + "e-top");
             assertTrue(eTp != null);
-            _engine.startWorkItem(eTp, "admin");
+            _engine.startWorkItem(eTp.getIDString(), "admin");
             assertTrue(_workItemRepository.getExecutingWorkItems().size() == 1);
 
             YNetRunner bottomNetRunner = _workItemRepository.getNetRunner(
@@ -132,19 +143,19 @@ public class TestEngineSystem2 extends TestCase {
             assertNotNull(bottomNetRunner);
             while(_workItemRepository.getExecutingWorkItems().size() > 0){
                 anItem = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(anItem, "<data/>", false);
+                _engine.completeWorkItem(anItem.getIDString(), "<data/>", false);
             }
-            Thread.sleep(1000);
+            Thread.sleep(100);
             YNetRunner bottomNetRunner2 = _workItemRepository.getNetRunner(_idForBottomNet);
             assertNull(bottomNetRunner2);
 //System.out.println("idforbottomnet " + _idForBottomNet + " netrunners: "+ _workItemRepository._caseToNetRunnerMap);
-            assertTrue("locations " + _idForBottomNet.getLocations(), bottomNetRunner.isCompleted());
+            assertTrue("locations " + _idForBottomNet.getLocationsForNet(bottomNetRunner.getNet()), bottomNetRunner.isCompleted());
             assertFalse(_netRunner.isAlive());
 //            assertTrue(bottomNetRunner.isAlive());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        _workItemRepository.clear();
+//        _workItemRepository.clear();
         }
     }
 
@@ -178,7 +189,7 @@ public class TestEngineSystem2 extends TestCase {
             assertTrue(currWorkItems.size() == 1 && anItem.getTaskID().equals("b-top"));
             Thread.sleep(_sleepTime);
             //fire btop
-            anItem = _engine.startWorkItem(anItem, "admin");
+            anItem = _engine.startWorkItem(anItem.getIDString(), "admin");
             assertTrue(anItem != null);
             currWorkItems = _workItemRepository.getEnabledWorkItems();
             assertTrue(currWorkItems.isEmpty());
@@ -187,14 +198,14 @@ public class TestEngineSystem2 extends TestCase {
             anItem = (YWorkItem) currWorkItems.iterator().next();
             Thread.sleep(_sleepTime);
             //complete btop
-            _engine.completeWorkItem(anItem, "<data/>", false);
+            _engine.completeWorkItem(anItem.getIDString(), "<data/>", false);
 
             //c-top and d-top are enabled - fire both
             assertTrue(_workItemRepository.getEnabledWorkItems().size() == 2);
             while(_workItemRepository.getEnabledWorkItems().size() > 0){
                 anItem = (YWorkItem) _workItemRepository.getEnabledWorkItems().iterator().next();
                 assertTrue(anItem.getTaskID(), anItem.getTaskID().equals("c-top") || anItem.getTaskID().equals("d-top"));
-                anItem = _engine.startWorkItem(anItem, "admin");
+                anItem = _engine.startWorkItem(anItem.getIDString(), "admin");
                 assertNotNull(anItem);
             }
             assertTrue(_workItemRepository.getExecutingWorkItems().size() == 2);
@@ -203,7 +214,7 @@ public class TestEngineSystem2 extends TestCase {
             //complete both
             while(_workItemRepository.getExecutingWorkItems().size() > 0){
                 anItem = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(anItem, "<data/>", false);
+                _engine.completeWorkItem(anItem.getIDString(), "<data/>", false);
             }
             assertTrue(_workItemRepository.getWorkItems().size() == 1);
             //now e-top is enabled once for two tokens
@@ -222,13 +233,13 @@ public class TestEngineSystem2 extends TestCase {
                 _idForBottomNet.toString() +
                 ":" + "e-top");
             assertNotNull(eTop);
-            _engine.startWorkItem(eTop, "admin");
+            _engine.startWorkItem(eTop.getIDString(), "admin");
             assertTrue(_workItemRepository.getExecutingWorkItems().size() == 1);
 
             YNetRunner netRunner = _workItemRepository.getNetRunner(_idForBottomNet);
             while(_workItemRepository.getExecutingWorkItems().size() > 0){
                 anItem = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(anItem, "<data/>", false);
+                _engine.completeWorkItem(anItem.getIDString(), "<data/>", false);
             }
 
             Thread.sleep(1000);
@@ -242,7 +253,7 @@ public class TestEngineSystem2 extends TestCase {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        _workItemRepository.clear();
+//        _workItemRepository.clear();
         }
     }
 
@@ -262,7 +273,7 @@ public class TestEngineSystem2 extends TestCase {
         YIdentifier caseID = _engine.startCase(null, specification.getID(), null, null);
         {
             YWorkItem itemA = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
-            _engine.startWorkItem(itemA, "admin");
+            _engine.startWorkItem(itemA.getIDString(), "admin");
 
             try {
                 Thread.sleep(_sleepTime);
@@ -272,7 +283,7 @@ public class TestEngineSystem2 extends TestCase {
 
             itemA = (YWorkItem) _engine.getChildrenOfWorkItem(
                     itemA).iterator().next();
-            _engine.completeWorkItem(itemA, "<data/>", false);
+            _engine.completeWorkItem(itemA.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -289,7 +300,7 @@ public class TestEngineSystem2 extends TestCase {
                     break;
                 }
             }
-            _engine.startWorkItem(itemF, "admin");
+            _engine.startWorkItem(itemF.getIDString(), "admin");
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -297,7 +308,7 @@ public class TestEngineSystem2 extends TestCase {
             }
 
             itemF = (YWorkItem) _engine.getChildrenOfWorkItem(itemF).iterator().next();
-            _engine.completeWorkItem(itemF, "<data/>", false);
+            _engine.completeWorkItem(itemF.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -314,7 +325,7 @@ public class TestEngineSystem2 extends TestCase {
                     break;
                 }
             }
-            _engine.startWorkItem(itemB, "admin");
+            _engine.startWorkItem(itemB.getIDString(), "admin");
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -322,7 +333,7 @@ public class TestEngineSystem2 extends TestCase {
             }
 
             itemB = (YWorkItem) _engine.getChildrenOfWorkItem(itemB).iterator().next();
-            _engine.completeWorkItem(itemB, "<data/>", false);
+            _engine.completeWorkItem(itemB.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -330,10 +341,10 @@ public class TestEngineSystem2 extends TestCase {
             }
         }
         {
-            YWorkItem itemA = (YWorkItem) _engine.getAvailableWorkItems()
-                    .iterator().next();
+        	YNetRunner r = _engine.getNetRunner(caseID);
+            YWorkItem itemA = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
             //get the real net elements that contain the identifier tokens.
-            List locations = caseID.getLocations();
+            List locations = caseID.getLocationsForNet(r.getNet());
             for (int i = 0; i < locations.size(); i++) {
                 YExternalNetElement element = (YExternalNetElement) locations.get(i);
                 if (element instanceof YTask) {
@@ -376,7 +387,7 @@ public class TestEngineSystem2 extends TestCase {
                     }else if (task.t_isBusy()) {
                         boolean tokenFound = false;
                         //Check that the locations of the id confirm the busy state of the task
-                        List idlocs = caseID.getLocations();
+                        List idlocs = caseID.getLocationsForNet(r.getNet());
                         for (Iterator idlocsIter = idlocs.iterator(); idlocsIter.hasNext();) {
                             YExternalNetElement netElem = (YExternalNetElement) idlocsIter.next();
                             if (netElem.getID().equals(task.getID())) {
@@ -413,7 +424,7 @@ public class TestEngineSystem2 extends TestCase {
                         boolean tokenNotFound = true;
                         //Check that the locations of the id confirm the
                         //task is indeed not busy
-                        List idlocs = caseID.getLocations();
+                        List idlocs = caseID.getLocationsForNet(r.getNet());
                         for (Iterator idlocsIter = idlocs.iterator(); idlocsIter.hasNext();) {
                             YExternalNetElement netElem = (YExternalNetElement) idlocsIter.next();
                             if (netElem.getID().equals(task.getID())) {

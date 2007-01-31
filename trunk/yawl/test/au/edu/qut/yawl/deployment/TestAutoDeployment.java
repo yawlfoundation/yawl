@@ -15,17 +15,20 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import junit.framework.TestCase;
+
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngine;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 
-public class TestAutoDeployment extends TestCase {
+public class TestAutoDeployment extends AbstractTransactionalTestCase {
 
 	
+	
     public void testSimpleJarAdd() throws Exception {
-        YEngine _engine =  EngineFactory.createYEngine();
+        YEngine _engine =  EngineFactory.createYEngine(true);
         
  	
 

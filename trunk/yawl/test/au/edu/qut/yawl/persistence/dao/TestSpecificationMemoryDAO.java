@@ -16,17 +16,19 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
-public class TestSpecificationMemoryDAO extends TestCase {
+public class TestSpecificationMemoryDAO extends AbstractHibernateDAOTestCase {
 
 	YSpecification testSpec;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		DAOFactory.resetDAO(PersistenceType.MEMORY);
-		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
+//		DAOFactory.resetDAO(PersistenceType.MEMORY);
+		DAO fileDAO = new DelegatedFileDAO();
 		StringProducer spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestCompletedMappings.xml", true);
 		testSpec = (YSpecification) fileDAO.retrieve(YSpecification.class, f.getAbsolutePath());
@@ -36,20 +38,16 @@ public class TestSpecificationMemoryDAO extends TestCase {
 		super.tearDown();
 	}
 	
-	private DAO getDAO() {
-		return DAOFactory.getDAO( PersistenceType.MEMORY );
-	}
-
 	/*
 	 * Test method for 'au.edu.qut.yawl.persistence.dao.SpecificationFileDAO.delete(YSpecification)'
 	 */
 	public void testDelete() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
-		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());
+		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getDbID());
 		assertNotNull(spec);
 		myDAO.delete(spec);
-		spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());
+		spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getDbID());
 		assertNull(spec);
 	}
 
@@ -59,7 +57,7 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	public void testRetrieve() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
-		String pk = testSpec.getID();
+		Long pk = testSpec.getDbID();
 		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, pk);	
 		assertNotNull(spec);
 	}
@@ -69,23 +67,42 @@ public class TestSpecificationMemoryDAO extends TestCase {
 		
 		testSpec.setDocumentation( "asdf test 1234" );
 		myDAO.save( testSpec );
+		String specName = "TEST_URI" + Math.random() + "_" + System.currentTimeMillis();
 		
-		YSpecification spec2 = new YSpecification( "TEST_URI" );
+		YSpecification spec2 = new YSpecification( specName );
 		spec2.setDocumentation( "asdfblahasdf" );
 		myDAO.save( spec2 );
-		
-		List specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
-				"documentation", Comparison.EQUAL, "asdf test 1234" ) );
+		List specs = myDAO.retrieveByRestriction( YSpecification.class, 
+				new LogicalRestriction(
+						new PropertyRestriction("documentation", Comparison.EQUAL, "asdf test 1234" ),
+						Operation.AND,
+						new PropertyRestriction("ID", Comparison.EQUAL, testSpec.getID() )
+				)
+		);
 		assertNotNull( specs );
-		assertTrue( "" + specs.size(), specs.size() == 1 );
-		
+		assertEquals( "wrong number of matching specs", 1, specs.size());
+		specs = myDAO.retrieveByRestriction( YSpecification.class,
+				new LogicalRestriction(
+						new PropertyRestriction("documentation", Comparison.EQUAL, "asdfblahasdf" ),
+						Operation.AND,
+						new PropertyRestriction("ID", Comparison.EQUAL, specName )
+				)
+		);
+		assertNotNull( specs );
+		assertEquals( "retrieved wrong number of specs", 1, specs.size());
 		myDAO.delete( spec2 );
-		
-		specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
-				"documentation", Comparison.NOT_EQUAL, "asdf test 1234" ) );
+		specs = myDAO.retrieveByRestriction( YSpecification.class,
+				new LogicalRestriction(
+						new PropertyRestriction("documentation", Comparison.NOT_EQUAL, "asdfblahasdf" ),
+						Operation.AND,
+						new PropertyRestriction("ID", Comparison.EQUAL, specName )
+				)
+		);
 		assertNotNull( specs );
-		assertTrue( "" + specs.size(), specs.size() == 0 );
+		assertEquals( "retrieved wrong number of specs", 0, specs.size());
 		
+		// by deep cloning all objects will have null DB IDs, so they can be re-persisted
+		spec2 = spec2.deepClone();
 		myDAO.save( spec2 );
 		
 		specs = myDAO.retrieveByRestriction( YSpecification.class, new PropertyRestriction(
@@ -105,7 +122,7 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	public void testSave() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
-		YSpecification spec2 = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());
+		YSpecification spec2 = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getDbID());
 		assertNotNull(spec2);
 	}
 
@@ -115,7 +132,7 @@ public class TestSpecificationMemoryDAO extends TestCase {
 	public void testGetKey() throws YPersistenceException {
 		DAO myDAO = getDAO();
 		myDAO.save(testSpec);
-		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getID());
+		YSpecification spec = (YSpecification) myDAO.retrieve(YSpecification.class, testSpec.getDbID());
 		assertEquals(spec.getID(), testSpec.getID());
 	}
 

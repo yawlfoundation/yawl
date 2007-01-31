@@ -10,6 +10,9 @@
 package au.edu.qut.yawl.engine;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -61,7 +64,6 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 
 /**
@@ -92,7 +94,7 @@ public class YNetRunner implements Serializable // extends Thread
     private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private YIdentifier _caseIDForNet;
     private YCompositeTask _containingCompositeTask;
-    private AbstractEngine _engine;
+    public AbstractEngine _engine;
     private boolean _cancelling;
 
     /**
@@ -103,7 +105,7 @@ public class YNetRunner implements Serializable // extends Thread
     protected String yNetID = null;
     private String containingTaskID = null;
     private YCaseData casedata = null;
-    private YAWLServiceReference _caseObserver;
+    private URI _caseObserver;
     //private InterfaceX_EngineSideClient _exceptionObserver;
 
     // inserted to persist observers
@@ -119,7 +121,7 @@ public class YNetRunner implements Serializable // extends Thread
      */
 
     public void restoreprepare() {
-        _workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
+//        _workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
         //_net.initialise();
     }
 
@@ -147,6 +149,7 @@ public class YNetRunner implements Serializable // extends Thread
     }
 
     @OneToOne(cascade=CascadeType.ALL, fetch = FetchType.EAGER)
+    @OnDelete(action=OnDeleteAction.CASCADE) 
     public YNet getNet() {
         return _net;
     }
@@ -204,7 +207,9 @@ public class YNetRunner implements Serializable // extends Thread
             logger.debug("YNetRunner: <init>");
     	}
         _caseIDForNet = new YIdentifier(spec.getID(), spec.getVersion());
-        YIdentifier.saveIdentifier( _caseIDForNet );
+        _engine = EngineFactory.createYEngine();
+        _engine.getDao().save(_caseIDForNet);
+        setBasicCaseId(_caseIDForNet.toString());
         
         /*****************************/
         _net = (YNet) netPrototype.clone();
@@ -212,7 +217,6 @@ public class YNetRunner implements Serializable // extends Thread
         casedata.setId(_caseIDForNet.toString());
         _net.initializeDataStore(casedata);
         /*************************************/
-        _engine = EngineFactory.createYEngine();
         /*
           INSERTED FOR PERSISTANCE
          */
@@ -233,6 +237,8 @@ public class YNetRunner implements Serializable // extends Thread
     	}
         
         _caseIDForNet = caseIDForNet;
+        setBasicCaseId(_caseIDForNet.toString());
+        
         /*****************************/
         _net = (YNet) netPrototype.clone();
         
@@ -250,13 +256,8 @@ public class YNetRunner implements Serializable // extends Thread
         _net.setIncomingData(incomingData);
     }
 
-    public static void saveNetRunner( YNetRunner runner ) throws YPersistenceException {
-    	DAO dao = AbstractEngine.getDao();
-        dao.save( runner );
-    }
-
     private void prepare() throws YPersistenceException {
-        _workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
+//        _workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
         YInputCondition inputCondition = _net.getInputCondition();
         inputCondition.add(_caseIDForNet);
         _net.initialise();
@@ -373,15 +374,25 @@ public class YNetRunner implements Serializable // extends Thread
                                        JDOMConversionTools.documentToString(data), false);
 //                }
 
-                Logger.getLogger(this.getClass()).debug("Asking engine to finish case");
-                _engine.finishCase(_caseIDForNet);
-
-                if (isRootNet()) {
-                    try {
-                        _engine.clearCase(_caseIDForNet);
-                    } catch (Exception e) {
-                        //todo So, what shall we do now ????
-                    }
+                if(!_cancelling) {
+	                Logger.getLogger(this.getClass()).debug("Asking engine to finish case");
+	                YIdentifier id = _caseIDForNet;
+//	                if(_caseIDForNet.getParent() != null) {
+//	                	_caseIDForNet = null;
+//	                }
+//	                _engine.getDao().save(this);
+	                
+	                _engine.finishCase(id);
+	                
+//	                _caseIDForNet = id;
+	
+	                if (isRootNet()) {
+	                    try {
+	                        _engine.clearCase(id);
+	                    } catch (Exception e) {
+	                        //todo So, what shall we do now ????
+	                    }
+	                }
                 }
             }
             if (!_cancelling && deadLocked()) {
@@ -389,7 +400,7 @@ public class YNetRunner implements Serializable // extends Thread
             }
             cancel();
         } else {
-            saveNetRunner( this );
+        	_engine.getDao().save(this);
         }
         logger.debug("<-- YNetRunner.kick");
     }
@@ -401,7 +412,7 @@ public class YNetRunner implements Serializable // extends Thread
 
 
     private void notifyDeadLock() throws YPersistenceException {
-        List locations = _caseIDForNet.getLocations();
+        List locations = _caseIDForNet.getLocationsForNet(getNet());
         for (int i = 0; i < locations.size(); i++) {
             YNetElement element = (YNetElement) locations.get(i);
             if (_net.getNetElements().contains(element)) {
@@ -424,16 +435,17 @@ public class YNetRunner implements Serializable // extends Thread
         String specificationID = _net.getParent().getID();
         boolean allowsNewInstances = false;
         boolean isDeadlocked = true;
-        YWorkItemID deadlockWorkItemID = new YWorkItemID(_caseIDForNet,
-                netElement.getID());
+//        YWorkItemID deadlockWorkItemID = new YWorkItemID(_caseIDForNet,
+//                netElement.getID());
         YWorkItem item = new YWorkItem(specificationID,
-                deadlockWorkItemID,
+                _caseIDForNet,
+                netElement.getID(),
                 allowsNewInstances,
                 isDeadlocked);
-        YWorkItem.saveWorkItem( item );
+        _engine.getDao().save(item);
         //Log to Problems table of database.
         YProblemEvent event  = new YProblemEvent(_net, "Deadlocked", YProblemEvent.RuntimeError);
-        event.logProblem();
+        event.logProblem(_engine.getDao());
     }
 
 
@@ -442,7 +454,7 @@ public class YNetRunner implements Serializable // extends Thread
      * @return if deadlocked
      */
     private boolean deadLocked() throws YPersistenceException {
-        List locations = _caseIDForNet.getLocations();
+        List locations = _caseIDForNet.getLocationsForNet(getNet());
         for (int i = 0; i < locations.size(); i++) {
             Object o = locations.get(i);
             if(o instanceof YExternalNetElement) {
@@ -502,14 +514,15 @@ public class YNetRunner implements Serializable // extends Thread
             kick();
         }
 
-        if (AbstractEngine.getDao().retrieve(
-                YNetRunner.class,
-                AbstractEngine.getDao().getKey(this)) != null) {
-            /* If the proxy is == null that means that the object was never persisted
-		     * which it should have been. See unit tests testImproperCompletionOfSubnet
-             */
-            AbstractEngine.getDao().save(this);
-        }
+        // TODO this shouldn't be needed. The comment is wrong, it doesn't mean it wasn't persisted it
+        // means it was deleted in the call to kick() above. We shouldn't need to repersist.
+        // note that the check for getId() does no good, because the id won't be null.
+//        if (getId() != null) {
+//            /* If the proxy is == null that means that the object was never persisted
+//		     * which it should have been. See unit tests testImproperCompletionOfSubnet
+//             */
+//        	_engine.getDao().save(this);
+//        }
 
         Logger.getLogger(this.getClass()).debug("<-- processCompletedSubnet");
     }
@@ -519,11 +532,15 @@ public class YNetRunner implements Serializable // extends Thread
             throws YDataStateException, YStateException, YQueryException, YPersistenceException {
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         if (task.t_enabled(_caseIDForNet)) {
-            List newChildIdentifiers = task.t_fire();
+            List<YIdentifier> newChildIdentifiers = task.t_fire();
             _enabledTasks.remove(task);
 
             /**********************/
             _busyTasks.add(task);
+            
+            for( YIdentifier id : newChildIdentifiers ) {
+            	_engine.getDao().save( id );
+            }
 
             /******************************/
             synchronized (this) {
@@ -578,7 +595,7 @@ public class YNetRunner implements Serializable // extends Thread
             YProblemEvent ev = new YProblemEvent(task,
                     e.getMessage(),
                     YProblemEvent.RuntimeError);
-            ev.logProblem();
+            ev.logProblem(_engine.getDao());
             throw e;
         }
     }
@@ -614,7 +631,7 @@ public class YNetRunner implements Serializable // extends Thread
                             //if its not an empty task
                             if (wsgw != null) {
                                 createEnabledWorkItem(_caseIDForNet, atomicTask);
-                                YAWLServiceReference ys = wsgw.getYawlService();
+                                URI ys = wsgw.getYawlService();
                                 YWorkItem item = _workItemRepository.getWorkItem(_caseIDForNet.toString(), atomicTask.getID());
                                 if (ys != null) {
                                     _engine.announceEnabledTask(ys, item);
@@ -645,7 +662,7 @@ public class YNetRunner implements Serializable // extends Thread
                                             new YProblemEvent(atomicTask,
                                                     e.getMessage(),
                                                     YProblemEvent.RuntimeError);
-                                    pe.logProblem();
+                                    pe.logProblem(_engine.getDao());
                                 }
                             }
                         } else {
@@ -670,23 +687,24 @@ public class YNetRunner implements Serializable // extends Thread
                                         new YProblemEvent(task,
                                                 e.getMessage(),
                                                 YProblemEvent.RuntimeError);
-                                pe.logProblem();
+                                pe.logProblem(_engine.getDao());
                             }
                             while (caseIDs.hasNext()) {
                                 YIdentifier id = (YIdentifier) caseIDs.next();
+                                _engine.getDao().save(id);
                                 try {
                                     task.t_start(id);
                                 } catch (YSchemaBuildingException e) {
                                     YProblemEvent f = new YProblemEvent(task,
                                             e.getMessage(),
                                             YProblemEvent.RuntimeError);
-                                    f.logProblem();
+                                    f.logProblem(_engine.getDao());
                                     e.printStackTrace();
                                 } catch (YDataStateException e) {
                                     YProblemEvent f = new YProblemEvent(task,
                                             e.getMessage(),
                                             YProblemEvent.RuntimeError);
-                                    f.logProblem();
+                                    f.logProblem(_engine.getDao());
                                     e.printStackTrace();
                                 }
                             }
@@ -696,6 +714,7 @@ public class YNetRunner implements Serializable // extends Thread
 
                     if (_enabledTasks.contains(task)) {
 //                        YLocalWorklist.announceToWorklistsNoLongerEnabled(_caseIDForNet, task.getSpecURI());
+                    	logger.error("removing task " + task);
                         _enabledTasks.remove(task);
                         /*************************/
                         /* INSERTED FOR PERSISTANCE*/
@@ -706,7 +725,8 @@ public class YNetRunner implements Serializable // extends Thread
                          */
                         YWorkItem wItem = _workItemRepository.getWorkItem(_caseIDForNet.toString(), task.getID());
                         _workItemRepository.removeWorkItemFamily(wItem);
-                        AbstractEngine.getDao().delete( wItem );
+//                        YWorkItem persistentItem = (YWorkItem) _engine.getDao().retrieve( YWorkItem.class, wItem.getId() );
+//                        _engine.getDao().delete(persistentItem);
 // TODO                       if (pmgr != null)
 //                        {
 //                            pmgr.deleteObject(wItem);
@@ -729,8 +749,7 @@ public class YNetRunner implements Serializable // extends Thread
         _busyTasks = _net.getBusyTasks();
 
         if (!_cancelling) {
-        	YNetRunner.saveNetRunner(this);
-        	//AbstractEngine.getDataContext().save( AbstractEngine.getDataContext().getDataProxy( this ) );
+        	_engine.getDao().save(this);
         }
 
         Logger.getLogger(this.getClass()).debug("<-- continueIfPossible");
@@ -754,7 +773,7 @@ public class YNetRunner implements Serializable // extends Thread
         //creating a new work item puts it into the work item
         //repository automatically.
         YWorkItem workItem = new YWorkItem(atomicTask.getParent().getParent().getID(),
-                new YWorkItemID(caseIDForNet, atomicTask.getID()),
+                caseIDForNet, atomicTask.getID(),
                 allowDynamicCreation, false);
         if (atomicTask.getDataMappingsForEnablement().size() > 0) {
             Element data = null;
@@ -771,8 +790,9 @@ public class YNetRunner implements Serializable // extends Thread
                 e.printStackTrace();
             }
             workItem.setData(data);
+            _engine.getDao().save(workItem);
         }
-        YWorkItem.saveWorkItem( workItem );
+        _engine.getDao().save(workItem);
     }
 
 
@@ -795,10 +815,8 @@ public class YNetRunner implements Serializable // extends Thread
          * */
         _engine = EngineFactory.createYEngine();
 
+        boolean taskExited = atomicTask.t_complete(identifier, outputData);
 
-        boolean taskExited;
-
-        taskExited = atomicTask.t_complete(identifier, outputData);
         if (taskExited) {
             //todo AJH New code here - Relocated from YEngine.completeWorkItem
             if (workItem != null) {
@@ -840,7 +858,7 @@ public class YNetRunner implements Serializable // extends Thread
               INSERTED FOR PERSISTANCE
              */
             if (!_cancelling) {
-                saveNetRunner( this );
+            	_engine.getDao().save(this);
             }
 //            busyTaskNames.remove(atomicTask.getSpecURI());
 //            YPersistance.getInstance().updateData(this);
@@ -891,11 +909,7 @@ public class YNetRunner implements Serializable // extends Thread
          *
          * */
         if (!_cancelling) {
-        	//DataContext context = AbstractEngine.getDataContext();
-        	//DataProxy runner_proxy = context.getDataProxy( this );
-        	//context.delete(runner_proxy);
             setArchived(true);
-            YNetRunner.saveNetRunner(this);
             /*
              * If we just deleted the root net, then also delete all identifiers
              * since the case is completed
@@ -907,14 +921,13 @@ public class YNetRunner implements Serializable // extends Thread
 
         _cancelling = true;
 
-        _enabledTasks = new HashSet<YExternalNetElement>();
-        _busyTasks = new HashSet<YExternalNetElement>();
+        _enabledTasks.clear(); // = new HashSet<YExternalNetElement>();
+        _busyTasks.clear(); // = new HashSet<YExternalNetElement>();
 
         /*
          * Clear the engine lookup maps
          * */
         _engine.finishCase(this._caseIDForNet);
-
     }
 
 
@@ -948,23 +961,19 @@ public class YNetRunner implements Serializable // extends Thread
 		_id = id;
 	}
 
-    @ManyToOne(cascade=CascadeType.PERSIST)
-    //@OnDelete(action=OnDeleteAction.CASCADE)
+    @ManyToOne
     public YCompositeTask getContainingCompositeTask() {
         return this._containingCompositeTask;
     }
 
-    @ManyToOne(cascade=CascadeType.PERSIST)
-    //@OnDelete(action=OnDeleteAction.CASCADE)
     public void setContainingCompositeTask(YCompositeTask composite) {
         this._containingCompositeTask = composite;
     }
 
 
 
-    @ManyToOne(cascade=CascadeType.PERSIST)
+    @ManyToOne(cascade= {CascadeType.ALL})
     @JoinColumn(name="caseID")
-    //@OnDelete(action=OnDeleteAction.CASCADE)
     public YIdentifier getCaseID() {
         return _caseIDForNet;
     }
@@ -974,16 +983,16 @@ public class YNetRunner implements Serializable // extends Thread
     	 * TODO: Tore unit test to verify that this is
     	 * working
     	 * */
-    	_workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
+//    	_workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
     }
 
     @Basic
     private String basicCaseId;
     public String getBasicCaseId() {
-    	return _caseIDForNet.getId();
+    	return basicCaseId;
     }
-    public void setBasicCaseId(String caseid) {
-
+    private void setBasicCaseId(String caseid) {
+    	this.basicCaseId = caseid;
     }
 
     @Transient
@@ -1058,9 +1067,9 @@ public class YNetRunner implements Serializable // extends Thread
         return task.t_addEnabled(childID);
     }
 
-    public void setObserver(YAWLServiceReference observer) {
+    public void setObserver(URI observer) {
         _caseObserver = observer;
-        _caseObserverURI = observer.getURI();                       // for persistence
+        _caseObserverURI = observer.toString();                       // for persistence
     }
 
 
@@ -1078,7 +1087,13 @@ public class YNetRunner implements Serializable // extends Thread
         if(_caseObserverURI != null) {
             YAWLServiceReference caseObserver =
                                     _engine.getRegisteredYawlService(_caseObserverURI);
-            if (caseObserver != null) setObserver(caseObserver);
+            URI observer = null;
+			try {
+				observer = new URI(caseObserver.getURI());
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+            if (caseObserver != null) setObserver(observer);
         }
 //        if (_exceptionObserverStr != null) {
 //            InterfaceX_EngineSideClient exObserver =
@@ -1119,9 +1134,9 @@ public class YNetRunner implements Serializable // extends Thread
         if ((task != null) && (task instanceof YAtomicTask)) {
             YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
             if (wsgw != null) {
-                YAWLServiceReference ys = wsgw.getYawlService();
+                URI ys = wsgw.getYawlService();
                 if (ys != null)
-                   return ys.getYawlServiceID().indexOf("timeService") > -1 ;
+                   return ys.toString().indexOf("timeService") > -1 ;
             }
         }
         return false ;
@@ -1162,5 +1177,9 @@ public class YNetRunner implements Serializable // extends Thread
         return null ;
     }
 
+    public static void main(String[] args) {
+		System.out.println(URLDecoder.decode("au.edu.qut.yawl.exceptions.YQueryException%0D%0A%09at+au.edu.qut.yawl.engine.AbstractEngine.startWorkItem%28AbstractEngine.java%3A984%29%0D%0A%09at+au.edu.qut.yawl.engine.YEngine.startWorkItem%28YEngine.java%3A872%29%0D%0A%09at+sun.reflect.NativeMethodAccessorImpl.invoke0%28Native+Method%29%0D%0A%09at+sun.reflect.NativeMethodAccessorImpl.invoke%28NativeMethodAccessorImpl.java%3A39%29%0D%0A%09at+sun.reflect.DelegatingMethodAccessorImpl.invoke%28DelegatingMethodAccessorImpl.java%3A25%29%0D%0A%09at+java.lang.reflect.Method.invoke%28Method.java%3A585%29%0D%0A%09at+org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection%28AopUtils.java%3A334%29%0D%0A%09at+org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint%28ReflectiveMethodInvocation.java%3A181%29%0D%0A%09at+org.springframework.aop.framework.ReflectiveMethodInvocation.proceed%28ReflectiveMethodInvocation.java%3A148%29%0D%0A%09at+org.springframework.transaction.interceptor.TransactionInterceptor.invoke%28TransactionInterceptor.java%3A100%29%0D%0A%09at+org.springframework.aop.framework.ReflectiveMethodInvocation.proceed%28ReflectiveMethodInvocation.java%3A170%29%0D%0A%09at+org.springframework.aop.framework.JdkDynamicAopProxy.invoke%28JdkDynamicAopProxy.java%3A209%29%0D%0A%09at+%24Proxy31.startWorkItem%28Unknown+Source%29%0D%0A%09at+au.edu.qut.yawl.engine.interfce.EngineGatewayImpl.startWorkItem%28EngineGatewayImpl.java%3A331%29%0D%0A%09at+au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedServer.processPostQuery%28InterfaceB_EngineBasedServer.java%3A254%29%0D%0A%09at+au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedServer.doPost%28InterfaceB_EngineBasedServer.java%3A112%29%0D%0A%09at+javax.servlet.http.HttpServlet.service%28HttpServlet.java%3A709%29%0D%0A%09at+javax.servlet.http.HttpServlet.service%28HttpServlet.java%3A802%29%0D%0A%09at+org.apache.catalina.core.ApplicationFilterChain.internalDoFilter%28ApplicationFilterChain.java%3A252%29%0D%0A%09at+org.apache.catalina.core.ApplicationFilterChain.doFilter%28ApplicationFilterChain.java%3A173%29%0D%0A%09at+org.apache.catalina.core.StandardWrapperValve.invoke%28StandardWrapperValve.java%3A213%29%0D%0A%09at+org.apache.catalina.core.StandardContextValve.invoke%28StandardContextValve.java%3A178%29%0D%0A%09at+org.apache.catalina.core.StandardHostValve.invoke%28StandardHostValve.java%3A126%29%0D%0A%09at+org.apache.catalina.valves.ErrorReportValve.invoke%28ErrorReportValve.java%3A105%29%0D%0A%09at+org.apache.catalina.core.StandardEngineValve.invoke%28StandardEngineValve.java%3A107%29%0D%0A%09at+org.apache.catalina.connector.CoyoteAdapter.service%28CoyoteAdapter.java%3A148%29%0D%0A%09at+org.apache.coyote.http11.Http11Processor.process%28Http11Processor.java%3A869%29%0D%0A%09at+org.apache.coyote.http11.Http11BaseProtocol%24Http11ConnectionHandler.processConnection%28Http11BaseProtocol.java%3A664%29%0D%0A%09at+org.apache.tomcat.util.net.PoolTcpEndpoint.processSocket%28PoolTcpEndpoint.java%3A527%29%0D%0A%09at+org.apache.tomcat.util.net.LeaderFollowerWorkerThread.runIt%28LeaderFollowerWorkerThread.java%3A80%29%0D%0A%09at+org.apache.tomcat.util.threads.ThreadPool%24ControlRunnable.run%28ThreadPool.java%3A684%29%0D%0A%09at+java.lang.Thread.run%28Thread.java%3A595%29%0D%0ACaused+by%3A+java.lang.NullPointerException%0D%0A%09at+au.edu.qut.yawl.persistence.dao.AbstractDelegatedDAO.save%28AbstractDelegatedDAO.java%3A35%29%0D%0A%09at+au.edu.qut.yawl.engine.AbstractEngine.startWorkItem%28AbstractEngine.java%3A923%29%0D%0A%09...+31+more%0D%0A"));
+	}
+    
 }
 

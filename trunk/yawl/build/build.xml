@@ -14,9 +14,10 @@
     <property name="backup" value="backup"/>
     <property name="thirdParty.home" value="${build.home}/thirdParty"/>
     <property name="basic.libs" value="./build/3rdParty/lib"/>
-    <property name="editor.libs" value="./build/3rdParty/editor-libs"/>
+    <property name="editor.libs" value="./build/nexusWorkflowEditor/lib"/>
     <property name="wsif.libs" value="./build/3rdParty/wsif-lib"/>
     <property name="xsd.libs" value="./build/3rdParty/xsdlib"/>
+    <property name="xfire.libs" value="./build/3rdParty/serviceLibs/xfire"/>
     <property name="persist.libs" value="./build/3rdParty/persistenceLibs"/>
     <property name="standAlone.libs" value="./build/3rdParty/standAlone-libs"/>
 	<property name="nexus.service.libs" value="./build/3rdParty/serviceLibs"/>
@@ -146,7 +147,7 @@
     <!--
 	JDom library
 	-->
-    <property name="jdom.jar" value="${basic.libs}/jdom.jar"/>
+    <property name="jdom.jar" value="${service.libs}/jdom-1.0.jar"/>
     <!--
     Sevlet library
     -->
@@ -167,7 +168,7 @@
 	<!--
     OpenJMS Dependencies
     -->
-    <property name="antlr-2.7.2.jar" value="${basic.libs}/antlr-2.7.2.jar"/>
+    <property name="antlr.jar" value="${basic.libs}/antlr-2.7.6.jar"/>
     <property name="castor-0.9.5.jar" value="${basic.libs}/castor-0.9.5.jar"/>
     <property name="commons-codec-1.3.jar" value="${basic.libs}/commons-codec-1.3.jar"/>
     <property name="commons-codec-1.3.jar" value="${basic.libs}/commons-codec-1.3.jar"/>
@@ -200,10 +201,12 @@
     <!--
     Persistence Dependencies
     -->
-    <property name="antlr" value="${persist.libs}/antlr-2.7.6rc1.jar"/>
-    <property name="asm" value="${persist.libs}/asm.jar"/>
-    <property name="asm-attrs" value="${persist.libs}/asm-attrs.jar"/>
-	<property name="cglib" value="${persist.libs}/cglib-2.1.3.jar"/>
+    <property name="aspectjweaver.jar" value="${basic.libs}/aspectjweaver.jar"/>
+    <property name="antlr" value="${persist.libs}/antlr-2.7.6.jar"/>
+    <property name="asm" value="${persist.libs}/asm-2.2.2.jar"/>
+    <property name="asm-commons" value="${persist.libs}/asm-commons-2.2.2.jar"/>
+    <property name="asm-util" value="${persist.libs}/asm-util-2.2.2.jar"/>
+	<property name="cglib" value="${persist.libs}/cglib-nodep-2.1_3.jar"/>
     <property name="commonsCollections" value="${persist.libs}/commons-collections-2.1.1.jar"/>
     <property name="commonsLogging" value="${persist.libs}/commons-logging-1.0.4.jar"/>
     <property name="dom4j" value="${persist.libs}/dom4j-1.6.1.jar"/>
@@ -220,16 +223,17 @@
     <property name="jta" value="${persist.libs}/jta.jar"/>
     <property name="jaxbapi" value="${persist.libs}/jaxb-api.jar"/>
     <property name="jaxbimpl" value="${persist.libs}/jaxb-impl.jar"/>
+    <property name="jaxen" value="${persist.libs}/jaxen-1.1-beta-7.jar"/>
     <property name="odmg" value="${persist.libs}/odmg-3.0.jar"/>
 	<property name="xmlunit" value="${basic.libs}/xmlunit1.0.jar"/>
 	
     <!--
     Editor Dependencies
     -->
-    <property name="jgraph-5.4.jar" value="${editor.libs}/jgraph-5.4.jar"/>
-    <property name="jgraphaddons-1.0.5.jar" value="${editor.libs}/jgraphaddons-1.0.5.jar"/>
+    <property name="jgraph.jar" value="${editor.libs}/jgraph-5.9.2.1.jar"/>
+    <property name="jgraphpad.jar" value="${editor.libs}/jgraphpad.jar"/>
+	<property name="layouts.jar" value="${editor.libs}/layouts.jar"/>
     <property name="swing-worker.jar" value="${editor.libs}/swing-worker.jar"/>
-	<property name="jgraphlayout.jar" value="${editor.libs}/jgraphlayout.jar"/>
 	<property name="jcalendar.jar" value="./build/nexusWorkflowEditor/lib/jcalendar-custom.jar"/>
 	<property name="spring.jar" value="${persist.libs}/spring.jar"/>
 	<property name="l2fprod" value="./build/nexusWorkflowEditor/lib/l2fprod-common-sheet.jar"/>
@@ -279,7 +283,7 @@
     	<pathelement location="${jcalendar.jar}"/>
     	<pathelement location="${quartz.jar}"/>
 
-    	<pathelement location="${antlr-2.7.2.jar}"/>
+    	<pathelement location="${antlr.jar}"/>
     	<pathelement location="${castor-0.9.5.jar}"/>
     	<pathelement location="${commons-codec-1.3.jar}"/>
     	<pathelement location="${commons-collections-2.1.jar}"/>
@@ -353,8 +357,10 @@
     Persistence Classpath
     -->
     <path id="cp.persist">
-        <pathelement location="${asm}"/>
-        <pathelement location="${asm-attrs}"/>
+    	<pathelement location="${aspectjweaver.jar}"/>
+    	<pathelement location="${asm}"/>
+        <pathelement location="${asm-commons}"/>
+        <pathelement location="${asm-util}"/>
         <pathelement location="${antlr}"/>
         <pathelement location="${cglib}"/>
         <pathelement location="${dom4j}"/>
@@ -372,6 +378,7 @@
         <pathelement location="${spring.jar}"/>
         <pathelement location="${ejb-persist}"/>
     	<pathelement location="${jsr173}"/>
+    	<pathelement location="${jaxen}"/>
     	<pathelement location="${postgres8.path}"/>
     </path>
 
@@ -394,9 +401,9 @@
         <pathelement location="${hibernate-ann}"/>
         <pathelement location="${jcalendar.jar}"/>
         <pathelement location="${jdom.jar}"/>
-    	<pathelement location="${jgraph-5.4.jar}"/>
-    	<pathelement location="${jgraphaddons-1.0.5.jar}"/>
-    	<pathelement location="${jgraphlayout.jar}"/>
+    	<pathelement location="${jgraph.jar}"/>
+    	<pathelement location="${jgraphpad.jar}"/>
+    	<pathelement location="${layouts.jar}"/>
         <pathelement location="${log4j}"/>
         <pathelement location="${quartz.jar}"/>
         <pathelement location="${saxon.jar}"/>
@@ -506,7 +513,7 @@
     <target name="compile" >
 	<echo>Compiling YAWL...</echo>
 
-        <javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
+        <javac srcdir="${src}:editor:${mock}:${services}:${test}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.tomcat"/>
             <classpath refid="cp.compile"/>
@@ -648,16 +655,18 @@
    	
     	
       	<!-- Copy SPRING properties file  -->    	
-        <copy file="${property.files}/applicationContext.xml" todir="${yawl.eng.app.name}/WEB-INF/classes"/>
 
         <copy todir="${yawl.eng.app.name}/WEB-INF">
-            <fileset file="${build.home}/engine/web.xml"/>
+            <fileset file="${build.home}/engine/*"/>
         </copy>
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${basic.libs}" includes="*.jar" excludes="servlet-api.jar postgres*.jar"/>
         </copy>
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${persist.libs}" includes="*.jar"/>
+        </copy>
+        <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
+            <fileset dir="${xfire.libs}" includes="jdom-1.0.jar jaxen-1.1-beta-8.jar"/>
         </copy>
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${xsd.libs}" includes="*.jar"/>
@@ -791,7 +800,7 @@
                 includes="YParameter.class YVariable.class"/>
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${basic.libs}" includes="jdom*.jar"/>
         </copy>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
             <fileset dir="${basic.libs}" includes="log4j*.jar commons-logging-1.0.4.jar"/>
@@ -1009,7 +1018,7 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${nexus.serviceInvoker.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${basic.libs}" includes="jdom*.jar"/>
             <fileset dir="${wsif.libs}" includes="*.jar *.html" excludes="j2ee.jar"/>
         	<fileset dir="${persist.libs}" includes="jaxb*.jar"/>
         	<fileset dir="${persist.libs}" includes="jsr173_1.0_api.jar"/>
@@ -1114,7 +1123,7 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${yawl.webService.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${basic.libs}" includes="jdom*.jar"/>
             <fileset dir="${wsif.libs}" includes="*.jar *.html" excludes="j2ee.jar"/>
         </copy>
         <copy todir="${yawl.webService.app.name}/WEB-INF/lib">
@@ -1199,7 +1208,7 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${yawl.smsService.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${basic.libs}" includes="jdom*.jar"/>
         </copy>
         <copy todir="${yawl.smsService.app.name}/WEB-INF/lib">
             <fileset dir="${basic.libs}" includes="log4j*.jar"/>
@@ -1314,7 +1323,7 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${basic.libs}" includes="jdom*.jar"/>
         </copy>
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/lib" >
             <fileset dir="${basic.libs}" includes="log4j*.jar"/>
@@ -1416,7 +1425,7 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar jfreechart-1.0.0-rc1.jar jcommon-1.0.0-rc1.jar commons-logging-1.0.4.jar"/>
+            <fileset dir="${basic.libs}" includes="jdom*.jar log4j*.jar jfreechart-1.0.0-rc1.jar jcommon-1.0.0-rc1.jar commons-logging-1.0.4.jar"/>
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.admintool.app.name}/WEB-INF/classes"/>
@@ -1425,6 +1434,10 @@
             <fileset dir="${persist.libs}"/>
         </copy>
         <antcall target="decidePostgresVersion"/>
+        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine">
+            <fileset
+                dir="${classes}/au/edu/qut/yawl/engine"/>
+        </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset
                 dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
@@ -1613,7 +1626,7 @@
     	  <copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
     	     <fileset dir="${xsd.libs}" includes="*.jar" />
            <fileset dir="${persist.libs}" includes="*.jar"/>
-           <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar commons-logging-1.0.4.jar"/>
+           <fileset dir="${basic.libs}" includes="jdom*.jar log4j*.jar commons-logging-1.0.4.jar"/>
         </copy>
 
         <!-- 4. Copy hibernate & postgres files (assumes version 8) -->
@@ -1699,9 +1712,9 @@
     	        <pathelement location="${hibernate-ann}"/>
     	        <pathelement location="${jcalendar.jar}"/>
     	        <pathelement location="${jdom.jar}"/>
-    	        <pathelement location="${jgraph-5.4.jar}"/>
-    	        <pathelement location="${jgraphaddons-1.0.5.jar}"/>
-    	        <pathelement location="${jgraphlayout.jar}"/>
+    	        <pathelement location="${jgraph.jar}"/>
+    	        <pathelement location="${jgraphpad.jar}"/>
+    	        <pathelement location="${layouts.jar}"/>
                 <pathelement location="${jms-1.1.jar}"/>
                 <pathelement location="${junit.jar}"/>
     	        <pathelement location="${log4j}"/>

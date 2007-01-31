@@ -9,23 +9,18 @@
 
 package au.edu.qut.yawl.engine;
 
-import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import org.jdom.JDOMException;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 
 /**
  * 
@@ -34,7 +29,7 @@ import org.jdom.JDOMException;
  * Time: 12:43:53
  * 
  */
-public class TestRestServiceMethods extends TestCase{
+public class TestRestServiceMethods extends AbstractTransactionalTestCase{
     private AbstractEngine _engine;
     private YSpecification _specification;
 
@@ -43,8 +38,8 @@ public class TestRestServiceMethods extends TestCase{
         super(name);
     }
 
-
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
+    public void setUp() throws Exception {
+    	super.setUp();
         URL makeMusic = getClass().getResource("MakeMusic.xml");
         URL makeMusic2 = getClass().getResource("MakeMusic2.xml");
         File mmFile = new File(makeMusic.getFile());

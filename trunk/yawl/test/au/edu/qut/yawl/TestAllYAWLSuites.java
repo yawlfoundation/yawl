@@ -23,7 +23,6 @@ import au.edu.qut.yawl.logging.LoggingTestSuite;
 import au.edu.qut.yawl.persistence.PersistenceTestSuite;
 import au.edu.qut.yawl.schema.SchemaTestSuite;
 import au.edu.qut.yawl.unmarshal.UnmarshallerTestSuite;
-import au.edu.qut.yawl.util.UtilTestSuite;
 import au.edu.qut.yawl.deployment.AutoDeploymentTestSuite;
 import au.edu.qut.yawl.exceptions.YAWLException;
 
@@ -50,18 +49,17 @@ public class TestAllYAWLSuites extends TestSuite{
     	YAWLException.setLogging(false);
     	
         TestSuite suite = new TestAllYAWLSuites();
+        suite.addTest(EngineTestSuite.suite());
         //suite.addTest(AdminToolTestSuite.suite());
+        suite.addTest(PersistenceTestSuite.suite());
+        suite.addTest(EventsTestSuite.suite());
         suite.addTest(ElementsTestSuite.suite());
         suite.addTest(DataTestSuite.suite());
         suite.addTest(StateTestSuite.suite());
-        suite.addTest(EngineTestSuite.suite());
-        suite.addTest(EventsTestSuite.suite());
         suite.addTest(ExceptionTestSuite.suite());
         suite.addTest(LoggingTestSuite.suite());
-        suite.addTest(PersistenceTestSuite.suite());
         suite.addTest(SchemaTestSuite.suite());
         suite.addTest(UnmarshallerTestSuite.suite());
-        suite.addTest(UtilTestSuite.suite());
         suite.addTest(au.edu.qut.yawl.swingWorklist.WorklistTestSuite.suite());
         suite.addTest(au.edu.qut.yawl.worklist.WorklistTestSuite.suite());
         suite.addTest(AuthenticationTestSuite.suite());

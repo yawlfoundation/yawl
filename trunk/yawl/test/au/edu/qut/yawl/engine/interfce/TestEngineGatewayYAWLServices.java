@@ -8,7 +8,6 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
@@ -16,35 +15,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import org.jdom.JDOMException;
-
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
-import au.edu.qut.yawl.exceptions.YAuthenticationException;
-import au.edu.qut.yawl.exceptions.YDataStateException;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
-import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 
 /**
  * Tests the engine gateway functionality having to do with YAWL services.
  * 
  * @author Nathan Rose
  */
-public class TestEngineGatewayYAWLServices extends TestCase {
+public class TestEngineGatewayYAWLServices extends AbstractTransactionalTestCase {
     private EngineGateway _gateway;
     private String _session;
     private static final String SERVICE_URI = "mock://mockedURL/testingEngineGateway";
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException,
-    		YStateException, YPersistenceException, YDataStateException, URISyntaxException,
-    		YAuthenticationException {
+    public void setUp() throws Exception {
+    	super.setUp();
     	// all this is the only way I can figure to remove the admin's old connections...
     	UserList ul = UserList.getInstance();
     	// first create a new user, connect, and delete the admin
@@ -60,7 +49,7 @@ public class TestEngineGatewayYAWLServices extends TestCase {
         EngineClearer.clear( EngineFactory.createYEngine() );
         
         URI serviceURI = new URI( SERVICE_URI );
-        YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString(), null);
+        YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString());
         
         _gateway.addYAWLService( service.toXML(), _session );
     }
@@ -80,7 +69,7 @@ public class TestEngineGatewayYAWLServices extends TestCase {
     
     public void testAddYAWLServiceSuccess() throws RemoteException, URISyntaxException {
     	URI serviceURI = new URI( "mock://mockedURL/testingAddingYAWLService" );
-        YAWLServiceReference service = new YAWLServiceReference( serviceURI.toString(), null );
+        YAWLServiceReference service = new YAWLServiceReference( serviceURI.toString() );
         
         String result = _gateway.addYAWLService( service.toXML(), _session );
     	assertNotNull( result );
@@ -97,7 +86,7 @@ public class TestEngineGatewayYAWLServices extends TestCase {
     	String uriString = "mock://mockedURL/testingYAWLServiceDocumentation";
     	String doc = "blah blah blah, this is the documentation";
     	URI serviceURI = new URI( uriString );
-        YAWLServiceReference service = new YAWLServiceReference( serviceURI.toString(), null );
+        YAWLServiceReference service = new YAWLServiceReference( serviceURI.toString());
         service.setDocumentation( doc );
         
         String result = _gateway.addYAWLService( service.toXML(), _session );
@@ -162,7 +151,7 @@ public class TestEngineGatewayYAWLServices extends TestCase {
 //    	System.out.println( keys );
     	
     	assertTrue( keys, refs.containsKey( "http://localhost:8080/yawlSMSInvoker/ib" ) );
-    	assertTrue( keys, refs.containsKey( "mock://mockedURL/testingAddingYAWLService" ) );
+    	assertTrue( keys, refs.containsKey( SERVICE_URI ) );
     	assertTrue( keys, refs.containsKey( "http://localhost:8080/timeService/ib" ) );
     	assertTrue( keys, refs.containsKey( "http://localhost:8080/yawlWSInvoker/" ) );
     	assertTrue( keys, refs.containsKey( "http://localhost:8080/workletService/ib" ) );
