@@ -46,7 +46,7 @@ import org.jgraph.graph.CellView;
 import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphLayoutCache;
-import org.jgraph.util.JGraphUtilities;
+import org.jgraph.pad.jgraphpad.util.JGraphUtilities;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YExternalNetElement;

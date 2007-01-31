@@ -7,8 +7,10 @@
  */
 package com.nexusbpm.command;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -58,6 +60,19 @@ public class RenameElementCommand extends AbstractCommand {
         
         if( data instanceof YSpecification ) {
             ((YSpecification) data).setName( newName );
+			String candidate = ((YSpecification) data).getID();
+			if (candidate != null && candidate.length() != 0) {
+				int lastSlash = candidate.lastIndexOf("/") + 1;
+				String startingPath = candidate.substring(0,lastSlash);
+				candidate = startingPath + newName;
+				if (!candidate.toLowerCase().endsWith(".xml")) {
+					candidate += ".xml";
+					URI f = new File(candidate).toURI();
+					candidate = f.getPath();
+				}
+				((YSpecification) data).setID(candidate);
+			}
+			            
         }
         else if( data instanceof YDecomposition ) {
             ((YDecomposition) data).setName( newName );

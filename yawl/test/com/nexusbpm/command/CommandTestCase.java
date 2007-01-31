@@ -11,6 +11,7 @@ package com.nexusbpm.command;
 import java.beans.PropertyChangeEvent;
 
 import junit.framework.TestCase;
+import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
@@ -19,22 +20,30 @@ import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.managed.DataContext;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
 import au.edu.qut.yawl.persistence.managed.DataProxyStateChangeListener;
+import au.edu.qut.yawl.util.SpringTestConfiguration;
+import au.edu.qut.yawl.util.SpringTestConfiguration.Configuration;
 
 /**
  * 
  * @author Dean Mao
  * @created Aug 4, 2006
  */
-public abstract class CommandTestCase extends TestCase implements DataProxyStateChangeListener {
+public abstract class CommandTestCase extends AbstractHibernateDAOTestCase implements DataProxyStateChangeListener {
 
 	protected DataProxy<DatasourceFolder> rootProxy;
 	protected DataContext dataContext;
 	
+	public CommandTestCase() {
+		super();
+	}
+	
 	@Override
 	protected void setUp() throws Exception {
+		super.setUp();
 //		DAO memdao = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
-		DAO memdao = DAOFactory.getDAO( PersistenceType.MEMORY );
-		dataContext = new DataContext(memdao);
+//		SpringTestConfiguration.setupTestConfiguration(Configuration.DEFAULT);
+//		DAO memdao = SpringTestConfiguration.getDAOFactory().getDAO( PersistenceType.MEMORY );
+		dataContext = new DataContext(getDAO());
 		DatasourceRoot root = new DatasourceRoot("virtual://memory/");
 		rootProxy = dataContext.createProxy( root, null );
 		dataContext.attachProxy(rootProxy, root, null);

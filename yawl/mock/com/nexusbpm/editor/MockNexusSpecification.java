@@ -133,8 +133,6 @@ public class MockNexusSpecification {
 		YAWLServiceReference yawlServiceReference = new YAWLServiceReference();
 		yawlServiceReference
 				.setYawlServiceID("http://localhost:8080/yawlWSInvoker/");
-		yawlServiceReference.setYawlServiceGateway(gate);
-		gate.setYawlService(yawlServiceReference);
 
 		YParameter wsdlLocation = new YParameter(gate,
 				YParameter._INPUT_PARAM_TYPE);
@@ -357,8 +355,8 @@ public class MockNexusSpecification {
         DataProxy<YAtomicTask> emailSenderProxy = null;
         DataProxy<YOutputCondition> outputProxy= null;
         
-        for( int index = 0; index < netProxy.getData().getNetElements().size(); index++ ) {
-            YExternalNetElement element = netProxy.getData().getNetElements().get( index );
+        for( YExternalNetElement element : netProxy.getData().getNetElements()) {
+//        	YExternalNetElement element = netProxy.getData().getNetElements().get( index );
             if( element instanceof YAtomicTask ) {
                 NexusServiceInfo info = WorkflowOperation.getNexusServiceInfoForTask( (YAtomicTask) element );
                 if( info != null ) {

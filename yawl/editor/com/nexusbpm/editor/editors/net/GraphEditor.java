@@ -51,9 +51,9 @@ import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphSelectionModel;
 import org.jgraph.graph.Port;
-import org.jgraph.layout.SugiyamaLayoutAlgorithm;
-import org.jgraph.util.JGraphParallelEdgeRouter;
-import org.jgraph.util.JGraphUtilities;
+import org.jgraph.plugins.layouts.SugiyamaLayoutAlgorithm;
+import org.jgraph.pad.jgraphpad.util.JGraphParallelEdgeRouter;
+import org.jgraph.pad.jgraphpad.util.JGraphUtilities;
 import org.springframework.context.ApplicationContext;
 
 import au.edu.qut.yawl.elements.ExtensionListContainer;
@@ -234,14 +234,15 @@ public class GraphEditor extends JPanel
 
 			Rectangle2D rendererBounds = view.getBounds();
 			AnimatedIcon animatedIcon = proxy.iconAnimated( _graph );
-			int xOffset = (int) ((rendererBounds.getWidth() / 2) - (animatedIcon.getBounds().getWidth() / 2));
+//			int xOffset = (int) ((rendererBounds.getWidth() / 2) - (animatedIcon.getBounds().getWidth() / 2));
 			int yOffset = 18;
 
 			Rectangle bounds = _graph.getCellBounds( proxy.getGraphCell() ).getBounds();
 			Point location = bounds.getLocation();
 
-			_graph.add( animatedIcon );
-			animatedIcon.setLocation( (int) location.getX() + xOffset, (int) location.getY() + yOffset );
+//			removed by ms for making next version work. this will eventually be deprecated
+//			_graph.add( animatedIcon );
+//			animatedIcon.setLocation( (int) location.getX() + xOffset, (int) location.getY() + yOffset );
 			animatedIcon.start();
 		}
 	}
@@ -1178,7 +1179,7 @@ public class GraphEditor extends JPanel
 
                                     SugiyamaLayoutAlgorithm algorithm = new SugiyamaLayoutAlgorithm();
                                     algorithm.setSpacing( new Point( 150, 100 ) );
-                                    JGraphUtilities.applyLayout( _graph, algorithm );
+                                    algorithm.applyLayout( _graph, algorithm, null );
                                     _graph.autoSizeAll();
                                 }
                                 else {

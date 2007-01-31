@@ -16,6 +16,8 @@ import java.util.concurrent.Future;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+
 /**
  * The command executor provides a thread safe mechanism for adding commands
  * to the command stack, undoing, and redoing commands.
@@ -34,7 +36,8 @@ public class CommandExecutor {
      * maximum undo memory of the given size.
      */
     public CommandExecutor( int stackSize ) {
-        stack = new CommandStack( stackSize );
+    	stack = (CommandStack) BootstrapConfiguration.getInstance().getApplicationContext().getBean("commandStack");
+    	// = new CommandStack( stackSize );
         executor = Executors.newSingleThreadExecutor();
         listeners.add( new CommandCompletionListener() {
             public void commandCompleted( ExecutionResult result ) {

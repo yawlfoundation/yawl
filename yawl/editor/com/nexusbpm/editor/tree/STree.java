@@ -119,6 +119,7 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 	 * @param dtm the underlying tree data model.
 	 * @param parentPanel the containing panel.
 	 */
+	
 	public STree( SharedNodeTreeModel dtm ) {
 		super( dtm );
 
@@ -154,6 +155,25 @@ implements MouseListener, KeyListener, TreeSelectionListener,
 		addMouseListener( this );
 		addKeyListener( this );
 		setEditable( true );
+
+		Thread t = new Thread() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						Thread.sleep(20);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					STree.this.repaint();
+				}
+			}
+		};
+		
+		t.start();
+		
+		
 	}
 
 	/**

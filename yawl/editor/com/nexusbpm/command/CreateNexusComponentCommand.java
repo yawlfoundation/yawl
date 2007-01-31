@@ -7,6 +7,7 @@
  */
 package com.nexusbpm.command;
 
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
@@ -70,6 +71,8 @@ public class CreateNexusComponentCommand extends AbstractCommand {
         WorkflowOperation.attachDecompositionToSpec( gateway, netProxy.getData().getParent() );
         WorkflowOperation.attachNetElementToNet( task, netProxy.getData() );
         WorkflowOperation.attachVariablesToNet( netVariables, netProxy.getData() );
+        int howManyOthers = task.getParent().getNetElements().size();
+        WorkflowOperation.setBoundsOfNetElement( task, new Rectangle2D.Double( 5 + 30 * howManyOthers, 100, 50, 50 ) );
         DataProxy specProxy = context.getDataProxy( netProxy.getData().getParent() );
         context.attachProxy( gatewayProxy, gateway, specProxy );
         context.attachProxy( taskProxy, task, netProxy );

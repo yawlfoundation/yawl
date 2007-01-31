@@ -18,7 +18,9 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.nexusbpm.command.DeleteFileCommand;
 import com.nexusbpm.command.RenameCommandFactory;
+import com.nexusbpm.command.SaveSpecificationCommand;
 import com.nexusbpm.editor.WorkflowEditor;
 
 
@@ -74,8 +76,11 @@ public class SharedNodeEditor extends DefaultTreeCellEditor {
 		String newName = cellEditorValue;
 		String oldName = _node.getProxy().getLabel();
 		if( !oldName.equals( newName ) ) {
+ 
 			LOG.debug( "Renaming '" + _node.getProxy().getData()
 					+ "' from '" + oldName + "' to '" + newName );
+			//i dont really like this. will the mapping in the context work correctly?
+			//also it doesnt delete the old file or save the renamed file...
 			WorkflowEditor.getExecutor().executeCommand(
 					RenameCommandFactory.getRenameCommand( _node.getProxy(), newName, oldName ) );
 		}

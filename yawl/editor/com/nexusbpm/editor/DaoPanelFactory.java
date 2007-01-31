@@ -20,7 +20,8 @@ import com.nexusbpm.editor.tree.SharedNodeTreeModel;
 public class DaoPanelFactory {
 
 	public static JPanel getFileDaoPanel() throws PersistenceException {
-		DAO filedao = DAOFactory.getDAO(PersistenceType.FILE);
+		DAOFactory factory = (DAOFactory) BootstrapConfiguration.getInstance().getApplicationContext().getBean("daoFactory");
+		DAO filedao = factory.getDAO(PersistenceType.FILE);
 		DataContext filedc = new DataContext(filedao, EditorDataProxy.class);
 
 		File fileRootObject = new File(new File(".").getAbsoluteFile().toURI()
@@ -44,7 +45,8 @@ public class DaoPanelFactory {
 	}
 
 	public static JPanel getMemoryDaoPanel() throws PersistenceException {
-		DAO memdao = DAOFactory.getDAO(PersistenceType.MEMORY);
+		DAOFactory factory = (DAOFactory) BootstrapConfiguration.getInstance().getApplicationContext().getBean("daoFactory");
+		DAO memdao = factory.getDAO(PersistenceType.MEMORY);
 		DataContext memdc = new DataContext(memdao, EditorDataProxy.class);
 
 		DatasourceRoot virtualRoot = new DatasourceRoot(

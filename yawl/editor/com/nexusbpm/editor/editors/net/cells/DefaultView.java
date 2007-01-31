@@ -16,7 +16,7 @@ import java.awt.geom.Rectangle2D;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jgraph.JGraph;
-import org.jgraph.cellview.JGraphMultilineView;
+import org.jgraph.pad.graphcellsbase.JGraphMultilineView;
 import org.jgraph.graph.CellViewRenderer;
 import org.jgraph.graph.GraphCellEditor;
 import org.jgraph.graph.VertexView;
