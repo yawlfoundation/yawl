@@ -7,37 +7,12 @@
  */
 package au.edu.qut.yawl.persistence.dao;
 
-import org.hibernate.Transaction;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
-import au.edu.qut.yawl.persistence.YAWLTransactionAdvice;
-import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
-
-public class AbstractHibernateDAOTestCase extends AbstractDAOTestCase {
-	Transaction tx;
-	
-	protected void setUp() throws Exception {
-		super.setUp();
-        
-        closeSession();
-        YAWLTransactionAdvice.openSession();
-        tx = YAWLTransactionAdvice.getSession().getTransaction();
-        tx.begin();
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		tx.rollback();
-		
-		closeSession();
-	}
-	
-	private void closeSession() {
-		if( YAWLTransactionAdvice.getSession() != null && YAWLTransactionAdvice.getSession().isOpen() ) {
-        	YAWLTransactionAdvice.getSession().close();
-        }
-	}
-
+public class AbstractHibernateDAOTestCase extends AbstractTransactionalTestCase {
 	protected final DAO getDAO() {
-		return DAOFactory.getDAO( PersistenceType.SPRING );
+		// TODO fix when we fix the factory
+		return (DAO) ((DAOFactory)BootstrapConfiguration.getInstance().getApplicationContext().getBean("daoFactory")).getDAO( null );
 	}
 }

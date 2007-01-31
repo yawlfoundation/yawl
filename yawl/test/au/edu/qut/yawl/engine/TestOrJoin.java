@@ -9,26 +9,30 @@
 
 package au.edu.qut.yawl.engine;
 
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YNetElement;
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.exceptions.*;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 import org.jdom.JDOMException;
+
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.exceptions.YAuthenticationException;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 
 /**
  /**
@@ -38,20 +42,12 @@ import org.jdom.JDOMException;
  * Time: 15:03:20
  * 
  */
-public class TestOrJoin extends TestCase {
-//    private YLocalWorklist _localWorklist;
-//    private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
+public class TestOrJoin extends AbstractTransactionalTestCase {
     private long _sleepTime = 100;
     private AbstractEngine _engine;
 
     public TestOrJoin(String name) {
         super(name);
-    }
-
-
-    public void setUp() {
-//        YLocalWorklist.clear();
-
     }
 
     public void testImproperCompletion() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YAuthenticationException, YDataStateException, YStateException, YQueryException, YPersistenceException {
@@ -66,7 +62,7 @@ public class TestOrJoin extends TestCase {
         _engine.startCase(null, specification.getID(), null, null);
         {
             YWorkItem itemA = (YWorkItem)_engine.getAvailableWorkItems().iterator().next();
-            _engine.startWorkItem(itemA, "admin");
+            _engine.startWorkItem(itemA.getIDString(), "admin");
 
             try {
                 Thread.sleep(_sleepTime);
@@ -76,7 +72,7 @@ public class TestOrJoin extends TestCase {
 
             itemA = (YWorkItem) _engine.getChildrenOfWorkItem(
                     itemA).iterator().next();
-            _engine.completeWorkItem(itemA, "<data/>", false);
+            _engine.completeWorkItem(itemA.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -95,7 +91,7 @@ public class TestOrJoin extends TestCase {
             }
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                    itemF.getCaseID().toString(), itemF.getTaskID());
-            _engine.startWorkItem(itemF, "admin");
+            _engine.startWorkItem(itemF.getIDString(), "admin");
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -106,7 +102,7 @@ public class TestOrJoin extends TestCase {
             itemF = (YWorkItem) _engine.getChildrenOfWorkItem(itemF).iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemF.getCaseID().toString(), itemF.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemF, "<data/>", false);
+            _engine.completeWorkItem(itemF.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -126,7 +122,7 @@ public class TestOrJoin extends TestCase {
             }
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                    itemB.getCaseID().toString(), itemB.getTaskID());
-            _engine.startWorkItem(itemB, "admin");
+            _engine.startWorkItem(itemB.getIDString(), "admin");
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -137,7 +133,7 @@ public class TestOrJoin extends TestCase {
             itemB = (YWorkItem) _engine.getChildrenOfWorkItem(itemB).iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemB.getCaseID().toString(), itemB.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemB, "<data/>", false);
+            _engine.completeWorkItem(itemB.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -152,7 +148,7 @@ public class TestOrJoin extends TestCase {
 //                    itemA.getCaseID().toString(), itemA.getTaskID());
 
             Set its =  _engine.getAvailableWorkItems();
-            itemA = _engine.startWorkItem(itemA, "admin");
+            itemA = _engine.startWorkItem(itemA.getIDString(), "admin");
             assertNotNull(itemA);
             try {
                 Thread.sleep(_sleepTime);
@@ -176,7 +172,7 @@ public class TestOrJoin extends TestCase {
 //            itemA = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemA.getCaseID().toString(), itemA.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemA, "<data/>", false);
+            _engine.completeWorkItem(itemA.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -216,7 +212,7 @@ public class TestOrJoin extends TestCase {
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                    itemA.getCaseID().toString(), itemA.getTaskID());
             YWorkItem itemA = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
-            itemA = _engine.startWorkItem(itemA, "admin");
+            itemA = _engine.startWorkItem(itemA.getIDString(), "admin");
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -226,7 +222,7 @@ public class TestOrJoin extends TestCase {
 //            itemA = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemA.getCaseID().toString(), itemA.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemA, "<data/>", false);
+            _engine.completeWorkItem(itemA.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -246,7 +242,7 @@ public class TestOrJoin extends TestCase {
             }
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                    itemF.getCaseID().toString(), itemF.getTaskID());
-            itemF = _engine.startWorkItem(itemF, "admin");
+            itemF = _engine.startWorkItem(itemF.getIDString(), "admin");
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -256,7 +252,7 @@ public class TestOrJoin extends TestCase {
 //            itemF = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemF.getCaseID().toString(), itemF.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemF, "<data/>", false);
+            _engine.completeWorkItem(itemF.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -276,7 +272,7 @@ public class TestOrJoin extends TestCase {
             }
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                    itemB.getCaseID().toString(), itemB.getTaskID());
-            itemB = _engine.startWorkItem(itemB, "admin");
+            itemB = _engine.startWorkItem(itemB.getIDString(), "admin");
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -285,7 +281,7 @@ public class TestOrJoin extends TestCase {
 //            itemB = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemB.getCaseID().toString(), itemB.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemB, "<data/>", false);
+            _engine.completeWorkItem(itemB.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -297,7 +293,7 @@ public class TestOrJoin extends TestCase {
             YWorkItem itemA = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                    itemA.getCaseID().toString(), itemA.getTaskID());
-            itemA = _engine.startWorkItem(itemA, "admin");
+            itemA = _engine.startWorkItem(itemA.getIDString(), "admin");
             assertNotNull(itemA);
             try {
                 Thread.sleep(_sleepTime);
@@ -315,7 +311,7 @@ public class TestOrJoin extends TestCase {
 //            itemA = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
 //            _localWorklist.setWorkItemToComplete(
 //                    itemA.getCaseID().toString(), itemA.getTaskID(), "<data/>");
-            _engine.completeWorkItem(itemA, "<data/>", false);
+            _engine.completeWorkItem(itemA.getIDString(), "<data/>", false);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {

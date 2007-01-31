@@ -12,6 +12,7 @@ package au.edu.qut.yawl.events;
 import java.io.Serializable;
 
 import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -98,7 +99,7 @@ public class YCaseEvent implements Serializable {
         return this.parent;
     }
 
-	@Basic
+	@Column(name="eventCount")
 	public long getCount() {
 		return count;
 	}

@@ -11,13 +11,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -27,6 +31,7 @@ import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.elements.YCompositeTask;
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YConditionInterface;
 import au.edu.qut.yawl.elements.YDecomposition;
@@ -51,11 +56,10 @@ import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.dao.DAO;
-import au.edu.qut.yawl.persistence.dao.DAOFactory;
-import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionStringConverter;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
@@ -109,11 +113,10 @@ public abstract class AbstractEngine implements YEngineInterface,
 
     public void restore() throws YPersistenceException {
 
-        getDao();
         if (getDao()!=null) {
             List<YNetRunner> runners = getDao().retrieveByRestriction(YNetRunner.class, new Unrestricted());
             for (int i = 0; i < runners.size();i++) {
-                YNetRunner r = runners.get(i);
+                YNetRunner r = (YNetRunner) runners.get(i);
                 if (!r.getArchived()) {
                     logger.debug("RESTORING RUNNER" + r.getNet().getParent().getID());
 
@@ -123,40 +126,51 @@ public abstract class AbstractEngine implements YEngineInterface,
                      * */
                     r.getNet().rebuildData();
 
-                    YIdentifier yid = r.getCaseID();
-                    // TODO why should we have to save the identifier right at startup? it just came from the DB, right?
-                    YIdentifier.saveIdentifier(yid);
                     r.restoreObservers();           // case observers via IB
                     restoreRunner(r,r.getNet().getParent().getID());
                 }
             }
 
-            List<YWorkItem> workItems = getDao().retrieveByRestriction(YWorkItem.class, new Unrestricted());
-            for (int i = 0; i < workItems.size();i++) {
-                YWorkItem item = workItems.get(i);
-                logger.debug("RESTORING WORKITEM" + item.getIDString());
-                item.addToRepository();
-            }
+//            List<YWorkItem> workItems = getDao().retrieveByRestriction(YWorkItem.class, new Unrestricted());
+//            for (int i = 0; i < workItems.size();i++) {
+//                YWorkItem item = (YWorkItem) workItems.get(i);
+//                logger.debug("RESTORING WORKITEM" + item.getIDString());
+//                item.addToRepository();
+//            }
         }
     }
 
-    private static DAO dao;
-
-    public static void setDao( DAO dao ) {
-        AbstractEngine.dao = dao;
+    private DAO dao;
+    
+    public void setDao( DAO dao ) {
+    	this.dao = dao;
     }
     
-    public static DAO getDao() {
-        if( dao == null ) {
-            if( journalising ) {
-                dao = DAOFactory.getDAO( PersistenceType.SPRING );
-            }
-            else {
-                dao = DAOFactory.getDAO( PersistenceType.MEMORY );
-            }
-        }
-        return dao;
+    public DAO getDao() {
+    	if( dao == null ) {
+    		throw new NullPointerException( "DAO IS NULL" );
+    	}
+    	return dao;
     }
+    
+//    private static DataContext context;
+//
+//    public static void setDataContext( DataContext context ) {
+//    	AbstractEngine.context = context;
+//    }
+//
+//    public static DataContext getDataContext() {
+//    	if( context == null ) {
+//    		if (journalising) {
+//    			DAO mem = DAOFactory.getDAO( PersistenceType.SPRING );
+//    			context = new DataContext( mem );
+//    		} else {
+//    			DAO mem = DAOFactory.getDAO( PersistenceType.MEMORY );
+//    			context = new DataContext( mem );
+//    		}
+//    	}
+//    	return context;
+//    }
 
     //###################################################################################
     //                                MUTATORS
@@ -233,7 +247,7 @@ public abstract class AbstractEngine implements YEngineInterface,
     					new PropertyRestriction( "ID", Comparison.EQUAL, spec.getID() ) ) );
     	if( specs.size() == 0 ) {
             spec.setVersion( null );
-    		getDao().save( spec );
+            getDao().save(spec);
     		return true;
     	}
     	return false;
@@ -262,7 +276,7 @@ public abstract class AbstractEngine implements YEngineInterface,
 
         if (specification != null) {
             YNetRunner runner = new YNetRunner(specification, data);
-            YNetRunner.saveNetRunner( runner );
+            getDao().save(runner);
 
             // register exception service with the net runner (MJA 4/4/06)
                 announceCheckCaseConstraints(specID,
@@ -271,13 +285,17 @@ public abstract class AbstractEngine implements YEngineInterface,
             if(completionObserver != null) {
                 YAWLServiceReference observer = getRegisteredYawlService(completionObserver.toString());
                 if (observer != null) {
-                    runner.setObserver(observer);
+                    try {
+						runner.setObserver(new URI(observer.getURI()));
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+					}
                 } else {
                     logger.warn("Completion observer: " + completionObserver + " is not a registered YAWL service.");
                 }
             }
 
-            YNetRunner.saveNetRunner( runner );
+            getDao().save(runner);
 
             runner.continueIfPossible();
 
@@ -307,14 +325,34 @@ public abstract class AbstractEngine implements YEngineInterface,
     }
 
     protected void finishCase(YIdentifier caseIDForNet) throws YPersistenceException {
-        logger.debug("--> finishCase: Case=" + caseIDForNet.getId());
-
-        YNetRunner runner = getNetRunner(caseIDForNet);
-        
-        if( runner != null )
-            getDao().delete( runner );
-        if( getDao().retrieve( YIdentifier.class, getDao().getKey( caseIDForNet ) ) != null )
-            getDao().delete( caseIDForNet );
+        String caseID = caseIDForNet.getId();
+        logger.debug("--> finishCase: Case=" + caseID);
+        YNetRunner runner = getNetRunnerById(caseID);
+//        YIdentifier identifier = (YIdentifier) getDao().retrieve( YIdentifier.class, caseID );
+        if( runner != null && getDao().retrieve( YNetRunner.class, runner.getId() ) != null ) {
+            YIdentifier identifier = runner.getCaseID();
+        	YIdentifier parent = identifier.getParent();
+        	if (parent != null) {
+        		identifier.setParent(null);
+        		while (parent.getChildren().contains(identifier)) {
+            		parent.getChildren().remove(identifier);
+        		}
+        		getDao().save(parent);
+        	}
+        	YCompositeTask task = runner.getContainingCompositeTask();
+        	if (task != null) {
+            	runner.setContainingCompositeTask(null);
+        		while( task.getRunners().contains(runner)) {
+        			task.getRunners().remove(runner);
+        		}
+            	getDao().save(runner);
+            	getDao().save(task);
+//            	new Throwable("clone:" + task.getParent().getClone()).printStackTrace();
+        	}
+        	getDao().delete( runner );
+        }
+//        if( getDao().retrieve( YIdentifier.class, caseIDForNet.getId() ) != null )
+//        	getDao().delete( caseIDForNet );
         //YEngine._workItemRepository.cancelNet(caseIDForNet);
 
         //  LOG CASE EVENT
@@ -412,8 +450,7 @@ public abstract class AbstractEngine implements YEngineInterface,
      * @return a set of spec id strings.
      */
     public Set getSpecIDs() throws YPersistenceException {
-    	List<YSpecification> specs = getDao().retrieveByRestriction(
-                YSpecification.class, new Unrestricted() );
+    	List<YSpecification> specs = getDao().retrieveByRestriction( YSpecification.class, new Unrestricted() );
     	Set<String> specIDs = new HashSet<String>();
     	for( YSpecification spec : specs ) {
     		specIDs.add( spec.getID() );
@@ -426,15 +463,16 @@ public abstract class AbstractEngine implements YEngineInterface,
      *        and unloaded specifiations should be returned.
      */
     public Set<YSpecification> getSpecifications(boolean loadedOnly) throws YPersistenceException {
-        Restriction restriction;
+    	Set<YSpecification> set = new HashSet<YSpecification>();
+    	Restriction restriction;
         if( loadedOnly ) {
             restriction = new PropertyRestriction( "archived", Comparison.EQUAL, false );
         }
         else {
             restriction = new Unrestricted();
         }
-        return new HashSet<YSpecification>(
-                getDao().retrieveByRestriction( YSpecification.class, restriction ) );
+        set.addAll( getDao().retrieveByRestriction( YSpecification.class, restriction ) );
+    	return set;
     }
 
 
@@ -443,7 +481,7 @@ public abstract class AbstractEngine implements YEngineInterface,
      *
      * @return  A set of specification ids
      */
-    public Set<YSpecification> getLoadedSpecifications() throws YPersistenceException {
+    public Set getLoadedSpecifications() throws YPersistenceException {
     	return getSpecifications(true);
     }
 
@@ -470,39 +508,61 @@ public abstract class AbstractEngine implements YEngineInterface,
      */
     public List<YSpecification> getSpecificationVersions(
     		String specID, Set<Integer> versions) throws YPersistenceException {
-    	Restriction restriction = new PropertyRestriction("ID", Comparison.EQUAL, specID);
+    	Restriction restriction = null;
+    	Restriction idRestriction = new PropertyRestriction("ID", Comparison.EQUAL, specID);
     	if( versions != null ) {
     		for( Integer version : versions ) {
-    			restriction = new LogicalRestriction(
-    					new PropertyRestriction("version", Comparison.EQUAL, version),
-    					Operation.OR,
-    					restriction );
+    			Restriction versionRestriction = new PropertyRestriction("version", Comparison.EQUAL, version);
+    			if( restriction == null ) {
+    				restriction = versionRestriction;
+    			}
+    			else {
+    				restriction = new LogicalRestriction( versionRestriction, Operation.OR, restriction );
+    			}
     		}
+    		restriction = new LogicalRestriction( idRestriction, Operation.AND, restriction );
     	}
-    	return getDao().retrieveByRestriction( YSpecification.class, restriction );
+    	else {
+    		restriction = idRestriction;
+    	}
+    	
+    	List<YSpecification> specs = getDao().retrieveByRestriction( YSpecification.class, restriction );
+    	return specs;
     }
 
 
     public YIdentifier getCaseID(String caseIDStr) throws YPersistenceException {
         logger.debug("--> getCaseID");
         
-        Restriction restriction = new PropertyRestriction("id", Comparison.EQUAL, caseIDStr);
-        List<YIdentifier> ids = getDao().retrieveByRestriction( YIdentifier.class, restriction );
-        if( ids.size() > 0 ) {
-            return ids.get( 0 );
-        }
-        return null;
+        return (YIdentifier) getDao().retrieve( YIdentifier.class, caseIDStr );
     }
     
     public YNetRunner getNetRunner(YIdentifier id) throws YPersistenceException {
         Restriction restriction = new PropertyRestriction("basicCaseId", Comparison.EQUAL, id.getId());
         List<YNetRunner> runners = getDao().retrieveByRestriction( YNetRunner.class, restriction );
         if( runners.size() > 0 ) {
-            return runners.get( 0 );
+            YNetRunner runner = runners.get( 0 );
+            runner.getNet().rebuildData();
+            runner._engine = this;
+            return runner;
         }
         return null;
     }
 
+    
+    private YNetRunner getNetRunnerById(String id) throws YPersistenceException {
+        Restriction restriction = new PropertyRestriction("basicCaseId", Comparison.EQUAL, id);
+        List<YNetRunner> runners = getDao().retrieveByRestriction( YNetRunner.class, restriction );
+        if( runners.size() > 0 ) {
+            YNetRunner runner = runners.get( 0 );
+            runner.getNet().rebuildData();
+            runner._engine = this;
+            return runner;
+        }
+        return null;
+    }
+    
+    
     public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException {
             logger.debug("--> getStateTextForCase: ID=" + caseID.getId());
 
@@ -510,7 +570,10 @@ public abstract class AbstractEngine implements YEngineInterface,
             Set allLocations = new HashSet();
             for (Iterator childIter = allChildren.iterator(); childIter.hasNext();) {
                 YIdentifier identifier = (YIdentifier) childIter.next();
-                allLocations.addAll(identifier.getLocations());
+                YNetRunner runner = getNetRunner(identifier);
+                if(runner != null) {
+                	allLocations.addAll(identifier.getLocationsForNet(runner.getNet()));
+                }
             }
             StringBuffer stateText = new StringBuffer();
             stateText.append("#######################################" +
@@ -578,23 +641,23 @@ public abstract class AbstractEngine implements YEngineInterface,
         if( getCaseID( caseID ) != null ) {
             //PropertyRestriction restriction = new PropertyRestriction("archived", PropertyRestriction.Comparison.EQUAL , new Boolean(false));
             PropertyRestriction restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , caseID);
-            List<YNetRunner> runners = getDao().retrieveByRestriction(YNetRunner.class, restriction);
+            List<YNetRunner> runners = getDao().retrieveByRestriction(YNetRunner.class, restriction );
 
-            if (runners.size()==0) {
+            if (runners.size()==0 && caseID.indexOf(".") > -1) {
                 restriction = new PropertyRestriction("basicCaseId",
                         PropertyRestriction.Comparison.EQUAL ,
                         caseID.substring(0,caseID.indexOf(".")));
-                runners = getDao().retrieveByRestriction(YNetRunner.class, restriction);
+                runners = getDao().retrieveByRestriction(YNetRunner.class, restriction );
             }
 
         	Set allLocations = new HashSet();
     
-        	if (!(runners.size()>1)) {
+        	if (runners.size() == 1) {
         		YNetRunner r = runners.get(0);
         		YIdentifier yid = r.getCaseID();
-            	List l = r.getNet().getNetElements();
-            	for (int i = 0; i < l.size(); i++) {
-            		YNetElement elem = (YNetElement) l.get(i);
+//            	List l = ;
+            	for (YNetElement elem: r.getNet().getNetElements()) {
+//            		YNetElement elem = (YNetElement) l.get(i);
             		if (elem instanceof YCondition) {
             			if (((YCondition) elem).contains(yid)) {
             				allLocations.add(elem);
@@ -621,10 +684,9 @@ public abstract class AbstractEngine implements YEngineInterface,
                     new PropertyRestriction( "ID", Comparison.EQUAL, id.getSpecURI() ),
                     Operation.AND,
                     new PropertyRestriction( "version", Comparison.EQUAL, id.getSpecVersion() ) );
-            List<YSpecification> proxies = getDao().retrieveByRestriction(
-                    YSpecification.class, restriction );
-            if( proxies.size() > 0 ) {
-                return (YSpecification) proxies.get( 0 );
+            List<YSpecification> specs = getDao().retrieveByRestriction( YSpecification.class, restriction );
+            if( specs.size() > 0 ) {
+                return specs.get( 0 );
             }
         }
         return null;
@@ -635,7 +697,10 @@ public abstract class AbstractEngine implements YEngineInterface,
         Set allLocations = new HashSet();
         for (Iterator childIter = allChildren.iterator(); childIter.hasNext();) {
             YIdentifier identifier = (YIdentifier) childIter.next();
-            allLocations.addAll(identifier.getLocations());
+            YNetRunner runner = getNetRunner(identifier);
+            if(runner != null) {
+	            allLocations.addAll(identifier.getLocationsForNet(runner.getNet()));
+            }
         }
 
         return evaluateStateForCase(caseID, allLocations, getSpecForCase(caseID).getID());
@@ -810,7 +875,7 @@ public abstract class AbstractEngine implements YEngineInterface,
     }
 
 
-    public YWorkItem getWorkItem(String workItemID) {
+    public YWorkItem getWorkItem(String workItemID) throws YPersistenceException {
             YWorkItem workItem = YEngine._workItemRepository.getWorkItem(workItemID);
             if (workItem != null) {
                 return workItem;
@@ -820,7 +885,7 @@ public abstract class AbstractEngine implements YEngineInterface,
     }
 
 
-    public Set getAllWorkItems() {
+    public Set getAllWorkItems() throws YPersistenceException {
             return YEngine._workItemRepository.getAllWorkItems();
     }
 
@@ -838,13 +903,13 @@ public abstract class AbstractEngine implements YEngineInterface,
      *                             states.
      * @throws YDataStateException
      */
-    public YWorkItem startWorkItem(YWorkItem workItem, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    public YWorkItem startWorkItem(String workItemId, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
 
             logger.debug("--> startWorkItem");
-
             try {
                 YNetRunner netRunner = null;
                 YWorkItem resultantItem = null;
+                YWorkItem workItem = YEngine._workItemRepository.getWorkItem(workItemId);
                 if (workItem != null) {
                     if (workItem.getStatus() == YWorkItem.Status.Enabled) {
                         netRunner = YEngine._workItemRepository.getNetRunner(workItem.getCaseID());
@@ -855,12 +920,15 @@ public abstract class AbstractEngine implements YEngineInterface,
                             for (int i = 0; i < childCaseIDs.size(); i++) {
                                 YIdentifier childID = (YIdentifier) childCaseIDs.get(i);
                                 YWorkItem nextWorkItem = workItem.createChild(childID);
+                                getDao().save(nextWorkItem);
                                 if (i == 0) {
                                     netRunner.startWorkItemInTask(nextWorkItem.getCaseID(), workItem.getTaskID());
                                     nextWorkItem.setStatusToStarted(userID);
+                                    getDao().save(nextWorkItem);
                                     Element dataList = ((YTask)
                                             netRunner.getNetElement(workItem.getTaskID())).getData(childID);
                                     nextWorkItem.setData(dataList);
+                                    getDao().save(nextWorkItem);
                                     resultantItem = nextWorkItem;
                                 }
                             }
@@ -871,6 +939,7 @@ public abstract class AbstractEngine implements YEngineInterface,
                         Element dataList = ((YTask) netRunner.getNetElement(workItem.getTaskID())
                                 ).getData(workItem.getCaseID());
                         workItem.setData(dataList);
+                        getDao().save(workItem);
                         netRunner.startWorkItemInTask(workItem.getCaseID(), workItem.getTaskID());
                         resultantItem = workItem;
                     } else if (workItem.getStatus() == YWorkItem.Status.Deadlocked) {
@@ -911,7 +980,7 @@ public abstract class AbstractEngine implements YEngineInterface,
                  * AJH - Catch other exceptions here to avoid silient failures ....
                  */
                 else {
-                    logger.error("Failure starting workitem " + workItem.getWorkItemID().toString(), e);
+                    logger.error("Failure starting workitem " + workItemId, e);
                     throw new YQueryException(e);
                 }
             }
@@ -952,7 +1021,7 @@ public abstract class AbstractEngine implements YEngineInterface,
      * @param data
      * @throws YStateException
      */
-    public void completeWorkItem(YWorkItem workItem, String data, boolean force)
+    public void completeWorkItem(String workItemId, String data, boolean force)
             throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
 //            YPersistenceManager pmgr = null;
             logger.debug("--> completeWorkItem");
@@ -965,6 +1034,7 @@ public abstract class AbstractEngine implements YEngineInterface,
 //                }
 
                 Document doc;
+                YWorkItem workItem = YEngine._workItemRepository.getWorkItem(workItemId);
                 if (workItem != null) {
                     if (workItem.getStatus() == YWorkItem.Status.Executing) {
                         YNetRunner netRunner = YEngine._workItemRepository.getNetRunner(workItem.getCaseID().getParent());
@@ -981,6 +1051,10 @@ public abstract class AbstractEngine implements YEngineInterface,
                                 Document e = YDocumentCleaner.cleanDocument(d);
                                 doc = e;
                                 workItem.setStatusToComplete(force);
+                                getWorkItemRepository().removeWorkItem(workItem);
+                                if(workItem.isParentComplete()) {
+                                	getWorkItemRepository().removeWorkItem(workItem.getParent());
+                                }
                                 boolean taskExited = netRunner.completeWorkItemInTask(workItem, workItem.getCaseID(), workItem.getTaskID(), e);
                                 if (taskExited) {
                                     //todo AJH:
@@ -1078,7 +1152,7 @@ public abstract class AbstractEngine implements YEngineInterface,
      *                         or if current number of instances is not less than the maxInstances
      *                         for the task.
      */
-    public void checkElegibilityToAddInstances(String workItemID) throws YStateException {
+    public void checkElegibilityToAddInstances(String workItemID) throws YStateException, YPersistenceException {
     	try {
             YWorkItem item = YEngine._workItemRepository.getWorkItem(workItemID);
             if (item != null) {
@@ -1154,6 +1228,7 @@ public abstract class AbstractEngine implements YEngineInterface,
                         YIdentifier id = netRunner.addNewInstance(taskID, workItem.getCaseID(), el);
                         if (id != null) {
                             YWorkItem firedItem = workItem.getParent().createChild(id);
+                            getDao().save(firedItem);
 
 //   TODO                         if (pmgr != null) {
 //                                pmgr.commit();
@@ -1214,37 +1289,21 @@ public abstract class AbstractEngine implements YEngineInterface,
         /**
          * SYNC'D External interface
          */
-
-
             YWorkItem workItem = YEngine._workItemRepository.getWorkItem(workItemID);
             if (workItem != null) {
-//   TODO             if (isJournalising()) {
-//                    pmgr = new YPersistenceManager(getPMSessionFactory());
-//                    pmgr.startTransactionalSession();
-//                }
-
                 if (workItem.getStatus() == YWorkItem.Status.Executing) {
                     workItem.rollBackStatus();
+                    getDao().save(workItem);
                     YNetRunner netRunner = YEngine._workItemRepository.getNetRunner(workItem.getCaseID().getParent());
                     if (netRunner.rollbackWorkItem(workItem.getCaseID(), workItem.getTaskID())) {
                     } else {
-//   TODO                     if (isJournalising()) {
-//                            pmgr.rollbackTransaction();
-//                        }
-
                         throw new YStateException("Work Item[" + workItemID +
                                 "] is not in executing state.");
                     }
-                    YNetRunner.saveNetRunner( netRunner );
+                    getDao().save(netRunner);
 
                 }
-//   TODO             if (pmgr != null) {
-//                    pmgr.commit();
-//                }
             } else {
-//   TODO             if (isJournalising()) {
-//                    pmgr.rollbackTransaction();
-//                }
                 throw new YStateException("Work Item[" + workItemID + "] not found.");
             }
     }
@@ -1351,7 +1410,7 @@ public abstract class AbstractEngine implements YEngineInterface,
              * Check if the service already exists
              * */
             YAWLServiceReference service = (YAWLServiceReference) getDao().retrieve(
-                    YAWLServiceReference.class, yawlService.getURI() );
+            		YAWLServiceReference.class, yawlService.getURI() );
             if( service != null ) {
             	//service exists, update data
             	service.setEnabled(yawlService.getEnabled());
@@ -1366,7 +1425,7 @@ public abstract class AbstractEngine implements YEngineInterface,
     }
 
 
-    public Set getChildrenOfWorkItem(YWorkItem workItem) {
+    public Set getChildrenOfWorkItem(YWorkItem workItem) throws YPersistenceException {
             return YEngine._workItemRepository.getChildrenOf(workItem.getIDString());
     }
 
@@ -1380,12 +1439,12 @@ public abstract class AbstractEngine implements YEngineInterface,
      * @param yawlService the YAWL service
      * @param item        the work item must be enabled.
      */
-    protected abstract void announceEnabledTask(YAWLServiceReference yawlService, YWorkItem item);
+    protected abstract void announceEnabledTask(URI yawlService, YWorkItem item);
 
 
-    public abstract void announceCancellationToEnvironment(YAWLServiceReference yawlService, YWorkItem item);
+    public abstract void announceCancellationToEnvironment(URI yawlService, YWorkItem item);
 
-    protected abstract void announceCaseCompletionToEnvironment(YAWLServiceReference yawlService, YIdentifier caseID, Document casedata);
+    protected abstract void announceCaseCompletionToEnvironment(URI yawlService, YIdentifier caseID, Document casedata);
 
 
     public Set getUsers() {
@@ -1432,8 +1491,8 @@ public abstract class AbstractEngine implements YEngineInterface,
             /*
               INSERTED FOR PERSISTANCE
              */
-            YAWLServiceReference service = (YAWLServiceReference) getDao().retrieve(
-                    YAWLServiceReference.class, serviceURI );
+//            YAWLServiceReference service = (YAWLServiceReference) _yawlServices.get(serviceURI);
+            YAWLServiceReference service = (YAWLServiceReference) getDao().retrieve( YAWLServiceReference.class, serviceURI );
             if( service != null ) {
             	service.setEnabled(false);
             	getDao().save( service );
@@ -1483,8 +1542,7 @@ public abstract class AbstractEngine implements YEngineInterface,
             logger.debug("*** DUMP OF ENGINE STATS ***");
 
             try {
-            	List<YSpecification> specs = getDao().retrieveByRestriction(
-            			YSpecification.class, new Unrestricted() );
+            	List<YSpecification> specs = getDao().retrieveByRestriction( YSpecification.class, new Unrestricted() );
 	            logger.debug("\n*** DUMPING " + specs.size() + " SPECIFICATIONS ***");
 	            {
 	                for( int index = 0; index < specs.size(); index++ ) {
@@ -1554,7 +1612,7 @@ public abstract class AbstractEngine implements YEngineInterface,
     }
 
     public static YWorkItemRepository getWorkItemRepository() {
-        return YEngine._workItemRepository;
+        return YWorkItemRepository.getInstance();
     }
 
 // TODO   private static SessionFactory getPMSessionFactory() {
@@ -1659,24 +1717,25 @@ public abstract class AbstractEngine implements YEngineInterface,
     public abstract void announceTimeOutToExceptionService(
                                    YWorkItem item, List timeOutTaskIds);
     
-    public abstract void announceServiceUnavailable(YWorkItem item, YAWLServiceReference ref);
+    public abstract void announceServiceUnavailable(YWorkItem item, URI ref);
     
-    public abstract void announceServiceError(YWorkItem item, YAWLServiceReference ref);
+    public abstract void announceServiceError(YWorkItem item, URI ref);
 
 
     public boolean updateWorkItemData(String workItemID, String data) {
-        YWorkItem workItem = getWorkItem(workItemID);
+    	try {
+    		YWorkItem workItem = getWorkItem(workItemID);
 
-        if (workItem != null) {
-            try {
+    		if (workItem != null) {
                 workItem.setData(JDOMConversionTools.stringToElement(data));
+                getDao().save(workItem);
                 return true ;
-            }
-            catch (YPersistenceException e) {
-                return false ;
-            }
+    		}
         }
-        return false ;
+    	catch (YPersistenceException e) {
+    		logger.error("Error retrieving work item for update!", e);
+    	}
+    	return false;
     }
 
 

@@ -9,6 +9,8 @@
 
 package au.edu.qut.yawl.unmarshal;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -175,8 +177,12 @@ public class YDecompositionParser {
 
             Element yawlServiceElem = (Element) yawlServiceElems.get(i);
             String yawlServiceID = yawlServiceElem.getAttributeValue("id");
-            YAWLServiceReference yawlService = new YAWLServiceReference(yawlServiceID, webServiceGateway);
-            webServiceGateway.setYawlService(yawlService);
+            YAWLServiceReference yawlService = new YAWLServiceReference(yawlServiceID);
+            try {
+				webServiceGateway.setYawlService(new URI(yawlServiceID));
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
         }
         List enablementParamElems = decompositionElem.getChildren("enablementParam", _yawlNS);
         for (int i = 0; i < enablementParamElems.size(); i++) {

@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
@@ -37,20 +36,21 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 
 /**
  * @author Nathan Rose
  */
-public class TestSuspendWorkItem extends TestCase {
+public class TestSuspendWorkItem extends AbstractTransactionalTestCase {
     private AbstractEngine _engine;
     private YSpecification _specification;
     private List _taskCancellationReceived = new ArrayList();
     private YWorkItemRepository _repository;
     private List _caseCompletionReceived = new ArrayList();
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException, URISyntaxException {
+    public void setUp() throws Exception {
+    	super.setUp();
         _engine =  EngineFactory.createYEngine();
         EngineClearer.clear(_engine);
 
@@ -63,23 +63,23 @@ public class TestSuspendWorkItem extends TestCase {
         _engine.loadSpecification(_specification);
         URI serviceURI = new URI("mock://mockedURL/testingCaseCompletion");
 
-        YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString(), null);
+        YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString());
         _engine.addYawlService(service);
         _engine.startCase(null, _specification.getID(), null, serviceURI);
 
         ObserverGateway og = new ObserverGateway() {
             public void cancelAllWorkItemsInGroupOf(
-                    YAWLServiceReference ys,
+                    URI ys,
                     YWorkItem item) {
                 _taskCancellationReceived.add(item);
             }
-            public void announceCaseCompletion(YAWLServiceReference yawlService, YIdentifier caseID, Document d) {
+            public void announceCaseCompletion(URI yawlService, YIdentifier caseID, Document d) {
                 _caseCompletionReceived.add(caseID);
             }
             public String getScheme() {
                 return "mock";
             }
-            public void announceWorkItem(YAWLServiceReference ys, YWorkItem i) {}
+            public void announceWorkItem(URI ys, YWorkItem i) {}
         };
         _engine.registerInterfaceBObserverGateway(og);
     }
@@ -95,7 +95,7 @@ public class TestSuspendWorkItem extends TestCase {
         for( Iterator<YWorkItem> iterator = workItems.iterator(); iterator.hasNext(); ) {
             workItem = iterator.next();
             if( workItem.getTaskID().equals( "register" ) ) {
-            	workItem = _engine.startWorkItem( workItem, "admin" );
+            	workItem = _engine.startWorkItem( workItem.getIDString(), "admin" );
                 break;
             }
             workItem = null;
@@ -105,7 +105,7 @@ public class TestSuspendWorkItem extends TestCase {
 		
 		// the engine code as of June 02, 2006 should do nothing if you try to suspend
 		// a work item that's not executing
-        _engine.suspendWorkItem( workItem.getWorkItemID().toString() );
+        _engine.suspendWorkItem( workItem.getIDString() );
 		
 		// start the work item
         workItem = _engine.unsuspendWorkItem( workItem.getIDString() );
@@ -121,7 +121,7 @@ public class TestSuspendWorkItem extends TestCase {
 		assertNotNull( workItem );
 		
 		// suspend the work item
-		_engine.suspendWorkItem( workItem.getWorkItemID().toString() );
+		_engine.suspendWorkItem( workItem.getIDString() );
 		
 		// now the work item should be in the "fired" state
 		workItems = _repository.getSuspendedWorkItems();
@@ -192,7 +192,7 @@ public class TestSuspendWorkItem extends TestCase {
         for( Iterator<YWorkItem> iterator = workItems.iterator(); iterator.hasNext(); ) {
             original = iterator.next();
             if( original.getTaskID().equals( "register" ) ) {
-            	workItem = _engine.startWorkItem( original, "admin" );
+            	workItem = _engine.startWorkItem( original.getIDString(), "admin" );
                 break;
             }
         }
@@ -201,7 +201,7 @@ public class TestSuspendWorkItem extends TestCase {
 		
 		// the engine code as of June 02, 2006 should do nothing if you try to suspend
 		// a work item that's not executing
-        _engine.suspendWorkItem( original.getWorkItemID().toString() );
+        _engine.suspendWorkItem( original.getIDString() );
 		
 		// the item should be executing now
 		workItems = _repository.getExecutingWorkItems( "admin" );
@@ -218,7 +218,7 @@ public class TestSuspendWorkItem extends TestCase {
 		
 		// rollback the work item
     	try {
-    		_engine.rollbackWorkItem( workItem.getWorkItemID().toString(), "admin" );
+    		_engine.rollbackWorkItem( workItem.getIDString(), "admin" );
     		fail( "An exception should have been thrown" );
     	}
     	catch( YStateException e ) {
@@ -231,7 +231,7 @@ public class TestSuspendWorkItem extends TestCase {
     	Set<YWorkItem> firedItems = _repository.getFiredWorkItems();
         for (Iterator<YWorkItem> iterator = firedItems.iterator(); iterator.hasNext();) {
             YWorkItem workItem = iterator.next();
-            _engine.startWorkItem(workItem, "admin");
+            _engine.startWorkItem(workItem.getIDString(), "admin");
             break;
         }
     }
@@ -241,7 +241,7 @@ public class TestSuspendWorkItem extends TestCase {
     	Set<YWorkItem> executingItems = _repository.getExecutingWorkItems();
         for (Iterator<YWorkItem> iterator = executingItems.iterator(); iterator.hasNext();) {
             YWorkItem workItem = iterator.next();
-            _engine.completeWorkItem(workItem, workItem.getDataString(), false );
+            _engine.completeWorkItem(workItem.getIDString(), workItem.getDataString(), false );
             break;
         }
     }

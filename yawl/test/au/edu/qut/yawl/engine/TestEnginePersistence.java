@@ -7,30 +7,33 @@
  */
 package au.edu.qut.yawl.engine;
 
-import junit.framework.TestCase;
-import au.edu.qut.yawl.exceptions.*;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+
+import org.hibernate.HibernateException;
 import org.jdom.JDOMException;
 
-import java.io.IOException;
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.text.MessageFormat;
-
-import org.hibernate.Query;
-import org.hibernate.HibernateException;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YDataValidationException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 /*
  * Author Lachlan Aldred
  * Date: 24/03/2006
  * Time: 11:28:45
  */
-public class TestEnginePersistence extends TestCase {
+public class TestEnginePersistence extends AbstractTransactionalTestCase {
     private YSpecification _specification;
     private AbstractEngine _engine;
     private MessageFormat format =
@@ -41,7 +44,8 @@ public class TestEnginePersistence extends TestCase {
                     "</Funky>");
 
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException, URISyntaxException {
+    public void setUp() throws Exception {
+    	super.setUp();
         _engine = EngineFactory.createEngine();
         EngineClearer.clear(_engine);
 
@@ -116,7 +120,7 @@ public class TestEnginePersistence extends TestCase {
                 , null);
         YIdentifier id = _engine.getCaseID(caseID);
         YWorkItem enabledItem = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
-        _engine.startWorkItem(enabledItem, null);
+        _engine.startWorkItem(enabledItem.getIDString(), null);
         _engine.cancelCase(id);
 
         //todo convert to new dao format

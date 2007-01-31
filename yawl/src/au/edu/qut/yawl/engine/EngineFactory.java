@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
 /**
  * This is just a skeleton implementation.  It is most definitely the wrong way to go about this,
@@ -23,7 +24,7 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
  */
 public class EngineFactory {
 	private static final String CONTEXT_CONFIG_LOCATION = "applicationContext.xml"; // TODO context config file location
-	private static ApplicationContext application_context = null;
+//	private static ApplicationContext application_context = null;
 
 	public static void resetEngine() {
 		engine = null;
@@ -57,17 +58,15 @@ public class EngineFactory {
 	}
 	
 	public static ApplicationContext getApplicationContext() {
-		return application_context;
-	}
-	public static void setApplicationContext(ApplicationContext context) {
-		application_context = context;
+		return BootstrapConfiguration.getInstance().getApplicationContext();
 	}
 	
 	public static YEngine createYEngine(boolean journalising) throws YPersistenceException {
-		if (journalising) {
+//		if (journalising) {
 			if (engine==null) {
-				if (application_context==null) {
-					application_context = new ClassPathXmlApplicationContext(CONTEXT_CONFIG_LOCATION);
+				if (getApplicationContext() == null) {
+					throw new Error("engine must not be invoked outside of a spring application context");
+//					application_context = new ClassPathXmlApplicationContext(CONTEXT_CONFIG_LOCATION);
 				}
 				/*
 				 * If this is a journalising engine
@@ -75,21 +74,20 @@ public class EngineFactory {
 				 * to ensure transactionality
 				 * */
 
-				transactionalengine = (YEngineInterface) application_context.getBean("EngineInterceptor2");
+				transactionalengine = (YEngineInterface) getApplicationContext().getBean("EngineBean");
+//				System.out.println("got engine " + transactionalengine + " from " + getApplicationContext());
 				engine = transactionalengine.getYEngine();
 				//engine = transactionalengine.gffetYEngine();
-				transactionalengine.setJournalising(journalising);
+				transactionalengine.setJournalising(true);
 				transactionalengine.initialise();
-
-
 			} 
-		} else {			
-			if (engine==null) {
-				engine = YEngine.createInstance(journalising);
-				engine.initialise();
-			}
+//		} else {
+//			if (engine==null) {
+//				engine = YEngine.createInstance(journalising);
+//				engine.initialise();
+//			}
 
-		}
+//		}
 		return engine;
 	}
 	

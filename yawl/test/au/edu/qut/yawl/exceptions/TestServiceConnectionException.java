@@ -15,6 +15,7 @@ import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.YEngine;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngineInterface;
+import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
 import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
@@ -25,11 +26,12 @@ import java.util.ArrayList;
 
 import org.jdom.JDOMException;
 
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
-public class TestServiceConnectionException extends TestCase {
+public class TestServiceConnectionException extends AbstractHibernateDAOTestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -37,9 +39,9 @@ public class TestServiceConnectionException extends TestCase {
 		EngineFactory.resetEngine();
 		YEngineInterface engine = EngineFactory.getTransactionalEngine();
 		
-		engine.getYEngine().getWorkItemRepository().clear();
+//		engine.getYEngine().getWorkItemRepository().clear();
 		YAWLServiceReference ys = new YAWLServiceReference(
-				"http://fefefeaeesf.cece/noservice", null);
+				"http://fefefeaeesf.cece/noservice");
 		ys.setDocumentation("No Service");
 		engine.addYawlService(ys);
 		
@@ -48,7 +50,7 @@ public class TestServiceConnectionException extends TestCase {
 	
 	public void testConnection() throws YPersistenceException, JDOMException, IOException, YStateException, YDataStateException, YSchemaBuildingException
 	{
-		YEngine engine = EngineFactory.getExistingEngine();
+		YEngine engine = EngineFactory.createYEngine();
 		StringProducer spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestService.xml", true);
 	
@@ -74,7 +76,7 @@ public class TestServiceConnectionException extends TestCase {
 		
 		
 		YAWLServiceReference ys = new YAWLServiceReference(
-				"http://fefefeaeesf.cece/noservice", null);
+				"http://fefefeaeesf.cece/noservice");
 		ys.setDocumentation("No Service - again");
 		engine.addYawlService(ys);
 		

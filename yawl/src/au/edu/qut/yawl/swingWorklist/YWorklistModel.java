@@ -72,7 +72,7 @@ public class YWorklistModel {
     private JFrame _frame;
 
 
-    public YWorklistModel(String userName, JFrame frame) {
+    public YWorklistModel(String userName, JFrame frame) throws YPersistenceException{
         _frame = frame;
         _username = userName;
         _availableWork = new YWorklistTableModel(new String[]{
@@ -133,7 +133,7 @@ public class YWorklistModel {
 
 
 
-    private void addStartedWorkItem(YWorkItem item) {
+    private void addStartedWorkItem(YWorkItem item)  throws YPersistenceException{
         String caseIDStr = item.getCaseID().toString();
         String taskID = item.getTaskID();
         String specificationID = item.getSpecificationID();
@@ -185,7 +185,7 @@ public class YWorklistModel {
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
-                    getEngineClient().startWorkItem(item, _username);
+                    getEngineClient().startWorkItem(item.getIDString(), _username);
 
                 } catch (YStateException e) {
                     logger.error("State Exception", e);
@@ -221,7 +221,7 @@ public class YWorklistModel {
     }
 
 
-    public boolean allowsDynamicInstanceCreation(String caseID, String taskID) {
+    public boolean allowsDynamicInstanceCreation(String caseID, String taskID) throws YPersistenceException{
         Set workItems = getEngineClient().getAllWorkItems();
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
@@ -239,7 +239,7 @@ public class YWorklistModel {
     }
 
 
-    public void attemptToFinishActiveJob(String caseID, String taskID) {
+    public void attemptToFinishActiveJob(String caseID, String taskID) throws YPersistenceException{
         Set workItems = getEngineClient().getAllWorkItems();
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
@@ -247,7 +247,7 @@ public class YWorklistModel {
                     item.getTaskID().equals(taskID)) {
                 try {
                     String outputData = _myActiveTasks.getOutputData(caseID, taskID);
-                    getEngineClient().completeWorkItem(item, outputData, false);
+                    getEngineClient().completeWorkItem(item.getIDString(), outputData, false);
                 } catch (YDataStateException e) {
                     String errors = e.getMessage();
                     if (errors.indexOf("FAILED TO VALIDATE AGAINST SCHEMA =") != -1) {
@@ -285,7 +285,7 @@ public class YWorklistModel {
     }
 
 
-    public void refreshLists(String userName) {
+    public void refreshLists(String userName)  throws YPersistenceException{
         //clear the models
         List keys = new ArrayList();
         keys.addAll(_availableWork._rows.keySet());
@@ -304,7 +304,7 @@ public class YWorklistModel {
 //        _worklistManager.informRemotePartnerOfcurrentState(userName);
     }
 
-    private void updateSelf() {
+    private void updateSelf()  throws YPersistenceException{
         Set availableWorkItems = getEngineClient().getAvailableWorkItems();
         for (Iterator iterator = availableWorkItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
@@ -349,7 +349,7 @@ public class YWorklistModel {
     }
 
 
-    public String getOutputSkeletonXML(String caseID, String taskID) {
+    public String getOutputSkeletonXML(String caseID, String taskID)  throws YPersistenceException{
         YParametersSchema params = _paramsDefinitions.getParamsForTask(taskID);
         YWorkItem item = getEngineClient().getWorkItem(caseID + ":" + taskID);
         String specID = item.getSpecificationID();

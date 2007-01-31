@@ -9,6 +9,7 @@
     -->
     <property name="developer.name" value="Lachlan_Aldred"/>
     <property name="src" value="src"/>
+    <property name="editor" value="editor"/>
     <property name="test" value="test"/>
 	<property name="services" value="services"/> <!-- source dir for services -->
     <property name="backup" value="backup"/>
@@ -152,7 +153,7 @@
     <property name="openjms-tools-0.7.7-alpha-3.jar" value="${basic.libs}/openjms-tools-0.7.7-alpha-3.jar"/>
     <property name="oro-2.0.8.jar" value="${basic.libs}/oro-2.0.8.jar"/>
     <property name="spice-jndikit-20050704.053804.jar" value="${basic.libs}/spice-jndikit-20050704.053804.jar"/>
-    <property name="xerces-2.4.0.jar" value="${basic.libs}/xerces-2.4.0.jar"/>
+<!--    <property name="xerces-2.4.0.jar" value="${basic.libs}/xerces-2.4.0.jar"/> -->
     <property name="xml-apis-1.0.b2.jar" value="${basic.libs}/xml-apis-1.0.b2.jar"/>
 
     <!--
@@ -165,14 +166,16 @@
     <!--
     Persistence Dependencies
     -->
+    <property name="aspectjweaver.jar" value="${basic.libs}/aspectjweaver.jar"/>
     <property name="antlr" value="${persist.libs}/antlr-2.7.6rc1.jar"/>
-    <property name="asm" value="${persist.libs}/asm.jar"/>
-    <property name="asm-attrs" value="${persist.libs}/asm-attrs.jar"/>
-    <property name="cglib" value="${persist.libs}/cglib-2.1.3.jar"/>
+    <property name="asm" value="${persist.libs}/asm-2.2.2.jar"/>
+    <property name="asm-commons" value="${persist.libs}/asm-commons-2.2.2.jar"/>
+    <property name="asm-util" value="${persist.libs}/asm-util-2.2.2.jar"/>
+	<property name="cglib" value="${persist.libs}/cglib-nodep-2.1_3.jar"/>
     <property name="commonsCollections" value="${persist.libs}/commons-collections-2.1.1.jar"/>
     <property name="commonsLogging" value="${persist.libs}/commons-logging-1.0.3.jar"/>
     <property name="dom4j" value="${persist.libs}/dom4j-1.6.1.jar"/>
-    <property name="ehcache" value="${persist.libs}/ehcache-0.7.jar"/>
+<!--    <property name="ehcache" value="${persist.libs}/ehcache-0.7.jar"/> -->
     <property name="spring" value="${persist.libs}/spring.jar"/>
     <property name="ejb-persist" value="${persist.libs}/ejb3-persistence.jar"/>
     <property name="jboss-ejb" value="${persist.libs}/jboss-ejb3x.jar"/>
@@ -193,10 +196,10 @@
     <!--
     Editor Dependencies
     -->
-    <property name="jgraph-5.4.jar" value="./build/nexusWorkflowEditor/lib/jgraph-5.4.jar"/>
-    <property name="jgraphaddons-1.0.5.jar" value="./build/nexusWorkflowEditor/lib/jgraphaddons-1.0.5.jar"/>
+    <property name="jgraph-5.4.jar" value="./build/nexusWorkflowEditor/lib/jgraph-5.9.2.1.jar"/>
+    <property name="jgraphaddons-1.0.5.jar" value="./build/nexusWorkflowEditor/lib/jgraphpad.jar"/>
     <property name="swing-worker.jar" value="./build/nexusWorkflowEditor/lib/swing-worker.jar"/>
-	<property name="jgraphlayout.jar" value="$./build/nexusWorkflowEditor/lib/jgraphlayout.jar"/>
+	<property name="jgraphlayout.jar" value="./build/nexusWorkflowEditor/lib/layouts.jar"/>
 	<property name="l2fprod-common-sheet.jar" value="./build/nexusWorkflowEditor/lib/l2fprod-common-sheet.jar"/>
 	<property name="flexdock-0.4.0.jar" value="./build/nexusWorkflowEditor/lib/flexdock-0.4.0.jar"/>
 
@@ -256,7 +259,7 @@
    	<pathelement location="${servlet.jar}"/>
    	<pathelement location="${spring}"/>
 	<pathelement location="${spice-jndikit-20050704.053804.jar}"/>
-	<pathelement location="${xerces-2.4.0.jar}"/>
+<!--	<pathelement location="${xerces-2.4.0.jar}"/> -->
    	<pathelement location="${xml-apis-1.0.b2.jar}"/>
    	<pathelement location="${l2fprod-common-sheet.jar}"/>
     	
@@ -320,14 +323,16 @@
     Persistence Classpath
     -->
     <path id="cp.persist">
-        <pathelement location="${asm}"/>
-        <pathelement location="${asm-attrs}"/>
+    	<pathelement location="${aspectjweaver.jar}"/>
+    	<pathelement location="${asm}"/>
+        <pathelement location="${asm-util}"/>
+        <pathelement location="${asm-commons}"/>
         <pathelement location="${antlr}"/>
         <pathelement location="${cglib}"/>
     	<pathelement location="${dom4j}"/>
         <pathelement location="${commonsCollections}"/>
         <pathelement location="${commonsLogging}"/>
-        <pathelement location="${ehcache}"/>
+<!--        <pathelement location="${ehcache}"/> -->
         <pathelement location="${hibernate}"/>
         <pathelement location="${hsqldb}"/>
         <pathelement location="${jaxbapi}"/>
@@ -347,9 +352,9 @@
     Editor Classpath
     -->
     <path id="cp.editor">
+    	<pathelement location="${jgraphlayout.jar}"/>
         <pathelement location="${jgraph-5.4.jar}"/>
         <pathelement location="${jgraphaddons-1.0.5.jar}"/>
-    	<pathelement location="${jgraphlayout.jar}"/>
         <pathelement location="${swing-worker.jar}"/>
         <pathelement location="${l2fprod-common-sheet.jar}"/>
         <pathelement location="${flexdock-0.4.0.jar}"/>
@@ -413,18 +418,21 @@
     Compiles main project source into ${classes}.
     -->
     <target name="compile" depends="init">
-        <javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
+        <javac srcdir="${src}:editor:${mock}:${services}:${test}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.editor"/>
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
-            <classpath refid="cp.xsd"/>
             <classpath refid="cp.persist"/>
-            <classpath refid="cp.editor"/>
             <classpath refid="cp.mail"/>
         </javac>
         <!--rmic base="${classes}" classname="au.edu.qut.yawl.engine.interfce.EngineGatewayImpl"/-->
         <copy todir="${classes}">
             <fileset dir="${src}" excludes="**/*.java"/>
+            <fileset dir="${test}" excludes="**/*.java"/>
+            <fileset dir="${mock}" excludes="**/*.java"/>
+            <fileset dir="${editor}" excludes="**/*.java"/>
         </copy>
 
         <!-- Copy and patch Log4J properties file in for free-standing engine -->
@@ -1669,11 +1677,12 @@
             <fileset dir="${test}" excludes="**/*.java"/>
         </copy>
         <javac srcdir="${test}" destdir="${classes}" debug="true">
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.editor"/>
             <classpath refid="cp.persist"/>
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
-            <classpath refid="cp.xsd"/>
         </javac>
     </target>
 
@@ -1687,23 +1696,25 @@
     </taskdef>
 	
     <target name="test" depends="compile-test">
-		<ExtendedJUnitTask printsummary="yes" haltonerror="no" haltonfailure="no"  fork="true" forkmode="once" showoutput="false">
+    	<ExtendedJUnitTask printsummary="yes" haltonerror="no" haltonfailure="no"  fork="true" forkmode="once" showoutput="true">
 			<classpath refid="cp.standard"/>
 			<classpath refid="cp.persist"/>
 			<classpath refid="cp.compile"/>
 			<classpath refid="cp.xsd"/>
+			<classpath refid="cp.editor"/>
 			<formatter type="plain"/>
 			<test name="au.edu.qut.yawl.TestAllYAWLSuites"  haltonfailure="no" outfile="result">
 			</test>
 		</ExtendedJUnitTask>
- <!--   	
+   	 <!--   	
     	<java classname="au.edu.qut.yawl.TestAllYAWLSuites" fork="true" failonerror="false">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.persist"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.xsd"/>
         </java>
--->
+    	-->    	
+
     </target>
     <!--
     The "javadoc" target creates Javadoc API documentation for the Java

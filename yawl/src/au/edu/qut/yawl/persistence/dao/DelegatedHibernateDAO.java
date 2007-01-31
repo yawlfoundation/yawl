@@ -49,7 +49,7 @@ import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
 import au.edu.qut.yawl.elements.SpecVersion;
 
 /**
- * @deprecated see DelegatedCustomSpringDAO
+ * @deprecated see DelegatedSpringDAO
  */
 public class DelegatedHibernateDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedHibernateDAO.class );

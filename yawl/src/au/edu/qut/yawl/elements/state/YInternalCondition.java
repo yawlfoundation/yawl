@@ -11,14 +11,12 @@ package au.edu.qut.yawl.elements.state;
 
 import java.util.List;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Basic;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -51,8 +49,6 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
     private YIdentifierBag _bag;
     public YTask _myTask;
     
-
-    
     private StateEvent state;
     
     /**
@@ -78,7 +74,17 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
        this.state = new StateEvent(state);
     }
 
-    @ManyToMany(cascade={CascadeType.ALL},targetEntity=YIdentifier.class)
+    @OneToOne(cascade=CascadeType.ALL)
+    public YIdentifierBag getBag() {
+		return _bag;
+	}
+
+	public void setBag(YIdentifierBag bag) {
+		this._bag = bag;
+	}
+    
+    @Transient
+//    @ManyToMany(cascade={CascadeType.ALL},targetEntity=YIdentifier.class)
     public List getIdentifiers() {
         return _bag.getIdentifiers();
     }
@@ -141,7 +147,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
     public YIdentifier removeOne() throws YPersistenceException {
     	//DispatcherFactory.getConsoleDispatcher().fireEvent( state );
         YIdentifier id = (YIdentifier) getIdentifiers().get(0);
-        _bag.remove(id, 1);
+        _bag.remove(id, getParent(), 1);
         return id;
     }
 
@@ -152,7 +158,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      */
     public void removeOne(YIdentifier identifier) throws YPersistenceException {
     	//DispatcherFactory.getConsoleDispatcher().fireEvent( state );
-        _bag.remove(identifier, 1);
+        _bag.remove(identifier, getParent(), 1);
     }
 
     /**
@@ -164,7 +170,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      */
     public void remove(YIdentifier identifier, int amount) throws YStateException, YPersistenceException {
     	//DispatcherFactory.getConsoleDispatcher().fireEvent( state );
-        _bag.remove(identifier, amount);
+        _bag.remove(identifier, getParent(), amount);
     }
 
     /**
@@ -173,7 +179,7 @@ public class YInternalCondition extends YExternalNetElement implements YConditio
      */
     public void removeAll(YIdentifier identifier) throws YPersistenceException {
     	//DispatcherFactory.getConsoleDispatcher().fireEvent( state );
-        _bag.remove(identifier, _bag.getAmount(identifier));
+        _bag.remove(identifier, getParent(), _bag.getAmount(identifier));
     }
 
     public void removeAll() {

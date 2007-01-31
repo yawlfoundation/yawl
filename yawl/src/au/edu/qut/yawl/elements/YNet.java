@@ -19,15 +19,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Where;
@@ -78,7 +81,7 @@ public class YNet extends YDecomposition {
      */
     private static final long serialVersionUID = 2006030080l;
 
-    private List<YExternalNetElement> _netElements = new ArrayList<YExternalNetElement>();
+    private Set<YExternalNetElement> _netElements = new HashSet<YExternalNetElement>();
     /**
      * All accesses to this collection should be done through the getter, {@link #getLocalVariables()}.
      * Adding to/removing from the collection should be done directly.
@@ -180,18 +183,17 @@ public class YNet extends YDecomposition {
      * @hibernate.one-to-many
      *   class="au.edu.qut.yawl.elements.YExternalNetElement"
      */
-    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-    //@OnDelete(action=OnDeleteAction.CASCADE)
-    public List<YExternalNetElement> getNetElements() {
+//	@OneToMany(mappedBy="parent", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+//    @OnDelete(action=OnDeleteAction.CASCADE)
+    @ManyToMany(mappedBy="parent", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    public Set<YExternalNetElement> getNetElements() {
         return _netElements;
     }
     /**
      * Inserted for hibernate TODO Set to protected later
      * @param list
      */
-    @OneToMany(mappedBy="parent", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-    //@OnDelete(action=OnDeleteAction.CASCADE)
-    public void setNetElements(List<YExternalNetElement> list) {
+    public void setNetElements(Set<YExternalNetElement> list) {
     	_netElements = list;
     }
 
@@ -348,7 +350,7 @@ public class YNet extends YDecomposition {
         try {
         	
             _clone = (YNet) super.clone();
-            _clone._netElements = new ArrayList<YExternalNetElement>();
+            _clone._netElements = new TreeSet<YExternalNetElement>();
 
             Set<YExternalNetElement> visited = new HashSet<YExternalNetElement>();
             Set<YExternalNetElement> visiting = new HashSet<YExternalNetElement>();
@@ -407,7 +409,7 @@ public class YNet extends YDecomposition {
             Map<YExternalNetElement, YExternalNetElement> origToCloneMap =
                 new HashMap<YExternalNetElement, YExternalNetElement>();
             
-            clone._netElements = new ArrayList<YExternalNetElement>();
+            clone._netElements = new HashSet<YExternalNetElement>();
             for( YExternalNetElement element : _netElements ) {
                 YExternalNetElement elementClone = element.deepClone();
                 elementClone.setParent( clone );

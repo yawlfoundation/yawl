@@ -17,6 +17,7 @@ import org.apache.log4j.Category;
 import org.jdom.Document;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -119,14 +120,14 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
     /*
      * Not currently supported by remote services
      * */
-    public void announceServiceUnavailable(YWorkItem item, YAWLServiceReference ref){
+    public void announceServiceUnavailable(YWorkItem item, URI ref){
         //new Handler(_observerURI, item, NOTIFY_SERVICE_UNAVAILABLE).start();
     }
     
     /*
      * Not currently supported by remote services
      * */
-    public void announceServiceError(YWorkItem item, YAWLServiceReference ref){
+    public void announceServiceError(YWorkItem item, URI ref){
         //new Handler(_observerURI, item, NOTIFY_SERVICE_ERROR).start();
     }
 

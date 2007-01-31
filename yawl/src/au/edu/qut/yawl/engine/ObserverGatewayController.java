@@ -16,6 +16,7 @@ import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
 
 import org.jdom.Document;
 
+import java.net.URI;
 import java.util.Vector;
 import java.util.Iterator;
 
@@ -64,7 +65,7 @@ public class ObserverGatewayController
      * @param yawlService
      * @param item
      */
-    void notifyAddWorkItem(YAWLServiceReference yawlService, YWorkItem item)
+    void notifyAddWorkItem(URI yawlService, YWorkItem item)
     {
         Vector affectedShims = getGatewaysForProtocol(yawlService.getScheme());
 
@@ -82,7 +83,7 @@ public class ObserverGatewayController
      * @param yawlService
      * @param item
      */
-    void notifyRemoveWorkItem(YAWLServiceReference yawlService, YWorkItem item)
+    void notifyRemoveWorkItem(URI yawlService, YWorkItem item)
     {
         Vector affectedShims = getGatewaysForProtocol(yawlService.getScheme());
 
@@ -123,7 +124,7 @@ public class ObserverGatewayController
      * @param yawlService
      * @param caseID
      */
-    public void notifyCaseCompletion(YAWLServiceReference yawlService, 
+    public void notifyCaseCompletion(URI yawlService, 
                                      YIdentifier caseID, Document casedata) {
         Vector affectedShims = getGatewaysForProtocol(yawlService.getScheme());
 

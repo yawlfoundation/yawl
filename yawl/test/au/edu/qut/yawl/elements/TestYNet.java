@@ -30,6 +30,7 @@ import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
@@ -56,13 +57,14 @@ public class TestYNet extends TestCase {
      * Constructor for NetElementTest.
      * @param name
      */
-    public TestYNet(String name) {
-        super(name);
+    public TestYNet() {
+        super();
     }
 
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YPersistenceException {
-        File file1 = new File(getClass().getResource("GoodNetSpecification.xml").getFile());
+    public void setUp() throws Exception {
+        super.setUp();
+    	File file1 = new File(getClass().getResource("GoodNetSpecification.xml").getFile());
         File file2 = new File(getClass().getResource("BadNetSpecification.xml").getFile());
         YSpecification specification1 = null;
 
@@ -114,55 +116,51 @@ public class TestYNet extends TestCase {
         
         ((YCondition) _loopedNet.getNetElement("c(q_f)")).add(_id7);
         ((YCondition) _loopedNet.getNetElement("c(q_f)")).add(_id8);
-        
-        
+
         YNetRunner netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id1);
         netRunner.setId(new Long(1));
-        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id2);
         netRunner.setId(new Long(2));
-        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id3);
         netRunner.setId(new Long(3));
 
-        YNetRunner.saveNetRunner(netRunner);
+//        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id4);
         netRunner.setId(new Long(4));
 
-        YNetRunner.saveNetRunner(netRunner);
+//        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id5);
         netRunner.setId(new Long(5));
 
-        YNetRunner.saveNetRunner(netRunner);
+//        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id6);
         netRunner.setId(new Long(6));
 
-        YNetRunner.saveNetRunner(netRunner);
+//        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id7);
         netRunner.setId(new Long(7));
 
-        YNetRunner.saveNetRunner(netRunner);
+//        YNetRunner.saveNetRunner(netRunner);
         netRunner = new YNetRunner();
         netRunner.setNet(_loopedNet);
         netRunner.setCaseID(_id8);
         netRunner.setId(new Long(8));
 
-        YNetRunner.saveNetRunner(netRunner);
-        
+//        YNetRunner.saveNetRunner(netRunner);
 
         
 //        _id8.addLocation((YCondition)_loopedNet.getNetElement("c(YAtomicTask:a, YAtomicTask:d)"));

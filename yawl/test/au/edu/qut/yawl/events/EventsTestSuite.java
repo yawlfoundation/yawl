@@ -13,6 +13,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import au.edu.qut.yawl.engine.TestYWorkItem;
 import au.edu.qut.yawl.engine.domain.TestYWorkItemID;
 import au.edu.qut.yawl.engine.domain.TestYWorkItemRepository;
 import au.edu.qut.yawl.engine.interfce.TestEngineGateway;

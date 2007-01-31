@@ -192,7 +192,7 @@ public class UserList {
     }
 
 
-    protected void clear() {
+    public void clear() {
         _users = new HashMap();
         _connections = new HashMap();
     }

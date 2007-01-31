@@ -10,13 +10,13 @@ package au.edu.qut.yawl.events;
 
 import java.io.Serializable;
 
-import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.engine.EngineFactory;
 
 public class HibernateEventDispatcher implements YEventDispatcher {
-
+	
 	public void fireEvent(Serializable o) {
         try {
-        	AbstractEngine.getDao().save(o);
+        	EngineFactory.getExistingEngine().getDao().save(o);
         } catch (Exception e) {
         	// HERE some event dispatcher exception
         	// should be thrown to indicate that the event
@@ -24,5 +24,4 @@ public class HibernateEventDispatcher implements YEventDispatcher {
         	e.printStackTrace();
         }
 	}
-
 }

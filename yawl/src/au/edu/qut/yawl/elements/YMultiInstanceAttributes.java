@@ -126,15 +126,15 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
      * @return
      * @hibernate.property column="MIN_INSTANCES"
      */
-    @Column(name="min_instances")
-    public Integer getMinInstancesHibernate() {
+    @Column(name="min_instances", nullable=true)
+    protected Integer getMinInstancesHibernate() {
     	return _minInstances;
     }
     /**
      * Inserted for hibernate TODO Set to protected later
      */
-    public void setMinInstancesHibernate(Integer i) {
-    	_minInstances = i;
+    protected void setMinInstancesHibernate(Integer i) {
+    	_minInstances = i == 0 ? null : i;
     }
 
     @Transient
@@ -162,7 +162,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
      * @return
      * @hibernate.property column="MAX_INSTANCES"
      */
-    @Column(name="max_instances")
+    @Column(name="max_instances", nullable=true)
     protected Integer getMaxInstancesHibernate() {
     	return _maxInstances;
     }
@@ -171,7 +171,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
      * @param i
      */
     protected void setMaxInstancesHibernate(Integer i) {
-    	_maxInstances = i;
+    	_maxInstances = i == 0 ? null : i;
     }
 
     @Transient
@@ -203,7 +203,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
      * @return
      * @hibernate.property column="THRESHOLD"
      */
-    @Column(name="threshold")
+    @Column(name="threshold", nullable=true)
     protected Integer getThresholdHibernate() {
     	return _threshold;
     }
@@ -212,7 +212,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
      * @param i
      */
     protected void setThresholdHibernate(Integer i) {
-    	_threshold = i;
+    	_threshold = i == 0 ? null : i;
     }
 
     /**

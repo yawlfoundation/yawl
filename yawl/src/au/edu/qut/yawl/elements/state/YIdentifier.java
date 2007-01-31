@@ -19,6 +19,7 @@ import java.util.Vector;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -32,12 +33,7 @@ import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.engine.AbstractEngine;
-import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.events.YErrorEvent;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.dao.DAO;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 
 /**
  * 
@@ -70,14 +66,13 @@ public class YIdentifier implements Serializable {
     }
 
     public void setId(String id) {
-        this.id = id;
+    	this.id = id;
     }
     
     /************************************************/
 
     private List<YIdentifier> _children = new Vector<YIdentifier>();
     private YIdentifier _parent;
-//    private Long specID;
     private String specURI;
     private Integer specVersion;
 
@@ -94,7 +89,8 @@ public class YIdentifier implements Serializable {
         this.specVersion = specVersion;
     }
 
-    @OneToMany(mappedBy="parent",cascade={CascadeType.REMOVE})
+    @OneToMany(mappedBy="parent",cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+    @OnDelete(action=OnDeleteAction.CASCADE)
     public List<YIdentifier> getChildren() {
         return _children;
     }
@@ -120,15 +116,6 @@ public class YIdentifier implements Serializable {
     public void setSpecVersion(Integer specVersion) {
         this.specVersion = specVersion;
     }
-    
-//    @Column(name="specID")
-//    public Long getSpecID() {
-//        return specID;
-//    }
-//    
-//    public void setSpecID(Long specID) {
-//        this.specID = specID;
-//    }
 
     @Transient
     public Set getDescendants() {
@@ -144,19 +131,12 @@ public class YIdentifier implements Serializable {
         }
         return descendants;
     }
-    
-    public static void saveIdentifier( YIdentifier id ) throws YPersistenceException {
-        DAO dao = AbstractEngine.getDao();
-        dao.save( id );
-    }
 
-
-    public YIdentifier createChild() throws YPersistenceException {
+    public YIdentifier createChild() {
         YIdentifier identifier =
                 new YIdentifier(this.id + "." + (_children.size() + 1));
         _children.add(identifier);
         identifier._parent = this;
-        saveIdentifier( identifier );
 
         return identifier;
     }
@@ -167,7 +147,7 @@ public class YIdentifier implements Serializable {
      * @param childNum
      * @return the child YIdentifier object with id == childNum
      */
-    public YIdentifier createChild(int childNum) throws YPersistenceException {
+    public YIdentifier createChild(int childNum) {
         if (childNum < 1) {
             throw new IllegalArgumentException("Childnum must > 0");
         }
@@ -186,8 +166,6 @@ public class YIdentifier implements Serializable {
                 new YIdentifier(this.id + "." + childNumStr);
         _children.add(identifier);
         identifier._parent = this;
-
-        saveIdentifier( identifier );
         
         return identifier;
     }
@@ -195,16 +173,12 @@ public class YIdentifier implements Serializable {
 
     
     @ManyToOne
-    @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="parent")
     public YIdentifier getParent() {
         return _parent;
     }
     
-    @ManyToOne
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="parent")
-    protected void setParent(YIdentifier parent) {
+    public void setParent(YIdentifier parent) {
     	_parent = parent;
     }
 
@@ -224,10 +198,10 @@ public class YIdentifier implements Serializable {
     public synchronized List<YNetElement> getLocationsForNet(YNet net) {
     	List<YNetElement> retval = new LinkedList<YNetElement>();
 
-    	List l = net.getNetElements();
+//    	Set<YNetElements> l = 
 
-    	for (int i = 0; i < l.size(); i++) {
-    		YNetElement elem = (YNetElement) l.get(i);
+    	for (YNetElement elem: net.getNetElements()) {
+//    		YNetElement elem = (YNetElement) l.get(i);
     		if (elem instanceof YCondition) {
     			if (((YCondition) elem).contains(this)) {
     				for (int j = 0; j < ((YCondition) elem).getAmount(this); j++) {
@@ -245,55 +219,11 @@ public class YIdentifier implements Serializable {
     	// TODO Why is this synchronized?  -- DM
         return retval;
     }
-    
-
-    /**
-     * @return
-     */
-    @Transient
-    @Deprecated
-    public synchronized List<YNetElement> getLocations() throws YPersistenceException {
-    	List<YNetElement> retval = new LinkedList<YNetElement>();
-        
-        PropertyRestriction restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , this.toString());
-        List<YNetRunner> runners = AbstractEngine.getDao().retrieveByRestriction(YNetRunner.class, restriction);
-        
-        if( runners.size()==0 && getParent() != null ) {
-        	restriction = new PropertyRestriction("basicCaseId", PropertyRestriction.Comparison.EQUAL , this.getParent().toString());
-            runners = AbstractEngine.getDao().retrieveByRestriction(YNetRunner.class, restriction);        	
-        }
-        
-        if( runners.size() > 0 ) {
-            YNetRunner runner = runners.get(0);
-            
-        	YNet net = runner.getNet();
-        	List l = net.getNetElements();
-            
-        	for (int i = 0; i < l.size(); i++) {
-        		YNetElement elem = (YNetElement) l.get(i);
-        		if (elem instanceof YCondition) {
-        			if (((YCondition) elem).contains(this)) {
-        				for (int j = 0; j < ((YCondition) elem).getAmount(this); j++) {
-        					retval.add(elem);
-        				}
-        			}    			
-        		} else if (elem instanceof YTask) {
-    				YIdentifier contained = ((YTask) elem).getContainingIdentifier();
-        			if (contained!=null && contained.equals(this)) {
-        				retval.add(elem);    				
-        			}
-        		}
-        	}
-        }
-    	
-    	// TODO Why is this synchronized?  -- DM
-        return retval;
-    }
 
     @Transient
     public YIdentifier getAncestor() {
         if (null != this.getParent()) {
-            return getAncestor();
+            return getParent().getAncestor();
         } else
             return this;
     }
@@ -315,7 +245,7 @@ public class YIdentifier implements Serializable {
     	errors.add(error);
     }
     
-    @OneToMany(cascade = {CascadeType.ALL})
+    @Transient
     public List<YErrorEvent> getErrors() {
     	return errors;
     }

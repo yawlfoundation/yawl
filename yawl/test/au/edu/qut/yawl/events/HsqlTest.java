@@ -29,14 +29,20 @@ public class HsqlTest extends TestCase {
 		super.setUp();
 		Class.forName("org.hsqldb.jdbcDriver").newInstance();
 		conn = DriverManager.getConnection("jdbc:hsqldb:mem:openjms", "sa", "");
+		try {
+//			conn.createStatement().execute("SHUTDOWN");
+		} catch(Exception e) {}
+		conn = DriverManager.getConnection("jdbc:hsqldb:mem:openjms", "sa", "");
 		String setupDb = readStreamAsString(this.getClass().getResourceAsStream("/create_hsql.sql"));
 		PreparedStatement s = conn.prepareStatement(setupDb);
-		s.execute();
+		try {
+			s.execute();
+		} catch(Exception e) {}
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		conn.createStatement().execute("SHUTDOWN");
+//		conn.createStatement().execute("SHUTDOWN");
 	}
 
     private static String readStreamAsString(InputStream file)

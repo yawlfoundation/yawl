@@ -11,6 +11,7 @@ package au.edu.qut.yawl.elements.state;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,10 @@ import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.CollectionOfElements;
+
 import au.edu.qut.yawl.elements.YConditionInterface;
+import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 /**
@@ -38,7 +42,7 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
  * 
  */
 @Entity
-public class YIdentifierBag implements Serializable{
+public class YIdentifierBag implements Serializable {
 	/**
 	 * One should only change the serialVersionUID when the class method signatures have changed.  The
 	 * UID should stay the same so that future revisions of the class can still be backwards compatible
@@ -46,7 +50,7 @@ public class YIdentifierBag implements Serializable{
 	 * Serial version format: year (4 digit) - month (2 digit) - yawl release version (4 digit)
 	 */
 	private static final long serialVersionUID = 2006030080l;
-	private Map<YIdentifier, BagCount> _idToQtyMap = new HashMap<YIdentifier, BagCount>();
+	private Map<YIdentifier, Integer> _idToQtyMap = new HashMap<YIdentifier, Integer>();
     public YConditionInterface _condition;
 
 	
@@ -69,36 +73,38 @@ public class YIdentifierBag implements Serializable{
 		this.id = id;
 	}
 
-    private void setIdentifierToQuantityMap(Map<YIdentifier, BagCount> map) {
+    private void setIdentifierToQuantityMap(Map<YIdentifier, Integer> map) {
     	_idToQtyMap = map;
     }
     
 
-	@MapKey
-	@OneToMany
-	@JoinTable(
-			name = "IdentifierBagCountMap",
-			joinColumns = {@JoinColumn(name = "identifier_id")},
-			inverseJoinColumns = @JoinColumn(name = "count_id"))
-    private Map<YIdentifier, BagCount> getIdentifierToQuantityMap() {
+//	@MapKey
+//	@OneToMany
+//	@JoinTable(
+//			name = "IdentifierBagCountMap",
+//			joinColumns = {@JoinColumn(name = "identifier_id")},
+//			inverseJoinColumns = @JoinColumn(name = "count_id"))
+
+    @CollectionOfElements (fetch=FetchType.EAGER)
+    @JoinTable(name="counted_identifiers", joinColumns = @JoinColumn(name="bag_id"))
+    @org.hibernate.annotations.MapKey (columns=@Column(name="identifier_id"))
+    @Column(name="value", nullable=true)     
+    private Map<YIdentifier, Integer> getIdentifierToQuantityMap() {
     	return _idToQtyMap;
     }
     
     public void addIdentifier(YIdentifier identifier) throws YPersistenceException {
-        int amount = 0;
         if (_idToQtyMap.containsKey(identifier)) {
-            amount = _idToQtyMap.get(identifier).getCount();
+        	_idToQtyMap.put(identifier,_idToQtyMap.get(identifier)+1);
         } else {
-        	_idToQtyMap.put(identifier, new BagCount());
+        	_idToQtyMap.put(identifier, Integer.valueOf(1));
         }
-        _idToQtyMap.get(identifier).incrementCount();
-        //identifier.addLocation(_condition);
     }
 
 
     public int getAmount(YIdentifier identifier) {
         if (_idToQtyMap.containsKey(identifier)) {
-            return _idToQtyMap.get(identifier).getCount();
+            return _idToQtyMap.get(identifier).intValue();
         } else
             return 0;
     }
@@ -115,7 +121,7 @@ public class YIdentifierBag implements Serializable{
         Iterator iter = keys.iterator();
         while (iter.hasNext()) {
             YIdentifier identifier = (YIdentifier) iter.next();
-            int amnt = _idToQtyMap.get(identifier).getCount();
+            int amnt = _idToQtyMap.get(identifier).intValue();
             for (int i = 0; i < amnt; i++) {
                 idList.add(identifier);
             }
@@ -124,18 +130,16 @@ public class YIdentifierBag implements Serializable{
     }
 
 
-    public void remove(YIdentifier identifier, int amountToRemove) throws YPersistenceException {
+    public void remove(YIdentifier identifier, YNet net, int amountToRemove) throws YPersistenceException {
         if (_idToQtyMap.containsKey(identifier)) {
-            int amountExisting = _idToQtyMap.get(identifier).getCount();
+            int amountExisting = _idToQtyMap.get(identifier).intValue();
             if (amountToRemove <= 0) {
                 throw new RuntimeException("You cannot remove " + amountToRemove
                         + " from YIdentifierBag:" + _condition + " " + identifier.toString());
             } else if (amountExisting > amountToRemove) {
-            	_idToQtyMap.get(identifier).setCount(amountExisting - amountToRemove);
-                //identifier.removeLocation(_condition);
+            	_idToQtyMap.put(identifier,_idToQtyMap.get(identifier) - amountToRemove);
             } else if (amountToRemove == amountExisting) {
                 _idToQtyMap.remove(identifier);
-                //identifier.removeLocation(_condition);
             } else {
                 throw new RuntimeException("You cannot remove " + amountToRemove
                         + " tokens from YIdentifierBag:" + _condition
@@ -148,19 +152,18 @@ public class YIdentifierBag implements Serializable{
                     + " - this bag contains no"
                     + " identifiers of type " + identifier.toString()
                     + ".  It does have " + this.getIdentifiers()
-                    + " (locations of " + identifier + ":" + identifier.getLocations() + " )"
+                    + " (locations of " + identifier + ":" + identifier.getLocationsForNet(net) + " )"
             );
         }
     }
 
-    public void removeAll() {
-        Iterator keys = new Vector(_idToQtyMap.keySet()).iterator();
+    public Set<YIdentifier> removeAll() {
+    	Set<YIdentifier> removed = new HashSet<YIdentifier>( _idToQtyMap.keySet() );
+        Iterator<YIdentifier> keys = removed.iterator();
         while (keys.hasNext()) {
-            YIdentifier identifier = (YIdentifier) keys.next();
+            YIdentifier identifier = keys.next();
             _idToQtyMap.remove(identifier);
-//            while (identifier.getLocations().contains(_condition)) {
-//                identifier.getLocations().remove(_condition);
-//          /}
         }
+        return removed;
     }
 }

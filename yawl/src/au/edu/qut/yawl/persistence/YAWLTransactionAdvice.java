@@ -16,43 +16,9 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.AnnotationConfiguration;
 import org.springframework.aop.AfterReturningAdvice;
 import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.aop.ThrowsAdvice;
-
-import au.edu.qut.yawl.elements.KeyValue;
-import au.edu.qut.yawl.elements.SpecVersion;
-import au.edu.qut.yawl.elements.YAWLServiceGateway;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.YAtomicTask;
-import au.edu.qut.yawl.elements.YCompositeTask;
-import au.edu.qut.yawl.elements.YCondition;
-import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YFlow;
-import au.edu.qut.yawl.elements.YInputCondition;
-import au.edu.qut.yawl.elements.YMetaData;
-import au.edu.qut.yawl.elements.YMultiInstanceAttributes;
-import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YOutputCondition;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.data.YParameter;
-import au.edu.qut.yawl.elements.data.YVariable;
-import au.edu.qut.yawl.elements.state.IdentifierSequence;
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.elements.state.YInternalCondition;
-import au.edu.qut.yawl.engine.YNetRunner;
-import au.edu.qut.yawl.engine.domain.YCaseData;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.engine.domain.YWorkItemID;
-import au.edu.qut.yawl.events.Event;
-import au.edu.qut.yawl.events.YCaseEvent;
-import au.edu.qut.yawl.events.YDataEvent;
-import au.edu.qut.yawl.events.YErrorEvent;
-import au.edu.qut.yawl.events.YServiceError;
-import au.edu.qut.yawl.events.YWorkItemEvent;
 
 public class YAWLTransactionAdvice implements ThrowsAdvice, MethodBeforeAdvice, AfterReturningAdvice {
 	private static final Log LOG = LogFactory.getLog( YAWLTransactionAdvice.class );
@@ -62,102 +28,32 @@ public class YAWLTransactionAdvice implements ThrowsAdvice, MethodBeforeAdvice, 
 
 	private Transaction tx = null;
 	
-	private static AnnotationConfiguration cfg;
-	private static Class[] classes = new Class[] {
-		Event.class,
-        IdentifierSequence.class,
-		KeyValue.class,
-		YAtomicTask.class,
-		YAWLServiceGateway.class,
-		YAWLServiceReference.class,
-		YCaseData.class,
-		YCaseEvent.class,
-		YCompositeTask.class,
-		YCondition.class,
-		YDataEvent.class,
-		YDecomposition.class,
-		YExternalNetElement.class,
-		YFlow.class,
-		YIdentifier.class,
-		YInputCondition.class,
-		YInternalCondition.class,
-		YMetaData.class,
-		YMultiInstanceAttributes.class,
-		YNet.class,
-		YNetRunner.class,
-		YOutputCondition.class,
-		YParameter.class,
-		YSpecification.class,
-		SpecVersion.class,
-		YTask.class,
-		YVariable.class,
-		YWorkItem.class,
-		YWorkItemEvent.class,
-		YWorkItemID.class,
-		YErrorEvent.class,
-		YServiceError.class};
-	
-	private synchronized static void initializeSessions() {
-		//if ( sessionFactory != null ) sessionFactory.close();
-		try {
-			AnnotationConfiguration config = (AnnotationConfiguration) new AnnotationConfiguration()
-//	        .setProperty(Environment.USE_SQL_COMMENTS, "false")
-//	        .setProperty(Environment.SHOW_SQL, "false")
-//	        .setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
-//	        .setProperty(Environment.DRIVER, "org.postgresql.Driver")
-//	        .setProperty(Environment.URL, "jdbc:postgresql://localhost/dean2")
-//	        .setProperty(Environment.USER, "postgres")
-//	        .setProperty(Environment.PASS, "admin")
-
-//			.setProperty(Environment.HBM2DDL_AUTO, "create")
-//			.setProperty(Environment.HBM2DDL_AUTO, "create-drop")
-//			.setProperty(Environment.HBM2DDL_AUTO, "update")
-			;
-			cfg = config;
-	        
-			for (int i=0; i<classes.length; i++) {
-				cfg.addAnnotatedClass( classes[i] );
-			}
-			sessionFactory = cfg.buildSessionFactory();
-			session = sessionFactory.openSession();
-		}
-		catch (Error e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public static Session openSession() throws HibernateException {
-		if (sessionFactory==null) {
-			initializeSessions();
-		}
-		
 		if (session==null || !session.isOpen()) {
-			session = sessionFactory.openSession();
+			session = getFactory().openSession();
 		}
-		
 		return session;
 	}
 	
 	public YAWLTransactionAdvice() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public void setSessionFactory(SessionFactory fac) {
 		sessionFactory = fac;
-		session = sessionFactory.openSession();
-		
 	}
 	
 	public static Session getSession() {
 		return session;
 	}
 	
-	
 	public SessionFactory getSessionFactory() {
-		return sessionFactory;
+		return getFactory();
 	}
 	
 	public static SessionFactory getFactory() {
+		if (sessionFactory == null) {
+			throw new Error("SHOULD NEVER HAPPEN - SESSION FACTORY WAS NULL. SHOULD BE INITED BY SPRING");
+		}
 		return sessionFactory;
 	}
 	

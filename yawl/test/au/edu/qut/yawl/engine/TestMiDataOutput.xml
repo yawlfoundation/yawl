@@ -28,12 +28,6 @@
 				<xs:sequence>
 					<xs:element name="songName" type="xs:string"/>
 					<xs:element name="songSpecification" type="xs:string"/>
-					<!--
-					<xs:element name="songLength" nillable="true"
-						type="SonglengthType"/>
-					<xs:element name="selected" nillable="true" type="xs:boolean"/>
-					<xs:element name="sequenceNumber" type="xs:positiveInteger"/>
-					-->
 				</xs:sequence>
 			</xs:complexType>
 			<xs:complexType name="SonglengthType">

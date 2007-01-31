@@ -36,9 +36,11 @@ public class JmsProvider {
 		}
 		return INSTANCE;
 	}
-    
-    boolean started = false;
 
+	public static synchronized void resetInstance() {
+		INSTANCE = null;
+	}
+	
 	Context context;
 
 	Connection connection;
@@ -60,7 +62,6 @@ public class JmsProvider {
 			connection = getConnection(context);
 			context.getEnvironment();
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            started = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

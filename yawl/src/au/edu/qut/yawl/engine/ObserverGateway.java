@@ -9,6 +9,8 @@
 
 package au.edu.qut.yawl.engine;
 
+import java.net.URI;
+
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
@@ -33,7 +35,7 @@ public interface ObserverGateway
      * @param yawlService
      * @param item
      */
-    void announceWorkItem(YAWLServiceReference yawlService, YWorkItem item);
+    void announceWorkItem(URI yawlService, YWorkItem item);
 
     /**
      * Called by the engine when a previously posted workitem has been cancelled.<P>
@@ -41,7 +43,7 @@ public interface ObserverGateway
      * @param yawlService
      * @param item
      */
-    void cancelAllWorkItemsInGroupOf(YAWLServiceReference yawlService, YWorkItem item);
+    void cancelAllWorkItemsInGroupOf(URI yawlService, YWorkItem item);
 
 
     /**
@@ -49,6 +51,6 @@ public interface ObserverGateway
      * @param yawlService the yawl service
      * @param caseID the case that completed
      */
-    void announceCaseCompletion(YAWLServiceReference yawlService, 
+    void announceCaseCompletion(URI yawlService, 
                                 YIdentifier caseID, Document casedata);
 }

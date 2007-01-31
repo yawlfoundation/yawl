@@ -37,6 +37,7 @@ import au.edu.qut.yawl.exceptions.YQueryException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YMessagePrinter;
 import au.edu.qut.yawl.util.YVerificationMessage;
@@ -48,7 +49,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * Time: 15:52:30
  * 
  */
-public class TestYExternalTask extends TestCase{
+public class TestYExternalTask extends AbstractHibernateDAOTestCase{
     private YCondition _aCondition;
     private YTask _validTask;
     private YTask _invalidTask;
@@ -57,13 +58,13 @@ public class TestYExternalTask extends TestCase{
     private YTask _invalidTask2;
 
 
-    public TestYExternalTask(String name)
-    {
-        super(name);
+    public TestYExternalTask()    {
+        super();
     }
 
 
-    public void setUp() throws YPersistenceException {
+    public void setUp() throws Exception {
+    	super.setUp();
         YSpecification spec = new YSpecification("");
         spec.setBetaVersion(YSpecification._Beta2);
         YNet deadNet = new YNet("aNetName", spec);
@@ -225,7 +226,8 @@ public class TestYExternalTask extends TestCase{
         }
         assertNotNull(f); f= null;
         YIdentifier id1 = new YIdentifier();
-        YIdentifier.saveIdentifier( id1 );
+        getDAO().save(id1);
+//        YIdentifier.saveIdentifier( id1, null, null );
         _aCondition.add(id1);
         assertTrue(_validTask.t_enabled(null));
         List childIdentifiers = null;
@@ -414,7 +416,8 @@ public class TestYExternalTask extends TestCase{
         l1.add(t1);
         t1.setRemovesTokensFrom(l1);
         YIdentifier id1 = new YIdentifier();
-        YIdentifier.saveIdentifier( id1 );
+//      YIdentifier.saveIdentifier( id1, null, null );
+        getDAO().save(id1);
         c1.add(id1);
 
         List kids = null;

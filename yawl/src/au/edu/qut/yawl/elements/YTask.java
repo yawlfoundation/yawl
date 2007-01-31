@@ -11,6 +11,7 @@ package au.edu.qut.yawl.elements;
 
 import java.io.StringReader;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -147,7 +148,7 @@ public abstract class YTask extends YExternalNetElement {
         this._i = i;
     }
 
-    @OneToOne(cascade=CascadeType.ALL) 
+    @OneToOne(cascade= {CascadeType.MERGE, CascadeType.PERSIST}) 
     public YIdentifier getContainingIdentifier() {
     	return this._i;
     }
@@ -324,7 +325,7 @@ public abstract class YTask extends YExternalNetElement {
         return getDataMappingsForTaskCompletion().keySet();
     }
 
-    @ManyToMany
+    @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable(name="yexternalnetelement_removeset")
     public Set<YExternalNetElement> getRemoveSet() {
     	return _removeSet;
@@ -363,7 +364,7 @@ public abstract class YTask extends YExternalNetElement {
             throw new YStateException(
                     this + " cannot fire due to not being enabled");
         }
-        _i = id;
+        setI(id);
         //_i.addLocation(this);
         List conditions = new Vector(getPresetElements());
         Iterator conditionsIt = getPresetElements().iterator();
@@ -579,13 +580,21 @@ public abstract class YTask extends YExternalNetElement {
                 	List<YParameter> inputparams = _net.getInputParameters();
                 	
                 	for (int i = 0; i < netvariables.size(); i++) {
-                		if (netvariables.get(i).getName().equals(localVarThatQueryResultGetsAppliedTo)) {
+                		YVariable v = netvariables.get(i);
+                		String name = v.getName();
+                		if( name == null )
+                			name = v.getElementName();
+                		if (name.equals(localVarThatQueryResultGetsAppliedTo)) {
                 			var = netvariables.get(i);                			
                 		}
                 	}
                 	
                 	for (int i = 0; i < inputparams.size(); i++) {
-                		if (inputparams.get(i).getName().equals(localVarThatQueryResultGetsAppliedTo)) {
+                		YVariable p = inputparams.get(i);
+                		String name = p.getName();
+                		if( name == null )
+                			name = p.getElementName();
+                		if (name.equals(localVarThatQueryResultGetsAppliedTo)) {
                 			var = inputparams.get(i);
                 		}
                 	}
@@ -749,7 +758,7 @@ public abstract class YTask extends YExternalNetElement {
         LOG.info("YTask::" + getID() + ".exit() caseID(" + _i + ") " +
                 "_parentDecomposition.getInternalDataDocument() = "
                 + new XMLOutputter(Format.getPrettyFormat()).outputString(_net.getInternalDataDocument()).trim());
-        _i = null;
+        setI(null);
     }
 
 
@@ -853,14 +862,14 @@ public abstract class YTask extends YExternalNetElement {
 
 
     private void doXORSplit(YIdentifier tokenToSend) throws YPersistenceException {
-        List flows = new ArrayList(getPostsetFlows());
-        //sort the flows according to their evaluation ordering,
-        //and with the default flow occurring last.
-        Collections.sort(flows);
-        YFlow flow;
+//        List flows = new ArrayList(getPostsetFlows());
+//        //sort the flows according to their evaluation ordering,
+//        //and with the default flow occurring last.
+//        Collections.sort(flows);
+//        YFlow flow;
 
-        for (int i = 0; i < flows.size(); i++) {
-            flow = (YFlow) flows.get(i);
+        for (YFlow flow : getPostsetFlows()) {
+//            flow = (YFlow) flows.get(i);
             if (flow.isDefaultFlow()) {
                 ((YCondition) flow.getNextElement()).add(tokenToSend);
                 return;
@@ -968,7 +977,7 @@ public abstract class YTask extends YExternalNetElement {
             copy._removeSet.add(elemsClone);
         }
 
-        if (this.isMultiInstance()) {
+        if (this._multiInstAttr != null) {
             copy._multiInstAttr = (YMultiInstanceAttributes) _multiInstAttr.clone();
             copy._multiInstAttr._myTask = copy;
         }
@@ -1222,9 +1231,7 @@ public abstract class YTask extends YExternalNetElement {
             if (e instanceof YDataStateException) {
                 throw (YDataStateException) e;
             }
-            YStateException se = new YStateException(e.getMessage());
-            se.setStackTrace(e.getStackTrace());
-            throw se;
+            throw new YStateException(e);
         }
         return resultingData;
     }
@@ -1331,7 +1338,7 @@ public abstract class YTask extends YExternalNetElement {
         _mi_executing.removeAll();
         if (_i != null) {
             //_i.removeLocation(this);
-            _i = null;
+            setI(null);
         }
     }
 
@@ -1732,12 +1739,11 @@ public abstract class YTask extends YExternalNetElement {
 				}
 
 				YAWLServiceGateway wsgw = (YAWLServiceGateway) getDecompositionPrototype();
-				YAWLServiceReference ys = wsgw.getYawlService();
-                if (ys != null) {
+				URI serviceUri = wsgw.getYawlService();
+                if (serviceUri != null) {
                     result.append("<yawlService>");
-                    String ysID = ys.getURI();
                     result.append("<id>");
-                    result.append(ysID);
+                    result.append(serviceUri.toString());
                     result.append("</id>");
                     result.append("</yawlService>");
                 }
@@ -2031,15 +2037,19 @@ public abstract class YTask extends YExternalNetElement {
 	    return _multiInstAttr;
     }
 
+    @Transient
     public String getMinimum() throws YQueryException {
        	return isMultiInstance() ? Integer.toString(getInitedMultiInstAttr().getMinInstances()) : null;
     }
+    @Transient
     public void setMinimum(String value) {
         if (value != null) this.getInitedMultiInstAttr().setMinInstancesHibernate(new Integer(value));
     }
+    @Transient
     public String getMaximum() throws YQueryException {
     	return isMultiInstance() ? Integer.toString(getInitedMultiInstAttr().getMaxInstances()): null;
     }
+    @Transient
     public void setMaximum(String value) {
     	if (value != null) this.getInitedMultiInstAttr().setMaxInstancesHibernate(new Integer(value));
     }

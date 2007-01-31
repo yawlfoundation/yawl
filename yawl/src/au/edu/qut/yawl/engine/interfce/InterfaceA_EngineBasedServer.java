@@ -13,10 +13,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
@@ -26,7 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.nexusbpm.services.ServiceConfiguration;
+
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
 
 
 /**
@@ -41,7 +46,15 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
     private static final boolean _debug = false;
     private static Logger logger = null;
 
-    public void init() throws ServletException {
+    public void init(ServletConfig config) throws ServletException {
+    	super.init(config);
+        logger = Logger.getLogger(this.getClass());
+        logger.error("***************************************************************************");
+        logger.error("* initializing yawl interface a servlet *");
+        logger.error("* official servlet name: " + config.getServletName());
+        logger.error("***************************************************************************");
+		ServiceConfiguration sc = new ServiceConfiguration(config);
+		BootstrapConfiguration.setInstance(sc);
 
         /**
          * Initialise logging
@@ -76,7 +89,8 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
         PrintWriter outputWriter = ServletUtils.prepareResponse(response);
         StringBuffer output = new StringBuffer();
         output.append("<response>");
-        output.append(processGetQuery(request));
+        String queryResult = processGetQuery(request);
+        output.append(queryResult);
         output.append("</response>");
         if (_engine.enginePersistenceFailure())
         {
@@ -85,6 +99,9 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
             logger.fatal("database. Check the satus of the database connection defined");
             logger.fatal("for the YAWL service, and restart the YAWL web application.");
             logger.fatal("Further information may be found within the Tomcat log files.");
+            logger.fatal("************************************************************");
+            logger.fatal("Error follows: ");
+            logger.fatal(URLDecoder.decode(queryResult));
             logger.fatal("************************************************************");
             response.sendError(500, "Database persistence failure detected");
         }

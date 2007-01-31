@@ -120,10 +120,10 @@ public abstract class InterfaceBInternalServiceController {
     public YWorkItem checkOut(String workItemID) throws IOException, YSchemaBuildingException, YQueryException, YDataStateException, YStateException, YPersistenceException {
         YWorkItem resultItem = null;
 
-        YWorkItem item = YWorkItemRepository.getInstance().getWorkItem(workItemID);
+//        YWorkItem item = YWorkItemRepository.getInstance().getWorkItem(workItemID);
         
         System.out.println("starting workitem");
-       	resultItem = EngineFactory.getTransactionalEngine().startWorkItem(item , "admin");
+       	resultItem = EngineFactory.getTransactionalEngine().startWorkItem(workItemID , "admin");
         System.out.println("started workitem");
         
         return resultItem;
@@ -142,14 +142,7 @@ public abstract class InterfaceBInternalServiceController {
      * @throws JDOMException if there is a problem parsing XML of input data or output data
      */
     public void checkInWorkItem(String workItemID , String data) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
-
-
-        YWorkItem item = YWorkItemRepository.getInstance().getWorkItem(workItemID);
-        
-
-       	EngineFactory.getTransactionalEngine().completeWorkItem(item, data, false);     
-   
-        
+       	EngineFactory.getTransactionalEngine().completeWorkItem(workItemID, data, false);
     }
 
     
@@ -173,7 +166,7 @@ public abstract class InterfaceBInternalServiceController {
     }
 
 
-    public Set getChildren(String workitemid) {
+    public Set getChildren(String workitemid) throws YPersistenceException {
     	return YWorkItemRepository.getInstance().getChildrenOf(workitemid);
     }
 

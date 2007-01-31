@@ -26,6 +26,7 @@ import au.edu.qut.yawl.engine.EngineFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URI;
 import java.util.*;
 
 
@@ -59,7 +60,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param yawlService the reference to a YAWL service in the environment
      * @param workItem the work item to announce,
      */
-    public void announceWorkItem(YAWLServiceReference yawlService, YWorkItem workItem) {
+    public void announceWorkItem(URI yawlService, YWorkItem workItem) {
 
         Handler myHandler = new Handler(yawlService, workItem, ADDWORKITEM_CMD);
         myHandler.start();
@@ -70,7 +71,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param yawlService the YAWL service reference.
      * @param workItem the work item to cancel.
      */
-    static void cancelWorkItem(YAWLServiceReference yawlService, YWorkItem workItem) {
+    static void cancelWorkItem(URI yawlService, YWorkItem workItem) {
         Handler myHandler = new Handler(yawlService, workItem, "cancelWorkItem");
         myHandler.start();
     }
@@ -81,7 +82,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param yawlService the yawl service reference.
      * @param workItem the parent work item to cancel.
      */
-    public void cancelAllWorkItemsInGroupOf(YAWLServiceReference yawlService, YWorkItem workItem) {
+    public void cancelAllWorkItemsInGroupOf(URI yawlService, YWorkItem workItem) {
         //System.out.println("Thread::yawlService.getURI() = " + yawlService.getURI());
         //System.out.println("\rworkItem.toXML() = " + workItem.toXML());
         if(workItem.getParent() == null){
@@ -99,7 +100,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param yawlService the yawl service
      * @param caseID the case that completed
      */
-    public void announceCaseCompletion(YAWLServiceReference yawlService, 
+    public void announceCaseCompletion(URI yawlService, 
                                        YIdentifier caseID, Document casedata) {
         Handler myHandler = new Handler(yawlService, caseID, casedata, "announceCompletion");
         myHandler.start();
@@ -113,10 +114,10 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @throws IOException if connection problem
      * @throws JDOMException if XML content problem.
      */
-    public static YParameter[] getRequiredParamsForService(YAWLServiceReference yawlService) throws IOException, JDOMException {
+    public static YParameter[] getRequiredParamsForService(URI yawlService) throws IOException, JDOMException {
         List paramResults = new ArrayList();
 
-        String urlOfYawlService = yawlService.getURI();
+        String urlOfYawlService = yawlService.toString();
 
         Map params = new HashMap();
         params.put("action", "ParameterInfoRequest");
@@ -143,18 +144,18 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
 
     static class Handler extends Thread {
         private YWorkItem _workItem;
-        private YAWLServiceReference _yawlService;
+        private URI _yawlService;
         private String _command; 
         private YIdentifier _caseID;
         private Document _casedata;
 
-        public Handler(YAWLServiceReference yawlService, YWorkItem workItem, String command) {
+        public Handler(URI yawlService, YWorkItem workItem, String command) {
             _workItem = workItem;
             _yawlService = yawlService;
             _command = command;
         }
 
-        public Handler(YAWLServiceReference yawlService, YIdentifier caseID, Document casedata, String command) {
+        public Handler(URI yawlService, YIdentifier caseID, Document casedata, String command) {
             _yawlService = yawlService;
             _caseID = caseID;
             _command = command;
@@ -164,7 +165,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         public void run() {
             try {
                 if (InterfaceB_EngineBasedClient.ADDWORKITEM_CMD.equals(_command)) {
-                    String urlOfYawlService = _yawlService.getURI();
+                    String urlOfYawlService = _yawlService.toString();
                     String workItemXML = _workItem.toXML();
                     Map paramsMap = new HashMap();
                     paramsMap.put("workItem", workItemXML);
@@ -179,14 +180,14 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     }
                 } else if (InterfaceB_EngineBasedClient.CANCELWORKITEM_CMD.equals(_command)) {
                     //cancel the parent
-                    String urlOfYawlService = _yawlService.getURI();
+                    String urlOfYawlService = _yawlService.toString();
                     String workItemXML = _workItem.toXML();
                     Map paramsMap = new HashMap();
                     paramsMap.put("workItem", workItemXML);
                     paramsMap.put("action", "cancelWorkItem");
                     Interface_Client.executePost(urlOfYawlService, paramsMap);
                 } else if (InterfaceB_EngineBasedClient.ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
-                    String urlOfYawlService = _yawlService.getURI();
+                    String urlOfYawlService = _yawlService.toString();
                     String caseID = _caseID.toString();
                     String casedataStr = JDOMConversionTools.documentToString(_casedata) ;
                     Map paramsMap = new HashMap();

@@ -9,22 +9,27 @@
 
 package au.edu.qut.yawl.engine;
 
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.exceptions.*;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
 import org.jdom.JDOMException;
+
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 
 /**
  * 
@@ -33,10 +38,10 @@ import org.jdom.JDOMException;
  * Time: 12:24:13
  * 
  */
-public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
+public class TestEngineAgainstImproperCompletionOfASubnet extends AbstractTransactionalTestCase {
 
     private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
-    private long _sleepTime = 500;
+    private long _sleepTime = 125;
     private AbstractEngine engine;
     private YSpecification _specification;
     private File yawlXMLFile;
@@ -46,7 +51,8 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
         super(name);
     }
 
-    public void setUp() throws YSyntaxException, JDOMException, YSchemaBuildingException, IOException, YPersistenceException {
+    public void setUp() throws Exception {
+    	super.setUp();
         URL fileURL = getClass().getResource("ImproperCompletion.xml");
         yawlXMLFile = new File(fileURL.getFile());
         _specification = null;
@@ -60,34 +66,30 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
         EngineClearer.clear(engine);
         engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         engine.startCase(null, _specification.getID(), null, null);
-        assertTrue("" + _workItemRepository.getCompletedWorkItems().size(),
-                _workItemRepository.getCompletedWorkItems().size() == 0);
-        assertTrue("" + _workItemRepository.getEnabledWorkItems().size(),
-                _workItemRepository.getEnabledWorkItems().size() == 1);
-        assertTrue("" + _workItemRepository.getExecutingWorkItems().size(),
-                _workItemRepository.getExecutingWorkItems().size() == 0);
-        assertTrue("" + _workItemRepository.getFiredWorkItems().size(),
-                _workItemRepository.getFiredWorkItems().size() == 0);
+        assertEquals("should be no completed work items", 0, _workItemRepository.getCompletedWorkItems().size());
+        assertEquals("should be one enabled work item", 1, _workItemRepository.getEnabledWorkItems().size());
+        assertEquals("should be no executing work items", 0, _workItemRepository.getExecutingWorkItems().size());
+        assertEquals("should be no fired work items", 0, _workItemRepository.getFiredWorkItems().size());
         while (_workItemRepository.getEnabledWorkItems().size() > 0 ||
                 _workItemRepository.getFiredWorkItems().size() > 0 ||
                 _workItemRepository.getExecutingWorkItems().size() > 0) {
             YWorkItem item;
             while (_workItemRepository.getEnabledWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getEnabledWorkItems().iterator().next();
-                engine.startWorkItem(item, "admin");
+                engine.startWorkItem(item.getIDString(), "admin");
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
             while (_workItemRepository.getFiredWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getFiredWorkItems().iterator().next();
-                engine.startWorkItem(item, "admin");
+                engine.startWorkItem(item.getIDString(), "admin");
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
             while (_workItemRepository.getExecutingWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getExecutingWorkItems("admin")
                         .iterator().next();
-                engine.completeWorkItem(item, "<data/>", false);
+                engine.completeWorkItem(item.getIDString(), "<data/>", false);
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }

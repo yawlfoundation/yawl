@@ -8,10 +8,10 @@
 
 package au.edu.qut.yawl.events;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.Properties;
-import java.util.concurrent.Semaphore;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -26,12 +26,11 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
-
-import com.nexusbpm.services.LocalClientConfiguration;
-import com.nexusbpm.services.jms.JmsService;
-
 import junit.framework.TestCase;
+import au.edu.qut.yawl.util.SpringTestConfiguration;
+import au.edu.qut.yawl.util.SpringTestConfiguration.Configuration;
+
+import com.nexusbpm.services.jms.JmsService;
 
 public class JmsProviderTest extends TestCase {
 
@@ -55,12 +54,7 @@ public class JmsProviderTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		LocalClientConfiguration lc = new LocalClientConfiguration(
-				"/testresources/jmsClientApplicationContext.xml",
-				"/testresources/jms.client.properties"
-		);
-		BootstrapConfiguration.setInstance(lc);
-		BootstrapConfiguration bc = BootstrapConfiguration.getInstance();
+		SpringTestConfiguration.setupTestConfiguration(Configuration.JMS);
 		
 		service = new JmsService();
 		String jmsPath = ClassLoader.getSystemResource("testresources/openjms.xml").getPath();
@@ -74,13 +68,15 @@ public class JmsProviderTest extends TestCase {
 		} catch (Exception e) {e.printStackTrace();}		
 		
 		receiveCount = 0;
-		provider = JmsProvider.getInstance();
 		Properties p = new Properties();
-		p.load(new FileInputStream("editor.properties"));
+		p.load(ClassLoader.getSystemResourceAsStream("testresources/editor.properties"));
 		context = new InitialContext(p);
 		connection = getConnection(context);
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	    connection.start();
+	    JmsProvider.resetInstance();
+		provider = JmsProvider.getInstance();
+		
 		retrieveAll();
 	}
 
@@ -89,37 +85,34 @@ public class JmsProviderTest extends TestCase {
 		closeJms();
 	}
 
-	public void testProvider() {
+	public void testProvider() throws Exception {
+		receiveCount = 10;
+		createMessageListener();
+		createMessageListener();
+		createMessageListener();
+		createMessageListener();
+		createMessageListener();
+		send("test the Provider");
+		send("test the Provider2");
 		try {
-			receiveCount = 10;
-			createMessageListener();
-			createMessageListener();
-			createMessageListener();
-			createMessageListener();
-			createMessageListener();
-			send("test the Provider");
-			send("test the Provider2");
 			synchronized(lock) {lock.wait(10000);}
-			assertEquals(0, receiveCount);
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e.getMessage());
 		}
-		
+		catch(InterruptedException e) {
+		}
+		assertEquals(0, receiveCount);
 	}
 
-	public void testJMSEventDispatcher() {
+	public void testJMSEventDispatcher() throws NamingException, JMSException {
 		JMSEventDispatcher ed = new JMSEventDispatcher();
 		receiveCount = 1;
+		createMessageListener();
+		ed.fireEvent("testJMSEventDispatcher");
 		try {
-			createMessageListener();
-			ed.fireEvent("testJMSEventDispatcher");
 			synchronized(lock) {lock.wait(10000);}
-			assertEquals(0, receiveCount);
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e.getMessage());
 		}
+		catch(InterruptedException e) {
+		}
+		assertEquals(0, receiveCount);
 	}
 	
 	private void send(Serializable s) throws Exception {

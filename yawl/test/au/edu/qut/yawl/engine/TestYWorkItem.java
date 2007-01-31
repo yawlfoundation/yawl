@@ -13,6 +13,8 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
+import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 import junit.framework.TestCase;
 
 /**
@@ -22,7 +24,7 @@ import junit.framework.TestCase;
  * Time: 16:07:19
  * 
  */
-public class TestYWorkItem extends TestCase{
+public class TestYWorkItem extends AbstractTransactionalTestCase{
     private YIdentifier _identifier;
     private YWorkItemID _workItemID;
     private YWorkItem _workItem;
@@ -32,22 +34,25 @@ public class TestYWorkItem extends TestCase{
     private YWorkItemID _deadlockedWorkItemID;
     private YWorkItem _deadlockedWorkItem;
 
-    public TestYWorkItem(String name){
-        super(name);
+    public TestYWorkItem(){
+        super();
     }
 
 
     public void setUp() throws Exception{
+    	super.setUp();
         _identifier = new YIdentifier();
-        YIdentifier.saveIdentifier( _identifier );
+//        getDAO().save(_identifier);
+//        YIdentifier.saveIdentifier( _identifier, null, null );
         _childIdentifier = _identifier.createChild();
-        _workItemID = new YWorkItemID(_identifier, "task-123");
-        _workItem = new YWorkItem("ASpecID", _workItemID, true, false);
-        YWorkItem.saveWorkItem( _workItem );
+//        _workItemID = new YWorkItemID(_identifier, "task-123");
+        _workItem = new YWorkItem("ASpecID", _identifier, "task-123", true, false);
+//        getDAO().save(_workItem);
+//        YWorkItem.saveWorkItem( _workItem );
         
         _deadlockedWorkItemIdentifier = new YIdentifier();
-        _deadlockedWorkItemID = new YWorkItemID(_deadlockedWorkItemIdentifier, "task-abc");
-        _deadlockedWorkItem = new YWorkItem("AnotherSpecID", _deadlockedWorkItemID, true, true );
+//        _deadlockedWorkItemID = new YWorkItemID(_deadlockedWorkItemIdentifier, "task-abc");
+        _deadlockedWorkItem = new YWorkItem("AnotherSpecID", _deadlockedWorkItemIdentifier, "task-abc", true, true );
     }
 
 
@@ -92,7 +97,7 @@ public class TestYWorkItem extends TestCase{
     public void testProperStatusChange() throws YPersistenceException {
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
-    	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	YWorkItem child = _workItem.createChild(_workItem.getCaseID().createChild());
     	assertNotNull(child);
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child.toXML(), child.getStatus());
@@ -109,7 +114,7 @@ public class TestYWorkItem extends TestCase{
     public void testRollBackStatusSuccess() throws YPersistenceException {
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
-    	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	YWorkItem child = _workItem.createChild(_workItem.getCaseID().createChild());
     	assertNotNull(child);
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child.toXML(), child.getStatus());
@@ -139,7 +144,7 @@ public class TestYWorkItem extends TestCase{
     	
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
-    	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	YWorkItem child = _workItem.createChild(_workItem.getCaseID().createChild());
     	assertNotNull(child);
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child.toXML(), child.getStatus());
@@ -193,7 +198,7 @@ public class TestYWorkItem extends TestCase{
     	
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
-    	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	YWorkItem child = _workItem.createChild(_workItem.getCaseID().createChild());
     	assertNotNull(child);
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child.toXML(), child.getStatus());
@@ -247,7 +252,7 @@ public class TestYWorkItem extends TestCase{
     	
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
-    	YWorkItem child = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	YWorkItem child = _workItem.createChild(_workItem.getCaseID().createChild());
     	assertNotNull(child);
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child.toXML(), child.getStatus());
@@ -292,19 +297,19 @@ public class TestYWorkItem extends TestCase{
     public void testSetWorkItemWithSiblingsToComplete() throws YPersistenceException {
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.Enabled));
     	assertNull(_workItem.getParent());
-    	YWorkItem child1 = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	YWorkItem child1 = _workItem.createChild(_workItem.getCaseID().createChild());
     	assertNotNull(child1);
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child1.toXML(), child1.getStatus());
     	assertTrue(""+child1.getStatus(), child1.getStatus().equals(YWorkItem.Status.Fired));
     	
-    	YWorkItem child2 = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	YWorkItem child2 = _workItem.createChild(_workItem.getCaseID().createChild());
     	assertNotNull(child2);
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child2.toXML(), child2.getStatus());
     	assertTrue(""+child2.getStatus(), child2.getStatus().equals(YWorkItem.Status.Fired));
     	
-    	YWorkItem child3 = _workItem.createChild(_workItem.getWorkItemID().getCaseID().createChild());
+    	YWorkItem child3 = _workItem.createChild(_workItem.getCaseID().createChild());
     	assertNotNull(child3);
     	assertTrue(""+_workItem.getStatus(), _workItem.getStatus().equals(YWorkItem.Status.IsParent));
     	assertNotNull(child3.toXML(), child3.getStatus());

@@ -21,9 +21,11 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.orm.hibernate3.HibernateTransactionManager;
 
 import au.edu.qut.yawl.elements.SpecVersion;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.IdentifierSequence;
 import au.edu.qut.yawl.elements.state.YIdentifier;
@@ -34,7 +36,6 @@ import au.edu.qut.yawl.events.YDataEvent;
 import au.edu.qut.yawl.events.YWorkItemEvent;
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
-import au.edu.qut.yawl.persistence.YAWLTransactionAdvice;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
@@ -43,7 +44,16 @@ import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparis
 
 public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 	private static final Log LOG = LogFactory.getLog( DelegatedCustomSpringDAO.class );
+	private HibernateTransactionManager transactionManager;
 	
+	public HibernateTransactionManager getTransactionManager() {
+		return transactionManager;
+	}
+
+	public void setTransactionManager(HibernateTransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
+	}
+
 	public DelegatedCustomSpringDAO() {
 		addType( YSpecification.class, new SpecificationHibernateDAO() );
 		addType( SpecVersion.class, new SpecVersionHibernateDAO() );
@@ -65,16 +75,26 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 		 */
 		protected abstract void preSave( Type object ) throws YPersistenceException;
 		
+		private Session getSession() {
+			return transactionManager.getSessionFactory().getCurrentSession();
+		}
+		
 		public void delete( Type object ) throws YPersistenceException {
 			Session session = null;
 			try {
-				session = YAWLTransactionAdvice.openSession();
+				session = getSession();
 
 				Type persistedObject = (Type) session.get( object.getClass(), (Serializable) getKey( object ) );
 
+//				LOG.error( "Deleting " + object + ":" + getKey( object ) );
+//				new Exception("Deletion occuring").printStackTrace();
 				session.delete( persistedObject );
-                session.flush();
-                //session.delete( object );
+				session.flush();
+				session.evict(persistedObject);
+				if (object instanceof YWorkItem) {
+//					((YWorkItem) object).setId(null);
+				}
+//				LOG.error( "Deleted " + object + ":" + getKey( object ) );
 			}
 			catch( HibernateException e ) {
 				throw new YPersistenceException( "Error deleting object " + object, e );
@@ -85,7 +105,7 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 			Session session = null;
 			try {
 				Type retval;
-				session = YAWLTransactionAdvice.openSession();
+				session = getSession();
 
 				retval = (Type) session.get( type, (Serializable) key );
 
@@ -100,7 +120,7 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 		public List<Type> retrieveByRestriction( Class type, Restriction restriction ) throws YPersistenceException {
 			Session session = null;
 			try {
-				session = YAWLTransactionAdvice.openSession();
+				session = getSession();
 
 	            Criteria query = session.createCriteria( type );
 	            
@@ -108,8 +128,8 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 	            	query.add( RestrictionCriterionConverter.convertRestriction( restriction ) );
 	            }
 	            
-	            List tmp = query.list();
-	            Set set = new HashSet( tmp );
+	            List<Type> tmp = query.list();
+	            Set<Type> set = new HashSet<Type>( tmp );
 				List<Type> retval = new ArrayList<Type>( set );
 
 				return retval;
@@ -125,12 +145,18 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 			try {
 				preSave( object );
 
-				session = YAWLTransactionAdvice.openSession();
+				session = getSession();
 
+//				LOG.error( "Persisting " + object + " (" + getKey( object ) + ")" );
+//				if (object instanceof YWorkItem) {
+//					System.out.println("case   " + ((YWorkItem)object).getCaseID());
+//					System.out.println("id     " + ((YWorkItem)object).getId());
+//					System.out.println("parent " + ((YWorkItem)object).getParent());
+//					System.out.println("wiid   " + ((YWorkItem)object).getWorkItemID());
+//				}
 				session.saveOrUpdate( object );
-                session.flush();
-                //session.evict( object );
-				LOG.debug( "Persisting " + getKey( object ) );
+				session.flush();
+//				LOG.error( "Persisted " + object + " (" + getKey( object ) + ")" );
 			}
 			catch( HibernateException e ) {
 				throw new YPersistenceException( "Error saving object " + object +
@@ -193,7 +219,7 @@ public class DelegatedCustomSpringDAO extends AbstractDelegatedDAO {
 		                filter = filter + "/";
 		            }
 		            
-		            Session session = YAWLTransactionAdvice.openSession();
+		            Session session = transactionManager.getSessionFactory().openSession();
 		            Criteria query = session.createCriteria(YSpecification.class)
 		            	.add( Restrictions.like( "ID", filter + "%" ) );
 		            

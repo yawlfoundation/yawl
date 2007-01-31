@@ -33,6 +33,9 @@ public class ServiceConfiguration extends BootstrapConfiguration {
 			propertiesFileName = config.getServletContext().getResource("/WEB-INF/" + propertiesFileName).toString();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			System.err.println(config);
+			System.err.println(config.getServletContext());
+			System.err.println("/WEB-INF/" + propertiesFileName);
 			e.printStackTrace();
 		}
 		System.setProperty(YAWL_ENVIRONMENT_PROPERTY_FILE_NAME_KEY, propertiesFileName);

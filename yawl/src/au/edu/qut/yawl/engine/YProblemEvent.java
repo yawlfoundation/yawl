@@ -5,6 +5,8 @@
  * individuals and organisations who are commited to improving workflow technology.
  *
  */
+
+
 package au.edu.qut.yawl.engine;
 
 import java.util.Date;
@@ -13,6 +15,8 @@ import org.apache.log4j.Logger;
 
 import au.edu.qut.yawl.exceptions.Problem;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.dao.DAO;
+
 
 /**
  * A problem event describes the nature of a runtime execution problem.
@@ -69,7 +73,7 @@ public class YProblemEvent {
         return _eventType;
     }
 
-    public void logProblem() throws YPersistenceException {
+    public void logProblem(DAO dao) throws YPersistenceException {
         Logger.getLogger(this.getClass()).error("Problem source: " + _source + " " +
                 " Message: " + _message);
         Problem error = new Problem();
@@ -78,12 +82,6 @@ public class YProblemEvent {
         error.setTimeStamp(new Date());
         error.setSource(_source.toString());
 
-        AbstractEngine.getDao().save( error );
-        /**
-         * AJH: Bugfix - Prevent NPE being thrown if persistence switched off
-         */
-// TODO       if (pmgr != null) {
-//            pmgr.storeObject(error);
-//        }
+        dao.save( error );
     }
 }

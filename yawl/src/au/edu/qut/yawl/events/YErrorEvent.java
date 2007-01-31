@@ -8,6 +8,8 @@
 
 package au.edu.qut.yawl.events;
 
+import java.io.Serializable;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -27,7 +29,7 @@ import javax.persistence.InheritanceType;
     discriminatorType=DiscriminatorType.STRING
 )
 @DiscriminatorValue("basicerror")
-public class YErrorEvent {
+public class YErrorEvent implements Serializable {
 
 	private Long _id;
 	

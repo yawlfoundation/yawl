@@ -16,6 +16,7 @@ import java.util.Set;
 
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YConditionInterface;
+import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.state.YIdentifier;
@@ -31,7 +32,7 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
  */
 public class YStateInspector {
 
-    public static String inspectState(YIdentifier parentID) throws YPersistenceException {
+    public static String inspectState(YIdentifier parentID, YNet net) throws YPersistenceException {
         //###########################################################################
         //##########            BEGIN State inspection code             #############
         //###########################################################################
@@ -39,7 +40,7 @@ public class YStateInspector {
         Set allLocations = new HashSet();
         for (Iterator childIter = allChildren.iterator(); childIter.hasNext();) {
             YIdentifier identifier = (YIdentifier) childIter.next();
-            allLocations.addAll(identifier.getLocations());
+            allLocations.addAll(identifier.getLocationsForNet(net));
         }
         StringBuffer stateText = new StringBuffer();
         for (Iterator locationsIter = allLocations.iterator(); locationsIter.hasNext();) {

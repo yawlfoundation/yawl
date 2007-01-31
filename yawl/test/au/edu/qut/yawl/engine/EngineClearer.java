@@ -33,60 +33,61 @@ public class EngineClearer {
 	 * removed!
 	 */
     public static void clear(YEngineInterface engine) throws YPersistenceException {
-        AbstractEngine.getWorkItemRepository().clear();
-        
-        Set<YSpecification> specs = engine.getSpecifications( false );
-        log( specs.size() + " specs" );
-        for( YSpecification spec : specs ) {
-            log("\tspec " + spec.getID());
-            Set caseIDs = engine.getCasesForSpecification(spec.getID());
-            log("\t" + caseIDs.size() + " cases");
-            for (Iterator iterator2 = caseIDs.iterator(); iterator2.hasNext();) {
-                YIdentifier identifier = (YIdentifier) iterator2.next();
-                log("\t\t" + identifier);
-                if( engine.getNetRunner( identifier ) != null ) {
-                    log("\t\tcancelling");
-                    engine.cancelCase(identifier);
-                }
-                else {
-                    log("\t\tdeleting");
-                    assert identifier != null : "Identifier should not be null";
-                    AbstractEngine.getDao().delete( identifier );
-                }
-            }
-        }
-        
-        List<YIdentifier> ids = AbstractEngine.getDao().retrieveByRestriction(
-                YIdentifier.class, new PropertyRestriction( "parent", Comparison.EQUAL, null ) );
-        log( ids.size() + " identifiers" );
-        for( YIdentifier id : ids ) {
-            log( "\t" + id.toString() );
-            if( engine.getNetRunner( id ) == null ) {
-                log( "\tdeleting identifier" );
-                AbstractEngine.getDao().delete( id );
-            }
-            else {
-                log( "\tcancelling case" );
-                engine.cancelCase(id);
-            }
-        }
-        
-        List<YNetRunner> runners = AbstractEngine.getDao().retrieveByRestriction(
-                YNetRunner.class, new Unrestricted() );
-        log( runners.size() + " net runners" );
-        for( YNetRunner runner : runners ) {
-            log( "\tdeleting " + runner );
-            AbstractEngine.getDao().delete( runner );
-        }
-        
-    	List<YSpecification> list = AbstractEngine.getDao().retrieveByRestriction(
-    			YSpecification.class, new Unrestricted() );
-        log(list.size() + " specifications");
-    	for( YSpecification spec : list ) {
-            log("\tdeleting spec " + spec.getID() + ":" + spec.getVersion() + "(" + spec.getDbID() + ")");
-    		AbstractEngine.getDao().delete( spec );
-    	}
-        log("clear complete");
+//        AbstractEngine.getWorkItemRepository().clear();
+//        Set<YSpecification> specs = engine.getSpecifications( false );
+//        log( specs.size() + " specs" );
+//        for( YSpecification spec : specs ) {
+//            log("\tspec " + spec.getID());
+//            Set caseIDs = engine.getCasesForSpecification(spec.getID());
+//            log("\t" + caseIDs.size() + " cases");
+//            for (Iterator iterator2 = caseIDs.iterator(); iterator2.hasNext();) {
+//                YIdentifier identifier = (YIdentifier) iterator2.next();
+//                log("\t\t" + identifier);
+//                if( engine.getNetRunner( identifier ) != null ) {
+//                    log("\t\tcancelling");
+//                    engine.cancelCase(identifier);
+//                }
+////                else {
+////                    log("\t\tdeleting");
+////                    engine.getDao().delete( identifier );
+////                }
+//            }
+//        }
+//        
+//        List<YIdentifier> ids = engine.getDao().retrieveByRestriction(
+//        		YIdentifier.class, new PropertyRestriction( "parent", Comparison.EQUAL, null ) );
+//        log( ids.size() + " identifiers" );
+//        for( YIdentifier id : ids ) {
+//        	if( id == null ) {
+//        		log( "\t" + "DAO RETURNED NULL ID!" );
+//        	}
+//        	else {
+//	            log( "\t" + id.toString() );
+//	            if( engine.getNetRunner( id ) == null ) {
+//	                log( "\tdeleting identifier" );
+//	                engine.getDao().delete( id );
+//	            }
+//	            else {
+//	                log( "\tcancelling case" );
+//	                engine.cancelCase(id);
+//	            }
+//        	}
+//        }
+//        
+//        List<YNetRunner> runners = engine.getDao().retrieveByRestriction( YNetRunner.class, new Unrestricted() );
+//        log( runners.size() + " net runners" );
+//        for( YNetRunner runner : runners ) {
+//            log( "\tdeleting " + runner );
+//            engine.getDao().delete( runner );
+//        }
+//        
+//    	List<YSpecification> list = engine.getDao().retrieveByRestriction( YSpecification.class, new Unrestricted() );
+//        log(list.size() + " specifications");
+//    	for( YSpecification spec : list ) {
+//            log("\tdeleting spec " + spec.getID() + ":" + spec.getVersion() + "(" + spec.getDbID() + ")");
+//    		engine.getDao().delete( spec );
+//    	}
+//        log("clear complete");
     }
     
     private static void log(String msg) {
@@ -102,7 +103,7 @@ public class EngineClearer {
         log("starting engine");
         EngineFactory.getTransactionalEngine();
         log("starting transaction");
-        a.before( null, null, null );
+        a.before( null,null, null );
         log("clearing database");
         clear( EngineFactory.getTransactionalEngine() );
         log("commiting");

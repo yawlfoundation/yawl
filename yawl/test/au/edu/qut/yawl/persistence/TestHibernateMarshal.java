@@ -19,12 +19,17 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 import com.nexusbpm.editor.persistence.YDecompositionEditorExtension;
 
-public class TestHibernateMarshal extends XMLTestCase  {
-    public void testENEMinimal() throws Exception {
+public class TestHibernateMarshal extends AbstractHibernateDAOTestCase {
+	public void setUp() throws Exception{
+		super.setUp();
+	}
+	
+	public void testENEMinimal() throws Exception {
     	assertComparison("Comparing a minimal spec", "TestENEMinimal.xml");
     }
 
@@ -103,7 +108,8 @@ public class TestHibernateMarshal extends XMLTestCase  {
     	String controlXml = StringProducerRawFile.getInstance().getXMLString(testFilename, true);
     	String testXml = StringProducerHibernate.getInstance().getXMLString(testFilename, true);
 		Diff diff = new Diff(controlXml, testXml);
-		assertXMLEqual(testComment, diff, false);
+		XMLTestCase c = new XMLTestCase();
+		c.assertXMLEqual(testComment, diff, false);
 		assertValidation(testFilename);
     }
 

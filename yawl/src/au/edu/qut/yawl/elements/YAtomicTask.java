@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.elements;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -197,7 +198,7 @@ public class YAtomicTask extends YTask {
                 //DM: this IF isn't needed: the outermost IF makes sure the decomposition isn't null
                 //LA: Actually it is needed - exists(decomp) !==> exists(webservicegateway)
                 if (wsgw != null) {
-                    YAWLServiceReference ys = wsgw.getYawlService();
+                    URI ys = wsgw.getYawlService();
                     if (ys != null) {
                     	EngineFactory.createYEngine().announceCancellationToEnvironment(ys, workItem);
                     }

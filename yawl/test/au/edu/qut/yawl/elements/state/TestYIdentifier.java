@@ -9,12 +9,10 @@
 
 package au.edu.qut.yawl.elements.state;
 
-import junit.framework.TestCase;
-
 import java.util.List;
 import java.util.Vector;
 
-import au.edu.qut.yawl.exceptions.YPersistenceException;
+import junit.framework.TestCase;
 
 
 /**
@@ -26,10 +24,8 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
  * Window>Preferences>Java>Code Generation.
  */
 public class TestYIdentifier extends TestCase {
-	
 	private YIdentifier id1 = new YIdentifier();
 	private YIdentifier id2 = new YIdentifier();
-	
 	
 	/**
 	 * Constructor for IdentifierTest.
@@ -39,9 +35,6 @@ public class TestYIdentifier extends TestCase {
 		super(name);
 	}
 	
-	
-	
-	
 	public void testEquals()
 	{
 		assertFalse(id1.equals(id2));
@@ -50,10 +43,9 @@ public class TestYIdentifier extends TestCase {
 	
 	
 	
-	public void testCreateChild() throws YPersistenceException
+	public void testCreateChild()
 	{
 		YIdentifier id = new YIdentifier();
-		YIdentifier.saveIdentifier( id );
 		YIdentifier id3 = id.createChild();
 		assertTrue(id3.isImmediateChildOf(id));
 		assertFalse(id3.isImmediateChildOf(id2));
@@ -63,10 +55,9 @@ public class TestYIdentifier extends TestCase {
 	
 	
 	
-	public void testGetChildren() throws YPersistenceException
+	public void testGetChildren()
 	{
 		YIdentifier id  = new YIdentifier();
-		YIdentifier.saveIdentifier( id );
 		YIdentifier id3 = id.createChild();
 		YIdentifier id4 = id.createChild();
 		List children = id.getChildren();
@@ -77,10 +68,9 @@ public class TestYIdentifier extends TestCase {
 	
 	
 	
-	public void testIsChildOf() throws YPersistenceException
+	public void testIsChildOf()
 	{
 		YIdentifier parent = new YIdentifier();
-		YIdentifier.saveIdentifier( parent );
 		YIdentifier child = parent.createChild();
 		assertTrue(child.isImmediateChildOf(parent));
 		assertFalse(child.isImmediateChildOf(id1));
@@ -88,11 +78,10 @@ public class TestYIdentifier extends TestCase {
 	
 	
 	
-	public void testGetDescendants() throws YPersistenceException
+	public void testGetDescendants()
 	{
 		List descendants = new Vector();
 		YIdentifier parent = new YIdentifier();
-		YIdentifier.saveIdentifier( parent );
 		descendants.add(parent);
 		YIdentifier child1 = parent.createChild();
 		descendants.add(child1);
