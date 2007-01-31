@@ -51,9 +51,9 @@ import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphSelectionModel;
 import org.jgraph.graph.Port;
-import org.jgraph.plugins.layouts.SugiyamaLayoutAlgorithm;
-import org.jgraph.pad.jgraphpad.util.JGraphParallelEdgeRouter;
-import org.jgraph.pad.jgraphpad.util.JGraphUtilities;
+//import org.jgraph.plugins.layouts.SugiyamaLayoutAlgorithm;
+//import org.jgraph.pad.jgraphpad.util.JGraphParallelEdgeRouter;
+//import org.jgraph.pad.jgraphpad.util.JGraphUtilities;
 import org.springframework.context.ApplicationContext;
 
 import au.edu.qut.yawl.elements.ExtensionListContainer;
@@ -104,7 +104,7 @@ public class GraphEditor extends JPanel
     private final static ImageIcon ICON_KILL_FLOW = ApplicationIcon.getIcon( "GraphEditor.kill_flow" );
     private final static ImageIcon ICON_PAUSE_FLOW = ApplicationIcon.getIcon( "GraphEditor.pause_flow" );
     private final static ImageIcon ICON_RUN_FLOW = ApplicationIcon.getIcon( "GraphEditor.run_flow" );
-    private final static JGraphParallelEdgeRouter EDGE_ROUTER = JGraphParallelEdgeRouter.sharedInstance;
+//    private final static JGraphParallelEdgeRouter EDGE_ROUTER = JGraphParallelEdgeRouter.sharedInstance;
 
     private NexusGraph _graph;
     private NexusGraphModel _graphModel;
@@ -593,7 +593,7 @@ public class GraphEditor extends JPanel
             GraphConstants.setLabelAlongEdge( map, true );
         }
         GraphConstants.setLineStyle( map, GraphConstants.STYLE_BEZIER );
-        GraphConstants.setRouting( map, EDGE_ROUTER );
+//        GraphConstants.setRouting( map, EDGE_ROUTER );
         GraphConstants.setDisconnectable( map, true );
         GraphConstants.setLineEnd( map, GraphConstants.ARROW_TECHNICAL );
         return map;
@@ -1139,24 +1139,24 @@ public class GraphEditor extends JPanel
         } );
 
         if( false ) {
-            // this code is special [ talk to me about it :) ]
-
-            // Ants walking animation code:
-            toolbar.add( new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.flow_checker_warning" ) ) {
-                public void actionPerformed( ActionEvent e ) {
-                    Object[] edges = JGraphUtilities.getEdges( _graph.getModel() );
-
-                    AttributeMap map = new AttributeMap();
-                    GraphConstants.setDashPattern( map, new float[] { 8f, 4f } );
-                    GraphConstants.setDashOffset( map, 12 - Math.abs( patternPhase % 12 ) );
-                    patternPhase--;
-                    for( int i = 0; i < edges.length; i++ ) {
-                        HashMap table = new HashMap();
-                        table.put( edges[ i ], map.clone() );
-                        _graph.getGraphLayoutCache().edit( table, null, null, null );
-                    }
-                }
-            } );
+//            // this code is special [ talk to me about it :) ]
+//
+//            // Ants walking animation code:
+//            toolbar.add( new AbstractAction( "", ApplicationIcon.getIcon( "GraphEditor.flow_checker_warning" ) ) {
+//                public void actionPerformed( ActionEvent e ) {
+////                    Object[] edges = JGraphUtilities.getEdges( _graph.getModel() );
+//
+//                    AttributeMap map = new AttributeMap();
+//                    GraphConstants.setDashPattern( map, new float[] { 8f, 4f } );
+//                    GraphConstants.setDashOffset( map, 12 - Math.abs( patternPhase % 12 ) );
+//                    patternPhase--;
+//                    for( int i = 0; i < edges.length; i++ ) {
+//                        HashMap table = new HashMap();
+//                        table.put( edges[ i ], map.clone() );
+//                        _graph.getGraphLayoutCache().edit( table, null, null, null );
+//                    }
+//                }
+//            } );
         }
 
         if( !_isInstance ) {
@@ -1168,19 +1168,19 @@ public class GraphEditor extends JPanel
                         CapselaWorker w = new CapselaWorker( "Auto Layout" ) {
                             public void run() throws Throwable {
                                 if( !sugiyamaApplied ) {
-                                    // save cell state
-                                    previousCellBounds.clear();
-                                    Object[] cells = JGraphUtilities.getVertices( _graph.getModel(), DefaultGraphModel.getAll( _graph.getModel() ) );
-                                    for( int i = 0; i < cells.length; i++ ) {
-                                        Object cell = cells[ i ];
-                                        Rectangle2D bounds = _graph.getCellBounds( cell );
-                                        previousCellBounds.put( cell, bounds.clone() );
-                                    }
-
-                                    SugiyamaLayoutAlgorithm algorithm = new SugiyamaLayoutAlgorithm();
-                                    algorithm.setSpacing( new Point( 150, 100 ) );
-                                    algorithm.applyLayout( _graph, algorithm, null );
-                                    _graph.autoSizeAll();
+//                                    // save cell state
+//                                    previousCellBounds.clear();
+//                                    Object[] cells = JGraphUtilities.getVertices( _graph.getModel(), DefaultGraphModel.getAll( _graph.getModel() ) );
+//                                    for( int i = 0; i < cells.length; i++ ) {
+//                                        Object cell = cells[ i ];
+//                                        Rectangle2D bounds = _graph.getCellBounds( cell );
+//                                        previousCellBounds.put( cell, bounds.clone() );
+//                                    }
+//
+//                                    SugiyamaLayoutAlgorithm algorithm = new SugiyamaLayoutAlgorithm();
+//                                    algorithm.setSpacing( new Point( 150, 100 ) );
+//                                    algorithm.applyLayout( _graph, algorithm, null );
+//                                    _graph.autoSizeAll();
                                 }
                                 else {
                                     // restore cell state
