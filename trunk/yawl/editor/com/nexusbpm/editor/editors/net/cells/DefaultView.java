@@ -16,7 +16,7 @@ import java.awt.geom.Rectangle2D;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jgraph.JGraph;
-import org.jgraph.pad.graphcellsbase.JGraphMultilineView;
+//import org.jgraph.pad.graphcellsbase.JGraphMultilineView;
 import org.jgraph.graph.CellViewRenderer;
 import org.jgraph.graph.GraphCellEditor;
 import org.jgraph.graph.VertexView;
@@ -33,14 +33,14 @@ public class DefaultView extends VertexView implements PortHighlightable {
   
   private static DefaultRenderer renderer = new DefaultRenderer();
 
-  private MyMultiLinedEditor editor2 = new MyMultiLinedEditor();
+//  private MyMultiLinedEditor editor2 = new MyMultiLinedEditor();
 
   public DefaultView(Object cell) {
     super(cell);
   }
 
   public GraphCellEditor getEditor() {
-    return editor2;
+    return null;//editor2;
   }
   
   private boolean isMouseOver;
@@ -111,19 +111,19 @@ public class DefaultView extends VertexView implements PortHighlightable {
   }
 
   
-  class MyMultiLinedEditor extends JGraphMultilineView.MultiLinedEditor {
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jgraph.graph.GraphCellEditor#getGraphCellEditorComponent(org.jgraph.JGraph,
-     *      java.lang.Object, boolean)
-     */
-    public Component getGraphCellEditorComponent(JGraph graph, Object cell, boolean isSelected) {
-      Component component = super.getGraphCellEditorComponent(graph, cell, isSelected);
-      Dimension dim = ((DefaultRenderer) DefaultView.this.getRendererComponent(graph, false, false, false))
-          .getNameRenderer().getPreferredSize();
-      offsetY = (int) dim.getHeight();
-      return component;
-    }
-  }
+//  class MyMultiLinedEditor extends JGraphMultilineView.MultiLinedEditor {
+//    /*
+//     * (non-Javadoc)
+//     * 
+//     * @see org.jgraph.graph.GraphCellEditor#getGraphCellEditorComponent(org.jgraph.JGraph,
+//     *      java.lang.Object, boolean)
+//     */
+//    public Component getGraphCellEditorComponent(JGraph graph, Object cell, boolean isSelected) {
+//      Component component = super.getGraphCellEditorComponent(graph, cell, isSelected);
+//      Dimension dim = ((DefaultRenderer) DefaultView.this.getRendererComponent(graph, false, false, false))
+//          .getNameRenderer().getPreferredSize();
+//      offsetY = (int) dim.getHeight();
+//      return component;
+//    }
+//  }
 }

@@ -46,7 +46,7 @@ import org.jgraph.graph.CellView;
 import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphLayoutCache;
-import org.jgraph.pad.jgraphpad.util.JGraphUtilities;
+//import org.jgraph.pad.jgraphpad.util.JGraphUtilities;
 
 import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -232,38 +232,38 @@ public class NexusGraph extends JGraph implements Printable,
 	 * size. This will reveal any descriptions under the cell.
 	 */
 	public void autoSizeAll() {
-		CellView[] views = this.getGraphLayoutCache().getMapping(
-				JGraphUtilities.getVertices(this.getModel(), DefaultGraphModel
-						.getAll(this.getModel())));
-		try {
-			Hashtable table = new Hashtable();
-			if (views != null) {
-				for (int i = 0; i < views.length; i++) {
-					CellView view = views[i];
-					JComponent component = (JComponent) view
-							.getRendererComponent(this, false, false, false);
-					if (component != null) {
-						this.add(component);
-						component.validate();
-						Rectangle2D bounds = GraphConstants.getBounds(view
-								.getAllAttributes());
-						if (bounds != null) {
-							bounds = (Rectangle2D) bounds.clone();
-							Dimension d = component.getPreferredSize();
-							bounds.setFrame(bounds.getX(), bounds.getY(), d
-									.getWidth(), d.getHeight());
-							AttributeMap map = new AttributeMap();
-							GraphConstants.setBounds(map, bounds);
-							table.put(view.getCell(), map);
-						}
-					}
-				}
-			}
-			this.getGraphLayoutCache().edit(table, null, null, null);
-		} catch (Exception ee) {
-			LOG.info("Exception resizing graph.", ee);
-		}
-		super.repaint();
+//		CellView[] views = this.getGraphLayoutCache().getMapping(
+//				JGraphUtilities.getVertices(this.getModel(), DefaultGraphModel
+//						.getAll(this.getModel())));
+//		try {
+//			Hashtable table = new Hashtable();
+//			if (views != null) {
+//				for (int i = 0; i < views.length; i++) {
+//					CellView view = views[i];
+//					JComponent component = (JComponent) view
+//							.getRendererComponent(this, false, false, false);
+//					if (component != null) {
+//						this.add(component);
+//						component.validate();
+//						Rectangle2D bounds = GraphConstants.getBounds(view
+//								.getAllAttributes());
+//						if (bounds != null) {
+//							bounds = (Rectangle2D) bounds.clone();
+//							Dimension d = component.getPreferredSize();
+//							bounds.setFrame(bounds.getX(), bounds.getY(), d
+//									.getWidth(), d.getHeight());
+//							AttributeMap map = new AttributeMap();
+//							GraphConstants.setBounds(map, bounds);
+//							table.put(view.getCell(), map);
+//						}
+//					}
+//				}
+//			}
+//			this.getGraphLayoutCache().edit(table, null, null, null);
+//		} catch (Exception ee) {
+//			LOG.info("Exception resizing graph.", ee);
+//		}
+//		super.repaint();
 	}
 
 	/**
