@@ -27,14 +27,14 @@ public class RenameSpecificationCommand extends AbstractRenameCommand {
         Object data = proxy.getData();
         YSpecification spec = (YSpecification) data;
         
-        spec.setID( newName );
-        
-        if( newName.indexOf( "/" ) != -1 ) {
-        	proxy.setLabel( newName.substring( newName.lastIndexOf( "/" ) + 1 ) );
+        int lastSlash = spec.getID().lastIndexOf( "/" );
+        if( lastSlash != -1 ) {
+        	proxy.setLabel( newName);
         }
         else {
         	proxy.setLabel( newName );
         }
+        spec.setID( spec.getID().substring(0, lastSlash + 1) + newName);
         proxy.fireUpdated( DataProxyStateChangeListener.PROPERTY_ID, oldName, newName );
     }
 }

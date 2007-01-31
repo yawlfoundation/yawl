@@ -27,6 +27,7 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YFlow;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.events.StateEvent;
 import au.edu.qut.yawl.persistence.dao.DatasourceFolder;
 import au.edu.qut.yawl.persistence.dao.DatasourceRoot;
 import au.edu.qut.yawl.persistence.managed.DataProxy;
@@ -48,13 +49,25 @@ import com.nexusbpm.services.NexusServiceConstants;
 public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferable {
 	/** A <tt>graph cell</tt> is the displayed JGraph object for a component. */
 	private NexusCell _graphCell;
-    
+	private String state = StateEvent.ACTIVE;
+    public static final String STATE_ATTRIBUTE = "EDITOR_DATA_PROXY_ACTIVITY_STATE";
     public EditorDataProxy() {
         new SharedNode( this );
         GraphPort port = new GraphPort( this );
         new NexusCell( this ).add( port );
     }
 
+    public void setState(String state) {
+    	if (state != this.state) {
+    		this.fireUpdated(STATE_ATTRIBUTE, this.state, state);
+    		this.state = state;
+    	}
+    }
+    
+    public String getState() {
+    	return state;
+    }
+    
 	/**
 	 * @return the graph cell for this component.
 	 */
@@ -281,7 +294,7 @@ public class EditorDataProxy<Type> extends DataProxy<Type> implements Transferab
 	public synchronized void clearAnimatedIcon() {
 		if( _animatedIcon != null ) {
 			_animatedIcon.stop();
-			_iconContainer.remove( _animatedIcon );
+//			_iconContainer.remove( _animatedIcon );
 			_iconContainer.repaint();
 			_animatedIcon = null;
 			_iconContainer = null;

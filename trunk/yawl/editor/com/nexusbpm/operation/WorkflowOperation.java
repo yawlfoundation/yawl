@@ -602,7 +602,7 @@ public class WorkflowOperation {
 	public static YAtomicTask createNexusTask(String taskID, String taskName,
 			YNet net, YAWLServiceGateway gateway, NexusServiceInfo serviceInfo) {
 		YAtomicTask task = new YAtomicTask( taskID, YTask._AND, YTask._AND, net );
-        task.setParent( null );
+//        task.setParent( null ); //why is this being done?
 		task.setName( taskName );
 		task.setDecompositionPrototype( gateway );
         
@@ -666,10 +666,10 @@ public class WorkflowOperation {
                 net.getId() + NexusServiceConstants.NAME_SEPARATOR + taskID,
                 net.getParent() );
         gateway.setParent( null );
-		YAWLServiceReference yawlService = new YAWLServiceReference(
-				NexusServiceConstants.LOCAL_INVOKER_URI,
-                gateway);
-		gateway.setYawlService(yawlService);
+				
+		try {
+			gateway.setYawlService(new URI(NexusServiceConstants.LOCAL_INVOKER_URI));
+		} catch (URISyntaxException e) {}
         
         // create in/out parameters for the specific nexus service
 		for( int i = 0; i < serviceInfo.getVariableNames().length; i++ ) {
@@ -718,9 +718,10 @@ public class WorkflowOperation {
                 net.getId() + NexusServiceConstants.NAME_SEPARATOR + taskID,
                 net.getParent() );
         gateway.setParent( null );
-        YAWLServiceReference yawlService = new YAWLServiceReference(
-                NexusServiceConstants.LOCAL_INVOKER_URI,
-                gateway);
+        URI yawlService = null;
+		try {
+			yawlService = new URI(NexusServiceConstants.LOCAL_INVOKER_URI);
+		} catch (URISyntaxException e) {}
         gateway.setYawlService(yawlService);
         
         return gateway;
@@ -1027,7 +1028,7 @@ public class WorkflowOperation {
     
     public static boolean isGatewayANexusGateway( YAWLServiceGateway gateway ) {
         return gateway.getYawlService() != null &&
-            gateway.getYawlService().getYawlServiceID() != null &&
-            gateway.getYawlService().getYawlServiceID().indexOf( "/NexusServiceInvoker" ) >= 0;
+            gateway.getYawlService() != null &&
+            gateway.getYawlService().toString().indexOf( "/NexusServiceInvoker" ) >= 0;
     }
 }

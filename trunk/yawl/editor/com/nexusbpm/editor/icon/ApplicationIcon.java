@@ -103,7 +103,7 @@ public class ApplicationIcon {
         list.add(frame);
       }
       Object[] iconFrames = list.toArray();
-      AnimatedIcon animatedIcon = new AnimatedIcon(iconFrames, framesPerSecond); 
+      AnimatedIcon animatedIcon = new AnimatedIcon(iconFrames, framesPerSecond, null); 
 	  return animatedIcon;
   }
 

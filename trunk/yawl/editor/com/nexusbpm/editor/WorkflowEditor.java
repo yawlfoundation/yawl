@@ -356,7 +356,8 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
         /////////////////////////
         // setup components panel
 //        SpecificationDAO componentsDAO = DAOFactory.getDAOFactory(DAOFactory.Type.MEMORY).getSpecificationModelDAO();
-        DAO componentsDAO = DAOFactory.getDAO( PersistenceType.MEMORY );
+        DAOFactory factory = (DAOFactory) BootstrapConfiguration.getInstance().getApplicationContext().getBean( "daoFactory" );
+        DAO componentsDAO = factory.getDAO(PersistenceType.MEMORY); 
         DataContext componentsContext = new DataContext(componentsDAO, EditorDataProxy.class);
         
         DatasourceRoot componentsRoot = new DatasourceRoot("virtual://components/");
@@ -452,25 +453,25 @@ public class WorkflowEditor extends DockableApplicationFrame implements MessageL
             DataContext context = proxy.getContext();
             
             Command createSpec = new CreateSpecificationCommand( root.getProxy(), "testspec", model );
-            createSpec.execute();
+            WorkflowEditor.getExecutor().executeCommand(createSpec).get();
             
             SharedNode specNode = (SharedNode) root.getChildAt( 0 );
             assert specNode.getProxy().getData() instanceof YSpecification : "invalid child of root";
             
             Command createNet = new CreateNetCommand( specNode.getProxy(), "components net", model );
-            createNet.execute();
+            WorkflowEditor.getExecutor().executeCommand(createNet).get();
             
             SharedNode netNode = (SharedNode) specNode.getChildAt( 0 );
             assert netNode.getProxy().getData() instanceof YNet : "invalid child of specification";
             
-            for( NexusServiceInfo info : Arrays.asList( NexusServiceInfo.SERVICES ) ) {
+            for( NexusServiceInfo info : NexusServiceInfo.SERVICES ) {
                 Command createComponent = new CreateNexusComponentCommand(
                         netNode.getProxy(),
                         info.getServiceName(),
                         info.getServiceName(),
                         info,
                         model );
-                createComponent.execute();
+                WorkflowEditor.getExecutor().executeCommand(createComponent).get();
             }
             
             newRoot = netNode;
