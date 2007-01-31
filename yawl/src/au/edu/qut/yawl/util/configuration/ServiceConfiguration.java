@@ -6,7 +6,7 @@
  *
  */
 
-package com.nexusbpm.services;
+package au.edu.qut.yawl.util.configuration;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -16,7 +16,8 @@ import javax.servlet.ServletConfig;
 
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+import com.nexusbpm.services.UpdateablePropertiesFactoryBean;
+
 
 public class ServiceConfiguration extends BootstrapConfiguration {
 

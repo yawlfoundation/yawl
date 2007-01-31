@@ -28,10 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.nexusbpm.services.ServiceConfiguration;
 
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+import au.edu.qut.yawl.util.configuration.ServiceConfiguration;
 
 
 /**

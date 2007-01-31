@@ -24,8 +24,8 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.context.ApplicationContext;
 
 import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+import au.edu.qut.yawl.util.configuration.ServiceConfiguration;
 
-import com.nexusbpm.services.ServiceConfiguration;
 
 public class SchedulerService extends HttpServlet {
 
