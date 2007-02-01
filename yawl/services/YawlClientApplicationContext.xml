@@ -20,7 +20,7 @@
   	</bean>
 
 	<bean id="propertyConfigurer" 
-		class="com.nexusbpm.services.UpdateablePropertiesFactoryBean">
+		class="au.edu.qut.yawl.util.configuration.UpdateablePropertiesFactoryBean">
 		<property name="location" value="classpath:${yawl.environment.propertyfilename}" />
 		<property name="ignoreInvalidKeys" value="true" />
 	</bean>
