@@ -14,8 +14,8 @@ import java.util.Properties;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+import au.edu.qut.yawl.util.configuration.UpdateablePropertiesFactoryBean;
 
-import com.nexusbpm.services.UpdateablePropertiesFactoryBean;
 
 public class NexusClientConfiguration extends BootstrapConfiguration{
 	

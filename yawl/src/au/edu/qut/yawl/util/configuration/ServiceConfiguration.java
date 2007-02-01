@@ -16,7 +16,6 @@ import javax.servlet.ServletConfig;
 
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import com.nexusbpm.services.UpdateablePropertiesFactoryBean;
 
 
 public class ServiceConfiguration extends BootstrapConfiguration {
