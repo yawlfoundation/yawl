@@ -29,6 +29,7 @@ import java.awt.Font;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -121,6 +122,7 @@ public class JAlternatingRowColorTable extends JTable {
                                                    boolean hasFocus,
                                                    int row,
                                                    int column) {
+
       Component component = 
         super.getTableCellRendererComponent(
             table, 
@@ -136,4 +138,3 @@ public class JAlternatingRowColorTable extends JTable {
     }
   }
 }
-

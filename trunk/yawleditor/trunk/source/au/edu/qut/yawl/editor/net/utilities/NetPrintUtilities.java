@@ -92,10 +92,11 @@ public class NetPrintUtilities {
     String printoutLabel = "Specification ID: " + SpecificationModel.getInstance().getId() + ", Net ID:  " + net.getName();
 
     int characterHeight = net.getFontMetrics(net.getFont()).getHeight();
-
+    int characterWidth = (int) net.getFontMetrics(net.getFont()).getStringBounds(printoutLabel, net.getGraphics()).getWidth();
+    
     BufferedImage image =
       new BufferedImage(
-        d.width  + imageBuffer*2,
+        Math.max(characterWidth, d.width)  + imageBuffer*2,
         d.height + imageBuffer*2 + characterHeight,
         BufferedImage.TYPE_INT_RGB);
 

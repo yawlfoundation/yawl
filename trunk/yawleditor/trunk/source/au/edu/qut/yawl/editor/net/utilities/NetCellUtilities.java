@@ -98,6 +98,9 @@ public class NetCellUtilities {
             oldBounds.getWidth(),
             oldBounds.getHeight()
         );
+      if (newBounds.getX() < 0 || newBounds.getY() < 0) {
+        return;
+      }
       if (views[i] instanceof VertexView) {
         ((VertexView)views[i]).setBounds(newBounds);
       }

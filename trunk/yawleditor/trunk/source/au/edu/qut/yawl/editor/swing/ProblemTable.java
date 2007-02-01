@@ -22,6 +22,8 @@
 package au.edu.qut.yawl.editor.swing;
 
 import java.awt.Component;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 
 import javax.swing.JComponent;
@@ -69,6 +71,22 @@ public class ProblemTable extends JSingleSelectTable {
     JLabel componentAsLabel = (JLabel) component;
     componentAsLabel.setHorizontalAlignment(JLabel.LEFT);
     return component;
+  }
+  
+  public String getToolTipText(MouseEvent event){
+    Point mousePosition = event.getPoint();
+    if (rowAtPoint(mousePosition) >= 0) {
+
+      String rowContent = (String) getValueAt(
+         rowAtPoint(mousePosition),
+         MessageTableModel.PROBLEM_COLUMN
+      );
+
+      if (rowContent != null) {
+        return "<html><body style=\"width:300px\"><p>" + rowContent.toString() + "</p></body></html>";
+      }
+    }
+    return "";
   }
 }
 
