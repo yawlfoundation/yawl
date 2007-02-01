@@ -59,6 +59,7 @@ public abstract class AbstractDoneDialog extends JDialog {
     this.setModal(modality);
     this.showCancelButton = showCancelButton;
     setContentPanel(bindContentAndButton(contentPanel));
+    setUndecorated(false);
   }
     
   public AbstractDoneDialog(String title, boolean modality, boolean showCancelButton) {

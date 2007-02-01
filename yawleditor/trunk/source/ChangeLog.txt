@@ -18,6 +18,13 @@ Version 1.4.5 (07/12/2006) "Wiggles"
     reloading the specification ses the user unable to add a decorator for that flow.
   * Fixed a bug where right-clicking on the knee of a flow would see the pallet popup menu appear whenever the redrawn
     flow no longer lay underneath the mouse after knee removal.
+  * Fixed a bug where cells could be be moved beyond the left or top edge of a net if movement was done with the keyboard.
+  * Fixed a bug where on print/export of a net, if the secification/net identification string was longer than the 
+    net width, the string would be truncated to the net width.
+  * When users now create a net from the "Unfold to Net..." popup menu item, they will receive the net decomposition dialog, 
+    allowing them to make changes to the net decomposition before it is assigned to the composite task selected. 
+  * Enhanced the problem table that appears on validation or ananalyis to display a tooltip with the full text of
+    the problem text when the mouse hovers overs a particular problem.
 
 Version 1.4.4 (29/11/2006) "MoreMoe"
   * Upgraded the editor to fix some bugs in reset net analysis and to include reduction rules for specification analysis.

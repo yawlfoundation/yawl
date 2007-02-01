@@ -80,6 +80,8 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
         }
       }
     });
+    
+    getRootPane().setDefaultButton(getDoneButton());
   }
 
   protected void makeLastAdjustments() {

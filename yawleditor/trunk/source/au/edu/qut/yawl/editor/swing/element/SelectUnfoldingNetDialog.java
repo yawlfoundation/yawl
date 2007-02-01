@@ -36,6 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.net.NetGraph;
@@ -44,6 +45,7 @@ import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
 import au.edu.qut.yawl.editor.swing.JUtilities;
 import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
+import au.edu.qut.yawl.editor.swing.data.NetDecompositionUpdateDialog;
 import au.edu.qut.yawl.editor.swing.net.YAWLEditorNetFrame;
 
 public class SelectUnfoldingNetDialog extends AbstractDoneDialog {
@@ -165,6 +167,14 @@ public class SelectUnfoldingNetDialog extends AbstractDoneDialog {
     button.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         YAWLEditorNetFrame newFrame = YAWLEditorDesktop.getInstance().newNet();
+        
+        NetDecompositionUpdateDialog netDialog = new NetDecompositionUpdateDialog(
+            newFrame.getGraph().getNetModel().getDecomposition()
+        );
+
+        netDialog.setLocationRelativeTo(YAWLEditor.getInstance());
+        netDialog.setModal(true);
+        netDialog.setVisible(true);
 
         graph.setUnfoldingNet(task, newFrame.getGraph());
 

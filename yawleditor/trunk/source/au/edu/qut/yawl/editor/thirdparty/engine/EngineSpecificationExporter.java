@@ -122,7 +122,6 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     generateSubNets(engineSpecification);
     
     populateEngineNets(engineSpecification);
-      
     return engineSpecification;
   }
   
@@ -520,7 +519,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       XML_SCHEMA_URI
     );
     
-    engineParameter.setOrdering(ordering);
+    //engineParameter.setOrdering(ordering);
     
     /*  Engine BETA 3/4 doesn't like initial values for output parameters. */
     if (engineParameterType == YParameter._INPUT_PARAM_TYPE) {
@@ -662,7 +661,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     if (editorTask.getAllocationResourceMapping() == null) {
       return;
     }
-    
+      
     if (editorTask.getAllocationResourceMapping().getMappingType() == 
         ResourceMapping.ALLOCATE_TO_ANYONE) {
       return;
