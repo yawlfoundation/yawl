@@ -6,7 +6,7 @@
  *
  */
 
-package com.nexusbpm.services;
+package au.edu.qut.yawl.util.configuration;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

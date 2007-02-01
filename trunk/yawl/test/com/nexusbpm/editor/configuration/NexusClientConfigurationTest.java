@@ -16,8 +16,8 @@ import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.dao.YawlEngineDAO;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
+import au.edu.qut.yawl.util.configuration.UpdateablePropertiesFactoryBean;
 
-import com.nexusbpm.services.UpdateablePropertiesFactoryBean;
 
 public class NexusClientConfigurationTest extends TestCase {
 
