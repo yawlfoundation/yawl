@@ -56,7 +56,6 @@ public class JStatusBar extends JPanel {
     super();
     setLayout(new BorderLayout());
     setBorder(BorderFactory.createEmptyBorder(0,2,2,2));
-    statusLabel.setText("Open or create a net to begin.");
     statusLabel.setForeground(Color.DARK_GRAY);
     statusLabel.setBorder(
       BorderFactory.createCompoundBorder(

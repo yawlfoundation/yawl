@@ -125,7 +125,8 @@ public class SpecificationArchiveHandler {
     if (fullFileName.equals("")) {
       return;
     }
-    
+
+    JStatusBar.getInstance().setStatusText("Saving Specification...");
     JStatusBar.getInstance().updateProgressOverSeconds(2);
     
     try {
@@ -163,6 +164,8 @@ public class SpecificationArchiveHandler {
     }
 
     JStatusBar.getInstance().resetProgress();
+    JStatusBar.getInstance().setStatusTextToPrevious();
+
   }
   
   private void writeSpecification(XMLEncoder encoder) {
@@ -170,11 +173,13 @@ public class SpecificationArchiveHandler {
   }
 
   public void close() {
+    JStatusBar.getInstance().setStatusText("Closing Specification...");     
     if (SpecificationFileModel.getInstance().getFileCount() == 0) {
      return; 
     }
     int response = getSaveOnCloseResponse();
     if (response == JOptionPane.CANCEL_OPTION) {
+      JStatusBar.getInstance().setStatusTextToPrevious();
       return;
     }
     if (response == JOptionPane.YES_OPTION) {
@@ -220,9 +225,11 @@ public class SpecificationArchiveHandler {
   }
   
   public void exit() {
+    JStatusBar.getInstance().setStatusText("Exiting YAWLEditor...");
     if (SpecificationFileModel.getInstance().getFileCount() > 0) {
       int response = getSaveOnCloseResponse();
       if (response == JOptionPane.CANCEL_OPTION) {
+        JStatusBar.getInstance().setStatusTextToPrevious();
         return;
       }
 
@@ -240,10 +247,11 @@ public class SpecificationArchiveHandler {
   
   public void open(String fileName) {
     File file;
-    
+
     if (fileName == null) { // prompt user for the file
       if (JFileChooser.CANCEL_OPTION == 
         OPEN_FILE_CHOOSER.showOpenDialog(YAWLEditor.getInstance())) {
+        JStatusBar.getInstance().setStatusTextToPrevious();
         return;
       }
       file = OPEN_FILE_CHOOSER.getSelectedFile();
@@ -262,6 +270,7 @@ public class SpecificationArchiveHandler {
         return;
 
       } else if (!file.canRead()) { // file exists, but can't be read
+        JStatusBar.getInstance().setStatusTextToPrevious();
         return;        
       }
     }
@@ -273,6 +282,8 @@ public class SpecificationArchiveHandler {
 
     YAWLEditorDesktop.getInstance().setVisible(true);
     JStatusBar.getInstance().resetProgress();
+    JStatusBar.getInstance().setStatusTextToPrevious();
+
   }
   
   public void open() {
@@ -298,6 +309,7 @@ public class SpecificationArchiveHandler {
       });
       SpecificationModel.getInstance().reset();
 
+      JStatusBar.getInstance().setStatusText("Opening Specification...");
       readSpecification(encoder);
       encoder.close();
       inputStream.close();
