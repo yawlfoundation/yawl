@@ -25,6 +25,7 @@ Version 1.4.5 (07/12/2006) "Wiggles"
     allowing them to make changes to the net decomposition before it is assigned to the composite task selected. 
   * Enhanced the problem table that appears on validation or ananalyis to display a tooltip with the full text of
     the problem text when the mouse hovers overs a particular problem.
+  * Enhanced the editor so that it now wraps text on labels when labbels get overly long.
 
 Version 1.4.4 (29/11/2006) "MoreMoe"
   * Upgraded the editor to fix some bugs in reset net analysis and to include reduction rules for specification analysis.

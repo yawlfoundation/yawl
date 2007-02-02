@@ -42,7 +42,7 @@ public class VertexLabel extends DefaultGraphCell {
   private static final long serialVersionUID = 1L;
   private YAWLVertex vertex;
   private String     label;
-
+  
   public VertexLabel() {
     initialize(null, "");
   }
@@ -55,10 +55,14 @@ public class VertexLabel extends DefaultGraphCell {
     initialize(vertex, label);
   }
   
+  public void refreshLabelView() {
+      setUserObject("<html><body style=\"width:" + vertex.getBounds().getWidth() * 3 + "\" align=\"center\">" + label + "</body></html>");
+  }
+  
   public void setLabel(String label) {
     this.label = label;
     if (label != null) {
-		  setUserObject(label);
+      refreshLabelView();
     } else {
       setUserObject(null);
     }
