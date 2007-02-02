@@ -61,6 +61,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
   public static final Color DEFAULT_VERTEX_BACKGROUND = Color.WHITE;
   public static final Color DEFAULT_VERTEX_FOREGROUND = Color.BLACK;
   
+  public static final int DEFAULT_SIZE = 32;
 
   /* ALL yawl-specific attributes of this object and its descendants 
    * are to be stored in serializationProofAttributeMap, meaning we 
@@ -70,7 +71,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
   
   protected HashMap serializationProofAttributeMap = new HashMap();
 
-  private transient static final Dimension size = new Dimension(32, 32);
+  private transient static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
   
   public YAWLVertex() {
     super();
