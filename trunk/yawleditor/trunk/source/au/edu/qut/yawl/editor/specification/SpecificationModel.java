@@ -37,6 +37,7 @@ import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
 import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
 import au.edu.qut.yawl.editor.net.NetGraph;
 
+import au.edu.qut.yawl.editor.swing.JStatusBar;
 import au.edu.qut.yawl.editor.swing.undo.UndoableDecompositionLabelChange;
 import au.edu.qut.yawl.editor.swing.undo.UndoableNetFrameTitleChange;
 import au.edu.qut.yawl.editor.swing.undo.UndoableFontSizeChange;
@@ -128,6 +129,7 @@ public class SpecificationModel {
     setEngineFileName("");
     setDataTypeDefinition(DEFAULT_TYPE_DEFINITION);
     setUniqueElementNumber(0);
+    JStatusBar.getInstance().setStatusText("Open or create a net to begin.");
     
     setName("");
     setDescription("No description has been given.");

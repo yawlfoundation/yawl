@@ -61,7 +61,7 @@ public class VertexLabel extends DefaultGraphCell {
   
   public void setLabel(String label) {
     this.label = label;
-    if (label != null) {
+    if (label != null && vertex != null) {
       refreshLabelView();
     } else {
       setUserObject(null);

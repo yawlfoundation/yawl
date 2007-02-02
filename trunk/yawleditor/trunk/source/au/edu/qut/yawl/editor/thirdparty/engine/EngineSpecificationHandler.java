@@ -73,6 +73,7 @@ public class EngineSpecificationHandler {
   
   public void validate() {
 
+    JStatusBar.getInstance().setStatusText("Validating Specification...");
     JStatusBar.getInstance().updateProgressOverSeconds(2);
     
     try {
@@ -80,10 +81,12 @@ public class EngineSpecificationHandler {
           "Problems identified in engine specification validation",
           EngineSpecificationValidator.getValidationResults()
       );
+      JStatusBar.getInstance().setStatusTextToPrevious();
       JStatusBar.getInstance().resetProgress();
 
     } catch (Exception e) {
       e.printStackTrace();
+      JStatusBar.getInstance().setStatusTextToPrevious();
       JStatusBar.getInstance().resetProgress();
     }
   }
@@ -103,6 +106,7 @@ public class EngineSpecificationHandler {
   }
   
   private void importEngineSpecificationFile(String fullFileName) {
+    JStatusBar.getInstance().setStatusText("Importing Engine Specification...");
     JStatusBar.getInstance().updateProgressOverSeconds(2);
     YAWLEditorDesktop.getInstance().setVisible(false);
 
@@ -154,10 +158,13 @@ public class EngineSpecificationHandler {
       return;
     }
 
+
+    JStatusBar.getInstance().setStatusText("Exporting Engine Specification...");
     JStatusBar.getInstance().updateProgressOverSeconds(2);
 
     exporter.exportEngineSpecificationToFile(fullFileName);
-    
+
+    JStatusBar.getInstance().setStatusTextToPrevious();
     JStatusBar.getInstance().resetProgress();
   }
   

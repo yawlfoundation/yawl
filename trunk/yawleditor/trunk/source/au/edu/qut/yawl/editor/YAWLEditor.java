@@ -171,6 +171,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
           if (!closing) {
             closing = true;
             ArchivingThread.getInstance().exit();
+            closing = false;
           }
         }
       }

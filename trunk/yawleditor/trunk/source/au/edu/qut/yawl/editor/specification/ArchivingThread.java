@@ -24,6 +24,7 @@
 
 package au.edu.qut.yawl.editor.specification;
 
+import au.edu.qut.yawl.editor.swing.JStatusBar;
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 public class ArchivingThread extends Thread {
