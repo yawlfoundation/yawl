@@ -9,14 +9,11 @@
 package au.edu.qut.yawl.util.configuration;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 
 import org.springframework.web.context.support.XmlWebApplicationContext;
-
-
 
 public class ServiceConfiguration extends BootstrapConfiguration {
 

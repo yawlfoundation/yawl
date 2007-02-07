@@ -26,8 +26,6 @@ import au.edu.qut.yawl.unmarshal.UnmarshallerTestSuite;
 import au.edu.qut.yawl.deployment.AutoDeploymentTestSuite;
 import au.edu.qut.yawl.exceptions.YAWLException;
 
-import com.nexusbpm.command.CommandTestSuite;
-import com.nexusbpm.operation.OperationTestSuite;
 import com.nexusbpm.services.NexusServiceTestSuite;
 
 /**
@@ -63,9 +61,7 @@ public class TestAllYAWLSuites extends TestSuite{
         suite.addTest(au.edu.qut.yawl.swingWorklist.WorklistTestSuite.suite());
         suite.addTest(au.edu.qut.yawl.worklist.WorklistTestSuite.suite());
         suite.addTest(AuthenticationTestSuite.suite());
-        suite.addTest(CommandTestSuite.suite());
         suite.addTest(NexusServiceTestSuite.suite());
-        suite.addTest(OperationTestSuite.suite());
         suite.addTest(AutoDeploymentTestSuite.suite());
         return suite;
     }

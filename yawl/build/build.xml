@@ -14,7 +14,6 @@
     <property name="backup" value="backup"/>
     <property name="thirdParty.home" value="${build.home}/thirdParty"/>
     <property name="basic.libs" value="./build/3rdParty/lib"/>
-    <property name="editor.libs" value="./build/nexusWorkflowEditor/lib"/>
     <property name="wsif.libs" value="./build/3rdParty/wsif-lib"/>
     <property name="xsd.libs" value="./build/3rdParty/xsdlib"/>
     <property name="xfire.libs" value="./build/3rdParty/serviceLibs/xfire"/>
@@ -25,7 +24,6 @@
     <property name="xforms.dist" value="./build/yawlXForms/dist"/>
     <property name="extra.libs" value="./build/extras"/>        <!-- AJH -->
     <property name="property.files" value="./build/properties"/> <!-- AJH -->
-    <property name="nexus_editor" value="./editor/"/>
 	<property name="mock" value="./mock/"/>
     <property name="classes" value="classes"/>
     <property name="enumeratedClasses" value="./build/3rdParty/enumerated3rdPartyClasses"/>
@@ -61,7 +59,6 @@
     <property name="src.home" value="${basedir}/src"/>
     <property file="${build.home}/build.properties"/>
 	
-	<property name="nexus.editor.app.name" value="NexusWorkflowEditor"/>
 	<property name="nexus.serviceInvoker.app.name" value="NexusServiceInvoker"/>
 	<property name="nexus.serviceInvoker.app.path" value="/${nexus.serviceInvoker.app.name}"/>
 	<property name="nexus.service.jython.app.name" value="JythonService"/>
@@ -220,25 +217,13 @@
     <property name="postgres7.path" value="${basic.libs}/${postgres7.jar}"/>
     <property name="postgres8.jar" value="postgresql-8.0-311.jdbc3.jar"/>
     <property name="postgres8.path" value="${basic.libs}/${postgres8.jar}"/>
+	<property name="spring.jar" value="${persist.libs}/spring.jar"/>
     <property name="jta" value="${persist.libs}/jta.jar"/>
     <property name="jaxbapi" value="${persist.libs}/jaxb-api.jar"/>
     <property name="jaxbimpl" value="${persist.libs}/jaxb-impl.jar"/>
     <property name="jaxen" value="${persist.libs}/jaxen-1.1-beta-7.jar"/>
     <property name="odmg" value="${persist.libs}/odmg-3.0.jar"/>
 	<property name="xmlunit" value="${basic.libs}/xmlunit1.0.jar"/>
-	
-    <!--
-    Editor Dependencies
-    -->
-    <property name="jgraph.jar" value="${editor.libs}/jgraph-5.9.2.1.jar"/>
-    <property name="jgraphpad.jar" value="${editor.libs}/jgraphpad.jar"/>
-	<property name="layouts.jar" value="${editor.libs}/layouts.jar"/>
-    <property name="swing-worker.jar" value="${editor.libs}/swing-worker.jar"/>
-	<property name="jcalendar.jar" value="./build/nexusWorkflowEditor/lib/jcalendar-custom.jar"/>
-	<property name="spring.jar" value="${persist.libs}/spring.jar"/>
-	<property name="l2fprod" value="./build/nexusWorkflowEditor/lib/l2fprod-common-sheet.jar"/>
-    <property name="jasper" value="${env.CATALINA_HOME}/common/lib/jasper-compiler.jar"/>
-    <property name="flexdoc" value="./build/nexusWorkflowEditor/lib/flexdock-0.4.0.jar"/>
 
 
 
@@ -383,44 +368,6 @@
     </path>
 
     <!--
-    Editor Classpath
-    -->
-    <path id="cp.editor">
-
-        <pathelement location="${flexdoc}"/>
-        <pathelement location="${jasper}"/>
-        <pathelement location="${l2fprod}"/>
-        <pathelement location="${cglib}"/>
-        <pathelement location="${common.jar}"/>
-        <pathelement location="${commonsCollections}"/>
-        <pathelement location="${commonsLogging}"/>
-        <pathelement location="${dom4j}"/>
-        <pathelement location="${ecore.jar}"/>
-        <pathelement location="${ejb-persist}"/>
-        <pathelement location="${hibernate}"/>
-        <pathelement location="${hibernate-ann}"/>
-        <pathelement location="${jcalendar.jar}"/>
-        <pathelement location="${jdom.jar}"/>
-    	<pathelement location="${jgraph.jar}"/>
-    	<pathelement location="${jgraphpad.jar}"/>
-    	<pathelement location="${layouts.jar}"/>
-        <pathelement location="${log4j}"/>
-        <pathelement location="${quartz.jar}"/>
-        <pathelement location="${saxon.jar}"/>
-        <pathelement location="${swing-worker.jar}"/>
-        <pathelement location="${xerces.jar}"/>
-        <pathelement location="${xsd.resources.jar}"/>
-        <pathelement location="${xsd.jar}"/>
-        <pathelement location="${openjms-0.7.7-alpha-3.jar}"/>
-        <pathelement location="${openjms-common-0.7.7-alpha-3.jar}"/>
-        <pathelement location="${openjms-net-0.7.7-alpha-3.jar}"/>
-        <pathelement location="${commons-codec-1.3.jar}"/>
-        <pathelement location="${jms-1.1.jar}"/>
-        <pathelement location="${jndi-1.2.1.jar}"/>
-        <pathelement location="${spice-jndikit-20050704.053804.jar}"/>
-    </path>
-
-    <!--
     Mail Service Classpath
     -->
     <path id="cp.mail">
@@ -513,14 +460,13 @@
     <target name="compile" >
 	<echo>Compiling YAWL...</echo>
 
-        <javac srcdir="${src}:editor:${mock}:${services}:${test}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
+        <javac srcdir="${src}:${mock}:${services}:${test}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.tomcat"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
             <classpath refid="cp.xsd"/>
             <classpath refid="cp.persist"/>
-            <classpath refid="cp.editor"/>
             <classpath refid="cp.mail"/>
         </javac>
         <!--rmic base="${classes}" classname="au.edu.qut.yawl.engine.interfce.EngineGatewayImpl"/-->
@@ -1673,63 +1619,6 @@
         <antcall target="cleanup"/>
     </target>
 
-    <target name="build-editor" depends="compile">
-        <delete dir="${nexus.editor.app.name}"/>
-        <mkdir dir="${nexus.editor.app.name}/lib"/>
-        <copy todir="${nexus.editor.app.name}">
-            <fileset dir="classes">
-                <include name="com/nexusbpm/**/*.class"/>
-                <include name="au/edu/qut/yawl/**/*.class"/>
-            	<include name="au/edu/qut/yawl/**/*.xsd"/>
-            	<include name="operation/*.class"/>
-            </fileset>
-        </copy>
-        <copy todir="${nexus.editor.app.name}">
-            <fileset dir="editor">
-                <include name="com/nexusbpm/editor/icon/**/*.png"/>
-                <include name="com/nexusbpm/**/*.properties"/>
-            </fileset>
-        </copy>
-        
-        <jar destfile="output/${nexus.editor.app.name}.jar"
-        	manifest="build/nexusWorkflowEditor/setup/MANIFEST.MF">
-            <fileset dir="${nexus.editor.app.name}"/>
-        </jar>
-        <delete dir="${nexus.editor.app.name}"/>
-    </target>
-    
-    <target name="run-editor">
-        <java classname="com.nexusbpm.editor.WorkflowEditor" fork="true">
-            <classpath>
-            	<pathelement location="${cglib}"/>
-    	        <pathelement location="${common.jar}"/>
-    	        <pathelement location="${commonsCollections}"/>
-    	        <pathelement location="${commonsLogging}"/>
-    	        <pathelement location="${dom4j}"/>
-    	        <pathelement location="${ecore.jar}"/>
-    	        <pathelement location="${ejb-persist}"/>
-    	        <pathelement location="${hibernate}"/>
-    	        <pathelement location="${hibernate-ann}"/>
-    	        <pathelement location="${jcalendar.jar}"/>
-    	        <pathelement location="${jdom.jar}"/>
-    	        <pathelement location="${jgraph.jar}"/>
-    	        <pathelement location="${jgraphpad.jar}"/>
-    	        <pathelement location="${layouts.jar}"/>
-                <pathelement location="${jms-1.1.jar}"/>
-                <pathelement location="${junit.jar}"/>
-    	        <pathelement location="${log4j}"/>
-    	        <pathelement location="${quartz.jar}"/>
-    	        <pathelement location="${saxon.jar}"/>
-                <pathelement location="${spring.jar}"/>
-    	        <pathelement location="${swing-worker.jar}"/>
-    	        <pathelement location="${xerces.jar}"/>
-    	        <pathelement location="${xsd.resources.jar}"/>
-    	        <pathelement location="${xsd.jar}"/>
-            	<pathelement location="output/${nexus.editor.app.name}.jar"/>
-            </classpath>
-        </java>
-    </target>
-
     <target name="JavaForgeDeploy"
 	depends=
 	"buildWebApps">
@@ -1871,7 +1760,6 @@
         </copy>
         <javac srcdir="${test}" destdir="${classes}">
             <classpath refid="cp.persist"/>
-            <classpath refid="cp.editor"/>
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>

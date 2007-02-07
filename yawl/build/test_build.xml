@@ -9,7 +9,6 @@
     -->
     <property name="developer.name" value="Lachlan_Aldred"/>
     <property name="src" value="src"/>
-    <property name="editor" value="editor"/>
     <property name="test" value="test"/>
 	<property name="services" value="services"/> <!-- source dir for services -->
     <property name="backup" value="backup"/>
@@ -24,7 +23,6 @@
     <property name="xforms.dist" value="./build/yawlXForms/dist"/>
     <property name="extra.libs" value="./build/extras"/>        <!-- AJH -->
     <property name="property.files" value="./build/properties"/> <!-- AJH -->
-    <property name="nexus_editor" value="./editor/"/>
 	<property name="mock" value="./mock/"/>
     <property name="classes" value="classes"/>
     <property name="enumeratedClasses" value="./build/3rdParty/enumerated3rdPartyClasses"/>
@@ -349,19 +347,6 @@
     </path>
 
     <!--
-    Editor Classpath
-    -->
-    <path id="cp.editor">
-    	<pathelement location="${jgraphlayout.jar}"/>
-        <pathelement location="${jgraph-5.4.jar}"/>
-        <pathelement location="${jgraphaddons-1.0.5.jar}"/>
-        <pathelement location="${swing-worker.jar}"/>
-        <pathelement location="${l2fprod-common-sheet.jar}"/>
-        <pathelement location="${flexdock-0.4.0.jar}"/>
-    </path>
-
-
-    <!--
     Mail Service Classpath
     -->
     <path id="cp.mail">
@@ -418,9 +403,8 @@
     Compiles main project source into ${classes}.
     -->
     <target name="compile" depends="init">
-        <javac srcdir="${src}:editor:${mock}:${services}:${test}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
+        <javac srcdir="${src}:${mock}:${services}:${test}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
             <classpath refid="cp.xsd"/>
-            <classpath refid="cp.editor"/>
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
@@ -432,7 +416,6 @@
             <fileset dir="${src}" excludes="**/*.java"/>
             <fileset dir="${test}" excludes="**/*.java"/>
             <fileset dir="${mock}" excludes="**/*.java"/>
-            <fileset dir="${editor}" excludes="**/*.java"/>
         </copy>
 
         <!-- Copy and patch Log4J properties file in for free-standing engine -->
@@ -1678,7 +1661,6 @@
         </copy>
         <javac srcdir="${test}" destdir="${classes}" debug="true">
             <classpath refid="cp.xsd"/>
-            <classpath refid="cp.editor"/>
             <classpath refid="cp.persist"/>
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
@@ -1701,7 +1683,6 @@
 			<classpath refid="cp.persist"/>
 			<classpath refid="cp.compile"/>
 			<classpath refid="cp.xsd"/>
-			<classpath refid="cp.editor"/>
 			<formatter type="plain"/>
 			<test name="au.edu.qut.yawl.TestAllYAWLSuites"  haltonfailure="no" outfile="result">
 			</test>
