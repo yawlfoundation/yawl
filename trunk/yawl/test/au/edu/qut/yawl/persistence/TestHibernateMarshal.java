@@ -8,7 +8,6 @@
 
 package au.edu.qut.yawl.persistence;
 
-import java.awt.geom.Point2D;
 import java.util.List;
 
 import org.custommonkey.xmlunit.Diff;
@@ -21,8 +20,6 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 import au.edu.qut.yawl.util.YVerificationMessage;
-
-import com.nexusbpm.editor.persistence.YDecompositionEditorExtension;
 
 public class TestHibernateMarshal extends AbstractHibernateDAOTestCase {
 	public void setUp() throws Exception{
@@ -85,23 +82,6 @@ public class TestHibernateMarshal extends AbstractHibernateDAOTestCase {
 
     public void testSpecMinimal() throws Exception {
     	assertComparison("comparing a minimal spec", "TestSpecMinimal.xml");
-    }
-    
-    public void testSpecEmbeddedExtensions() throws Exception {
-		YSpecification spec = StringProducerHibernate.getInstance().getSpecification("TestSpecEmbeddedExtensions.xml", true);
-		YDecomposition decomp = spec.getDecomposition("OverseeMusic");
-		YDecompositionEditorExtension decompExten = new YDecompositionEditorExtension(decomp);
-		assertEquals(
-				"Extension must present a value",
-				decompExten.getCenterPoint(), 
-				new Point2D.Double(100, 100)
-		);
-		decompExten.setCenterPoint(new Point2D.Double(200, 200));
-		assertEquals(
-				"Extension must be modifiable",
-				decompExten.getCenterPoint(), 
-				new Point2D.Double(200, 200)
-		);
     }
     
     protected void assertComparison(String testComment, String testFilename) throws Exception {
