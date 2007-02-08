@@ -7,13 +7,13 @@
  */
 package au.edu.qut.yawl.persistence.dao;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.util.ClassMap;
 
 public abstract class AbstractDelegatedDAO implements DAO<Object> {
 	protected Map<Class,DAO> typeMap = new ClassMap<DAO>();
@@ -58,53 +58,6 @@ public abstract class AbstractDelegatedDAO implements DAO<Object> {
 	private final void checkTypeSupported( Class type ) {
 		if( ! typeMap.containsKey( type ) ) {
 			throw new IllegalArgumentException( "DAO does not support the type " + type );
-		}
-	}
-	
-	/**
-	 * Custom version of a map that maps Classes to values of any type.
-	 * containsKey(key) will return true if the given class itself is a
-	 * key or if a superclass of it is a key. get(key) will return the
-	 * object associated with that class if the class itself is a key,
-	 * or if a superclass of that class is a key it will return the
-	 * value associated with that superclass.
-	 * 
-	 * Behavior is undefined if multiple classes from the same hierarchy
-	 * are added as keys.
-	 */
-	private class ClassMap<V> extends HashMap<Class,V> {
-		@Override
-		public boolean containsKey( Object key ) {
-			if( ! ( key instanceof Class ) ) {
-				return false;
-			}
-			else if( super.containsKey( key ) ) {
-				return true;
-			}
-			Class c = (Class) key;
-			for( Class type : keySet() ) {
-				if( type.isAssignableFrom( c ) ) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		@Override
-		public V get( Object key ) {
-			if( ! ( key instanceof Class ) ) {
-				return null;
-			}
-			else if( super.containsKey( key ) ) {
-				return super.get( key );
-			}
-			Class c = (Class) key;
-			for( Class type : keySet() ) {
-				if( type.isAssignableFrom( c ) ) {
-					return super.get( type );
-				}
-			}
-			return null;
 		}
 	}
 }

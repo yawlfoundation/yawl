@@ -10,16 +10,17 @@ package au.edu.qut.yawl.persistence.dao;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.criterion.DetachedCriteria;
-
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionCriterionConverter;
 import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 
 
@@ -27,12 +28,13 @@ public abstract class AbstractSpringDAO<Type> extends HibernateDaoSupport implem
 	/**
 	 * Hook for subclassers to take care of any operation necessary before the object is saved.
 	 */
-	protected abstract void preSave( Type object );
+	protected abstract void preSave( Type object ) throws YPersistenceException;
 	
 	public void save( Type object ) throws YPersistenceException {
 		preSave( object );
 
 		getHibernateTemplate().saveOrUpdate( object );
+		getHibernateTemplate().flush();
 	}
 	
 	public final Type retrieve( Class type, Object key ) {
@@ -51,11 +53,12 @@ public abstract class AbstractSpringDAO<Type> extends HibernateDaoSupport implem
 		
 		
 		if( ! ( restriction instanceof Unrestricted ) ) {
-        	criteria.add( RestrictionCriterionConverter.convertRestriction( restriction ) );
-        } 
+			criteria.add( RestrictionCriterionConverter.convertRestriction( restriction ) );
+		}
 
+		Set<Type> set = new HashSet<Type>( getHibernateTemplate().findByCriteria( criteria ) );
 		
-		return getHibernateTemplate().findByCriteria( criteria );
+		return new ArrayList<Type>( set );
 	}
 	
 	public final void delete( Type object ) {
@@ -71,6 +74,7 @@ public abstract class AbstractSpringDAO<Type> extends HibernateDaoSupport implem
 
 
 		getHibernateTemplate().delete( object );
+		getHibernateTemplate().flush();
 	}
 	
 	public List getChildren( Object object ) {
