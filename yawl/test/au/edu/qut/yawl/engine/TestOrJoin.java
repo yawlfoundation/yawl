@@ -57,7 +57,6 @@ public class TestOrJoin extends AbstractTransactionalTestCase {
         specification = (YSpecification) YMarshal.
                             unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         _engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
         _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         _engine.startCase(null, specification.getID(), null, null);
         {
@@ -204,7 +203,6 @@ public class TestOrJoin extends AbstractTransactionalTestCase {
         specification2 = (YSpecification) YMarshal.
                             unmarshalSpecifications(yawlXMLFile2.getAbsolutePath()).get(0);
         _engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
         _engine.loadSpecification(specification2);
         _engine.startCase(null, specification2.getID(), null, null);
         {

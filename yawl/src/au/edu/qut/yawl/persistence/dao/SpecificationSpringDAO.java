@@ -16,6 +16,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.persistence.DatasourceFolder;
 
 public class SpecificationSpringDAO extends AbstractSpringDAO<YSpecification> {
 

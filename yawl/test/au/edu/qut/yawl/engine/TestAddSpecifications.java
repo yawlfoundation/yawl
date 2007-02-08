@@ -45,12 +45,11 @@ public class TestAddSpecifications extends AbstractTransactionalTestCase {
         _spec1File = getFile( "TestAddSpecifications1.xml" );
         _spec2File = getFile( "TestAddSpecifications2.xml" );
         try {
-			_engine =  EngineFactory.createYEngine();
-			EngineClearer.clear(_engine);
-		} catch (RuntimeException e) {
-			super.tearDown();
-			throw new Exception("Test setup failed", e);
-		}
+            _engine =  EngineFactory.createYEngine();
+        } catch (RuntimeException e) {
+            super.tearDown();
+            throw new Exception("Test setup failed", e);
+        }
     }
     
     private static File getFile( String fileName ) {

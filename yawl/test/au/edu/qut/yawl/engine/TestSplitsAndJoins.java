@@ -70,7 +70,6 @@ public class TestSplitsAndJoins extends AbstractTransactionalTestCase {
 //                            unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         EngineFactory.resetEngine();
         _engine =  EngineFactory.createEngine(true);
-        EngineClearer.clear(_engine);
     }
     
     private static void sleep( long millis ) {

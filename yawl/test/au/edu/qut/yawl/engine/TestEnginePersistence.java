@@ -47,7 +47,6 @@ public class TestEnginePersistence extends AbstractTransactionalTestCase {
     public void setUp() throws Exception {
     	super.setUp();
         _engine = EngineFactory.createEngine();
-        EngineClearer.clear(_engine);
 
         //use this spec because it has a case input param
         URL fileURL = getClass().getResource("TestFunkyStartParams.xml");

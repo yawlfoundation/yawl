@@ -64,7 +64,6 @@ public class TestInputParameters extends AbstractTransactionalTestCase {
         _spec1File = getFile( "TestInputParameters1.xml" );
         _spec2File = getFile( "TestInputParameters2.xml" );
         _engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
     }
     
     private static File getFile( String fileName ) {

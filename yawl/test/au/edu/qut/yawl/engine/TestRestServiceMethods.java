@@ -48,7 +48,6 @@ public class TestRestServiceMethods extends AbstractTransactionalTestCase{
                 unmarshalSpecifications(mmFile.getAbsolutePath()).get(0);
 
         _engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
         _engine.addSpecifications(mmFile, true, new ArrayList());
         _engine.addSpecifications(mm2File, true, new ArrayList());
 

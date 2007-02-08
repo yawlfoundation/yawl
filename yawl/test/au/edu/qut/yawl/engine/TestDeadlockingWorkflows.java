@@ -43,12 +43,6 @@ public class TestDeadlockingWorkflows extends TestCase{
         super(s);
     }
 
-
-    public void setUp(){
-
-    }
-
-
     public void testDeadlockingSpecification()
             throws YSchemaBuildingException, YSyntaxException,
             JDOMException, IOException, YStateException, YPersistenceException, YDataStateException {
@@ -59,7 +53,6 @@ public class TestDeadlockingWorkflows extends TestCase{
                         unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
 
         AbstractEngine engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(engine);
         engine.loadSpecification(specification);
         _idForTopNet = engine.startCase(null, specification.getID(), null, null);
         YWorkItemRepository repository = YWorkItemRepository.getInstance();

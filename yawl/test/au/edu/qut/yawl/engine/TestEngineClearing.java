@@ -1,15 +1,9 @@
 package au.edu.qut.yawl.engine;
 
-import java.util.List;
-
 import junit.framework.TestCase;
 
-import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.persistence.dao.DAO;
 import au.edu.qut.yawl.persistence.dao.DAOFactory;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
-import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
-import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 import au.edu.qut.yawl.util.SpringTestConfiguration;
 import au.edu.qut.yawl.util.SpringTestConfiguration.Configuration;
 import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
@@ -30,7 +24,6 @@ public class TestEngineClearing extends TestCase {
 
 	public void testClearer() throws Exception{
 		YEngine engine = EngineFactory.createYEngine();
-		EngineClearer.clear(engine);
 //		List<YNetRunner> runners = dao.retrieveByRestriction(YNetRunner.class, new Unrestricted());
 //		for (YNetRunner runner: runners) {
 //			dao.delete(runner);

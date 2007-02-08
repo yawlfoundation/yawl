@@ -23,14 +23,12 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
-import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.TestYNetRunner;
 import au.edu.qut.yawl.engine.YEngine;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YCaseData;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
@@ -39,7 +37,6 @@ import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
-import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.SpecReader;
 import au.edu.qut.yawl.util.YMessagePrinter;
@@ -305,7 +302,6 @@ public class TestYAtomicTask extends AbstractTransactionalTestCase {
 			fail(fileName + " should have a net called 'Root'");
 		}
 
-		EngineClearer.clear(engine);
 		engine.loadSpecification(spec);
 		String idString = engine.launchCase(null, spec.getID(), null, null);
 		YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine,
@@ -397,7 +393,6 @@ public class TestYAtomicTask extends AbstractTransactionalTestCase {
 		task.setDecompositionPrototype(null);
 
 		AbstractEngine engine = EngineFactory.createYEngine();
-		EngineClearer.clear(engine);
 		engine.loadSpecification(spec);
 		String idString = engine.launchCase(null, spec.getID(), null, null);
 		YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine,
@@ -446,7 +441,6 @@ public class TestYAtomicTask extends AbstractTransactionalTestCase {
 		}
 
 		AbstractEngine engine2 = EngineFactory.createYEngine();
-		EngineClearer.clear(engine2);
 		engine2.loadSpecification(spec);
 		String idString = engine2.launchCase(null, spec.getID(), null, null);
 		YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2,
@@ -566,7 +560,6 @@ public class TestYAtomicTask extends AbstractTransactionalTestCase {
 		}
 
 		AbstractEngine engine2 = EngineFactory.createYEngine();
-		EngineClearer.clear(engine2);
 		engine2.loadSpecification(spec);
 		String idString = engine2.launchCase(null, spec.getID(), null, null);
 		YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2,

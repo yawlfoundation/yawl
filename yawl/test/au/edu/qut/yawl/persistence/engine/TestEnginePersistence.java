@@ -18,11 +18,9 @@ import org.jdom.JDOMException;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.YNetRunner;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
@@ -49,7 +47,6 @@ public class TestEnginePersistence extends AbstractTransactionalTestCase {
 		super.setUp();
 
 		YEngineInterface engine = EngineFactory.getTransactionalEngine();
-		EngineClearer.clear( engine );
 		ys = new YAWLServiceReference(
 				"http://localhost:8080/timeService/ib");
 		ys.setDocumentation("Time service, allows tasks to be a timeout task.");

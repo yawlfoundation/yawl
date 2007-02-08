@@ -66,7 +66,6 @@ public class TestEngineAgainstABeta4Spec extends AbstractTransactionalTestCase {
 
     public void testExpectedNormalOperation() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
         synchronized (this) {
-            EngineClearer.clear(_engine);
             _engine.addSpecifications(yawlXMLFile, false , new ArrayList());
             YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
             _netRunner = _engine.getNetRunner(id);

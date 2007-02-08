@@ -32,8 +32,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.authentication.UserList;
-import au.edu.qut.yawl.engine.EngineClearer;
-import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
@@ -72,7 +70,6 @@ public class TestEngineGateway extends AbstractTransactionalTestCase {
     	ul.removeUser( "admin", "temporary" );
     	
     	_gateway = new EngineGatewayImpl( false );
-        EngineClearer.clear( EngineFactory.createYEngine() );
         
         loadSpecification( getClass().getResource( "OneTwoThreeSpec.xml" ), _gateway, _session );
         

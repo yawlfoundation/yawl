@@ -66,7 +66,6 @@ public class TestImproperCompletion extends AbstractTransactionalTestCase{
 
 
     public void testImproperCompletion() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
-        EngineClearer.clear(_engine);
         _engine.addSpecifications(yawlXMLFile, false , new ArrayList());
         _id = _engine.startCase(null, _specification.getID(), null, null);
         int numIter = 0;

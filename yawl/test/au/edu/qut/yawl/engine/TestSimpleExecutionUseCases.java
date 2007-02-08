@@ -53,7 +53,6 @@ public class TestSimpleExecutionUseCases extends AbstractTransactionalTestCase {
         specification = (YSpecification) YMarshal.
                         unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         _engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
         _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         _caseId = _engine.startCase(null, specification.getID(), null, null);
     }

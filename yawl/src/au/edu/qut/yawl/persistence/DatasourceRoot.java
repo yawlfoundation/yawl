@@ -6,7 +6,7 @@
  *
  */
 
-package au.edu.qut.yawl.persistence.dao;
+package au.edu.qut.yawl.persistence;
 
 import java.io.File;
 

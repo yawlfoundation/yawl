@@ -52,7 +52,6 @@ public class TestSuspendWorkItem extends AbstractTransactionalTestCase {
     public void setUp() throws Exception {
     	super.setUp();
         _engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
 
         _repository = YWorkItemRepository.getInstance();
         URL fileURL = getClass().getResource("CaseCancellation.xml");

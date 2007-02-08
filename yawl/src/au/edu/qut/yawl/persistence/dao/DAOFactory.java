@@ -7,7 +7,6 @@
  */
 package au.edu.qut.yawl.persistence.dao;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class DAOFactory {

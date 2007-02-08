@@ -20,6 +20,7 @@ import au.edu.qut.yawl.engine.interfce.InterfaceB_EnvironmentBasedClient;
 import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.DatasourceFolder;
 import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
