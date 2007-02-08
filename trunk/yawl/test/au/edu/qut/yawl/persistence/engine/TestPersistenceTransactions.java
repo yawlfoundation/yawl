@@ -13,14 +13,10 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.AbstractEngine;
-import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngine;
 import au.edu.qut.yawl.engine.YEngineInterface;
@@ -57,7 +53,6 @@ public class TestPersistenceTransactions extends AbstractTransactionalTestCase {
 		
 		EngineFactory.createYEngine(true);
 		YEngineInterface engine = (YEngineInterface) EngineFactory.getTransactionalEngine();
-        EngineClearer.clear(engine);
 
 		LinkedList errors = new LinkedList();
 		engine.addSpecifications(f, false, errors);	
@@ -89,8 +84,6 @@ public class TestPersistenceTransactions extends AbstractTransactionalTestCase {
 		
 		engine.cancelCase(caseid);
 		engine.unloadSpecification("singletask");
-		EngineClearer.clear(engine);
-		
 		
 		System.out.println(engine.getStateForCase(caseid_string));
 	}

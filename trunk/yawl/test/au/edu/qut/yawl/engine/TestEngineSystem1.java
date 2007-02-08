@@ -73,7 +73,6 @@ public class TestEngineSystem1 extends AbstractTransactionalTestCase {
 
     public void testDecomposingNets() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
         try {
-            EngineClearer.clear(_engine);
             _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
             _idForTopNet = _engine.startCase(null, _specification.getID(), null, null);
             //enabled btop

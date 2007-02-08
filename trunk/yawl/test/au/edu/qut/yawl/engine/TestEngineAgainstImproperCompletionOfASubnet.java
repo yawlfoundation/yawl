@@ -63,7 +63,6 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends AbstractTransa
 
 
     public synchronized void testImproperCompletionSubnet() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
-        EngineClearer.clear(engine);
         engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         engine.startCase(null, _specification.getID(), null, null);
         assertEquals("should be no completed work items", 0, _workItemRepository.getCompletedWorkItems().size());

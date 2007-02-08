@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.persistence.DatasourceFolder;
 import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 

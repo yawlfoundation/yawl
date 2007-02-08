@@ -74,7 +74,6 @@ public class TestEngineSystem2 extends AbstractTransactionalTestCase {
 
     public void testMultimergeNets() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
         synchronized(this){
-        EngineClearer.clear(_engine);
         _engine.addSpecifications(yawlXMLFile, true, new ArrayList());
         YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
         _netRunner = _engine.getNetRunner(id);
@@ -176,7 +175,6 @@ public class TestEngineSystem2 extends AbstractTransactionalTestCase {
 
     public void testMultimergeWorkItems() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException, IOException, JDOMException {
         synchronized(this){
-        EngineClearer.clear(_engine);
         _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         YIdentifier id = _engine.startCase(null, _specification.getID(), null, null);
         _netRunner = _engine.getNetRunner(id);
@@ -268,7 +266,6 @@ public class TestEngineSystem2 extends AbstractTransactionalTestCase {
         specification = (YSpecification) YMarshal.
                 unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         _engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
         YIdentifier caseID = _engine.startCase(null, specification.getID(), null, null);
         {

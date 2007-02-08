@@ -52,7 +52,6 @@ public class TestCaseCancellation extends AbstractTransactionalTestCase {
     	super.setUp();
         try {
 			_engine =  EngineFactory.createYEngine();
-			EngineClearer.clear(_engine);
 		} catch (RuntimeException e) {
 			super.tearDown();
 			throw new Exception("Test setup failed", e);

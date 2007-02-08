@@ -10,25 +10,17 @@ package au.edu.qut.yawl.exceptions;
 
 import java.io.File;
 import java.io.IOException;
-
-import au.edu.qut.yawl.engine.AbstractEngine;
-import au.edu.qut.yawl.engine.YEngine;
-import au.edu.qut.yawl.engine.EngineFactory;
-import au.edu.qut.yawl.engine.YEngineInterface;
-import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
-import au.edu.qut.yawl.persistence.dao.DAO;
-import au.edu.qut.yawl.persistence.dao.DAOFactory;
-import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
-import au.edu.qut.yawl.persistence.managed.DataContext;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
-import junit.framework.TestCase;
 import java.util.ArrayList;
 
 import org.jdom.JDOMException;
 
-import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
+import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.engine.EngineFactory;
+import au.edu.qut.yawl.engine.YEngine;
+import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
+import au.edu.qut.yawl.persistence.dao.AbstractHibernateDAOTestCase;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 public class TestServiceConnectionException extends AbstractHibernateDAOTestCase {

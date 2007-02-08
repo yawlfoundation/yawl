@@ -15,7 +15,6 @@ import java.util.Set;
 import junit.framework.TestCase;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.EngineClearer;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngine;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
@@ -64,7 +63,6 @@ public class TestEngineRestore extends TestCase {
         File yawlXMLFile = new File(fileURL.getFile());
         YSpecification specification = (YSpecification) YMarshal.unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         YEngine engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(engine);
         engine.loadSpecification(specification);
         YIdentifier identifier = engine.startCase(null, specification.getID(), null, null);
         Set currWorkItems = YWorkItemRepository.getInstance().getEnabledWorkItems();

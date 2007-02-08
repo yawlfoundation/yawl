@@ -10,8 +10,6 @@
 package au.edu.qut.yawl.engine;
 
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.exceptions.*;
 
@@ -33,7 +31,6 @@ public class TestMarlonsEagerNessExperiment {
 
     public static void main(String[] args) throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException {
         AbstractEngine _engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
         URL fileURL = TestMarlonsEagerNessExperiment.class.getResource("MarlonsEagerExperiment.xml");
         File yawlXMLFile = new File(fileURL.getFile());
         YSpecification specification = null;

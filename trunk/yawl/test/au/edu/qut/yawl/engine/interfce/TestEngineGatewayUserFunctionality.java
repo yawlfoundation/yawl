@@ -21,8 +21,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.authentication.UserList;
-import au.edu.qut.yawl.engine.EngineClearer;
-import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 
 /**
@@ -38,7 +36,6 @@ public class TestEngineGatewayUserFunctionality extends AbstractTransactionalTes
     public void setUp() throws Exception {
     	super.setUp();
     	_gateway = new EngineGatewayImpl( false );
-        EngineClearer.clear( EngineFactory.createYEngine() );
         UserList.getInstance().clear();
         UserList.getInstance().addUser( "admin", "YAWL", true );
     }

@@ -68,7 +68,6 @@ public class TestYNetRunner extends AbstractTransactionalTestCase {
         specification = (YSpecification) YMarshal.
                             unmarshalSpecifications(yawlXMLFile1.getAbsolutePath()).get(0);
         _engine = EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
         _engine.addSpecifications(yawlXMLFile1, false, new ArrayList());
         _id1 = _engine.startCase(null, specification.getID(), null, null);
         _netRunner1 = getYNetRunner(_engine, _id1);
@@ -213,7 +212,6 @@ public class TestYNetRunner extends AbstractTransactionalTestCase {
         YAtomicTask task = (YAtomicTask) root.getInputCondition().getPostsetElements().get(0);
 
         AbstractEngine engine2 = EngineFactory.createYEngine();
-        EngineClearer.clear(engine2);
         engine2.loadSpecification(spec);
         String idString = engine2.launchCase("SYSTEM", spec.getID(), null, null);
         YNetRunner netRunner1 = TestYNetRunner.getYNetRunner(engine2, new YIdentifier(idString));

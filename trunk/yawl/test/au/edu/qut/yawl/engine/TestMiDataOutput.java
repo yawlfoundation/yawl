@@ -23,7 +23,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-import org.apache.commons.logging.Log;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -84,7 +83,6 @@ public class TestMiDataOutput extends AbstractTransactionalTestCase {
 //        _specification3 = (YSpecification)
 //        	YMarshal.unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
         _engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
     }
     
     private static void sleep( long millis ) {

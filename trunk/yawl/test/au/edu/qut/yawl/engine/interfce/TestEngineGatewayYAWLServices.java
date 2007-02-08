@@ -18,8 +18,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.engine.EngineClearer;
-import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.persistence.AbstractTransactionalTestCase;
 
 /**
@@ -46,7 +44,6 @@ public class TestEngineGatewayYAWLServices extends AbstractTransactionalTestCase
     	ul.removeUser( "admin", "temporary" );
     	
     	_gateway = new EngineGatewayImpl( false );
-        EngineClearer.clear( EngineFactory.createYEngine() );
         
         URI serviceURI = new URI( SERVICE_URI );
         YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString());

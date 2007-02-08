@@ -55,7 +55,6 @@ public class TestInterfaceBClientObserver extends AbstractTransactionalTestCase 
     public void setUp() throws Exception {
     	super.setUp();
     	_engine =  EngineFactory.createYEngine();
-        EngineClearer.clear(_engine);
         _mockObserver = new MockInterfaceBClientObserver();
         _engine.registerInterfaceBObserver( _mockObserver );
     	URL fileURL = TestInterfaceBClientObserver.class.getResource( "SimpleSpec.xml" );

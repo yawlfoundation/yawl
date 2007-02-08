@@ -23,8 +23,6 @@ import org.jdom.JDOMException;
 
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.engine.EngineClearer;
-import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.EngineTestSuite;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
@@ -65,7 +63,7 @@ public class TestEngineGatewaySpecifications extends AbstractTransactionalTestCa
     	UserList ul = UserList.getInstance();
     	// first create a new user, connect, and delete the admin
     	ul.addUser( "temporary", "password", true );
-    	String session = ul.connect( "temporary", "password" );
+    	ul.connect( "temporary", "password" );
     	ul.removeUser( "temporary", "admin" );
     	// now recreate the admin, connect the admin, and delete the temporary user
     	ul.addUser( "admin", "YAWL", true );
