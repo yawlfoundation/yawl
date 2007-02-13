@@ -12,6 +12,7 @@ package au.edu.qut.yawl.engine;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.util.YVerificationMessage;
@@ -156,7 +157,7 @@ public interface InterfaceAManagement {
      * @param specID
      * @return
      */
-    YSpecification getProcessDefinition(String specID) throws YPersistenceException;
+    String getProcessDefinition(String specID) throws YPersistenceException, YAWLException;
 
     /**
      * Stores an object within the engine's persistent storage area.<P>

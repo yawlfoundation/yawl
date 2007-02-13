@@ -273,7 +273,7 @@
     	<pathelement location="${spice-jndikit-20050704.053804.jar}"/>
     	<pathelement location="${xerces-2.4.0.jar}"/>
     	<pathelement location="${xml-apis-1.0.b2.jar}"/>
-
+		<pathelement location="${spring.jar}"/>
 		<fileset dir="${nexus.service.libs}/xfire">
 			<include name="*.jar"/>
 		</fileset>
@@ -426,8 +426,8 @@
     Compile all source
     Compiles main project source into ${classes}.
     -->
-	<target name="compile" depends="init">
-        <javac srcdir="${src}:editor:${mock}:${services}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
+	<target name="compile" >
+        <javac srcdir="${src}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
@@ -545,6 +545,10 @@
 
 		<!-- Copy SPRING properties file  -->
 		<copy file="${property.files}/applicationContext.xml" todir="${basedir}/build/Installer/"/>
+
+        <copy todir="${yawl.eng.app.name}/WEB-INF">
+            <fileset file="${build.home}/engine/*servlet*"/>
+        </copy>
 
 		<copy todir="${yawl.eng.app.name}/WEB-INF/lib" >
 			<fileset dir="${basic.libs}" includes="log4j*.jar commons-logging-1.0.4.jar"/>
@@ -1126,6 +1130,7 @@
         Prepare YAWL Time Service WebApplication
         -->
 		<mkdir dir="${yawl.TimeService.app.name}/WEB-INF/lib"/>
+		<mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions"/>
 		<mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
 		<mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
 		<mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce"/>
@@ -1142,6 +1147,9 @@
 		</copy>
 		<copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements">
 			<fileset dir="${classes}/au/edu/qut/yawl/elements" includes="**/*.class **/*.xsd"/>
+		</copy>
+		<copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
+			<fileset dir="${classes}/au/edu/qut/yawl/exceptions" includes="**/*.class"/>
 		</copy>
 		<!-- start copying files into war directory -->
 		<copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/unmarshal">
@@ -1228,6 +1236,9 @@
 		</copy>
 		<!-- start copying files into war directory -->
 
+		<copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine">
+			<fileset dir="${classes}/au/edu/qut/yawl/engine" includes="*.class"/>
+		</copy>
 		<copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/events">
 			<fileset dir="${classes}/au/edu/qut/yawl/events" includes="*.class"/>
 		</copy>
@@ -1424,9 +1435,6 @@
 		<copy todir="${yawl.worklet.app.name}/graphics">
 			<fileset dir="${build.home}/workletService/welcome/graphics"/>
 		</copy>
-		<copy todir="${yawl.worklet.app.name}/graphics" file="${graphics.home}/common.css"/>
-		<copy todir="${yawl.worklet.app.name}/graphics" file="${graphics.home}/subtext.jpg"/>
-		<copy todir="${yawl.worklet.app.name}/graphics" file="${graphics.home}/yawl.swf"/>
 
 		<!-- 2d. Copy in jsps -->
 		<copy todir="${yawl.worklet.app.name}/jsp">
@@ -1463,20 +1471,37 @@
     Build the application jar/war files
     Creates a jar file for the main application sources.
     -->
+<!--        build_yawlXForms.war,-->
+
 	<target name="buildAll"
         depends="build_engine.war,
         build_library,
-        build_yawlXForms.war,
         build_worklist.war,
         build_yawlWSInvoker.war,
         build_yawlSMSInvoker.war,
         build_TimeService.war,
         build_admintool.war,
 	    build_PDFforms.war,
-        build_workletService.war,
-        build_NexusServiceInvoker.war,
+        build_workletService.war">
+
+
+        <!--build_NexusServiceInvoker.war,
         build_EmailSenderService.war,
-        build_JythonService.war">
+        build_JythonService.war
+         <jar destfile="${basedir}/build/Installer/${nexus.serviceInvoker.app.name}.war">
+            <fileset dir="${nexus.serviceInvoker.app.name}"/>
+        </jar>
+	<delete dir="${nexus.serviceInvoker.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${nexus.service.jython.app.name}.war">
+            <fileset dir="${nexus.service.jython.app.name}"/>
+        </jar>
+	<delete dir="${nexus.service.jython.app.name}"/>
+         <jar destfile="${basedir}/build/Installer/${nexus.service.emailSender.app.name}.war">
+            <fileset dir="${nexus.service.emailSender.app.name}"/>
+        </jar>
+	<delete dir="${nexus.service.emailSender.app.name}"/>
+
+-->
 
         <jar destfile="${basedir}/build/Installer/yawl.war">
             <fileset dir="${yawl.eng.app.name}"/>
@@ -1510,18 +1535,6 @@
             <fileset dir="${yawl.worklist.app.name}"/>
         </jar>
 	<delete dir="${yawl.worklist.app.name}"/>
-         <jar destfile="${basedir}/build/Installer/${nexus.serviceInvoker.app.name}.war">
-            <fileset dir="${nexus.serviceInvoker.app.name}"/>
-        </jar>
-	<delete dir="${nexus.serviceInvoker.app.name}"/>
-         <jar destfile="${basedir}/build/Installer/${nexus.service.jython.app.name}.war">
-            <fileset dir="${nexus.service.jython.app.name}"/>
-        </jar>
-	<delete dir="${nexus.service.jython.app.name}"/>
-         <jar destfile="${basedir}/build/Installer/${nexus.service.emailSender.app.name}.war">
-            <fileset dir="${nexus.service.emailSender.app.name}"/>
-        </jar>
-	<delete dir="${nexus.service.emailSender.app.name}"/>
 
 
             <move todir="${basedir}/build/Installer/library">
@@ -1649,7 +1662,7 @@
 
 	<!-- Installation targets-->
 
-	<target name="izInit" depends="buildAll">
+	<target name="izInit">
 		<taskdef name="izpack" classname="com.izforge.izpack.ant.IzPackTask">
 
 			<classpath>

@@ -183,9 +183,8 @@ public class YNet extends YDecomposition {
      * @hibernate.one-to-many
      *   class="au.edu.qut.yawl.elements.YExternalNetElement"
      */
-//	@OneToMany(mappedBy="parent", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-//    @OnDelete(action=OnDeleteAction.CASCADE)
-    @ManyToMany(mappedBy="parent", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+
+    @ManyToMany(mappedBy="parent", cascade={CascadeType.ALL})
     public Set<YExternalNetElement> getNetElements() {
         return _netElements;
     }
@@ -374,7 +373,10 @@ public class YNet extends YDecomposition {
                 YVariable copyVar = (YVariable) variable.clone();
                 _clone.setLocalVariable(copyVar);
             }
-            _clone._data = (Document) this._data.clone();
+
+          	_clone._data = (Document) this._data.clone();
+            
+
             //do cleanup of class variable _clone before returning.
             Object temp = _clone;
             _clone = null;
@@ -748,7 +750,7 @@ public class YNet extends YDecomposition {
         return retval;
     }
     
-    @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="variable_type='variable'")
     public List<YVariable> getLocalVariables() {
@@ -756,7 +758,7 @@ public class YNet extends YDecomposition {
         return _localVariables;
     }
 
-    @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy="decomposition", cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="variable_type='variable'")
     protected void setLocalVariables(List<YVariable> outputParam) {

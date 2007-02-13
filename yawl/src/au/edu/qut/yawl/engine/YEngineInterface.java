@@ -23,6 +23,7 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 
 import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
+import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YQueryException;
@@ -33,6 +34,9 @@ import au.edu.qut.yawl.util.YVerificationMessage;
 
 public interface YEngineInterface {
     
+	public void executeServiceNotifications();
+	
+	public String getDataForSpecifications(boolean loadedOnly) throws YPersistenceException;
 	public void addExceptionObserver(InterfaceX_EngineSideClient ix);
     public void addExceptionObserver(String observerURI);
     public List<String> addSpecifications(File specificationFile, boolean ignoreErors, List<YVerificationMessage> errorMessages) throws JDOMException, IOException, YPersistenceException;
@@ -46,7 +50,7 @@ public interface YEngineInterface {
     public void checkElegibilityToAddInstances(String workItemID) throws YStateException, YPersistenceException;
     public void completeWorkItem(String workItemId, String data, boolean force)
     	throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;
-    public YWorkItem createNewInstance(YWorkItem workItem, String paramValueForMICreation) throws YStateException, YPersistenceException;
+    public YWorkItem createNewInstance(String workItemID, String paramValueForMICreation) throws YStateException, YPersistenceException;
     
     public void dump();
     
@@ -59,11 +63,17 @@ public interface YEngineInterface {
     public Set getLoadedSpecifications() throws YPersistenceException;
     public String getLoadStatus(String specID) throws YPersistenceException;
     public YNetRunner getNetRunner(YIdentifier id) throws YPersistenceException;
-    public YSpecification getProcessDefinition(String specID) throws YPersistenceException;
+    public String getProcessDefinition(String specID) throws YPersistenceException, YAWLException;
     public YAWLServiceReference getRegisteredYawlService(String yawlServiceID);
     public Set getSpecIDs() throws YPersistenceException;
     public YSpecification getSpecification(String specID) throws YPersistenceException;
+   
+    public String getTaskInformation(String specificationID, String taskID) throws YPersistenceException;    
+    
     public Set<YSpecification> getSpecifications(boolean loadedOnly) throws YPersistenceException;
+    
+    public String getSpecificationsByRestriction(String restriction) throws Exception;
+    
     public String getStateForCase(String caseID) throws YPersistenceException;
     public String getStateForCase(YIdentifier caseID) throws YPersistenceException;
     public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException;
@@ -72,6 +82,8 @@ public interface YEngineInterface {
     public YWorkItem getWorkItem(String workItemID) throws YPersistenceException;
     public Set getYAWLServices() throws YPersistenceException;
     public YEngine getYEngine();
+    
+   
     
     void initialise() throws YPersistenceException;
     

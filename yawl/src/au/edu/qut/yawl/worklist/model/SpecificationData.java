@@ -43,6 +43,8 @@ public class SpecificationData {
     private Map _dataTypes = new HashMap();
     private String _betaFormat;
     private String _rootNetID;
+    private boolean archived = false;
+    private String loadversion = null;
 
 
     public SpecificationData(String specificationID, String specificationName,
@@ -173,5 +175,25 @@ public class SpecificationData {
         return YSpecification._Beta2.equals(_betaFormat) ||
                 YSpecification._Beta3.equals(_betaFormat);
     }
+
+
+	public boolean isArchived() {
+		return archived;
+	}
+
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+
+
+	public String getLoadversion() {
+		return loadversion;
+	}
+
+
+	public void setLoadversion(String loadversion) {
+		this.loadversion = loadversion;
+	}
 
 }

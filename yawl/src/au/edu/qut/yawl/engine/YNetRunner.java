@@ -208,7 +208,11 @@ public class YNetRunner implements Serializable // extends Thread
     	}
         _caseIDForNet = new YIdentifier(spec.getID(), spec.getVersion());
         _engine = EngineFactory.createYEngine();
+        
+
         _engine.getDao().save(_caseIDForNet);
+
+        
         setBasicCaseId(_caseIDForNet.toString());
         
         /*****************************/
@@ -476,6 +480,8 @@ public class YNetRunner implements Serializable // extends Thread
         if (caseIDForSubnet == null) {
             throw new RuntimeException();
         }
+       
+        
         boolean compositeTaskExited = busyCompositeTask.t_complete(caseIDForSubnet, rawSubnetData);
         if (compositeTaskExited) {
             _busyTasks.remove(busyCompositeTask);
@@ -484,7 +490,10 @@ public class YNetRunner implements Serializable // extends Thread
             if (this.isCompleted() && _net.getOutputCondition().getIdentifiers().size() == 1) {
 
                 if (_containingCompositeTask != null) {
+                	
+                	
                     YNetRunner parentRunner = _workItemRepository.getNetRunner(_caseIDForNet.getParent());
+
                     if (parentRunner != null) {
                         synchronized (parentRunner) {
                             if (_containingCompositeTask.t_isBusy()) {
@@ -537,7 +546,7 @@ public class YNetRunner implements Serializable // extends Thread
 
             /**********************/
             _busyTasks.add(task);
-            
+            _engine.getDao().save(task.getContainingIdentifier());
             for( YIdentifier id : newChildIdentifiers ) {
             	_engine.getDao().save( id );
             }
@@ -610,6 +619,7 @@ public class YNetRunner implements Serializable // extends Thread
          * */
         _engine = EngineFactory.createYEngine();
 
+        
         List tasks = new ArrayList(_net.getNetElements());
 
         Iterator tasksIter = tasks.iterator();
@@ -654,8 +664,12 @@ public class YNetRunner implements Serializable // extends Thread
                                 //fire the empty atomic task
                                 YIdentifier id = null;
                                 try {
+                                    _engine.getDao().save(this);
                                     id = (YIdentifier) atomicTask.t_fire().iterator().next();
+                                    _engine.getDao().save(atomicTask.getContainingIdentifier());
+                                    _engine.getDao().save(this);
                                     atomicTask.t_start(id);
+                                    _engine.getDao().save(this);
                                     completeTask(null, atomicTask, id, null);//atomicTask.t_complete(id);
                                 } catch (YAWLException e) {
                                     YProblemEvent pe =
@@ -681,6 +695,8 @@ public class YNetRunner implements Serializable // extends Thread
                             Iterator caseIDs = null;
                             try {
                                 caseIDs = task.t_fire().iterator();
+                                _engine.getDao().save(task.getContainingIdentifier());
+
                             } catch (YAWLException e) {
                                 e.printStackTrace();
                                 YProblemEvent pe =
@@ -725,16 +741,7 @@ public class YNetRunner implements Serializable // extends Thread
                          */
                         YWorkItem wItem = _workItemRepository.getWorkItem(_caseIDForNet.toString(), task.getID());
                         _workItemRepository.removeWorkItemFamily(wItem);
-//                        YWorkItem persistentItem = (YWorkItem) _engine.getDao().retrieve( YWorkItem.class, wItem.getId() );
-//                        _engine.getDao().delete(persistentItem);
-// TODO                       if (pmgr != null)
-//                        {
-//                            pmgr.deleteObject(wItem);
-//                        }
-//                        YPersistance.getInstance().updateData(this);
-//  TODO                      if (pmgr != null) {
-//                            pmgr.updateObject(this);
-//                        }
+
 
                         /******************/
                     }
@@ -776,6 +783,7 @@ public class YNetRunner implements Serializable // extends Thread
                 caseIDForNet, atomicTask.getID(),
                 allowDynamicCreation, false);
         if (atomicTask.getDataMappingsForEnablement().size() > 0) {
+        	System.out.println("this workitem has enablement data");
             Element data = null;
             try {
                 data = atomicTask.prepareEnablementData();
@@ -790,6 +798,7 @@ public class YNetRunner implements Serializable // extends Thread
                 e.printStackTrace();
             }
             workItem.setData(data);
+            System.out.println("this workitem has data" + workItem.getDataString());
             _engine.getDao().save(workItem);
         }
         _engine.getDao().save(workItem);
@@ -828,7 +837,9 @@ public class YNetRunner implements Serializable // extends Thread
             if (this.isCompleted() && _net.getOutputCondition().getIdentifiers().size() == 1) {
                 //so now we know the net is complete we check if this net is a subnet.
                 if (_containingCompositeTask != null) {
+
                     YNetRunner parentRunner = _workItemRepository.getNetRunner(_caseIDForNet.getParent());
+
                     if (parentRunner != null) {
                         synchronized (parentRunner) {
                             if (_containingCompositeTask.t_isBusy()) {
@@ -972,7 +983,7 @@ public class YNetRunner implements Serializable // extends Thread
 
 
 
-    @ManyToOne(cascade= {CascadeType.ALL})
+    @ManyToOne(cascade= {CascadeType.PERSIST})
     @JoinColumn(name="caseID")
     public YIdentifier getCaseID() {
         return _caseIDForNet;

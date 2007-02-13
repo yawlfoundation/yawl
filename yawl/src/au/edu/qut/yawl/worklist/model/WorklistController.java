@@ -269,7 +269,7 @@ public class WorklistController extends InterfaceBWebsideController {
     }
 
 
-    public List getCases(String specID, String sessionHandle) throws IOException {
+    public List getCases(String specID, String version, String sessionHandle) throws IOException {
         String casesAsXML = _interfaceBClient.getCases(specID, sessionHandle);
         if (_interfaceBClient.successful(casesAsXML)) {
             List cases = Marshaller.unmarshalCaseIDs(casesAsXML);

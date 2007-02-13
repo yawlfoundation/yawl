@@ -212,7 +212,7 @@ public class YWorklistModel {
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
-                    getEngineClient().createNewInstance(item, newInstanceData);
+                    getEngineClient().createNewInstance(item.getIDString(), newInstanceData);
                 } catch (YStateException e) {
                     e.printStackTrace();
                 }

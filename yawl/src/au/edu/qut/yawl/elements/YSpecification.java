@@ -138,7 +138,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
     		this._decompositions = set;    	
 	}
 
-    @OneToMany(mappedBy="parent",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
+    @OneToMany(mappedBy="parent",cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="clone='false'")
     public List<YDecomposition> getDecompositions() {

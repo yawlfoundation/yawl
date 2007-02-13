@@ -71,35 +71,35 @@
                     while(specDataList.hasNext()) {
                         SpecificationData specification = (SpecificationData) specDataList.next();
                         List caseIDs = _worklistController.getCases(
-                                specification.getID(), sessionHandle);
+                                specification.getID(), specification.getLoadversion(), sessionHandle);
                         String specID = specification.getID();
-                        if(specification.getStatus().equals(YSpecification._loaded)){
+                        if(!specification.isArchived()){
 //System.out.println("_ViewSpecification.jsp:: caseIDs = " + caseIDs);
                         %>
-                        <tr>
-                            <td height="30" align="center"><input type="radio" name="specID"
-                                value="<%= specID %>"/></td>
-                            <td/>
-                            <td align="center"><%= specID %></td>
-                            <td/>
-                            <td align="center">
-                                <table cellpadding="5"><tr><td>
-                                <%= specification.getName() %>
-                                </tr></td></table>
-                            </td>
-                            <td/>
-                            <td align="center">
-                                <table cellpadding="5"><tr><td>
-                                <%= specification.getDocumentation() %></td>
-                                </tr></table></td>
-                            <td/>
-                            <td align="center"><a
-                                href="<%= contextPath %>/specBrowser?specID=<%= specID %>"
-                                >View <%= specID %></a></td>
-                            <td/>
-                        </tr>
-                        <%
-                        }
+	            <tr>
+		            <td height="30" align="center"><input type="radio" name="specID"
+		                                                  value="<%= specID %>"/></td>
+		            <td/>
+		            <td align="center"><%= specID %></td>
+		            <td/>
+		            <td align="center">
+			            <table cellpadding="5"><tr><td>
+				            <%= specification.getName() %>
+			            </td> </tr> </table>
+        </td>
+	        <td/>
+	        <td align="center">
+		        <table cellpadding="5"><tr><td>
+			        <%= specification.getDocumentation() %></td>
+		        </tr></table></td>
+	        <td/>
+	        <td align="center"><a
+			        href="<%= contextPath %>/specBrowser?specID=<%= specID %>"
+			        >View <%= specID %></a></td>
+	        <td/>
+        </tr>
+	        <%
+				        }
                     }
                 }
                 %>
@@ -227,7 +227,7 @@
         <br/>
         <br/>
 	<br/>
-	<a href="/PDFforms/generate.jsp">Design Form for Task</a>
+
 
         <br/>
         <br/>
@@ -240,7 +240,7 @@
         <br/>
         <br/>
 	<br/>
-	<a href="/worklist/createID.jsp">Create Digital ID</a>
+
 
         <br/>
         <br/>

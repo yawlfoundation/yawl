@@ -452,7 +452,7 @@ public abstract class InterfaceBWebsideController {
      * @throws java.io.IOException
      */
     public SpecificationData getSpecificationData(String specID, String sessionHandle) throws IOException {
-//        if(_model.getSpecificationData(specID) == null){
+        if(_model.getSpecificationData(specID) == null){
             List specs = _interfaceBClient.getSpecificationList(sessionHandle);
             for (int i = 0; i < specs.size(); i++) {
 
@@ -470,9 +470,9 @@ public abstract class InterfaceBWebsideController {
                     return data;
                 }
             }
-//        } else {
-//            return _model.getSpecificationData(specID);
-//        }
+       } else {
+            return _model.getSpecificationData(specID);
+        }
         return null;
     }
 

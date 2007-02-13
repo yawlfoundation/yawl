@@ -214,6 +214,9 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
     	this._id = id.replace(" ", "_");
         _specification = specification;
         _data.setRootElement(new Element(getRootDataElementName()));
+  
+
+        
     }
 
 	/**
@@ -326,7 +329,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
             xml.append(parameter.toXML());
         }
         List<YParameter> outParameters = getOutputParameters();
-        Collections.sort(outParameters);
+        //Collections.sort(outParameters);
         for (YParameter parameter : outParameters) {
             xml.append(parameter.toXML());
         }
@@ -463,7 +466,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
         outputDoc.setRootElement(rootElement);
         //now prepare a list of output params to iterate over.
         List <YParameter> outputParamsList = new ArrayList<YParameter>(getOutputParameters());
-        Collections.sort(outputParamsList);
+        //Collections.sort(outputParamsList);
 
         for (YParameter parameter : outputParamsList) {
             String varElementName =
@@ -592,7 +595,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
         }
     }
 
-    @OneToMany(targetEntity=YVariable.class,mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity=YVariable.class,mappedBy="decomposition", cascade={CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="direction='inputParam'")
     public List<YParameter> getInputParameters() {
@@ -601,7 +604,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
 //    		retval.add(entry);
 //    	}
 //    	Collections.sort(retval);
-    	Collections.sort(_inputParameters);
+    	//Collections.sort(_inputParameters);
     	return _inputParameters;
 	}
 
@@ -613,11 +616,11 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
 //		}
 	}
 
-    @OneToMany(targetEntity=YVariable.class,mappedBy="decomposition", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity=YVariable.class,mappedBy="decomposition", cascade={CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="direction='outputParam'")
     public List<YParameter> getOutputParameters() {
-    	Collections.sort(_outputParameters);
+    	//Collections.sort(_outputParameters);
 //    	List<YParameter> retval = new ArrayList<YParameter>();
 //    	for(YParameter entry:_outputParameters) {
 //    		retval.add(entry);

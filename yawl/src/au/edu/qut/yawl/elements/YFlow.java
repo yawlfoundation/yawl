@@ -244,8 +244,6 @@ public class YFlow implements Comparable, Serializable, ExtensionListContainer, 
                 messages.add(new YVerificationMessage(caller, caller + " [error] null next element", YVerificationMessage.ERROR_STATUS));
             }
         } else if (_priorElement._net != _nextElement._net) {
-        	//System.out.println("NETVIOL   :" + _priorElement._net + "-->" + _nextElement._net);
-        	//System.out.println("NETVIOL-IN:" + _priorElement + "-->" + _nextElement);
             messages.add(new YVerificationMessage(caller, caller
                     + " any flow from any Element (" + _priorElement +
                     ") to any Element (" + _nextElement + ") " +

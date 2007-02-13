@@ -12,6 +12,7 @@ package au.edu.qut.yawl.engine;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,10 +30,12 @@ import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.domain.YWorkItemRepository;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceB_InternalEngineBasedClient;
+import au.edu.qut.yawl.engine.interfce.ServiceHandler;
 import au.edu.qut.yawl.engine.interfce.interfaceX.EngineExceptionLogger;
 import au.edu.qut.yawl.engine.interfce.interfaceX.ExceptionGateway;
 import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import au.edu.qut.yawl.events.YawlEventLogger;
+import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
@@ -525,7 +528,7 @@ public class YEngine extends AbstractEngine {
     public void initialise() throws YPersistenceException {
     	_myInstance = this;
 
-    	restore();
+    	//restore();
 
         /**
          * Initialise the standard Observer Gateways.
@@ -821,7 +824,7 @@ public class YEngine extends AbstractEngine {
     }
 
 
-    public YSpecification getProcessDefinition(String specID) throws YPersistenceException {
+    public String getProcessDefinition(String specID) throws YPersistenceException, YAWLException {
         /**
          * SYNC'D External interface
          */
@@ -940,12 +943,12 @@ public class YEngine extends AbstractEngine {
      * @throws YStateException if the task is not able to create a new instance, due to
      *                         its state or its design.
      */
-    public YWorkItem createNewInstance(YWorkItem workItem, String paramValueForMICreation) throws YStateException, YPersistenceException {
+    public YWorkItem createNewInstance(String workItemID, String paramValueForMICreation) throws YStateException, YPersistenceException {
         /**
          * SYNC'D External interface
          */
         synchronized (mutex) {
-            return super.createNewInstance(workItem, paramValueForMICreation);
+            return super.createNewInstance(workItemID, paramValueForMICreation);
         }
     }
 
@@ -1328,4 +1331,20 @@ public class YEngine extends AbstractEngine {
             ixClient.announceServiceUnavailable(item, ref);
     	}
     }
+    
+    private List<ServiceHandler> servicenotifications = new ArrayList<ServiceHandler>();
+    
+    public void addServiceNotification(ServiceHandler s) {
+    	servicenotifications.add(s);
+    	
+    }
+    
+    public void executeServiceNotifications() {
+    	for (int i = 0; i < servicenotifications.size();i++) {
+    		servicenotifications.get(i).start();
+    	}
+    	servicenotifications.clear();
+    }
+    
+    
 }

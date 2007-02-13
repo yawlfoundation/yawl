@@ -19,7 +19,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import au.edu.qut.yawl.admintool.model.HumanResource;
+import au.edu.qut.yawl.engine.AbstractEngine;
+import au.edu.qut.yawl.engine.EngineFactory;
+import au.edu.qut.yawl.engine.YEngine;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
+import au.edu.qut.yawl.persistence.dao.DAO;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.Unrestricted;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
 
 /**
@@ -30,7 +39,6 @@ import au.edu.qut.yawl.exceptions.YAuthenticationException;
  * 
  */
 public class UserList {
-    private Map _users;
     private Map _connections;
     private Random _random;
     private static UserList _myInstance;
@@ -46,16 +54,16 @@ public class UserList {
     }
 
     private void setIsAdmin(String userName, boolean isAdmin) {
-        User user = (User) _users.get(userName);
+        HumanResource user = (HumanResource) getUser(userName);
         if(user != null){
 
-            user.setAdmin(isAdmin);
+            user.setIsAdministrator(isAdmin);
         }
     }
 
 
     private UserList() {
-        this._users = new HashMap();
+
         this._connections = new HashMap();
         this._random = new Random();
     }
@@ -84,8 +92,8 @@ public class UserList {
     public String checkConnectionForAdmin(String sessionHandle) throws YAuthenticationException {
         checkConnection(sessionHandle);
         Connection connection = (Connection) _connections.get(sessionHandle);
-        User user = (User) _users.get(connection._userid);
-        if (!user.isAdmin()) {
+        HumanResource user = (HumanResource) getUser(connection._userid);
+        if (!user.getIsAdministrator()) {
             throw new YAuthenticationException(
                     "This user is not an administrator.");
         }
@@ -109,12 +117,18 @@ public class UserList {
 
         if (userID != null){
             if (password != null && password.length() > 3) {
-                if (! _users.containsKey(userID)) {
-                    user = new User(userID, password);
-                    _users.put(userID, user);
-                    if (isAdmin) {
-                        user.setAdmin(isAdmin);
-                    }
+                if (getUser(userID)==null) {
+
+                	DAO dao = EngineFactory.getExistingEngine().getDao();
+                	HumanResource human = new HumanResource(userID);
+                	human.setPassword(password);
+                	human.setIsAdministrator(isAdmin);
+                	try {
+                		dao.save(human);
+                	} catch (Exception e) {
+                		e.printStackTrace();
+                	}
+                	
                 } else {
                     throw new YAuthenticationException(
                         "The userID[" + userID + "] is being used already.");
@@ -133,7 +147,7 @@ public class UserList {
         if(inSessionUserID.equals(userNameToDelete)) {
             throw new YAuthenticationException("Users cannot delete oneself.");
         }
-        if(null == _users.get(inSessionUserID)){
+        if(null == getUser(inSessionUserID)){
             throw new YAuthenticationException("The user trying to delete is not a user.");
         }
         List connections = new ArrayList(_connections.values());
@@ -143,21 +157,23 @@ public class UserList {
                 _connections.remove(connection._sessionHandle);
             }
         }
-        /*
-          INSERTED FOR PERSISTANCE
-         */
-//        YPersistance.getInstance().removeData(_users.get(userNameToDelete));
-// TODO       if (pmgr != null)
-//        {
-//            pmgr.removeDataFromExternal(_users.get(userNameToDelete));
-//        }
 
-        _users.remove(userNameToDelete);
+        removeUser(userNameToDelete);
     }
 
+    public void removeUser(String userID) {
+    	try {DAO dao = EngineFactory.getExistingEngine().getDao();
+    		HumanResource human = getUser(userID);
+    		if (human!=null) {
+    			dao.delete(human);
+    		}
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    }
 
     public String connect(String userID, String password) throws YAuthenticationException{
-        User user = (User) _users.get(userID);
+        HumanResource user = (HumanResource) getUser(userID);
         if(user != null){
             if(user.getPassword().equals(password)){
                 Connection connection = new Connection(userID);
@@ -176,24 +192,68 @@ public class UserList {
     }
 
 
-    public Set getUsers() {
-        Set result = new HashSet();
-        for (Iterator iterator = _users.values().iterator(); iterator.hasNext();) {
-            User user = (User) iterator.next();
-            result.add(user);
-        }
-        return result;
-    }
+    public Set<HumanResource> getUsers() {
+        Set<HumanResource> result = new HashSet();
+        
+    	DAO dao = EngineFactory.getExistingEngine().getDao();
+    	try {
+    		List<HumanResource> humans = dao.retrieveByRestriction(HumanResource.class, 
+    			new Unrestricted());
 
+    		result = new HashSet<HumanResource>(humans);
+    		
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    	return result;
+        
+   }
+
+    
+    public HumanResource getUser(String userID) {
+    	DAO dao = EngineFactory.getExistingEngine().getDao();
+    	try {
+    		List<HumanResource> humans = dao.retrieveByRestriction(HumanResource.class, 
+    			new PropertyRestriction("rsrcID", Comparison.EQUAL, userID));
+    			
+    		if (humans.size()>=1) {
+    			return humans.get(0);
+    		}
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    	return null;
+    }
+    		
+
+    
+    
+    
     // FIXME: XXX the password is not checked to make sure it's valid... (very bad)
     public void changePassword(String userID, String password) {
-        User user = (User) _users.get(userID);
+        HumanResource user = (HumanResource) getUser(userID);
         user.setPassword(password);
+        DAO dao = EngineFactory.getExistingEngine().getDao();
+        try  {
+        	dao.save(user);
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+        
     }
 
 
     public void clear() {
-        _users = new HashMap();
+        DAO dao = EngineFactory.getExistingEngine().getDao();
+        try  {
+        	Set users = getUsers();
+        	Iterator it = users.iterator();
+        	while (it.hasNext()) {
+        		dao.delete(it.next());
+        	}
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
         _connections = new HashMap();
     }
 

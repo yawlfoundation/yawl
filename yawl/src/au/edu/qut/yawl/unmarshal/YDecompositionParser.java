@@ -179,7 +179,7 @@ public class YDecompositionParser {
             String yawlServiceID = yawlServiceElem.getAttributeValue("id");
             YAWLServiceReference yawlService = new YAWLServiceReference(yawlServiceID);
             try {
-				webServiceGateway.setYawlService(new URI(yawlServiceID));
+				webServiceGateway.setYawlService(new URI(yawlService.getURI()));
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
 			}

@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
@@ -54,6 +55,8 @@ public class InterfaceD_Client extends Interface_Client{
         HttpURLConnection connection = null;
 
         URL url = new URL(urlStr);
+
+
         connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
         connection.setDoInput(true);
@@ -63,7 +66,7 @@ public class InterfaceD_Client extends Interface_Client{
         Iterator paramKeys = paramsMap.keySet().iterator();
         while (paramKeys.hasNext()) {
             String paramName = (String) paramKeys.next();
-            out.print(paramName + "=" + paramsMap.get(paramName));
+            out.print(paramName + "=" + URLEncoder.encode( (String) paramsMap.get(paramName), "UTF-8" ));
             if (paramKeys.hasNext()) {
                 out.print('&');
             }
@@ -86,7 +89,6 @@ public class InterfaceD_Client extends Interface_Client{
         in.close();
         out.close();
         connection.disconnect();
-
         String msg = result.toString();
         return stripOuterElement(msg);
     }

@@ -223,7 +223,6 @@ public class YParameter extends YVariable implements Serializable  {
             /**
              * AJH: Silent failure here.
              */
-            System.out.println(xml);
             e.printStackTrace();
         }
         Element paramElem = doc.getRootElement();

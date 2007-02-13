@@ -92,7 +92,7 @@ public class WorklistModel {
     }
 
     public void unloadSpecification(String specID) throws IOException {
-	_specificationData.remove(specID);
+    	_specificationData.remove(specID);
     }	
 
 

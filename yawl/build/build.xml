@@ -217,13 +217,15 @@
     <property name="postgres7.path" value="${basic.libs}/${postgres7.jar}"/>
     <property name="postgres8.jar" value="postgresql-8.0-311.jdbc3.jar"/>
     <property name="postgres8.path" value="${basic.libs}/${postgres8.jar}"/>
-	<property name="spring.jar" value="${persist.libs}/spring.jar"/>
+    <property name="hsqldb" value="${persist.libs}/hsqldb.jar"/>
+    <property name="spring.jar" value="${persist.libs}/spring.jar"/>
     <property name="jta" value="${persist.libs}/jta.jar"/>
     <property name="jaxbapi" value="${persist.libs}/jaxb-api.jar"/>
     <property name="jaxbimpl" value="${persist.libs}/jaxb-impl.jar"/>
     <property name="jaxen" value="${persist.libs}/jaxen-1.1-beta-7.jar"/>
     <property name="odmg" value="${persist.libs}/odmg-3.0.jar"/>
-	<property name="xmlunit" value="${basic.libs}/xmlunit1.0.jar"/>
+
+   <property name="xmlunit" value="${basic.libs}/xmlunit1.0.jar"/>
 
 
 
@@ -365,6 +367,7 @@
     	<pathelement location="${jsr173}"/>
     	<pathelement location="${jaxen}"/>
     	<pathelement location="${postgres8.path}"/>
+    	<pathelement location="${hsqldb}"/>
     </path>
 
     <!--

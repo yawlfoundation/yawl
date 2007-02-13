@@ -77,7 +77,7 @@ public interface InterfaceBClient {
 
     void checkElegibilityToAddInstances(String workItemID) throws YStateException, YPersistenceException;
 
-    YWorkItem createNewInstance(YWorkItem workItem, String paramValueForMICreation) throws YStateException, YPersistenceException;
+    YWorkItem createNewInstance(String workItemID, String paramValueForMICreation) throws YStateException, YPersistenceException;
 
     Set getChildrenOfWorkItem(YWorkItem workItem) throws YPersistenceException;
 
