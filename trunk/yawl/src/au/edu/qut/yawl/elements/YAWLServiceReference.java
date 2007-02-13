@@ -12,9 +12,12 @@ package au.edu.qut.yawl.elements;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,9 +98,33 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
 
     public YAWLServiceReference(String yawlServiceID) {
         this._yawlServiceID = yawlServiceID;
-//        if( webServiceGateway != null )
-//        	getYawlServiceGateway().add(webServiceGateway);
-//        this._webServiceGateway = webServiceGateway;
+
+
+    	InetAddress adr = null;
+    	try {
+    		String host = new URI(yawlServiceID).getHost();
+    		adr = InetAddress.getByName(host);
+    		if (host.equals("localhost") || host.equals("127.0.0.1")) {
+    			NetworkInterface iface = null;
+    			for(Enumeration ifaces =      NetworkInterface.getNetworkInterfaces();ifaces.hasMoreElements();){
+    				iface = (NetworkInterface)ifaces.nextElement();
+    				InetAddress ia = null;
+    				for(Enumeration ips =    iface.getInetAddresses();ips.hasMoreElements();){
+    					ia = (InetAddress)ips.nextElement();
+    					if (!ia.isSiteLocalAddress() && !ia.isLoopbackAddress()) {
+    						adr = ia;
+    					} 
+    				}
+    			}
+    		} else {        		
+    			adr = InetAddress.getByName(host);
+    		}
+    		_yawlServiceID = _yawlServiceID.replaceAll("localhost", adr.getHostAddress());
+    	} catch (Exception e) {
+    		//e.printStackTrace();
+    		//Some sort of debug sentence here
+    	}
+        
     }
 
 

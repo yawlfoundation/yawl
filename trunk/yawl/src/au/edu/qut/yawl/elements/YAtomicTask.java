@@ -31,6 +31,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Where;
 import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.state.YIdentifier;
@@ -253,8 +254,13 @@ public class YAtomicTask extends YTask {
             return null;
         }
         Element enablementData = produceDataRootElement();
+
+    	
         YAWLServiceGateway serviceGateway = (YAWLServiceGateway) _decompositionPrototype;
         List enablementParams = new ArrayList(serviceGateway.getEnablementParametersMap().values());
+        
+        System.out.println(enablementParams.size());
+        
         Collections.sort(enablementParams);
         for (int i = 0; i < enablementParams.size(); i++) {
             YParameter parameter = (YParameter) enablementParams.get(i);
@@ -262,8 +268,11 @@ public class YAtomicTask extends YTask {
                     parameter.getName() : parameter.getElementName();
             String expression = getDataMappingsForEnablement().get(paramName).getValue();
 
+            	System.out.println(paramName + " " + expression);
+            
             Element result = performDataExtraction(expression, parameter);
             enablementData.addContent((Element) result.clone());
+            
         }
         return enablementData;
     }

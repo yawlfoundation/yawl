@@ -63,6 +63,7 @@ public class SpecificationBrowser extends HttpServlet {
         StringBuffer output = new StringBuffer();
         PrintWriter outputWriter = response.getWriter();
         String specID = request.getParameter("specID");
+        String version = request.getParameter("version");
         if (specID != null) {
             SpecificationData specData = controller.getSpecificationData(
                     specID,

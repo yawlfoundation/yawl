@@ -23,7 +23,6 @@
     </bean>
 
 
-
 <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 
         <property name="dataSource" ref="postgresDataSource" />
@@ -41,6 +40,7 @@
                 <prop key="hibernate.show_sql">true</prop>
                 <prop key="hibernate.use_sql_comments">true</prop>		
 -->
+
                 <prop key="hibernate.current_session_context_class">thread</prop>
                 <prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</prop>                 
             </props>
@@ -81,6 +81,10 @@
 			<value>au.edu.qut.yawl.events.YCaseEvent</value>
 			<value>au.edu.qut.yawl.events.YDataEvent</value>
 			<value>au.edu.qut.yawl.events.YErrorEvent</value>
+			<value>au.edu.qut.yawl.admintool.model.HumanResource</value>
+			<value>au.edu.qut.yawl.admintool.model.Resource</value>
+			<value>au.edu.qut.yawl.util.MultiInstanceDataList</value>
+			<value>au.edu.qut.yawl.util.MultiInstanceData</value>
 </list>
         </property>
 </bean>
@@ -127,14 +131,18 @@
       </aop:aspect>
 </aop:config>
 -->
-
 <aop:config>
      <aop:pointcut id="serviceOperation"
                  expression="execution(* au.edu.qut.yawl.engine.YEngine.*(..))"/>
+
+     <aop:pointcut id="abstractServiceOperation"
+                 expression="execution(* au.edu.qut.yawl.engine.AbstractEngine.*(..))"/>
      <aop:advisor pointcut-ref="serviceOperation" advice-ref="txAdvice"/>
+
+     <aop:advisor pointcut-ref="abstractServiceOperation" advice-ref="txAdvice"/>
 </aop:config>
 
-  <tx:advice id="txAdvice">
+  <tx:advice id="txAdvice" transaction-manager="transactionManager">
     <tx:attributes>
       <tx:method name="get*" />
       <tx:method name="create*" />

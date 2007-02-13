@@ -24,7 +24,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * Time: 16:23:34
  */
 @Entity
-@DiscriminatorValue("human")
+@DiscriminatorValue("Human")
 public class HumanResource extends Resource {
     private String surname;
     private String givenName;
@@ -102,4 +102,12 @@ public class HumanResource extends Resource {
         return result;
     }
 
+    public String toXML() {
+        StringBuffer result = new StringBuffer();
+        result.append("<user>");
+        result.append("<id>" + getRsrcID() + "</id>");
+        result.append("<isAdmin>" + isAdministrator + "</isAdmin>");
+        result.append("</user>");
+        return result.toString();
+    }
 }

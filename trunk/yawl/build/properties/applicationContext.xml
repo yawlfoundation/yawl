@@ -53,6 +53,10 @@
 		<value>au.edu.qut.yawl.events.YCaseEvent</value>
 		<value>au.edu.qut.yawl.events.YDataEvent</value>
 		<value>au.edu.qut.yawl.events.YErrorEvent</value>
+		<value>au.edu.qut.yawl.util.MultiInstanceDataList</value>
+		<value>au.edu.qut.yawl.util.MultiInstanceData</value>
+		<value>au.edu.qut.yawl.exceptions.Problem</value>
+		<value>au.edu.qut.yawl.admintool.model.HumanResource</value>
             </list>
         </property>
 </bean>

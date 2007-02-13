@@ -14,6 +14,7 @@ import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.ObserverGateway;
+import au.edu.qut.yawl.engine.YEngine;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.unmarshal.YDecompositionParser;
 import au.edu.qut.yawl.util.JDOMConversionTools;
@@ -62,8 +63,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void announceWorkItem(URI yawlService, YWorkItem workItem) {
 
-        Handler myHandler = new Handler(yawlService, workItem, ADDWORKITEM_CMD);
-        myHandler.start();
+        ServiceHandler myHandler = new ServiceHandler(yawlService, workItem, ADDWORKITEM_CMD);
+        EngineFactory.getExistingEngine().addServiceNotification(myHandler);
     }
 
     /**
@@ -72,8 +73,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param workItem the work item to cancel.
      */
     static void cancelWorkItem(URI yawlService, YWorkItem workItem) {
-        Handler myHandler = new Handler(yawlService, workItem, "cancelWorkItem");
-        myHandler.start();
+        ServiceHandler myHandler = new ServiceHandler(yawlService, workItem, "cancelWorkItem");
+        EngineFactory.getExistingEngine().addServiceNotification(myHandler);
     }
 
     /**
@@ -86,12 +87,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         //System.out.println("Thread::yawlService.getURI() = " + yawlService.getURI());
         //System.out.println("\rworkItem.toXML() = " + workItem.toXML());
         if(workItem.getParent() == null){
-            Handler myHandler = new Handler(yawlService, workItem, "cancelAllInstancesUnderWorkItem");
-            myHandler.start();
+            ServiceHandler myHandler = new ServiceHandler(yawlService, workItem, "cancelAllInstancesUnderWorkItem");
+            EngineFactory.getExistingEngine().addServiceNotification(myHandler);
         }
         else {
-            Handler myHandler = new Handler(yawlService, workItem.getParent(), "cancelAllInstancesUnderWorkItem");
-            myHandler.start();
+            ServiceHandler myHandler = new ServiceHandler(yawlService, workItem.getParent(), "cancelAllInstancesUnderWorkItem");
+            EngineFactory.getExistingEngine().addServiceNotification(myHandler);
         }
     }
 
@@ -102,8 +103,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void announceCaseCompletion(URI yawlService, 
                                        YIdentifier caseID, Document casedata) {
-        Handler myHandler = new Handler(yawlService, caseID, casedata, "announceCompletion");
-        myHandler.start();
+        ServiceHandler myHandler = new ServiceHandler(yawlService, caseID, casedata, "announceCompletion");
+        EngineFactory.getExistingEngine().addServiceNotification(myHandler);
     }
 
     /**
@@ -141,66 +142,4 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         return (YParameter[]) paramResults.toArray(new YParameter[paramResults.size()]);
     }
 
-
-    static class Handler extends Thread {
-        private YWorkItem _workItem;
-        private URI _yawlService;
-        private String _command; 
-        private YIdentifier _caseID;
-        private Document _casedata;
-
-        public Handler(URI yawlService, YWorkItem workItem, String command) {
-            _workItem = workItem;
-            _yawlService = yawlService;
-            _command = command;
-        }
-
-        public Handler(URI yawlService, YIdentifier caseID, Document casedata, String command) {
-            _yawlService = yawlService;
-            _caseID = caseID;
-            _command = command;
-            _casedata = casedata;
-        }
-
-        public void run() {
-            try {
-                if (InterfaceB_EngineBasedClient.ADDWORKITEM_CMD.equals(_command)) {
-                    String urlOfYawlService = _yawlService.toString();
-                    String workItemXML = _workItem.toXML();
-                    Map paramsMap = new HashMap();
-                    paramsMap.put("workItem", workItemXML);
-                    paramsMap.put("action", "handleEnabledItem");
-                    Interface_Client.executePost(urlOfYawlService, paramsMap);
-                } else if (InterfaceB_EngineBasedClient.CANCELALLWORKITEMS_CMD.equals(_command)) {
-                    Iterator iter = _workItem.getChildren().iterator();
-                    InterfaceB_EngineBasedClient.cancelWorkItem(_yawlService, _workItem);
-                    while (iter.hasNext()) {
-                        YWorkItem item = (YWorkItem) iter.next();
-                        InterfaceB_EngineBasedClient.cancelWorkItem(_yawlService, item);
-                    }
-                } else if (InterfaceB_EngineBasedClient.CANCELWORKITEM_CMD.equals(_command)) {
-                    //cancel the parent
-                    String urlOfYawlService = _yawlService.toString();
-                    String workItemXML = _workItem.toXML();
-                    Map paramsMap = new HashMap();
-                    paramsMap.put("workItem", workItemXML);
-                    paramsMap.put("action", "cancelWorkItem");
-                    Interface_Client.executePost(urlOfYawlService, paramsMap);
-                } else if (InterfaceB_EngineBasedClient.ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
-                    String urlOfYawlService = _yawlService.toString();
-                    String caseID = _caseID.toString();
-                    String casedataStr = JDOMConversionTools.documentToString(_casedata) ;
-                    Map paramsMap = new HashMap();
-                    paramsMap.put("action", _command);
-                    paramsMap.put("caseID", caseID);
-                    paramsMap.put("casedata", casedataStr) ;
-                    Interface_Client.executePost(urlOfYawlService, paramsMap);
-                }
-            } catch (IOException e) {
-                logger.error("failed to call YAWL service", e); 
-                EngineFactory.getExistingEngine().announceServiceUnavailable(_workItem, _yawlService);                                
-                //e.printStackTrace();
-            }            
-        }
-    }
 }

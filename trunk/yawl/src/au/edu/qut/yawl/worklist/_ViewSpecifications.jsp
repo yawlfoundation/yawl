@@ -49,14 +49,14 @@
                 while(specDataList.hasNext()) {
                     SpecificationData specification = (SpecificationData) specDataList.next();
                     List caseIDs = _worklistController.getCases(
-                            specification.getID(), sessionHandle);
+                            specification.getID(), specification.getLoadversion(), sessionHandle);
                     String specID = specification.getID();
-                    if(specification.getStatus().equals(YSpecification._loaded)){
+                    if(!specification.isArchived() || caseIDs.size()>0){
 //System.out.println("_ViewSpecification.jsp:: caseIDs = " + caseIDs);
                     %>
                     <tr>
                         <%
-                        if(specification.getStatus().equals(YSpecification._loaded)){
+                        if(!specification.isArchived()){
                         %>
                         <td height="30" align="center"><input type="radio" name="specID"
                             value="<%= specID %>"/></td>
@@ -71,7 +71,7 @@
                         %>
                         <td height="30" align="center"/>
                         <td/>
-                        <td align="center"><%= specID %></td>
+                        <td align="center"><%= specID %>:<%= specification.getLoadversion() %></td>
                         <%
                         }
                         %>
@@ -79,7 +79,7 @@
                         <td align="center">
                             <table cellpadding="5"><tr><td>
                             <%= specification.getName() %>
-                            </tr></td></table>
+                            </td> </tr></table>
                         </td>
                         <td/>
                         <td align="center">
@@ -88,7 +88,7 @@
                             </tr></table></td>
                         <td/>
                         <td align="center"><a
-                            href="<%= contextPath %>/specBrowser?specID=<%= specID %>"
+                            href="<%= contextPath %>/specBrowser?specID=<%= specID %>&version=<%= specification.getLoadversion()%>"
                             >View <%= specID %></a>
                         <td/>
                         <td align="center">

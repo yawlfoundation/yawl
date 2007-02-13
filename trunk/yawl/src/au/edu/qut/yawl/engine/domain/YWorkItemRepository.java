@@ -136,7 +136,6 @@ public class YWorkItemRepository {
     public void removeWorkItem(YWorkItem workItem) throws YPersistenceException {
         Logger.getLogger(this.getClass()).debug("--> cancelAllWorkItemsInGroupOf: " + workItem.getIDString());
 //        _idStringToWorkItemsMap.remove(workItem.getIDString());
-        //todo Question by Lachlan: add code to remove from DB here?
         getEngine().getDao().delete( workItem );
     }
 
@@ -227,8 +226,22 @@ public class YWorkItemRepository {
 
 
     public YWorkItem getWorkItem(String workItemID) throws YPersistenceException {
+    	
+		List<YWorkItem> testitems = getEngine().getDao().retrieveByRestriction(YWorkItem.class, new Unrestricted());
+		
+        {
+            Iterator<YWorkItem> iterator = testitems.iterator();
+            int sub = 0;
+            while (iterator.hasNext()) {
+                sub++;
+                YWorkItem workitem = iterator.next();
+
+            }
+        }
+
     	List<YWorkItem> items = getEngine().getDao().retrieveByRestriction(YWorkItem.class,
     			new PropertyRestriction("thisId", Comparison.EQUAL, workItemID));
+    		
     	if(items.size() == 1) {
     		return items.get(0);
     	}

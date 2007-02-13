@@ -185,6 +185,8 @@ public class Marshaller {
                 String specStatus = specElement.getChildText("status");
                 String version = specElement.getChildText("version");
                 String rootNetID = specElement.getChildText("rootNetID");
+                boolean archived = Boolean.parseBoolean(specElement.getChildText("archived"));
+                String loadversion = specElement.getChildText("loadversion");
 
                 if (specID != null && specStatus != null) {
                     specData = new SpecificationData(
@@ -193,6 +195,8 @@ public class Marshaller {
                             specDodo,
                             specStatus,
                             version);
+                    specData.setArchived(archived);
+                    specData.setLoadversion(loadversion);
                     specData.setRootNetID(rootNetID);
                     specSummaryList.add(specData);
                     Element inputParams = specElement.getChild("params");
@@ -310,7 +314,6 @@ public class Marshaller {
                     child.detach();
                     //the input data will be removed from the merged doc and
                     //the output data will be added.
-		    System.out.println(child.getName());
                     mergedDoc.getRootElement().removeChild(child.getName());
                     mergedDoc.getRootElement().addContent(child);
                 }

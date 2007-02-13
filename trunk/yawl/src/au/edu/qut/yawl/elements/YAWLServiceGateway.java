@@ -13,9 +13,11 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.persistence.Basic;
@@ -65,7 +67,7 @@ public class YAWLServiceGateway extends YDecomposition {
 	 */
 	private static final long serialVersionUID = 2006030080l;
     private URI _yawlService;
-	private List<YParameter>enablementParam = new ArrayList<YParameter>();
+	private Set<YParameter>enablementParam = new HashSet<YParameter>();
 
     /**
      * Null constructor inserted for hibernate
@@ -79,16 +81,15 @@ public class YAWLServiceGateway extends YDecomposition {
         super(id, specification);
     }
 
-    @OneToMany(targetEntity=YVariable.class, mappedBy="decomposition", cascade=CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity=YVariable.class, mappedBy="decomposition", cascade=CascadeType.ALL)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @Where(clause="DataTypeName='enablementParam'")
+    @Where(clause="direction='enablementParam'")
     @org.hibernate.annotations.IndexColumn(name = "param_position")
-    protected List<YParameter> getEnablementParameters() {
+    protected Set<YParameter> getEnablementParameters() {
     	return enablementParam;
     }
 
-    protected void setEnablementParameters(List<YParameter> param) {
-    	enablementParam.clear();
+    protected void setEnablementParameters(Set<YParameter> param) {
     	enablementParam.addAll(param);
     }
     
@@ -179,6 +180,7 @@ public class YAWLServiceGateway extends YDecomposition {
      */
     @Transient
     public Map<String, YVariable> getEnablementParametersMap() {
+    	System.out.println(this.getId() + " has variables :"  + enablementParam.size());
     	Map<String, YVariable> map = new HashMap<String, YVariable>();
     	for(YVariable variable:enablementParam) {
     		if (null != variable.getName()) {
@@ -195,6 +197,7 @@ public class YAWLServiceGateway extends YDecomposition {
      * @param parameter the parameter
      */
     public void setEnablementParameter(YParameter parameter) {
+    	System.out.println(this.getId() + " sets variable :"  + parameter.getName());
         if (YParameter.getTypeForEnablement().equals(parameter.getDirection())) {
             if (null != parameter.getName()) {
             	enablementParam.add(parameter);
@@ -218,7 +221,7 @@ public class YAWLServiceGateway extends YDecomposition {
             
             clone._yawlService = _yawlService;
             
-            clone.enablementParam = new ArrayList<YParameter>();
+            clone.enablementParam = new HashSet<YParameter>();
             for( YParameter parameter : enablementParam ) {
                 YParameter cloneParam = (YParameter) parameter.clone();
                 cloneParam.setParent( clone );

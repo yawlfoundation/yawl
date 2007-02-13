@@ -217,9 +217,12 @@ public class WorkItemProcessor {
         TaskInformation taskInfo = _worklistController.getTaskInformation(
                 item.getSpecificationID(), item.getTaskID(), sessionHandle);
         
-        //System.out.println("WIP item.dataliststring: "+item.getDataListString());
+        System.out.println("WIP item.dataliststring: "+item.getDataListString());
         
         // set instance data
+        System.out.println("WIP item.schema: "+schema);
+
+        
         InstanceBuilder ib = new InstanceBuilder(schema, taskInfo.getDecompositionID(), item.getDataListString());
         parameters.put("instance", ib.getInstance());
         

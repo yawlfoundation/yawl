@@ -57,7 +57,7 @@ public class Interface_Client {
          * for POSTS on location which are running
          * but not accepting the post
          * */
-        connection.setReadTimeout(10000);
+        connection.setReadTimeout(60000);
         //send query
         if( "POST".equals( requestMethod ) ) {
         	PrintWriter out = new PrintWriter(connection.getOutputStream());

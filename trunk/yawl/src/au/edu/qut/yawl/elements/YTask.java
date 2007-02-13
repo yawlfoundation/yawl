@@ -81,6 +81,7 @@ import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.schema.Instruction;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
+import au.edu.qut.yawl.util.MultiInstanceDataList;
 import au.edu.qut.yawl.util.YSaxonOutPutter;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -129,7 +130,7 @@ public abstract class YTask extends YExternalNetElement {
     private static final String PERFORM_OUTBOUND_SCHEMA_VALIDATION = "skipOutboundSchemaValidation";
 
     //input data storage
-    private Map _caseToDataMap = new HashMap();
+    private MultiInstanceDataList _caseToDataMap = new MultiInstanceDataList();
     private Iterator _multiInstanceSpecificParamsIterator;
     private Map _localVariableNameToReplaceableOuptutData;
     private Document _groupedMultiInstanceOutputData;
@@ -962,6 +963,7 @@ public abstract class YTask extends YExternalNetElement {
 
     public Object clone() throws CloneNotSupportedException {
         YTask copy = (YTask) super.clone();
+        copy._caseToDataMap = new MultiInstanceDataList();
         copy._mi_active = new YInternalCondition(new StateEvent(StateEvent.ACTIVE), copy);
         copy._mi_complete = new YInternalCondition(new StateEvent(StateEvent.COMPLETE), copy);
         copy._mi_entered = new YInternalCondition(new StateEvent(StateEvent.ENTERED), copy);
@@ -1089,7 +1091,7 @@ public abstract class YTask extends YExternalNetElement {
             return;
         }
         Element dataForChildCase = produceDataRootElement();
-
+    	
         List inputParams = new ArrayList(getDecompositionPrototype().getInputParameters());
         Collections.sort(inputParams);
         for (int i = 0; i < inputParams.size(); i++) {
@@ -1134,7 +1136,10 @@ public abstract class YTask extends YExternalNetElement {
 
     protected Element performDataExtraction(String expression, YParameter inputParamName)
             throws YSchemaBuildingException, YDataStateException, YQueryException, YStateException {
+    	
+    	
         Element result = evaluateTreeQuery(expression, _net.getInternalDataDocument());
+
 
         /**
          * AJH: Allow option to inhibit schema validation for outbound data.
@@ -1179,6 +1184,8 @@ public abstract class YTask extends YExternalNetElement {
             throws YStateException, YDataStateException, YQueryException {
         Element resultingData;
         Object resultObj = null;
+        
+   	
         try {
             //JDOM code for produce string for reading by SAXON
             XMLOutputter outputter = new XMLOutputter();
@@ -1287,42 +1294,7 @@ public abstract class YTask extends YExternalNetElement {
     @Transient
     public Element getData(YIdentifier childInstanceID) {
        Element e = (Element) _caseToDataMap.get(childInstanceID);
-       
-       try {
-    	   if (e == null) {      
 
-    		   /*
-    	        * This should only occur after restoring a fired identifier
-    	        * */
-
-    		   if (isMultiInstance() && _multiInstanceSpecificParamsIterator==null) {
-    			   String queryString = getPreSplittingMIQuery();
-    			   Element dataToSplit = evaluateTreeQuery(queryString, _net.getInternalDataDocument());
-    			   List multiInstanceList = evaluateListQuery(_multiInstAttr.getMISplittingQuery(), dataToSplit);    			  
-    			   _multiInstanceSpecificParamsIterator = multiInstanceList.iterator();
-    			   
-    			   /*
-    			    * We need to iterate through until we are at the correct position again 
-    			    * to allocate data to the multiple instance. 
-    			    * */
-    			   //for (int i = 0; i < numberOfAllocatedItems; i++) {
-    				//   this._multiInstanceSpecificParamsIterator.next();
-    			   //}
-    		   }
-    		   
-    		   prepareDataForInstanceStarting(childInstanceID);
-    		   e = (Element) _caseToDataMap.get(childInstanceID);
-   		   
-    		   
-    	   }
-       } catch (Exception ex) {
-    	   ex.printStackTrace();
-           LOG.error("Failure in preparing data in task [" +
-                   getName() != null ? getName() : getID() +
-                   "]");
-
-    	   e = null;
-       }
        return e;
     }
 
@@ -1476,7 +1448,7 @@ public abstract class YTask extends YExternalNetElement {
      * @param paramName the enablement decomposition parameter to which to apply the result.
      */
     public void setDataBindingForEnablementParam(String query, String paramName) {
-    	dataMappingsForTaskEnablementSet.put(query, new KeyValue(KeyValue.ENABLEMENT, query, paramName, this));
+    	dataMappingsForTaskEnablementSet.put(query, new KeyValue(KeyValue.ENABLEMENT, paramName, query, this));
     }
 
     
@@ -2084,13 +2056,15 @@ public abstract class YTask extends YExternalNetElement {
     	}
     }
 
-//    @Basic
-//	public int getNumberOfAllocatedItems() {
-//		return numberOfAllocatedItems;
-//	}
-//
-//    @Basic
-//	public void setNumberOfAllocatedItems(int numberOfAllocatedItems) {
-//		this.numberOfAllocatedItems = numberOfAllocatedItems;
-//	}
+
+    @OneToOne(cascade=CascadeType.ALL) 
+	public MultiInstanceDataList getCaseToDataMap() {
+		return this._caseToDataMap;
+	}
+
+	@OneToOne(cascade=CascadeType.ALL) 
+	public void setCaseToDataMap(MultiInstanceDataList caseMap) {
+		this._caseToDataMap = caseMap;
+	}
+    
 }

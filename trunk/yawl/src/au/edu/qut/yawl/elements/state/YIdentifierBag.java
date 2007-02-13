@@ -85,7 +85,7 @@ public class YIdentifierBag implements Serializable {
 //			joinColumns = {@JoinColumn(name = "identifier_id")},
 //			inverseJoinColumns = @JoinColumn(name = "count_id"))
 
-    @CollectionOfElements (fetch=FetchType.EAGER)
+    @CollectionOfElements (fetch=FetchType.LAZY)
     @JoinTable(name="counted_identifiers", joinColumns = @JoinColumn(name="bag_id"))
     @org.hibernate.annotations.MapKey (columns=@Column(name="identifier_id"))
     @Column(name="value", nullable=true)     

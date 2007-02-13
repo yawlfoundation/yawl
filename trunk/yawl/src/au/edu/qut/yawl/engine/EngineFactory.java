@@ -23,8 +23,7 @@ import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
  * @created Mar 14, 2006
  */
 public class EngineFactory {
-	private static final String CONTEXT_CONFIG_LOCATION = "applicationContext.xml"; // TODO context config file location
-//	private static ApplicationContext application_context = null;
+
 
 	public static void resetEngine() {
 		engine = null;

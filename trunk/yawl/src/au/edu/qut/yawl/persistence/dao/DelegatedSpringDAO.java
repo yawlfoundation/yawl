@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 
+import au.edu.qut.yawl.admintool.model.HumanResource;
 import au.edu.qut.yawl.elements.SpecVersion;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YAtomicTask;
@@ -56,6 +57,8 @@ public class DelegatedSpringDAO extends AbstractDelegatedDAO {
 		addType( YCaseEvent.class, new YCaseEventSpringDAO() );
 		addType( YAtomicTask.class, new YExternalNetElementSpringDAO() );
 		addType( YCompositeTask.class, new YExternalNetElementSpringDAO() );
+		
+		addType( HumanResource.class, new HumanResourceDAO() );
 	}
 	
 	private class IdentifierSpringDAO extends AbstractSpringDAO<YIdentifier> {
@@ -72,7 +75,6 @@ public class DelegatedSpringDAO extends AbstractDelegatedDAO {
                     sequence = (IdentifierSequence) sequences.get( 0 );
                     value = sequence.getValue().intValue() + 1;
                 }
-                
                 item.setId( String.valueOf( value ) );
                 sequence.setValue( Long.valueOf( value ) );
                 
@@ -161,6 +163,14 @@ public class DelegatedSpringDAO extends AbstractDelegatedDAO {
 		
 		public Object getKey( YDataEvent item ) {
 			return item.getId();
+		}
+	}
+	
+	private class HumanResourceDAO extends AbstractSpringDAO<HumanResource> {
+		protected void preSave( HumanResource item ) {}
+		
+		public Object getKey( HumanResource item ) {
+			return item.getRsrcID();
 		}
 	}
 	
@@ -255,4 +265,6 @@ public class DelegatedSpringDAO extends AbstractDelegatedDAO {
 			((AbstractSpringDAO)dao).setSessionFactory(sessionFactory);
 		}
 	}
+	
+	
 }

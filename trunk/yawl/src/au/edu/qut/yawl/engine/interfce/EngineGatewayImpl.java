@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
+import au.edu.qut.yawl.admintool.model.HumanResource;
 import au.edu.qut.yawl.authentication.User;
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
@@ -40,6 +41,7 @@ import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YStateException;
 import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionStringConverter;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YVerificationMessage;
@@ -72,6 +74,7 @@ public class EngineGatewayImpl implements EngineGateway {
      */
     public EngineGatewayImpl(boolean persist) throws YPersistenceException {
 
+    	
         //
     	if (persist) {
     		_engine = EngineFactory.getTransactionalEngine();
@@ -79,6 +82,8 @@ public class EngineGatewayImpl implements EngineGateway {
     		_engine = EngineFactory.createYEngine(persist);
     	}
         _userList = UserList.getInstance();
+        
+        
     }
 
     /**
@@ -159,29 +164,23 @@ public class EngineGatewayImpl implements EngineGateway {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
-        }
-        YSpecification spec;
+        }        	
+
         try {
-        	spec = _engine.getProcessDefinition(specID);
-        }
-        catch (YPersistenceException e) {
-            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
-        }
-        if (spec == null) {
-            return
-                    OPEN_FAILURE +
-                    "Specification with ID (" + specID + ") not found." +
-                    CLOSE_FAILURE;
-        }
-        List <YSpecification> specList =
-                new Vector<YSpecification>();
-        specList.add(spec);
-        try {
-            return YMarshal.marshal(specList);
-        } catch (Exception e) {
-            logger.error("Failed to marshal a specification into XML.", e);
+        	String pdef = _engine.getProcessDefinition(specID);
+        	if (pdef!=null) {
+        		return pdef;
+            }
+            logger.error("Failed to marshal a specification into XML.");        	
             return "";
-        }
+        } catch (YPersistenceException e) {
+            return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
+        } catch (YAWLException e) {
+            return
+            OPEN_FAILURE +
+            "Specification with ID (" + specID + ") not found." +
+            CLOSE_FAILURE;
+        } 
     }
 
     /**
@@ -196,10 +195,7 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-	        List<YSpecification> specs = _engine.getDao().retrieveByRestriction(
-	        		YSpecification.class, RestrictionStringConverter.stringToRestriction( restriction ) );
-	        
-            return YMarshal.marshal(specs);
+            return _engine.getSpecificationsByRestriction(restriction);
         } catch (Exception e) {
             logger.error("Failed to retrieve specifications by restriction! " + restriction, e);
             return OPEN_FAILURE +
@@ -219,6 +215,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
             YWorkItem item = _engine.suspendWorkItem(workItemID);
+            _engine.executeServiceNotifications();
 
             if (item != null)
                 return OPEN_SUCCESS + item.toXML() + CLOSE_SUCCESS;
@@ -247,6 +244,8 @@ public class EngineGatewayImpl implements EngineGateway {
             _userList.checkConnection(sessionHandle);
 
             YWorkItem item = _engine.unsuspendWorkItem(workItemID);
+            _engine.executeServiceNotifications();
+
             if (item != null)
                 return OPEN_SUCCESS + item.toXML() + CLOSE_SUCCESS;
             else
@@ -275,6 +274,8 @@ public class EngineGatewayImpl implements EngineGateway {
             _userList.checkConnection(sessionHandle);
             String userName = _userList.getUserID(sessionHandle);
             _engine.rollbackWorkItem(workItemID, userName);
+            _engine.executeServiceNotifications();
+
             return SUCCESS;
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
@@ -296,15 +297,15 @@ public class EngineGatewayImpl implements EngineGateway {
     public String completeWorkItem(String workItemID, String data, boolean force, String sessionHandle) throws RemoteException {
         try {
             _userList.checkConnection(sessionHandle);
-            YWorkItem workItem = _engine.getWorkItem(workItemID);
-            if (workItem != null) {
-                _engine.completeWorkItem(workItemID, data, force);
-                return SUCCESS;
-            } else {
+            _engine.completeWorkItem(workItemID, data, force);
+            _engine.executeServiceNotifications();
+
+            return SUCCESS;
+
+        } catch (YStateException se) {
                 return OPEN_FAILURE +
                         "WorkItem with ID [" + workItemID + "] not found." +
                         CLOSE_FAILURE;
-            }
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
@@ -325,17 +326,18 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
 
-            YWorkItem item = _engine.getWorkItem(workItemID);
-            if (item != null) {
-                String userID = _userList.getUserID(sessionHandle);
-                YWorkItem child = _engine.startWorkItem(workItemID, userID);
-                if( child == null ) {
-                	throw new YAWLException(
-                			"Engine failed to start work item " + item.toString() +
-                			". The engine returned no work items." );
-                }
+
+               String userID = _userList.getUserID(sessionHandle);
+               YWorkItem child = _engine.startWorkItem(workItemID, userID);
+               if( child == null ) {
+               	throw new YAWLException(
+               			"Engine failed to start work item " + workItemID +
+               			". The engine returned no work items." );
+               }
+               _engine.executeServiceNotifications();
                 return OPEN_SUCCESS + child.toXML() + CLOSE_SUCCESS;
-            }
+
+        } catch (YStateException e) {
             return OPEN_FAILURE + "No work item with id = " + workItemID + CLOSE_FAILURE;
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
@@ -364,9 +366,13 @@ public class EngineGatewayImpl implements EngineGateway {
     public String createNewInstance(String workItemID, String paramValueForMICreation, String sessionHandle) throws RemoteException {
         try {
             _userList.checkConnection(sessionHandle);
-            YWorkItem existingItem = _engine.getWorkItem(workItemID);
-            YWorkItem newItem = _engine.createNewInstance(existingItem, paramValueForMICreation);
+            YWorkItem newItem = _engine.createNewInstance(workItemID, paramValueForMICreation);
+            _engine.executeServiceNotifications();
+
             return OPEN_SUCCESS + newItem.toXML() + CLOSE_SUCCESS;
+        } catch (YStateException e) {
+            return OPEN_FAILURE + "No work item with id = " + workItemID + CLOSE_FAILURE;
+          	
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
@@ -456,9 +462,9 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-	        YTask task = _engine.getTaskDefinition(specificationID, taskID);
+	        String task = _engine.getTaskInformation(specificationID, taskID);
 	        if (task != null) {
-	            return task.getInformation();
+	            return task;
 	        } else {
 	            return OPEN_FAILURE + "The was no task found with ID " + taskID + CLOSE_FAILURE;
 	        }
@@ -502,9 +508,8 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-        	Set<YSpecification> specs = _engine.getSpecifications( true );
-        	
-        	return getDataForSpecifications(specs);
+      	
+        	return _engine.getDataForSpecifications( true );
         }
         catch( YPersistenceException e ) {
         	return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
@@ -524,7 +529,10 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
 	    String username = _userList.getUserID(sessionHandle);
-            return _engine.launchCase(username, specID, caseParams, caseCompletionURI);
+            String id = _engine.launchCase(username, specID, caseParams, caseCompletionURI);
+            _engine.executeServiceNotifications();
+            return id;
+
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
@@ -614,6 +622,8 @@ public class EngineGatewayImpl implements EngineGateway {
             YIdentifier id = _engine.getCaseID(caseID);
             if (id != null) {
                 _engine.cancelCase(id);
+                _engine.executeServiceNotifications();
+
                 return SUCCESS;
             }
             else {
@@ -846,10 +856,10 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        Set users = _userList.getUsers();
+        Set<HumanResource> users = _userList.getUsers();
         StringBuffer result = new StringBuffer();
         for (Iterator iterator = users.iterator(); iterator.hasNext();) {
-            User user = (User) iterator.next();
+            HumanResource user = (HumanResource) iterator.next();
             result.append(user.toXML());
         }
         return result.toString();
@@ -1017,51 +1027,6 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
-    private String getDataForSpecifications(Set specSet) {
-        StringBuffer specs = new StringBuffer();
-        for (Iterator iterator = specSet.iterator(); iterator.hasNext();) {
-            specs.append("<specificationData>");
-            YSpecification spec = (YSpecification) iterator.next();
-            specs.append("<id>").
-                    append(spec.getID()).
-                    append("</id>");
-            if (spec.getName() != null) {
-                specs.append("<name>").
-                        append(spec.getName()).
-                        append("</name>");
-            }
-            if (spec.getDocumentation() != null) {
-                specs.append("<documentation>").
-                        append(spec.getDocumentation()).
-                        append("</documentation>");
-            }
-            Iterator inputParams = spec.getRootNet().getInputParameters().iterator();
-            if (inputParams.hasNext()) {
-                specs.append("<params>");
-                while (inputParams.hasNext()) {
-                    YParameter inputParam = (YParameter) inputParams.next();
-                    specs.append(inputParam.toSummaryXML());
-                }
-                specs.append("</params>");
-            }
-            specs.append("<rootNetID>").
-                    append(spec.getRootNet().getId()).
-                    append("</rootNetID>");
-            specs.append("<version>").
-                    append(spec.getBetaVersion()).
-                    append("</version>");
-
-            try {
-            	String status = _engine.getLoadStatus(spec.getID());
-            	specs.append("<status>").append(status).append("</status>");
-            }
-            catch( YPersistenceException e ) {
-            }
-            specs.append("</specificationData>");
-        }
-        return specs.toString();
-    }
-
     /***************************************************************************/
 
     /** The following methods are called by an Exception Service via Interface_X */
@@ -1089,7 +1054,10 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
-        return String.valueOf(_engine.updateWorkItemData(workItemID, data));
+
+        String s = String.valueOf(_engine.updateWorkItemData(workItemID, data));
+        _engine.executeServiceNotifications();
+        return s;
     }
 
 
@@ -1100,7 +1068,9 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-            return String.valueOf(_engine.updateCaseData(caseID, data));
+            String s = String.valueOf(_engine.updateCaseData(caseID, data));
+            _engine.executeServiceNotifications();
+            return s;
         } catch (YPersistenceException e) {
             enginePersistenceFailure = true;
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
@@ -1121,6 +1091,8 @@ public class EngineGatewayImpl implements EngineGateway {
 	        if (item != null) {
 	            item.setStatus(YWorkItem.Status.Enabled);
 	            result = startWorkItem(workItemID, sessionHandle);
+	            _engine.executeServiceNotifications();
+
 	        }
 	        return result ;
         }
@@ -1136,6 +1108,8 @@ public class EngineGatewayImpl implements EngineGateway {
             _userList.checkConnection(sessionHandle);
             YWorkItem item = _engine.getWorkItem(workItemID);
             _engine.cancelWorkItem(item, fail.equalsIgnoreCase("true")) ;
+            _engine.executeServiceNotifications();
+
             return SUCCESS ;
         }
         catch(YPersistenceException e) {

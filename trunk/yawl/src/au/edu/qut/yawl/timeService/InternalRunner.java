@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
@@ -49,7 +50,7 @@ public class InternalRunner extends Thread {
 
 
         try {
-            DateFormat df = DateFormat.getDateTimeInstance();
+        	DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.UK);
             Date todate = df.parse(date);
             GregorianCalendar cal = new GregorianCalendar();
             GregorianCalendar now = new GregorianCalendar();

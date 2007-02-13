@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,6 +34,7 @@ import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.events.YErrorEvent;
 
 /**
@@ -57,6 +59,17 @@ public class YIdentifier implements Serializable {
     /**************************/
     private String id = null;
 
+    private int childrenids = 0;
+
+    @Basic
+	public int getChildrenids() {
+		return childrenids;
+	}
+
+	public void setChildrenids(int childrenids) {
+		this.childrenids = childrenids;
+	}
+    
     /**
      */
     @Id
@@ -71,7 +84,7 @@ public class YIdentifier implements Serializable {
     
     /************************************************/
 
-    private List<YIdentifier> _children = new Vector<YIdentifier>();
+    private Set<YIdentifier> _children = new HashSet<YIdentifier>();
     private YIdentifier _parent;
     private String specURI;
     private Integer specVersion;
@@ -90,12 +103,12 @@ public class YIdentifier implements Serializable {
     }
 
     @OneToMany(mappedBy="parent",cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    public List<YIdentifier> getChildren() {
+    //@OnDelete(action=OnDeleteAction.CASCADE)
+    public Set<YIdentifier> getChildren() {
         return _children;
     }
     
-    protected void setChildren(List<YIdentifier> children) {
+    protected void setChildren(Set<YIdentifier> children) {
     	_children = children;
     }
     
@@ -134,10 +147,11 @@ public class YIdentifier implements Serializable {
 
     public YIdentifier createChild() {
         YIdentifier identifier =
-                new YIdentifier(this.id + "." + (_children.size() + 1));
+                new YIdentifier(this.id + "." + (childrenids + 1));
+        childrenids++;
         _children.add(identifier);
         identifier._parent = this;
-
+        
         return identifier;
     }
 
@@ -152,8 +166,9 @@ public class YIdentifier implements Serializable {
             throw new IllegalArgumentException("Childnum must > 0");
         }
         String childNumStr = "" + childNum;
-        for (int i = 0; i < _children.size(); i++) {
-            YIdentifier identifier = _children.get(i);
+        Iterator<YIdentifier> children = _children.iterator();
+        while (children.hasNext()) {
+            YIdentifier identifier = children.next();
             String exisitingChildNumString = identifier.toString();
             String lastPartOfExisistingChildNumString =
                     exisitingChildNumString.substring(exisitingChildNumString.lastIndexOf('.') + 1);
@@ -252,4 +267,5 @@ public class YIdentifier implements Serializable {
     public void setErrors(List<YErrorEvent> errors) {
 		this.errors = errors;
 	}
+
 }

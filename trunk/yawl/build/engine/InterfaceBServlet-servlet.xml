@@ -8,6 +8,8 @@
        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
+
+
     <bean id="memoryDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
          <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
          <property name="url" value="jdbc:hsqldb:mem:yawl" />
@@ -41,6 +43,7 @@
                 <prop key="hibernate.show_sql">true</prop>
                 <prop key="hibernate.use_sql_comments">true</prop>		
 -->
+
                 <prop key="hibernate.current_session_context_class">thread</prop>
                 <prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</prop>                 
             </props>
@@ -81,6 +84,10 @@
 			<value>au.edu.qut.yawl.events.YDataEvent</value>
 			<value>au.edu.qut.yawl.events.YErrorEvent</value>
                 <value>au.edu.qut.yawl.elements.YDecomposition</value>
+			<value>au.edu.qut.yawl.admintool.model.HumanResource</value>
+			<value>au.edu.qut.yawl.admintool.model.Resource</value>
+			<value>au.edu.qut.yawl.util.MultiInstanceDataList</value>
+			<value>au.edu.qut.yawl.util.MultiInstanceData</value>
 </list>
         </property>
 </bean>
@@ -131,10 +138,16 @@
 <aop:config>
      <aop:pointcut id="serviceOperation"
                  expression="execution(* au.edu.qut.yawl.engine.YEngine.*(..))"/>
+     <aop:pointcut id="abstractServiceOperation"
+                 expression="execution(* au.edu.qut.yawl.engine.AbstractEngine.*(..))"/>
+
      <aop:advisor pointcut-ref="serviceOperation" advice-ref="txAdvice"/>
+
+     <aop:advisor pointcut-ref="abstractServiceOperation" advice-ref="txAdvice"/>
+
 </aop:config>
 
-  <tx:advice id="txAdvice">
+  <tx:advice id="txAdvice" transaction-manager="transactionManager">
     <tx:attributes>
       <tx:method name="get*" />
       <tx:method name="create*" />

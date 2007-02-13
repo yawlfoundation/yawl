@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import au.edu.qut.yawl.exceptions.YPersistenceException;
@@ -55,6 +56,8 @@ public abstract class AbstractSpringDAO<Type> extends HibernateDaoSupport implem
 		if( ! ( restriction instanceof Unrestricted ) ) {
 			criteria.add( RestrictionCriterionConverter.convertRestriction( restriction ) );
 		}
+		
+		criteria.addOrder(Order.asc(""));
 
 		Set<Type> set = new HashSet<Type>( getHibernateTemplate().findByCriteria( criteria ) );
 		

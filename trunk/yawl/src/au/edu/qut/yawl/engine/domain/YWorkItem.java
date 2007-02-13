@@ -271,7 +271,6 @@ public class YWorkItem {
             }
             return childItem;
         }
-    	System.out.println("already has parent: " + _parent);
         return null;
     }
 
@@ -652,7 +651,7 @@ public class YWorkItem {
     @Transient
     public String getDataString() {
         if (_dataList != null) {
-            XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+            XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());       
             return outputter.outputString(_dataList);
         }
         return null;

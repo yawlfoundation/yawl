@@ -25,14 +25,6 @@
         </description>
 	</context-param>
 
-	<context-param>
-		<param-name>EnablePersistence</param-name>
-		<param-value>true</param-value>
-		<description>
-			Set this value to 'true' to enable persistance and logging
-			set to 'false' to disable
-               </description>
-	</context-param>
 
 	<context-param>
 		<param-name>RMIServerName</param-name>
@@ -53,6 +45,12 @@
 			(specified by the URI param below).
 			Set it to 'false' to disable the Exception Service.
         </description>
+	</context-param>
+
+    <context-param>
+		<param-name>InstallDir</param-name>
+		<param-value>${INSTALL_PATH}</param-value>
+
 	</context-param>
 
     <context-param>
@@ -136,5 +134,7 @@
 		<session-timeout>30</session-timeout>
 		<!-- 30 minutes -->
 	</session-config>
+
+
 
 </web-app>
