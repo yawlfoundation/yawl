@@ -85,7 +85,7 @@
         </property>
 </bean>
 
-<bean id="hsqlDao" class="au.edu.qut.yawl.persistence.dao.DelegatedSpringDAO">
+<bean id="hsqlDao" class="au.edu.qut.yawl.persistence.dao.SpringDAO">
  <property name="sessionFactory"><ref local="sessionFactory"/></property>
 </bean>
 

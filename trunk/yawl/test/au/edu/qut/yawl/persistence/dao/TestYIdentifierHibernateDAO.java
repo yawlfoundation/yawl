@@ -11,6 +11,8 @@ package au.edu.qut.yawl.persistence.dao;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.EngineFactory;
@@ -96,20 +98,22 @@ public class TestYIdentifierHibernateDAO extends AbstractHibernateDAOTestCase {
 		hibernateDAO.delete(yid);
 	}
 
-	public void testSaveChildButNotParent() {
+	public void testSaveChildButNotParent() throws YPersistenceException {
 		try {
 			DAO hibernateDAO = getDAO();
 			YIdentifier yid = new YIdentifier();
-			YIdentifier yid1 = yid.createChild();
-			hibernateDAO.save(yid1);
-			fail("Exception should be thrown"); //but which exception
-		} catch (Exception e) {
+			YIdentifier child = yid.createChild();
+			hibernateDAO.save(child);
+            // we have to retrieve because the DAO may not flush after saving until you retrieve
+            hibernateDAO.retrieve(YIdentifier.class, child.getId());
+			fail(InvalidDataAccessApiUsageException.class.toString() + " should be thrown");
+		} catch (InvalidDataAccessApiUsageException e) {
 			//success
 		}
 	}
 	
 	public void testSaveAndRestoreHierarchy() throws YPersistenceException {
-		YIdentifier yid = new YIdentifier();		
+		YIdentifier yid = new YIdentifier();
 		getDAO().save(yid);
 //		YIdentifier.saveIdentifier(yid, null, null);
 					

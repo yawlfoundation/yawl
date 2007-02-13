@@ -50,12 +50,7 @@ public class TestCaseCancellation extends AbstractTransactionalTestCase {
 
     public void setUp() throws Exception {
     	super.setUp();
-        try {
-			_engine =  EngineFactory.createYEngine();
-		} catch (RuntimeException e) {
-			super.tearDown();
-			throw new Exception("Test setup failed", e);
-		}
+		_engine =  EngineFactory.createYEngine();
 
         URI serviceURI = new URI("mock://mockedURL/testingCaseCompletion");
         YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString());
@@ -77,17 +72,9 @@ public class TestCaseCancellation extends AbstractTransactionalTestCase {
             }
         }
         _engine.addYawlService(service);
-
-        _repository = YWorkItemRepository.getInstance();
-        URL fileURL = getClass().getResource("CaseCancellation.xml");
-        File yawlXMLFile = new File(fileURL.getFile());
-        _specification = (YSpecification) YMarshal.
-                    unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
-
-        _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         
-        _idForTopNet = _engine.startCase(null, _specification.getID(), null, serviceURI);
-   
+        _taskCancellationReceived.clear();
+        _caseCompletionReceived.clear();
         
         ObserverGateway og = new ObserverGateway() {
             public void cancelAllWorkItemsInGroupOf(
@@ -104,6 +91,16 @@ public class TestCaseCancellation extends AbstractTransactionalTestCase {
             public void announceWorkItem(URI ys, YWorkItem i) {}
         };
         _engine.registerInterfaceBObserverGateway(og);
+
+        _repository = YWorkItemRepository.getInstance();
+        URL fileURL = getClass().getResource("CaseCancellation.xml");
+        File yawlXMLFile = new File(fileURL.getFile());
+        _specification = (YSpecification) YMarshal.
+                    unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+
+        _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
+        
+        _idForTopNet = _engine.startCase(null, _specification.getID(), null, serviceURI);
     }
 
     public void testIt() throws InterruptedException, YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
@@ -152,14 +149,41 @@ public class TestCaseCancellation extends AbstractTransactionalTestCase {
     		// proper exception was thrown
     	}
     }
-
-    public void testCaseCompletion() throws YPersistenceException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException, InterruptedException {
-    	while(_engine.getAvailableWorkItems().size() > 0 ) {
-            YWorkItem item = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
-            performTask(item.getTaskID());
-        }
+    
+    public void testCaseCompletion1() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+        performTask("register");
+        performTask("register_itinerary_segment");
+        performTask("flight");
+        performTask("cancel");
         assertTrue(_caseCompletionReceived.size() > 0);
     }
+    
+    public void testCaseCompletion2() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+        performTask("register");
+        performTask("cancel");
+        assertTrue(_caseCompletionReceived.size() > 0);
+    }
+    
+    public void testCaseCompletion3() throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+        performTask("register");
+        performTask("register_itinerary_segment");
+        performTask("flight");
+        performTask("prepare_payment_information");
+        // I'm not sure if the case should be finished at this point or still needs to
+        // do more, but the old testCaseCompletion would pass or fail depending on
+        // which tasks were executed (which was happening at random) so I split it into
+        // three tests, 2 of which pass and this one fails.
+        // TODO this test needs to be examined and the engine (or this test) needs fixed
+        assertTrue(_caseCompletionReceived.size() > 0);
+    }
+
+//    public void testCaseCompletion() throws YPersistenceException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException, InterruptedException {
+//    	while(_engine.getAvailableWorkItems().size() > 0 ) {
+//            YWorkItem item = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
+//            performTask(item.getTaskID());
+//        }
+//        assertTrue(_caseCompletionReceived.size() > 0);
+//    }
 
 
     public void performTask(String name) throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
