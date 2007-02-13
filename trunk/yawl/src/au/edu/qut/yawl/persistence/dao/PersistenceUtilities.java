@@ -9,12 +9,17 @@ package au.edu.qut.yawl.persistence.dao;
 
 import java.io.Serializable;
 
+import au.edu.qut.yawl.elements.SpecVersion;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.elements.YExternalNetElement;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.IdentifierSequence;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.events.YCaseEvent;
+import au.edu.qut.yawl.events.YDataEvent;
+import au.edu.qut.yawl.events.YWorkItemEvent;
 import au.edu.qut.yawl.exceptions.Problem;
 
 public class PersistenceUtilities {
@@ -35,6 +40,51 @@ public class PersistenceUtilities {
 		return retval;
 	}
 	
+    public static Serializable getDatabaseKey( Object object ) {
+        if( object == null ) {
+            throw new NullPointerException( "Cannot retrieve a key for null!" );
+        }
+        else if( object instanceof YSpecification ) {
+            return getSpecificationDatabaseKey( (YSpecification) object );
+        }
+        else if( object instanceof YNetRunner ) {
+            return getNetRunnerDatabaseKey( (YNetRunner) object );
+        }
+        else if( object instanceof Problem ) {
+            return getProblemDatabaseKey( (Problem) object );
+        }
+        else if( object instanceof YWorkItem ) {
+            return getWorkItemDatabaseKey( (YWorkItem) object );
+        }
+        else if( object instanceof YIdentifier ) {
+            return getIdentifierDatabaseKey( (YIdentifier) object );
+        }
+        else if( object instanceof IdentifierSequence ) {
+            return getIdentifierSequenceDatabaseKey( (IdentifierSequence) object );
+        }
+        else if( object instanceof YAWLServiceReference ) {
+            return getYAWLServiceReferenceDatabaseKey( (YAWLServiceReference) object );
+        }
+        else if( object instanceof SpecVersion ) {
+            return getSpecVersionDatabaseKey( (SpecVersion) object );
+        }
+        else if( object instanceof YWorkItemEvent ) {
+            return getWorkItemEventDatabaseKey( (YWorkItemEvent) object ); 
+        }
+        else if( object instanceof YExternalNetElement ) {
+            return getExternalNetElementDatabaseKey( (YExternalNetElement) object );
+        }
+        else if( object instanceof YCaseEvent ) {
+            return getCaseEventDatabaseKey( (YCaseEvent) object );
+        }
+        else if( object instanceof YDataEvent ) {
+            return getDataEventDatabaseKey( (YDataEvent) object );
+        }
+        else {
+            throw new IllegalArgumentException( "Cannot retrieve key for instance of " + object.getClass().toString());
+        }
+    }
+    
 	public static Object getSpecificationKey( YSpecification spec ) {
 		return spec.getID();
 	}
@@ -90,4 +140,24 @@ public class PersistenceUtilities {
 	public static Serializable getYAWLServiceReferenceDatabaseKey( YAWLServiceReference reference ) {
 		return reference.getYawlServiceID();
 	}
+    
+    public static Serializable getSpecVersionDatabaseKey( SpecVersion object ) {
+        return object.getSpecURI();
+    }
+    
+    public static Serializable getWorkItemEventDatabaseKey( YWorkItemEvent event ) {
+        return event.getId();
+    }
+    
+    public static Serializable getExternalNetElementDatabaseKey( YExternalNetElement element ) {
+        return element.getDbID();
+    }
+    
+    public static Serializable getCaseEventDatabaseKey( YCaseEvent event ) {
+        return event.getIdentifier();
+    }
+    
+    public static Serializable getDataEventDatabaseKey( YDataEvent event ) {
+        return event.getId();
+    }
 }
