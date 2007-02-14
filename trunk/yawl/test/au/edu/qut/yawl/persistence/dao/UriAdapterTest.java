@@ -2,19 +2,10 @@ package au.edu.qut.yawl.persistence.dao;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.net.URLCodec;
-
-import au.edu.qut.yawl.util.UriEncoder;
 
 import junit.framework.TestCase;
+
+import org.apache.commons.codec.EncoderException;
 
 public class UriAdapterTest extends TestCase {
 

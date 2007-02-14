@@ -11,7 +11,6 @@ package au.edu.qut.yawl.persistence.dao;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.hibernate.ObjectDeletedException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -20,7 +19,6 @@ import org.jdom.input.SAXBuilder;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.engine.domain.YWorkItemID;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 public class TestYWorkItemHibernateDAO extends AbstractHibernateDAOTestCase {
