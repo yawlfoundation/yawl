@@ -3,6 +3,7 @@ Version 1.4.5 (07/12/2006) "Wiggles"
     engine war to the standalone engine jar for getting the engine library it needs. This is to better
     support the engine's installer including just the lite editor for distribution, but with full engine-enabled
     functionality.
+  * The editor has been upgraded to now use Jgraph 5.9.2.1.
   * Now, when a user selects a single task, the palette menu expands to allow the use to modify the
     split and join decorators for the task, without having to go to the popup menu for the task.
   * Fixed a bug where a graph that was scaled would stop the user from being able to draw flows between elements.
