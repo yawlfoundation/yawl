@@ -37,12 +37,15 @@ public class ResourceLoader {
   }
   
   public static ImageIcon getImageAsIcon(String imageFile) {
-		try {
-		  InputStream in = ResourceLoader.class.getResourceAsStream(imageFile);
-		  final byte[] imageByteBuffer = convertToByteArray(in);
-		  in.close();
-		  return new ImageIcon(imageByteBuffer);
-		} catch (Exception e) { e.printStackTrace(); return null; }
+	try {
+      InputStream in = ResourceLoader.class.getResourceAsStream(imageFile);
+      final byte[] imageByteBuffer = convertToByteArray(in);
+      in.close();
+      return new ImageIcon(imageByteBuffer);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 
   private static byte[] convertToByteArray(final InputStream is) {
