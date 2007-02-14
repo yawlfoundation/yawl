@@ -11,17 +11,13 @@ package au.edu.qut.yawl.persistence.dao;
 import java.io.File;
 import java.util.List;
 
-import org.hibernate.ObjectDeletedException;
-
 import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.YNetRunner;
 import au.edu.qut.yawl.exceptions.YDataStateException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
-import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 

@@ -18,7 +18,6 @@ import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
-import au.edu.qut.yawl.persistence.dao.DAOFactory.PersistenceType;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
