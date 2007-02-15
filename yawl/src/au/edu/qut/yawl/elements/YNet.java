@@ -185,17 +185,30 @@ public class YNet extends YDecomposition {
      */
 
     @ManyToMany(mappedBy="parent", cascade={CascadeType.ALL})
-    public Set<YExternalNetElement> getNetElements() {
+    public Set<YExternalNetElement> getElements() {
         return _netElements;
     }
     /**
      * Inserted for hibernate TODO Set to protected later
      * @param list
      */
-    public void setNetElements(Set<YExternalNetElement> list) {
+    public void setElements(Set<YExternalNetElement> list) {
     	_netElements = list;
     }
 
+    @Transient
+    public List<YExternalNetElement> getNetElements() {
+        return new ArrayList(_netElements);
+    }
+    /**
+     * Inserted for hibernate TODO Set to protected later
+     * @param list
+     */
+    @Transient
+    public void setNetElements(List<YExternalNetElement> list) {
+    	_netElements = new HashSet(list);
+    }    
+    
     /**
      *
      * @param id
