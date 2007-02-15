@@ -251,7 +251,7 @@ public class TestDeepClone extends TestCase {
                 orig.getEnablementParameters().size() == clone.getEnablementParameters().size() );
         for( YParameter param : orig.getEnablementParameters() ) {
             YParameter cloneParam =
-                getParameterNamed( param.getName(), clone.getEnablementParameters() );
+                getParameterNamed( param.getName(), new ArrayList(clone.getEnablementParameters()) );
             
             compareParameters( param, cloneParam );
         }
