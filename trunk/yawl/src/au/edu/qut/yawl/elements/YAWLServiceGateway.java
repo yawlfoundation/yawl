@@ -180,7 +180,6 @@ public class YAWLServiceGateway extends YDecomposition {
      */
     @Transient
     public Map<String, YVariable> getEnablementParametersMap() {
-    	System.out.println(this.getId() + " has variables :"  + enablementParam.size());
     	Map<String, YVariable> map = new HashMap<String, YVariable>();
     	for(YVariable variable:enablementParam) {
     		if (null != variable.getName()) {
@@ -197,7 +196,6 @@ public class YAWLServiceGateway extends YDecomposition {
      * @param parameter the parameter
      */
     public void setEnablementParameter(YParameter parameter) {
-    	System.out.println(this.getId() + " sets variable :"  + parameter.getName());
         if (YParameter.getTypeForEnablement().equals(parameter.getDirection())) {
             if (null != parameter.getName()) {
             	enablementParam.add(parameter);

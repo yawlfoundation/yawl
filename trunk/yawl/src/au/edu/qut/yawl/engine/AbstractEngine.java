@@ -270,26 +270,7 @@ public abstract class AbstractEngine implements YEngineInterface,
         }
 
         YSpecification specification = getSpecification(specID);
-        System.out.println("specification: " + specification.getID());
-        List<YDecomposition> decomps = specification.getDecompositions();
-        System.out.println("decompositions: " + decomps.size());
-        
-        for (int i =0; i < decomps.size(); i++) {        	
-        	YDecomposition d = decomps.get(i);
-        	if (d instanceof YAWLServiceGateway) {
-        		Set keys = ((YAWLServiceGateway) d).getEnablementParametersMap().keySet();
-        		Iterator it1 = keys.iterator();
-        		Collection values = ((YAWLServiceGateway) d).getEnablementParametersMap().values();
-        		Iterator it2 = values.iterator();
-        		System.out.println(d.getId());
-        		while (it1.hasNext()) {
-        			System.out.println(it1.next());        			
-        		}
-        		while (it2.hasNext()) {
-        			System.out.println(it2.next());        			
-        		}
-        	}
-        }
+
         
         //Go to the database if the specification is not found, error
         //if the specification is not in the database either
