@@ -42,7 +42,7 @@
             value="${editor.jar.file.base}_tmp.jar" />
 
   <taskdef resource="proguard/ant/task.properties"
-           classpath="${tool.directory}/proguard3.6/lib/proguard.jar" />
+           classpath="${tool.directory}/proguard3.7/lib/proguard.jar" />
   
   <!-- global filters -->
   
