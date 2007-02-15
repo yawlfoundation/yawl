@@ -115,10 +115,10 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @throws IOException if connection problem
      * @throws JDOMException if XML content problem.
      */
-    public static YParameter[] getRequiredParamsForService(URI yawlService) throws IOException, JDOMException {
+    public static YParameter[] getRequiredParamsForService(YAWLServiceReference yawlService) throws IOException, JDOMException {
         List paramResults = new ArrayList();
 
-        String urlOfYawlService = yawlService.toString();
+        String urlOfYawlService = yawlService.getURI();
 
         Map params = new HashMap();
         params.put("action", "ParameterInfoRequest");
