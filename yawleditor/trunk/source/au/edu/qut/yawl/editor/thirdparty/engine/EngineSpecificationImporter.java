@@ -342,10 +342,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
         
         if (engineGateway.getYawlService() != null) {
           editorDecomposition.setYawlServiceID(
-            engineGateway.getYawlService().getURI()
-          );
-          editorDecomposition.setYawlServiceDescription(
-              engineGateway.getYawlService().getDocumentation()
+            engineGateway.getYawlService().toString()
           );
         }
         

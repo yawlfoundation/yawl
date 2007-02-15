@@ -26,6 +26,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -451,11 +452,14 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     if (taskNeedsWebServiceDetail(editorTask)) {
     
       YAWLServiceReference engineService = new YAWLServiceReference(
-        editorDecomposition.getYawlServiceID(),
-        engineDecomposition
+        editorDecomposition.getYawlServiceID()
       );
 
-      engineDecomposition.setYawlService(engineService);
+      try {
+        engineDecomposition.setYawlService(
+            new URI(engineService.getURI())
+        );
+      } catch (Exception e) {}
     }
     
     engineSpecification.setDecomposition(engineDecomposition);
