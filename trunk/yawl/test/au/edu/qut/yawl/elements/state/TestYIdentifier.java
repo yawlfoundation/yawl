@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.elements.state;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import junit.framework.TestCase;
@@ -60,7 +61,7 @@ public class TestYIdentifier extends TestCase {
 		YIdentifier id  = new YIdentifier();
 		YIdentifier id3 = id.createChild();
 		YIdentifier id4 = id.createChild();
-		List children = id.getChildren();
+		Set children = id.getChildren();
 		assertTrue(id3.isImmediateChildOf(id));
 		assertTrue(id4.isImmediateChildOf(id));
 		assertTrue(children.size() == 2);
