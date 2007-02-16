@@ -111,17 +111,6 @@ public class YParameter extends YVariable implements Serializable  {
 
 
 
-    
-    /**
-     * Establishes whether or not the parameter is meant to be mandatory
-     * @param isMandatory
-     */
-    public void setManadatory(boolean isMandatory){
-        //todo make this mean something to the engine because at the moment it means nothing
-        _mandatory = isMandatory;
-    }
-
-
     /**
      * Set whether the param bypasses the decomposition's state space.  Can only be set
      * on an input param.
@@ -153,7 +142,7 @@ public class YParameter extends YVariable implements Serializable  {
      * Inserted for hibernate
      * @param b
      */
-    protected void setMandatory(boolean b) {
+    public void setMandatory(boolean b) {
     	_mandatory = b;
     }
 
@@ -187,8 +176,7 @@ public class YParameter extends YVariable implements Serializable  {
         if ((getAttributes() != null) && (_paramType.equals(_paramTypes[_INPUT_PARAM_TYPE])))
         {
             Iterator iter = getAttributes().keySet().iterator();
-            while(iter.hasNext())
-            {
+            while(iter.hasNext()) {
                 String attrName = (String)iter.next();
                 xml.append(" " + attrName + "=\"" + (String)getAttributes().get(attrName) + "\"");
             }
