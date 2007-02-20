@@ -18,6 +18,7 @@ import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction.Operation;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 
 public class TestSpecificationMemoryDAO extends AbstractHibernateDAOTestCase {
 
@@ -26,10 +27,10 @@ public class TestSpecificationMemoryDAO extends AbstractHibernateDAOTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 //		DAOFactory.resetDAO(PersistenceType.MEMORY);
-		DAO fileDAO = new DelegatedFileDAO();
+//		DAO fileDAO = new DelegatedFileDAO();
 		StringProducer spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestCompletedMappings.xml", true);
-		testSpec = (YSpecification) fileDAO.retrieve(YSpecification.class, f.getAbsolutePath());
+		testSpec = (YSpecification) YMarshal.unmarshalSpecifications(f.toURI().toString()).get(0);
 	}
 
 	protected void tearDown() throws Exception {

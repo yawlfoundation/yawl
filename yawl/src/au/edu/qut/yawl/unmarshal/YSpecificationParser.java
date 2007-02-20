@@ -26,7 +26,6 @@ import au.edu.qut.yawl.elements.YMetaData;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
 import au.edu.qut.yawl.schema.XMLToolsForYAWL;
@@ -53,7 +52,7 @@ class YSpecificationParser {
      * @throws YSyntaxException
      * @throws YSchemaBuildingException
      */
-    public YSpecificationParser(Element specificationElem, String version) throws YSyntaxException, YSchemaBuildingException, YPersistenceException {
+    public YSpecificationParser(Element specificationElem, String version) throws YSyntaxException, YSchemaBuildingException {
         _yawlNS = specificationElem.getNamespace();
 
         parseSpecification(specificationElem, version);
@@ -62,7 +61,7 @@ class YSpecificationParser {
 
 
     private void parseSpecification(Element specificationElem, String version)
-            throws YSyntaxException, YSchemaBuildingException, YPersistenceException {
+            throws YSyntaxException, YSchemaBuildingException {
         List decompositionElems = specificationElem.getChildren("decomposition", _yawlNS);
         for (int i = 0; i < decompositionElems.size(); i++) {
             Element decompositionElem = (Element) decompositionElems.get(i);

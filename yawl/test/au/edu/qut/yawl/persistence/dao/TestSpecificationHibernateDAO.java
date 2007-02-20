@@ -20,6 +20,7 @@ import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 
 public class TestSpecificationHibernateDAO extends AbstractHibernateDAOTestCase {
 	YSpecification testSpec;
@@ -27,12 +28,10 @@ public class TestSpecificationHibernateDAO extends AbstractHibernateDAOTestCase 
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		DAO fileDAO = new DelegatedFileDAO();
-//		DAO fileDAO = DAOFactory.getDAO( PersistenceType.FILE );
 		StringProducer spx = StringProducerYAWL.getInstance();
 		File f = spx.getTranslatedFile("TestMakeRecordingsBigTest.xml", true);
 
-        testSpec = (YSpecification) fileDAO.retrieve(YSpecification.class,f.getAbsolutePath());
+        testSpec = (YSpecification) YMarshal.unmarshalSpecifications(f.toURI().toString()).get(0);
 	}
 
 	/*

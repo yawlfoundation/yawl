@@ -27,7 +27,6 @@ public class DAOPersistenceTestSuite extends TestSuite{
 	 */
     public static Test suite(){
         TestSuite suite = new DAOPersistenceTestSuite();
-        suite.addTestSuite(TestSpecificationFileDAO.class);
         suite.addTestSuite(TestSpecificationHibernateDAO.class);
         suite.addTestSuite(TestSpecificationMemoryDAO.class);
         suite.addTestSuite(TestYIdentifierHibernateDAO.class);

@@ -20,6 +20,7 @@ import au.edu.qut.yawl.persistence.StringProducer;
 import au.edu.qut.yawl.persistence.StringProducerYAWL;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
 import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
+import au.edu.qut.yawl.unmarshal.YMarshal;
 
 public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 	YSpecification testSpec;
@@ -32,9 +33,11 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 		File f = spx.getTranslatedFile("TestMakeRecordingsBigTest.xml", true);
 		File f2 = spx.getTranslatedFile("YAWL_Specification1.xml", true);
 		
-        testSpec = (YSpecification) new DelegatedFileDAO().retrieve(YSpecification.class,f.getAbsolutePath());
+        testSpec = (YSpecification) YMarshal.unmarshalSpecifications(f.toURI().toString()).get(0);
+        testSpec.setID("TestMakeRecordingsBigTest.xml");
         getDAO().save(testSpec);
-        testSpec_comp = (YSpecification) new DelegatedFileDAO().retrieve(YSpecification.class,f2.getAbsolutePath());
+        testSpec_comp = (YSpecification) YMarshal.unmarshalSpecifications(f2.toURI().toString()).get(0);
+        testSpec_comp.setID("YAWL_Specification1.xml");
         getDAO().save(testSpec_comp);
 	}
 
@@ -67,7 +70,7 @@ public class TestYNetRunnerHibernateDAO extends AbstractHibernateDAOTestCase {
 		List runners = getDAO().retrieveByRestriction( YNetRunner.class, new PropertyRestriction(
 				"YNetID", Comparison.LIKE, "%TestMakeRecordingsBigTest.xml" ) );
 	
-		assertTrue(runners.size()==1);
+		assertEquals(runners.size(),1);
 		
 		YNetRunner r = (YNetRunner) runners.get(0);
 		getDAO().delete(runner);
