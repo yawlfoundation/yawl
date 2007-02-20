@@ -527,7 +527,7 @@ public class YDecompositionParser {
         }
 
         boolean mandatory = paramElem.getChild("mandatory", ns) != null;
-        parameter.setManadatory(mandatory);
+        parameter.setMandatory(mandatory);
 
 
         /**
