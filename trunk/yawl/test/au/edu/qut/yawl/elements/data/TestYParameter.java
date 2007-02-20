@@ -277,7 +277,7 @@ public class TestYParameter extends TestCase {
 		}
 		
 		YParameter yparam = inParams.get(0);
-		yparam.setManadatory(true);
+		yparam.setMandatory(true);
 		List msgs = yparam.verify();
 		assertNotNull(msgs);
 		assertTrue("" + msgs.size(), msgs.size() > 0);
