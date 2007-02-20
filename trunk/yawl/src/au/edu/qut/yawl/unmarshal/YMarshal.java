@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -34,7 +33,6 @@ import org.xml.sax.InputSource;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
-import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 /**
  * 
@@ -48,7 +46,7 @@ public class YMarshal {
      * @param specificationSetDoc the JDom element con
      * @return a list of YSpecification objects taken from the XML document.
      */
-    private static List buildSpecifications(Document specificationSetDoc) throws YSchemaBuildingException, YSyntaxException, YPersistenceException {
+    private static List buildSpecifications(Document specificationSetDoc) throws YSchemaBuildingException, YSyntaxException {
         Element specificationSetElem = specificationSetDoc.getRootElement();
         String version = specificationSetElem.getAttributeValue("version");
         if (null == version) {
@@ -74,7 +72,7 @@ public class YMarshal {
      * @return List
      */
     public static List unmarshalSpecifications( String specificationSetXMLString, String specificationSetID )
-            throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException, YPersistenceException {
+            throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
         //first check if is well formed and build a document
         Document document = buildSpecificationSetDocument(
                 new InputSource( new StringReader( specificationSetXMLString ) ) );
@@ -96,7 +94,7 @@ public class YMarshal {
      * @return List
      */
     public static List unmarshalSpecifications(String specificationSetFileID)
-            throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException, YPersistenceException {
+            throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
         //first check if is well formed and build a document
         FileInputStream fis = null;
         try {
