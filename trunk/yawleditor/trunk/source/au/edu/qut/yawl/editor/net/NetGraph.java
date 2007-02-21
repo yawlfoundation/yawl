@@ -961,7 +961,7 @@ public class NetGraph extends JGraph {
     if (container != null) {
       VertexLabel label = container.getLabel();
       if (label != null) {
-        return container.getLabel().toString();
+        return container.getLabel().getLabel();
       }
     }
     return null;
