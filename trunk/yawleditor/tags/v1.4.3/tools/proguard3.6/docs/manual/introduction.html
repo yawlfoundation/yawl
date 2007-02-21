@@ -1,0 +1,118 @@
+<!doctype html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="content-style-type" content="text/css">
+<link rel="stylesheet" type="text/css" href="style.css">
+<title>ProGuard Introduction</title>
+</head>
+<body>
+
+<h2>Introduction</h2>
+
+<b>ProGuard</b> is a Java class file shrinker, optimizer, and obfuscator. The
+shrinking step detects and removes unused classes, fields, methods, and
+attributes. The optimization step analyzes and optimizes the bytecode of the
+methods. The obfuscation step renames the remaining classes, fields, and
+methods using short meaningless names. The resulting jars are smaller and
+harder to reverse-engineer.
+<p>
+ProGuard can also be used to list unused classes, fields, and methods in an
+application, and to print out the internal structure of class files.
+<p>
+
+<table class="diagram" align="center">
+
+<tr>
+<td rowspan="4" class="lightblock">Input jars</td>
+<td colspan="6" class="transparentblock"></td>
+</tr>
+
+<tr>
+<td rowspan="2" class="transparentblock"></td>
+<td rowspan="3" class="lightblock">Shrunk code</td>
+<td colspan="4" class="transparentblock"></td>
+</tr>
+
+<tr>
+<td             class="transparentblock"></td>
+<td rowspan="2" class="lightblock">Optimized code</td>
+<td colspan="2" class="transparentblock"></td>
+</tr>
+
+<tr>
+<td             class="transparentblock">- shrink &rarr;</td>
+<td             class="transparentblock">- optimize &rarr;</td>
+<td             class="transparentblock">- obfuscate &rarr;</td>
+<td             class="lightblock">Output jars</td>
+</tr>
+
+<tr>
+<td             class="darkblock">Library jars</td>
+<td colspan="5" class="transparentblock">----------------- (unchanged) -----------------&rarr;</td>
+<td             class="darkblock">Library jars</td>
+</tr>
+
+</table>
+<p>
+
+ProGuard typically reads the <b>input jars</b> (or wars, ears, zips, or
+directories). It then shrinks, optimizes, and obfuscates them. It then writes
+the results to one or more <b>output jars</b> (or wars, ears, zips, or
+directories). The input jars can optionally contain resource files. ProGuard
+copies all non-class resource files from the input jars to the output jars.
+Their names and contents remain unchanged.
+<p>
+ProGuard requires the <b>library jars</b> (or wars, ears, zips, or
+directories) of the input jars to be specified. It can then reconstruct class
+hierarchies and other class dependencies, which are necessary for proper
+shrinking, optimization, and obfuscation. The library jars themselves always
+remain unchanged. You should still put them in the class path of your final
+application.
+<p>
+In order to determine which code has to be preserved and which code can be
+discarded or obfuscated, you have to specify one or more entry points to your
+code. These entry points are typically classes with main methods, applets,
+midlets, etc.
+<ul>
+<li>In the <b>shrinking step</b>, ProGuard starts from these seeds and
+    recursively determines which classes and class members are used. All other
+    classes and class members are discarded.
+
+<li>In the <b>optimization step</b>, ProGuard further optimizes the code.
+    Among other optimizations, classes and methods that are not entry points
+    can be made private, static, or final, unused parameters can be removed,
+    and some methods may be inlined.
+
+<li>In the <b>obfuscation step</b>, ProGuard renames classes and class members
+    that are not entry points. In this entire process, keeping the entry
+    points ensures that they can still be accessed by their original names.
+</ul>
+<p>
+Any classes or class members of your code that are created or invoked
+dynamically (that is, by name) have to be specified as entry points too. It is
+generally impossible to determine these cases automatically, but ProGuard will
+offer some suggestions if keeping some classes or class members appears
+necessary. For proper results, you should at least be somewhat familiar with
+the code that you are processing.
+<p>
+ProGuard does handle <code>Class.forName("SomeClass")</code> and
+<code>SomeClass.class</code> constructs automatically. The referenced classes
+are preserved in the shrinking phase, and the string arguments are properly
+replaced in the obfuscation phase. With variable string arguments, it is
+generally impossible to determine their possible values (they might be read
+from a configuration file, for instance). However, as mentioned, ProGuard will
+note constructs like
+"<code>(SomeClass)Class.forName(variable).newInstance()</code>". These might
+be an indication that the class or interface <code>SomeClass</code> and/or its
+implementations may need to be preserved. You can then adapt your configuration
+accordingly.
+<p>
+
+<hr>
+<address>
+Copyright &copy; 2002-2006
+<a href="http://www.graphics.cornell.edu/~eric/">Eric Lafortune</a>.
+</address>
+</body>
+</html>
