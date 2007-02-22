@@ -52,9 +52,11 @@ public class FPTRrule extends ResetReductionRule{
 	        Set preSet  = task.getPresetElements(); 
 	                     
 	       
-	        if (preSet.size() > 1 && postSet.size() > 1 &&
-	            task.getRemoveSet().isEmpty())
+	      //  if (preSet.size() > 1 && postSet.size() > 1 &&
+	          if (  task.getRemoveSet().isEmpty())
 	          { 
+	          
+	           
 	            // potential candidate exits so now try and find 
 	            // one or more other tasks
 	            Map netElements = net.getNetElements();

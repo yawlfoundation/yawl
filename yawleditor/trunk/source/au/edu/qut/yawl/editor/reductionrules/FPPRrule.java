@@ -50,9 +50,9 @@ public class FPPRrule extends ResetReductionRule{
                 Set postSet = place.getPostsetElements();
                 Set preSet  = place.getPresetElements(); 
                              
-                //check if more than one 
-                if (preSet.size() > 1 && postSet.size()>1)
-                  
+                 //check for $i$ and $o$ 
+                if (preSet.size() >= 1 && postSet.size() >= 1)
+                    
                   { 
                     // potential candidate exits so now try and find 
                     // one or more other places

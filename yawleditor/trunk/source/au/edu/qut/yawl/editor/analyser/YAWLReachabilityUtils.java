@@ -449,10 +449,10 @@ public class YAWLReachabilityUtils{
 */	     String omsg;
         //To check whether exact marking Mo=o is reachable.
    	   	if (RS.contains(Mo))
-   	   	{ omsg = "The net "+_yNet.getID()+" has an option to complete. The final marking is reachable from the initial marking.";
+   	   	{ omsg = "The net "+_yNet.getID()+" has an option to complete.";
 	    }
    	    else
-   	    { omsg = "The net "+_yNet.getID()+" does not have an option to complete. The final marking is not reachable from the initial marking.";
+   	    { omsg = "The net "+_yNet.getID()+" does not have an option to complete. The final marking is not reachable.";
    	      optionToComplete = false;
    	    }
    	 
@@ -499,7 +499,7 @@ public class YAWLReachabilityUtils{
 	   */   if (!firedTasks.contains(t))
 	        {
 	       // dmsg += t.getID()+" ";
-	          dmsg += convertToYawlMappingsForTasks(t)+" ";
+	          dmsg += convertToYawlMappingsForTasks(t)+", ";
 	   	   	noDeadTasks = false;
 	   	   }
 	      }   
