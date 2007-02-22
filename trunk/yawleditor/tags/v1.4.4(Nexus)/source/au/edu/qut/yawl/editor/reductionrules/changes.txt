@@ -1,0 +1,18 @@
+Changes to Editor
+YEditor.java - modify ProcessParametersAsNecessary method to cater for xml file import from command line
+
+Changes to Engine
+YNet - addRemoveNetElement method
+YExternalNetElement - _cancelledBySet get/addto/removefrom methods
+YTask - modify setRemovesTokensFrom method to add method call to populate R-1
+
+Changes to analyser.ResetWFNet
+ResetWFNet - add methods getNetElements, removeNetElement, getPostset, getPreset, getInputPlace, getOutputPlace
+RElement - add methods removePresetFlow, removePostsetFlow, cancelledby etc.
+RTransition - modify setRemoveSet(List) and SetRemoveSet(RPlace) methods to add method call to populate R-1 
+
+Changes to comply with Engine C1.0
+
+Changes to Analyser
+1) Method signatures Set to List, Map to List
+2) Changes to code using YIdentifier (OR-join call)
