@@ -24,6 +24,7 @@ package au.edu.qut.yawl.editor.reductionrules;
 
 import au.edu.qut.yawl.editor.analyser.*;
 import au.edu.qut.yawl.editor.analyser.RElement;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,7 +55,7 @@ public class DEARrule extends ResetReductionRule{
         if (!preSet.isEmpty() && postSet.size() == 1 && s.getCancelledBySet().isEmpty())
          
         {    RTransition t = (RTransition) postSet.toArray()[0];
-             Set preSetOft  = new HashSet<RElement>(t.getPresetElements());
+             Set preSetOft  = new HashSet(t.getPresetElements());
              
              //\pre{t} = s && t does not have reset arcs
              if (preSetOft.size() == 1 && t.getRemoveSet().isEmpty())

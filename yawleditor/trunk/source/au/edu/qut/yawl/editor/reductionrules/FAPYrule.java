@@ -23,8 +23,9 @@
 package au.edu.qut.yawl.editor.reductionrules;
 
 import au.edu.qut.yawl.elements.*;
-
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -45,8 +46,8 @@ public class FAPYrule extends YAWLReductionRule{
       boolean isReducible = false;
       if (nextElement instanceof YCondition){
             YCondition condition = (YCondition) nextElement;
-            List postSet = condition.getPostsetElements();
-            List preSet  = condition.getPresetElements(); 
+            Set postSet = condition.getPostsetElements();
+            Set preSet  = condition.getPresetElements(); 
                          
             //check if all pre and post tasks are xor-splits and xor-joins  
             if (preSet.size() > 1 && postSet.size() >1 &&
@@ -55,13 +56,13 @@ public class FAPYrule extends YAWLReductionRule{
               { 
                 // potential candidate exits so now try and find 
                 // one or more other conditions
-                List netElements = net.getNetElements();
-                Iterator netElesIter = netElements.iterator();
+                Map netElements = net.getNetElements();
+                Iterator netElesIter = netElements.values().iterator();
 				while (netElesIter.hasNext()) {
            			 YExternalNetElement element = (YExternalNetElement) netElesIter.next();
             		 if (element instanceof YCondition) {
-                           List postSet2 = element.getPostsetElements();
-                           List preSet2  = element.getPresetElements(); 
+                           Set postSet2 = element.getPostsetElements();
+                           Set preSet2  = element.getPresetElements(); 
                            
 	                      //To do: cancellation 
 	                     if (postSet.equals(postSet2) && preSet.equals(preSet2) && !element.equals(condition)
@@ -86,7 +87,7 @@ public class FAPYrule extends YAWLReductionRule{
    return null;
 } 
 
-private boolean checkTaskSplitJoinType(List elements,boolean checkSplit,int type)
+private boolean checkTaskSplitJoinType(Set elements,boolean checkSplit,int type)
 {	Iterator elementsIter = elements.iterator();
 	while (elementsIter.hasNext()){
 	   YExternalNetElement next = (YExternalNetElement) elementsIter.next();

@@ -31,12 +31,11 @@ import java.util.Iterator;
 
 import au.edu.qut.yawl.elements.YExternalNetElement;
 
-
 /**
  *
  * The base class for RTransition and RPlace 
  *
- */
+ **/
 
    
    public class RElement 
@@ -53,10 +52,8 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
      //used for reduced net mappings between yawl
      private Set _rElementsSet = new HashSet();
     
-   public RElement(String id) {
-	   _id = id;
-		  
-	  
+   public RElement(String id){
+   	_id = id;
    }
    
    public String getID()
@@ -96,7 +93,7 @@ import au.edu.qut.yawl.elements.YExternalNetElement;
             postsetElements.add(flow.getNextElement());
         }
         return postsetElements;
-  }
+    }
     
   public Set getPresetElements() {
         Set presetElements = new HashSet();
@@ -165,7 +162,45 @@ public void removePresetFlow(RFlow flowsInto){
         }
 
    }
-  
+   /*
+   
+    public Set getResetMappings()
+   {
+   	 if (_rElementsSet != null) {
+            return new HashSet(_rElementsSet);
+     }
+     return null;
+    
+   }
+   
+   public void addToResetMappings(String id){
+   	_rElementsSet.add(id);
+   	
+   }
+   public void addToResetMappings(Set ids){
+   	_rElementsSet.addAll(ids);
+   	
+   }
+   
+   public Set getYawlMappings()
+   {
+   	 if (_yElementsSet != null) {
+            return new HashSet(_yElementsSet);
+     }
+     return null;
+    
+   }
+   
+   public void addToYawlMappings(String id){
+   	_yElementsSet.add(id);
+   	
+   }
+   public void addToYawlMappings(Set ids){
+   	_yElementsSet.addAll(ids);
+   	
+   }
+   
+   */
     public Set getResetMappings()
    {
    	 if (_rElementsSet != null) {

@@ -22,10 +22,10 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
-
 import au.edu.qut.yawl.elements.*;
-
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -45,8 +45,8 @@ public class FANDrule extends YAWLReductionRule{
       YNet reducedNet = net;
       if (nextElement instanceof YCondition){
         YCondition condition = (YCondition) nextElement;
-        List postSet = condition.getPostsetElements();
-        List preSet  = condition.getPresetElements();
+        Set postSet = condition.getPostsetElements();
+        Set preSet  = condition.getPresetElements();
         
         //one input task and one output task
         if (preSet.size() == 1 && postSet.size() == 1)
@@ -61,8 +61,8 @@ public class FANDrule extends YAWLReductionRule{
              t.getCancelledBySet().isEmpty() && u.getCancelledBySet().isEmpty())
             {
              
-             List postSetOft = t.getPostsetElements();
-             List preSetOfu  = u.getPresetElements();
+             Set postSetOft = t.getPostsetElements();
+             Set preSetOfu  = u.getPresetElements();
              
              //checkEqualConditions - check for \pre{p} = t and \post{p}=u and p is not part of cancel
             if (preSetOfu.equals(postSetOft) && checkEqualConditions(preSetOfu))
@@ -71,13 +71,12 @@ public class FANDrule extends YAWLReductionRule{
               while (conditionsIter.hasNext()) {
                  YExternalNetElement c = (YExternalNetElement) conditionsIter.next();
                  //remove conditions
-                 System.out.println("removed"+c.getID());
                  reducedNet.removeNetElement(c);
                  t.addToYawlMappings(c);
                  t.addToYawlMappings(c.getYawlMappings());  
                      	                   
 	         } //end while
-             List postSetOfu = u.getPostsetElements();       
+             Set postSetOfu = u.getPostsetElements();       
              // set postflows from u to t
              Iterator postFlowIter = postSetOfu.iterator();
              while (postFlowIter.hasNext())

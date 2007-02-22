@@ -1,8 +1,6 @@
-Version 1.4.5 (07/12/2006) "Wiggles"
-  * Upgraded the editor to use Engine 1.0-CR1. This includes switching the editor from using the
-    engine war to the standalone engine jar for getting the engine library it needs. This is to better
-    support the engine's installer including just the lite editor for distribution, but with full engine-enabled
-    functionality.
+
+Version 1.4.5 (07/12/2006) "Blobby"
+  * Upgraded the editor to use Engine Beta 8.1
   * The editor has been upgraded to now use Jgraph 5.9.2.1.
   * Now, when a user selects a single task, the palette menu expands to allow the use to modify the
     split and join decorators for the task, without having to go to the popup menu for the task.

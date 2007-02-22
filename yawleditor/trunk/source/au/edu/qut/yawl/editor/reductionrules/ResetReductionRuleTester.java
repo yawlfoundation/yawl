@@ -6,10 +6,12 @@ import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.exceptions.*;
 import au.edu.qut.yawl.editor.analyser.ResetWFNet;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.net.URL;
 import java.util.*;
 import org.jdom.JDOMException;
 
@@ -32,13 +34,7 @@ public class ResetReductionRuleTester{
      */
      public String test(String fileURL,int ruleType) throws IOException,YSchemaBuildingException, YSyntaxException, JDOMException, NumberFormatException {
     	
-       YSpecification specs = null;
-       try {
-         specs = (YSpecification) YMarshal.unmarshalSpecifications(fileURL).get(0);
-       } catch (YPersistenceException ype) {
-         ype.printStackTrace();
-         return null;
-       }
+       YSpecification specs = (YSpecification) YMarshal.unmarshalSpecifications(fileURL).get(0);
        String msg = "";
        boolean isReducible = false;
        YDecomposition decomposition;
@@ -50,7 +46,7 @@ public class ResetReductionRuleTester{
 	   {
 	        for (Iterator iterator = decompositions.iterator(); iterator.hasNext();) {
 	            decomposition = (YDecomposition) iterator.next();
-		        YSpecification decomSpecs = decomposition.getParent();
+		        YSpecification decomSpecs = decomposition.getSpecification();
 		        if (decomposition instanceof YNet) {
 			        decomRootNet = (YNet) decomposition;
 			        

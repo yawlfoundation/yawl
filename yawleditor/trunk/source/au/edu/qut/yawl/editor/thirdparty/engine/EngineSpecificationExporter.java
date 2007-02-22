@@ -26,7 +26,6 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URI;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +45,7 @@ import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLMultipleInstanceTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 import au.edu.qut.yawl.editor.net.NetElementSummary;
@@ -75,7 +75,7 @@ import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 
 import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.elements.YMetaData;
+import au.edu.qut.yawl.unmarshal.YMetaData;
 
 public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
@@ -123,6 +123,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     generateSubNets(engineSpecification);
     
     populateEngineNets(engineSpecification);
+      
     return engineSpecification;
   }
   
@@ -308,7 +309,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
                                                  NetElementSummary editorNetSummary) {
     YInputCondition engineInputCondition = 
       new YInputCondition(
-          editorNetSummary.getInputCondition().getEngineId(),
+          getEngineElementID(editorNetSummary.getInputCondition()),
           engineNet);
     
     if (editorNetSummary.getInputCondition().hasLabel()) {
@@ -330,7 +331,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
                                                   NetElementSummary editorNetSummary) {
     YOutputCondition engineOutputCondition = 
       new YOutputCondition(
-          editorNetSummary.getOutputCondition().getEngineId(),
+          getEngineElementID(editorNetSummary.getOutputCondition()),
           engineNet);
     
     
@@ -367,7 +368,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       
       YCondition engineCondition = 
         new YCondition(
-          editorCondition.getEngineId(),
+          getEngineElementID(editorCondition),
           engineNet);
       
       if (editorCondition.hasLabel()) {
@@ -394,7 +395,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
       YAtomicTask engineAtomicTask = 
         new YAtomicTask(
-          editorTask.getEngineId(),
+          getEngineElementID(editorTask),
           editorToEngineJoin(editorTask),
           editorToEngineSplit(editorTask),   
           engineNet
@@ -452,14 +453,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     if (taskNeedsWebServiceDetail(editorTask)) {
     
       YAWLServiceReference engineService = new YAWLServiceReference(
-        editorDecomposition.getYawlServiceID()
+        editorDecomposition.getYawlServiceID(),
+        engineDecomposition
       );
 
-      try {
-        engineDecomposition.setYawlService(
-            new URI(engineService.getURI())
-        );
-      } catch (Exception e) {}
+      engineDecomposition.setYawlService(engineService);
     }
     
     engineSpecification.setDecomposition(engineDecomposition);
@@ -523,7 +521,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       XML_SCHEMA_URI
     );
     
-    //engineParameter.setOrdering(ordering);
+    engineParameter.setOrdering(ordering);
     
     /*  Engine BETA 3/4 doesn't like initial values for output parameters. */
     if (engineParameterType == YParameter._INPUT_PARAM_TYPE) {
@@ -580,7 +578,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       
       YCompositeTask engineCompositeTask = 
         new YCompositeTask(
-          editorTask.getEngineId(),
+          getEngineElementID(editorTask),
           editorToEngineJoin(editorTask),
           editorToEngineSplit(editorTask),   
         engineNet
@@ -665,7 +663,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     if (editorTask.getAllocationResourceMapping() == null) {
       return;
     }
-      
+    
     if (editorTask.getAllocationResourceMapping().getMappingType() == 
         ResourceMapping.ALLOCATE_TO_ANYONE) {
       return;
@@ -802,7 +800,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       taskInstanceVariableName = editorTaskInstanceVariable.getName();
     } 
 
-    HashMap<String,String> inputMapping = new HashMap<String,String>();
+    HashMap inputMapping = new HashMap();
     
     inputMapping.put(
         taskInstanceVariableName,
@@ -892,7 +890,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         
         YCondition implicitEngineCondition = 
           new YCondition(
-            SpecificationModel.getInstance().getUniqueElementNumber() + "_ImplicitCondition",
+            getNewUniqueEngineIDNumber() + "_ImplicitCondition",
             engineNet
           );
         
@@ -923,7 +921,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
       
       if (editorFlow.hasXorSplitAsSource() || editorFlow.hasOrSplitAsSource()) {
-        firstEngineFlow.setDefaultFlow(editorFlow.isDefaultFlow());
+        firstEngineFlow.setIsDefaultFlow(editorFlow.isDefaultFlow());
         if (editorFlow.hasOrSplitAsSource()) {
           firstEngineFlow.setXpathPredicate(editorFlow.getPredicate());
           // The Engine is quoting these
@@ -964,6 +962,24 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
+  private String getEngineElementID(YAWLVertex element) {
+    if (element.getEngineIdNumber() == null || element.getEngineIdNumber().equals("")) {
+      element.setEngineIdNumber(
+          getNewUniqueEngineIDNumber()
+      );
+    }
+    return element.getEngineId();
+  }
+  
+  private String getNewUniqueEngineIDNumber() {
+    SpecificationModel.getInstance().setUniqueElementNumber(
+        SpecificationModel.getInstance().getUniqueElementNumber() + 1
+    );
+    
+    return Long.toString(
+        SpecificationModel.getInstance().getUniqueElementNumber()
+    );  
+  }
 
   private int editorToEngineJoin(YAWLTask task) {
     if (task.hasJoinDecorator()) {

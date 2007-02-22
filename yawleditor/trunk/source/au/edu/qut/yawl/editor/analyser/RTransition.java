@@ -41,7 +41,10 @@ public class RTransition extends RElement {
      while (removeSetIter.hasNext()) {
 	    RElement element = (RElement) removeSetIter.next();
 	    element.addToCancelledBySet(this);
-     }      
+	    }      
+   
+    
+    
   }
 
   public void setRemoveSet(RPlace p) {
@@ -57,7 +60,9 @@ public class RTransition extends RElement {
   }
 
   public void removeFromRemoveSet(RPlace p){
+  	
   	_removeSet.remove(p);
+  	
   }
   
   public boolean isCancelTransition() {

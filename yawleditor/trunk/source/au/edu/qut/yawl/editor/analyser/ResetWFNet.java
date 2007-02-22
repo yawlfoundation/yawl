@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedList;
@@ -66,13 +65,12 @@ public final class ResetWFNet {
     int maxNumMarkings = 5000;
      /**
      * Constructor for Reset net.
-     * @throws Exception 
      *
      */
     public ResetWFNet(YNet yNet) {
     	
 //	_yNet = yNet;
-	_ID = yNet.getId();
+	_ID = yNet.getID();
     ConvertToResetNet(yNet.getNetElements());
 
     }
@@ -190,19 +188,15 @@ public final class ResetWFNet {
     /**
      * The method converts a YAWL net into a Reset net.
      * If there are OR-joins, they are converted to XORs
-     * @throws Exception 
-     * 
      */
-    private void ConvertToResetNet(List netElements){
+    private void ConvertToResetNet(Map netElements){
    // Map netElements = _yNet.getNetElements();
 
      //Generate places
-    Iterator netEles = netElements.iterator();
+    Iterator netEles = netElements.values().iterator();
     while (netEles.hasNext()) {
             YExternalNetElement nextElement = (YExternalNetElement) netEles.next();
             if (nextElement instanceof YCondition) {
-            	
-            	
             	RPlace p = new RPlace(nextElement.getID());
             	
             	//added for mappings
@@ -213,8 +207,7 @@ public final class ResetWFNet {
             	_Conditions.add(nextElement);
             	
             	if (nextElement instanceof YInputCondition)
-            	{  inputPlace = (RPlace)_Places.get(nextElement.getID());
-            	
+            	{ inputPlace = (RPlace)_Places.get(nextElement.getID());
             	}
             	if (nextElement instanceof YOutputCondition)
             	{ outputPlace = (RPlace)_Places.get(nextElement.getID());
@@ -236,7 +229,7 @@ public final class ResetWFNet {
       
     Map _StartTransitions = new HashMap();
     Map _EndTransitions = new HashMap();
-    Iterator netEls = netElements.iterator();
+    Iterator netEls = netElements.values().iterator();
     while (netEls.hasNext()) {
             YExternalNetElement next = (YExternalNetElement) netEls.next();
             if (next instanceof YTask){
@@ -252,7 +245,7 @@ public final class ResetWFNet {
             	
             	 _StartTransitions.put(t.getID(),t);
               //   _YAND.put(nextElement.getID(),nextElement);
-            	List pre = nextElement.getPresetElements();
+            	Set pre = nextElement.getPresetElements();
             	Iterator preEls = pre.iterator();
             	while (preEls.hasNext()) {
             		
@@ -270,7 +263,7 @@ public final class ResetWFNet {
             }
             else if (nextElement.getJoinType() == YTask._XOR) {
             	
-               	List pre = nextElement.getPresetElements();
+               	Set pre = nextElement.getPresetElements();
             	Iterator preEls = pre.iterator();
             	while (preEls.hasNext()) {
             	YExternalNetElement preElement = (YExternalNetElement) preEls.next();
@@ -300,7 +293,7 @@ public final class ResetWFNet {
           //  	_YOJ.put(nextElement.getID(),nextElement);
             	
             	
-               	List pre = nextElement.getPresetElements();
+               	Set pre = nextElement.getPresetElements();
             	Iterator preEls = pre.iterator();
             	while (preEls.hasNext()) {
             	YExternalNetElement preElement = (YExternalNetElement) preEls.next();
@@ -336,7 +329,7 @@ public final class ResetWFNet {
             	
             	_EndTransitions.put(t.getID(),t);
             	
-            	List post = nextElement.getPostsetElements();
+            	Set post = nextElement.getPostsetElements();
             	Iterator postEls = post.iterator();
             	while (postEls.hasNext()) {
             	YExternalNetElement postElement = (YExternalNetElement) postEls.next();
@@ -361,7 +354,7 @@ public final class ResetWFNet {
             }
                        
             else if (nextElement.getSplitType() == YTask._XOR) {
-            	List post = nextElement.getPostsetElements();
+            	Set post = nextElement.getPostsetElements();
             	
             //	_YXOR.put(nextElement.getID(),nextElement);
               	Iterator postEls = post.iterator();
@@ -396,7 +389,7 @@ public final class ResetWFNet {
         	 else if (nextElement.getSplitType() == YTask._OR) {
             	
 	           	 Set xSubSet = new HashSet();
-	        	 Set post = new HashSet(nextElement.getPostsetElements());
+	        	 Set post = nextElement.getPostsetElements();
 	        	 for (int i=1; i <= post.size(); i++)
 	        	 {  Set subSet = generateCombination(post,i);
 	             	    xSubSet.addAll(subSet);
@@ -1552,7 +1545,7 @@ public final class ResetWFNet {
 	 return Z_min;
 	 }
 	 
-	 // ************************ END - Coverable methods ****************************//
+	 // ************************ START - Coverable methods ****************************//
         
  	/**
 	 * used for formatting xml messages.

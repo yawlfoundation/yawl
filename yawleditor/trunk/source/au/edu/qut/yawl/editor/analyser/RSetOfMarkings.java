@@ -29,7 +29,7 @@ import java.util.HashSet;
 /**
  *  Data structure for Storage of RMarkings.
  *
- */
+ **/
 
 public class RSetOfMarkings {
     private Set _markings = new HashSet();
