@@ -22,9 +22,11 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
+import au.edu.qut.yawl.elements.*;
 import au.edu.qut.yawl.editor.analyser.*;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -48,8 +50,8 @@ public class FPPRrule extends ResetReductionRule{
                 Set postSet = place.getPostsetElements();
                 Set preSet  = place.getPresetElements(); 
                              
-                //check for $i$ and $o$ 
-                if (preSet.size() >= 1 && postSet.size() >= 1)
+                //check if more than one 
+                if (preSet.size() > 1 && postSet.size()>1)
                   
                   { 
                     // potential candidate exits so now try and find 

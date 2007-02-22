@@ -22,10 +22,12 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
+import au.edu.qut.yawl.elements.*;
 import au.edu.qut.yawl.editor.analyser.*;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -50,8 +52,8 @@ public class FPTRrule extends ResetReductionRule{
 	        Set preSet  = task.getPresetElements(); 
 	                     
 	       
-	     //   if (preSet.size() > 1 && postSet.size() > 1 &&
-	          if( task.getRemoveSet().isEmpty())
+	        if (preSet.size() > 1 && postSet.size() > 1 &&
+	            task.getRemoveSet().isEmpty())
 	          { 
 	            // potential candidate exits so now try and find 
 	            // one or more other tasks

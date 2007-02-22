@@ -22,9 +22,12 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
+import au.edu.qut.yawl.elements.*;
 import au.edu.qut.yawl.editor.analyser.*;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Reduction rule for YAWL net with OR-joins: FOR rule

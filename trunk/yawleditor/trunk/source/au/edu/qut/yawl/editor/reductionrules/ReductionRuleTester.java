@@ -36,14 +36,7 @@ public class ReductionRuleTester{
      */
      public String test(String fileURL,int ruleType) throws IOException,YSchemaBuildingException, YSyntaxException, JDOMException, NumberFormatException {
     	
-       List specifications = null;
-       try {
-         specifications = YMarshal.unmarshalSpecifications(fileURL);
-       } catch (YPersistenceException ype) {
-         ype.printStackTrace();
-         return null;
-       }
-       
+       List specifications = YMarshal.unmarshalSpecifications(fileURL);
        ListIterator listIt = specifications.listIterator();
        String msg = "";
        boolean isReducible = false;
@@ -58,7 +51,7 @@ public class ReductionRuleTester{
 	   { 
 	        for (Iterator iterator = decompositions.iterator(); iterator.hasNext();) {
 	            YDecomposition decomposition = (YDecomposition) iterator.next();
-		        YSpecification decomSpecs = decomposition.getParent();
+		        YSpecification decomSpecs = decomposition.getSpecification();
 		        if (decomposition instanceof YNet) {
 			        YNet decomRootNet = (YNet) decomposition;
 			        
@@ -119,7 +112,7 @@ public class ReductionRuleTester{
 	                 YNet reducedNet = rule.reduce(decomRootNet); 
                 	 msg += "Rule name:"+ convertName(ruleType);   	        		                       
                 	 if (reducedNet == null)
-		             { msg += " Nothing to reduce for "+ decomRootNet.getId();
+		             { msg += " Nothing to reduce for "+ decomRootNet.getID();
 		              
 		             }
 	                 else

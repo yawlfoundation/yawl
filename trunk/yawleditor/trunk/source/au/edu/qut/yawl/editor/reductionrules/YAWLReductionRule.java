@@ -21,8 +21,9 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 import au.edu.qut.yawl.elements.*;
-
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Iterator;
 public abstract class YAWLReductionRule 
 {
@@ -64,8 +65,8 @@ public abstract class YAWLReductionRule
     */
     private YNet reduceANet(YNet net){
       YNet reducedNet = null;
-      List netElements = net.getNetElements();
-      Iterator netElesIter = netElements.iterator();
+      Map netElements = net.getNetElements();
+      Iterator netElesIter = netElements.values().iterator();
       while (netElesIter.hasNext()) {
         YExternalNetElement nextElement = (YExternalNetElement) netElesIter.next();
         
@@ -115,11 +116,11 @@ public abstract class YAWLReductionRule
      
      
 /**
- * Returns true if every condition in the List has one input and 
+ * Returns true if every condition in the set has one input and 
  * one output and are not part of cancellation regions.
  * 
  */
-	public boolean checkEqualConditions(List conditions)
+	public boolean checkEqualConditions(Set conditions)
 {
 	Iterator conditionsIter = conditions.iterator();
     while (conditionsIter.hasNext()) {
@@ -152,17 +153,6 @@ public abstract class YAWLReductionRule
 		 {
 		 	e.setName(e.getID());
 		 }
-		 //added to make sure that reduced net could be visualised properly in editor.
-        
-		if (e instanceof YCondition)
-		 {   YCondition condition = (YCondition)e;
-		 //		make the condition explicit
-		 if (condition.isImplicit())
-        	{ 
-			 condition.setImplicit(false);
-        	
-        	}
-        }
 	}
 	
 	}

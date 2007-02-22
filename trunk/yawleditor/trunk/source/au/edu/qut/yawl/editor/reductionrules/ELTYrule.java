@@ -22,10 +22,10 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
-
 import au.edu.qut.yawl.elements.*;
-import java.util.List;
-
+import java.util.Map;
+import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Reduction rule for YAWL net with OR-joins: FOR rule
@@ -44,8 +44,8 @@ public class ELTYrule extends YAWLReductionRule{
       YNet reducedNet = net;    
       if (nextElement instanceof YTask){
                YTask task = (YTask) nextElement;
-               List preSet = task.getPresetElements();
-               List postSet = task.getPostsetElements();
+               Set preSet = task.getPresetElements();
+               Set postSet = task.getPostsetElements();
                // t has only one input and output
                // t cannot reset and t is not part of cancellation region
                if (preSet.equals(postSet) && preSet.size() == 1 && 
