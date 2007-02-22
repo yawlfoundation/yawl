@@ -1023,7 +1023,7 @@ public final class ResetWFNet {
 	         properCompletion = false;
 	       }
 	       else if (!currentM.equals(Mo))
-	       { deadlockmsg += printMarking(currentM);
+	       { deadlockmsg += printMarking(currentM) + " ";
 	         optionToComplete = false;
 	       }
 	     }
@@ -1639,7 +1639,8 @@ public final class ResetWFNet {
    	msg = "["+ condMappings.toString() +"]";
    }
    */
-   msg = "["+ mappings.toString() +"]";
+  msg = "["+ mappings.toString() +"]";
+   
    return msg;	       
    }
    
@@ -1664,8 +1665,8 @@ public final class ResetWFNet {
      } 
    	 
    }
+   
    msg = "["+ condMappings.toString() +"]";
-    
    return msg;	       
    }
    
