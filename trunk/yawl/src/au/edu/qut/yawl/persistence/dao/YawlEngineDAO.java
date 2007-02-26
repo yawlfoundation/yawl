@@ -37,16 +37,27 @@ public class YawlEngineDAO implements DAO {
 	private String userName;
 	private String password;
 	private boolean configurationDirty = true;
-	
-	protected synchronized void resetConnection() throws IOException {
+	public enum ConnectionState {NOT_YET_CONNECTED, CONNECTED, ERRORED};
+	public ConnectionState connectionState = ConnectionState.NOT_YET_CONNECTED;
+	public synchronized void resetConnection() throws YPersistenceException {
 		iaClient = new InterfaceA_EnvironmentBasedClient(
 				engineUri + "/ia");
 		ibClient = new InterfaceB_EnvironmentBasedClient(
 				engineUri + "/ib");
-		sessionHandle = iaClient.connect(userName, password);
+		try {
+			sessionHandle = iaClient.connect(userName, password);
+		} catch (IOException e) {
+			connectionState = ConnectionState.ERRORED;
+			throw new YPersistenceException("Received IO Error trying to connect to yawl engine to log in.", e);
+		}
 		configurationDirty = false;
+		connectionState = ConnectionState.CONNECTED;
 	}
 	
+	public ConnectionState getConnectionState() {
+		return connectionState;
+	}
+
 	public void delete(Object object) throws YPersistenceException {
 		try {
 			execute(new DeleteCommand(object.toString()));
@@ -120,6 +131,9 @@ public class YawlEngineDAO implements DAO {
 		} catch (YAuthenticationException e) {
 				resetConnection();
 				return c.execute();
+		} catch (IOException ioe) {
+			this.connectionState = ConnectionState.ERRORED;
+			throw ioe;
 		}
 	}
 	
