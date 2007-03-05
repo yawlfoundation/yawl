@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xml:base="http://localhost:8080/chiba-0.9.9/" 
+    xmlns="http://www.w3.org/2002/06/xhtml2"
+    xmlns:xf="http://www.w3.org/2002/xforms">
+    <head>
+        <title>Actions</title>
+        <xf:model id="C-1">
+            <xf:instance id="emp" xmlns="">
+                <data>
+                    <employees>
+                        <employee id="1" name="Jim" basic="5000"/>
+                        <employee id="2" name="Jack" basic="5200"/>
+                        <employee id="3" name="Peter" basic="5040"/>
+                        <employee id="4" name="PeterXYZ" basic="5400"/>
+                    </employees>
+                </data>
+            </xf:instance>
+            <xf:instance xmlns="" id="selected">
+                <data>
+                    <id></id>
+                    <name></name>
+                    <basic></basic>
+                    <index></index>
+                </data>
+            </xf:instance>
+            <xf:bind id="repeat1" nodeset="employees/employee">
+                <xf:bind id="bind-name" nodeset="@name" type="string"/>
+            </xf:bind>
+        </xf:model>
+    </head>
+    <body>
+        <xf:group>
+            <xf:label>Edit repeated data in a separate group</xf:label>
+            <xf:repeat id="repeatID" bind="repeat1" appearance="compact">
+                <xf:output bind="bind-name"/>
+            </xf:repeat>
+            <xf:trigger>
+                <xf:label>Edit</xf:label>
+                <xf:action>
+                    <xf:setvalue ref="instance('selected')/id" value="instance('emp')/employees/employee[index('repeatID')]/@id"/>
+                    <xf:setvalue ref="instance('selected')/name" value="instance('emp')/employees/employee[index('repeatID')]/@name"/>
+                    <xf:setvalue ref="instance('selected')/basic" value="instance('emp')/employees/employee[index('repeatID')]/@basic"/>
+                    <xf:setvalue ref="instance('selected')/index" value="string(index('repeatID'))"/>
+                    <xf:toggle case="empList"/>
+                </xf:action>
+            </xf:trigger>
+            <xf:switch>
+                <xf:case id="dummy" selected="true"></xf:case>
+                <xf:case id="empList" selected="false">
+                    <xf:group appearance="full">
+                        <xf:label>Detail data for <xf:output ref="instance('selected')/name"/></xf:label>
+                        <xf:input ref="instance('selected')/id">
+                            <xf:label>Id</xf:label>
+                        </xf:input>
+                        <xf:input ref="instance('selected')/name">
+                            <xf:label>Name</xf:label>
+                        </xf:input>
+                        <xf:input ref="instance('selected')/basic">
+                            <xf:label>Basic</xf:label>
+                        </xf:input>
+                    </xf:group>
+                    <xf:trigger>
+                        <xf:label>Ok</xf:label>
+                        <xf:action>
+                            <xf:setvalue ref="instance('emp')/employees/employee[number(instance('selected')/index)]/@id" value="instance('selected')/id"/>
+                            <xf:setvalue ref="instance('emp')/employees/employee[number(instance('selected')/index)]/@name" value="instance('selected')/name"/>
+                            <xf:setvalue ref="instance('emp')/employees/employee[number(instance('selected')/index)]/@basic" value="instance('selected')/basic"/>
+                            <xf:toggle case="dummy"/>
+                        </xf:action>
+                    </xf:trigger>
+                    <xf:trigger>
+                        <xf:label>Cancel</xf:label>
+                        <xf:action>
+                            <xf:toggle case="dummy"/>
+                        </xf:action>
+                    </xf:trigger>
+                </xf:case>
+            </xf:switch>
+        </xf:group>
+    </body>
+</html>

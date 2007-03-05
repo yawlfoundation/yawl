@@ -1,0 +1,289 @@
+Changes from 0.9.8 to 0.9.9
+--------------------------------------------
+- bookmarks sample added
+- GET params are automatically added to Chiba context map
+- refactored ChibaServlet: replaced custom param-handling by generic approach (s.a.)
+- fixes to build.xml
+- fixed namespaces in some samples
+- ChibaAdapter cleanup
+- fixed replace=all in ChibaServlet
+- fixed UNC name handling in File-Connectors
+- added API method to Upload to allow detection of expected type (reference or data)
+- changed some methods in ChibaAdapter to protected
+- UIGenerator: target of transformation may now be set
+- fixed namespace handling in Schema2XForms generator
+- lazy creation of context-object for safety
+- WebLogic compatibitliy patch for DOM parsing
+- unified select, select1 into selector class
+- added ContextSubmissionHandler to submit instance-data to the context map
+- itemset implementation improved (now working inside of repeats)
+- added support for directory listing to FileURIResolver
+- fixed bug in DOMUtil.getTextNode
+- new testcases
+- ContextSubmissionHandler allow storage of simple text-values
+- improved Submission error handling
+
+Changes from 0.9.7 to 0.9.8
+--------------------------------------------
+- Chiba status page updated
+- <output> now supports 'value' attribute
+- 'phase' processing has been killed
+- jalopy code formatting has been removed for now
+- namespace resolution especially in xpathes has been fixed
+- JXPath has been updated to version 1.2
+- <range> has been implemented for numerical datatypes (number, float, double)
+- has been made compileable under JDK 1.5
+- MultiPartRelatedSerializer now check for existence of file first
+- output got a special new appearance 'anchor' that renders a html-link
+- new sample 'multipart-related.xhtml' has been added
+- improvements/fixes in upload handling
+- appearances 'minimal' and 'image' have been added to <output>
+- log4j dtd has been added
+- connectors/xmlrpc package has been significantly extended and improved
+- new testcases
+- other minor fixes and cleanups
+- support for 'functions' attribute on element 'model' (Spec. 7.12)
+- fixed deferred update behaviour for multiple models
+
+Changes from 0.9.6 to 0.9.7
+--------------------------------------------
+- issues with build.xml have been fixed
+- URI resolution for document containers enabled
+- improved CSS class handling in html4.xsl
+- refactored ServletAdapter and extracted delegate 'HttpRequestHandler'
+- introduced new interface 'InteractionHandler'
+- ChibaContext class replaced by simple Map object
+- GET submission method for file protocol added
+- added Schema loading and processing including inline Schemas
+- loading of default XForms types
+- added ContextResolver to access Context params as XForms instance values
+- structural Schema validation at submit time added
+- issues with index setting resolved
+- issues with last() function resolved
+- fixed issues with message action
+- fileSize and fileDate xpath extension functions for use with uploaded files
+- fixed event handling for filename + mediatype attributes
+- bit of code cleanup
+- fixed param encoding problem for non US ASCII chars
+- deprecated libs xsdlib + relaxng removed
+- support for get, put, post, form-data-post, url-encoded-post methods
+- new serializers fixing issues with the former
+- fixed bug 971344
+- fixed and improved debug-instance.jsp
+- updated http lib
+- fixed output matching in labels
+- reorganized html4.xsl and extracted ui.xsl to hold all group, repeat, switch templates
+- added custom appearance (multi-column) to layout groups in columns
+- improved wizard sample
+
+Changes from 0.9.5 to 0.9.6
+--------------------------------------------
+- cleanup of build.xml
+- refinement of ChibaServlet (making it thread-safe)
+- Schema2XForms builder now supports inheritence
+- user-agent header is passed to XSLT now
+- xslt improvements:
+ - clear and documented CSS annotation model
+ - useragent dependent CSS switching
+ - detail improvements and clarifications
+ - fixes to repeat-handling
+ - template for scripted output created (scripted-html.xsl)
+ - respects <link> elements found in input documents now
+ - stylesheet compilation has been enabled with significant speedup for transforms
+- allow alternative xslt usage from forms.jsp page
+- fixed delete action to handle predicates in nodeset expression
+- fixes to instance() function regarding usage in LoadAction, InsertAction + DeleteAction
+- improved and refined DOM event-handling (additional sample form 'event-tester.xhtml')
+- improved Validator:
+ - event-dispatching fixed
+ - optional, empty values do not change the validity state any more
+ - issues with ModelItem item validation resolved
+- fixed outermost handler detection in actions
+- repeat prototype was made available for UI- and script-generation
+- several issues with repeat index resolved
+- fixed issues with nested repeats
+- added custom feature to allow URI parameterization for instance src and submission action attributes
+- some new docs in Chiba cookbook
+- a new 'visited' attribute for improved alert handling especially in wizards
+- and tons of new unit-tests added to the suite (approaching 300)
+
+
+Changes from 0.9.4 to 0.9.5
+---------------------------------------------
+- upload implemented
+- enabled use of EXSLT functions in Chiba
+- days-from-date and seconds-from-dateTime functions implemented
+- refactored interfaces: EnvironmentAdapter replaced by ChibaContext
+- additional unit-tests
+- fixed itemset
+- refactored Schema2XForms builder to use Xerces Schema API
+- fixed session-handling in submits
+- fixed several stylesheet problems
+- SCROLL events are dispatched now
+- refactored ConnectorFactory to use an abstract factory
+
+Changes from 0.9.3 to 0.9.4
+---------------------------------------------
+-itemset element is now supported
+-fixed diverse conditions in html4.xsl (namespace problem)
+-renamed some classes/interfaces for clarity
+-replaced jxpath lib with new version (fix for attribute handling and last() function bug)
+-upgraded to Xerces 2.6.0 with DOM3 API
+-enabled simple event cancellation
+-refactored ChibaServlet + Adapter: moved all request-processing to adapter
+-cleaned up unused assignments
+-added stylesheet param 'phase' to signal the processing phase (init|submit)
+-fixed rendering of nested switch elements
+-new testcases
+-refined exception handling
+-xforms-valid, xforms-invalid, xforms-readonly, xforms-readwrite, xforms-enabled, xforms-disabled events
+supported now
+-lots of new unit tests
+-xforms xpath functions are working without prefix now
+-implemented XForms event sequencing
+-fixed chiba-jar target
+-added junit target to generate unit test reports
+-forms, instances and css files can be configured via a http get string now
+-new XMLRPCURIResolver
+-new RedirectingHTTPSubmissionHandler
+
+
+Changes from 0.9.2 to 0.9.3
+---------------------------------------------
+- new ChibaBean.setInstanceURI method to init processor with external instance
+- XML Base resolution has been added
+- samples have been reworked and converted to XHMTL and put into xhtml2 namespace
+- new samples have been added
+- issues with select, select1 have been fixed
+- exception handling has been improved - exceptions which occur during event-processing
+are not hidden any more
+- lots of new test cases
+- now mixed-content inside of instance data are supported (extension to REC)
+- WebAdapter has been prepared for integration of FileUpload
+- html-form-controls.xsl is refined and attaches CSS classes for styling controls
+- a standard CSS stylesheet (styles.css) as blueprint for custom adaptions is provided now
+- default namespace handling has been fixed - NamespaceCtx completly refactored
+- binary distribution now contains webpages and javadoc
+- instance initialization bug has been fixed
+- groups and repeats now interpret the appearance attribute and offer different rendering
+options for them
+- missing submission attribute support has been added
+- processor shutdown supported now
+- a lot of javadoc gaps have been closed
+
+
+Changes from 0.9.1 to 0.9.2
+---------------------------------------------
+- adapted init process to XForms PR
+- closer conformance to processing model
+- reworked init process
+- reworked update process
+- refined object hierarchy
+- added XML Base support
+- refactored to use JDK URI class
+- simplified + clarified base URI and action URL handling
+- fixed URI resolution
+- fixed checkbox behaviour
+- numerous bug-fixes
+- dropped JDK 1.3 support
+
+Changes from 0.9 to 0.9.1
+---------------------------------------------
+- Schema2XForm builder adapted to latest syntax changes
+- fixed distribution files / added missing xercesimpl.jar + xml-apis.jar
+- fixed installation docs
+- cleanup of import-statements
+- javadoc fixes
+
+Changes from 0.8 to 0.9
+---------------------------------------------
+- complete object model implementation for core and UI
+- basic DOM event support
+- multiple instance support incl. xf:instance() function
+- improved unrolled UI format
+- CSS support
+- support for client-side processing (scripting)
+- complete reimplementation of rebuild, recalculate, revalidate, refresh
+- full dependency tracking
+- simplified default rendering stylesheet
+- added adapter interface for arbitrary runtime environments
+- implemented web adapater incl. configurable request parameter mapping
+- implemented subtree selection and relevance filtering for submission
+- support for XForms PR namespace
+- numerous refactorings, bugfixes and performance improvements
+
+Changes from 0.7 to 0.8
+---------------------------------------------
+Major parts of the core implementation have been reworked:
+- plain request parameters are used now instead of a XML encoded request
+- the UI generation has been changed completely to ease the task of writing custom stylesheets. The stylesheet writer
+will get a complete unrolled version of the UI with all evaluations already done.
+- http and xpath lib have been updated to latest versions
+- the Schema2XForms generator has been re-integrated into Chiba and completed with an Ant task.
+- scoped resolution is now working for all binding-types (model- and ui-bindings)
+- handling of nested repeats has been improved
+- interfaces for custom validation and calculation have been added
+- first version of Itemset working
+- numerous bug-fixes
+- more unit-tests
+
+Changes from 0.7 Preview Release to 0.7
+---------------------------------------------
+- fixes for groups and repeats
+- user guide enhancements
+- implemented refresh and revalidate actions
+- rewrite of validation code to work with JXPath
+- full support for constraint-, type-, relevant-, readonly- and required-checking now
+- support for alerts
+- basic support for recalculations (basic means we didn't implement dependency graph checking)
+- code improvements (refactorings, cleanup, imports)
+- more jUnit tests for our and your trust in code
+
+Changes from 0.6.3 to 0.7 Preview
+---------------------------------------------
+- adapted to XForms 1.0 Candidate Recommendation
+- Major cleanup and refactoring of most core classes (except validation, internationalization packages for now)
+- Servlet-based web-application instead of bunch of jsp-files
+- Formprocessor and UIGenerator are only loosely coupled now
+- Full namespace support in instance-data now
+- multiple model handling enabled
+- stylesheet compilation prepared
+- rework, cleanup + improved javadoc of all core xforms classes
+- new Action package which implements most of the XForms Actions
+- complete rewrite of UI generation stylesheets - big cleanup and reshaping; improved extensibility
+- migrated to use JXPath as new XPath implementation
+- complete rewrite of submission code, now support for HTTP, file and SMTP (mailto) protocols
+
+Changes from 0.6.2.1 to 0.6.3
+---------------------------------------------
+- Some minor fixes with selectOne and validations
+- Preparation, cleanup for next release
+
+Changes from 0.6.2 to 0.6.2.1
+---------------------------------------------
+this release only fixed a problem in the build-file which results in
+a missing library when building the war-file. This release contains
+xml-apis.jar instead of jaxp.jar.
+
+Changes from 0.6.1 to 0.6.2
+---------------------------------------------
+
+- Binding-elements are generated for documents not containing them already
+- adapted to new XForms Namespace "http://www.w3.org/2002/01/xforms"
+- resource-loading classes have been refactored
+- support for multiple models/instances added
+- submitInfo implemented with post and text/xml support
+- basic validation and calculation framework running
+- namespaces in instances are now supported
+
+Changes from 0.6 to 0.6.1
+---------------------------------------------
+This is a bugfix release. No new features are available in this release.
+- Resource-loading has been fixed in ChibaProcessor.- it now uses
+ChibaProcessor.class instead of this.getClass()
+- stylesheet fixes
+- number of small bug fixes in calculation, validation
+- fixed bug in createInstance (Instance.java)
+- etc.
+
+[stripped old history - jt]

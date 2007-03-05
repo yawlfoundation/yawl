@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:my="http://commerce.example.com/payment" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns="http://www.w3.org/2002/06/xhtml2" xml:lang="en">
+  <head>
+    <style type="text/css">
+      xforms|input.editField {
+       font-weight:bold; font-size:20px; width:500px
+      }
+      xforms|label.sectionLabel {
+        font-weight:bold; color:white; background-color:blue;
+      }
+      xforms|submit {
+        font-family: Arial; font-size: 20px; font-style: bold; color: red ;
+      }
+
+      .section-label{font-weight:bold; color:white; background-color:blue;}
+      .editField {
+       font-weight:bold; font-size:20px; width:500px
+      }
+      .URL {width:450px;}
+      .URL > .value{width:430px;}
+    </style>
+    <title>Editing Hierarchical Bookmarks In X-Smiles </title>
+    <xforms:model id="bookmarks">
+      <xforms:instance src="bookmarks.xml" />
+      <xforms:submission id="s01" method="post" action="http://examples.com/" />
+    </xforms:model>
+  </head>
+  <body>
+    <xforms:repeat nodeset="section" id="repeatSections" appearance="full">
+      <xforms:input id="section" ref="@name" class="editField">
+        <xforms:label class="sectionLabel">Section</xforms:label>
+      </xforms:input>
+<!-- BOOKMARK REPEAT START -->
+      <xforms:repeat nodeset="bookmark" id="repeatBookmarks" appearance="compact">
+        <xforms:input ref="@name">
+          <xforms:label>Bookmark name</xforms:label>
+        </xforms:input>
+        <xforms:input ref="@href" class="URL">
+          <xforms:label>URL</xforms:label>
+        </xforms:input>
+      </xforms:repeat>
+    </xforms:repeat>
+    <p>
+<!-- INSERT BOOKMARK BUTTON -->
+      <xforms:trigger id="insertbutton">
+        <xforms:label>Insert bookmark</xforms:label>
+        <xforms:insert nodeset="section[index('repeatSections')]/bookmark" at="index('repeatBookmarks')" position="after" ev:event="DOMActivate" />
+      </xforms:trigger>
+<!-- DELETE BOOKMARK BUTTON -->
+      <xforms:trigger id="delete">
+        <xforms:label>Delete bookmark</xforms:label>
+        <xforms:delete nodeset="section[index('repeatSections')]/bookmark" at="index('repeatBookmarks')" ev:event="DOMActivate" />
+      </xforms:trigger>
+    </p>
+    <p>
+<!-- INSERT SECTION BUTTON -->
+      <xforms:trigger id="insertsectionbutton">
+        <xforms:label>Insert section</xforms:label>
+        <xforms:insert nodeset="section" at="index('repeatSections')" position="after" ev:event="DOMActivate" />
+      </xforms:trigger>
+<!-- DELETE SECTION BUTTON -->
+      <xforms:trigger id="deletesectionbutton">
+        <xforms:label>Delete section</xforms:label>
+        <xforms:delete nodeset="section" at="index('repeatSections')" ev:event="DOMActivate" />
+      </xforms:trigger>
+    </p>
+<!-- SUBMIT BUTTON -->
+    <xforms:submit submission="s01">
+      <xforms:label>Save</xforms:label>
+      <xforms:hint>Click to submit</xforms:hint>
+    </xforms:submit>
+  </body>
+</html>
