@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<page title="Chiba Home">
+
+    <subtitle>What is it ?</subtitle>
+    <para>
+	    Chiba is an Open Source Java Implementation of the W3C XForms standard 'that represents the next generation of forms for the Web'. [Abstract of the XForms PR]
+    </para>
+    <para>
+	    XForms purpose and justification might be explained best by the official statements in the Specification:
+    </para>
+    <cite from=" [Chapter 1.1 of the XForms PR]">
+	    Forms are an important part of the Web, and they continue to be the primary means for enabling interactive Web applications. Web applications and electronic commerce solutions have sparked the demand for better Web forms with richer interactions. XForms 1.0 is the response to this demand, and provides a new platform-independent markup language for online interaction between a person (through an XForms Processor) and another, usually remote, agent. XForms are the successor to HTML forms, and benefit from the lessons learned from HTML forms.
+    </cite>
+    <para>
+        For more information on XForms its highly recommended to look at the official XForms homepage at
+        <a href="http://www.w3.org/Markup/forms">http://www.w3.org/Markup/forms</a> or visit our links page at
+        <a href="http://www.chibacon.de/links_en.html">Chibacon</a>.
+    </para>
+
+    <para>
+        Chiba comes as a typical JavaBean and is intended to be used/integrated in your Client- and/or
+        Server-side applications.
+    </para>
+    <subtitle>Main features of Chiba</subtitle>
+    <list>
+        <item>conforms to the
+            <a href="http://www.w3.org/TR/2003/REC-xforms-20031014/">XForms 1.0 W3C Recommendation</a>
+        </item>
+        <item>delivers most XForms functionality to today's browsers</item>
+        <item>full XML Schema Datatype support</item>
+        <item>XForms calculation and validation with full dependency tracking</item>
+        <item>DOM Event support</item>
+        <item>customizable UI stylesheets</item>
+        <item>based on Java2 and XSLT</item>
+        <item>no client installation required</item>
+        <item>extensible Connector layer for integration in arbitrary applications</item>
+        <item>adaptable to potentially any client</item>
+        <item>robust processing model</item>
+    </list>
+
+    <subtitle>Chiba has been reported to run on following Operating Systems</subtitle>
+    <list>
+        <item>IBM S/390 mainframe</item>
+        <item>Linux (Debian, RedHat, Suse)</item>
+        <item>OS X 10.3</item>
+        <item>Solaris 9</item>
+        <item>Windows 2000, XP</item>
+    </list>
+    <subtitle>on following Servers</subtitle>
+    <list>
+        <item>JBoss 3.2.5</item>
+        <item>Orion</item>
+        <item>Tomcat 3.3, 4.x, 5.x</item>
+        <item>Weblogic 8.1</item>
+        <item>WebSphere 5.1</item>
+    </list>
+    <subtitle>Integrations with following systems/frameworks are on the way or are already in use</subtitle>
+    <list>
+        <item>J2EE (Reference Integration)</item>
+        <item>Apache Cocoon 2.1.6 (Subproject 'Chicoon')</item>
+        <item>Java-Applet running in Browser (Subproject 'Convex')</item>
+        <item>jBPM 2.0</item>
+        <item>Apache Struts</item>
+        <item>Nice EnginFrame 3.5.2</item>
+    </list>
+    <para>
+    Please report if you've successfully run Chiba on a OS/server/platform not listed here. Thanks.
+    </para>
+
+    <subtitle>Documentation</subtitle>
+    <para>
+        <img src="images/pdf.gif"/>
+        <a href="ChibaCookBook.pdf">Chiba Cookbook</a> (updated 15.11.2004)
+    </para>
+    <para>Comments welcome.</para>
+
+    <para>
+        <form method="post" action="http://www.osdir.com/modules.php?op=modload&amp;name=Downloads&amp;file=index">
+            Vote for Chiba on O'Reilly's
+            <a href="http://www.osdir.com">Open Source Directory</a>
+            <select name="rating">
+                <option selected="selected">--</option>
+                <option value="10">10</option>
+                <option value="9">9</option>
+                <option value="8">8</option>
+                <option value="7">7</option>
+                <option value="6">6</option>
+                <option value="5">5</option>
+                <option value="4">4</option>
+                <option value="3">3</option>
+                <option value="2">2</option>
+                <option value="1">1</option>
+            </select>
+            <input type="hidden" name="ratinglid" value="406"/>
+            <input type="hidden" name="ratinguser" value="outside"/>
+            <input type="hidden" name="req" value="addrating"/>
+            <input type="submit" value="Vote !"/>
+        </form>
+    </para>
+
+</page>
