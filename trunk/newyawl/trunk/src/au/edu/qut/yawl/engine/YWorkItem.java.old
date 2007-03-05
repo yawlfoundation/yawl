@@ -1,0 +1,318 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of 
+ * individuals and organiations who are commited to improving workflow technology.
+ *
+ */
+
+
+package au.edu.qut.yawl.engine;
+
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.logging.YawlLogServletInterface;
+import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+/**
+ * 
+ * @author Lachlan Aldred
+ * Date: 28/05/2003
+ * Time: 15:29:33
+ * 
+ */
+public class YWorkItem {
+    public static final String statusEnabled = "Enabled";
+    public static final String statusFired = "Fired";
+    public static final String statusExecuting = "Executing";
+    public static final String statusComplete = "Complete";
+    public static final String statusIsParent = "Is parent";
+    public static final String statusDeadlocked = "Deadlocked";
+    public static final String statusDeleted = "Cancelled";
+
+    private YWorkItemID _workItemID;
+    private String _specificationID;
+    private Date _enablementTime;
+    private Date _firingTime;
+    private Date _startTime;
+
+    private String _status;
+    private String _whoStartedMe;
+    private boolean _allowsDynamicCreation;
+    private Element _dataList;
+
+    private YWorkItem _parent;
+    private Set _children;
+
+    private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
+    private static DateFormat _df = new SimpleDateFormat("MMM:dd H:mm:ss");
+    
+    public YawlLogServletInterface yawllog = null;
+
+    public YWorkItem(String specificationID, YWorkItemID workItemID,
+         boolean allowsDynamicCreation, boolean isDeadlocked) {
+        _workItemID = workItemID;
+        _specificationID = specificationID;
+        _enablementTime = new Date();
+        _status = isDeadlocked? statusDeadlocked : statusEnabled ;
+        _allowsDynamicCreation = allowsDynamicCreation;
+        _workItemRepository.addNewWorkItem(this);
+	yawllog = YawlLogServletInterface.getInstance();
+	yawllog.logWorkItemEvent(workItemID.getCaseID().toString(),
+				 workItemID.getTaskID()
+				 ,_status,_whoStartedMe);
+    }
+
+
+    /*
+     * Creates a fired WorkItem.  Private method.
+     */
+    private YWorkItem(YWorkItemID workItemID, String specificationID,
+                      Date workItemCreationTime, YWorkItem parent,
+                      boolean allowsDynamicInstanceCreation) {
+        _workItemID = workItemID;
+        _specificationID = specificationID;
+        _enablementTime = workItemCreationTime;
+        _firingTime = new Date();
+        _parent = parent;
+        _status = statusFired;
+        _workItemRepository.addNewWorkItem(this);
+        _allowsDynamicCreation = allowsDynamicInstanceCreation;
+	yawllog = YawlLogServletInterface.getInstance();
+	yawllog.logWorkItemEvent(workItemID.getCaseID().toString(),
+				 workItemID.getTaskID()
+				 ,_status,_whoStartedMe);
+	
+	//		YEngine.getDbase().logWorkItemEvent(new WorkItemEvent(workItemID.getCaseID().toString(),workItemID.getTaskID(),_status,_whoStartedMe));
+    }
+
+
+    public YWorkItem createChild(YIdentifier childCaseID) {
+        if (this._parent == null) {
+            YIdentifier parentCaseID = getWorkItemID().getCaseID();
+            if (childCaseID.getParent() != parentCaseID) {
+                return null;
+            }
+            YWorkItem childItem = new YWorkItem(
+                    new YWorkItemID(childCaseID, getWorkItemID().getTaskID()),
+                    _specificationID,
+                    getEnablementTime(),
+                    this,
+                    _allowsDynamicCreation
+            );
+                        
+            if (_children == null) {
+                _children = new HashSet();
+            }
+            _status = statusIsParent;
+            _children.add(childItem);
+			if (_children.size() == 1)
+			yawllog.logWorkItemEvent(_workItemID.getCaseID().toString(),
+													_workItemID.getTaskID()
+													,_status,_whoStartedMe);
+            return childItem;
+        }
+        return null;
+    }
+
+	public void setStatusToDelete() {
+		_status = statusDeleted;
+	}
+
+    public void setStatusToStarted(String userName) {
+        if (!_status.equals(statusFired)) {
+            throw new RuntimeException(this + " [when current status is \""
+                    + _status + "\" it cannot be changed to \"" + statusExecuting + "\"]");
+        }
+        _status = statusExecuting;
+        _startTime = new Date();
+        _whoStartedMe = userName;
+		yawllog.logWorkItemEvent(_workItemID.getCaseID().toString(),
+												_workItemID.getTaskID()
+												,_status,_whoStartedMe);
+    }
+
+
+    public void setStatusToComplete() {
+        if (!_status.equals(statusExecuting)) {
+            throw new RuntimeException(this + " [when current status is \""
+                    + _status + "\" it cannot be changed to \"" + statusComplete + "\"]");
+        }
+        _status = statusComplete;
+        
+        /*
+         * Check if all siblings  are completed, if so then
+         * the parent is completed too.
+         * */
+        boolean parentcomplete = true;
+        Set siblings = _parent.getChildren();
+
+       	Iterator iter = siblings.iterator();
+       	
+       	while (iter.hasNext()) {
+       		YWorkItem mysibling  = (YWorkItem) iter.next();
+      		if (mysibling.getStatus()!=YWorkItem.statusComplete)
+       			parentcomplete=false;
+       	}
+       
+        
+        if (parentcomplete)
+		yawllog.logWorkItemEvent(_parent.getCaseID().toString(),
+												_parent.getTaskID()
+												,_status,_whoStartedMe);
+
+		yawllog.logWorkItemEvent(_workItemID.getCaseID().toString(),
+												_workItemID.getTaskID()
+												,_status,_whoStartedMe);
+    }
+
+
+    public void rollBackStatus() {
+        if (!_status.equals(statusExecuting)) {
+            throw new RuntimeException(this + " [when current status is \""
+                    + _status + "\" it cannot be rolledBack to \"" + statusFired + "\"]");
+        }
+        _status = statusFired;
+		yawllog.logWorkItemEvent(_workItemID.getCaseID().toString(),
+												_workItemID.getTaskID()
+												,_status,_whoStartedMe);
+        _startTime = null;
+        _whoStartedMe = null;
+    }
+
+
+    public void setData(Element data) {
+        _dataList = data;
+    }
+
+
+    //#################################################################################
+    //                              accessors
+    //#################################################################################
+    public YWorkItemID getWorkItemID() {
+        return _workItemID;
+    }
+
+
+    public Date getEnablementTime() {
+        return _enablementTime;
+    }
+
+    public String getEnablementTimeStr() {
+        return _df.format(_enablementTime);
+    }
+
+
+    public Date getFiringTime() {
+        return _firingTime;
+    }
+
+
+    public String getFiringTimeStr() {
+        return _df.format(_firingTime);
+    }
+
+
+    public Date getStartTime() {
+        return _startTime;
+    }
+
+
+    public String getStartTimeStr() {
+        return _df.format(_startTime);
+    }
+
+
+    public String getStatus() {
+        return _status;
+    }
+
+
+    public YWorkItem getParent() {
+        return _parent;
+    }
+
+
+    public Set getChildren() {
+        return _children;
+    }
+
+
+    public YIdentifier getCaseID() {
+        return _workItemID.getCaseID();
+    }
+
+
+    public String getTaskID() {
+        return _workItemID.getTaskID();
+    }
+
+
+    public String getIDString() {
+        return _workItemID.toString();
+    }
+
+
+    public String toString() {
+        String fullClassName = getClass().getName();
+        return fullClassName.substring(fullClassName.lastIndexOf('.') + 1) + ":" + getIDString();
+    }
+
+
+    public String getUserWhoIsExecutingThisItem() {
+        if (_status == statusExecuting) {
+            return _whoStartedMe;
+        } else
+            return null;
+    }
+
+
+    public boolean allowsDynamicCreation() {
+        return _allowsDynamicCreation;
+    }
+
+
+    public String getDataString() {
+        if (_dataList != null) {
+            XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+            return outputter.outputString(_dataList);
+        }
+        return null;
+    }
+
+
+    public String toXML() {
+        StringBuffer xmlBuff = new StringBuffer();
+        xmlBuff.append("<workItem>");
+        xmlBuff.append("<taskID>" + getTaskID() + "</taskID>");
+        xmlBuff.append("<caseID>" + getCaseID() + "</caseID>");
+        xmlBuff.append("<specID>"+ _specificationID + "</specID>");
+        xmlBuff.append("<status>" + getStatus() + "</status>");
+        if(_dataList != null){
+            xmlBuff.append("<data>" + getDataString() + "</data>");
+        }
+        xmlBuff.append("<enablementTime>" + _df.format(getEnablementTime()) + "</enablementTime>");
+        if(this.getFiringTime() != null){
+            xmlBuff.append("<firingTime>" + _df.format(getFiringTime()) + "</firingTime>");
+        }
+        if(this.getStartTime() != null){
+            xmlBuff.append("<startTime>" + _df.format(getStartTime()) + "</startTime>");
+            xmlBuff.append("<assignedTo>" + getUserWhoIsExecutingThisItem() + "</assignedTo>");
+        }
+        xmlBuff.append("</workItem>");
+        return xmlBuff.toString();
+    }
+
+
+    public String getSpecificationID() {
+        return _specificationID;
+    }
+}

@@ -1,0 +1,613 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
+ * individuals and organisations who are commited to improving workflow technology.
+ *
+ */
+
+
+package au.edu.qut.yawl.worklist;
+
+import au.edu.qut.yawl.worklist.model.WorkItemRecord;
+import au.edu.qut.yawl.elements.data.YParameter;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.forms.InstanceBuilder;
+import au.edu.qut.yawl.forms.InterfaceD_XForm;
+import au.edu.qut.yawl.schema.ElementCreationInstruction;
+import au.edu.qut.yawl.schema.ElementReuseInstruction;
+import au.edu.qut.yawl.schema.Instruction;
+import au.edu.qut.yawl.schema.XMLToolsForYAWL;
+import au.edu.qut.yawl.worklist.model.*;
+import au.edu.qut.yawl.engine.interfce.*;
+import java.util.HashMap;
+
+import org.jdom.JDOMException;
+
+import javax.servlet.ServletContext;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+
+/**
+ * Handles the interaction between the YAWL worklist and 3rd party applications,
+ * using Interface D.
+ * @author Guy Redding 26/11/2004
+ *
+ */
+public class WorkItemProcessor {
+
+    // TODO Add log4j comments
+    private boolean debug = false;
+
+
+    /**
+     * Empty Constructor
+     */
+    public WorkItemProcessor() {
+    }
+
+
+    /**
+     * Performs the tasks required by YAWL to display a dynamic xform to launch a case.
+     * These include:
+     * creating the schema and instance for a workitem and session, posting the
+     * schema and instance to the form-generating and processing engine, posting a
+     * request to the form engine to display the xform.
+     * @param caseID
+     * @param sessionHandle
+     * @param _worklistController
+     * @throws YSchemaBuildingException
+     * @throws YSyntaxException
+     * @throws IOException
+     * @throws JDOMException
+     * @throws URISyntaxException
+     */
+    public void executeCasePost(ServletContext context, String caseID,
+    	String sessionHandle, WorklistController _worklistController, String userID)
+            throws YSchemaBuildingException, YSyntaxException, IOException,
+            JDOMException, URISyntaxException {
+
+        Map parameters = Collections.synchronizedMap(new TreeMap());
+    	InterfaceD_XForm idx = new InterfaceD_XForm(context.getInitParameter("YAWLXForms") + "/YAWLServlet");
+
+    	// set schema data
+        String schema = createCaseSchema(caseID, sessionHandle, _worklistController);
+        parameters.put("schema", schema);
+
+        // set instance data
+        SpecificationData specData = _worklistController.getSpecificationData(caseID, sessionHandle);
+        InstanceBuilder ib = new InstanceBuilder(schema, specData.getRootNetID(), null);
+        parameters.put("instance", ib.getInstance());
+
+        // TODO need to query specData for the names of output params belonging to the case
+
+        // set input parameter data (if any)
+        //parameters.put("inputparams", getInputOutputParams(specData.getInputParams()));
+
+        // set root tag name
+        parameters.put("root", specData.getRootNetID());
+
+        // set form name
+        parameters.put("task", specData.getID());
+
+        // set specID
+        parameters.put("specID", specData.getID());
+
+        // send (post) data to yawlXForms thru interfaceD
+        idx.sendWorkItemData(parameters, userID, specData.getID(), sessionHandle);
+    }
+
+
+    /**
+     * Creates a schema to launch a case.
+     * @param _specID the specid.
+     * @param _sessionHandle
+     * @param _worklistController
+     * @throws IOException
+     * @throws JDOMException
+     * @throws YSchemaBuildingException
+     * @throws YSyntaxException
+     * @throws URISyntaxException
+     */
+    public String createCaseSchema(String _specID, String _sessionHandle,
+                                        WorklistController _worklistController)
+            throws IOException, JDOMException, YSchemaBuildingException, YSyntaxException, URISyntaxException {
+
+        SpecificationData specData = _worklistController.getSpecificationData(_specID, _sessionHandle);
+        List inputParams = specData.getInputParams();
+
+        List instructions = Collections.synchronizedList(new ArrayList());
+
+        for (int i = 0; i < inputParams.size(); i++) {
+            YParameter inputParam = (YParameter) inputParams.get(i);
+
+            if (null != inputParam.getElementName()) {
+                if (debug) System.out.println("CASE input param REUSE element name: " + inputParam.getElementName());
+                String elementName = inputParam.getElementName();
+                ElementReuseInstruction instruction = new ElementReuseInstruction(elementName);
+                instructions.add(instruction);
+            }
+            else if (null != inputParam.getDataTypeName()) {
+                if (debug) System.out.println("CASE input param CREATION data type name: " + inputParam.getDataTypeName());
+                String elementName = inputParam.getName();
+                String typeName = inputParam.getDataTypeName();
+                boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(inputParam.getDataTypeNameSpace());
+                ElementCreationInstruction instruction = new ElementCreationInstruction(
+                        elementName,
+                        typeName,
+                        isPrimitiveType);
+                instructions.add(instruction);
+            }
+
+            //if (inputParam.getElementName() != null) { // work item input param
+            //    input.append(inputParam.getElementName()).append(",");
+            //}
+            else if (inputParam.isUntyped()) {             // due to a bug, YAWL converts untyped parameters into creation parameters
+                //System.out.println("input param isUntyped.");
+                //UntypedElementInstruction instruction = new UntypedElementInstruction();
+                //instructions.add(instruction);
+
+                if (debug) System.out.println("CASE input param CREATION (untyped) data type name: " + inputParam.getDataTypeName());
+                String elementName = inputParam.getName();
+                //String typeName = inputParam.getDataTypeName();
+                String typeName = "boolean";
+                boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(inputParam.getDataTypeNameSpace());
+                ElementCreationInstruction instruction = new ElementCreationInstruction(
+                        elementName,
+                        typeName,
+                        isPrimitiveType);
+                instructions.add(instruction);
+            }
+            //else if (inputParam.getName() != null) {
+            //    input.append(inputParam.getName()).append(",");
+            //}
+        }
+
+        XMLToolsForYAWL xmlToolsForYawl = new XMLToolsForYAWL();
+        String schemaLibrary = specData.getSchemaLibrary();
+        xmlToolsForYawl.setPrimarySchema(schemaLibrary);
+        String myNewSchema = xmlToolsForYawl.createYAWLSchema(
+        	(Instruction[]) instructions.toArray(
+        		new Instruction[instructions.size()])
+        		, specData.getRootNetID());
+
+       return (myNewSchema);
+    }
+
+
+    /**
+     * Performs the tasks required by YAWL to display a dynamic xform to edit a work item.
+     * These include:
+     * creating the schema and instance files for a workitem and session, posting the
+     * schema and instance to the form-generating and processing engine, cleanup of
+     * temporary files, posting a request to the form engine to display the xform.
+     * (need a file context for creating a temporary file).
+     * @param context
+     * @param workItemID
+     * @param sessionHandle
+     * @param _worklistController
+     * @throws YSchemaBuildingException
+     * @throws YSyntaxException
+     * @throws IOException
+     * @throws JDOMException
+     */
+    public void executeWorkItemPost(ServletContext context, String workItemID,
+    	String sessionHandle, WorklistController _worklistController, String userID)
+            throws YSchemaBuildingException, YSyntaxException, IOException,
+            JDOMException {
+
+        Map parameters = Collections.synchronizedMap(new TreeMap());
+        InterfaceD_XForm idx = new InterfaceD_XForm(context.getInitParameter("YAWLXForms") + "/YAWLServlet");
+
+        // set schema data
+        String schema = createSchema(workItemID, sessionHandle, _worklistController);
+        parameters.put("schema", schema);
+
+        // retrieve list of input params to send to YAWLXForms that will display them
+        // as read-only fields.
+        WorkItemRecord item = _worklistController.getCachedWorkItem(workItemID);
+        TaskInformation taskInfo = _worklistController.getTaskInformation(
+                item.getSpecificationID(), item.getTaskID(), sessionHandle);
+
+        // set instance data
+        InstanceBuilder ib = new InstanceBuilder(schema, taskInfo.getDecompositionID(), item.getDataListString());
+        parameters.put("instance", ib.getInstance());
+
+        // set input params (if any exist)
+        YParametersSchema paramsSignature = taskInfo.getParamSchema();
+        parameters.put("inputparams", getInputOnlyParams(paramsSignature.getInputParams(), paramsSignature.getOutputParams()));
+
+        // set root tag name
+        parameters.put("root", taskInfo.getDecompositionID());
+
+        // set form name
+        parameters.put("task", taskInfo.getTaskName());
+
+        parameters.put("workItemID", item.getID());
+
+        // send (post) data to yawlXForms thru interfaceD
+        idx.sendWorkItemData(parameters, item, userID, sessionHandle);
+    }
+
+
+    /**
+     * Creates the URL to redirect to so that cases can be started using a form.
+     * @param context
+     * @param specData
+     * @return the redirect URL to the form to launch a case.
+     */
+    public String getRedirectURL(ServletContext context, SpecificationData specData) {
+        String url = context.getInitParameter("YAWLXForms") +
+                "/XFormsServlet?form=/forms/" + this.getFormName(specData) +
+                "&css=/styles/yawl.css&xslt=html4yawl.xsl";
+
+        return url;
+    }
+
+
+    /**
+     * Creates the URL to redirect to so that tasks can be edited using a form.
+     * @param context
+     * @param taskInfo
+     * @return the redirect URL to the form to edit a task.
+     */
+    public String getRedirectURL(ServletContext context, TaskInformation taskInfo){
+
+      String url = context.getInitParameter("YAWLXForms") +
+              "/XFormsServlet?form=/forms/" + this.getFormName(taskInfo) +
+              "&css=/styles/yawl.css&xslt=html4yawl.xsl";
+
+      return url;
+  }
+
+    /**
+     * Builds a schema from the XSD component found in YAWL that will be
+     * the foundation for building a form for editing work items.
+     * @param _workItemID The work item to build a schema for.
+     * @param _sessionHandle The session handle for the current YAWL session.
+     * @param worklistController An instance of a work list controller.
+     * @throws IOException
+     * @throws JDOMException
+     * @throws YSchemaBuildingException
+     * @throws YSyntaxException
+     */
+    private String createSchema(String _workItemID, String _sessionHandle,
+                                    WorklistController worklistController)
+            throws IOException, JDOMException, YSchemaBuildingException, YSyntaxException {
+
+    	// this method is a replacement for the SchemaCreator class,
+    	// fixing a design error since that class was a Singleton.
+    	String myNewSchema = new String();
+        WorkItemRecord item = worklistController.getCachedWorkItem(_workItemID);
+
+        if (item != null) {
+            //first of all get the task information which contains the parameter signatures.
+            TaskInformation taskInfo = worklistController.getTaskInformation(
+                    item.getSpecificationID(),
+                    item.getTaskID(),
+                    _sessionHandle);
+
+            String specID = taskInfo.getSpecificationID();
+
+            //next get specification data which will contain the input schema library
+            //that we are going to use to build the schema that we want for this task.
+            SpecificationData specData = worklistController.getSpecificationData(specID, _sessionHandle);
+
+            //now we get the parameters signature for the task
+            YParametersSchema paramsSignature = taskInfo.getParamSchema();
+
+            //now for each input param build an instruction
+            List inputParams = paramsSignature.getInputParams();
+            List instructions = Collections.synchronizedList(new ArrayList());
+
+            // this is an XML string containing the instance data for the current task
+            // this can be the instance file, and if identical elements are found in
+            // the schema during instance creation, the creation of new elements in
+            // the instance will be ignored.
+
+            for (int i = 0; i < inputParams.size(); i++) {
+                YParameter inputParam = (YParameter) inputParams.get(i);
+
+                if (null != inputParam.getElementName()) {
+                    if (debug) {
+                        System.out.println("input param REUSE element name: " + inputParam.getElementName());
+                    }
+                    String elementName = inputParam.getElementName();
+                    ElementReuseInstruction instruction = new ElementReuseInstruction(elementName);
+                    instructions.add(instruction);
+                } else if (null != inputParam.getDataTypeName()) {
+                    if (debug) {
+                        System.out.println("input param CREATION data type name: " + inputParam.getDataTypeName());
+                    }
+                    String elementName = inputParam.getName();
+                    String typeName = inputParam.getDataTypeName();
+                    boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(inputParam.getDataTypeNameSpace());
+                    ElementCreationInstruction instruction = new ElementCreationInstruction(
+                            elementName,
+                            typeName,
+                            isPrimitiveType);
+                    instructions.add(instruction);
+                }
+                // currently we convert untyped parameters into creation parameters, due to a bug in YAWL
+                else if (inputParam.isUntyped()) {
+                    //System.out.println("input param isUntyped.");
+                    //UntypedElementInstruction instruction = new UntypedElementInstruction();
+                    //instructions.add(instruction);
+
+                    if (debug) {
+                        System.out.println("input param CREATION (untyped) data type name: " + inputParam.getDataTypeName());
+                    }
+                    String elementName = inputParam.getName();
+                    //String typeName = inputParam.getDataTypeName();
+                    String typeName = "boolean";
+                    boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(inputParam.getDataTypeNameSpace());
+                    ElementCreationInstruction instruction = new ElementCreationInstruction(
+                            elementName,
+                            typeName,
+                            isPrimitiveType);
+                    instructions.add(instruction);
+                }
+                if (debug) System.out.println();
+            }
+
+            //for each output param build an instruction
+            List outputParams = paramsSignature.getOutputParams();
+
+            for (int i = 0; i < outputParams.size(); i++) {
+
+                YParameter outputParam = (YParameter) outputParams.get(i);
+
+                if (null != outputParam.getElementName()) {
+                    if (debug) {
+                        System.out.println("output param REUSE element name: " + outputParam.getElementName());
+                    }
+                    String elementName = outputParam.getElementName();
+                    ElementReuseInstruction instruction = new ElementReuseInstruction(elementName);
+
+                    // if an instruction with the same name already exists in the instruction list
+                    // remove it and add the instruction for this parameter
+
+                    if (instructions.contains(instruction) == true) {
+
+                        // Matching element REUSE instruction found.
+                        Instruction tempInstruction;
+                        int position = instructions.indexOf(instruction);
+                        tempInstruction = (Instruction) instructions.get(position);
+                        if (tempInstruction.getElementName().compareTo(instruction.getElementName()) == 0) {
+                            instructions.remove(position);
+                        }
+                    }
+                    else {
+                        if (debug) {
+                            System.out.println("No matching element REUSE instruction found: " + elementName);
+                        }
+                    }
+
+                    instructions.add(instruction);
+                } else if (null != outputParam.getDataTypeName()) {
+                    if (debug) {
+                        System.out.println("output param CREATION data type name: " + outputParam.getDataTypeName());
+                    }
+                    String elementName = outputParam.getName();
+                    String typeName = outputParam.getDataTypeName();
+                    boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(outputParam.getDataTypeNameSpace());
+                    ElementCreationInstruction instruction = new ElementCreationInstruction(
+                            elementName,
+                            typeName,
+                            isPrimitiveType);
+
+                    // if an instruction with the same name already exists in the instruction list
+                    // remove it and add the instruction for this parameter
+                    Instruction[] ins = (Instruction[]) instructions.toArray(new Instruction[instructions.size()]);
+
+                    boolean match = false;
+                    for (int j = 0; j < ins.length; j++) {
+                        if (ins[j].getElementName().compareTo(elementName) == 0) {
+                            match = true;
+                            ins[j] = instruction; // replace old instruction with this one
+                        }
+                    }
+
+                    if (match == true) {
+                        // convert updated array back to the instructions arraylist
+                        instructions.clear();
+                        for (int j = 0; j < ins.length; j++) {
+                            instructions.add(ins[j]);
+                        }
+                    }
+                    else {
+                        instructions.add(instruction);
+                    }
+                }
+
+                // currently we convert untyped parameters into creation parameters, due to a bug in YAWL
+                else if (outputParam.isUntyped()) {
+                    //UntypedElementInstruction instruction = new UntypedElementInstruction();
+                    //instructions.add(instruction);
+                    if (debug) {
+                        System.out.println("output param CREATION (untyped) data type name: " + outputParam.getDataTypeName());
+                    }
+                    String elementName = outputParam.getName();
+                    //String typeName = outputParam.getDataTypeName();
+                    String typeName = "boolean";
+                    //boolean isPrimitiveType = "http://www.w3.org/2001/XMLSchema".equals(outputParam.getDataTypeNameSpace());
+                    boolean isPrimitiveType = true;
+                    ElementCreationInstruction instruction = new ElementCreationInstruction(
+                            elementName,
+                            typeName,
+                            isPrimitiveType);
+
+                    // if an instruction with the same name already exists in the instruction list
+                    // remove it and add the instruction for this parameter
+                    Instruction[] ins = (Instruction[]) instructions.toArray(new Instruction[instructions.size()]);
+                    boolean match = false;
+
+                    for (int j = 0; j < ins.length; j++) {
+                        if (debug) System.out.println(j + ".");
+                        if (ins[j].getElementName().compareTo(elementName) == 0) {
+                            match = true;
+                            ins[j] = instruction; // replace old instruction with this one
+                        }
+                    }
+
+                    if (match == true) {
+                        // convert updated array back to the instructions arraylist
+                        instructions.clear();
+                        for (int j = 0; j < ins.length; j++) {
+                            instructions.add(ins[j]);
+                        }
+                    }
+                    else {
+                        instructions.add(instruction);
+                    }
+                }
+                if (debug) System.out.println();
+            }
+
+            XMLToolsForYAWL xmlToolsForYawl = new XMLToolsForYAWL();
+            String schemaLibrary = specData.getSchemaLibrary();
+            xmlToolsForYawl.setPrimarySchema(schemaLibrary);
+            myNewSchema = xmlToolsForYawl.createYAWLSchema(
+                    (Instruction[]) instructions.toArray(new Instruction[instructions.size()]),
+                    taskInfo.getDecompositionID());
+        }
+
+        return(myNewSchema);
+    }
+
+
+/*
+    private String getInputOutputParams(List inputParams){
+
+    	// Method needs refactoring or deleting
+    	// ideally use getInputOnlyParams(input, output) instead
+
+    	StringBuffer input = new StringBuffer();
+
+    	for (int j = 0; j < inputParams.size(); j++) {
+            YParameter inputParam = (YParameter) inputParams.get(j);
+
+            if (inputParam.getElementName() != null) { // work item input param
+                input.append(inputParam.getElementName() + ",");
+                System.out.println("Add I/O input param element name: "+inputParam.getElementName());
+            }
+            else if (inputParam.getName() != null) {
+            	input.append(inputParam.getName() + ",");
+            	System.out.println("Add I/O input param name: "+inputParam.getName());
+            }
+        }
+    	return input.toString();
+    }
+*/
+
+
+    /**
+     * Given a list of input and output parameters for a task, this method returns
+     * the <i>input only</i> parameters by filtering out those parameters which are
+     * found in both the input and output parameter lists.
+     * @param inputParams
+     * @param outputParams
+     * @return string
+     */
+    private String getInputOnlyParams(List inputParams, List outputParams){
+
+    	StringBuffer input = new StringBuffer();
+    	boolean found = false;
+
+    	for (int i = 0; i < inputParams.size(); i++){
+    		YParameter inputParam = (YParameter) inputParams.get(i);
+	    	for (int j = 0; ((j < outputParams.size()) && (found == false)); j++) {
+	            YParameter outputParam = (YParameter) outputParams.get(j);
+
+	            // check if "input param element name" exists and is not also input/output
+	            if ((inputParam.getElementName() != null) && (outputParam.getElementName().compareTo(inputParam.getElementName()) == 0)) {
+	                found = true;
+	            }
+	            // check if "input param name" exists and is not also input/output
+	            else if ((inputParam.getName() != null) && (outputParam.getName().compareTo(inputParam.getName()) == 0)) {
+	            	found = true;
+	            }
+	        }
+
+	    	if (found == false && (inputParam.getElementName() != null)){
+	    		input.append(inputParam.getElementName() + ",");
+	    		if (debug) System.out.println("Add inputonly param element name: "+inputParam.getElementName());
+	    	}
+	    	else if (found == false && (inputParam.getName() != null)){
+	    		input.append(inputParam.getName() + ",");
+	    		if (debug) System.out.println("Add inputonly element name: "+inputParam.getName());
+	    	}
+	    	found = false;
+    	}
+    	return input.toString();
+    }
+
+
+    /**
+     * Returns the name of the form to edit a work item.
+     * @param taskInfo
+     * @return string
+     */
+    private String getFormName(TaskInformation taskInfo){
+        return (taskInfo.getTaskName()+".xhtml");
+    }
+
+
+    /**
+     * Returns the name of the form to launch a case.
+     * @param specData
+     * @return string
+     */
+    private String getFormName(SpecificationData specData){
+        return (specData.getID()+".xhtml");
+    }
+
+
+
+    public String executePDFWorkItemPost(ServletContext context, String workItemID, String decompositionID,
+    	String sessionHandle, WorklistController _worklistController, String userID)
+            throws YSchemaBuildingException, YSyntaxException, IOException,
+            JDOMException {
+
+        WorkItemRecord item = _worklistController.getCachedWorkItem(workItemID);
+        TaskInformation taskInfo = _worklistController.getTaskInformation(
+                item.getSpecificationID(), item.getTaskID(), sessionHandle);
+
+
+	HashMap map = new HashMap();
+
+	System.out.println("workitem is: " + item.getDataListString());
+
+	StringBuffer xmlBuff = new StringBuffer();
+	xmlBuff.append("<workItem>");
+	xmlBuff.append("<taskID>" + item.getTaskID() + "</taskID>");
+	xmlBuff.append("<caseID>" + item.getCaseID() + "</caseID>");
+	xmlBuff.append("<uniqueID>" + item.getUniqueID() + "</uniqueID>");
+	xmlBuff.append("<specID>" + item.getSpecificationID() + "</specID>");
+	xmlBuff.append("<status>" + item.getStatus() + "</status>");
+	xmlBuff.append("<data>" + item.getDataListString() + "</data>");
+	xmlBuff.append("<enablementTime>" + item.getEnablementTime() + "</enablementTime>");
+	xmlBuff.append("<firingTime>" + item.getFiringTime() + "</firingTime>");
+	xmlBuff.append("<startTime>" + item.getStartTime() + "</startTime>");
+	xmlBuff.append("<assignedTo>" + item.getWhoStartedMe() + "</assignedTo>");
+	xmlBuff.append("</workItem>");
+
+	map.put("decompositionID",decompositionID);
+	map.put("workitem",xmlBuff.toString());
+	//map.put("username",_worklistController. .getUsername());
+	Interface_Client.executePost("http://localhost:8080/worklist/handler",map);
+	System.out.println("Calling the pdf handler");
+
+	return item.getSpecificationID()+item.getTaskID()+item.getUniqueID()+".pdf";
+
+    }
+
+
+}
