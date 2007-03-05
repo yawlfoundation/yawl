@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_Schema.xsd">
+	<specification uri="StockQuote">
+		<name>Stock Quote Invoker</name>
+		<documentation>Demonstration Process to invoke Stock Quote SOAP Service</documentation>
+		<metaData/>
+		<rootNet id="Decompose">
+			<localVariable name="symbol">
+				<type>xs:string</type>
+			</localVariable>
+			<localVariable name="symbol-fallback">
+				<type>xs:string</type>
+				<!--IBM Shares -->
+				<initialValue>ibm</initialValue>
+			</localVariable>
+			<localVariable name="Result">
+				<type>xs:float</type>
+			</localVariable>
+			<processControlElements>
+				<inputCondition id="input">
+					<name>Input</name>
+					<flowsInto>
+						<nextElementRef id="getSymbol"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="getSymbol">
+					<flowsInto>
+						<nextElementRef id="getValueOfShare"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<completedMappings>
+						<mapping>
+							<expression query="/data/symbol"/>
+							<mapsTo>symbol</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="Get Symbol"/>
+				</task>
+				<task id="getValueOfShare">
+					<flowsInto>
+						<nextElementRef id="presentShareValue"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="&lt;symbol&gt; {if ( /data/symbol/text() ) then /data/symbol/text() else /data/symbol-fallback/text() }&lt;/symbol&gt;"/>
+							<mapsTo>symbol</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="/data/Result"/>
+							<mapsTo>Result</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="Get Value of Share"/>
+				</task>
+				<task id="presentShareValue">
+					<flowsInto>
+						<nextElementRef id="output"/>
+					</flowsInto>
+					<join code="xor"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/data/Result"/>
+							<mapsTo>Result</mapsTo>
+						</mapping>
+					</startingMappings>
+					<decomposesTo id="Present Share Value"/>
+				</task>
+				<outputCondition id="output">
+					<name>Output</name>
+				</outputCondition>
+			</processControlElements>
+		</rootNet>
+		<decomposition id="Get Symbol" xsi:type="WebServiceGatewayFactsType">
+			<outputExpression query="/data/symbol"/>
+			<outputParam name="symbol">
+				<type>xs:string</type>
+				<mandatory/>
+			</outputParam>
+		</decomposition>
+		<decomposition id="Get Value of Share" xsi:type="WebServiceGatewayFactsType">
+			<inputParam name="symbol">
+				<type>xs:string</type>
+			</inputParam>
+			<outputExpression query="/data/Result"/>
+			<outputParam name="Result">
+				<type>xs:float</type>
+				<mandatory/>
+			</outputParam>
+			<yawlService id="http://localhost:8080/yawlWSInvoker/">
+				<wsdlLocation>http://services.xmethods.net/soap/urn:xmethods-delayed-quotes.wsdl</wsdlLocation>
+				<operationName>getQuote</operationName>
+			</yawlService>
+		</decomposition>
+		<decomposition id="Present Share Value" xsi:type="WebServiceGatewayFactsType">
+			<inputParam name="Result">
+				<type>xs:string</type>
+			</inputParam>
+		</decomposition>
+	</specification>
+</specificationSet>
