@@ -159,7 +159,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
         )
     );
     GraphConstants.setOpaque(map, true);
-    GraphConstants.setSizeable(map, true);
+    GraphConstants.setSizeable(map, false);
     GraphConstants.setBackground(map, Color.WHITE);
     GraphConstants.setForeground(map, Color.BLACK);
     GraphConstants.setEditable(map,false);

@@ -79,10 +79,9 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
   public static final int COMPOSITE_TASK          = 1;
   public static final int MULTIPLE_ATOMIC_TASK    = 2;
   public static final int MULTIPLE_COMPOSITE_TASK = 3;
-  public static final int FLOW_RELATION           = 4;
-  public static final int CONDITION               = 5;
-  public static final int MARQUEE                 = 6;
-  public static final int DRAG                    = 7;
+  public static final int CONDITION               = 4;
+  public static final int MARQUEE                 = 5;
+  public static final int DRAG                    = 6;
 
   private static final CorePalette CORE_PALETTE = new CorePalette();
   private static final SingleTaskPalette SINGLE_TASK_PALETTE = new SingleTaskPalette();
@@ -171,10 +170,9 @@ class CorePalette extends JPanel {
     new YAWLPaletteButton(new CompositeTaskAction(),KeyEvent.VK_2),
     new YAWLPaletteButton(new MultipleAtomicTaskAction(),KeyEvent.VK_3),
     new YAWLPaletteButton(new MultipleCompositeTaskAction(),KeyEvent.VK_4),
-    new YAWLPaletteButton(new FlowRelationAction(),KeyEvent.VK_5),
-    new YAWLPaletteButton(new ConditionAction(),KeyEvent.VK_6),
-    new YAWLPaletteButton(new MarqueeAction(),KeyEvent.VK_7),
-    new YAWLPaletteButton(new NetDragAction(),KeyEvent.VK_8),
+    new YAWLPaletteButton(new ConditionAction(),KeyEvent.VK_5),
+    new YAWLPaletteButton(new MarqueeAction(),KeyEvent.VK_6),
+    new YAWLPaletteButton(new NetDragAction(),KeyEvent.VK_7),
   };
 
   protected void buildInterface() {
@@ -211,7 +209,7 @@ class CorePalette extends JPanel {
   }
   
   public void setSelected(int item) {
-    assert item >= Palette.CONDITION && item <= Palette.MARQUEE : "Invalid item selection made.";
+    assert item >= Palette.CONDITION && item <= Palette.DRAG : "Invalid item selection made.";
     buttons[selectedItem].setSelected(false);
     selectedItem = item;
     buttons[selectedItem].setSelected(true);   
@@ -231,9 +229,6 @@ class CorePalette extends JPanel {
       }
       case Palette.COMPOSITE_TASK: {
         return getClickAnywhereText() + "composite task.";
-      }
-      case Palette.FLOW_RELATION: {
-        return "Draw a flow relation between two elements. The cursor will hilight where valid connections can be made.";
       }
       case Palette.MULTIPLE_ATOMIC_TASK: {
         return getClickAnywhereText() + "multiple atomic task.";
