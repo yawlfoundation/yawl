@@ -1,308 +1,336 @@
-/*
- * Created on 18/10/2003
- * YAWLEditor v1.0 
- *
- * @author Lindsay Bradford
- * 
- * 
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- */
-
 package au.edu.qut.yawl.editor.net;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import javax.swing.SwingUtilities;
-
 import org.jgraph.graph.BasicMarqueeHandler;
 import org.jgraph.graph.CellView;
-
 import org.jgraph.graph.Port;
 import org.jgraph.graph.PortView;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLPort;
+import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLCell;
-
+import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
+import au.edu.qut.yawl.editor.elements.model.YAWLPort;
+import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.swing.CursorFactory;
 import au.edu.qut.yawl.editor.swing.menu.Palette;
 
 public class NetMarqueeHandler extends BasicMarqueeHandler {
-  private NetGraph graph;
-  private PortView startPort, currentPort;
+  private NetGraph net;
   
   private static final int PORT_BUFFER = 2;
   
-  public NetMarqueeHandler(NetGraph graph) {
-    this.graph = graph;
-    startPort = null;
-    currentPort = null;
+  private PortView sourcePort, targetPort = null;
+  
+  private enum State {
+    OVER_NOTHING,
+    OVER_VERTEX,
+    OVER_FLOW,
+    OVER_OUTGOING_PORT,
+    DRAGGING_VERTEX,
+    DRAWING_FLOW
+  }
+  
+  private State state = State.OVER_NOTHING;
+  
+  public NetMarqueeHandler(NetGraph net) {
+    this.net = net;
+  }
+  
+  public boolean isForceMarqueeEvent(MouseEvent event) {
+    if (Palette.getInstance().getSelected() == Palette.MARQUEE) {
+      return false;
+    }
+    if (Palette.getInstance().getSelected() != Palette.MARQUEE && state == State.OVER_VERTEX) {
+      return false;
+    }
+    if (Palette.getInstance().getSelected() != Palette.MARQUEE && state == State.OVER_FLOW) {
+      return false;
+    }
+    return true;
   }
 
-
-  public boolean isForceMarqueeEvent(MouseEvent event) {
-    return (Palette.getInstance().getSelected() != Palette.MARQUEE
-            || super.isForceMarqueeEvent(event));  
+  public NetGraph getNet() {
+    return this.net;
   }
   
   public void mouseMoved(MouseEvent event) {
+    if (Palette.getInstance().getSelected() == Palette.MARQUEE) {
+      super.mouseMoved(event);
+      return;
+    }
+    
+     State oldState = state;
+
+     setCursorFromPalette();
+
+     determineStateFromPoint(event.getPoint());
+     
+     doStateTransitionProcessing(event.getPoint(), oldState, state);   
+     
+     event.consume();
+  }
+  
+  private void setCursorFromPalette() {
     switch (Palette.getInstance().getSelected()) {
       case Palette.FLOW_RELATION: {
-        if (startPort == null) {
-          graph.setCursor(CursorFactory.getCustomCursor(CursorFactory.FLOW_RELATION));
-          PortView newPort = getSourcePortAt(event.getPoint());
-          if (newPort == null) {
-            hidePort(currentPort);
-            currentPort = null;  
-          }
-          if (newPort != null && generatesOutgoingFlows(newPort)) {
-            if(newPort != currentPort) {
-              hidePort(currentPort);
-              currentPort = newPort;
-              showPort(currentPort); 
-            }
-          }
-          event.consume();
-        }
+        matchCursorToPalette(CursorFactory.FLOW_RELATION);
         break;
       }
       case Palette.MARQUEE: {
-        graph.setCursor(CursorFactory.getCustomCursor(CursorFactory.SELECTION));
-        event.consume();
+        matchCursorToPalette(CursorFactory.SELECTION);
         break;
       }
       case Palette.DRAG: {
-        graph.setCursor(CursorFactory.getCustomCursor(CursorFactory.DRAG));
-        event.consume();
+        matchCursorToPalette(CursorFactory.DRAG);
         break;
       }
       case Palette.CONDITION: {
-        graph.setCursor(CursorFactory.getCustomCursor(CursorFactory.CONDITION));
-        event.consume();
+        matchCursorToPalette(CursorFactory.CONDITION);
         break;
       }
       case Palette.ATOMIC_TASK: {
-        graph.setCursor(CursorFactory.getCustomCursor(CursorFactory.ATOMIC_TASK));
-        event.consume();
+        matchCursorToPalette(CursorFactory.ATOMIC_TASK);
         break;
       }
       case Palette.COMPOSITE_TASK: {
-        graph.setCursor(CursorFactory.getCustomCursor(CursorFactory.COMPOSITE_TASK));
-        event.consume();
+        matchCursorToPalette(CursorFactory.COMPOSITE_TASK);
         break;
       }
       case Palette.MULTIPLE_ATOMIC_TASK: {
-        graph.setCursor(CursorFactory.getCustomCursor(CursorFactory.MULTIPLE_ATOMIC_TASK));
-        event.consume();
+        matchCursorToPalette(CursorFactory.MULTIPLE_ATOMIC_TASK);
         break;
       }
       case Palette.MULTIPLE_COMPOSITE_TASK: {
-        graph.setCursor(CursorFactory.getCustomCursor(CursorFactory.MULTIPLE_COMPOSITE_TASK));
-        event.consume();
+        matchCursorToPalette(CursorFactory.MULTIPLE_COMPOSITE_TASK);
         break;
       }
-      default: {
-        super.mouseMoved(event);
-        event.consume();        
-      } 
-    }   
+    }
   }
-
-  public void mousePressed(final MouseEvent event) {
-
-    if(SwingUtilities.isRightMouseButton(event)) {
+  
+  private void matchCursorToPalette(int cursorType) {
+    getNet().setCursor(CursorFactory.getCustomCursor(cursorType));
+  }
+  
+  private void determineStateFromPoint(Point point) {
+    if (isPointOverOutgoingPort(point)) {
+      state = State.OVER_OUTGOING_PORT;
+    } else if (isPointOverVertex(point)) {
+      state = State.OVER_VERTEX;
+    } else if (isPointOverFlow(point)){
+      state = State.OVER_FLOW;
+    } else {
+      state = State.OVER_NOTHING;
+    }
+  }
+  
+  public void mousePressed(MouseEvent event) {
+    if (Palette.getInstance().getSelected() == Palette.MARQUEE) {
       super.mousePressed(event);
       return;
     }
-
-    switch (Palette.getInstance().getSelected()) {
-      case Palette.FLOW_RELATION: {
-        if (currentPort != null && generatesOutgoingFlows(currentPort)) {
-          setStartPoint(getNearestSnapPoint(currentPort.getLocation()));
-          startPort = currentPort;
-        }
-        event.consume();
+    
+    State oldState = state;
+    
+    switch(oldState) {
+      case OVER_VERTEX: {
+        state = State.DRAGGING_VERTEX;
         break;
       }
-      case Palette.CONDITION: {
-        graph.addCondition(getNearestSnapPoint(event.getPoint()));
-        break;        
-      }
-      case Palette.ATOMIC_TASK: {
-        graph.addAtomicTask(getNearestSnapPoint(event.getPoint()));
-        break;        
-      }
-      case Palette.COMPOSITE_TASK: {
-        graph.addCompositeTask(getNearestSnapPoint(event.getPoint()));
-        break;        
-      }
-      case Palette.MULTIPLE_ATOMIC_TASK: {
-        graph.addMultipleAtomicTask(getNearestSnapPoint(event.getPoint()));
-        break;        
-      }
-      case Palette.MULTIPLE_COMPOSITE_TASK: {
-        graph.addMultipleCompositeTask(getNearestSnapPoint(event.getPoint()));
-        break;        
-      }
-      case Palette.DRAG: {
-        setStartPoint(event.getPoint());
-        event.consume();
+      case OVER_OUTGOING_PORT: {
+        state = State.DRAWING_FLOW;
         break;
       }
-      default: {
-        super.mousePressed(event);
+      case OVER_NOTHING: {
+        switch (Palette.getInstance().getSelected()) {
+          case Palette.CONDITION: {
+            getNet().addCondition(getNearestSnapPoint(event.getPoint()));
+            state = State.OVER_VERTEX;
+            break;        
+          }
+          case Palette.ATOMIC_TASK: {
+            getNet().addAtomicTask(getNearestSnapPoint(event.getPoint()));
+            state = State.OVER_VERTEX;
+            break;        
+          }
+          case Palette.COMPOSITE_TASK: {
+            getNet().addCompositeTask(getNearestSnapPoint(event.getPoint()));
+            state = State.OVER_VERTEX;
+            break;        
+          }
+          case Palette.MULTIPLE_ATOMIC_TASK: {
+            getNet().addMultipleAtomicTask(getNearestSnapPoint(event.getPoint()));
+            state = State.OVER_VERTEX;
+            break;        
+          }
+          case Palette.MULTIPLE_COMPOSITE_TASK: {
+            getNet().addMultipleCompositeTask(getNearestSnapPoint(event.getPoint()));
+            state = State.OVER_VERTEX;
+            break;        
+          }
+        }  // switch Palette.getInstance().getSelected();
         break;
       }
     }
-  }
-  
-  private Point2D getNearestSnapPoint(Point2D point) {
-    return graph.snap(graph.fromScreen(point));
+    doStateTransitionProcessing(event.getPoint(), oldState, state);
   }
 
   public void mouseDragged(MouseEvent event) {
-    switch (Palette.getInstance().getSelected()) {
-      case Palette.FLOW_RELATION: {
-        if (!event.isConsumed() && startPort != null) {
+    if (Palette.getInstance().getSelected() == Palette.MARQUEE) {
+      super.mouseDragged(event);
+      return;
+    }
+    
+    switch(state) {
+      case DRAWING_FLOW: {
+        if (sourcePort != null) {
           hideConnector();
-          setCurrentPoint(graph.snap(event.getPoint()));
+          setCurrentPoint(getNet().snap(event.getPoint()));
           showConnector();
-          PortView thisPort = getSourcePortAt(event.getPoint());
-          if (thisPort != null && thisPort != startPort &&
-              connectionAllowable(startPort, thisPort) &&
-              acceptsIncommingFlows(thisPort)) {
-            hidePort(currentPort);         
-            currentPort = thisPort;    
-            showPort(currentPort);
+          PortView portUnderMouse = getPortViewAt(event.getPoint());
+          if (portUnderMouse != null && portUnderMouse != sourcePort &&
+              connectionAllowable(sourcePort, portUnderMouse) &&
+              acceptsIncommingFlows(portUnderMouse)) {
+            hidePort(targetPort);         
+            targetPort = portUnderMouse;    
+            showPort(portUnderMouse);
           }
-          if (thisPort == null) {
-            hidePort(currentPort);
-            currentPort = null; 
+          if (portUnderMouse == null) {
+            hidePort(targetPort);
+            targetPort = null; 
           }
-          event.consume();
         }
-        break;
-      }
-      case Palette.DRAG: {
-        if (!event.isConsumed() && startPoint != null) {
-          
-          Point2D delta = new Point2D.Double(
-              startPoint.getX() - graph.toScreen(event.getPoint()).getX(),
-              startPoint.getY() - graph.toScreen(event.getPoint()).getY()
-          );
-          
-          graph.scrollRectToVisible(
-              new Rectangle(
-                  (int) (graph.getVisibleRect().getX() + delta.getX()),
-                  (int) (graph.getVisibleRect().getY() + delta.getY()),
-                  (int) graph.getVisibleRect().getWidth(),
-                  (int) graph.getVisibleRect().getHeight()
-              )
-          );
-        }
-        event.consume();
-        break;
-      }
-      default: {
-        super.mouseDragged(event);
         break;
       }
     }
   }
-
-  public void mouseReleased(MouseEvent e) {
-    switch (Palette.getInstance().getSelected()) {
-      case Palette.FLOW_RELATION: {
+  
+  public void mouseReleased(MouseEvent event) {
+    if (Palette.getInstance().getSelected() == Palette.MARQUEE) {
+      super.mouseReleased(event);
+      return;
+    }
+    
+    State oldState = state;
+    switch(oldState) {
+      case DRAWING_FLOW: {
         connectElementsOrIgnoreFlow();
-        e.consume();
         break;
       }
-      case Palette.MARQUEE: {
-        super.mouseReleased(e);
+    }
+    event.consume();
+  }
+
+  private boolean isPointOverFlow(Point point) {
+    if (getElementAt(point) == null) {
+      return false;
+    }
+    if (getElementAt(point) instanceof YAWLFlowRelation) {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean isPointOverVertex(Point point) {
+    if (getElementAt(point) == null) {
+      return false;
+    }
+    if (getElementAt(point) instanceof VertexContainer ||
+        getElementAt(point) instanceof YAWLVertex) {
+      return true;
+    }
+    return false;
+  }
+  
+  private boolean isPointOverOutgoingPort(Point point) {
+    PortView portUnderMouse = getPortViewAt(point);
+    if (portUnderMouse == null) {
+      return false;
+    }
+    if (generatesOutgoingFlows(portUnderMouse)) {
+      return true;
+    }
+    return false;
+  }
+  
+  private void doStateTransitionProcessing(Point point, State oldState, State newState) {
+    switch(oldState) {
+      case OVER_NOTHING: {
+        switch(newState) {
+          case OVER_VERTEX: {
+          
+             break;
+          }
+          case OVER_OUTGOING_PORT:  {
+            doMouseMovedOverPortProcessing(
+              getPortViewAt(point)                  
+            );
+            break;
+          }
+        }  
         break;
-      }
-      case Palette.DRAG: {
-        setStartPoint(null);
-        e.consume();
+      }  // case OVER_NOTHING
+      case OVER_OUTGOING_PORT: {
+        switch(newState) {
+          case OVER_OUTGOING_PORT: {
+            if (getPortViewAt(point) != sourcePort) {
+              doMouseMovedOverPortProcessing(
+                  getPortViewAt(point)                  
+              );
+            }
+            break;
+          }
+          case DRAWING_FLOW: {
+            break;
+          }
+          default: {
+            hidePort(sourcePort);
+            sourcePort = null;
+            break;
+          }
+        }
         break;
-      }
-      default: {
-        e.consume();
-        break;
-      }
+      }  // case OVER_OUTGOING_PORT
     }
   }
   
-  public void connectElementsOrIgnoreFlow() {
-    if (currentPort != null && startPort != null &&
-        connectionAllowable(startPort, currentPort) &&
-        acceptsIncommingFlows(currentPort)) {
-      graph.connect(
-        (YAWLPort) startPort.getCell(), 
-        (YAWLPort) currentPort.getCell()
-      );
-    }
-    hideConnector();
-    startPort = currentPort = null;
-    setStartPoint(null); 
-    setCurrentPoint(null);
+  private void doMouseMovedOverPortProcessing(PortView portView) {
+    if (sourcePort == null || sourcePort != portView) {
+      hidePort(sourcePort);
+    }      
+    sourcePort = portView;
+    showPort(sourcePort);
   }
 
-  public PortView getSourcePortAt(Point point) {
-    return graph.getPortViewAt(point.getX(), point.getY());
+  private PortView getPortViewAt(Point point) {
+    return getNet().getPortViewAt(point.getX(), point.getY());
   }
   
-  private void hideConnector() {
-    paintConnector(Color.black, graph.getBackground(), graph.getGraphics());
+  private Object getElementAt(Point point) {
+    return getNet().getFirstCellForLocation(point.getX(), point.getY());
   }
-
-  private void showConnector() {
-    paintConnector(graph.getBackground(), Color.black, graph.getGraphics());
-  }
-
-  protected void paintConnector(Color fg, Color bg, Graphics g) {
-    g.setColor(fg);
-    g.setXORMode(bg);
-    if (startPort != null && getStartPoint() != null && getCurrentPoint() != null) {
-      g.drawLine(
-          (int) graph.toScreen(startPort.getLocation()).getX(), 
-          (int) graph.toScreen(startPort.getLocation()).getY(), 
-          (int) getCurrentPoint().getX(), 
-          (int) getCurrentPoint().getY()
-      );
-    }
-  }
- 
+  
   protected void hidePort(PortView thisPort) {
-    final Graphics g = graph.getGraphics();
-    g.setColor(graph.getBackground());
-    g.setXORMode(graph.getMarqueeColor());
+    if (thisPort == null) {
+      return;
+    }
+    
+    final Graphics graphics = getNet().getGraphics();
+    
+    graphics.setColor(getNet().getBackground());
+    graphics.setXORMode(getNet().getMarqueeColor());
+    
     showPort(thisPort);
   }
   
   protected void showPort(PortView thisPort) {
     if (thisPort != null) {
-      Rectangle2D portBounds = graph.toScreen(thisPort.getBounds());
+      Rectangle2D portBounds = getNet().toScreen(thisPort.getBounds());
       
       Rectangle2D.Double portViewbox = new Rectangle2D.Double(
         portBounds.getX() - PORT_BUFFER/2, 
@@ -311,15 +339,22 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         portBounds.getHeight() + (2 * PORT_BUFFER)        
       );
       
-      graph.getUI().paintCell(graph.getGraphics(), 
-                              thisPort, 
-                              portViewbox, true);
+      getNet().getUI().paintCell(
+        getNet().getGraphics(),
+        thisPort, 
+        portViewbox, 
+        true
+      );
     }
   }
   
-  public PortView getPortViewAt(int x, int y) {
-    PortView port = graph.getPortViewAt(x, y);
-    return port;
+  private boolean generatesOutgoingFlows(PortView portView) {
+    CellView parentView = portView.getParentView();
+    YAWLPort yawlPort  = (YAWLPort) portView.getCell();
+    YAWLCell vertex = (YAWLCell) parentView.getCell();  
+    return yawlPort.generatesOutgoingFlows() && 
+           vertex.generatesOutgoingFlows()   && 
+           getNet().generatesOutgoingFlows(vertex);
   }
   
   private boolean acceptsIncommingFlows(PortView portView) {
@@ -328,19 +363,59 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     YAWLCell vertex = (YAWLCell) parentView.getCell();  
     return yawlPort.acceptsIncomingFlows() && 
            vertex.acceptsIncommingFlows()   && 
-           graph.acceptsIncommingFlows(vertex);
+           getNet().acceptsIncommingFlows(vertex);
   }
 
-  private boolean generatesOutgoingFlows(PortView portView) {
-    CellView parentView = portView.getParentView();
-    YAWLPort yawlPort  = (YAWLPort) portView.getCell();
-    YAWLCell vertex = (YAWLCell) parentView.getCell();  
-    return yawlPort.generatesOutgoingFlows() && 
-           vertex.generatesOutgoingFlows()   && 
-           graph.generatesOutgoingFlows(vertex);
+  
+  private Point2D getNearestSnapPoint(Point2D point) {
+    return getNet().snap(getNet().fromScreen(point));
   }
-
+  
   private boolean connectionAllowable(PortView source, PortView target) {
-    return graph.connectionAllowable((Port) source.getCell(), (Port) target.getCell());
+    return getNet().connectionAllowable((Port) source.getCell(), (Port) target.getCell());
+  }
+  
+  private void hideConnector() {
+    paintConnector(
+        Color.black, 
+        getNet().getBackground(), 
+        getNet().getGraphics()
+    );
+  }
+
+  private void showConnector() {
+    paintConnector(
+        getNet().getBackground(), 
+        Color.black, 
+        getNet().getGraphics()
+    );
+  }
+
+  protected void paintConnector(Color fg, Color bg, Graphics g) {
+    g.setColor(fg);
+    g.setXORMode(bg);
+    if (sourcePort != null && getCurrentPoint() != null) {
+      g.drawLine(
+          (int) getNet().toScreen(sourcePort.getLocation()).getX(), 
+          (int) getNet().toScreen(sourcePort.getLocation()).getY(), 
+          (int) getCurrentPoint().getX(), 
+          (int) getCurrentPoint().getY()
+      );
+    }
+  }
+  
+  public void connectElementsOrIgnoreFlow() {
+    if (targetPort != null && sourcePort != null &&
+        connectionAllowable(sourcePort, targetPort) &&
+        acceptsIncommingFlows(targetPort)) {
+      getNet().connect(
+        (YAWLPort) sourcePort.getCell(), 
+        (YAWLPort) targetPort.getCell()
+      );
+    }
+    hideConnector();
+    sourcePort = targetPort = null;
+    setStartPoint(null); 
+    setCurrentPoint(null);
   }
 }

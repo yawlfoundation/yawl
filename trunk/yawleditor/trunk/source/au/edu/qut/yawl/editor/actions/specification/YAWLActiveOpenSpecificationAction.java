@@ -55,14 +55,6 @@ public class YAWLActiveOpenSpecificationAction extends YAWLOpenSpecificationActi
       case SpecificationFileModel.EDITING: {
         break;    
       }
-      case SpecificationFileModel.NOTHING_ACTIVE: {
-        setEnabled(false);
-        break;
-      }
-      case SpecificationFileModel.SOMETHING_ACTIVE: {
-        setEnabled(true);
-        break;
-      }
       default: {
         assert false : "Invalid state passed to updateState()";   
       }    

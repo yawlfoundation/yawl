@@ -165,6 +165,5 @@ public class ArchivingThread extends Thread {
     request = NOTHING;
     SpecificationFileModel.getInstance().notBusy();
     YAWLEditor.getInstance().setCursor(oldCursor);
-
   }
 }

@@ -54,19 +54,9 @@ public class SpecificationFileModel {
   public static final int EDITING          = 1;
 
   /**
-   *  State indicating that there is currently no net selected in this specification
-   */
-  public static final int NOTHING_ACTIVE   = 2;
-
-  /**
-   *  State indicating that there is currently a net selected in this specification
-   */
-  public static final int SOMETHING_ACTIVE = 3;
-
-  /**
    * State indicating that some specification file operation is currently in progress
    */
-  public static final int BUSY             = 4;
+  public static final int BUSY             = 2;
   
   static private int state = IDLE;
   static private int oldState = IDLE;
