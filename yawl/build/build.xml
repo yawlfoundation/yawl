@@ -50,7 +50,7 @@
     <property name="yawl.eng.app.path" value="/${yawl.eng.app.name}"/>
     <property name="yawl.worklist.app.path" value="/${yawl.worklist.app.name}"/>
     <property name="yawl.webService.app.path" value="/${yawl.webService.app.name}"/>
-    <property name="app.version" value="Beta7.1"/>
+    <property name="app.version" value="-Nexus"/>
     <property name="build.home" value="${basedir}/build"/>
     <property name="graphics.home" value="${basedir}/graphics"/>
     <property name="dist.home" value="${basedir}/dist"/>
@@ -511,7 +511,8 @@
     -->
     <target name="build_Standalone" depends="compile">
         <mkdir dir="${enumeratedClasses}"/>
-        <unzip dest="${enumeratedClasses}">
+	
+<unzip dest="${enumeratedClasses}">
             <fileset dir="${standAlone.libs}" includes="*.jar" excludes="postgres*.jar"/>
             <fileset dir="${basic.libs}">
                 <include name="**/*.jar"/>
@@ -522,20 +523,22 @@
             <fileset dir="${persist.libs}">
                 <include name="**/*.jar"/>
             </fileset>
+
         </unzip>
+
         <!--=======================================================================
         Create a self contained jar of the YAWL library
         -->
-        <antcall target="decidePostgresVersion"/>
         <jar destfile="${output}/YAWL${app.version}.jar">
             <fileset dir="${classes}"/>
             <fileset dir="${enumeratedClasses}"/>
             <manifest>
                 <attribute name="Created-By" value="${developer.name}"/>
                 <attribute name="Main-Class" value="au/edu/qut/yawl/engine/gui/TabbedEngineGUI"/>
+                <attribute name="Class-Path" value="."/>
             </manifest>
         </jar>
-        <delete dir="${enumeratedClasses}"/>
+       <delete dir="${enumeratedClasses}"/> 
     </target>
 
     <!--
@@ -1782,6 +1785,8 @@
         <copy file="${property.files}/TEST_hibernate.properties.postgres8"
             tofile="${classes}/hibernate.properties"/>
 
+        <!-- Copy and patch Log4J properties file in for testing engine -->
+        <copy file="test/testresources/log4j.properties" todir="${classes}" overwrite="true" />
 
         <java classname="au.edu.qut.yawl.TestAllYAWLSuites" fork="true" failonerror="false">
             <classpath refid="cp.persist"/>
