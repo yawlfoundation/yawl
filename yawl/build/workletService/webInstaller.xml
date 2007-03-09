@@ -18,6 +18,15 @@
         http://www.yawl.fit.qut.edu.au/.
     </description>
 
+
+    <context-param>
+        <param-name>Repository</param-name>
+        <param-value>C:\YAWL\workletRepository</param-value>
+        <description>
+           The path where the worklet repository is installed.
+        </description>
+    </context-param>
+
     <context-param>
         <param-name>InterfaceB_BackEnd</param-name>
         <param-value>http://localhost:8080/yawl/ib</param-value>

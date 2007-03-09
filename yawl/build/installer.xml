@@ -498,9 +498,7 @@
 	<target name="build_library">
 
 		<mkdir dir="library"/>
-		<copy todir="library">
-			<fileset dir="${nexus.service.libs}" includes="*.jar"/>
-		</copy>
+
 		<copy todir="library">
 			<fileset dir="${wsif.libs}" includes="*.jar"/>
 		</copy>
@@ -513,9 +511,7 @@
 		<copy todir="library">
 			<fileset dir="${persist.libs}" includes="*.jar"/>
 		</copy>
-		<copy todir="library" >
-			<fileset dir="${pdf.libs}" includes="*.jar"/>
-		</copy>
+
 		  <delete>
 	    	<fileset dir="library" includes="log4j-*"/>
   		</delete>
@@ -543,12 +539,6 @@
 			<replacefilter token="\" value="/" />
 		</replace>
 
-		<!-- Copy SPRING properties file  -->
-		<copy file="${property.files}/applicationContext.xml" todir="${basedir}/build/Installer/"/>
-
-        <copy todir="${yawl.eng.app.name}/WEB-INF">
-            <fileset file="${build.home}/engine/*servlet*"/>
-        </copy>
 
 		<copy todir="${yawl.eng.app.name}/WEB-INF/lib" >
 			<fileset dir="${basic.libs}" includes="log4j*.jar commons-logging-1.0.4.jar"/>
@@ -559,7 +549,10 @@
 
 
 		<copy tofile="${yawl.eng.app.name}/WEB-INF/web.xml">
-			<fileset file="${build.home}/engine/webInstaller.xml"/>
+			<fileset file="${build.home}/engine/web.xml"/>
+		</copy>
+		<copy todir="${yawl.eng.app.name}/WEB-INF">
+			<fileset file="${build.home}/engine/*-servlet.properties"/>
 		</copy>
 
 	</target>
@@ -582,7 +575,6 @@
 		<mkdir dir="${yawl.worklist.app.name}/secure/certificates/"/>
 		<mkdir dir="${yawl.worklist.app.name}/secure/genDir/"/>
 		<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence"/>
-		<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
 		<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
 		<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
 		<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
@@ -613,9 +605,6 @@
 		</copy>
 		<copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
 			<fileset dir="${classes}/au/edu/qut/yawl/persistence" includes="*.class"/>
-		</copy>
-		<copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed">
-			<fileset dir="${classes}/au/edu/qut/yawl/persistence/managed" includes="*.class"/>
 		</copy>
 		<copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
 			<fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
@@ -690,7 +679,7 @@
 			<fileset dir="${basedir}/graphics"/>
 		</copy>
 		<copy tofile="${yawl.worklist.app.name}/WEB-INF/web.xml">
-			<fileset file="${build.home}/${yawl.worklist.app.name}/webInstaller.xml"/>
+			<fileset file="${build.home}/${yawl.worklist.app.name}/web.xml"/>
 		</copy>
 
 	</target>
@@ -1219,7 +1208,6 @@
 		<mkdir dir="${yawl.admintool.app.name}/WEB-INF/lib"/>
 		<mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/events"/>
 		<mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence"/>
-		<mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
 		<mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
 		<mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
 		<mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
@@ -1244,9 +1232,6 @@
 		</copy>
 		<copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
 			<fileset dir="${classes}/au/edu/qut/yawl/persistence" includes="*.class"/>
-		</copy>
-		<copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed">
-			<fileset dir="${classes}/au/edu/qut/yawl/persistence/managed" includes="*.class"/>
 		</copy>
 		<copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
 			<fileset dir="${classes}/au/edu/qut/yawl/persistence/dao"/>
@@ -1324,7 +1309,7 @@
 		</copy>
 
 		<copy tofile="${yawl.admintool.app.name}/WEB-INF/web.xml">
-			<fileset file="${build.home}/${yawl.admintool.app.name}/webInstaller.xml"/>
+			<fileset file="${build.home}/${yawl.admintool.app.name}/web.xml"/>
 		</copy>
 	</target>
 
@@ -1459,7 +1444,7 @@
 
 
 		<copy tofile="${yawl.worklet.app.name}/WEB-INF/web.xml">
-			<fileset file="${build.home}/${yawl.worklet.app.name}/webInstaller.xml"/>
+			<fileset file="${build.home}/${yawl.worklet.app.name}/web.xml"/>
 		</copy>
 
 	</target>
@@ -1681,10 +1666,40 @@
 	</target>
 
 	<target name="create_standard_installer" depends="izInit">
+
+		<mkdir dir="${basedir}/build/Installer/editor_examples/"/>
+		<mkdir dir="${basedir}/build/Installer/engine_examples/"/>
+	      <mkdir dir="${basedir}/build/Installer/icons/"/>
+
+		<copy todir="${basedir}/build/Installer/engine_examples/">
+			<fileset file="${basedir}/exampleSpecs/xml/Conference-Example.xml"/>
+			<fileset file="${basedir}/exampleSpecs/xml/BarnesAndNoble(Beta4).xml"/>
+			<fileset file="${basedir}/exampleSpecs/xml/Timer.xml"/>
+			<fileset file="${basedir}/exampleSpecs/xml/SMSInvoker.xml"/>
+			<fileset file="${basedir}/exampleSpecs/xml/ResourceExample.xml"/>
+		</copy>
+
+		<copy todir="${basedir}/build/Installer/editor_examples/">
+			<fileset file="${basedir}/../yawleditor/tags/v1.4.4(Nexus)/lib/exampleEditorFiles/simpleMultipleInstanceExample(1.4.5).ywl"/>
+			<fileset file="${basedir}/../yawleditor/tags/v1.4.4(Nexus)/lib/exampleEditorFiles/simpleTimeServiceExample(1.4.5).ywl"/>
+		</copy>
+
+
+		<copy todir="${basedir}/build/Installer/icons/">
+			<fileset dir="${basedir}/build/Installer/graphics/">
+           			<exclude name=".svn"/>
+                  </fileset>
+		</copy>
+
 		<izpack input="${basedir}/build/Installer/YAWL-installer.xml"
     			output="${basedir}/build/Installer/installer.jar"
     			installerType="standard" basedir="${basedir}/build/Installer"
     			izPackDir="${basedir}/build/Installer/libs"/>
+
+		<delete dir="${basedir}/build/Installer/editor_examples/"/>
+		<delete dir="${basedir}/build/Installer/engine_examples/"/>
+	      <delete dir="${basedir}/build/Installer/installer_graphics/"/>
+
 	</target>
 
 

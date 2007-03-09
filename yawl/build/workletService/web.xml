@@ -84,7 +84,7 @@
 
     <context-param>
         <param-name>Repository</param-name>
-        <param-value>C:\Worklets\repository\</param-value>
+        <param-value>C:\Program Files\YAWL\workletRepository\repository</param-value>
         <description>
            The path where the worklet repository is installed.
         </description>
