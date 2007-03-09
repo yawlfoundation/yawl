@@ -1,0 +1,29 @@
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>D:\Yawlstuff\sourceforge\trunk\yawl\build\Installer\installer.jar</jar>
+  <outfile>D:\Yawlstuff\sourceforge\trunk\yawl\build\Installer\YAWL Setup.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <customProcName>false</customProcName>
+  <stayAlive>false</stayAlive>
+  <icon>D:\Yawlstuff\JavaForgeBuild\trunk\yawl\build\Installer\graphics\yawl.ico</icon>
+  <jre>
+    <path></path>
+    <minVersion>1.5.0_04</minVersion>
+    <maxVersion></maxVersion>
+    <dontUsePrivateJres>false</dontUsePrivateJres>
+    <initialHeapSize>0</initialHeapSize>
+    <maxHeapSize>0</maxHeapSize>
+  </jre>
+  <splash>
+    <file>D:\Yawlstuff\JavaForgeBuild\trunk\yawl\build\Installer\graphics\genimage.bmp</file>
+    <waitForWindow>true</waitForWindow>
+    <timeout>60</timeout>
+    <timeoutErr>true</timeoutErr>
+  </splash>
+</launch4jConfig>

@@ -1,2 +1,2 @@
-net user | find "postgres"
-if errorlevel 1 net user postgres postgresyawl /add
+net user postgres /del
+net user postgres P0StgrEsYawL! /add
