@@ -80,8 +80,8 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
   public static final int MULTIPLE_ATOMIC_TASK    = 2;
   public static final int MULTIPLE_COMPOSITE_TASK = 3;
   public static final int CONDITION               = 4;
-  public static final int MARQUEE                 = 5;
-  public static final int DRAG                    = 6;
+  public static final int DRAG                    = 5;
+  public static final int MARQUEE                 = 6;
 
   private static final CorePalette CORE_PALETTE = new CorePalette();
   private static final SingleTaskPalette SINGLE_TASK_PALETTE = new SingleTaskPalette();
@@ -115,6 +115,11 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
   public void setSelected(int item) {
     CORE_PALETTE.setSelected(item);
   }
+  
+  public void setStatusBarTextFromSelectedItem() {
+    CORE_PALETTE.setStatusBarTextFromSelectedItem();
+  }
+  
   
   public int getSelected() {
     return CORE_PALETTE.getSelected();
@@ -171,8 +176,8 @@ class CorePalette extends JPanel {
     new YAWLPaletteButton(new MultipleAtomicTaskAction(),KeyEvent.VK_3),
     new YAWLPaletteButton(new MultipleCompositeTaskAction(),KeyEvent.VK_4),
     new YAWLPaletteButton(new ConditionAction(),KeyEvent.VK_5),
-    new YAWLPaletteButton(new MarqueeAction(),KeyEvent.VK_6),
-    new YAWLPaletteButton(new NetDragAction(),KeyEvent.VK_7),
+    new YAWLPaletteButton(new NetDragAction(),KeyEvent.VK_6),
+    new YAWLPaletteButton(new MarqueeAction(),KeyEvent.VK_7)
   };
 
   protected void buildInterface() {
@@ -209,11 +214,15 @@ class CorePalette extends JPanel {
   }
   
   public void setSelected(int item) {
-    assert item >= Palette.CONDITION && item <= Palette.DRAG : "Invalid item selection made.";
+    assert item >= Palette.ATOMIC_TASK && item <= Palette.MARQUEE: "Invalid item selection made.";
     buttons[selectedItem].setSelected(false);
     selectedItem = item;
-    buttons[selectedItem].setSelected(true);   
-    JStatusBar.getInstance().setStatusText(getItemText(item));
+    buttons[selectedItem].setSelected(true);
+    setStatusBarTextFromSelectedItem();
+  }
+  
+  public void setStatusBarTextFromSelectedItem() {
+    JStatusBar.getInstance().setStatusText(getItemText(selectedItem));
   }
   
   private String getItemText(int item) {
@@ -246,7 +255,7 @@ class CorePalette extends JPanel {
   }
   
   private String getClickAnywhereText() {
-    return "Click anywhere on the selected net to create a new ";    
+    return "Left-click on the selected net to create a new ";    
   }
   
   public int getSelected() {
