@@ -9,7 +9,7 @@ name="Start YAWL Service"
 target="&quot;$tomcat_home\bin\tomcat5.exe&quot;"
 commandLine=""
 description="This starts YAWL"
-iconFile="$INSTALL_PATH\graphics\yawl.ico"
+iconFile="$INSTALL_PATH\icons\yawl.ico"
 iconIndex="0"
 initialState="normal"
 programGroup="yes"
@@ -20,11 +20,27 @@ startup="no">
 </shortcut>
 
 <shortcut
+name="Start YAWL Service"
+target="&quot;$INSTALL_PATH\Tomcat 5.5\bin\tomcat5.exe&quot;"
+commandLine=""
+description="This starts YAWL"
+iconFile="$INSTALL_PATH\icons\yawl.ico"
+iconIndex="0"
+initialState="normal"
+programGroup="yes"
+desktop="no"
+applications="no"
+startMenu="no"
+startup="no">
+<createForPack name="Tomcat WebServer"/>
+</shortcut>
+
+<shortcut
 name="Stop YAWL Service"
 target="taskkill"
 commandLine="/F /IM tomcat5.exe"
 description="This stops YAWL"
-iconFile="$INSTALL_PATH\graphics\yawlstop.ico"
+iconFile="$INSTALL_PATH\icons\yawlstop.ico"
 iconIndex="0"
 initialState="normal"
 programGroup="yes"
@@ -39,7 +55,7 @@ name="Administrate YAWL"
 target="$INSTALL_PATH\yawl\admin.url"
 commandLine=""
 description="This starts YAWL administration"
-iconFile="$INSTALL_PATH\graphics\admin.ico"
+iconFile="$INSTALL_PATH\icons\admin.ico"
 iconIndex="0"
 initialState="normal"
 programGroup="yes"
@@ -55,7 +71,7 @@ name="Uninstall YAWL"
 target="&quot;$INSTALL_PATH\uninstall.bat&quot;"
 commandLine=""
 description="Uninstall YAWL"
-iconFile="$INSTALL_PATH\graphics\uninstall.ico"
+iconFile="$INSTALL_PATH\icons\uninstall.ico"
 iconIndex="0"
 initialState="normal"
 programGroup="yes"
@@ -69,9 +85,25 @@ startup="no">
 <shortcut
 name="YAWL Editor"
 target="$JAVA_HOME\bin\javaw"
-commandLine="-jar &quot;$INSTALL_PATH\YAWLEditor1.4.jar&quot;"
+commandLine="-jar &quot;$INSTALL_PATH\YAWLEditorLite(Nexus).jar&quot;"
 description="Start YAWL Editor"
-iconFile="$INSTALL_PATH\graphics\editor.ico"
+iconFile="$INSTALL_PATH\icons\editor.ico"
+iconIndex="0"
+initialState="noShow"
+programGroup="yes"
+desktop="no"
+applications="no"
+startMenu="no"
+startup="no">
+<createForPack name="YAWL Editor"/>
+</shortcut>
+
+<shortcut
+name="Configure"
+target="$JAVA_HOME\bin\javaw"
+commandLine="-jar &quot;$INSTALL_PATH\config.jar&quot; &quot;$INSTALL_PATH&quot; &quot;$tomcat_home\common\classes&quot;"
+description="Configure YAWL"
+iconFile="$INSTALL_PATH\icons\config.ico"
 iconIndex="0"
 initialState="noShow"
 programGroup="yes"
@@ -82,14 +114,12 @@ startup="no">
 </shortcut>
 
 
-
-
 <shortcut
 name="Configure"
 target="$JAVA_HOME\bin\javaw"
-commandLine="-jar &quot;$INSTALL_PATH\config.jar&quot; &quot;$INSTALL_PATH&quot; &quot;$tomcat_home\conf&quot;"
+commandLine="-jar &quot;$INSTALL_PATH\config.jar&quot; &quot;$INSTALL_PATH&quot; &quot;$INSTALL_PATH\Tomcat 5.5\common\classes&quot;"
 description="Configure YAWL"
-iconFile="$INSTALL_PATH\graphics\config.ico"
+iconFile="$INSTALL_PATH\icons\config.ico"
 iconIndex="0"
 initialState="noShow"
 programGroup="yes"
@@ -97,15 +127,16 @@ desktop="no"
 applications="no"
 startMenu="no"
 startup="no">
+<createForPack name="Tomcat WebServer"/>
 </shortcut>
 
 
 <shortcut
 name="Start Database"
 target="$INSTALL_PATH\CPAU.exe"
-commandLine="-u postgres -p postgresyawl -ex &quot;c:\postgres\bin\pg_ctl start -D c:\postgres\data\yawldatabase&quot; -lwp"
+commandLine="-u postgres -p P0StgrEsYawL! -ex &quot;$INSTALL_PATH\postgres\bin\pg_ctl start -D $INSTALL_PATH\postgres\data\yawldatabase&quot; -lwp"
 description="Start Database"
-iconFile="$INSTALL_PATH\graphics\db.ico"
+iconFile="$INSTALL_PATH\icons\db.ico"
 iconIndex="0"
 initialState="normal"
 programGroup="yes"
@@ -119,9 +150,9 @@ startup="no">
 <shortcut
 name="Stop Database"
 target="$INSTALL_PATH\CPAU.exe"
-commandLine="-u postgres -p postgresyawl -ex &quot;c:\postgres\bin\pg_ctl stop -D c:\postgres\data\yawldatabase&quot; -lwp"
+commandLine="-u postgres -p P0StgrEsYawL! -ex &quot;$INSTALL_PATH\postgres\bin\pg_ctl stop -D $INSTALL_PATH\postgres\data\yawldatabase&quot; -lwp"
 description="Stop Database"
-iconFile="$INSTALL_PATH\graphics\dbstop.ico"
+iconFile="$INSTALL_PATH\icons\dbstop.ico"
 iconIndex="0"
 initialState="normal"
 programGroup="yes"
@@ -138,7 +169,7 @@ name="Help"
 target="&quot;$INSTALL_PATH\yawlhelp.chm&quot;"
 commandLine=""
 description="YAWL Help"
-iconFile="$INSTALL_PATH\graphics\help.ico"
+iconFile="$INSTALL_PATH\icons\help.ico"
 iconIndex="0"
 initialState="normal"
 programGroup="yes"
