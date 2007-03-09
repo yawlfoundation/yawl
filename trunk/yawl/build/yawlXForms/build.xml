@@ -268,7 +268,7 @@
         </copy>
 
         <copy description="copy YAWL graphics files" todir="${build.dir}/graphics">
-            <fileset dir="${web.dir}/graphics" includes="yawl.swf subtext.jpg yawlbg2.jpg common.css"/>
+            <fileset dir="../../graphics" includes="yawl.swf subtext.jpg yawlbg2.jpg common.css"/>
         </copy>
     </target>
 

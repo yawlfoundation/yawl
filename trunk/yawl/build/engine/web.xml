@@ -27,6 +27,15 @@
 
 
 	<context-param>
+		<param-name>EnablePersistence</param-name>
+		<param-value>true</param-value>
+		<description>
+			Set this value to 'true' to enable persistance and logging
+			set to 'false' to disable
+               </description>
+	</context-param>
+
+	<context-param>
 		<param-name>RMIServerName</param-name>
 		<param-value>//localhost/EngineGateway</param-value>
 		<description>
