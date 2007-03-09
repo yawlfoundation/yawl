@@ -20,6 +20,8 @@ import java.io.OutputStream;
 
 import javax.swing.*;        
 
+import java.util.prefs.Preferences;
+
 public class Config implements ActionListener {
     /**
      * Create the GUI and show it.  For thread safety,
@@ -34,8 +36,21 @@ public class Config implements ActionListener {
     JFrame frame = new JFrame("YAWL Configuration Tool");
     JLabel error = new JLabel("");
 
+    Preferences prefs = Preferences.userNodeForPackage(Config.class);
+
     
     private void createAndShowGUI() {
+
+	Boolean persistent = prefs.getBoolean("persistent", false);
+
+	System.out.println(persistent);
+
+	if (persistent) {
+		persistencebox.setSelected(true);
+	} else{
+		persistencebox.setSelected(false);
+	}
+
         //Make sure we have nice window decorations.
         JFrame.setDefaultLookAndFeelDecorated(true);
 
@@ -92,10 +107,12 @@ public class Config implements ActionListener {
     	if (e.getActionCommand().equalsIgnoreCase("Save and Exit")) {
 
     		try {
-    			CopyFile(persistencebox.isSelected());
+    			CopyFile("hibernate.properties", "hibernate.properties", persistencebox.isSelected());
+    			CopyFile("InterfaceAServlet-servlet.xml", "InterfaceAServlet-servlet.xml", persistencebox.isSelected());    			
+    			CopyFile("InterfaceBServlet-servlet.xml", "InterfaceBServlet-servlet.xml", persistencebox.isSelected());    			
         		System.exit(0);
     		} catch (Exception ex) {
-     		
+    			ex.printStackTrace();
     	        error.setText("Failed to configure YAWL");
     		}
     	}
@@ -103,7 +120,7 @@ public class Config implements ActionListener {
     	
     }
     
-    public void CopyFile(boolean enabled) throws Exception {
+    public void CopyFile(String filename, String outfile, boolean enabled) throws Exception {
 
 
 
@@ -116,8 +133,8 @@ public class Config implements ActionListener {
     		// Declare variables
     		int nLen = 0;
     		int total = 0;
-    		sIn = new FileInputStream(new File(toDir+"\\web.xml"));
-    		sOut = new FileOutputStream(new File(fromDir+"\\web.xml"));
+    		sIn = new FileInputStream(new File(toDir+"\\"+filename));
+    		sOut = new FileOutputStream(new File(fromDir+"\\"+outfile));
 
     		// Transfer bytes from in to out
     		byte[] bBuffer = new byte[1024];
@@ -131,11 +148,49 @@ public class Config implements ActionListener {
 
     		String newContent = null;
     		if (enabled) {
-    			newContent = new String(content).replaceAll( "<param-value>false</param-value>","<param-value>true</param-value>" );
-    		} else {
+			prefs.putBoolean("persistent", true);
+    			newContent = new String(content).replaceAll( 
+    					"HSQLDialect",
+    					"PostgreSQLDialect" );
+    			newContent = newContent.replaceAll( 
+    					"hibernate.connection.driver_class org.hsqldb.jdbcDriver",
+    					"hibernate.connection.driver_class org.postgresql.Driver" );
+    			newContent = newContent.replaceAll( 
+    					"url jdbc:hsqldb:mem:yawl",
+    					"url jdbc:postgresql:yawl" );
+    			newContent = newContent.replaceAll( 
+    					"username sa",
+    					"username postgres" );
+    			newContent = newContent.replaceAll( 
+    					"password  ",
+    					"password admin" );
+    			 
+    			newContent = newContent.replaceAll( 
+    					"<property name=\"dataSource\" ref=\"memoryDataSource\" />",
+    					"<property name=\"dataSource\" ref=\"postgresDataSource\" />" );
+
     			
-    			newContent = new String(content).replaceAll( "<param-value>true</param-value>","<param-value>false</param-value>" );
-    		}
+    		} else {
+			prefs.putBoolean("persistent", false);
+    			newContent = new String(content).replaceAll( 
+    					"PostgreSQLDialect",
+    					"HSQLDialect" );
+    			newContent = newContent.replaceAll( 
+    					"hibernate.connection.driver_class org.postgresql.Driver",
+    					"hibernate.connection.driver_class org.hsqldb.jdbcDriver" );
+    			newContent = newContent.replaceAll( 
+    					"url jdbc:postgresql:yawl",
+    					"url jdbc:hsqldb:mem:yawl" );
+    			newContent = newContent.replaceAll( 
+    					"username postgres",
+    					"username sa" );
+    			newContent = newContent.replaceAll( 
+    					"password admin",
+    					"password  " );
+    			 
+    			newContent = newContent.replaceAll( 
+    					"<property name=\"dataSource\" ref=\"postgresDataSource\" />",
+    					"<property name=\"dataSource\" ref=\"memoryDataSource\" />" );  		}
 
     		
     		if (newContent!=null) {
@@ -143,18 +198,19 @@ public class Config implements ActionListener {
 
     			sOut.write(outbuffer, 0, outbuffer.length);
     		} else {
-    			throw new Exception();
+    			System.out.println("a");
+    			throw new Exception("something happnened");
     		}
 
     		
     		// Flush
     		sOut.flush();
     	} catch (FileNotFoundException e) {
-
+    		e.printStackTrace();
     		throw new Exception();
     		
     	} catch (IOException eError) {
-
+    		eError.printStackTrace();
     		throw new Exception();
     	} 
 
