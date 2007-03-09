@@ -123,7 +123,7 @@ public abstract class YTask extends YExternalNetElement {
     //private attributes
     private int _splitType;
     private int _joinType;
-    protected YMultiInstanceAttributes _multiInstAttr;
+
     private Set<YExternalNetElement> _removeSet = new HashSet<YExternalNetElement>();
     protected Map<String, KeyValue> dataMappingsForTaskEnablementSet = new HashMap<String, KeyValue>();
     protected YDecomposition _decompositionPrototype;
@@ -237,25 +237,6 @@ public abstract class YTask extends YExternalNetElement {
         YFlow flow = getPostsetFlow(netElement);
         return flow.getXpathPredicate();
     }
-
-    /**
-     * @hibernate.one-to-one name="multiInstanceAttributes"
-     *    class="au.edu.qut.yawl.elements.YMultiInstanceAttributes"
-     */
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-    @JoinColumn(name="multiinstanceattributes_fk")
-    public YMultiInstanceAttributes getMultiInstanceAttributes() {
-        return _multiInstAttr;
-    }
-    /**
-     * Inserted for hibernate
-     *
-     * @param attr
-     */
-    public void setMultiInstanceAttributes(YMultiInstanceAttributes attr) {
-    	_multiInstAttr = attr;
-    }
-
 
     public void setUpMultipleInstanceAttributes(String minInstanceQuery, String maxInstanceQuery,
                                                 String thresholdQuery, String creationMode) {
@@ -789,9 +770,19 @@ public abstract class YTask extends YExternalNetElement {
                 String uniqueInstanceOutputQuery = _multiInstAttr.getMIFormalOutputQuery();
                 String localVarThatQueryResultGetsAppliedTo =
                         getDataMappingsForTaskCompletion().get(uniqueInstanceOutputQuery);
-
+             	
+        		
+            	List<YParameter> inputparams = _net.getInputParameters();
+            	
                 YVariable var = _net.getLocalVariable(localVarThatQueryResultGetsAppliedTo);
-                Set col = new HashSet();
+            	
+            	for (int i = 0; i < inputparams.size(); i++) {
+            		if (inputparams.get(i).getName().equals(localVarThatQueryResultGetsAppliedTo)) {
+            			var = inputparams.get(i);
+            		}
+            	}                
+
+                Set<YVariable> col = new HashSet<YVariable>();
                 col.add(var);
                 schemaForVariable = buildSchema(col);
 
@@ -1448,7 +1439,7 @@ public abstract class YTask extends YExternalNetElement {
      * @param paramName the enablement decomposition parameter to which to apply the result.
      */
     public void setDataBindingForEnablementParam(String query, String paramName) {
-    	dataMappingsForTaskEnablementSet.put(query, new KeyValue(KeyValue.ENABLEMENT, paramName, query, this));
+    	dataMappingsForTaskEnablementSet.put(paramName, new KeyValue(KeyValue.ENABLEMENT, paramName, query, this));
     }
 
     

@@ -368,14 +368,12 @@ public abstract class InterfaceBWebsideController {
 
 
     public TaskInformation getTaskInformation(String specificationID, String taskID, String sessionHandle) throws IOException {
-        TaskInformation taskInfo = _model.getTaskInformation(specificationID, taskID);
-        if (taskInfo == null) {
-            String taskInfoASXML = _interfaceBClient.getTaskInformationStr(
+        TaskInformation taskInfo = null;
+        String taskInfoASXML = _interfaceBClient.getTaskInformationStr(
                     specificationID, taskID, sessionHandle);
-	    System.out.println( "task info as XML:" + taskInfoASXML);
-	    try {
+	    
+        try {
             taskInfo = InterfaceB_EnvironmentBasedClient.parseTaskInformation(taskInfoASXML);
-            _model.setTaskInformation(specificationID, taskID, taskInfo);
 	    }
 	    catch( Exception e ) {
 	    	//todo: Question to Nathan: i had a look down the stack for places
@@ -391,7 +389,7 @@ public abstract class InterfaceBWebsideController {
     		System.out.println( sw.toString() );
     		throw new RuntimeException( e );
 	    }
-        }
+
         return taskInfo;
     }
 
@@ -452,27 +450,22 @@ public abstract class InterfaceBWebsideController {
      * @throws java.io.IOException
      */
     public SpecificationData getSpecificationData(String specID, String sessionHandle) throws IOException {
-        if(_model.getSpecificationData(specID) == null){
-            List specs = _interfaceBClient.getSpecificationList(sessionHandle);
-            for (int i = 0; i < specs.size(); i++) {
+    	List specs = _interfaceBClient.getSpecificationList(sessionHandle);
+    	for (int i = 0; i < specs.size(); i++) {
 
-                SpecificationData data = (SpecificationData) specs.get(i);
+    		SpecificationData data = (SpecificationData) specs.get(i);
 
-                if (data.getID().equals(specID)) {
+    		if (data.getID().equals(specID)) {
 
-                    String specAsXML = data.getAsXML();
-                    if (specAsXML == null) {
+    			String specAsXML = data.getAsXML();
+    			if (specAsXML == null) {
 
-                        specAsXML = _interfaceBClient.getSpecification(specID, sessionHandle);
-                        data.setSpecAsXML(specAsXML);
-                        _model.setSpecificationData(data);
-                    }
-                    return data;
-                }
-            }
-       } else {
-            return _model.getSpecificationData(specID);
-        }
+    				specAsXML = _interfaceBClient.getSpecification(specID, sessionHandle);
+    				data.setSpecAsXML(specAsXML);
+    			}
+    			return data;
+    		}
+    	}
         return null;
     }
 

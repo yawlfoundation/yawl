@@ -34,8 +34,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.OnDelete;
@@ -84,7 +86,25 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     private Long _dbid;
 	private static final long serialVersionUID = 2006030080l;
 	
-
+    protected YMultiInstanceAttributes _multiInstAttr;
+    /**
+     * @hibernate.one-to-one name="multiInstanceAttributes"
+     *    class="au.edu.qut.yawl.elements.YMultiInstanceAttributes"
+     */
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @JoinColumn(name="multiinstanceattributes_fk")
+    public YMultiInstanceAttributes getMultiInstanceAttributes() {
+        return _multiInstAttr;
+    }
+    /**
+     * Inserted for hibernate
+     *
+     * @param attr
+     */
+    public void setMultiInstanceAttributes(YMultiInstanceAttributes attr) {
+    	_multiInstAttr = attr;
+    }
+    
     //added for reduction rules code
     private Set _cancelledBySet = new HashSet();
     

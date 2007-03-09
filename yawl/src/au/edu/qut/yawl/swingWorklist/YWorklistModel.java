@@ -13,6 +13,7 @@ import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.InterfaceBClient;
+import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.gui.YAdminGUI;
 import au.edu.qut.yawl.exceptions.*;
@@ -53,12 +54,12 @@ public class YWorklistModel {
 //    private static InterfaceAManagement _engineManagement =  EngineFactory.createYEngine();
 
     // Reference to engine's client interface (used for worklist driving)
-    private static InterfaceBClient _engineClient = null;
+    private static YEngineInterface _engineClient = null;
     
-    protected static InterfaceBClient getEngineClient() {
+    protected static YEngineInterface getEngineClient() {
     	if( _engineClient == null ) {
 	    	try {
-	    		_engineClient = EngineFactory.createYEngine();
+	    		_engineClient = EngineFactory.getTransactionalEngine();
 	    	}
 	    	catch( YPersistenceException e ) {
 	    		throw new RuntimeException( "Unable to connect to engine", e );
@@ -106,8 +107,10 @@ public class YWorklistModel {
     
     private String getTaskDescription(String specificationID, String taskID) {
         try {
-        	YTask task = getEngineClient().getTaskDefinition(specificationID, taskID);
-        	return task.getDecompositionPrototype().getId();
+
+        	String taskXML = getEngineClient().getTaskInformation(specificationID, taskID);
+    		TaskInformation taskInfo = Marshaller.unmarshalTaskInformation(taskXML);
+    		return taskInfo.getDecompositionID();
         }
         catch( YPersistenceException e ) {
         	Logger.getLogger(this.getClass()).error("Error retrieving task definition for task " + taskID, e);
@@ -324,9 +327,9 @@ public class YWorklistModel {
             }
             if (_paramsDefinitions.getParamsForTask(item.getTaskID()) == null) {
             	try {
-            		YTask task = getEngineClient().getTaskDefinition(item.getSpecificationID(), item.getTaskID());
-            		String paramsAsXML = task.getInformation();
+            		String paramsAsXML = getEngineClient().getTaskInformation(item.getSpecificationID(), item.getTaskID());            		
             		TaskInformation taskInfo = Marshaller.unmarshalTaskInformation(paramsAsXML);
+            		taskInfo.getDecompositionID();
             		YParametersSchema paramsForTask = taskInfo.getParamSchema();
             		_paramsDefinitions.setParamsForTask(item.getTaskID(), paramsForTask);
             	}
@@ -354,10 +357,19 @@ public class YWorklistModel {
         YWorkItem item = getEngineClient().getWorkItem(caseID + ":" + taskID);
         String specID = item.getSpecificationID();
         try {
-            YTask task = getEngineClient().getTaskDefinition(specID, item.getTaskID());
+        	
+            String task = getEngineClient().getTaskInformation(specID, item.getTaskID());
+    		TaskInformation taskInfo = Marshaller.unmarshalTaskInformation(task);
+    		
             return Marshaller.getOutputParamsInXML(
                     params,
-                    task.getDecompositionPrototype().getRootDataElementName());
+                    taskInfo.getDecompositionID());
+            
+            /*
+             * Need to check if we should return <data> or <taskname> here, based 
+             * on specversion
+             * */
+            
         }
         catch( YPersistenceException e ) {
             Logger.getLogger(this.getClass()).error("Error retrieving task definition for task " + taskID, e);
@@ -452,10 +464,11 @@ class UserInputValidationErrorBox extends JDialog implements ActionListener {
                         BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         String taskName = item.getTaskID();
         try {
-            YTask task = YWorklistModel.getEngineClient().getTaskDefinition(
-                item.getSpecificationID(),
-                item.getTaskID());
-            taskName = task.getName();
+        	
+        	String taskXML = YWorklistModel.getEngineClient().getTaskInformation(item.getSpecificationID(), item.getTaskID());
+    		TaskInformation taskInfo = Marshaller.unmarshalTaskInformation(taskXML);
+    		taskName = taskInfo.getTaskName();
+    		
         }
         catch( YPersistenceException e ) {
             Logger.getLogger(this.getClass()).error("Error retrieving task definition for task " + item.getTaskID(), e);

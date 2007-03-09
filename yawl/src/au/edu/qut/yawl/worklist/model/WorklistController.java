@@ -205,19 +205,37 @@ public class WorklistController extends InterfaceBWebsideController {
 
 
     public YParametersSchema getParamsForTask(String specID, String taskID, String sessionHandle) {
-        TaskInformation taskInfo = _model.getTaskInformation(specID, taskID);
-        if (taskInfo != null) {
-            return taskInfo.getParamSchema();
+        try {
+        	TaskInformation taskInfo = getTaskInformation(specID, taskID, sessionHandle);
+            if (taskInfo != null) {
+                return taskInfo.getParamSchema();
+            }
+        } catch (Exception e) {
+        	
         }
         return null;
     }
 
 
     public String getMarshalledOutputParamsForTask(String specificationID, String taskID, String sessionHandle) throws IOException {
-        YParametersSchema params = getParamsForTask(specificationID, taskID, sessionHandle);
-
-        String dataRootElementNm = _model.getDataRootElementName(specificationID, taskID, sessionHandle);
-
+        //YParametersSchema params = getParamsForTask(specificationID, taskID, sessionHandle);
+    	YParametersSchema params = null;
+    	
+        TaskInformation taskInfo = getTaskInformation(specificationID, taskID, sessionHandle);
+        if (taskInfo != null) {
+            params = taskInfo.getParamSchema();
+        }
+        
+        SpecificationData sdata = (SpecificationData) getSpecificationData(
+                specificationID, sessionHandle);
+        
+        String dataRootElementNm = "data";
+        
+        if (!sdata.usesSimpleRootData()) {
+        	TaskInformation taskInf = getTaskInformation(specificationID, taskID, sessionHandle);
+        	dataRootElementNm = taskInf.getDecompositionID();
+        }
+        
         return Marshaller.getOutputParamsInXML(params, dataRootElementNm);
     }
 
@@ -322,7 +340,7 @@ public class WorklistController extends InterfaceBWebsideController {
                 } else {
                     html.append(
                             "    Condition ");
-                    if (name.equals("null")) {
+                    if (name==null || name.equals("null")) {
                         html.append(
                                 " id: " + id + "\n");
                     } else {

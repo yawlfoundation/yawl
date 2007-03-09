@@ -26,15 +26,15 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 
 import au.edu.qut.yawl.admintool.model.HumanResource;
-import au.edu.qut.yawl.authentication.User;
+
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.elements.YSpecification;
+
 import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.data.YParameter;
+
 import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.engine.AbstractEngine;
+
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
@@ -42,8 +42,6 @@ import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.exceptions.YStateException;
-import au.edu.qut.yawl.persistence.dao.restrictions.RestrictionStringConverter;
-import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
@@ -1124,7 +1122,7 @@ public class EngineGatewayImpl implements EngineGateway {
     	StringWriter w = new StringWriter();
     	t.printStackTrace( new PrintWriter( w ) );
     	try {
-			return URLEncoder.encode( w.toString(), "UTF-8" );
+			return URLEncoder.encode( t.getMessage(), "UTF-8" );
 		}
 		catch( UnsupportedEncodingException e ) {
 			throw new Error( "UTF-8 encoding should be supported", e );

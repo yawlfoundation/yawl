@@ -27,9 +27,12 @@ import org.jdom.input.SAXBuilder;
 import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.engine.AbstractEngine;
 import au.edu.qut.yawl.engine.EngineFactory;
+import au.edu.qut.yawl.engine.YEngineInterface;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.worklist.model.Marshaller;
+import au.edu.qut.yawl.worklist.model.SpecificationData;
+import au.edu.qut.yawl.worklist.model.TaskInformation;
 
 /**
  * 
@@ -200,15 +203,44 @@ public class YWorklistTableModel extends AbstractTableModel {
                     inputData.getRootElement(),
                     outputData.getRootElement());
 
-            AbstractEngine eng =  EngineFactory.createYEngine();
+            YEngineInterface eng =  EngineFactory.getTransactionalEngine();
             YWorkItem item = eng.getWorkItem(caseIDStr + ":" + taskID);
-            YTask task = eng.getTaskDefinition(
+            
+            
+            String task = eng.getTaskInformation(
                     item.getSpecificationID(),
                     item.getTaskID());
-            List outputParamsMP = task.getDecompositionPrototype().getOutputParameters();
+            
+    		TaskInformation taskInfo = Marshaller.unmarshalTaskInformation(task);
+
+    		SpecificationData data = null;
+    		String specdata = eng.getDataForSpecifications(true);
+    		
+    		System.out.println(specdata);
+    		specdata = "<response>" + specdata + "</response>";
+    		List specs = Marshaller.unmarshalSpecificationSummary(specdata);
+    		
+    		System.out.println("specs in the engine: " + specs.size());
+    				
+            for (int i = 0; i < specs.size(); i++) {
+                data = (SpecificationData) specs.get(i);
+                if (data.getID().equals(item.getSpecificationID())) {
+                	if (data.getAsXML()==null) {
+                		String specAsXML = null;
+                		try {
+                			specAsXML = eng.getProcessDefinition(item.getSpecificationID());
+                		} catch (Exception e) {
+                			throw new YPersistenceException("No such process definition");
+                		}
+                		data.setSpecAsXML(specAsXML);	
+                	}
+                }
+            }
+    		
+            List outputParamsMP = taskInfo.getParamSchema().getOutputParams();
             List outputParamsLst = new ArrayList(outputParamsMP);
             String filteredOutputData;
-            if (task._net.getParent().usesSimpleRootData()) {
+            if (data.usesSimpleRootData()) {
                 filteredOutputData = mergedOutputData;
             } else {
                 filteredOutputData = Marshaller.filterDataAgainstOutputParams(

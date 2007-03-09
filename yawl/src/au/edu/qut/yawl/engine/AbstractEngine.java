@@ -378,6 +378,11 @@ public abstract class AbstractEngine implements YEngineInterface,
 
         YSpecification spec = getSpecification(specID);
 
+       	Set cases = this.getCasesForSpecification(specID);
+        if (cases.size() > 0) {
+        	throw new YStateException("Can't unload a specification while there are cases running");
+        }
+        
         if (spec != null) {
             /* Mark as archived */
             logger.info("Removing process specification " + specID);
@@ -471,16 +476,10 @@ public abstract class AbstractEngine implements YEngineInterface,
             restriction = new Unrestricted();
         }
         
-        long before = System.currentTimeMillis();
         List l = getDao().retrieveByRestriction( YSpecification.class, restriction );
-        long after = System.currentTimeMillis();
+        
         
         set.addAll( l );
-        
-        long end = System.currentTimeMillis();
-        
-        System.out.println(after-before);
-        System.out.println(end-after);
         
     	return set;
     }
@@ -897,6 +896,8 @@ public abstract class AbstractEngine implements YEngineInterface,
     	}
     	specList.add(spec);
     	try {
+    		
+    		
         	return YMarshal.marshal(specList);
     	} catch (Exception e) {
     		

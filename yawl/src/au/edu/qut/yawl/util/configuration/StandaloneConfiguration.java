@@ -11,32 +11,15 @@ package au.edu.qut.yawl.util.configuration;
 import java.io.IOException;
 import java.util.Properties;
 
-import javax.servlet.ServletConfig;
-
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-public class ServiceConfiguration extends BootstrapConfiguration {
+public class StandaloneConfiguration extends BootstrapConfiguration {
 
-	private String YAWL_ENVIRONMENT_PROPERTY_FILE_NAME_KEY = "nexus.service.properties.filename";
-
-	public ServiceConfiguration(ServletConfig config) {
+	public StandaloneConfiguration() {
 		super();
-		applicationContext = new ClassPathXmlApplicationContext(config.getServletName() + "-servlet.xml");
-		//((ClassPathXmlApplicationContext) applicationContext).setServletConfig(config);
-		//((XmlWebApplicationContext) applicationContext).setConfigLocations(new String[] {"WEB-INF/" + config.getServletName() + "-servlet.xml"});
-		
-		String propertiesFileName = config.getServletName() + "-servlet.properties";
-		try {
-			propertiesFileName = config.getServletContext().getResource("/WEB-INF/" + propertiesFileName).toString();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			System.err.println(config);
-			System.err.println(config.getServletContext());
-			System.err.println("/WEB-INF/" + propertiesFileName);
-			e.printStackTrace();
-		}
-		System.setProperty(YAWL_ENVIRONMENT_PROPERTY_FILE_NAME_KEY, propertiesFileName);
+		applicationContext = new ClassPathXmlApplicationContext("Standalone.xml");
+	
 		((ClassPathXmlApplicationContext) applicationContext).refresh();
 	}
 	
