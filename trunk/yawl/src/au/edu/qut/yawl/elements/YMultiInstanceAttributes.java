@@ -64,7 +64,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
     private String _maxInstancesQuery;
     private String _thresholdQuery;
     private String _creationMode;
-    YTask _myTask;
+    YExternalNetElement _myTask;
     private String _inputVarName;
     private String _inputSplittingQuery;
     private String _remoteOutputQuery;
@@ -345,7 +345,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
         xml.append("<threshold>" + (_threshold != null ? _threshold.toString() : YTask.marshal(_thresholdQuery)) + "</threshold>");
         xml.append("<creationMode code=\"" + _creationMode + "\"/>");
         xml.append("<miDataInput>");
-        xml.append("<expression query=\"" + YTask.marshal(_myTask.getPreSplittingMIQuery()) + "\"/>");
+        xml.append("<expression query=\"" + YTask.marshal(((YTask)_myTask).getPreSplittingMIQuery()) + "\"/>");
         xml.append("<splittingExpression query=\"" + YTask.marshal(_inputSplittingQuery) + "\"/>");
         xml.append("<formalInputParam>" + _inputVarName + "</formalInputParam>");
         xml.append("</miDataInput>");
@@ -354,7 +354,7 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
             xml.append("<formalOutputExpression query=\"" + YTask.marshal(_remoteOutputQuery) + "\"/>");
             xml.append("<outputJoiningExpression query=\"" + YTask.marshal(_outputProcessingQuery) + "\"/>");
             xml.append("<resultAppliedToLocalVariable>" +
-                    _myTask.getMIOutputAssignmentVar(_remoteOutputQuery) +
+            		((YTask)_myTask).getMIOutputAssignmentVar(_remoteOutputQuery) +
                     "</resultAppliedToLocalVariable>"
             );
             xml.append("</miDataOutput>");
@@ -403,11 +403,11 @@ public class YMultiInstanceAttributes implements Cloneable, YVerifiable, Seriali
     
 
     @OneToOne(mappedBy = "multiInstanceAttributes")
-    public YTask getContainerTask() {
+    public YExternalNetElement getContainerTask() {
     	return _myTask;
     }
     
-    public void setContainerTask(YTask task) {
+    public void setContainerTask(YExternalNetElement task) {
     	_myTask = task;
     }
 

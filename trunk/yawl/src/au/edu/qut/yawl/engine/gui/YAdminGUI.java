@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.engine.gui;
 
 
+import au.edu.qut.yawl.admintool.model.HumanResource;
 import au.edu.qut.yawl.authentication.User;
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YSpecification;
@@ -25,6 +26,11 @@ import au.edu.qut.yawl.swingWorklist.YWorklistModel;
 import au.edu.qut.yawl.swingWorklist.YWorklistTableModel;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.util.YVerificationMessage;
+import au.edu.qut.yawl.util.configuration.BootstrapConfiguration;
+import au.edu.qut.yawl.util.configuration.ServiceConfiguration;
+import au.edu.qut.yawl.util.configuration.StandaloneConfiguration;
+import au.edu.qut.yawl.worklist.model.Marshaller;
+
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -89,11 +95,11 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
     private static Logger logger;
 
     // Engine references (via set interfaces)
-    private InterfaceADesign _engineDesign;
-    private InterfaceAManagement _engineManagement;
-    private InterfaceBClient _engineClient;
-    private InterfaceBClientObserver _engineClientObserver;
-    private InterfaceBInterop _engineInterop;
+
+    private YEngineInterface _engineManagement;
+    private YEngineInterface _engineClient;
+    private YEngineInterface _engineClientObserver;
+    private YEngineInterface _engineInterop;
 
 
     private YAdminGUI() {
@@ -271,13 +277,16 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
          * Create engine instance (plus references vai the various interfaces)
          */
         try {
-            _engineManagement =  EngineFactory.createYEngine(journalising);
-            _engineClient = EngineFactory.createYEngine(journalising);
+    		StandaloneConfiguration sc = new StandaloneConfiguration();
+    		BootstrapConfiguration.setInstance(sc);
+    		
+            _engineManagement =  EngineFactory.getTransactionalEngine();
+            _engineClient = EngineFactory.getTransactionalEngine();
 
             /**
              * AJH: Indicateto YEngine if we are to generate UI metadata in a tasks input XML doclet
              */
-            AbstractEngine obj = (AbstractEngine)_engineClient;
+            AbstractEngine obj = _engineClient.getYEngine();
             obj.setGenerateUIMetaData(generateUIMetaData);
 
         } catch (YPersistenceException e) {
@@ -327,8 +336,8 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                 Set users = _engineManagement.getUsers();
                 Iterator iter = users.iterator();
                 while (iter.hasNext()) {
-                    User user = (User) iter.next();
-                    attemptToCreateWorklist(user.getUserID());
+                	HumanResource user = (HumanResource) iter.next();
+                    attemptToCreateWorklist(user.getRsrcID());
                 }
             } catch (Exception e) {
                 logError("Failure to load specifications", e);
@@ -477,11 +486,18 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
 	                Object o = iterator.next();
 	                String specID = (String) o;
 	
-	                YSpecification spec = _engineManagement.getSpecification(specID);
-	                _loadedSpecificationsTableModel.addRow(specID, new Object[]{specID, spec.getRootNet().getId()});
+	                //YSpecification spec = _engineManagement.getSpecification(specID);
+	                List specs = YMarshal.unmarshalSpecifications(_engineManagement.getProcessDefinition(specID), specID);
+	                if (specs.size()==1) {
+	                	YSpecification spec = (YSpecification) specs.get(0);
+		                _loadedSpecificationsTableModel.addRow(specID, new Object[]{specID, spec.getRootNet().getId()});
+	                } else {
+	                	throw new Exception("AARGH");
+	                }
 	            }
 	        }
         } catch (Exception e) {
+        	e.printStackTrace();
             logError("Failure to load specification", e);
             return;
         }
@@ -490,17 +506,17 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
 
     private void attemptToCreateWorklist(String userName) throws YPersistenceException, YAuthenticationException {
         Set users = _engineManagement.getUsers();
-        User user = null;
+        HumanResource user = null;
         boolean userfound = false;
         for (Iterator iterator = users.iterator(); iterator.hasNext();) {
-            user = (User) iterator.next();
-            if (user.getUserID().equals(userName)) {
+            user = (HumanResource) iterator.next();
+            if (user.getRsrcID().equals(userName)) {
                 userfound = true;
             }
         }
         if (!userfound) {
-            user = UserList.getInstance().addUser(userName, "password", false);
-            _engineManagement.storeObject(user);
+            UserList.getInstance().addUser(userName, "password", false);
+            //_engineManagement.storeObject(user);
         } else if (userName == null) {
             return;//do nothing - user must have chosen cancel
         }

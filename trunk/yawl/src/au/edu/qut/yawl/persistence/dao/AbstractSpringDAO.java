@@ -57,7 +57,7 @@ public abstract class AbstractSpringDAO<Type> extends HibernateDaoSupport implem
 			criteria.add( RestrictionCriterionConverter.convertRestriction( restriction ) );
 		}
 		
-		criteria.addOrder(Order.asc(""));
+		//criteria.addOrder(Order.asc(""));
 
 		Set<Type> set = new HashSet<Type>( getHibernateTemplate().findByCriteria( criteria ) );
 		

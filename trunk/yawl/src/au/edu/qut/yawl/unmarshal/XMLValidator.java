@@ -79,8 +79,8 @@ public class XMLValidator extends DefaultHandler {
             fw.write(theXMLDataAsString);
             fw.flush();
             fw.close();
-
-            parser.parse(_tempData.getAbsolutePath());
+            //_tempData.toURI().toString();//getAbsolutePath()
+            parser.parse(_tempData.toURI().toString());
         } catch (SAXParseException e) {
         } catch (Exception e) {
             e.printStackTrace();

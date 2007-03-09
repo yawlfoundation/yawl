@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
@@ -82,7 +83,7 @@ public class Interface_Client {
         	return msg;
         }
         else {
-        	return stripOuterElement( msg );
+        	return stripOuterElement( URLDecoder.decode(msg, "UTF-8") );
         }
     }
 

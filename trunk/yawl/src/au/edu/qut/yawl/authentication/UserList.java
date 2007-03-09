@@ -112,16 +112,17 @@ public class UserList {
      * @throws YAuthenticationException
      */
     // FIXME: XXX the password validity check should be made into some kind of security plug-in.
-    public User addUser(String userID, String password, boolean isAdmin) throws YAuthenticationException {
-        User user = null;
-
+    public HumanResource addUser(String userID, String password, boolean isAdmin) throws YAuthenticationException {
+    	HumanResource human = null;
         if (userID != null){
             if (password != null && password.length() > 3) {
                 if (getUser(userID)==null) {
 
                 	DAO dao = EngineFactory.getExistingEngine().getDao();
-                	HumanResource human = new HumanResource(userID);
+                	human = new HumanResource(userID);
                 	human.setPassword(password);
+                	human.setGivenName(userID);
+                	human.setSurname(" ");
                 	human.setIsAdministrator(isAdmin);
                 	try {
                 		dao.save(human);
@@ -139,8 +140,7 @@ public class UserList {
         } else {
             throw new YAuthenticationException("UserID cannot be null.");
         }
-
-        return user;
+        return human;
     }
 
     public synchronized void removeUser(String inSessionUserID, String userNameToDelete) throws YAuthenticationException {

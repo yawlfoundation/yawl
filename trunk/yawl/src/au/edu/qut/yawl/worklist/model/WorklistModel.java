@@ -22,9 +22,9 @@ import java.util.*;
  */
 public class WorklistModel {
     private Map _workItems = new HashMap();
-    private Map _taskInformations = new HashMap();
+
     private Map _itemIDToDataMap = new HashMap();
-    private Map _specificationData = new HashMap();
+
 
 
 
@@ -46,6 +46,7 @@ public class WorklistModel {
     }
 
 
+    /*
     public TaskInformation getTaskInformation(String specificationID, String taskID) {
         return (TaskInformation) _taskInformations.get(specificationID + taskID);
     }
@@ -54,7 +55,7 @@ public class WorklistModel {
     public void setTaskInformation(String specificationID, String taskID, TaskInformation taskInfo) {
         _taskInformations.put(specificationID + taskID, taskInfo);
     }
-
+*/
 
     public void setDataForWorkItemID(String workItemID, String data) {
         _itemIDToDataMap.put(workItemID, data);
@@ -73,12 +74,13 @@ public class WorklistModel {
     /**
      * @param specData
      */
-    public void setSpecificationData(SpecificationData specData) {
+    /*
+     *    public void setSpecificationData(SpecificationData specData) {
         if (!_specificationData.containsKey(specData.getID())) {
-            _specificationData.put(specData.getID(), specData);
+            //_specificationData.put(specData.getID(), specData);
         }
     }
-
+*/
 
     /**
      * Gets a data object describing the specification.  This is cached in
@@ -87,6 +89,7 @@ public class WorklistModel {
      * @param specID
      * @return the specification data
      */
+    /*
     public SpecificationData getSpecificationData(String specID) throws IOException {
         return (SpecificationData) _specificationData.get(specID);
     }
@@ -94,7 +97,7 @@ public class WorklistModel {
     public void unloadSpecification(String specID) throws IOException {
     	_specificationData.remove(specID);
     }	
-
+*/
 
     public void addWorkItem(WorkItemRecord itemRecord) {
         _workItems.put(itemRecord.getID(), itemRecord);
@@ -108,7 +111,7 @@ public class WorklistModel {
     public void removeRemotelyCachedWorkItem(String workItemID) {
         _workItems.remove(workItemID);
     }
-
+/*
     public String getDataRootElementName(String specificationID, String taskID, String sessionHandle) {
         SpecificationData sdata = (SpecificationData) _specificationData.get(specificationID);
         if (sdata.usesSimpleRootData()) {
@@ -118,4 +121,5 @@ public class WorklistModel {
             return taskInf.getDecompositionID();
         }
     }
+    */
 }

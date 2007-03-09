@@ -24,7 +24,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * Time: 16:23:34
  */
 @Entity
-@DiscriminatorValue("Human")
+@DiscriminatorValue("human")
 public class HumanResource extends Resource {
     private String surname;
     private String givenName;
