@@ -120,6 +120,8 @@ public abstract class Decorator extends DefaultGraphCell
       )
     );
     GraphConstants.setOpaque(map, true);
+    GraphConstants.setSizeable(map, false);
+    
     GraphConstants.setForeground(map, GraphConstants.getForeground(getTask().getAttributes()));
     GraphConstants.setBackground(map, GraphConstants.getBackground(getTask().getAttributes()));
     

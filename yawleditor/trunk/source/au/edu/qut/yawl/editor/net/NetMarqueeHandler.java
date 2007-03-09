@@ -567,9 +567,13 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
       );
     }
     hidePotentialFlow();
+
+    hidePort(sourcePort);
+
     sourcePort = targetPort = null;
 
     setStartPoint(null); 
+    
     setCurrentPoint(null);
   }
 }
