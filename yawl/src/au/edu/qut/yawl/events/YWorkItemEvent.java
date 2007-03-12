@@ -40,7 +40,6 @@ public class YWorkItemEvent implements Serializable {
     private Long id;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE)
 	public Long getId() {
 		return id;
 	}

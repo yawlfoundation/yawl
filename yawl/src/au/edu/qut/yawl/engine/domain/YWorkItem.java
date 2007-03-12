@@ -98,7 +98,7 @@ public class YWorkItem {
     /**********************************/
     /* INSERTED VARIABLES AND METHODS */
     /*********************************/
-    private String lastevent = "0";
+
     public String thisId = null;
     private String data_string = null;
 
@@ -161,7 +161,7 @@ public class YWorkItem {
 
         while (iter.hasNext()) {
             Element child = (Element) iter.next();
-            YawlEventLogger.getInstance().logData(child.getName(), child.getValue(), lastevent, "o");
+            YawlEventLogger.getInstance().logData(child.getName(), child.getValue(), "o");
         }
 
     }
@@ -288,7 +288,7 @@ public class YWorkItem {
         _startTime = new Date();
         _whoStartedMe = userName;
 
-        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
+        YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
                 getTaskID()
                 , _status, _whoStartedMe, _specificationID);
         /****************************/
@@ -439,7 +439,7 @@ public class YWorkItem {
          */
         while (iter.hasNext()) {
             Element child = (Element) iter.next();
-            YawlEventLogger.getInstance().logData(child.getName(), child.getValue(), lastevent, "i");
+            YawlEventLogger.getInstance().logData(child.getName(), child.getValue(), "i");
         }
     }
 
