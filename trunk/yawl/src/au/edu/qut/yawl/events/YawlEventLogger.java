@@ -13,19 +13,20 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 
+import au.edu.qut.yawl.elements.state.IdentifierSequence;
+import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.persistence.dao.DAO;
+import au.edu.qut.yawl.persistence.dao.restrictions.LogicalRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.Restriction;
+import au.edu.qut.yawl.persistence.dao.restrictions.PropertyRestriction.Comparison;
 
 public class YawlEventLogger {
 
 	List<YEventDispatcher> dispatchers = new ArrayList<YEventDispatcher>();
 	
-    HashMap listofcases = new HashMap();
-
-    private String lastevent = "0";
-
-    public String caseId = "0";
-
     public boolean enabled = true;
 
     public static YawlEventLogger yawllog = null;
@@ -41,16 +42,13 @@ public class YawlEventLogger {
     	yawllog = this;
     }
 
-    public void setListofcases(HashMap map) {
-        listofcases = map;
-    }
 
     public void retry() {
 
         enabled = true;
     }
 
-    public String logWorkItemEvent(
+    public void logWorkItemEvent(
             String identifier,
             String taskid,
             YWorkItem.Status event,
@@ -59,7 +57,7 @@ public class YawlEventLogger {
             ) throws YPersistenceException {
 
 
-        return this.logWorkItemEvent(
+        this.logWorkItemEvent(
                 identifier,
                 taskid,
                 event,
@@ -69,7 +67,7 @@ public class YawlEventLogger {
 
     }
 
-    public String logWorkItemEvent(
+    public void logWorkItemEvent(
             String identifier,
             String taskid,
             YWorkItem.Status event,
@@ -80,15 +78,13 @@ public class YawlEventLogger {
 
 
         if (!enabled)
-            return "-1";
-
-        int x = new Integer(lastevent).intValue();
+            return ;
 
 
-        lastevent = new String(new Integer(++x).toString());
 
         YWorkItemEvent newevent = new YWorkItemEvent();
-
+        newevent.setId(getId());
+        
         newevent.setIdentifier(identifier);
 
         newevent.setTaskid(taskid);
@@ -108,19 +104,18 @@ public class YawlEventLogger {
         	dispatcher.fireEvent(newevent);
         }
 
-
-        return lastevent;
-
     }
 
-    public int logData(String name, String data, String lastevent, String io) throws YPersistenceException {
+    public int logData(String name, String data, String io) throws YPersistenceException {
 
         if (!enabled)
             return -1;
 
         YDataEvent ylogdata = new YDataEvent();
         ylogdata.setIo(io);
-        ylogdata.setEventid(new Integer(lastevent).toString());
+        
+        ylogdata.setEventid(""+getCurrentId());
+        
         ylogdata.setValue(data);
         ylogdata.setPort(name);
 
@@ -148,17 +143,6 @@ public class YawlEventLogger {
                                String spec) throws YPersistenceException {
         if (!enabled) return;
 
-//  TODO       try {
-//            if (pmgr != null) {
-//                Query query = pmgr.createQuery("select from YLogIdentifier where case_id=" + caseid);
-//                for (Iterator it = query.iterate(); it.hasNext();) {
-//                    YLogIdentifier logid = (YLogIdentifier) it.next();
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
         YCaseEvent ylogid = new YCaseEvent();
         ylogid.setIdentifier(caseid);
         ylogid.setCreatedby(resource);
@@ -169,8 +153,6 @@ public class YawlEventLogger {
 
         	dispatcher.fireEvent(ylogid);
         }
-
-        listofcases.put(ylogid.getIdentifier(), ylogid);
     }
 
     public void logCaseCancelled(String caseid) throws YPersistenceException {
@@ -178,7 +160,14 @@ public class YawlEventLogger {
         if (!enabled)
             return;
 
-        YCaseEvent ylogid = (YCaseEvent) listofcases.get(caseid);
+        Restriction restriction = new PropertyRestriction("identifier",Comparison.EQUAL,caseid);
+        List<YCaseEvent> events = EngineFactory.createYEngine().getDao().retrieveByRestriction(YCaseEvent.class,restriction);
+        
+        if (events.size()!=1) {
+        	return;
+        }
+        
+        YCaseEvent ylogid = events.get(0); 
         if (ylogid != null) {
             ylogid.setIdentifier(caseid);
             ylogid.setCancelled(System.currentTimeMillis());
@@ -195,7 +184,15 @@ public class YawlEventLogger {
         if (!enabled)
             return;
 
-        YCaseEvent ylogid = (YCaseEvent) listofcases.get(caseid);
+        Restriction restriction = new PropertyRestriction("identifier",Comparison.EQUAL,caseid);
+        List<YCaseEvent> events = EngineFactory.createYEngine().getDao().retrieveByRestriction(YCaseEvent.class,restriction);
+        
+        if (events.size()!=1) {
+        	return;
+        }
+        
+        YCaseEvent ylogid = events.get(0); 
+        
         if (ylogid != null) {
             ylogid.setIdentifier(caseid);
             ylogid.setCompleted(System.currentTimeMillis());
@@ -274,6 +271,38 @@ public class YawlEventLogger {
 //        }
 
 //        return caseId;
+    }
+    
+    public long getId() throws YPersistenceException {
+    	DAO dao = EngineFactory.createYEngine().getDao();
+    	Restriction restriction = new PropertyRestriction("sequence", Comparison.EQUAL, "logsequence");
+    	List sequences = dao.retrieveByRestriction(IdentifierSequence.class, restriction);
+
+    	int value = 1;
+    	IdentifierSequence sequence = new IdentifierSequence("logsequence");            
+    	if(sequences.size() > 0) {
+    		sequence = (IdentifierSequence) sequences.get(0);
+    		value = sequence.getValue().intValue() + 1;
+    	}          
+    	sequence.setValue(Long.valueOf(value));
+
+    	dao.save(sequence);
+    	return value;
+    }
+    
+    public long getCurrentId() throws YPersistenceException {
+    	DAO dao = EngineFactory.createYEngine().getDao();
+    	Restriction restriction = new PropertyRestriction("sequence", Comparison.EQUAL, "logsequence");
+    	List sequences = dao.retrieveByRestriction(IdentifierSequence.class, restriction);
+
+    	int value = 1;
+    	IdentifierSequence sequence = new IdentifierSequence("logsequence");            
+    	if(sequences.size() > 0) {
+    		sequence = (IdentifierSequence) sequences.get(0);
+    		value = sequence.getValue().intValue() + 1;
+    	}          
+
+    	return value;
     }
 
 }
