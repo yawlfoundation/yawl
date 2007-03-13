@@ -27,16 +27,14 @@
 			
 			try{
 				wip.executeCasePost(getServletContext(), specID, sessionHandle,
-					_worklistController, userID);
+					_worklistController, userID, session.getId());
+
+				String url = wip.getRedirectURL(getServletContext(), specData, session.getId());
 				
-				String url = wip.getRedirectURL(getServletContext(), specData);
-				
-				response.sendRedirect( response.encodeURL(url) );
+				response.sendRedirect(response.encodeURL(url));
 			}
 	
 			catch(Exception e){
-	
-				System.out.println(e.toString());
 	
 	            if(specData != null){
         %>

@@ -4,41 +4,37 @@
                  au.edu.qut.yawl.worklist.model.WorkListGUIUtils,
                  org.jdom.Element,
                  org.jdom.output.XMLOutputter"%>
-
+                 
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>Work Item Processor</title>
+	<head>
+		<title>Work Item Processor</title>
         <!-- Include file to load init method -->
-        <%@ include file="head.jsp"  %>
+        <%@ include file="head.jsp"  %>        
 	</head>
 	<body>
-        <!-- Include check login code --><%@ include file="checkLogin.jsp" %>
+        <!-- Include check login code -->
+        <%@ include file="checkLogin.jsp" %>
         <!-- Include YAWL Banner Information -->
         <%@ include file="banner.jsp" %>
         <h3>Work Item Processing Page</h3>
         <%
-		    Element inputData = null;
-		    Element outputData = null;
-        	// TODO check below for redundant getParameter() calls
-            String workItemID = request.getParameter("workItemID");
-            String submitType = request.getParameter("submit");
-            //String outputData = request.getParameter("outputData");
-            //String inputData = request.getParameter("inputData");
+
+            String workItemID = (String) request.getAttribute("workItemID");
+            String submitType = (String) request.getAttribute("submit");
+            
+            Element outputData = (Element) request.getAttribute("outputData");
+            Element inputData = (Element) request.getAttribute("inputData");
             sessionHandle = (String) session.getAttribute("sessionHandle");
-
+		
 			if (submitType == null){
-				sessionHandle = (String) request.getAttribute("sessionHandle");
-				workItemID = (String) request.getAttribute("workItemID");
-				inputData = (Element) request.getAttribute("inputData");
-				outputData = (Element) request.getAttribute("outputData");
-				submitType = (String) request.getAttribute("submit");
+				submitType = request.getParameter("submit");
+				workItemID = request.getParameter("workItemID");
 			}
-
+		
             if(submitType != null){
-
                 if(submitType.equals("Save Work Item") || submitType.equals("Add New Instance")){
                     _worklistController.saveWorkItem(workItemID, new XMLOutputter().outputString(outputData));
-                   if(submitType.equals("Add New Instance")){
+                    if(submitType.equals("Add New Instance")){
                         RequestDispatcher requestDispatcher =
                             application.getRequestDispatcher("/instanceAdder");
                         requestDispatcher.forward(request, response);
@@ -106,26 +102,21 @@
 						TaskInformation taskInfo = _worklistController.getTaskInformation(
 			            	        item.getSpecificationID(), item.getTaskID(), sessionHandle);
 
-						//System.out.println(taskInfo.getAttribute("formtype"));
-
 						if (taskInfo.getAttribute("formtype")==null || !taskInfo.getAttribute("formtype").equalsIgnoreCase("pdf")) {
-
-						 	wip.executeWorkItemPost( getServletContext(), workItemID,
-								sessionHandle, _worklistController, userID );
-
-							String url = wip.getRedirectURL( getServletContext(), taskInfo );
-
-							response.sendRedirect( response.encodeURL(url) );
+				
+						 	wip.executeWorkItemPost( getServletContext(), workItemID, 
+								sessionHandle, _worklistController, userID, session.getId() );
+						
+							String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());
+							response.sendRedirect(response.encodeURL(url));						
 						} else {
  						 	String filename = wip.executePDFWorkItemPost( getServletContext(), workItemID, taskInfo.getDecompositionID(),
 						  			sessionHandle, _worklistController, userID );
-
-
+	
 							String url = "http://localhost:8080/PDFforms/complete.jsp?filename="+filename;
   							response.sendRedirect( response.encodeURL(url) );
 
 						}
-
 
 					} catch(Exception e){
 						// if form generation fails for any reason fall back to XML itemViewer.jsp page

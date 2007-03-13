@@ -3,57 +3,52 @@
 				 au.edu.qut.yawl.worklist.WorkItemProcessor,
 				 au.edu.qut.yawl.worklist.model.*"%>
 <%
-    String workItemID  = request.getParameter("workItemID");
-    String submitType =  request.getParameter("submit");
 
+    String workItemID = (String) request.getAttribute("workItemID");
+    String submitType = (String) request.getAttribute("submit");
+
+	if (submitType == null) {
+	    submitType =  request.getParameter("submit");
+	}
+	if (workItemID == null) {
+		workItemID = request.getParameter("workItemID");
+	}
+	
     if ((submitType != null) && submitType.equals("Raise Exception")) {
-
+    
         if (_ixURI != null) {
             String url = _ixURI + "/workItemException?workItemID=" + workItemID ;
             response.sendRedirect( response.encodeURL(url) );
         }
     }
-    else {
-        if (workItemID != null) {
-
-            String sessionHandle = (String) session.getAttribute("sessionHandle");
-            String userID = (String) session.getAttribute("userid");
-            WorkItemRecord checkedOutItem = _worklistController.checkOut(
-                    workItemID, sessionHandle);
-            WorkItemProcessor wip = new WorkItemProcessor();
-
-            if (null != checkedOutItem) {
-
-                TaskInformation taskInfo = _worklistController.getTaskInformation(
-                        checkedOutItem.getSpecificationID(), checkedOutItem.getTaskID(),
-                        sessionHandle);
-
-                if (taskInfo.getAttribute("formtype")==null ||
-                   !taskInfo.getAttribute("formtype").equalsIgnoreCase("pdf")) {
-
-                    wip.executeWorkItemPost( getServletContext(), checkedOutItem.getID(),
-		 		                             sessionHandle, _worklistController, userID );
-
-		 		    String url = wip.getRedirectURL( getServletContext(), taskInfo );
-
-   				    response.sendRedirect( response.encodeURL(url) );
-
-                }
-                else {
-  			 	    String filename = wip.executePDFWorkItemPost( getServletContext(),
-                                 checkedOutItem.getID(), taskInfo.getDecompositionID(),
-			  			         sessionHandle, _worklistController, userID );
-								
-				    String url = "http://localhost:8080/PDFforms/complete.jsp?filename="+filename;
-				    response.sendRedirect( response.encodeURL(url) );
-		       }
-            }
-            else {
-                request.setAttribute("failure", checkedOutItem);
-            }
-        }
+    else if (workItemID != null) {
+		if ((submitType != null) && submitType.equals("Cancel")) {
+			// do nothing, received a cancellation
+		}
+		else {
+	        String sessionHandle = (String) session.getAttribute("sessionHandle");
+	        String userID = (String) session.getAttribute("userid");
+	        WorkItemRecord checkedOutItem = _worklistController.checkOut(
+	                workItemID, sessionHandle);
+	        WorkItemProcessor wip = new WorkItemProcessor();
+	
+	        if (null != checkedOutItem) {
+	
+	            TaskInformation taskInfo = _worklistController.getTaskInformation(
+	                    checkedOutItem.getSpecificationID(), checkedOutItem.getTaskID(),
+	                    sessionHandle);
+	
+	            wip.executeWorkItemPost(getServletContext(), checkedOutItem.getID(),
+	                    sessionHandle, _worklistController, userID, session.getId());
+	
+	            String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());
+	
+	            response.sendRedirect(response.encodeURL(url));
+	        } else {
+	            request.setAttribute("failure", checkedOutItem);
+	        }
+	    }
     }
-
 %><html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>Available Work</title>
@@ -114,7 +109,7 @@
                         item.getTaskID(),
                         (String)session.getAttribute("sessionHandle"));
                     if(taskInfo != null){
-                        if (item.getStatus().equals(WorkItemRecord.statusSuspended)) {
+                        if (item.getStatus().equals("Suspended")) {
                     %>
                           <tr>
                               <td height="30" align="center">&nbsp;&nbsp;</td>
