@@ -397,7 +397,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     sourcePort = portView;
     showPort(sourcePort);
     matchCursorTo(CursorFactory.FLOW_RELATION);
-    JStatusBar.getInstance().setStatusText("Left-click on this conection point, drag the flow to another connection point and release the mouse button to create a flow.");
+    JStatusBar.getInstance().setStatusText("Left-click on this conection point, drag the flow to another valid connection point and release the mouse button to create a flow.");
   }
 
   private PortView getPortViewAt(Point point) {

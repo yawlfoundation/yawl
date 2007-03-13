@@ -49,7 +49,8 @@ public class VertexContainer extends DefaultGraphCell
     
     GraphConstants.setOpaque(map, false);
     GraphConstants.setSizeable(map, true);
-
+    GraphConstants.setChildrenSelectable(map, true);
+    
     getAttributes().applyMap(map);
   }
   

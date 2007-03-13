@@ -50,6 +50,7 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
     getDoneButton().addActionListener(new ActionListener(){
         public void actionPerformed(ActionEvent e) {
           graph.setElementLabel(getVertex(), labelField.getText());
+          graph.clearSelection();
         }
       }
     );
