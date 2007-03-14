@@ -370,13 +370,13 @@ public class NetGraph extends JGraph {
   }
   
   public YAWLFlowRelation connect(YAWLVertex sourceVertex, YAWLVertex targetVertex) {
-//    System.out.println("Connecting sourceVertex " + sourceVertex.getEngineId() + " to targetVertex " + targetVertex.getEngineId());
     return connect(sourceVertex.getDefaultSourcePort(), targetVertex.getDefaultTargetPort());
   }
   
   public YAWLFlowRelation connect(YAWLPort source, YAWLPort target) {
     ConnectionSet cs = new ConnectionSet();
     YAWLFlowRelation flow = new YAWLFlowRelation();
+    
     cs.connect(flow, source, target);
 
     getNetModel().beginUpdate();
