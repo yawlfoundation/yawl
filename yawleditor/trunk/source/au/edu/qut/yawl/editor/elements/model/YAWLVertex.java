@@ -81,7 +81,8 @@ public abstract class YAWLVertex extends DefaultGraphCell
         )
     );
 
-    initialize(new Point(10,10));
+    initialize(new Point(40,40));
+    addDefaultPorts();
   }
 
   public YAWLVertex(Point2D startPoint) {
