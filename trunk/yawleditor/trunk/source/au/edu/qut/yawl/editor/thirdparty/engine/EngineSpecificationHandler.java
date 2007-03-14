@@ -30,6 +30,7 @@ import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 import au.edu.qut.yawl.editor.swing.specification.ProblemMessagePanel;
 
 import java.io.File;
+import java.util.LinkedList;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -85,7 +86,16 @@ public class EngineSpecificationHandler {
       JStatusBar.getInstance().resetProgress();
 
     } catch (Exception e) {
-      e.printStackTrace();
+      
+      LinkedList<String> stackMessageList = new LinkedList<String>();
+      stackMessageList.add(e.getMessage());
+      
+      ProblemMessagePanel.getInstance().setProblemList(
+          "Programming exception raised when attempting engine specification validation",
+          stackMessageList
+      );
+      
+//      e.printStackTrace();
       JStatusBar.getInstance().setStatusTextToPrevious();
       JStatusBar.getInstance().resetProgress();
     }

@@ -94,7 +94,6 @@ public abstract class YAWLVertex extends DefaultGraphCell
    * from scratch. It also creates the correct ports needed for the vertex
    * as an intended side-effect.
    */
-
   public YAWLVertex(Point2D startPoint) {
     super();
     setEngineIdNumber(

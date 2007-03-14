@@ -36,10 +36,22 @@ public class InputCondition extends YAWLCondition {
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * This constructor is ONLY to be invoked when we are reconstructing an
+   * input condition from saved state. Ports will not be created with this 
+   * constructor, as they are already part of the JGraph state-space.
+   */
+
   public InputCondition() {
      super();
   }
   
+  /**
+   * This constructor is to be invoked whenever we are creating a new 
+   * input condition from scratch. It also creates the correct ports needed 
+   * for the vertex as an intended side-effect.
+   */
+
   public InputCondition(Point2D startPoint) {
      super(startPoint);
   }

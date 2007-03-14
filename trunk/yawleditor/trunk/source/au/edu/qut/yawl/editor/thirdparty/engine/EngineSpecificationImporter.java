@@ -91,7 +91,7 @@ import au.edu.qut.yawl.unmarshal.YMetaData;
 
 public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
-  private static final Point DEFAULT_LOCATION = new Point(40,40);
+  private static final Point DEFAULT_LOCATION = new Point(60,20);
   
   public void importEngineSpecificationFromFile(String fullFileName) {
     if (fullFileName == null) {

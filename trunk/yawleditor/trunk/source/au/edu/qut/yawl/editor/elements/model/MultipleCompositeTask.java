@@ -37,11 +37,23 @@ public class MultipleCompositeTask extends YAWLTask
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * This constructor is ONLY to be invoked when we are reconstructing an
+   * multiple composite task from saved state. Ports will not be created with this 
+   * constructor, as they are already part of the JGraph state-space.
+   */
+
   public MultipleCompositeTask() {
     super();
     initialise();
   }
 
+  /**
+   * This constructor is to be invoked whenever we are creating a new 
+   * multiple composite task from scratch. It also creates the correct ports 
+   * needed for the task as an intended side-effect.
+   */
+  
   public MultipleCompositeTask(Point2D startPoint) {
     super(startPoint);
     initialise();
