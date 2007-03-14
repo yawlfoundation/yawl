@@ -22,6 +22,7 @@
 
 package au.edu.qut.yawl.editor.thirdparty.engine;
 
+import java.awt.Point;
 import java.io.File;
 
 import java.util.Iterator;
@@ -89,6 +90,8 @@ import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.unmarshal.YMetaData;
 
 public class EngineSpecificationImporter extends EngineEditorInterpretor {
+  
+  private static final Point DEFAULT_LOCATION = new Point(40,40);
   
   public void importEngineSpecificationFromFile(String fullFileName) {
     if (fullFileName == null) {
@@ -401,12 +404,12 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
   
   private InputCondition generateEditorInputCondition(YInputCondition engineInputCondition) {
-    InputCondition editorInputCondition = new InputCondition();
+    InputCondition editorInputCondition = new InputCondition(DEFAULT_LOCATION);
     return editorInputCondition;
   }
   
   private OutputCondition generateEditorOutputCondition(YOutputCondition engineOutputCondition) {
-    OutputCondition editorOutputCondition = new OutputCondition();
+    OutputCondition editorOutputCondition = new OutputCondition(DEFAULT_LOCATION);
     return editorOutputCondition;
   }
   
@@ -501,7 +504,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
 
   private AtomicTask generateEditorAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
-    AtomicTask editorAtomicTask = new AtomicTask();
+    AtomicTask editorAtomicTask = new AtomicTask(DEFAULT_LOCATION);
     
     if (engineAtomicTask.getDecompositionPrototype() == null) {
       return editorAtomicTask;
@@ -519,7 +522,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
 
   private MultipleAtomicTask generateEditorMultipleAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
-    MultipleAtomicTask editorMultipleAtomicTask = new MultipleAtomicTask();
+    MultipleAtomicTask editorMultipleAtomicTask = new MultipleAtomicTask(DEFAULT_LOCATION);
 
     if (engineAtomicTask.getDecompositionPrototype() == null) {
       return editorMultipleAtomicTask;
@@ -629,7 +632,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
   
   private CompositeTask generateEditorCompositeTask(YCompositeTask engineCompositeTask, NetGraphModel editorNet) {
-    CompositeTask editorCompositeTask = new CompositeTask();
+    CompositeTask editorCompositeTask = new CompositeTask(DEFAULT_LOCATION);
     
     NetGraphModel decomposedEditorNet = SpecificationModel.getInstance().getNetModelFromName(
       engineCompositeTask.getDecompositionPrototype().getID()    
@@ -643,7 +646,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
   
   private MultipleCompositeTask generateEditorMultipleCompositeTask(YCompositeTask engineCompositeTask, NetGraphModel editorNet) {
-    MultipleCompositeTask editorMultipleCompositeTask = new MultipleCompositeTask();
+    MultipleCompositeTask editorMultipleCompositeTask = new MultipleCompositeTask(DEFAULT_LOCATION);
 
     NetGraphModel decomposedEditorNet = SpecificationModel.getInstance().getNetModelFromName(
         engineCompositeTask.getDecompositionPrototype().getID()    
@@ -684,7 +687,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
   
   private Condition generateEditorCondition(YCondition engineCondition) {
-    Condition editorCondition = new Condition();
+    Condition editorCondition = new Condition(DEFAULT_LOCATION);
     return editorCondition;
   }
   

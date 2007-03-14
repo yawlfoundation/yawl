@@ -41,7 +41,7 @@ public class CompositeTask extends YAWLTask implements YAWLCompositeTask {
   public CompositeTask(Point2D startPoint) {
     super(startPoint);
   }
-  
+
   public String getUnfoldingNetName() {
     if (getDecomposition() != null) {
       return getDecomposition().getLabel();
