@@ -45,10 +45,22 @@ import org.jgraph.graph.GraphConstants;
 
 public abstract class YAWLTask extends YAWLVertex {
 
+  /**
+   * This constructor is ONLY to be invoked when we are reconstructing a task
+   * from saved state. Ports will not be created with this constructor, as they
+   * are already part of the JGraph state-space.
+   */
+
   public YAWLTask() {
     super();
     initialize();
   }
+
+  /**
+   * This constructor is to be invoked whenever we are creating a new task
+   * from scratch. It also creates the correct ports needed for the vertex
+   * as an intended side-effect.
+   */
 
   public YAWLTask(Point2D startPoint) {
     super(startPoint); 

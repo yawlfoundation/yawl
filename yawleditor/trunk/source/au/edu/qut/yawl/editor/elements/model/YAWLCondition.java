@@ -27,10 +27,21 @@ package au.edu.qut.yawl.editor.elements.model;
 import java.awt.geom.Point2D;
 
 public abstract class YAWLCondition extends YAWLVertex {
+
+  /**
+   * This constructor is ONLY to be invoked when we are reconstructing a vertex
+   * from saved state. Ports will not be created with this constructor, as they
+   * are already part of the JGraph state-space.
+   */
   public YAWLCondition() {
     super();
   }
   
+  /**
+   * This constructor is to be invoked whenever we are creating a new vertex
+   * from scratch. It also creates the correct ports needed for the vertex
+   * as an intended side-effect.
+   */
   public YAWLCondition(Point2D startPoint) {
     super(startPoint);
   }

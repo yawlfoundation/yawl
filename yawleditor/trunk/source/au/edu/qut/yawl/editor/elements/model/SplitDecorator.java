@@ -34,9 +34,21 @@ public class SplitDecorator extends Decorator {
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * This constructor is ONLY to be invoked when we are reconstructing a decorator
+   * from saved state. Ports will not be created with this constructor, as they
+   * are already part of the JGraph state-space.
+   */
+
   public SplitDecorator() {
     super();
   }
+
+  /**
+   * This constructor is to be invoked whenever we are creating a new decorator
+   * from scratch. It also creates the correct ports needed for the decorator
+   * as an intended side-effect.
+   */
 
   public SplitDecorator(YAWLTask task, int type, int position) {
     super(task, type, position);
