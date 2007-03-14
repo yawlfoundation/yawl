@@ -72,7 +72,12 @@ public abstract class YAWLVertex extends DefaultGraphCell
   protected HashMap serializationProofAttributeMap = new HashMap();
 
   private transient static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
-  
+
+  /**
+   * This constructor is ONLY to be invoked when we are reconstructing a vertex
+   * from saved state. Ports will not be created with this constructor, as they
+   * are already part of the JGraph state-space.
+   */
   public YAWLVertex() {
     super();
     setEngineIdNumber(
@@ -81,9 +86,14 @@ public abstract class YAWLVertex extends DefaultGraphCell
         )
     );
 
-    initialize(new Point(40,40));
-    addDefaultPorts();
+    initialize(new Point(10,10));
   }
+
+  /**
+   * This constructor is to be invoked whenever we are creating a new vertex
+   * from scratch. It also creates the correct ports needed for the vertex
+   * as an intended side-effect.
+   */
 
   public YAWLVertex(Point2D startPoint) {
     super();
