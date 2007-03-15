@@ -46,7 +46,7 @@ public class TestYWorkItemRepository extends AbstractTransactionalTestCase {
         _engine.getDao().save(identifier);
 //        YIdentifier.saveIdentifier( identifier, null, null );
 //        YWorkItemID workItemID = new YWorkItemID(identifier, "task-123");
-        _parentWorkItem = new YWorkItem("ASpecID", identifier, "task-123", false, false);
+        _parentWorkItem = new YWorkItem("ASpecID", "1", identifier, "task-123", false, false);
         _engine.getDao().save(_parentWorkItem);
 //        YWorkItem.saveWorkItem( _parentWorkItem );
         for (int i = 0; i < 5; i++) {
@@ -60,7 +60,7 @@ public class TestYWorkItemRepository extends AbstractTransactionalTestCase {
 
     public void testGetItem() throws YPersistenceException {
         assertTrue(_workitemRepository.getEnabledWorkItems().size() == 0);
-        new YWorkItem("A spec", new YIdentifier(), "task4321", false, false);
+        new YWorkItem("A spec", "1", new YIdentifier(), "task4321", false, false);
         assertEquals(
                 _workitemRepository.getWorkItem(
                         _parentWorkItem.getCaseID().toString(), _parentWorkItem.getTaskID()),
@@ -77,28 +77,28 @@ public class TestYWorkItemRepository extends AbstractTransactionalTestCase {
     	// create a couple work items
     	YIdentifier identifier = new YIdentifier();
     	_engine.getDao().save(identifier);
-    	YWorkItem item = new YWorkItem("A spec",
+    	YWorkItem item = new YWorkItem("A spec","1", 
     			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.IsParent );
     	_engine.getDao().save(item);
 
     	identifier = new YIdentifier();
     	_engine.getDao().save(identifier);
-    	item = new YWorkItem("A spec",
+    	item = new YWorkItem("A spec","1", 
     			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.Cancelled );
     	_engine.getDao().save(item);
     	
     	identifier = new YIdentifier();
     	_engine.getDao().save(identifier);
-    	item = new YWorkItem("A spec",
+    	item = new YWorkItem("A spec","1", 
     			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.IsParent );
     	_engine.getDao().save(item);
 
     	identifier = new YIdentifier();
     	_engine.getDao().save(identifier);
-    	item = new YWorkItem("A spec",
+    	item = new YWorkItem("A spec","1", 
     			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.Fired );
     	_engine.getDao().save(item);
@@ -114,28 +114,28 @@ public class TestYWorkItemRepository extends AbstractTransactionalTestCase {
     	// create a couple work items
     	YIdentifier identifier = new YIdentifier();
     	_engine.getDao().save(identifier);
-    	YWorkItem item = new YWorkItem("A spec",
+    	YWorkItem item = new YWorkItem("A spec","1", 
     			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.Complete );
     	_engine.getDao().save(item);
     	
     	identifier = new YIdentifier();
     	_engine.getDao().save(identifier);
-    	item = new YWorkItem("A spec",
+    	item = new YWorkItem("A spec","1", 
     			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.Cancelled );
     	_engine.getDao().save(item);
 
     	identifier = new YIdentifier();
     	_engine.getDao().save(identifier);
-    	item = new YWorkItem("A spec",
+    	item = new YWorkItem("A spec","1", 
     			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.IsParent );
     	_engine.getDao().save(item);
 
     	identifier = new YIdentifier();
     	_engine.getDao().save(identifier);
-    	item = new YWorkItem("A spec",
+    	item = new YWorkItem("A spec","1", 
     			identifier, "task4321", false, false);
     	item.setStatus( YWorkItem.Status.Complete );
     	_engine.getDao().save(item);

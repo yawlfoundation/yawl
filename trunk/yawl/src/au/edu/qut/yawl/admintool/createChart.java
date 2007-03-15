@@ -427,7 +427,7 @@ public class createChart extends HttpServlet{
                             
                         }
                         witem.setTaskID(event.getTaskid());
-                        witem.setSpecificationID(event.getDescription());
+                        witem.setSpecificationID(event.getSpecification());
                     }
                     
                     

@@ -33,7 +33,7 @@ public class TestYWorkItemHibernateDAO extends AbstractHibernateDAOTestCase {
 		YIdentifier yid = new YIdentifier("abc");
 		hibernateDAO.save( yid );
 //		YWorkItemID itemid = new YWorkItemID(yid,"test_task");
-		YWorkItem item = new YWorkItem("testspec",yid,"test_task",true,false);
+		YWorkItem item = new YWorkItem("testspec","1", yid,"test_task",true,false);
 		
 		hibernateDAO.save(item);
 		
@@ -63,7 +63,7 @@ public class TestYWorkItemHibernateDAO extends AbstractHibernateDAOTestCase {
 		DAO hibernateDAO = getDAO();
 		YIdentifier yid = new YIdentifier("abc");
 //		YWorkItemID itemid = new YWorkItemID(yid,"test_task");			
-		YWorkItem item = new YWorkItem("testspec",yid,"test_task",true,false);
+		YWorkItem item = new YWorkItem("testspec","1", yid,"test_task",true,false);
 		
 		hibernateDAO.save(yid);
 		hibernateDAO.save(item);
@@ -90,7 +90,7 @@ public class TestYWorkItemHibernateDAO extends AbstractHibernateDAOTestCase {
 		DAO hibernateDAO = getDAO();
 		YIdentifier yid = new YIdentifier("abc");
 //		YWorkItemID itemid = new YWorkItemID(yid,"test_task2");			
-		YWorkItem item = new YWorkItem("testspec2",yid,"test_task2",true,false);
+		YWorkItem item = new YWorkItem("testspec2","1", yid,"test_task2",true,false);
 		
 		String datastring = "<data><somedata1>XYZ</somedata1>" +
 		"<somedata2>XYZ</somedata2>" +

@@ -421,7 +421,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                     String caseIDStr = (String) _activeCasesTable.getValueAt(selectedRow, 1);
                     YIdentifier id = _engineManagement.getCaseID(caseIDStr);
                     if (id != null) {
-                        _engineManagement.cancelCase(id);
+                        _engineManagement.cancelCase(caseIDStr);
                         _activeCasesTableModel.removeRow(id.toString());
                     }
                 }

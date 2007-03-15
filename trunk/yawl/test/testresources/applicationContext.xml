@@ -81,6 +81,9 @@
                 <value>au.edu.qut.yawl.engine.domain.YCaseData</value>
                 <value>au.edu.qut.yawl.engine.domain.YWorkItem</value>
                 <value>au.edu.qut.yawl.engine.domain.YWorkItemID</value>
+                <value>au.edu.qut.yawl.admintool.model.HumanResource</value>
+			<value>au.edu.qut.yawl.util.MultiInstanceDataList</value>
+			<value>au.edu.qut.yawl.util.MultiInstanceData</value>
           	</list>
         </property>
 </bean>
@@ -125,7 +128,10 @@
 <aop:config>
      <aop:pointcut id="serviceOperation"
                  expression="execution(* au.edu.qut.yawl.engine.YEngine.*(..))"/>
+     <aop:pointcut id="abstractServiceOperation"
+                 expression="execution(* au.edu.qut.yawl.engine.AbstractEngine.*(..))"/>
      <aop:advisor pointcut-ref="serviceOperation" advice-ref="txAdvice"/>
+     <aop:advisor pointcut-ref="abstractServiceOperation" advice-ref="txAdvice"/>
 </aop:config>
 
   <tx:advice id="txAdvice">
@@ -143,6 +149,7 @@
       <tx:method name="rollback*" />
       <tx:method name="update*" />
       <tx:method name="init*" />
+      <tx:method name="get*" />
     </tx:attributes>
   </tx:advice>
 
@@ -150,7 +157,7 @@
     <property name="dispatchers">
         <list>
             <ref bean="HibernateEventDispatcher"/>
-            <ref bean="JMSEventDispatcher"/>
+ 
         </list>
     </property>
 </bean>

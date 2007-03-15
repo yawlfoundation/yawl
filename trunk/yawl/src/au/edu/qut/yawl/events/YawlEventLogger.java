@@ -48,42 +48,45 @@ public class YawlEventLogger {
         enabled = true;
     }
 
-    public void logWorkItemEvent(
-            String identifier,
-            String taskid,
-            YWorkItem.Status event,
-            String resource,
-            String description
-            ) throws YPersistenceException {
-
-
-        this.logWorkItemEvent(
-                identifier,
-                taskid,
-                event,
-                resource,
-                description,
-                null);
-
-    }
-
-    public void logWorkItemEvent(
+    public long logWorkItemEvent(
             String identifier,
             String taskid,
             YWorkItem.Status event,
             String resource,
             String description,
+            String specversion
+            ) throws YPersistenceException {
+
+
+        return this.logWorkItemEvent(
+                identifier,
+                taskid,
+                event,
+                resource,
+                description,
+                specversion,
+                null);
+
+    }
+
+    public long logWorkItemEvent(
+            String identifier,
+            String taskid,
+            YWorkItem.Status event,
+            String resource,
+            String description,
+            String specversion,
             String time
             ) throws YPersistenceException {
 
 
         if (!enabled)
-            return ;
+            return 0;
 
 
-
+        long eventid = getId();
         YWorkItemEvent newevent = new YWorkItemEvent();
-        newevent.setId(getId());
+        newevent.setId(eventid);
         
         newevent.setIdentifier(identifier);
 
@@ -91,8 +94,9 @@ public class YawlEventLogger {
 
         newevent.setEvent(""+event);
         newevent.setResource(resource);
-        newevent.setDescription(description);
-
+        newevent.setSpecification(description);
+        newevent.setSpecVersion(specversion);
+        
         if (time != null) {
             newevent.setTime(new Long(time).longValue());
         } else {
@@ -103,18 +107,19 @@ public class YawlEventLogger {
         for (YEventDispatcher dispatcher: dispatchers) {
         	dispatcher.fireEvent(newevent);
         }
-
+        return eventid;
+        
     }
 
-    public int logData(String name, String data, String io) throws YPersistenceException {
+    public void logData(String name, String data, String io, long lastevent) throws YPersistenceException {
 
         if (!enabled)
-            return -1;
+            return;
 
         YDataEvent ylogdata = new YDataEvent();
         ylogdata.setIo(io);
         
-        ylogdata.setEventid(""+getCurrentId());
+        ylogdata.setEventid(""+lastevent);
         
         ylogdata.setValue(data);
         ylogdata.setPort(name);
@@ -122,9 +127,6 @@ public class YawlEventLogger {
         for (YEventDispatcher dispatcher: dispatchers) {
         	dispatcher.fireEvent(ylogdata);
         }
-
-
-        return 0;
 
     }
 
@@ -140,7 +142,8 @@ public class YawlEventLogger {
      */
     public void logCaseCreated(String caseid,
                                String resource,
-                               String spec) throws YPersistenceException {
+                               String spec,
+                               String version) throws YPersistenceException {
         if (!enabled) return;
 
         YCaseEvent ylogid = new YCaseEvent();
@@ -148,6 +151,7 @@ public class YawlEventLogger {
         ylogid.setCreatedby(resource);
         ylogid.setSpecification(spec);
         ylogid.setCreated(System.currentTimeMillis());
+        ylogid.setSpecversion(version);
 
         for (YEventDispatcher dispatcher: dispatchers) {
 
@@ -287,21 +291,6 @@ public class YawlEventLogger {
     	sequence.setValue(Long.valueOf(value));
 
     	dao.save(sequence);
-    	return value;
-    }
-    
-    public long getCurrentId() throws YPersistenceException {
-    	DAO dao = EngineFactory.createYEngine().getDao();
-    	Restriction restriction = new PropertyRestriction("sequence", Comparison.EQUAL, "logsequence");
-    	List sequences = dao.retrieveByRestriction(IdentifierSequence.class, restriction);
-
-    	int value = 1;
-    	IdentifierSequence sequence = new IdentifierSequence("logsequence");            
-    	if(sequences.size() > 0) {
-    		sequence = (IdentifierSequence) sequences.get(0);
-    		value = sequence.getValue().intValue() + 1;
-    	}          
-
     	return value;
     }
 

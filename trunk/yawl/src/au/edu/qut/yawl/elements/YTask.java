@@ -307,7 +307,7 @@ public abstract class YTask extends YExternalNetElement {
         return getDataMappingsForTaskCompletion().keySet();
     }
 
-    @ManyToMany(fetch=FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name="yexternalnetelement_removeset")
     public Set<YExternalNetElement> getRemoveSet() {
     	return _removeSet;
@@ -1305,22 +1305,22 @@ public abstract class YTask extends YExternalNetElement {
         }
     }
 
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
     public YInternalCondition getMIActive() {
         return _mi_active;
     }
 
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
     public YInternalCondition getMIEntered() {
         return _mi_entered;
     }
 
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
     public YInternalCondition getMIComplete() {
         return _mi_complete;
     }
 
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
     public YInternalCondition getMIExecuting() {
         return _mi_executing;
     }
@@ -1344,7 +1344,7 @@ public abstract class YTask extends YExternalNetElement {
      */
     private Map<String, KeyValue> dataMappingsForTaskStartingSet = new HashMap<String, KeyValue>();
 
-    @OneToMany(mappedBy="task", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy="task", cascade={CascadeType.ALL})
     @MapKey(name="key")
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="Type='"+KeyValue.STARTING + "'")
@@ -1382,7 +1382,7 @@ public abstract class YTask extends YExternalNetElement {
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
     public Set<KeyValue> dataMappingsForTaskCompletionSet = new HashSet<KeyValue>();
-    @OneToMany(mappedBy="task", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy="task", cascade={CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="Type='" + KeyValue.COMPLETION+ "'")
     public Set<KeyValue> getDataMappingsForTaskCompletionSet() {

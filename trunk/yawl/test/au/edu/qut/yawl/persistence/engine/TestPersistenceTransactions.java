@@ -82,7 +82,7 @@ public class TestPersistenceTransactions extends AbstractTransactionalTestCase {
 
 		YIdentifier caseid = engine.getCaseID(caseid_string);
 		
-		engine.cancelCase(caseid);
+		engine.cancelCase(caseid.getId());
 		engine.unloadSpecification("singletask");
 		
 		System.out.println(engine.getStateForCase(caseid_string));

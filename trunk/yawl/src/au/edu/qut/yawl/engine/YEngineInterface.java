@@ -36,17 +36,23 @@ public interface YEngineInterface {
     
 	public void executeServiceNotifications();
 	
+    public String describeWorkItemChildren(String workItemID) throws YPersistenceException;    	
+    
+    public String describeWorkItems(Set workItems) throws YPersistenceException;
+
 	public String getDataForSpecifications(boolean loadedOnly) throws YPersistenceException;
 	public void addExceptionObserver(InterfaceX_EngineSideClient ix);
     public void addExceptionObserver(String observerURI);
     public List<String> addSpecifications(File specificationFile, boolean ignoreErors, List<YVerificationMessage> errorMessages) throws JDOMException, IOException, YPersistenceException;
     public void addYawlService(YAWLServiceReference yawlService) throws YPersistenceException;
     
+    public String getWorkItemDetails(String workItemID) throws YPersistenceException;
+    
     public void announceCancellationToEnvironment(URI yawlService, YWorkItem item);
     public void announceCancellationToExceptionService(YIdentifier caseID);
     public void announceTimeOutToExceptionService(YWorkItem item, List timeOutTaskIds);
-    public void cancelCase(YIdentifier id) throws YPersistenceException;
-    public void cancelWorkItem(YWorkItem workItem, boolean statusFail);
+    public void cancelCase(String caseid) throws YPersistenceException;
+    public void cancelWorkItem(String workItemID, boolean statusFail) throws YPersistenceException;
     public void checkElegibilityToAddInstances(String workItemID) throws YStateException, YPersistenceException;
     public void completeWorkItem(String workItemId, String data, boolean force)
     	throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException;

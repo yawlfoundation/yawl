@@ -91,7 +91,7 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
      * @hibernate.one-to-one name="multiInstanceAttributes"
      *    class="au.edu.qut.yawl.elements.YMultiInstanceAttributes"
      */
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
     @JoinColumn(name="multiinstanceattributes_fk")
     public YMultiInstanceAttributes getMultiInstanceAttributes() {
         return _multiInstAttr;
@@ -112,7 +112,7 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     private Set _yElementsSet = new HashSet();
 	
     //added for reduction rules mappings
-    @ManyToMany(targetEntity=au.edu.qut.yawl.elements.YTask.class, mappedBy="removeSet",fetch=FetchType.EAGER)
+    @ManyToMany(targetEntity=au.edu.qut.yawl.elements.YTask.class, mappedBy="removeSet")
     public Set getCancelledBySet(){
     	if (_cancelledBySet != null) {
     		return new HashSet(_cancelledBySet);
@@ -586,7 +586,7 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     }
 
 //    @Transient
-    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
+    @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Sort(type=SortType.NATURAL)
     public SortedSet<YFlow> getPostsetFlows() {
@@ -607,7 +607,7 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     }
 
 //    @Transient
-    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
+    @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Sort(type=SortType.NATURAL)
     public SortedSet<YFlow> getPresetFlows() {

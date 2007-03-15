@@ -78,6 +78,7 @@ public class YWorkItem {
 
 //    private YWorkItemID _workItemID;
     private String _specificationID;
+    private String _specificationversion;
     private Date _enablementTime;
     private Date _firingTime;
     private Date _startTime;
@@ -87,7 +88,7 @@ public class YWorkItem {
     private String _whoStartedMe;
     private boolean _allowsDynamicCreation;
     private Element _dataList;
-
+    private long lastevent;
     private YWorkItem _parent;
     private Set<YWorkItem> _children = new HashSet<YWorkItem>();
 
@@ -161,7 +162,7 @@ public class YWorkItem {
 
         while (iter.hasNext()) {
             Element child = (Element) iter.next();
-            YawlEventLogger.getInstance().logData(child.getName(), child.getValue(), "o");
+            YawlEventLogger.getInstance().logData(child.getName(), child.getValue(), "o", lastevent);
         }
 
     }
@@ -176,7 +177,7 @@ public class YWorkItem {
     /***********************************/
 
 
-    public YWorkItem(String specificationID, YIdentifier anIdentifier, String aTaskID,
+    public YWorkItem(String specificationID, String specversion, YIdentifier anIdentifier, String aTaskID,
                      boolean allowsDynamicCreation, boolean isDeadlocked) throws YPersistenceException {
         Logger.getLogger(this.getClass()).debug("Spec=" + specificationID + " WorkItem=" + aTaskID);
         setYIdentifier(anIdentifier);
@@ -184,6 +185,7 @@ public class YWorkItem {
         setTaskID(aTaskID);
         setIDString(getYIdentifier().toString() + ":" + getTaskID());
         _specificationID = specificationID;
+        _specificationversion = specversion;
         _enablementTime = new Date();
         _status = isDeadlocked ? Status.Deadlocked : Status.Enabled;
         _allowsDynamicCreation = allowsDynamicCreation;
@@ -195,9 +197,9 @@ public class YWorkItem {
 
         try {
 
-            YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
+            lastevent = YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
                     getTaskID()
-                    , _status, _whoStartedMe, _specificationID);
+                    , _status, _whoStartedMe, _specificationID, this._specificationversion);
 	    setThisId(this.getIDString());
 //        YPersistance.getInstance().storeData(this);
 // TODO           if (pmgr != null) {
@@ -220,7 +222,7 @@ public class YWorkItem {
     /*
      * Creates a fired WorkItem.  Private method.
      */
-    private YWorkItem(YIdentifier anIdentifier, String aTaskID, String specificationID,
+    private YWorkItem(YIdentifier anIdentifier, String aTaskID, String specificationID, String specversion,
                       Date workItemCreationTime, YWorkItem parent,
                       boolean allowsDynamicInstanceCreation) throws YPersistenceException {
         Logger.getLogger(this.getClass()).debug("Spec=" + specificationID + " WorkItem=" + getTaskID());
@@ -231,6 +233,7 @@ public class YWorkItem {
         setTaskID(aTaskID);
         setIDString(getYIdentifier().toString() + ":" + getTaskID());
         _specificationID = specificationID;
+        _specificationversion = specversion;
         _enablementTime = workItemCreationTime;
         _firingTime = new Date();
         _parent = parent;
@@ -240,9 +243,9 @@ public class YWorkItem {
         /***************************/
         /* INSERTED FOR LOGGING/PERSISTANCE */
         /********************/
-        YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
                 getTaskID()
-                , _status, _whoStartedMe, _specificationID);
+                , _status, _whoStartedMe, _specificationID, this._specificationversion);
 	setThisId(getIDString());
     }
 
@@ -253,7 +256,7 @@ public class YWorkItem {
                 return null;
             }
             YWorkItem childItem = new YWorkItem(childCaseID, getTaskID(),
-                    _specificationID,
+                    _specificationID, _specificationversion,
                     getEnablementTime(),
                     this,
                     _allowsDynamicCreation
@@ -265,9 +268,9 @@ public class YWorkItem {
             setStatus(Status.IsParent);
             _children.add(childItem);
             if (_children.size() == 1) {
-                YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
+            	lastevent = YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
                         getTaskID()
-                        , _status, _whoStartedMe, _specificationID);
+                        , _status, _whoStartedMe, _specificationID, this._specificationversion);
             }
             return childItem;
         }
@@ -288,9 +291,9 @@ public class YWorkItem {
         _startTime = new Date();
         _whoStartedMe = userName;
 
-        YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
                 getTaskID()
-                , _status, _whoStartedMe, _specificationID);
+                , _status, _whoStartedMe, _specificationID, this._specificationversion);
         /****************************/
     }
 
@@ -305,13 +308,13 @@ public class YWorkItem {
 
         setStatus(Status.Complete);
 
-        YawlEventLogger.getInstance().logWorkItemEvent(_parent.getYIdentifier().toString(),
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(_parent.getYIdentifier().toString(),
                 _parent.getTaskID()
-                , _status, _whoStartedMe, _specificationID);
+                , _status, _whoStartedMe, _specificationID, this._specificationversion);
 
-        YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
                 getTaskID()
-                , _status, _whoStartedMe, _specificationID);
+                , _status, _whoStartedMe, _specificationID, this._specificationversion);
         /************************************/
     }
     
@@ -345,9 +348,9 @@ public class YWorkItem {
         }
         setStatus(completionStatus);
 
-        YawlEventLogger.getInstance().logWorkItemEvent(_parent.getYIdentifier().toString(),
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(_parent.getYIdentifier().toString(),
                 _parent.getTaskID()
-                , _status, _whoStartedMe, _specificationID);
+                , _status, _whoStartedMe, _specificationID, this._specificationversion);
         /*
          * Check if all siblings  are completed, if so then
          * the parent is completed too.
@@ -371,13 +374,13 @@ public class YWorkItem {
 //            }
 //        }
 
-        YawlEventLogger.getInstance().logWorkItemEvent(
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(
                 _parent.getYIdentifier().toString(), _parent.getTaskID(),
-                _status, _whoStartedMe, _specificationID);
+                _status, _whoStartedMe, _specificationID, this._specificationversion);
 
-        YawlEventLogger.getInstance().logWorkItemEvent(
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(
                 getYIdentifier().toString(), getTaskID(),
-                _status, _whoStartedMe, _specificationID);
+                _status, _whoStartedMe, _specificationID, this._specificationversion);
     }
 
 
@@ -389,9 +392,9 @@ public class YWorkItem {
                     + _status + "\" it cannot be rolledBack to \"" + Status.Fired + "\"]");
         }
         setStatus(Status.Fired);
-        YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
                 getTaskID()
-                , _status, _whoStartedMe, _specificationID);
+                , _status, _whoStartedMe, _specificationID, this._specificationversion);
         /*************************/
 
         _startTime = null;
@@ -404,9 +407,9 @@ public class YWorkItem {
             _prevStatus = _status ;
             setStatus(Status.Suspended);
 
-            YawlEventLogger.getInstance().logWorkItemEvent(
+            lastevent = YawlEventLogger.getInstance().logWorkItemEvent(
                     getYIdentifier().toString(), getTaskID(),
-                    _status, _whoStartedMe, _specificationID);
+                    _status, _whoStartedMe, _specificationID, this._specificationversion);
         }
         else throw new RuntimeException(this + " [when current status is \""
                                 + _status + "\" it cannot be changed to \"Suspended\".]");
@@ -417,9 +420,9 @@ public class YWorkItem {
         setStatus(_prevStatus);
         _prevStatus = null ;
 
-        YawlEventLogger.getInstance().logWorkItemEvent(
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(
                 getYIdentifier().toString(), getTaskID(),
-                _status, _whoStartedMe, _specificationID);
+                _status, _whoStartedMe, _specificationID, this._specificationversion);
     }
 
 
@@ -439,7 +442,7 @@ public class YWorkItem {
          */
         while (iter.hasNext()) {
             Element child = (Element) iter.next();
-            YawlEventLogger.getInstance().logData(child.getName(), child.getValue(), "i");
+            YawlEventLogger.getInstance().logData(child.getName(), child.getValue(), "i", lastevent);
         }
     }
 
@@ -460,7 +463,7 @@ public class YWorkItem {
     private YIdentifier identifier;
     
     
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne
     public YIdentifier getYIdentifier() {
     	return identifier;
     }
@@ -581,7 +584,7 @@ public class YWorkItem {
     	_parent = item;
     }
 
-    @OneToMany(mappedBy="parent", fetch=FetchType.EAGER)
+    @OneToMany(mappedBy="parent")
     public Set<YWorkItem> getChildren() {
         return _children;
     }
@@ -751,4 +754,13 @@ public class YWorkItem {
     public YIdentifier getCaseID() {
     	return getYIdentifier();
     }
+
+    @Basic
+	public String getSpecificationversion() {
+		return _specificationversion;
+	}
+
+	public void setSpecificationversion(String _specificationversion) {
+		this._specificationversion = _specificationversion;
+	}
 }
