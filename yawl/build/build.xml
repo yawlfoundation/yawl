@@ -678,7 +678,6 @@
         <mkdir dir="${yawl.worklist.app.name}/secure/certificates/"/>
         <mkdir dir="${yawl.worklist.app.name}/secure/genDir/"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence"/>
-        <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/state"/>
     	<mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/domain"/>
@@ -715,9 +714,7 @@
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence" includes="*.class"/>
         </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed">
-            <fileset dir="${classes}/au/edu/qut/yawl/persistence/managed" includes="*.class"/>
-        </copy>
+
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao" includes="*.class"/>
         </copy>
@@ -1336,7 +1333,6 @@
         -->
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/lib"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/worklist"/>
         <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/elements/data"/>
@@ -1356,9 +1352,6 @@
 
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence" includes="*.class"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/managed">
-            <fileset dir="${classes}/au/edu/qut/yawl/persistence/managed" includes="*.class"/>
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/persistence/dao">
             <fileset dir="${classes}/au/edu/qut/yawl/persistence/dao"/>
