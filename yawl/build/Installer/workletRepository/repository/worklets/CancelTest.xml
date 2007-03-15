@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="CancelTest">
+    <metaData>
+      <title>CancelTest</title>
+      <creator>Adams</creator>
+      <description>Test spec for cancellation</description>
+      <version>0.1</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="CancelTest" isRootNet="true" xsi:type="NetFactsType">
+      <localVariable>
+        <name>time</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>3000</initialValue>
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <flowsInto>
+            <nextElementRef id="A_3" />
+          </flowsInto>
+        </inputCondition>
+        <task id="A_3">
+          <flowsInto>
+            <nextElementRef id="wait_5" />
+            <predicate>true()</predicate>
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="B_6" />
+            <predicate>true()</predicate>
+            <isDefaultFlow />
+          </flowsInto>
+          <join code="xor" />
+          <split code="or" />
+          <decomposesTo id="A" />
+        </task>
+        <task id="B_6">
+          <flowsInto>
+            <nextElementRef id="C_4" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="B" />
+        </task>
+        <task id="wait_5">
+          <flowsInto>
+            <nextElementRef id="C_4" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <removesTokens id="B_6" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;time&gt;{/CancelTest/time/text()}&lt;/time&gt;" />
+              <mapsTo>time</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="wait" />
+        </task>
+        <task id="C_4">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <decomposesTo id="C" />
+        </task>
+        <outputCondition id="OutputCondition_2" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="A" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="C" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="B" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="wait" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>time</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <yawlService id="http://localhost:8080/timeService/ib" />
+    </decomposition>
+  </specification>
+</specificationSet>
+
+

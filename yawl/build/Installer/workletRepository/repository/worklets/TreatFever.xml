@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="TreatFever">
+    <metaData>
+      <title>Treat Fever</title>
+      <creator>Adams</creator>
+      <description>No description has been given.</description>
+      <version>0.1</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="TreatFever" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Fever</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <processControlElements>
+        <inputCondition id="InputCondition_5">
+          <flowsInto>
+            <nextElementRef id="Test_Fever_7" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Test_Fever_7">
+          <flowsInto>
+            <nextElementRef id="Treat_Fever_8" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;PatientID&gt;{/TreatFever/PatientID/text()}&lt;/PatientID&gt;" />
+              <mapsTo>PatientID</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Notes&gt;{/TreatFever/Notes/text()}&lt;/Notes&gt;" />
+              <mapsTo>Notes</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Fever&gt;{/TreatFever/Fever/text()}&lt;/Fever&gt;" />
+              <mapsTo>Fever</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/TreatFever/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Notes&gt;{/Test_Fever/Notes/text()}&lt;/Notes&gt;" />
+              <mapsTo>Notes</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Test_Fever" />
+        </task>
+        <task id="Treat_Fever_8">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_6" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;PatientID&gt;{/TreatFever/PatientID/text()}&lt;/PatientID&gt;" />
+              <mapsTo>PatientID</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Notes&gt;{/TreatFever/Notes/text()}&lt;/Notes&gt;" />
+              <mapsTo>Notes</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Pharmacy&gt;{/TreatFever/Pharmacy/text()}&lt;/Pharmacy&gt;" />
+              <mapsTo>Pharmacy</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/TreatFever/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Treatment&gt;{/TreatFever/Treatment/text()}&lt;/Treatment&gt;" />
+              <mapsTo>Treatment</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Pharmacy&gt;{/Treat_Fever/Pharmacy/text()}&lt;/Pharmacy&gt;" />
+              <mapsTo>Pharmacy</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Treatment&gt;{/Treat_Fever/Treatment/text()}&lt;/Treatment&gt;" />
+              <mapsTo>Treatment</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Notes&gt;{/Treat_Fever/Notes/text()}&lt;/Notes&gt;" />
+              <mapsTo>Notes</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Treat_Fever" />
+        </task>
+        <outputCondition id="OutputCondition_6" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Treat_Fever" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Test_Fever" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Fever</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_SchemaBeta4.xsd">
+  <specification uri="TreatObesity">
+  	<name>Treat Obesity</name>
+  	<documentation>Worklet to treat obesity</documentation>
+    <metaData />
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="TreatObesity" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Wound</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <processControlElements>
+        <inputCondition id="0_InputCondition">
+          <flowsInto>
+            <nextElementRef id="2_Test_Weight" />
+          </flowsInto>
+        </inputCondition>
+        <task id="2_Test_Weight">
+          <flowsInto>
+            <nextElementRef id="3_Treat_Weight" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;PatientID&gt;{/TreatObesity/PatientID/text()}&lt;/PatientID&gt;" />
+              <mapsTo>PatientID</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Notes&gt;{/TreatObesity/Notes/text()}&lt;/Notes&gt;" />
+              <mapsTo>Notes</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Wound&gt;{/TreatObesity/Wound/text()}&lt;/Wound&gt;" />
+              <mapsTo>Wound</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/TreatObesity/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Notes&gt;{/Test_Weight/Notes/text()}&lt;/Notes&gt;" />
+              <mapsTo>Notes</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Test_Weight" />
+        </task>
+        <task id="3_Treat_Weight">
+          <flowsInto>
+            <nextElementRef id="1_OutputCondition" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;PatientID&gt;{/TreatObesity/PatientID/text()}&lt;/PatientID&gt;" />
+              <mapsTo>PatientID</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Notes&gt;{/TreatObesity/Notes/text()}&lt;/Notes&gt;" />
+              <mapsTo>Notes</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Pharmacy&gt;{/TreatObesity/Pharmacy/text()}&lt;/Pharmacy&gt;" />
+              <mapsTo>Pharmacy</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/TreatObesity/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Treatment&gt;{/TreatObesity/Treatment/text()}&lt;/Treatment&gt;" />
+              <mapsTo>Treatment</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Pharmacy&gt;{/Treat_Weight/Pharmacy/text()}&lt;/Pharmacy&gt;" />
+              <mapsTo>Pharmacy</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Notes&gt;{/Treat_Weight/Notes/text()}&lt;/Notes&gt;" />
+              <mapsTo>Notes</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Treatment&gt;{/Treat_Weight/Treatment/text()}&lt;/Treatment&gt;" />
+              <mapsTo>Treatment</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Treat_Weight" />
+        </task>
+        <outputCondition id="1_OutputCondition" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Treat_Weight" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Test_Weight" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Wound</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+
