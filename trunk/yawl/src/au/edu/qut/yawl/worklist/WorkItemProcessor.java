@@ -222,9 +222,13 @@ public class WorkItemProcessor {
         // set instance data
         System.out.println("WIP item.schema: "+schema);
 
-        
-        InstanceBuilder ib = new InstanceBuilder(schema, taskInfo.getDecompositionID(), item.getDataListString());
-        parameters.put("instance", ib.getInstance());
+        String data = _worklistController.getDataForWorkItem(workItemID);
+        if (data!=null) {
+        	parameters.put("instance", data);
+        } else {
+        	InstanceBuilder ib = new InstanceBuilder(schema, taskInfo.getDecompositionID(), item.getDataListString());
+        	parameters.put("instance", ib.getInstance());
+        }
         
         // set input params (if any exist)
         YParametersSchema paramsSignature = taskInfo.getParamSchema();
