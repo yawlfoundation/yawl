@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="OrganiseRefreshments">
+    <metaData>
+      <title>Organise Refreshments</title>
+      <creator>Adams</creator>
+      <description>See to the band's every need</description>
+      <version>0.1</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="OrganiseRefreshments" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <localVariable>
+        <name>Bags</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>100</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>Colour</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>Browns</initialValue>
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <flowsInto>
+            <nextElementRef id="Buy_M_and_Ms_5" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Buy_M_and_Ms_5">
+          <flowsInto>
+            <nextElementRef id="Prepare_M_and_Ms_4" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Bags&gt;{/OrganiseRefreshments/Bags/text()}&lt;/Bags&gt;" />
+              <mapsTo>Bags</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Bags&gt;{/Buy_M_and_Ms/Bags/text()}&lt;/Bags&gt;" />
+              <mapsTo>Bags</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Buy_M_and_Ms" />
+        </task>
+        <task id="Prepare_M_and_Ms_4">
+          <flowsInto>
+            <nextElementRef id="Deliver_3" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Remove&gt;{/OrganiseRefreshments/Colour/text()}&lt;/Remove&gt;" />
+              <mapsTo>Remove</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Colour&gt;{/Prepare_M_and_Ms/Remove/text()}&lt;/Colour&gt;" />
+              <mapsTo>Colour</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Prepare_M_and_Ms" />
+        </task>
+        <task id="Deliver_3">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Venue&gt;{/OrganiseRefreshments/VenueName/text()}&lt;/Venue&gt;" />
+              <mapsTo>Venue</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;VenueName&gt;{/Deliver/Venue/text()}&lt;/VenueName&gt;" />
+              <mapsTo>VenueName</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Deliver" />
+        </task>
+        <outputCondition id="OutputCondition_2" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Prepare_M_and_Ms" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>Remove</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Remove</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Deliver" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>Venue</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Venue</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Buy_M_and_Ms" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>Bags</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Bags</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+

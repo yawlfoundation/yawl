@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="TimeoutTest2">
+    <metaData>
+      <title>TimeOut Test 2</title>
+      <creator>Adams</creator>
+      <description>Test timeout with or join</description>
+      <version>0.1</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="TimeoutTest2" isRootNet="true" xsi:type="NetFactsType">
+      <localVariable>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>150</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>Bike</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>Bill</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>24680</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>0</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>time</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>5000</initialValue>
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <flowsInto>
+            <nextElementRef id="Fill_Order_4" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Fill_Order_4">
+          <flowsInto>
+            <nextElementRef id="Receive_Payment_3" />
+            <predicate>true()</predicate>
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="wait_6" />
+            <predicate>true()</predicate>
+          </flowsInto>
+          <join code="xor" />
+          <split code="or" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Cost&gt;{/TimeoutTest2/Cost/text()}&lt;/Cost&gt;" />
+              <mapsTo>Cost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Item&gt;{/TimeoutTest2/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;OrderNum&gt;{/TimeoutTest2/OrderNum/text()}&lt;/OrderNum&gt;" />
+              <mapsTo>OrderNum</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/TimeoutTest2/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Item&gt;{/Fill_Order/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;OrderNum&gt;{/Fill_Order/OrderNum/text()}&lt;/OrderNum&gt;" />
+              <mapsTo>OrderNum</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/Fill_Order/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Cost&gt;{/Fill_Order/Cost/text()}&lt;/Cost&gt;" />
+              <mapsTo>Cost</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Fill_Order" />
+        </task>
+        <task id="wait_6">
+          <flowsInto>
+            <nextElementRef id="Archive_5" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;time&gt;{/TimeoutTest2/time/text()}&lt;/time&gt;" />
+              <mapsTo>time</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="wait" />
+        </task>
+        <task id="Receive_Payment_3">
+          <flowsInto>
+            <nextElementRef id="Archive_5" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Paid&gt;{/TimeoutTest2/Paid/text()}&lt;/Paid&gt;" />
+              <mapsTo>Paid</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Cost&gt;{/TimeoutTest2/Cost/text()}&lt;/Cost&gt;" />
+              <mapsTo>Cost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;OrderNum&gt;{/TimeoutTest2/OrderNum/text()}&lt;/OrderNum&gt;" />
+              <mapsTo>OrderNum</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Paid&gt;{/Receive_Payment/Paid/text()}&lt;/Paid&gt;" />
+              <mapsTo>Paid</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;OrderNum&gt;{/Receive_Payment/OrderNum/text()}&lt;/OrderNum&gt;" />
+              <mapsTo>OrderNum</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Cost&gt;{/Receive_Payment/Cost/text()}&lt;/Cost&gt;" />
+              <mapsTo>Cost</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Receive_Payment" />
+        </task>
+        <task id="Archive_5">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <decomposesTo id="Archive" />
+        </task>
+        <outputCondition id="OutputCondition_2" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Archive" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Fill_Order" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Receive_Payment" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="wait" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>time</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <yawlService id="http://localhost:8080/timeService/ib" />
+    </decomposition>
+  </specification>
+</specificationSet>
+
+

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_SchemaBeta4.xsd">
+  <specification uri="BobThree">
+  	<name>Bob Three</name>
+  	<documentation>Worklet to enact when bob is three</documentation>
+    <metaData />
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="BobThree" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <name>SomeBob</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>SomeBob</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <processControlElements>
+        <inputCondition id="0_InputCondition">
+          <flowsInto>
+            <nextElementRef id="2_Get_Bob_Three" />
+          </flowsInto>
+        </inputCondition>
+        <task id="2_Get_Bob_Three">
+          <flowsInto>
+            <nextElementRef id="1_OutputCondition" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;SomeBob&gt;{/BobThree/SomeBob/text()}&lt;/SomeBob&gt;" />
+              <mapsTo>SomeBob</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;SomeBob&gt;{/Get_Bob_Three/SomeBob/text()}&lt;/SomeBob&gt;" />
+              <mapsTo>SomeBob</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Get_Bob_Three" />
+        </task>
+        <outputCondition id="1_OutputCondition" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Get_Bob_Three" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>SomeBob</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>SomeBob</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+

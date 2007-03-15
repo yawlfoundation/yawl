@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawl.fit.qut.edu.au/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.yawl.fit.qut.edu.au/ d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="ChangeToLargerVenue">
+    <metaData>
+      <title>ChangeToLargerVenue</title>
+      <creator>Adams</creator>
+      <description>Action taken if ticket sales are more than expected</description>
+      <version>0.1</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="ChangeToLargerVenue" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <name>VenueCost</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Seating</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>VenueCost</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Seating</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <flowsInto>
+            <nextElementRef id="CancelStadium_3" />
+          </flowsInto>
+        </inputCondition>
+        <task id="CancelStadium_3">
+          <flowsInto>
+            <nextElementRef id="Book_Racecourse_5" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;VenueCost&gt;{/ChangeToLargerVenue/VenueCost/text()}&lt;/VenueCost&gt;" />
+              <mapsTo>VenueCost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;VenueName&gt;{/ChangeToLargerVenue/VenueName/text()}&lt;/VenueName&gt;" />
+              <mapsTo>VenueName</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;VenueName&gt;{/CancelStadium/VenueName/text()}&lt;/VenueName&gt;" />
+              <mapsTo>VenueName</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;VenueCost&gt;{/CancelStadium/VenueCost/text()}&lt;/VenueCost&gt;" />
+              <mapsTo>VenueCost</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="CancelStadium" />
+        </task>
+        <task id="Book_Racecourse_5">
+          <flowsInto>
+            <nextElementRef id="Tell_Punters_4" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;VenueCost&gt;{/ChangeToLargerVenue/VenueCost/text()}&lt;/VenueCost&gt;" />
+              <mapsTo>VenueCost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Seating&gt;{/ChangeToLargerVenue/Seating/text()}&lt;/Seating&gt;" />
+              <mapsTo>Seating</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;VenueName&gt;{/ChangeToLargerVenue/VenueName/text()}&lt;/VenueName&gt;" />
+              <mapsTo>VenueName</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;VenueCost&gt;{/Book_Racecourse/VenueCost/text()}&lt;/VenueCost&gt;" />
+              <mapsTo>VenueCost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;VenueName&gt;{/Book_Racecourse/VenueName/text()}&lt;/VenueName&gt;" />
+              <mapsTo>VenueName</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Seating&gt;{/Book_Racecourse/Seating/text()}&lt;/Seating&gt;" />
+              <mapsTo>Seating</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Book_Racecourse" />
+        </task>
+        <task id="Tell_Punters_4">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Seating&gt;{/ChangeToLargerVenue/Seating/text()}&lt;/Seating&gt;" />
+              <mapsTo>Seating</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;VenueName&gt;{/ChangeToLargerVenue/VenueName/text()}&lt;/VenueName&gt;" />
+              <mapsTo>VenueName</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="Tell_Punters" />
+        </task>
+        <outputCondition id="OutputCondition_2" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Tell_Punters" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>Seating</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+    </decomposition>
+    <decomposition id="Book_Racecourse" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>VenueCost</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Seating</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>VenueCost</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Seating</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="CancelStadium" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>VenueCost</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>VenueCost</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+
