@@ -991,7 +991,7 @@ public class YEngine extends AbstractEngine {
      * SYNC'D External interface
      */
     	synchronized (mutex) {
-    		super.cancelCase(id);
+    		cancelCase(id);
     	}
 	}
 
@@ -1260,7 +1260,10 @@ public class YEngine extends AbstractEngine {
     }
 
 
-    public void cancelWorkItem(YWorkItem workItem, boolean statusFail)  {
+    public void cancelWorkItem(String workItemID, boolean statusFail) throws YPersistenceException {
+    	
+    	YWorkItem workItem = getWorkItem(workItemID);
+    	
         synchronized (mutex) {
             super.cancelWorkItem(workItem, statusFail);
         }

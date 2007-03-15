@@ -32,8 +32,9 @@ public class YWorkItemEvent implements Serializable {
     public String event = null;
     public String identifier = null;
     public String taskid = null;
-    public String description = null;
-
+    public String specification = null;
+    public String specversion = null;
+    
     public YWorkItemEvent() {
     }
     
@@ -94,12 +95,21 @@ public class YWorkItemEvent implements Serializable {
     }
 
     @Basic
-    public String getDescription() {
-        return description;
+    public String getSpecification() {
+        return specification;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setSpecification(String specification) {
+        this.specification = specification;
+    }
+    
+    @Basic
+    public String getSpecVersion() {
+        return specversion;
+    }
+
+    public void setSpecVersion(String specversion) {
+        this.specversion = specversion;
     }
 
     public boolean equals(Object o) {

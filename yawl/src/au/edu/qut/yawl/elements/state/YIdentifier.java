@@ -102,7 +102,7 @@ public class YIdentifier implements Serializable {
         this.specVersion = specVersion;
     }
 
-    @OneToMany(mappedBy="parent",cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+    @OneToMany(mappedBy="parent",cascade={CascadeType.ALL})
     //@OnDelete(action=OnDeleteAction.CASCADE)
     public Set<YIdentifier> getChildren() {
         return _children;

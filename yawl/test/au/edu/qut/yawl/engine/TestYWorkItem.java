@@ -46,13 +46,13 @@ public class TestYWorkItem extends AbstractTransactionalTestCase{
 //        YIdentifier.saveIdentifier( _identifier, null, null );
         _childIdentifier = _identifier.createChild();
 //        _workItemID = new YWorkItemID(_identifier, "task-123");
-        _workItem = new YWorkItem("ASpecID", _identifier, "task-123", true, false);
+        _workItem = new YWorkItem("ASpecID", "1", _identifier, "task-123", true, false);
 //        getDAO().save(_workItem);
 //        YWorkItem.saveWorkItem( _workItem );
         
         _deadlockedWorkItemIdentifier = new YIdentifier();
 //        _deadlockedWorkItemID = new YWorkItemID(_deadlockedWorkItemIdentifier, "task-abc");
-        _deadlockedWorkItem = new YWorkItem("AnotherSpecID", _deadlockedWorkItemIdentifier, "task-abc", true, true );
+        _deadlockedWorkItem = new YWorkItem("AnotherSpecID", "1", _deadlockedWorkItemIdentifier, "task-abc", true, true );
     }
 
 

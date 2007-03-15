@@ -31,13 +31,13 @@ import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
 import au.edu.qut.yawl.elements.YDecomposition;
 
-import au.edu.qut.yawl.elements.YTask;
 
-import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.domain.YWorkItem;
+
+
 
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngineInterface;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.exceptions.YAWLException;
 import au.edu.qut.yawl.exceptions.YAuthenticationException;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
@@ -134,9 +134,9 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-	        YWorkItem workItem = _engine.getWorkItem(workItemID);
+	        Object workItem = _engine.getWorkItem(workItemID);
 	        if (workItem != null) {
-	            return workItem.toXML();
+	            return _engine.getWorkItemDetails(workItemID);
 	        } else {
 	            return
 	                    OPEN_FAILURE +
@@ -212,11 +212,11 @@ public class EngineGatewayImpl implements EngineGateway {
     public String suspendWorkItem(String workItemID, String sessionHandle) throws RemoteException {
         try {
             _userList.checkConnection(sessionHandle);
-            YWorkItem item = _engine.suspendWorkItem(workItemID);
+            Object item = _engine.suspendWorkItem(workItemID);
             _engine.executeServiceNotifications();
 
             if (item != null)
-                return OPEN_SUCCESS + item.toXML() + CLOSE_SUCCESS;
+                return OPEN_SUCCESS + _engine.getWorkItemDetails(workItemID) + CLOSE_SUCCESS;
             else
                 return OPEN_FAILURE +
                         "WorkItem with ID [" + workItemID + "] not found." +
@@ -241,11 +241,11 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
 
-            YWorkItem item = _engine.unsuspendWorkItem(workItemID);
+            Object item = _engine.unsuspendWorkItem(workItemID);
             _engine.executeServiceNotifications();
 
             if (item != null)
-                return OPEN_SUCCESS + item.toXML() + CLOSE_SUCCESS;
+                return OPEN_SUCCESS + _engine.getWorkItemDetails(workItemID) + CLOSE_SUCCESS;
             else
                 return OPEN_FAILURE +
                         "WorkItem with ID [" + workItemID + "] not found." +
@@ -333,7 +333,7 @@ public class EngineGatewayImpl implements EngineGateway {
                			". The engine returned no work items." );
                }
                _engine.executeServiceNotifications();
-                return OPEN_SUCCESS + child.toXML() + CLOSE_SUCCESS;
+                return OPEN_SUCCESS + _engine.getWorkItemDetails(child.getIDString()) + CLOSE_SUCCESS;
 
         } catch (YStateException e) {
             return OPEN_FAILURE + "No work item with id = " + workItemID + CLOSE_FAILURE;
@@ -367,7 +367,7 @@ public class EngineGatewayImpl implements EngineGateway {
             YWorkItem newItem = _engine.createNewInstance(workItemID, paramValueForMICreation);
             _engine.executeServiceNotifications();
 
-            return OPEN_SUCCESS + newItem.toXML() + CLOSE_SUCCESS;
+            return OPEN_SUCCESS + _engine.getWorkItemDetails(newItem.getIDString()) + CLOSE_SUCCESS;
         } catch (YStateException e) {
             return OPEN_FAILURE + "No work item with id = " + workItemID + CLOSE_FAILURE;
           	
@@ -393,7 +393,7 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-        	return describeWorkItems(_engine.getAllWorkItems());
+        	return _engine.describeWorkItems(null);
         }
         catch(YPersistenceException e) {
         	return OPEN_FAILURE + formatException(e) + CLOSE_FAILURE;
@@ -555,9 +555,9 @@ public class EngineGatewayImpl implements EngineGateway {
             Set caseIDs = _engine.getCasesForSpecification(specID);
             StringBuffer result = new StringBuffer();
             for (Iterator iterator = caseIDs.iterator(); iterator.hasNext();) {
-                YIdentifier caseID = (YIdentifier) iterator.next();
+                String caseID = (String) iterator.next();
                 result.append("<caseID>");
-                result.append(caseID.toString());
+                result.append(caseID);
                 result.append("</caseID>");
             }
             return result.toString();
@@ -586,9 +586,9 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-        	YIdentifier id = _engine.getCaseID(caseID);
+        	Object id = _engine.getCaseID(caseID);
         	if (id != null) {
-        		return _engine.getStateForCase(id);
+        		return _engine.getStateForCase(caseID);
         	}
         	return OPEN_FAILURE + "Case [" + caseID + "] not found." + CLOSE_FAILURE;
         }
@@ -617,9 +617,9 @@ public class EngineGatewayImpl implements EngineGateway {
         	return OPEN_FAILURE + "Cannot cancel a case with a null id" + CLOSE_FAILURE;
         }
         try {
-            YIdentifier id = _engine.getCaseID(caseID);
+            Object id = _engine.getCaseID(caseID);
             if (id != null) {
-                _engine.cancelCase(id);
+                _engine.cancelCase(caseID);
                 _engine.executeServiceNotifications();
 
                 return SUCCESS;
@@ -648,8 +648,8 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + formatException( e ) + CLOSE_FAILURE;
         }
         try {
-        	YWorkItem item = _engine.getWorkItem(workItemID);
-        	return describeWorkItems(_engine.getChildrenOfWorkItem(item));
+        	
+        	return _engine.describeWorkItemChildren(workItemID);
         }
         catch(YPersistenceException e) {
         	return OPEN_FAILURE + formatException(e) + CLOSE_FAILURE;
@@ -774,12 +774,14 @@ public class EngineGatewayImpl implements EngineGateway {
             if( ! temp.delete() )
             	temp.deleteOnExit();
         }
+        
         if (errorMessages.size() > 0) {
             StringBuffer errorMsg = new StringBuffer();
             errorMsg.append(OPEN_FAILURE);
             for (int i = 0; i < errorMessages.size(); i++) {
                 YVerificationMessage message = (YVerificationMessage) errorMessages.get(i);
                 errorMsg.append("<error>");
+/*
                 Object src = message.getSource();
                 if (src instanceof YTask) {
                     YDecomposition decomp = ((YTask) src).getDecompositionPrototype();
@@ -790,6 +792,7 @@ public class EngineGatewayImpl implements EngineGateway {
                                 append("</src>");
                     }
                 }
+*/
                 errorMsg.append("<message>").
                         append(message.getMessage()).
                         append("</message></error>");
@@ -1013,18 +1016,6 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
-    private String describeWorkItems(Set workItems) {
-        StringBuffer result = new StringBuffer();
-        Iterator iter = workItems.iterator();
-        while (iter.hasNext()) {
-            YWorkItem workitem = (YWorkItem) iter.next();
-
-            result.append(workitem.toXML());
-        }
-        return result.toString();
-    }
-
-
     /***************************************************************************/
 
     /** The following methods are called by an Exception Service via Interface_X */
@@ -1104,8 +1095,7 @@ public class EngineGatewayImpl implements EngineGateway {
                                                                  throws RemoteException {
         try {
             _userList.checkConnection(sessionHandle);
-            YWorkItem item = _engine.getWorkItem(workItemID);
-            _engine.cancelWorkItem(item, fail.equalsIgnoreCase("true")) ;
+            _engine.cancelWorkItem(workItemID, fail.equalsIgnoreCase("true")) ;
             _engine.executeServiceNotifications();
 
             return SUCCESS ;

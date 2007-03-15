@@ -139,7 +139,7 @@ public class InternalRunnerHibernateDAO implements DAO{
        
 	}
 	
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
 	public WorkItemRecord getWorkItemRecord() {
 		return itemRecord;
 	}

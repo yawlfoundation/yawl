@@ -27,6 +27,7 @@ public class ElementsTestSuite extends TestSuite{
 	 */
     public static Test suite(){
         TestSuite suite = new ElementsTestSuite();
+        suite.addTestSuite(TestServiceGateway.class);
         suite.addTestSuite(TestDataParsing.class);
         suite.addTestSuite(TestDeepClone.class);
         suite.addTestSuite(TestYAtomicTask.class);

@@ -146,7 +146,7 @@ public class YCompositeTask extends YTask {
     
     private List<YNetRunner> runners = new ArrayList<YNetRunner>();
     
-    @OneToMany (mappedBy="containingCompositeTask", cascade= {CascadeType.ALL}, fetch=FetchType.EAGER)
+    @OneToMany (mappedBy="containingCompositeTask", cascade= {CascadeType.ALL})
 //    @org.hibernate.annotations.IndexColumn(name = "runner_number")
 //	@OnDelete(action=OnDeleteAction.CASCADE)
 	public List<YNetRunner> getRunners() {

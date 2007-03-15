@@ -197,6 +197,7 @@ public class TestYAtomicTask extends AbstractTransactionalTestCase {
 		    	
 		 YWorkItem item = new
 		 YWorkItem(_atomicTask1.getParent().getParent().getID(),
+				 _atomicTask1.getParent().getParent().getVersion().toString(),
 		 id, _atomicTask1.getID(), false, false);
 		 engine.getDao().save(item);
 		    	
@@ -254,6 +255,7 @@ public class TestYAtomicTask extends AbstractTransactionalTestCase {
 //		repos.clear();
 
 		YWorkItem item = new YWorkItem(task.getParent().getParent().getID(),
+				_atomicTask1.getParent().getParent().getVersion().toString(),
 				id, task.getID(), false, false);
 		engine.getDao().save(item);
 

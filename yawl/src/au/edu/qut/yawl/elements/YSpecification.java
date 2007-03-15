@@ -651,7 +651,7 @@ public class YSpecification implements Parented, Cloneable, YVerifiable, Seriali
         return _xmlToolsForYAWL;
     }
 
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
     @JoinColumn(name="metadata_fk")
     public YMetaData getMetaData() {
         return _metaData;

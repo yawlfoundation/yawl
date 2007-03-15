@@ -32,6 +32,7 @@ public class YCaseEvent implements Serializable {
     private long completed = 0;
     private String createdby = null;
     private String specification = null;
+    private String specversion = null;
     private String parent = null;
     private long timetaken = 0;
     private long count = 0;
@@ -117,5 +118,14 @@ public class YCaseEvent implements Serializable {
 	
 	public void setTime( long timetaken ) {
 		this.timetaken = timetaken;
+	}
+
+	@Basic
+	public String getSpecversion() {
+		return specversion;
+	}
+
+	public void setSpecversion(String specversion) {
+		this.specversion = specversion;
 	}
 }

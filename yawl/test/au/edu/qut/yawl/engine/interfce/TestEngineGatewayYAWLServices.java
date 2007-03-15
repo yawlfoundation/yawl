@@ -121,7 +121,6 @@ public class TestEngineGatewayYAWLServices extends AbstractTransactionalTestCase
     	
     	while( length > 0 ) {
     		String temp = result.substring( 0, length );
-    		System.out.println( "parsing yawl service: " + temp );
     		YAWLServiceReference ref = YAWLServiceReference.unmarshal( temp );
     		refs.put( ref.getYawlServiceID(), ref );
     		

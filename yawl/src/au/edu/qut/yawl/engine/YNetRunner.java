@@ -148,7 +148,7 @@ public class YNetRunner implements Serializable // extends Thread
         //_net.restoreData(casedata);
     }
 
-    @OneToOne(cascade=CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade=CascadeType.ALL)
     @OnDelete(action=OnDeleteAction.CASCADE) 
     public YNet getNet() {
         return _net;
@@ -169,13 +169,13 @@ public class YNetRunner implements Serializable // extends Thread
     /**
      * @hibernate.many-to-one
      */
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     public YCaseData getCasedata() {
         return casedata;
     }
 
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     public void setCasedata(YCaseData data) {
         casedata = data;
@@ -437,11 +437,12 @@ public class YNetRunner implements Serializable // extends Thread
 
     private void createDeadlockItem(YExternalNetElement netElement) throws YPersistenceException {
         String specificationID = _net.getParent().getID();
+        String specversion = _net.getParent().getVersion().toString();
         boolean allowsNewInstances = false;
         boolean isDeadlocked = true;
 //        YWorkItemID deadlockWorkItemID = new YWorkItemID(_caseIDForNet,
 //                netElement.getID());
-        YWorkItem item = new YWorkItem(specificationID,
+        YWorkItem item = new YWorkItem(specificationID, specversion, 
                 _caseIDForNet,
                 netElement.getID(),
                 allowsNewInstances,
@@ -779,9 +780,13 @@ public class YNetRunner implements Serializable // extends Thread
 
         //creating a new work item puts it into the work item
         //repository automatically.
+        String specversion = _net.getParent().getVersion().toString();
+        
         YWorkItem workItem = new YWorkItem(atomicTask.getParent().getParent().getID(),
+        		specversion,
                 caseIDForNet, atomicTask.getID(),
                 allowDynamicCreation, false);
+
         if (atomicTask.getDataMappingsForEnablement().size() > 0) {
         	System.out.println("this workitem has enablement data");
             Element data = null;
@@ -1044,7 +1049,7 @@ public class YNetRunner implements Serializable // extends Thread
     }
 
 
-    @OneToMany(cascade={CascadeType.ALL}, fetch= FetchType.EAGER)
+    @OneToMany(cascade={CascadeType.ALL})
     @JoinTable(
             name="busy_task_set",
             joinColumns = { @JoinColumn( name="netrunner_id") },
@@ -1058,7 +1063,7 @@ public class YNetRunner implements Serializable // extends Thread
     	_busyTasks = tasks;
     }
 
-    @OneToMany(cascade={CascadeType.ALL}, fetch= FetchType.EAGER)
+    @OneToMany(cascade={CascadeType.ALL})
     @JoinTable(
             name="enabled_task_set",
             joinColumns = { @JoinColumn( name="netrunner_id") },

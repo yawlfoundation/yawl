@@ -176,6 +176,7 @@
       <tx:method name="rollback*" />
       <tx:method name="update*" />
       <tx:method name="init*" />
+      <tx:method name="desc*" />
     </tx:attributes>
   </tx:advice>
 

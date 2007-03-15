@@ -160,13 +160,13 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
     private YCaseData casedata;
 
         
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
 	protected YCaseData getCasedata() {
 		return casedata;
 	}
 
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     protected void setCasedata( YCaseData casedata ) {
 		this.casedata = casedata;		
@@ -233,7 +233,7 @@ public class YDecomposition implements Parented<YSpecification>, Cloneable, YVer
         _data.setRootElement(new Element(getRootDataElementName()));
     }
 
-    @CollectionOfElements(fetch=FetchType.EAGER)
+    @CollectionOfElements
     public Map<String, String> getAttributes() {
         return _attributes;
     }

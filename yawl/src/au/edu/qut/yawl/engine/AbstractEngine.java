@@ -301,7 +301,9 @@ public abstract class AbstractEngine implements YEngineInterface,
             runner.continueIfPossible();
 
             // LOG CASE EVENT
-            YawlEventLogger.getInstance().logCaseCreated(runner.getCaseID().toString(), username, specID);
+            YawlEventLogger.getInstance().logCaseCreated(runner.getCaseID().toString(),
+            		username, specID, 
+            		runner.getNet().getParent().getVersion().toString());
 
             runner.start();
 
@@ -406,9 +408,11 @@ public abstract class AbstractEngine implements YEngineInterface,
      * @param id
      * @throws YPersistenceException
      */
-    public void cancelCase(YIdentifier id) throws YPersistenceException {
+    public void cancelCase(String caseid) throws YPersistenceException {
         logger.debug("--> cancelCase");
 
+        YIdentifier id = getCaseID(caseid);
+        
         if (id == null) {
             throw new IllegalArgumentException("should not cancel case with a null id");
         }
@@ -1420,7 +1424,7 @@ public abstract class AbstractEngine implements YEngineInterface,
     }
     
     public Set getCasesForSpecification(String specID, Integer version) throws YPersistenceException {
-        Set<YIdentifier> resultSet = new HashSet<YIdentifier>();
+        Set<String> resultSet = new HashSet<String>();
         
         Restriction restriction = new PropertyRestriction("specURI", Comparison.EQUAL, specID);
         if( version != null ) {
@@ -1450,11 +1454,14 @@ public abstract class AbstractEngine implements YEngineInterface,
         
         for( YIdentifier id : ids ) {
             if( id.getParent() == null && id.getSpecURI() != null && id.toString().indexOf( "." ) < 0 )
-                resultSet.add( id );
+                resultSet.add( id.toString() );
         }
         return resultSet;
     }
 
+    public String getWorkItemDetails(String workItemID) throws YPersistenceException {
+    	return getWorkItem(workItemID).toXML();
+    }
 
     public YAWLServiceReference getRegisteredYawlService(String yawlServiceID) {
     	try {
@@ -1507,6 +1514,29 @@ public abstract class AbstractEngine implements YEngineInterface,
 
     public Set getChildrenOfWorkItem(YWorkItem workItem) throws YPersistenceException {
             return YEngine._workItemRepository.getChildrenOf(workItem.getIDString());
+    }
+
+    public String describeWorkItemChildren(String workItemID) throws YPersistenceException {
+    	
+    	YWorkItem item = getWorkItem(workItemID);
+    	
+    	return describeWorkItems(getChildrenOfWorkItem(item));
+    }
+    
+    public String describeWorkItems(Set workItems) throws YPersistenceException {
+
+    	if (workItems==null) {
+    		workItems = getAllWorkItems();
+    	}
+    	
+        StringBuffer result = new StringBuffer();
+        Iterator iter = workItems.iterator();
+        while (iter.hasNext()) {
+            YWorkItem workitem = (YWorkItem) iter.next();
+
+            result.append(workitem.toXML());
+        }
+        return result.toString();
     }
 
 

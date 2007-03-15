@@ -101,10 +101,54 @@ public class TestCaseCancellation extends AbstractTransactionalTestCase {
         _engine.addSpecifications(yawlXMLFile, false, new ArrayList());
         
         _idForTopNet = _engine.startCase(null, _specification.getID(), null, serviceURI);
-    }
+//    }
 
-    public void testIt() throws InterruptedException, YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
-        System.out.println(); _engine.getCasesForSpecification(_specification.getID()).size();
+//    public void testIt() throws InterruptedException, YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+//        System.out.println(); _engine.getCasesForSpecification(_specification.getID()).size();
+//
+//    	Thread.sleep(150);
+//        performTask("register");
+//        Thread.sleep(150);
+//        performTask("register_itinerary_segment");
+//        Thread.sleep(150);
+//        performTask("register_itinerary_segment");
+//        Thread.sleep(150);
+//        performTask("flight");
+//        Thread.sleep(150);
+//        performTask("flight");
+//        Thread.sleep(150);
+//        performTask("cancel");
+//        Set cases = _engine.getCasesForSpecification(_specification.getID());
+//        assertEquals(cases.toString(), 0, cases.size());
+//    }
+//
+//    public void testCaseCancel() throws InterruptedException, YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+//        Thread.sleep(150);
+//        performTask("register");
+//
+//        Thread.sleep(150);
+//        Set enabledItems = _repository.getEnabledWorkItems();
+//
+//        for (Iterator iterator = enabledItems.iterator(); iterator.hasNext();) {
+//            YWorkItem workItem = (YWorkItem) iterator.next();
+//            if (workItem.getTaskID().equals("register_itinerary_segment")) {
+//                _engine.startWorkItem(workItem.getIDString(), "admin");
+//                break;
+//            }
+//        }
+//        _engine.cancelCase(_idForTopNet);
+//        assertTrue(_taskCancellationReceived.size() > 0);
+//    }
+//    
+//    public void testCaseCancelNull() throws YPersistenceException {
+//    	try {
+//    		_engine.cancelCase( null );
+//    		fail( "An exception should have been thrown." );
+//    	}
+//    	catch( IllegalArgumentException e ) {
+//    		// proper exception was thrown
+//    	}
+//    }
 
     	Thread.sleep(150);
         performTask("register");
@@ -142,7 +186,7 @@ public class TestCaseCancellation extends AbstractTransactionalTestCase {
     
     public void testCaseCancelNull() throws YPersistenceException {
     	try {
-    		_engine.cancelCase( null );
+    		_engine.cancelCase( (YIdentifier) null ); 
     		fail( "An exception should have been thrown." );
     	}
     	catch( IllegalArgumentException e ) {
@@ -155,6 +199,12 @@ public class TestCaseCancellation extends AbstractTransactionalTestCase {
         performTask("register_itinerary_segment");
         performTask("flight");
         performTask("cancel");
+    }
+    public void testCaseCompletion() throws YPersistenceException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException, InterruptedException {
+    	while(_engine.getAvailableWorkItems().size() > 0 ) {
+            YWorkItem item = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
+            performTask(item.getTaskID());
+        }
         assertTrue(_caseCompletionReceived.size() > 0);
     }
     

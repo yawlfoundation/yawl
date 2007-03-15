@@ -97,7 +97,7 @@ public class YAtomicTask extends YTask {
      * 
      * Hibernate does not support Map<String, String> yet so we're going to use a set of KeyValue pairs as replacement.
      */
-    @OneToMany(mappedBy="task", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy="task", cascade={CascadeType.ALL})
     @MapKey(name="key")
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Where(clause="Type='"+KeyValue.ENABLEMENT + "'")

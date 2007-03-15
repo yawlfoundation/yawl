@@ -48,9 +48,9 @@ public class TestAllYAWLSuites extends TestSuite{
     	
         TestSuite suite = new TestAllYAWLSuites();
         suite.addTest(EngineTestSuite.suite());
-        //suite.addTest(AdminToolTestSuite.suite());
+//
         suite.addTest(PersistenceTestSuite.suite());
-        suite.addTest(EventsTestSuite.suite());
+//        suite.addTest(EventsTestSuite.suite());
         suite.addTest(ElementsTestSuite.suite());
         suite.addTest(DataTestSuite.suite());
         suite.addTest(StateTestSuite.suite());
@@ -61,7 +61,9 @@ public class TestAllYAWLSuites extends TestSuite{
         suite.addTest(au.edu.qut.yawl.swingWorklist.WorklistTestSuite.suite());
         suite.addTest(au.edu.qut.yawl.worklist.WorklistTestSuite.suite());
         suite.addTest(AuthenticationTestSuite.suite());
+//
         suite.addTest(NexusServiceTestSuite.suite());
+//
         suite.addTest(AutoDeploymentTestSuite.suite());
         return suite;
     }

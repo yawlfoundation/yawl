@@ -84,7 +84,7 @@ public class TestEnginePersistence extends AbstractTransactionalTestCase {
         	assertEquals("number of runners found", 1, runners.size());
         }
         finally {
-        	engine.cancelCase(caseid);
+        	engine.cancelCase(caseid.getId());
         	
         	engine.unloadSpecification("Timer.xml");
         }
@@ -120,7 +120,7 @@ public class TestEnginePersistence extends AbstractTransactionalTestCase {
 			if( runners != null && runners.get( 0 ) != null ) {
 				YNetRunner runner = runners.get(0);
 				
-				engine.cancelCase(caseid);			
+				engine.cancelCase(caseid.getId());			
 				engine.unloadSpecification("Timer.xml");
 			}
 		}
@@ -147,7 +147,7 @@ public class TestEnginePersistence extends AbstractTransactionalTestCase {
 
 		YIdentifier caseid = engine.getCaseID(caseid_string);
 
-		engine.cancelCase(caseid);
+		engine.cancelCase(caseid.getId());
 		
 		engine.unloadSpecification("YAWL_Specification1.xml");
 	}
@@ -167,7 +167,7 @@ public class TestEnginePersistence extends AbstractTransactionalTestCase {
 //		YWorkItem workItem = engine.getWorkItem(caseid.toString() + ":a");
 		engine.startWorkItem(caseid.toString() + ":a", "tore");
 		
-		engine.cancelCase(caseid);
+		engine.cancelCase(caseid.getId());
 
         List<YNetRunner> runners = engine.getDao().retrieveByRestriction(YNetRunner.class, 
         		new LogicalRestriction(

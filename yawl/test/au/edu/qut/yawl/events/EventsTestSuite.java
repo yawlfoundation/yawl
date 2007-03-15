@@ -32,7 +32,7 @@ public class EventsTestSuite extends TestSuite{
     public static Test suite() {
         TestSuite suite = new EventsTestSuite();
         suite.addTestSuite(HsqlTest.class);
-        suite.addTestSuite(JmsProviderTest.class);
+        //suite.addTestSuite(JmsProviderTest.class);
         return suite;
     }
 
