@@ -583,6 +583,10 @@ public abstract class AbstractEngine implements YEngineInterface,
         return null;
     }
     
+    public String getStateTextForCase(String caseID) throws YPersistenceException {
+    	return getStateTextForCase(getCaseID(caseID));
+    }
+
     
     public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException {
             logger.debug("--> getStateTextForCase: ID=" + caseID.getId());
@@ -713,6 +717,7 @@ public abstract class AbstractEngine implements YEngineInterface,
         return null;
     }
 
+    
     public String getStateForCase(YIdentifier caseID) throws YPersistenceException {
         Set allChildren = caseID.getDescendants();
         Set allLocations = new HashSet();

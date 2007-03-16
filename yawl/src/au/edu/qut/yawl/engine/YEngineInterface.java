@@ -83,6 +83,7 @@ public interface YEngineInterface {
     public String getStateForCase(String caseID) throws YPersistenceException;
     public String getStateForCase(YIdentifier caseID) throws YPersistenceException;
     public String getStateTextForCase(YIdentifier caseID) throws YPersistenceException;
+    public String getStateTextForCase(String caseID) throws YPersistenceException;
     public YTask getTaskDefinition(String specificationID, String taskID) throws YPersistenceException;
     public Set getUsers();
     public YWorkItem getWorkItem(String workItemID) throws YPersistenceException;

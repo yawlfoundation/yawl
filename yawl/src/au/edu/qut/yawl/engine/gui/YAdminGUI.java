@@ -438,7 +438,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                     String caseIDStr = (String) _activeCasesTable.getValueAt(selectedRow, 1);
                     YIdentifier id = _engineManagement.getCaseID(caseIDStr);
                     if (id != null) {
-                        String textToDisplay = _engineManagement.getStateTextForCase(id);
+                        String textToDisplay = _engineManagement.getStateTextForCase(caseIDStr);
                         new YInspectStateDialog(_frame, textToDisplay);
                     }
                 }
