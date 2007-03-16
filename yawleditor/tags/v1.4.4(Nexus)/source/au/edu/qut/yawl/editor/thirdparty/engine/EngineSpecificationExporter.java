@@ -540,9 +540,16 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
     if (engineParameterType == YParameter._INPUT_PARAM_TYPE) {
       engineDecomposition.setInputParam(engineParameter);
-    } else {
+    } else if (engineParameterType == YParameter._OUTPUT_PARAM_TYPE) {
       engineDecomposition.setOutputParameter(engineParameter);
+    } else if (engineParameterType == YParameter._ENABLEMENT_PARAM_TYPE) {
+      if (engineDecomposition instanceof YAWLServiceGateway) {
+		((YAWLServiceGateway) engineDecomposition).setEnablementParameter(engineParameter);
+	}
     }
+
+
+
   }
   
   private void generateDecompositionOutputParameters(YDecomposition engineDecomposition, 

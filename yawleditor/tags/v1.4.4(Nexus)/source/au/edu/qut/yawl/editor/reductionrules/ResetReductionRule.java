@@ -34,7 +34,7 @@ public abstract class ResetReductionRule
     * returns a reduced ResetWFNet or null if a given net cannot be reduced.
     */
 	public ResetWFNet reduce(ResetWFNet net){
-		
+	int loop = 1;	
 	ResetWFNet reducedNet = reduceANet(net);
      if (reducedNet == null)
      { return null;
@@ -44,10 +44,12 @@ public abstract class ResetReductionRule
         while(reducedNet != null)
         { ResetWFNet tempNet = reduceANet(reducedNet); 
           if (tempNet == null)
-           { return reducedNet;
+           {  System.out.println(this.getClass().toString() + ": " + loop);
+        	  return reducedNet;
            }
           else
-           { reducedNet = tempNet;
+           { loop++;
+             reducedNet = tempNet;
            }
         }
      }
