@@ -107,12 +107,12 @@
         </init-param>
         <init-param>
             <param-name>XFormsSessionChecking</param-name>
-            <param-value>300000</param-value>
+            <param-value>99999999</param-value>
             <description>the amount of time (in millis) between runs of wipe() method checking for expired XForms sessions</description>
         </init-param>
         <init-param>
             <param-name>XFormsSessionTimeout</param-name>
-            <param-value>300000</param-value>
+            <param-value>99999999</param-value>
             <description>the amount of time of inactivity before XFormsSession expires</description>
         </init-param>
         <init-param>
