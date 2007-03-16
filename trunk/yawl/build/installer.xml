@@ -459,37 +459,6 @@
 	</target>
 
 
-	<!--
-    Build the application jar/war files
-    Creates a jar file for the main application sources.
-    -->
-	<target name="build_Standalone" depends="compile">
-		<mkdir dir="${enumeratedClasses}"/>
-		<unzip dest="${enumeratedClasses}">
-			<fileset dir="${standAlone.libs}" includes="*.jar" excludes="postgres*.jar"/>
-			<fileset dir="${basic.libs}">
-				<include name="**/*.jar"/>
-			</fileset>
-			<fileset dir="${xsd.libs}">
-				<include name="**/*.jar"/>
-			</fileset>
-			<fileset dir="${persist.libs}">
-				<include name="**/*.jar"/>
-			</fileset>
-		</unzip>
-		<!--=======================================================================
-        Create a self contained jar of the YAWL library
-        -->
-		<jar destfile="${basedir}/build/Installer/YAWL-Nexus.jar">
-			<fileset dir="${classes}"/>
-			<fileset dir="${enumeratedClasses}"/>
-			<manifest>
-				<attribute name="Created-By" value="${developer.name}"/>
-				<attribute name="Main-Class" value="au/edu/qut/yawl/engine/gui/TabbedEngineGUI"/>
-			</manifest>
-		</jar>
-		<delete dir="${enumeratedClasses}"/>
-	</target>
 
 	<!--
     Build the application jar/war files
@@ -1456,10 +1425,11 @@
     Build the application jar/war files
     Creates a jar file for the main application sources.
     -->
-<!--        build_yawlXForms.war,-->
+
 
 	<target name="buildAll"
         depends="build_engine.war,
+        build_yawlXForms.war,
         build_library,
         build_worklist.war,
         build_yawlWSInvoker.war,
@@ -1720,7 +1690,7 @@
 	</target>
 
 
-        <target name="release" depends="build_Standalone, create_standard_installer">
+        <target name="release" depends="create_standard_installer">
            <CBRelease file="${basedir}/build/Installer/installer.jar" />
         </target>
 
