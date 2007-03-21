@@ -32,6 +32,7 @@ import java.util.Iterator;
 
 import au.edu.qut.yawl.editor.data.Decomposition;
 import au.edu.qut.yawl.editor.data.DataVariable;
+import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
 import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
 import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
@@ -381,18 +382,16 @@ public class SpecificationModel {
     return this.decompositions;
   }
   
-  public HashSet<Decomposition> getUsedDecompositions() {
-    HashSet<Decomposition> usedDecompositions = new HashSet<Decomposition>();
+  public HashSet<WebServiceDecomposition> getUsedWebServiceDecompositions() {
+    HashSet<WebServiceDecomposition> usedDecompositions = new HashSet<WebServiceDecomposition>();
 
     for(NetGraphModel net: nets) {
-      if (net.getDecomposition() != null) {
-        usedDecompositions.add(net.getDecomposition());
-      }
       
       for(Object taskAsObject: NetUtilities.getAllTasks(net)) {
         YAWLTask task = (YAWLTask) taskAsObject;
-        if (task.getDecomposition()!= null) {
-          usedDecompositions.add(task.getDecomposition());
+        if (task.getDecomposition()!= null  && 
+            task.getDecomposition() instanceof WebServiceDecomposition) {
+          usedDecompositions.add((WebServiceDecomposition) task.getDecomposition());
         }
       }
     }
