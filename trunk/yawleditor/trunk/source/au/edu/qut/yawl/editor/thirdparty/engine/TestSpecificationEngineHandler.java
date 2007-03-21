@@ -123,7 +123,7 @@ public class TestSpecificationEngineHandler extends TestCase {
   private WebServiceDecomposition createFirstTaskDecomposition() {
     WebServiceDecomposition firstDecomposition = new WebServiceDecomposition();
     firstDecomposition.setLabel("First");
-    SpecificationModel.getInstance().addDecomposition(firstDecomposition);
+    SpecificationModel.getInstance().addWebServiceDecomposition(firstDecomposition);
     return firstDecomposition;
   }
   
