@@ -356,7 +356,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
             editorDecomposition
         );
 
-        SpecificationModel.getInstance().addDecomposition(editorDecomposition);
+        SpecificationModel.getInstance().addWebServiceDecomposition(editorDecomposition);
       }
     }
   }

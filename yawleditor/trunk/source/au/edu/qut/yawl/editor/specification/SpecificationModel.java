@@ -75,7 +75,7 @@ public class SpecificationModel {
   
   private transient LinkedList subscribers = new LinkedList();
   
-  private HashSet<Decomposition> decompositions = new HashSet<Decomposition>();
+  private HashSet<WebServiceDecomposition> webServiceDecompositions = new HashSet<WebServiceDecomposition>();
   private long    uniqueElementNumber = 0;
   private int     fontSize            = DEFAULT_FONT_SIZE;
   private int     defaultNetBackgroundColor =  DEFAULT_NET_BACKGROUND_COLOR;
@@ -123,7 +123,7 @@ public class SpecificationModel {
     state = NO_NETS_EXIST;
     netCount = 0;
     nets = new HashSet();
-    decompositions = new HashSet();
+    webServiceDecompositions = new HashSet();
     fontSize = DEFAULT_FONT_SIZE;
     defaultNetBackgroundColor = DEFAULT_NET_BACKGROUND_COLOR;
     setFileName("");
@@ -378,8 +378,8 @@ public class SpecificationModel {
     return YAWLEngineProxy.getInstance().getPrimarySchemaTypeNames();
   }
   
-  public Set getDecompositions() {
-    return this.decompositions;
+  public HashSet<WebServiceDecomposition> getWebServiceDecompositions() {
+    return this.webServiceDecompositions;
   }
   
   public HashSet<WebServiceDecomposition> getUsedWebServiceDecompositions() {
@@ -398,16 +398,16 @@ public class SpecificationModel {
     return usedDecompositions;
   }
   
-  public void setDecompositions(HashSet decompositions) {
-    this.decompositions = decompositions;
+  public void setWebServiceDecompositions(HashSet<WebServiceDecomposition> decompositions) {
+    this.webServiceDecompositions = decompositions;
   }
   
-  public void addDecomposition(Decomposition decomposition) {
-    decompositions.add(decomposition);
+  public void addWebServiceDecomposition(WebServiceDecomposition decomposition) {
+    webServiceDecompositions.add(decomposition);
   }
   
   public Decomposition getDecompositionFromLabel(String label) {
-    for(Decomposition decomposition: decompositions) {
+    for(Decomposition decomposition: webServiceDecompositions) {
       if (decomposition == null) {
         continue;
       }
@@ -419,7 +419,7 @@ public class SpecificationModel {
   }
   
   public boolean isValidDecompositionLabel(String label) {
-    Iterator decompositionIterator = decompositions.iterator();
+    Iterator decompositionIterator = webServiceDecompositions.iterator();
     while(decompositionIterator.hasNext()) {
       Decomposition decomposition = (Decomposition) decompositionIterator.next();
       if (decomposition.getLabelAsElementName().equals(XMLUtilities.toValidXMLName(label))) {

@@ -23,35 +23,31 @@
 
 package au.edu.qut.yawl.editor.swing.data;
 
-import java.util.Iterator;
-
 import javax.swing.JComboBox;
 
-import au.edu.qut.yawl.editor.data.Decomposition;
+import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 
-public class DecompositionComboBox extends JComboBox {
+public class WebServiceDecompositionComboBox extends JComboBox {
   
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
 
-  public DecompositionComboBox() {
+  public WebServiceDecompositionComboBox() {
     super();
     refresh();
   }
   
   public void refresh() {
     removeAllItems();
-    addDecompositions();
+    addWebServiceDecompositions();
   }
   
-  private void addDecompositions() {
-    Iterator typeIterator = 
-      SpecificationModel.getInstance().getDecompositions().iterator();
-    while (typeIterator.hasNext()) {
-      Decomposition decomposition = (Decomposition) typeIterator.next();
+  private void addWebServiceDecompositions() {
+    for (WebServiceDecomposition decomposition: 
+           SpecificationModel.getInstance().getWebServiceDecompositions()) {
       addItem(decomposition.getLabel());
     }
   }

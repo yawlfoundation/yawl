@@ -343,7 +343,7 @@ public class SpecificationArchiveHandler {
         XMLUtilities.unquoteXML(state.getDataTypeDefinition())
       );
     }
-    SpecificationModel.getInstance().setDecompositions(state.getDecompositions());
+    SpecificationModel.getInstance().setWebServiceDecompositions(state.getDecompositions());
     readNets(state.getNets());
     SpecificationModel.getInstance().undoableSetFontSize(0,state.getFontSize());
 

@@ -40,7 +40,7 @@ import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.ActionAndFocusListener;
 import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.data.DecompositionComboBox;
+import au.edu.qut.yawl.editor.swing.data.WebServiceDecompositionComboBox;
 import au.edu.qut.yawl.editor.swing.data.TaskDecompositionUpdateDialog;
 
 public class TaskDecompositionSelectionDialog extends AbstractTaskDoneDialog {
@@ -51,7 +51,7 @@ public class TaskDecompositionSelectionDialog extends AbstractTaskDoneDialog {
 
   protected String labelText;
   
-  protected DecompositionComboBox decompositionBox;
+  protected WebServiceDecompositionComboBox decompositionBox;
   
   private Decomposition chosenDecomposition = null;
   
@@ -104,13 +104,13 @@ public class TaskDecompositionSelectionDialog extends AbstractTaskDoneDialog {
     return panel;
   }
   
-  private DecompositionComboBox getDecompositionComboBox() {
-    decompositionBox = new DecompositionComboBox();
+  private WebServiceDecompositionComboBox getDecompositionComboBox() {
+    decompositionBox = new WebServiceDecompositionComboBox();
     decompositionBox.setEnabled(false); 
     
     new ActionAndFocusListener(decompositionBox) {
       protected void process(Object eventSource) {
-        DecompositionComboBox thisBox = (DecompositionComboBox) eventSource;
+        WebServiceDecompositionComboBox thisBox = (WebServiceDecompositionComboBox) eventSource;
         if (thisBox.isEnabled()) {
           
           chosenDecomposition =  
@@ -132,7 +132,7 @@ public class TaskDecompositionSelectionDialog extends AbstractTaskDoneDialog {
     button.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         
-        Decomposition decomposition = new WebServiceDecomposition();
+        WebServiceDecomposition decomposition = new WebServiceDecomposition();
 
         getGraph().stopUndoableEdits();
 
@@ -150,7 +150,7 @@ public class TaskDecompositionSelectionDialog extends AbstractTaskDoneDialog {
 
         if (!updateDialog.cancelButtonSelected()) {
 
-          SpecificationModel.getInstance().addDecomposition(decomposition);
+          SpecificationModel.getInstance().addWebServiceDecomposition(decomposition);
 
           getGraph().setTaskDecomposition(
               getTask(),
