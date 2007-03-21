@@ -33,6 +33,7 @@ Version 1.4.5 (07/12/2006) "Blobby"
   * Fixed a bug where if you select "Cancel" at the exit confirmation dialog, the window close widget stops working. 
   * Fixes to the reduction rules and analysis code introduced to speed up processing on certain types of specifications.
   * Enhanced the editor cursor to show the hourglass (busy) icon when engaged in file operations.
+  * Fixed a bug where, after saving a specification, users could then assign net deecompositions to atomic tasks.
   
 
 Version 1.4.4 (29/11/2006) "MoreMoe"

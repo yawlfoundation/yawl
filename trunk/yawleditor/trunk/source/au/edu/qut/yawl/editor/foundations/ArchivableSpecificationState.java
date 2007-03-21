@@ -79,7 +79,7 @@ public class ArchivableSpecificationState implements Serializable {
     setValidFromTimestamp(specificationModel.getValidFromTimestamp());
     setValidUntilTimestamp(specificationModel.getValidUntilTimestamp());
     
-    setDecompositions((HashSet) specificationModel.getUsedDecompositions());
+    setDecompositions((HashSet) specificationModel.getUsedWebServiceDecompositions());
     setFontSize(specificationModel.getFontSize());
     setDefaultNetBackgroundColor(specificationModel.getDefaultNetBackgroundColor());
     setUniqueElementNumber(specificationModel.getUniqueElementNumber());

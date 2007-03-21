@@ -139,7 +139,6 @@ public class NetGraph extends JGraph {
     getNetModel().setDecomposition(decomposition);
   }
 
-  
   public NetGraph(YAWLEditorNetFrame frame) {
     super();
     initialize();
