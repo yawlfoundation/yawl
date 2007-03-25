@@ -59,7 +59,7 @@ import au.edu.qut.yawl.util.YVerificationMessage;
  * @author Lachlan Aldred
  *         Date: 17/06/2003
  *         Time: 13:46:54
- * ©
+ * 
  */
 public class YEngine extends AbstractEngine {
 
