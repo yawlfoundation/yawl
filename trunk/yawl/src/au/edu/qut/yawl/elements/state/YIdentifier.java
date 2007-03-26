@@ -34,7 +34,6 @@ import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YNetElement;
 import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.events.YErrorEvent;
 
 /**
@@ -151,7 +150,7 @@ public class YIdentifier implements Serializable {
         childrenids++;
         _children.add(identifier);
         identifier._parent = this;
-        
+
         return identifier;
     }
 
@@ -252,7 +251,13 @@ public class YIdentifier implements Serializable {
             return false;
     }
     
-    /*
+    @Override
+	public int hashCode() {
+    	if( id == null ) return super.hashCode();
+    	return id.hashCode();
+	}
+
+	/*
      * Error log
      * */
     List<YErrorEvent> errors = new ArrayList();
@@ -267,5 +272,4 @@ public class YIdentifier implements Serializable {
     public void setErrors(List<YErrorEvent> errors) {
 		this.errors = errors;
 	}
-
 }
