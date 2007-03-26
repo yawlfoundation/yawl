@@ -14,7 +14,6 @@ import java.util.Properties;
 import javax.servlet.ServletConfig;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.web.context.support.XmlWebApplicationContext;
 
 public class ServiceConfiguration extends BootstrapConfiguration {
 
@@ -22,10 +21,6 @@ public class ServiceConfiguration extends BootstrapConfiguration {
 
 	public ServiceConfiguration(ServletConfig config) {
 		super();
-		applicationContext = new ClassPathXmlApplicationContext(config.getServletName() + "-servlet.xml");
-		//((ClassPathXmlApplicationContext) applicationContext).setServletConfig(config);
-		//((XmlWebApplicationContext) applicationContext).setConfigLocations(new String[] {"WEB-INF/" + config.getServletName() + "-servlet.xml"});
-		
 		String propertiesFileName = config.getServletName() + "-servlet.properties";
 		try {
 			propertiesFileName = config.getServletContext().getResource("/WEB-INF/" + propertiesFileName).toString();
@@ -37,7 +32,8 @@ public class ServiceConfiguration extends BootstrapConfiguration {
 			e.printStackTrace();
 		}
 		System.setProperty(YAWL_ENVIRONMENT_PROPERTY_FILE_NAME_KEY, propertiesFileName);
-		((ClassPathXmlApplicationContext) applicationContext).refresh();
+		
+		applicationContext = new ClassPathXmlApplicationContext(config.getServletName() + "-servlet.xml");
 	}
 	
 	public void refresh() {
