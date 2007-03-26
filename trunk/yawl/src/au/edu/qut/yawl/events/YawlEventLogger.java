@@ -198,13 +198,13 @@ public class YawlEventLogger {
         YCaseEvent ylogid = events.get(0); 
         
         if (ylogid != null) {
-            ylogid.setIdentifier(caseid);
-            ylogid.setCompleted(System.currentTimeMillis());
+            if(ylogid.getCompleted() == 0) {
+            	ylogid.setCompleted(System.currentTimeMillis());
 
-            for (YEventDispatcher dispatcher: dispatchers) {
-            	dispatcher.fireEvent(ylogid);
+            	for (YEventDispatcher dispatcher: dispatchers) {
+            		dispatcher.fireEvent(ylogid);
+            	}
             }
-
         }
 
     }
