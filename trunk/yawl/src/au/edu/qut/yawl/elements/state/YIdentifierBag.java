@@ -26,8 +26,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.MapKey;
-import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.CollectionOfElements;
@@ -131,7 +129,7 @@ public class YIdentifierBag implements Serializable {
 
 
     public void remove(YIdentifier identifier, YNet net, int amountToRemove) throws YPersistenceException {
-        if (_idToQtyMap.containsKey(identifier)) {
+        if (_idToQtyMap.keySet().contains(identifier)) {
             int amountExisting = _idToQtyMap.get(identifier).intValue();
             if (amountToRemove <= 0) {
                 throw new RuntimeException("You cannot remove " + amountToRemove
@@ -152,7 +150,7 @@ public class YIdentifierBag implements Serializable {
                     + " - this bag contains no"
                     + " identifiers of type " + identifier.toString()
                     + ".  It does have " + this.getIdentifiers()
-                    + " (locations of " + identifier + ":" + identifier.getLocationsForNet(net) + " )"
+                    + " (locations of " + identifier + ":" + (net != null ? identifier.getLocationsForNet(net) : null) + " )"
             );
         }
     }
