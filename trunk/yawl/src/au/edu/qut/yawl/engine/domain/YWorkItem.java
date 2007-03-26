@@ -19,9 +19,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,8 +30,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -252,7 +248,7 @@ public class YWorkItem {
     public YWorkItem createChild(YIdentifier childCaseID) throws YPersistenceException {
         if (this._parent == null) {
             YIdentifier parentCaseID = getYIdentifier();
-            if (childCaseID.getParent() != parentCaseID) {
+            if (childCaseID.getParent() == null || !childCaseID.getParent().equals(parentCaseID)) {
                 return null;
             }
             YWorkItem childItem = new YWorkItem(childCaseID, getTaskID(),
@@ -306,15 +302,15 @@ public class YWorkItem {
                     + _status + "\" it cannot be changed to \"" + completionStatus + "\"]");
         }
 
-        setStatus(Status.Complete);
-
-        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(_parent.getYIdentifier().toString(),
-                _parent.getTaskID()
-                , _status, _whoStartedMe, _specificationID, this._specificationversion);
+        setStatus(completionStatus);
 
         lastevent = YawlEventLogger.getInstance().logWorkItemEvent(getYIdentifier().toString(),
                 getTaskID()
                 , _status, _whoStartedMe, _specificationID, this._specificationversion);
+
+        lastevent = YawlEventLogger.getInstance().logWorkItemEvent(_parent.getYIdentifier().toString(),
+                _parent.getTaskID()
+                , completionStatus, _whoStartedMe, _specificationID, this._specificationversion);
         /************************************/
     }
     
@@ -483,14 +479,6 @@ public class YWorkItem {
     	this.taskID = aTaskID;
     }
 
-    
-    
-//    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-//    @OnDelete(action=OnDeleteAction.CASCADE)
-//    public YWorkItemID getWorkItemID() {
-//        return _workItemID;
-//    }
-
     @Basic
     public Date getEnablementTime() {
         return _enablementTime;
@@ -654,7 +642,7 @@ public class YWorkItem {
     @Transient
     public String getDataString() {
         if (_dataList != null) {
-            XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());       
+            XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
             return outputter.outputString(_dataList);
         }
         return null;
