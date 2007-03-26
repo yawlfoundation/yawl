@@ -30,7 +30,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Where;
@@ -439,6 +438,10 @@ public class YNet extends YDecomposition {
                     YExternalNetElement sink = origToCloneMap.get( flow.getNextElement() );
                     
                     YFlow newFlow = new YFlow( source, sink );
+                    newFlow.setDefaultFlow(flow.isDefaultFlow());
+                    newFlow.setDocumentation(flow.getDocumentation());
+                    newFlow.setEvalOrdering(flow.getEvalOrdering());
+                    newFlow.setXpathPredicate(flow.getXpathPredicate());
                     source.getPostsetFlows().add( newFlow );
                     sink.getPresetFlows().add( newFlow );
                 }
@@ -783,6 +786,6 @@ public class YNet extends YDecomposition {
 
     public void removeNetElement(YExternalNetElement element) {
     	element.removeAllFlows();
-    	getNetElements().remove(element);
+    	_netElements.remove(element);
     }
 }
