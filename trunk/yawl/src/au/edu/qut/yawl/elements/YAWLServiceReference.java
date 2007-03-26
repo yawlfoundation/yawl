@@ -141,7 +141,7 @@ public class YAWLServiceReference implements YVerifiable, Serializable {
         AbstractEngine engine = null;
         try {
 		engine = EngineFactory.createYEngine();
-	  } catch (Exception e) {
+	  } catch (Throwable e) {
             messages.add(new YVerificationMessage(this,"CANNOT ACCESS ENGINE",YVerificationMessage.WARNING_STATUS));
 		return messages;
 	  }
