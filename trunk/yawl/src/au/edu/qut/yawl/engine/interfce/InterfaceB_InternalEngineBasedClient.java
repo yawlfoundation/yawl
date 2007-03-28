@@ -9,37 +9,33 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.JDOMException;
+
 import au.edu.qut.yawl.deployment.DirectoryListener;
 import au.edu.qut.yawl.deployment.ServiceBuilder;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.elements.data.YParameter;
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.ObserverGateway;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-import au.edu.qut.yawl.unmarshal.YDecompositionParser;
 import au.edu.qut.yawl.util.JDOMConversionTools;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.apache.log4j.Category;
-import au.edu.qut.yawl.engine.EngineFactory;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URI;
-import java.util.*;
+import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
 
 /**
- * 
+ * @see InterfaceB_EngineBasedClient
  * @author Lachlan Aldred
- * Date: 22/01/2004
- * Time: 17:19:12
- * 
+ * @author Nathan Rose
  */
 public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
-    protected static Category logger = Category.getInstance(InterfaceB_EngineBasedClient.class);
+    protected static Logger logger = Logger.getLogger(InterfaceB_InternalEngineBasedClient.class);
 
     protected static DirectoryListener dirlistener = new DirectoryListener();
     protected static ServiceBuilder servicebuilder = null;
@@ -53,8 +49,6 @@ public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
     	servicebuilder = dirlistener.initServiceDirectory();
     	//dirlistener.start();
     }
-    
-
     
     /**
      * Indicates which protocol this shim services.<P>
@@ -72,7 +66,6 @@ public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
      * @param workItem the work item to announce,
      */
     public void announceWorkItem(URI yawlService, YWorkItem workItem) {
-
         Handler myHandler = new Handler(yawlService, workItem, ADDWORKITEM_CMD);
         myHandler.start();
     }
@@ -83,7 +76,7 @@ public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
      * @param workItem the work item to cancel.
      */
     static void cancelWorkItem(URI yawlService, YWorkItem workItem) {
-        Handler myHandler = new Handler(yawlService, workItem, "cancelWorkItem");
+        Handler myHandler = new Handler(yawlService, workItem, CANCELWORKITEM_CMD);
         myHandler.start();
     }
 
@@ -97,11 +90,11 @@ public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
         //System.out.println("Thread::yawlService.getURI() = " + yawlService.getURI());
         //System.out.println("\rworkItem.toXML() = " + workItem.toXML());
         if(workItem.getParent() == null){
-            Handler myHandler = new Handler(yawlService, workItem, "cancelAllInstancesUnderWorkItem");
+            Handler myHandler = new Handler(yawlService, workItem, CANCELALLWORKITEMS_CMD);
             myHandler.start();
         }
         else {
-            Handler myHandler = new Handler(yawlService, workItem.getParent(), "cancelAllInstancesUnderWorkItem");
+            Handler myHandler = new Handler(yawlService, workItem.getParent(), CANCELALLWORKITEMS_CMD);
             myHandler.start();
         }
     }
@@ -113,7 +106,7 @@ public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
      */
     public void announceCaseCompletion(URI yawlService, 
                                        YIdentifier caseID, Document casedata) {
-        Handler myHandler = new Handler(yawlService, caseID, casedata, "announceCompletion");
+        Handler myHandler = new Handler(yawlService, caseID, casedata, ANNOUNCE_COMPLETE_CASE_CMD);
         myHandler.start();
     }
 
@@ -125,33 +118,11 @@ public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
      * @throws IOException if connection problem
      * @throws JDOMException if XML content problem.
      */
-    public static YParameter[] getRequiredParamsForService(YAWLServiceReference yawlService) throws IOException, JDOMException {
-        List paramResults = new ArrayList();
+    public YParameter[] getRequiredParamsForService(YAWLServiceReference yawlService) {
+    	InterfaceBInternalServiceController service = servicebuilder.getServiceInstance(yawlService.getURI());
 
-        String urlOfYawlService = yawlService.getURI();
-
-        Map params = new HashMap();
-        params.put("action", "ParameterInfoRequest");
-        String parametersAsString = query(urlOfYawlService, params);
-        //above should have returned a xml doc containing params descriptions
-        //of required params to operate custom service.
-        SAXBuilder builder = new SAXBuilder();
-        Document doc = builder.build(new StringReader(parametersAsString));
-        List paramsASXML = doc.getRootElement().getChildren();
-        for (int i = 0; i < paramsASXML.size(); i++) {
-            Element paramElem = (Element) paramsASXML.get(i);
-
-            YParameter param = new YParameter(null, paramElem.getName());
-            YDecompositionParser.parseParameter(
-                    paramElem,
-                    param,
-                    null,
-                    false);
-            paramResults.add(param);
-        }
-        return (YParameter[]) paramResults.toArray(new YParameter[paramResults.size()]);
+    	return service.describeRequiredParams();
     }
-
 
     static class Handler extends Thread {
         private YWorkItem _workItem;
@@ -175,75 +146,52 @@ public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
 
         public void run() {
             try {
-                if (InterfaceB_EngineBasedClient.ADDWORKITEM_CMD.equals(_command)) {
+                if (ADDWORKITEM_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.toString();
                     callHandleEnabled(urlOfYawlService, _workItem);
-                } else if (InterfaceB_EngineBasedClient.CANCELALLWORKITEMS_CMD.equals(_command)) {
+                } else if (CANCELALLWORKITEMS_CMD.equals(_command)) {
                     Iterator iter = _workItem.getChildren().iterator();
-                    InterfaceB_InternalEngineBasedClient.cancelWorkItem(_yawlService, _workItem);
+                    callCancelled(_yawlService.toString(), _workItem);
                     while (iter.hasNext()) {
                         YWorkItem item = (YWorkItem) iter.next();
-                        InterfaceB_InternalEngineBasedClient.cancelWorkItem(_yawlService, item);
+                        callCancelled(_yawlService.toString(), item);
                     }
-                } else if (InterfaceB_EngineBasedClient.CANCELWORKITEM_CMD.equals(_command)) {
+                } else if (CANCELWORKITEM_CMD.equals(_command)) {
                     //cancel the parent
                     String urlOfYawlService = _yawlService.toString();
                     callCancelled(urlOfYawlService, _workItem);
-                } else if (InterfaceB_EngineBasedClient.ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
+                } else if (ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.toString();
-                    String caseID = _caseID.toString();
-                    String casedataStr = JDOMConversionTools.documentToString(_casedata) ;
-                    Map paramsMap = new HashMap();
-                    paramsMap.put("action", _command);
-                    paramsMap.put("caseID", caseID);
-                    paramsMap.put("casedata", casedataStr) ;
-                    callCompletedCase(urlOfYawlService, paramsMap);
+                    String casedata = JDOMConversionTools.documentToString(_casedata);
+                    callCompletedCase(urlOfYawlService, _caseID, casedata);
                 }
             } catch (Exception e) {
-                logger.error("failed to call YAWL service", e); 
-                EngineFactory.getExistingEngine().announceServiceUnavailable(_workItem, _yawlService);                                
-                //e.printStackTrace();
-            }            
+                logger.error("failed to call YAWL service", e);
+                EngineFactory.getExistingEngine().announceServiceUnavailable(_workItem, _yawlService);
+            }
         }
-        
-
     }
     
-    
-    
     public static void callHandleEnabled(String url, YWorkItem workitem) {
-    	
     	InterfaceBInternalServiceController service = servicebuilder.getServiceInstance(url);
     	
     	service.handleEnabledWorkItemEvent(workitem);
-    	
-    	
     }
-    public static void callCancelled(String url, YWorkItem workitem) {
-    	
-    	InterfaceBInternalServiceController service = servicebuilder.getServiceInstance(url);
-    	
-    	service.handleEnabledWorkItemEvent(null);
-    	
-    	
-    }
-    public static void callCompletedCase(String url, Map parameters) {
-    	
-    	InterfaceBInternalServiceController service = servicebuilder.getServiceInstance(url);
-    	
-    	service.handleEnabledWorkItemEvent(null);
-    	
-    	
-    }
-    public static String query(String url, Map parameters) {
-    	
-    	InterfaceBInternalServiceController service = servicebuilder.getServiceInstance(url);
-    	
-    	service.handleEnabledWorkItemEvent(null);
-    	
-    	return "";
-    	
-    }
-
     
+    public static void callCancelled(String url, YWorkItem workitem) {
+    	InterfaceBInternalServiceController service = servicebuilder.getServiceInstance(url);
+    	
+    	service.handleCancelledWorkItemEvent(new WorkItemRecord(
+    			workitem.getCaseID().toString(),
+    			workitem.getTaskID(),
+    			workitem.getSpecificationID(),
+    			workitem.getEnablementTimeStr(),
+    			workitem.getStatus().toString()));
+    }
+    
+    public static void callCompletedCase(String url, YIdentifier caseID, String casedata) {
+    	InterfaceBInternalServiceController service = servicebuilder.getServiceInstance(url);
+    	
+    	service.handleCompleteCaseEvent(caseID.toString(), casedata);
+    }
 }

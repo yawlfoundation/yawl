@@ -53,7 +53,6 @@ public class DirectoryListener extends Thread {
 		if (directory!=null ) {
 			findJarsInDirectory(directory);
 		} else {
-
 			findJarsInDirectory(new File("./common/lib").getAbsolutePath());
 			
 			String classpath = System.getProperty("java.class.path"); 

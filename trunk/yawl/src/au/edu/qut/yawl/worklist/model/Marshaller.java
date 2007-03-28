@@ -9,24 +9,25 @@
 
 package au.edu.qut.yawl.worklist.model;
 
-import au.edu.qut.yawl.elements.data.YParameter;
-import au.edu.qut.yawl.unmarshal.YDecompositionParser;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.HashMap;
+import au.edu.qut.yawl.elements.data.YParameter;
+import au.edu.qut.yawl.unmarshal.YDecompositionParser;
 
 
 /**
@@ -37,6 +38,7 @@ import java.util.HashMap;
  * 
  */
 public class Marshaller {
+	private static Logger logger = Logger.getLogger(Marshaller.class);
     // private static SAXBuilder builder = new SAXBuilder();
 
     public static String getOutputParamsInXML(YParametersSchema params, String dataSpaceRootElementNm) {
@@ -83,9 +85,8 @@ public class Marshaller {
         String specificationID = null;
         String taskName = null;
         String taskDocumentation = null;
-	HashMap attributemap = new HashMap();
-	
-
+        HashMap attributemap = new HashMap();
+        
         String decompositionID = null;
         try {
             SAXBuilder builder = new SAXBuilder();
@@ -96,20 +97,19 @@ public class Marshaller {
             taskName = taskInfo.getChildText("taskName");
             taskDocumentation = taskInfo.getChildText("taskDocumentation");
             decompositionID = taskInfo.getChildText("decompositionID");
-            Element yawlService = taskInfo.getChild("yawlService");
-
-	    Element attributes = taskInfo.getChild("attributes");
-	    if (attributes!=null) {
-		List attributelist = attributes.getChildren();
-		for (int i = 0; i < attributelist.size(); i++) {
-		    Element attribute = (Element) attributelist.get(i);
-		    attributemap.put(attribute.getName(),attributes.getChildText(attribute.getName()));
-		    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		    System.out.println(attribute.getName() + " " + attributes.getChildText(attribute.getName()));
-		    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		}
-	    }
-
+            
+            Element attributes = taskInfo.getChild("attributes");
+            if (attributes!=null) {
+                List attributelist = attributes.getChildren();
+                for (int i = 0; i < attributelist.size(); i++) {
+                    Element attribute = (Element) attributelist.get(i);
+                    attributemap.put(attribute.getName(),attributes.getChildText(attribute.getName()));
+                    logger.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    logger.debug(attribute.getName() + " " + attributes.getChildText(attribute.getName()));
+                    logger.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                }
+            }
+            
             Element params = taskInfo.getChild("params");
             List paramElementsList = params.getChildren();
             for (int i = 0; i < paramElementsList.size(); i++) {
@@ -134,19 +134,18 @@ public class Marshaller {
 //                param.setOrdering(order);
             }
         } catch (JDOMException e) {
-            e.printStackTrace();
+        	logger.debug("JDOM Error unmarshalling task information!", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("IO Error unmarshalling task information!", e);
         }
-        //todo: Question 4 Nathan: why have you chosen to throw a runtime exception?
-        //todo: This seems a funky thing to do.
+        // The following code throws a runtime exception because the code in the try block
+        // only declares that it will throw JDOMException and IOException, which are already
+        // handled (ie: the only exceptions this catch block will catch are already subclasses
+        // of RuntimeException)
         catch( Throwable t ) {
-			StringWriter sw = new StringWriter();
-    		sw.write( t.toString() + "\n" );
-    		t.printStackTrace(new PrintWriter(sw));
-    		System.out.println( sw.toString() );
-    		throw new RuntimeException( t );
-		}
+            logger.error("Error unmarshalling task information!", t);
+            throw new RuntimeException( t );
+        }
         TaskInformation taskInfo = new TaskInformation(
                 paramsForTaskNCase,
                 taskID,
@@ -154,9 +153,8 @@ public class Marshaller {
                 taskName,
                 taskDocumentation,
                 decompositionID);
-
-	taskInfo.setAttributes(attributemap);
-
+        
+        taskInfo.setAttributes(attributemap);
         return taskInfo;
     }
 
@@ -216,9 +214,9 @@ public class Marshaller {
                 }
             }
         } catch (JDOMException e) {
-            e.printStackTrace();
+            logger.debug("JDOM Error unmarshalling specification summary!", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("IO Error unmarshalling specification summary!", e);
         }
         return specSummaryList;
     }
@@ -232,16 +230,15 @@ public class Marshaller {
             doc = builder.build(new StringReader(workItemXML));
             workItem = unmarshalWorkItem(doc.getRootElement());
         } catch (JDOMException e) {
-            e.printStackTrace();
+            logger.debug("JDOM Error unmarshalling specification summary!", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("IO Error unmarshalling specification summary!", e);
         }
         return workItem;
     }
 
 
     public static WorkItemRecord unmarshalWorkItem(Element workItemElement) {
-
         String status = workItemElement.getChildText("status");
         String caseID = workItemElement.getChildText("caseID");
         String taskID = workItemElement.getChildText("taskID");
@@ -266,6 +263,13 @@ public class Marshaller {
             }
             return workItem;
         }
+        try {
+        	XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+            logger.debug("Error unmarshalling work item! WorkItem XML:\n" + outputter.outputString(workItemElement));
+        }
+        catch(Throwable t) {
+        	logger.debug("Error printing out XML for error message", t);
+        }
         throw new IllegalArgumentException("Input element could not be parsed.");
     }
 
@@ -284,16 +288,15 @@ public class Marshaller {
                 }
             }
         } catch (JDOMException e) {
-            e.printStackTrace();
+            logger.debug("JDOM Error unmarshalling case IDs!", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("IO Error unmarshalling case IDs!", e);
         }
         return cases;
     }
 
 
     public static String getMergedOutputData(Element inputData, Element outputData) {
-        SAXBuilder builder = new SAXBuilder();
         Document mergedDoc = null;
         //Document outputDataDoc = null;
         boolean exception = false;
@@ -319,27 +322,28 @@ public class Marshaller {
                 }
             }
         } catch (Exception e) {
+            logger.debug("Caught exception merging output data", e);
             exception = true;
         }
         if (exception || mergedDoc == null) {
             return "";
         }
         String result = new XMLOutputter().outputString(mergedDoc.getRootElement()).trim();
-	System.out.println(result);
+        logger.debug(result);
         return result;
     }
 
-/**
- * 
- * Filter output data so that only the elements which are actually
- * in the outputParams list are returned
- * 
- * @param mergedOutputData
- * @param outputParams
- * @return XML String representation of output data
- * @throws JDOMException
- * @throws IOException
- */
+    /**
+     * 
+     * Filter output data so that only the elements which are actually
+     * in the outputParams list are returned
+     * 
+     * @param mergedOutputData
+     * @param outputParams
+     * @return XML String representation of output data
+     * @throws JDOMException
+     * @throws IOException
+     */
     public static String filterDataAgainstOutputParams(String mergedOutputData,
                                                        List outputParams) throws JDOMException, IOException {
         //build the merged output data document

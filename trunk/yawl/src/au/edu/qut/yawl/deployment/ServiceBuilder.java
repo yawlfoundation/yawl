@@ -18,7 +18,6 @@ import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController;
 
 public class ServiceBuilder {
-
 	List<InterfaceBInternalServiceController> services = new ArrayList<InterfaceBInternalServiceController>();
 
 	URL[] jars = null;
@@ -66,12 +65,9 @@ public class ServiceBuilder {
 			
 			//services.get(i).invoke();
 		}
-
-		
 	}
 
 	public InterfaceBInternalServiceController getServiceInstance(String url) {
-		
 		for (int i = 0; i < services.size(); i++) {
 			if (services.get(i).getServiceURI().equals(url)) {				
 				return services.get(i);

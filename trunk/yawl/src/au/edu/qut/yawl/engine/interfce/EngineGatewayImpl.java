@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -29,12 +28,8 @@ import au.edu.qut.yawl.admintool.model.HumanResource;
 
 import au.edu.qut.yawl.authentication.UserList;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.YDecomposition;
-
 
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-
-
 
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.YEngineInterface;

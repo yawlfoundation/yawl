@@ -9,35 +9,25 @@
 package au.edu.qut.yawl.deployment;
 
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Set;
+import java.util.List;
 
-
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-
-import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController;
-
-
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.worklist.model.TaskInformation;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
 public class InternalTestService extends InterfaceBInternalServiceController {
-
-
-	public InternalTestService() {
-
+	public InternalTestService() throws YPersistenceException {
 	}
-
-	
 	
 	public String getDocumentation() {
 		return "This service is merely a test service for nothing important at all";
+	}
+	
+	public String getServiceName() {
+		return "InternalTestService";
 	}
 
 	/**
@@ -48,52 +38,28 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 	 * @param enabledWorkItem
 	 */
 	public void handleEnabledWorkItemEvent(YWorkItem enabledWorkItem) {
-		System.out.println("Invoked the service: " + this.getServiceURI());
+		System.out.println("Invoked the test service");
 		try {
-
-			YWorkItem child = checkOut(enabledWorkItem.getIDString());
-
+			WorkItemRecord child = checkOut(enabledWorkItem.getIDString());
 			
 			if (child != null) {
-				Set<YWorkItem> children = getChildren(enabledWorkItem.getIDString());
+				List<WorkItemRecord> children = getChildren(enabledWorkItem.getIDString());
 
-
-				for (YWorkItem workitem : children) {
-
-
-					try {
-						SAXBuilder builder = new SAXBuilder();
-						Document doc = builder.build(new StringReader(workitem.getDataString()));
-						Element inputData = doc.getRootElement();
-
-						Element element = (Element) inputData.getChildren().get(0);
-						String notifytime = element.getText();
-						System.out.println("Notified of: " + notifytime);
-
-					} catch (JDOMException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-					YTask task = getTaskInformation(workitem.getSpecificationID(),
+				for (WorkItemRecord workitem : children) {
+					System.out.println("Notified of: " + workitem.getWorkItemData().getText());
+					
+					TaskInformation task = getTaskInformation(
+							workitem.getSpecificationID(),
 							workitem.getTaskID());
-
 					
+					String outputdata = "<"+task.getDecompositionID()+">" +
+					"<"+task.getDecompositionID()+"1>edited</"+task.getDecompositionID()+"1>" +
+					"</"+task.getDecompositionID()+">";
+					String inputData = "<" + task.getDecompositionID() + "/>";
 					
-					String outputdata = "<"+task.getDecompositionPrototype().getId()+">" +
-					"<"+task.getDecompositionPrototype().getId()+"1>edited</"+task.getDecompositionPrototype().getId()+"1>" +
-					"</"+task.getDecompositionPrototype().getId()+">";
-
-					
-					
-					checkInWorkItem(workitem.getIDString(),
-							outputdata);
+					checkInWorkItem(workitem.getID(),inputData,outputdata);
 				}
 			}
-
-
-			//	return report;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -109,7 +75,7 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 	 * the engine.
 	 */
 	public void handleCancelledWorkItemEvent(WorkItemRecord workItemRecord) {
-		System.out.println("Workitem was cancelled: " + this.getServiceURI());
+		System.out.println("Workitem was cancelled in the test service");
 	}
 
 
@@ -118,7 +84,7 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 	 * @param caseID the id of the completed case.
 	 */
 	public void handleCompleteCaseEvent(String caseID, String casedata) {
-		System.out.println("Case was completed: " + this.getServiceURI());
+		System.out.println("Case was completed in the test service");
 	}
 
 	/**
