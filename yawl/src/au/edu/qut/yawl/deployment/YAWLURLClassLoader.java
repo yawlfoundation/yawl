@@ -17,7 +17,6 @@ import au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController;
 
 
 public class YAWLURLClassLoader extends URLClassLoader {
-
 	public YAWLURLClassLoader(URL[] jars) {
 		super(jars);
 	}
@@ -52,7 +51,7 @@ public class YAWLURLClassLoader extends URLClassLoader {
 	
 	public List<InterfaceBInternalServiceController> getServiceInstances(List<String> classnames) {
 		List l = new LinkedList();
-		boolean found = false;
+//		boolean found = false;
 		for (int i = 0; i < classnames.size(); i++) {
 			try {
 
@@ -63,9 +62,8 @@ public class YAWLURLClassLoader extends URLClassLoader {
 
 				if (superclass!=null && superclass.getName()=="au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController") {
 					System.out.println("Found a service " + c.getName());
-					found = true;
+//					found = true;
 					InterfaceBInternalServiceController s = (InterfaceBInternalServiceController) c.newInstance();
-					s.setServiceURI("internal://"+c.getName());						
 					l.add(s);
 				}
 				
@@ -79,26 +77,26 @@ public class YAWLURLClassLoader extends URLClassLoader {
 			} catch (IllegalAccessException e) {
 				//if (found)
 					e.printStackTrace();
-				found = false;
+//				found = false;
 
 
 
 			} catch (InstantiationException e) {
 				//if (found)
 					e.printStackTrace();
-				found = false;
+//				found = false;
 
 			} catch (NoClassDefFoundError e) {
 				//if (found)
 					e.printStackTrace();
-				found = false;
+//				found = false;
 
 
 				
 			} catch (java.lang.LinkageError e) {
 //				if (found)
 					e.printStackTrace();
-				found = false;
+//				found = false;
 
 				
 			}
