@@ -121,11 +121,6 @@
     <property name="jcommon.jar" value="${basic.libs}/jcommon-1.0.0-rc1.jar"/>
 
     <!--
-     JBOSS
-     -->
-    <property name="jbossall-client.jar" value="${editor.libs}/jbossall-client.jar"/>
-
-    <!--
     Unit test support libraries
     -->
     <property name="junit.jar" value="${basic.libs}/junit.jar"/>
@@ -144,7 +139,7 @@
     <!--
 	JDom library
 	-->
-    <property name="jdom.jar" value="${service.libs}/jdom-1.0.jar"/>
+    <property name="jdom.jar" value="${basic.libs}/jdom-1.0.jar"/>
     <!--
     Sevlet library
     -->
@@ -257,7 +252,6 @@
 
         <!-- Include all JAR files that will be included in /WEB-INF/lib -->
         <!-- *** CUSTOMIZE HERE AS REQUIRED BY YOUR APPLICATION *** -->
-        <pathelement location="${jbossall-client.jar}"/>
         <pathelement location="${jfreechart.jar}"/>
         <pathelement location="${jcommon.jar}"/>
         <pathelement location="${junit.jar}"/>
@@ -294,18 +288,14 @@
     	<pathelement location="${spring.jar}"/>
     	<pathelement location="${xerces-2.4.0.jar}"/>
     	<pathelement location="${xml-apis-1.0.b2.jar}"/>
-    	
-    	<fileset dir="${nexus.service.libs}/xfire">
-    		<include name="*.jar"/>
-    	</fileset>
 
+		<fileset dir="${nexus.service.libs}/xfire">
+			<include name="jaxb-api*.jar"/>
+			<include name="jaxb-xjc*.jar"/>
+			<include name="xfire*.jar"/>
+			<include name="mail*.jar"/>
+		</fileset>
 
-
-
-    	
-    	<fileset dir="${nexus.service.libs}/xfire">
-    		<include name="*.jar"/>
-    	</fileset>
     	<fileset dir="${nexus.service.libs}/jython">
     		<include name="*.jar"/>
     	</fileset>
@@ -464,8 +454,8 @@
 	<echo>Compiling YAWL...</echo>
 
         <javac srcdir="${src}:${mock}:${services}:${test}" debug="true" destdir="${classes}" excludes="au/edu/qut/yawl/xformsupload/**">
-            <classpath refid="cp.standard"/>
-            <classpath refid="cp.tomcat"/>
+<!--            <classpath refid="cp.standard"/>-->
+<!--            <classpath refid="cp.tomcat"/>-->
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
             <classpath refid="cp.xsd"/>
@@ -608,8 +598,11 @@
     	
       	<!-- Copy SPRING properties file  -->    	
 
-        <copy todir="${yawl.eng.app.name}/WEB-INF">
+        <!--<copy todir="${yawl.eng.app.name}/WEB-INF">
             <fileset file="${build.home}/engine/*"/>
+        </copy>-->
+        <copy todir="${yawl.eng.app.name}">
+            <fileset dir="${build.home}/engine" includes="**"/>
         </copy>
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${basic.libs}" includes="*.jar" excludes="servlet-api.jar postgres*.jar"/>
