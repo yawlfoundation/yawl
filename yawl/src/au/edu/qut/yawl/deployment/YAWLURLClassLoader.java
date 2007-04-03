@@ -5,7 +5,6 @@
  * individuals and organiations who are commited to improving workflow technology.
  *
  */
-
 package au.edu.qut.yawl.deployment;
 
 import java.net.URL;
@@ -14,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController;
-
 
 public class YAWLURLClassLoader extends URLClassLoader {
 	public YAWLURLClassLoader(URL[] jars) {
@@ -34,37 +32,31 @@ public class YAWLURLClassLoader extends URLClassLoader {
 			return c;
 		} catch (Exception e) {
 			e.printStackTrace();
-	
 		}
 		try {
 			c = super.findClass(s);		
 			return c;
 		} catch (Exception e) {
 			e.printStackTrace();
-	
 		}
-	
 		
 		return null;
-
 	}
 	
 	public List<InterfaceBInternalServiceController> getServiceInstances(List<String> classnames) {
 		List l = new LinkedList();
-//		boolean found = false;
 		for (int i = 0; i < classnames.size(); i++) {
 			try {
-
 				Class c = findClass(classnames.get(i).substring(0,classnames.get(i).indexOf(".class")));
-
-				//Class c = findClass("jar:file:/c://jaxen-jdom.jar!/"+classnames.get(i));
 				Class superclass = c.getSuperclass();
 
-				if (superclass!=null && superclass.getName()=="au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController") {
-					System.out.println("Found a service " + c.getName());
-//					found = true;
-					InterfaceBInternalServiceController s = (InterfaceBInternalServiceController) c.newInstance();
-					l.add(s);
+				while(superclass != null && !superclass.equals(Object.class)) {
+					if(superclass.getName().equals("au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController")) {
+						System.out.println("Found a service " + c.getName());
+						InterfaceBInternalServiceController s = (InterfaceBInternalServiceController) c.newInstance();
+						l.add(s);
+					}
+					superclass = superclass.getSuperclass();
 				}
 				
 				/*
@@ -73,36 +65,17 @@ public class YAWLURLClassLoader extends URLClassLoader {
 				 * classpath we do not load the file. The errors
 				 * should be logged and displayed to users though
 				 * */
-			
 			} catch (IllegalAccessException e) {
-				//if (found)
-					e.printStackTrace();
-//				found = false;
-
-
-
+				e.printStackTrace();
 			} catch (InstantiationException e) {
-				//if (found)
-					e.printStackTrace();
-//				found = false;
-
+				e.printStackTrace();
 			} catch (NoClassDefFoundError e) {
-				//if (found)
-					e.printStackTrace();
-//				found = false;
-
-
-				
+				e.printStackTrace();
 			} catch (java.lang.LinkageError e) {
-//				if (found)
-					e.printStackTrace();
-//				found = false;
-
-				
+				e.printStackTrace();
 			}
 		}
 
 		return l;
 	}
-	
 }
