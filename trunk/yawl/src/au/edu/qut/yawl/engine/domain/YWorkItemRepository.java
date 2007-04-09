@@ -9,7 +9,6 @@
 
 package au.edu.qut.yawl.engine.domain;
 
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;

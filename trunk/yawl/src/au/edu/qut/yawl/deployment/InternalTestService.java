@@ -5,16 +5,13 @@
  * individuals and organiations who are commited to improving workflow technology.
  *
  */
-
 package au.edu.qut.yawl.deployment;
-
 
 import java.util.List;
 
-import au.edu.qut.yawl.elements.data.YParameter;
-import au.edu.qut.yawl.engine.domain.YWorkItem;
 import au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.worklist.model.Marshaller;
 import au.edu.qut.yawl.worklist.model.TaskInformation;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
@@ -37,13 +34,15 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 	 * invokation.
 	 * @param enabledWorkItem
 	 */
-	public void handleEnabledWorkItemEvent(YWorkItem enabledWorkItem) {
+	public void handleEnabledWorkItemEvent(String enabledWorkItem) {
+		WorkItemRecord workItemRecord = Marshaller.unmarshalWorkItem(enabledWorkItem);
 		System.out.println("Invoked the test service");
 		try {
-			WorkItemRecord child = checkOut(enabledWorkItem.getIDString());
+			WorkItemRecord child = checkOut(workItemRecord.getID());
+			System.out.println("Data string:" + workItemRecord.getDataListString());
 			
 			if (child != null) {
-				List<WorkItemRecord> children = getChildren(enabledWorkItem.getIDString());
+				List<WorkItemRecord> children = getChildren(workItemRecord.getID());
 
 				for (WorkItemRecord workitem : children) {
 					System.out.println("Notified of: " + workitem.getWorkItemData().getText());
@@ -63,7 +62,6 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
@@ -74,7 +72,7 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 	 * @param workItemRecord a "snapshot" of the work item cancelled in
 	 * the engine.
 	 */
-	public void handleCancelledWorkItemEvent(WorkItemRecord workItemRecord) {
+	public void handleCancelledWorkItemEvent(String workItemRecord) {
 		System.out.println("Workitem was cancelled in the test service");
 	}
 
@@ -86,22 +84,4 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 	public void handleCompleteCaseEvent(String caseID, String casedata) {
 		System.out.println("Case was completed in the test service");
 	}
-
-	/**
-	 * Override this method if you wish to allow other tools to find out what
-	 * input parameters are required for your custom YAWL service to work.
-	 * @return an array of input parameters.
-	 */
-    public YParameter[] describeRequiredParams() {
-        YParameter[] params = new YParameter[1];
-        YParameter param;
-
-        param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
-        param.setDataTypeAndName(XSD_STRINGTYPE,"time", XSD_NAMESPACE);
-        param.setDocumentation("Amount of Time the TimeService will wait before returning");
-        params[0] = param;
-
-        return params;
-    }
-
 }
