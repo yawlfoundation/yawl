@@ -25,6 +25,7 @@ import au.edu.qut.yawl.elements.state.YIdentifier;
 import au.edu.qut.yawl.engine.EngineFactory;
 import au.edu.qut.yawl.engine.ObserverGateway;
 import au.edu.qut.yawl.engine.domain.YWorkItem;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.util.JDOMConversionTools;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
@@ -45,7 +46,7 @@ public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
     protected static final String CANCELWORKITEM_CMD =          "cancelWorkItem";
     protected static final String ANNOUNCE_COMPLETE_CASE_CMD =  "announceCompletion";
 
-    public InterfaceB_InternalEngineBasedClient() {
+    public InterfaceB_InternalEngineBasedClient() throws YPersistenceException {
     	servicebuilder = dirlistener.initServiceDirectory();
     	//dirlistener.start();
     }
@@ -175,18 +176,29 @@ public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
     public static void callHandleEnabled(String url, YWorkItem workitem) {
     	InterfaceBInternalServiceController service = servicebuilder.getServiceInstance(url);
     	
-    	service.handleEnabledWorkItemEvent(workitem);
+    	if(service != null) {
+    		service.handleEnabledWorkItemEvent(createWorkItemRecord(workitem).toYWorkItemXML());
+    	} else {
+    		for(InterfaceBInternalServiceController svc : servicebuilder.getServices()) {
+    			logger.error("Service:" + svc.getServiceURI() + " " + svc.getDocumentation());
+    		}
+    		throw new RuntimeException("No internal service exists for " + url);
+    	}
     }
     
     public static void callCancelled(String url, YWorkItem workitem) {
     	InterfaceBInternalServiceController service = servicebuilder.getServiceInstance(url);
     	
-    	service.handleCancelledWorkItemEvent(new WorkItemRecord(
-    			workitem.getCaseID().toString(),
-    			workitem.getTaskID(),
-    			workitem.getSpecificationID(),
-    			workitem.getEnablementTimeStr(),
-    			workitem.getStatus().toString()));
+    	service.handleCancelledWorkItemEvent(createWorkItemRecord(workitem).toYWorkItemXML());
+    }
+    
+    private static WorkItemRecord createWorkItemRecord(YWorkItem workItem) {
+    	return new WorkItemRecord(
+    			workItem.getCaseID().toString(),
+    			workItem.getTaskID(),
+    			workItem.getSpecificationID(),
+    			workItem.getEnablementTimeStr(),
+    			workItem.getStatus().toString());
     }
     
     public static void callCompletedCase(String url, YIdentifier caseID, String casedata) {

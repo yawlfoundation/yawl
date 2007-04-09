@@ -585,7 +585,6 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
     	return null;
     }
 
-//    @Transient
     @OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Sort(type=SortType.NATURAL)
@@ -593,20 +592,10 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
         return _postsetFlows;
     }
 
-//    @Transient
-    //@OneToMany(mappedBy="priorElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
-    //@OnDelete(action=OnDeleteAction.CASCADE)
     public void setPostsetFlows(SortedSet<YFlow> flows) {
     	this._postsetFlows = flows;
-
-//    	for (YFlow flow: flows) {
-//    		flow.setPriorElement(this);
-//    	}
-
-//    	_postsetFlows.addAll(flows);
     }
 
-//    @Transient
     @OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL})
     @OnDelete(action=OnDeleteAction.CASCADE)
     @Sort(type=SortType.NATURAL)
@@ -614,9 +603,6 @@ public class YExternalNetElement extends YNetElement implements Parented<YNet>, 
         return _presetFlows;
     }
 
-//   @Transient
-    //@OneToMany(mappedBy="nextElement",cascade = {CascadeType.ALL}, fetch= FetchType.EAGER)
-    //@OnDelete(action=OnDeleteAction.CASCADE)
     public void setPresetFlows(SortedSet<YFlow> flows) {
     	_presetFlows = flows;
     }

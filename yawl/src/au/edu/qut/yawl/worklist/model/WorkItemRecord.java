@@ -12,21 +12,21 @@ package au.edu.qut.yawl.worklist.model;
 import java.io.IOException;
 import java.io.StringReader;
 
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+
+import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.apache.log4j.Category;
-import org.apache.log4j.Logger;
+
 import au.edu.qut.yawl.engine.domain.YWorkItem;
-
-
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Transient;
 
 /**
  * 
@@ -179,7 +179,9 @@ public class WorkItemRecord {
 
     @Basic
     public String getDataListString() {
-        return outPretty.outputString(_dataList);
+    	if(_dataList != null)
+    		return outPretty.outputString(_dataList);
+    	return "";
     }
     public void setDataListString(String s) {
     	if (s!=null) {
@@ -226,6 +228,38 @@ public class WorkItemRecord {
                         "<data>" + outCompact.outputString(_dataList) + "</data>") +
                 "<specid>" + _specificationID + "</specid>" +
                 "</itemRecord>";
+    }
+    
+    public String toYWorkItemXML() {
+        StringBuffer xmlBuff = new StringBuffer();
+        xmlBuff.append("<workItem>");
+        xmlBuff.append("<taskID>").append(getTaskID()).append("</taskID>");
+        xmlBuff.append("<caseID>").append(this.getCaseID()).append("</caseID>");
+        xmlBuff.append("<uniqueID>").append(getUniqueID()).append("</uniqueID>");
+        xmlBuff.append("<specID>").append(_specificationID).append("</specID>");
+        xmlBuff.append("<status>").append(getStatus()).append("</status>");
+        if (_dataList != null) {
+            xmlBuff.append("<data>").append(getDataListString())
+                    .append("</data>");
+        }
+        xmlBuff.append("<enablementTime>")
+                .append(getEnablementTime())
+                .append("</enablementTime>");
+        if (this.getFiringTime() != null) {
+            xmlBuff.append("<firingTime>")
+                    .append(getFiringTime())
+                    .append("</firingTime>");
+        }
+        if (this.getStartTime() != null) {
+            xmlBuff.append("<startTime>")
+                    .append(getStartTime())
+                    .append("</startTime>");
+            xmlBuff.append("<assignedTo>")
+                    .append(this.getWhoStartedMe())
+                    .append("</assignedTo>");
+        }
+        xmlBuff.append("</workItem>");
+        return xmlBuff.toString();
     }
 
     public void setUniqueID(String uniqueID) {

@@ -83,7 +83,13 @@ public class Interface_Client {
         	return msg;
         }
         else {
-        	return stripOuterElement( URLDecoder.decode(msg, "UTF-8") );
+        	return stripOuterElement(msg);
+//        	try {
+//        		return stripOuterElement( URLDecoder.decode(msg, "UTF-8") );
+//        	}
+//        	catch(IllegalArgumentException e) {
+//        		return stripOuterElement( msg );
+//        	}
         }
     }
 

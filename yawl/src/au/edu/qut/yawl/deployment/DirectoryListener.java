@@ -9,15 +9,18 @@
 package au.edu.qut.yawl.deployment;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
+import java.util.jar.JarFile;
+
+import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 public class DirectoryListener extends Thread {
 
@@ -28,7 +31,7 @@ public class DirectoryListener extends Thread {
 
 	private ServiceBuilder servicebuilder = null;
 
-	public static void main(String args[]) {
+	public static void main(String args[]) throws Exception {
 		DirectoryListener l = new DirectoryListener("c:");
 		l.initServiceDirectory();
 		l.start();
@@ -38,18 +41,13 @@ public class DirectoryListener extends Thread {
 	//URL[] jars = findAllJarsIn(directory);
 
 	public DirectoryListener(String directory) {
-
 		this.directory = directory;
-
-
 	}
 
 	public DirectoryListener() {
-
 	}
 	
-	public ServiceBuilder initServiceDirectory() {
-
+	public ServiceBuilder initServiceDirectory() throws YPersistenceException {
 		if (directory!=null ) {
 			findJarsInDirectory(directory);
 		} else {
@@ -80,9 +78,7 @@ public class DirectoryListener extends Thread {
 					}
 				}
 			}
-			
 		}
-		
 		
 		servicebuilder = new ServiceBuilder(compileJarList(listOfJars));
 		servicebuilder.setClasspath(classpath.toArray(new URL[0]));
@@ -105,17 +101,13 @@ public class DirectoryListener extends Thread {
 
 						listOfJars.add(new ServiceJar(filename,children[i].lastModified()));							
 					} else {
-
 						classpath.add(children[i].toURL());
-
 					}
 				} catch (MalformedURLException e) {
 					//todo: Proper handling of exception
 					e.printStackTrace();
 				}
-
 			}
-
 		}
 	}
 
@@ -142,7 +134,6 @@ public class DirectoryListener extends Thread {
 					try {
 						URL filename = children[i].toURL();
 						if (filename.toString().endsWith(".jar")) {
-
 
 							boolean found = false;
 
@@ -191,29 +182,31 @@ public class DirectoryListener extends Thread {
 		}
 	}
 
-	public static List getClassesNames (String jarName){
-		ArrayList classes = new ArrayList ();
+	public static List<String> getClassesNames (String jarName){
+		ArrayList<String> classes = new ArrayList<String>();
 
-		try{
-			JarInputStream jarFile = new JarInputStream
-			(new FileInputStream (jarName));
-			JarEntry jarEntry;
+		try {
+			JarFile jarFile = new JarFile(jarName);
 
-			while(true) {
-				jarEntry=jarFile.getNextJarEntry ();
-				if(jarEntry == null){
-					break;
-				}
-				if(jarEntry.getName ().endsWith (".class"))  {
-					classes.add (jarEntry.getName().replaceAll("/", "\\."));
+			for(JarEntry entry : Collections.list(jarFile.entries())) {
+				if(entry != null && !entry.isDirectory()) {
+//					System.out.println("entry:" + entry.getName());
+					if(entry.getName().contains("YAWLService") &&
+							entry.getName().endsWith(".properties")) {
+						Properties properties = new Properties();
+						properties.load(jarFile.getInputStream(entry));
+						String serviceClass = properties.getProperty("serviceClass");
+						if(serviceClass != null && serviceClass.length() > 0) {
+							classes.add(serviceClass);
+						}
+					}
 				}
 			}
 		}
-		catch( Exception e){
+		catch(Exception e){
 			e.printStackTrace ();
 		}
 		System.out.println(classes.size());
 		return classes;
 	}
-
 }
