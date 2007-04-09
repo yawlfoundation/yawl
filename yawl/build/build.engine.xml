@@ -3,8 +3,6 @@
 <project name="YAWL Engine Build File" default="build-engine" basedir="..">
 
 	<property name="classes" value="classes"/>
-	<property name="src" value="src"/>
-	<path id="source.dirs" location="${src}"/>
 	<path id="classes.dir" location="${classes}"/>
 
 	<target name="clean">
@@ -16,14 +14,22 @@
 		<echo>Compiling Yawl Engine...</echo>
 		<mkdir dir="${classes}"/>
 		<javac debug="true" destdir="${classes}">
-			<src>
-				<path refid="source.dirs"/>
-			</src>
+			<src path="src"/>
+			<src path="services"/>
 			<exclude name="au/edu/qut/yawl/wsif/**"/>
 			<classpath>
 				<fileset dir="build/3rdParty/persistenceLibs/">
 					<include name="*.jar" />
 				</fileset>
+				<fileset dir="build/3rdParty/serviceLibs/xfire">
+					<include name="*.jar" />
+				</fileset>
+				<pathelement location="build/3rdParty/lib/quartz-1.5.2.jar"/>				
+				<pathelement location="build/3rdParty/lib/jms-1.1.jar"/>				
+				<pathelement location="build/3rdParty/lib/openjms-common-0.7.7-alpha-3.jar"/>				
+				<pathelement location="build/3rdParty/lib/openjms-net-0.7.7-alpha-3.jar"/>				
+				<pathelement location="build/3rdParty/lib/openjms-tools-0.7.7-alpha-3.jar"/>				
+				<pathelement location="build/3rdParty/serviceLibs/jython/jython.jar"/>
 				<pathelement location="build/3rdParty/xsdlib/common.jar"/>
 				<pathelement location="build/3rdParty/xsdlib/ecore.jar"/>
 				<pathelement location="build/3rdParty/xsdlib/xsd.jar"/>
@@ -38,7 +44,7 @@
 				<pathelement location="build/3rdParty/lib/jbossall-client.jar"/>
 				<pathelement location="build/3rdParty/lib/jcommon-1.0.0-rc1.jar"/>
 				<pathelement location="build/3rdParty/lib/jdbc-2.0.jar"/>
-				<pathelement location="build/3rdParty/lib/jdom.jar"/>
+				<pathelement location="build/3rdParty/lib/jdom-1.0.jar"/>
 				<pathelement location="build/3rdParty/lib/jfreechart-1.0.0-rc1.jar"/>
 				<pathelement location="build/3rdParty/lib/jndi-1.2.1.jar"/>
 				<pathelement location="build/3rdParty/lib/jta-1.0.1.jar"/>

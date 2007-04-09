@@ -50,7 +50,9 @@ public class JythonService implements NexusService {
             else {
                 try {
                     p.load( in );
-                    JYTHON_HOME = p.getProperty( "jython.home" );
+                    if (p.getProperty( "jython.home" ) != null) {
+                    	JYTHON_HOME = p.getProperty( "jython.home" );
+                    }
                     System.out.println( "Using jython home:" + JYTHON_HOME );
                 }
                 catch( IOException e ) {

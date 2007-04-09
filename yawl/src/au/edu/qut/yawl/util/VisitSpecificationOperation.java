@@ -12,6 +12,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.qut.yawl.elements.KeyValue;
+import au.edu.qut.yawl.elements.YAtomicTask;
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.elements.YExternalNetElement;
@@ -21,6 +23,9 @@ import au.edu.qut.yawl.elements.YNet;
 import au.edu.qut.yawl.elements.YOutputCondition;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.data.YParameter;
+import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.persistence.SourcedVariable;
 
 /**
  * The VisitSpecificationOperation allows a caller to iterate through an
@@ -110,8 +115,20 @@ public class VisitSpecificationOperation {
             label = getLabelFor(yene);
         }
         v.visit(yene, yene.getParent(), label);
+        if (yene instanceof YAtomicTask) {
+        	YAtomicTask task = (YAtomicTask) yene;
+            for (String name: task.getDataMappingsForTaskStarting().keySet()) {
+            	SourcedVariable var = new SourcedVariable(task, name);
+            	visitVariable(var, v);
+            }
+        }
     }
 
+    public static void visitVariable(SourcedVariable var, Visitor v) {
+    	v.visit(var, var.getTask(), var.getName());
+    	System.out.println(var.getName());
+    }
+    
     private static Type findType (Object o) {
     	Type retval = Type.UNKNOWN;
     	if (o instanceof YInputCondition ) {retval = Type.INPUT_CONDITION;}

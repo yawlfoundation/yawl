@@ -19,7 +19,7 @@ public class EmailServiceTest extends TestCase {
 					"", "", 
 					"capsela@capsela.hiw.com", 
 					"test from EmailServiceTest", 
-					"Body for EmailServiceTest sent at " + new Date(), 
+					"Body for EmailServiceTest", 
 					"capsela.hiw.com");
 		} catch (Exception e) {
 			fail(e.getMessage());
