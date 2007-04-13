@@ -179,6 +179,14 @@ public class NexusServiceData implements Cloneable {
         return v;
     }
     
+    public void removeVariable(String name) {
+    	Variable varToRemove = null;
+    	for (Variable v: variable) {
+    		if (v.getName().equals(name)) varToRemove = v;
+    	}
+    	if (varToRemove != null) variable.remove(varToRemove); 
+    }
+    
     public String toString() {
         StringBuffer b = new StringBuffer();
         b.append( this.getClass().toString() ).append( ".toString():\n" );
