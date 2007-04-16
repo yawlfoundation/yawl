@@ -9,6 +9,8 @@ package au.edu.qut.yawl.deployment;
 
 import java.util.List;
 
+import org.jdom.Element;
+
 import au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 import au.edu.qut.yawl.worklist.model.Marshaller;
@@ -28,24 +30,33 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 	}
 
 	/**
-	 * It recieves messages from the engine
-	 * notifying an enabled task and acts accordingly.  In this case it takes the message,
-	 * tries to check out the work item, and if successful it begins to start up a web service
-	 * invokation.
-	 * @param enabledWorkItem
+	 * It recieves messages from the engine notifying an enabled task and acts accordingly.
+	 * In this case it takes the message, tries to check out the work item, and if successful
+	 * it prints out the information passed in and checks the work item back in with some
+	 * data.
 	 */
 	public void handleEnabledWorkItemEvent(String enabledWorkItem) {
 		WorkItemRecord workItemRecord = Marshaller.unmarshalWorkItem(enabledWorkItem);
 		System.out.println("Invoked the test service");
 		try {
 			WorkItemRecord child = checkOut(workItemRecord.getID());
-			System.out.println("Data string:" + workItemRecord.getDataListString());
 			
 			if (child != null) {
 				List<WorkItemRecord> children = getChildren(workItemRecord.getID());
 
 				for (WorkItemRecord workitem : children) {
-					System.out.println("Notified of: " + workitem.getWorkItemData().getText());
+					Element dataRoot = workitem.getWorkItemData();
+					if(dataRoot != null) {
+						System.out.println("Notified of: " + dataRoot.getName());
+						for(Object content : dataRoot.getContent()) {
+							if(content instanceof Element) {
+								System.out.println(
+										((Element)content).getName() +
+										":" +
+										((Element)content).getText());
+							}
+						}
+					}
 					
 					TaskInformation task = getTaskInformation(
 							workitem.getSpecificationID(),
@@ -56,6 +67,7 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 					"</"+task.getDecompositionID()+">";
 					String inputData = "<" + task.getDecompositionID() + "/>";
 					
+					System.out.println("output:\n" + outputdata);
 					checkInWorkItem(workitem.getID(),inputData,outputdata);
 				}
 			}
@@ -65,10 +77,7 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 	}
 
 	/**
-	 * By implementing this method and deploying a web app containing the implementation
-	 * the YAWL engine will send events to this method notifying your custom
-	 * YAWL service that an active work item has been cancelled by the
-	 * engine.
+	 * Just prints a notification to standard out.
 	 * @param workItemRecord a "snapshot" of the work item cancelled in
 	 * the engine.
 	 */
@@ -78,7 +87,7 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 
 
 	/**
-	 * By overriding this method one can process case completion events.
+	 * Just prints a notification to standard out.
 	 * @param caseID the id of the completed case.
 	 */
 	public void handleCompleteCaseEvent(String caseID, String casedata) {
