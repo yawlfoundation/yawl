@@ -61,7 +61,7 @@ public class YMarshal {
 
 
     /**
-     * Returns the _specifications.   Does some primary checking of the file against
+     * Returns the _specifications. Does some primary checking of the file against
      * schemas and checks well formedness of the XML.
      * @return List
      */

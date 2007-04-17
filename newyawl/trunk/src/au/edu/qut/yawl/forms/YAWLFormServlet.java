@@ -114,6 +114,9 @@ public class YAWLFormServlet extends HttpServlet {
         
         if (submit.equals("submit")){
         	if (workItemID.compareTo("null") != 0) {
+        		System.out.println("inputData: "+inputData);
+        		System.out.println("outputData: "+outputData);
+        		
 	            request.setAttribute("inputData", inputDataEl); // check for null?
 	            request.setAttribute("outputData", outputDataEl);
 	            request.setAttribute("workItemID", workItemID);

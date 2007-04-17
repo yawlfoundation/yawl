@@ -184,7 +184,6 @@ public class ChibaServlet extends AbstractChibaServlet {
     private String processorBase=null;
     private String formsDir=null;
 
-    private static String YAWLID = new String(); // edited
 
     /**
      * Returns a short description of the servlet.
@@ -317,8 +316,6 @@ public class ChibaServlet extends AbstractChibaServlet {
         XFormsSessionManager sessionManager = getXFormsSessionManager();
         XFormsSession xFormsSession = sessionManager.createXFormsSession();
 
-        YAWLID = request.getParameter("JSESSIONID");
-        
         /*
         the XFormsSessionManager is kept in the http-session though it is accessible as singleton. Subsequent
         servlets should access the manager through the http-session attribute as below to ensure the http-session
@@ -342,7 +339,7 @@ public class ChibaServlet extends AbstractChibaServlet {
             if (formURI == null) {
                 throw new IOException("Resource not found: " + formURI + " not found");
             }
-
+            
             String xslFile = request.getParameter(XSL_PARAM_NAME);
             String javascriptPresent = request.getParameter(JAVASCRIPT_PARAM_NAME);
 
@@ -519,23 +516,12 @@ public class ChibaServlet extends AbstractChibaServlet {
             Cookie[] commonsCookies = new org.apache.commons.httpclient.Cookie[cookiesIn.length];
             for (int i = 0; i < cookiesIn.length; i += 1) {
                 javax.servlet.http.Cookie c = cookiesIn[i];
-            
-	            if (c.getName().compareTo("JSESSIONID") == 0){
-	                commonsCookies[i] = new Cookie(c.getDomain(),
-	                                              c.getName(),
-	                                              YAWLID,
-	                                              c.getPath(),
-	                                              c.getMaxAge(),
-	                                              c.getSecure());
-		        }
-		        else{
-		        	commonsCookies[i] = new Cookie(c.getDomain(),
-		                      c.getName(),
-		                      c.getValue(),
-		                      c.getPath(),
-		                      c.getMaxAge(),
-		                      c.getSecure());
-		        }
+                commonsCookies[i] = new Cookie(c.getDomain(),
+                        c.getName(),
+                        c.getValue(),
+                        c.getPath(),
+                        c.getMaxAge(),
+                        c.getSecure());
             }
             adapter.setContextParam(AbstractHTTPConnector.REQUEST_COOKIE, commonsCookies);
         }
