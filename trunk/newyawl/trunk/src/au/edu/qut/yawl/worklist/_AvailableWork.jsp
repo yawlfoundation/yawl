@@ -41,8 +41,7 @@
 	            wip.executeWorkItemPost(getServletContext(), checkedOutItem.getID(),
 	                    sessionHandle, _worklistController, userID, session.getId());
 	
-	            String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());
-	
+	            String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());        
 	            response.sendRedirect(response.encodeURL(url));
 	        } else {
 	            request.setAttribute("failure", checkedOutItem);

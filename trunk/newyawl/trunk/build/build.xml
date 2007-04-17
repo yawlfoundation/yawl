@@ -12,20 +12,16 @@
     <property name="test" value="test"/>
     <property name="backup" value="backup"/>
     <property name="thirdParty.home" value="${build.home}/thirdParty"/>
-    <property name="basic.libs" value="./build/3rdParty/lib"/>
-    <property name="wsif.libs" value="./build/3rdParty/wsif-lib"/>
-    <property name="xsd.libs" value="./build/3rdParty/xsdlib"/>
-    <property name="persist.libs" value="./build/3rdParty/persistenceLibs"/>
-    <property name="standAlone.libs" value="./build/3rdParty/standAlone-libs"/>
-    <property name="xforms.lib" value="./build/3rdParty/xforms-lib"/>
-    <property name="xforms.dist" value="./build/yawlXForms/dist"/>
-    <property name="extra.libs" value="./build/extras"/>        <!-- AJH -->
-    <property name="property.files" value="./build/properties"/> <!-- AJH -->
+    <property name="libs" value="./build/3rdParty/lib"/>
+    <property name="persistence.libs" value="cglib-full-2.0.1.jar commons-collections-2.1.jar commons-logging-1.1.jar dom4j-1.4.jar ehcache-0.7.jar hibernate2.jar hibernate.cfg.xml jta.jar odmg-3.0.jar"/>
+	<property name="xsd.libs" value="common.jar ecore.jar xsd.jar xsd.resources.jar"/>
+	<property name="xforms.dist" value="./build/yawlXForms/dist"/>
+    <!--property name="extra.libs" value="./build/extras"/-->        <!-- AJH -->
+    <property name="property.files" value="./build/properties"/>     <!-- AJH -->
     <property name="classes" value="classes"/>
     <property name="enumeratedClasses" value="./build/3rdParty/enumerated3rdPartyClasses"/>
     <property name="javadoc" value="javadoc"/>
     <property name="output" value="output"/>
-    <property name="pdf.libs" value="./build/3rdParty/pdflibs"/>
 
 
 
@@ -53,7 +49,7 @@
     <property name="yawl.eng.app.path" value="/${yawl.eng.app.name}"/>
     <property name="yawl.worklist.app.path" value="/${yawl.worklist.app.name}"/>
     <property name="yawl.webService.app.path" value="/${yawl.webService.app.name}"/>
-    <property name="app.version" value="Beta8.1"/>
+    <property name="app.version" value="Beta8.2"/>
     <property name="build.home" value="${basedir}/build"/>
     <property name="graphics.home" value="${basedir}/graphics"/>
     <property name="dist.home" value="${basedir}/dist"/>
@@ -66,14 +62,14 @@
     <property name="tomcat_manager_url" value="${tomcat.protocol}://${tomcat.address}:${tomcat.port}/manager"/>
 
     <!-- Configure the custom Ant tasks for the Manager application -->
-    <taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask"/>
+    <!--taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask"/>
     <taskdef name="list" classname="org.apache.catalina.ant.ListTask"/>
     <taskdef name="reload" classname="org.apache.catalina.ant.ReloadTask"/>
     <taskdef name="resources" classname="org.apache.catalina.ant.ResourcesTask"/>
     <taskdef name="roles" classname="org.apache.catalina.ant.RolesTask"/>
     <taskdef name="start" classname="org.apache.catalina.ant.StartTask"/>
     <taskdef name="stop" classname="org.apache.catalina.ant.StopTask"/>
-    <taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask"/>
+    <taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask"/-->
 
     <!--
       Use property values to define the locations of external JAR files on which
@@ -91,77 +87,77 @@
     <!--
     Chart drawing library
     -->
-    <property name="jfreechart.jar" value="${basic.libs}/jfreechart-1.0.0-rc1.jar"/>
+    <property name="jfreechart.jar" value="${libs}/jfreechart-1.0.0-rc1.jar"/>
     <!--
     Chart drawing support library jcommon
     -->
-    <property name="jcommon.jar" value="${basic.libs}/jcommon-1.0.0-rc1.jar"/>
+    <property name="jcommon.jar" value="${libs}/jcommon-1.0.0-rc1.jar"/>
 
     <!--
     Unit test support libraries
     -->
-    <property name="junit.jar" value="${basic.libs}/junit.jar"/>
+    <property name="junit.jar" value="${libs}/junit.jar"/>
     <!--
     Xerces library
     -->
-    <property name="xerces.jar" value="${basic.libs}/xercesImpl.jar"/>
+    <property name="xerces.jar" value="${libs}/xercesImpl.jar"/>
     <!--
     SAXON library
     -->
-    <property name="saxon.jar" value="${basic.libs}/saxon7.jar"/>
+    <property name="saxon.jar" value="${libs}/saxon7.jar"/>
     <!--
 	JDom library
 	-->
-    <property name="jdom.jar" value="${basic.libs}/jdom.jar"/>
+    <property name="jdom.jar" value="${libs}/jdom.jar"/>
     <!--
     Sevlet library
     -->
-    <property name="servlet.jar" value="${basic.libs}/servlet-api.jar"/>
+    <property name="servlet.jar" value="${libs}/servlet-api.jar"/>
     <!--
     WSIF Dependencies
     -->
-    <property name="wsif.jar" value="${wsif.libs}/wsif.jar"/>
-    <property name="axis.jar" value="${wsif.libs}/axis-1.1RC2.jar"/>
-    <property name="commons-discovery.jar" value="${wsif.libs}/commons-discovery.jar"/>
-    <property name="commons-logging.jar" value="${wsif.libs}/commons-logging.jar"/>
-    <property name="jaxrpc.jar" value="${wsif.libs}/jaxrpc.jar"/>
-    <property name="saaj.jar" value="${wsif.libs}/saaj.jar"/>
-    <property name="wsdl4j.jar" value="${wsif.libs}/wsdl4j-20030807.jar"/>
-    <property name="xmlParserAPIs.jar" value="${wsif.libs}/xmlParserAPIs-2_2_1.jar"/>
+    <property name="wsif.jar" value="${libs}/wsif.jar"/>
+    <property name="axis.jar" value="${libs}/axis-1.1RC2.jar"/>
+    <property name="commons-discovery.jar" value="${libs}/commons-discovery.jar"/>
+    <property name="commons-logging.jar" value="${libs}/commons-logging-1.1.jar"/>
+    <property name="jaxrpc.jar" value="${libs}/jaxrpc.jar"/>
+    <property name="saaj.jar" value="${libs}/saaj.jar"/>
+    <property name="wsdl4j.jar" value="${libs}/wsdl4j-20030807.jar"/>
+    <property name="xmlParserAPIs.jar" value="${libs}/xmlParserAPIs-2_2_1.jar"/>
     <!--
     XSD Dependencies
     -->
-    <property name="common.jar" value="${xsd.libs}/common.jar"/>
-    <property name="ecore.jar" value="${xsd.libs}/ecore.jar"/>
-    <property name="xsd.jar" value="${xsd.libs}/xsd.jar"/>
-    <property name="xsd.resources.jar" value="${xsd.libs}/xsd.resources.jar"/>
+    <property name="common.jar" value="${libs}/common.jar"/>
+    <property name="ecore.jar" value="${libs}/ecore.jar"/>
+    <property name="xsd.jar" value="${libs}/xsd.jar"/>
+    <property name="xsd.resources.jar" value="${libs}/xsd.resources.jar"/>
     <!--
     Persistence Dependencies
     -->
-    <property name="cglib" value="${persist.libs}/cglib-full-2.0.1.jar"/>
-    <property name="commonsCollections" value="${persist.libs}/commons-collections-2.1.jar"/>
-    <property name="commonsLogging" value="${persist.libs}/commons-logging-1.0.3.jar"/>
-    <property name="dom4j" value="${persist.libs}/dom4j-1.4.jar"/>
-    <property name="ehcache" value="${persist.libs}/ehcache-0.7.jar"/>
-    <property name="hibernate" value="${persist.libs}/hibernate2.jar"/>
+    <property name="cglib" value="${libs}/cglib-full-2.0.1.jar"/>
+    <property name="commonsCollections" value="${libs}/commons-collections-2.1.jar"/>
+    <property name="commonsLogging" value="${libs}/commons-logging-1.1.jar"/>
+    <property name="dom4j" value="${libs}/dom4j-1.4.jar"/>
+    <property name="ehcache" value="${libs}/ehcache-0.7.jar"/>
+    <property name="hibernate" value="${libs}/hibernate2.jar"/>
     <property name="hsql.jar" value="hsqldb.jar"/>
-    <property name="hsql.path" value="${persist.libs}/${hsql.jar}"/>
+    <property name="hsql.path" value="${libs}/${hsql.jar}"/>
     <property name="postgres7.jar" value="postgresql-7.4.5.jdbc.jar"/>
-    <property name="postgres7.path" value="${basic.libs}/${postgres7.jar}"/>
+    <property name="postgres7.path" value="${libs}/${postgres7.jar}"/>
     <property name="postgres8.jar" value="postgresql-8.0-311.jdbc3.jar"/>
-    <property name="postgres8.path" value="${basic.libs}/${postgres8.jar}"/>
-    <property name="jta" value="${persist.libs}/jta.jar"/>
-    <property name="odmg" value="${persist.libs}/odmg-3.0.jar"/>
+    <property name="postgres8.path" value="${libs}/${postgres8.jar}"/>
+    <property name="jta" value="${libs}/jta.jar"/>
+    <property name="odmg" value="${libs}/odmg-3.0.jar"/>
 
     <!--
     PDF Dependencies
     -->
-    <property name="itext" value="${pdf.libs}/itext-1.4.jar"/>
-    <property name="bcprov" value="${pdf.libs}/bcprov-jdk14-130.jar"/>
-    <property name="fileupload" value="${pdf.libs}/commons-fileupload-1.0.jar"/>
+    <property name="itext" value="${libs}/itext-1.4.jar"/>
+    <property name="bcprov" value="${libs}/bcprov-jdk14-130.jar"/>
+    <property name="fileupload" value="${libs}/commons-fileupload-1.1.jar"/>
 
     <!-- Log4J Logging Library -->
-    <property name="log4j" value="${basic.libs}/log4j-1.2.8.jar"/>
+    <property name="log4j" value="${libs}/log4j-1.2.14.jar"/>
 
     <!-- ==================== Compilation Classpath =========================== -->
     <!--
@@ -210,7 +206,7 @@
         <pathelement location="${wsif.jar}"/>
         <pathelement location="${axis.jar}"/>
         <pathelement location="${commons-discovery.jar}"/>
-        <pathelement location="${commons-logging.jar}"/>
+        <pathelement location="${commons-logging-1.1.jar}"/>
         <pathelement location="${jaxrpc.jar}"/>
         <pathelement location="${saaj.jar}"/>
         <pathelement location="${wsdl4j.jar}"/>
@@ -309,16 +305,6 @@
 
         <!-- Copy and patch Log4J properties file in for free-standing engine -->
         <copy file="${property.files}/log4j.properties" todir="${classes}" overwrite="true" />
-
-        <!--
-        <replace file="${classes}/log4j.properties"
-                 token="%TOMCAT_DIR%/logs" value="."/>
-         -->
-        <replace file="${classes}/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
     </target>
 
     <target name="decidePostgresVersion">
@@ -350,23 +336,15 @@
     <target name="build_Standalone" depends="compile">
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
-            <fileset dir="${standAlone.libs}" includes="*.jar" excludes="postgres*.jar"/>
-            <fileset dir="${basic.libs}">
-                <include name="**/*.jar"/>
-            </fileset>
-            <fileset dir="${xsd.libs}">
-                <include name="**/*.jar"/>
-            </fileset>
-            <fileset dir="${persist.libs}">
-                <include name="**/*.jar"/>
-            </fileset>
-        </unzip>
+            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar jfreechart-1.0.0-rc1.jar log4j*.jar postgresql-8.0-311.jdbc3.jar saxon7.jar saxpath.jar servlet-api.jar xercesImpl.jar xml-apis.jar" excludes="hibernate.cfg.xml"/>
+        </unzip>	
+    	
         <!--=======================================================================
         Create a self contained jar of the YAWL library
         -->
         <antcall target="decidePostgresVersion"/>
-        <jar destfile="${output}/YAWL${app.version}.jar">
-            <fileset dir="${classes}"/>
+        <jar destfile="${output}/YAWL${app.version}_Standalone.jar">
+            <fileset dir="${classes}"  excludes="junit junit3.8.1"/>
             <fileset dir="${enumeratedClasses}"/>
             <manifest>
                 <attribute name="Created-By" value="${developer.name}"/>
@@ -438,23 +416,12 @@
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.eng.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.eng.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <copy todir="${yawl.eng.app.name}/WEB-INF">
             <fileset file="${build.home}/engine/web.xml"/>
         </copy>
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="*.jar" excludes="servlet-api.jar postgres*.jar"/>
-        </copy>
-        <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
-            <fileset dir="${persist.libs}" includes="*.jar"/>
-        </copy>
-        <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
-            <fileset dir="${xsd.libs}" includes="*.jar"/>
+            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar jfreechart-1.0.0-rc1.jar log4j*.jar postgresql-8.0-311.jdbc3.jar saxon7.jar saxpath.jar xercesImpl.jar"/>
         </copy>
         <antcall target="decidePostgresVersion"/>
         <jar destfile="${output}/yawl.war">
@@ -520,15 +487,10 @@
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions"/>
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/schema"/>
         <!-- Copy library dependencies into worklist -->
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
-            <fileset dir="${xsd.libs}" includes="*.jar"/>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" excludes="servlet-api.jar, postgresql*.jar"/>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
-            <fileset dir="${persist.libs}" includes="*.jar"/>
-        </copy>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib" >
+            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} bcprov-jdk14-130.jar commons-fileupload-1.1.jar dom.jar itext-1.4.jar jaxen-full.jar jaxp-api.jar jcommon-1.0.0-rc1.jar jdbc2_0-stdext.jar jdom.jar jfreechart-1.0.0-rc1.jar jstl.jar log4j*.jar postgresql-8.0-311.jdbc3.jar sax.jar saxon7.jar saxpath.jar standard.jar xalan.jar xercesImpl.jar"/>
+        </copy>  	
+    	
         <antcall target="decidePostgresVersion"/>
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/exceptions">
             <fileset dir="${classes}/au/edu/qut/yawl/exceptions" includes="*.class *.hbm.xml"/>
@@ -569,22 +531,8 @@
             <fileset dir="${classes}/au/edu/qut/yawl/elements/data"
                 includes="YParameter.class YVariable.class"/>
         </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib" >
-            <fileset dir="${pdf.libs}"/>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
-        </copy>
-        <copy todir="${yawl.worklist.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
-        </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.worklist.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.worklist.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset dir="${classes}/au/edu/qut/yawl/engine/interfce"/>
@@ -649,19 +597,11 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${yawl.webService.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
-            <fileset dir="${wsif.libs}" includes="*.jar *.html" excludes="j2ee.jar"/>
-        </copy>
-        <copy todir="${yawl.webService.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
+            <fileset dir="${libs}" includes="apache_soap-2_3_1.jar axis-1.1RC2.jar axis-1_1RC2-ant.jar commons-discovery.jar commons-logging-1.1.jar jaxrpc.jar jdom.jar log4j*.jar optional-1_5_1.jar qname-from-wsdl4j-20030807.jar saaj.jar soaprmi-1_1.jar wsdl4j-20030807.jar wsif.jar wsif-j2c.jar xercesImpl.jar xmlParserAPIs-2_2_1.jar"/>
+            <fileset dir="${libs}" includes="README.html"/>
         </copy>
 
-         <copy file="${property.files}/log4j.properties" todir="${yawl.webService.app.name}/WEB-INF/classes"/>
-         <replace file="${yawl.webService.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
+        <copy file="${property.files}/log4j.properties" todir="${yawl.webService.app.name}/WEB-INF/classes"/>
 
         <copy todir="${yawl.webService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset
@@ -724,18 +664,13 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${yawl.smsService.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${libs}" includes="jdom.jar"/>
         </copy>
         <copy todir="${yawl.smsService.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
+            <fileset dir="${libs}" includes="log4j*.jar"/>
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.smsService.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.smsService.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <copy todir="${yawl.smsService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset
@@ -819,18 +754,10 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${libs}" includes="jdom.jar log4j*.jar"/>
         </copy>
-        <copy todir="${yawl.TimeService.app.name}/WEB-INF/lib" >
-            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
-        </copy>
-
+    	
         <copy file="${property.files}/log4j.properties" todir="${yawl.TimeService.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.TimeService.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset
@@ -906,19 +833,11 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar jfreechart-1.0.0-rc1.jar jcommon-1.0.0-rc1.jar"/>
+            <fileset dir="${libs}" includes="${persistence.libs} jcommon-1.0.0-rc1.jar jdom.jar jfreechart-1.0.0-rc1.jar log4j*.jar postgresql-8.0-311.jdbc3.jar"/>
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.admintool.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.admintool.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/lib">
-            <fileset dir="${persist.libs}"/>
-        </copy>
         <antcall target="decidePostgresVersion"/>
         <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset
@@ -1075,7 +994,9 @@
 
     	<!-- 2b. Copy required worklet support files into dir root -->
         <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/welcome/welcome.htm"/>
-        <copy todir="${yawl.worklet.app.name}" file="${build.home}/workletService/workletRepository.zip"/>
+        <copy todir="${yawl.worklet.app.name}/repository">
+        	<fileset dir="${build.home}/workletService/repository"/>
+        </copy>
 
         <!-- 2c. Copy in graphics for welcome page -->
         <copy todir="${yawl.worklet.app.name}/graphics">
@@ -1092,17 +1013,10 @@
 
         <!-- 2e. Copy log4j properties -->
         <copy file="${property.files}/log4j.properties" todir="${yawl.worklet.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.worklet.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <!-- 3. Copy required 3rd party libraries into dir structure -->
     	<copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
-    	   <fileset dir="${xsd.libs}" includes="*.jar" />
-           <fileset dir="${persist.libs}" includes="*.jar"/>
-           <fileset dir="${basic.libs}" includes="jdom.jar log4j*.jar"/>
+    	   <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jdom.jar log4j*.jar postgresql-8.0-311.jdbc3.jar"/>
         </copy>
 
         <!-- 4. Copy hibernate & postgres files (assumes version 8) -->
@@ -1376,7 +1290,7 @@
     <target name="deploy_tomcat_common_libs" description="Update the Tomcat common libraries for XML parsers etc.">
         <echo>Copying and deleting as-issued Tomcat XML parser libraries</echo>
 
-        <copy file="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar"
+        <!--copy file="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar"
             tofile="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar.original"
             failonerror="false"/>
         <delete file="${env.CATALINA_HOME}/common/endorsed/xercesImpl.jar"
@@ -1394,7 +1308,7 @@
             overwrite="true"/>
         <copy file="${xforms.lib}/dom3-xml-apis.jar"
             todir="${env.CATALINA_HOME}/common/endorsed"
-            overwrite="true"/>
+            overwrite="true"/-->
     </target>
 
 
@@ -1461,24 +1375,10 @@
                 includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib">
-            <fileset dir="${basic.libs}" includes="jdom.jar"/>
+            <fileset dir="${libs}" includes="bcprov-jdk14-130.jar commons-fileupload-1.1.jar dom.jar itext-1.4.jar jaxen-full.jar jaxp-api.jar jdbc2_0-stdext.jar jdom.jar jstl.jar log4j*.jar sax.jar standard.jar xalan.jar"/>
         </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
-            <fileset dir="${basic.libs}" includes="log4j*.jar"/>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
-            <fileset dir="${pdf.libs}"/>
-        </copy>
-        <copy todir="${yawl.pdfforms.app.name}/WEB-INF/lib" >
-            <fileset dir="${persist.libs}"/>
-        </copy>
-
+    	
         <copy file="${property.files}/log4j.properties" todir="${yawl.pdfforms.app.name}/WEB-INF/classes"/>
-        <replace file="${yawl.pdfforms.app.name}/WEB-INF/classes/log4j.properties">
-            <replacefilter token="%TOMCAT_DIR%" value="${env.CATALINA_HOME}"/>
-            <!-- switch the slashes (adjust win separators) if necessary -->
-            <replacefilter token="\" value="/" />
-        </replace>
 
         <copy todir="${yawl.pdfforms.app.name}/WEB-INF/classes/au/edu/qut/yawl/engine/interfce">
             <fileset

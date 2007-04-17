@@ -84,7 +84,7 @@
 
     <context-param>
         <param-name>Repository</param-name>
-        <param-value>C:\Worklets\repository\</param-value>
+        <param-value>${catalina.base}\webapps\workletService\repository\</param-value>
         <description>
            The path where the worklet repository is installed.
         </description>
@@ -92,7 +92,7 @@
 
     <context-param>
 	<param-name>EnablePersistence</param-name>
-	<param-value>false</param-value>
+	<param-value>true</param-value>
 	<description>
 		'true' to enable persistence and logging
 		'false' to disable

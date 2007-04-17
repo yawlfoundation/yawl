@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.net.URLEncoder;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -45,7 +47,7 @@ public class YAWLServlet extends HttpServlet{
 	private boolean submissionElementsDone = false;
 	private boolean submitElementsDone = false;
 	private boolean launchCase = false;
-	
+	 
 	/* (non-Javadoc)
 	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
@@ -63,6 +65,13 @@ public class YAWLServlet extends HttpServlet{
         String workItemID = request.getParameter("workItemID");
         String task = request.getParameter("task");
         
+        try{
+        	task = URLEncoder.encode(task, "UTF-8");
+        }
+        catch(UnsupportedEncodingException e){
+        	e.printStackTrace();
+        }
+            
         if (workItemID == null){
         	launchCase = true;
         }
@@ -164,8 +173,6 @@ public class YAWLServlet extends HttpServlet{
 	    ServletContext RP = getServletConfig().getServletContext();
 	    String filePath = RP.getRealPath(File.separator+"forms");   
 		
-		// if schema != null etc. set directory to forms, not Tomcat/bin
-		//logger.debug("YAWLServlet: setInputURI to "+schema);
 		try{
 			builder.setInputURI(filePath+File.separator+schema);
 		}
@@ -175,7 +182,6 @@ public class YAWLServlet extends HttpServlet{
 		
 		File f = new File(filePath+File.separator+form+".xhtml");
 		
-		//logger.debug("YAWLServlet: setInstanceFile to "+instance);
 		try{
 			builder.setInstanceFile(filePath+File.separator+instance);
 		}
@@ -199,8 +205,8 @@ public class YAWLServlet extends HttpServlet{
 		builder.setWrapperType("XHTML");
 		builder.execute();
 		
-		deleteTempFile(filePath+File.separator+schema);
-		deleteTempFile(filePath+File.separator+instance);
+		//deleteTempFile(filePath+File.separator+schema);
+		//deleteTempFile(filePath+File.separator+instance);
 		
 		fixFormParams(f);
 		
@@ -263,7 +269,6 @@ public class YAWLServlet extends HttpServlet{
 	    }
 	    
 		try{
-			//logger.debug("xform filePath: "+f.toString());
 			bw = new BufferedWriter(new FileWriter(f, false));
 		}
 		catch (IOException e){
@@ -303,7 +308,7 @@ public class YAWLServlet extends HttpServlet{
 	
 						// cycle thru attributes, report match if the element is "xforms:bind"
 						// and "xforms:nodeset" equals the name of an input parameter.
-						if ( (AttributesList.item(j).getNodeName().compareTo("xforms:nodeset") == 0) &&
+						if ( (AttributesList.item(j).getNodeName().compareTo("nodeset") == 0) &&
 								(s.contains(AttributesList.item(j).getNodeValue()) == true) ){
 	
 							Element element = (Element) node;
@@ -311,14 +316,14 @@ public class YAWLServlet extends HttpServlet{
 							
 							// if it exists, edit the "xforms:required" attribute to be false
 							for (int i = 0; i < AttributesList.getLength(); i++) {
-								if (AttributesList.item(i).getNodeName().compareTo("xforms:required") == 0){
+								if (AttributesList.item(i).getNodeName().compareTo("required") == 0){
 									// edit the required attribute from this node to be false
-									Attr newAttrib = factory.createAttribute("xforms:required");
+									Attr newAttrib = factory.createAttribute("required");
 									newAttrib.setValue("false()");
 									element.setAttributeNode(newAttrib);
 								}
 							}
-							Attr specifiedAttribute = factory.createAttribute("xforms:readonly");
+							Attr specifiedAttribute = factory.createAttribute("readonly");
 							specifiedAttribute.setValue("true()");
 							element.setAttributeNode(specifiedAttribute);
 						}
@@ -327,7 +332,7 @@ public class YAWLServlet extends HttpServlet{
 			}
 			
 			
-			if (node.getNodeName().compareTo("xforms:submission") == 0 && submissionElementsDone == false){
+			if (node.getNodeName().compareTo("submission") == 0 && submissionElementsDone == false){
 				// create cancel button submission node
 				//eg: <xforms:submission id="submission_1" xforms:action="http://localhost:8080/worklist/yawlFormServlet?userID=admin&amp;sessionHandle=3456218449289224029&amp;specID=null&amp;workItemID=100000.1:Call_for_papers_5&amp;JSESSIONID=D6B01B27183706B536BE90204788DC71&amp;submit=cancel" xforms:method="post"/>
 				
@@ -340,7 +345,7 @@ public class YAWLServlet extends HttpServlet{
 				addSubmissionElement(node, "cancel", 3);
 				submissionElementsDone = true;
 			}
-			if (node.getNodeName().compareTo("xforms:submit") == 0 && submitElementsDone == false){
+			if (node.getNodeName().compareTo("submit") == 0 && submitElementsDone == false){
 				// create submit child
 				//eg: <xforms:submit xforms:id="submit_1" xforms:submission="submission_1">
 				//<xforms:label xforms:id="label_4">Cancel</xforms:label>
@@ -368,6 +373,9 @@ public class YAWLServlet extends HttpServlet{
 		}
 	}
 	
+	// TODO for every xforms:insert and xforms:delete, replace the "at" attribute with at="last()" 
+	// or something similar that works
+	
 	
 	/**
 	 * Adds a submission element to a xform.
@@ -384,7 +392,7 @@ public class YAWLServlet extends HttpServlet{
 		String action = new String();
 		
 		for (int j = 0; j < AttributesList.getLength(); j++) {
-			if (AttributesList.item(j).getNodeName().compareTo("xforms:action") == 0){
+			if (AttributesList.item(j).getNodeName().compareTo("action") == 0){
 				action = AttributesList.item(j).getNodeValue();
 				action = action.substring(0, action.indexOf("=submit")).concat("="+submissionType);
 			}
@@ -393,13 +401,13 @@ public class YAWLServlet extends HttpServlet{
 		Attr newAttrib1 = factory.createAttribute("id");
 		newAttrib1.setValue("submission_"+number);
 		
-		Attr newAttrib2 = factory.createAttribute("xforms:action");
+		Attr newAttrib2 = factory.createAttribute("action");
 		newAttrib2.setValue(action);
 
 		Attr newAttrib3 = factory.createAttribute("validate");
 		newAttrib3.setValue("false");
 		
-		Attr newAttrib4 = factory.createAttribute("xforms:method");
+		Attr newAttrib4 = factory.createAttribute("method");
 		newAttrib4.setValue("post");
 		
 		newElement.setAttributeNode(newAttrib1);
@@ -424,10 +432,10 @@ public class YAWLServlet extends HttpServlet{
 		Node parent = node.getParentNode();
 		Element newElement = factory.createElement("xforms:submit");
 		
-		Attr newAttrib1 = factory.createAttribute("xforms:id");
+		Attr newAttrib1 = factory.createAttribute("id");
 		newAttrib1.setValue("submit_"+number);
 		
-		Attr newAttrib2 = factory.createAttribute("xforms:submission");
+		Attr newAttrib2 = factory.createAttribute("submission");
 		newAttrib2.setValue("submission_"+number);
 		
 		newElement.setAttributeNode(newAttrib1);
@@ -437,7 +445,7 @@ public class YAWLServlet extends HttpServlet{
 		
 		Element child = factory.createElement("xforms:label");
 		
-		Attr newAttrib3 = factory.createAttribute("xforms:id");
+		Attr newAttrib3 = factory.createAttribute("id");
 		newAttrib3.setValue(submitType+"_label");
 		child.setAttributeNode(newAttrib3);
 		child.setTextContent(submitType);
