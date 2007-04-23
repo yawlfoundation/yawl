@@ -142,7 +142,7 @@ public class SchemaForSchemaValidator extends DefaultHandler {
         while ((line = br.readLine()) != null) {
             testSchema += line;
         }
-        System.out.println("testSchema = \n" + testSchema);
+        //System.out.println("testSchema = \n" + testSchema);
     }
 
 

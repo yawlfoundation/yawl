@@ -27,9 +27,9 @@ public class YMessagePrinter {
             try {
                 o = iter.next();
                 YVerificationMessage vm = (YVerificationMessage) o;
-                System.out.println(vm.getStatus() + ":" + vm.getMessage());
+                //System.out.println(vm.getStatus() + ":" + vm.getMessage());
             } catch (ClassCastException cce) {
-                System.out.println("About to throw exception over this object = " + o.getClass().getName());
+                //System.out.println("About to throw exception over this object = " + o.getClass().getName());
                 cce.printStackTrace();
             }
         }

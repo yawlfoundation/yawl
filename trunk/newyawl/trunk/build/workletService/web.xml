@@ -92,7 +92,7 @@
 
     <context-param>
 	<param-name>EnablePersistence</param-name>
-	<param-value>true</param-value>
+	<param-value>false</param-value>
 	<description>
 		'true' to enable persistence and logging
 		'false' to disable

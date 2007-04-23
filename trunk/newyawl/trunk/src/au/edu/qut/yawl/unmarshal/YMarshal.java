@@ -130,6 +130,6 @@ public class YMarshal {
         File file = new File(xmlFileURL.getFile());
         List specifications = unmarshalSpecifications(file.getCanonicalPath());
         String marshalledSpecs = marshal(specifications);
-        System.out.println("\n\n" + marshalledSpecs);
+        //System.out.println("\n\n" + marshalledSpecs);
     }
 }

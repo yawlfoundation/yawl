@@ -175,7 +175,7 @@ public class FluxHelperServlet extends AbstractChibaServlet {
             chibaEvent.initEvent("http-request", null, request);
             webAdapter.dispatch(chibaEvent);
 
-            boolean isUpload = FileUpload.isMultipartContent(new ServletRequestContext(request));
+            boolean isUpload = FileUpload.isMultipartContent(request);
 
             if (isUpload) {
                 ServletOutputStream out = response.getOutputStream();

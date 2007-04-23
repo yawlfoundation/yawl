@@ -1414,14 +1414,14 @@ public abstract class YTask extends YExternalNetElement {
                 result.append(_decompositionPrototype.getID());
                 result.append("</decompositionID>");
 
-		System.out.println(_decompositionPrototype.getAttributes().keys());
+		//System.out.println(_decompositionPrototype.getAttributes().keys());
 
 		for (Enumeration atts = _decompositionPrototype.getAttributes().keys(); atts.hasMoreElements() ;) {
 		    result.append("<attributes>");
 		    
 		    String key = (String) atts.nextElement();		    
 		    String value = (String) _decompositionPrototype.getAttributes().get(key);
-		    System.out.println(key + " : " + value);
+		    //System.out.println(key + " : " + value);
 		    result.append("<"+key+">"+value+"</"+key+">");
 		    
 		    result.append("</attributes>");		    

@@ -64,15 +64,15 @@
                         value="<%= id %>"/></td>
                     <td/>
                     
-                    <td align="center"><%= id %></td>
-                    <td/>
-                    <!-- <td align="center"><a
+                    <!-- <td align="center"><%= id %></td> -->
+                    <!-- <td/>
+                    <td align="center"><a
                         href="<%= contextPath %>/itemViewer?workItemID=<%= id %>"><%= id %></a></td>
                     <td/> -->
                     
-                    <!-- <td align="center"><a
+                    <td align="center"><a
                         href="<%= contextPath %>/workItemProcessor?submit=Edit Work Item&workItemID=<%= id %>"><%= id %></a></td>
-                    <td/> -->
+                    <td/>
                     
                     <td align="center"><%= taskInfo != null ?
                                             taskInfo.getTaskName() :

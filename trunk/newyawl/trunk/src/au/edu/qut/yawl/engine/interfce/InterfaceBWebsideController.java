@@ -468,8 +468,8 @@ public abstract class InterfaceBWebsideController {
                 enabledWorkItem.getSpecificationID(),
                 sessionHandle);
 
-        System.out.println("_model = " + _model);
-        System.out.println("enabledWorkItem = " + enabledWorkItem);
+        //System.out.println("_model = " + _model);
+        //System.out.println("enabledWorkItem = " + enabledWorkItem);
 
         TaskInformation taskInfo = getTaskInformation(
                 enabledWorkItem.getSpecificationID(),

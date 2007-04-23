@@ -76,7 +76,7 @@
                 pagetoget.equals("/viewSpecifications") ||
                 pagetoget.equals("/availableWork") ||
                 pagetoget.equals("/checkedOut"))){
-            pagetoget = "/availableWork";
+            pagetoget = "/admin";
         }
         application.getRequestDispatcher(pagetoget).forward(request, response);
     }
