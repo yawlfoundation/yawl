@@ -16,7 +16,7 @@
 
 	<context-param>
 		<param-name>EnablePersistance</param-name>
-		<param-value>true</param-value>
+		<param-value>false</param-value>
 		<description>
 			Set this value to 'true' to enable persistance and logging
 			set to 'false' to disable

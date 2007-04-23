@@ -234,7 +234,7 @@ public class HttpRequestHandler {
     protected Map[] parseRequest(HttpServletRequest request) throws FileUploadException, UnsupportedEncodingException {
         Map[] parameters = new Map[4];
 
-        if (FileUpload.isMultipartContent(new ServletRequestContext(request))) {
+        if (FileUpload.isMultipartContent(request)) {
             UploadListener uploadListener = new UploadListener(request, this.sessionKey);
             DiskFileItemFactory factory = new MonitoredDiskFileItemFactory(uploadListener);
             factory.setRepository(new File(this.uploadRoot));

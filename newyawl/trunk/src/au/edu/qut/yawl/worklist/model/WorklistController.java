@@ -92,22 +92,22 @@ public class WorklistController extends InterfaceBWebsideController {
             WorkItemRecord workItemRecord = (WorkItemRecord) availableItems.get(i);
             Element workItemData = workItemRecord.getWorkItemData();
             if (containsEnablementData(workItemData)) {
-                System.out.println("new XMLOutputter().outputString(workItemData) = " + new XMLOutputter().outputString(workItemData));
+                //System.out.println("new XMLOutputter().outputString(workItemData) = " + new XMLOutputter().outputString(workItemData));
                 String allocationQuery = workItemData.getChildText(YAWL_ALLOCATION_QUERY);
-                System.out.println("allocationQuery = " + allocationQuery);
+                //System.out.println("allocationQuery = " + allocationQuery);
                 String authenticationQuery = workItemData.getChildText(YAWL_AUTHENTICATION_QUERY);
-                System.out.println("authenticationQuery = " + authenticationQuery);
+                //System.out.println("authenticationQuery = " + authenticationQuery);
                 try {
                     allocationQuery = unmarshallSQLQuery(allocationQuery);
                     try {
                     List allocatedResources =
                             _dbConnector.whichUsersForThisQuery(allocationQuery);
-                    System.out.println("\nAllocatedResources = " + allocatedResources);
+                    //System.out.println("\nAllocatedResources = " + allocatedResources);
                     if (null != authenticationQuery) {
                         authenticationQuery = unmarshallSQLQuery(authenticationQuery);
                         List authorisedResources = _dbConnector.whichUsersForThisQuery(
                                 authenticationQuery);
-                        System.out.println("\nAuthorisedResources = " + authorisedResources);
+                        //System.out.println("\nAuthorisedResources = " + authorisedResources);
                         allocatedResources = intersectResources(allocatedResources, authorisedResources);
                     }
 
@@ -115,12 +115,12 @@ public class WorklistController extends InterfaceBWebsideController {
                         filteredItems.add(workItemRecord);
                     }
                     } catch (YQueryException e) {
-                    e.printStackTrace();
-                    Problem warning = new Problem();
-                    warning.setTimeStamp(new Date());
-                    warning.setSource(workItemRecord.getID());
-                    warning.setMessageType(Problem.EMPTY_RESOURCE_SET_MESSAGETYPE);
-                    _dbConnector.saveWarning(warning);
+	                    e.printStackTrace();
+	                    Problem warning = new Problem();
+	                    warning.setTimeStamp(new Date());
+	                    warning.setSource(workItemRecord.getID());
+	                    warning.setMessageType(Problem.EMPTY_RESOURCE_SET_MESSAGETYPE);
+	                    _dbConnector.saveWarning(warning);
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -159,7 +159,7 @@ public class WorklistController extends InterfaceBWebsideController {
 
     private String unmarshallSQLQuery(String sqlQuery) {
         sqlQuery = sqlQuery.replaceAll("\\$apos;", "'");
-        System.out.println("sqlQuery = " + sqlQuery);
+        //System.out.println("sqlQuery = " + sqlQuery);
         return sqlQuery;
     }
 
@@ -437,7 +437,7 @@ public class WorklistController extends InterfaceBWebsideController {
         List authorisedRes = Arrays.asList(new String[]{"peter"});
 
         List intersection = intersectResources(allocatedRes, authorisedRes);
-        System.out.println("intersection = " + intersection);
+        //System.out.println("intersection = " + intersection);
     }
 
 }

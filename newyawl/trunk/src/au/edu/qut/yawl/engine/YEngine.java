@@ -713,6 +713,7 @@ public class YEngine implements InterfaceADesign,
                 Document dirtyDoc;
                 dirtyDoc = builder.build(new StringReader(caseParams));
                 data = YDocumentCleaner.cleanDocument(dirtyDoc).getRootElement();
+                
             } catch (Exception e) {
                 YStateException f = new YStateException(e.getMessage());
                 f.setStackTrace(e.getStackTrace());
@@ -723,7 +724,7 @@ public class YEngine implements InterfaceADesign,
         YSpecification specification = (YSpecification) _specifications.get(specID);
         if (specification != null) {
             YNetRunner runner = new YNetRunner(pmgr, specification.getRootNet(), data);
-
+            
             // register exception service with the net runner (MJA 4/4/06)
             if (_exceptionObserver != null) {
                 announceCheckCaseConstraints(_exceptionObserver, specID,

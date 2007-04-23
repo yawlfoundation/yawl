@@ -6,10 +6,11 @@
  *
  */
 
-
 package au.edu.qut.yawl.worklist;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,9 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.net.URLEncoder;
-import java.net.URISyntaxException;
 import javax.servlet.ServletContext;
-import java.io.UnsupportedEncodingException;
 
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
@@ -98,6 +97,7 @@ public class WorkItemProcessor {
         
         parameters.put("root", specData.getRootNetID());
         parameters.put("task", URLEncoder.encode(specData.getID(), "UTF-8"));
+        parameters.put("task", specData.getID());
         parameters.put("specID", specData.getID());
         parameters.put("JSESSIONID", jsessionid);
         
@@ -218,9 +218,6 @@ public class WorkItemProcessor {
         TaskInformation taskInfo = _worklistController.getTaskInformation(
                 item.getSpecificationID(), item.getTaskID(), sessionHandle);
         
-        String task = URLEncoder.encode(taskInfo.getTaskName(), "UTF-8");
-        System.out.println("task: "+task);
-        
         // set instance data
         InstanceBuilder ib = new InstanceBuilder(schema, taskInfo.getDecompositionID(), item.getDataListString());
         parameters.put("instance", ib.getInstance());
@@ -229,7 +226,7 @@ public class WorkItemProcessor {
         YParametersSchema paramsSignature = taskInfo.getParamSchema();
         parameters.put("inputparams", getInputOnlyParams(paramsSignature.getInputParams(), paramsSignature.getOutputParams()));
         parameters.put("root", taskInfo.getDecompositionID());
-        parameters.put("task", task);
+        parameters.put("task", URLEncoder.encode(taskInfo.getTaskID(), "UTF-8"));
         parameters.put("workItemID", item.getID());
         parameters.put("JSESSIONID", jsessionid);
         
@@ -246,15 +243,11 @@ public class WorkItemProcessor {
      */
     public String getRedirectURL(ServletContext context, SpecificationData specData,
     		String jsessionid) {
-    	String url = new String();
-    	try{
-    		url = context.getInitParameter("YAWLXForms") +
-                "/XFormsServlet?form=/forms/" + URLEncoder.encode(this.getFormName(specData), "UTF-8") +
-                "&css=yawl.css&xslt=html4yawl.xsl&JSESSIONID="+jsessionid;
-    	}
-    	catch(UnsupportedEncodingException e){
-    		e.printStackTrace();
-    	}
+
+    	String url = new String(context.getInitParameter("YAWLXForms") +
+                "/XFormsServlet?form=/forms/" + this.getFormName(specData) +
+                "&css=yawl.css&xslt=html4yawl.xsl&JSESSIONID="+jsessionid);
+
         return url;
     }
     
@@ -267,15 +260,11 @@ public class WorkItemProcessor {
      */
     public String getRedirectURL(ServletContext context, TaskInformation taskInfo,
     		String jsessionid){
-	    String url = new String();
-	    try{
-	    	  url = context.getInitParameter("YAWLXForms") +
-	              "/XFormsServlet?form=/forms/" + URLEncoder.encode(this.getFormName(taskInfo), "UTF-8") +
-	              "&css=yawl.css&xslt=html4yawl.xsl&JSESSIONID="+jsessionid;
-	    }
-	  	catch(UnsupportedEncodingException e){
-			e.printStackTrace();
-		}
+
+	    String url = new String(context.getInitParameter("YAWLXForms") +
+	              "/XFormsServlet?form=/forms/" + this.getFormName(taskInfo) +
+	              "&css=yawl.css&xslt=html4yawl.xsl&JSESSIONID="+jsessionid);
+	    
 	  	return url;
   }
 
@@ -524,7 +513,7 @@ public class WorkItemProcessor {
     private String getFormName(TaskInformation taskInfo){
     	String result = new String();
     	try{
-	        result = URLEncoder.encode(taskInfo.getTaskName()+".xhtml", "UTF-8");
+	        result = URLEncoder.encode(taskInfo.getTaskID()+".xhtml", "UTF-8");
     	}
     	catch(UnsupportedEncodingException e){
     		e.printStackTrace();

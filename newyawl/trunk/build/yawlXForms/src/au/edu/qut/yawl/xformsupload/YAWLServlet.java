@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.net.URLEncoder;
-import java.io.UnsupportedEncodingException;
+//import java.net.URLEncoder;
+//import java.io.UnsupportedEncodingException;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -64,14 +64,7 @@ public class YAWLServlet extends HttpServlet{
         String specID = request.getParameter("specID");
         String workItemID = request.getParameter("workItemID");
         String task = request.getParameter("task");
-        
-        try{
-        	task = URLEncoder.encode(task, "UTF-8");
-        }
-        catch(UnsupportedEncodingException e){
-        	e.printStackTrace();
-        }
-            
+          
         if (workItemID == null){
         	launchCase = true;
         }

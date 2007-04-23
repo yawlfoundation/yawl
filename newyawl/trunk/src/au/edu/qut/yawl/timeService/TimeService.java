@@ -48,13 +48,13 @@ public class TimeService extends InterfaceBWebsideController {
                         //System.out.println("WebServiceController::processEnabledAnnouncement() itemRecord = " + itemRecord);
                         super._model.addWorkItem(itemRecord);
 
-                        System.out.println("added: " + itemRecord.getID());
+                        //System.out.println("added: " + itemRecord.getID());
 
                         Element inputData = itemRecord.getWorkItemData();
-                        System.out.println(inputData);
+                        //System.out.println(inputData);
                         Element element = (Element) inputData.getChildren().get(0);
                         String notifytime = element.getText();
-                        System.out.println("Notified of: " + notifytime);
+                        //System.out.println("Notified of: " + notifytime);
 
                         if (notifytime != null && !notifytime.equals("")) {
 
@@ -104,7 +104,7 @@ public class TimeService extends InterfaceBWebsideController {
 
     public synchronized void finish(WorkItemRecord itemRecord, String _sessionHandle) {
         try {
-            System.out.println("Checking in work Item: " + itemRecord.getID());
+            //System.out.println("Checking in work Item: " + itemRecord.getID());
 
             TaskInformation taskinfo = getTaskInformation(itemRecord.getSpecificationID(),
                     itemRecord.getTaskID(),
@@ -159,9 +159,9 @@ class InternalRunner extends Thread {
             long from = now.getTimeInMillis();
             time = to - from;
 
-            System.out.println("to: " + to);
-            System.out.println("from: " + from);
-            System.out.println("time: " + time);
+            //System.out.println("to: " + to);
+            //System.out.println("from: " + from);
+            //System.out.println("time: " + time);
         } catch (Exception e) {
 
             StringTokenizer st = new StringTokenizer(date);
@@ -195,9 +195,9 @@ class InternalRunner extends Thread {
                 long from = now.getTimeInMillis();
                 time = to - from;
 
-                System.out.println("to: " + to);
-                System.out.println("from: " + from);
-                System.out.println("time: " + time);
+               // System.out.println("to: " + to);
+                //System.out.println("from: " + from);
+                //System.out.println("time: " + time);
 
             } catch (Exception e2) {
                 System.out.println("Date is in the wrong format");
@@ -218,7 +218,6 @@ class InternalRunner extends Thread {
     }
 
     public void run() {
-
 
         try {
             Thread.sleep(time);

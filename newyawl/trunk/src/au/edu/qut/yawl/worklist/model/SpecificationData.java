@@ -146,8 +146,8 @@ public class SpecificationData {
         }
         sd.setSpecAsXML(sb.toString());
 
-        System.out.println(sb.toString());
-        System.out.println(sd.getSchemaLibrary());
+       // System.out.println(sb.toString());
+        //System.out.println(sd.getSchemaLibrary());
     }
 
 

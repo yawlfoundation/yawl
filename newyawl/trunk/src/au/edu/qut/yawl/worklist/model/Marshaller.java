@@ -101,9 +101,9 @@ public class Marshaller {
 		for (int i = 0; i < attributelist.size(); i++) {
 		    Element attribute = (Element) attributelist.get(i);
 		    attributemap.put(attribute.getName(),attributes.getChildText(attribute.getName()));
-		    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		    System.out.println(attribute.getName() + " " + attributes.getChildText(attribute.getName()));
-		    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		    //System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		    //System.out.println(attribute.getName() + " " + attributes.getChildText(attribute.getName()));
+		    //System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 	    }
 
@@ -294,7 +294,7 @@ public class Marshaller {
                     child.detach();
                     //the input data will be removed from the merged doc and
                     //the output data will be added.
-		    System.out.println(child.getName());
+		    //System.out.println(child.getName());
                     mergedDoc.getRootElement().removeChild(child.getName());
                     mergedDoc.getRootElement().addContent(child);
                 }
@@ -306,7 +306,7 @@ public class Marshaller {
             return "";
         }
         String result = new XMLOutputter().outputString(mergedDoc.getRootElement()).trim();
-	System.out.println(result);
+	//System.out.println(result);
         return result;
     }
 

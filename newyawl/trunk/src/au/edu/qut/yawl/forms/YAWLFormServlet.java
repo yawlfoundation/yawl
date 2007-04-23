@@ -21,7 +21,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+ 
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 import au.edu.qut.yawl.worklist.model.WorklistController;
 
@@ -67,7 +67,7 @@ public class YAWLFormServlet extends HttpServlet {
         ServletContext context = getServletContext();
         _worklistController = (WorklistController) context.getAttribute(
                 "au.edu.qut.yawl.worklist.model.WorklistController");
-        
+         
         if (_worklistController == null) {
             _worklistController = new WorklistController();
             _worklistController.setUpInterfaceBClient(context.getInitParameter("InterfaceB_BackEnd"));
@@ -91,6 +91,7 @@ public class YAWLFormServlet extends HttpServlet {
         if (workItemID.compareTo("null") != 0) {
         	if (theInstanceData != null){
 	            WorkItemRecord workitem = _worklistController.getCachedWorkItem(workItemID);
+	            
 	            inputData = workitem.getDataListString();
 	            outputData = new String(theInstanceData);
 	            
@@ -113,10 +114,7 @@ public class YAWLFormServlet extends HttpServlet {
         }
         
         if (submit.equals("submit")){
-        	if (workItemID.compareTo("null") != 0) {
-        		System.out.println("inputData: "+inputData);
-        		System.out.println("outputData: "+outputData);
-        		
+        	if (workItemID.compareTo("null") != 0) {        		
 	            request.setAttribute("inputData", inputDataEl); // check for null?
 	            request.setAttribute("outputData", outputDataEl);
 	            request.setAttribute("workItemID", workItemID);
@@ -127,7 +125,7 @@ public class YAWLFormServlet extends HttpServlet {
 			else if (specID.compareTo("null") != 0) {
 	            inputData = new String(theInstanceData);
 	            request.setAttribute("caseData", inputData);
-	            request.setAttribute("specID", specID);
+	            request.setAttribute("specID", specID);	            
 	            RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/launchCase");
 	            rd.forward(request, response);
 	        }
