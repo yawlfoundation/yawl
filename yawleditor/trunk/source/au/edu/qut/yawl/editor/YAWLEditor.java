@@ -88,7 +88,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     JSplashScreen.getInstance().setContent(
         "/au/edu/qut/yawl/editor/resources/yawlSplashScreen.jpg",
         "YAWLEditor" + getSizeDistinction() + " v " +
-        getVersionNumber() + " - (c) 2006 The YAWL Foundation");
+        getVersionNumber() + " - (c) 2007 The YAWL Foundation");
 
     JSplashScreen.getInstance().show();
     validateParameter(args);
