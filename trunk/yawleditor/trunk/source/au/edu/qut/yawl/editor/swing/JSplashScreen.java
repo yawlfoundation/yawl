@@ -148,13 +148,13 @@ public class JSplashScreen {
     windowPanel.add(ResourceLoader.getImageAsJLabel(imageFile),gbc);
 
     gbc.fill         = GridBagConstraints.HORIZONTAL;
-    gbc.insets       = new Insets(5,5,5,5);
+    gbc.insets       = new Insets(3,5,2,5);
     gbc.gridy        = yPos++;
 
     windowPanel.add(getProgressBar(),gbc);
 
     gbc.anchor       = GridBagConstraints.CENTER;
-    gbc.insets       = new Insets(5,0,5,0);
+    gbc.insets       = new Insets(2,0,5,0);
     gbc.gridy        = yPos++;
 
     windowPanel.add(new JLabel(message, JLabel.CENTER), gbc);
