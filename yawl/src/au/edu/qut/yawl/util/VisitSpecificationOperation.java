@@ -126,7 +126,7 @@ public class VisitSpecificationOperation {
 
     public static void visitVariable(SourcedVariable var, Visitor v) {
     	v.visit(var, var.getTask(), var.getName());
-    	System.out.println(var.getName());
+//    	System.out.println(var.getName());
     }
     
     private static Type findType (Object o) {
