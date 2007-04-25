@@ -398,4 +398,10 @@ public class Variable implements Cloneable {
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
+    
+    @Override
+    public String toString() {
+    	return this.type + " " + this.name + "='" + this.value.substring(0, 20) + "'";
+    }
+
 }
