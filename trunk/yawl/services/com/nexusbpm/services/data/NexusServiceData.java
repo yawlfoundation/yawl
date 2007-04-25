@@ -7,6 +7,8 @@
  */
 package com.nexusbpm.services.data;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,7 +43,8 @@ import com.nexusbpm.services.NexusServiceConstants;
 public class NexusServiceData implements Cloneable {
     @XmlElement(namespace = "http://www.nexusworkflow.com/", required = true)
     private List<Variable> variable;
-    
+    private NexusServiceDataChangeSupport support = new NexusServiceDataChangeSupport(this);
+
     private void initList() {
         if( variable == null ) {
             variable = new ArrayList<Variable>();
@@ -62,6 +65,8 @@ public class NexusServiceData implements Cloneable {
         }
         return variableNames;
     }
+    
+    
     
     /**
      * @see Variable#get()
@@ -116,42 +121,63 @@ public class NexusServiceData implements Cloneable {
      * @see Variable#set(Object)
      */
     public void set( String variableName, Object value ) throws IOException {
-        getOrCreateVariable( variableName ).set( value );
+        Variable v = getOrCreateVariable( variableName );
+        try {
+			firePropertyChange(variableName, v.get(), value);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        v.set( value );
     }
     
     /**
      * @see Variable#setPlain(String)
      */
     public void setPlain( String variableName, String value ) {
-        getOrCreateVariable( variableName ).setPlain( value );
+        Variable v = getOrCreateVariable( variableName );
+		firePropertyChange(variableName, v.getPlain(), value);
+        v.setPlain( value );
     }
     
     /**
      * @see Variable#setBase64(String)
      */
     public void setBase64( String variableName, String value ) {
-        getOrCreateVariable( variableName ).setBase64( value );
+        Variable v = getOrCreateVariable( variableName );
+		firePropertyChange(variableName, v.getBase64(), value);
+        v.setBase64( value );
     }
     
     /**
      * @see Variable#setBinary(byte[])
      */
     public void setBinary( String variableName, byte[] value ) {
-        getOrCreateVariable( variableName ).setBinary( value );
+        Variable v = getOrCreateVariable( variableName );
+		firePropertyChange(variableName, v.getBinary(), value);
+        v.setBinary( value );
     }
     
     /**
      * @see Variable#setObject(Object)
      */
     public void setObject( String variableName, Object value ) throws IOException {
-        getOrCreateVariable( variableName ).setObject( value );
+        Variable v = getOrCreateVariable( variableName );
+		try {
+			firePropertyChange(variableName, v.getObject(), value);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        v.setObject( value );
     }
     
     /**
      * @see Variable#setType(String)
      */
     public void setType( String variableName, String type ) {
-        getOrCreateVariable( variableName ).setType( type );
+        Variable v = getOrCreateVariable( variableName );
+        v.setType( type );
     }
     
     private Variable getVariable( String variableName ) {
@@ -176,6 +202,7 @@ public class NexusServiceData implements Cloneable {
         Variable v = new Variable();
         v.setName( variableName );
         variable.add( v );
+        firePropertyAdd(variableName, null);
         return v;
     }
     
@@ -184,7 +211,10 @@ public class NexusServiceData implements Cloneable {
     	for (Variable v: variable) {
     		if (v.getName().equals(name)) varToRemove = v;
     	}
-    	if (varToRemove != null) variable.remove(varToRemove); 
+    	if (varToRemove != null) {
+    		variable.remove(varToRemove);
+    		firePropertyRemove(name);
+    	}
     }
     
     public String toString() {
@@ -301,6 +331,7 @@ public class NexusServiceData implements Cloneable {
         
         Variable variable = new Variable( name, type, finalValue );
         this.variable.add( variable );
+        firePropertyAdd(name, finalValue);
     }
     
     public static List<Content> marshal( NexusServiceData data ) {
@@ -316,6 +347,7 @@ public class NexusServiceData implements Cloneable {
                 e.setText( v.getType() + ":null" );
             }
             variables.add( e );
+            data.firePropertyAdd(v.getName(), v.getValue());
         }
         
         return variables;
@@ -360,4 +392,25 @@ public class NexusServiceData implements Cloneable {
         
         return clone;
     }
+
+    private  void firePropertyAdd(String propName, Object newValue) {
+		support.firePropertyAdd(propName, newValue);
+	}
+
+	private  void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+		support.firePropertyChange(propertyName, oldValue, newValue);
+	}
+
+	private void firePropertyRemove(String propName) {
+		support.firePropertyRemove(propName);
+	}
+
+	public void addPropertyChangeListener(NexusServiceDataChangeListener listener) {
+		support.addPropertyChangeListener(listener);
+	}
+
+	public void removePropertyChangeListener(NexusServiceDataChangeListener listener) {
+		support.removePropertyChangeListener(listener);
+	}
+
 }
