@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
-//import java.net.URLEncoder;
-//import java.io.UnsupportedEncodingException;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -43,7 +41,7 @@ import org.xml.sax.SAXException;
 public class YAWLServlet extends HttpServlet{
 	
 	private static Logger logger = Logger.getLogger(YAWLServlet.class);
-	private SortedSet s = Collections.synchronizedSortedSet(new TreeSet());
+	private SortedSet<String> s = Collections.synchronizedSortedSet(new TreeSet<String>());
 	private boolean submissionElementsDone = false;
 	private boolean submitElementsDone = false;
 	private boolean launchCase = false;
@@ -198,8 +196,8 @@ public class YAWLServlet extends HttpServlet{
 		builder.setWrapperType("XHTML");
 		builder.execute();
 		
-		//deleteTempFile(filePath+File.separator+schema);
-		//deleteTempFile(filePath+File.separator+instance);
+		deleteTempFile(filePath+File.separator+schema);
+		deleteTempFile(filePath+File.separator+instance);
 		
 		fixFormParams(f);
 		
@@ -365,9 +363,6 @@ public class YAWLServlet extends HttpServlet{
 			}
 		}
 	}
-	
-	// TODO for every xforms:insert and xforms:delete, replace the "at" attribute with at="last()" 
-	// or something similar that works
 	
 	
 	/**
