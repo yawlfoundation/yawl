@@ -323,7 +323,7 @@ public class YAWLServlet extends HttpServlet{
 			}
 			
 			
-			if (node.getNodeName().compareTo("submission") == 0 && submissionElementsDone == false){
+			if (node.getNodeName().compareTo("xforms:submission") == 0 && submissionElementsDone == false){
 				// create cancel button submission node
 				//eg: <xforms:submission id="submission_1" xforms:action="http://localhost:8080/worklist/yawlFormServlet?userID=admin&amp;sessionHandle=3456218449289224029&amp;specID=null&amp;workItemID=100000.1:Call_for_papers_5&amp;JSESSIONID=D6B01B27183706B536BE90204788DC71&amp;submit=cancel" xforms:method="post"/>
 				
@@ -336,7 +336,7 @@ public class YAWLServlet extends HttpServlet{
 				addSubmissionElement(node, "cancel", 3);
 				submissionElementsDone = true;
 			}
-			if (node.getNodeName().compareTo("submit") == 0 && submitElementsDone == false){
+			if (node.getNodeName().compareTo("xforms:submit") == 0 && submitElementsDone == false){
 				// create submit child
 				//eg: <xforms:submit xforms:id="submit_1" xforms:submission="submission_1">
 				//<xforms:label xforms:id="label_4">Cancel</xforms:label>
@@ -405,7 +405,7 @@ public class YAWLServlet extends HttpServlet{
 		
 		parent.appendChild(newElement);
 	}
-	
+
 	
 	/**
 	 * Adds a xform submit element. The submit element is bound to a 
