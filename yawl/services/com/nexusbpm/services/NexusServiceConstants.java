@@ -20,7 +20,7 @@ public class NexusServiceConstants {
 
 	public static final String SERVICENAME_VAR = "ServiceName";
 
-	public static final String LOCAL_INVOKER_URI = "http://localhost:8080/NexusServiceInvoker/";
+	public static final String LOCAL_INVOKER_URI = "internal://";
 
 	public static final String XML_SCHEMA_URL = "http://www.w3.org/2001/XMLSchema";
     

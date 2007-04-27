@@ -7,23 +7,25 @@
  */
 package com.nexusbpm.services;
 
+import java.util.Map;
+
+import javax.swing.ImageIcon;
+
 import com.nexusbpm.services.data.Variable;
 
 public class NexusServiceInfo {
     /** The name of the service. */
-    private final String serviceName;
+    private String serviceName;
     /** The name of the class implementing the service. */
-    private final String serviceClassName; // use the class name so that this class will still work
+    private String serviceClassName; // use the class name so that this class will still work
                                            // even if used without the services being on the classpath
     /** The name of the editor's class for tasks that use this nexus service. */
-    private final String editorClassName; // use the class name instead of the class itself for the same
-                                          // reason as with serviceClassName
     /** The URI where the service can be accessed. */
-    private final String serviceURI; // TODO get URI from properties file
+    private String serviceURI; // TODO get URI from properties file
     /** The variables that the service will use. */
-    private final String[] variableNames;
-    private final String[] variableTypes;
-    private final Object[] initialValues;
+    private String[] variableNames;
+    private String[] variableTypes;
+    private Object[] initialValues;
     
     public static final NexusServiceInfo getServiceWithName( String serviceName ) {
         for( int index = 0; index < SERVICES.length; index++ ) {
@@ -37,26 +39,44 @@ public class NexusServiceInfo {
     public static final NexusServiceInfo[] SERVICES = new NexusServiceInfo[] {
         new NexusServiceInfo( "Jython",
                 "com.nexusbpm.services.jython.JythonService",
-                "com.nexusbpm.editor.editors.component.JythonEditor",
-                "http://localhost:8080/JythonService/services/JythonService",
+                "internal://Jython",
                 new String[] { "code", "output", "error" },
                 new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
                 new Object[] { "print 'foo'", "", "" }),
         new NexusServiceInfo( "EmailSender",
                 "com.nexusbpm.services.email.EmailSenderService",
-                "com.nexusbpm.editor.editors.component.EmailSenderEditor",
-                "http://localhost:8080/EmailSenderService/services/EmailSenderService",
+                "internal://EmailSenderService",
                 new String[] { "toAddress", "ccAddress", "bccAddress", "fromAddress", "host", "subject", "body" },
                 new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
-                new Object[] { "nathan.rose@ichotelsgroup.com", "", "", "", "", "", ""} )
-    };
+                new Object[] { "nathan.rose@ichotelsgroup.com", "", "", "", "", "", ""} ),
+            new NexusServiceInfo( "Ftp",
+                    "com.nexusbpm.services.Ftp.FtpService",
+                    "internal://FtpService",
+                    new String[] { "remoteHost", "username", "password", "remoteDir", "remoteFile", "operation" },
+                    new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                    new Object[] { "", "", "", "", "", "" }),
+            new NexusServiceInfo( "Shell",
+                    "com.nexusbpm.services.Shell.ShellService",
+                    "internal://ShellService",
+                    new String[] { "code", "output", "error" },
+                    new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                    new Object[] { "cd ~;ls -la", "", "" }),
+                new NexusServiceInfo( "R",
+                        "com.nexusbpm.services.R.RService",
+                        "internal://RService",
+                        new String[] { "code", "output", "error" },
+                        new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                        new Object[] { "//R Code goes here", "", "" }),
+        };
     
-    private NexusServiceInfo(String serviceName, String serviceClassName, String editorClassName,
-            String serviceURI, String[] variableNames,
+    public NexusServiceInfo() {
+		super();
+	}
+    
+    protected NexusServiceInfo(String serviceName, String serviceClassName, String serviceURI, String[] variableNames,
             String[] variableTypes, Object[] initialValues) {
         this.serviceName = serviceName;
         this.serviceClassName = serviceClassName;
-        this.editorClassName = editorClassName;
         this.serviceURI = serviceURI;
         this.variableNames = variableNames;
         this.variableTypes = variableTypes;
@@ -71,10 +91,6 @@ public class NexusServiceInfo {
         return serviceClassName;
     }
     
-    public String getEditorClassName() {
-        return editorClassName;
-    }
-
     public String getServiceURI() {
         return serviceURI;
     }
@@ -89,5 +105,29 @@ public class NexusServiceInfo {
 
 	public String[] getVariableTypes() {
 		return variableTypes;
+	}
+
+	protected void setInitialValues(Object[] initialValues) {
+		this.initialValues = initialValues;
+	}
+
+	protected void setServiceClassName(String serviceClassName) {
+		this.serviceClassName = serviceClassName;
+	}
+
+	protected void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	protected void setServiceURI(String serviceURI) {
+		this.serviceURI = serviceURI;
+	}
+
+	protected void setVariableNames(String[] variableNames) {
+		this.variableNames = variableNames;
+	}
+
+	protected void setVariableTypes(String[] variableTypes) {
+		this.variableTypes = variableTypes;
 	}
 }
