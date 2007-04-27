@@ -53,7 +53,7 @@ public class YAWLFormServlet extends HttpServlet {
         String inputData = new String();
         String outputData = new String();
         
-        response.setContentType("text/html");
+        response.setContentType("text/xml");
         
         StringBuffer theInstanceData = new StringBuffer();
         ServletInputStream in = request.getInputStream();

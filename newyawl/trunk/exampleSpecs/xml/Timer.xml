@@ -33,7 +33,7 @@
 							<mapsTo>time</mapsTo>
 						</mapping>
 					</completedMappings>
-					<decomposesTo id="read time"/>
+					<decomposesTo id="read_time"/>
 				</task>
 				<task id="p">
 					<flowsInto>
@@ -69,7 +69,7 @@
 				</outputCondition>
 			</processControlElements>
 		</rootNet>
-		<decomposition id="read time" xsi:type="WebServiceGatewayFactsType">
+		<decomposition id="read_time" xsi:type="WebServiceGatewayFactsType">
 			<outputExpression query="/data/time"/>
 			<outputParam name="time">
 				<type>xs:string</type>
