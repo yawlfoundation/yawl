@@ -7,10 +7,6 @@
  */
 package com.nexusbpm.services;
 
-import java.util.Map;
-
-import javax.swing.ImageIcon;
-
 import com.nexusbpm.services.data.Variable;
 
 public class NexusServiceInfo {
@@ -49,26 +45,45 @@ public class NexusServiceInfo {
                 new String[] { "toAddress", "ccAddress", "bccAddress", "fromAddress", "host", "subject", "body" },
                 new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
                 new Object[] { "nathan.rose@ichotelsgroup.com", "", "", "", "", "", ""} ),
-            new NexusServiceInfo( "Ftp",
-                    "com.nexusbpm.services.Ftp.FtpService",
-                    "internal://FtpService",
-                    new String[] { "remoteHost", "username", "password", "remoteDir", "remoteFile", "operation" },
-                    new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
-                    new Object[] { "", "", "", "", "", "" }),
-            new NexusServiceInfo( "Shell",
-                    "com.nexusbpm.services.Shell.ShellService",
-                    "internal://ShellService",
-                    new String[] { "code", "output", "error" },
-                    new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
-                    new Object[] { "cd ~;ls -la", "", "" }),
-                new NexusServiceInfo( "R",
-                        "com.nexusbpm.services.R.RService",
-                        "internal://RService",
-                        new String[] { "code", "output", "error" },
-                        new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
-                        new Object[] { "//R Code goes here", "", "" }),
-        };
-    
+        new NexusServiceInfo( "Ftp",
+                "com.nexusbpm.services.Ftp.FtpService",
+                "internal://FtpService",
+                new String[] { "remoteHost", "username", "password", "remoteDir", "remoteFile", "operation" },
+                new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                new Object[] { "", "", "", "", "", "" }),
+        new NexusServiceInfo( "Shell",
+                "com.nexusbpm.services.Shell.ShellService",
+                "internal://ShellService",
+                new String[] { "code", "output", "error" },
+                new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                new Object[] { "cd ~;ls -la", "", "" }),
+        new NexusServiceInfo( "R",
+                "com.nexusbpm.services.R.RService",
+                "internal://RService",
+                new String[] { "code", "output", "error" },
+                new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                new Object[] { "//R Code goes here", "", "" }),
+        new NexusServiceInfo( "Excel",
+                "com.nexusbpm.services.excel.ExcelService",
+                "internal://ExcelService",
+                new String[] { "output", "template", "rowLimit", "columnLimit", "sheetName", "excelAnchor", "outputType" },
+                new String[] { Variable.TYPE_BINARY, Variable.TYPE_BINARY, 
+        				Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                new Object[] { null, null, 0, 0, "", "", "" }),
+        new NexusServiceInfo( "Sql",
+                "com.nexusbpm.services.sql.SqlService",
+                "internal://SqlService",
+                new String[] { "sql", "userName", "password", "databaseAddress", "databaseName", "databaseType", "isQuery", "output" },
+                new String[] {  Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_BINARY},
+                new Object[] { "", "", "", "", "", "", "", null }), 
+        new NexusServiceInfo( "Sas",
+                "com.nexusbpm.services.sas.SasService",
+                "internal://SasService",
+                new String[] { "code", "output", "log", "userName", "password"  },
+                new String[] { Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT, Variable.TYPE_TEXT },
+                new Object[] { "//SAS Code from NexusBPM", "", "" , "" , "" })
+    };
+
     public NexusServiceInfo() {
 		super();
 	}
