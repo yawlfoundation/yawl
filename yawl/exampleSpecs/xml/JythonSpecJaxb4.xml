@@ -266,7 +266,7 @@ It must be 5:00 PM, so it's time for the quotes of the day - enjoy...
 				<name>csv</name>
 				<isUntyped/>
 			</outputParam>
-			<yawlService id="http://localhost:8080/NexusServiceInvoker/"/>
+			<yawlService id="internal://Jython"/>
 		</decomposition>
 		<decomposition id="DecompTwo" xsi:type="WebServiceGatewayFactsType">
 			<inputParam>
@@ -309,7 +309,7 @@ It must be 5:00 PM, so it's time for the quotes of the day - enjoy...
 				<name>csv</name>
 				<isUntyped/>
 			</inputParam>
-			<yawlService id="http://localhost:8080/NexusServiceInvoker/"/>
+			<yawlService id="internal://EmailSender"/>
 		</decomposition>
 	</specification>
 </specificationSet>
