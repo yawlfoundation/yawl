@@ -230,9 +230,9 @@ public class Marshaller {
             doc = builder.build(new StringReader(workItemXML));
             workItem = unmarshalWorkItem(doc.getRootElement());
         } catch (JDOMException e) {
-            logger.debug("JDOM Error unmarshalling specification summary!", e);
+            logger.error("JDOM Error unmarshalling specification summary!", e);
         } catch (IOException e) {
-            logger.debug("IO Error unmarshalling specification summary!", e);
+            logger.error("IO Error unmarshalling specification summary!", e);
         }
         return workItem;
     }

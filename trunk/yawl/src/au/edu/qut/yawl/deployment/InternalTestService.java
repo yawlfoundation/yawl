@@ -37,7 +37,7 @@ public class InternalTestService extends InterfaceBInternalServiceController {
 	 */
 	public void handleEnabledWorkItemEvent(String enabledWorkItem) {
 		WorkItemRecord workItemRecord = Marshaller.unmarshalWorkItem(enabledWorkItem);
-		System.out.println("Invoked the test service");
+		System.out.println("Invoked the test service(" + enabledWorkItem + ")" + workItemRecord);
 		try {
 			WorkItemRecord child = checkOut(workItemRecord.getID());
 			

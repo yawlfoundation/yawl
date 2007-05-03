@@ -44,7 +44,7 @@ public class InternalJythonService extends InternalNexusService {
 		return "Jython";
 	}
 
-	private void initialize() {
+	private synchronized void initialize() {
         if( !initialized ) {
         	initialized = true;
             // get jython properties
