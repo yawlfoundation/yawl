@@ -107,13 +107,7 @@ public class VisitSpecificationOperation {
     }
     
     public static void visitNetElement(YExternalNetElement yene, Visitor v) {
-        String label;
-        if (findType(yene) == Type.CONDITION) {
-//            LOG.error(yene.getClass().getName());
-            label = "{connector}";
-        } else {
-            label = getLabelFor(yene);
-        }
+        String label = getLabelFor(yene);
         v.visit(yene, yene.getParent(), label);
         if (yene instanceof YAtomicTask) {
         	YAtomicTask task = (YAtomicTask) yene;

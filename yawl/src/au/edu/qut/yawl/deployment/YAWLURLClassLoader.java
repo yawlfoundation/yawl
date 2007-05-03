@@ -12,9 +12,14 @@ import java.net.URLClassLoader;
 import java.util.LinkedList;
 import java.util.List;
 
+import au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController;
+
+@Deprecated
 public class YAWLURLClassLoader extends URLClassLoader {
+	private ClassLoader parent;
 	public YAWLURLClassLoader(URL[] jars, ClassLoader parent) {
-		super(jars, parent);
+		super(jars, null);
+		this.parent = parent;
 	}
 	
 	public void addToClassPath(URL[] jar) {
@@ -23,24 +28,26 @@ public class YAWLURLClassLoader extends URLClassLoader {
 		}
 	}
 	
-	public Class findClass(String s) throws ClassNotFoundException {
-		Class c = null;
-		try {
-			c = Class.forName(s, true, this);
-			return c;
-		} catch (NoClassDefFoundError e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
+    protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+		// First, check if the class has already been loaded
+		Class c = findLoadedClass(name);
+		if(c == null) {
+			try {
+				if(name.startsWith("java.") || name.startsWith("sun.")) {
+					c = getSystemClassLoader().loadClass(name);
+				} else {
+					c = parent.loadClass(name);
+				}
+			} catch(ClassNotFoundException e) {
+				// If still not found, then invoke findClass in order
+				// to find the class.
+				c = findClass(name);
+			}
 		}
-		try {
-			c = super.findClass(s);		
-			return c;
-		} catch (Exception e) {
-			e.printStackTrace();
+		if(resolve) {
+			resolveClass(c);
 		}
-		
-		return null;
+		return c;
 	}
 	
 	public List getServiceInstances(List<String> classnames) {
@@ -48,15 +55,20 @@ public class YAWLURLClassLoader extends URLClassLoader {
 		for (int i = 0; i < classnames.size(); i++) {
 			try {
 				System.out.println(classnames.get(i));
-				Class c = Class.forName(classnames.get(i), true, this);
+//				Class c = Class.forName(classnames.get(i), true, this);
 //				Class c = findClass(classnames.get(i));
+				Class c = loadClass(classnames.get(i), true);
 				Class superclass = c.getSuperclass();
-
-				while(superclass != null && !superclass.equals(Object.class)) {
-					if(superclass.getName().equals("au.edu.qut.yawl.engine.interfce.InterfaceBInternalServiceController")) {
+				
+				while(superclass != null) {
+					if(superclass.getName().equals(InterfaceBInternalServiceController.class.getName())) {
 						System.out.println("Found a service " + c.getName());
 						Object service = c.newInstance();
-						l.add(service);
+						if(service != null) {
+							l.add(service);
+						} else {
+							System.out.println("error instantiating " + c.getCanonicalName());
+						}
 					}
 					superclass = superclass.getSuperclass();
 				}
@@ -76,6 +88,8 @@ public class YAWLURLClassLoader extends URLClassLoader {
 			} catch (java.lang.LinkageError e) {
 				e.printStackTrace();
 			} catch(ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch(NullPointerException e) {
 				e.printStackTrace();
 			}
 		}

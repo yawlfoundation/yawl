@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
@@ -47,6 +48,18 @@ public class InterfaceB_InternalEngineBasedClient implements ObserverGateway {
     protected static final String ANNOUNCE_COMPLETE_CASE_CMD =  "announceCompletion";
 
     public InterfaceB_InternalEngineBasedClient() throws YPersistenceException {
+		try {
+			File f = new File("./webapps/yawl/WEB-INF/lib/");
+	    	if(f.exists()) {
+	    		dirlistener = new DirectoryListener(f.getAbsoluteFile().getCanonicalPath());
+	    	} else {
+	    		System.out.println("Internal YAWL Service directory '/WEB-INF/lib/' does not exist!\n" +
+	    				"Using 'common/lib' instead!");
+	    		
+	    	}
+		} catch(IOException e) {
+			logger.error("Error obtaining dynamic YAWL Service directory!", e);
+		}
     	servicebuilder = dirlistener.initServiceDirectory();
     	//dirlistener.start();
     }

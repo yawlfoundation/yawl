@@ -23,11 +23,9 @@ import java.util.jar.JarFile;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 public class DirectoryListener extends Thread {
-
 	private String directory = null;
 
 	private List<ServiceJar> listOfJars = new LinkedList<ServiceJar>();
-	private List<URL> classpath = new LinkedList<URL>();
 
 	private ServiceBuilder servicebuilder = null;
 
@@ -37,9 +35,6 @@ public class DirectoryListener extends Thread {
 		l.start();
 	}
 
-	//check for updates
-	//URL[] jars = findAllJarsIn(directory);
-
 	public DirectoryListener(String directory) {
 		this.directory = directory;
 	}
@@ -48,6 +43,7 @@ public class DirectoryListener extends Thread {
 	}
 	
 	public ServiceBuilder initServiceDirectory() throws YPersistenceException {
+		System.out.println("D:" + directory);
 		if (directory!=null ) {
 			findJarsInDirectory(directory);
 		} else {
@@ -81,13 +77,13 @@ public class DirectoryListener extends Thread {
 		}
 		
 		servicebuilder = new ServiceBuilder(compileJarList(listOfJars));
-		servicebuilder.setClasspath(classpath.toArray(new URL[0]));
 		System.out.println("directory initialised");
 		servicebuilder.buildServices();
 		return servicebuilder;
 	}
 
 	public void findJarsInDirectory(String directory) {
+		System.out.println("d:" + directory);
 		File dir = new File(directory);
 
 		File[] children = dir.listFiles();
@@ -99,9 +95,7 @@ public class DirectoryListener extends Thread {
 					if (filename.toString().endsWith("yawl.jar")) {
 						System.out.println("found jar in directory: " + filename);
 
-						listOfJars.add(new ServiceJar(filename,children[i].lastModified()));							
-					} else {
-						classpath.add(children[i].toURL());
+						listOfJars.add(new ServiceJar(filename,children[i].lastModified()));
 					}
 				} catch (MalformedURLException e) {
 					//todo: Proper handling of exception
@@ -206,7 +200,7 @@ public class DirectoryListener extends Thread {
 		catch(Exception e){
 			e.printStackTrace ();
 		}
-		System.out.println(classes.size());
+		System.out.println(classes.size() + " classes in " + jarName);
 		return classes;
 	}
 }
