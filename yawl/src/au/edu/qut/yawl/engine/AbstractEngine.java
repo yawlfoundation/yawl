@@ -8,24 +8,17 @@
 package au.edu.qut.yawl.engine;
 
 import java.io.File;
-
-
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
-import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -34,9 +27,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import au.edu.qut.yawl.authentication.UserList;
-import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.YCompositeTask;
 import au.edu.qut.yawl.elements.YCondition;
 import au.edu.qut.yawl.elements.YConditionInterface;
 import au.edu.qut.yawl.elements.YDecomposition;
@@ -298,12 +289,12 @@ public abstract class AbstractEngine implements YEngineInterface,
 
             getDao().save(runner);
 
-            runner.continueIfPossible();
-
             // LOG CASE EVENT
             YawlEventLogger.getInstance().logCaseCreated(runner.getCaseID().toString(),
             		username, specID, 
             		runner.getNet().getParent().getVersion().toString());
+
+            runner.continueIfPossible();
 
             runner.start();
 
