@@ -443,6 +443,7 @@
     	<mkdir dir="${classes}/com/nexusbpm"/>
         <mkdir dir="${output}"/>
         <mkdir dir="${output}/${javadoc}"/>
+    	<mkdir dir="${output}/services"/>
     </target>
 
 
@@ -584,7 +585,7 @@
         Prepare YAWL Engine WebApplication
         -->
         <copy todir="${yawl.eng.app.name}/WEB-INF/classes">
-            <fileset dir="${classes}" includes="**/*.class **/*.xsd **/*.hbm.xml"/>
+            <fileset dir="${classes}" includes="**/*.class **/*.xsd **/*.hbm.xml" excludes="**/InternalTestService.class"/>
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.eng.app.name}/WEB-INF/classes"/>
@@ -615,6 +616,9 @@
         </copy>
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${xsd.libs}" includes="*.jar"/>
+        </copy>
+        <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
+            <fileset dir="${output}/services" includes="*.jar"/>
         </copy>
         <antcall target="decidePostgresVersion"/>
         <jar destfile="${output}/yawl.war">
@@ -823,6 +827,33 @@
         <delete dir="jmsService"/>
     </target>
 
+	<target name="build_InternalJythonService" depends="compile">
+		<!-- create directory structure for the JAR -->
+		<mkdir dir="${nexus.service.jython.app.name}/com/nexusbpm/services/jython"/>
+		
+		<!-- copy properties file -->
+		<copy todir="${nexus.service.jython.app.name}/">
+			<fileset dir="${build.home}/${nexus.service.jython.app.name}/internal" includes="*"/>
+		</copy>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.jython.app.name}/com/nexusbpm/services/jython">
+			<fileset dir="${classes}/com/nexusbpm/services/jython" includes="*.class"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/services/${nexus.service.jython.app.name}-yawl.jar">
+            <fileset dir="${nexus.service.jython.app.name}"/>
+        </jar>
+		
+		<!-- copy support libs -->
+		<copy todir="${output}/services">
+			<fileset file="${nexus.service.libs}/jython/jython.jar"/>
+		</copy>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.jython.app.name}"/>
+	</target>
 
 	<target name="build_JythonService.war" depends="compile">
 		<!-- create directory structure for the WAR -->
@@ -840,10 +871,10 @@
 		
 		<!-- copy misc -->
 		<copy todir="${nexus.service.jython.app.name}/WEB-INF/classes/META-INF/xfire">
-			<fileset file="${build.home}/${nexus.service.jython.app.name}/services.xml"/>
+			<fileset file="${build.home}/${nexus.service.jython.app.name}/web/services.xml"/>
         </copy>
 		<copy todir="${nexus.service.jython.app.name}/WEB-INF">
-            <fileset file="${build.home}/${nexus.service.jython.app.name}/web.xml"/>
+            <fileset file="${build.home}/${nexus.service.jython.app.name}/web/web.xml"/>
         </copy>
 		
 		<!-- copy classes -->
@@ -877,6 +908,35 @@
 		<delete dir="${nexus.service.jython.app.name}"/>
 	</target>
 	
+	<target name="build_InternalEmailSenderService" depends="compile">
+		<!-- create directory structure for the JAR -->
+		<mkdir dir="${nexus.service.emailSender.app.name}/com/nexusbpm/services/email"/>
+		
+		<!-- copy properties file -->
+		<copy todir="${nexus.service.emailSender.app.name}/">
+			<fileset dir="${build.home}/${nexus.service.emailSender.app.name}/internal" includes="*"/>
+		</copy>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.emailSender.app.name}/com/nexusbpm/services/email">
+			<fileset dir="${classes}/com/nexusbpm/services/email" includes="*.class"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/services/${nexus.service.emailSender.app.name}-yawl.jar">
+            <fileset dir="${nexus.service.emailSender.app.name}"/>
+        </jar>
+		
+		<!-- copy support libs -->
+		<copy todir="${output}/services">
+			<fileset dir="${nexus.service.libs}/xfire" includes="mail*.jar"/>
+			<fileset dir="${nexus.service.libs}/xfire" includes="activation*.jar"/>
+		</copy>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.emailSender.app.name}"/>
+	</target>
+	
 	<target name="build_EmailSenderService.war" depends="compile">
 		<!-- create directory structure for the WAR -->
 		<mkdir dir="${nexus.service.emailSender.app.name}/WEB-INF/lib"/>
@@ -893,10 +953,10 @@
 		
 		<!-- copy misc -->
 		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF/classes/META-INF/xfire">
-			<fileset file="${build.home}/${nexus.service.emailSender.app.name}/services.xml"/>
+			<fileset file="${build.home}/${nexus.service.emailSender.app.name}/web/services.xml"/>
         </copy>
 		<copy todir="${nexus.service.emailSender.app.name}/WEB-INF">
-            <fileset file="${build.home}/${nexus.service.emailSender.app.name}/web.xml"/>
+            <fileset file="${build.home}/${nexus.service.emailSender.app.name}/web/web.xml"/>
         </copy>
 		
 		<!-- copy classes -->
@@ -1592,7 +1652,9 @@
     -->
     <target name="buildWebApps"
         depends=
-        "build_engine.war,
+        "build_InternalJythonService,
+    	build_InternalEmailSenderService,
+    	build_engine.war,
         build_worklist.war,
         build_yawlSMSInvoker.war,
         build_yawlWSInvoker.war,
