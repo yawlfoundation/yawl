@@ -7,10 +7,12 @@
  */
 package com.nexusbpm.services.data;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,10 +44,10 @@ import com.nexusbpm.services.NexusServiceConstants;
 @XmlType(name = "NexusServiceData", namespace = "http://www.nexusworkflow.com/", propOrder = { "variable" })
 public class NexusServiceData implements Cloneable {
     @XmlElement(namespace = "http://www.nexusworkflow.com/", required = true)
-    private List<Variable> variable;
+    protected List<Variable> variable;
     private NexusServiceDataChangeSupport support = new NexusServiceDataChangeSupport(this);
 
-    private void initList() {
+    protected void initList() {
         if( variable == null ) {
             variable = new ArrayList<Variable>();
         }
@@ -66,7 +68,9 @@ public class NexusServiceData implements Cloneable {
         return variableNames;
     }
     
-    
+    public List<Variable> getVariables() {
+    	return Collections.unmodifiableList(variable);
+    }
     
     /**
      * @see Variable#get()
@@ -94,6 +98,36 @@ public class NexusServiceData implements Cloneable {
      */
     public byte[] getBinary( String variableName ) {
         return getVariable( variableName ).getBinary();
+    }
+    
+    /**
+     * @see Variable#getBinary()
+     */
+    public Integer getInteger( String variableName ) {
+        return getVariable( variableName ).getInteger();
+    }
+    
+    /**
+     * @see Variable#getBinary()
+     */
+    public Double getDouble( String variableName ) {
+        return getVariable( variableName ).getDouble();
+    }
+    
+    /**
+     * @throws MalformedURLException 
+     * @see Variable#getBinary()
+     */
+    public String getImageURL( String variableName ) throws MalformedURLException {
+        return getVariable( variableName ).getPlain();
+    }
+    
+    /**
+     * @throws MalformedURLException 
+     * @see Variable#getBinary()
+     */
+    public String getTableURL( String variableName ) throws MalformedURLException {
+        return getVariable( variableName ).getPlain();
     }
     
     /**
@@ -171,6 +205,50 @@ public class NexusServiceData implements Cloneable {
 		}
         v.setObject( value );
     }
+
+    /**
+     * @see Variable#setObject(Object)
+     */
+    public void setInteger( String variableName, Integer value ) throws IOException {
+        Variable v = getOrCreateVariable( variableName );
+		firePropertyChange(variableName, v.getInteger(), value);
+        v.setInteger( value );
+    }
+    /**
+     * @see Variable#setObject(Object)
+     */
+    public void setDouble( String variableName, Double value ) throws IOException {
+        Variable v = getOrCreateVariable( variableName );
+		firePropertyChange(variableName, v.getDouble(), value);
+        v.setDouble( value );
+    }
+    /**
+     * @see Variable#setObject(Object)
+     */
+    public void setImage( String variableName, String value ) throws IOException {
+        Variable v = getOrCreateVariable( variableName );
+		try {
+			firePropertyChange(variableName, v.getObject(), value);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        v.setImage( value );
+    }
+    /**
+     * @see Variable#setObject(Object)
+     */
+    public void setTable( String variableName, String value ) throws IOException {
+        Variable v = getOrCreateVariable( variableName );
+		try {
+			firePropertyChange(variableName, v.getObject(), value);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        v.setTable( value );
+    }
+
     
     /**
      * @see Variable#setType(String)
@@ -180,7 +258,7 @@ public class NexusServiceData implements Cloneable {
         v.setType( type );
     }
     
-    private Variable getVariable( String variableName ) {
+    public Variable getVariable( String variableName ) {
         initList();
         for( Iterator<Variable> iter = variable.iterator(); iter.hasNext(); ) {
             Variable v = iter.next();
@@ -191,7 +269,7 @@ public class NexusServiceData implements Cloneable {
         return Variable.getNullVariable();
     }
     
-    private Variable getOrCreateVariable( String variableName ) {
+    protected Variable getOrCreateVariable( String variableName ) {
         initList();
         for( Iterator<Variable> iter = variable.iterator(); iter.hasNext(); ) {
             Variable v = iter.next();
@@ -295,7 +373,7 @@ public class NexusServiceData implements Cloneable {
     }
     
     private void unmarshalVariable( String name, String value ) {
-        String type = "text";
+        String type = Variable.TYPE_TEXT;
         String finalValue = value;
         
         if( finalValue != null && finalValue.indexOf( ":" ) > 0 ) {
@@ -311,17 +389,29 @@ public class NexusServiceData implements Cloneable {
                 finalValue = finalValue.substring( 1 );
             }
             
-            if( candidateType.equals( "text" ) ) {
-                // do nothing, type "text" is default
+            if( candidateType.equals( Variable.TYPE_TEXT ) ) {
+                // do nothing, type_text is default
             }
-            else if( candidateType.equals( "base64" ) ) {
-                type = "base64";
+            else if( candidateType.equals( Variable.TYPE_BASE64 ) ) {
+                type = Variable.TYPE_BASE64;
             }
-            else if( candidateType.equals( "binary" ) ) {
-                type = "binary";
+            else if( candidateType.equals( Variable.TYPE_BINARY ) ) {
+                type = Variable.TYPE_BINARY;
             }
-            else if( candidateType.equals( "object" ) ) {
-                type = "object";
+            else if( candidateType.equals( Variable.TYPE_OBJECT ) ) {
+                type = Variable.TYPE_OBJECT;
+            }
+            else if( candidateType.equals( Variable.TYPE_INT ) ) {
+                type = Variable.TYPE_INT;
+            }
+            else if( candidateType.equals( Variable.TYPE_DOUBLE ) ) {
+                type = Variable.TYPE_DOUBLE;
+            }
+            else if( candidateType.equals( Variable.TYPE_IMAGE_URL ) ) {
+                type = Variable.TYPE_IMAGE_URL;
+            }
+            else if( candidateType.equals( Variable.TYPE_TABLE_URL ) ) {
+                type = Variable.TYPE_TABLE_URL;
             }
             else {
                 // the colon in the value must be incidental, so restore the value

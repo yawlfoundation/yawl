@@ -61,8 +61,14 @@
 	
 	<property name="nexus.serviceInvoker.app.name" value="NexusServiceInvoker"/>
 	<property name="nexus.serviceInvoker.app.path" value="/${nexus.serviceInvoker.app.name}"/>
-	<property name="nexus.service.jython.app.name" value="JythonService"/>
 	<property name="nexus.service.emailSender.app.name" value="EmailSenderService"/>
+	<property name="nexus.service.excel.app.name" value="ExcelService"/>
+	<property name="nexus.service.ftp.app.name" value="FtpService"/>
+	<property name="nexus.service.jython.app.name" value="JythonService"/>
+	<property name="nexus.service.r.app.name" value="RService"/>
+	<property name="nexus.service.sas.app.name" value="SasService"/>
+	<property name="nexus.service.shell.app.name" value="ShellService"/>
+	<property name="nexus.service.sql.app.name" value="SqlService"/>
 	
     <!-- AJH - New lines for Tomcat/Ant iface -->
     <property name="tomcat_manager_url" value="${tomcat.protocol}://${tomcat.address}:${tomcat.port}/manager"/>
@@ -299,6 +305,18 @@
     	<fileset dir="${nexus.service.libs}/jython">
     		<include name="*.jar"/>
     	</fileset>
+		<fileset dir="${nexus.service.libs}/ftp">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${nexus.service.libs}/excel">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${nexus.service.libs}/sas">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${nexus.service.libs}/r">
+			<include name="*.jar"/>
+		</fileset>
     </path>
     <!--
     Standard classpath
@@ -466,6 +484,7 @@
         <!--rmic base="${classes}" classname="au.edu.qut.yawl.engine.interfce.EngineGatewayImpl"/-->
         <copy todir="${classes}">
             <fileset dir="${src}" excludes="**/*.java"/>
+        	<fileset dir="${services}" excludes="**/*.java"/>
         </copy>
 
     	<!-- Copy and patch SPRING properties file in for free-standing engine -->    	
@@ -831,14 +850,9 @@
 		<!-- create directory structure for the JAR -->
 		<mkdir dir="${nexus.service.jython.app.name}/com/nexusbpm/services/jython"/>
 		
-		<!-- copy properties file -->
-		<copy todir="${nexus.service.jython.app.name}/">
-			<fileset dir="${build.home}/${nexus.service.jython.app.name}/internal" includes="*"/>
-		</copy>
-		
 		<!-- copy classes -->
 		<copy todir="${nexus.service.jython.app.name}/com/nexusbpm/services/jython">
-			<fileset dir="${classes}/com/nexusbpm/services/jython" includes="*.class"/>
+			<fileset dir="${classes}/com/nexusbpm/services/jython" includes="*.class,*.properties"/>
 		</copy>
 		
 		<!-- make the jar -->
@@ -848,13 +862,146 @@
 		
 		<!-- copy support libs -->
 		<copy todir="${output}/services">
-			<fileset file="${nexus.service.libs}/jython/jython.jar"/>
+			<fileset file="${nexus.service.libs}/jython/*.jar"/>
 		</copy>
 		
 		<!-- clean up -->
 		<delete dir="${nexus.service.jython.app.name}"/>
 	</target>
 
+
+	<target name="build_InternalSasService" depends="compile">
+		<!-- create directory structure for the JAR -->
+		<mkdir dir="${nexus.service.sas.app.name}/com/nexusbpm/services/sas"/>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.sas.app.name}/com/nexusbpm/services/sas">
+			<fileset dir="${classes}/com/nexusbpm/services/sas" includes="*.class,*.properties"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/services/${nexus.service.sas.app.name}-yawl.jar">
+            <fileset dir="${nexus.service.sas.app.name}"/>
+        </jar>
+		
+		<!-- copy support libs -->
+		<copy todir="${output}/services">
+			<fileset file="${nexus.service.libs}/sas/*.jar"/>
+		</copy>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.sas.app.name}"/>
+	</target>
+
+
+	<target name="build_InternalSqlService" depends="compile">
+		<!-- create directory structure for the JAR -->
+		<mkdir dir="${nexus.service.sql.app.name}/com/nexusbpm/services/sql"/>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.sql.app.name}/com/nexusbpm/services/sql">
+			<fileset dir="${classes}/com/nexusbpm/services/sql" includes="*.class,*.properties"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/services/${nexus.service.sql.app.name}-yawl.jar">
+            <fileset dir="${nexus.service.sql.app.name}"/>
+        </jar>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.sql.app.name}"/>
+	</target>
+
+	<target name="build_InternalRService" depends="compile">
+		<!-- create directory structure for the JAR -->
+		<mkdir dir="${nexus.service.r.app.name}/com/nexusbpm/services/r"/>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.r.app.name}/com/nexusbpm/services/r">
+			<fileset dir="${classes}/com/nexusbpm/services/r" includes="*.class,*.properties"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/services/${nexus.service.r.app.name}-yawl.jar">
+            <fileset dir="${nexus.service.r.app.name}"/>
+        </jar>
+		
+		<!-- copy support libs -->
+		<copy todir="${output}/services">
+			<fileset file="${nexus.service.libs}/r/*.jar"/>
+		</copy>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.r.app.name}"/>
+	</target>
+
+	<target name="build_InternalFtpService" depends="compile">
+		<!-- create directory structure for the JAR -->
+		<mkdir dir="${nexus.service.ftp.app.name}/com/nexusbpm/services/ftp"/>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.ftp.app.name}/com/nexusbpm/services/ftp">
+			<fileset dir="${classes}/com/nexusbpm/services/ftp" includes="*.class,*.properties"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/services/${nexus.service.ftp.app.name}-yawl.jar">
+            <fileset dir="${nexus.service.ftp.app.name}"/>
+        </jar>
+		
+		<!-- copy support libs -->
+		<copy todir="${output}/services">
+			<fileset file="${nexus.service.libs}/ftp/*.jar"/>
+		</copy>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.ftp.app.name}"/>
+	</target>
+
+	<target name="build_InternalExcelService" depends="compile">
+		<!-- create directory structure for the JAR -->
+		<mkdir dir="${nexus.service.excel.app.name}/com/nexusbpm/services/excel"/>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.excel.app.name}/com/nexusbpm/services/excel">
+			<fileset dir="${classes}/com/nexusbpm/services/excel" includes="*.class,*.properties"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/services/${nexus.service.excel.app.name}-yawl.jar">
+            <fileset dir="${nexus.service.excel.app.name}"/>
+        </jar>
+		
+		<!-- copy support libs -->
+		<copy todir="${output}/services">
+			<fileset file="${nexus.service.libs}/excel/*.jar"/>
+		</copy>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.excel.app.name}"/>
+	</target>
+	
+	<target name="build_InternalShellService" depends="compile">
+		<!-- create directory structure for the JAR -->
+		<mkdir dir="${nexus.service.shell.app.name}/com/nexusbpm/services/shell"/>
+		
+		<!-- copy classes -->
+		<copy todir="${nexus.service.shell.app.name}/com/nexusbpm/services/shell">
+			<fileset dir="${classes}/com/nexusbpm/services/shell" includes="*.class,*.properties"/>
+		</copy>
+		
+		<!-- make the jar -->
+		<jar destfile="${output}/services/${nexus.service.shell.app.name}-yawl.jar">
+            <fileset dir="${nexus.service.shell.app.name}"/>
+        </jar>
+		
+		<!-- clean up -->
+		<delete dir="${nexus.service.shell.app.name}"/>
+	</target>
+
+
+	
+	
 	<target name="build_JythonService.war" depends="compile">
 		<!-- create directory structure for the WAR -->
 		<mkdir dir="${nexus.service.jython.app.name}/WEB-INF/lib"/>
@@ -912,14 +1059,9 @@
 		<!-- create directory structure for the JAR -->
 		<mkdir dir="${nexus.service.emailSender.app.name}/com/nexusbpm/services/email"/>
 		
-		<!-- copy properties file -->
-		<copy todir="${nexus.service.emailSender.app.name}/">
-			<fileset dir="${build.home}/${nexus.service.emailSender.app.name}/internal" includes="*"/>
-		</copy>
-		
 		<!-- copy classes -->
 		<copy todir="${nexus.service.emailSender.app.name}/com/nexusbpm/services/email">
-			<fileset dir="${classes}/com/nexusbpm/services/email" includes="*.class"/>
+			<fileset dir="${classes}/com/nexusbpm/services/email" includes="*.class *.properties"/>
 		</copy>
 		
 		<!-- make the jar -->
@@ -1654,6 +1796,12 @@
         depends=
         "build_InternalJythonService,
     	build_InternalEmailSenderService,
+    	build_InternalRService,
+    	build_InternalSqlService,
+    	build_InternalExcelService,
+    	build_InternalShellService,
+    	build_InternalFtpService,
+    	build_InternalSasService,
     	build_engine.war,
         build_worklist.war,
         build_yawlSMSInvoker.war,

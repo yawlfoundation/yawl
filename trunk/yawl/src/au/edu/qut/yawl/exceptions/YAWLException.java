@@ -126,7 +126,7 @@ public class YAWLException extends Exception {
 		}
 	};
 	/**
-     * Returns whether automatic logging of <tt>CapselaException</tt>s is
+     * Returns whether automatic logging of <tt>Exception</tt>s is
      * enabled or disabled.
 	 * @return whether logging is enabled or disabled.
 	 */
