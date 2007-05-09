@@ -12,6 +12,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -37,6 +39,14 @@ public class Variable implements Cloneable {
     public static final String TYPE_BINARY = "binary";
     /** Type constant for base 64 encoded java object variables. */
     public static final String TYPE_OBJECT = "object";
+    /** Type constant for integer variables. */
+    public static final String TYPE_INT = "int";
+    /** Type constant for double variables. */
+    public static final String TYPE_DOUBLE = "double";
+    /** Type constant for images. */
+    public static final String TYPE_IMAGE_URL = "image";
+    /** Type constant for tables. */
+    public static final String TYPE_TABLE_URL = "table";
     
 	@XmlAttribute(required=true)
 	protected String name;
@@ -75,6 +85,18 @@ public class Variable implements Cloneable {
         else if( TYPE_OBJECT.equals( type ) ) {
             this.type = TYPE_OBJECT;
         }
+        else if( TYPE_INT.equals( type ) ) {
+            this.type = TYPE_INT;
+        }
+        else if( TYPE_DOUBLE.equals( type ) ) {
+            this.type = TYPE_DOUBLE;
+        }
+        else if( TYPE_IMAGE_URL.equals( type ) ) {
+            this.type = TYPE_IMAGE_URL;
+        }
+        else if( TYPE_TABLE_URL.equals( type ) ) {
+            this.type = TYPE_TABLE_URL;
+        }
         else {
             this.type = TYPE_TEXT;
         }
@@ -84,7 +106,7 @@ public class Variable implements Cloneable {
 	 * Do not call this directly, instead call {@link Variable#get()}
 	 * so the value gets decoded.
 	 */
-	String getValue() {
+	public String getValue() {
 		return value;
 	}
 	
@@ -94,14 +116,14 @@ public class Variable implements Cloneable {
      * {@link Variable#setObject(Object), or {@link Variable#setPlain(String)}
 	 * so the value gets encoded properly.
 	 */
-	void setValue( String value ) {
+	public void setValue( String value ) {
 		this.value = value;
 	}
     
     /**
      * Gets the appropriately decoded value of the variable for the variable's type.
      */
-    public Object get() throws IOException, ClassNotFoundException {
+    public Object get() throws IOException, ClassNotFoundException  {
         if( getType().equals( TYPE_BASE64 ) ) {
             return getBase64();
         }
@@ -111,11 +133,51 @@ public class Variable implements Cloneable {
         else if( getType().equals( TYPE_OBJECT ) ) {
             return getObject();
         }
+        else if( getType().equals( TYPE_INT ) ) {
+            return getInteger();
+        }
+        else if( getType().equals( TYPE_DOUBLE ) ) {
+            return getDouble();
+        }
+        else if( getType().equals( TYPE_IMAGE_URL ) || getType().equals( TYPE_TABLE_URL )) {
+            return getPlain();
+        }
+        
         else {
             return getPlain();
         }
     }
     
+    public Integer getInteger() {
+    	return getValue() == null ? null : Integer.valueOf(getValue());
+    }
+
+    public void setInteger(Integer i) {
+    	setType(Variable.TYPE_INT);
+    	if (i != null) setValue(i.toString());
+    	else setValue(null);
+    }
+    
+    public Double getDouble() {
+    	return getValue() == null ? null : Double.valueOf(getValue());
+    }
+
+    public void setDouble(Double d) {
+    	setType(Variable.TYPE_DOUBLE);
+    	if (d != null) setValue(d.toString());
+    	else setValue(null);
+    }
+    
+    public void setImage(String url) {
+    	setType(Variable.TYPE_IMAGE_URL);
+    	setValue(url);
+    }
+   
+    public void setTable(String url) {
+    	setType(Variable.TYPE_TABLE_URL);
+    	setValue(url);
+    }
+   
     /**
      * Returns the plain text value for the variable.
      */
@@ -172,6 +234,18 @@ public class Variable implements Cloneable {
             }
             else if( getType().equals( TYPE_OBJECT ) ) {
                 setObject( value );
+            }
+            else if( getType().equals( TYPE_INT ) ) {
+                setInteger((Integer) value);
+            }
+            else if( getType().equals( TYPE_DOUBLE ) ) {
+                setDouble((Double) value);
+            }
+            else if( getType().equals( TYPE_IMAGE_URL ) ) {
+                setImage(value.toString());
+            }
+            else if( getType().equals( TYPE_TABLE_URL ) ) {
+                setTable(value.toString());
             }
             else {
                 setPlain( value.toString() );
@@ -236,10 +310,13 @@ public class Variable implements Cloneable {
         public Object getObject() {
             return null;
         }
+        public Integer getInteger() {
+            return null;
+        }
         public String getPlain() {
             return null;
         }
-        String getValue() {
+        public String getValue() {
             return null;
         }
         public String getType() {
@@ -255,7 +332,7 @@ public class Variable implements Cloneable {
         }
         public void setPlain( String value ) {
         }
-        void setValue( String value ) {
+        public void setValue( String value ) {
         }
         public void setType( String type ) {
         }

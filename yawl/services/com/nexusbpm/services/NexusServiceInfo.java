@@ -107,7 +107,7 @@ public class NexusServiceInfo {
     }
     
     public String getServiceURI() {
-        return serviceURI;
+    	return serviceURI;
     }
 
     public String[] getVariableNames() {
