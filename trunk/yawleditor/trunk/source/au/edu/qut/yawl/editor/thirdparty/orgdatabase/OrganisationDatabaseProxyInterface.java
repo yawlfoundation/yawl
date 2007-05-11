@@ -35,7 +35,7 @@ public interface OrganisationDatabaseProxyInterface {
   
   public static final String DEFAULT_DATABASE_NAME = "yawl";
   public static final String DEFAULT_DATABASE_USER = "postgres";
-  public static final String DEFAULT_DATABASE_USER_PASSWORD = "admin";
+  public static final String DEFAULT_DATABASE_USER_PASSWORD = "yawl";
   
   public boolean isDatabaseConnectionAvailable();
   public void connect();

@@ -1,4 +1,4 @@
-<project name="YAWLEditor" default="full" basedir="../">
+  <project name="YAWLEditor" default="full" basedir="../">
 
   <!-- global properties -->
   
