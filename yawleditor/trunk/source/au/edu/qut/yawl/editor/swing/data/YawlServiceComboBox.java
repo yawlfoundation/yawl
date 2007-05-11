@@ -34,11 +34,8 @@ import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 public class YawlServiceComboBox extends JComboBox {
   
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
-  private HashMap services = null;
+  private HashMap services = new HashMap();
   
   public YawlServiceComboBox() {
     super();
