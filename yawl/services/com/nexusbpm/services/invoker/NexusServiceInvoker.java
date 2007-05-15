@@ -28,7 +28,7 @@ public class NexusServiceInvoker {
         NexusService service = getServiceWithName( serviceName );
         
 //        System.out.println( "Preprocessing data:" + data );
-        data.setType( "Status", Variable.TYPE_TEXT );
+//        data.setType( "Status", Variable.TYPE_TEXT );
         
         JythonPreprocessor preprocessor = new JythonPreprocessor( data );
         preprocessor.evaluate();

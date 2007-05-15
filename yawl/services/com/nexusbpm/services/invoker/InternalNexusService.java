@@ -21,6 +21,7 @@ import au.edu.qut.yawl.worklist.model.WorkItemRecord;
 
 import com.nexusbpm.services.NexusServiceConstants;
 import com.nexusbpm.services.data.NexusServiceData;
+import com.nexusbpm.services.data.Variable;
 
 /**
  * Base class for internal Nexus services.
@@ -53,21 +54,37 @@ public abstract class InternalNexusService extends InterfaceBInternalServiceCont
 				List<Content> serviceData = inputData.cloneContent();
 				NexusServiceData data = null;
 				
-				// TODO service name variable shouldn't be needed anymore, so this should get removed at some point
-				for(Iterator<Content> iter = serviceData.iterator(); iter.hasNext();) {
-					Content c = iter.next();
-					if(c instanceof Element && ((Element) c).getName().equals(NexusServiceConstants.SERVICENAME_VAR)) {
-						iter.remove();
-					}
-				}
-				
+//				// TODO service name variable shouldn't be needed anymore, so this should get removed at some point
+//				for(Iterator<Content> iter = serviceData.iterator(); iter.hasNext();) {
+//					Content c = iter.next();
+//					if(c instanceof Element && ((Element) c).getName().equals(NexusServiceConstants.SERVICENAME_VAR)) {
+//						iter.remove();
+//					}
+//				}
 				data = NexusServiceData.unmarshal(serviceData);
-				
+				System.out.println("Work item " + workItemRecord.getUniqueID() + " item in:");
+				System.out.println(workItemRecord);
+				System.out.println("Work item " + workItemRecord.getUniqueID() + " begin data in:");
+				for (Variable var:data.getVariables()) {
+					System.out.println("  " + var);
+				}
+				System.out.println("Work item " + workItemRecord.getUniqueID() + " end data in:");
 				JythonPreprocessor preprocessor = new JythonPreprocessor( data );
 		        preprocessor.evaluate();
-				
+				System.out.println("Work item " + workItemRecord.getUniqueID() + " begin processed input data:");
+				for (Variable var:data.getVariables()) {
+					System.out.println("  " + var);
+				}
+				System.out.println("Work item " + workItemRecord.getUniqueID() + " end processed input data:");
+
 				NexusServiceData result = execute((NexusServiceData)data.clone());
-				
+
+				System.out.println("Work item " + workItemRecord.getUniqueID() + " begin output data:");
+				for (Variable var:result.getVariables()) {
+					System.out.println("  " + var);
+				}
+				System.out.println("Work item " + workItemRecord.getUniqueID() + " end output data:");
+
 				preprocessor.setData( result );
 		        preprocessor.restore();
 				

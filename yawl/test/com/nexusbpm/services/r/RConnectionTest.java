@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 
 public class RConnectionTest extends TestCase {
 
-	RComponent r;
+	InternalRService r;
 	String unique = "output-" + System.currentTimeMillis();
 	
 	private void setSharedData(RServiceData data) {
@@ -37,16 +37,17 @@ public class RConnectionTest extends TestCase {
 	}
 
 	public void testRPlottingWithOutputGraph() throws Exception{
-		r = new RComponent(getPlotData());
-		RServiceData data = r.run();
+		r = new InternalRService();
+		RServiceData data = (RServiceData) r.execute(getPlotData());
 		System.out.println(data.getOutput());
 		System.out.println(data.getError());
 		
 		if (!"".equals(data.getPlain("error"))) {
-			System.out.println(data.getPlain("error"));
+			System.out.println("error: " + data.getPlain("error"));
 			return;
 		}
 		else {
+			System.out.println(data.getImageURL("imageLocation"));
 			Icon icon = (Icon) new ImageIcon(data.getImageURL("imageLocation"));
 			JOptionPane.showConfirmDialog(null, "", "", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, icon);
 		}
@@ -70,8 +71,8 @@ public class RConnectionTest extends TestCase {
 	}
 
 	public void testDBR() throws Exception { //first i installed the rjdbc package on R...
-		r = new RComponent(getDBData());
-		RServiceData data = r.run();
+		r = new InternalRService();
+		RServiceData data = (RServiceData) r.execute(getDBData());
 		System.out.println(data.getOutput());
 		System.out.println(data.getError());
 		

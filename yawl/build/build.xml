@@ -302,9 +302,9 @@
 			<include name="mail*.jar"/>
 		</fileset>
 
-    	<fileset dir="${nexus.service.libs}/jython">
-    		<include name="*.jar"/>
-    	</fileset>
+    		<fileset dir="${nexus.service.libs}/jython">
+    			<include name="*.jar"/>
+    		</fileset>
 		<fileset dir="${nexus.service.libs}/ftp">
 			<include name="*.jar"/>
 		</fileset>
@@ -315,6 +315,9 @@
 			<include name="*.jar"/>
 		</fileset>
 		<fileset dir="${nexus.service.libs}/r">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${nexus.service.libs}/sql">
 			<include name="*.jar"/>
 		</fileset>
     </path>

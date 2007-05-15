@@ -313,20 +313,20 @@ public class NexusServiceData implements Cloneable {
         return b.toString();
     }
     
-    public void addStatusMessage( String message ) {
-        String status = "";
-        if( getType( "Status" ) != null
-                && getType( "Status" ).equals( Variable.TYPE_TEXT )
-                && getPlain( "Status" ) != null ) {
-            status = getPlain( "Status" );
-        }
-        if( status.length() > 0 ) {
-            status += "\n";
-        }
-        status = status + message;
-        setPlain( "Status", status );
-    }
-    
+//    public void addStatusMessage( String message ) {
+//        String status = "";
+//        if( getType( "Status" ) != null
+//                && getType( "Status" ).equals( Variable.TYPE_TEXT )
+//                && getPlain( "Status" ) != null ) {
+//            status = getPlain( "Status" );
+//        }
+//        if( status.length() > 0 ) {
+//            status += "\n";
+//        }
+//        status = status + message;
+//        setPlain( "Status", status );
+//    }
+//    
     /**
      * Given runtime data from the service invoker, converts the data into an
      * instance of NexusServiceData.
@@ -353,9 +353,7 @@ public class NexusServiceData implements Cloneable {
         String taskID = task.getID();
         
         for( String varName : task.getDataMappingsForTaskStarting().keySet() ) {
-            if( !( varName.equals( NexusServiceConstants.SERVICENAME_VAR )
-                    || ( varName.equals( NexusServiceConstants.STATUS_VAR ) && !includeStatusVariable )
-                    || varName.equals( "YawlWSInvokerWSDLLocation" )
+            if( !( varName.equals( "YawlWSInvokerWSDLLocation" )
                     || varName.equals( "YawlWSInvokerOperationName" )
                     || varName.equals( "YawlWSInvokerPortName" ) ) ) {
                 String val = null;
@@ -407,11 +405,11 @@ public class NexusServiceData implements Cloneable {
             else if( candidateType.equals( Variable.TYPE_DOUBLE ) ) {
                 type = Variable.TYPE_DOUBLE;
             }
-            else if( candidateType.equals( Variable.TYPE_IMAGE_URL ) ) {
-                type = Variable.TYPE_IMAGE_URL;
+            else if( candidateType.equals( Variable.TYPE_IMAGE_URI ) ) {
+                type = Variable.TYPE_IMAGE_URI;
             }
-            else if( candidateType.equals( Variable.TYPE_TABLE_URL ) ) {
-                type = Variable.TYPE_TABLE_URL;
+            else if( candidateType.equals( Variable.TYPE_TABLE_URI ) ) {
+                type = Variable.TYPE_TABLE_URI;
             }
             else {
                 // the colon in the value must be incidental, so restore the value

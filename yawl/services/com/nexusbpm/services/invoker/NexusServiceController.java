@@ -30,6 +30,7 @@ import com.nexusbpm.services.data.NexusServiceData;
  * Environment side controller for NexusWorkflow services.
  * @author Nathan Rose
  */
+@Deprecated
 public class NexusServiceController extends InterfaceBWebsideController {
     private String _sessionHandle = null;
     
@@ -41,64 +42,64 @@ public class NexusServiceController extends InterfaceBWebsideController {
      * @param enabledWorkItem
      */
     public void handleEnabledWorkItemEvent(WorkItemRecord enabledWorkItem) {
-        try {
-            if (!checkConnection(_sessionHandle)) {
-                _sessionHandle = connect(DEFAULT_ENGINE_USERNAME, DEFAULT_ENGINE_PASSWORD);
-            }
-            if (successful(_sessionHandle)) {
-                List executingChildren = checkOutAllInstancesOfThisTask(enabledWorkItem, _sessionHandle);
-                
-                for (int i = 0; i < executingChildren.size(); i++) {
-                    WorkItemRecord itemRecord = (WorkItemRecord) executingChildren.get(i);
-                    Element inputData = itemRecord.getWorkItemData();
-                    String serviceName = inputData.getChildText(NexusServiceConstants.SERVICENAME_VAR);
-                    List<Content> serviceData = inputData.cloneContent();
-                    NexusServiceData data = null;
-                    
-                    for( Iterator<Content> iter = serviceData.iterator(); iter.hasNext(); ) {
-                        Content c = iter.next();
-                        if( c instanceof Element && ((Element)c).getName().equals( NexusServiceConstants.SERVICENAME_VAR ) ) {
-                            iter.remove();
-                        }
-                    }
-                    
-//                    System.out.println( "Outputting service data to invoke Nexus Service with:" );
-//                    new XMLOutputter( Format.getRawFormat() ).output( inputData, System.out );
-                    
-                    data = NexusServiceData.unmarshal( serviceData );
-                    
-                    NexusServiceData reply =
-                            NexusServiceInvoker.invokeService( serviceName, data );
-                    
-//                    System.out.println( "\n\nReply from nexus service '" + serviceName + "':\n" + reply );
-//                    System.out.println();
-                    
-                    Element caseDataBoundForEngine = prepareReplyRootElement(enabledWorkItem, _sessionHandle);
-                    
-                    // convert reply back to XML
-                    if( reply != null ) {
-                        caseDataBoundForEngine.addContent( NexusServiceData.marshal( reply ) );
-                    }
-                    else {
-                    	_logger.error( "Nexus Service '" + serviceName + "' returned no resulting data!" );
-                    }
-                    
-                    String checkInResult = checkInWorkItem(
-                            itemRecord.getID(),
-                            inputData,
-                            caseDataBoundForEngine,
-                            _sessionHandle);
-                    
-                    _logger.debug(
-//                    System.out.println(
-                    		"\nResult of item [" + itemRecord.getID() +
-                    		"] checkin is : " + checkInResult );
-                }
-            }
-        } catch( Exception e ) {
-        	e.printStackTrace( System.out );
-            _logger.error(e.getMessage(), e);
-        }
+//        try {
+//            if (!checkConnection(_sessionHandle)) {
+//                _sessionHandle = connect(DEFAULT_ENGINE_USERNAME, DEFAULT_ENGINE_PASSWORD);
+//            }
+//            if (successful(_sessionHandle)) {
+//                List executingChildren = checkOutAllInstancesOfThisTask(enabledWorkItem, _sessionHandle);
+//                
+//                for (int i = 0; i < executingChildren.size(); i++) {
+//                    WorkItemRecord itemRecord = (WorkItemRecord) executingChildren.get(i);
+//                    Element inputData = itemRecord.getWorkItemData();
+//                    String serviceName = inputData.getChildText(NexusServiceConstants.SERVICENAME_VAR);
+//                    List<Content> serviceData = inputData.cloneContent();
+//                    NexusServiceData data = null;
+//                    
+//                    for( Iterator<Content> iter = serviceData.iterator(); iter.hasNext(); ) {
+//                        Content c = iter.next();
+//                        if( c instanceof Element && ((Element)c).getName().equals( NexusServiceConstants.SERVICENAME_VAR ) ) {
+//                            iter.remove();
+//                        }
+//                    }
+//                    
+////                    System.out.println( "Outputting service data to invoke Nexus Service with:" );
+////                    new XMLOutputter( Format.getRawFormat() ).output( inputData, System.out );
+//                    
+//                    data = NexusServiceData.unmarshal( serviceData );
+//                    
+//                    NexusServiceData reply =
+//                            NexusServiceInvoker.invokeService( serviceName, data );
+//                    
+////                    System.out.println( "\n\nReply from nexus service '" + serviceName + "':\n" + reply );
+////                    System.out.println();
+//                    
+//                    Element caseDataBoundForEngine = prepareReplyRootElement(enabledWorkItem, _sessionHandle);
+//                    
+//                    // convert reply back to XML
+//                    if( reply != null ) {
+//                        caseDataBoundForEngine.addContent( NexusServiceData.marshal( reply ) );
+//                    }
+//                    else {
+//                    	_logger.error( "Nexus Service '" + serviceName + "' returned no resulting data!" );
+//                    }
+//                    
+//                    String checkInResult = checkInWorkItem(
+//                            itemRecord.getID(),
+//                            inputData,
+//                            caseDataBoundForEngine,
+//                            _sessionHandle);
+//                    
+//                    _logger.debug(
+////                    System.out.println(
+//                    		"\nResult of item [" + itemRecord.getID() +
+//                    		"] checkin is : " + checkInResult );
+//                }
+//            }
+//        } catch( Exception e ) {
+//        	e.printStackTrace( System.out );
+//            _logger.error(e.getMessage(), e);
+//        }
     }
 	
     public void handleCancelledWorkItemEvent(WorkItemRecord workItemRecord) {
@@ -107,12 +108,12 @@ public class NexusServiceController extends InterfaceBWebsideController {
     
     public YParameter[] describeRequiredParams() {
         YParameter[] params = new YParameter[1];
-        YParameter param;
-        
-        param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
-        param.setDataTypeAndName(XSD_NCNAME_TYPE, NexusServiceConstants.SERVICENAME_VAR, XSD_NAMESPACE);
-        param.setDocumentation("This is the name of the Nexus Workflow Service");
-        params[0] = param;
+//        YParameter param;
+//        
+//        param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
+//        param.setDataTypeAndName(XSD_NCNAME_TYPE, NexusServiceConstants.SERVICENAME_VAR, XSD_NAMESPACE);
+//        param.setDocumentation("This is the name of the Nexus Workflow Service");
+//        params[0] = param;
         
         return params;
     }
