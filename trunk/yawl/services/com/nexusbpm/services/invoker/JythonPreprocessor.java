@@ -243,7 +243,7 @@ public class JythonPreprocessor {
             b.append( "\nErrors encountered on the last pass:\n" );
             b.append( indent( "\t", new BufferedReader( new StringReader( writer.toString() ) ) ) );
             
-            data.addStatusMessage( b.toString() );
+//            data.addStatusMessage( b.toString() );
 //            System.out.println( b.toString() );
         }
     }

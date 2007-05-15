@@ -16,10 +16,11 @@ public class SqlComponentTest extends TestCase {
 	}
 	
 	public void testRun() throws Exception{
-		SqlComponent c = new SqlComponent(data);
-		SqlServiceData outputData = c.run();
+		InternalSqlService c = new InternalSqlService();
+		SqlServiceData outputData = (SqlServiceData) c.execute(data);
 		System.out.println(outputData.getOutput());
 		System.out.println(outputData.getError());
+		System.out.println(outputData.getTableUri());
 	}
 
 }

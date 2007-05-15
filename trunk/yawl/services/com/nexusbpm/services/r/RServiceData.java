@@ -42,8 +42,10 @@ public class RServiceData extends NexusServiceData {
 
 	public RServiceData(NexusServiceData data) throws ClassNotFoundException {
 		this();
-		for (Column column: Column.values()) {
-			getVariable(column.getName()).setValue(data.getVariable(column.getName()).getValue());
+		for (Variable var: data.getVariables()) {
+			Variable myVar = this.getOrCreateVariable(var.getName());
+			myVar.setType(var.getType());
+			myVar.setValue(var.getValue());
 		}
 	}
 	

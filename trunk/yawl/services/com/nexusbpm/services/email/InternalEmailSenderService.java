@@ -24,6 +24,7 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
 import com.nexusbpm.services.data.NexusServiceData;
 import com.nexusbpm.services.invoker.InternalNexusService;
@@ -56,7 +57,7 @@ public class InternalEmailSenderService extends InternalNexusService {
 		Properties properties = new Properties();
 		properties.put( "mail.smtp.host", host );
 		Session session = Session.getDefaultInstance( properties, null );
-		session.setDebug( false );
+		session.setDebug( true );
 		LOG.info( session.getProperties() );
         return session;
 	}
@@ -86,7 +87,9 @@ public class InternalEmailSenderService extends InternalNexusService {
 				.append( "bcc: " ).append( bcc ).append( "\n" )
                 .append( "from: " ).append( from ).append( "\n" )
 				.append( "subject: " ).append( subject ).append( "\n" )
-                .append( "host: " ).append( host );
+                .append( "host: " ).append( host ).append( "\n" )
+                .append( "body: " ).append( body ).append( "\n" )
+                ;
 			
 			LOG.debug( b.toString() );
 			
@@ -94,6 +97,7 @@ public class InternalEmailSenderService extends InternalNexusService {
 		}
 		catch( Exception e ) {
 			LOG.error( "Error sending email!\n" + b.toString(), e.getCause() );
+			e.printStackTrace();
 		}
 		
 		return data;
@@ -121,10 +125,10 @@ public class InternalEmailSenderService extends InternalNexusService {
 		}//if
 		message.setSubject( subject );
 		MimeBodyPart bodyPart = new MimeBodyPart();
-		bodyPart.setText( body );
+		bodyPart.setText( body, null, "html" );
 		Multipart multipart = new MimeMultipart();
 		multipart.addBodyPart( bodyPart );
-		message.setContent( multipart );
+		message.setContent( multipart);
 		message.setHeader( "X-Mailer", MAILER );
 		message.setSentDate( new Date() );
 		Transport.send( message );

@@ -12,8 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -44,9 +42,9 @@ public class Variable implements Cloneable {
     /** Type constant for double variables. */
     public static final String TYPE_DOUBLE = "double";
     /** Type constant for images. */
-    public static final String TYPE_IMAGE_URL = "image";
+    public static final String TYPE_IMAGE_URI = "image";
     /** Type constant for tables. */
-    public static final String TYPE_TABLE_URL = "table";
+    public static final String TYPE_TABLE_URI = "table";
     
 	@XmlAttribute(required=true)
 	protected String name;
@@ -91,11 +89,11 @@ public class Variable implements Cloneable {
         else if( TYPE_DOUBLE.equals( type ) ) {
             this.type = TYPE_DOUBLE;
         }
-        else if( TYPE_IMAGE_URL.equals( type ) ) {
-            this.type = TYPE_IMAGE_URL;
+        else if( TYPE_IMAGE_URI.equals( type ) ) {
+            this.type = TYPE_IMAGE_URI;
         }
-        else if( TYPE_TABLE_URL.equals( type ) ) {
-            this.type = TYPE_TABLE_URL;
+        else if( TYPE_TABLE_URI.equals( type ) ) {
+            this.type = TYPE_TABLE_URI;
         }
         else {
             this.type = TYPE_TEXT;
@@ -139,7 +137,7 @@ public class Variable implements Cloneable {
         else if( getType().equals( TYPE_DOUBLE ) ) {
             return getDouble();
         }
-        else if( getType().equals( TYPE_IMAGE_URL ) || getType().equals( TYPE_TABLE_URL )) {
+        else if( getType().equals( TYPE_IMAGE_URI ) || getType().equals( TYPE_TABLE_URI )) {
             return getPlain();
         }
         
@@ -168,14 +166,14 @@ public class Variable implements Cloneable {
     	else setValue(null);
     }
     
-    public void setImage(String url) {
-    	setType(Variable.TYPE_IMAGE_URL);
-    	setValue(url);
+    public void setImage(String uri) {
+    	setType(Variable.TYPE_IMAGE_URI);
+    	setValue(uri);
     }
    
-    public void setTable(String url) {
-    	setType(Variable.TYPE_TABLE_URL);
-    	setValue(url);
+    public void setTable(String uri) {
+    	setType(Variable.TYPE_TABLE_URI);
+    	setValue(uri);
     }
    
     /**
@@ -241,10 +239,10 @@ public class Variable implements Cloneable {
             else if( getType().equals( TYPE_DOUBLE ) ) {
                 setDouble((Double) value);
             }
-            else if( getType().equals( TYPE_IMAGE_URL ) ) {
+            else if( getType().equals( TYPE_IMAGE_URI ) ) {
                 setImage(value.toString());
             }
-            else if( getType().equals( TYPE_TABLE_URL ) ) {
+            else if( getType().equals( TYPE_TABLE_URI ) ) {
                 setTable(value.toString());
             }
             else {
@@ -478,7 +476,19 @@ public class Variable implements Cloneable {
     
     @Override
     public String toString() {
-    	return this.type + " " + this.name + "='" + this.value.substring(0, 20) + "'";
+    	StringBuilder retval = new StringBuilder("var " + type + " " + name + " = ");
+    	if (value == null) {
+    		retval.append("{null}");
+    	} else if (value.length() > 60) {
+    		retval.append("[");
+    		retval.append(value.substring(0, 60));
+    		retval.append("...]");
+    	} else {
+    		retval.append("[");
+    		retval.append(value);
+    		retval.append("]");
+    	}
+    	return retval.toString();
     }
 
 }
