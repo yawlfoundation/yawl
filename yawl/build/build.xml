@@ -910,7 +910,10 @@
 		<jar destfile="${output}/services/${nexus.service.sql.app.name}-yawl.jar">
             <fileset dir="${nexus.service.sql.app.name}"/>
         </jar>
-		
+		<!-- copy support libs -->
+		<copy todir="${output}/services">
+			<fileset file="${nexus.service.libs}/sql*.jar"/>
+		</copy>
 		<!-- clean up -->
 		<delete dir="${nexus.service.sql.app.name}"/>
 	</target>
