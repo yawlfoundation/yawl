@@ -278,6 +278,36 @@ public class WorkItemRecord {
                _status.equals(YWorkItem.Status.Enabled) ||
                _status.equals(YWorkItem.Status.Executing);
     }
+
+    public String toString() {
+    	String newLine = System.getProperty("line.separator"); 
+    	StringBuilder builder = new StringBuilder();
+    	builder.append("--Start Work Item Record--")
+    	.append(this.getUniqueID()).append(newLine)
+    	.append("  Enablement Time ")
+    	.append(this.getEnablementTime()).append(newLine)
+    	.append("  Firing Time     ")
+    	.append(this.getFiringTime()).append(newLine)
+    	.append("  Start Time      ")
+    	.append(this.getStartTime()).append(newLine)
+    	.append("  Completion Time ")
+    	.append(this.getCompletionTime()).append(newLine)
+    	.append("  Status          ")
+    	.append(this.getStatusString()).append(newLine)
+    	.append("  Started by      ")
+    	.append(this.getWhoStartedMe()).append(newLine)
+    	.append("  Assigned to     ")
+    	.append(this.getAssignedTo()).append(newLine)
+    	.append("  Output Data     ")
+    	.append(this.getOutputDataString()).append(newLine)
+    	.append("  Data List       ")
+    	.append(this.getDataListString()).append(newLine)
+    	.append("--End Work Item Record--")
+    	.append(this.getUniqueID()).append(newLine)
+    	;
+    	
+    	return builder.toString();
+    }
     
 }
 
