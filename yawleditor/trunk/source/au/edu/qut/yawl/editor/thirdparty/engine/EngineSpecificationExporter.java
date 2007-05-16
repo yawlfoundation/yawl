@@ -253,7 +253,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       );
 
       engineNetVariable.setInitialValue(
-        editorNetVariable.getInitialValue()
+          XMLUtilities.quoteSpecialCharacters(
+            editorNetVariable.getInitialValue()
+          )
       );
       
       engineNet.setLocalVariable(engineNetVariable);
