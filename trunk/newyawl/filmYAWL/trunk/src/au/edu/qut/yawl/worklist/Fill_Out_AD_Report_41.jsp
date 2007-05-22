@@ -1,17 +1,16 @@
-<%@ page import="java.util.*" %>
 <%@ page import="java.io.*" %>
 
 <%@ page import="java.math.BigInteger" %>
 <%@ page import="com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl" %>
 
-<!-- use this interface for a non-redirecting workitem checkin. -->
-<%@ page import="au.edu.qut.yawl.forms.InterfaceD_XForm" %>
 
 <%@ page import="javax.xml.bind.JAXBElement" %>
 <%@ page import="javax.xml.bind.JAXBContext" %>
 <%@ page import="javax.xml.bind.Marshaller" %>
+<%@ page import="javax.xml.bind.Unmarshaller" %>
 
 <%@ page import="org.yawlfoundation.sb.timesheetinfo.*"%>
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -315,8 +314,43 @@ function getParameters(){
 
 <body onLoad="getParameters()">
 <h1>Assistant Director's Report</h1>
-	<form name="form1" method="post" onSubmit="return getCounts(this)">
-		<table width="900"  border="0">
+<form name="form1" method="post" onSubmit="return getCounts(this)">
+  <table width="800"  border="0">
+				<% 
+				//String xml = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><ns2:Fill_Out_Continuity_Report xmlns:ns2='http://www.yawlfoundation.org/sb/continuityInfo'><generalInfo><production>miracle</production><date>2007-05-18</date><weekday>fri</weekday><shootDayNo>4</shootDayNo></generalInfo><producer>me</producer><director>you</director><directorOfPhotography>him</directorOfPhotography><editor>her</editor><continuity>what</continuity><continuityInfo/></ns2:Fill_Out_Continuity_Report>";      
+				String xml = request.getParameter("outputData");
+				xml = xml.replaceAll("<Fill_Out_AD_Report", "<ns2:Fill_Out_AD_Report xmlns:ns2='http://www.yawlfoundation.org/sb/timeSheetInfo'");
+				xml = xml.replaceAll("</Fill_Out_AD_Report","</ns2:Fill_Out_AD_Report");
+				//System.out.println("JSP outputData: "+xml);
+				
+				ByteArrayInputStream xmlBA = new ByteArrayInputStream(xml.getBytes());
+				JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.timesheetinfo");
+				Unmarshaller u = jc.createUnmarshaller();
+				JAXBElement foadrElement = (JAXBElement)u.unmarshal(xmlBA);	//creates the root element from XML file	            
+				FillOutADReportType foadr = (FillOutADReportType)foadrElement.getValue();
+				
+				GeneralInfoType gi = foadr.getGeneralInfo();
+				
+				out.println("<tr><td><table width='800'><tr>");
+                out.println("<td><strong>PRODUCTION</strong></td><td><input name='production' type='text' id='production' value='"+gi.getProduction()+"' readonly></td><td>&nbsp;</td>");
+                out.println("<td><strong>DATE</strong></td><td><input name='date' type='text' id='date' value='"+gi.getDate()+"' readonly></td><td>&nbsp;</td>");
+                out.println("<td><strong>DAY</strong></td><td><input name='weekday' type='text' id='weekday' value='"+gi.getWeekday()+"' readonly></td>");
+				out.println("</tr></table></td></tr>");
+					
+				out.println("<tr><td>&nbsp;</td></tr>");
+				out.println("<tr><td><table width='800'><tr>");
+				out.println("<td><strong>Producer</strong></td><td><input name='producer' type='text' id='producer' value='"+foadr.getProducer()+"' readonly></td>");
+				out.println("<td><strong>Director</strong></td><td><input name='director' type='text' id='director' value='"+foadr.getDirector()+"' readonly></td>");
+				out.println("<td><strong>Shoot Day </strong></td><td><input name='shoot_day' type='text' id='shoot_day' value='"+gi.getShootDayNo()+"' readonly></td>");
+				out.println("</tr><tr>");
+				out.println("<td><strong>Assistant Director</strong></td><td><input name='assistant_director' type='text' id='assistant_director' value='"+foadr.getAssistantDirector()+"' readonly></td>");
+				out.println("</tr></table></td></tr>");
+					
+				out.println("<tr><td>&nbsp;</td></tr>");
+				%>
+		
+	<tr><td>&nbsp;</td></tr>
+
 			<tr>
 				<td>
 					<table width="900">
@@ -648,7 +682,8 @@ function getParameters(){
       </p>
 	</form>
 <% 
-if(request.getParameter("artist_count") != null){
+if(request.getParameter("Submission") != null){
+
 	int artist_count = Integer.parseInt(request.getParameter("artist_count"));
 	int child_count = Integer.parseInt(request.getParameter("child_count"));
 	int crew_count = Integer.parseInt(request.getParameter("crew_count"));
@@ -718,19 +753,15 @@ if(request.getParameter("artist_count") != null){
 	tsi.setAdditionalPersonnel(request.getParameter("additional_personnel"));
 	tsi.setGeneralComments(request.getParameter("general_comments"));
 	
-	ObjectFactory of = new ObjectFactory();
-	JAXBElement tsElement = of.createTimeSheetInfo(tsi);
+	foadr.setTimeSheetInfo(tsi);
 	
-	JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.timesheetinfo");
 	Marshaller m = jc.createMarshaller();
     m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-    //m.marshal( tsElement, new File("./webapps/testing/assistdirector_report/result.xml") );//out 
+    //m.marshal( foadrElement, new File("./webapps/JSP/ADReport.xml") );//output to file
     
 	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-    m.marshal( tsElement, xmlOS);//out
-    //String result = xmlOS.toString().replaceAll(":ns2", "");
+    m.marshal(foadrElement, xmlOS);//out to ByteArray
 	String result = xmlOS.toString().replaceAll("ns2:", "");
-    
     
     String workItemID = new String(request.getParameter("workItemID"));
     String sessionHandle = new String(request.getParameter("sessionHandle"));
@@ -744,7 +775,9 @@ if(request.getParameter("artist_count") != null){
 	// userid
 	// submit (submitting/suspending/saving/cancelling a workitem)
     
-	response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result));
+	//System.out.println(result);
+	
+    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result));
 }
 %>
 </body>

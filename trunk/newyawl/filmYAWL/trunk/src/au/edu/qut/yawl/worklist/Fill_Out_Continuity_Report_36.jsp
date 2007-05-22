@@ -3,6 +3,8 @@
 
 <%@ page import="java.math.BigInteger" %>
 <%@ page import="com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+
 
 <%@ page import="javax.xml.bind.JAXBElement" %>
 <%@ page import="javax.xml.bind.JAXBContext" %>
@@ -289,7 +291,7 @@ if(request.getParameter("Submission") != null){
 			tempScene.getSlateInfo().add(slates.get(key));
 		}
 	}
-	List<SceneInfoType> scl = new ArrayList<SceneInfoType>(scenes.values());//creates a list of the scenes and add it to the continuityInfo facade
+	List<SceneInfoType> scl = new ArrayList<SceneInfoType>(scenes.values());//creates a list of the scenes and adds it to the continuityInfo facade
 	ContinuityInfoType ci = new ContinuityInfoType();
 	ci.getSceneInfo().addAll(scl);
 	
@@ -300,7 +302,7 @@ if(request.getParameter("Submission") != null){
     //m.marshal( focrElement, new File("./webapps/testing/continuity/result.xml") );//output to file
     
 	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-    m.marshal(focrElement, xmlOS);//out
+    m.marshal(focrElement, xmlOS);//out to ByteArray
 	String result = xmlOS.toString().replaceAll("ns2:", "");
     
     String workItemID = new String(request.getParameter("workItemID"));

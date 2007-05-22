@@ -9,7 +9,6 @@
 <%@ page import="javax.xml.bind.Marshaller" %>
 <%@ page import="javax.xml.bind.Unmarshaller" %>
 <%@ page import="org.yawlfoundation.sb.soundinfo.*"%>
-<%@ page import="au.edu.qut.yawl.forms.InterfaceD_XForm"%>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -341,10 +340,10 @@ if(request.getParameter("Submission") != null){
 	
 	Marshaller m = jc.createMarshaller();
     m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-    m.marshal( fossElement, new File("./webapps/JSP/soundReport.xml") );//output to file
+    //m.marshal( fossElement, new File("./webapps/JSP/soundSheets.xml") );//output to file
     
 	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-    m.marshal(fossElement, xmlOS);//out
+    m.marshal(fossElement, xmlOS);//out to ByteArray
 	String result = xmlOS.toString().replaceAll("ns2:", "");
     
 	System.out.println(result);

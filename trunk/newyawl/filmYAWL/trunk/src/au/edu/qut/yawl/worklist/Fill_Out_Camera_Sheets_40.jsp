@@ -2,24 +2,19 @@
 <%@ page import="java.io.*" %>
 
 <%@ page import="java.math.BigInteger" %>
-<%@ page import="com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl" %>
-
-<!-- use this interface for a non-redirecting workitem checkin. -->
-<%@ page import="au.edu.qut.yawl.forms.InterfaceD_XForm" %>
 
 <%@ page import="javax.xml.bind.JAXBElement" %>
 <%@ page import="javax.xml.bind.JAXBContext" %>
 <%@ page import="javax.xml.bind.Marshaller" %>
+<%@ page import="javax.xml.bind.Unmarshaller" %>
 
 <%@ page import="org.yawlfoundation.sb.camerainfo.*"%>
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <title>Camera Sheet</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<html>
-<head>
-<title>Insert Table Row using DOM</title>
 <script language="javascript">
 var count = 1;
 function addRow()
@@ -135,13 +130,48 @@ function getParameters(){
 	document.form1.submit.value = "htmlForm";
 }
 </script>
-
 </head>
 
 <body onLoad="getParameters()">
-<h1 align="left">Picture Negative Camera Sheet </h1>
+<h1>Picture Negative Camera Sheet</h1>
 <form name="form1" method="post" onSubmit="return getCount(this)">
-<table width="800" border="0">
+  <table width="800"  border="0">
+  				<% 
+				String xml = request.getParameter("outputData");
+				xml = xml.replaceAll("<Fill_Out_Camera_Sheets", "<ns2:Fill_Out_Camera_Sheets xmlns:ns2='http://www.yawlfoundation.org/sb/cameraInfo'");
+				xml = xml.replaceAll("</Fill_Out_Camera_Sheets","</ns2:Fill_Out_Camera_Sheets");
+				//System.out.println("JSP outputData: "+xml);
+				
+				ByteArrayInputStream xmlBA = new ByteArrayInputStream(xml.getBytes());
+				JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.camerainfo");
+				Unmarshaller u = jc.createUnmarshaller();
+				JAXBElement focsElement = (JAXBElement)u.unmarshal(xmlBA);	//creates the root element from XML file	            
+				FillOutCameraSheetsType focs = (FillOutCameraSheetsType)focsElement.getValue();
+				
+				GeneralInfoType gi = focs.getGeneralInfo();
+				
+				out.println("<tr><td><table width='800'><tr>");
+                out.println("<td><strong>PRODUCTION</strong></td><td><input name='production' type='text' id='production' value='"+gi.getProduction()+"' readonly></td><td>&nbsp;</td>");
+                out.println("<td><strong>DATE</strong></td><td><input name='date' type='text' id='date' value='"+gi.getDate()+"' readonly></td><td>&nbsp;</td>");
+                out.println("<td><strong>DAY</strong></td><td><input name='weekday' type='text' id='weekday' value='"+gi.getWeekday()+"' readonly></td>");
+				out.println("</tr></table></td></tr>");
+					
+				out.println("<tr><td>&nbsp;</td></tr>");
+				out.println("<tr><td><table width='800'><tr>");
+				out.println("<td><strong>Producer</strong></td><td><input name='producer' type='text' id='producer' value='"+focs.getProducer()+"' readonly></td>");
+				out.println("<td><strong>Director</strong></td><td><input name='director' type='text' id='director' value='"+focs.getDirector()+"' readonly></td>");
+				out.println("<td><strong>Shoot Day</strong></td><td><input name='shoot_day' type='text' id='shoot_day' value='"+gi.getShootDayNo()+"' readonly></td>");
+				out.println("</tr><tr>");
+				out.println("<td><strong>Director of Photography</strong></td><td><input name='director_photography' type='text' id='director_photography' value='"+focs.getDirectorOfPhotography()+"' readonly></td>");
+				out.println("<td><strong>Camera Operator</strong></td><td><input name='camera_operator' type='text' id='camera_operator' value='"+focs.getCameraOperator()+"' readonly></td>");
+				out.println("<td><strong>Camera Assistant</strong></td><td><input name='camera_assistant' type='text' id='camera_assistant' value='"+focs.getCameraAssistant()+"' readonly></td>");
+				out.println("</tr></table></td></tr>");
+					
+				out.println("<tr><td>&nbsp;</td></tr>");
+				%>
+		
+	<tr><td>&nbsp;</td></tr>
+  
 	<tr>
 		<td>
 			<table width="800">
@@ -282,19 +312,23 @@ function getParameters(){
 			</table>
 		</td>
 	</tr>
-</table>
-<p>		<input type="hidden" name="count" id="count" value="1">
-		<input type="hidden" name="workItemID" id="workItemID"/>
-		<input type="hidden" name="userID" id="userID"/>
-		<input type="hidden" name="sessionHandle" id="sessionHandle"/>
-		<input type="hidden" name="specID" id="specID"/>
-		<input type="hidden" name="submit" id="submit"/>
-	    <input type="submit" name="Submission" value="Submission"></p>
+	
+   	<tr><td>
+			<input type="hidden" name="count" id="count" value="1">
+			<input type="hidden" name="workItemID" id="workItemID"/>
+			<input type="hidden" name="userID" id="userID"/>
+			<input type="hidden" name="sessionHandle" id="sessionHandle"/>
+			<input type="hidden" name="specID" id="specID"/>
+			<input type="hidden" name="submit" id="submit"/>
+		</td></tr>
+  </table>
+  <p><input type="submit" name="Submission" value="Submission"></p>      
 </form>
 <% 
-if(request.getParameter("count") != null){
-	int count = Integer.parseInt(request.getParameter("count"));
+if(request.getParameter("Submission") != null){
 	
+	int count = Integer.parseInt(request.getParameter("count"));
+
 	TechInfoType thi =  new TechInfoType();
 	thi.setCameraTypeAndNumber(request.getParameter("camera_type_number"));
 	thi.setStockNumber(request.getParameter("stock_number"));
@@ -351,7 +385,7 @@ if(request.getParameter("count") != null){
 		}
 	}
 	
-	List sl = new ArrayList(slates.values());//creates a list of the scenes and add it to the continuityInfo facade
+	List<SlateInfoType> sl = new ArrayList<SlateInfoType>(slates.values());//creates a list of the scenes and adds it to the cameraInfo facade
 	
 	CameraInfoType ci = new CameraInfoType();
 	ci.setSheetNumber(new BigInteger(request.getParameter("sheet_number")));
@@ -365,16 +399,14 @@ if(request.getParameter("count") != null){
 	ci.setInstructionsToLab(request.getParameter("instructions"));
 	ci.setSignatureOfCameraAssistant(request.getParameter("assistant_signature"));
 	
-	ObjectFactory of = new ObjectFactory();
-	JAXBElement csElement = of.createCameraInfo(ci);
+	focs.setCameraInfo(ci);
 	
-	JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.camerainfo");
 	Marshaller m = jc.createMarshaller();
     m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-    //m.marshal( csElement, new File("./webapps/testing/camera_sheet/result.xml") );//out 
+    //m.marshal( focsElement, new File("./webapps/JSP/cameraSheets.xml") );//output to file
     
 	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-    m.marshal( csElement, xmlOS);//out
+    m.marshal(focsElement, xmlOS);//out to ByteArray
 	String result = xmlOS.toString().replaceAll("ns2:", "");
     
     String workItemID = new String(request.getParameter("workItemID"));
@@ -382,14 +414,9 @@ if(request.getParameter("count") != null){
     String userID = new String(request.getParameter("userID"));
     String submit = new String(request.getParameter("submit"));
     
-	// required response parameters:
-	// specID (if launching a case)
-	// workitemID (if editing a work item)
-	// sessionHandle
-	// userid
-	// submit (submitting/suspending/saving/cancelling a workitem)
-    
-	response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result));
+	System.out.println(result);
+	
+    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result));
 }
 %>
 </body>
