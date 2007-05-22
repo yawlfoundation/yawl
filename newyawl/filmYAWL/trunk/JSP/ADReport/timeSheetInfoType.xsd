@@ -1,0 +1,113 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+	targetNamespace="http://www.yawlfoundation.org/sb/timeSheetInfo"
+	xmlns:tns="http://www.yawlfoundation.org/sb/timeSheetInfo" 
+	attributeFormDefault="unqualified" elementFormDefault="unqualified">
+	
+	<element name="Fill_Out_AD_Report" type="tns:Fill_Out_AD_ReportType"/>
+	
+	<complexType name="Fill_Out_AD_ReportType">
+		<sequence>
+			<element name="generalInfo" type="tns:generalInfoType"/>
+			<element name="producer" type="string"/>
+			<element name="director" type="string"/>
+			<element name="assistantDirector" type="string"/>
+			<element name="timeSheetInfo" type="tns:timeSheetInfoType"/> 
+		</sequence>
+	</complexType>
+	
+	<complexType name="generalInfoType">
+		<sequence>
+			<element name="production" type="string"/>
+			<element name="date" type="date"/>
+			<element name="weekday" type="string"/>
+			<element name="shootDayNo" type="integer"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="timeSheetInfoType">
+		<sequence>
+			<element name="artistTimeSheet" type="tns:artistTimeSheetType"/>
+			<element name="childrenTimeSheet" type="tns:childrenTimeSheetType"/>
+			<element name="crewTimeSheet" type="tns:crewTimeSheetType"/>
+			<element name="mealInfo" type="tns:mealInfoType"/>
+			<element name="additionalComments" type="string"/>
+			<element name="delays" type="string"/>
+			<element name="accidents" type="string"/>
+			<element name="majorProps_actionVehicles_extraEquipment" type="string"/>
+			<element name="additionalPersonnel" type="string"/>
+			<element name="generalComments" type="string"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="artistTimeSheetType">
+		<sequence> 
+			<element name="singleArtist" minOccurs="1" maxOccurs="unbounded" type="tns:singleArtistType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="singleArtistType">
+		<sequence>
+			<element name="artist" type="string"/>
+			<element name="P_U" type="string"/>
+			<element name="MU_WD_Call_scheduled" type="time"/>
+			<element name="MU_WD_Call_actualArrival" type="time"/>
+			<element name="mealBreak" type="time"/>
+			<element name="timeWrap" type="time"/>
+			<element name="travel" type="time"/>
+			<element name="signature" type="string"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="childrenTimeSheetType">
+		<sequence> 
+			<element name="singleChildren" minOccurs="1" maxOccurs="unbounded" type="tns:singleChildrenType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="singleChildrenType">
+		<sequence>
+			<element name="children" type="string"/>
+			<element name="P_U" type="string"/>
+			<element name="MU_WD_Call_scheduled" type="time"/>
+			<element name="MU_WD_Call_actualArrival" type="time"/>
+			<element name="mealBreak" type="time"/>
+			<element name="timeWrap" type="time"/>
+			<element name="travel" type="time"/>
+			<element name="remarks" type="string"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="crewTimeSheetType">
+		<sequence> 
+			<element name="singleCrew" minOccurs="1" maxOccurs="unbounded" type="tns:singleCrewType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="singleCrewType">
+		<sequence>
+			<element name="crew" type="string"/>
+			<element name="call_scheduled" type="time"/>
+			<element name="call_actualArrival" type="time"/>
+			<element name="mealBreak" type="time"/>
+			<element name="timeWrap" type="time"/>
+			<element name="departLoc" type="time"/>
+			<element name="remarks" type="string"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="mealInfoType">
+		<sequence> 
+			<element name="singleMeal" minOccurs="1" maxOccurs="unbounded" type="tns:singleMealType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="singleMealType">
+		<sequence>
+			<element name="meal" type="string"/>
+			<element name="time" type="string"/>
+			<element name="numbers" type="integer"/>
+			<element name="location" type="string"/>
+			<element name="remarks" type="string"/>
+		</sequence>
+	</complexType>
+</schema>
