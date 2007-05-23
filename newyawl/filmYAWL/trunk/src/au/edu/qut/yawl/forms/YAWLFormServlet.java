@@ -15,6 +15,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -27,6 +28,7 @@ import au.edu.qut.yawl.worklist.model.WorklistController;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.Reader;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -52,6 +54,8 @@ public class YAWLFormServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
     	
+    	HttpSession session = request.getSession(true);
+    	
     	System.out.println("YFS doGet");
     	
         String inputData = new String();
@@ -62,8 +66,9 @@ public class YAWLFormServlet extends HttpServlet {
         StringBuffer theInstanceData = null;
         
         if (submit.compareTo("htmlForm") == 0){
-        	theInstanceData = new StringBuffer(request.getParameter("inputData"));
-        	System.out.println("YFS HTMLFORM");
+        	theInstanceData = new StringBuffer((String) session.getAttribute("inputData"));
+        	
+        	System.out.println("session attribute: "+theInstanceData); 
         }
         else{
 	        ServletInputStream in = request.getInputStream();
@@ -74,7 +79,7 @@ public class YAWLFormServlet extends HttpServlet {
 	            theInstanceData.append((char) i);
 	            i = in.read();
 	        }
-        	System.out.println("YFS XFORM");
+	        System.out.println("YFS XFORM theInstanceData: "+theInstanceData);
         }
 	        
         ServletContext context = getServletContext();
@@ -111,7 +116,7 @@ public class YAWLFormServlet extends HttpServlet {
 	            else{
 		            inputData = workitem.getDataListString();
 		            outputData = new String(theInstanceData);
-		            
+/*		            
 		            System.out.println("YFS G Input Data: "+inputData);
 		            System.out.println("YFS G Output Data: "+outputData);
 		            
@@ -125,7 +130,7 @@ public class YAWLFormServlet extends HttpServlet {
 		            FileWriter fwo = new FileWriter(xmlOutput);
 		            fwo.write(outputData);
 		            fwo.close();
-		            
+*/	            
 		            SAXBuilder _builder = new SAXBuilder();
 		            
 		            try {
@@ -227,7 +232,7 @@ public class YAWLFormServlet extends HttpServlet {
 	            theInstanceData.append((char) i);
 	            i = in.read();
 	        }
-        	System.out.println("YFS XFORM");
+        	System.out.println("YFS theInstanceData: "+theInstanceData);
         }
 	        
         ServletContext context = getServletContext();
@@ -264,7 +269,7 @@ public class YAWLFormServlet extends HttpServlet {
 	            else{
 		            inputData = workitem.getDataListString();
 		            outputData = new String(theInstanceData);
-		            
+/*		            
 		            System.out.println("YFS P Input Data: "+inputData);
 		            System.out.println("YFS P Output Data: "+outputData);
 		            
@@ -278,7 +283,7 @@ public class YAWLFormServlet extends HttpServlet {
 		            FileWriter fwo = new FileWriter(xmlOutput);
 		            fwo.write(outputData);
 		            fwo.close();
-		            
+*/		            
 		            SAXBuilder _builder = new SAXBuilder();
 		            
 		            try {

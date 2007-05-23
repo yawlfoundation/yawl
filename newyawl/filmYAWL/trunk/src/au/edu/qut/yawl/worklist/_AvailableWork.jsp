@@ -17,6 +17,7 @@
         if (_ixURI != null) {
             String url = _ixURI + "/workItemException?workItemID=" + workItemID ;
             response.sendRedirect( response.encodeURL(url) );
+            return;
         }
     }
     else if (workItemID != null) {
@@ -42,11 +43,13 @@
 				
 	            String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());        
 	            response.sendRedirect(response.encodeURL(url));
+	            return;
 	        } 
 	        else if (request.getParameter("FormType").compareTo("HTMLform") == 0) {
 	        	
 	        	String form = wip.getHTMLFormName(taskInfo);
 	        	response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+checkedOutItem.getID()+"&sessionHandle="+sessionHandle+"&outputData="+checkedOutItem.getDataListString()));
+	        	return;
 	        }
 	        else {
 	            request.setAttribute("failure", checkedOutItem);

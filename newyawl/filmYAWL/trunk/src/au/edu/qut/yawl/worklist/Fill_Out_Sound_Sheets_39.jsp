@@ -9,6 +9,7 @@
 <%@ page import="javax.xml.bind.Marshaller" %>
 <%@ page import="javax.xml.bind.Unmarshaller" %>
 <%@ page import="org.yawlfoundation.sb.soundinfo.*"%>
+<%@ page buffer="1024kb" %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -17,6 +18,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <script language="javascript">
 var count = 1;
+
 function addRow()
 {
 var tbody = document.getElementById("table1").getElementsByTagName("tbody")[0];
@@ -75,7 +77,6 @@ inp7.setAttribute("cols","80");
 inp7.setAttribute("name", current_remarks);
 inp7.setAttribute("id", current_remarks);
 
-
 cell1.appendChild(inp1);
 cell2.appendChild(inp2);
 cell3.appendChild(inp3);
@@ -121,7 +122,6 @@ function getParameters(){
 	document.form1.workItemID.value = getParam('workItemID');
 	document.form1.userID.value = getParam('userID');
 	document.form1.sessionHandle.value = getParam('sessionHandle');
-	document.form1.specID.value = getParam('specID');
 	document.form1.submit.value = "htmlForm";
 }
 </script>
@@ -138,7 +138,6 @@ function getParameters(){
 				String xml = request.getParameter("outputData");
 				xml = xml.replaceAll("<Fill_Out_Sound_Sheets", "<ns2:Fill_Out_Sound_Sheets xmlns:ns2='http://www.yawlfoundation.org/sb/soundInfo'");
 				xml = xml.replaceAll("</Fill_Out_Sound_Sheets","</ns2:Fill_Out_Sound_Sheets");
-				//System.out.println(xml);
 				
 				ByteArrayInputStream xmlBA = new ByteArrayInputStream(xml.getBytes());
 				JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.soundinfo");
@@ -150,7 +149,7 @@ function getParameters(){
 				
 				out.println("<tr><td><table width='800'><tr>");
                 out.println("<td><strong>PRODUCTION</strong></td><td><input name='production' type='text' id='production' value='"+gi.getProduction()+"' readonly></td><td>&nbsp;</td>");
-                out.println("<td><strong>DATE</strong></td><td><input name='date' type='text' id='date' value='"+gi.getDate()+"' readonly></td><td>&nbsp;</td>");
+                out.println("<td><strong>DATE</strong></td><td><input name='date' type='text' id='date' value='"+gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()+"' readonly></td><td>&nbsp;</td>");
                 out.println("<td><strong>DAY</strong></td><td><input name='weekday' type='text' id='weekday' value='"+gi.getWeekday()+"' readonly></td>");
 				out.println("</tr></table></td></tr>");
 					
@@ -167,7 +166,112 @@ function getParameters(){
 				out.println("</tr></table></td></tr>");
 					
 				out.println("<tr><td>&nbsp;</td></tr>");
-				%>
+				
+				if(request.getParameter("Submission") != null){
+					
+					int count = Integer.parseInt(request.getParameter("count"));
+					
+					TechInfoType thi = new TechInfoType();
+					thi.setSampleRate(request.getParameter("sample_rate"));
+					thi.setBitRate(request.getParameter("bit_rate"));
+					thi.setTimeCodeDF(request.getParameter("timecode"));
+					thi.setTimeCodeSource(request.getParameter("timecode_source"));
+					thi.setRefTone(request.getParameter("ref_tone"));
+					
+					if (request.getParameter("user_bits")== "true"){
+						thi.setUserBits(true);
+					}
+					else{
+						thi.setUserBits(false);
+					}
+					
+					thi.setSoundMixer(request.getParameter("sound_mixer"));
+					thi.setCameraFrameRate(request.getParameter("camera_frame_rate"));
+					thi.setMediaFormat(request.getParameter("media_format"));
+					thi.setRecorder(request.getParameter("recorder"));
+					thi.setTransferTo(request.getParameter("transfer_to"));
+
+					Map<String,SceneInfoType> scenes = new TreeMap<String,SceneInfoType>();
+					Map<String,SlateInfoType> slates = new TreeMap<String,SlateInfoType>();
+					
+					SlateInfoType tempSlate = null;
+					String tempSlateNO = null;
+					String tempSceneNOSlateNO = null;
+					
+					SceneInfoType tempScene = null;
+					String tempSceneNO = null;
+					
+					for (int i=1;i<=count;i++){//takes are ordered within each slate. Slates are backwards ordered. Scenes are backwards ordered.
+						TakeInfoType ti = new TakeInfoType();
+						ti.setTake(new BigInteger(request.getParameter("take_"+i)));
+						ti.setTimecode(XMLGregorianCalendarImpl.parse(request.getParameter("timecode_"+i)));
+						ti.setRemarks(request.getParameter("remarks_"+i));
+						ti.setCamRoll(request.getParameter("cam_roll_"+i));
+								
+						tempSceneNO=request.getParameter("scene_"+i);
+						tempSlateNO=request.getParameter("slate_"+i);
+						tempSceneNOSlateNO=tempSceneNO+"\t"+tempSlateNO;//concatenation of tempSceneNO and tempSlateNO. The token separator is "\t"
+						
+						tempSlate=slates.get(tempSceneNOSlateNO);
+						
+						if (tempSlate==null){
+							SlateInfoType si = new SlateInfoType();
+							si.setSlate(new BigInteger(tempSlateNO));
+							si.getTakeInfo().add(ti);
+							slates.put(tempSceneNOSlateNO, si);//add the newly created slate into the "slates" map
+						}
+						else{//the slateNO already exists
+							tempSlate.getTakeInfo().add(ti);
+						}
+					}
+					
+					for (String key : slates.keySet()){//adds slates to relative scenes
+						StringTokenizer st = new StringTokenizer(key);
+						tempSceneNO=st.nextToken();
+						tempScene=scenes.get(tempSceneNO);
+						
+						if (tempScene==null){
+							SceneInfoType sci = new SceneInfoType();
+							sci.setScene(tempSceneNO);
+							sci.getSlateInfo().add(slates.get(key));//retrieves the slate associated to the current scene
+							scenes.put(tempSceneNO, sci);
+						}
+						else{//the sceneNO already exists
+							tempScene.getSlateInfo().add(slates.get(key));
+						}
+					}
+					
+					List<SceneInfoType> scl = new ArrayList<SceneInfoType>(scenes.values());//creates a list of the scenes and add it to the continuityInfo facade
+					SoundInfoType sit = new SoundInfoType();
+					
+					sit.setSoundRoll(new BigInteger(request.getParameter("sound_roll")));
+					sit.setTechInfo(thi);
+					sit.getSceneInfo().addAll(scl);
+					
+					foss.setSoundInfo(sit);
+					
+					Marshaller m = jc.createMarshaller();
+				    m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
+				    //m.marshal( fossElement, new File("./webapps/JSP/soundSheets.xml") );//output to file
+				    
+					ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
+				    m.marshal(fossElement, xmlOS);//out to ByteArray
+					String result = xmlOS.toString().replaceAll("ns2:", "");
+				    
+					//System.out.println(result);
+				    
+				    String workItemID = new String(request.getParameter("workItemID"));
+				    String sessionHandle = new String(request.getParameter("sessionHandle"));
+				    String userID = new String(request.getParameter("userID"));
+				    String submit = new String(request.getParameter("submit"));
+				    
+		    	    session.setAttribute("inputData", result);
+				    
+				    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit));
+				    return;
+				    //InterfaceD_XForm idx = new InterfaceD_XForm(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result);
+				}
+%>
 
 	<tr><td>&nbsp;</td></tr>
 	
@@ -211,7 +315,7 @@ function getParameters(){
 	</tr>
 	<tr>
 		<td align="center"><strong>CAMERA FRAME RATE</strong></td>
-		<td align="center"><strong>TRANSFER TO </strong></td>
+		<td align="center"><strong>TRANSFER TO</strong></td>
 	</tr>
 	<tr>
 	    <th colspan="2" align="left">TIMECODE SOURCE<input name="timecode_source" type="text" id="timecode_source"></th>
@@ -250,113 +354,14 @@ function getParameters(){
 	</tr>
 		<tr><td>
 			<input type="button" value="Insert Row" onClick="addRow();">
-			<input type="hidden" name="count" id="count" value="1">
+			<input type="hidden" name="count" id="count" value="1"/>
 			<input type="hidden" name="workItemID" id="workItemID"/>
 			<input type="hidden" name="userID" id="userID"/>
 			<input type="hidden" name="sessionHandle" id="sessionHandle"/>
-			<input type="hidden" name="specID" id="specID"/>
 			<input type="hidden" name="submit" id="submit"/>
 		</td></tr>
   </table>
-  <p><input type="submit" name="Submission" value="Submission"></p>
+  <p><input type="submit" name="Submission" value="Submission"/></p>
 </form>
-
-<% 
-if(request.getParameter("Submission") != null){
-	
-	int count = Integer.parseInt(request.getParameter("count"));
-	
-	TechInfoType thi = new TechInfoType();
-	thi.setSampleRate(request.getParameter("sample_rate"));
-	thi.setBitRate(request.getParameter("bit_rate"));
-	thi.setTimeCodeDF(request.getParameter("timecode"));
-	thi.setTimeCodeSource(request.getParameter("timecode_source"));
-	thi.setRefTone(request.getParameter("ref_tone"));
-	if (request.getParameter("user_bits")== "true")
-			thi.setUserBits(true);
-		else
-			thi.setUserBits(false);
-	thi.setSoundMixer(request.getParameter("sound_mixer"));
-	thi.setCameraFrameRate(request.getParameter("camera_frame_rate"));
-	thi.setMediaFormat(request.getParameter("media_format"));
-	thi.setRecorder(request.getParameter("recorder"));
-	thi.setTransferTo(request.getParameter("transfer_to"));
-
-	Map<String,SceneInfoType> scenes = new TreeMap<String,SceneInfoType>();
-	Map<String,SlateInfoType> slates = new TreeMap<String,SlateInfoType>();
-	
-	SlateInfoType tempSlate = null;
-	String tempSlateNO = null;
-	String tempSceneNOSlateNO = null;
-	
-	SceneInfoType tempScene = null;
-	String tempSceneNO = null;
-	
-	for (int i=1;i<=count;i++){//takes are ordered within each slate. Slates are backwards ordered. Scenes are backwards ordered.
-		TakeInfoType ti = new TakeInfoType();
-		ti.setTake(new BigInteger(request.getParameter("take_"+i)));
-		ti.setTimecode(XMLGregorianCalendarImpl.parse(request.getParameter("timecode_"+i)));
-		ti.setRemarks(request.getParameter("remarks_"+i));
-		ti.setCamRoll(request.getParameter("cam_roll_"+i));
-				
-		tempSceneNO=request.getParameter("scene_"+i);
-		tempSlateNO=request.getParameter("slate_"+i);
-		tempSceneNOSlateNO=tempSceneNO+"\t"+tempSlateNO;//concatenation of tempSceneNO and tempSlateNO. The token separator is "\t"
-		
-		tempSlate=slates.get(tempSceneNOSlateNO);
-		if (tempSlate==null){
-			SlateInfoType si = new SlateInfoType();
-			si.setSlate(new BigInteger(tempSlateNO));
-			si.getTakeInfo().add(ti);
-			slates.put(tempSceneNOSlateNO, si);//add the newly created slate into the "slates" map
-		}
-		else{//the slateNO already exists
-			tempSlate.getTakeInfo().add(ti);
-		}
-	}
-	for (String key : slates.keySet()){//adds slates to relative scenes
-		StringTokenizer st = new StringTokenizer(key);
-		tempSceneNO=st.nextToken();
-		
-		tempScene=scenes.get(tempSceneNO);
-		if (tempScene==null){
-			SceneInfoType sci = new SceneInfoType();
-			sci.setScene(tempSceneNO);
-			sci.getSlateInfo().add(slates.get(key));//retrieves the slate associated to the current scene
-			scenes.put(tempSceneNO, sci);
-		}
-		else{//the sceneNO already exists
-			tempScene.getSlateInfo().add(slates.get(key));
-		}
-	}
-	List<SceneInfoType> scl = new ArrayList<SceneInfoType>(scenes.values());//creates a list of the scenes and add it to the continuityInfo facade
-	SoundInfoType sit = new SoundInfoType();
-	
-	sit.setSoundRoll(new BigInteger(request.getParameter("sound_roll")));
-	sit.setTechInfo(thi);
-	sit.getSceneInfo().addAll(scl);
-	
-	foss.setSoundInfo(sit);
-	
-	Marshaller m = jc.createMarshaller();
-    m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-    //m.marshal( fossElement, new File("./webapps/JSP/soundSheets.xml") );//output to file
-    
-	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-    m.marshal(fossElement, xmlOS);//out to ByteArray
-	String result = xmlOS.toString().replaceAll("ns2:", "");
-    
-	System.out.println(result);
-    
-    String workItemID = new String(request.getParameter("workItemID"));
-    String sessionHandle = new String(request.getParameter("sessionHandle"));
-    String userID = new String(request.getParameter("userID"));
-    String submit = new String(request.getParameter("submit"));
-    
-    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result));
-    //InterfaceD_XForm idx = new InterfaceD_XForm(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result);
-
-}
-%>
 </body>
 </html>
