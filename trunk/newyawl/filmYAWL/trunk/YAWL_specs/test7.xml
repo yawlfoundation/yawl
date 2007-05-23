@@ -1,0 +1,977 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="FSP_v2_070503-1.ywl">
+    <metaData>
+      <title>Film Shooting Process</title>
+      <creator>ouyang</creator>
+      <description>Daily Film Shooting Documents Production Process (data+/resource-)</description>
+      <version>2.0</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema">
+      <complexType name="crewMemberType">
+        <sequence>
+          <element name="producer" type="string" />
+          <element name="director" type="string" />
+          <element name="productionManager" type="string" />
+          <element name="directorOfPhotography" type="string" />
+          <element name="editor" type="string" />
+          <element name="continuity" type="string" />
+          <element name="soundRecordist" type="string" />
+          <element name="cameraOperator" type="string" />
+          <element name="cameraAssistant" type="string" />
+          <element name="assistantDirector" type="string" />
+        </sequence>
+      </complexType>
+      <complexType name="generalInfoType">
+        <sequence>
+          <element name="production" type="string" />
+          <element name="date" type="date" />
+          <element name="weekday" type="string" />
+          <element name="shootDayNo" type="integer" />
+        </sequence>
+      </complexType>
+      <complexType name="continuityInfoType">
+        <sequence>
+          <element maxOccurs="unbounded" name="sceneInfo">
+            <complexType>
+              <sequence>
+                <element name="scene" type="string" />
+                <element maxOccurs="unbounded" name="slateInfo">
+                  <complexType>
+                    <sequence>
+                      <element name="slate" type="integer" />
+                      <element maxOccurs="unbounded" name="takeInfo">
+                        <complexType>
+                          <sequence>
+                            <element name="take" type="integer" />
+                            <element name="duration" type="time" />
+                            <element name="print" type="boolean" />
+                            <element name="comments" type="string" />
+                            <element name="camRoll" type="string" />
+                            <element name="soundRoll" type="integer" />
+                          </sequence>
+                        </complexType>
+                      </element>
+                    </sequence>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+        </sequence>
+      </complexType>
+      <complexType name="soundInfoType">
+        <sequence>
+          <element name="soundRoll" type="integer" />
+          <element name="techInfo">
+            <complexType>
+              <sequence>
+                <element name="sampleRate" type="string" />
+                <element name="bitRate" type="string" />
+                <element name="timeCode_DF" type="string" />
+                <element name="timeCodeSource" type="string" />
+                <element name="refTone" type="string" />
+                <element name="userBits" type="boolean" />
+                <element name="soundMixer" type="string" />
+                <element name="cameraFrameRate" type="string" />
+                <element name="mediaFormat" type="string" />
+                <element name="recorder" type="string" />
+                <element name="transferTo" type="string" />
+              </sequence>
+            </complexType>
+          </element>
+          <element maxOccurs="unbounded" name="sceneInfo">
+            <complexType>
+              <sequence>
+                <element name="scene" type="string" />
+                <element maxOccurs="unbounded" name="slateInfo">
+                  <complexType>
+                    <sequence>
+                      <element name="slate" type="integer" />
+                      <element maxOccurs="unbounded" name="takeInfo">
+                        <complexType>
+                          <sequence>
+                            <element name="take" type="integer" />
+                            <element name="timecode" type="time" />
+                            <element name="remarks" type="string" />
+                            <element name="camRoll" type="string" />
+                          </sequence>
+                        </complexType>
+                      </element>
+                    </sequence>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+        </sequence>
+      </complexType>
+      <complexType name="cameraInfoType">
+        <sequence>
+          <element name="sheetNumber" type="integer" />
+          <element name="projectNumber" type="string" />
+          <element name="studios_location" type="string" />
+          <element name="techInfo">
+            <complexType>
+              <sequence>
+                <element name="cameraType_and_Number" type="string" />
+                <element name="stockNumber" type="string" />
+                <element name="emulsion" type="string" />
+                <element name="camRoll" type="string" />
+                <element name="totalCansNumber" type="integer" />
+                <element name="magNumber" type="string" />
+              </sequence>
+            </complexType>
+          </element>
+          <element maxOccurs="unbounded" name="slateInfo">
+            <complexType>
+              <sequence>
+                <element name="slate" type="integer" />
+                <element maxOccurs="unbounded" name="takeInfo">
+                  <complexType>
+                    <sequence>
+                      <element name="take" type="integer" />
+                      <element name="counter" type="integer" />
+                      <element name="length" type="integer" />
+                      <element name="print" type="boolean" />
+                      <element name="printSetting" type="string" />
+                      <element name="essentialInfo" type="string" />
+                    </sequence>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+          <element name="camInfoSum_1">
+            <complexType>
+              <sequence>
+                <element name="footageLoaded" type="integer" />
+                <element name="totalExposed" type="integer" />
+                <element name="shortEnds" type="integer" />
+                <element name="waste" type="integer" />
+              </sequence>
+            </complexType>
+          </element>
+          <element name="camInfoSum_2">
+            <complexType>
+              <sequence>
+                <element name="totalExposed" type="integer" />
+                <element name="totalDeveloped" type="integer" />
+                <element name="totalPrinted" type="integer" />
+                <element name="heldOrNotSent" type="integer" />
+              </sequence>
+            </complexType>
+          </element>
+          <element name="camInfoSum_3">
+            <complexType>
+              <sequence>
+                <element name="totalFTGE_prevDrawn" type="integer" />
+                <element name="footageDRN_today" type="integer" />
+                <element name="previouslyExposed" type="integer" />
+                <element name="exposedToday" type="integer" />
+              </sequence>
+            </complexType>
+          </element>
+          <element name="instructionsToLab" type="string" />
+          <element name="signatureOfCameraAssistant" type="string" />
+        </sequence>
+      </complexType>
+      <complexType name="timeSheetInfoType">
+        <sequence>
+          <element name="artistTimeSheet">
+            <complexType>
+              <sequence>
+                <element maxOccurs="unbounded" name="singleArtist">
+                  <complexType>
+                    <sequence>
+                      <element name="artist" type="string" />
+                      <element name="P_U" type="string" />
+                      <element name="MU_WD_Call_scheduled" type="time" />
+                      <element name="MU_WD_Call_actualArrival" type="time" />
+                      <element name="mealBreak" type="time" />
+                      <element name="timeWrap" type="time" />
+                      <element name="travel" type="time" />
+                      <element name="signature" type="string" />
+                    </sequence>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+          <element name="childrenTimeSheet">
+            <complexType>
+              <sequence>
+                <element maxOccurs="unbounded" name="singleChild">
+                  <complexType>
+                    <sequence>
+                      <element name="children" type="string" />
+                      <element name="P_U" type="string" />
+                      <element name="MU_WD_Call_scheduled" type="time" />
+                      <element name="MU_WD_Call_actualArrival" type="time" />
+                      <element name="mealBreak" type="time" />
+                      <element name="timeWrap" type="time" />
+                      <element name="travel" type="time" />
+                      <element name="remarks" type="string" />
+                    </sequence>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+          <element name="crewTimeSheet">
+            <complexType>
+              <sequence>
+                <element maxOccurs="unbounded" name="singleCrew">
+                  <complexType>
+                    <sequence>
+                      <element name="crew" type="string" />
+                      <element name="call_scheduled" type="time" />
+                      <element name="call_actualArrival" type="time" />
+                      <element name="mealBreak" type="time" />
+                      <element name="timeWrap" type="time" />
+                      <element name="departLoc" type="time" />
+                      <element name="remarks" type="string" />
+                    </sequence>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+          <element name="mealInfo">
+            <complexType>
+              <sequence>
+                <element maxOccurs="unbounded" name="singleMeal">
+                  <complexType>
+                    <sequence>
+                      <element name="meal" type="string" />
+                      <element name="time" type="string" />
+                      <element name="numbers" type="integer" />
+                      <element name="location" type="string" />
+                      <element name="remarks" type="string" />
+                    </sequence>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+          <element name="additionalComments" type="string" />
+          <element name="delays" type="string" />
+          <element name="accidents" type="string" />
+          <element name="majorProps_actionVehicles_extraEquipment" type="string" />
+          <element name="additionalPersonnel" type="string" />
+          <element name="generalComments" type="string" />
+        </sequence>
+      </complexType>
+    </schema>
+    <decomposition id="DPR_Production_Process" isRootNet="true" xsi:type="NetFactsType">
+      <outputParam>
+        <name>continuityInfo</name>
+        <type>continuityInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>timeSheetInfo</name>
+        <type>timeSheetInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>callSheet</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>soundInfo</name>
+        <type>soundInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>generalInfo</name>
+        <type>generalInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>cameraInfo</name>
+        <type>cameraInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <localVariable>
+        <name>callSheet</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </localVariable>
+      <localVariable>
+        <name>cameraInfo</name>
+        <type>cameraInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </localVariable>
+      <localVariable>
+        <name>changesToSchedule</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <name>changesToScript</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <name>changesToShotlist</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <name>changesToStoryBoard</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <name>continuityInfo</name>
+        <type>continuityInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </localVariable>
+      <localVariable>
+        <name>crewMember</name>
+        <type>crewMemberType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>&lt;producer&gt; Katie Shortland &lt;/producer&gt;
+&lt;director&gt; Maia Horniak &lt;/director&gt;
+&lt;productionManager&gt; Rani Seckold + Joseph McCarthy &lt;/productionManager&gt;
+&lt;directorOfPhotography&gt; Carl Roberston &lt;/directorOfPhotography&gt;
+&lt;editor&gt; Rishi Shukla &lt;/editor&gt;
+&lt;continuity&gt; John Duong &lt;/continuity&gt;
+&lt;soundRecordist&gt; Glenn Finnan &lt;/soundRecordist&gt;
+&lt;cameraOperator&gt; Unknown &lt;/cameraOperator&gt;
+&lt;cameraAssistant&gt; Unknown &lt;/cameraAssistant&gt;
+&lt;assistantDirector&gt; Unknown &lt;/assistantDirector&gt;</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>dailyProcessReport</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <name>generalInfo</name>
+        <type>generalInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </localVariable>
+      <localVariable>
+        <name>schedule</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>This is the Schedule.</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>script</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>This is the Script.</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>shotlist</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>This is the shotlist.</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>soundInfo</name>
+        <type>soundInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </localVariable>
+      <localVariable>
+        <name>startDate</name>
+        <type>date</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>2005-06-24</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>storyBoard</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>This is the StoryBoard.</initialValue>
+      </localVariable>
+      <localVariable>
+        <name>timeSheetInfo</name>
+        <type>timeSheetInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <name>shoot day start</name>
+          <flowsInto>
+            <nextElementRef id="Welcome_to_Start_Process_37" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Welcome_to_Start_Process_37">
+          <name>Welcome to Start Process</name>
+          <flowsInto>
+            <nextElementRef id="Fill_Out_Continuity_Report_36" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="Fill_Out_Camera_Sheets_40" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="Fill_Out_Sound_Sheets_39" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="Fill_Out_AD_Report_41" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;generalInfo&gt;{/Welcome_to_Start_Process/generalInfo/*}&lt;/generalInfo&gt;" />
+              <mapsTo>generalInfo</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Welcome_to_Start_Process" />
+        </task>
+        <task id="Fill_Out_Sound_Sheets_39">
+          <name>Fill Out Sound Sheets</name>
+          <flowsInto>
+            <nextElementRef id="Collect-Deliver_Sheets_to_Production_Office_38" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;producer&gt;{/DPR_Production_Process/crewMember/producer/text()}&lt;/producer&gt;" />
+              <mapsTo>producer</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;soundRecordist&gt;{/DPR_Production_Process/crewMember/soundRecordist/text()}&lt;/soundRecordist&gt;" />
+              <mapsTo>soundRecordist</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;director&gt;{/DPR_Production_Process/crewMember/director/text()}&lt;/director&gt;" />
+              <mapsTo>director</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;generalInfo&gt;{/DPR_Production_Process/generalInfo/*}&lt;/generalInfo&gt;" />
+              <mapsTo>generalInfo</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;editor&gt;{/DPR_Production_Process/crewMember/editor/text()}&lt;/editor&gt;" />
+              <mapsTo>editor</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;soundInfo&gt;{/Fill_Out_Sound_Sheets/soundInfo/*}&lt;/soundInfo&gt;" />
+              <mapsTo>soundInfo</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Fill_Out_Sound_Sheets" />
+        </task>
+        <task id="Fill_Out_Camera_Sheets_40">
+          <name>Fill Out Camera Sheets</name>
+          <flowsInto>
+            <nextElementRef id="Collect-Deliver_Sheets_to_Production_Office_38" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;producer&gt;{/DPR_Production_Process/crewMember/producer/text()}&lt;/producer&gt;" />
+              <mapsTo>producer</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;directorOfPhotography&gt;{/DPR_Production_Process/crewMember/directorOfPhotography/text()}&lt;/directorOfPhotography&gt;" />
+              <mapsTo>directorOfPhotography</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;cameraAssistant&gt;{/DPR_Production_Process/crewMember/cameraAssistant/text()}&lt;/cameraAssistant&gt;" />
+              <mapsTo>cameraAssistant</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;cameraOperator&gt;{/DPR_Production_Process/crewMember/cameraOperator/text()}&lt;/cameraOperator&gt;" />
+              <mapsTo>cameraOperator</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;director&gt;{/DPR_Production_Process/crewMember/director/text()}&lt;/director&gt;" />
+              <mapsTo>director</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;generalInfo&gt;{/DPR_Production_Process/generalInfo/*}&lt;/generalInfo&gt;" />
+              <mapsTo>generalInfo</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;cameraInfo&gt;{/Fill_Out_Camera_Sheets/cameraInfo/*}&lt;/cameraInfo&gt;" />
+              <mapsTo>cameraInfo</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Fill_Out_Camera_Sheets" />
+        </task>
+        <task id="Fill_Out_Continuity_Report_36">
+          <name>Fill Out Continuity Report</name>
+          <flowsInto>
+            <nextElementRef id="Collect-Deliver_Sheets_to_Production_Office_38" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;producer&gt;{/DPR_Production_Process/crewMember/producer/text()}&lt;/producer&gt;" />
+              <mapsTo>producer</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;directorOfPhotography&gt;{/DPR_Production_Process/crewMember/directorOfPhotography/text()}&lt;/directorOfPhotography&gt;" />
+              <mapsTo>directorOfPhotography</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;director&gt;{/DPR_Production_Process/crewMember/director/text()}&lt;/director&gt;" />
+              <mapsTo>director</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;generalInfo&gt;{/DPR_Production_Process/generalInfo/*}&lt;/generalInfo&gt;" />
+              <mapsTo>generalInfo</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;continuity&gt;{/DPR_Production_Process/crewMember/continuity/text()}&lt;/continuity&gt;" />
+              <mapsTo>continuity</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;editor&gt;{/DPR_Production_Process/crewMember/editor/text()}&lt;/editor&gt;" />
+              <mapsTo>editor</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;continuityInfo&gt;{/Fill_Out_Continuity_Report/continuityInfo/*}&lt;/continuityInfo&gt;" />
+              <mapsTo>continuityInfo</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Fill_Out_Continuity_Report" />
+        </task>
+        <task id="Fill_Out_AD_Report_41">
+          <name>Fill Out AD Report</name>
+          <flowsInto>
+            <nextElementRef id="Collect-Deliver_Sheets_to_Production_Office_38" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;producer&gt;{/DPR_Production_Process/crewMember/producer/text()}&lt;/producer&gt;" />
+              <mapsTo>producer</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;assistantDirector&gt;{/DPR_Production_Process/crewMember/assistantDirector/text()}&lt;/assistantDirector&gt;" />
+              <mapsTo>assistantDirector</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;director&gt;{/DPR_Production_Process/crewMember/director/text()}&lt;/director&gt;" />
+              <mapsTo>director</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;generalInfo&gt;{/DPR_Production_Process/generalInfo/*}&lt;/generalInfo&gt;" />
+              <mapsTo>generalInfo</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;timeSheetInfo&gt;{/Fill_Out_AD_Report/timeSheetInfo/*}&lt;/timeSheetInfo&gt;" />
+              <mapsTo>timeSheetInfo</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Fill_Out_AD_Report" />
+        </task>
+        <task id="Collect-Deliver_Sheets_to_Production_Office_38">
+          <name>Collect-Deliver Sheets (to Production Office)</name>
+          <flowsInto>
+            <nextElementRef id="Create_DPR_by_Production_Manager_10" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="Collect-Deliver_Sheets" />
+        </task>
+        <task id="Create_DPR_by_Production_Manager_10">
+          <name>Create DPR (by Production Manager)</name>
+          <flowsInto>
+            <nextElementRef id="Distribute_DPR_to_Producer_by_Line_Producer_11" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="Update_by_anyone_from_Production_Office_16" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;dailyProcessReport&gt;{/Create_DPR/DailyProgressReport/text()}&lt;/dailyProcessReport&gt;" />
+              <mapsTo>dailyProcessReport</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Create_DPR" />
+        </task>
+        <task id="Update_by_anyone_from_Production_Office_16">
+          <name>Update (by anyone from Production Office)</name>
+          <flowsInto>
+            <nextElementRef id="Fill_Out_Call_Sheet_19" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Schedule&gt;{/DPR_Production_Process/schedule/text()}&lt;/Schedule&gt;" />
+              <mapsTo>Schedule</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;StoryBoard&gt;{/DPR_Production_Process/storyBoard/text()}&lt;/StoryBoard&gt;" />
+              <mapsTo>StoryBoard</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Script&gt;{/DPR_Production_Process/script/text()}&lt;/Script&gt;" />
+              <mapsTo>Script</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Shotlist&gt;{/DPR_Production_Process/shotlist/text()}&lt;/Shotlist&gt;" />
+              <mapsTo>Shotlist</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;changesToScript&gt;{/Update/ChangesToScript/text()}&lt;/changesToScript&gt;" />
+              <mapsTo>changesToScript</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;changesToSchedule&gt;{/Update/ChangesToSchedule/text()}&lt;/changesToSchedule&gt;" />
+              <mapsTo>changesToSchedule</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;changesToShotlist&gt;{/Update/ChangesToShotlist/text()}&lt;/changesToShotlist&gt;" />
+              <mapsTo>changesToShotlist</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;changesToStoryBoard&gt;{/Update/ChangesToStoryBoard/text()}&lt;/changesToStoryBoard&gt;" />
+              <mapsTo>changesToStoryBoard</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Update" />
+        </task>
+        <task id="Distribute_DPR_to_Producer_by_Line_Producer_11">
+          <name>Distribute DPR to Producer (by Line Producer)</name>
+          <flowsInto>
+            <nextElementRef id="Distribute_DPR_to_Completion_Guarantor_by_Producer_13" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="Distribute_DPR_to_Executive_Producer_by_Producer_14" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Distribute_DPR_to_Producer" />
+        </task>
+        <task id="Fill_Out_Call_Sheet_19">
+          <name>Fill Out Call Sheet</name>
+          <flowsInto>
+            <nextElementRef id="Distribute_Call_Sheet_to_all_cast_and_crew_64" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;DailyProgressReport&gt;{/DPR_Production_Process/dailyProcessReport/text()}&lt;/DailyProgressReport&gt;" />
+              <mapsTo>DailyProgressReport</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;ChangesToStoryBoard&gt;{/DPR_Production_Process/changesToStoryBoard/text()}&lt;/ChangesToStoryBoard&gt;" />
+              <mapsTo>ChangesToStoryBoard</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;ChangesToShotlist&gt;{/DPR_Production_Process/changesToShotlist/text()}&lt;/ChangesToShotlist&gt;" />
+              <mapsTo>ChangesToShotlist</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;ChangesToSchedule&gt;{/DPR_Production_Process/changesToSchedule/text()}&lt;/ChangesToSchedule&gt;" />
+              <mapsTo>ChangesToSchedule</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;ChangesToScript&gt;{/DPR_Production_Process/changesToScript/text()}&lt;/ChangesToScript&gt;" />
+              <mapsTo>ChangesToScript</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;callSheet&gt;{/Fill_Out_Call_Sheet/CallSheet/text()}&lt;/callSheet&gt;" />
+              <mapsTo>callSheet</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Fill_Out_Call_Sheet" />
+        </task>
+        <task id="Distribute_DPR_to_Executive_Producer_by_Producer_14">
+          <name>Distribute DPR to Executive Producer (by Producer)</name>
+          <flowsInto>
+            <nextElementRef id="Finish_17" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Distribute_DPR_to_Executive_Producer" />
+        </task>
+        <task id="Distribute_DPR_to_Completion_Guarantor_by_Producer_13">
+          <name>Distribute DPR to Completion Guarantor (by Producer)</name>
+          <flowsInto>
+            <nextElementRef id="Finish_17" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Distribute_DPR_to_Completion_Guarantor" />
+        </task>
+        <task id="Finish_17">
+          <name>Finish</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <decomposesTo id="Finish" />
+        </task>
+        <task id="Distribute_Call_Sheet_to_all_cast_and_crew_64">
+          <name>Distribute Call Sheet (to all cast and crew)</name>
+          <flowsInto>
+            <nextElementRef id="Finish_17" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="Distribute_Call_Sheet" />
+        </task>
+        <outputCondition id="OutputCondition_2">
+          <name>shoot day end</name>
+        </outputCondition>
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Distribute_DPR_to_Executive_Producer" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Fill_Out_AD_Report" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>generalInfo</name>
+        <type>generalInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>producer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>director</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>assistantDirector</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>timeSheetInfo</name>
+        <type>timeSheetInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Create_DPR" xsi:type="WebServiceGatewayFactsType">
+      <outputParam>
+        <name>DailyProgressReport</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Distribute_Call_Sheet" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Fill_Out_Call_Sheet" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>DailyProgressReport</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>ChangesToShotlist</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>ChangesToSchedule</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>ChangesToStoryBoard</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>ChangesToScript</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>CallSheet</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Finish" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Distribute_DPR_to_Completion_Guarantor" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Distribute_DPR_to_Producer" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Fill_Out_Camera_Sheets" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>generalInfo</name>
+        <type>generalInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>producer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>director</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>directorOfPhotography</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>cameraOperator</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>cameraAssistant</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>cameraInfo</name>
+        <type>cameraInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Collect-Deliver_Sheets" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Fill_Out_Sound_Sheets" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>generalInfo</name>
+        <type>generalInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>producer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>director</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>editor</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>soundRecordist</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>soundInfo</name>
+        <type>soundInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Update" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>Shotlist</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Schedule</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>StoryBoard</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Script</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>ChangesToStoryBoard</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>ChangesToShotlist</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>ChangesToSchedule</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>ChangesToScript</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Fill_Out_Continuity_Report" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>generalInfo</name>
+        <type>generalInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>producer</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>director</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>directorOfPhotography</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>editor</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>continuity</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>continuityInfo</name>
+        <type>continuityInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Welcome_to_Start_Process" xsi:type="WebServiceGatewayFactsType">
+      <outputParam>
+        <name>generalInfo</name>
+        <type>generalInfoType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+
