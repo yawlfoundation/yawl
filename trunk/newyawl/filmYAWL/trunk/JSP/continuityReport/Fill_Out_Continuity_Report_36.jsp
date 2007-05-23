@@ -3,14 +3,14 @@
 
 <%@ page import="java.math.BigInteger" %>
 <%@ page import="com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl" %>
-<%@ page import="java.text.SimpleDateFormat" %>
-
 
 <%@ page import="javax.xml.bind.JAXBElement" %>
 <%@ page import="javax.xml.bind.JAXBContext" %>
 <%@ page import="javax.xml.bind.Marshaller" %>
 <%@ page import="javax.xml.bind.Unmarshaller" %>
 <%@ page import="org.yawlfoundation.sb.continuityinfo.*"%>
+<%@ page buffer="1024kb" %>
+
 <!-- %@ page import="au.edu.qut.yawl.forms.InterfaceD_XForm" % -->
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -145,7 +145,6 @@ function getParameters(){
 	document.form1.workItemID.value = getParam('workItemID');
 	document.form1.userID.value = getParam('userID');
 	document.form1.sessionHandle.value = getParam('sessionHandle');
-	document.form1.specID.value = getParam('specID');
 	document.form1.submit.value = "htmlForm";
 }
 </script>
@@ -154,9 +153,8 @@ function getParameters(){
 <body onLoad="getParameters()">
 <h1>Continuity Report</h1>
 <form name="form1" method="post" onSubmit="return getCount(this)">
-  <table width="800"  border="0">
-				<% 
-				//String xml = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><ns2:Fill_Out_Continuity_Report xmlns:ns2='http://www.yawlfoundation.org/sb/continuityInfo'><generalInfo><production>miracle</production><date>2007-05-18</date><weekday>fri</weekday><shootDayNo>4</shootDayNo></generalInfo><producer>me</producer><director>you</director><directorOfPhotography>him</directorOfPhotography><editor>her</editor><continuity>what</continuity><continuityInfo/></ns2:Fill_Out_Continuity_Report>";      
+  <table width="800" border="0">
+<% 
 				String xml = request.getParameter("outputData");
 				xml = xml.replaceAll("<Fill_Out_Continuity_Report", "<ns2:Fill_Out_Continuity_Report xmlns:ns2='http://www.yawlfoundation.org/sb/continuityInfo'");
 				xml = xml.replaceAll("</Fill_Out_Continuity_Report","</ns2:Fill_Out_Continuity_Report");
@@ -219,20 +217,16 @@ function getParameters(){
 		</tr>
 	
 		<tr><td>
-			<input type="button" value="Insert Row" onClick="addRow();">
-			<input type="hidden" name="count" id="count" value="1">
+			<input type="button" value="Insert Row" onClick="addRow();"/>
+			<input type="hidden" name="count" id="count" value="1"/>
 			<input type="hidden" name="workItemID" id="workItemID"/>
 			<input type="hidden" name="userID" id="userID"/>
 			<input type="hidden" name="sessionHandle" id="sessionHandle"/>
-			<input type="hidden" name="specID" id="specID"/>
 			<input type="hidden" name="submit" id="submit"/>
 		</td></tr>
   </table>
-  <p><input type="submit" name="Submission" value="Submission"></p>
-</form>
-
-
-<%
+  <p><input type="submit" name="Submission" value="Submission"/></p>
+</form><%
 //compiling the entered data and saving it
 if(request.getParameter("Submission") != null){
 
@@ -305,6 +299,8 @@ if(request.getParameter("Submission") != null){
     m.marshal(focrElement, xmlOS);//out to ByteArray
 	String result = xmlOS.toString().replaceAll("ns2:", "");
     
+    System.out.println("Continuity report XML: "+result);
+    
     String workItemID = new String(request.getParameter("workItemID"));
     String sessionHandle = new String(request.getParameter("sessionHandle"));
     String userID = new String(request.getParameter("userID"));
@@ -318,8 +314,11 @@ if(request.getParameter("Submission") != null){
 	// submit (submitting/suspending/saving/cancelling a workitem)
     
 	//System.out.println(result);
-	
-    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result));
+    
+    session.setAttribute("inputData", result);
+    
+    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit));
+    return;
     
     //InterfaceD_XForm idx = new InterfaceD_XForm(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result);
 	
@@ -332,7 +331,6 @@ if(request.getParameter("Submission") != null){
 	
     //idx.sendHTMLWorkItemData(parameters);
 }
-	
 %>
 </body>
 </html>

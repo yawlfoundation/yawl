@@ -10,6 +10,8 @@
 
 <%@ page import="org.yawlfoundation.sb.camerainfo.*"%>
 
+<%@ page buffer="1024kb" %>
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -45,7 +47,6 @@ var current_take_length = "take_length_" + count;
 var current_print = "print_" + count;
 var current_print_setting = "print_setting_" + count;
 var current_notes = "notes_" + count;
-
 
 row.setAttribute("valign", "top");
 
@@ -98,10 +99,10 @@ row.appendChild(cell6);
 row.appendChild(cell7);
 tbody.appendChild(row);
 //alert(row.innerHTML);
-						
 }
+
 function getCount (form) {
-document.getElementById("count").value = count;
+	document.getElementById("count").value = count;
 return true;
 }
 
@@ -126,7 +127,6 @@ function getParameters(){
 	document.form1.workItemID.value = getParam('workItemID');
 	document.form1.userID.value = getParam('userID');
 	document.form1.sessionHandle.value = getParam('sessionHandle');
-	document.form1.specID.value = getParam('specID');
 	document.form1.submit.value = "htmlForm";
 }
 </script>
@@ -136,7 +136,7 @@ function getParameters(){
 <h1>Picture Negative Camera Sheet</h1>
 <form name="form1" method="post" onSubmit="return getCount(this)">
   <table width="800"  border="0">
-  				<% 
+<% 
 				String xml = request.getParameter("outputData");
 				xml = xml.replaceAll("<Fill_Out_Camera_Sheets", "<ns2:Fill_Out_Camera_Sheets xmlns:ns2='http://www.yawlfoundation.org/sb/cameraInfo'");
 				xml = xml.replaceAll("</Fill_Out_Camera_Sheets","</ns2:Fill_Out_Camera_Sheets");
@@ -168,15 +168,117 @@ function getParameters(){
 				out.println("</tr></table></td></tr>");
 					
 				out.println("<tr><td>&nbsp;</td></tr>");
-				%>
-		
+				
+				if(request.getParameter("Submission") != null){
+					
+					int count = Integer.parseInt(request.getParameter("count"));
+
+					TechInfoType thi =  new TechInfoType();
+					thi.setCameraTypeAndNumber(request.getParameter("camera_type_number"));
+					thi.setStockNumber(request.getParameter("stock_number"));
+					thi.setEmulsion(request.getParameter("emulsion"));
+					thi.setCamRoll(request.getParameter("roll"));
+					thi.setTotalCansNumber(new BigInteger(request.getParameter("total_cans_number")));
+					thi.setMagNumber(request.getParameter("mag_number"));
+
+					CamInfoSumType1 cam1 = new CamInfoSumType1();
+					cam1.setFootageLoaded(new BigInteger(request.getParameter("footage_loaded")));
+					cam1.setTotalExposed(new BigInteger(request.getParameter("total_exposed")));
+					cam1.setShortEnds(new BigInteger(request.getParameter("short_ends")));
+					cam1.setWaste(new BigInteger(request.getParameter("waste")));
+					
+					CamInfoSumType2 cam2 = new CamInfoSumType2();
+					cam2.setTotalExposed(new BigInteger(request.getParameter("total_exposed_2")));
+					cam2.setTotalDeveloped(new BigInteger(request.getParameter("total_developed")));
+					cam2.setTotalPrinted(new BigInteger(request.getParameter("total_printed")));
+					cam2.setHeldOrNotSent(new BigInteger(request.getParameter("held_notsent")));
+					
+					CamInfoSumType3 cam3 = new CamInfoSumType3();
+					cam3.setTotalFTGEPrevDrawn(new BigInteger(request.getParameter("total_footage_prev_drawn")));
+					cam3.setFootageDRNToday(new BigInteger(request.getParameter("footage_drawn_today")));
+					cam3.setPreviouslyExposed(new BigInteger(request.getParameter("previously_exposed")));
+					cam3.setExposedToday(new BigInteger(request.getParameter("exposed_today")));
+					
+					SlateInfoType tempSlate = null;
+					String tempSlateNO = null;
+					Map<String,SlateInfoType> slates = new TreeMap<String,SlateInfoType>();
+					
+					for (int i=1;i<=count;i++){//takes are ordered within each slate. Slates are backwards ordered. Scenes are backwards ordered.
+						TakeInfoType ti = new TakeInfoType();
+						ti.setTake(new BigInteger(request.getParameter("take_"+i)));
+						ti.setCounter(new BigInteger(request.getParameter("counter_reading_"+i)));
+						ti.setLength(new BigInteger(request.getParameter("take_length_"+i)));
+						
+						if (request.getParameter("print_"+i)==null){
+							ti.setPrint(false);
+						}
+						else{
+							ti.setPrint(true);
+						}
+						
+						ti.setPrintSetting(request.getParameter("print_setting_"+i));
+						ti.setEssentialInfo(request.getParameter("notes_"+i));
+								
+						tempSlateNO=request.getParameter("slate_"+i);
+						
+						tempSlate = slates.get(tempSlateNO);
+						if (tempSlate==null){
+							SlateInfoType si = new SlateInfoType();
+							si.setSlate(new BigInteger(tempSlateNO));
+							si.getTakeInfo().add(ti);
+							slates.put(tempSlateNO, si);//add the newly created slate into the "slates" map
+						}
+						else{//the slateNO already exists
+							tempSlate.getTakeInfo().add(ti);
+						}
+					}
+					
+					List<SlateInfoType> sl = new ArrayList<SlateInfoType>(slates.values());//creates a list of the scenes and adds it to the cameraInfo facade
+					
+					CameraInfoType ci = new CameraInfoType();
+					ci.setSheetNumber(new BigInteger(request.getParameter("sheet_number")));
+					ci.setProjectNumber(request.getParameter("project_number"));
+					ci.setStudiosLocation(request.getParameter("studios_locations"));
+					ci.setTechInfo(thi);
+					ci.getSlateInfo().addAll(sl);
+					ci.setCamInfoSum1(cam1);
+					ci.setCamInfoSum2(cam2);
+					ci.setCamInfoSum3(cam3);
+					ci.setInstructionsToLab(request.getParameter("instructions"));
+					ci.setSignatureOfCameraAssistant(request.getParameter("assistant_signature"));
+					
+					focs.setCameraInfo(ci);
+					
+					Marshaller m = jc.createMarshaller();
+				    m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
+				    //m.marshal( focsElement, new File("./webapps/JSP/cameraSheets.xml") );//output to file
+				    
+					ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
+				    m.marshal(focsElement, xmlOS);//out to ByteArray
+					String result = xmlOS.toString().replaceAll("ns2:", "");
+				    
+				    System.out.println("Camera Sheet XML: "+result);
+				    
+				    String workItemID = new String(request.getParameter("workItemID"));
+				    String sessionHandle = new String(request.getParameter("sessionHandle"));
+				    String userID = new String(request.getParameter("userID"));
+				    String submit = new String(request.getParameter("submit"));
+				    
+		    	    session.setAttribute("inputData", result);
+				    
+				    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit));
+				    return;
+				    
+				    //idx.sendHTMLWorkItemData(parameters);
+				}
+%>
 	<tr><td>&nbsp;</td></tr>
   
 	<tr>
 		<td>
 			<table width="800">
 				<tr>
-					<td><strong>SHEET NUMBER </strong></td>
+					<td><strong>SHEET NUMBER</strong></td>
 					<td><input name="sheet_number" type="text" id="sheet_number"></td>
 				</tr>
 			</table>
@@ -189,15 +291,15 @@ function getParameters(){
 		<td>
 			<table width="800">
 				<tr>
-					<td><strong>PROJECT NUMBER </strong></td>
+					<td><strong>PROJECT NUMBER</strong></td>
 					<td><input name="project_number" type="text" id="project_number"></td>
 					<td><strong>DATE</strong></td>
 					<td><input name="date" type="text" id="date"></td>
 				</tr>
 				<tr>
-					<td><strong>PRODUCTION TITLE </strong></td>
+					<td><strong>PRODUCTION TITLE</strong></td>
 					<td><input name="production_title" type="text" id="production_title"></td>
-					<td><strong>CAMERA TYPE AND NUMBER </strong></td>
+					<td><strong>CAMERA TYPE AND NUMBER</strong></td>
 					<td><input name="camera_type_number" type="text" id="camera_type_number"></td>
 				</tr>
 				<tr>
@@ -213,19 +315,19 @@ function getParameters(){
 					<td><input name="emulsion" type="text" id="emulsion"></td>
 				</tr>
 				<tr>
-					<td><strong>DIRECTOR OF PHOTOGRAPHY </strong></td>
+					<td><strong>DIRECTOR OF PHOTOGRAPHY</strong></td>
 					<td><input name="directory_photography" type="text" id="directory_photography"></td>
 					<td><strong>ROLL NUMBER</strong></td>
 					<td><input name="roll" type="text" id="roll"></td>
 				</tr>
 				<tr>
-					<td><strong>CAMERA OPERATOR </strong></td>
+					<td><strong>CAMERA OPERATOR</strong></td>
 					<td><input name="camera_operator" type="text" id="camera_operator"></td>
-					<td><strong>TOTAL CANS NUMBER </strong></td>
+					<td><strong>TOTAL CANS NUMBER</strong></td>
 					<td><input name="total_cans_number" type="text" id="total_cans_number"></td>
 				</tr>
 				<tr>
-				  <td><strong>CAMERA ASSISTANT </strong></td>
+				  <td><strong>CAMERA ASSISTANT</strong></td>
 				  <td><input name="camera_assistant" type="text" id="camera_assistant"></td>
 				  <td><strong>MAG NUMBER(S)</strong></td>
 				  <td><input name="mag_number" type="text" id="mag_number"></td>
@@ -241,10 +343,10 @@ function getParameters(){
 			<table width="800" id="table1">
 				<tbody>
 					<tr valign="top">
-						<td><strong>SLATE NUMBER </strong></td>
-						<td><strong>TAKE NUMBER </strong></td>
+						<td><strong>SLATE NUMBER</strong></td>
+						<td><strong>TAKE NUMBER</strong></td>
 						<td><strong>COUNTER READING</strong></td>
-						<td><strong>TAKE LENGTH </strong></td>
+						<td><strong>TAKE LENGTH</strong></td>
 						<td><strong>PRINT</strong></td>
 						<td><strong>PRINT SETTING</strong></td>
 						<td><strong>ESSENTIAL INFORMATION/ GENERAL NOTES<br>
@@ -265,8 +367,10 @@ function getParameters(){
 		</td>
 	</tr>
 	
-	<tr><td><input type="button" value="Insert Row" onClick="addRow();">
-	  <input name="End" type="button" id="End" value="End"></td></tr>
+	<tr><td>
+		<input type="button" value="Insert Row" onClick="addRow();"/>
+	  	<input name="End" type="button" id="End" value="End"/>
+	</td></tr>
 	
 	<tr><td>&nbsp;</td></tr>
 	
@@ -274,16 +378,16 @@ function getParameters(){
 		<td>
 			<table width="800">
 				<tr>
-					<td><strong>TOTAL EXPOSED </strong></td>
+					<td><strong>TOTAL EXPOSED</strong></td>
 					<td><input name="total_exposed" type="text" id="total_exposed" size="10"></td>
-					<td><strong>TOTAL EXPOSED </strong></td>
+					<td><strong>TOTAL EXPOSED</strong></td>
 					<td><input name="total_exposed_2" type="text" id="total_exposed_2" size="10"></td>
-					<td><strong>TOTAL FTGE PREV DRAWN </strong></td>
+					<td><strong>TOTAL FTGE PREV DRAWN</strong></td>
 					<td><input name="total_footage_prev_drawn" type="text" id="total_footage_prev_drawn" size="10"></td>
 					<td><strong>INSTRUCTIONS TO LABORATORY</strong></td>
 				</tr>
 				<tr>
-					<td><strong>SHORT ENDS </strong></td>
+					<td><strong>SHORT ENDS</strong></td>
 					<td><input name="short_ends" type="text" id="short_ends" size="10"></td>
 					<td><strong>TOTAL DEVELOPED</strong></td>
 					<td><input name="total_developed" type="text" id="total_developed" size="10"></td>
@@ -301,9 +405,9 @@ function getParameters(){
 					<td><input name="assistant_signature" type="text" id="assistant_signature"></td>
 				</tr>
 				<tr>
-					<td><strong>FOOTAGE (LOADED) </strong></td>
+					<td><strong>FOOTAGE (LOADED)</strong></td>
 					<td><input name="footage_loaded" type="text" id="footage_loaded" size="10"></td>
-					<td><strong>HELD OR NOT SENT </strong></td>
+					<td><strong>HELD OR NOT SENT</strong></td>
 					<td><input name="held_notsent" type="text" id="held_notsent" size="10"></td>
 					<td><strong>EXPOSED TODAY</strong></td>
 					<td><input name="exposed_today" type="text" id="exposed_today" size="10"></td>
@@ -314,110 +418,14 @@ function getParameters(){
 	</tr>
 	
    	<tr><td>
-			<input type="hidden" name="count" id="count" value="1">
-			<input type="hidden" name="workItemID" id="workItemID"/>
-			<input type="hidden" name="userID" id="userID"/>
-			<input type="hidden" name="sessionHandle" id="sessionHandle"/>
-			<input type="hidden" name="specID" id="specID"/>
-			<input type="hidden" name="submit" id="submit"/>
-		</td></tr>
+		<input type="hidden" name="count" id="count" value="1"/>
+		<input type="hidden" name="workItemID" id="workItemID"/>
+		<input type="hidden" name="userID" id="userID"/>
+		<input type="hidden" name="sessionHandle" id="sessionHandle"/>
+		<input type="hidden" name="submit" id="submit"/>
+	</td></tr>
   </table>
-  <p><input type="submit" name="Submission" value="Submission"></p>      
+  <p><input type="submit" name="Submission" value="Submission"/></p>
 </form>
-<% 
-if(request.getParameter("Submission") != null){
-	
-	int count = Integer.parseInt(request.getParameter("count"));
-
-	TechInfoType thi =  new TechInfoType();
-	thi.setCameraTypeAndNumber(request.getParameter("camera_type_number"));
-	thi.setStockNumber(request.getParameter("stock_number"));
-	thi.setEmulsion(request.getParameter("emulsion"));
-	thi.setCamRoll(request.getParameter("roll"));
-	thi.setTotalCansNumber(new BigInteger(request.getParameter("total_cans_number")));
-	thi.setMagNumber(request.getParameter("mag_number"));
-
-	CamInfoSumType1 cam1 = new CamInfoSumType1();
-	cam1.setFootageLoaded(new BigInteger(request.getParameter("footage_loaded")));
-	cam1.setTotalExposed(new BigInteger(request.getParameter("total_exposed")));
-	cam1.setShortEnds(new BigInteger(request.getParameter("short_ends")));
-	cam1.setWaste(new BigInteger(request.getParameter("waste")));
-	
-	CamInfoSumType2 cam2 = new CamInfoSumType2();
-	cam2.setTotalExposed(new BigInteger(request.getParameter("total_exposed_2")));
-	cam2.setTotalDeveloped(new BigInteger(request.getParameter("total_developed")));
-	cam2.setTotalPrinted(new BigInteger(request.getParameter("total_printed")));
-	cam2.setHeldOrNotSent(new BigInteger(request.getParameter("held_notsent")));
-	
-	CamInfoSumType3 cam3 = new CamInfoSumType3();
-	cam3.setTotalFTGEPrevDrawn(new BigInteger(request.getParameter("total_footage_prev_drawn")));
-	cam3.setFootageDRNToday(new BigInteger(request.getParameter("footage_drawn_today")));
-	cam3.setPreviouslyExposed(new BigInteger(request.getParameter("previously_exposed")));
-	cam3.setExposedToday(new BigInteger(request.getParameter("exposed_today")));
-	
-	SlateInfoType tempSlate = null;
-	String tempSlateNO = null;
-	Map<String,SlateInfoType> slates = new TreeMap<String,SlateInfoType>();
-	
-	for (int i=1;i<=count;i++){//takes are ordered within each slate. Slates are backwards ordered. Scenes are backwards ordered.
-		TakeInfoType ti = new TakeInfoType();
-		ti.setTake(new BigInteger(request.getParameter("take_"+i)));
-		ti.setCounter(new BigInteger(request.getParameter("counter_reading_"+i)));
-		ti.setLength(new BigInteger(request.getParameter("take_length_"+i)));
-		if (request.getParameter("print_"+i)==null)
-			ti.setPrint(false);
-		else
-			ti.setPrint(true);
-		ti.setPrintSetting(request.getParameter("print_setting_"+i));
-		ti.setEssentialInfo(request.getParameter("notes_"+i));
-				
-		tempSlateNO=request.getParameter("slate_"+i);
-		
-		tempSlate = slates.get(tempSlateNO);
-		if (tempSlate==null){
-			SlateInfoType si = new SlateInfoType();
-			si.setSlate(new BigInteger(tempSlateNO));
-			si.getTakeInfo().add(ti);
-			slates.put(tempSlateNO, si);//add the newly created slate into the "slates" map
-		}
-		else{//the slateNO already exists
-			tempSlate.getTakeInfo().add(ti);
-		}
-	}
-	
-	List<SlateInfoType> sl = new ArrayList<SlateInfoType>(slates.values());//creates a list of the scenes and adds it to the cameraInfo facade
-	
-	CameraInfoType ci = new CameraInfoType();
-	ci.setSheetNumber(new BigInteger(request.getParameter("sheet_number")));
-	ci.setProjectNumber(request.getParameter("project_number"));
-	ci.setStudiosLocation(request.getParameter("studios_locations"));
-	ci.setTechInfo(thi);
-	ci.getSlateInfo().addAll(sl);
-	ci.setCamInfoSum1(cam1);
-	ci.setCamInfoSum2(cam2);
-	ci.setCamInfoSum3(cam3);
-	ci.setInstructionsToLab(request.getParameter("instructions"));
-	ci.setSignatureOfCameraAssistant(request.getParameter("assistant_signature"));
-	
-	focs.setCameraInfo(ci);
-	
-	Marshaller m = jc.createMarshaller();
-    m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-    //m.marshal( focsElement, new File("./webapps/JSP/cameraSheets.xml") );//output to file
-    
-	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-    m.marshal(focsElement, xmlOS);//out to ByteArray
-	String result = xmlOS.toString().replaceAll("ns2:", "");
-    
-    String workItemID = new String(request.getParameter("workItemID"));
-    String sessionHandle = new String(request.getParameter("sessionHandle"));
-    String userID = new String(request.getParameter("userID"));
-    String submit = new String(request.getParameter("submit"));
-    
-	System.out.println(result);
-	
-    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result));
-}
-%>
 </body>
 </html>

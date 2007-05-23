@@ -3,13 +3,13 @@
 <%@ page import="java.math.BigInteger" %>
 <%@ page import="com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl" %>
 
-
 <%@ page import="javax.xml.bind.JAXBElement" %>
 <%@ page import="javax.xml.bind.JAXBContext" %>
 <%@ page import="javax.xml.bind.Marshaller" %>
 <%@ page import="javax.xml.bind.Unmarshaller" %>
 
 <%@ page import="org.yawlfoundation.sb.timesheetinfo.*"%>
+<%@ page buffer="1024kb" %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -20,6 +20,7 @@
 var artist_count = 1;
 var child_count = 1;
 var crew_count = 12;
+
 //function for adding artist information
 function addArtistRow()
 {
@@ -85,7 +86,6 @@ inp7.setAttribute("id", current_travel);
 inp8.setAttribute("name", current_signature);
 inp8.setAttribute("id", current_signature);
 
-
 cell1.appendChild(inp1);
 cell2.appendChild(inp2);
 cell3.appendChild(inp3);
@@ -105,11 +105,10 @@ row.appendChild(cell7);
 row.appendChild(cell8);
 tbody.appendChild(row);
 //alert(row.innerHTML);
-
 }
+
 //function for adding child information
-function addChildRow()
-{
+function addChildRow(){
 var tbody = document.getElementById("child").getElementsByTagName("tbody")[0];
 var row = document.createElement("TR");
 var cell1 = document.createElement("TD");
@@ -172,7 +171,6 @@ inp7.setAttribute("id", current_travel);
 inp8.setAttribute("name", current_remarks);
 inp8.setAttribute("id", current_remarks);
 
-
 cell1.appendChild(inp1);
 cell2.appendChild(inp2);
 cell3.appendChild(inp3);
@@ -192,10 +190,9 @@ row.appendChild(cell7);
 row.appendChild(cell8);
 tbody.appendChild(row);
 //alert(row.innerHTML);
-
 }
-function addCrewRow()
-{
+
+function addCrewRow(){
 var tbody = document.getElementById("crew").getElementsByTagName("tbody")[0];
 var row = document.createElement("TR");
 var cell1 = document.createElement("TD");
@@ -252,8 +249,6 @@ inp6.setAttribute("id", current_departloc);
 inp7.setAttribute("name", current_remarks);
 inp7.setAttribute("id", current_remarks);
 
-
-
 cell1.appendChild(inp1);
 cell2.appendChild(inp2);
 cell3.appendChild(inp3);
@@ -271,7 +266,6 @@ row.appendChild(cell6);
 row.appendChild(cell7);
 tbody.appendChild(row);
 //alert(row.innerHTML);
-
 }
 
 function getCounts (form) {
@@ -281,8 +275,7 @@ document.getElementById("crew_count").value = crew_count;
 return true;
 }
 
-function getParam(name)
-{
+function getParam(name){
   var start=location.search.indexOf("?"+name+"=");
   if (start<0) start=location.search.indexOf("&"+name+"=");
   if (start<0) return '';
@@ -302,14 +295,10 @@ function getParameters(){
 	document.form1.workItemID.value = getParam('workItemID');
 	document.form1.userID.value = getParam('userID');
 	document.form1.sessionHandle.value = getParam('sessionHandle');
-	document.form1.specID.value = getParam('specID');
 	document.form1.submit.value = "htmlForm";
 }
 
 </script>
-
-
-
 </head>
 
 <body onLoad="getParameters()">
@@ -321,7 +310,6 @@ function getParameters(){
 				String xml = request.getParameter("outputData");
 				xml = xml.replaceAll("<Fill_Out_AD_Report", "<ns2:Fill_Out_AD_Report xmlns:ns2='http://www.yawlfoundation.org/sb/timeSheetInfo'");
 				xml = xml.replaceAll("</Fill_Out_AD_Report","</ns2:Fill_Out_AD_Report");
-				//System.out.println("JSP outputData: "+xml);
 				
 				ByteArrayInputStream xmlBA = new ByteArrayInputStream(xml.getBytes());
 				JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.timesheetinfo");
@@ -347,8 +335,108 @@ function getParameters(){
 				out.println("</tr></table></td></tr>");
 					
 				out.println("<tr><td>&nbsp;</td></tr>");
-				%>
-		
+				
+				if(request.getParameter("Submission") != null){
+
+					int artist_count = Integer.parseInt(request.getParameter("artist_count"));
+					int child_count = Integer.parseInt(request.getParameter("child_count"));
+					int crew_count = Integer.parseInt(request.getParameter("crew_count"));
+					int meal_count = Integer.parseInt(request.getParameter("meal_count"));
+					
+					ArtistTimeSheetType ats = new ArtistTimeSheetType();
+					for(int ck1=1; ck1<=artist_count; ck1++){//getting the artist information
+						SingleArtistType sa = new SingleArtistType();
+						sa.setArtist(request.getParameter("artist_"+ ck1));
+						sa.setPU(request.getParameter("artist_pu_"+ ck1));
+						sa.setMUWDCallScheduled(XMLGregorianCalendarImpl.parse(request.getParameter("artist_muwdcall_scheduled_"+ ck1)));
+						sa.setMUWDCallActualArrival(XMLGregorianCalendarImpl.parse(request.getParameter("artist_muwdcall_actual_"+ ck1)));
+						sa.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("artist_meal_"+ ck1)));
+						sa.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("artist_wrap_"+ ck1)));
+						sa.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("artist_travel_"+ ck1)));
+						sa.setSignature(request.getParameter("artist_signature_"+ ck1));
+						ats.getSingleArtist().add(sa);
+					}
+					
+					ChildrenTimeSheetType chts = new ChildrenTimeSheetType();
+					for(int ck2=1; ck2<=child_count; ck2++){//getting the children information
+						SingleChildrenType sch = new SingleChildrenType();
+						sch.setChildren(request.getParameter("children_"+ ck2));
+						sch.setPU(request.getParameter("children_pu_"+ ck2));
+						sch.setMUWDCallScheduled(XMLGregorianCalendarImpl.parse(request.getParameter("children_muwdcall_scheduled_"+ ck2)));
+						sch.setMUWDCallActualArrival(XMLGregorianCalendarImpl.parse(request.getParameter("children_muwdcall_actual_"+ ck2)));
+						sch.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("children_meal_"+ ck2)));
+						sch.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("children_wrap_"+ ck2)));
+						sch.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("children_travel_"+ ck2)));
+						sch.setRemarks(request.getParameter("children_remarks_"+ ck2));
+						chts.getSingleChildren().add(sch);
+					}
+					
+					CrewTimeSheetType cwts = new CrewTimeSheetType();
+					for(int ck3=1; ck3<=crew_count; ck3++){//getting the crew information
+						SingleCrewType scw = new SingleCrewType();
+						scw.setCrew(request.getParameter("crew_"+ ck3));
+						scw.setCallScheduled(XMLGregorianCalendarImpl.parse(request.getParameter("crew_call_scheduled_"+ ck3)));
+						scw.setCallActualArrival(XMLGregorianCalendarImpl.parse(request.getParameter("crew_call_actual_"+ ck3)));
+						scw.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("crew_meal_"+ ck3)));
+						scw.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("crew_wrap_"+ ck3)));
+						scw.setDepartLoc(XMLGregorianCalendarImpl.parse(request.getParameter("crew_departloc_"+ ck3)));
+						scw.setRemarks(request.getParameter("crew_remarks_"+ ck3));
+						cwts.getSingleCrew().add(scw);
+					}
+					
+					MealInfoType mit = new MealInfoType();
+					for(int ck4=1; ck4<=meal_count; ck4++){//getting the meal information
+						SingleMealType sm = new SingleMealType();
+						sm.setMeal(request.getParameter("meal_"+ ck4));
+						sm.setTime(request.getParameter("meal_time_"+ ck4));
+						sm.setNumbers(new BigInteger(request.getParameter("meal_numbers_"+ ck4)));
+						sm.setLocation(request.getParameter("meal_location_"+ ck4));
+						sm.setRemarks(request.getParameter("meal_remarks_"+ ck4));
+						mit.getSingleMeal().add(sm);
+					}
+					
+					TimeSheetInfoType tsi = new TimeSheetInfoType();
+					tsi.setArtistTimeSheet(ats);
+					tsi.setChildrenTimeSheet(chts);
+					tsi.setCrewTimeSheet(cwts);
+					tsi.setMealInfo(mit);
+					tsi.setAdditionalComments(request.getParameter("additonal_comments"));
+					tsi.setDelays(request.getParameter("delays"));
+					tsi.setAccidents(request.getParameter("accidents"));
+					tsi.setMajorPropsActionVehiclesExtraEquipment(request.getParameter("major_props"));
+					tsi.setAdditionalPersonnel(request.getParameter("additional_personnel"));
+					tsi.setGeneralComments(request.getParameter("general_comments"));
+					
+					foadr.setTimeSheetInfo(tsi);
+					
+					Marshaller m = jc.createMarshaller();
+				    m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
+				    //m.marshal( foadrElement, new File("./webapps/JSP/ADReport.xml") );//output to file
+				    
+					ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
+				    m.marshal(foadrElement, xmlOS);//out to ByteArray
+					String result = xmlOS.toString().replaceAll("ns2:", "");
+				    
+				    String workItemID = new String(request.getParameter("workItemID"));
+				    String sessionHandle = new String(request.getParameter("sessionHandle"));
+				    String userID = new String(request.getParameter("userID"));
+				    String submit = new String(request.getParameter("submit"));
+				    
+					// required response parameters:
+					// specID (if launching a case)
+					// workitemID (if editing a work item)
+					// sessionHandle
+					// userid
+					// submit (submitting/suspending/saving/cancelling a workitem)
+				    
+					//System.out.println(result);
+					
+		    	    session.setAttribute("inputData", result);
+				    
+				    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit));
+				    return;
+				}
+%>		
 	<tr><td>&nbsp;</td></tr>
 
 			<tr>
@@ -357,11 +445,11 @@ function getParameters(){
 						<tr>
 							<td colspan="2"><strong>PRODUCTION:</strong></td>
 							<td colspan="2"><input name="production" type="text" id="production" size="45"></td>
-							<td><strong>DAY NO. </strong></td>
+							<td><strong>DAY NO.</strong></td>
 							<td><input name="day_number" type="text" id="day_number"></td>
 						</tr>
 						<tr>
-							<td colspan="2"><strong>PRODUCTION COMPANY </strong></td>
+							<td colspan="2"><strong>PRODUCTION COMPANY</strong></td>
 							<td colspan="2"><input name="production_company" type="text" id="production_company" size="45"></td>
 							<td><strong>DAY</strong></td>
 							<td><input name="day" type="text" id="day"></td>
@@ -388,8 +476,8 @@ function getParameters(){
 						<td rowspan="2"><strong>ARTIST</strong></td>
 						<td rowspan="2"><strong>P/U</strong></td>
 						<td colspan="2"><strong>MU/WD/CALL</strong></td>
-						<td rowspan="2"><strong>MEAL BREAK </strong></td>
-						<td rowspan="2"><strong>TIME WRAP </strong></td>
+						<td rowspan="2"><strong>MEAL BREAK</strong></td>
+						<td rowspan="2"><strong>TIME WRAP</strong></td>
 						<td rowspan="2"><strong>TRAVEL</strong></td>
 						<td rowspan="2"><strong>SIGNATURE</strong></td>
 					</tr>
@@ -462,7 +550,7 @@ function getParameters(){
 						<td colspan="2"><strong>CALL</strong></td>
 						<td rowspan="2"><strong>MEAL BREAK </strong></td>
 						<td rowspan="2"><strong>WRAP</strong></td>
-						<td rowspan="2"><strong>DEPART LOC </strong></td>
+						<td rowspan="2"><strong>DEPART LOC</strong></td>
 						<td rowspan="2"><strong>REMARKS</strong></td>
 					</tr>
 					<tr valign="top">
@@ -585,10 +673,12 @@ function getParameters(){
 		
 		<tr>
 		  <td><input name="button" type="button" onClick="addCrewRow();" value="Insert Row"></td>
-		  </tr>
+		</tr>
+		
 		<tr>
 		  <td>&nbsp;</td>
-		  </tr>
+		</tr>
+		
 		<tr>
 		  <td><table width="900">
             <tr align="center" valign="top">
@@ -639,7 +729,7 @@ function getParameters(){
 		<tr><td>&nbsp;</td></tr>
 		
 		<tr>
-		  <td><strong>ADDITIONAL COMMENTS: </strong></td>
+		  <td><strong>ADDITIONAL COMMENTS:</strong></td>
 		</tr>
 		<tr><td align="center"><textarea name="additional_comments" cols="140" id="additional_comments"></textarea></td></tr>
 		
@@ -655,7 +745,7 @@ function getParameters(){
 		
 		<tr><td>&nbsp;</td></tr>
 		
-		<tr><td><strong>MAJOR PROPS/ACTION VEHICLES/EXTRA EQUIPMENT </strong></td></tr>
+		<tr><td><strong>MAJOR PROPS/ACTION VEHICLES/EXTRA EQUIPMENT</strong></td></tr>
 		<tr><td align="center"><textarea name="major_props" cols="140" id="major_props"></textarea></td></tr>
 		
 		<tr><td>&nbsp;</td></tr>
@@ -669,116 +759,17 @@ function getParameters(){
 		<tr><td align="center"><textarea name="general_comments" cols="140" id="general_comments"></textarea></td></tr>
 		</table>
 	    <p>
-		<input type="hidden" name="artist_count" id="artist_count" value="1">
-		<input type="hidden" name="child_count" id="child_count" value="1">
-		<input type="hidden" name="crew_count" id="crew_count" value="12">
-		<input type="hidden" name="meal_count" id="meal_count" value="5">
+		<input type="hidden" name="artist_count" id="artist_count" value="1"/>
+		<input type="hidden" name="child_count" id="child_count" value="1"/>
+		<input type="hidden" name="crew_count" id="crew_count" value="12"/>
+		<input type="hidden" name="meal_count" id="meal_count" value="5"/>
 		<input type="hidden" name="workItemID" id="workItemID"/>
 		<input type="hidden" name="userID" id="userID"/>
 		<input type="hidden" name="sessionHandle" id="sessionHandle"/>
 		<input type="hidden" name="specID" id="specID"/>
 		<input type="hidden" name="submit" id="submit"/>
-	    <input type="submit" name="Submission" value="Submission">
+	    <input type="submit" name="Submission" value="Submission"/>
       </p>
-	</form>
-<% 
-if(request.getParameter("Submission") != null){
-
-	int artist_count = Integer.parseInt(request.getParameter("artist_count"));
-	int child_count = Integer.parseInt(request.getParameter("child_count"));
-	int crew_count = Integer.parseInt(request.getParameter("crew_count"));
-	int meal_count = Integer.parseInt(request.getParameter("meal_count"));
-	
-	ArtistTimeSheetType ats = new ArtistTimeSheetType();
-	for(int ck1=1; ck1<=artist_count; ck1++){//getting the artist information
-		SingleArtistType sa = new SingleArtistType();
-		sa.setArtist(request.getParameter("artist_"+ ck1));
-		sa.setPU(request.getParameter("artist_pu_"+ ck1));
-		sa.setMUWDCallScheduled(XMLGregorianCalendarImpl.parse(request.getParameter("artist_muwdcall_scheduled_"+ ck1)));
-		sa.setMUWDCallActualArrival(XMLGregorianCalendarImpl.parse(request.getParameter("artist_muwdcall_actual_"+ ck1)));
-		sa.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("artist_meal_"+ ck1)));
-		sa.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("artist_wrap_"+ ck1)));
-		sa.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("artist_travel_"+ ck1)));
-		sa.setSignature(request.getParameter("artist_signature_"+ ck1));
-		ats.getSingleArtist().add(sa);
-	}
-	
-	ChildrenTimeSheetType chts = new ChildrenTimeSheetType();
-	for(int ck2=1; ck2<=child_count; ck2++){//getting the children information
-		SingleChildrenType sch = new SingleChildrenType();
-		sch.setChildren(request.getParameter("children_"+ ck2));
-		sch.setPU(request.getParameter("children_pu_"+ ck2));
-		sch.setMUWDCallScheduled(XMLGregorianCalendarImpl.parse(request.getParameter("children_muwdcall_scheduled_"+ ck2)));
-		sch.setMUWDCallActualArrival(XMLGregorianCalendarImpl.parse(request.getParameter("children_muwdcall_actual_"+ ck2)));
-		sch.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("children_meal_"+ ck2)));
-		sch.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("children_wrap_"+ ck2)));
-		sch.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("children_travel_"+ ck2)));
-		sch.setRemarks(request.getParameter("children_remarks_"+ ck2));
-		chts.getSingleChildren().add(sch);
-	}
-	
-	CrewTimeSheetType cwts = new CrewTimeSheetType();
-	for(int ck3=1; ck3<=crew_count; ck3++){//getting the crew information
-		SingleCrewType scw = new SingleCrewType();
-		scw.setCrew(request.getParameter("crew_"+ ck3));
-		scw.setCallScheduled(XMLGregorianCalendarImpl.parse(request.getParameter("crew_call_scheduled_"+ ck3)));
-		scw.setCallActualArrival(XMLGregorianCalendarImpl.parse(request.getParameter("crew_call_actual_"+ ck3)));
-		scw.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("crew_meal_"+ ck3)));
-		scw.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("crew_wrap_"+ ck3)));
-		scw.setDepartLoc(XMLGregorianCalendarImpl.parse(request.getParameter("crew_departloc_"+ ck3)));
-		scw.setRemarks(request.getParameter("crew_remarks_"+ ck3));
-		cwts.getSingleCrew().add(scw);
-	}
-	
-	MealInfoType mit = new MealInfoType();
-	for(int ck4=1; ck4<=meal_count; ck4++){//getting the meal information
-		SingleMealType sm = new SingleMealType();
-		sm.setMeal(request.getParameter("meal_"+ ck4));
-		sm.setTime(request.getParameter("meal_time_"+ ck4));
-		sm.setNumbers(new BigInteger(request.getParameter("meal_numbers_"+ ck4)));
-		sm.setLocation(request.getParameter("meal_location_"+ ck4));
-		sm.setRemarks(request.getParameter("meal_remarks_"+ ck4));
-		mit.getSingleMeal().add(sm);
-	}
-	
-	TimeSheetInfoType tsi = new TimeSheetInfoType();
-	tsi.setArtistTimeSheet(ats);
-	tsi.setChildrenTimeSheet(chts);
-	tsi.setCrewTimeSheet(cwts);
-	tsi.setMealInfo(mit);
-	tsi.setAdditionalComments(request.getParameter("additonal_comments"));
-	tsi.setDelays(request.getParameter("delays"));
-	tsi.setAccidents(request.getParameter("accidents"));
-	tsi.setMajorPropsActionVehiclesExtraEquipment(request.getParameter("major_props"));
-	tsi.setAdditionalPersonnel(request.getParameter("additional_personnel"));
-	tsi.setGeneralComments(request.getParameter("general_comments"));
-	
-	foadr.setTimeSheetInfo(tsi);
-	
-	Marshaller m = jc.createMarshaller();
-    m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-    //m.marshal( foadrElement, new File("./webapps/JSP/ADReport.xml") );//output to file
-    
-	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-    m.marshal(foadrElement, xmlOS);//out to ByteArray
-	String result = xmlOS.toString().replaceAll("ns2:", "");
-    
-    String workItemID = new String(request.getParameter("workItemID"));
-    String sessionHandle = new String(request.getParameter("sessionHandle"));
-    String userID = new String(request.getParameter("userID"));
-    String submit = new String(request.getParameter("submit"));
-    
-	// required response parameters:
-	// specID (if launching a case)
-	// workitemID (if editing a work item)
-	// sessionHandle
-	// userid
-	// submit (submitting/suspending/saving/cancelling a workitem)
-    
-	//System.out.println(result);
-	
-    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result));
-}
-%>
+</form>
 </body>
 </html>

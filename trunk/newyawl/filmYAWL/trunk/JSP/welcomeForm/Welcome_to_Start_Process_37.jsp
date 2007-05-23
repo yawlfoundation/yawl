@@ -8,7 +8,6 @@
 <%@ page import="com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 
-
 <%@ page import="javax.xml.bind.JAXBElement" %>
 <%@ page import="javax.xml.bind.JAXBContext" %>
 <%@ page import="javax.xml.bind.Marshaller" %>
@@ -20,6 +19,7 @@
 <title>Welcome to the DPR Production Process</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <script language="javascript">
+
 function getParam(name)
 {
   var start=location.search.indexOf("?"+name+"=");
@@ -58,13 +58,45 @@ function getParameters(){
 				gi.setDate(XMLGregorianCalendarImpl.parse(new SimpleDateFormat("yyyy-MM-dd").format(new Date())));
 				gi.setWeekday(new SimpleDateFormat("EEEE", Locale.ENGLISH).format(new Date()));
 			
+			    if(request.getParameter("Submission") != null){
+		    		gi.setShootDayNo(new BigInteger(request.getParameter("shoot_day")));
+		    		
+		    		WelcomeToStartProcessType wtsp = new WelcomeToStartProcessType();
+		    		wtsp.setGeneralInfo(gi);
+    		
+		    	    ObjectFactory ob = new ObjectFactory();
+		    	    JAXBElement<WelcomeToStartProcessType> wtspElement = (JAXBElement<WelcomeToStartProcessType>)ob.createWelcomeToStartProcess(wtsp);
+		    		
+		    	    ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
+		    		JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.welcometoproduction");
+		    		Marshaller m = jc.createMarshaller();
+		    	    m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
+		    	    //m.marshal( wtspElement, new File("./webapps/testing/continuity/wtsp.xml") );//output to file
+		    	    
+		    	    m.marshal(wtspElement, xmlOS);//out to ByteArray
+		    		String result = xmlOS.toString().replaceAll("ns2:", "");
+		    	    System.out.println(result);
+		    	    
+		    	    //response.getWriter().write(result);
+		    	    
+		    	    session.setAttribute("inputData", result);
+		    	    
+		    	    String workItemID = new String(request.getParameter("workItemID"));
+		    	    String sessionHandle = new String(request.getParameter("sessionHandle"));
+		    	    String userID = new String(request.getParameter("userID"));
+		    	    String submit = new String(request.getParameter("submit"));
+		    	    
+		    	    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit));
+		    	    return;
+		    	}		    	    
+
                 out.println("<td><strong>Production</strong></td><td><input name='production' type='text' id='production' value='"+gi.getProduction()+"' readonly></td><td>&nbsp;</td>");
                 out.println("<td><strong>Date</strong></td><td><input name='date' type='text' id='date' value='"+gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()+"' readonly></td><td>&nbsp;</td>");
                 out.println("<td><strong>Day</strong></td><td><input name='weekday' type='text' id='weekday' value='"+gi.getWeekday()+"' readonly></td>");
                 out.println("<td><strong>Shoot Day #</strong></td><td><input name='shoot_day' type='text' id='shoot_day'></td>");
 				out.println("</tr></table></td></tr>");	
 				
-		       try {
+		       	try {
 		            //retrieves the weather forecast for NSW Central West Slopes and Plains
 		    	    URL targetUrl =  new URL("http://www.bom.gov.au/products/IDN10062.shtml");
 		            URLConnection targetUrlCon = targetUrl.openConnection();
@@ -86,36 +118,10 @@ function getParameters(){
 		       		out.println(str);
 		       		out.println("<td><font size='2'>© Copyright Commonwealth of Australia 2007, Bureau of Meteorology (ABN 92 637 533 532)</td>");
 		       		
-		    	}catch (Exception e) {
-		    	System.out.println(e.getMessage());
-		    }
-		    if(request.getParameter("Submission") != null){
-		    		gi.setShootDayNo(new BigInteger(request.getParameter("shoot_day")));
-		    		
-		    		WelcomeToStartProcessType wtsp = new WelcomeToStartProcessType();
-		    		wtsp.setGeneralInfo(gi);
-    		
-		    	    ObjectFactory ob = new ObjectFactory();
-		    	    JAXBElement<WelcomeToStartProcessType> wtspElement = (JAXBElement<WelcomeToStartProcessType>)ob.createWelcomeToStartProcess(wtsp);
-		    		
-		    	    ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-		    		JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.welcometoproduction");
-		    		Marshaller m = jc.createMarshaller();
-		    	    m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-		    	    //m.marshal( wtspElement, new File("./webapps/testing/continuity/wtsp.xml") );//output to file
-		    	    m.marshal(wtspElement, xmlOS);//out to ByteArray
-		    		String result = xmlOS.toString().replaceAll("ns2:", "");
-		    	    System.out.println(result);
-		    	    
-		    	    String workItemID = new String(request.getParameter("workItemID"));
-		    	    String sessionHandle = new String(request.getParameter("sessionHandle"));
-		    	    String userID = new String(request.getParameter("userID"));
-		    	    String submit = new String(request.getParameter("submit"));
-		    		
-		    	    response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result));
-		    	   
-		    	}	
-		    	
+		    	}
+		       	catch (Exception e) {
+		    		System.out.println(e.getMessage());
+		    	}
 %>
 		
 	<tr><td>&nbsp;</td></tr>
