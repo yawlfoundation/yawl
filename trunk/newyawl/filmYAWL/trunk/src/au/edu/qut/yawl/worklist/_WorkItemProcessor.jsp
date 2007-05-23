@@ -43,6 +43,7 @@
                     if(submitType.equals("Add New Instance")){
                         RequestDispatcher requestDispatcher = application.getRequestDispatcher("/instanceAdder");
                         requestDispatcher.forward(request, response);
+                        return;
                     }
                 %>
                 <p>
@@ -75,6 +76,7 @@
                             session.setAttribute("outcome", outcome);
                             application.getRequestDispatcher("/validationProblem")
                                     .forward(request, response);
+                            return;
                         } 
                         else {
                             outcome = WorkListGUIUtils.removeFailureTags(outcome);
@@ -119,12 +121,14 @@
 								sessionHandle, _worklistController, userID, session.getId() );
 						
 							String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());
-							response.sendRedirect(response.encodeURL(url));						
+							response.sendRedirect(response.encodeURL(url));	
+							return;
 						} 
 						else if (request.getParameter("FormType").compareTo("HTMLform") == 0) {
 							
 							String form = wip.getHTMLFormName(taskInfo);
-				        	response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+workItemID+"&sessionHandle="+sessionHandle));
+				        	response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&outputData="+item.getDataListString()));
+				        	return;
 						}
 						else if (taskInfo.getAttribute("formtype").equalsIgnoreCase("pdf")){
 							
@@ -133,18 +137,21 @@
 	
 							String url = "http://localhost:8080/PDFforms/complete.jsp?filename="+filename;
   							response.sendRedirect( response.encodeURL(url) );
+  							return;
 						}
 
 					} catch(Exception e){
 						// if form generation fails for any reason fall back to XML itemViewer.jsp page
 						RequestDispatcher requestDispatcher = application.getRequestDispatcher("/itemViewer?error=true");
 	                    requestDispatcher.forward(request, response);
+	                    return;
 					}
                 }
                 else if ("Raise Exception".equals(submitType)){
                      if (_ixURI != null) {
                          String url = _ixURI + "/workItemException?workItemID=" + workItemID ;
                          response.sendRedirect( response.encodeURL(url) );
+                         return;
                     }
                 }        
             }

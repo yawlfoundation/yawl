@@ -29,6 +29,7 @@
 	        	// get task name and redirect to that html file
 	        	String form = wip.getHTMLFormName(specData);
                 application.getRequestDispatcher("/"+form).forward(request, response);
+                return;
 	        }
 	        else if (request.getParameter("FormType").compareTo("Xform") == 0){
 
@@ -38,6 +39,7 @@
 	
 					String url = wip.getRedirectURL(getServletContext(), specData, session.getId());
 					response.sendRedirect(response.encodeURL(url));
+					return;
 				}
 				catch(Exception e){
 		
@@ -132,6 +134,7 @@
                 if(result.indexOf("SCHEMA =") != -1){
                     session.setAttribute("outcome", result);
                     application.getRequestDispatcher("/validationProblem").forward(request, response);
+                    return;
                 }
             %>
                 <b><font color='red'>You were unsuccessful in starting a case.
