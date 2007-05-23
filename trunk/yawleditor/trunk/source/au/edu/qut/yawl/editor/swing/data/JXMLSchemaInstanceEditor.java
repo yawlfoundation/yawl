@@ -62,6 +62,13 @@ public class JXMLSchemaInstanceEditor extends ValidityEditorPane {
     validate();
   }
   
+  public void validate() {
+    if (this.variableName == null || this.variableType == null) {
+      return;
+    }
+   super.validate();
+  }
+  
   public String getTypeDefinition() {
     return "<element name=\"" + 
       this.variableName + 
