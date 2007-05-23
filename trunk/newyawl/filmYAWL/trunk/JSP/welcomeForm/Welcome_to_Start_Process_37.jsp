@@ -1,5 +1,6 @@
 <%@ page import="java.io.*" %>
 <%@ page import="java.util.Date" %>
+<%@ page import="java.util.Locale" %>
 <%@ page import="java.net.URL" %>
 <%@ page import="java.net.URLConnection" %>
 
@@ -55,11 +56,10 @@ function getParameters(){
 				GeneralInfoType gi = new GeneralInfoType();
 				gi.setProduction("Prime Mover");
 				gi.setDate(XMLGregorianCalendarImpl.parse(new SimpleDateFormat("yyyy-MM-dd").format(new Date())));
-				gi.setWeekday(new SimpleDateFormat("EEEE").format(new Date()));
+				gi.setWeekday(new SimpleDateFormat("EEEE", Locale.ENGLISH).format(new Date()));
 			
-								
                 out.println("<td><strong>Production</strong></td><td><input name='production' type='text' id='production' value='"+gi.getProduction()+"' readonly></td><td>&nbsp;</td>");
-                out.println("<td><strong>Date</strong></td><td><input name='date' type='text' id='date' value='"+gi.getDate()+"' readonly></td><td>&nbsp;</td>");
+                out.println("<td><strong>Date</strong></td><td><input name='date' type='text' id='date' value='"+gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()+"' readonly></td><td>&nbsp;</td>");
                 out.println("<td><strong>Day</strong></td><td><input name='weekday' type='text' id='weekday' value='"+gi.getWeekday()+"' readonly></td>");
                 out.println("<td><strong>Shoot Day #</strong></td><td><input name='shoot_day' type='text' id='shoot_day'></td>");
 				out.println("</tr></table></td></tr>");	
@@ -82,7 +82,7 @@ function getParameters(){
 		            str=str.replaceAll("<!--#includevirtual=\"../fwo/IDN1006_0_1_2_menu.html\" -->","");
 		       		str=str.replaceAll("                           ","   ");
 		       		str=str.replaceAll("                    ","   ");
-		       		str=str.replaceAll("Parkes :    ","\nParkes:  ");
+		       		str=str.replaceAll("Parkes :","\nParkes: ");
 		       		out.println(str);
 		       		out.println("<td><font size='2'>© Copyright Commonwealth of Australia 2007, Bureau of Meteorology (ABN 92 637 533 532)</td>");
 		       		
