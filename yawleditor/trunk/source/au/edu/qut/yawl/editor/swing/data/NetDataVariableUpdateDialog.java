@@ -154,8 +154,8 @@ public class NetDataVariableUpdateDialog extends TaskDataVariableUpdateDialog {
     initialValueLabel.setVisible(true);
     initialValueEditor.setVisible(true);
     initialValueEditor.setText(getVariable().getInitialValue());
-    initialValueEditor.setVariableType(getVariable().getDataType());  
     initialValueEditor.setVariableName(getVariable().getName());  
+    initialValueEditor.setVariableType(getVariable().getDataType());  
     enableInitialValueEditorIfAppropriate();
   }
 }
