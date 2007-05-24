@@ -109,7 +109,7 @@ function getParameters(){
 		            while ((str=reader.readLine())!= null)
 		            	a.append(str);
 		            
-		            str="<P>"+a.substring(a.indexOf("<h4>CENTRAL WEST SLOPES AND PLAINS</h4>"), a.indexOf("IDN1006203<BR>"))+"</P>";
+		            str="<P>"+a.substring(a.indexOf("<h4>CENTRAL WEST SLOPES AND PLAINS</h4>"), a.indexOf("IDN1006203"))+"</P>";
 		            str=str.replaceAll("<h4>CENTRAL WEST SLOPES AND PLAINS</h4>", "<B>Weather - NSW: CENTRAL WEST SLOPES AND PLAINS</B><BR>"+a.substring(a.indexOf("Issued at"), a.indexOf("2007<BR>"))+"<BR>");
 		            str=str.replaceAll("<!--#includevirtual=\"../fwo/IDN1006_0_1_2_menu.html\" -->","");
 		       		str=str.replaceAll("                           ","   ");
