@@ -8,6 +8,9 @@ Version 1.4.6 (??/??/????)
   * Fixed a bug where the Net Variable dialog was incorectly attempting to validate the 
     initial values of local net variables when the dialog itself was only partially 
     initialised in preparation for display.
+  * Fixed a bug where the variable expression was missing a leading "/" character when
+    pressing the "XPath expression" button on the Flow Details dialog for
+    tasks with OR and XOR splits.
 
 Version 1.4.5 (27/04/2007) "Blobby"
   * The editor has been upgraded to now use Engine Beta 8.2.

@@ -247,7 +247,7 @@ public class XMLUtilities {
    */
   
   public static String getTagEnclosedEntireVariableXQuery(DataVariable variable) {
-    return "{/" + getEntireVariableXQuery(variable) + "}";
+    return "{" + getEntireVariableXQuery(variable) + "}";
   }
 
   /**
@@ -265,7 +265,7 @@ public class XMLUtilities {
   
   public static String getEntireVariableXQuery(DataVariable variable) {
     String scopeId = variable.getScope().getDecomposition().getLabelAsElementName();
-    String xQuery = scopeId + "/" + variable.getName();
+    String xQuery = "/" + scopeId + "/" + variable.getName();
 
     return xQuery;
   }
@@ -287,7 +287,7 @@ public class XMLUtilities {
 
   
   public static String getTagEnclosedVariableContentXQuery(DataVariable variable) {
-    return "{/" + getVariableContentXQuery(variable) + "}";
+    return "{" + getVariableContentXQuery(variable) + "}";
   }
   
   /**
@@ -302,7 +302,7 @@ public class XMLUtilities {
     //       Can I use the "restriction" tag of simple enumerated types to see if it's a number?
     
     if (variable.isNumberType()) {
-      return "number(" + getVariableContentXQuery(variable) + ")";
+      return "number{" + getVariableContentXQuery(variable) + ")";
     }
     return getVariableContentXQuery(variable);
   }
