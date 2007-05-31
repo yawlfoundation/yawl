@@ -45,10 +45,96 @@ function getParameters(){
 	document.form1.submit.value = "htmlForm";
 }
 </script>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key=ABQIAAAAtOjLpIVcO8im8KJFR8pcMhQjskl1-YgiA_BGX2yRrf7htVrbmBTWZt39_v1rJ4xxwZZCEomegYBo1w" type="text/javascript"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+
+    var map = null;
+    var geocoder = null;
+	var marker1 = null;
+	var marker2 = null;
+	
+	function init(){
+		// Create a base icon for all of our markers that specifies the
+		// shadow, icon dimensions, etc.
+		var baseIcon = new GIcon();
+		baseIcon.shadow = "http://www.google.com/mapfiles/shadow50.png";
+		baseIcon.iconSize = new GSize(20, 34);
+		baseIcon.shadowSize = new GSize(37, 34);
+		baseIcon.iconAnchor = new GPoint(9, 34);
+		baseIcon.infoWindowAnchor = new GPoint(9, 2);
+		baseIcon.infoShadowAnchor = new GPoint(18, 25);
+		
+		var icon1 = new GIcon(baseIcon);
+		icon1.image = "http://www.google.com/mapfiles/marker" + "A" + ".png";
+		
+		var icon2 = new GIcon(baseIcon);
+		icon2.image = "http://www.google.com/mapfiles/marker" + "B" + ".png";
+		
+	    marker1 = new GMarker(new GLatLng(-32.25, 148.80), {draggable: true, icon: icon1, title: "Unit A, AD: John Denver", bouncy: false});
+	    marker2 = new GMarker(new GLatLng(-32.50, 148.50), {draggable: true, icon: icon2, title: "Unit B, AD: David Myer", bouncy: false});
+		
+		document.getElementById("point1_lat").value = marker1.getPoint().lat();
+		document.getElementById("point1_lng").value = marker1.getPoint().lng();
+		document.getElementById("point2_lat").value = marker2.getPoint().lat();
+		document.getElementById("point2_lng").value = marker2.getPoint().lng();
+		
+		GEvent.addListener(marker1, "dragend", function() {
+		    document.getElementById("point1_lat").value = marker1.getPoint().lat();
+		    document.getElementById("point1_lng").value = marker1.getPoint().lng();
+		});
+		
+		GEvent.addListener(marker2, "dragend", function() {
+		    document.getElementById("point2_lat").value = marker2.getPoint().lat();
+		    document.getElementById("point2_lng").value = marker2.getPoint().lng();
+		});
+	}
+	
+    function load() {
+      if (GBrowserIsCompatible()) {
+        map = new GMap2(document.getElementById("map"));
+        map.addControl(new GSmallMapControl());
+        map.addControl(new GMapTypeControl());
+        map.setCenter(new GLatLng(-32.25, 148.60), 9);
+		map.enableScrollWheelZoom();
+		geocoder = new GClientGeocoder();
+
+		init();
+		map.addOverlay(marker1);
+		map.addOverlay(marker2);
+      }
+    }
+
+	function setMarker1(lat, lng){
+		marker1.setPoint(new GLatLng(lat, lng));
+	}
+	
+	function setMarker2(lat, lng){
+		marker2.setPoint(new GLatLng(lat, lng));
+	}
+    //]]>
+    </script>
 </head>
 
-<body onLoad="getParameters()">
+<body onload="getParameters(); load()" onunload="GUnload()">
 <h1>Welcome to Porchlight Production Process</h1>
+    <form name="map" action="#" onsubmit="showAddress(this.address.value); return false">
+      <div id="map" style="width: 600px; height: 500px"></div>
+	</form>
+	<form name="unit1" action="#" onsubmit="setMarker1(this.point1_lat.value, this.point1_lng.value); return false">
+	  <p>Unit A
+		<input type="text" size="20" id="point1_lat" name="point1_lat"/>
+		<input type="text" size="20" id="point1_lng" name="point1_lng"/>
+        <input type="submit" value="Set A" />
+	  </p>
+	</form>
+	<form name="unit2" action="#" onsubmit="setMarker2(this.point2_lat.value, this.point2_lng.value); return false">
+	  <p>Unit B
+		<input type="text" size="20" id="point2_lat" name="point2_lat"/>
+		<input type="text" size="20" id="point2_lng" name="point2_lng"/>
+        <input type="submit" value="Set B" />	  
+      </p>
+    </form>
 <form name="form1" method="post" onSubmit="return getCount(this)">
   <table width="900"  border="0">
 				<%

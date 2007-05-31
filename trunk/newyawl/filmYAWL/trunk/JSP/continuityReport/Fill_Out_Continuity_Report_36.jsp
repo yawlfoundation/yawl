@@ -293,44 +293,46 @@ if(request.getParameter("Submission") != null){
 	
 	Marshaller m = jc.createMarshaller();
     m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-    //m.marshal( focrElement, new File("./webapps/testing/continuity/result.xml") );//output to file
+    File f = new File("./webapps/result.xml");
+    m.marshal( focrElement,  f);//output to file
     
 	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
     m.marshal(focrElement, xmlOS);//out to ByteArray
 	String result = xmlOS.toString().replaceAll("ns2:", "");
     
-    System.out.println("Continuity report XML: "+result);
+    //System.out.println("Continuity report XML: "+result);
     
     String workItemID = new String(request.getParameter("workItemID"));
     String sessionHandle = new String(request.getParameter("sessionHandle"));
     String userID = new String(request.getParameter("userID"));
     String submit = new String(request.getParameter("submit"));
     
-	// required response parameters:
-	// specID (if launching a case)
-	// workitemID (if editing a work item)
-	// sessionHandle
-	// userid
-	// submit (submitting/suspending/saving/cancelling a workitem)
-    
-	//System.out.println(result);
+    InputStream in = new FileInputStream(f);
+    ServletOutputStream outs = response.getOutputStream();
+    		
+    response.setHeader("Content-Disposition", "attachment;filename=\"result.xml\";");
+    //response.setContentType("text/xml")
+    response.setHeader("Content-Type", "application/octet-stream");
+    //request.setCharacterEncoding("UTF-8");
+    //response.setHeader("Cache-Control","private, no-store,  no-cache, must-revalidate");
+    //response.setHeader("Pragma","no-cache");
+    //response.setDateHeader("Expires",-1);
+
+
+    int c; 
+    while ((c=in.read()) != -1) {
+       outs.write(c); 
+    }
+    outs.flush(); 
+    outs.close();
+    in.close();
     
     session.setAttribute("inputData", result);
-    
+    //response.setHeader("Content-Disposition", "inline;filename=\"result.xml\";"); maybe we need to change the content-disposition again and make the redirect???
     response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit));
-    return;
     
-    //InterfaceD_XForm idx = new InterfaceD_XForm(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit+"&inputData="+result);
-	
-    //Map parameters = Collections.synchronizedMap(new TreeMap<Object,Object>());
-	//parameters.put("workItemID", workItemID);
-	//parameters.put("sessionHandle", sessionHandle);
-	//parameters.put("userID", userID);
-	//parameters.put("submit", submit);
-	//parameters.put("inputData", result);
-	
-    //idx.sendHTMLWorkItemData(parameters);
-}
-%>
+    
+    return;
+}%>
 </body>
 </html>
