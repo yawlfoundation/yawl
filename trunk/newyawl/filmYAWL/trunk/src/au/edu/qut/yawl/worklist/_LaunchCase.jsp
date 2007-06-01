@@ -2,7 +2,8 @@
                  au.edu.qut.yawl.worklist.model.SpecificationData,
                  au.edu.qut.yawl.elements.data.YParameter,
                  au.edu.qut.yawl.worklist.model.Marshaller,
-				 au.edu.qut.yawl.worklist.WorkItemProcessor" %>
+				 au.edu.qut.yawl.worklist.WorkItemProcessor,
+				 au.edu.qut.yawl.forms.InstanceBuilder" %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>Launch Case</title>
@@ -16,7 +17,9 @@
         <%@include file="banner.jsp" %>
         <h3>Launch Case</h3>
         <%
-        if(request.getMethod().equals("GET")){
+        //if(request.getMethod().equals("GET")){
+        if (request.getAttribute("specID") != null){
+        	System.out.println("Launch Case JSP GET");
             String specID = request.getParameter("specID");
             String userID = (String) session.getAttribute("userid");
             SpecificationData specData = _worklistController.getSpecificationData(
@@ -28,7 +31,10 @@
 	        	// call JSPForm/HTML file
 	        	// get task name and redirect to that html file
 	        	String form = wip.getHTMLFormName(specData);
-                application.getRequestDispatcher("/"+form).forward(request, response);
+                //application.getRequestDispatcher("/"+form).forward(request, response);
+                String schema = wip.createCaseSchema(specID, sessionHandle, _worklistController);
+                InstanceBuilder ib = new InstanceBuilder(schema, specData.getRootNetID(), null);
+                response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+specID+"&sessionHandle="+sessionHandle+"&outputData="+ib.getInstance()+"&submit=htmlForm"));
                 return;
 	        }
 	        else if (request.getParameter("FormType").compareTo("Xform") == 0){

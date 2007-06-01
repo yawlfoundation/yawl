@@ -27,7 +27,7 @@
            	<%
            	}
             WorkItemRecord item = _worklistController.getCachedWorkItem(request.getParameter("workItemID"));
-System.out.println("_ItemViewer.jsp:: item = " + item.toXML());
+//System.out.println("_ItemViewer.jsp:: item = " + item.toXML());
             if(item != null){
                 TaskInformation taskInfo = _worklistController.getTaskInformation(
                         item.getSpecificationID(),

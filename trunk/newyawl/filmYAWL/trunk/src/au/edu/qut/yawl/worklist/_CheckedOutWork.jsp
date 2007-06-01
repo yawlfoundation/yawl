@@ -18,13 +18,13 @@
         <form method="post"
             action="<%= request.getContextPath() %>/workItemProcessor"
             name="checkedOutForm">
-        <table cellpadding="0" cellspacing="0" width="643">
+        <table cellpadding="0" cellspacing="2">
             <tr>
-                <td height="30" width="50" align="center"></td>
+                <td height="30" width="50" align="left"></td>
                 <td width="1"/>
-                <td width="150" align="center"><em>ID</em></td>
+                <td width="180" align="center"><em>Task Name</em></td>
                 <td bgcolor="#000000" width="1"/>
-                <td width="180" align="center"><em>Task Description</em></td>
+                <td width="180" align="center"><em>Task ID</em></td>
                 <td bgcolor="#000000" width="1"/>
                 <td width="180" align="center"><em>Enablement Time</em></td>
                 <td bgcolor="#000000" width="1"/>
@@ -51,7 +51,7 @@
                     item.getSpecificationID(),
                     item.getTaskID(),
                     (String)session.getAttribute("sessionHandle"));
-                String id = item.getID();
+                String id = taskInfo.getTaskName();
             %>
                 <tr>
                     <td height="30" align="center"><input type="radio" name="workItemID"
@@ -59,15 +59,17 @@
                     <td/>
                     
                     <td align="center">
-                    	XForm: <a href="<%= contextPath %>/workItemProcessor?submit=Edit Work Item&workItemID=<%= id %>&FormType=Xform"><%= id %>
-                    	</a><br/><br/>
-                    	HTML Form: <a href="<%= contextPath %>/workItemProcessor?submit=Edit Work Item&workItemID=<%= id %>&FormType=HTMLform"><%= id %>
-                    	</a><br/><br/>
+                    <% if (getServletContext().getInitParameter("debug").compareTo("true") == 0){ %>
+                    	XForm: <a href="<%= contextPath %>/workItemProcessor?submit=Edit Work Item&workItemID=<%= item.getID() %>&FormType=Xform"><%= id %></a>
+                    	<br/><br/>
+                    	<% } %>
+                    	<a href="<%= contextPath %>/workItemProcessor?submit=Edit Work Item&workItemID=<%= item.getID() %>&FormType=HTMLform"><%= id %></a>
+                    	<% if (getServletContext().getInitParameter("debug").compareTo("true") == 0){ %> <br/><br/> <% } %>
                     </td>
                     <td/>
                     
                     <td align="center"><%= taskInfo != null ?
-                                            taskInfo.getTaskName() :
+                                            taskInfo.getTaskID() :
                                             null %></td>
                     <td/>
                     <td align="center"><%= item.getEnablementTime() %></td>
