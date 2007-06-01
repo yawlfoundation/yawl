@@ -35,16 +35,18 @@
             TaskInformation taskInfo = _worklistController.getTaskInformation(
                     checkedOutItem.getSpecificationID(), checkedOutItem.getTaskID(),
                     sessionHandle);
-	        
-	        if (request.getParameter("FormType").compareTo("Xform") == 0) {
-
-	            wip.executeWorkItemPost(getServletContext(), checkedOutItem.getID(),
-	                    sessionHandle, _worklistController, userID, session.getId());
-				
-	            String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());        
-	            response.sendRedirect(response.encodeURL(url));
-	            return;
-	        } 
+            
+	        //if (getServletContext().getInitParameter("debug").compareTo("true") == 0){
+		        if (request.getParameter("FormType").compareTo("Xform") == 0) {
+	
+		            wip.executeWorkItemPost(getServletContext(), checkedOutItem.getID(),
+		                    sessionHandle, _worklistController, userID, session.getId());
+					
+		            String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());        
+		            response.sendRedirect(response.encodeURL(url));
+		            return;
+		        } 
+	        //}
 	        else if (request.getParameter("FormType").compareTo("HTMLform") == 0) {
 	        	
 	        	String form = wip.getHTMLFormName(taskInfo);
@@ -80,13 +82,13 @@
         }
         %>
         <form method="post" action="" name="availableForm">
-        <table border="0" cellspacing="0" cellpadding="0">
+        <table border="0" cellspacing="2" cellpadding="0">
             <tr>
                 <td height="30" width="50" align="center"></td>
                 <td width="1"/>
-                <td width="150" align="center"><em>ID</em></td>
+                <td width="180" align="center"><em>Task Name</em></td>
                 <td bgcolor="#000000" width="1"/>
-                <td width="180" align="center"><em>Task Description</em></td>
+                <td width="180" align="center"><em>Task ID</em></td>
                 <td bgcolor="#000000" width="1"/>
                 <td width="180" align="center"><em>Status</em></td>
                 <td bgcolor="#000000" width="1"/>
@@ -111,12 +113,16 @@
                 Iterator iter = workItems.iterator();
                 while(iter.hasNext()) {
                     WorkItemRecord item = (WorkItemRecord) iter.next();
-                    String id = item.getID();
+                    //String id = item.getID();
+                    String id = null;
                     TaskInformation taskInfo = _worklistController.getTaskInformation(
                         item.getSpecificationID(),
                         item.getTaskID(),
                         (String)session.getAttribute("sessionHandle"));
+                    
                     if(taskInfo != null){
+                    	id = taskInfo.getTaskName();
+                    	
                         if (item.getStatus().equals("Suspended")) {
                     %>
                           <tr>
@@ -130,14 +136,16 @@
                                  value="<%= item.getID() %>"/></td>
                              <td/>
                              <td align="center">
-                                XForm: <a href="<%= contextPath %>/availableWork?workItemID=<%= item.getID() %>&FormType=Xform"><%= id %>
-                                </a><br/><br/>
-                                HTML Form: <a href="<%= contextPath %>/availableWork?workItemID=<%= item.getID() %>&FormType=HTMLform"><%= id %>
-                                </a><br/><br/>
+                             <% if (getServletContext().getInitParameter("debug").compareTo("true") == 0){ %>
+                                XForm: <a href="<%= contextPath %>/availableWork?workItemID=<%= item.getID() %>&FormType=Xform"><%= id %></a>
+                                <br/><br/>
+                                <% } %>
+                                <a href="<%= contextPath %>/availableWork?workItemID=<%= item.getID() %>&FormType=HTMLform"><%= id %></a>
+                                <% if (getServletContext().getInitParameter("debug").compareTo("true") == 0){ %> <br/><br/> <% } %>
                              </td>
                       <% } %>
                         <td/>
-                        <td align="center"><%= taskInfo.getTaskName() %></td>
+                        <td align="center"><%= taskInfo.getTaskID() %></td>
                         <td/>
                         <td align="center"><%= item.getStatus() %></td>
                         <td/>

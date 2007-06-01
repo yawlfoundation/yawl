@@ -53,6 +53,8 @@ public class YAWLFormServlet extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+    	//doPost(request, response);
     	
     	HttpSession session = request.getSession(true);
     	
@@ -116,6 +118,8 @@ public class YAWLFormServlet extends HttpServlet {
 	            else{
 		            inputData = workitem.getDataListString();
 		            outputData = new String(theInstanceData);
+		            
+
 /*		            
 		            System.out.println("YFS G Input Data: "+inputData);
 		            System.out.println("YFS G Output Data: "+outputData);
@@ -130,7 +134,8 @@ public class YAWLFormServlet extends HttpServlet {
 		            FileWriter fwo = new FileWriter(xmlOutput);
 		            fwo.write(outputData);
 		            fwo.close();
-*/	            
+*/
+
 		            SAXBuilder _builder = new SAXBuilder();
 		            
 		            try {
@@ -155,7 +160,8 @@ public class YAWLFormServlet extends HttpServlet {
         	
         	System.out.println("YFS submit || htmlForm");
         	
-        	if (workItemID.compareTo("null") != 0) {        		
+        	if (workItemID.compareTo("null") != 0) {
+        		System.out.println("YFS WorkItemID: "+workItemID);
 	            request.setAttribute("inputData", inputDataEl); // check for null?
 	            request.setAttribute("outputData", outputDataEl);
 	            request.setAttribute("workItemID", workItemID);
@@ -167,7 +173,9 @@ public class YAWLFormServlet extends HttpServlet {
 			else if (specID.compareTo("null") != 0) {
 	            inputData = new String(theInstanceData);
 	            request.setAttribute("caseData", inputData);
-	            request.setAttribute("specID", specID);	            
+	            System.out.println("YFS CaseData: "+inputData);
+	            request.setAttribute("specID", specID);
+	            System.out.println("YFS SpecID: "+specID+".");
 	            RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/launchCase");
 	            rd.forward(request, response);
 	            return;
@@ -209,7 +217,9 @@ public class YAWLFormServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
     	
-    	System.out.println("YFS doPost");
+    	//System.out.println("YFS doPost");
+    	
+    	HttpSession session = request.getSession(true);
     	
         String inputData = new String();
         String outputData = new String();
@@ -219,9 +229,9 @@ public class YAWLFormServlet extends HttpServlet {
         StringBuffer theInstanceData = null;
         
         if (submit.compareTo("htmlForm") == 0){
-        	theInstanceData = new StringBuffer(request.getParameter("inputData"));
-        	System.out.println("YFS HTMLFORM");
-        	System.out.println("YFS inputData: ."+theInstanceData+".");
+        	theInstanceData = new StringBuffer((String) session.getAttribute("inputData"));
+        	
+        	System.out.println("session attribute: "+theInstanceData); 
         }
         else{
 	        ServletInputStream in = request.getInputStream();
@@ -232,7 +242,7 @@ public class YAWLFormServlet extends HttpServlet {
 	            theInstanceData.append((char) i);
 	            i = in.read();
 	        }
-        	System.out.println("YFS theInstanceData: "+theInstanceData);
+        	//System.out.println("YFS theInstanceData: "+theInstanceData);
         }
 	        
         ServletContext context = getServletContext();
@@ -292,7 +302,8 @@ public class YAWLFormServlet extends HttpServlet {
 		                
 		                Document outputDataDoc = _builder.build(new StringReader(outputData));
 		                outputDataEl = outputDataDoc.getRootElement();
-		            } catch (JDOMException e) {
+		            } 
+		            catch (JDOMException e) {
 		                e.printStackTrace();
 		                
 	                    // due to exception can't submit a workitem, just forward an empty request
@@ -306,7 +317,7 @@ public class YAWLFormServlet extends HttpServlet {
         
         if (submit.equals("submit") || submit.equals("htmlForm")){
         	
-        	System.out.println("YFS submit || htmlForm");
+        	//System.out.println("YFS submit || htmlForm");
         	
         	if (workItemID.compareTo("null") != 0) {        		
 	            request.setAttribute("inputData", inputDataEl); // check for null?
@@ -320,7 +331,9 @@ public class YAWLFormServlet extends HttpServlet {
 			else if (specID.compareTo("null") != 0) {
 	            inputData = new String(theInstanceData);
 	            request.setAttribute("caseData", inputData);
-	            request.setAttribute("specID", specID);	            
+	            //System.out.println("YFS post caseData: "+inputData);
+	            request.setAttribute("specID", specID);	
+	            //System.out.println("YFS post specID: "+specID);
 	            RequestDispatcher rd = getServletConfig().getServletContext().getRequestDispatcher("/launchCase");
 	            rd.forward(request, response);
 	            return;

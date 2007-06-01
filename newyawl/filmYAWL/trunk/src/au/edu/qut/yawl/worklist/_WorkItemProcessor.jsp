@@ -74,8 +74,7 @@
                         }
                         else if(outcome.indexOf("SCHEMA = ") != -1){
                             session.setAttribute("outcome", outcome);
-                            application.getRequestDispatcher("/validationProblem")
-                                    .forward(request, response);
+                            application.getRequestDispatcher("/validationProblem").forward(request, response);
                             return;
                         } 
                         else {
@@ -108,6 +107,7 @@
                     }
                 } 
                 else if (submitType.equals("Edit Work Item")){
+                	System.out.println("WIP EWI 1");
 					try{
 						String userID = (String) session.getAttribute("userid");
 						WorkItemProcessor wip = new WorkItemProcessor();
@@ -115,6 +115,8 @@
 						TaskInformation taskInfo = _worklistController.getTaskInformation(
 			            	        item.getSpecificationID(), item.getTaskID(), sessionHandle);
 
+						System.out.println("WIP EWI 2");
+						
 						if (request.getParameter("FormType").compareTo("Xform") == 0) {
 				
 						 	wip.executeWorkItemPost( getServletContext(), workItemID, 
@@ -125,7 +127,7 @@
 							return;
 						} 
 						else if (request.getParameter("FormType").compareTo("HTMLform") == 0) {
-							
+							System.out.println("WIP HTMLForm");
 							String form = wip.getHTMLFormName(taskInfo);
 				        	response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&outputData="+item.getDataListString()));
 				        	return;

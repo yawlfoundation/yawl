@@ -15,7 +15,7 @@
         <%@include file="banner.jsp"%>
         <h3>Active YAWL Specifications</h3>
         <form method="get" action="<%= contextPath %>/launchCase" name="specsForm">
-        <table border="0" cellspacing="0" cellpadding="0" width="915">
+        <table border="0" cellspacing="2" cellpadding="0">
             <tr>
                 <td height="30" width="50" align="center"></td>
                 <td width="1"/>
@@ -61,10 +61,12 @@
                             value="<%= specID %>"/></td>
                         <td/>
                         <td align="center">
-                            XForm: <a href="<%= contextPath %>/launchCase?specID=<%= specID %>&FormType=Xform"><%= specID %>
-                            </a><br/><br/>
-                            HTML Form: <a href="<%= contextPath %>/launchCase?specID=<%= specID %>&FormType=HTMLform"><%= specID %>
-                            </a><br/><br/>
+                        <% if (getServletContext().getInitParameter("debug").compareTo("true") == 0){ %>
+                            XForm: <a href="<%= contextPath %>/launchCase?specID=<%= specID %>&FormType=Xform"><%= specID %></a>
+                            <br/><br/>
+                            <% } %>
+                            <a href="<%= contextPath %>/launchCase?specID=<%= specID %>&FormType=HTMLform"><%= specID %></a>
+                            <% if (getServletContext().getInitParameter("debug").compareTo("true") == 0){ %> <br/><br/> <% } %>
                         </td>
                         <%
                         } else {

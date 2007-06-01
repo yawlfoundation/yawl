@@ -67,6 +67,14 @@
         </description>
     </context-param>
 
+	<context-param>
+		<param-name>debug</param-name>
+		<param-value>false</param-value>
+		<description>
+			Turns worklist debugging on or off. IE: Shows an Xform link for each workitem if true.
+        </description>
+	</context-param>
+
     <!-- This param, when available, enables the worklet exception service add-ins
          to the worklist. If the exception service is enabled in the engine, then this
          param should also be made available. If it is disabled in the engine, the
@@ -127,6 +135,15 @@
             Allows the user to view and edit work items.
         </description>
         <jsp-file>/_ItemViewer.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>LoadFileJSP</servlet-name>
+        <description> 
+        	Loads xml to HTML forms.
+        </description>
+        <jsp-file>/_Load.jsp</jsp-file>
         <load-on-startup>2</load-on-startup>
     </servlet>
 
@@ -302,6 +319,11 @@
     <servlet-mapping>
         <servlet-name>UploadJSP</servlet-name>
         <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>LoadFileJSP</servlet-name>
+        <url-pattern>/load</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
