@@ -121,7 +121,7 @@ public class SpecificationArchiveHandler {
     saveSpecificationToFile(SpecificationModel.getInstance().getFileName());  
   }
   
-  private void saveSpecificationToFile(String fullFileName) {
+  public void saveSpecificationToFile(String fullFileName) {
     if (fullFileName.equals("")) {
       return;
     }
@@ -278,25 +278,36 @@ public class SpecificationArchiveHandler {
     JStatusBar.getInstance().updateProgressOverSeconds(2);
     YAWLEditorDesktop.getInstance().setVisible(false);
     
-    openSpecificationFromFile(getFullNameFromFile(file));  
+    try {
+      JStatusBar.getInstance().setStatusText("Opening Specification...");
+
+      openSpecificationFromFile(
+          getFullNameFromFile(file)
+      );  
+    } catch (Exception e) {
+      JOptionPane.showMessageDialog(
+          YAWLEditor.getInstance(), 
+          "Error discovered reading YAWL Editor save file.\nDiscarding this load file.\n",
+          "Editor File Loading Error",
+          JOptionPane.ERROR_MESSAGE);
+      e.printStackTrace();
+    }
 
     YAWLEditorDesktop.getInstance().setVisible(true);
     JStatusBar.getInstance().resetProgress();
     JStatusBar.getInstance().setStatusTextToPrevious();
-
   }
   
   public void open() {
     open(null);
   }
   
-  public void openSpecificationFromFile(String fullFileName) {
+  public void openSpecificationFromFile(String fullFileName) throws Exception {
     if (fullFileName.equals("")) {
       return;
     }
 
-    try {
-
+    try{
       ZipInputStream inputStream = 
         new ZipInputStream(new BufferedInputStream(new FileInputStream(fullFileName)));
       inputStream.getNextEntry();
@@ -309,7 +320,6 @@ public class SpecificationArchiveHandler {
       });
       SpecificationModel.getInstance().reset();
 
-      JStatusBar.getInstance().setStatusText("Opening Specification...");
       readSpecification(encoder);
       encoder.close();
       inputStream.close();
@@ -319,17 +329,16 @@ public class SpecificationArchiveHandler {
       SpecificationFileModel.getInstance().incrementFileCount();
 
       SpecificationUndoManager.getInstance().discardAllEdits();
+      
+      /* self-correction of old editor files with buggy, redundant ports 
+      SpecificationUtilities.removeAllRedundantPorts(
+          SpecificationModel.getInstance()
+      );  */
 
     } catch (Exception e) {
-      JOptionPane.showMessageDialog(
-          YAWLEditor.getInstance(), 
-          "Error discovered reading YAWL Editor save file.\nDiscarding this load file.\n",
-          "Editor File Loading Error",
-          JOptionPane.ERROR_MESSAGE);
-      e.printStackTrace();
       close(); 
+      throw e;
     }
-
   }
   
   private void readSpecification(XMLDecoder encoder) {

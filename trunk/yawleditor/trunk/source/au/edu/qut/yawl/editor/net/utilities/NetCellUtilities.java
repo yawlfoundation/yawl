@@ -23,9 +23,11 @@
 package au.edu.qut.yawl.editor.net.utilities;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import java.awt.Font;
 import java.awt.Rectangle;
@@ -42,6 +44,8 @@ import org.jgraph.graph.VertexView;
 
 
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
+import au.edu.qut.yawl.editor.elements.model.YAWLPort;
+import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
 
@@ -305,6 +309,7 @@ public class NetCellUtilities {
         bufferedCellBounds
     );
   }
+
   /**
    * A convenience method that takes all the supplied views and 
    * returns theirunderlying cells in an object array.
