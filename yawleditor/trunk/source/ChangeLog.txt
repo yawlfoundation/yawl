@@ -11,6 +11,9 @@ Version 1.4.6 (??/??/????)
   * Fixed a bug where the variable expression was missing a leading "/" character when
     pressing the "XPath expression" button on the Flow Details dialog for
     tasks with OR and XOR splits.
+  * Enhanced the editor so it scrubs away redundant old ports that were being left behind
+    as a result of the bug-fix of excessive ports being created on loads previous to the 
+    1.4.5 release.
 
 Version 1.4.5 (27/04/2007) "Blobby"
   * The editor has been upgraded to now use Engine Beta 8.2.

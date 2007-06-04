@@ -91,10 +91,13 @@ public class JSplashScreen {
    */
 
 	public void updateProgressBar(int completionValue) {
-		if (completionValue < 0 || completionValue > 100) {
-			return;
-		}
-		progressBar.setValue(completionValue);
+      if (progressBar == null) {
+        return;
+      }
+      if (completionValue < 0 || completionValue > 100) {
+       return;
+      }
+  	  progressBar.setValue(completionValue);
 	}
 
 	/**

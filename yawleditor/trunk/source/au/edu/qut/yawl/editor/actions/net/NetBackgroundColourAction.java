@@ -29,11 +29,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import javax.swing.JColorChooser;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-
 public class NetBackgroundColourAction extends YAWLSelectedNetAction {
   
   /**

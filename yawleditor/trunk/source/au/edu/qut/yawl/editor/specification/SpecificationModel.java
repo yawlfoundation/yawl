@@ -153,7 +153,7 @@ public class SpecificationModel {
     this.nets = nets;
   }
 
-  public Set getNets() {
+  public Set<NetGraphModel> getNets() {
     return nets;
   }
   

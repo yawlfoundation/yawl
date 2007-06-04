@@ -29,7 +29,6 @@ import java.awt.Font;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;

@@ -25,7 +25,6 @@ package au.edu.qut.yawl.editor.swing.menu;
 
 import au.edu.qut.yawl.editor.actions.CutAction;
 import au.edu.qut.yawl.editor.actions.CopyAction;
-import au.edu.qut.yawl.editor.actions.element.DecorateTaskAction;
 import au.edu.qut.yawl.editor.actions.element.LabelElementAction;
 import au.edu.qut.yawl.editor.actions.element.SetMultipleInstanceDetailAction;
 import au.edu.qut.yawl.editor.actions.element.SetUnfoldingNetAction;

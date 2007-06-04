@@ -24,8 +24,6 @@
 
 package au.edu.qut.yawl.editor.net.utilities;
 
-import java.awt.Dimension;
-import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,7 +39,6 @@ import au.edu.qut.yawl.editor.elements.model.InputCondition;
 import au.edu.qut.yawl.editor.elements.model.OutputCondition;
 import au.edu.qut.yawl.editor.elements.model.YAWLCell;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
 
 /**
@@ -76,7 +73,28 @@ public final class NetUtilities {
     }
     return largestIDSoFar;
   }
+
   
+  /**
+   * Returns all Vertexes in the selected net. Specifically, 
+   * all those verticies in the net that conform to the <code>YAWLVertex</code> interface.
+   * @param net The net to search within.
+   * @return The set of <code>YAWLVertex</code> objects within the selected net.
+   * @see au.edu.qut.yawl.editor.elements.model.YAWLVertex
+   */
+  public static Set<YAWLVertex> getVertexes(NetGraphModel net) {
+    HashSet<YAWLVertex> vertexList = new HashSet<YAWLVertex>();
+    for(Object cell: NetGraphModel.getRoots(net)) {
+      if (cell instanceof VertexContainer) {
+        vertexList.add(((VertexContainer) cell).getVertex());
+      }
+      if (cell instanceof YAWLVertex) {
+        vertexList.add((YAWLVertex) cell);
+      }
+    }
+    return vertexList;
+  }
+
   /**
    * Returns all tasks in the selected net. Specifically, 
    * all those verticies in the net that conform to the <code>YAWLTask</code> interface.
@@ -348,4 +366,5 @@ public final class NetUtilities {
     }
     return flows;
   }
+  
 }
