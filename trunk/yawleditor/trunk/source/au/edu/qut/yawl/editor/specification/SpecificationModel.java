@@ -253,26 +253,7 @@ public class SpecificationModel {
     }
     return null;
   }
-  
-  public Set getCompositeTasksDecomposingToName(String netName) {
-    HashSet compositeTasks = new HashSet();
 
-    Object[] netSetArray = nets.toArray();
-    for(int i = 0; i < netSetArray.length; i++) {
-      NetGraphModel thisNet = (NetGraphModel) netSetArray[i];
-      Set compositeTasksOfNet = NetUtilities.getCompositeTasks(thisNet);
-      Object[] compositeTaskArray = compositeTasksOfNet.toArray();
-      
-      for(int j = 0; j < compositeTaskArray.length; j++) {
-        YAWLCompositeTask task = (YAWLCompositeTask) compositeTaskArray[j];
-        if (task.getUnfoldingNetName().equals(netName)) {
-          compositeTasks.add(task); 
-        }
-      }       
-    }
-    return compositeTasks;
-  }
-  
   private void publishNetCountIncrement() {
     final int oldNetCount = netCount;
     netCount++;
@@ -289,20 +270,16 @@ public class SpecificationModel {
     }
   }
   
-  public HashSet resetUnfoldingCompositeTasks(NetGraphModel netModel) {
+  public HashSet<YAWLCompositeTask> resetUnfoldingCompositeTasks(NetGraphModel netModel) {
 
-    HashSet changedTasks = new HashSet();
+    HashSet<YAWLCompositeTask> changedTasks = new HashSet<YAWLCompositeTask>();
     
-    Iterator netIterator = nets.iterator();
-    while(netIterator.hasNext()) {
-      NetGraphModel thisNet = (NetGraphModel) netIterator.next();
-      Iterator compositeTaskIterator = NetUtilities.getCompositeTasks(thisNet).iterator();
-      while(compositeTaskIterator.hasNext()) {
-        YAWLTask task = (YAWLTask) compositeTaskIterator.next();
-        if (task.getDecomposition() != null && 
-            task.getDecomposition().equals(netModel.getDecomposition())) {
-          thisNet.getGraph().setUnfoldingNet((YAWLCompositeTask)task, null);
-          changedTasks.add(task);
+    for (NetGraphModel net: nets) {
+      for (YAWLCompositeTask compositeTaskOfNet: NetUtilities.getCompositeTasks(net)) {
+        if (compositeTaskOfNet.getDecomposition() != null && 
+            compositeTaskOfNet.getDecomposition().equals(netModel.getDecomposition())) {
+          net.getGraph().setUnfoldingNet(compositeTaskOfNet, null);
+          changedTasks.add(compositeTaskOfNet);
         }
       }
     }

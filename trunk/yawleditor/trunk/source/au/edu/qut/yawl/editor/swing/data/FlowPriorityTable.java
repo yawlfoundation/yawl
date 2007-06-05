@@ -26,14 +26,12 @@ package au.edu.qut.yawl.editor.swing.data;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.swing.JSingleSelectTable;
+import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
 import au.edu.qut.yawl.editor.swing.data.FlowPredicateUpdateDialog;
 import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
 
-public class FlowPriorityTable extends JSingleSelectTable {
-  /**
-   * 
-   */
+public class FlowPriorityTable extends JOrderedSingleSelectTable {
+
   private static final long serialVersionUID = 1L;
 
   NetGraph net;
@@ -55,16 +53,6 @@ public class FlowPriorityTable extends JSingleSelectTable {
   
   public FlowPriorityTableModel getFlowModel() {
     return (FlowPriorityTableModel) getModel();
-  }
-  
-  public void increasePriorityOfSelectedFlow() {
-    getFlowModel().increasePriorityOfFlow(getSelectedRow());
-    selectRow(getSelectedRow() - 1);
-  }
-
-  public void decreasePriorityOfSelectedFlow() {
-    getFlowModel().decreasePriorityOfFlow(getSelectedRow());
-    selectRow(getSelectedRow() + 1);
   }
   
   public void updatePredicateOfSelectedFlow() {

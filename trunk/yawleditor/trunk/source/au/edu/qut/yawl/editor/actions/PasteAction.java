@@ -67,7 +67,9 @@ public class PasteAction extends YAWLBaseAction {
     );
 
     getGraph().getNetModel().remove(
-      NetUtilities.getIllegallyCopiedFlows(getGraph().getNetModel())
+      NetUtilities.getIllegallyCopiedFlows(
+          getGraph().getNetModel()
+      ).toArray()
     );
     
     SpecificationUndoManager.getInstance().stopCompoundingEdits();

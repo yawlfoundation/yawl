@@ -239,7 +239,7 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog implements ListSelection
     increasePriorityButton.setToolTipText(" Increase selected flow's priority ");
     increasePriorityButton.addActionListener(new ActionListener(){
         public void actionPerformed(ActionEvent e) {
-          flowTable.increasePriorityOfSelectedFlow();
+          flowTable.increaseRowPriority();
         }
       }
     );
@@ -253,7 +253,7 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog implements ListSelection
     decreasePriorityButton.setToolTipText(" Decrease selected flow's priority ");
     decreasePriorityButton.addActionListener(new ActionListener(){
         public void actionPerformed(ActionEvent e) {
-          flowTable.decreasePriorityOfSelectedFlow();
+          flowTable.decreaseRowPriority();
         }
       }
     );
