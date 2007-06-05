@@ -22,23 +22,18 @@
  */
 package au.edu.qut.yawl.editor.swing.data;
 
-import javax.swing.table.AbstractTableModel;
-
-import java.util.Iterator;
-import java.util.SortedSet;
-
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import au.edu.qut.yawl.editor.swing.AbstractOrderedRowTableModel;
 
-public class FlowPriorityTableModel extends AbstractTableModel {
+
+public class FlowPriorityTableModel extends AbstractOrderedRowTableModel {
 
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
 
-  protected SortedSet prioritisedFlows;
-  
   private static final String[] COLUMN_LABELS = { 
       "Target Task",
       "Predicate"
@@ -58,7 +53,9 @@ public class FlowPriorityTableModel extends AbstractTableModel {
   }
   
   public void setTask(YAWLTask task) {
-    this.prioritisedFlows = task.getSplitDecorator().getFlowsInPriorityOrder();
+    for(Object flow: task.getSplitDecorator().getFlowsInPriorityOrder()) {
+      getOrderedRows().add(flow);
+    }
     refresh();
   }
   
@@ -76,17 +73,6 @@ public class FlowPriorityTableModel extends AbstractTableModel {
   
   public Class getColumnClass(int columnIndex) {
     return String.class;
-  }
-
-  public int getRowCount() {
-    if (prioritisedFlows != null) {
-      return prioritisedFlows.size();
-    } 
-    return 0;
-  }
-
-  public void refresh() {
-    fireTableRowsUpdated(0, Math.max(0,getRowCount() - 1));
   }
   
   public Object getValueAt(int row, int col) {
@@ -117,40 +103,53 @@ public class FlowPriorityTableModel extends AbstractTableModel {
   }
   
   public YAWLFlowRelation getFlowAt(int row) {
-    Iterator flowIterator = this.prioritisedFlows.iterator();
-    int posn = 0;
-    while(flowIterator.hasNext()) {
-      YAWLFlowRelation flow = (YAWLFlowRelation) flowIterator.next();
-      if (posn == row) {
-        return flow;
-      }
-      posn++;
+    if (row < 0 || getOrderedRows() == null || getOrderedRows().size() == 0) {
+      return null;
     }
-    return null;
+    return (YAWLFlowRelation) getOrderedRows().get(row);
   }
   
-  public void increasePriorityOfFlow(int row) {
-    increaseFlowPriority(row);    
+  public void raiseRow(int row) {
+    YAWLFlowRelation raisingFlow = this.getFlowAt(row);
+    YAWLFlowRelation loweringFlow = this.getFlowAt(row - 1);
+    
+    super.raiseRow(row);    
+    
+    swapFlowPriorities(raisingFlow, loweringFlow);
+  }
+
+  public void lowerRow(int row) {
+    YAWLFlowRelation raisingFlow = this.getFlowAt(row + 1);
+    YAWLFlowRelation loweringFlow = this.getFlowAt(row);
+    
+    super.lowerRow(row);    
+
+    swapFlowPriorities(raisingFlow, loweringFlow);
   }
   
-  public void decreasePriorityOfFlow(int row) {
-    increaseFlowPriority(row + 1);    
-  }
-  
-  private void increaseFlowPriority(int row) {
+  /**
+   * A convenience method, meant to realign the underling 
+   * flow priority values with any shift of location that may have
+   * occured of the flows in their linked list positioning.
+   * @param firstRow
+   * @param secondRow
+   */
+  private void swapFlowPriorities(YAWLFlowRelation firstRow, 
+                                 YAWLFlowRelation secondRow) {
     
-    YAWLFlowRelation increasingFlow = getFlowAt(row);
-    YAWLFlowRelation decreasingFlow = getFlowAt(row -1);
+    final int firstRowPriority = firstRow.getPriority();
+    final int secondRowPriority = secondRow.getPriority();
     
-    prioritisedFlows.remove(increasingFlow);
-    prioritisedFlows.remove(decreasingFlow);
-    
-    increasingFlow.setPriority(row - 1);
-    decreasingFlow.setPriority(row); 
-    
-    prioritisedFlows.add(increasingFlow);
-    prioritisedFlows.add(decreasingFlow);
-    
-    fireTableRowsUpdated(row - 1, row);
+    firstRow.setPriority(
+      secondRowPriority
+    );
+      
+    secondRow.setPriority(
+      firstRowPriority
+    );
+/*
+    System.out.println("Flow (" + firstRow.getPredicate() + ") priority is now: " + firstRow.getPriority());
+    System.out.println("Flow (" + secondRow.getPredicate()+ ") priority is now: " + secondRow.getPriority());
+*/
   }
 }

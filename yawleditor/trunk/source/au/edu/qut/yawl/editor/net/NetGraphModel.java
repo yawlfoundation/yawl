@@ -166,32 +166,27 @@ public class NetGraphModel extends DefaultGraphModel {
   }
   
   private void compressFlowPriorities() {
-    Set tasksWithSplitDecorators = NetUtilities.getTasksWitSplitDecorators(this);
-    Iterator i = tasksWithSplitDecorators.iterator();
-    while (i.hasNext()) {
-      SplitDecorator decorator = ((YAWLTask)i.next()).getSplitDecorator();
-      decorator.compressFlowPriorities();
+    for(YAWLTask task: NetUtilities.getTasksWitSplitDecorators(this)) {
+      task.getSplitDecorator().compressFlowPriorities();
     }
   }
   
   private void removeCellsFromCancellationSets(final Set cells) {
-    Object[] cellsAsObjects = cells.toArray();
-    Object[] tasksWithCancellationSets = NetUtilities.getTasksWithCancellationSets(this).toArray();
-    for (int i = 0; i < tasksWithCancellationSets.length; i++) {
-      YAWLTask task = (YAWLTask) tasksWithCancellationSets[i];
+    for(YAWLTask taskWithCancellationSet : NetUtilities.getTasksWithCancellationSets(this)) {
       YAWLTask viewingTask = null;
-      if (task.equals(this.getGraph().viewingCancellationSetOf())) {
-        viewingTask = task;
-        this.getGraph().changeCancellationSet(null);
+      if (taskWithCancellationSet.equals(getGraph().viewingCancellationSetOf())) {
+        viewingTask = taskWithCancellationSet;
+        getGraph().changeCancellationSet(null);
       }
-      CancellationSet set = task.getCancellationSet();
-      for(int j = 0; j < cellsAsObjects.length; j++) {
-        if (cellsAsObjects[j] instanceof YAWLCell) {
-          set.removeMember((YAWLCell)cellsAsObjects[j]);
+      for (Object setMember: taskWithCancellationSet.getCancellationSet().getSetMembers()) {
+        if (setMember instanceof YAWLCell) {
+          taskWithCancellationSet.getCancellationSet().removeMember(
+              (YAWLCell) setMember
+          );
         }
       }
       if (viewingTask != null) {
-        this.getGraph().changeCancellationSet(viewingTask);
+        getGraph().changeCancellationSet(viewingTask);
       }
     }
   }

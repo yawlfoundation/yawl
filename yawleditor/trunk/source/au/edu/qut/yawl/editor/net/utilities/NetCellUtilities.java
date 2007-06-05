@@ -93,8 +93,8 @@ public class NetCellUtilities {
   }
   
   public static void translateViews(NetGraph net, CellView[] views, double x, double y) {
-    for(int i = 0; i < views.length; i++) {
-      Rectangle2D oldBounds = views[i].getBounds();
+    for(CellView view: views) {
+      Rectangle2D oldBounds = view.getBounds();
       Rectangle2D.Double newBounds = 
         new Rectangle2D.Double(
             oldBounds.getX() + x,
@@ -105,11 +105,12 @@ public class NetCellUtilities {
       if (newBounds.getX() < 0 || newBounds.getY() < 0) {
         return;
       }
-      if (views[i] instanceof VertexView) {
-        ((VertexView)views[i]).setBounds(newBounds);
+      if (view instanceof VertexView) {
+        ((VertexView)view).setBounds(newBounds);
       }
-      if (views[i] instanceof EdgeView) {
-        EdgeView edgeView = (EdgeView) views[i];
+      if (view instanceof EdgeView) {
+        EdgeView edgeView = (EdgeView) view;
+        
         for (int j = 0; j < edgeView.getPointCount(); j++) {
           Point2D oldPoint = edgeView.getPoint(j);
           Point2D.Double newPoint = new Point2D.Double(
@@ -120,6 +121,7 @@ public class NetCellUtilities {
         }
       }
     }
+    
     net.setGridEnabled(false);
     applyViewChange(net, views);
     net.setGridEnabled(true);
@@ -130,19 +132,22 @@ public class NetCellUtilities {
   }
   
   public static void moveViewsToLocation(NetGraph net, CellView[] views, double x, double y) {
-    for(int i = 0; i < views.length; i++) {
-      Rectangle2D oldBounds = views[i].getBounds();
+    for(CellView view: views) {
+      Rectangle2D oldBounds = view.getBounds();
+
       Rectangle2D.Double newBounds = 
         new Rectangle2D.Double(
             x,
             y,
             oldBounds.getWidth(),
             oldBounds.getHeight()
-        );
-      if (views[i] instanceof VertexView) {
-        ((VertexView)views[i]).setBounds(newBounds);
+      );
+
+      if (view instanceof VertexView) {
+        ((VertexView)view).setBounds(newBounds);
       }
     }
+    
     net.setGridEnabled(false);
     applyViewChange(net, views);
     net.setGridEnabled(true);
@@ -191,14 +196,16 @@ public class NetCellUtilities {
     if (cells != null) {
       Rectangle2D r = net.getCellBounds(cells);
       net.getNetModel().beginUpdate();
-      for (int i = 0; i < cells.length; i++) {
-        Rectangle2D bounds = net.getCellBounds(cells[i]);
+      
+      for(Object cell: cells) {
+        Rectangle2D bounds = net.getCellBounds(cell);
         net.moveElementBy(
-            (GraphCell) cells[i], 
+            (GraphCell) cell, 
             0, 
             (-1 * bounds.getY()) + r.getY()
         );
       }
+
       net.getNetModel().endUpdate();
       net.requestFocus();
     }
@@ -210,15 +217,16 @@ public class NetCellUtilities {
       Rectangle2D r = net.getCellBounds(cells);
       double cy = r.getHeight() / 2;
       net.getNetModel().beginUpdate();
-      for (int i = 0; i < cells.length; i++) {
-        Rectangle2D bounds = net.getCellBounds(cells[i]);
+      
+      for(Object cell: cells) {
+        Rectangle2D bounds = net.getCellBounds(cell);
         net.moveElementBy(
-            (GraphCell) cells[i], 
+            (GraphCell) cell, 
             0, 
-            (-1 * bounds.getY())
-            + r.getY() + cy - bounds.getHeight() / 2
+            (-1 * bounds.getY()) + r.getY() + cy - bounds.getHeight() / 2
         );
       }
+      
       net.getNetModel().endUpdate();
       net.requestFocus();
     }
@@ -229,11 +237,16 @@ public class NetCellUtilities {
     if (cells != null) {
       Rectangle2D r = net.getCellBounds(cells);
       net.getNetModel().beginUpdate();
-      for (int i = 0; i < cells.length; i++) {
-        Rectangle2D bounds = net.getCellBounds(cells[i]);
-        net.moveElementBy((GraphCell) cells[i], 0, (-1 * bounds.getY())
-            + r.getY() + r.getHeight() - bounds.getHeight());
+      
+      for(Object cell: cells) {
+        Rectangle2D bounds = net.getCellBounds(cell);
+        net.moveElementBy(
+            (GraphCell) cell, 
+            0, 
+            (-1 * bounds.getY()) + r.getY() + r.getHeight() - bounds.getHeight()
+        );
       }
+
       net.getNetModel().endUpdate();
       net.requestFocus();
     }
@@ -244,11 +257,16 @@ public class NetCellUtilities {
     if (cells != null) {
       Rectangle2D r = net.getCellBounds(cells);
       net.getNetModel().beginUpdate();
-      for (int i = 0; i < cells.length; i++) {
-        Rectangle2D bounds = net.getCellBounds(cells[i]);
-        net.moveElementBy((GraphCell) cells[i], (-1 * bounds.getX())
-            + r.getX(), 0);
+      
+      for(Object cell: cells) {
+        Rectangle2D bounds = net.getCellBounds(cell);
+        net.moveElementBy(
+            (GraphCell) cell, 
+            (-1 * bounds.getX())+ r.getX(), 
+            0
+        );
       }
+      
       net.getNetModel().endUpdate();
       net.requestFocus();
     }
@@ -260,13 +278,16 @@ public class NetCellUtilities {
       Rectangle2D r = net.getCellBounds(cells);
       double cx = r.getWidth() / 2;
       net.getNetModel().beginUpdate();
-      for (int i = 0; i < cells.length; i++) {
-        Rectangle2D bounds = net.getCellBounds(cells[i]);
+      
+      for(Object cell: cells) {
+        Rectangle2D bounds = net.getCellBounds(cell);
         net.moveElementBy(
-            (GraphCell) cells[i], 
-            (-1 * bounds.getX()) + r.getX()
-            + cx - bounds.getWidth() / 2, 0);
+            (GraphCell) cell, 
+            (-1 * bounds.getX()) + r.getX() + cx - bounds.getWidth() / 2, 
+            0
+        );
       }
+
       net.getNetModel().endUpdate();
       net.requestFocus();
     }
@@ -277,15 +298,17 @@ public class NetCellUtilities {
     if (cells != null) {
       Rectangle2D r = net.getCellBounds(cells);
       net.getNetModel().beginUpdate();
-      for (int i = 0; i < cells.length; i++) {
-        Rectangle2D bounds = net.getCellBounds(cells[i]);
+      
+      for(Object cell: cells) {
+        Rectangle2D bounds = net.getCellBounds(cell);
         net.moveElementBy(
-            (GraphCell) cells[i], 
+            (GraphCell) cell, 
             (-1 * bounds.getX())
             + r.getX() + r.getWidth() - bounds.getWidth(), 
             0
         );
       }
+
       net.getNetModel().endUpdate();
       net.requestFocus();
     }
@@ -312,15 +335,17 @@ public class NetCellUtilities {
 
   /**
    * A convenience method that takes all the supplied views and 
-   * returns theirunderlying cells in an object array.
+   * returns their underlying cells in an object array.
    * @param views
    * @return
    */
   public static Object[] getCellsOfViews(CellView[] views) {
-    Object[] objects = new Object[views.length];
-    for(int i = 0; i < views.length; i++) {
-      objects[i] = views[i].getCell();
+    Object[] cells = new Object[views.length];
+    
+    int i = 0;
+    for(CellView view: views) {
+      cells[i++] = view.getCell();
     }
-    return objects;
+    return cells;
   }
 }

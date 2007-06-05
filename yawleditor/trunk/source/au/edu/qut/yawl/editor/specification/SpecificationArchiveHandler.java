@@ -329,11 +329,6 @@ public class SpecificationArchiveHandler {
       SpecificationFileModel.getInstance().incrementFileCount();
 
       SpecificationUndoManager.getInstance().discardAllEdits();
-      
-      /* self-correction of old editor files with buggy, redundant ports 
-      SpecificationUtilities.removeAllRedundantPorts(
-          SpecificationModel.getInstance()
-      );  */
 
     } catch (Exception e) {
       close(); 

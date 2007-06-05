@@ -63,7 +63,6 @@ public class YAWLEditorDesktop extends JDesktopPane
      super();
      setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);    
      setBackground(Color.WHITE);
-     setVisible(false);
    }
 
    public static YAWLEditorDesktop getInstance( ) {
