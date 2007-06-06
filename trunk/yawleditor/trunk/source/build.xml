@@ -42,7 +42,7 @@
             value="${editor.jar.file.base}_tmp.jar" />
 
   <taskdef resource="proguard/ant/task.properties"
-           classpath="${tool.directory}/proguard3.7/lib/proguard.jar" />
+           classpath="${tool.directory}/proguard${proguard.release.number}/lib/proguard.jar" />
   
   <!-- global filters -->
   
@@ -221,7 +221,7 @@
     
    <!-- Update 06/10/2006: shrinking seems to work for Progard 3.6 with the 7.2.1 engine -->
     
-    <proguard optimize="false" obfuscate="false" shrink="true" ignorewarnings="true">
+    <proguard optimize="true" obfuscate="false" shrink="true" ignorewarnings="true">
       <libraryjar file="${java.home}/lib/rt.jar"/>
       <injar  file="${lite.editor.jar.file}"/>
       <injar  file="${engine.jar.file}"/> 
