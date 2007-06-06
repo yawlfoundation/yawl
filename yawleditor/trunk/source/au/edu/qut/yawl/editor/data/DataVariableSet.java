@@ -33,10 +33,8 @@ import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 
 public class DataVariableSet implements Serializable, Cloneable {
   
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
+
   public static final int VALID_USAGE_INPUT_FROM_NET   = 0;
   public static final int VALID_USAGE_INPUT_TO_TASK    = 1;
   public static final int VALID_USAGE_OUTPUT_FROM_TASK = 2;
@@ -80,30 +78,28 @@ public class DataVariableSet implements Serializable, Cloneable {
   protected HashMap serializationProofAttributeMap = new HashMap();
 
   public DataVariableSet() {
-    setVariableSet(new LinkedList());
+    setVariableSet(new LinkedList<DataVariable>());
   }
   
-  public DataVariableSet(List variables) {
+  public DataVariableSet(List<DataVariable> variables) {
     if (variables == null) {
-      variables = new LinkedList();
+      variables = new LinkedList<DataVariable>();
     }
     setVariableSet(variables);
   }
 
-  public List getVariableSet() {
-    return (List) serializationProofAttributeMap.get("variableSet");
+  public List<DataVariable> getVariableSet() {
+    return (List<DataVariable>) serializationProofAttributeMap.get("variableSet");
   }
   
-  public void setVariableSet(List variableSet) {
+  public void setVariableSet(List<DataVariable> variableSet) {
     serializationProofAttributeMap.put("variableSet",variableSet);
     
     if (variableSet == null) {
       return;
     }
     
-    Iterator i = variableSet.iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
+    for(DataVariable variable : variableSet) {
       variable.setScope(this);
     }
   }
@@ -120,12 +116,10 @@ public class DataVariableSet implements Serializable, Cloneable {
     return getVariableSet();
   }
   
-  public List getInputVariables() {
-    LinkedList inputVariables = new LinkedList();
-  
-    Iterator i = getVariableSet().iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
+  public List<DataVariable> getInputVariables() {
+    LinkedList<DataVariable> inputVariables = new LinkedList<DataVariable>();
+    
+    for(DataVariable variable : getVariableSet()) {
       if (variable.isInputVariable()) {
         inputVariables.add(variable);
       }
@@ -133,12 +127,10 @@ public class DataVariableSet implements Serializable, Cloneable {
     return inputVariables;
   }
   
-  public List getOutputVariables() {
-    LinkedList outputVariables = new LinkedList();
+  public List<DataVariable> getOutputVariables() {
+    LinkedList<DataVariable> outputVariables = new LinkedList<DataVariable>();
   
-    Iterator i = getVariableSet().iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
+    for(DataVariable variable : getVariableSet()) {
       if (variable.isOutputVariable()) {
         outputVariables.add(variable);
       }
@@ -146,12 +138,10 @@ public class DataVariableSet implements Serializable, Cloneable {
     return outputVariables;
   }
   
-  public List getLocalVariables() {
-    LinkedList localVariables = new LinkedList();
-  
-    Iterator i = getVariableSet().iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
+  public List<DataVariable> getLocalVariables() {
+    LinkedList<DataVariable> localVariables = new LinkedList<DataVariable>();
+    
+    for(DataVariable variable : getVariableSet()) {
       if (variable.isLocalVariable()) {
         localVariables.add(variable);
       }
@@ -159,28 +149,26 @@ public class DataVariableSet implements Serializable, Cloneable {
     return localVariables;
   }
   
-  public List getInputAndLocalVariables() {
-    List variables = getInputVariables();
+  public List<DataVariable> getInputAndLocalVariables() {
+    List<DataVariable> variables = getInputVariables();
     variables.addAll(getLocalVariables());
     return variables;
   }
   
-  public List getOutputAndLocalVariables() {
-    List variables = getOutputVariables();
+  public List<DataVariable> getOutputAndLocalVariables() {
+    List<DataVariable> variables = getOutputVariables();
     variables.addAll(getLocalVariables());
     return variables;
   }
   
-  public List getVariablesWithValidUsage(int validUsageType) {
+  public List<DataVariable> getVariablesWithValidUsage(int validUsageType) {
     int[] validUsages = this.getValidUsageSet(validUsageType);
 
-    LinkedList validVariables = new LinkedList();
+    LinkedList<DataVariable> validVariables = new LinkedList<DataVariable>();
     
-    Iterator variableIterator = getVariableSet().iterator();
-    while (variableIterator.hasNext()) {
-      DataVariable variable = (DataVariable) variableIterator.next();
-      for(int i = 0; i < validUsages.length; i++) {
-        if (variable.getUsage() == validUsages[i]) {
+    for(DataVariable variable : getVariableSet()) {
+      for(int validUsage : validUsages) {
+        if (variable.getUsage() == validUsage) {
           validVariables.add(variable);
         }
       }
@@ -188,28 +176,23 @@ public class DataVariableSet implements Serializable, Cloneable {
     return validVariables;
   }
 
-  public List getUserDefinedVariables() {
-    LinkedList userDefinedVariables = new LinkedList();
-    
-    Iterator i = getVariableSet().iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
+  public List<DataVariable> getUserDefinedVariables() {
+    LinkedList<DataVariable> userDefinedVariables = new LinkedList<DataVariable>();
+
+    for(DataVariable variable: getVariableSet()) {
       if (variable.getUserDefined() == true) {
         userDefinedVariables.add(variable);
       }
     }
     return userDefinedVariables;
-
   }
   
-  public void addVariables(List newVariables) {
+  public void addVariables(List<DataVariable> newVariables) {
     if (newVariables == null) {
       return;
     }
-    
-    Iterator i = newVariables.iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
+
+    for (DataVariable variable: newVariables) {
       add(variable);
     }
   }
@@ -240,16 +223,6 @@ public class DataVariableSet implements Serializable, Cloneable {
     getVariableSet().remove(variable);
   }
   
-  public void remove(String variableName) {
-    Iterator i = getVariableSet().iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
-      if (variable.getName().equals(variableName)) {
-        i.remove();
-      }
-    }
-  }
-  
   public void setNameAt(int position, String name) {
     getVariableAt(position).setName(name);
   }
@@ -266,9 +239,7 @@ public class DataVariableSet implements Serializable, Cloneable {
       return false;
     }
     
-    Iterator i = getVariableSet().iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
+    for(DataVariable variable : getVariableSet()) {
       if (variable.getName().equals(name)) {
         return false;
       }
@@ -293,9 +264,7 @@ public class DataVariableSet implements Serializable, Cloneable {
   }
 
   public DataVariable getVariableWithName(String name) {
-    Iterator i = getVariableSet().iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
+    for(DataVariable variable: getVariableSet()) {
       if (variable.getName().equals(name)) {
         return variable;
       }
@@ -320,17 +289,13 @@ public class DataVariableSet implements Serializable, Cloneable {
   }
   
   public void quoteXMLcontent() {
-    Iterator i = getVariableSet().iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
+    for (DataVariable variable: getVariableSet()) {
       variable.quoteXMLcontent();
     }
   }
   
   public void unquoteXMLcontent() {
-    Iterator i = getVariableSet().iterator();
-    while (i.hasNext()) {
-      DataVariable variable = (DataVariable) i.next();
+    for(DataVariable variable: getVariableSet()) {
       variable.unquoteXMLcontent();
     }
   }

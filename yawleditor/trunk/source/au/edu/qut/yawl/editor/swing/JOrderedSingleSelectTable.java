@@ -25,6 +25,10 @@ package au.edu.qut.yawl.editor.swing;
 
 public abstract class JOrderedSingleSelectTable extends JSingleSelectTable {
 
+  public JOrderedSingleSelectTable() {
+    super();
+  }
+  
   public JOrderedSingleSelectTable(int rows) {
     super(rows);
   }

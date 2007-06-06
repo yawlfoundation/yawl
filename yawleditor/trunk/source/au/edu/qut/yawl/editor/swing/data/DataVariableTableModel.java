@@ -23,12 +23,12 @@
 
 package au.edu.qut.yawl.editor.swing.data;
 
-import javax.swing.table.AbstractTableModel;
-
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.DataVariableSet;
 
-public class DataVariableTableModel extends AbstractTableModel {
+import au.edu.qut.yawl.editor.swing.AbstractOrderedRowTableModel;
+
+public class DataVariableTableModel extends AbstractOrderedRowTableModel {
   /**
    * 
    */
