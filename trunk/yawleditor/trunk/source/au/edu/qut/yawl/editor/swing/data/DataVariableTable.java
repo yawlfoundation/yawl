@@ -33,9 +33,9 @@ import javax.swing.table.TableCellRenderer;
 
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.DataVariableSet;
-import au.edu.qut.yawl.editor.swing.JSingleSelectTable;
+import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
 
-public class DataVariableTable extends JSingleSelectTable {
+public class DataVariableTable extends JOrderedSingleSelectTable {
 
   /**
    * 

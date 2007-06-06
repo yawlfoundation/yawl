@@ -78,13 +78,12 @@ public class SplitDecorator extends Decorator {
   }
   
   public SortedSet getFlowsInPriorityOrder() {
-    DecoratorPort[] ports = this.getPorts();
     TreeSet flows = new TreeSet();
-    
-    for (int i = 0; i < ports.length; i++) {
-      flows.addAll(ports[i].getEdges());
+    for(DecoratorPort port: getPorts()) {
+      for (Object flow: port.getEdges()) {
+        flows.add(flow);
+      }
     }
-    
     return flows;
   }
   
