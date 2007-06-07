@@ -22,13 +22,13 @@
  */
 package au.edu.qut.yawl.editor.swing.data;
 
-import javax.swing.table.AbstractTableModel;
 
 import au.edu.qut.yawl.editor.data.ParameterList;
 import au.edu.qut.yawl.editor.data.Parameter;
 import au.edu.qut.yawl.editor.data.DataVariable;
+import au.edu.qut.yawl.editor.swing.AbstractOrderedRowTableModel;
 
-public abstract class TaskParameterTableModel extends AbstractTableModel {
+public abstract class TaskParameterTableModel extends AbstractOrderedRowTableModel {
 
   protected ParameterList parameterList;
 

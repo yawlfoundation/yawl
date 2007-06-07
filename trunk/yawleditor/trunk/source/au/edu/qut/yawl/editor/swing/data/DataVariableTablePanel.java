@@ -31,6 +31,7 @@ import au.edu.qut.yawl.editor.data.DataVariableSet;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
 import au.edu.qut.yawl.editor.swing.AbstractTableUpdatePanel;
+import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
 
 public class DataVariableTablePanel extends AbstractTableUpdatePanel {
   /**
@@ -45,7 +46,7 @@ public class DataVariableTablePanel extends AbstractTableUpdatePanel {
     this.parent = dialog;
   }
   
-  protected JTable buildTable() {
+  protected JOrderedSingleSelectTable buildTable() {
     return new DataVariableTable(new DataVariableTableModel());
   }
   

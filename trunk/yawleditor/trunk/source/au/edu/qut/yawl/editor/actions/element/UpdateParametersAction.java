@@ -27,6 +27,7 @@ package au.edu.qut.yawl.editor.actions.element;
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.swing.element.AbstractTaskDoneDialog;
 import au.edu.qut.yawl.editor.swing.AbstractTableUpdatePanel;
+import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.data.ParameterUpdateDialog;
 import au.edu.qut.yawl.editor.swing.data.TaskParameterTable;
@@ -254,7 +255,7 @@ class InputParameterUpdatePanel extends ParameterUpdatePanel {
     super(parent,ParameterUpdateDialog.NET_TO_TASK);
   }
   
-  public JTable buildTable() {
+  public JOrderedSingleSelectTable buildTable() {
     return new TaskInputParameterTable();
   }
   
@@ -273,7 +274,7 @@ class OutputParameterUpdatePanel extends ParameterUpdatePanel {
     super(parent,ParameterUpdateDialog.TASK_TO_NET);
   }
   
-  public JTable buildTable() {
+  public JOrderedSingleSelectTable buildTable() {
     return new TaskOutputParameterTable();
   }
 
@@ -428,6 +429,7 @@ class TaskInputParameterTableModel extends TaskParameterTableModel {
   
   public TaskInputParameterTableModel(ParameterList parameterList) {
     this.parameterList = parameterList;
+    setOrderedRows(parameterList.getParameters());
   }
 
   public int getColumnCount() {
@@ -476,6 +478,7 @@ class TaskOutputParameterTableModel extends TaskParameterTableModel {
   public TaskOutputParameterTableModel(ParameterList parameterList) {
     super();
     this.parameterList = parameterList;
+    setOrderedRows(parameterList.getParameters());
   }
 
   public int getColumnCount() {

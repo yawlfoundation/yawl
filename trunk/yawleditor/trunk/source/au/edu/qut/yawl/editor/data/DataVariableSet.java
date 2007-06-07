@@ -112,8 +112,8 @@ public class DataVariableSet implements Serializable, Cloneable {
     return (Decomposition) serializationProofAttributeMap.get("decomposition");
   }
   
-  public List getAllVariables() {
-    return getVariableSet();
+  public LinkedList getAllVariables() {
+    return (LinkedList) getVariableSet();
   }
   
   public List<DataVariable> getInputVariables() {

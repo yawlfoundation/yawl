@@ -27,9 +27,10 @@ import au.edu.qut.yawl.editor.data.Decomposition;
 import au.edu.qut.yawl.editor.data.Parameter;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.net.NetGraph;
+import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
 import au.edu.qut.yawl.editor.swing.JSingleSelectTable;
 
-public abstract class TaskParameterTable extends JSingleSelectTable {
+public abstract class TaskParameterTable extends JOrderedSingleSelectTable {
   
   protected Decomposition outputVariableScope;
   protected Decomposition inputVariableScope;
