@@ -47,11 +47,18 @@ public abstract class AbstractTableUpdatePanel extends JPanel {
   private JButton updateButton;
   private JButton removeButton;
   
-  private JTable table;
+  private JOrderedSingleSelectTable table;
+  
+  private AbstractOrderedTablePanel orderedTablePanel;
   
   public AbstractTableUpdatePanel() {
     super();
+    orderedTablePanel = new AbstractOrderedTablePanel();
     buildContent();
+  }
+  
+  private AbstractOrderedTablePanel getOrderedTablePanel() {
+    return this.orderedTablePanel;
   }
   
   private void buildContent() {
@@ -61,6 +68,8 @@ public abstract class AbstractTableUpdatePanel extends JPanel {
     setLayout(gbl);
 
     setTable(buildTable());
+    
+    getOrderedTablePanel().setOrderedTable(getTable());
 
     buildCreateButton();
     buildUpdateButton();
@@ -73,7 +82,7 @@ public abstract class AbstractTableUpdatePanel extends JPanel {
     gbc.insets = new Insets(0,0,0,5);
     gbc.fill = GridBagConstraints.BOTH;
     
-    add(new JScrollPane(getTable()),gbc);
+    add(getOrderedTablePanel(),gbc);
 
     gbc.gridx = 1;
     gbc.gridheight = 1;
@@ -201,15 +210,15 @@ public abstract class AbstractTableUpdatePanel extends JPanel {
     return (getTable().getRowCount() > 0);
   }
   
-  public JTable getTable() {
+  public JOrderedSingleSelectTable getTable() {
     return table;
   }
   
-  public void setTable(JTable table) {
+  public void setTable(JOrderedSingleSelectTable table) {
     this.table = table;
   }
   
-  protected abstract JTable buildTable();
+  protected abstract JOrderedSingleSelectTable buildTable();
   
   protected abstract void doCreateButtonAction();
 

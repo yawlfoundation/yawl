@@ -36,6 +36,10 @@ public abstract class AbstractOrderedRowTableModel extends AbstractTableModel {
     return orderedRows;
   }
   
+  public void setOrderedRows(LinkedList orderedRows) {
+    this.orderedRows = orderedRows;
+  }
+  
   public int getRowCount() {
     if (getOrderedRows() != null) {
       return getOrderedRows().size();

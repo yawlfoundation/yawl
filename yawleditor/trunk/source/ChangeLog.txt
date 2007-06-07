@@ -15,6 +15,8 @@ Version 1.4.6 (??/??/????)
     as a result of the bug-fix of excessive ports being created on loads previous to the 
     1.4.5 release.
   * Upgraded editor to use JGraph 5.9.2.2 and Proguard 3.8.
+  * Enhanced the editor so it is now possible to change the ordering of task variables,
+    net variales, and task parameter queries.
 
 Version 1.4.5 (27/04/2007) "Blobby"
   * The editor has been upgraded to now use Engine Beta 8.2.

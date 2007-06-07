@@ -33,17 +33,17 @@ public abstract class JOrderedSingleSelectTable extends JSingleSelectTable {
     super(rows);
   }
   
-  public AbstractOrderedRowTableModel getPriorityTableModel() {
+  public AbstractOrderedRowTableModel getOrderedTableModel() {
     return (AbstractOrderedRowTableModel) getModel();
   }
   
   public void moveRowUp() {
-    getPriorityTableModel().raiseRow(getSelectedRow());
+    getOrderedTableModel().raiseRow(getSelectedRow());
     selectRow(getSelectedRow() - 1);
   }
 
   public void moveRowDown() {
-    getPriorityTableModel().lowerRow(getSelectedRow());
+    getOrderedTableModel().lowerRow(getSelectedRow());
     selectRow(getSelectedRow() + 1);
   }
 }

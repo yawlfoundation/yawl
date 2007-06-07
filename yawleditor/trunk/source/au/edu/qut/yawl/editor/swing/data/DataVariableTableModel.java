@@ -23,6 +23,8 @@
 
 package au.edu.qut.yawl.editor.swing.data;
 
+import java.util.LinkedList;
+
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.DataVariableSet;
 
@@ -52,7 +54,7 @@ public class DataVariableTableModel extends AbstractOrderedRowTableModel {
   
   public DataVariableTableModel(DataVariableSet variableSet) {
     super();
-    this.variableSet  = variableSet;
+    setVariableSet(variableSet);
   }
   
   public DataVariableSet getVariableSet() {
@@ -61,7 +63,10 @@ public class DataVariableTableModel extends AbstractOrderedRowTableModel {
   
   public void setVariableSet(DataVariableSet variableSet) {
     this.variableSet = variableSet;
-  }
+    if (variableSet != null) {
+      setOrderedRows(variableSet.getAllVariables());
+    }
+  } 
 
   public int getColumnCount() {
     return COLUMN_LABELS.length;
