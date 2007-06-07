@@ -25,6 +25,7 @@
 package au.edu.qut.yawl.editor.actions.element;
 
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -52,6 +53,8 @@ import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.net.NetGraph;
+import au.edu.qut.yawl.editor.swing.AbstractOrderedTablePanel;
+import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
 import au.edu.qut.yawl.editor.swing.JUtilities;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.element.AbstractTaskDoneDialog;
@@ -99,61 +102,58 @@ public class UpdateFlowDetailsAction extends YAWLSelectedNetAction
   }
 }
 
-class FlowPriorityDialog extends AbstractTaskDoneDialog implements ListSelectionListener {
+class FlowPriorityDialog extends AbstractTaskDoneDialog {
   
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-
-  private YAWLFlowRelation oldSelectedFlow;
-
-  public static final int NO_ELEMENTS = 0;
-  public static final int SOME_ELEMENTS = 1;
-  
-  private JButton increasePriorityButton;
-  private JButton decreasePriorityButton;
+  private FlowDetailTablePanel flowDetailPanel;
   private JButton updatePredicateButton;
-   
-  private FlowPriorityTable flowTable = new FlowPriorityTable(this);
- 
+
+  
+  private static final long serialVersionUID = 1L;
+  
   public FlowPriorityDialog() {
     super(null, true, false);
-    setContentPanel(getFlowPriorityPanel());
-    flowTable.getSelectionModel().addListSelectionListener(this);
-  }
-  
-  public void valueChanged(ListSelectionEvent e) {
-    if (e.getValueIsAdjusting()) {
-      return;  // The mouse button has not yet been released
-    }
-
-    int row = flowTable.getSelectedRow();
-
-    increasePriorityButton.setEnabled(true);
-    decreasePriorityButton.setEnabled(true);
     
-    if (row == 0) {
-      increasePriorityButton.setEnabled(false);
-    } 
-    if (row == (flowTable.getRowCount() - 1)) {
-      decreasePriorityButton.setEnabled(false);
-    } 
-    colorSelectedRow();
+    buildContentPanel(
+        new FlowDetailTablePanel(this)
+    );
   }
   
-  private void colorSelectedRow() {
-    YAWLFlowRelation selectedFlow = 
-      flowTable.getFlowModel().getFlowAt(
-          flowTable.getSelectedRow()
-      );
-    if (oldSelectedFlow != null) {
-      colorFlow(oldSelectedFlow, Color.BLACK);
-    }
-    if (selectedFlow != null) {
-     colorFlow(selectedFlow, Color.GREEN.darker());
-     oldSelectedFlow = selectedFlow;
-    }
+  public void buildContentPanel(FlowDetailTablePanel flowPanel) {
+    this.flowDetailPanel = flowPanel;
+    
+    JPanel panel = new JPanel();
+    
+    GridBagLayout gbl = new GridBagLayout();
+    GridBagConstraints gbc = new GridBagConstraints();
+
+    panel.setLayout(gbl);
+
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.fill = GridBagConstraints.BOTH;
+
+    panel.add(flowPanel, gbc);
+
+    gbc.gridy++;
+    gbc.gridwidth = 2;
+    gbc.insets = new Insets(10,0,0,0);
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+
+    panel.add(getDefaultLabel(), gbc);
+    
+    gbc.gridy = 0;
+    gbc.gridwidth = 1;
+    gbc.gridx = 1;
+    gbc.insets = new Insets(0,0,0,10);
+    gbc.fill = GridBagConstraints.NONE;
+    
+    panel.add(getUpdatePredicateButton(), gbc);
+    
+    setContentPanel(panel);
+  }
+  
+  public FlowDetailTablePanel getFlowDetailTablePanel() {
+    return this.flowDetailPanel;  
   }
   
   protected void makeLastAdjustments() {
@@ -167,98 +167,31 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog implements ListSelection
   
   public void setTask(YAWLTask task, NetGraph graph) {
     super.setTask(task, graph);
-    flowTable.setTask(task, graph);
-    updateState();
-    flowTable.selectRow(0);
+    getFlowDetailTablePanel().setTaskAndNet(task, graph);
+    getFlowDetailTablePanel().selectFlowAtRow(0);
+    if (getFlowDetailTablePanel().hasFlows()) {
+      updatePredicateButton.setEnabled(true);
+    } else {
+      updatePredicateButton.setEnabled(false);
+    }
   }
   
-  private JPanel getFlowPriorityPanel() {
-    JPanel panel = new JPanel();
-    panel.setBorder(new EmptyBorder(12,12,0,11));
-
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    panel.setLayout(gbl);
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.gridheight = 5;
-    gbc.weightx = 1;
-    gbc.insets = new Insets(0,0,0,5);
-    gbc.fill = GridBagConstraints.BOTH;
-    
-    panel.add(new JScrollPane(flowTable),gbc);
-
-    gbc.gridx = 1;
-    gbc.gridheight = 1;
-    gbc.weightx = 0;
-    gbc.weighty = 0.5;
-    gbc.insets = new Insets(0,5,5,0);
-    panel.add(Box.createVerticalGlue(),gbc);
-
-    gbc.gridy++;
-    gbc.weighty = 0;
-    gbc.anchor = GridBagConstraints.CENTER;
-    panel.add(getIncreasePriorityButton(), gbc);
-
-    gbc.gridy++;
-    panel.add(getDecreasePriorityButton(), gbc);
-
-    gbc.gridy++;
-    panel.add(getUpdatePredicateButton(), gbc);
-
-    gbc.gridy++;
-    gbc.weighty = 0.5;
-    gbc.fill = GridBagConstraints.BOTH;
-    panel.add(Box.createVerticalGlue(),gbc);
-
-    gbc.gridx=0;
-    gbc.gridy=5;
-    gbc.weighty = 0;
-    gbc.weightx = 1;
-    gbc.gridwidth = 2;
-    gbc.insets = new Insets(10,5,5,0);
-    gbc.fill = GridBagConstraints.BOTH;
-    panel.add(getDefaultLabel(),gbc);
-    
-    LinkedList buttonList = new LinkedList();
-    buttonList.add(increasePriorityButton);
-    buttonList.add(decreasePriorityButton);
-    buttonList.add(updatePredicateButton);
-    
-    JUtilities.equalizeComponentSizes(buttonList);
-    
-    return panel;    
-  }
   
-  private JButton getIncreasePriorityButton() {
-    increasePriorityButton = new JButton();
-    increasePriorityButton.setIcon(getIconByName("Up"));
-    increasePriorityButton.setMargin(new Insets(0,11,0,12));
-    increasePriorityButton.setToolTipText(" Increase selected flow's priority ");
-    increasePriorityButton.addActionListener(new ActionListener(){
-        public void actionPerformed(ActionEvent e) {
-          flowTable.increaseRowPriority();
-        }
-      }
-    );
-    return increasePriorityButton; 
-   }
+  public void setVisible(boolean state) {
+    if (state == true) {
+      JUtilities.centreWindowUnderVertex(
+          graph, 
+          this, 
+          getTask(), 
+          10
+      );
+    }
+    if (state == false) {
+      getFlowDetailTablePanel().colorSelectedFlow(Color.BLACK);
+    }
+    super.setVisible(state);
+  }
 
-  private JButton getDecreasePriorityButton() {
-    decreasePriorityButton = new JButton();
-    decreasePriorityButton.setIcon(getIconByName("Down"));
-    decreasePriorityButton.setMargin(new Insets(0,11,0,12));
-    decreasePriorityButton.setToolTipText(" Decrease selected flow's priority ");
-    decreasePriorityButton.addActionListener(new ActionListener(){
-        public void actionPerformed(ActionEvent e) {
-          flowTable.decreaseRowPriority();
-        }
-      }
-    );
-    return decreasePriorityButton; 
-   }
   
   private JButton getUpdatePredicateButton() {
     updatePredicateButton = new JButton("Predicate...");
@@ -267,7 +200,7 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog implements ListSelection
     updatePredicateButton.setToolTipText(" Change predicate of selected flow ");
     updatePredicateButton.addActionListener(new ActionListener(){
         public void actionPerformed(ActionEvent e) {
-          flowTable.updatePredicateOfSelectedFlow();
+          getFlowDetailTablePanel().updatePredicateOfSelectedFlow();
         }
       }
     );
@@ -279,55 +212,81 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog implements ListSelection
     label.setHorizontalAlignment(JLabel.CENTER);
     return label;
   }
+}
+
+class FlowDetailTablePanel extends AbstractOrderedTablePanel {
+
+  private AbstractTaskDoneDialog parent;
   
-  public void setVisible(boolean state) {
-    if (state == true) {
-      JUtilities.centreWindowUnderVertex(graph, this, getTask(), 10);
-    }
-    if (state == false) {
-      colorFlow(
-        flowTable.getFlowModel().getFlowAt(flowTable.getSelectedRow()), 
-        Color.BLACK
-      );
-    }
-    super.setVisible(state);
+  private FlowPriorityTable flowTable = new FlowPriorityTable();
+
+  private NetGraph netOfTask;
+
+  private static final long serialVersionUID = 1L;
+  
+  public FlowDetailTablePanel(AbstractTaskDoneDialog parent) {
+    super();
+    this.parent = parent;
+    setOrderedTable(flowTable);
+    flowTable.setParentWindow(parent);
   }
   
-  private void colorFlow(YAWLFlowRelation flow, Color color) {
-    graph.stopUndoableEdits();      
-    graph.changeCellForeground(flow, color);
-    graph.startUndoableEdits();      
+  public void setTaskAndNet(YAWLTask task, NetGraph net) {
+    this.netOfTask = net;
+    flowTable.setTaskAndNet(task, net);
   }
   
-  private ImageIcon getIconByName(String iconName) {
-    return ResourceLoader.getImageAsIcon(
-           "/au/edu/qut/yawl/editor/resources/menuicons/" 
-           + iconName + "24.gif");
+  public NetGraph getNetOfTask() {
+    return netOfTask;
   }
   
-  public void updateState() {
-    if (flowTable == null) {
-      setState(NO_ELEMENTS);
-      return;
+  public void updatePredicateOfSelectedFlow() {
+    flowTable.updatePredicateOfSelectedFlow();
+  }
+  
+  public void selectFlowAtRow(int rowNumber) {
+    flowTable.selectRow(rowNumber);
+  }
+  
+  public YAWLFlowRelation getSelectedFlow() {
+    return flowTable.getSelectedFlow();
+  }
+  
+  public boolean hasFlows() {
+    return (flowTable.getRowCount() > 0);
+  }
+  
+  public LinkedList<YAWLFlowRelation> getAllFlows() {
+    return  flowTable.getFlowModel().getOrderedRows();
+  }
+  
+  public void valueChanged(ListSelectionEvent e) {
+    if (e.getValueIsAdjusting()) {
+      return;  // The mouse button has not yet been released
     }
-    
-    if (flowTable.getRowCount() > 0) {
-      setState(SOME_ELEMENTS);
-    } else {
-      setState(NO_ELEMENTS);
+
+    super.valueChanged(e);
+    colorFlowOfSelectedRow();
+  }
+
+  private void colorFlowOfSelectedRow() {
+    for(YAWLFlowRelation flow: getAllFlows()) {
+      if (getSelectedFlow() == flow) {
+        colorSelectedFlow(Color.GREEN.darker());
+      } else {
+        colorFlow(flow, Color.BLACK);
+      }
     }
   }
 
-  public void setState(int state) {
-    if (state == NO_ELEMENTS) {
-      increasePriorityButton.setEnabled(false);
-      decreasePriorityButton.setEnabled(false);
-      updatePredicateButton.setEnabled(false);
-    }
-    if (state == SOME_ELEMENTS) {
-      increasePriorityButton.setEnabled(true);
-      decreasePriorityButton.setEnabled(true);
-      updatePredicateButton.setEnabled(true);
-    }
+  public void colorSelectedFlow(Color color) {
+    colorFlow(getSelectedFlow(), color);
+  }
+  
+  private void colorFlow(YAWLFlowRelation flow, Color color) {
+    getNetOfTask().stopUndoableEdits();      
+    getNetOfTask().changeCellForeground(flow, color);
+    getNetOfTask().startUndoableEdits();      
   }
 }
+

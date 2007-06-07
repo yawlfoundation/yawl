@@ -147,9 +147,5 @@ public class FlowPriorityTableModel extends AbstractOrderedRowTableModel {
     secondRow.setPriority(
       firstRowPriority
     );
-/*
-    System.out.println("Flow (" + firstRow.getPredicate() + ") priority is now: " + firstRow.getPriority());
-    System.out.println("Flow (" + secondRow.getPredicate()+ ") priority is now: " + secondRow.getPriority());
-*/
   }
 }
