@@ -36,23 +36,30 @@ public class FlowPriorityTable extends JOrderedSingleSelectTable {
 
   NetGraph net;
   
-  private final FlowPredicateUpdateDialog predicateDialog;
+  private FlowPredicateUpdateDialog predicateDialog;
 
   YAWLFlowRelation oldSelectedFlow;
   
-  public FlowPriorityTable(AbstractDoneDialog parent) {    
+  public FlowPriorityTable() {    
     super(5);
-    predicateDialog = new FlowPredicateUpdateDialog(parent);
     setModel(new FlowPriorityTableModel());
   }
+  
+  public void setParentWindow(AbstractDoneDialog parent) {
+    predicateDialog = new FlowPredicateUpdateDialog(parent);
+  }
  
-  public void setTask(YAWLTask task, NetGraph graph) {
+  public void setTaskAndNet(YAWLTask task, NetGraph graph) {
     this.net = graph;
     setModel(new FlowPriorityTableModel(task));
   }
   
   public FlowPriorityTableModel getFlowModel() {
     return (FlowPriorityTableModel) getModel();
+  }
+  
+  public YAWLFlowRelation getSelectedFlow() {
+    return getFlowModel().getFlowAt(getSelectedRow()); 
   }
   
   public void updatePredicateOfSelectedFlow() {
