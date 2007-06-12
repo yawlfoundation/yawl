@@ -35,7 +35,7 @@ import au.edu.qut.yawl.editor.actions.net.NetDecompositionDetailAction;
 
 import au.edu.qut.yawl.editor.actions.specification.CreateNetAction;
 
-import au.edu.qut.yawl.editor.swing.JSplashScreen;
+import au.edu.qut.yawl.editor.YAWLEditor;
 
 class NetMenu extends YAWLOpenSpecificationMenu {
     
@@ -50,21 +50,21 @@ class NetMenu extends YAWLOpenSpecificationMenu {
   
   protected void buildInterface() {
     add(new YAWLMenuItem(new CreateNetAction()));
-    JSplashScreen.getInstance().updateProgressBar(22);
+    YAWLEditor.updateLoadProgress(22);
 
     add(new YAWLMenuItem(new RemoveNetAction()));
-    JSplashScreen.getInstance().updateProgressBar(24);
+    YAWLEditor.updateLoadProgress(24);
 
     add(new YAWLMenuItem(new SetStartingNetAction()));
-    JSplashScreen.getInstance().updateProgressBar(26);
-    
+    YAWLEditor.updateLoadProgress(26);
+
     add(new YAWLMenuItem(new NetDecompositionDetailAction()));
-    JSplashScreen.getInstance().updateProgressBar(27);
+    YAWLEditor.updateLoadProgress(27);
 
     addSeparator();
     add(new YAWLMenuItem(new ExportNetToPngAction()));   
-    JSplashScreen.getInstance().updateProgressBar(28);
-    
+    YAWLEditor.updateLoadProgress(28);
+
     addSeparator();
 
     add(new YAWLMenuItem(new NetBackgroundColourAction()));
@@ -72,6 +72,6 @@ class NetMenu extends YAWLOpenSpecificationMenu {
     addSeparator();
     
     add(new YAWLMenuItem(new PrintNetAction()));
-    JSplashScreen.getInstance().updateProgressBar(29);
+    YAWLEditor.updateLoadProgress(29);
   }
 }

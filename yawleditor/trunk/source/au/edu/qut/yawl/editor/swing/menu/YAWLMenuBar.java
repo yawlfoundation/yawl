@@ -26,37 +26,32 @@ package au.edu.qut.yawl.editor.swing.menu;
 
 import javax.swing.JMenuBar;
 
-import au.edu.qut.yawl.editor.swing.JSplashScreen;
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import au.edu.qut.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
+import au.edu.qut.yawl.editor.YAWLEditor;
 
 public class YAWLMenuBar extends JMenuBar {
   
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private int progress = 0;
   
   public YAWLMenuBar() {
     super();
-    JSplashScreen.getInstance().updateProgressBar(progress+=10);
+    YAWLEditor.updateLoadProgress(progress+=10);
     add(new SpecificationMenu());
-    JSplashScreen.getInstance().updateProgressBar(progress+=10);
+    YAWLEditor.updateLoadProgress(progress+=10);
     add(new NetMenu());
-    JSplashScreen.getInstance().updateProgressBar(progress+=10);
+    YAWLEditor.updateLoadProgress(progress+=10);
     add(new EditMenu());
-    JSplashScreen.getInstance().updateProgressBar(progress+=10);
+    YAWLEditor.updateLoadProgress(progress+=10);
     add(new ElementsMenu());
-    JSplashScreen.getInstance().updateProgressBar(progress+=10);
-    if (YAWLEngineProxy.engineLibrariesAvailable() || WofYAWLProxy.wofYawlAvailable()) {
+    YAWLEditor.updateLoadProgress(progress+=10);
+    if (ToolsMenu.needsToBeAddedToMenus()) {
       add(new ToolsMenu());
-      JSplashScreen.getInstance().updateProgressBar(progress+=10);
+      YAWLEditor.updateLoadProgress(progress+=10);
     } else {
       progress+=10;
     }
     add(new ViewMenu());
-    JSplashScreen.getInstance().updateProgressBar(progress+=10);
+    YAWLEditor.updateLoadProgress(progress+=10);
     add(new HelpMenu());
    }
 }

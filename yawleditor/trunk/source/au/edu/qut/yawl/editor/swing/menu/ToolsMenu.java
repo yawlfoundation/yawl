@@ -33,6 +33,7 @@ import au.edu.qut.yawl.editor.actions.tools.SetEngineDetailAction;
 import au.edu.qut.yawl.editor.actions.tools.SetOrganisationDatabaseAction;
 
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import au.edu.qut.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 class ToolsMenu extends JMenu {
     
@@ -56,5 +57,12 @@ class ToolsMenu extends JMenu {
       addSeparator();
       add(new YAWLMenuItem(new ConfigureAnalysisToolsAction()));
     }
+  }
+  
+  public static boolean needsToBeAddedToMenus() {
+    if (YAWLEngineProxy.engineLibrariesAvailable() || WofYAWLProxy.wofYawlAvailable()) {
+      return true;
+    } 
+    return false;
   }
 }
