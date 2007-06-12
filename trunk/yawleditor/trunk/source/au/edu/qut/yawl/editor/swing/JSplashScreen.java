@@ -47,17 +47,12 @@ import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 
 public class JSplashScreen {
 
-  private static final JSplashScreen INSTANCE = new JSplashScreen();
-
   private String message;
   private String imageFile;
 
   private JWindow splashScreen;
   private JProgressBar progressBar;
 
-  public static JSplashScreen getInstance() {
-    return INSTANCE;
-  }  
 
   /**
 	 * Creates a new splashscreen containing an image file, progress bar and message string.
@@ -65,7 +60,7 @@ public class JSplashScreen {
 	 * @param message    the message string to display below the progress bar.
 	 */
   
-  private JSplashScreen() {}
+  public JSplashScreen() {}
   
   public void setContent(String imageFile, String message) {
     this.message = message;

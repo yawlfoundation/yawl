@@ -77,6 +77,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private static YAWLEditor INSTANCE;
   
+  private static JSplashScreen splashScreen = new JSplashScreen();
+  
   public static YAWLEditor getInstance() {
     if (INSTANCE == null) {
       INSTANCE = new YAWLEditor();
@@ -85,12 +87,9 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   }  
 
   public static void main(String[] args) {
-    JSplashScreen.getInstance().setContent(
-        "/au/edu/qut/yawl/editor/resources/yawlSplashScreen.jpg",
-        "YAWLEditor" + getSizeDistinction() + " v " +
-        getVersionNumber() + " - (c) 2007 The YAWL Foundation");
 
-    JSplashScreen.getInstance().show();
+    startLoading();
+
     validateParameter(args);
     
     getInstance().setVisible(true);
@@ -98,16 +97,37 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
     processParametersAsNecessary();
     
-    JSplashScreen.getInstance().finish();
+    finishLoading();
   }
   
   private YAWLEditor() {
     super();
-    JSplashScreen.getInstance().updateProgressBar(5);
+    updateLoadProgress(5);
     buildInterface();
     SpecificationFileModel.getInstance().subscribe(this);
   }
 
+  private static JSplashScreen getSplashScreen() {
+    return splashScreen;
+  }
+  
+  public static void updateLoadProgress(int completionValue) {
+    getSplashScreen().updateProgressBar(completionValue);
+  }
+  
+  private static void startLoading() {
+    getSplashScreen().setContent(
+        "/au/edu/qut/yawl/editor/resources/yawlSplashScreen.jpg",
+        "YAWLEditor" + getSizeDistinction() + " v " +
+        getVersionNumber() + " - (c) 2007 The YAWL Foundation");
+
+    getSplashScreen().show();
+  }
+  
+  private static void finishLoading() {
+    getSplashScreen().finish();
+  }
+  
   private static void validateParameter(String[] args) {
     if (args.length > 1) {
       System.out.println("Usage: " + System.getProperty("java.class.path") + " [<EditorSaveFile>]");
@@ -144,15 +164,16 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       ).getImage()
     );
 
-    JSplashScreen.getInstance().updateProgressBar(90);
+    updateLoadProgress(90);
 
     ArchivingThread.getInstance().start();
     processPreferences(); 
     installEventListeners();
     
-    JSplashScreen.getInstance().updateProgressBar(95);
+    updateLoadProgress(95);
     attemptEngineConnectionIfApplicable();
   }
+
 		
   public void setTitle(String title) {
     String titleSeparator = "";
@@ -222,9 +243,9 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private JPanel getTopPanel() {
     JPanel topPanel = new JPanel(new BorderLayout());
     
-    JSplashScreen.getInstance().updateProgressBar(70);
+    updateLoadProgress(70);
     topPanel.add(getPalettePanel(), BorderLayout.WEST);
-    JSplashScreen.getInstance().updateProgressBar(80);
+    updateLoadProgress(80);
     topPanel.add(getEditPanel(), BorderLayout.CENTER);
 
     return topPanel;

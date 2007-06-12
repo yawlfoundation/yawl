@@ -28,6 +28,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.JMenu;
 
+import javax.swing.AbstractAction;
 import au.edu.qut.yawl.editor.actions.ExitAction;
 import au.edu.qut.yawl.editor.actions.specification.AnalyseSpecificationAction;
 import au.edu.qut.yawl.editor.actions.specification.CloseSpecificationAction;
@@ -42,7 +43,7 @@ import au.edu.qut.yawl.editor.actions.specification.UpdateSpecificationPropertie
 import au.edu.qut.yawl.editor.actions.specification.ValidateSpecificationAction;
 import au.edu.qut.yawl.editor.actions.specification.PrintSpecificationAction;
 
-import au.edu.qut.yawl.editor.swing.JSplashScreen;
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 class SpecificationMenu extends JMenu {
@@ -59,36 +60,41 @@ class SpecificationMenu extends JMenu {
   }   
   
   protected void buildInterface() {
-    add(new YAWLMenuItem(new CreateSpecificationAction()));
-    add(new YAWLMenuItem(new OpenSpecificationAction()));
+    addMenuItemAction(new CreateSpecificationAction());
+    addMenuItemAction(new OpenSpecificationAction());
+    
     addSeparator();
-    add(new YAWLMenuItem(new SaveSpecificationAction()));
-    add(new YAWLMenuItem(new SaveSpecificationAsAction()));
+    
+    addMenuItemAction(new SaveSpecificationAction());
+    addMenuItemAction(new SaveSpecificationAsAction());
 
-    JSplashScreen.getInstance().updateProgressBar(12);
+    YAWLEditor.updateLoadProgress(12);
 
     if (YAWLEngineProxy.engineLibrariesAvailable()) {
       addSeparator();
-      add(new YAWLMenuItem(new ValidateSpecificationAction()));
-      add(new YAWLMenuItem(new AnalyseSpecificationAction()));
-      add(new YAWLMenuItem(new ExportToEngineFormatAction()));
-      add(new YAWLMenuItem(new ImportFromEngineFormatAction()));
+      addMenuItemAction(new ValidateSpecificationAction());
+      addMenuItemAction(new AnalyseSpecificationAction());
+      addMenuItemAction(new ExportToEngineFormatAction());
+      addMenuItemAction(new ImportFromEngineFormatAction());
     }
 
-    JSplashScreen.getInstance().updateProgressBar(16);
+    YAWLEditor.updateLoadProgress(16);
 
     addSeparator();
-
-    add(new YAWLMenuItem(new PrintSpecificationAction()));
-    
-    addSeparator();
-    add(new YAWLMenuItem(new UpdateSpecificationPropertiesAction()));
-    add(new YAWLMenuItem(new UpdateDataTypeDefinitionsAction()));
+    addMenuItemAction(new PrintSpecificationAction());
     addSeparator();
 
-    add(new YAWLMenuItem(new CloseSpecificationAction()));
-    add(new YAWLMenuItem(new ExitAction(this)));
+    addMenuItemAction(new UpdateSpecificationPropertiesAction());
+    addMenuItemAction(new UpdateDataTypeDefinitionsAction());
+    addSeparator();
 
-    JSplashScreen.getInstance().updateProgressBar(18);
+    addMenuItemAction(new CloseSpecificationAction());
+    addMenuItemAction(new ExitAction(this));
+
+    YAWLEditor.updateLoadProgress(18);
+  }
+  
+  private void addMenuItemAction(AbstractAction action) {
+    add(new YAWLMenuItem(action));
   }
 }
