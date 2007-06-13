@@ -25,7 +25,7 @@
 package au.edu.qut.yawl.editor.actions.palette;
 
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.menu.Palette;
+import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 
 import javax.swing.Action;
 
@@ -40,7 +40,6 @@ public class MarqueeAction extends ControlFlowPaletteAction implements TooltipTo
     putValue(Action.NAME, "Marquee");
     putValue(Action.LONG_DESCRIPTION, "Net Element Selection Mode");
     putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMarquee"));
-    setIdentifier(Palette.MARQUEE);
   }
   
   public String getEnabledTooltipText() {
@@ -53,5 +52,9 @@ public class MarqueeAction extends ControlFlowPaletteAction implements TooltipTo
 
   public String getButtonStatusText() {
     return "Select a number of net elements to manipulate.";
+  }
+  
+  public ControlFlowPalette.SelectionState getSelectionID() {
+    return ControlFlowPalette.SelectionState.MARQUEE;
   }
 }

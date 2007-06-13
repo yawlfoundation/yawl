@@ -29,7 +29,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 
 import javax.swing.AbstractButton;
@@ -51,7 +50,6 @@ import org.jgraph.event.GraphSelectionEvent;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-import au.edu.qut.yawl.editor.actions.palette.*;
 import au.edu.qut.yawl.editor.elements.model.AtomicTask;
 import au.edu.qut.yawl.editor.elements.model.CompositeTask;
 import au.edu.qut.yawl.editor.elements.model.Decorator;
@@ -74,14 +72,6 @@ public class Palette extends YAWLToolBar implements SpecificationModelListener {
    * 
    */
   private static final long serialVersionUID = 1L;
-  
-  public static final int ATOMIC_TASK             = 0;
-  public static final int COMPOSITE_TASK          = 1;
-  public static final int MULTIPLE_ATOMIC_TASK    = 2;
-  public static final int MULTIPLE_COMPOSITE_TASK = 3;
-  public static final int CONDITION               = 4;
-  public static final int DRAG                    = 5;
-  public static final int MARQUEE                 = 6;
 
   private static final ControlFlowPalette CONTROL_FLOW_PALETTE = new ControlFlowPalette();
   private static final SingleTaskPalette SINGLE_TASK_PALETTE = new SingleTaskPalette();
@@ -112,20 +102,27 @@ public class Palette extends YAWLToolBar implements SpecificationModelListener {
   }
   
   
+  public void refreshSelected() {
+    /*
+     * The NetMarquee Handler overrides certain
+     * GUI behaviour at times. When it is done
+     * it wants to reset to the GUI behaviour 
+     * driven by the control palette. The easiest
+     * way to do that is just re-selecting the current
+     * selected palette item.
+     */
+    
+    CONTROL_FLOW_PALETTE.setSelectedState(
+      CONTROL_FLOW_PALETTE.getSelectedState()    
+    );
+  }
+  
+  public ControlFlowPalette.SelectionState getControlFlowPaletteState() {
+    return CONTROL_FLOW_PALETTE.getSelectedState();
+  }
+  
   public void doPostBuildProcessing() {
     SpecificationModel.getInstance().subscribe(this);   
-  }
-
-  public void setSelected(int item) {
-    CONTROL_FLOW_PALETTE.setSelected(item);
-  }
-  
-  public void setStatusBarTextFromSelectedItem() {
-    CONTROL_FLOW_PALETTE.setStatusBarTextFromSelectedItem();
-  }
-  
-  public int getSelected() {
-    return CONTROL_FLOW_PALETTE.getSelected();
   }
   
   public void setEnabled(boolean enabled) {
@@ -138,7 +135,9 @@ public class Palette extends YAWLToolBar implements SpecificationModelListener {
   public void updateState(int state) {
     switch(state) {
       case SpecificationModel.NO_NETS_EXIST: {
-        CONTROL_FLOW_PALETTE.setSelected(MARQUEE);
+        CONTROL_FLOW_PALETTE.setSelectedState(
+            ControlFlowPalette.SelectionState.MARQUEE
+        );
         setEnabled(false);
         YAWLEditor.setStatusBarText(
             "Open or create a specification to begin."
@@ -172,138 +171,6 @@ public class Palette extends YAWLToolBar implements SpecificationModelListener {
   }
 }
 
-class ControlFlowPalette extends JPanel {
-  private static final long serialVersionUID = 1L;
-  
-  
-  private static int selectedItem = Palette.MARQUEE;
-
-  /*
-  public static enum PaletteSelectionState {
-    ATOMIC_TASK,
-    COMPOSITE_TASK,
-    MULTIPLE_ATOMIC_TASK,
-    MULTILE_COMPOSITE_TASK,
-    CONDITION,
-    DRAG,
-    MARQUEE
-  };
-  
-  private PaletteSelectionState paletteSelectionState = PaletteSelectionState.MARQUEE;
-*/
-  
-  private boolean enabledState = true;
-  
-  private ControlFlowPaletteButton[] buttons = {
-      new ControlFlowPaletteButton(
-          this,
-          new AtomicTaskAction(),
-          KeyEvent.VK_1
-      ),
-      new ControlFlowPaletteButton(
-          this,
-          new CompositeTaskAction(),
-          KeyEvent.VK_2
-      ),
-      new ControlFlowPaletteButton(
-          this,
-          new MultipleAtomicTaskAction(),
-          KeyEvent.VK_3
-      ),
-      new ControlFlowPaletteButton(
-          this,
-          new MultipleCompositeTaskAction(),
-          KeyEvent.
-          VK_4
-      ),
-      new ControlFlowPaletteButton(
-          this,
-          new ConditionAction(),
-          KeyEvent.VK_5
-      ),
-      new ControlFlowPaletteButton(
-          this,
-          new NetDragAction(),
-          KeyEvent.VK_6
-      ),
-      new ControlFlowPaletteButton(
-          this,
-          new MarqueeAction(),
-          KeyEvent.VK_7
-      )
-  };
-  
-  public ControlFlowPalette() {
-    buildInterface();
-  }
-
-  protected void buildInterface() {
-    
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    setLayout(gbl);
-    
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.weightx = 0.5;
-    add(Box.createHorizontalGlue());
-    
-    gbc.gridx++;
-    gbc.weightx = 0;
-    add(buildButtons(),gbc);
-
-    gbc.gridx++;
-    gbc.weightx = 0.5;
-    add(Box.createHorizontalGlue());
-  }
-  
-  private JPanel buildButtons() {
-    JPanel buttonPanel = new JPanel();
-    buttonPanel.setLayout(new GridLayout(4,2));
-
-    for (int i = 0; i < buttons.length; i++) {
-      buttons[i].setMargin(new Insets(3,3,3,3));
-      buttonPanel.add(buttons[i]);      
-    }
-    
-    return buttonPanel;
-  }
-  
-  public void setSelected(int item) {
-    buttons[selectedItem].setSelected(false);
-    selectedItem = item;
-    buttons[selectedItem].setSelected(true);
-    setStatusBarTextFromSelectedItem();
-  }
-  
-  public void setStatusBarTextFromSelectedItem() {
-    YAWLEditor.setStatusBarText(
-        buttons[selectedItem].getButtonStatusText()
-    );
-  }
-  
-  public int getSelected() {
-    return selectedItem;
-  }
-  
-  public void setEnabled(boolean state) {
-    if (enabledState == state) {
-      return;
-    }
-    setVisible(false);
-    for (int i = 0; i < buttons.length; i++) {
-      buttons[i].setEnabled(state);      
-    }
-    if (state == true) {
-      YAWLEditor.setStatusBarText(
-          buttons[getSelected()].getButtonStatusText()
-      );
-    }
-    setVisible(true);
-    enabledState = state;
-  }
-}
 
 class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSubscriber{
 

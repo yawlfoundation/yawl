@@ -30,23 +30,11 @@ import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
-import au.edu.qut.yawl.editor.swing.menu.Palette;
+import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 
 public abstract class ControlFlowPaletteAction extends AbstractAction {
   
-  private int paletteIdentifier = Palette.MARQUEE;
-
-  public void actionPerformed(ActionEvent event) {
-   Palette.getInstance().setSelected(getIdentifier());      
-  }
-  
-  public void setIdentifier(int identifier) {
-    paletteIdentifier = identifier;    
-  }
-  
-  public int getIdentifier() {
-    return paletteIdentifier;
-  }
+  public void actionPerformed(ActionEvent event) {}
   
   protected ImageIcon getPaletteIconByName(String iconName) {
     return ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/menuicons/" 
@@ -58,4 +46,6 @@ public abstract class ControlFlowPaletteAction extends AbstractAction {
   protected String getClickAnywhereText() {
     return "Left-click on the selected net to create a new ";    
   }
+  
+  public abstract ControlFlowPalette.SelectionState getSelectionID();
 }

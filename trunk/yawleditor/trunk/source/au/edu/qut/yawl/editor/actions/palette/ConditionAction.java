@@ -28,7 +28,7 @@ package au.edu.qut.yawl.editor.actions.palette;
 import javax.swing.Action;
 
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.menu.Palette;
+import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 
 public class ConditionAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
   /**
@@ -41,7 +41,6 @@ public class ConditionAction extends ControlFlowPaletteAction implements Tooltip
     putValue(Action.NAME, "Condition");
     putValue(Action.LONG_DESCRIPTION, "Add a new Condition");
     putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteCondition"));
-    setIdentifier(Palette.CONDITION);
   }
   
   public String getEnabledTooltipText() {
@@ -54,5 +53,9 @@ public class ConditionAction extends ControlFlowPaletteAction implements Tooltip
   
   public String getButtonStatusText() {
     return getClickAnywhereText() + "condition.";
+  }
+  
+  public ControlFlowPalette.SelectionState getSelectionID() {
+    return ControlFlowPalette.SelectionState.CONDITION;
   }
 }

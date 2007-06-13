@@ -27,7 +27,7 @@ package au.edu.qut.yawl.editor.actions.palette;
 import javax.swing.Action;
 
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.menu.Palette;
+import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 
 public class MultipleAtomicTaskAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
   /**
@@ -40,7 +40,6 @@ public class MultipleAtomicTaskAction extends ControlFlowPaletteAction implement
     putValue(Action.NAME, "Multiple Atomic Task");
     putValue(Action.LONG_DESCRIPTION, "Add a new Multiple Atomic Task");
     putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMultipleAtomicTask"));
-    setIdentifier(Palette.MULTIPLE_ATOMIC_TASK);
   }
   
   public String getEnabledTooltipText() {
@@ -55,4 +54,7 @@ public class MultipleAtomicTaskAction extends ControlFlowPaletteAction implement
     return getClickAnywhereText() + "multiple atomic task.";
   }
 
+  public ControlFlowPalette.SelectionState getSelectionID() {
+    return ControlFlowPalette.SelectionState.MULTIPLE_ATOMIC_TASK;
+  }
 }

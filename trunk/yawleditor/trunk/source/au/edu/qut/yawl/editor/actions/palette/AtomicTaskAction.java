@@ -26,7 +26,7 @@ package au.edu.qut.yawl.editor.actions.palette;
 
 import javax.swing.Action;
 
-import au.edu.qut.yawl.editor.swing.menu.Palette;
+import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 
 
@@ -41,7 +41,6 @@ public class AtomicTaskAction extends ControlFlowPaletteAction implements Toolti
     putValue(Action.NAME, "Atomic Task");
     putValue(Action.LONG_DESCRIPTION, "Add a new Atomic Task");
     putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteAtomicTask"));
-    setIdentifier(Palette.ATOMIC_TASK);
   }
   
   public String getEnabledTooltipText() {
@@ -54,5 +53,9 @@ public class AtomicTaskAction extends ControlFlowPaletteAction implements Toolti
   
   public String getButtonStatusText() {
     return getClickAnywhereText() + "atomic task.";
+  }
+  
+  public ControlFlowPalette.SelectionState getSelectionID() {
+    return ControlFlowPalette.SelectionState.ATOMIC_TASK;
   }
 }

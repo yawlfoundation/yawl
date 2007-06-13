@@ -21,6 +21,7 @@ import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLPort;
 import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.swing.CursorFactory;
+import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 import au.edu.qut.yawl.editor.swing.menu.Palette;
 
 
@@ -60,13 +61,16 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
    * between net elements.
    */
   public boolean isForceMarqueeEvent(MouseEvent event) {
-    if (Palette.getInstance().getSelected() == Palette.MARQUEE) {
+    if (Palette.getInstance().getControlFlowPaletteState() == 
+        ControlFlowPalette.SelectionState.MARQUEE) {
       return false;
     }
-    if (Palette.getInstance().getSelected() != Palette.MARQUEE && state == State.ABOVE_VERTEX) {
+    if (Palette.getInstance().getControlFlowPaletteState() != ControlFlowPalette.SelectionState.MARQUEE && 
+        state == State.ABOVE_VERTEX) {
       return false;
     }
-    if (Palette.getInstance().getSelected() != Palette.MARQUEE && state == State.ABOVE_FLOW_RELATION) {
+    if (Palette.getInstance().getControlFlowPaletteState() != ControlFlowPalette.SelectionState.MARQUEE 
+        && state == State.ABOVE_FLOW_RELATION) {
       return false;
     }
     return true;
@@ -85,7 +89,8 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
    */
 
   public void mouseMoved(MouseEvent event) {
-    if (Palette.getInstance().getSelected() == Palette.MARQUEE) {
+    if (Palette.getInstance().getControlFlowPaletteState() == 
+        ControlFlowPalette.SelectionState.MARQUEE ) {
       super.mouseMoved(event);
       return;
     }
@@ -104,32 +109,32 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
   }
   
   private void setCursorFromPalette() {
-    switch (Palette.getInstance().getSelected()) {
-      case Palette.MARQUEE: {
+    switch (Palette.getInstance().getControlFlowPaletteState()) {
+      case MARQUEE : {
         matchCursorTo(CursorFactory.SELECTION);
         break;
       }
-      case Palette.DRAG: {
+      case DRAG: {
         matchCursorTo(CursorFactory.DRAG);
         break;
       }
-      case Palette.CONDITION: {
+      case CONDITION: {
         matchCursorTo(CursorFactory.CONDITION);
         break;
       }
-      case Palette.ATOMIC_TASK: {
+      case ATOMIC_TASK: {
         matchCursorTo(CursorFactory.ATOMIC_TASK);
         break;
       }
-      case Palette.COMPOSITE_TASK: {
+      case COMPOSITE_TASK: {
         matchCursorTo(CursorFactory.COMPOSITE_TASK);
         break;
       }
-      case Palette.MULTIPLE_ATOMIC_TASK: {
+      case MULTIPLE_ATOMIC_TASK: {
         matchCursorTo(CursorFactory.MULTIPLE_ATOMIC_TASK);
         break;
       }
-      case Palette.MULTIPLE_COMPOSITE_TASK: {
+      case MULTIPLE_COMPOSITE_TASK: {
         matchCursorTo(CursorFactory.MULTIPLE_COMPOSITE_TASK);
         break;
       }
@@ -138,7 +143,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
   
   private void matchCursorTo(int cursorType) {
     getNet().setCursor(CursorFactory.getCustomCursor(cursorType));
-    Palette.getInstance().setStatusBarTextFromSelectedItem();
+    Palette.getInstance().refreshSelected();
   }
   
   /**
@@ -170,7 +175,8 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
    */
   
   public void mousePressed(MouseEvent event) {
-    if (Palette.getInstance().getSelected() == Palette.MARQUEE) {
+    if (Palette.getInstance().getControlFlowPaletteState() == 
+        ControlFlowPalette.SelectionState.MARQUEE) {
       super.mousePressed(event);
       return;
     }
@@ -192,28 +198,28 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         break;
       }
       case ABOVE_CANVAS: {
-        switch (Palette.getInstance().getSelected()) {
-          case Palette.CONDITION: {
+        switch (Palette.getInstance().getControlFlowPaletteState()) {
+          case CONDITION: {
             getNet().addCondition(getNearestSnapPoint(event.getPoint()));
             state = State.ABOVE_VERTEX;
             break;        
           }
-          case Palette.ATOMIC_TASK: {
+          case ATOMIC_TASK: {
             getNet().addAtomicTask(getNearestSnapPoint(event.getPoint()));
             state = State.ABOVE_VERTEX;
             break;        
           }
-          case Palette.COMPOSITE_TASK: {
+          case COMPOSITE_TASK: {
             getNet().addCompositeTask(getNearestSnapPoint(event.getPoint()));
             state = State.ABOVE_VERTEX;
             break;        
           }
-          case Palette.MULTIPLE_ATOMIC_TASK: {
+          case MULTIPLE_ATOMIC_TASK: {
             getNet().addMultipleAtomicTask(getNearestSnapPoint(event.getPoint()));
             state = State.ABOVE_VERTEX;
             break;        
           }
-          case Palette.MULTIPLE_COMPOSITE_TASK: {
+          case MULTIPLE_COMPOSITE_TASK: {
             getNet().addMultipleCompositeTask(getNearestSnapPoint(event.getPoint()));
             state = State.ABOVE_VERTEX;
             break;        
@@ -234,7 +240,8 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
    */
   
   public void mouseDragged(MouseEvent event) {
-    if (Palette.getInstance().getSelected() == Palette.MARQUEE) {
+    if (Palette.getInstance().getControlFlowPaletteState() == 
+        ControlFlowPalette.SelectionState.MARQUEE) {
       super.mouseDragged(event);
       return;
     }
@@ -270,7 +277,8 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
    */
   
   public void mouseReleased(MouseEvent event) {
-    if (Palette.getInstance().getSelected() == Palette.MARQUEE) {
+    if (Palette.getInstance().getControlFlowPaletteState() == 
+        ControlFlowPalette.SelectionState.MARQUEE) {
       super.mouseReleased(event);
       return;
     }
