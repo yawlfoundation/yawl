@@ -29,7 +29,7 @@ import javax.swing.Action;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.menu.Palette;
 
-public class MultipleAtomicTaskAction extends YAWLPaletteAction implements TooltipTogglingWidget {
+public class MultipleAtomicTaskAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
   /**
    * 
    */
@@ -50,4 +50,9 @@ public class MultipleAtomicTaskAction extends YAWLPaletteAction implements Toolt
   public String getDisabledTooltipText() {
     return " You must have an open specification, and selected net to use the palette ";
   }
+
+  public String getButtonStatusText() {
+    return getClickAnywhereText() + "multiple atomic task.";
+  }
+
 }

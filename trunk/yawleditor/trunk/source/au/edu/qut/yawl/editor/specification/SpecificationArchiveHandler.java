@@ -50,7 +50,6 @@ import au.edu.qut.yawl.editor.foundations.ArchivableNetState;
 import au.edu.qut.yawl.editor.foundations.ArchivableSpecificationState;
 import au.edu.qut.yawl.editor.foundations.FileUtilities;
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
-import au.edu.qut.yawl.editor.swing.JStatusBar;
 import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 import au.edu.qut.yawl.editor.swing.FileChooserFactory;
 
@@ -126,8 +125,8 @@ public class SpecificationArchiveHandler {
       return;
     }
 
-    JStatusBar.getInstance().setStatusText("Saving Specification...");
-    JStatusBar.getInstance().updateProgressOverSeconds(2);
+    YAWLEditor.setStatusBarText("Saving Specification...");
+    YAWLEditor.progressStatusBarOverSeconds(2);
     
     try {
       
@@ -163,9 +162,8 @@ public class SpecificationArchiveHandler {
       e.printStackTrace();
     }
 
-    JStatusBar.getInstance().resetProgress();
-    JStatusBar.getInstance().setStatusTextToPrevious();
-
+    YAWLEditor.resetStatusBarProgress();
+    YAWLEditor.setStatusBarTextToPrevious();
   }
   
   private void writeSpecification(XMLEncoder encoder) {
@@ -173,13 +171,13 @@ public class SpecificationArchiveHandler {
   }
 
   public void close() {
-    JStatusBar.getInstance().setStatusText("Closing Specification...");     
+    YAWLEditor.setStatusBarText("Closing Specification...");     
     if (SpecificationFileModel.getInstance().getFileCount() == 0) {
      return; 
     }
     int response = getSaveOnCloseResponse();
     if (response == JOptionPane.CANCEL_OPTION) {
-      JStatusBar.getInstance().setStatusTextToPrevious();
+      YAWLEditor.setStatusBarTextToPrevious();
       return;
     }
     if (response == JOptionPane.YES_OPTION) {
@@ -225,11 +223,11 @@ public class SpecificationArchiveHandler {
   }
   
   public void exit() {
-    JStatusBar.getInstance().setStatusText("Exiting YAWLEditor...");
+    YAWLEditor.setStatusBarText("Exiting YAWLEditor...");
     if (SpecificationFileModel.getInstance().getFileCount() > 0) {
       int response = getSaveOnCloseResponse();
       if (response == JOptionPane.CANCEL_OPTION) {
-        JStatusBar.getInstance().setStatusTextToPrevious();
+        YAWLEditor.setStatusBarTextToPrevious();
         return;
       }
 
@@ -251,7 +249,7 @@ public class SpecificationArchiveHandler {
     if (fileName == null) { // prompt user for the file
       if (JFileChooser.CANCEL_OPTION == 
         OPEN_FILE_CHOOSER.showOpenDialog(YAWLEditor.getInstance())) {
-        JStatusBar.getInstance().setStatusTextToPrevious();
+        YAWLEditor.setStatusBarTextToPrevious();
         return;
       }
       file = OPEN_FILE_CHOOSER.getSelectedFile();
@@ -270,16 +268,16 @@ public class SpecificationArchiveHandler {
         return;
 
       } else if (!file.canRead()) { // file exists, but can't be read
-        JStatusBar.getInstance().setStatusTextToPrevious();
+        YAWLEditor.setStatusBarTextToPrevious();
         return;        
       }
     }
 
-    JStatusBar.getInstance().updateProgressOverSeconds(2);
+    YAWLEditor.progressStatusBarOverSeconds(2);
     YAWLEditorDesktop.getInstance().setVisible(false);
     
     try {
-      JStatusBar.getInstance().setStatusText("Opening Specification...");
+      YAWLEditor.setStatusBarText("Opening Specification...");
 
       openSpecificationFromFile(
           getFullNameFromFile(file)
@@ -294,8 +292,8 @@ public class SpecificationArchiveHandler {
     }
 
     YAWLEditorDesktop.getInstance().setVisible(true);
-    JStatusBar.getInstance().resetProgress();
-    JStatusBar.getInstance().setStatusTextToPrevious();
+    YAWLEditor.resetStatusBarProgress();
+    YAWLEditor.setStatusBarTextToPrevious();
   }
   
   public void open() {

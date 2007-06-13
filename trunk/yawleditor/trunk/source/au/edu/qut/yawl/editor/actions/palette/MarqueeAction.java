@@ -29,7 +29,7 @@ import au.edu.qut.yawl.editor.swing.menu.Palette;
 
 import javax.swing.Action;
 
-public class MarqueeAction extends YAWLPaletteAction implements TooltipTogglingWidget {
+public class MarqueeAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
   /**
    * 
    */
@@ -49,5 +49,9 @@ public class MarqueeAction extends YAWLPaletteAction implements TooltipTogglingW
   
   public String getDisabledTooltipText() {
     return " You must have an open specification, and selected net to use the palette ";
+  }
+
+  public String getButtonStatusText() {
+    return "Select a number of net elements to manipulate.";
   }
 }

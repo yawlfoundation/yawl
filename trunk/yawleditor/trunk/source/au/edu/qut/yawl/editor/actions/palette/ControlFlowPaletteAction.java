@@ -32,7 +32,8 @@ import javax.swing.ImageIcon;
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 import au.edu.qut.yawl.editor.swing.menu.Palette;
 
-public abstract class YAWLPaletteAction extends AbstractAction {
+public abstract class ControlFlowPaletteAction extends AbstractAction {
+  
   private int paletteIdentifier = Palette.MARQUEE;
 
   public void actionPerformed(ActionEvent event) {
@@ -50,5 +51,11 @@ public abstract class YAWLPaletteAction extends AbstractAction {
   protected ImageIcon getPaletteIconByName(String iconName) {
     return ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/menuicons/" 
            + iconName + "24.gif");
+  }
+  
+  public abstract String getButtonStatusText();
+  
+  protected String getClickAnywhereText() {
+    return "Left-click on the selected net to create a new ";    
   }
 }

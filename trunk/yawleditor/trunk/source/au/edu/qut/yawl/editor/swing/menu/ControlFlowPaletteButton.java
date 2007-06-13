@@ -26,28 +26,45 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 
-import javax.swing.Action;
 import javax.swing.JToggleButton;
 
+import au.edu.qut.yawl.editor.actions.palette.ControlFlowPaletteAction;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 
-public class YAWLPaletteButton extends JToggleButton {
-  /**
-   * 
-   */
+public class ControlFlowPaletteButton extends JToggleButton {
+
   private static final long serialVersionUID = 1L;
   private static final Insets margin = new Insets(0,0,0,0);
 
-  public YAWLPaletteButton(Action a, int mnemonic) {
-    super(a);    
+  private ControlFlowPalette palette;
+  
+  public ControlFlowPaletteButton(ControlFlowPalette palette, ControlFlowPaletteAction action, int mnemonic) {
+    super(action);
+    setPalette(palette);
     setText(null);
     setMnemonic(mnemonic);   
     setMargin(margin);
     setMaximumSize(getPreferredSize());
   }
   
+  public void setPalette(ControlFlowPalette palette) {
+    this.palette = palette;
+  }
+  
+  public ControlFlowPalette getPalette() {
+    return this.palette;
+  }
+  
+  public ControlFlowPaletteAction getPaletteAction() {
+    return (ControlFlowPaletteAction) this.getAction();
+  }
+  
   public Point getToolTipLocation(MouseEvent e) {
     return new Point(0,getSize().height);
+  }
+  
+  public String getButtonStatusText() {
+    return getPaletteAction().getButtonStatusText();
   }
   
   public void setEnabled(boolean enabled) {

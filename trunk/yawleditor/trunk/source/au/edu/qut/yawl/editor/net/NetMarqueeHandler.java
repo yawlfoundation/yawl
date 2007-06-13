@@ -14,13 +14,13 @@ import org.jgraph.graph.CellView;
 import org.jgraph.graph.Port;
 import org.jgraph.graph.PortView;
 
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLCell;
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLPort;
 import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.swing.CursorFactory;
-import au.edu.qut.yawl.editor.swing.JStatusBar;
 import au.edu.qut.yawl.editor.swing.menu.Palette;
 
 
@@ -397,7 +397,10 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     sourcePort = portView;
     showPort(sourcePort);
     matchCursorTo(CursorFactory.FLOW_RELATION);
-    JStatusBar.getInstance().setStatusText("Left-click on this conection point, drag the flow to another valid connection point and release the mouse button to create a flow.");
+    YAWLEditor.setStatusBarText(
+        "Left-click on this conection point, drag the flow to another " +
+        "valid connection point and release the mouse button to create a flow."
+    );
   }
 
   private PortView getPortViewAt(Point point) {

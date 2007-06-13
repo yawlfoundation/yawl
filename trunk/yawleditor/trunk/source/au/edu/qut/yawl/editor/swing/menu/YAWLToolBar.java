@@ -36,6 +36,7 @@ abstract class YAWLToolBar extends JToolBar {
     super(title);
     buildInterface();
     setMaximumSize(getPreferredSize());
+    doPostBuildProcessing();
   }
 
   protected abstract void buildInterface();
@@ -48,4 +49,6 @@ abstract class YAWLToolBar extends JToolBar {
     setMaximumSize(getPreferredSize());
     super.repaint();        
   }
+  
+  public void doPostBuildProcessing() {}
 } 
