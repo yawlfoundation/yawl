@@ -27,11 +27,11 @@ package au.edu.qut.yawl.editor.swing.menu;
 
 import javax.swing.JMenu;
 
-import au.edu.qut.yawl.editor.specification.SpecificaitonModelListener;
+import au.edu.qut.yawl.editor.specification.SpecificationModelListener;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 
 abstract class YAWLOpenNetMenu extends JMenu 
-                                implements SpecificaitonModelListener {
+                                implements SpecificationModelListener {
     
   private static final SpecificationModel netModel =  
     SpecificationModel.getInstance(); 

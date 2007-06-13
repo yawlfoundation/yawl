@@ -77,7 +77,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private static YAWLEditor INSTANCE;
   
-  private static JSplashScreen splashScreen = new JSplashScreen();
+  private static final JSplashScreen splashScreen = new JSplashScreen();
+  private static final JStatusBar statusBar = new JStatusBar();
   
   public static YAWLEditor getInstance() {
     if (INSTANCE == null) {
@@ -145,6 +146,30 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     }
   }
   
+  private static JStatusBar getStatusBar() {
+    return statusBar;
+  }
+  
+  public static void setStatusBarText(String statusString) {
+    getStatusBar().setStatusBarText(statusString);
+  }
+  
+  public static void setStatusBarTextToPrevious(){
+    getStatusBar().setStatusBarTextToPrevious();
+  }
+  
+  public static void resetStatusBarProgress() {
+    getStatusBar().resetStatusBarProgress();
+  }
+  
+  public static void finishStatusBarProgress() {
+    getStatusBar().finishStatusBarProgress();
+  }
+
+  public static void progressStatusBarOverSeconds(int seconds) {
+    getStatusBar().progressStatusBarOverSeconds(seconds);
+  }
+
   private void buildInterface() {
 
     setJMenuBar(new YAWLMenuBar());  
@@ -154,7 +179,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     pane.add(getToolbarMenuPanel(), BorderLayout.NORTH);
     
     pane.add(getSplitPane(), BorderLayout.CENTER);
-    pane.add(JStatusBar.getInstance(),BorderLayout.SOUTH);
+    pane.add(getStatusBar(),BorderLayout.SOUTH);
 
     setTitle("");
 

@@ -38,7 +38,7 @@ import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
 import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
 import au.edu.qut.yawl.editor.net.NetGraph;
 
-import au.edu.qut.yawl.editor.swing.JStatusBar;
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.swing.undo.UndoableDecompositionLabelChange;
 import au.edu.qut.yawl.editor.swing.undo.UndoableNetFrameTitleChange;
 import au.edu.qut.yawl.editor.swing.undo.UndoableFontSizeChange;
@@ -97,7 +97,7 @@ public class SpecificationModel {
     return INSTANCE; 
   }
   
-  public void subscribe(final SpecificaitonModelListener subscriber) {
+  public void subscribe(final SpecificationModelListener subscriber) {
     subscribers.add(subscriber);
     subscriber.updateState(state);
   }
@@ -105,8 +105,8 @@ public class SpecificationModel {
   public void publishState(final int inputState) {
     state = inputState;
     for(int i = 0; i < subscribers.size();  i++) {
-      SpecificaitonModelListener listener = 
-        (SpecificaitonModelListener) subscribers.get(i);
+      SpecificationModelListener listener = 
+        (SpecificationModelListener) subscribers.get(i);
       listener.updateState(state);
     }
   }
@@ -130,7 +130,6 @@ public class SpecificationModel {
     setEngineFileName("");
     setDataTypeDefinition(DEFAULT_TYPE_DEFINITION);
     setUniqueElementNumber(0);
-    JStatusBar.getInstance().setStatusText("Open or create a net to begin.");
     
     setName("");
     setDescription("No description has been given.");
@@ -139,6 +138,7 @@ public class SpecificationModel {
     setVersionNumber("0.1");
     setValidFromTimestamp("");
     setValidUntilTimestamp("");
+    YAWLEditor.setStatusBarText("Open or create a net to begin.");
   }
   
   public void setNetCount(int netCount) {

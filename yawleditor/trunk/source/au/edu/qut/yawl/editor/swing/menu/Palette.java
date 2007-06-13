@@ -49,6 +49,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.jgraph.event.GraphSelectionEvent;
 
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
 import au.edu.qut.yawl.editor.actions.palette.*;
 import au.edu.qut.yawl.editor.elements.model.AtomicTask;
@@ -61,14 +62,13 @@ import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.specification.SpecificaitonModelListener;
+import au.edu.qut.yawl.editor.specification.SpecificationModelListener;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
-import au.edu.qut.yawl.editor.swing.JStatusBar;
 import au.edu.qut.yawl.editor.swing.JUtilities;
 
-public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
+public class Palette extends YAWLToolBar implements SpecificationModelListener {
 
   /**
    * 
@@ -83,7 +83,7 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
   public static final int DRAG                    = 5;
   public static final int MARQUEE                 = 6;
 
-  private static final CorePalette CORE_PALETTE = new CorePalette();
+  private static final ControlFlowPalette CONTROL_FLOW_PALETTE = new ControlFlowPalette();
   private static final SingleTaskPalette SINGLE_TASK_PALETTE = new SingleTaskPalette();
   
   private static final Palette INSTANCE = new Palette();
@@ -94,39 +94,42 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
     
   private Palette() {
     super("YAWLEditor Palette");
-    SpecificationModel.getInstance().subscribe(this);   
   }  
 
   protected void buildInterface() {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     setMargin(new Insets(3,2,2,3));
     
-    add(CORE_PALETTE);
+    add(CONTROL_FLOW_PALETTE);
     add(Box.createVerticalStrut(2));
     add(SINGLE_TASK_PALETTE);
     
     LinkedList<JComponent> palettes = new LinkedList<JComponent>();
-    palettes.add(CORE_PALETTE);
+    palettes.add(CONTROL_FLOW_PALETTE);
     palettes.add(SINGLE_TASK_PALETTE);
     
     JUtilities.equalizeComponentWidths(palettes);
   }
   
+  
+  public void doPostBuildProcessing() {
+    SpecificationModel.getInstance().subscribe(this);   
+  }
+
   public void setSelected(int item) {
-    CORE_PALETTE.setSelected(item);
+    CONTROL_FLOW_PALETTE.setSelected(item);
   }
   
   public void setStatusBarTextFromSelectedItem() {
-    CORE_PALETTE.setStatusBarTextFromSelectedItem();
+    CONTROL_FLOW_PALETTE.setStatusBarTextFromSelectedItem();
   }
   
-  
   public int getSelected() {
-    return CORE_PALETTE.getSelected();
+    return CONTROL_FLOW_PALETTE.getSelected();
   }
   
   public void setEnabled(boolean enabled) {
-    CORE_PALETTE.setEnabled(enabled);
+    CONTROL_FLOW_PALETTE.setEnabled(enabled);
     SINGLE_TASK_PALETTE.setVisible(enabled);
     SINGLE_TASK_PALETTE.setEnabled(enabled);
     super.setEnabled(enabled);
@@ -135,22 +138,30 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
   public void updateState(int state) {
     switch(state) {
       case SpecificationModel.NO_NETS_EXIST: {
-        CORE_PALETTE.setSelected(MARQUEE);
+        CONTROL_FLOW_PALETTE.setSelected(MARQUEE);
         setEnabled(false);
-        JStatusBar.getInstance().setStatusText("Open or create a specification to begin.");     
+        YAWLEditor.setStatusBarText(
+            "Open or create a specification to begin."
+        );     
         break;    
       }
       case SpecificationModel.NETS_EXIST: {
-        JStatusBar.getInstance().setStatusText("Select a net to continue editing it.");     
+        YAWLEditor.setStatusBarText(
+            "Select a net to continue editing it."
+        );     
         break;    
       }
       case SpecificationModel.NO_NET_SELECTED: {
-        JStatusBar.getInstance().setStatusText("Select a net to continue editing it.");     
+        YAWLEditor.setStatusBarText(
+            "Select a net to continue editing it."
+        );     
         setEnabled(false);
         break;
       }
       case SpecificationModel.SOME_NET_SELECTED: {
-        JStatusBar.getInstance().setStatusText("Use the palette toolbar to edit the selected net.");     
+        YAWLEditor.setStatusBarText(
+            "Use the palette toolbar to edit the selected net."
+        );     
         setEnabled(true);
         break;
       }
@@ -161,24 +172,70 @@ public class Palette extends YAWLToolBar implements SpecificaitonModelListener {
   }
 }
 
-class CorePalette extends JPanel {
+class ControlFlowPalette extends JPanel {
+  private static final long serialVersionUID = 1L;
+  
+  
   private static int selectedItem = Palette.MARQUEE;
+
+  /*
+  public static enum PaletteSelectionState {
+    ATOMIC_TASK,
+    COMPOSITE_TASK,
+    MULTIPLE_ATOMIC_TASK,
+    MULTILE_COMPOSITE_TASK,
+    CONDITION,
+    DRAG,
+    MARQUEE
+  };
+  
+  private PaletteSelectionState paletteSelectionState = PaletteSelectionState.MARQUEE;
+*/
   
   private boolean enabledState = true;
   
-  public CorePalette() {
+  private ControlFlowPaletteButton[] buttons = {
+      new ControlFlowPaletteButton(
+          this,
+          new AtomicTaskAction(),
+          KeyEvent.VK_1
+      ),
+      new ControlFlowPaletteButton(
+          this,
+          new CompositeTaskAction(),
+          KeyEvent.VK_2
+      ),
+      new ControlFlowPaletteButton(
+          this,
+          new MultipleAtomicTaskAction(),
+          KeyEvent.VK_3
+      ),
+      new ControlFlowPaletteButton(
+          this,
+          new MultipleCompositeTaskAction(),
+          KeyEvent.
+          VK_4
+      ),
+      new ControlFlowPaletteButton(
+          this,
+          new ConditionAction(),
+          KeyEvent.VK_5
+      ),
+      new ControlFlowPaletteButton(
+          this,
+          new NetDragAction(),
+          KeyEvent.VK_6
+      ),
+      new ControlFlowPaletteButton(
+          this,
+          new MarqueeAction(),
+          KeyEvent.VK_7
+      )
+  };
+  
+  public ControlFlowPalette() {
     buildInterface();
   }
-
-  private static YAWLPaletteButton[] buttons = {
-    new YAWLPaletteButton(new AtomicTaskAction(),KeyEvent.VK_1),
-    new YAWLPaletteButton(new CompositeTaskAction(),KeyEvent.VK_2),
-    new YAWLPaletteButton(new MultipleAtomicTaskAction(),KeyEvent.VK_3),
-    new YAWLPaletteButton(new MultipleCompositeTaskAction(),KeyEvent.VK_4),
-    new YAWLPaletteButton(new ConditionAction(),KeyEvent.VK_5),
-    new YAWLPaletteButton(new NetDragAction(),KeyEvent.VK_6),
-    new YAWLPaletteButton(new MarqueeAction(),KeyEvent.VK_7)
-  };
 
   protected void buildInterface() {
     
@@ -214,7 +271,6 @@ class CorePalette extends JPanel {
   }
   
   public void setSelected(int item) {
-    assert item >= Palette.ATOMIC_TASK && item <= Palette.MARQUEE: "Invalid item selection made.";
     buttons[selectedItem].setSelected(false);
     selectedItem = item;
     buttons[selectedItem].setSelected(true);
@@ -222,40 +278,9 @@ class CorePalette extends JPanel {
   }
   
   public void setStatusBarTextFromSelectedItem() {
-    JStatusBar.getInstance().setStatusText(getItemText(selectedItem));
-  }
-  
-  private String getItemText(int item) {
-    switch (item) {
-      case Palette.MARQUEE: {
-        return "Select a number of net elements to manipulate.";     
-      }
-      case Palette.CONDITION: {
-        return getClickAnywhereText() + "condition.";
-      }
-      case Palette.ATOMIC_TASK: {
-        return getClickAnywhereText() + "atomic task.";
-      }
-      case Palette.COMPOSITE_TASK: {
-        return getClickAnywhereText() + "composite task.";
-      }
-      case Palette.MULTIPLE_ATOMIC_TASK: {
-        return getClickAnywhereText() + "multiple atomic task.";
-      }
-      case Palette.MULTIPLE_COMPOSITE_TASK: {
-        return getClickAnywhereText() + "multiple composite task.";
-      }
-      case Palette.DRAG: {
-        return "Drag visible window to another area of the net.";     
-      }
-      default: {
-        return "You should never see this palette message!";
-      }
-    } 
-  }
-  
-  private String getClickAnywhereText() {
-    return "Left-click on the selected net to create a new ";    
+    YAWLEditor.setStatusBarText(
+        buttons[selectedItem].getButtonStatusText()
+    );
   }
   
   public int getSelected() {
@@ -271,7 +296,9 @@ class CorePalette extends JPanel {
       buttons[i].setEnabled(state);      
     }
     if (state == true) {
-      JStatusBar.getInstance().setStatusText(getItemText(getSelected()));
+      YAWLEditor.setStatusBarText(
+          buttons[getSelected()].getButtonStatusText()
+      );
     }
     setVisible(true);
     enabledState = state;

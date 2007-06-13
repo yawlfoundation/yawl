@@ -25,7 +25,6 @@ package au.edu.qut.yawl.editor.thirdparty.engine;
 
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.FileChooserFactory;
-import au.edu.qut.yawl.editor.swing.JStatusBar;
 import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 import au.edu.qut.yawl.editor.swing.specification.ProblemMessagePanel;
 
@@ -74,16 +73,16 @@ public class EngineSpecificationHandler {
   
   public void validate() {
 
-    JStatusBar.getInstance().setStatusText("Validating Specification...");
-    JStatusBar.getInstance().updateProgressOverSeconds(2);
+    YAWLEditor.setStatusBarText("Validating Specification...");
+    YAWLEditor.progressStatusBarOverSeconds(2);
     
     try {
       ProblemMessagePanel.getInstance().setProblemList(
           "Problems identified in engine specification validation",
           EngineSpecificationValidator.getValidationResults()
       );
-      JStatusBar.getInstance().setStatusTextToPrevious();
-      JStatusBar.getInstance().resetProgress();
+      YAWLEditor.setStatusBarTextToPrevious();
+      YAWLEditor.resetStatusBarProgress();
 
     } catch (Exception e) {
       
@@ -96,8 +95,8 @@ public class EngineSpecificationHandler {
       );
       
 //      e.printStackTrace();
-      JStatusBar.getInstance().setStatusTextToPrevious();
-      JStatusBar.getInstance().resetProgress();
+      YAWLEditor.setStatusBarTextToPrevious();
+      YAWLEditor.resetStatusBarProgress();
     }
   }
 
@@ -116,14 +115,14 @@ public class EngineSpecificationHandler {
   }
   
   private void importEngineSpecificationFile(String fullFileName) {
-    JStatusBar.getInstance().setStatusText("Importing Engine Specification...");
-    JStatusBar.getInstance().updateProgressOverSeconds(2);
+    YAWLEditor.setStatusBarText("Importing Engine Specification...");
+    YAWLEditor.progressStatusBarOverSeconds(2);
     YAWLEditorDesktop.getInstance().setVisible(false);
 
     importer.importEngineSpecificationFromFile(fullFileName);
 
     YAWLEditorDesktop.getInstance().setVisible(true);
-    JStatusBar.getInstance().resetProgress();
+    YAWLEditor.resetStatusBarProgress();
   }
   
   private String promptForLoadFileName() {
@@ -168,14 +167,13 @@ public class EngineSpecificationHandler {
       return;
     }
 
-
-    JStatusBar.getInstance().setStatusText("Exporting Engine Specification...");
-    JStatusBar.getInstance().updateProgressOverSeconds(2);
+    YAWLEditor.setStatusBarText("Exporting Engine Specification...");
+    YAWLEditor.progressStatusBarOverSeconds(2);
 
     exporter.exportEngineSpecificationToFile(fullFileName);
 
-    JStatusBar.getInstance().setStatusTextToPrevious();
-    JStatusBar.getInstance().resetProgress();
+    YAWLEditor.setStatusBarTextToPrevious();
+    YAWLEditor.resetStatusBarProgress();
   }
   
   private String getFullNameFromFile(File file) {

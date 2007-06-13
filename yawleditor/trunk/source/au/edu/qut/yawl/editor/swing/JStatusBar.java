@@ -33,122 +33,112 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 public class JStatusBar extends JPanel {
-  /**
-   * 
-   */
+
   private static final long serialVersionUID = 1L;
+
   private static JLabel statusLabel = new JLabel();
-  private static JStatusBar INSTANCE = new JStatusBar();
-  
+
   public static int APPARENTLY_INSTANT_MILLISECONDS = 50;
 
-	private JProgressBar progressBar;
-  
+  private JProgressBar progressBar;
+
   private SecondUpdateThread secondUpdateThread;
 
   private String previousStatusText;
 
-  public static JStatusBar getInstance( ) {
-    return INSTANCE;
-  }  
-
-  private JStatusBar() {
+  public JStatusBar() {
     super();
     setLayout(new BorderLayout());
-    setBorder(BorderFactory.createEmptyBorder(0,2,2,2));
+    setBorder(BorderFactory.createEmptyBorder(0, 2, 2, 2));
     statusLabel.setForeground(Color.DARK_GRAY);
-    statusLabel.setBorder(
-      BorderFactory.createCompoundBorder(
-        BorderFactory.createLoweredBevelBorder(),
-        BorderFactory.createEmptyBorder(0,2,0,2)));
+    statusLabel.setBorder(BorderFactory.createCompoundBorder(BorderFactory
+        .createLoweredBevelBorder(), BorderFactory
+        .createEmptyBorder(0, 2, 0, 2)));
     add(statusLabel, BorderLayout.CENTER);
-    add(getProgressBar(),BorderLayout.EAST);
+    add(getProgressBar(), BorderLayout.EAST);
     secondUpdateThread = new SecondUpdateThread();
   }
 
   public String getStatusText() {
-    return statusLabel.getText() ;
+    return statusLabel.getText();
   }
 
-  public void setStatusText(String message) {
+  public void setStatusBarText(String message) {
     previousStatusText = getStatusText();
     statusLabel.setText(message);
   }
-  
-  public void setStatusTextToPrevious() {
-    setStatusText(previousStatusText); 
+
+  public void setStatusBarTextToPrevious() {
+    setStatusBarText(previousStatusText);
   }
-  
-	private JProgressBar getProgressBar() {
-		progressBar = new JProgressBar();
-		progressBar.setBorder(BorderFactory.createLoweredBevelBorder());
-		progressBar.setSize(100,10);
+
+  private JProgressBar getProgressBar() {
+    progressBar = new JProgressBar();
+    progressBar.setBorder(BorderFactory.createLoweredBevelBorder());
+    progressBar.setSize(100, 10);
     progressBar.setForeground(Color.BLUE.darker().darker());
-		return progressBar;
-	}
-  
-	public void updateProgressBar(int completionValue) {
-		if (completionValue < 0 || completionValue > 100) {
-			return;
-		}
-		progressBar.setValue(completionValue);
-	}
-  
-  public void finishProgressUpdate() {
-	  updateProgressBar(100);
-	  pause(APPARENTLY_INSTANT_MILLISECONDS * 4);
-    updateProgressBar(0);
+    return progressBar;
   }
-  
-	private static void pause(long milliseconds) {
-		long now = System.currentTimeMillis();
-		long finishTime = now + milliseconds;
-		while(now < finishTime) {
-			now = System.currentTimeMillis();
-		}
-	}
-  
-  public void updateProgressOverSeconds(final int pauseSeconds) {
+
+  public void updateStatusBarProgress(int completionValue) {
+    if (completionValue < 0 || completionValue > 100) {
+      return;
+    }
+    progressBar.setValue(completionValue);
+  }
+
+  public void finishStatusBarProgress() {
+    updateStatusBarProgress(100);
+    pause(APPARENTLY_INSTANT_MILLISECONDS * 4);
+    updateStatusBarProgress(0);
+  }
+
+  private static void pause(long milliseconds) {
+    long now = System.currentTimeMillis();
+    long finishTime = now + milliseconds;
+    while (now < finishTime) {
+      now = System.currentTimeMillis();
+    }
+  }
+
+  public void progressStatusBarOverSeconds(final int pauseSeconds) {
     try {
-      secondUpdateThread.setPauseSeconds(pauseSeconds); 
+      secondUpdateThread.setPauseSeconds(pauseSeconds);
       secondUpdateThread.start();
     } catch (Exception e) {
       // either it works or it doesn't. 
       // Simply testing against the active status is not good enough. 
     }
   }
-  
-  public void resetProgress() {
+
+  public void resetStatusBarProgress() {
     secondUpdateThread.reset();
   }
 
-
   class SecondUpdateThread extends Thread {
     private int pauseSeconds = 0;
+
     private volatile boolean shouldReset = false;
-    
+
     public void run() {
-      final int secondsAsMillis = pauseSeconds*1000;
-      final int pausePasses     = secondsAsMillis / APPARENTLY_INSTANT_MILLISECONDS;
-      for(int i = 0; i < pausePasses; i++) {
+      final int secondsAsMillis = pauseSeconds * 1000;
+      final int pausePasses = secondsAsMillis / APPARENTLY_INSTANT_MILLISECONDS;
+      for (int i = 0; i < pausePasses; i++) {
         if (shouldReset) {
-          return;          
-        } 
-        updateProgressBar((i * 10000)/(pausePasses * 100));
+          return;
+        }
+        updateStatusBarProgress((i * 10000) / (pausePasses * 100));
         pause(APPARENTLY_INSTANT_MILLISECONDS);
       }
     }
-    
+
     public void setPauseSeconds(int seconds) {
       this.pauseSeconds = seconds;
     }
 
     public void reset() {
       this.shouldReset = true;
-      finishProgressUpdate();
+      finishStatusBarProgress();
     }
   }
 }
-
-
-

@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import au.edu.qut.yawl.editor.swing.JStatusBar;
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
 
@@ -139,7 +139,7 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
   }
   
   public void analyse() {
-    JStatusBar.getInstance().updateProgressOverSeconds(2);
+    YAWLEditor.getInstance().progressStatusBarOverSeconds(2);
 
     List analysisResults = getAnalysisResults();
     if (WofYAWLProxy.wofYawlAvailable()) {
@@ -155,6 +155,6 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
       "Problems identified in specification analysis",
       analysisResults 
     );
-    JStatusBar.getInstance().resetProgress();
+    YAWLEditor.getInstance().resetStatusBarProgress();
   }
 }

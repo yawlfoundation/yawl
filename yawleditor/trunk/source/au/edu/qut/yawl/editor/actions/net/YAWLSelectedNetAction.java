@@ -24,11 +24,11 @@
 
 package au.edu.qut.yawl.editor.actions.net;
 
-import au.edu.qut.yawl.editor.specification.SpecificaitonModelListener;
+import au.edu.qut.yawl.editor.specification.SpecificationModelListener;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 
 public class YAWLSelectedNetAction extends YAWLExistingNetAction 
-                                implements SpecificaitonModelListener {
+                                implements SpecificationModelListener {
   
   /**
    * 

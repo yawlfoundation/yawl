@@ -29,7 +29,7 @@ import javax.swing.Action;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.menu.Palette;
 
-public class MultipleCompositeTaskAction extends YAWLPaletteAction implements TooltipTogglingWidget {
+public class MultipleCompositeTaskAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
   /**
    * 
    */
@@ -49,5 +49,9 @@ public class MultipleCompositeTaskAction extends YAWLPaletteAction implements To
   
   public String getDisabledTooltipText() {
     return " You must have an open specification, and selected net to use the palette ";
+  }
+  
+  public String getButtonStatusText() {
+    return getClickAnywhereText() + "multiple composite task.";
   }
 }
