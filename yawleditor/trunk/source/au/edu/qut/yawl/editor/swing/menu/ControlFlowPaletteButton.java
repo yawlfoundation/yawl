@@ -28,6 +28,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JToggleButton;
 
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.actions.palette.ControlFlowPaletteAction;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 
@@ -63,8 +64,12 @@ public class ControlFlowPaletteButton extends JToggleButton {
     return new Point(0,getSize().height);
   }
   
-  public String getButtonStatusText() {
+  private String getButtonStatusText() {
     return getPaletteAction().getButtonStatusText();
+  }
+
+  public ControlFlowPalette.SelectionState getSelectionID() {
+    return getPaletteAction().getSelectionID();
   }
   
   public void setEnabled(boolean enabled) {
@@ -76,4 +81,16 @@ public class ControlFlowPaletteButton extends JToggleButton {
     }
     super.setEnabled(enabled);
   }
+  
+  public void setSelected(boolean selected) {
+    super.setSelected(selected);
+    if (selected) {
+      if (this.isEnabled()) {
+        YAWLEditor.setStatusBarText(
+            getButtonStatusText()
+        );
+      }
+    }
+  }
+  
 }

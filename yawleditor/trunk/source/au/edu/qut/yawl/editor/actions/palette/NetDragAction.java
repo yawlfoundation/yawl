@@ -25,7 +25,7 @@
 package au.edu.qut.yawl.editor.actions.palette;
 
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.menu.Palette;
+import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 
 import javax.swing.Action;
 
@@ -40,7 +40,6 @@ public class NetDragAction extends ControlFlowPaletteAction implements TooltipTo
     putValue(Action.NAME, "Drag Net Window");
     putValue(Action.LONG_DESCRIPTION, "Net Window Drag Mode");
     putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteDrag"));
-    setIdentifier(Palette.DRAG);
   }
   
   public String getEnabledTooltipText() {
@@ -53,5 +52,9 @@ public class NetDragAction extends ControlFlowPaletteAction implements TooltipTo
   
   public String getButtonStatusText() {
     return "Drag the visible window to another area of this net.";
+  }
+  
+  public ControlFlowPalette.SelectionState getSelectionID() {
+    return ControlFlowPalette.SelectionState.DRAG;
   }
 }
