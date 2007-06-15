@@ -30,9 +30,6 @@ import javax.swing.JPopupMenu;
 
 public class PalettePopupMenu extends JPopupMenu {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
 
   public PalettePopupMenu() {
@@ -41,12 +38,33 @@ public class PalettePopupMenu extends JPopupMenu {
   }
   
   private void addMenuItems() {
-    add(new AtomicTaskAction());
-    add(new CompositeTaskAction());
-    add(new MultipleAtomicTaskAction());
-    add(new MultipleCompositeTaskAction());
-    add(new ConditionAction());
-    add(new MarqueeAction());
-    add(new NetDragAction());
+    add(new AtomicTaskAction(
+            Palette.getInstance().getControlFlowPalette()    
+       )
+    );
+    add(new CompositeTaskAction(
+            Palette.getInstance().getControlFlowPalette()    
+       )
+    );
+    add(new MultipleAtomicTaskAction(
+            Palette.getInstance().getControlFlowPalette()    
+       )
+    );
+    add(new MultipleCompositeTaskAction(
+            Palette.getInstance().getControlFlowPalette()    
+        )
+    );
+    add(new ConditionAction(
+            Palette.getInstance().getControlFlowPalette()    
+        )
+    );
+    add(new MarqueeAction(
+            Palette.getInstance().getControlFlowPalette()    
+        )
+    );
+    add(new NetDragAction(
+            Palette.getInstance().getControlFlowPalette()    
+        )
+    );
   }
 }

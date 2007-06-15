@@ -30,9 +30,7 @@ import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 import javax.swing.Action;
 
 public class NetDragAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
-  /**
-   * 
-   */
+
   private static final long serialVersionUID = 1L;
 
   {
@@ -40,6 +38,10 @@ public class NetDragAction extends ControlFlowPaletteAction implements TooltipTo
     putValue(Action.NAME, "Drag Net Window");
     putValue(Action.LONG_DESCRIPTION, "Net Window Drag Mode");
     putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteDrag"));
+  }
+  
+  public NetDragAction(ControlFlowPalette palette) {
+    super(palette);
   }
   
   public String getEnabledTooltipText() {

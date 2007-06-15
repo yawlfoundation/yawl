@@ -86,14 +86,6 @@ public class VertexPopupMenu extends JPopupMenu {
         )
     );
     if (vertex instanceof YAWLTask) {
-      /* TODO: earmarked for deletion
-      add(new YAWLPopupMenuItem(
-              new DecorateTaskAction(
-                  (YAWLTask) vertex, graph
-              )
-         )
-      );
-      */
       add(buildViewCancellationSetItem());
       addSeparator();
     }

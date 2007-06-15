@@ -106,6 +106,7 @@ public class JStatusBar extends JPanel {
       secondUpdateThread.setPauseSeconds(pauseSeconds);
       secondUpdateThread.start();
     } catch (Exception e) {
+      e.printStackTrace();
       // either it works or it doesn't. 
       // Simply testing against the active status is not good enough. 
     }

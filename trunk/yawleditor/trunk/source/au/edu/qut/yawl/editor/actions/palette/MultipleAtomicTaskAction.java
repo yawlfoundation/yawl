@@ -30,9 +30,7 @@ import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 
 public class MultipleAtomicTaskAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
-  /**
-   * 
-   */
+
   private static final long serialVersionUID = 1L;
 
   {
@@ -42,6 +40,9 @@ public class MultipleAtomicTaskAction extends ControlFlowPaletteAction implement
     putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMultipleAtomicTask"));
   }
   
+  public MultipleAtomicTaskAction(ControlFlowPalette palette) {
+    super(palette);
+  }
   public String getEnabledTooltipText() {
     return " Add multiple Atomic Tasks ";
   }

@@ -30,9 +30,7 @@ import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 import javax.swing.Action;
 
 public class MarqueeAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
-  /**
-   * 
-   */
+
   private static final long serialVersionUID = 1L;
 
   {
@@ -40,6 +38,10 @@ public class MarqueeAction extends ControlFlowPaletteAction implements TooltipTo
     putValue(Action.NAME, "Marquee");
     putValue(Action.LONG_DESCRIPTION, "Net Element Selection Mode");
     putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMarquee"));
+  }
+  
+  public MarqueeAction(ControlFlowPalette palette) {
+    super(palette);
   }
   
   public String getEnabledTooltipText() {

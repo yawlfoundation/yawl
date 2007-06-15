@@ -30,9 +30,7 @@ import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 
 public class CompositeTaskAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
-  /**
-   * 
-   */
+
   private static final long serialVersionUID = 1L;
 
   {
@@ -40,6 +38,10 @@ public class CompositeTaskAction extends ControlFlowPaletteAction implements Too
     putValue(Action.NAME, "Composite Task");
     putValue(Action.LONG_DESCRIPTION, "Add a new Composite Task");
     putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteCompositeTask"));
+  }
+  
+  public CompositeTaskAction(ControlFlowPalette palette) {
+    super(palette);
   }
   
   public String getEnabledTooltipText() {

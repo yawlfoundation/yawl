@@ -121,6 +121,10 @@ public class Palette extends YAWLToolBar implements SpecificationModelListener {
     return CONTROL_FLOW_PALETTE.getSelectedState();
   }
   
+  public ControlFlowPalette getControlFlowPalette() {
+    return CONTROL_FLOW_PALETTE;
+  }
+  
   public void doPostBuildProcessing() {
     SpecificationModel.getInstance().subscribe(this);   
   }
