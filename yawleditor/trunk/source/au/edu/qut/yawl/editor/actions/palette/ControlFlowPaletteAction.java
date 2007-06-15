@@ -34,7 +34,25 @@ import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 
 public abstract class ControlFlowPaletteAction extends AbstractAction {
   
-  public void actionPerformed(ActionEvent event) {}
+  private ControlFlowPalette palette;
+  
+  public ControlFlowPaletteAction(ControlFlowPalette palette) {
+    this.setControlFlowPalette(palette);
+  }
+  
+  public void setControlFlowPalette(ControlFlowPalette palette) {
+    this.palette = palette;
+  }
+  
+  public ControlFlowPalette getControlFlowPalette() {
+    return this.palette;
+  }
+  
+  public void actionPerformed(ActionEvent event) {
+    getControlFlowPalette().setSelectedState(
+        getSelectionID()
+    );
+  }
   
   protected ImageIcon getPaletteIconByName(String iconName) {
     return ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/menuicons/" 

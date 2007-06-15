@@ -87,15 +87,18 @@ public class SpecificationArchiveHandler {
 
   public void save() {
     if (SpecificationModel.getInstance().getFileName().equals("")) {
-      promptForAndSetSaveFileName();
+      if (promptForAndSetSaveFileName()) {
+        saveSpecificationToFile(
+            SpecificationModel.getInstance().getFileName()
+        );
+      }
     }
-    saveSpecificationToFile(SpecificationModel.getInstance().getFileName());
   }
   
-  private void promptForAndSetSaveFileName() {
+  private boolean promptForAndSetSaveFileName() {
 
     if (JFileChooser.CANCEL_OPTION == SAVE_FILE_CHOOSER.showSaveDialog(YAWLEditor.getInstance())) {
-	  return;
+	  return false;
     }
 
     File file = SAVE_FILE_CHOOSER.getSelectedFile();
@@ -109,19 +112,23 @@ public class SpecificationArchiveHandler {
               "Existing Specification File Selected",
                JOptionPane.YES_NO_OPTION,
                JOptionPane.WARNING_MESSAGE)) {
-        return;   
+        return false;   
       }
     }
     SpecificationModel.getInstance().setFileName(getFullNameFromFile(file));
+    return true;
   }
   
   public void saveAs() {
-    promptForAndSetSaveFileName();
-    saveSpecificationToFile(SpecificationModel.getInstance().getFileName());  
+    if (promptForAndSetSaveFileName()) {
+      saveSpecificationToFile(
+          SpecificationModel.getInstance().getFileName()
+      );  
+    }
   }
   
   public void saveSpecificationToFile(String fullFileName) {
-    if (fullFileName.equals("")) {
+    if (fullFileName.trim().equals("")) {
       return;
     }
 

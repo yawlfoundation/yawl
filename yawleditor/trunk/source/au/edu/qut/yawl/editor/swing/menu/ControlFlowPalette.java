@@ -36,47 +36,46 @@ public class ControlFlowPalette extends JPanel {
   private ControlFlowPaletteButton[] buttons = {
       new ControlFlowPaletteButton(
           this,
-          new AtomicTaskAction(),
+          new AtomicTaskAction(this),
           KeyEvent.VK_1
       ),
       new ControlFlowPaletteButton(
           this,
-          new CompositeTaskAction(),
+          new CompositeTaskAction(this),
           KeyEvent.VK_2
       ),
       new ControlFlowPaletteButton(
           this,
-          new MultipleAtomicTaskAction(),
+          new MultipleAtomicTaskAction(this),
           KeyEvent.VK_3
       ),
       new ControlFlowPaletteButton(
           this,
-          new MultipleCompositeTaskAction(),
+          new MultipleCompositeTaskAction(this),
           KeyEvent.
           VK_4
       ),
       new ControlFlowPaletteButton(
           this,
-          new ConditionAction(),
+          new ConditionAction(this),
           KeyEvent.VK_5
       ),
       new ControlFlowPaletteButton(
           this,
-          new NetDragAction(),
+          new NetDragAction(this),
           KeyEvent.VK_6
       ),
       new ControlFlowPaletteButton(
           this,
-          new MarqueeAction(),
+          new MarqueeAction(this),
           KeyEvent.VK_7
       )
   };
   
-  private ButtonGroup paletteButtons = new ButtonGroup();
-  
   public ControlFlowPalette() {
     buildInterface();
     setSelectedState(SelectionState.MARQUEE);
+    ButtonGroup paletteButtons = new ButtonGroup();
     for(ControlFlowPaletteButton button: buttons) {
       paletteButtons.add(button);
     }

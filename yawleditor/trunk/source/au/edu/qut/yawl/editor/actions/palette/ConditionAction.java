@@ -31,9 +31,7 @@ import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 
 public class ConditionAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
-  /**
-   * 
-   */
+
   private static final long serialVersionUID = 1L;
 
   {
@@ -41,6 +39,10 @@ public class ConditionAction extends ControlFlowPaletteAction implements Tooltip
     putValue(Action.NAME, "Condition");
     putValue(Action.LONG_DESCRIPTION, "Add a new Condition");
     putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteCondition"));
+  }
+  
+  public ConditionAction(ControlFlowPalette palette) {
+    super(palette);
   }
   
   public String getEnabledTooltipText() {
