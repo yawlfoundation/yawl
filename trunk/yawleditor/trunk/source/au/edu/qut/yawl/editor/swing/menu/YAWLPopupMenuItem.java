@@ -31,7 +31,9 @@ import java.awt.event.MouseEvent;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 
+
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
 
 public class YAWLPopupMenuItem extends JMenuItem {
   /**
@@ -40,7 +42,7 @@ public class YAWLPopupMenuItem extends JMenuItem {
   private static final long serialVersionUID = 1L;
   private static final Insets margin = new Insets(0,0,0,0);
 
-  public YAWLPopupMenuItem(Action a) {
+  public YAWLPopupMenuItem(YAWLBaseAction a) {
     super(a);    
     setMargin(margin);
   }
@@ -59,5 +61,13 @@ public class YAWLPopupMenuItem extends JMenuItem {
       }
     }
     super.setEnabled(enabled);
+  }
+  
+  public boolean shouldBeEnabled() {
+    return ((YAWLBaseAction) getAction()).shouldBeEnabled();
+  }
+  
+  public boolean shouldBeVisible() {
+    return ((YAWLBaseAction) getAction()).shouldBeVisible();
   }
 }

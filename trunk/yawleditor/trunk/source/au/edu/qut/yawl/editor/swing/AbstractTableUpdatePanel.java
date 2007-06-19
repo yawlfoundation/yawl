@@ -35,8 +35,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 
 public abstract class AbstractTableUpdatePanel extends JPanel {
   public static final int NO_ELEMENTS = 0;

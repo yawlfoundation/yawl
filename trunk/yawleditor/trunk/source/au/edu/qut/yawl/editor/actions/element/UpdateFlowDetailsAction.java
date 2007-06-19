@@ -25,7 +25,6 @@
 package au.edu.qut.yawl.editor.actions.element;
 
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -37,24 +36,18 @@ import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 
 
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.Action;
-import javax.swing.Box;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
+import au.edu.qut.yawl.editor.elements.model.Decorator;
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.swing.AbstractOrderedTablePanel;
-import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
 import au.edu.qut.yawl.editor.swing.JUtilities;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.element.AbstractTaskDoneDialog;
@@ -99,6 +92,15 @@ public class UpdateFlowDetailsAction extends YAWLSelectedNetAction
   public String getDisabledTooltipText() {
     return " You must have a task with an XOR-Split or OR-Split decoration selected" + 
            " to update its flow detail ";
+  }
+  
+  public boolean shouldBeVisible() {
+    if (task.hasSplitDecorator() && (
+        task.getSplitDecorator().getType() == Decorator.OR_TYPE || 
+        task.getSplitDecorator().getType() == Decorator.XOR_TYPE )) {
+       return true;
+    }
+    return false;
   }
 }
 

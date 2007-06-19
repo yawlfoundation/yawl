@@ -24,7 +24,6 @@
 package au.edu.qut.yawl.editor.swing;
 
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 
 import au.edu.qut.yawl.editor.swing.AbstractTableUpdatePanel;
@@ -47,7 +46,7 @@ public abstract class AbstractTableUpdateDialog extends AbstractDoneDialog {
        */
       private static final long serialVersionUID = 1L;
 
-      public JTable buildTable() {
+      public JOrderedSingleSelectTable buildTable() {
         return dialog.buildTable();
       }
       
@@ -72,11 +71,11 @@ public abstract class AbstractTableUpdateDialog extends AbstractDoneDialog {
     return panel;
   }
   
-  public JTable getTable() {
+  public JOrderedSingleSelectTable getTable() {
     return panel.getTable();
   }
   
-  public void setTable(JTable table) {
+  public void setTable(JOrderedSingleSelectTable table) {
     panel.setTable(table);
   }
   
@@ -92,7 +91,7 @@ public abstract class AbstractTableUpdateDialog extends AbstractDoneDialog {
     return panel.hasElements();
   }
   
-  protected abstract JTable buildTable();
+  protected abstract JOrderedSingleSelectTable buildTable();
   
   protected abstract void doCreateButtonAction();
 

@@ -56,7 +56,6 @@ public class JStatusBar extends JPanel {
         .createEmptyBorder(0, 2, 0, 2)));
     add(statusLabel, BorderLayout.CENTER);
     add(getProgressBar(), BorderLayout.EAST);
-    secondUpdateThread = new SecondUpdateThread();
   }
 
   public String getStatusText() {
@@ -102,6 +101,7 @@ public class JStatusBar extends JPanel {
   }
 
   public void progressStatusBarOverSeconds(final int pauseSeconds) {
+    secondUpdateThread = new SecondUpdateThread();
     try {
       secondUpdateThread.setPauseSeconds(pauseSeconds);
       secondUpdateThread.start();

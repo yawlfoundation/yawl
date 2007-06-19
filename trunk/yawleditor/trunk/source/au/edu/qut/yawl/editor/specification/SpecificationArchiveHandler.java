@@ -87,12 +87,13 @@ public class SpecificationArchiveHandler {
 
   public void save() {
     if (SpecificationModel.getInstance().getFileName().equals("")) {
-      if (promptForAndSetSaveFileName()) {
-        saveSpecificationToFile(
-            SpecificationModel.getInstance().getFileName()
-        );
+      if (!promptForAndSetSaveFileName()) {
+        return;
       }
     }
+    saveSpecificationToFile(
+        SpecificationModel.getInstance().getFileName()
+    );
   }
   
   private boolean promptForAndSetSaveFileName() {

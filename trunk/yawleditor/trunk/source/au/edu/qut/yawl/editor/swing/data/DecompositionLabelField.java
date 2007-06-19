@@ -85,9 +85,11 @@ class DecompositionLabelVerifier extends InputVerifier {
     if ((SpecificationModel.getInstance().isValidDecompositionLabel(docContent))) {
       return true;
     }
-    if (field.getDecomposition().getLabel().equals(docContent)) {
+
+    if (field.getDecomposition() != null && field.getDecomposition().getLabel().equals(docContent)) {
       return true;
     }
+
     return false;
   }
 
