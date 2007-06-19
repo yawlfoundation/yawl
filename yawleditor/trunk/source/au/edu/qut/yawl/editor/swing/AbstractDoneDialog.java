@@ -155,7 +155,7 @@ public abstract class AbstractDoneDialog extends JDialog {
       panel.add(Box.createHorizontalStrut(10));
       panel.add(cancelButton); 
 
-      LinkedList buttonList = new LinkedList();
+      LinkedList<JButton> buttonList = new LinkedList<JButton>();
 
       buttonList.add(doneButton);
       buttonList.add(cancelButton);

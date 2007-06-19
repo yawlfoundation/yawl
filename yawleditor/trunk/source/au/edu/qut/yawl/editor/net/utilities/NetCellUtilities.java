@@ -23,11 +23,9 @@
 package au.edu.qut.yawl.editor.net.utilities;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import java.awt.Font;
 import java.awt.Rectangle;
@@ -43,12 +41,14 @@ import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.VertexView;
 
 
+import au.edu.qut.yawl.editor.data.DataVariable;
+import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLPort;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
+import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
-
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 
 public class NetCellUtilities {
 
@@ -347,5 +347,77 @@ public class NetCellUtilities {
       cells[i++] = view.getCell();
     }
     return cells;
+  }
+  
+  
+  /**
+   * Creates a decomposition of the specifiied name for the givem 
+   * task in the specified net.The input and output paramaters of the task 
+   * match type and names of the supplied net variables, and the parameter 
+   * queries default to direct type-compatible data transfer.
+   * @param net
+   * @param task
+   */
+  public static void creatDirectTransferDecompAndParams(
+                            NetGraph net,
+                            YAWLAtomicTask task,
+                            String decompName,
+                            List<DataVariable> inputNetVars,
+                            List<DataVariable> outputNetVars) {
+    
+    createTaskDecompParamsToMatchNetParams(
+        createDecompositionForAtomicTask(net, task, decompName),
+        inputNetVars,
+        outputNetVars
+    );
+    
+    // TODO: generate direct-assignment XQueries for the parameters;
+  }
+  
+  public static WebServiceDecomposition createDecompositionForAtomicTask(NetGraph net, YAWLAtomicTask task, String label) {
+    WebServiceDecomposition taskDecomp = new WebServiceDecomposition();
+    taskDecomp.setLabel(label);
+    SpecificationModel.getInstance().addWebServiceDecomposition(taskDecomp);
+    net.setTaskDecomposition(
+          (YAWLTask) task,
+          taskDecomp
+    );
+    return taskDecomp;
+  }
+  
+  public static void createTaskDecompParamsToMatchNetParams(
+                           WebServiceDecomposition taskDecomp, 
+                           List<DataVariable> inputNetVars,
+                           List<DataVariable> outputNetVars) {
+    
+    for (DataVariable netVariable : inputNetVars) {
+      taskDecomp.addVariable(
+          createMatchingTaskVarForNetVar(
+              netVariable, 
+              DataVariable.USAGE_INPUT_ONLY
+          )    
+      );
+    }
+
+    for (DataVariable netVariable : outputNetVars) {
+      taskDecomp.addVariable(
+        createMatchingTaskVarForNetVar(
+            netVariable, 
+            DataVariable.USAGE_OUTPUT_ONLY
+        )    
+      );
+    }
+    
+    taskDecomp.getVariables().consolidateInputAndOutputVariables();
+  }
+
+  public static DataVariable createMatchingTaskVarForNetVar(DataVariable netVar, int taskUsage) {
+    DataVariable taskVariable = new DataVariable();
+    
+    taskVariable.setName(netVar.getName());
+    taskVariable.setDataType(netVar.getDataType());
+    taskVariable.setUsage(taskUsage);
+    
+    return taskVariable;
   }
 }

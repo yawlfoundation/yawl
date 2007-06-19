@@ -100,4 +100,11 @@ public class TaskDecompositionDetailAction extends YAWLSelectedNetAction
     }
     return false;
   }
+  
+  public boolean shouldBeEnabled() {
+    if (task.getDecomposition() == null) {
+      return false;
+    }
+    return true;
+  }
 }

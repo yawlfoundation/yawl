@@ -95,6 +95,13 @@ public class UpdateParametersAction extends YAWLSelectedNetAction
     return " You must have task with a decomposition selected" + 
            " to update its parameters ";
   }
+  
+  public boolean shouldBeEnabled() {
+    if (task.getDecomposition() == null) {
+      return false;
+    }
+    return true;
+  }
 }
 
 class UpdateParametersDialog extends AbstractTaskDoneDialog  {

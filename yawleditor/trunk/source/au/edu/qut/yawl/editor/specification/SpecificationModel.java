@@ -327,6 +327,10 @@ public class SpecificationModel {
   }
   
   public boolean isValidNewDecompositionName(String name) {
+    if (name == null) {
+      return false;
+    }
+
     boolean nameIsValid = true;
     
     nameIsValid = (getNetModelFromName(name) == null) ? true : false;
