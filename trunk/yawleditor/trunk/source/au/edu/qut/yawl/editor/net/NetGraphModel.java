@@ -178,13 +178,13 @@ public class NetGraphModel extends DefaultGraphModel {
         viewingTask = taskWithCancellationSet;
         getGraph().changeCancellationSet(null);
       }
+      HashSet<YAWLCell> hashset = new HashSet<YAWLCell>();
       for (Object setMember: taskWithCancellationSet.getCancellationSet().getSetMembers()) {
-        if (setMember instanceof YAWLCell) {
-          taskWithCancellationSet.getCancellationSet().removeMember(
-              (YAWLCell) setMember
-          );
+        if (!cells.contains(setMember)) {
+          hashset.add((YAWLCell) setMember);
         }
       }
+      taskWithCancellationSet.getCancellationSet().setSetMembers(hashset);
       if (viewingTask != null) {
         getGraph().changeCancellationSet(viewingTask);
       }
