@@ -94,6 +94,9 @@ public class SplitDecorator extends Decorator {
     Iterator i = getFlowsInPriorityOrder().iterator();
     while (i.hasNext()) {
       YAWLFlowRelation flow = (YAWLFlowRelation) i.next();
+      // guard against NullPointerException
+      if (flow.getPredicate()==null)
+    	  continue;
       String updatedPredicate = 
         flow.getPredicate().replaceAll(
             "/" + oldLabelAsElement + "/",
@@ -107,6 +110,9 @@ public class SplitDecorator extends Decorator {
     Iterator i = getFlowsInPriorityOrder().iterator();
     while (i.hasNext()) {
       YAWLFlowRelation flow = (YAWLFlowRelation) i.next();
+      // guard against NullPointerException
+      if (flow.getPredicate()==null)
+    	  continue;
       String updatedPredicate = 
         flow.getPredicate().replaceAll(
             "/" + oldVariableName + "/",

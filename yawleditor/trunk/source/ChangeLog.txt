@@ -1,25 +1,27 @@
 Version 1.4.6 (??/??/????) 
-  * Enhanced the editor so it is now possible to change the ordering of task variables,
+  * LWB: Enhanced the editor so it is now possible to change the ordering of task variables,
     net variales, and task parameter queries.
-  * Enhaned the editor to include a convenience dialog that allows the rapid construction
+  * LWB: Enhaned the editor to include a convenience dialog that allows the rapid construction
     of decompositions for atomic tasks along with matching variables and parameters by
     simply choosing a number of net variables to supply and receive data. This can only
     be done on atomic tasks with no decompositions.
-  * Fixed a bug where the initial values of net local variables were being double-quoted 
+  * LWB: Fixed a bug where the initial values of net local variables were being double-quoted 
     at engine export time. This is especially problematic for initial values of complex-type 
     variables. 
-  * Fixed a bug where the deletion of a variable in one task would cause the deletion of 
+  * LWB: Fixed a bug where the deletion of a variable in one task would cause the deletion of 
     XQueries in unrelated tasks whose decompositions contained equivalent variables to the 
     one deleted.
-  * Fixed a bug where the Net Variable dialog was incorectly attempting to validate the 
+  * LWB: Fixed a bug where the Net Variable dialog was incorectly attempting to validate the 
     initial values of local net variables when the dialog itself was only partially 
     initialised in preparation for display.
-  * Fixed a bug where the variable expression was missing a leading "/" character when
+  * LWB: Fixed a bug where the variable expression was missing a leading "/" character when
     pressing the "XPath expression" button on the Flow Details dialog for
     tasks with OR and XOR splits.
-  * Upgraded editor to use JGraph 5.9.2.2 and Proguard 3.8.
-  * Fixed a bug where cancelling a save-as action on a specification was being ignored,
+  * LWB: Upgraded editor to use JGraph 5.9.2.2 and Proguard 3.8.
+  * LWB: Fixed a bug where cancelling a save-as action on a specification was being ignored,
     and the file being saved regardless.
+  * MJF: Fixed a bug where null pointer exceptions would occasionally happen when changing
+    the XPath expression of flows from XOR/OR splits on a variable name change.
 
 Version 1.4.5 (27/04/2007) "Blobby"
   * The editor has been upgraded to now use Engine Beta 8.2.
