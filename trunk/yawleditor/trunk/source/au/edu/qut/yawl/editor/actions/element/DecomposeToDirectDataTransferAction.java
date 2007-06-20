@@ -25,6 +25,7 @@ import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
 import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
 import au.edu.qut.yawl.editor.data.DataVariable;
+import au.edu.qut.yawl.editor.data.DataVariableSet;
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 
@@ -253,7 +254,9 @@ class InputNetVarPanel extends NetVarPanel {
   
   public void setNet(NetGraph net) {
     getNetVarTable().setVariables(
-        net.getNetModel().getDecomposition().getVariables().getInputVariables()
+        net.getNetModel().getDecomposition().getVariables().getVariablesWithValidUsage(
+            DataVariableSet.VALID_USAGE_INPUT_FROM_NET
+        )
     );
   }
 }
@@ -268,7 +271,9 @@ class OutputNetVarPanel extends NetVarPanel {
 
   public void setNet(NetGraph net) {
     getNetVarTable().setVariables(
-        net.getNetModel().getDecomposition().getVariables().getOutputVariables()
+        net.getNetModel().getDecomposition().getVariables().getVariablesWithValidUsage(
+            DataVariableSet.VALID_USAGE_OUTPUT_TO_NET
+        )
     );
   }
 }
