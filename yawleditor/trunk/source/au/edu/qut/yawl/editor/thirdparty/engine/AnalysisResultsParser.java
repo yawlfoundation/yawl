@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import au.edu.qut.yawl.editor.YAWLEditor;
 
 public abstract class AnalysisResultsParser {
+  // added this flag to allow the temp file to be inspected in case of error - MJF
+  protected boolean errorFound = false;
   protected static final Preferences prefs = 
     Preferences.userNodeForPackage(YAWLEditor.class);
   
@@ -23,8 +25,8 @@ public abstract class AnalysisResultsParser {
         getRawResultsFromFile(tempEngineFile)
     );
     
-    
-    removeFile(tempEngineFile);
+    // added this check to allow the temp file to be inspected in case of error - MJF
+    if (!errorFound) removeFile(tempEngineFile);
     return resultsList;
   }
 
