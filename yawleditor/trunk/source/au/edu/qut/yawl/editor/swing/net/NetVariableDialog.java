@@ -23,7 +23,6 @@
 package au.edu.qut.yawl.editor.swing.net;
 
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.JComboBox;
 
 import au.edu.qut.yawl.editor.swing.data.DataVariableTable;
@@ -33,6 +32,7 @@ import au.edu.qut.yawl.editor.net.NetGraphModel;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 
 import au.edu.qut.yawl.editor.swing.AbstractTableUpdateDialog;
+import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
 import au.edu.qut.yawl.editor.swing.JUtilities;
 import au.edu.qut.yawl.editor.swing.data.TaskDataVariableUpdateDialog;
 import au.edu.qut.yawl.editor.swing.data.DataVariableTableModel;
@@ -82,7 +82,7 @@ public class NetVariableDialog extends AbstractTableUpdateDialog {
     return "";
   }
 
-  protected JTable buildTable() {
+  protected JOrderedSingleSelectTable buildTable() {
     return new DataVariableTable(new DataVariableTableModel());
   }
   
