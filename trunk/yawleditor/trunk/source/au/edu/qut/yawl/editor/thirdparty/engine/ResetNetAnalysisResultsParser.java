@@ -1,5 +1,6 @@
 package au.edu.qut.yawl.editor.thirdparty.engine;
 
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +22,8 @@ public class ResetNetAnalysisResultsParser extends AnalysisResultsParser {
       return ANALYSER.analyse(tempEngineFile, getOptionParameters(),getParameterForYAWLReductionRules(),getParameterForResetReductionRules());
     } catch (Exception e) {
       e.printStackTrace();
-      return null;
+      // Changed this return to allow errors to bubble up - MJF
+      return "<error>"+XMLUtilities.quoteSpecialCharacters(e.getMessage())+"</error>";
     }
   }
   
@@ -80,8 +82,16 @@ public class ResetNetAnalysisResultsParser extends AnalysisResultsParser {
   }
   
   protected void parseResetNetAnalysisResultsIntoList(List resultsList, String rawStructureIssues) {
+    parseRawResetNetAnalysisErrorsIntoList("ResetNet Analysis Error: ", resultsList, rawStructureIssues);
     parseRawResetNetAnalysisWarningsIntoList("ResetNet Analysis Warning: ", resultsList, rawStructureIssues);
     parseRawResetNetAnalysisObservationsIntoList("ResetNet Analysis Observation: ", resultsList, rawStructureIssues);
+  }
+  
+  // Added this method to handle bubbled up errors from AnalysisResultsParser.getAnalysisResults - MJF
+  protected void parseRawResetNetAnalysisErrorsIntoList(String listPrefix, List resultsList, String rawStructureIssues) {
+    int previousResultCount = resultsList.size();
+    parseResultsIntoList("error", listPrefix, resultsList, rawStructureIssues);
+    errorFound = (previousResultCount < resultsList.size());
   }
 
   protected void parseRawResetNetAnalysisWarningsIntoList(String listPrefix, List resultsList, String rawStructureIssues) {
