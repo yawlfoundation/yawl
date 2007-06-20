@@ -22,6 +22,8 @@ Version 1.4.6 (??/??/????)
     and the file being saved regardless.
   * MJF: Fixed a bug where null pointer exceptions would occasionally happen when changing
     the XPath expression of flows from XOR/OR splits on a variable name change.
+  * MJF: Removed potential for class cast exceptions. Not the analysis code catches key 
+    exceptions and included them in the error list it generates.
 
 Version 1.4.5 (27/04/2007) "Blobby"
   * The editor has been upgraded to now use Engine Beta 8.2.

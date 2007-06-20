@@ -46,6 +46,7 @@ import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
@@ -366,12 +367,30 @@ public class NetCellUtilities {
                             List<DataVariable> outputNetVars) {
     
     createTaskDecompParamsToMatchNetParams(
-        createDecompositionForAtomicTask(net, task, decompName),
+        createDecompositionForAtomicTask(
+            net, 
+            task, 
+            decompName
+        ),
         inputNetVars,
         outputNetVars
     );
     
-    // TODO: generate direct-assignment XQueries for the parameters;
+    for (DataVariable inputNetVar : inputNetVars) {
+      DataVariable matchingTaskVar = task.getWSDecomposition().getVariableWithName(inputNetVar.getName());
+      ((YAWLTask) task).getParameterLists().getInputParameters().addParameterPair(
+          matchingTaskVar, 
+          XMLUtilities.getVariableContentXQuery(inputNetVar)
+      );
+    }
+    
+    for(DataVariable outputNetVar : outputNetVars) {
+      DataVariable matchingTaskVar = task.getWSDecomposition().getVariableWithName(outputNetVar.getName());
+      ((YAWLTask) task).getParameterLists().getOutputParameters().addParameterPair(
+          outputNetVar, 
+          XMLUtilities.getVariableContentXQuery(matchingTaskVar)
+      );
+    }
   }
   
   public static WebServiceDecomposition createDecompositionForAtomicTask(NetGraph net, YAWLAtomicTask task, String label) {
