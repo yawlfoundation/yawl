@@ -117,9 +117,8 @@ public class DEARrule extends ResetReductionRule{
 private boolean isResetplaces(Set places)
 {
   for (Iterator i = places.iterator(); i.hasNext();)
-  // Fixed ClassCastException by casting to common ancestor - MJF
-  { RElement e = (RElement) i.next();
-  	if (!e.getCancelledBySet().isEmpty())
+  { RPlace p = (RPlace) i.next();
+  	if (!p.getCancelledBySet().isEmpty())
   	{ return true;
   	}
   }
@@ -129,9 +128,8 @@ private boolean isResetplaces(Set places)
 private boolean isNotOutput(Set places)
 {
   for (Iterator i = places.iterator(); i.hasNext();)
-  // Fixed ClassCastException by casting to common ancestor - MJF
-  { RElement e = (RElement) i.next();
-  	if (e.getPostsetElements().size() == 0)
+  { RPlace p = (RPlace) i.next();
+  	if (p.getPostsetElements().size() == 0)
   	{ return false;
   	}
   }
@@ -141,9 +139,8 @@ private boolean isNotOutput(Set places)
 private boolean isNotInput(Set places)
 {
   for (Iterator i = places.iterator(); i.hasNext();)
-  // Fixed ClassCastException by casting to common ancestor - MJF
-  { RElement e = (RElement) i.next();
-  	if (e.getPresetElements().size() == 0)
+  { RPlace p = (RPlace) i.next();
+  	if (p.getPresetElements().size() == 0)
   	{ return false;
   	}
   }
