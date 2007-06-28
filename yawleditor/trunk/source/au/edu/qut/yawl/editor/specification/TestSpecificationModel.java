@@ -25,10 +25,32 @@
 package au.edu.qut.yawl.editor.specification;
 
 import junit.framework.*;
+
+import java.awt.Point;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.Iterator;
 
+import au.edu.qut.yawl.editor.data.DataVariable;
+import au.edu.qut.yawl.editor.elements.model.AtomicTask;
+import au.edu.qut.yawl.editor.elements.model.Decorator;
+import au.edu.qut.yawl.editor.elements.model.InputCondition;
+import au.edu.qut.yawl.editor.elements.model.OutputCondition;
+import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
+import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import au.edu.qut.yawl.editor.foundations.XMLUtilities;
+import au.edu.qut.yawl.editor.net.NetGraph;
+import au.edu.qut.yawl.editor.net.NetGraphModel;
+import au.edu.qut.yawl.editor.net.utilities.NetCellFactory;
+import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
+
 public class TestSpecificationModel extends TestCase {
+  
+  private NetGraphModel rootNet;
+  
+  private InputCondition rootNetInputCondition;
+  private OutputCondition rootNetOutputCondition;
   
   public TestSpecificationModel(String name) {
     super(name);
@@ -43,7 +65,27 @@ public class TestSpecificationModel extends TestCase {
   }
   
   protected void setUp() {
-     // dunno
+    SpecificationModel.getInstance().reset();
+    setUpRootNet();
+  }
+  
+  private void setUpRootNet() {
+    NetGraph rootNetGraph = new NetGraph();
+    rootNetGraph.setName("StartingNet");
+    rootNetGraph.buildNewGraphContent();
+    rootNet = rootNetGraph.getNetModel();
+    rootNet.setIsStartingNet(true);
+    
+    SpecificationModel.getInstance().addNet(rootNet);  
+    
+    for(int i = 0; i < rootNet.getRootCount(); i++) {
+      if (rootNet.getRootAt(i) instanceof InputCondition) {
+        rootNetInputCondition = (InputCondition) rootNet.getRootAt(i);
+      }
+      if (rootNet.getRootAt(i) instanceof OutputCondition) {
+        rootNetOutputCondition = (OutputCondition) rootNet.getRootAt(i);
+      }
+    }
   }
   
   public void testNoDataTypesDefinedInitially() {
@@ -87,7 +129,7 @@ public class TestSpecificationModel extends TestCase {
         assertEquals(type, "quote");
       }
     }
-	}
+  }
 
   public void testInvalidSetDataTypeDefinition() {
     final String invalidSchema = 
@@ -114,5 +156,203 @@ public class TestSpecificationModel extends TestCase {
     assertNull(dataTypes);
   }
   
+  
+  public void testQueryRenaming() {
+    rootNet.getDecomposition().addVariable(
+        new DataVariable(
+            "booleanSwitch",
+            "boolean",
+            "",
+            DataVariable.USAGE_INPUT_AND_OUTPUT
+        )
+    );
+       
+    AtomicTask initialAtomicTask = NetCellFactory.insertAtomicTask(
+        rootNet.getGraph(),
+        new Point(10,30)
+    );
+    
+    LinkedList<DataVariable> paramList = new LinkedList<DataVariable>();
+    paramList.add(
+        rootNet.getDecomposition().getVariableWithName(
+            "booleanSwitch"
+        )    
+    );
+    
+    NetCellUtilities.creatDirectTransferDecompAndParams(
+        rootNet.getGraph(), 
+        initialAtomicTask, 
+        "initialTaskDecomposition", 
+        paramList, 
+        paramList
+    );
+    
+    assertTrue(
+        initialAtomicTask.getDecomposition().getLabel().equals(
+            "initialTaskDecomposition"
+        )    
+    );
+    
+    assertTrue(
+        initialAtomicTask.getDecomposition().getVariableWithName("booleanSwitch") != null
+    );
+
+    rootNet.setSplitDecorator(
+        initialAtomicTask,
+        Decorator.XOR_TYPE,
+        YAWLTask.RIGHT
+    );
+
+    AtomicTask highRoadAtomicTask = NetCellFactory.insertAtomicTask(
+        rootNet.getGraph(),
+        new Point(10,30)
+    );
+
+    AtomicTask lowRoadAtomicTask = NetCellFactory.insertAtomicTask(
+        rootNet.getGraph(),
+        new Point(30,30)
+    );
+
+    rootNet.getGraph().connect(
+        rootNetInputCondition.getDefaultSourcePort(),
+        initialAtomicTask.getDefaultTargetPort()
+    );
+    
+    rootNet.getGraph().connect(
+        initialAtomicTask.getSplitDecorator().getDefaultPort(),
+        highRoadAtomicTask.getDefaultTargetPort()
+    );
+
+    rootNet.getGraph().connect(
+        initialAtomicTask.getSplitDecorator().getDefaultPort(),
+        lowRoadAtomicTask.getDefaultTargetPort()
+    );
+
+    rootNet.getGraph().connect(
+        highRoadAtomicTask.getDefaultSourcePort(),
+        rootNetOutputCondition.getDefaultTargetPort()
+    );
+
+    rootNet.getGraph().connect(
+        lowRoadAtomicTask.getDefaultSourcePort(),
+        rootNetOutputCondition.getDefaultTargetPort()
+    );
+
+    // establish predicates on flows. high road task taken when variable
+    // content is true, low road task taken otherwise.
+    
+    for(Object flowAsObject:  initialAtomicTask.getSplitDecorator().getFlows()) {
+      YAWLFlowRelation flow = (YAWLFlowRelation) flowAsObject;
+      if (flow.getTargetVertex() == highRoadAtomicTask) {
+        flow.setPredicate(
+            "boolean(" +
+            XMLUtilities.getXPathPredicateExpression(
+                rootNet.getDecomposition().getVariableWithName("booleanSwitch")
+            ) + ") eq true()"
+        );
+      }
+      if (flow.getTargetVertex() == lowRoadAtomicTask) {
+        flow.setPredicate(
+            "boolean(" +
+            XMLUtilities.getXPathPredicateExpression(
+                rootNet.getDecomposition().getVariableWithName("booleanSwitch")
+            ) + ") eq false()"
+        );
+      }
+    }
+    
+    rootNet.getDecomposition().setLabel("StartingNetRenamed");
+    
+    SpecificationModel.getInstance().changeDecompositionInQueries(
+        "StartingNet", rootNet.getDecomposition().getLabel()
+    );
+
+    assertTrue(
+      rootNet.getDecomposition().getLabel().equals("StartingNetRenamed")    
+    );
+    
+    // Cecking that task parameter queries were updated correctly with net name change.
+    
+    assertTrue(
+        initialAtomicTask.getParameterLists().getInputParameters().getQueryAt(0).equals(
+            "/StartingNetRenamed/booleanSwitch/text()"
+        )    
+    );
+
+    assertTrue(
+        initialAtomicTask.getParameterLists().getOutputParameters().getQueryAt(0).equals(
+            "/initialTaskDecomposition/booleanSwitch/text()"
+        )    
+    );
+    
+    // Cecking that flow predicate queries were updated correctly with net name change.
+
+    for(Object flowAsObject:  initialAtomicTask.getSplitDecorator().getFlows()) {
+      YAWLFlowRelation flow = (YAWLFlowRelation) flowAsObject;
+      if (flow.getTargetVertex() == highRoadAtomicTask) {
+        assertTrue(
+            flow.getPredicate().equals(
+                "boolean(/StartingNetRenamed/booleanSwitch/text()) eq true()"
+            )    
+        );
+      }
+      if (flow.getTargetVertex() == lowRoadAtomicTask) {
+        assertTrue(
+            flow.getPredicate().equals(
+                "boolean(/StartingNetRenamed/booleanSwitch/text()) eq false()"
+            )    
+        );
+      }
+    }
+
+    DataVariable theNetVariable = rootNet.getDecomposition().getVariableWithName(
+        "booleanSwitch"
+    );
+    
+    theNetVariable.setName(
+        "renamedBooleanSwitch"
+    );
+    
+    SpecificationModel.getInstance().changeVariableNameInQueries(
+        theNetVariable, 
+        "booleanSwitch", 
+        "renamedBooleanSwitch"
+    );
+    
+    // Cecking that task parameter queries were updated correctly with net var name change.
+    
+    assertTrue(
+        initialAtomicTask.getParameterLists().getInputParameters().getQueryAt(0).equals(
+            "/StartingNetRenamed/renamedBooleanSwitch/text()"
+        )    
+    );
+
+    assertTrue(
+        initialAtomicTask.getParameterLists().getOutputParameters().getQueryAt(0).equals(
+            "/initialTaskDecomposition/booleanSwitch/text()"
+        )    
+    );
+
+    // Cecking that flow predicate queries were updated correctly with net var name change.
+
+    for(Object flowAsObject:  initialAtomicTask.getSplitDecorator().getFlows()) {
+      YAWLFlowRelation flow = (YAWLFlowRelation) flowAsObject;
+      if (flow.getTargetVertex() == highRoadAtomicTask) {
+        assertTrue(
+            flow.getPredicate().equals(
+                "boolean(/StartingNetRenamed/renamedBooleanSwitch/text()) eq true()"
+            )    
+        );
+      }
+      if (flow.getTargetVertex() == lowRoadAtomicTask) {
+        assertTrue(
+            flow.getPredicate().equals(
+                "boolean(/StartingNetRenamed/renamedBooleanSwitch/text()) eq false()"
+            )    
+        );
+      }
+    }
+
+  }
   // TODO : Expand out to cover more of SpecificationModel's interface.
 }
