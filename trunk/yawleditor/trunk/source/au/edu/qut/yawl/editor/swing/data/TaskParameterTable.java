@@ -23,19 +23,77 @@
 
 package au.edu.qut.yawl.editor.swing.data;
 
+import java.awt.Component;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
+
 import au.edu.qut.yawl.editor.data.Decomposition;
 import au.edu.qut.yawl.editor.data.Parameter;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
-import au.edu.qut.yawl.editor.swing.JSingleSelectTable;
 
 public abstract class TaskParameterTable extends JOrderedSingleSelectTable {
   
   protected Decomposition outputVariableScope;
   protected Decomposition inputVariableScope;
   
+  public TaskParameterTable() {
+    super();
+    setFormat();
+  }
+  
+  private void setFormat() {
+    if (getModel() == null || !(getModel() instanceof TaskParameterTableModel)) {
+      return;
+    }
+    getColumn(getColumnName(TaskParameterTableModel.XQUERY_COLUMN)).setMinWidth(
+        getMessageWidth(getColumnName(TaskParameterTableModel.XQUERY_COLUMN) + "-")
+    );
+    getColumn(getColumnName(TaskParameterTableModel.VARIABLE_COLUMN)).setMinWidth(
+        getMaximumVariableNameWidth()
+    );
+    getColumn(getColumnName(TaskParameterTableModel.VARIABLE_COLUMN)).setPreferredWidth(
+        getMaximumVariableNameWidth()
+    );
+    getColumn(getColumnName(TaskParameterTableModel.VARIABLE_COLUMN)).setMaxWidth(
+        getMaximumVariableNameWidth()
+    );
+  }
+
+  private int getMessageWidth(String message) {
+    if (message == null) {
+      return 0;
+    }
+    return  getFontMetrics(getFont()).stringWidth(message) + 5;
+  }
+
+  private int getMaximumVariableNameWidth() {
+    int maxWidth = getMessageWidth(getColumnName(TaskParameterTableModel.VARIABLE_COLUMN) + "-");
+    for(int i = 0; i < getRowCount(); i++) {
+      maxWidth = Math.max(maxWidth, getMessageWidth(getVariableAt(i)));
+    }
+    return maxWidth;
+  }
+  
+  public Component prepareRenderer(TableCellRenderer renderer,
+      int row, 
+      int col) {
+
+    JComponent component = (JComponent) super.prepareRenderer(renderer, row, col);
+    ((JLabel) component).setHorizontalAlignment(JLabel.CENTER);
+
+    return component;
+  }
+
+  
   public String getVariableAt(int row) {
+    if (getParameterModel() == null) {
+      return null;
+    }
     return getParameterModel().getVariableNameAt(row);
   }
   
@@ -57,6 +115,7 @@ public abstract class TaskParameterTable extends JOrderedSingleSelectTable {
 
   public void setInputVariableScope(Decomposition inputVariableScope) {
     this.inputVariableScope = inputVariableScope;
+    setFormat();
   }
   
   public Decomposition getOutputVariableScope() {

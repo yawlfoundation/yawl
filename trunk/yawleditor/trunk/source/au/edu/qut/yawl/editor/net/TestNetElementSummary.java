@@ -36,6 +36,7 @@ import au.edu.qut.yawl.editor.elements.model.MultipleAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.CompositeTask;
 import au.edu.qut.yawl.editor.elements.model.MultipleCompositeTask;
 import au.edu.qut.yawl.editor.elements.model.Decorator;
+import au.edu.qut.yawl.editor.net.utilities.NetCellFactory;
 
 import java.awt.Point;
 
@@ -93,182 +94,253 @@ public class TestNetElementSummary extends TestCase {
 	}
 
 	public void testConditions() {
-		netModel.getGraph().addCondition(new Point(10,10));
-		summary = new NetElementSummary(netModel);
+        NetCellFactory.insertCondition(
+            netModel.getGraph(), 
+            new Point(10,10)
+        );
+
+        summary = new NetElementSummary(netModel);
 		assertEquals(summary.getConditions().size(),1);
     
-		netModel.getGraph().addCondition(new Point(20,20));
-		summary = new NetElementSummary(netModel);
+        NetCellFactory.insertCondition(
+            netModel.getGraph(), 
+            new Point(20,20)
+        );
+        
+        summary = new NetElementSummary(netModel);
 		assertEquals(summary.getConditions().size(),2);
 
-		netModel.getGraph().addCondition(new Point(30,30));
+        NetCellFactory.insertCondition(
+            netModel.getGraph(), 
+            new Point(30,30)
+        );
+
 		summary = new NetElementSummary(netModel);
 		assertEquals(summary.getConditions().size(),3);
 	}
 
   public void testAtomicTasks() {
-    netModel.getGraph().addAtomicTask(new Point(10,10));
+    
+    NetCellFactory.insertAtomicTask(
+        netModel.getGraph(), 
+        new Point(10,10)
+    );
+
     summary = new NetElementSummary(netModel);
     assertEquals(summary.getAtomicTasks().size(),1);
-    
-    netModel.getGraph().addMultipleAtomicTask(new Point(20,20));
+
+    NetCellFactory.insertMultipleAtomicTask(
+        netModel.getGraph(), 
+        new Point(20,20)
+    );
+
     summary = new NetElementSummary(netModel);
     assertEquals(summary.getAtomicTasks().size(),2);
 
-    netModel.getGraph().addAtomicTask(new Point(30,30));
+    NetCellFactory.insertAtomicTask(
+        netModel.getGraph(), 
+        new Point(30,30)
+    );
+
     summary = new NetElementSummary(netModel);
     assertEquals(summary.getAtomicTasks().size(),3);
 
-		netModel.getGraph().addMultipleAtomicTask(new Point(40,40));
-		summary = new NetElementSummary(netModel);
-		assertEquals(summary.getAtomicTasks().size(),4);
-		
-		AtomicTask decoratedAtomicTask = netModel.getGraph().addAtomicTask(new Point(50,50));
-		netModel.setSplitDecorator(decoratedAtomicTask, Decorator.AND_TYPE, Decorator.LEFT);
-		summary = new NetElementSummary(netModel);
-		assertEquals(summary.getAtomicTasks().size(),5);
+    NetCellFactory.insertMultipleAtomicTask(
+        netModel.getGraph(), 
+        new Point(40,40)
+    );
+
+    summary = new NetElementSummary(netModel);
+    assertEquals(summary.getAtomicTasks().size(), 4);
+
+    AtomicTask decoratedAtomicTask = NetCellFactory.insertAtomicTask(
+        netModel.getGraph(), 
+        new Point(50,50)
+    );
+      
+    netModel.setSplitDecorator(
+        decoratedAtomicTask, 
+        Decorator.AND_TYPE,
+        Decorator.LEFT
+    );
+
+    summary = new NetElementSummary(netModel);
+    assertEquals(summary.getAtomicTasks().size(), 5);
 
     int atomicTasks = 0;
     int multipleAtomicTasks = 0;
 
-		for(int i = 0; i < netModel.getRootCount(); i++) {
-			if (netModel.getRootAt(i) instanceof VertexContainer) {
-				assertEquals(decoratedAtomicTask, ((VertexContainer) netModel.getRootAt(i) ).getVertex());
-			}
-			if (netModel.getRootAt(i) instanceof AtomicTask) {
-				atomicTasks++;
-			}
-			if (netModel.getRootAt(i) instanceof MultipleAtomicTask) {
-				multipleAtomicTasks++;
-			}
-		}
+	for (int i = 0; i < netModel.getRootCount(); i++) {
+      if (netModel.getRootAt(i) instanceof VertexContainer) {
+        assertEquals(decoratedAtomicTask, ((VertexContainer) netModel
+            .getRootAt(i)).getVertex());
+      }
+      if (netModel.getRootAt(i) instanceof AtomicTask) {
+        atomicTasks++;
+      }
+      if (netModel.getRootAt(i) instanceof MultipleAtomicTask) {
+        multipleAtomicTasks++;
+      }
+    }
 
-		assertEquals(2, atomicTasks);
-		assertEquals(2, multipleAtomicTasks);
+    assertEquals(2, atomicTasks);
+    assertEquals(2, multipleAtomicTasks);
   }
 
-	public void testCompositeTasks() {
-		netModel.getGraph().addCompositeTask(new Point(10,10));
-		summary = new NetElementSummary(netModel);
-		assertEquals(summary.getCompositeTasks().size(),1);
+  public void testCompositeTasks() {
+    NetCellFactory.insertCompositeTask(
+        netModel.getGraph(), 
+        new Point(10, 10)
+    );
+
+    summary = new NetElementSummary(netModel);
+    assertEquals(summary.getCompositeTasks().size(), 1);
+
+    NetCellFactory.insertMultipleCompositeTask(
+        netModel.getGraph(), 
+        new Point(20, 20)
+    );
+
+    summary = new NetElementSummary(netModel);
+    assertEquals(summary.getCompositeTasks().size(), 2);
     
-		netModel.getGraph().addMultipleCompositeTask(new Point(20,20));
-		summary = new NetElementSummary(netModel);
-		assertEquals(summary.getCompositeTasks().size(),2);
+    NetCellFactory.insertCompositeTask(
+        netModel.getGraph(), 
+        new Point(30, 30)
+    );
 
-		netModel.getGraph().addCompositeTask(new Point(30,30));
-		summary = new NetElementSummary(netModel);
-		assertEquals(summary.getCompositeTasks().size(),3);
+    summary = new NetElementSummary(netModel);
+    assertEquals(summary.getCompositeTasks().size(), 3);
 
-		netModel.getGraph().addMultipleCompositeTask(new Point(40,40));
-		summary = new NetElementSummary(netModel);
-		assertEquals(summary.getCompositeTasks().size(),4);
+    NetCellFactory.insertMultipleCompositeTask(
+        netModel.getGraph(), 
+        new Point(40, 40)
+    );
 
-		CompositeTask decoratedCompositeTask = netModel.getGraph().addCompositeTask(new Point(50,50));
-		netModel.setSplitDecorator(decoratedCompositeTask, Decorator.AND_TYPE, Decorator.LEFT);
-		summary = new NetElementSummary(netModel);
-		assertEquals(summary.getCompositeTasks().size(),5);
+    summary = new NetElementSummary(netModel);
+    assertEquals(summary.getCompositeTasks().size(), 4);
 
-		int compositeTasks = 0;
-		int multipleCompositeTasks = 0;
+    CompositeTask decoratedCompositeTask = NetCellFactory.insertCompositeTask(
+        netModel.getGraph(), 
+        new Point(50, 50)
+    );
+    
+    netModel.setSplitDecorator(decoratedCompositeTask, Decorator.AND_TYPE,
+        Decorator.LEFT);
+    summary = new NetElementSummary(netModel);
+    assertEquals(summary.getCompositeTasks().size(), 5);
 
-		for(int i = 0; i < netModel.getRootCount(); i++) {
-			if (netModel.getRootAt(i) instanceof VertexContainer) {
-				assertEquals(decoratedCompositeTask, ((VertexContainer) netModel.getRootAt(i) ).getVertex());
-			}
-			if (netModel.getRootAt(i) instanceof CompositeTask) {
-				compositeTasks++;
-			}
-			if (netModel.getRootAt(i) instanceof MultipleCompositeTask) {
-				multipleCompositeTasks++;
-			}
-		}
+    int compositeTasks = 0;
+    int multipleCompositeTasks = 0;
 
-		assertEquals(2, compositeTasks);
-		assertEquals(2, multipleCompositeTasks);
-	}
-	
-	public void testFlows() {
-		AtomicTask task = netModel.getGraph().addAtomicTask(new Point(10,10));
+    for (int i = 0; i < netModel.getRootCount(); i++) {
+      if (netModel.getRootAt(i) instanceof VertexContainer) {
+        assertEquals(decoratedCompositeTask, ((VertexContainer) netModel
+            .getRootAt(i)).getVertex());
+      }
+      if (netModel.getRootAt(i) instanceof CompositeTask) {
+        compositeTasks++;
+      }
+      if (netModel.getRootAt(i) instanceof MultipleCompositeTask) {
+        multipleCompositeTasks++;
+      }
+    }
+
+    assertEquals(2, compositeTasks);
+    assertEquals(2, multipleCompositeTasks);
+  }
+
+  public void testFlows() {
+    AtomicTask task = NetCellFactory.insertAtomicTask(
+        netModel.getGraph(), 
+        new Point(10,10)
+    );
 
     InputCondition inputCondition = null;
     OutputCondition outputCondition = null;
-    
+
     assertEquals(3, netModel.getRootCount());
 
+    for (int i = 0; i < netModel.getRootCount(); i++) {
+      if (netModel.getRootAt(i) instanceof InputCondition) {
+        inputCondition = (InputCondition) netModel.getRootAt(i);
+        continue;
+      }
+      if (netModel.getRootAt(i) instanceof OutputCondition) {
+        outputCondition = (OutputCondition) netModel.getRootAt(i);
+        continue;
+      }
+      if (netModel.getRootAt(i) instanceof AtomicTask) {
+        assertEquals(task, netModel.getRootAt(i));
+        continue;
+      }
+    }
 
-		for(int i = 0; i < netModel.getRootCount(); i++) {
-			if (netModel.getRootAt(i) instanceof InputCondition) {
-				inputCondition = (InputCondition) netModel.getRootAt(i);
-				continue;
-			}
-			if (netModel.getRootAt(i) instanceof OutputCondition) {
-				outputCondition = (OutputCondition) netModel.getRootAt(i);
-				continue;
-			}
-			if (netModel.getRootAt(i) instanceof AtomicTask) {
-				assertEquals(task, netModel.getRootAt(i));
-				continue;
-			}
-		}
+    assertNotNull(inputCondition);
+    assertNotNull(outputCondition);
 
-		assertNotNull(inputCondition);
-		assertNotNull(outputCondition);
-	
     YAWLPort inputConditionPort = inputCondition.getPortAt(YAWLVertex.RIGHT);
-		YAWLPort taskIncommingPort = task.getPortAt(YAWLVertex.LEFT);
-		YAWLPort taskOutgoingPort = task.getPortAt(YAWLVertex.RIGHT);
-		YAWLPort outputConditionPort = outputCondition.getPortAt(YAWLVertex.LEFT);
-		
-		netModel.getGraph().connect(inputConditionPort, taskIncommingPort);
-		netModel.getGraph().connect(taskOutgoingPort, outputConditionPort);
+    YAWLPort taskIncommingPort = task.getPortAt(YAWLVertex.LEFT);
+    YAWLPort taskOutgoingPort = task.getPortAt(YAWLVertex.RIGHT);
+    YAWLPort outputConditionPort = outputCondition.getPortAt(YAWLVertex.LEFT);
 
-		summary = new NetElementSummary(netModel);
-		assertEquals(summary.getFlows().size(),2);
-	}
+    netModel.getGraph().connect(inputConditionPort, taskIncommingPort);
+    netModel.getGraph().connect(taskOutgoingPort, outputConditionPort);
 
-	public void testCancellationSets() {
-		AtomicTask atomicTask = netModel.getGraph().addAtomicTask(new Point(10,10));
-		CompositeTask compositeTask = netModel.getGraph().addCompositeTask(new Point(20,20));
+    summary = new NetElementSummary(netModel);
+    assertEquals(summary.getFlows().size(), 2);
+  }
 
-		InputCondition inputCondition = null;
-		OutputCondition outputCondition = null;
+  public void testCancellationSets() {
     
-		for(int i = 0; i < netModel.getRootCount(); i++) {
-			if (netModel.getRootAt(i) instanceof InputCondition) {
-				inputCondition = (InputCondition) netModel.getRootAt(i);
-				continue;
-			}
-			if (netModel.getRootAt(i) instanceof OutputCondition) {
-				outputCondition = (OutputCondition) netModel.getRootAt(i);
-				continue;
-			}
-		}
-    
-		netModel.getGraph().connect(inputCondition.getPortAt(YAWLVertex.RIGHT), 
-		                            atomicTask.getPortAt(YAWLVertex.LEFT));
-		netModel.getGraph().connect(atomicTask.getPortAt(YAWLVertex.RIGHT), 
-		                            compositeTask.getPortAt(YAWLVertex.LEFT));
-		netModel.getGraph().connect(compositeTask.getPortAt(YAWLVertex.RIGHT), 
-																outputCondition.getPortAt(YAWLVertex.LEFT));
+    AtomicTask atomicTask = NetCellFactory.insertAtomicTask(
+        netModel.getGraph(), 
+        new Point(10,10)
+    );
 
-		summary = new NetElementSummary(netModel);
-		assertEquals(0, summary.getTasksWithCancellationSets().size());
-    
+    CompositeTask compositeTask = NetCellFactory.insertCompositeTask(
+        netModel.getGraph(), 
+        new Point(20, 20)
+    );
+
+    InputCondition inputCondition = null;
+    OutputCondition outputCondition = null;
+
+    for (int i = 0; i < netModel.getRootCount(); i++) {
+      if (netModel.getRootAt(i) instanceof InputCondition) {
+        inputCondition = (InputCondition) netModel.getRootAt(i);
+        continue;
+      }
+      if (netModel.getRootAt(i) instanceof OutputCondition) {
+        outputCondition = (OutputCondition) netModel.getRootAt(i);
+        continue;
+      }
+    }
+
+    netModel.getGraph().connect(inputCondition.getPortAt(YAWLVertex.RIGHT),
+        atomicTask.getPortAt(YAWLVertex.LEFT));
+    netModel.getGraph().connect(atomicTask.getPortAt(YAWLVertex.RIGHT),
+        compositeTask.getPortAt(YAWLVertex.LEFT));
+    netModel.getGraph().connect(compositeTask.getPortAt(YAWLVertex.RIGHT),
+        outputCondition.getPortAt(YAWLVertex.LEFT));
+
+    summary = new NetElementSummary(netModel);
+    assertEquals(0, summary.getTasksWithCancellationSets().size());
+
     netModel.getGraph().getSelectionModel().setSelectionCell(compositeTask);
     netModel.getGraph().changeCancellationSet(atomicTask);
     netModel.getGraph().addSelectedCellsToVisibleCancellationSet();
 
-		summary = new NetElementSummary(netModel);
+    summary = new NetElementSummary(netModel);
 
-		assertEquals(1, summary.getTasksWithCancellationSets().size());
+    assertEquals(1, summary.getTasksWithCancellationSets().size());
 
-		netModel.getGraph().getSelectionModel().setSelectionCell(atomicTask);
-		netModel.getGraph().changeCancellationSet(compositeTask);
-		netModel.getGraph().addSelectedCellsToVisibleCancellationSet();
+    netModel.getGraph().getSelectionModel().setSelectionCell(atomicTask);
+    netModel.getGraph().changeCancellationSet(compositeTask);
+    netModel.getGraph().addSelectedCellsToVisibleCancellationSet();
 
-		summary = new NetElementSummary(netModel);
+    summary = new NetElementSummary(netModel);
 
-		assertEquals(2, summary.getTasksWithCancellationSets().size());
-	}
+    assertEquals(2, summary.getTasksWithCancellationSets().size());
+  }
 }

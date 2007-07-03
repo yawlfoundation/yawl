@@ -83,7 +83,7 @@ public class AlignMiddleAction extends YAWLSelectedNetAction implements TooltipT
            " to align them ";
   }
 
-  public void receiveSubscription(int state,GraphSelectionEvent event) {
+  public void receiveGraphSelectionNotification(int state,GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_MORE_THAN_ONE_VERTEX_SELECTED: {
         setEnabled(true);

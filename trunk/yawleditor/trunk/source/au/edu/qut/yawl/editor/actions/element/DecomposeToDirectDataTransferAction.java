@@ -180,6 +180,7 @@ class DecomposeToDirectDataTransferDialog extends AbstractTaskDoneDialog  {
     
     gbc.gridx++;
     gbc.insets = new Insets(15,5,5,0);
+    gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.anchor = GridBagConstraints.WEST;
 
     decompositionField = buildDecompositionField();

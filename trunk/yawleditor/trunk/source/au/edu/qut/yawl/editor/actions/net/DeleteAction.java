@@ -85,7 +85,7 @@ public class DeleteAction extends YAWLSelectedNetAction implements TooltipToggli
            " to delete them ";
   }
 
-  public void receiveSubscription(int state,GraphSelectionEvent event) {
+  public void receiveGraphSelectionNotification(int state,GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_DELETABLE_ELEMENTS_SELECTED: {
         setEnabled(true);

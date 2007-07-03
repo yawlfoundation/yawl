@@ -27,4 +27,7 @@ import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 public interface YAWLAtomicTask {
   public void setWSDecomposition(WebServiceDecomposition decomposition);
   public WebServiceDecomposition getWSDecomposition();
+  
+  public void setIconPath(String iconPath);
+  public String getIconPath();
 }

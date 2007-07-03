@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
+import java.util.LinkedList;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -21,10 +22,12 @@ import au.edu.qut.yawl.editor.actions.palette.NetDragAction;
 public class ControlFlowPalette extends JPanel {
   private static final long serialVersionUID = 1L;
   
+  private LinkedList<ControlFlowPaletteListener> paletteListeners = new LinkedList<ControlFlowPaletteListener>();
+  
   public static enum SelectionState {
     ATOMIC_TASK,
-    COMPOSITE_TASK,
     MULTIPLE_ATOMIC_TASK,
+    COMPOSITE_TASK,
     MULTIPLE_COMPOSITE_TASK,
     CONDITION,
     DRAG,
@@ -41,33 +44,32 @@ public class ControlFlowPalette extends JPanel {
       ),
       new ControlFlowPaletteButton(
           this,
-          new CompositeTaskAction(this),
+          new MultipleAtomicTaskAction(this),
           KeyEvent.VK_2
       ),
       new ControlFlowPaletteButton(
           this,
-          new MultipleAtomicTaskAction(this),
+          new ConditionAction(this),
           KeyEvent.VK_3
       ),
       new ControlFlowPaletteButton(
           this,
-          new MultipleCompositeTaskAction(this),
-          KeyEvent.
-          VK_4
+          new CompositeTaskAction(this),
+          KeyEvent.VK_4
       ),
       new ControlFlowPaletteButton(
           this,
-          new ConditionAction(this),
+          new MultipleCompositeTaskAction(this),
           KeyEvent.VK_5
       ),
       new ControlFlowPaletteButton(
           this,
-          new NetDragAction(this),
+          new MarqueeAction(this),
           KeyEvent.VK_6
       ),
       new ControlFlowPaletteButton(
           this,
-          new MarqueeAction(this),
+          new NetDragAction(this),
           KeyEvent.VK_7
       )
   };
@@ -78,6 +80,16 @@ public class ControlFlowPalette extends JPanel {
     ButtonGroup paletteButtons = new ButtonGroup();
     for(ControlFlowPaletteButton button: buttons) {
       paletteButtons.add(button);
+    }
+  }
+  
+  public void subscribeForSelectionStateChanges(ControlFlowPaletteListener listener) {
+    paletteListeners.add(listener);
+  }
+  
+  private void publishSelectionState() {
+    for(ControlFlowPaletteListener listener: paletteListeners) {
+      listener.controlFlowPaletteStateChanged(getSelectedState());
     }
   }
 
@@ -104,7 +116,7 @@ public class ControlFlowPalette extends JPanel {
   
   private JPanel buildButtons() {
     JPanel buttonPanel = new JPanel();
-    buttonPanel.setLayout(new GridLayout(4,2));
+    buttonPanel.setLayout(new GridLayout(3,3));
 
     for (int i = 0; i < buttons.length; i++) {
       buttons[i].setMargin(new Insets(3,3,3,3));
@@ -116,6 +128,7 @@ public class ControlFlowPalette extends JPanel {
   
   public void setSelectedState(SelectionState newState) {
     getButtonWithSelectionState(newState).setSelected(true);
+    publishSelectionState();
   }
   
   public SelectionState getSelectedState() {

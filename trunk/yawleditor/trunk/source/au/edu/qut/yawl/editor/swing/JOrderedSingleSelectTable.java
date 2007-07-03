@@ -28,7 +28,7 @@ public abstract class JOrderedSingleSelectTable extends JSingleSelectTable {
   public JOrderedSingleSelectTable() {
     super();
   }
-  
+
   public JOrderedSingleSelectTable(int rows) {
     super(rows);
   }

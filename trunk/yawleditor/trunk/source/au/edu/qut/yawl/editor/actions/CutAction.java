@@ -98,7 +98,7 @@ public class CutAction extends YAWLBaseAction implements TooltipTogglingWidget, 
            " to cut them ";
   }
   
-  public void receiveSubscription(int state,GraphSelectionEvent event) {
+  public void receiveGraphSelectionNotification(int state,GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_DELETABLE_ELEMENTS_SELECTED: {
         setEnabled(true);

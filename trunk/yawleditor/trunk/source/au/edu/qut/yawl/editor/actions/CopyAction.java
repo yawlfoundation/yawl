@@ -95,7 +95,7 @@ public class CopyAction extends YAWLBaseAction implements TooltipTogglingWidget,
            " to copy them ";
   }
   
-  public void receiveSubscription(int state,GraphSelectionEvent event) {
+  public void receiveGraphSelectionNotification(int state,GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_COPYABLE_ELEMENTS_SELECTED: {
         setEnabled(true);

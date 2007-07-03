@@ -58,6 +58,16 @@ public class MultipleAtomicTask extends YAWLTask implements YAWLMultipleInstance
     initialise();
   }
   
+  /**
+   * This constructor is to be invoked whenever we are creating a new 
+   * atomic task from scratch with an icon. It also creates the correct 
+   * ports needed for the task as an intended side-effect.
+   */
+  
+  public MultipleAtomicTask(Point2D startPoint, String iconPath) {
+    super(startPoint, iconPath);
+ }
+  
   private void initialise() {
     setMinimumInstances(1);
     setMaximumInstances(1);
