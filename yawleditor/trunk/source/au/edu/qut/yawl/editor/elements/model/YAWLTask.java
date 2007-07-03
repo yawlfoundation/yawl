@@ -67,6 +67,11 @@ public abstract class YAWLTask extends YAWLVertex {
     initialize();
   }
   
+  public YAWLTask(Point2D startPoint, String iconPath) {
+    super(startPoint, iconPath); 
+    initialize();
+  }
+  
   public void setSerializationProofAttributeMap(HashMap map) {
     this.serializationProofAttributeMap = map;
   }

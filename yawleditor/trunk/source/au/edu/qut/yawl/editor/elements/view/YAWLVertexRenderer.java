@@ -29,10 +29,16 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
+import javax.swing.Icon;
+
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.VertexRenderer;
 
+import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+
 abstract class YAWLVertexRenderer extends VertexRenderer {
+  
   public void paint(Graphics g) {
     Graphics2D g2 = (Graphics2D) g;
     boolean tmp = selected;
@@ -45,6 +51,7 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
       setBorder(null);
       setOpaque(false);
       selected = false;
+      drawIcon(g, getSize()); 
       drawVertex(g,getSize());
     } finally {
       selected = tmp;
@@ -52,13 +59,41 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
     if (bordercolor != null) {
       g2.setStroke(new BasicStroke(1));
       g.setColor(bordercolor);
+      drawIcon(g, getSize()); 
       drawVertex(g, getSize());
     }
     if (selected) {
       g2.setStroke(GraphConstants.SELECTION_STROKE);
       g.setColor(highlightColor);
+      drawIcon(g, getSize()); 
       drawVertex(g, getSize());
     }
+  }
+ 
+  protected void drawIcon(Graphics graphics, Dimension size) {
+    if (!(view.getCell() instanceof YAWLVertex) || 
+        ((YAWLVertex) view.getCell()).getIconPath() == null) {
+     return; 
+    }
+
+    Icon icon = ResourceLoader.getImageAsIcon(
+        ((YAWLVertex) view.getCell()).getIconPath()
+    );
+      
+    icon.paintIcon(
+        null, 
+        graphics,
+        getIconHorizontalOffset(size, icon),
+        getIconVerticalOffset(size,icon)
+    );
+  }
+  
+  protected int getIconHorizontalOffset(Dimension size, Icon icon) {
+    return (size.width - icon.getIconWidth())/2;
+  }
+  
+  protected int getIconVerticalOffset(Dimension size, Icon icon) {
+    return (size.height - icon.getIconHeight())/2;
   }
   
   abstract protected void fillVertex(Graphics graphics, Dimension size);

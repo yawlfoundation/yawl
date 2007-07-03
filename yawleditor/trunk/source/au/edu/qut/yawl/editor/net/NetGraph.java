@@ -56,12 +56,7 @@ import org.jgraph.graph.Port;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.data.Decomposition;
-import au.edu.qut.yawl.editor.elements.model.AtomicTask;
-import au.edu.qut.yawl.editor.elements.model.CompositeTask;
-import au.edu.qut.yawl.editor.elements.model.Condition;
 import au.edu.qut.yawl.editor.elements.model.InputCondition;
-import au.edu.qut.yawl.editor.elements.model.MultipleAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.MultipleCompositeTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
 import au.edu.qut.yawl.editor.elements.model.OutputCondition;
 
@@ -81,6 +76,7 @@ import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 import au.edu.qut.yawl.editor.specification.*;
 import au.edu.qut.yawl.editor.swing.net.YAWLEditorNetFrame;
 import au.edu.qut.yawl.editor.swing.undo.UndoableTaskDecompositionChange;
+import au.edu.qut.yawl.editor.swing.undo.UndoableTaskIconChange;
 
 import au.edu.qut.yawl.editor.actions.net.MoveElementsDownAction;
 import au.edu.qut.yawl.editor.actions.net.MoveElementsLeftAction;
@@ -274,46 +270,14 @@ public class NetGraph extends JGraph {
     return selectionListener; 
   }
   
-  public Condition addCondition(Point2D point) {
-    Condition condition = new Condition(point);
-    addElement(condition);
-    return condition;
-  }
-
-  public AtomicTask addAtomicTask(Point2D point) {
-    AtomicTask task = new AtomicTask(point);
-    addElement(task);
-    return task;
-  }
-
-  public MultipleAtomicTask addMultipleAtomicTask(Point2D point) {
-    MultipleAtomicTask task = new MultipleAtomicTask(point);
-    addElement(task);
-    return task;
-  }
-
-  public CompositeTask addCompositeTask(Point2D point) {
-    CompositeTask task = new CompositeTask(point);
-    addElement(task);
-    return task;
-  }
-
-  public MultipleCompositeTask addMultipleCompositeTask(Point2D point) {
-  	MultipleCompositeTask task = new MultipleCompositeTask(point);
-  	addElement(task);
-  	return task;
-  }
-  
   public void addElement(YAWLVertex element) {
     getModel().insert(new Object[] {element}, 
                       null, null, null, null);
-    
     NetCellUtilities.scrollNetToShowCells(
         this, 
         new Object[] { element }
     );
   }
-
   
   public Dimension getPreferredSize() {
     Dimension currentPrefferedSize = super.getPreferredSize();
@@ -340,7 +304,7 @@ public class NetGraph extends JGraph {
   
   
   private InputCondition addInputCondition() {
-    Point2D startPoint = getInputConditionDefaultPoint(InputCondition.getIconSize());
+    Point2D startPoint = getInputConditionDefaultPoint(InputCondition.getVertexSize());
     InputCondition inputCondition = new InputCondition(startPoint);
     addElement(inputCondition);
     return inputCondition;
@@ -352,7 +316,7 @@ public class NetGraph extends JGraph {
   }
   
   private OutputCondition addOutputCondition() {
-    Point2D startPoint = getOutputConditionDefaultPoint(OutputCondition.getIconSize());
+    Point2D startPoint = getOutputConditionDefaultPoint(OutputCondition.getVertexSize());
     OutputCondition outputCondition = new OutputCondition(startPoint);
     addElement(outputCondition);
     return outputCondition;
@@ -1245,6 +1209,33 @@ public class NetGraph extends JGraph {
       String name = graph.getNetModel().getName();
       setElementLabel((YAWLTask) task, name);
     }
+  }
+  
+  /**
+   * Sets an icon on a vertex that becomes an undoable action for the graph.
+   * @param vertex The vertex to add the icon to.
+   * @param iconPath The file path to the icon needed.
+   */
+  
+  public void setVertexIcon(YAWLVertex vertex, String iconPath) {
+    if (vertex.getIconPath() != null && vertex.getIconPath().equals(iconPath)) {
+      return;
+    }
+    getNetModel().beginUpdate();
+    
+    getNetModel().postEdit(
+        new UndoableTaskIconChange(
+              this,
+              vertex,
+              vertex.getIconPath(), 
+              iconPath
+        )
+    );
+    
+    vertex.setIconPath(iconPath);
+    repaint();
+    
+    getNetModel().endUpdate();
   }
   
   public void setTaskDecomposition(YAWLTask task, Decomposition decomposition) {

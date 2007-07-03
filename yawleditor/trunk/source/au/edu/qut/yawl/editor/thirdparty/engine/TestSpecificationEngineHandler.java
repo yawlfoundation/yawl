@@ -34,6 +34,7 @@ import au.edu.qut.yawl.editor.elements.model.OutputCondition;
 import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
+import au.edu.qut.yawl.editor.net.utilities.NetCellFactory;
 
 import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 import au.edu.qut.yawl.editor.data.DataVariable;
@@ -92,7 +93,10 @@ public class TestSpecificationEngineHandler extends TestCase {
   //////////////////////////  Atomic Task Tests /////////////////////////////
   
   private AtomicTask createFirstAtomicTask() {
-    return rootNet.getGraph().addAtomicTask(new Point(10,10));
+    return NetCellFactory.insertAtomicTask(
+        rootNet.getGraph(),
+        new Point(10,10)
+    );
   }
   
   public void testAtomicTaskPlacement() {
@@ -375,7 +379,10 @@ public class TestSpecificationEngineHandler extends TestCase {
   //////////////////////////  Composite Task Tests /////////////////////////////
   
   private CompositeTask createFirstCompositeTask() {
-    return rootNet.getGraph().addCompositeTask(new Point(10,10));
+    return NetCellFactory.insertCompositeTask(
+        rootNet.getGraph(),
+        new Point(10,10)
+    );
   }
   
   public void testCompositeTaskPlacement() {

@@ -24,6 +24,7 @@
 package au.edu.qut.yawl.editor.swing.data;
 
 import java.awt.Component;
+import java.awt.Dimension;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -42,6 +43,8 @@ public class DataVariableTable extends JOrderedSingleSelectTable {
    */
   private static final long serialVersionUID = 1L;
   private DataVariableSet variableSet;
+  
+  private static final int MAX_ROW_HEIGHT = 5;
   
   public DataVariableTable() {
     super();
@@ -84,10 +87,20 @@ public class DataVariableTable extends JOrderedSingleSelectTable {
     );
 
     getColumn("Usage").setResizable(false);
+  }
+  
+  public Dimension getPreferredScrollableViewportSize() {
+    Dimension defaultPreferredSize = super.getPreferredSize();
     
-    setPreferredScrollableViewportSize(
-      getPreferredSize()
+    Dimension preferredSize = new Dimension(
+        (int) defaultPreferredSize.getWidth(),
+        (int) Math.min(
+            defaultPreferredSize.getHeight(),
+            getFontMetrics(getFont()).getHeight() * MAX_ROW_HEIGHT
+        )
     );
+    
+    return preferredSize;
   }
   
   public Component prepareRenderer(TableCellRenderer renderer,

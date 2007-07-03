@@ -53,6 +53,16 @@ public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
   public AtomicTask(Point2D startPoint) {
      super(startPoint);
   }
+
+  /**
+   * This constructor is to be invoked whenever we are creating a new 
+   * atomic task from scratch with an icon. It also creates the correct 
+   * ports needed for the task as an intended side-effect.
+   */
+  
+  public AtomicTask(Point2D startPoint, String iconPath) {
+    super(startPoint, iconPath);
+ }
   
   public String getType() {
     return "Atomic Task";

@@ -24,11 +24,11 @@
 
 package au.edu.qut.yawl.editor.elements.model;
 
+import java.awt.Color;
+import java.awt.Point;
 import java.awt.Dimension;
 
 import java.awt.geom.Point2D;
-import java.awt.Point;
-
 import java.awt.geom.Rectangle2D;
 
 import java.util.HashMap;
@@ -37,15 +37,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
 
-import java.awt.Color;
-
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
 
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
-
 
 public abstract class YAWLVertex extends DefaultGraphCell 
                                  implements YAWLCell {
@@ -86,7 +83,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
         )
     );
 
-    initialize(new Point(10,10));
+    initialize(new Point(10,10), null);
   }
 
   /**
@@ -102,13 +99,26 @@ public abstract class YAWLVertex extends DefaultGraphCell
         )
     );
 
-    initialize(startPoint);
+    initialize(startPoint, null);
+    addDefaultPorts();
+  }
+  
+  public YAWLVertex(Point2D startPoint, String iconPath) {
+    super();
+    setEngineIdNumber(
+        Long.toString(
+            SpecificationModel.getInstance().getUniqueElementNumber()
+        )
+    );
+
+    initialize(startPoint, iconPath);
     addDefaultPorts();
   }
 
-  private void initialize(Point2D startPoint) {
+  private void initialize(Point2D startPoint, String iconPath) {
     this.startPoint = startPoint;
     buildElementDefaults();
+    setIconPath(iconPath);
   }
   
   public void setSerializationProofAttributeMap(HashMap map) {
@@ -139,6 +149,14 @@ public abstract class YAWLVertex extends DefaultGraphCell
   
   public void setEngineIdNumber(String engineIdNumber) {
     serializationProofAttributeMap.put("engineIdNumber",engineIdNumber);
+  }
+  
+  public void setIconPath(String iconPath) {
+    serializationProofAttributeMap.put("iconPath",iconPath);
+  }
+  
+  public String getIconPath() {
+    return (String) serializationProofAttributeMap.get("iconPath");
   }
   
   public String getToolTipText() {
@@ -177,7 +195,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
     getAttributes().applyMap(map);
   }
 
-  public static Dimension getIconSize() {
+  public static Dimension getVertexSize() {
     return size;
   }
 

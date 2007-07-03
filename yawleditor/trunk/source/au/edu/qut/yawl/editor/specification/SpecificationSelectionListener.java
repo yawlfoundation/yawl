@@ -129,7 +129,7 @@ public class SpecificationSelectionListener {
       while (subscriberIterator.hasNext()) {
         SpecificationSelectionSubscriber subscriber = 
             (SpecificationSelectionSubscriber) subscriberIterator.next();
-        subscriber.receiveSubscription(state, event);
+        subscriber.receiveGraphSelectionNotification(state, event);
       }
     }
   }

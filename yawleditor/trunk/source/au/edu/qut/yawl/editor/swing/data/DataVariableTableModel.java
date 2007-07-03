@@ -23,8 +23,6 @@
 
 package au.edu.qut.yawl.editor.swing.data;
 
-import java.util.LinkedList;
-
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.DataVariableSet;
 

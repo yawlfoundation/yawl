@@ -106,7 +106,7 @@ public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements
     return bounds;
   }
   
-  public void receiveSubscription(int state,GraphSelectionEvent event) {
+  public void receiveGraphSelectionNotification(int state,GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED: {
         setEnabled(false);

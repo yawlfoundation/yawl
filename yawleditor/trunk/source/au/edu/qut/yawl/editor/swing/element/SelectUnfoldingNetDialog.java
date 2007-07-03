@@ -169,14 +169,14 @@ public class SelectUnfoldingNetDialog extends AbstractDoneDialog {
         YAWLEditorNetFrame newFrame = YAWLEditorDesktop.getInstance().newNet();
         
         NetDecompositionUpdateDialog netDialog = new NetDecompositionUpdateDialog(
-            newFrame.getGraph().getNetModel().getDecomposition()
+            newFrame.getNet().getNetModel().getDecomposition()
         );
 
         netDialog.setLocationRelativeTo(YAWLEditor.getInstance());
         netDialog.setModal(true);
         netDialog.setVisible(true);
 
-        graph.setUnfoldingNet(task, newFrame.getGraph());
+        graph.setUnfoldingNet(task, newFrame.getNet());
 
         dialog.setVisible(false);
       }

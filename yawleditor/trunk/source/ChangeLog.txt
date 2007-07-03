@@ -1,4 +1,6 @@
-Version 1.4.6 (??/??/????) 
+Version 1.5 (??/??/????) 
+  * LWB: Atomic tasks have been enhanced so that an icon can be embedded within the task
+    to help in user understandability of a net.
   * LWB: Enhanced the editor so it is now possible to change the ordering of task variables,
     net variales, and task parameter queries.
   * LWB: Enhaned the editor to include a convenience dialog that allows the rapid construction
@@ -20,6 +22,7 @@ Version 1.4.6 (??/??/????)
   * LWB: Upgraded editor to use JGraph 5.9.2.2 and Proguard 3.8.
   * LWB: Fixed a bug where cancelling a save-as action on a specification was being ignored,
     and the file being saved regardless.
+  * LWB: Fixed a bug where you could not drag an outgoing flow from a split decorator port.
   * MJF: Fixed a bug where null pointer exceptions would occasionally happen when changing
     the XPath expression of flows from XOR/OR splits on a variable name change.
   * MJF: Removed potential for class cast exceptions. Not the analysis code catches key 

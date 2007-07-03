@@ -20,6 +20,7 @@ import au.edu.qut.yawl.editor.elements.model.YAWLCell;
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLPort;
 import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import au.edu.qut.yawl.editor.net.utilities.NetCellFactory;
 import au.edu.qut.yawl.editor.swing.CursorFactory;
 import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
 import au.edu.qut.yawl.editor.swing.menu.Palette;
@@ -200,27 +201,54 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
       case ABOVE_CANVAS: {
         switch (Palette.getInstance().getControlFlowPaletteState()) {
           case CONDITION: {
-            getNet().addCondition(getNearestSnapPoint(event.getPoint()));
+              NetCellFactory.insertCondition(
+                  getNet(), 
+                  getNearestSnapPoint(
+                      event.getPoint()
+                  )
+            );
             state = State.ABOVE_VERTEX;
             break;        
           }
           case ATOMIC_TASK: {
-            getNet().addAtomicTask(getNearestSnapPoint(event.getPoint()));
-            state = State.ABOVE_VERTEX;
-            break;        
-          }
-          case COMPOSITE_TASK: {
-            getNet().addCompositeTask(getNearestSnapPoint(event.getPoint()));
+                NetCellFactory.insertAtomicTask(
+                    getNet(), 
+                    getNearestSnapPoint(
+                        event.getPoint()
+                    ),
+                    Palette.getInstance().getSelectedAtomicTaskIconPath()
+            );
             state = State.ABOVE_VERTEX;
             break;        
           }
           case MULTIPLE_ATOMIC_TASK: {
-            getNet().addMultipleAtomicTask(getNearestSnapPoint(event.getPoint()));
+                NetCellFactory.insertMultipleAtomicTask(
+                    getNet(), 
+                    getNearestSnapPoint(
+                        event.getPoint()
+                    ),
+                    Palette.getInstance().getSelectedAtomicTaskIconPath()
+            );
+            state = State.ABOVE_VERTEX;
+            break;        
+          }
+          case COMPOSITE_TASK: {
+                NetCellFactory.insertCompositeTask(
+                    getNet(),
+                    getNearestSnapPoint(
+                        event.getPoint()
+                    )
+            );
             state = State.ABOVE_VERTEX;
             break;        
           }
           case MULTIPLE_COMPOSITE_TASK: {
-            getNet().addMultipleCompositeTask(getNearestSnapPoint(event.getPoint()));
+                NetCellFactory.insertMultipleCompositeTask(
+                    getNet(), 
+                    getNearestSnapPoint(
+                        event.getPoint()
+                    )
+            );
             state = State.ABOVE_VERTEX;
             break;        
           }
@@ -338,6 +366,19 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     if (portUnderMouse == null) {
       return false;
     }
+    
+    // Selected flows attached to a port take precedence. We consider the mouse
+    // to be over the flow, not the port.
+
+    for(Object flowAsObject : ((YAWLPort) portUnderMouse.getCell()).getEdges()) {
+      YAWLFlowRelation flow = (YAWLFlowRelation) flowAsObject;
+      for(Object selectedCell : getNet().getSelectionCells()) {
+        if (flow == selectedCell) {
+          return false;
+        }
+      }
+    }
+
     if (generatesOutgoingFlows(portUnderMouse)) {
       return true;
     }

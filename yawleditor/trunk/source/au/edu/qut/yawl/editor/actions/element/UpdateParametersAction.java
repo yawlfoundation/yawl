@@ -52,6 +52,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import javax.swing.JTable;
 
@@ -156,7 +157,7 @@ class UpdateParametersDialog extends AbstractTaskDoneDialog  {
     gbc.gridx = 0;
     gbc.gridy = 0;
     gbc.weightx = 0.5;
-    gbc.weighty = 0.5;
+    gbc.weighty = 0.33;
     gbc.gridheight = 1;
     gbc.gridwidth = 2;
     gbc.fill = GridBagConstraints.BOTH;
@@ -166,8 +167,8 @@ class UpdateParametersDialog extends AbstractTaskDoneDialog  {
 
     gbc.gridx = 0;
     gbc.gridy++;
-    gbc.weightx = 0;
-    gbc.weighty = 0;
+    gbc.weightx = 0.5;
+    gbc.weighty = 0.33;
     gbc.gridheight = 1;
     gbc.gridwidth = 1;
     gbc.fill = GridBagConstraints.BOTH;
@@ -180,7 +181,7 @@ class UpdateParametersDialog extends AbstractTaskDoneDialog  {
     
     gbc.gridx = 0;
     gbc.gridy++; 
-    gbc.weighty = 0.5;
+    gbc.weighty = 0.33;
     gbc.gridheight = 1;
     gbc.gridwidth = 2;
     gbc.insets = new Insets(0,0,0,0); 
@@ -196,6 +197,9 @@ class UpdateParametersDialog extends AbstractTaskDoneDialog  {
     netVariableTable = new DataVariableTable();
     
     JScrollPane netScrollPane = new JScrollPane(netVariableTable);
+    netScrollPane.setVerticalScrollBarPolicy(
+        ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS
+    );
     netScrollPane.setBorder(new EmptyBorder(0,5,5,5));
     
     netPanel.setBorder(new TitledBorder("Net Variables"));
@@ -210,6 +214,10 @@ class UpdateParametersDialog extends AbstractTaskDoneDialog  {
     taskVariableTable = new DataVariableTable();
     
     JScrollPane taskScrollPane = new JScrollPane(taskVariableTable);
+    taskScrollPane.setVerticalScrollBarPolicy(
+        ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS
+    );
+
     taskScrollPane.setBorder(new EmptyBorder(0,5,5,5));
     
     taskPanel.setBorder(new TitledBorder("Task Variables"));
@@ -429,22 +437,17 @@ class TaskInputParameterTableModel extends TaskParameterTableModel {
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final String[] COLUMN_LABELS = { 
-    "XQuery",
-    "Task Variable"
-  };
   
   public TaskInputParameterTableModel(ParameterList parameterList) {
     this.parameterList = parameterList;
     setOrderedRows(parameterList.getParameters());
   }
 
-  public int getColumnCount() {
-    return COLUMN_LABELS.length;
-  }
-
   public String getColumnName(int columnIndex) {
-    return COLUMN_LABELS[columnIndex];
+    if (columnIndex == TaskParameterTableModel.VARIABLE_COLUMN) {
+      return "Task " + super.getColumnName(columnIndex);
+    }
+    return super.getColumnName(columnIndex);
   }
 }
 
@@ -477,10 +480,6 @@ class TaskOutputParameterTableModel extends TaskParameterTableModel {
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final String[] COLUMN_LABELS = { 
-    "XQuery",
-    "Net Variable"
-  };
   
   public TaskOutputParameterTableModel(ParameterList parameterList) {
     super();
@@ -488,11 +487,10 @@ class TaskOutputParameterTableModel extends TaskParameterTableModel {
     setOrderedRows(parameterList.getParameters());
   }
 
-  public int getColumnCount() {
-    return COLUMN_LABELS.length;
-  }
-
   public String getColumnName(int columnIndex) {
-    return COLUMN_LABELS[columnIndex];
+    if (columnIndex == TaskParameterTableModel.VARIABLE_COLUMN) {
+      return "Net " + super.getColumnName(columnIndex);
+    }
+    return super.getColumnName(columnIndex);
   }
 }

@@ -97,7 +97,7 @@ public class YAWLEditorDesktop extends JDesktopPane
     YAWLEditorNetFrame frame = new YAWLEditorNetFrame(bounds, graph.getName());
     bindFrame(frame);
     graph.setSize(frame.getContentPane().getSize());
-    frame.setGraph(graph);
+    frame.setNet(graph);
     try {
       frame.setIcon(iconified);
       if (iconified) {
@@ -133,7 +133,7 @@ public class YAWLEditorDesktop extends JDesktopPane
   
   public void removeActiveNet() {
     YAWLEditorNetFrame f = (YAWLEditorNetFrame) getSelectedFrame();
-    if (f != null && !f.getGraph().getNetModel().isStartingNet()) {
+    if (f != null && !f.getNet().getNetModel().isStartingNet()) {
       f.doDefaultCloseAction();
     }
   }
@@ -287,7 +287,7 @@ public class YAWLEditorDesktop extends JDesktopPane
   public NetGraph getSelectedGraph() {
     final YAWLEditorNetFrame frame = (YAWLEditorNetFrame) getSelectedFrame();
     if (frame != null) {
-      return frame.getGraph();  
+      return frame.getNet();  
     } 
     return null; 
   }

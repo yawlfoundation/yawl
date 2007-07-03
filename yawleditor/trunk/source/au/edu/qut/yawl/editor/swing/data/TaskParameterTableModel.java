@@ -28,12 +28,25 @@ import au.edu.qut.yawl.editor.data.Parameter;
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.swing.AbstractOrderedRowTableModel;
 
-public abstract class TaskParameterTableModel extends AbstractOrderedRowTableModel {
+public class TaskParameterTableModel extends AbstractOrderedRowTableModel {
 
   protected ParameterList parameterList;
 
   public static final int XQUERY_COLUMN   = 0;
   public static final int VARIABLE_COLUMN = 1;
+
+  private static final String[] COLUMN_LABELS = { 
+    "XQuery",
+    "Variable"
+  };
+  
+  public int getColumnCount() {
+    return COLUMN_LABELS.length;
+  }
+  
+  public String getColumnName(int columnIndex) {
+    return COLUMN_LABELS[columnIndex];
+  }
   
   public boolean isCellEditable(int row, int column) {
     return false;

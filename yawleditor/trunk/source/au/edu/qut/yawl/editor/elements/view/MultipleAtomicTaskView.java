@@ -27,6 +27,9 @@ package au.edu.qut.yawl.editor.elements.view;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Color;
+
+import javax.swing.Icon;
+
 import org.jgraph.graph.VertexView;
 import org.jgraph.graph.CellViewRenderer;
 
@@ -54,8 +57,8 @@ public class MultipleAtomicTaskView extends VertexView {
 
     public static final int GAP_DIVISOR = 4;
 
-    private int horizontalGap = 0;
-    private int verticalGap   = 0;
+    protected int horizontalGap = 0;
+    protected int verticalGap   = 0;
 
     protected void fillVertex(Graphics graphics, Dimension size) {
       horizontalGap = size.width/GAP_DIVISOR;
@@ -81,10 +84,20 @@ public class MultipleAtomicTaskView extends VertexView {
                         size.width - (2 + horizontalGap), 
                         size.height - (2+verticalGap));
       graphics.setColor(foreground);
+      
+      drawIcon(graphics, getSize()); 
 
       graphics.drawRect(0, verticalGap,
                         size.width - (1 + horizontalGap), 
                         size.height - (1 + verticalGap));
+    }
+
+    protected int getIconHorizontalOffset(Dimension size, Icon icon) {
+      return (size.width - horizontalGap - icon.getIconWidth())/2;
+    }
+    
+    protected int getIconVerticalOffset(Dimension size, Icon icon) {
+      return (size.height - verticalGap - icon.getIconHeight())/2 + verticalGap;
     }
   }
 }

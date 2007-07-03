@@ -39,15 +39,12 @@ import au.edu.qut.yawl.editor.specification.SpecificationModel;
 
 public class YAWLEditorNetFrame extends JInternalFrame {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
 
   private static final SpecificationModel model = 
     SpecificationModel.getInstance();
   
-  private NetGraph graph;
+  private NetGraph net;
   private JScrollPane scrollPane;
 
   {
@@ -70,7 +67,7 @@ public class YAWLEditorNetFrame extends JInternalFrame {
     setLocation(location);
     NetGraph newGraph = new NetGraph();
     newGraph.buildNewGraphContent();
-    setGraph(newGraph);
+    setNet(newGraph);
     
     String newTitleString = "";
     boolean validNameFound = false;
@@ -97,37 +94,37 @@ public class YAWLEditorNetFrame extends JInternalFrame {
   }
 
   public void removeFromSpecification() {
-    model.removeNet(getGraph().getNetModel());
+    model.removeNet(getNet().getNetModel());
   }
 
-  public void setGraph(final NetGraph graph) {
-    this.graph = graph;
-    scrollPane = new JScrollPane(graph);
-    graph.setFrame(this);
-    scrollPane.getViewport().setViewSize(graph.getSize());
+  public void setNet(final NetGraph net) {
+    this.net = net;
+    scrollPane = new JScrollPane(net);
+    net.setFrame(this);
+    scrollPane.getViewport().setViewSize(net.getSize());
     
     getContentPane().add(scrollPane); 
     final JComponent contents = (JComponent) getContentPane();
-    contents.setPreferredSize(graph.getSize());
+    contents.setPreferredSize(net.getSize());
     setSize(getPreferredSize());
-    model.addNet(getGraph().getNetModel());
+    model.addNet(getNet().getNetModel());
   }
   
-  public NetGraph getGraph() {
-    return graph;
+  public NetGraph getNet() {
+    return net;
   }
   
   public void setNetName(String title) {
     setTitle(title);
-    if (getGraph() != null) {
-      getGraph().setName(title);
+    if (getNet() != null) {
+      getNet().setName(title);
     }
   }
   
   public void showRenameDialog() {
-    String oldName = getGraph().getNetModel().getName();
+    String oldName = getNet().getNetModel().getName();
     String newName = null;
-    while(SpecificationModel.getInstance().getNetModelFromName(newName) != getGraph().getNetModel()) {
+    while(SpecificationModel.getInstance().getNetModelFromName(newName) != getNet().getNetModel()) {
       newName = JOptionPane.showInputDialog(this,
                                             "Change Net Name to:",
                                             oldName);

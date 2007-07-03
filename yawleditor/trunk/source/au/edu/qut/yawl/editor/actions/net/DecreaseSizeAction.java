@@ -87,7 +87,7 @@ public class DecreaseSizeAction extends YAWLSelectedNetAction implements Tooltip
            " to decrease their size ";
   }
 
-  public void receiveSubscription(int state,GraphSelectionEvent event) {
+  public void receiveGraphSelectionNotification(int state,GraphSelectionEvent event) {
     switch(state) {
       case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED: {
         setEnabled(false);
