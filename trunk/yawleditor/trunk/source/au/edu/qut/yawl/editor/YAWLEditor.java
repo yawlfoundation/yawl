@@ -52,7 +52,7 @@ import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 import au.edu.qut.yawl.editor.swing.menu.Palette;
 import au.edu.qut.yawl.editor.swing.menu.ToolBarMenu;
 import au.edu.qut.yawl.editor.swing.menu.YAWLMenuBar;
-import au.edu.qut.yawl.editor.swing.specification.ProblemMessagePanel;
+import au.edu.qut.yawl.editor.swing.specification.SpecificationBottomPanel;
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 /**
@@ -74,6 +74,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private final Palette paletteBar = Palette.getInstance();
   
   private static JSplitPane splitPane;
+  private static SpecificationBottomPanel specificationBottomPanel;
 
   private static YAWLEditor INSTANCE;
   
@@ -256,7 +257,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     return splitPane;
   }
   
-  public void showVerificationDetail() {
+  public void showBottomOfSplitPane() {
     repaint();
     splitPane.setDividerLocation(
           (int) (splitPane.getHeight() - 
@@ -264,7 +265,18 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
           splitPane.getBottomComponent().getPreferredSize().getHeight())
     );
   }
+  
+  public void showNotesTab() {
+    specificationBottomPanel.selectNotesTab();
+    showBottomOfSplitPane();
+  }
 
+  public void showProblemsTab() {
+    specificationBottomPanel.selectProblemsTab();
+    showBottomOfSplitPane();
+  }
+
+  
   private JPanel getTopPanel() {
     JPanel topPanel = new JPanel(new BorderLayout());
     
@@ -293,8 +305,13 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   
   private JPanel getBottomPanel() {
     JPanel bottomPanel = new JPanel(new BorderLayout());
+    
+    specificationBottomPanel = new SpecificationBottomPanel();
 
-    bottomPanel.add(ProblemMessagePanel.getInstance(), BorderLayout.CENTER);
+    bottomPanel.add(
+        specificationBottomPanel, 
+        BorderLayout.CENTER
+    );
     
     return bottomPanel;
   }

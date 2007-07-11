@@ -77,6 +77,12 @@ public class SpecificationSelectionListener {
    * Represents a state where a seelction set contains just a single task.
    */
   public static final int STATE_SINGLE_TASK_SELECTED = 5;
+  
+  /**
+   * Represents a state where a seelction set contains just a single net element.
+   */
+  public static final int STATE_SINGLE_ELEMENT_SELECTED = 6;
+  
 
   /**
    * A mapping of possible selection states against subscribers that care to receive
@@ -119,6 +125,9 @@ public class SpecificationSelectionListener {
     }
     if (singleTaskSelected(model)) {
       publishState(STATE_SINGLE_TASK_SELECTED, event);
+    }
+    if (singleElementSelected(model)) {
+      publishState(STATE_SINGLE_ELEMENT_SELECTED, event);
     }
   }
   
@@ -228,4 +237,20 @@ public class SpecificationSelectionListener {
     }
     return false;
   }
+  
+  /**
+   * Returns true if the selection set supplied by 
+   * <code>model</code> contains only a single element, false otherwise.
+   * @param model
+   * @return
+   */
+  private boolean singleElementSelected(GraphSelectionModel model) {
+    Object[] elements = model.getSelectionCells();
+
+    if (elements.length != 1) {
+      return false;
+    }
+    return true;
+  }
+
 }
