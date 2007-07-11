@@ -76,10 +76,31 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
      return; 
     }
 
-    Icon icon = ResourceLoader.getImageAsIcon(
-        ((YAWLVertex) view.getCell()).getIconPath()
-    );
-      
+    /*
+     * We try loading the icon from interal to the Jar first. If
+     * that fails, we assume it's external, and try again.
+     */
+    
+    Icon icon = null;
+    
+    try {
+      icon = ResourceLoader.getImageAsIcon(
+          ((YAWLVertex) view.getCell()).getIconPath()
+      );
+    } catch (Exception e) {}
+    
+    if (icon == null) {
+      try {
+        icon = ResourceLoader.getExternalImageAsIcon(
+            ((YAWLVertex) view.getCell()).getIconPath()
+        );
+      } catch (Exception e) {}
+    }
+    
+    if (icon == null) {
+      return;
+    }
+    
     icon.paintIcon(
         null, 
         graphics,

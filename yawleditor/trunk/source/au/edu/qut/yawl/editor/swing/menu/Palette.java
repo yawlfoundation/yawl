@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+
 import java.util.LinkedList;
 
 import javax.swing.BoxLayout;
@@ -37,26 +38,36 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
+
 import javax.swing.border.EmptyBorder;
+
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.jgraph.event.GraphSelectionEvent;
 
+import java.io.File;
+
 import au.edu.qut.yawl.editor.YAWLEditor;
+
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+
+import au.edu.qut.yawl.editor.foundations.FileUtilities;
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+
 import au.edu.qut.yawl.editor.specification.SpecificationModelListener;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
+
 import au.edu.qut.yawl.editor.swing.JUtilities;
 import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette.SelectionState;
@@ -311,197 +322,18 @@ class TaskTemplatePalette extends JPanel implements ControlFlowPaletteListener, 
   }
 }
 
-class TaskIconTreeNode extends DefaultMutableTreeNode {
-
-  private static final long serialVersionUID = 1L;
-  
-  private Icon nodeIcon;
-  private String iconPath;
-  
-  private boolean isDefault = false;
-  
-  public TaskIconTreeNode(Object userObject) {
-    super(userObject);
-  }
-  
-  public TaskIconTreeNode(Object userObject, String iconPath) {
-    super(userObject);
-    setIconPath(iconPath);
-  }
-  
-  public void setIconPath(String iconPath) {
-    this.iconPath = iconPath;
-    if (iconPath == null) {
-      return;
-    }
-    
-    setIcon(
-        ResourceLoader.getImageAsIcon(iconPath)    
-    );
-  }
-
-  public String getIconPath() {
-    return this.iconPath;
-  }
-
-  private void setIcon(Icon nodeIcon) {
-    this.nodeIcon = nodeIcon;
-  }
-  
-  public Icon getIcon() {
-    return nodeIcon;
-  }
-  
-  public boolean isDefault() {
-    return isDefault;
-  }
-  
-  public void setDefault(boolean theDefault) {
-    this.isDefault = theDefault;
-  }
-  
-  
-}
 
 class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
   
   private static final long serialVersionUID = 1L;
-  
-  private static DefaultMutableTreeNode rootIconNode;
-  
-  private static LinkedList<TaskIconTreeNode> iconNodes = new LinkedList<TaskIconTreeNode>();
-  
-  private static final DefaultMutableTreeNode buildIconTree() {
-    rootIconNode = new DefaultMutableTreeNode("Task Icon");
 
-    add(rootIconNode,createNoIconNode());
-    add(rootIconNode,createManualIconNodes());
-    add(rootIconNode,createAutomaticIconNode());
-    add(rootIconNode,createOtherIconNodes());
-    
-    return rootIconNode;
-  }
-
-  public static void add(DefaultMutableTreeNode parentNode, TaskIconTreeNode newNode) {
-    parentNode.add(newNode);
-    iconNodes.add(newNode);  
-  }
-  
-  private static TaskIconTreeNode createNoIconNode() {
-    TaskIconTreeNode noIconNode = 
-      new TaskIconTreeNode(
-          "No Icon", 
-          null
-      );
-    noIconNode.setDefault(true);
-    return noIconNode;
-  }
-  
-  private static TaskIconTreeNode createManualIconNodes() {
-    TaskIconTreeNode manualNode = 
-      new TaskIconTreeNode(
-          "Manual", 
-          getIconPathByName("ManualWork")
-      );
-    
-    add(manualNode, createCollaborationIconNode());
-    add(manualNode, createMobilePhoneIconNode());
-    return manualNode;
-  }
-
-  private static TaskIconTreeNode createMobilePhoneIconNode() {
-    TaskIconTreeNode mobilePhoneNode = 
-      new TaskIconTreeNode(
-          "Mobile", 
-          getIconPathByName("MobilePhone")
-      );
-    
-    return mobilePhoneNode;
-  }
-
-  private static TaskIconTreeNode createCollaborationIconNode() {
-    TaskIconTreeNode collaborationNode = 
-      new TaskIconTreeNode(
-          "Collaboration", 
-          getIconPathByName("Collaboration")
-      );
-    
-    return collaborationNode;
-  }
-
-  
-  private static TaskIconTreeNode createAutomaticIconNode() {
-    TaskIconTreeNode automaticNode = 
-      new TaskIconTreeNode(
-          "Automated", 
-          getIconPathByName("AutomaticWork")
-      );
-    
-    return automaticNode;
-  }
-
-  private static TaskIconTreeNode createOtherIconNodes() {
-    TaskIconTreeNode otherNode = 
-      new TaskIconTreeNode(
-          "Other", 
-          null
-      );
-    add(otherNode, createRoutingIconNode());
-    add(otherNode, createTimerIconNode());
-    add(otherNode, createShoppingCartNode());
-    add(otherNode, createGlobeNode());
-    
-    
-    return otherNode;
-  }
-  
-  private static TaskIconTreeNode createRoutingIconNode() {
-    TaskIconTreeNode routingNode = 
-      new TaskIconTreeNode(
-          "Routing", 
-          getIconPathByName("RoutingTask")
-      );
-    
-    return routingNode;
-  }
-
-  private static TaskIconTreeNode createTimerIconNode() {
-    TaskIconTreeNode timerNode = 
-      new TaskIconTreeNode(
-          "Timer", 
-          getIconPathByName("Timer")
-      );
-    
-    return timerNode;
-  }
-
-  private static TaskIconTreeNode createShoppingCartNode() {
-    TaskIconTreeNode node = 
-      new TaskIconTreeNode(
-          "Shopping Card", 
-          getIconPathByName("ShoppingCart")
-      );
-    
-    return node;
-  }
-
-  private static TaskIconTreeNode createGlobeNode() {
-    TaskIconTreeNode node = 
-      new TaskIconTreeNode(
-          "Globe", 
-          getIconPathByName("Globe")
-      );
-    
-    return node;
-  }
-
-  
-  protected static String getIconPathByName(String iconName) {
-    return "/au/edu/qut/yawl/editor/resources/taskicons/" + iconName + ".gif";
+  public TaskIconTreeModel getTaskIconTreeModel() {
+    return (TaskIconTreeModel) getModel();
   }
   
   public TaskIconTree() {
-    super(buildIconTree());
+    super();
+    setModel(new TaskIconTreeModel());
     buildInterface();
     
     SpecificationSelectionListener.getInstance().subscribe(
@@ -544,12 +376,7 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
   
   
   public TaskIconTreeNode getDefaultNode() {
-    for(TaskIconTreeNode node: iconNodes) {
-      if (node.isDefault()) {
-        return node;
-      }
-    }
-    return null;
+    return getTaskIconTreeModel().getDefaultNode();
   }
   
   public void selectDefaultNode() {
@@ -639,21 +466,15 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
   }
   
   public void selectNodeWithIconPath(String iconPath) {
-    boolean pathFound = false;
-    for(TaskIconTreeNode node : iconNodes) {
-      if (node.getIconPath() != null && 
-          node.getIconPath().equals(iconPath)) {
-        getSelectionModel().setSelectionPath(
-            new TreePath(node.getPath())    
-        );
-        pathFound = true;
-      }
-    }
-    if (!pathFound) {
-      selectDefaultNode();
-    }
+    getSelectionModel().setSelectionPath(
+      new TreePath(
+          getTaskIconTreeModel().getNodeWithIconPath(
+              iconPath
+          ).getPath()
+      )    
+    );
   }
-  
+
   class TaskIconTreeNodeRenderer extends DefaultTreeCellRenderer {
 
     private static final long serialVersionUID = 1L;
@@ -685,3 +506,245 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
   }
 }
 
+
+class TaskIconTreeModel extends DefaultTreeModel {
+  
+  private static final long serialVersionUID = 1L;
+  
+  /*
+   * Recursing through the tree is failing oddly and non-deterministically.  I've decided
+   * to implement a flat index of nodes and use that for finding the nodes I'm interested in.
+   */
+  
+  private LinkedList<TaskIconTreeNode> iconNodes = new LinkedList<TaskIconTreeNode>();
+    
+  protected static String getInternalIconPathByName(String iconName) {
+    if (iconName == null) {
+      return null;
+    }
+    return "/au/edu/qut/yawl/editor/resources/taskicons/" + iconName + ".png";
+  }
+  
+  public TaskIconTreeNode getDefaultNode() {
+    for(TaskIconTreeNode node: iconNodes) {
+      if (node.isDefault()) {
+        return node;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Attempts to find the tree node with the given icon path. If it fails, it will
+   * sipply the default node instead.
+   * @param iconPath
+   * @return 
+   */
+  
+  public TaskIconTreeNode getNodeWithIconPath(String iconPath) {
+    for(TaskIconTreeNode node : iconNodes) {
+      if (node.getIconPath() != null && 
+          node.getIconPath().equals(iconPath)) {
+        return node;
+      }
+    }
+    return getDefaultNode();
+  }
+
+  private final DefaultMutableTreeNode buildIconTree() {
+    DefaultMutableTreeNode rootIconNode = new DefaultMutableTreeNode("Task Icon");
+
+    add(rootIconNode,createNoIconNode());
+    add(rootIconNode,createManualIconNodes());
+    add(rootIconNode,createAutomaticIconNode());
+    add(rootIconNode,createRoutingIconNodes());
+    add(rootIconNode,createPluginIconNodes());
+    
+    return rootIconNode;
+  }
+
+  /**
+   * Adds newNode to parentNode, then indexes newNode for searching later.
+   * @param parentNode
+   * @param newNode
+   */
+  
+  public void add(DefaultMutableTreeNode parentNode, TaskIconTreeNode newNode) {
+    parentNode.add(newNode);
+    iconNodes.add(newNode);  
+  }
+
+  private TaskIconTreeNode createInternalIconNode(String title, String fileName) {
+    return createIconNode(title, getInternalIconPathByName(fileName), true);
+  }
+
+  private TaskIconTreeNode createExternalIconNode(String title, String fileName) {
+    return createIconNode(title, fileName, false);
+  }
+  
+  private TaskIconTreeNode createIconNode(String title, String fileName, boolean internal) {
+    TaskIconTreeNode node = 
+      new TaskIconTreeNode(
+          title, 
+          fileName,
+          internal
+      );
+    
+    return node;
+  }
+
+  
+  private TaskIconTreeNode createNoIconNode() {
+    TaskIconTreeNode noIconNode = createInternalIconNode("No Icon", null);
+    noIconNode.setDefault(true);
+    return noIconNode;
+  }
+  
+  private TaskIconTreeNode createManualIconNodes() {
+    TaskIconTreeNode manualNode = createInternalIconNode("Manual", "Manual");
+    
+    add(manualNode, createInternalIconNode("Pair", "Pair"));
+    add(manualNode, createInternalIconNode("Group", "Group"));
+    add(manualNode, createInternalIconNode("Inspect", "Inspect"));
+    add(manualNode, createInternalIconNode("Validate", "Validate"));
+    add(manualNode, createInternalIconNode("Schedule", "Schedule"));
+    add(manualNode, createInternalIconNode("File", "File"));
+    add(manualNode, createInternalIconNode("PDA", "BlackPDA"));
+
+    return manualNode;
+  }
+
+  private TaskIconTreeNode createAutomaticIconNode() {
+    TaskIconTreeNode automaticNode = createInternalIconNode("Automated", "Automatic");
+
+    add(automaticNode, createInternalIconNode("Automatic", "AutomaticOne"));
+    add(automaticNode, createInternalIconNode("Automatic", "AutomaticTwo"));
+    add(automaticNode, createInternalIconNode("Timer", "Timer"));
+    add(automaticNode, createInternalIconNode("Print", "Print"));
+    
+    return automaticNode;
+  }
+  
+  private TaskIconTreeNode createRoutingIconNodes() {
+    TaskIconTreeNode routingNode =  createInternalIconNode("Routing", "RoutingTask");
+
+    add(routingNode, createInternalIconNode("Question", "QuestionOne"));
+    add(routingNode, createInternalIconNode("Question", "QuestionTwo"));
+    add(routingNode, createInternalIconNode("Dangerous", "Dangerous"));
+    add(routingNode, createInternalIconNode("Exception", "Exception"));
+
+    return routingNode;
+  }
+  
+  private TaskIconTreeNode createPluginIconNodes() {
+    TaskIconTreeNode pluginNode = createInternalIconNode("Plugin", "Plugin");
+
+    recurseNodeForPluginIcons(
+        pluginNode, 
+        new File(FileUtilities.ICON_PLUGIN_DIRECTORY)
+    );
+    
+    return pluginNode;
+  }
+
+  private void recurseNodeForPluginIcons(TaskIconTreeNode rootNode, File rootDirectory) {
+     
+     File[] filesInDirectory = rootDirectory.listFiles();
+
+     for(File file: filesInDirectory) {
+       if (file.isDirectory()) {
+         
+         TaskIconTreeNode dirNode = createExternalIconNode(file.getName(), null);
+         
+         add(rootNode, dirNode);
+         
+         recurseNodeForPluginIcons(dirNode, file);
+       } else if(file.getName().toLowerCase().endsWith("png") ) {
+         add(rootNode, 
+             createExternalIconNode(
+                 FileUtilities.stripFileExtension(
+                     file.getName()
+                 ), 
+                 file.getPath()
+             )
+         );
+       }
+     }
+  }
+  
+
+  public TaskIconTreeModel() {
+    super(null);
+    setRoot(
+        buildIconTree()
+    );
+  }
+}
+
+class TaskIconTreeNode extends DefaultMutableTreeNode {
+
+  private static final long serialVersionUID = 1L;
+  
+  private Icon nodeIcon;
+  private String iconPath;
+  
+  private boolean isInternal = true;
+  
+  private boolean isDefault = false;
+  
+  public TaskIconTreeNode(Object userObject) {
+    super(userObject);
+    setInternal(false);
+  }
+  
+  public TaskIconTreeNode(Object userObject, String iconPath, boolean isInternal) {
+    super(userObject);
+    setInternal(isInternal);
+    setIconPath(iconPath);
+  }
+  
+  public void setIconPath(String iconPath) {
+    this.iconPath = iconPath;
+    if (iconPath == null) {
+      return;
+    }
+
+    if (isInternal()) {
+      setIcon(
+          ResourceLoader.getImageAsIcon(iconPath)    
+      );
+    } else {
+      setIcon(
+          ResourceLoader.getExternalImageAsIcon(iconPath)    
+      );
+    }
+  }
+
+  public String getIconPath() {
+    return this.iconPath;
+  }
+  
+  public void setInternal(boolean isInternal) {
+    this.isInternal = isInternal;
+  }
+  
+  public boolean isInternal() {
+     return isInternal;
+  }
+
+  private void setIcon(Icon nodeIcon) {
+    this.nodeIcon = nodeIcon;
+  }
+  
+  public Icon getIcon() {
+    return nodeIcon;
+  }
+  
+  public boolean isDefault() {
+    return isDefault;
+  }
+  
+  public void setDefault(boolean theDefault) {
+    this.isDefault = theDefault;
+  }
+}

@@ -29,8 +29,6 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.border.CompoundBorder;
 
 import au.edu.qut.yawl.editor.specification.SpecificationFileModel;
 import au.edu.qut.yawl.editor.specification.SpecificationFileModelListener;
@@ -44,8 +42,6 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
   private static final long serialVersionUID = 1L;
   private JScrollPane problemScrollPane;
   private static ProblemTable problemResultsTable = buildProblemMessageTable();
-  
-  private TitledBorder titledBorder = new TitledBorder("Problems identified");
   
   public static final ProblemMessagePanel 
     INSTANCE = new ProblemMessagePanel();
@@ -67,17 +63,11 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
     problemScrollPane = new JScrollPane(problemResultsTable);
     
     add(problemScrollPane, BorderLayout.CENTER);
-    setBorder(new CompoundBorder(
-        titledBorder,
-        new EmptyBorder(0,5,5,5)));
+    setBorder(new EmptyBorder(4,5,5,5));
   }
   
-  private void setProblemTitle(String title) {
-    titledBorder.setTitle(title);
-  }
   
   public void setProblemList(String title, List problemList) {
-    this.setProblemTitle(title);
     problemResultsTable.reset();
 
     populateProblemListTable(problemList);
@@ -109,7 +99,7 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
         problemResultsTable.getPreferredSize()
     );
     
-    YAWLEditor.getInstance().showVerificationDetail();
+    YAWLEditor.getInstance().showProblemsTab();
   }
   
   private static ProblemTable buildProblemMessageTable() {

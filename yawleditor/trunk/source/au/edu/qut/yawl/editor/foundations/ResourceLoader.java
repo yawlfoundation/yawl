@@ -24,6 +24,7 @@
 
 package au.edu.qut.yawl.editor.foundations;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 import javax.swing.ImageIcon;
@@ -43,7 +44,19 @@ public class ResourceLoader {
       in.close();
       return new ImageIcon(imageByteBuffer);
     } catch (Exception e) {
-      e.printStackTrace();
+      // e.printStackTrace();
+      return null;
+    }
+  }
+  
+  public static ImageIcon getExternalImageAsIcon(String imageFile) {
+    try {
+      FileInputStream in = new FileInputStream(imageFile);
+      final byte[] imageByteBuffer = convertToByteArray(in);
+      in.close();
+      return new ImageIcon(imageByteBuffer);
+    } catch (Exception e) {
+      // e.printStackTrace();
       return null;
     }
   }
