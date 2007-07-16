@@ -30,4 +30,6 @@ public interface YAWLAtomicTask {
   
   public void setIconPath(String iconPath);
   public String getIconPath();
+  
+  public String getLabel();
 }

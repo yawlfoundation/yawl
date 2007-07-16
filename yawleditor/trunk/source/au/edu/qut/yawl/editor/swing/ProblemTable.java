@@ -22,6 +22,7 @@
 package au.edu.qut.yawl.editor.swing;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
@@ -33,10 +34,9 @@ import javax.swing.table.TableCellRenderer;
 
 public class ProblemTable extends JSingleSelectTable {
   
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
+  
+  private static final int MAX_ROW_HEIGHT = 5;
   
   public ProblemTable() {
     super();
@@ -61,6 +61,20 @@ public class ProblemTable extends JSingleSelectTable {
   
   public int getMessageHeight() {
     return getFontMetrics(getFont()).getHeight();
+  }
+  
+  public Dimension getPreferredViewableScrollportSize() {
+    Dimension preferredSize = super.getPreferredScrollableViewportSize();
+
+    preferredSize.setSize(
+      preferredSize.getWidth(),
+      Math.min(
+          preferredSize.getHeight(), 
+          getFontMetrics(getFont()).getHeight() * MAX_ROW_HEIGHT
+      )
+    );
+    
+    return preferredSize;
   }
   
   public Component prepareRenderer(TableCellRenderer renderer,

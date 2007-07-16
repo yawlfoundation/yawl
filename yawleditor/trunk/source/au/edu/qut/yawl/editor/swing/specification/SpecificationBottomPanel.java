@@ -6,24 +6,29 @@ import javax.swing.border.EmptyBorder;
 import org.jgraph.event.GraphSelectionEvent;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
+import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
+import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 
 public class SpecificationBottomPanel extends JTabbedPane implements SpecificationSelectionSubscriber {
 
     private static final long serialVersionUID = 1L;
 
+    private static final int DESIGN_NOTES_PAMEL_INDEX = 0;
+    private static final int PROBLEM_PANEL_INDEX = 1;
+
+    private DesignNotesPanel designNotesPanel;
     private ProblemMessagePanel problemMessagePanel;
-    private NotesPanel notesPanel;
     
     public SpecificationBottomPanel() {
       setBorder(new EmptyBorder(4,5,5,5));
 
+      designNotesPanel = new DesignNotesPanel();
+      addTab("Notes", designNotesPanel);
+
       problemMessagePanel = ProblemMessagePanel.getInstance();
-      
-      notesPanel = new NotesPanel();
-      
-      addTab("Notes", notesPanel);
       addTab("Problems", problemMessagePanel);
       
       selectNotesTab();
@@ -42,12 +47,30 @@ public class SpecificationBottomPanel extends JTabbedPane implements Specificati
       switch(state) {
         case SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED: 
         case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED:{
-          setEnabledAt(0, false);
+          setEnabledAt(DESIGN_NOTES_PAMEL_INDEX, false);
+          setTitleAt(DESIGN_NOTES_PAMEL_INDEX, "Notes");
+
           YAWLEditor.getInstance().hideBottomOfSplitPane();
+          designNotesPanel.setVertex(null);
           break;
         }
         default: {
-          setEnabledAt(0, true);
+          
+          YAWLVertex vertex = NetCellUtilities.getVertexFromCell(
+              YAWLEditorDesktop.getInstance().getSelectedGraph().getSelectionCell()
+          );
+          
+          if (vertex == null) {
+            return;
+          }
+          
+          setEnabledAt(DESIGN_NOTES_PAMEL_INDEX, true);
+          setTitleAt(
+              DESIGN_NOTES_PAMEL_INDEX, 
+              "Notes (" + vertex.getEngineId()  + ")"
+          );
+
+          designNotesPanel.setVertex(vertex);
           YAWLEditor.getInstance().showNotesTab();
           break;
         }
@@ -55,10 +78,14 @@ public class SpecificationBottomPanel extends JTabbedPane implements Specificati
     }
     
     public void selectNotesTab() {
-      setSelectedComponent(notesPanel);
+      setSelectedComponent(designNotesPanel);
     }
     
     public void selectProblemsTab() {
       setSelectedComponent(problemMessagePanel);
+      setTitleAt(
+          PROBLEM_PANEL_INDEX,
+          problemMessagePanel.getTitle()
+      );
     }
 }

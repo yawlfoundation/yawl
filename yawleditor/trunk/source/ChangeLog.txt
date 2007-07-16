@@ -1,6 +1,10 @@
 Version 1.5 (??/??/????) 
   * LWB: Atomic tasks have been enhanced so that an icon can be embedded within the task
-    to help in user understandability of a net.
+    to help in user understandability of a net. This includes a plugin mechansm allowing
+    workflow designers to add their own icons.
+  * LWB: Now, when selecting a single net element, a notes tab will appear in the bottom
+    pane of the editor, allowing workflow designers to add design notes (which will not be
+    exported to the engine specification) to the selected element.
   * LWB: Enhanced the editor so it is now possible to change the ordering of task variables,
     net variales, and task parameter queries.
   * LWB: Enhaned the editor to include a convenience dialog that allows the rapid construction
@@ -25,7 +29,7 @@ Version 1.5 (??/??/????)
   * LWB: Fixed a bug where you could not drag an outgoing flow from a split decorator port.
   * MJF: Fixed a bug where null pointer exceptions would occasionally happen when changing
     the XPath expression of flows from XOR/OR splits on a variable name change.
-  * MJF: Removed potential for class cast exceptions. Not the analysis code catches key 
+  * MJF: Removed potential for class cast exceptions. Now the analysis code catches key 
     exceptions and included them in the error list it generates.
 
 Version 1.4.5 (27/04/2007) "Blobby"

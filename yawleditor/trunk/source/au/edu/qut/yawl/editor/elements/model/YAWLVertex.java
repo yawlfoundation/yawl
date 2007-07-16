@@ -158,6 +158,14 @@ public abstract class YAWLVertex extends DefaultGraphCell
   public String getIconPath() {
     return (String) serializationProofAttributeMap.get("iconPath");
   }
+
+  public void setDesignNotes(String designNotes) {
+    serializationProofAttributeMap.put("designNotes",designNotes);
+  }
+  
+  public String getDesignNotes() {
+    return (String) serializationProofAttributeMap.get("designNotes");
+  }
   
   public String getToolTipText() {
     if (getEngineIdToolTipText() != null) {

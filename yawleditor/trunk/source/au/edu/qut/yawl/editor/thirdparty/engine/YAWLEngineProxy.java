@@ -140,19 +140,31 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
   
   public void analyse() {
     YAWLEditor.getInstance().progressStatusBarOverSeconds(2);
-
+    
     List analysisResults = getAnalysisResults();
+    
     if (WofYAWLProxy.wofYawlAvailable()) {
-      analysisResults.addAll(
-        WofYAWLProxy.getInstance().getAnalysisResults()  
-      );
-    }
-    if (analysisResults.size() == 0) {
-      analysisResults.add("No problems were discovered in the analysis of this specification.");
+      
+      try {
+        analysisResults.addAll(
+            WofYAWLProxy.getInstance().getAnalysisResults()  
+          );
+        if (analysisResults.size() == 0) {
+          analysisResults.add("No problems were discovered in the analysis of this specification.");
+        }
+      } catch (Exception e) {
+        LinkedList<String> stackMessageList = new LinkedList<String>();
+        stackMessageList.add(e.getMessage());
+        
+        ProblemMessagePanel.getInstance().setProblemList(
+            "Programming Exception with Specification Analysis",
+            stackMessageList
+        );
+      }
     }
 
     ProblemMessagePanel.getInstance().setProblemList(
-      "Problems identified in specification analysis",
+      "Specification Analysis Problems",
       analysisResults 
     );
     YAWLEditor.getInstance().resetStatusBarProgress();
