@@ -43,9 +43,14 @@ import org.jgraph.graph.VertexView;
 
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
+import au.edu.qut.yawl.editor.elements.model.InputCondition;
+import au.edu.qut.yawl.editor.elements.model.OutputCondition;
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
+import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
+import au.edu.qut.yawl.editor.elements.model.YAWLCondition;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
@@ -438,5 +443,63 @@ public class NetCellUtilities {
     taskVariable.setUsage(taskUsage);
     
     return taskVariable;
+  }
+  
+  public static YAWLVertex getVertexFromCell(Object cell) {
+    if (cell instanceof VertexContainer) {
+      cell = ((VertexContainer) cell).getVertex();
+    }
+    if (cell instanceof YAWLVertex) {
+      return (YAWLVertex) cell;
+    }
+    return null;
+  }
+
+  public static YAWLCondition getConditionFromCell(Object cell) {
+    YAWLVertex vertex = getVertexFromCell(cell);
+    if (vertex != null && vertex instanceof YAWLCondition) {
+      return (YAWLCondition) vertex;
+    }
+    return null;
+  }
+
+  public static InputCondition getInputConditionFromCell(Object cell) {
+    YAWLCondition condition = getConditionFromCell(cell);
+    if (condition != null && condition instanceof InputCondition) {
+      return (InputCondition) condition;
+    }
+    return null;
+  }
+
+  public static OutputCondition getOutputConditionFromCell(Object cell) {
+    YAWLCondition condition = getConditionFromCell(cell);
+    if (condition != null && condition instanceof OutputCondition) {
+      return (OutputCondition) condition;
+    }
+    return null;
+  }
+  
+  public static YAWLTask getTaskFromCell(Object cell) {
+    YAWLVertex vertex = getVertexFromCell(cell);
+    if (vertex != null && vertex instanceof YAWLTask) {
+      return (YAWLTask) vertex;
+    }
+    return null;
+  }
+  
+  public static YAWLAtomicTask getAtomicTaskFromCell(Object cell) {
+    YAWLTask task = getTaskFromCell(cell);
+    if (task != null && task instanceof YAWLAtomicTask) {
+      return (YAWLAtomicTask) task;
+    }
+    return null;
+  }
+
+  public static YAWLCompositeTask getCompositeTaskFromCell(Object cell) {
+    YAWLTask task = getTaskFromCell(cell);
+    if (task != null && task instanceof YAWLCompositeTask) {
+      return (YAWLCompositeTask) task;
+    }
+    return null;
   }
 }

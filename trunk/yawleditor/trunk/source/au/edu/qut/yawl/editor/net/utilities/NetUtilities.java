@@ -27,8 +27,6 @@ package au.edu.qut.yawl.editor.net.utilities;
 import java.util.HashSet;
 import java.util.Set;
 
-import au.edu.qut.yawl.editor.elements.model.AtomicTask;
-import au.edu.qut.yawl.editor.elements.model.MultipleAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
@@ -84,11 +82,9 @@ public final class NetUtilities {
   public static Set<YAWLVertex> getVertexes(NetGraphModel net) {
     HashSet<YAWLVertex> vertexList = new HashSet<YAWLVertex>();
     for(Object netRoot: NetGraphModel.getRoots(net)) {
-      if (netRoot instanceof VertexContainer) {
-        vertexList.add(((VertexContainer) netRoot).getVertex());
-      }
-      if (netRoot instanceof YAWLVertex) {
-        vertexList.add((YAWLVertex) netRoot);
+      YAWLVertex vertex = NetCellUtilities.getVertexFromCell(netRoot);
+      if (vertex != null) {
+        vertexList.add(vertex);
       }
     }
     return vertexList;
@@ -106,12 +102,9 @@ public final class NetUtilities {
     HashSet<YAWLTask> tasks = new HashSet<YAWLTask>();
     
     for(Object netRoot: NetGraphModel.getRoots(net)) {
-      Object cell = netRoot;  // so as to not screw with the root iterator variable
-      if (cell instanceof VertexContainer) {
-        cell = ((VertexContainer) cell).getVertex();
-      }
-      if (cell instanceof YAWLTask) {
-        tasks.add((YAWLTask) cell);
+      YAWLTask task = NetCellUtilities.getTaskFromCell(netRoot);
+      if (task != null) {
+        tasks.add(task);
       }
     }
     return tasks;
@@ -127,11 +120,9 @@ public final class NetUtilities {
   public static Set<YAWLAtomicTask> getAtomicTasks(NetGraphModel net) {
     HashSet<YAWLAtomicTask> atomicTasks = new HashSet<YAWLAtomicTask>();
     for (Object netRoot: NetGraphModel.getRoots(net)) {
-      if (netRoot instanceof VertexContainer) {
-        netRoot = ((VertexContainer) netRoot).getVertex();
-      }
-      if (netRoot instanceof YAWLAtomicTask) {
-        atomicTasks.add((YAWLAtomicTask) netRoot);
+      YAWLAtomicTask task = NetCellUtilities.getAtomicTaskFromCell(netRoot);
+      if (task != null) {
+        atomicTasks.add(task);
       }
     }
     return atomicTasks;
@@ -147,12 +138,9 @@ public final class NetUtilities {
    */
   public static boolean hasAtomicTaskWithLabel(NetGraphModel net, String label) {
     for (Object netRoot : NetGraphModel.getRoots(net)) {
-      if (netRoot instanceof VertexContainer) {
-        netRoot = ((VertexContainer) netRoot).getVertex();
-      }
-      if (netRoot instanceof AtomicTask ||
-          netRoot instanceof MultipleAtomicTask) {
-        if (label.equals(((YAWLTask) netRoot).getLabel())) {
+      YAWLAtomicTask task = NetCellUtilities.getAtomicTaskFromCell(netRoot);
+      if (task != null) {
+        if (label.equals(task.getLabel())) {
           return true;
         }
       }
@@ -170,11 +158,9 @@ public final class NetUtilities {
   public static Set<YAWLCompositeTask> getCompositeTasks(NetGraphModel net) {
     HashSet<YAWLCompositeTask> compositeTasks = new HashSet<YAWLCompositeTask>();
     for (Object netRoot : NetGraphModel.getRoots(net)) {
-      if (netRoot instanceof VertexContainer) {
-        netRoot = ((VertexContainer) netRoot).getVertex();
-      }
-      if (netRoot instanceof YAWLCompositeTask) {
-        compositeTasks.add((YAWLCompositeTask) netRoot);
+      YAWLCompositeTask task = NetCellUtilities.getCompositeTaskFromCell(netRoot);
+      if (task != null) {
+        compositeTasks.add(task);
       }
     }
     return compositeTasks;
@@ -189,10 +175,8 @@ public final class NetUtilities {
   public static Set<YAWLTask> getTasksWithCancellationSets(NetGraphModel net) {
     HashSet<YAWLTask> tasks = new HashSet<YAWLTask>();
     for (Object netRoot : NetGraphModel.getRoots(net)) {
-      if (netRoot instanceof VertexContainer) {
-        netRoot = ((VertexContainer) netRoot).getVertex();
-      }
-      if (netRoot instanceof YAWLTask && ((YAWLTask)netRoot).getCancellationSet().size() > 0) {
+      YAWLTask task = NetCellUtilities.getTaskFromCell(netRoot);
+      if (task != null && task.getCancellationSet().size() > 0) {
         tasks.add((YAWLTask) netRoot);
       }
     }
@@ -208,11 +192,9 @@ public final class NetUtilities {
   public static Set<YAWLTask> getTasksWitSplitDecorators(NetGraphModel net) {
     HashSet<YAWLTask> tasks = new HashSet<YAWLTask>();
     for (Object netRoot :  NetGraphModel.getRoots(net)) {
-      if (netRoot instanceof VertexContainer) {
-        netRoot = ((VertexContainer) netRoot).getVertex();
-      }
-      if (netRoot instanceof YAWLTask && ((YAWLTask)netRoot).hasSplitDecorator()) {
-        tasks.add((YAWLTask) netRoot);
+      YAWLTask task = NetCellUtilities.getTaskFromCell(netRoot);
+      if (task != null && task.hasSplitDecorator() ) {
+        tasks.add(task);
       }
     }
     return tasks;
@@ -264,12 +246,9 @@ public final class NetUtilities {
    */
   public static InputCondition getInputCondition(NetGraphModel net) {
     for(Object cell: NetGraphModel.getRoots(net)) {
-      if (cell instanceof VertexContainer && 
-          ((VertexContainer) cell).getVertex() instanceof InputCondition) {
-        return (InputCondition) ((VertexContainer) cell).getVertex();
-      }
-      if (cell instanceof InputCondition) {
-        return (InputCondition) cell;
+      InputCondition condition = NetCellUtilities.getInputConditionFromCell(cell);
+      if (condition != null) {
+        return condition;
       }
     }
     return null;
@@ -282,12 +261,9 @@ public final class NetUtilities {
    */
   public static OutputCondition getOutputCondition(NetGraphModel net) {
     for(Object cell : NetGraphModel.getRoots(net)) {
-      if (cell instanceof VertexContainer && 
-          ((VertexContainer) cell).getVertex() instanceof OutputCondition) {
-        return (OutputCondition) ((VertexContainer) cell).getVertex();
-      }
-      if (cell instanceof OutputCondition) {
-        return (OutputCondition) cell;
+      OutputCondition condition = NetCellUtilities.getOutputConditionFromCell(cell);
+      if (condition != null) {
+        return condition;
       }
     }
     return null;
@@ -299,28 +275,13 @@ public final class NetUtilities {
    * @return A set of outgoing flows from the cell
    */
   public static Set getOutgoingFlowsFrom(YAWLCell cell) {
-
-    VertexContainer container = null;
-    YAWLVertex vertex = null;
-
-    if (cell instanceof VertexContainer) {
-      container = (VertexContainer) cell;
-      vertex = container.getVertex();
-    }
-    if (cell instanceof YAWLVertex) {
-      vertex = (YAWLVertex) cell;
-    }
+    YAWLVertex vertex = NetCellUtilities.getVertexFromCell(cell);
     if (vertex == null) { // not interested in anything else
       return null;
     }
 
     HashSet flows = new HashSet();
-
-    if (container == null) {
-      flows.addAll(vertex.getOutgoingFlows());
-    } else {  // get the flows from the container
-      flows.addAll(container.getOutgoingFlows());
-    }
+    flows.addAll(vertex.getOutgoingFlows());
     return flows;
   }
 
@@ -331,29 +292,13 @@ public final class NetUtilities {
    */
 
   public static Set getIncomingFlowsFrom(YAWLCell cell) {
-
-    VertexContainer container = null;
-    YAWLVertex vertex = null;
-
-    if (cell instanceof VertexContainer) {
-      container = (VertexContainer) cell;
-      vertex = container.getVertex();
-    }
-    if (cell instanceof YAWLVertex) {
-      vertex = (YAWLVertex) cell;
-    }
+    YAWLVertex vertex = NetCellUtilities.getVertexFromCell(cell);
     if (vertex == null) { // not interested in anything else
       return null;
     }
 
     HashSet flows = new HashSet();
-
-    if (container == null) {
-      flows.addAll(vertex.getIncomingFlows());
-    } else {  // get the flows from the container
-      flows.addAll(container.getIncomingFlows());
-    }
+    flows.addAll(vertex.getIncomingFlows());
     return flows;
   }
-  
 }

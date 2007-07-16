@@ -78,7 +78,7 @@ public class EngineSpecificationHandler {
     
     try {
       ProblemMessagePanel.getInstance().setProblemList(
-          "Problems identified in engine specification validation",
+          "Specification Validation Problems",
           EngineSpecificationValidator.getValidationResults()
       );
       YAWLEditor.setStatusBarTextToPrevious();
@@ -90,7 +90,7 @@ public class EngineSpecificationHandler {
       stackMessageList.add(e.getMessage());
       
       ProblemMessagePanel.getInstance().setProblemList(
-          "Programming exception raised when attempting engine specification validation",
+          "Programming Exception with Specification Validation",
           stackMessageList
       );
       

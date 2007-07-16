@@ -201,7 +201,7 @@ class TaskTemplatePalette extends JPanel implements ControlFlowPaletteListener, 
   private boolean nothingSelected = true;
   private boolean atomicTaskSelected = false;
   
-  private static final int ROW_HEIGHT = 15;
+  private static final int ROW_HEIGHT = 10;
   
   public TaskTemplatePalette() {
     buildInterface();

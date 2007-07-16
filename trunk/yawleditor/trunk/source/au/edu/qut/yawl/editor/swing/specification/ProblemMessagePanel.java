@@ -43,6 +43,8 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
   private JScrollPane problemScrollPane;
   private static ProblemTable problemResultsTable = buildProblemMessageTable();
   
+  private String title;
+  
   public static final ProblemMessagePanel 
     INSTANCE = new ProblemMessagePanel();
   
@@ -69,6 +71,8 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
   
   public void setProblemList(String title, List problemList) {
     problemResultsTable.reset();
+    
+    this.title = title;
 
     populateProblemListTable(problemList);
 
@@ -95,10 +99,6 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
   private void readjustProblemTableSize() {
     repaint();
     
-    problemResultsTable.setPreferredScrollableViewportSize(
-        problemResultsTable.getPreferredSize()
-    );
-    
     YAWLEditor.getInstance().showProblemsTab();
   }
   
@@ -117,5 +117,9 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
         break;
       }
     }
+  }
+  
+  public String getTitle() {
+    return title;
   }
 }
