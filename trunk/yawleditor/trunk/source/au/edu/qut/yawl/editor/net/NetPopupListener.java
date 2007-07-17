@@ -34,11 +34,14 @@ import java.util.Hashtable;
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLCell;
+import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLCondition;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
+import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
+import au.edu.qut.yawl.editor.swing.menu.FlowPopupMenu;
 import au.edu.qut.yawl.editor.swing.menu.PalettePopupMenu;
 import au.edu.qut.yawl.editor.swing.menu.VertexPopupMenu;
 
@@ -53,31 +56,47 @@ public class NetPopupListener extends MouseAdapter {
   }
   
   public void mousePressed(MouseEvent event) {
-    Object cell = 
-      graph.getFirstCellForLocation(event.getX(), event.getY());
-
-    if (SwingUtilities.isRightMouseButton(event)) {
-      if (cell instanceof YAWLTask || cell instanceof YAWLCondition)  {
-        getCellPopup(cell).show(graph,event.getX(), event.getY());
-      }
-      if (cell instanceof VertexContainer) {
-        VertexContainer container = (VertexContainer) cell;
-        getCellPopup(container.getVertex()).show(graph,event.getX(), event.getY());
-      }
-      if (cell == null) {
-        
-        // Nasty hack below to solve problem where the pallet popup menu appears
-        // after a user has removed a knee from a flow relation.
-        
-        if (graph.getSelectionCell() instanceof YAWLFlowRelation) {
-          return;
-        }
-        
-        // Back to your regularly scheduled program ...
-        
-        palettePopup.show(graph,event.getX(), event.getY());
-      }
+    if (!SwingUtilities.isRightMouseButton(event)) {
+      return;
     }
+    
+    YAWLVertex vertex = NetCellUtilities.getVertexFromCell(
+        graph.getFirstCellForLocation(
+            event.getX(), 
+            event.getY()
+        )
+    );
+    
+    if (vertex != null && (vertex instanceof YAWLTask || 
+                           vertex instanceof YAWLCondition))  {
+      getCellPopup(vertex).show(
+          graph,
+          event.getX(), 
+          event.getY()
+      );
+      return;
+    }
+    
+    YAWLFlowRelation flow = NetCellUtilities.getFlowRelationFromCell(
+        graph.getFirstCellForLocation(
+            event.getX(), 
+            event.getY()
+        )
+    );
+    
+    if (flow != null) {
+      FlowPopupMenu flowPopup = new FlowPopupMenu(graph, flow, event.getPoint());
+      flowPopup.show(
+          graph,
+          event.getX(), 
+          event.getY()
+      );
+      
+      return;
+    }
+
+    palettePopup.show(graph,event.getX(), event.getY());
+
   }
   
   private VertexPopupMenu getCellPopup(Object cell) {

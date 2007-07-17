@@ -5,6 +5,9 @@ Version 1.5 (??/??/????)
   * LWB: Now, when selecting a single net element, a notes tab will appear in the bottom
     pane of the editor, allowing workflow designers to add design notes (which will not be
     exported to the engine specification) to the selected element.
+  * LWB: You can now right-click on a flow to get a popup menu for that flow. Kness
+    can be added and removed from this menu, as well as changing the line style of the
+    flow.
   * LWB: Enhanced the editor so it is now possible to change the ordering of task variables,
     net variales, and task parameter queries.
   * LWB: Enhaned the editor to include a convenience dialog that allows the rapid construction

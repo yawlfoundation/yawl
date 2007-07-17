@@ -51,7 +51,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
   /**
    * Determines whether the default marquee behaviour is sufficient, or whether
    * our own response to mouse events are more appropriate. Specifically, we rely on the
-   * functionality of {@linnk BasicMarqueeHandler} in the following scenarios:
+   * functionality of {@link BasicMarqueeHandler} in the following scenarios:
    * <ul>
    *   <li> When the Palette is in Marquee mode
    *   <li> When the  Palette is not in Marquee mode, but the mouse is hovering above a Vertex,
@@ -71,7 +71,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
       return false;
     }
     if (Palette.getInstance().getControlFlowPaletteState() != ControlFlowPalette.SelectionState.MARQUEE 
-        && state == State.ABOVE_FLOW_RELATION) {
+        && state == State.ABOVE_FLOW_RELATION && SwingUtilities.isLeftMouseButton(event)) {
       return false;
     }
     return true;

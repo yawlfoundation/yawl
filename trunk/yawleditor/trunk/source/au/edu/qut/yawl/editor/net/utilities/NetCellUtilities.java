@@ -23,12 +23,15 @@
 package au.edu.qut.yawl.editor.net.utilities;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D;
 
@@ -38,6 +41,7 @@ import org.jgraph.graph.CellView;
 import org.jgraph.graph.EdgeView;
 import org.jgraph.graph.GraphCell;
 import org.jgraph.graph.GraphConstants;
+import org.jgraph.graph.PortView;
 import org.jgraph.graph.VertexView;
 
 
@@ -49,6 +53,8 @@ import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLCondition;
+import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
+import au.edu.qut.yawl.editor.elements.model.YAWLPort;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
@@ -320,6 +326,120 @@ public class NetCellUtilities {
     }
   }
 
+  public static void setFlowStyle(NetGraph net, YAWLFlowRelation flow, int flowStyle) {
+    Map flowMap = GraphConstants.createAttributes(
+        flow, 
+        GraphConstants.LINESTYLE, 
+        flowStyle
+    );
+    
+    HashMap nestedMap = new HashMap();
+    nestedMap.put(flow, flowMap);
+
+    net.getNetModel().edit(
+        flowMap, 
+        null, 
+        null, 
+        null
+    );
+  }
+  
+  public static int getFlowLineStyle(NetGraph net, YAWLFlowRelation flow) {
+    return GraphConstants.getLineStyle(
+        net.getViewFor(flow).getAllAttributes()
+    );
+  }
+  
+  public static void togglePointOnFlow(NetGraph net, YAWLFlowRelation flow, Point point) {
+    
+    Point2D pointFoundForDeletion = null;
+    
+    List flowPoints = GraphConstants.getPoints(
+        net.getViewFor(flow).getAllAttributes()
+    );
+ 
+    for(int i = 0; i < flowPoints.size(); i++) {
+      // Because we have ports in the list too, focus just on the extra points.
+      if (flowPoints.get(i) instanceof Point2D) {  
+        Point2D thisPoint = (Point2D) flowPoints.get(i);
+        
+        // if it's pretty close (within 8 pixels), we're trying to remove a point.
+        if ((Math.abs(thisPoint.getX() - point.getX()) <= 8) &&
+            (Math.abs(thisPoint.getY() - point.getY()) <= 8)) {
+          pointFoundForDeletion = thisPoint;
+        }
+      }
+    }
+    
+    if (pointFoundForDeletion != null) {
+      flowPoints.remove(pointFoundForDeletion);
+      updateFlowPoints(net, flow, flowPoints);
+      return;
+    } 
+    
+    // Dealing with addition of a point below.
+    
+    if (flowPoints.size() == 2) {
+      flowPoints.add(1,point);    
+    } else {
+
+      Line2D thisSegment = null;
+      int containedSegmentIndex = 0;  // default to the first segment.
+      
+      for(int i = 0; i < flowPoints.size() - 1; i++) {
+        Point2D currentPoint = getPointFor(net, flowPoints.get(i));
+        Point2D nextPoint = getPointFor(net, flowPoints.get(i + 1));
+        thisSegment = new Line2D.Double(currentPoint, nextPoint);
+
+        // if the point is within 4 pixels of the nearest point in thisSegment, we
+        // want this segment  to insert the new point within.
+        
+        if (thisSegment.ptSegDist(point) <= 4) {
+          containedSegmentIndex = i;
+        }
+      }
+      flowPoints.add(containedSegmentIndex + 1,point);    
+    }
+    
+    updateFlowPoints(net, flow, flowPoints);
+  }
+  
+  private static Point2D getPointFor(NetGraph net, Object object) {
+    if (object instanceof PortView) {
+      return getCenterOfPort(net, (PortView)object);
+    }
+    if (object instanceof Point2D) {
+      return (Point2D) object;
+    }
+    return null;
+  }
+  
+  public static Point2D getCenterOfPort(NetGraph net, PortView portView) {
+    return new Point2D.Double(
+        portView.getBounds().getCenterX(),
+        portView.getBounds().getCenterY()
+    );
+  }
+  
+  private static void updateFlowPoints(NetGraph net, YAWLFlowRelation flow, List flowPoints) {
+    Map flowMap = GraphConstants.createAttributes(
+        flow, 
+        GraphConstants.POINTS, 
+        flowPoints
+    );
+    
+    HashMap nestedMap = new HashMap();
+    nestedMap.put(flow, flowMap);
+
+    net.getNetModel().edit(
+        flowMap, 
+        null, 
+        null, 
+        null
+    );
+  }
+
+
   public static void scrollNetToShowCells(NetGraph net, Object[] cells) {
     final int ELEMENT_BUFFER = 10;
     
@@ -502,4 +622,12 @@ public class NetCellUtilities {
     }
     return null;
   }
+  
+  public static YAWLFlowRelation getFlowRelationFromCell(Object cell) {
+    if (cell != null && cell instanceof YAWLFlowRelation) {
+      return (YAWLFlowRelation) cell;
+    }
+    return null;
+  }
+  
 }
