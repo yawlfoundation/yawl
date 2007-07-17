@@ -76,6 +76,7 @@ class DesignNotesEditor extends JEditorPane {
       return;
     }
     setText(vertex.getDesignNotes());
+    requestFocus();
   }
   
   public Dimension getPreferredViewableScrollportSize() {
