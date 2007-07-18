@@ -648,6 +648,10 @@ class TaskIconTreeModel extends DefaultTreeModel {
   }
 
   private void recurseNodeForPluginIcons(TaskIconTreeNode rootNode, File rootDirectory) {
+    
+    if (!rootDirectory.exists() || !rootDirectory.isDirectory() || !rootDirectory.canRead()) {
+      return;
+    }
      
      File[] filesInDirectory = rootDirectory.listFiles();
 
