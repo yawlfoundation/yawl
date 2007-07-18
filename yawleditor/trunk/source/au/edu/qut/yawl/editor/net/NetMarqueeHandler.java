@@ -70,8 +70,8 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         state == State.ABOVE_VERTEX) {
       return false;
     }
-    if (Palette.getInstance().getControlFlowPaletteState() != ControlFlowPalette.SelectionState.MARQUEE 
-        && state == State.ABOVE_FLOW_RELATION && SwingUtilities.isLeftMouseButton(event)) {
+    if (Palette.getInstance().getControlFlowPaletteState() != ControlFlowPalette.SelectionState.MARQUEE && 
+        state == State.ABOVE_FLOW_RELATION) {
       return false;
     }
     return true;

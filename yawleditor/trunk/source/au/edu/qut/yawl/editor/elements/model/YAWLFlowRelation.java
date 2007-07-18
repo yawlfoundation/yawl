@@ -57,7 +57,7 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
     GraphConstants.setLineEnd(map, GraphConstants.ARROW_TECHNICAL);
     GraphConstants.setEndFill(map, true);
     GraphConstants.setLineStyle(map, GraphConstants.STYLE_ORTHOGONAL);
-    GraphConstants.setBendable(map, true);
+    GraphConstants.setBendable(map, false);
     GraphConstants.setEditable(map, true);
 
     GraphConstants.setDisconnectable(map, true);
