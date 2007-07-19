@@ -302,7 +302,6 @@ public class NetGraph extends JGraph {
     return null;
   }
   
-  
   private InputCondition addInputCondition() {
     Point2D startPoint = getInputConditionDefaultPoint(InputCondition.getVertexSize());
     InputCondition inputCondition = new InputCondition(startPoint);
@@ -416,29 +415,29 @@ public class NetGraph extends JGraph {
       switch(flow.getTargetTask().getJoinDecorator().getCardinalPosition()) {
         case Decorator.TOP: {
           awayTargetPoint.setLocation(
-              awaySourcePoint.getX(),
-              awaySourcePoint.getY() - FLOW_SPACER
+              awayTargetPoint.getX(),
+              awayTargetPoint.getY() - FLOW_SPACER
           );
           break;
         }
         case Decorator.BOTTOM: {
           awayTargetPoint.setLocation(
-              awaySourcePoint.getX(),
-              awaySourcePoint.getY() + FLOW_SPACER
+              awayTargetPoint.getX(),
+              awayTargetPoint.getY() + FLOW_SPACER
           );
           break;
         }
         case Decorator.LEFT: {
           awayTargetPoint.setLocation(
-              awaySourcePoint.getX() - FLOW_SPACER,
-              awaySourcePoint.getY()
+              awayTargetPoint.getX() - FLOW_SPACER,
+              awayTargetPoint.getY()
           );
           break;
         }
         case Decorator.RIGHT: {
           awayTargetPoint.setLocation(
-              awaySourcePoint.getX() + FLOW_SPACER,
-              awaySourcePoint.getY()
+              awayTargetPoint.getX() + FLOW_SPACER,
+              awayTargetPoint.getY()
           );
           break;
         }
