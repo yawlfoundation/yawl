@@ -30,6 +30,7 @@ import org.jgraph.graph.GraphConstants;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.HashSet;
+import java.awt.Color;
 import java.awt.Dimension;
 
 import java.awt.geom.Rectangle2D;
@@ -118,7 +119,7 @@ public abstract class Decorator extends DefaultGraphCell
   public YAWLTask getTask() {
     return (YAWLTask) serializationProofAttributeMap.get("task");
   }
-
+  
   private void buildElement() {
     Map map = new HashMap();
     

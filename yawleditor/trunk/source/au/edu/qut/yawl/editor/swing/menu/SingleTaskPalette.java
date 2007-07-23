@@ -1,15 +1,19 @@
 package au.edu.qut.yawl.editor.swing.menu;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -20,6 +24,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.jgraph.event.GraphSelectionEvent;
 
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
 import au.edu.qut.yawl.editor.elements.model.AtomicTask;
 import au.edu.qut.yawl.editor.elements.model.CompositeTask;
@@ -30,6 +35,7 @@ import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 import au.edu.qut.yawl.editor.net.NetGraph;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
 import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
 
@@ -88,6 +94,10 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
 
     protected String getOrDecorationIconName() {
       return "PaletteOrJoin";
+    }
+    
+    protected String getButtonColourPreference() {
+      return "joinFillColour";
     }
 
     public void setTask(Object task) {
@@ -183,6 +193,10 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
 
     protected String getOrDecorationIconName() {
       return "PaletteOrSplit";
+    }
+    
+    protected String getButtonColourPreference() {
+      return "splitFillColour";
     }
     
     public void setTask(Object task) {
@@ -286,6 +300,8 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
     
     protected SingleTaskPalette parent;
     
+    private Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
+    
     public DecoratorPanel(SingleTaskPalette parent) {
       this.parent = parent;
       setBorder(new EmptyBorder(2,2,2,2));
@@ -338,6 +354,21 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
       positionButtonGroup.add(eastRadioButton);
       positionButtonGroup.add(westRadioButton);
       positionButtonGroup.add(nowhereRadioButton);
+
+      gbc.gridx = 0;
+      gbc.gridy++;
+      gbc.gridwidth = 1;
+      gbc.anchor = GridBagConstraints.EAST;
+      gbc.insets = new Insets(4,0,4,0);
+      
+      add(new JLabel("Fill:"), gbc);
+      
+      gbc.gridx++;
+      gbc.anchor = GridBagConstraints.CENTER;
+      gbc.fill = GridBagConstraints.VERTICAL;
+      gbc.insets = new Insets(4,4,4,4);
+          
+      add(buildColourButton(), gbc);
     }
     
     protected void selectEntireTask() {
@@ -407,7 +438,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
     private JRadioButton buildEastRadioButton() {
       eastRadioButton = new JRadioButton();
       eastRadioButton.setHorizontalAlignment(
-          SwingConstants.RIGHT
+          SwingConstants.LEFT
       );
       eastRadioButton.addActionListener(
         new ActionListener() {
@@ -427,7 +458,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
     private JRadioButton buildWestRadioButton() {
       westRadioButton = new JRadioButton();
       westRadioButton.setHorizontalAlignment(
-          SwingConstants.LEFT
+          SwingConstants.RIGHT
       );
       westRadioButton.addActionListener(
         new ActionListener() {
@@ -442,6 +473,38 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
           " on the left side of the task. "
       );
       return westRadioButton;
+    }
+    
+    private JButton buildColourButton() {
+      JButton colourButton = new JButton("");
+      colourButton.setToolTipText("Select decorator fill colour");
+
+      colourButton.setBackground(
+          new Color(prefs.getInt(
+              getButtonColourPreference(), Color.WHITE.getRGB())
+          )    
+      );
+      
+      colourButton.addActionListener(
+          new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+              Color newColor = JColorChooser.showDialog(
+                  YAWLEditor.getInstance(),
+                  "Select decorator fill colour",
+                  new Color(prefs.getInt(
+                      getButtonColourPreference(), Color.WHITE.getRGB())
+                  )    
+              );
+              if (newColor != null) {
+                prefs.putInt(getButtonColourPreference(), newColor.getRGB());
+              }
+              ((JButton) event.getSource()).setBackground(newColor);
+              SpecificationModel.getInstance().refreshNetViews();
+            }
+          }
+      );
+      
+      return colourButton;
     }
     
     public void setTask(Object task) {
@@ -605,6 +668,8 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
     protected abstract String getXorDecorationIconName();
     protected abstract String getOrDecorationIconName();
     protected abstract String getDecoratorString();
+    protected abstract String getButtonColourPreference();
+    
     
     protected void doTypeSelection(int type) {
       for(int i = 0; i < typeButtons.length; i++) {

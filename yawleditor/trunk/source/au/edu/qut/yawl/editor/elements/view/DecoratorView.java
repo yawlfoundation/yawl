@@ -24,25 +24,33 @@
 
 package au.edu.qut.yawl.editor.elements.view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.prefs.Preferences;
+
 import org.jgraph.graph.VertexView;
 import org.jgraph.graph.CellViewRenderer;
 
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.elements.model.Decorator;
+import au.edu.qut.yawl.editor.elements.model.JoinDecorator;
+import au.edu.qut.yawl.editor.elements.model.SplitDecorator;
 
 public class DecoratorView extends VertexView {
   
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private DecoratorRenderer decoratorRenderer;
 
   public DecoratorView(Decorator decorator) {
     super(decorator);
     
-    decoratorRenderer = new DecoratorRenderer(decorator);
+    if (decorator instanceof JoinDecorator) {
+      decoratorRenderer = new JoinDecoratorRenderer((JoinDecorator) decorator);
+    }
+    if (decorator instanceof SplitDecorator) {
+      decoratorRenderer = new SplitDecoratorRenderer((SplitDecorator) decorator);
+    }
   }
 
   public CellViewRenderer getRenderer() {
@@ -50,10 +58,36 @@ public class DecoratorView extends VertexView {
   }
 }
 
-class DecoratorRenderer extends YAWLVertexRenderer {
-  /**
-   * 
-   */
+class JoinDecoratorRenderer extends DecoratorRenderer {
+  private static final long serialVersionUID = 1L;
+
+  public JoinDecoratorRenderer(JoinDecorator joinDecorator) {
+    super(joinDecorator);
+  }
+  
+  protected String getFillColorPreference() {
+    return "joinFillColour";
+  }
+}
+
+class SplitDecoratorRenderer extends DecoratorRenderer {
+  private static final long serialVersionUID = 1L;
+
+  public SplitDecoratorRenderer(SplitDecorator splitDecorator) {
+    super(splitDecorator);
+  }
+  
+  protected String getFillColorPreference() {
+    return "splitFillColour";
+  }
+}
+
+abstract class DecoratorRenderer extends YAWLVertexRenderer {
+  
+  protected Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
+
+  private static Color WHITE_FILL = Color.WHITE;
+  
   private static final long serialVersionUID = 1L;
   private Decorator decorator;
   
@@ -65,23 +99,45 @@ class DecoratorRenderer extends YAWLVertexRenderer {
     graphics.fillRect(0, 0, size.width - 1, size.height - 1);
   }
   
+  abstract protected String getFillColorPreference();
+  
+  protected Color getFillColor() {
+    return new Color(
+        prefs.getInt(getFillColorPreference(), Color.WHITE.getRGB())    
+    );
+  }
+  
   protected void drawVertex(Graphics graphics, Dimension size) {
-    graphics.drawRect(0, 0,size.width - 1, size.height - 1);
-
+    
     switch(decorator.getCardinalPosition()) {
       case Decorator.TOP: {
         switch(decorator.getType()) {
           case Decorator.AND_TYPE: {
-            drawDownwardTriangle(graphics,size);
-            return;
+            drawDownwardTriangle(
+                graphics,
+                size, 
+                WHITE_FILL, 
+                getFillColor()
+            );
+            break;
           }
           case Decorator.OR_TYPE: {
-            drawDiamond(graphics, size);
-            return;
+            drawDiamond(
+                graphics, 
+                size, 
+                WHITE_FILL, 
+                getFillColor()
+            );
+            break;
           }
           case Decorator.XOR_TYPE: {
-            drawUpwardTriangle(graphics,size);
-            return;
+            drawUpwardTriangle(
+                graphics,
+                size, 
+                getFillColor(),
+                WHITE_FILL
+            );
+            break;
           }
         }
         break;
@@ -89,16 +145,31 @@ class DecoratorRenderer extends YAWLVertexRenderer {
       case Decorator.BOTTOM: {
         switch(decorator.getType()) {
           case Decorator.AND_TYPE: {
-            drawUpwardTriangle(graphics,size);
-            return;
+            drawUpwardTriangle(
+                graphics,
+                size, 
+                WHITE_FILL, 
+                getFillColor()
+            );
+            break;
           }
           case Decorator.OR_TYPE: {
-            drawDiamond(graphics, size);
-            return;
+            drawDiamond(
+                graphics, 
+                size, 
+                WHITE_FILL, 
+                getFillColor()
+            );
+            break;
           }
           case Decorator.XOR_TYPE: {
-            drawDownwardTriangle(graphics,size);
-            return;
+            drawDownwardTriangle(
+                graphics,
+                size, 
+                getFillColor(), 
+                WHITE_FILL
+            );
+            break;
           }
         }
         break;
@@ -106,16 +177,31 @@ class DecoratorRenderer extends YAWLVertexRenderer {
       case Decorator.LEFT: {
         switch(decorator.getType()) {
           case Decorator.AND_TYPE: {
-            drawRightwardTriangle(graphics, size);
-            return;
+            drawRightwardTriangle(
+                graphics, 
+                size, 
+                WHITE_FILL, 
+                getFillColor()
+            );
+            break;
           }
           case Decorator.OR_TYPE: {
-            drawDiamond(graphics, size);
-            return;
+            drawDiamond(
+                graphics, 
+                size, 
+                WHITE_FILL, 
+                getFillColor()
+            );
+            break;
           }
           case Decorator.XOR_TYPE: {
-            drawLeftwardTriangle(graphics, size);
-            return;
+            drawLeftwardTriangle(
+                graphics, 
+                size, 
+                getFillColor(), 
+                WHITE_FILL
+            );
+            break;
           }
         }
         break;
@@ -123,68 +209,129 @@ class DecoratorRenderer extends YAWLVertexRenderer {
       case Decorator.RIGHT: {
         switch(decorator.getType()) {
           case Decorator.AND_TYPE: {
-            drawLeftwardTriangle(graphics, size);
-            return;
+            drawLeftwardTriangle(
+                graphics, 
+                size, 
+                WHITE_FILL, 
+                getFillColor()
+            );
+            break;
           }
           case Decorator.OR_TYPE: {
-            drawDiamond(graphics, size);
-            return;
+            drawDiamond(
+                graphics, 
+                size, 
+                WHITE_FILL, 
+                getFillColor()
+            );
+            break;
           }
           case Decorator.XOR_TYPE: {
-            drawRightwardTriangle(graphics, size);
-            return;
+            drawRightwardTriangle(
+                graphics, 
+                size, 
+                getFillColor(), 
+                WHITE_FILL
+            );
+            break;
           }
         }
         break;
       }
     }
+
   }
   
-  private void drawDownwardTriangle(Graphics graphics,Dimension size) {
-    graphics.drawLine(1,1, Math.round(size.width/2), size.height - 1);
-    graphics.drawLine(Math.round(size.width/2), size.height - 1,
-                      size.width - 1,1);
+  /**
+   * Dwaws a decorator. The basic process is to fill the decorator space with
+   * the color specified by backingColor, then to fill the area taken by the polygon
+   * shape of the decorator with it's polygonColor, then to draw a border around the 
+   * polygon, and then finally, draw a border around the entire decorator.
+   * @param xCoords
+   * @param yCoords
+   * @param graphics
+   * @param size
+   * @param backingColor
+   * @param polygonColor
+   */
+  
+  private void drawSymbol(int[] xCoords, int[] yCoords, Graphics graphics, Dimension size, 
+                          Color backingColor, Color polygonColor) {
+
+    Color originalColor = graphics.getColor();
+
+    /* Fill the entire decorator with the specified backing color */
+    
+    graphics.setColor(backingColor);
+    graphics.fillRect(0, 0, size.width, size.height);
+    
+    /* fill the symbol polygon with it's needed color */
+    
+    graphics.setColor(polygonColor);
+    graphics.fillPolygon(xCoords, yCoords, xCoords.length);
+    
+    /* draw the symbol polygon's border */
+    
+    graphics.setColor(originalColor);
+    graphics.drawPolygon(xCoords, yCoords, xCoords.length);
+
+    /* draw the border of the decorator */
+    
+    graphics.drawRect(0, 0, size.width - 1, size.height - 1);
+  }
+  
+  private void drawDownwardTriangle(Graphics graphics,Dimension size, Color backingColor, Color polygonColor) {
+    int[] xPoints = new int[] {
+      0, Math.round(size.width/2), size.width - 0  
+    };
+    int[] yPoints = new int[] {
+        0, size.height - 1, 0  
+    };
+   
+    drawSymbol(xPoints, yPoints, graphics, size, backingColor, polygonColor);
   }
 
-  private void drawLeftwardTriangle(Graphics graphics,Dimension size) {
-    graphics.drawLine(size.width - 1, 1,
-                      1, Math.round(size.height/2));
-    graphics.drawLine(1, Math.round(size.height/2),
-                      size.width - 1, size.height - 1);
+  private void drawLeftwardTriangle(Graphics graphics,Dimension size, Color backingColor, Color polygonColor) {
+    int[] xPoints = new int[] {
+        size.width, 1, size.width
+    };
+    int[] yPoints = new int[] {
+          0, Math.round(size.height/2), size.height
+    };
+    
+    drawSymbol(xPoints, yPoints, graphics, size, backingColor, polygonColor);
   }  
 
-  private void drawRightwardTriangle(Graphics graphics,Dimension size) {
-    graphics.drawLine(1, 1, 
-                      size.width - 1, 
-                      Math.round(size.height/2));
-    graphics.drawLine(size.width - 1, 
-                      Math.round(size.height/2),
-                      1, size.height - 1);
+  private void drawRightwardTriangle(Graphics graphics,Dimension size, Color backingColor, Color polygonColor) {
+    int[] xPoints = new int[] {
+      0, size.width - 1, 0
+    };
+    int[] yPoints = new int[] {
+      0, Math.round(size.height/2), size.height
+    };
+
+    drawSymbol(xPoints, yPoints, graphics, size, backingColor, polygonColor);
   }  
   
-  private void drawUpwardTriangle(Graphics graphics,Dimension size) {
-    graphics.drawLine(1, size.height - 1, 
-                      Math.round(size.width/2), 1);
-    graphics.drawLine(Math.round(size.width/2), 1,
-                      size.width - 1, size.height - 1);
+  private void drawUpwardTriangle(Graphics graphics,Dimension size, Color backingColor, Color polygonColor) {
+    int[] xPoints = new int[] {
+        0, Math.round(size.width/2), size.width 
+    };
+    int[] yPoints = new int[] {
+        size.height, 1, size.height
+    };
+
+    drawSymbol(xPoints, yPoints, graphics, size, backingColor, polygonColor);
   }
 
-  private void drawDiamond(Graphics graphics,Dimension size) {
-    graphics.drawLine(1, 
-                      Math.round(size.height/2),
-                      Math.round(size.width/2),
-                      1);
-    graphics.drawLine(Math.round(size.width/2),
-                      1,
-                      size.width - 1,
-                      Math.round(size.height/2));
-    graphics.drawLine(size.width - 1,
-                      Math.round(size.height/2),
-                      Math.round(size.width/2),
-                      size.height - 1);
-    graphics.drawLine(Math.round(size.width/2),
-                      size.height - 1,
-                      1, 
-                      Math.round(size.height/2));
+  private void drawDiamond(Graphics graphics,Dimension size, Color backingColor, Color polygonColor) {
+    int[] xPoints = new int[] {
+      1, Math.round(size.width/2), size.width - 1, Math.round(size.width/2)
+    };
+    int[] yPoints = new int[] {
+      Math.round(size.height/2), 1, Math.round(size.height/2), size.height - 1
+    };
+
+    drawSymbol(xPoints, yPoints, graphics, size, backingColor, polygonColor);
   }
 }
