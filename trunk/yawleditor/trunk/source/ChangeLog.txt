@@ -2,6 +2,8 @@ Version 1.5 (??/??/????)
   * LWB: Atomic tasks have been enhanced so that an icon can be embedded within the task
     to help in user understandability of a net. This includes a plugin mechansm allowing
     workflow designers to add their own icons.
+  * LWB: Decorators on tasks have now been enhanced so that joins and splits can now have
+    differing fill colours to help visually distinguish between them.  
   * LWB: Now, when selecting a single net element, a notes tab will appear in the bottom
     pane of the editor, allowing workflow designers to add design notes (which will not be
     exported to the engine specification) to the selected element.

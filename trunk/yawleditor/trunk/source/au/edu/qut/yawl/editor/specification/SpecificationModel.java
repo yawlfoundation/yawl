@@ -647,6 +647,13 @@ public class SpecificationModel {
       net.setGridVisible(gridVisible);
     }
   }
+  
+  public void refreshNetViews() {
+    for (NetGraphModel net : nets) {
+      net.getGraph().repaint();      
+    }
+  }
+
 
   public void setName(String name) {
     this.name = name;
