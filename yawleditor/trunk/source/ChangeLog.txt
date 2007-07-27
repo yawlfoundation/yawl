@@ -1,4 +1,4 @@
-Version 1.5 (??/??/????) 
+Version 1.5 (27/07/2007) 
   * LWB: Atomic tasks have been enhanced so that an icon can be embedded within the task
     to help in user understandability of a net. This includes a plugin mechansm allowing
     workflow designers to add their own icons.
