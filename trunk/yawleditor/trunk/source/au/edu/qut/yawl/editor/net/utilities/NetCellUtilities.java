@@ -506,7 +506,7 @@ public class NetCellUtilities {
       DataVariable matchingTaskVar = task.getWSDecomposition().getVariableWithName(inputNetVar.getName());
       ((YAWLTask) task).getParameterLists().getInputParameters().addParameterPair(
           matchingTaskVar, 
-          XMLUtilities.getVariableContentXQuery(inputNetVar)
+          XMLUtilities.getTagEnclosedVariableContentXQuery(inputNetVar)
       );
     }
     
@@ -514,7 +514,7 @@ public class NetCellUtilities {
       DataVariable matchingTaskVar = task.getWSDecomposition().getVariableWithName(outputNetVar.getName());
       ((YAWLTask) task).getParameterLists().getOutputParameters().addParameterPair(
           outputNetVar, 
-          XMLUtilities.getVariableContentXQuery(matchingTaskVar)
+          XMLUtilities.getTagEnclosedVariableContentXQuery(matchingTaskVar)
       );
     }
   }
