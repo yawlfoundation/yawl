@@ -50,6 +50,7 @@ public class ArchivingThread extends Thread {
 
   private int request = NOTHING;
   private String openFileName;
+  private SpecificationModel specification;
 
   private static final ArchivingThread INSTANCE = new ArchivingThread();
 
@@ -81,7 +82,8 @@ public class ArchivingThread extends Thread {
     request = CLOSE;
   }
 
-  public synchronized void engineFileExport() {
+  public synchronized void engineFileExport(SpecificationModel specification) {
+    this.specification = specification;
     request = ENGINE_FILE_EXPORT;
   }
 
@@ -89,11 +91,13 @@ public class ArchivingThread extends Thread {
     request = ENGINE_FILE_IMPORT;
   }
 
-  public synchronized void validate() {
+  public synchronized void validate(SpecificationModel specification) {
+    this.specification = specification;
     request = VALIDATE;
   }
 
-  public synchronized void analyse() {
+  public synchronized void analyse(SpecificationModel specification) {
+    this.specification = specification;
     request = ANALYSE;
   }
 
@@ -141,7 +145,7 @@ public class ArchivingThread extends Thread {
         break;
       }
       case ENGINE_FILE_EXPORT: {
-        YAWLEngineProxy.getInstance().engineFormatFileExport();
+        YAWLEngineProxy.getInstance().engineFormatFileExport(specification);
         break;
       }
       case ENGINE_FILE_IMPORT: {
@@ -149,11 +153,11 @@ public class ArchivingThread extends Thread {
         break;
       }
       case VALIDATE: {
-        YAWLEngineProxy.getInstance().validate();
+        YAWLEngineProxy.getInstance().validate(specification);
         break;
       }
       case ANALYSE: {
-        YAWLEngineProxy.getInstance().analyse();
+        YAWLEngineProxy.getInstance().analyse(specification);
         break;
       }
       case EXIT: {

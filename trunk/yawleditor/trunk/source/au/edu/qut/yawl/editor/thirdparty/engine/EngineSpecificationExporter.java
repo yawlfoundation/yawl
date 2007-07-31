@@ -30,7 +30,10 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.prefs.Preferences;
 
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.Decomposition;
 import au.edu.qut.yawl.editor.data.Parameter;
@@ -57,6 +60,7 @@ import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
 
 import au.edu.qut.yawl.editor.thirdparty.orgdatabase.OrganisationDatabaseProxy;
+import au.edu.qut.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
@@ -80,7 +84,31 @@ import au.edu.qut.yawl.unmarshal.YMetaData;
 
 public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
-  public void exportEngineSpecificationToFile(String fullFileName) {
+  protected static final Preferences prefs =  Preferences.userNodeForPackage(YAWLEditor.class);
+
+  public static String VERIFICATION_WITH_EXPORT_PREFERENCE = "verifyWithExportCheck";
+  public static String ANALYSIS_WITH_EXPORT_PREFERENCE = "analyseWithExportCheck";
+  
+  public static void exportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
+     exportStringToFile(
+         getEngineSpecificationXML(
+             editorSpec
+         ),
+         fullFileName
+     );
+  }
+  
+  public static void checkAndExportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
+    exportStringToFile(
+        getAndCheckEngineSpecificationXML(
+            editorSpec
+        ),
+        fullFileName
+    );
+  }
+
+  
+  private static void exportStringToFile(String string, String fullFileName) {
     try {
       PrintStream outputStream = 
         new PrintStream(
@@ -88,112 +116,150 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
             false,
             "UTF-8"
         );
-      outputStream.println(getEngineSpecificationXML());
+      outputStream.println(string);
 
       outputStream.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
+
   
-  public String getEngineSpecificationXML() {
+  public static String getAndCheckEngineSpecificationXML(SpecificationModel editorSpec) {
+    boolean verificationNeeded = prefs.getBoolean(VERIFICATION_WITH_EXPORT_PREFERENCE, true);
+    boolean analysisNeeded = prefs.getBoolean(ANALYSIS_WITH_EXPORT_PREFERENCE, true);
+
+    YSpecification engineSpec = getEngineSpecAsEngineObjects(editorSpec);   
+    
+    List<String> results = new LinkedList<String>();
+    if (verificationNeeded) {
+      results.addAll(EngineSpecificationValidator.getValidationResults(engineSpec));
+    }
+    
+    if (analysisNeeded) {
+      results.addAll(
+        YAWLEngineProxy.getInstance().getAnalysisResults(editorSpec)
+      );
+    }
+
+    YAWLEditor.getInstance().showProblemList(
+        editorSpec, 
+        "Export problems", 
+        "Checking exported file...", 
+        results
+    );
+    
+    return getEngineSpecificationXML(engineSpec);
+  }
+  
+  public static String getEngineSpecificationXML(SpecificationModel editorSpec) {
+    return getEngineSpecificationXML(
+       getEngineSpecAsEngineObjects(
+           editorSpec
+       )    
+    ); 
+  }
+  
+  public static String getEngineSpecificationXML(YSpecification engineSpec) {
     try {
-      YSpecification specification = getEngineSpecificationAsEngineObjects();
-      return YMarshal.marshal(specification);
+      return YMarshal.marshal(engineSpec);
     } catch (Exception e) {
       e.printStackTrace();
       return null;
     }
   }
+
   
-  public YSpecification getEngineSpecificationAsEngineObjects() {
+  public static YSpecification getEngineSpecAsEngineObjects(SpecificationModel editorSpec) {
     initialise();
 
-    engineSpecification = new YSpecification(
-        SpecificationModel.getInstance().getId()
+    YSpecification engineSpec = new YSpecification(
+        editorSpec.getId()
     );
     
-    generateEngineMetaData(engineSpecification);
+    generateEngineMetaData(editorSpec,engineSpec);
     
-    generateEngineDataTypeDefinition(engineSpecification);
+    generateEngineDataTypeDefinition(editorSpec,engineSpec);
 
     //important:  Engine API expects nets to be pre-generated before composite tasks reference them.
     //            We need to build the nets first, and THEN populate the nets with elements.
     
-    generateRootNet(engineSpecification);
-    generateSubNets(engineSpecification);
+    generateRootNet(editorSpec,engineSpec);
+    generateSubNets(editorSpec,engineSpec);
     
-    populateEngineNets(engineSpecification);
+    populateEngineNets(editorSpec,engineSpec);
       
-    return engineSpecification;
+    return engineSpec;
   }
   
-  private void generateEngineDataTypeDefinition(YSpecification engineSpecification) {
+  private static void generateEngineDataTypeDefinition(SpecificationModel editorSpec, 
+                                                YSpecification engineSpec) {
     try {
-      engineSpecification.setSchema(
-          SpecificationModel.getInstance().getDataTypeDefinition()
+      engineSpec.setSchema(
+          editorSpec.getDataTypeDefinition()
       );
     } catch (Exception eActual) {
       try {
-        engineSpecification.setSchema(
+        engineSpec.setSchema(
             SpecificationModel.DEFAULT_TYPE_DEFINITION
         );      
       } catch (Exception eDefault) {}
     }
   }
   
-  private void generateEngineMetaData(YSpecification engineSpecification) {
+  private static void generateEngineMetaData(SpecificationModel editorSpec, 
+                                             YSpecification engineSpec) {
     
-    engineSpecification.setBetaVersion(YSpecification._Beta6);
+    engineSpec.setBetaVersion(YSpecification._Beta6);
     
     YMetaData metaData = new YMetaData();
 
-    if (SpecificationModel.getInstance().getName() != null && 
-        !SpecificationModel.getInstance().getName().trim().equals("")) {
+    if (editorSpec.getName() != null && 
+        !editorSpec.getName().trim().equals("")) {
       metaData.setTitle(
           XMLUtilities.quoteSpecialCharacters(
-            SpecificationModel.getInstance().getName()
+            editorSpec.getName()
           )
       );
     }
-    if (SpecificationModel.getInstance().getDescription() != null &&
-        !SpecificationModel.getInstance().getDescription().trim().equals("")) {
+    if (editorSpec.getDescription() != null &&
+        !editorSpec.getDescription().trim().equals("")) {
       metaData.setDescription(
           XMLUtilities.quoteSpecialCharacters(
-            SpecificationModel.getInstance().getDescription()
+            editorSpec.getDescription()
           )
       );
     }
-    if (SpecificationModel.getInstance().getAuthor() != null &&
-        !SpecificationModel.getInstance().getAuthor().trim().equals("")) {
+    if (editorSpec.getAuthor() != null &&
+        !editorSpec.getAuthor().trim().equals("")) {
       metaData.setCreator(
           XMLUtilities.quoteSpecialCharacters(
-            SpecificationModel.getInstance().getAuthor()
+            editorSpec.getAuthor()
           )
       );
     }
-    if (SpecificationModel.getInstance().getVersionNumber() != null &&
-        !SpecificationModel.getInstance().getVersionNumber().trim().equals("")) {
+    if (editorSpec.getVersionNumber() != null &&
+        !editorSpec.getVersionNumber().trim().equals("")) {
       metaData.setVersion(
           XMLUtilities.quoteSpecialCharacters(
-            SpecificationModel.getInstance().getVersionNumber()
+            editorSpec.getVersionNumber()
           )
       );
     }
     try {
-      if (SpecificationModel.getInstance().getValidFromTimestamp() != null &&
-          !SpecificationModel.getInstance().getValidFromTimestamp().trim().equals("")) {
+      if (editorSpec.getValidFromTimestamp() != null &&
+          !editorSpec.getValidFromTimestamp().trim().equals("")) {
         metaData.setValidFrom(
             TIMESTAMP_FORMAT.parse(
-                SpecificationModel.getInstance().getValidFromTimestamp()
+                editorSpec.getValidFromTimestamp()
             )
         );
       }
-      if (SpecificationModel.getInstance().getValidUntilTimestamp() != null &&
-          !SpecificationModel.getInstance().getValidUntilTimestamp().trim().equals("")) {
+      if (editorSpec.getValidUntilTimestamp() != null &&
+          !editorSpec.getValidUntilTimestamp().trim().equals("")) {
         metaData.setValidUntil(
             TIMESTAMP_FORMAT.parse(
-                SpecificationModel.getInstance().getValidUntilTimestamp()
+                editorSpec.getValidUntilTimestamp()
             )
         );
       }
@@ -201,34 +267,41 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       e.printStackTrace();
     }
     
-    engineSpecification.setMetaData(metaData);
+    engineSpec.setMetaData(metaData);
   }
   
-  private void generateRootNet(YSpecification engineSpecification) {
+  private static void generateRootNet(SpecificationModel editorSpec, 
+                                      YSpecification engineSpec) {
     YNet rootEngineNet = 
-      generateEngineNet(engineSpecification, 
-                        SpecificationModel.getInstance().getStartingNet());
+      generateEngineNet(
+          engineSpec, 
+          editorSpec.getStartingNet()
+      );
 
-    engineSpecification.setRootNet(rootEngineNet);
-    editorToEngineNetMap.put(SpecificationModel.getInstance().getStartingNet(), rootEngineNet);
+    engineSpec.setRootNet(rootEngineNet);
+    editorToEngineNetMap.put(
+        editorSpec.getStartingNet(), 
+        rootEngineNet
+    );
   }
   
-  private void generateSubNets(YSpecification engineSpecification) {
-    Iterator subNetIterator = SpecificationModel.getInstance().getSubNets().iterator();
+  private static void generateSubNets(SpecificationModel editorSpec, 
+                                      YSpecification engineSpec) {
+    Iterator subNetIterator = editorSpec.getSubNets().iterator();
     while (subNetIterator.hasNext()) {
       NetGraphModel editorNet = (NetGraphModel) subNetIterator.next();
       
       YNet engineSubNet = 
-        generateEngineNet(engineSpecification, editorNet);
-      engineSpecification.setDecomposition(engineSubNet);
+        generateEngineNet(engineSpec, editorNet);
+      engineSpec.setDecomposition(engineSubNet);
 
       editorToEngineNetMap.put(editorNet, engineSubNet);
     }
   }
   
-  private YNet generateEngineNet(YSpecification engineSpecification, NetGraphModel editorNet) {
+  private static YNet generateEngineNet(YSpecification engineSpec, NetGraphModel editorNet) {
     YNet engineNet = new YNet(XMLUtilities.toValidXMLName(editorNet.getName()),
-                              engineSpecification);
+                              engineSpec);
 
     generateDecompositionParameters(
         engineNet, 
@@ -240,7 +313,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     return engineNet;
   }
 
-  private void establishEngineLocalVariables(YNet engineNet, NetGraphModel editorNet) {
+  private static void establishEngineLocalVariables(YNet engineNet, NetGraphModel editorNet) {
     Iterator localVarIterator = editorNet.getDecomposition().getVariables().getLocalVariables().iterator();
     
     while(localVarIterator.hasNext()) {
@@ -284,32 +357,39 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
-  private void populateEngineNets(YSpecification engineSpecification) {
+  private static void populateEngineNets(SpecificationModel editorSpec, YSpecification engineSpec) {
     Iterator netIterator = editorToEngineNetMap.keySet().iterator();
     while (netIterator.hasNext()) {
       NetGraphModel editorNet = (NetGraphModel) netIterator.next();
-      populateEngineNetFrom(engineSpecification, editorNet);
+      populateEngineNetFrom(editorSpec,engineSpec, editorNet);
     }
   }
 
-  private void populateEngineNetFrom(YSpecification engineSpecification, NetGraphModel editorNet)  {
+  private static void populateEngineNetFrom(SpecificationModel editorSpec, 
+                                     YSpecification engineSpec, 
+                                     NetGraphModel editorNet)  {
     YNet engineNet = (YNet) editorToEngineNetMap.get(editorNet);
     NetElementSummary editorNetSummary = new NetElementSummary(editorNet);
 
-    engineNet.setInputCondition(generateInputCondition(engineNet, editorNetSummary));
-    engineNet.setOutputCondition(generateOutputCondition(engineNet, editorNetSummary));
+    engineNet.setInputCondition(generateInputCondition(editorSpec, engineNet, editorNetSummary));
+    engineNet.setOutputCondition(generateOutputCondition(editorSpec, engineNet, editorNetSummary));
     
-    setElements(engineSpecification, engineNet, editorNetSummary);
-    setFlows(engineNet, editorNetSummary);
+    setElements(editorSpec,engineSpec, engineNet, editorNetSummary);
+    setFlows(editorSpec, engineNet, editorNetSummary);
     setCancellationSetDetail(editorNetSummary);
   }
   
-  private YInputCondition generateInputCondition(YNet engineNet, 
-                                                 NetElementSummary editorNetSummary) {
+  private static YInputCondition generateInputCondition(SpecificationModel editorSpec, 
+                                                        YNet engineNet, 
+                                                        NetElementSummary editorNetSummary) {
     YInputCondition engineInputCondition = 
       new YInputCondition(
-          getEngineElementID(editorNetSummary.getInputCondition()),
-          engineNet);
+          getEngineElementID(
+              editorSpec, 
+              editorNetSummary.getInputCondition()
+          ),
+          engineNet
+      );
     
     if (editorNetSummary.getInputCondition().hasLabel()) {
       engineInputCondition.setName(
@@ -326,12 +406,17 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     return engineInputCondition;
   }
 
-  private YOutputCondition generateOutputCondition(YNet engineNet, 
-                                                  NetElementSummary editorNetSummary) {
+  private static YOutputCondition generateOutputCondition(SpecificationModel editorSpec, 
+                                                          YNet engineNet, 
+                                                          NetElementSummary editorNetSummary) {
     YOutputCondition engineOutputCondition = 
       new YOutputCondition(
-          getEngineElementID(editorNetSummary.getOutputCondition()),
-          engineNet);
+          getEngineElementID(
+              editorSpec, 
+              editorNetSummary.getOutputCondition()
+          ),
+          engineNet
+      );
     
     
     if (editorNetSummary.getOutputCondition().hasLabel()) {
@@ -349,15 +434,18 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     return engineOutputCondition;
   }
   
-  private void setElements(YSpecification engineSpecification, 
-                           YNet engineNet, 
-                           NetElementSummary editorNetSummary) {
-    setConditions(engineNet, editorNetSummary);
-    setAtomicTasks(engineSpecification, engineNet, editorNetSummary);
-    setCompositeTasks(engineNet, editorNetSummary);
+  private static void setElements(SpecificationModel editorSpec,
+                                  YSpecification engineSpec, 
+                                  YNet engineNet, 
+                                  NetElementSummary editorNetSummary) {
+    setConditions(editorSpec, engineNet, editorNetSummary);
+    setAtomicTasks(editorSpec, engineSpec, engineNet, editorNetSummary);
+    setCompositeTasks(editorSpec,engineNet, editorNetSummary);
   }
   
-  private void setConditions(YNet engineNet, NetElementSummary editorNetSummary) {
+  private static void setConditions(SpecificationModel editorSpec, 
+                                    YNet engineNet, 
+                                    NetElementSummary editorNetSummary) {
     
     Iterator conditionIterator = 
       editorNetSummary.getConditions().iterator();
@@ -367,7 +455,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       
       YCondition engineCondition = 
         new YCondition(
-          getEngineElementID(editorCondition),
+          getEngineElementID(editorSpec, editorCondition),
           engineNet);
       
       if (editorCondition.hasLabel()) {
@@ -384,9 +472,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
-  private void setAtomicTasks(YSpecification engineSpecification, 
-                              YNet engineNet, 
-                              NetElementSummary editorNetSummary) {
+  private static void setAtomicTasks(SpecificationModel editorSpec,
+                                     YSpecification engineSpec, 
+                                     YNet engineNet, 
+                                     NetElementSummary editorNetSummary) {
     
     Iterator taskIterator = editorNetSummary.getAtomicTasks().iterator();
     while(taskIterator.hasNext()) {
@@ -394,7 +483,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
       YAtomicTask engineAtomicTask = 
         new YAtomicTask(
-          getEngineElementID(editorTask),
+          getEngineElementID(editorSpec, editorTask),
           editorToEngineJoin(editorTask),
           editorToEngineSplit(editorTask),   
           engineNet
@@ -410,13 +499,13 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
       if (editorTask.getDecomposition() != null) {
         YAWLServiceGateway engineDecomposition = 
-          (YAWLServiceGateway) engineSpecification.getDecomposition(
+          (YAWLServiceGateway) engineSpec.getDecomposition(
               editorTask.getDecomposition().getLabelAsElementName()
           );
         if (engineDecomposition == null) {
           engineDecomposition = 
             generateAtomicDecompositionFor(
-                engineSpecification,
+                engineSpec,
                 editorTask 
             );
         }
@@ -437,8 +526,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
-  private YAWLServiceGateway generateAtomicDecompositionFor(YSpecification engineSpecification, 
-                                                            YAWLTask editorTask) {
+  private static YAWLServiceGateway generateAtomicDecompositionFor(YSpecification engineSpec, 
+                                                                   YAWLTask editorTask) {
 
     WebServiceDecomposition editorDecomposition = 
       ((YAWLAtomicTask)editorTask).getWSDecomposition();
@@ -446,7 +535,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     YAWLServiceGateway engineDecomposition = 
       new YAWLServiceGateway(
           editorDecomposition.getLabelAsElementName(), 
-          engineSpecification
+          engineSpec
       );
     
     if (taskNeedsWebServiceDetail(editorTask)) {
@@ -459,13 +548,13 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       engineDecomposition.setYawlService(engineService);
     }
     
-    engineSpecification.setDecomposition(engineDecomposition);
+    engineSpec.setDecomposition(engineDecomposition);
     
     return engineDecomposition;
   }
   
-  private void generateDecompositionParameters(YDecomposition engineDecomposition, 
-                                               Decomposition editorDecomposition) {
+  private static void generateDecompositionParameters(YDecomposition engineDecomposition, 
+                                                      Decomposition editorDecomposition) {
     if(editorDecomposition == null) {
       return;
     }
@@ -474,8 +563,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     generateDecompositionOutputParameters(engineDecomposition, editorDecomposition);
   }
   
-  private void generateDecompositionInputParameters(YDecomposition engineDecomposition, 
-                                                    Decomposition editorDecomposition) {
+  private static void generateDecompositionInputParameters(YDecomposition engineDecomposition, 
+                                                           Decomposition editorDecomposition) {
     Iterator inputIterator = 
       editorDecomposition.getVariables().getInputVariables().iterator();
     
@@ -501,12 +590,12 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }  
   }
   
-  private void generateEngineParameter(YDecomposition engineDecomposition, 
-                                       int engineParameterType,
-                                       String dataType, 
-                                       String paramName, 
-                                       String initialValue,
-                                       int ordering) {
+  private static void generateEngineParameter(YDecomposition engineDecomposition, 
+                                              int engineParameterType,
+                                              String dataType, 
+                                              String paramName, 
+                                              String initialValue,
+                                              int ordering) {
 
     YParameter engineParameter = 
       new YParameter(
@@ -542,8 +631,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
-  private void generateDecompositionOutputParameters(YDecomposition engineDecomposition, 
-                                                    Decomposition editorDecomposition) {
+  private static void generateDecompositionOutputParameters(YDecomposition engineDecomposition, 
+                                                            Decomposition editorDecomposition) {
     Iterator outputIterator = 
       editorDecomposition.getVariables().getOutputVariables().iterator();
 
@@ -569,7 +658,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
 
-  private void setCompositeTasks(YNet engineNet, NetElementSummary editorNetSummary) {
+  private static void setCompositeTasks(SpecificationModel editorSpec, YNet engineNet, NetElementSummary editorNetSummary) {
     Iterator taskIterator = editorNetSummary.getCompositeTasks().iterator();
 
     while(taskIterator.hasNext()) {
@@ -577,7 +666,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       
       YCompositeTask engineCompositeTask = 
         new YCompositeTask(
-          getEngineElementID(editorTask),
+          getEngineElementID(editorSpec, editorTask),
           editorToEngineJoin(editorTask),
           editorToEngineSplit(editorTask),   
         engineNet
@@ -594,7 +683,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       if (editorTask.getDecomposition() != null) {
         NetGraphModel editorUnfoldingNet = 
           SpecificationUtilities.getNetModelFromName(
-              SpecificationModel.getInstance(),
+              editorSpec,
               editorTask.getDecomposition().getLabel()
           );
         
@@ -615,12 +704,12 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       editorToEngineElementMap.put(editorTask, engineCompositeTask);
     }
   }
-  private void populateTaskParameterQueries(YTask engineTask, YAWLTask editorTask) {
+  private static void populateTaskParameterQueries(YTask engineTask, YAWLTask editorTask) {
     populateTaskInputParameterQueries(engineTask, editorTask);
     populateTaskOutputParameterQueries(engineTask, editorTask);
   }
   
-  private void populateTaskInputParameterQueries(YTask engineTask, 
+  private static void populateTaskInputParameterQueries(YTask engineTask, 
                                                  YAWLTask editorTask) {
     Iterator inputIterator = 
       editorTask.getParameterLists().getInputParameters().getParameters().iterator();
@@ -654,12 +743,12 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
-  private void populateResourceDetail(YTask engineTask, YAWLTask editorTask) {
+  private static void populateResourceDetail(YTask engineTask, YAWLTask editorTask) {
     populateResourceAllocationDetail(engineTask, editorTask);
     populateResourceAuthorisationDetail(engineTask, editorTask);
   }
   
-  private void populateResourceAllocationDetail(YTask engineTask, YAWLTask editorTask) {
+  private static void populateResourceAllocationDetail(YTask engineTask, YAWLTask editorTask) {
     if (editorTask.getAllocationResourceMapping() == null) {
       return;
     }
@@ -691,7 +780,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     );
   }
 
-  private void populateResourceAuthorisationDetail(YTask engineTask, YAWLTask editorTask) {
+  private static void populateResourceAuthorisationDetail(YTask engineTask, YAWLTask editorTask) {
     if (editorTask.getAuthorisationResourceMapping() == null) {
       return;
     }
@@ -723,7 +812,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     );
   }
 
-  private boolean taskNeedsWebServiceDetail(YAWLTask editorTask) {
+  private static boolean taskNeedsWebServiceDetail(YAWLTask editorTask) {
     if (!(editorTask.getDecomposition() instanceof WebServiceDecomposition)) {
       return false;
     }
@@ -738,8 +827,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     return true;
   }
   
-  private void populateTaskOutputParameterQueries(YTask engineTask, 
-                                                  YAWLTask editorTask) {
+  private static void populateTaskOutputParameterQueries(YTask engineTask, 
+                                                         YAWLTask editorTask) {
     
     Iterator outputIterator = 
       editorTask.getParameterLists().getOutputParameters().getParameters().iterator();
@@ -772,8 +861,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
-  private void populateMultipleInstanceDetail(YTask engineTask, 
-                                              YAWLTask editorTask) {
+  private static void populateMultipleInstanceDetail(YTask engineTask, 
+                                                     YAWLTask editorTask) {
     
     if (!(editorTask instanceof YAWLMultipleInstanceTask)) {
       return;
@@ -850,7 +939,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
-  private void setFlows(YNet engineNet, NetElementSummary editorNetSummary) {
+  private static void setFlows(SpecificationModel editorSpec, YNet engineNet, NetElementSummary editorNetSummary) {
     Iterator flowIterator = editorNetSummary.getFlows().iterator();
     while(flowIterator.hasNext()) {
       YAWLFlowRelation editorFlow = (YAWLFlowRelation) flowIterator.next(); 
@@ -890,7 +979,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         
         YCondition implicitEngineCondition = 
           new YCondition(
-            getNewUniqueEngineIDNumber() + "_ImplicitCondition",
+            getNewUniqueEngineIDNumber(editorSpec) + "_ImplicitCondition",
             engineNet
           );
         
@@ -933,7 +1022,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
-  private void setCancellationSetDetail(NetElementSummary editorNetSummary) {
+  private static void setCancellationSetDetail(NetElementSummary editorNetSummary) {
     Iterator taskIterator = editorNetSummary.getTasksWithCancellationSets().iterator();
     while(taskIterator.hasNext()) {
       YAWLTask editorTriggerTask = (YAWLTask) taskIterator.next();
@@ -962,26 +1051,26 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
-  private String getEngineElementID(YAWLVertex element) {
+  private static String getEngineElementID(SpecificationModel editorSpec, YAWLVertex element) {
     if (element.getEngineIdNumber() == null || element.getEngineIdNumber().equals("")) {
       element.setEngineIdNumber(
-          getNewUniqueEngineIDNumber()
+          getNewUniqueEngineIDNumber(editorSpec)
       );
     }
     return element.getEngineId();
   }
   
-  private String getNewUniqueEngineIDNumber() {
-    SpecificationModel.getInstance().setUniqueElementNumber(
-        SpecificationModel.getInstance().getUniqueElementNumber() + 1
+  private static String getNewUniqueEngineIDNumber(SpecificationModel editorSpec) {
+    editorSpec.setUniqueElementNumber(
+        editorSpec.getUniqueElementNumber() + 1
     );
     
     return Long.toString(
-        SpecificationModel.getInstance().getUniqueElementNumber()
+        editorSpec.getUniqueElementNumber()
     );  
   }
 
-  private int editorToEngineJoin(YAWLTask task) {
+  private static int editorToEngineJoin(YAWLTask task) {
     if (task.hasJoinDecorator()) {
       JoinDecorator decorator = task.getJoinDecorator();
       switch (decorator.getType()) {
@@ -1002,7 +1091,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     return YTask._XOR;
   }
 
-  private int editorToEngineSplit(YAWLTask task) {
+  private static int editorToEngineSplit(YAWLTask task) {
     if (task.hasSplitDecorator()) {
       SplitDecorator decorator = task.getSplitDecorator();
       switch (decorator.getType()) {
@@ -1023,7 +1112,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     return YTask._AND;
   }
 
-  private String editorToEngineMultiInstanceMode(YAWLMultipleInstanceTask task) {
+  private static String editorToEngineMultiInstanceMode(YAWLMultipleInstanceTask task) {
     switch(task.getInstanceCreationType()) {
       case YAWLMultipleInstanceTask.STATIC_INSTANCE_CREATION: {
         return YMultiInstanceAttributes._creationModeStatic;
@@ -1037,12 +1126,12 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     } 
   }
 
-  private void addFlowConditionMapping(YAWLFlowRelation editorFlow, 
+  private static void addFlowConditionMapping(YAWLFlowRelation editorFlow, 
                                       YCondition engineCondition) {
     editorFlowEngineConditionMap.put(editorFlow, engineCondition);
   } 
   
-  private YCondition getConditionForFlow(YAWLFlowRelation editorFlow) {
+  private static YCondition getConditionForFlow(YAWLFlowRelation editorFlow) {
     return (YCondition) editorFlowEngineConditionMap.get(editorFlow);
   }
   
@@ -1054,7 +1143,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
    * just yet. This method is a workaround until that issue is resolved.
    */
   
-  private String quoteSQLQueryForEngine(String sqlQuery) {
+  private static String quoteSQLQueryForEngine(String sqlQuery) {
     return sqlQuery.replaceAll("\'","\\$apos;");
   }
 

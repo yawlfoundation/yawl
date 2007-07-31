@@ -26,12 +26,14 @@ package au.edu.qut.yawl.editor.thirdparty.wofyawl;
 import java.util.LinkedList;
 import java.util.List;
 
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
+
 public class UnavailableWofYAWLImplementation implements WofYAWLProxyInterface {
 
   /* (non-Javadoc)
    * @see au.edu.qut.yawl.editor.thirdparty.wofyawl.WofYAWLProxyInterface#getAnalysisResults()
    */
-  public List getAnalysisResults() {
+  public List getAnalysisResults(SpecificationModel editorSpec) {
     List resultsList = new LinkedList();
     resultsList.add("Cannot analyse the specificaiton. You do not have the wofYAWL analysis tool installed. ");
     return resultsList;

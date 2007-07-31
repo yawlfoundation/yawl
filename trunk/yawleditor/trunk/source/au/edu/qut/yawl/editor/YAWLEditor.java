@@ -28,6 +28,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
@@ -45,6 +47,7 @@ import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 import au.edu.qut.yawl.editor.specification.ArchivingThread;
 import au.edu.qut.yawl.editor.specification.SpecificationFileModel;
 import au.edu.qut.yawl.editor.specification.SpecificationFileModelListener;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.JSplashScreen;
 import au.edu.qut.yawl.editor.swing.JStatusBar;
 import au.edu.qut.yawl.editor.swing.JUtilities;
@@ -52,7 +55,9 @@ import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 import au.edu.qut.yawl.editor.swing.menu.Palette;
 import au.edu.qut.yawl.editor.swing.menu.ToolBarMenu;
 import au.edu.qut.yawl.editor.swing.menu.YAWLMenuBar;
+import au.edu.qut.yawl.editor.swing.specification.ProblemMessagePanel;
 import au.edu.qut.yawl.editor.swing.specification.SpecificationBottomPanel;
+import au.edu.qut.yawl.editor.thirdparty.engine.EngineSpecificationValidator;
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 /**
@@ -274,6 +279,27 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   public void showProblemsTab() {
     specificationBottomPanel.selectProblemsTab();
     showBottomOfSplitPane();
+  }
+  
+  public void showProblemList(SpecificationModel editgorSpec, String title, String statusBarText, List problemList) {
+    try {
+      ProblemMessagePanel.getInstance().setProblemList(
+          title,
+          problemList
+      );
+
+    } catch (Exception e) {
+      
+      LinkedList<String> stackMessageList = new LinkedList<String>();
+      stackMessageList.add(e.getMessage());
+      
+      ProblemMessagePanel.getInstance().setProblemList(
+          "Programming Exception with problem list generation",
+          stackMessageList
+      );
+      
+//      e.printStackTrace();
+    }
   }
 
   

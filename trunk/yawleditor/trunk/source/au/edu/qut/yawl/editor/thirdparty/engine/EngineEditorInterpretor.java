@@ -25,8 +25,6 @@ package au.edu.qut.yawl.editor.thirdparty.engine;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
-import au.edu.qut.yawl.elements.YSpecification;
-
 /**
  * This is an abstract class, supplying a base environment for concrete subclasses that must
  * interpret engine objects to editor objects or vica versa.
@@ -37,12 +35,10 @@ import au.edu.qut.yawl.elements.YSpecification;
 
 public abstract class EngineEditorInterpretor {
 
-  protected HashMap editorToEngineElementMap;
-  protected HashMap editorToEngineNetMap;
-  protected HashMap editorFlowEngineConditionMap;
+  protected static HashMap editorToEngineElementMap;
+  protected static HashMap editorToEngineNetMap;
+  protected static HashMap editorFlowEngineConditionMap;
 
-  protected YSpecification engineSpecification;
-  
   protected static final String XML_SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
 
   protected static final String ENGINE_RESOURCE_ALLOCATION_PARAMETER = "YawlResourceAllocationQuery";
@@ -51,11 +47,9 @@ public abstract class EngineEditorInterpretor {
 
   protected static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd");
   
-  public void initialise() {
+  public static void initialise() {
     editorToEngineElementMap = new HashMap();
     editorToEngineNetMap = new HashMap();
     editorFlowEngineConditionMap = new HashMap();
-    engineSpecification = null;
   }
-
 }

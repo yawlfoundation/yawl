@@ -3,6 +3,7 @@ package au.edu.qut.yawl.editor.thirdparty.engine;
 import java.util.LinkedList;
 import java.util.List;
 
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.elements.YSpecification;
 import au.edu.qut.yawl.util.YVerificationMessage;
 
@@ -18,8 +19,18 @@ public class EngineSpecificationValidator {
   public static String NO_PROBLEMS_MESSAGE = "No design-time engine validation problems were found in this specification.";
   
   public static List getValidationResults() {
-    
-    YSpecification specification = (new EngineSpecificationExporter()).getEngineSpecificationAsEngineObjects();
+    return getValidationResults(SpecificationModel.getInstance());
+  }
+
+  public static List getValidationResults(SpecificationModel specification) {
+    return getValidationResults(
+        EngineSpecificationExporter.getEngineSpecAsEngineObjects(
+            specification
+        )
+    );
+  }
+  
+  public static List getValidationResults(YSpecification specification) {
     return createProblemListFrom(specification.verify());
   }
   

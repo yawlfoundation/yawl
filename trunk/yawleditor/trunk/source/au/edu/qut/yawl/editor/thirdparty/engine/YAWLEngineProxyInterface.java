@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
 
@@ -43,11 +44,11 @@ public interface YAWLEngineProxyInterface {
   public static final int SIMPLE_DATA_TYPE_COMPLEXITY        = 1;
   public static final int COMPLEX_DATA_TYPE_COMPLEXITY       = 2;
 
-  public void engineFormatFileExport();
+  public void engineFormatFileExport(SpecificationModel specification);
 
   public void engineFormatFileImport();
   
-  public void validate(); 
+  public void validate(SpecificationModel specification); 
   
   public void connect();
   
@@ -77,5 +78,5 @@ public interface YAWLEngineProxyInterface {
   
   public LinkedList getEngineParametersForRegisteredService(String registeredYAWLServiceURI);
 
-  public List getAnalysisResults();
+  public List getAnalysisResults(SpecificationModel editorSpec);
 }
