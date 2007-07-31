@@ -25,12 +25,14 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.util.LinkedList;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
+
+import au.edu.qut.yawl.editor.specification.ProblemList;
+import au.edu.qut.yawl.editor.specification.ProblemListSubscriber;
 
 public class ProblemTable extends JSingleSelectTable {
   
@@ -56,7 +58,11 @@ public class ProblemTable extends JSingleSelectTable {
   }
   
   public void reset() {
-    setModel(new MessageTableModel());
+    getMessageModel().reset();
+  }
+  
+  public void subscribeForProblemListUpdates(ProblemListSubscriber subscriber) {
+    getMessageModel().subscribeForProblemListUpdates(subscriber);
   }
   
   public int getMessageHeight() {
@@ -110,7 +116,7 @@ class MessageTableModel extends AbstractTableModel {
    */
   private static final long serialVersionUID = 1L;
 
-  private LinkedList messages = new LinkedList();
+  private ProblemList messages = new ProblemList();
   
   private static final String[] COLUMN_LABELS = { 
     "Problem"
@@ -120,6 +126,14 @@ class MessageTableModel extends AbstractTableModel {
 
   public int getColumnCount() {
     return COLUMN_LABELS.length;
+  }
+  
+  public void reset() {
+    messages.clear();
+  }
+  
+  public void subscribeForProblemListUpdates(ProblemListSubscriber subscriber) {
+    messages.subscribe(subscriber);
   }
 
   public String getColumnName(int columnIndex) {

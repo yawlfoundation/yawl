@@ -38,8 +38,6 @@ import au.edu.qut.yawl.editor.YAWLEditor;
 
 public class EngineSpecificationHandler {
   
-  private EngineSpecificationExporter exporter = new EngineSpecificationExporter();
-  private EngineSpecificationImporter importer = new EngineSpecificationImporter();
   
   private static final String SPECIFICATION_FILE_TYPE = "xml";
   
@@ -71,33 +69,13 @@ public class EngineSpecificationHandler {
   private EngineSpecificationHandler() {}
   
   
-  public void validate() {
-
-    YAWLEditor.setStatusBarText("Validating Specification...");
-    YAWLEditor.progressStatusBarOverSeconds(2);
-    
-    try {
-      ProblemMessagePanel.getInstance().setProblemList(
-          "Specification Validation Problems",
-          EngineSpecificationValidator.getValidationResults()
-      );
-      YAWLEditor.setStatusBarTextToPrevious();
-      YAWLEditor.resetStatusBarProgress();
-
-    } catch (Exception e) {
-      
-      LinkedList<String> stackMessageList = new LinkedList<String>();
-      stackMessageList.add(e.getMessage());
-      
-      ProblemMessagePanel.getInstance().setProblemList(
-          "Programming Exception with Specification Validation",
-          stackMessageList
-      );
-      
-//      e.printStackTrace();
-      YAWLEditor.setStatusBarTextToPrevious();
-      YAWLEditor.resetStatusBarProgress();
-    }
+  public void validate(SpecificationModel editorSpec) {
+    YAWLEditor.getInstance().showProblemList(
+        editorSpec,
+        "Specification Validation Problems",
+        "Validating Specification...",
+        EngineSpecificationValidator.getValidationResults(editorSpec)
+    );
   }
 
   
@@ -105,9 +83,11 @@ public class EngineSpecificationHandler {
   // a little more verbose than necessary. As the export is the mirror method to
   // the import, that too has been renamed to match.
 
-  public void engineFormatFileExport() {
-    promptForAndSetSaveFileName();
-    saveSpecificationToFile(SpecificationModel.getInstance().getEngineFileName());
+  public void engineFormatFileExport(SpecificationModel editorSpec) {
+    saveSpecificationToFile(
+        editorSpec,
+        promptForSaveFileName()
+   );
   }
 
   public void engineFormatFileImport() {
@@ -119,7 +99,10 @@ public class EngineSpecificationHandler {
     YAWLEditor.progressStatusBarOverSeconds(2);
     YAWLEditorDesktop.getInstance().setVisible(false);
 
-    importer.importEngineSpecificationFromFile(fullFileName);
+    EngineSpecificationImporter.importEngineSpecificationFromFile(
+        SpecificationModel.getInstance(), 
+        fullFileName
+    );
 
     YAWLEditorDesktop.getInstance().setVisible(true);
     YAWLEditor.resetStatusBarProgress();
@@ -138,11 +121,11 @@ public class EngineSpecificationHandler {
   }
 
   
-  private void promptForAndSetSaveFileName() {
+  private String promptForSaveFileName() {
 
     if (JFileChooser.CANCEL_OPTION == 
         EXPORT_FILE_CHOOSER.showSaveDialog(YAWLEditor.getInstance())) {
-      return;
+      return null;
     }
 
     File file = EXPORT_FILE_CHOOSER.getSelectedFile();
@@ -156,21 +139,24 @@ public class EngineSpecificationHandler {
               "Existing Specification File Selected",
                JOptionPane.YES_NO_OPTION,
                JOptionPane.WARNING_MESSAGE)) {
-        return;   
+        return null;   
       }
     }
-	SpecificationModel.getInstance().setEngineFileName(getFullNameFromFile(file));
+	return getFullNameFromFile(file);
   }
 
-  public void saveSpecificationToFile(String fullFileName) {
-    if (fullFileName.equals("")) {
+  public void saveSpecificationToFile(SpecificationModel editorSpec, String fullFileName) {
+    if (fullFileName == null || fullFileName.equals("")) {
       return;
     }
 
     YAWLEditor.setStatusBarText("Exporting Engine Specification...");
     YAWLEditor.progressStatusBarOverSeconds(2);
 
-    exporter.exportEngineSpecificationToFile(fullFileName);
+    EngineSpecificationExporter.checkAndExportEngineSpecToFile(
+        editorSpec,
+        fullFileName
+    );
 
     YAWLEditor.setStatusBarTextToPrevious();
     YAWLEditor.resetStatusBarProgress();

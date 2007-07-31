@@ -30,6 +30,7 @@ import javax.swing.Action;
 
 import au.edu.qut.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
 import au.edu.qut.yawl.editor.specification.ArchivingThread;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 
 public class AnalyseSpecificationAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
@@ -47,7 +48,9 @@ public class AnalyseSpecificationAction extends YAWLOpenSpecificationAction impl
   }
   
   public void actionPerformed(ActionEvent event) {
-    ArchivingThread.getInstance().analyse();
+    ArchivingThread.getInstance().analyse(
+      SpecificationModel.getInstance()    
+    );
   }
   
   public String getEnabledTooltipText() {

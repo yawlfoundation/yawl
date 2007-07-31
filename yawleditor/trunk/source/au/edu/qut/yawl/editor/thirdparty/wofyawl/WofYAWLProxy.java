@@ -26,6 +26,8 @@ package au.edu.qut.yawl.editor.thirdparty.wofyawl;
 import java.io.File;
 import java.util.List;
 
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
+
 public class WofYAWLProxy implements WofYAWLProxyInterface {
   
   private static final String WOF_YAWL_BINARY = "wofyawl@WofYawlReleaseNumber@.exe";
@@ -78,8 +80,8 @@ public class WofYAWLProxy implements WofYAWLProxyInterface {
     return unavailableImplementation;
   }
   
-  public List getAnalysisResults() {
-    return getImplementation().getAnalysisResults();
+  public List getAnalysisResults(SpecificationModel editorSpec) {
+    return getImplementation().getAnalysisResults(editorSpec);
   }
   
   public static String getBinaryExecutableFilePath() {

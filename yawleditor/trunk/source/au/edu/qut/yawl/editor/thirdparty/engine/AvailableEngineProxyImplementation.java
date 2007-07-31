@@ -43,6 +43,7 @@ import net.sf.saxon.xpath.XPathException;
 import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
 import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
@@ -71,16 +72,16 @@ public class AvailableEngineProxyImplementation implements
   
   private XMLToolsForYAWL xmlTools;
   
-  public void engineFormatFileExport() {
-    EngineSpecificationHandler.getInstance().engineFormatFileExport();
+  public void engineFormatFileExport(SpecificationModel editorSpec) {
+    EngineSpecificationHandler.getInstance().engineFormatFileExport(editorSpec);
   }
   
   public void engineFormatFileImport() {
     EngineSpecificationHandler.getInstance().engineFormatFileImport();
   }
   
-  public void validate() {
-    EngineSpecificationHandler.getInstance().validate();
+  public void validate(SpecificationModel editorSpec) {
+    EngineSpecificationHandler.getInstance().validate(editorSpec);
   }
   
   public void connect() {
@@ -391,8 +392,8 @@ public class AvailableEngineProxyImplementation implements
     return dataVariableList;
   }
   
-  public List getAnalysisResults() {
-    return ANALYSIS_RESULTS_PARSER.getAnalysisResults();
+  public List getAnalysisResults(SpecificationModel editorSpec) {
+    return ANALYSIS_RESULTS_PARSER.getAnalysisResults(editorSpec);
   }
 
 }

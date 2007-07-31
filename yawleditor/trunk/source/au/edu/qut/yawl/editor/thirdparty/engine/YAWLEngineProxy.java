@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
 
@@ -67,16 +68,16 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
     implementation.disconnect();
   }
   
-  public void engineFormatFileExport() {
-    implementation.engineFormatFileExport();
+  public void engineFormatFileExport(SpecificationModel editorSpec) {
+    implementation.engineFormatFileExport(editorSpec);
   }
 
   public void engineFormatFileImport() {
     implementation.engineFormatFileImport();
   }
   
-  public void validate() {
-    implementation.validate();
+  public void validate(SpecificationModel specification) {
+    implementation.validate(specification);
   }
   
   public HashMap getRegisteredYAWLServices() {
@@ -134,39 +135,35 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
     return implementation.getEngineParametersForRegisteredService(registeredYAWLServiceURI);
   }
   
-  public List getAnalysisResults() {
-    return implementation.getAnalysisResults();
-  }
-  
-  public void analyse() {
-    YAWLEditor.getInstance().progressStatusBarOverSeconds(2);
-    
-    List analysisResults = getAnalysisResults();
-    
+  public List getAnalysisResults(SpecificationModel editorSpec) {
+    LinkedList<String> results = new LinkedList<String>();
+    results.addAll(implementation.getAnalysisResults(editorSpec));
     if (WofYAWLProxy.wofYawlAvailable()) {
       
       try {
-        analysisResults.addAll(
-            WofYAWLProxy.getInstance().getAnalysisResults()  
+        results.addAll(
+            WofYAWLProxy.getInstance().getAnalysisResults(editorSpec)  
           );
-        if (analysisResults.size() == 0) {
-          analysisResults.add("No problems were discovered in the analysis of this specification.");
+        if (results.size() == 0) {
+          results.add("No problems were discovered in the analysis of this specification.");
         }
       } catch (Exception e) {
-        LinkedList<String> stackMessageList = new LinkedList<String>();
-        stackMessageList.add(e.getMessage());
-        
-        ProblemMessagePanel.getInstance().setProblemList(
-            "Programming Exception with Specification Analysis",
-            stackMessageList
-        );
+        results.add(e.getMessage());
       }
     }
+    
+    return results;
+  }
+  
+  public void analyse(SpecificationModel editorSpec) {
+    YAWLEditor.getInstance().progressStatusBarOverSeconds(2);
+    
 
     ProblemMessagePanel.getInstance().setProblemList(
       "Specification Analysis Problems",
-      analysisResults 
+      getAnalysisResults(editorSpec) 
     );
+    
     YAWLEditor.getInstance().resetStatusBarProgress();
   }
 }

@@ -25,6 +25,8 @@ package au.edu.qut.yawl.editor.thirdparty.wofyawl;
 
 import java.util.List;
 
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
+
 public interface WofYAWLProxyInterface {
 
   public static String WOFYAWL_ANALYSIS_PREFERENCE = "wofYawlAnalysisCheck";
@@ -32,5 +34,5 @@ public interface WofYAWLProxyInterface {
   public static String BEHAVIOURAL_ANALYSIS_PREFERENCE = "wofYawlBehaviouralAnalysisCheck";
   public static String EXTENDED_COVERABILITY_PREFERENCE = "wofYawlExtendedCoverabilityCheck";
   
-  public List getAnalysisResults();
+  public List getAnalysisResults(SpecificationModel editorSpec);
 }

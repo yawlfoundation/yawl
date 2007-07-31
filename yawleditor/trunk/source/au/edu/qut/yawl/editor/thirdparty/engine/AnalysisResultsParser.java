@@ -8,6 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import au.edu.qut.yawl.elements.YSpecification;
 
 public abstract class AnalysisResultsParser {
   // added this flag to allow the temp file to be inspected in case of error - MJF
@@ -15,35 +17,46 @@ public abstract class AnalysisResultsParser {
   protected static final Preferences prefs = 
     Preferences.userNodeForPackage(YAWLEditor.class);
   
-  public List getAnalysisResults() {
+  public List getAnalysisResults(SpecificationModel editorSpec) {
     
-    List resultsList = new LinkedList();
-    String tempEngineFile = getTempEngineXMLFile();
-    
-    parseRawResultsIntoList(
-        resultsList,
-        getRawResultsFromFile(tempEngineFile)
-    );
+    String tempEngineFile = getTempEngineXMLFile(editorSpec);
+
+    List results = getAnalysisResults(tempEngineFile);
     
     // added this check to allow the temp file to be inspected in case of error - MJF
     if (!errorFound) removeFile(tempEngineFile);
-    return resultsList;
+    
+    return results;
   }
+  
+  
+  public List getAnalysisResults(String engineFile) {
 
+    List resultsList = new LinkedList();
+
+    parseRawResultsIntoList(
+        resultsList,
+        getRawResultsFromFile(engineFile)
+    );
+    
+    return resultsList;
+
+  }
   /**
    * Takes the currently loaded specification, and generates a temporary (randomly named) 
    * engine XML specification file for use in wofyawl analysis.
    * @return The file path of the temporary engine XML file
    */
   
-  protected String getTempEngineXMLFile() {
+  protected String getTempEngineXMLFile(SpecificationModel editorSpec) {
     
     String tempEngineFile = 
       System.getProperty("java.io.tmpdir") + 
       System.getProperty("file.separator") +
       String.valueOf(Math.random());
     
-    (new EngineSpecificationExporter()).exportEngineSpecificationToFile(
+    EngineSpecificationExporter.exportEngineSpecToFile(
+      editorSpec,
       tempEngineFile
     );
 

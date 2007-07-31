@@ -29,17 +29,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
 
 public class UnavailableEngineProxyImplementation implements
     YAWLEngineProxyInterface {
 
-  public void engineFormatFileExport() {}
+  public void engineFormatFileExport(SpecificationModel spec) {}
 
   public void engineFormatFileImport() {}
 
-  public void validate() {}
+  public void validate(SpecificationModel editorSpec) {}
 
   public void connect() {}
   
@@ -101,7 +102,7 @@ public class UnavailableEngineProxyImplementation implements
     return null;
   }
   
-  public List getAnalysisResults() {
+  public List getAnalysisResults(SpecificationModel editorSpec) {
     return null;
   }
 }

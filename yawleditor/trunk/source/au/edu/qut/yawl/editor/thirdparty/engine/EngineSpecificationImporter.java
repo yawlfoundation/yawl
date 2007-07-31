@@ -94,13 +94,13 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private static final Point DEFAULT_LOCATION = new Point(100,100);
   
-  public void importEngineSpecificationFromFile(String fullFileName) {
+  public static void importEngineSpecificationFromFile(SpecificationModel editorSpec, String fullFileName) {
     if (fullFileName == null) {
       return;
     }
-    YSpecification engineSpecification = importEngineSpecificationAsEngineObjects(fullFileName);
+    YSpecification engineSpec = importEngineSpecificationAsEngineObjects(fullFileName);
     
-    if (engineSpecification == null) {
+    if (engineSpec == null) {
       JOptionPane.showMessageDialog(
           YAWLEditor.getInstance(), 
           "Error discovered reading YAWL engine file.\nDiscarding this file.\n",
@@ -109,9 +109,9 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       return;
     }
 
-    SpecificationModel.getInstance().reset();
+    editorSpec.reset();
     
-    convertEngineSpecificationObjectsToEditorObjects(engineSpecification);
+    convertEngineSpecObjectsToEditorObjects(editorSpec, engineSpec);
 
     LayoutManager.layoutSpecification();
     
@@ -119,7 +119,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     SpecificationUndoManager.getInstance().discardAllEdits();
   }
 
-  public YSpecification importEngineSpecificationAsEngineObjects(String fullFileName) {
+  public static YSpecification importEngineSpecificationAsEngineObjects(String fullFileName) {
     try {
       List specifications = YMarshal.unmarshalSpecifications((new File(fullFileName)).getCanonicalPath());
       return (YSpecification) specifications.get(0); // Engine currently only supplies a single specification per file.
@@ -129,26 +129,28 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     return null;
   }
   
-  public void convertEngineSpecificationObjectsToEditorObjects(YSpecification engineSpecification) {
+  public static void convertEngineSpecObjectsToEditorObjects(
+                          SpecificationModel editorSpec, 
+                          YSpecification engineSpec) {
     initialise();
     
-    SpecificationModel.getInstance().setId(
-      engineSpecification.getID()    
+    editorSpec.setId(
+      engineSpec.getID()    
     );
 
-    convertEngineMetaData(engineSpecification);
-    convertEngineDataTypeDefinition(engineSpecification);
+    convertEngineMetaData(engineSpec);
+    convertEngineDataTypeDefinition(engineSpec);
 
-    convertRootNet(engineSpecification);
-    convertSubNetsAndOtherDecompositions(engineSpecification);
+    convertRootNet(engineSpec);
+    convertSubNetsAndOtherDecompositions(engineSpec);
     
-    populateEditorNets(engineSpecification);
+    populateEditorNets(engineSpec);
     
     //TODO: DO Resource Perspective
     
   }
   
-  private void convertEngineMetaData(YSpecification engineSpecification) {
+  private static void convertEngineMetaData(YSpecification engineSpecification) {
     YMetaData metaData = engineSpecification.getMetaData();
     
     if (metaData.getTitle() != null) {
@@ -196,13 +198,13 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
   
-  private void convertEngineDataTypeDefinition(YSpecification engineSpecification) {
+  private static void convertEngineDataTypeDefinition(YSpecification engineSpecification) {
     SpecificationModel.getInstance().setDataTypeDefinition(
       engineSpecification.getToolsForYAWL().getSchemaString().trim()
     );
   }
   
-  private void convertRootNet(YSpecification engineSpecification) {
+  private static void convertRootNet(YSpecification engineSpecification) {
     YNet engineRootNet = engineSpecification.getRootNet();
     
     NetGraphModel editorNetModel = convertEngineNet(engineSpecification, engineRootNet);
@@ -211,7 +213,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
   }
   
-  private NetGraphModel convertEngineNet(YSpecification engineSpecification, YNet engineNet) {
+  private static NetGraphModel convertEngineNet(YSpecification engineSpecification, YNet engineNet) {
 
     NetGraph editorNet = new NetGraph();
     editorNet.setName(engineNet.getID());
@@ -237,8 +239,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     return editorNet.getNetModel();
   }
 
-  private void convertNetLocalVariables(YNet engineNet, 
-                                        NetGraph editorNet) {
+  private static void convertNetLocalVariables(YNet engineNet, 
+                                               NetGraph editorNet) {
 
     Iterator localVariableKeyIterator = engineNet.getLocalVariables().keySet().iterator();
 
@@ -257,16 +259,16 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
 
   
-  private void convertDecompositionParameters(YDecomposition engineDecomposition, 
-                                              Decomposition editorDecomposition) {
+  private static void convertDecompositionParameters(YDecomposition engineDecomposition, 
+                                                     Decomposition editorDecomposition) {
     convertDecompositionInputParameters(engineDecomposition, editorDecomposition);
     convertDecompositionOutputParameters(engineDecomposition, editorDecomposition);
     
     editorDecomposition.getVariables().consolidateInputAndOutputVariables();
   }
   
-  private void convertDecompositionInputParameters(YDecomposition engineDecomposition, 
-                                                   Decomposition editorDecomposition) {
+  private static void convertDecompositionInputParameters(YDecomposition engineDecomposition, 
+                                                          Decomposition editorDecomposition) {
     
     Iterator inputIterator = 
       engineDecomposition.getInputParameters().keySet().iterator();
@@ -286,8 +288,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
 
-  private void convertDecompositionOutputParameters(YDecomposition engineDecomposition, 
-                                                    Decomposition editorDecomposition) {
+  private static void convertDecompositionOutputParameters(YDecomposition engineDecomposition, 
+                                                           Decomposition editorDecomposition) {
 
     Iterator outputIterator = engineDecomposition.getOutputParameters().keySet().iterator();
 
@@ -305,11 +307,11 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
   
-  private void createEditorVariable(Decomposition editorDecomposition, 
-                                    int editorUsage,
-                                    String dataType, 
-                                    String paramName, 
-                                    String initialValue) {
+  private static void createEditorVariable(Decomposition editorDecomposition, 
+                                           int editorUsage,
+                                           String dataType, 
+                                           String paramName, 
+                                           String initialValue) {
     
     DataVariable editorVariable = new DataVariable();
 
@@ -322,7 +324,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     editorDecomposition.getVariables().add(editorVariable);
  }
   
-  private void convertSubNetsAndOtherDecompositions(YSpecification engineSpecification) {
+  private static void convertSubNetsAndOtherDecompositions(YSpecification engineSpecification) {
     Iterator engineDecompositions = engineSpecification.getDecompositions().iterator();
     
     while (engineDecompositions.hasNext()) {
@@ -362,7 +364,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
   
-  private void populateEditorNets(YSpecification engineSpecification) {
+  private static void populateEditorNets(YSpecification engineSpecification) {
     Iterator netIterator = editorToEngineNetMap.keySet().iterator();
     while (netIterator.hasNext()) {
       YNet engineNet = (YNet) netIterator.next();
@@ -371,7 +373,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
   
-  private void populateEditorNet(YNet engineNet, NetGraphModel editorNet) {
+  private static void populateEditorNet(YNet engineNet, NetGraphModel editorNet) {
 
     EngineNetElementSummary engineNetElementSummary = new EngineNetElementSummary(engineNet);
     
@@ -404,23 +406,23 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     removeUnnecessaryDecorators(editorNet);
   }
   
-  private InputCondition generateEditorInputCondition(YInputCondition engineInputCondition) {
+  private static InputCondition generateEditorInputCondition(YInputCondition engineInputCondition) {
     InputCondition editorInputCondition = new InputCondition(DEFAULT_LOCATION);
     return editorInputCondition;
   }
   
-  private OutputCondition generateEditorOutputCondition(YOutputCondition engineOutputCondition) {
+  private static OutputCondition generateEditorOutputCondition(YOutputCondition engineOutputCondition) {
     OutputCondition editorOutputCondition = new OutputCondition(DEFAULT_LOCATION);
     return editorOutputCondition;
   }
   
-  private void populateElements(EngineNetElementSummary engineNetSummary, NetGraphModel editorNet) {
+  private static void populateElements(EngineNetElementSummary engineNetSummary, NetGraphModel editorNet) {
     populateAtomicTasks(engineNetSummary.getAtomicTasks(), editorNet);
     populateCompositeTasks(engineNetSummary.getCompositeTasks(), editorNet);
     populateConditions(engineNetSummary.getConditions(), editorNet);
   }
   
-  private void populateAtomicTasks(Set engineAtomicTasks, NetGraphModel editorNet) {
+  private static void populateAtomicTasks(Set engineAtomicTasks, NetGraphModel editorNet) {
     Iterator atomicTaskIterator = engineAtomicTasks.iterator();
     
     while(atomicTaskIterator.hasNext()) {
@@ -446,7 +448,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
   
-  private void setEditorTaskLabel(NetGraph editorNet, YAWLTask editorTask, YTask engineTask) {
+  private static void setEditorTaskLabel(NetGraph editorNet, YAWLTask editorTask, YTask engineTask) {
     if (engineTask.getName() == null && engineTask.getDecompositionPrototype() != null) {
       editorNet.setElementLabel(editorTask, engineTask.getDecompositionPrototype().getID());
       return;
@@ -454,7 +456,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     editorNet.setElementLabel(editorTask, engineTask.getName());
   }
   
-  private void setTaskDecorators(YTask engineTask, YAWLTask editorTask, NetGraphModel editorNet) {
+  private static void setTaskDecorators(YTask engineTask, YAWLTask editorTask, NetGraphModel editorNet) {
     editorNet.setJoinDecorator(
         editorTask,
         engineToEditorJoin(engineTask),
@@ -468,12 +470,12 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     );
   }
   
-  private void convertTaskParameterQueries(YTask engineTask, YAWLTask editorTask, NetGraphModel editorNet) {
+  private static void convertTaskParameterQueries(YTask engineTask, YAWLTask editorTask, NetGraphModel editorNet) {
     convertTaskInputParameterQueries(engineTask, editorTask);
     convertTaskOutputParameterQueries(engineTask, editorTask, editorNet);
   }
   
-  private void convertTaskInputParameterQueries(YTask engineTask, YAWLTask editorTask) {
+  private static void convertTaskInputParameterQueries(YTask engineTask, YAWLTask editorTask) {
     Iterator editorInputParamIterator = editorTask.getVariables().getInputVariables().iterator();
     while (editorInputParamIterator.hasNext()) {
       DataVariable editorVariable = (DataVariable) editorInputParamIterator.next();
@@ -487,7 +489,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
 
-  private void convertTaskOutputParameterQueries(YTask engineTask, YAWLTask editorTask, NetGraphModel net) {
+  private static void convertTaskOutputParameterQueries(YTask engineTask, YAWLTask editorTask, NetGraphModel net) {
     Iterator engineOutputParams = engineTask.getParamNamesForTaskCompletion().iterator();
     
     while(engineOutputParams.hasNext()) {
@@ -504,7 +506,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
 
-  private AtomicTask generateEditorAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
+  private static AtomicTask generateEditorAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
     AtomicTask editorAtomicTask = new AtomicTask(DEFAULT_LOCATION);
     
     if (engineAtomicTask.getDecompositionPrototype() == null) {
@@ -522,7 +524,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     return editorAtomicTask;
   }
 
-  private MultipleAtomicTask generateEditorMultipleAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
+  private static MultipleAtomicTask generateEditorMultipleAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
     MultipleAtomicTask editorMultipleAtomicTask = new MultipleAtomicTask(DEFAULT_LOCATION);
 
     if (engineAtomicTask.getDecompositionPrototype() == null) {
@@ -546,9 +548,9 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     return editorMultipleAtomicTask;
   }
   
-  private void setMultipleInstanceDetail(YMultiInstanceAttributes engineMIAttributes, 
-                                         YTask                    engineTask, 
-                                         YAWLMultipleInstanceTask editorTask) {
+  private static void setMultipleInstanceDetail(YMultiInstanceAttributes engineMIAttributes, 
+                                                YTask                    engineTask, 
+                                                YAWLMultipleInstanceTask editorTask) {
     editorTask.setMinimumInstances(
         engineMIAttributes.getMinInstances()    
     );
@@ -608,7 +610,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
 
   
-  private void populateCompositeTasks(Set engineCompositeTasks, NetGraphModel editorNet) {
+  private static void populateCompositeTasks(Set engineCompositeTasks, NetGraphModel editorNet) {
     Iterator compositeTaskIterator = engineCompositeTasks.iterator();
     while(compositeTaskIterator.hasNext()) {
       YCompositeTask engineCompositeTask = (YCompositeTask) compositeTaskIterator.next();
@@ -632,7 +634,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
   
-  private CompositeTask generateEditorCompositeTask(YCompositeTask engineCompositeTask, NetGraphModel editorNet) {
+  private static CompositeTask generateEditorCompositeTask(YCompositeTask engineCompositeTask, NetGraphModel editorNet) {
     CompositeTask editorCompositeTask = new CompositeTask(DEFAULT_LOCATION);
     
     NetGraphModel decomposedEditorNet = SpecificationUtilities.getNetModelFromName(
@@ -647,7 +649,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     return editorCompositeTask;
   }
   
-  private MultipleCompositeTask generateEditorMultipleCompositeTask(YCompositeTask engineCompositeTask, NetGraphModel editorNet) {
+  private static MultipleCompositeTask generateEditorMultipleCompositeTask(YCompositeTask engineCompositeTask, NetGraphModel editorNet) {
     MultipleCompositeTask editorMultipleCompositeTask = new MultipleCompositeTask(DEFAULT_LOCATION);
 
     NetGraphModel decomposedEditorNet = SpecificationUtilities.getNetModelFromName(
@@ -669,7 +671,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
 
 
-  private void populateConditions(Set engineConditions, NetGraphModel editorNet) {
+  private static void populateConditions(Set engineConditions, NetGraphModel editorNet) {
     Iterator conditionIterator = engineConditions.iterator();
     while(conditionIterator.hasNext()) {
       YCondition engineCondition = (YCondition) conditionIterator.next();
@@ -689,12 +691,12 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
   
-  private Condition generateEditorCondition(YCondition engineCondition) {
+  private static Condition generateEditorCondition(YCondition engineCondition) {
     Condition editorCondition = new Condition(DEFAULT_LOCATION);
     return editorCondition;
   }
   
-  private void populateFlows(Set engineFlows, NetGraphModel editorNet) {
+  private static void populateFlows(Set engineFlows, NetGraphModel editorNet) {
     
     Iterator flowIterator = engineFlows.iterator();
     while(flowIterator.hasNext()) {
@@ -719,8 +721,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
   
-  private void populateCancellationSetDetail(Set engineTasksWithCancellationSets, 
-                                             NetGraphModel editorNet) {
+  private static void populateCancellationSetDetail(Set engineTasksWithCancellationSets, 
+                                                    NetGraphModel editorNet) {
     Iterator engineTaskIterator = engineTasksWithCancellationSets.iterator();
     while(engineTaskIterator.hasNext()) {
        YTask engineTask = (YTask) engineTaskIterator.next();
@@ -745,7 +747,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
 
   
-  private void removeImplicitConditions(Set engineConditions, NetGraphModel editorNet) {
+  private static void removeImplicitConditions(Set engineConditions, NetGraphModel editorNet) {
     Iterator conditionIterator = engineConditions.iterator();
     while(conditionIterator.hasNext()) {
       YCondition engineCondition = (YCondition) conditionIterator.next();
@@ -781,7 +783,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
   
-  private void removeUnnecessaryDecorators(NetGraphModel editorNet) {
+  private static void removeUnnecessaryDecorators(NetGraphModel editorNet) {
     Set tasks = NetUtilities.getAllTasks(editorNet);
     Iterator taskIterator = tasks.iterator();
     while(taskIterator.hasNext()) {
@@ -803,7 +805,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
   
-  private int engineToEditorJoin(YTask engineTask) {
+  private static int engineToEditorJoin(YTask engineTask) {
     switch(engineTask.getJoinType()) {
       case YTask._AND: {
         return Decorator.AND_TYPE;
@@ -818,7 +820,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     return Decorator.XOR_TYPE;
   }
 
-  private int engineToEditorSplit(YTask engineTask) {
+  private static int engineToEditorSplit(YTask engineTask) {
     switch(engineTask.getSplitType()) {
       case YTask._AND: {
         return Decorator.AND_TYPE;
@@ -833,7 +835,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     return Decorator.AND_TYPE;
   }
   
-  private int engineToEditorMultiInstanceCreationMode(String engineCreationMode) {
+  private static int engineToEditorMultiInstanceCreationMode(String engineCreationMode) {
     if (engineCreationMode.equals(YMultiInstanceAttributes._creationModeStatic)) {
       return MultipleAtomicTask.STATIC_INSTANCE_CREATION;
     }

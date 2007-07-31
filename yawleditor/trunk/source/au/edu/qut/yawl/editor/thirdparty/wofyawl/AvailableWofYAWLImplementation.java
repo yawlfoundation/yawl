@@ -32,11 +32,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.thirdparty.engine.AnalysisResultsParser;
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 
 public class AvailableWofYAWLImplementation extends AnalysisResultsParser implements WofYAWLProxyInterface {
-  
+
   /**
    * Returns the raw XML output from wofyawl that is generated when wofyawl is 
    * run against the input engine XML file.

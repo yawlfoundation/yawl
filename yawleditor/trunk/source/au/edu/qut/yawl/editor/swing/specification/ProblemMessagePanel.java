@@ -30,12 +30,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
+import au.edu.qut.yawl.editor.specification.ProblemList;
+import au.edu.qut.yawl.editor.specification.ProblemListSubscriber;
 import au.edu.qut.yawl.editor.specification.SpecificationFileModel;
 import au.edu.qut.yawl.editor.specification.SpecificationFileModelListener;
 import au.edu.qut.yawl.editor.swing.ProblemTable;
 import au.edu.qut.yawl.editor.YAWLEditor;
 
-public class ProblemMessagePanel extends JPanel  implements SpecificationFileModelListener{
+public class ProblemMessagePanel extends JPanel  implements SpecificationFileModelListener, ProblemListSubscriber {
   /**
    * 
    */
@@ -57,6 +59,7 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
 
     buildContent();
     SpecificationFileModel.getInstance().subscribe(this);
+    problemResultsTable.subscribeForProblemListUpdates(this);
   }
   
   private void buildContent() {
@@ -75,12 +78,6 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
     this.title = title;
 
     populateProblemListTable(problemList);
-
-    if (isVisible()) {
-      repaint();
-    } else {
-      setVisible(true);
-    }
   }
   
   private void populateProblemListTable(List problemList) {
@@ -89,18 +86,12 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
       
       problemResultsTable.addMessage(problem.trim());
     }
-    readjustProblemTableSize();
   }
 
   public ProblemTable getProblemResultsTable() {
     return problemResultsTable;
   }
   
-  private void readjustProblemTableSize() {
-    repaint();
-    
-    YAWLEditor.getInstance().showProblemsTab();
-  }
   
   private static ProblemTable buildProblemMessageTable() {
     ProblemTable table = new ProblemTable();
@@ -121,5 +112,23 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
   
   public String getTitle() {
     return title;
+  }
+  
+  public void problemListUpdated(ProblemList.STATUS status) {
+    switch(status) {
+      case HAS_ENTRIES: {
+        if (isVisible()) {
+          repaint();
+        } else {
+          setVisible(true);
+        }
+        YAWLEditor.getInstance().showProblemsTab();
+        break;
+      }
+      case NO_ENTRIES: {
+        YAWLEditor.hideBottomOfSplitPane();
+        break;
+      }
+    }
   }
 }
