@@ -34,10 +34,8 @@ import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
