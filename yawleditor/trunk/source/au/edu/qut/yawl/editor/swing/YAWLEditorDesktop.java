@@ -199,7 +199,7 @@ public class YAWLEditorDesktop extends JDesktopPane
     
     // TODO: reposition to work on iconified frames as well.
 
-    if (!this.isVisible()) {
+    if (!this.isVisible() || scrollPane == null) {
   		return;
   	}
     final JViewport viewport  = scrollPane.getViewport();
