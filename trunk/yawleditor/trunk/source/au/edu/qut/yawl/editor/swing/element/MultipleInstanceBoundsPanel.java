@@ -274,6 +274,10 @@ public class MultipleInstanceBoundsPanel extends JPanel {
   
   public void setTask(YAWLMultipleInstanceTask task) {
     this.task  = task;
+    
+    if (task == null) {
+      System.out.println("how am I null;");
+    }
 
     minInstancesField.setDouble(task.getMinimumInstances());
     maxInstancesField.setLowerBound(task.getMinimumInstances());

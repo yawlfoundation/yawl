@@ -29,7 +29,8 @@ import java.awt.geom.Point2D;
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 
-public class MultipleAtomicTask extends YAWLTask implements YAWLMultipleInstanceTask, YAWLAtomicTask {
+public class MultipleAtomicTask extends YAWLTask 
+          implements YAWLMultipleInstanceTask, YAWLAtomicTask {
 
   /**
    * 
@@ -66,7 +67,8 @@ public class MultipleAtomicTask extends YAWLTask implements YAWLMultipleInstance
   
   public MultipleAtomicTask(Point2D startPoint, String iconPath) {
     super(startPoint, iconPath);
- }
+    initialise();
+  }
   
   private void initialise() {
     setMinimumInstances(1);
