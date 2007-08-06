@@ -12,6 +12,7 @@ import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 import au.edu.qut.yawl.engine.interfce.InterfaceBWebsideController;
 import au.edu.qut.yawl.worklist.model.*;
 import au.edu.qut.yawl.elements.data.* ;
+import au.edu.qut.yawl.elements.*;
 import au.edu.qut.yawl.authentication.User;
 
 import au.edu.qut.yawl.worklet.support.*;
@@ -340,14 +341,10 @@ public class WorkletService extends InterfaceBWebsideController {
     private String launchCase(String specID, String caseParams,
                               String sessionHandle, boolean observer)
                                      throws IOException {
-        Map paramsMap = new HashMap();
-        paramsMap.put("sessionHandle", sessionHandle);
-        paramsMap.put("action", "launchCase");
-        paramsMap.put("caseParams", caseParams);
-        if (observer) paramsMap.put("completionObserverURI", _workletURI);
 
-        return _interfaceBClient.executePost(
-                "http://localhost:8080/yawl/ib/specID/" + specID, paramsMap);
+        String obsURI = observer? _workletURI : null ;
+        return _interfaceBClient.launchCase(specID, caseParams, sessionHandle, obsURI);
+
     }
 
 //***************************************************************************//
@@ -362,12 +359,13 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     private void handleWorkletSelection(WorkItemRecord wir) {
 
-         String specId = wir.getSpecificationID() ;       // info about item
+        String specId = wir.getSpecificationID() ;       // info about item
         String taskId = getDecompID(wir) ;
         String itemId = wir.getID() ;
         RdrTree selectionTreeForTask ;                   // rules for task
-        CheckedOutItem coItem ;                          // record of item
+        CheckedOutItem coParent ;                        // record of item
         CheckedOutChildItem coChild ;                    // child item rec.
+        int childIndex = 0;
 
         _log.info("Received workitem for worklet substitution: " + itemId) ;
         _log.info("   specId = " + specId);
@@ -380,25 +378,45 @@ public class WorkletService extends InterfaceBWebsideController {
              // OK - this workitem has an associated ruleset so check it out
              // all the child items also get checked out here
              _log.info("Ruleset found for workitem: " + itemId) ;
-             coItem = checkOutItem(wir) ;
-
-            // remember this handling of the parent item (if not a replace)
-             if (_handledParentItems.containsKey(itemId)) {
-               if (_persisting) _dbMgr.persist(coItem,DBManager.DB_UPDATE);
-             }
-            else {
-                _handledParentItems.put(itemId, coItem) ;
-                if (_persisting) _dbMgr.persist(coItem,DBManager.DB_INSERT);
-             }
+             coParent = checkOutItem(wir) ;
 
              // launch a worklet case for each checked out child workitem
-             for (int i = 0; i < coItem.getChildCount(); i++) {
-                 coChild = coItem.getCheckedOutChildItem(i) ;
+             while (childIndex < coParent.getChildCount()) {
+                 coChild = coParent.getCheckedOutChildItem(childIndex) ;
                  ProcessWorkItemSubstitution(selectionTreeForTask, coChild) ;
-            }
+
+                 // if no worklet launched for this item, it's been removed
+                 // from the parent, so don't increment the loop counter
+                 if (coParent.hasCheckedOutChildItem(coChild)) childIndex++;
+             }
+
+             // if worklet(s) launched, persist the parent item record
+             if (coParent.hasCheckedOutChildItems()) {
+
+                 // if this is a replace, update only
+                 if (_handledParentItems.containsKey(itemId)) {
+                     if (_persisting) _dbMgr.persist(coParent, DBManager.DB_UPDATE);
+                  }
+                 else {
+                     _handledParentItems.put(itemId, coParent) ;
+                     if (_persisting) _dbMgr.persist(coParent, DBManager.DB_INSERT);
+                  }
+             }
+             else
+                 _log.info("No worklets launched for workitem: " + itemId);
+
+             // if MI Task, store threshold and log summary of selections
+             if (coParent.isMultiTask()) {
+                 String taskInfo = getMITaskInfo(coParent.getItem());
+                 int threshold = Integer.parseInt(RdrConversionTools.getChildValue(
+                                                  taskInfo, "threshold"));
+                 coParent.setThreshold(threshold);
+                 logSelectionForMISummary(coParent, taskInfo) ;
+             }
         }
         else _log.warn("No rule set found for specId: " + specId);
     }
+
 
 //***************************************************************************//
 
@@ -433,6 +451,12 @@ public class WorkletService extends InterfaceBWebsideController {
            _log.info("Handling of workitem completed - checking it back in to engine");
           checkInHandledWorkItem(cociOrig, wlCasedata);
        }
+
+       // if MI task and threshold has been reached, remove extraneous worklets
+       if (cociOrig.getParent().isMultiTask()) {
+           if (cociOrig.getParent().thresholdReached())
+               CancelWorkletsForCompletedMITask(cociOrig);
+       }
     }
 
 //***************************************************************************//
@@ -453,9 +477,10 @@ public class WorkletService extends InterfaceBWebsideController {
 
          // select appropriate worklet
         RdrConclusion result = new RdrConclusion(tree.search(coChild.getDatalist()));
-        String wSelected =  result.getTarget(1);
 
-         if (wSelected != null) {
+        // null result means no rule matched context
+        if (! result.nullConclusion()) {
+           String wSelected =  result.getTarget(1);
 
              _log.info("Rule search returned worklet(s): " + wSelected);
             coChild.setExType(XTYPE_SELECTION);
@@ -466,7 +491,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 coChild.saveSearchResults() ;
 
                 // remember this handling (if not a replace)
-                   if (_handledWorkItems.containsKey(childId)) {
+                if (_handledWorkItems.containsKey(childId)) {
                     if (_persisting) _dbMgr.persist(coChild, DBManager.DB_UPDATE);
                 }
                 else {
@@ -477,11 +502,70 @@ public class WorkletService extends InterfaceBWebsideController {
                     }
                 }
             }
-            else _log.warn("could not launch worklet(s): " + wSelected) ;
+            else _log.warn("Could not launch worklet(s): " + wSelected) ;
         }
-        else _log.warn("Rule search did not find a worklet to select " +
-                            "for workItem: " + coChild.getItem().toXML()) ;
+        else {
+            _log.warn("Rule search did not find a worklet to select " +
+                      "for workitem: " + childId + ". Passing workitem back to engine.");
+            _log.warn("Workitem record dump: " + coChild.getItem().toXML()) ;
+            undoCheckOutWorkItem(coChild);
+        }
     }
+
+    //***************************************************************************//
+
+    /**
+     *  Removes all remaining worklet cases and completes handling of a workitem
+     *  which is a spawned item of a multi-instance task and that task has reached
+     *  its threshold and completed.
+     *
+     *  @param wir - a record describing one of the remaining spawned workitems
+     */
+
+    private void CancelWorkletsForCompletedMITask(WorkItemRecord wir) {
+
+        CheckedOutChildItem coItem = (CheckedOutChildItem)
+                                      _handledWorkItems.get(wir.getID()) ;
+        CancelWorkletsForCompletedMITask(coItem);
+    }
+
+    /**
+     * overloaded (see above)
+     * @param coItem - the checkedout child item that's a member workitem of the
+     *                 MI Task that has reached its threshold
+     */
+    private void CancelWorkletsForCompletedMITask(CheckedOutChildItem coItem) {
+        CheckedOutItem coParent ;
+        WorkItemRecord wir = coItem.getItem();
+
+        _log.info("Threshold reached for multi-instance task " + wir.getTaskID() + ".");
+        _log.info("Removing remaining worklets launched for this task.") ;
+
+        if (connected()) {
+            _log.info("Connection to engine is active") ;
+
+            // retrieve parent record of the child workitem passed
+            coParent = coItem.getParent() ;
+
+            // remove remaining worklets for child workitems
+            for (int i=0; i < coParent.getChildCount(); i++) {
+                coItem = coParent.getCheckedOutChildItem(i) ;
+                cancelWorkletList(coItem);
+                _handledWorkItems.remove(coItem.getItemId()) ;
+                if (_persisting) _dbMgr.persist(coItem, DBManager.DB_DELETE);
+                _log.info("Removed from handled child workitems: " + wir.getID());
+            }
+
+            // ... and remove the parent
+            _handledParentItems.remove(coParent.getItem().getID()) ;
+            if (_persisting) _dbMgr.persist(coParent, DBManager.DB_DELETE);
+            coParent.removeAllChildren();
+            _log.info("Completed handling of workitem: " + coParent.getItem().getID());
+        }
+        else _log.error("Could not connect to engine") ;
+    }
+
+
 
 //***************************************************************************//
 
@@ -541,15 +625,15 @@ public class WorkletService extends InterfaceBWebsideController {
 
            // if its 'fired' check it out
            if (WorkItemRecord.statusFired.equals(itemRec.getStatus())) {
-                  if (checkOutWorkItem(itemRec))
-                  EventLogger.log(_dbMgr, EventLogger.eCheckOut, itemRec, -1) ;  // log checkout
+              if (checkOutWorkItem(itemRec))
+                  EventLogger.log(_dbMgr, EventLogger.eCheckOut, itemRec, -1) ;
            }
 
            // if its 'executing', it means it got checked out with the parent
            else if (WorkItemRecord.statusExecuting.equals(itemRec.getStatus())) {
               _log.info("   child already checked out with parent: " +
                              itemRec.getID()) ;
-              EventLogger.log(_dbMgr, EventLogger.eCheckOut, itemRec, -1) ;      // log checkout
+              EventLogger.log(_dbMgr, EventLogger.eCheckOut, itemRec, -1) ; 
            }
         }
 
@@ -566,6 +650,9 @@ public class WorkletService extends InterfaceBWebsideController {
             else
                _log.error("child " + j + " has NOT been added to CheckedOutItems") ;
         }
+
+        // remember how many workitems were spawned for task
+        coi.setSpawnCount(children.size()) ;
     }
 
 //***************************************************************************//
@@ -628,11 +715,12 @@ public class WorkletService extends InterfaceBWebsideController {
 
                 // remove child workitem reference from parent object
                 coiParent.removeChild(coci) ;
+                coiParent.incCompletedItems();
 
                 // and remove it from the dynamic execution datasets
-                   _handledWorkItems.remove(childItem.getID()) ;
+                _handledWorkItems.remove(childItem.getID()) ;
                 if (_persisting) _dbMgr.persist(coci, DBManager.DB_DELETE);
-                   _log.info("Removed from handled child workitems: " +
+                _log.info("Removed from handled child workitems: " +
                               childItem.getID()) ;
 
                 // if there is no more child cases, we're done with this parent
@@ -665,18 +753,26 @@ public class WorkletService extends InterfaceBWebsideController {
         checkCacheForWorkItem(wir) ;
 
         try {
-            String result = checkInWorkItem(wir.getID(), in, out,
+            if (getEngineStoredWorkItem(wir.getID(), _sessionHandle) != null) {
+                
+                String result = checkInWorkItem(wir.getID(), in, out,
                                                           _sessionHandle) ;
-            if (successful(result)) {
+                if (successful(result)) {
 
-                 // log the successful checkin event
-               EventLogger.log(_dbMgr, EventLogger.eCheckIn, wir, -1) ;
-               _log.info("Successful checkin of work item: " + wir.getID()) ;
-               return true ;
+                   // log the successful checkin event
+                   EventLogger.log(_dbMgr, EventLogger.eCheckIn, wir, -1) ;
+                   _log.info("Successful checkin of work item: " + wir.getID()) ;
+                   return true ;
+                }
+                else {
+                   _log.error("Checkin unsuccessful for: " + wir.getID()) ;
+                   _log.error("Diagnostic string: " + result) ;
+               }
             }
-            else {
-               _log.error("Checkin unsuccessful for: " + wir.getID()) ;
-               _log.error("Diagnostic string: " + result) ;
+           else {
+                // assumption: workitem not in engine means it was a spawned item of
+                // a MI task which has completed
+               CancelWorkletsForCompletedMITask(wir);
             }
         }
         catch (IOException ioe) {
@@ -684,11 +780,43 @@ public class WorkletService extends InterfaceBWebsideController {
         }
         catch (JDOMException jde) {
             _log.error("checkinItem method caused JDOM Exception", jde) ;
-         }
-         return false ;                                 // check-in unsucessful
+        }
+        return false ;                                 // check-in unsucessful
     }
 
   //***************************************************************************//
+
+
+    /**
+     * Returns control of a workitem back to the engine for processing, in the event
+     * that there is no matching rule found in the ruleset, given the context of the
+     * item.
+     *
+     * @param coChild - the record for the child to undo the checkout for
+     */
+    private void undoCheckOutWorkItem(CheckedOutChildItem coChild) {
+
+        String itemID = coChild.getItemId() ;
+        CheckedOutItem parent = coChild.getParent();
+
+           // an atomic task can be  rolledback and handled in worklist
+           try {
+                _interfaceBClient.rollbackWorkItem(itemID, _sessionHandle);
+                _log.info("Undo checkout successful: " + itemID);
+
+                // log the undo checkout event
+                EventLogger.log(_dbMgr, EventLogger.eUndoCheckOut, coChild.getItem(), -1) ;
+
+                // remove child from parent record
+                parent.removeChild(coChild);
+           }
+           catch (IOException ioe) {
+                _log.error("IO Exception with undo checkout: " + itemID, ioe);
+           }
+     }
+
+  //***************************************************************************//
+
 
 /************************************************
  * 4. UPLOADING, LAUNCHING & CANCELLING METHODS *
@@ -954,17 +1082,18 @@ public class WorkletService extends InterfaceBWebsideController {
    protected Element updateDataList(Element in, Element out) {
 
         // get a copy of the 'in' list   	
-           Element result = (Element) in.clone() ;
+        Element result = (Element) in.clone() ;
 
-           // for each child in 'out' list, get its value and copy to 'in' list
-           Iterator itr = (out.getChildren()).iterator();
-           while(itr.hasNext()) {
-           Element e = (Element) itr.next();
+        // for each child in 'out' list, get its value and copy to 'in' list
+        for (Object o : (out.getChildren())) {
+            Element e = (Element) o;
 
-           // if there's a matching 'in' data item, update its value
-           Element resData = result.getChild(e.getName()) ;
-           if (resData != null)
-              resData.setText(e.getText()) ;
+            // if there's a matching 'in' data item, update its value
+            Element resData = result.getChild(e.getName());
+            if (resData != null) {
+                if (resData.getContentSize() > 0) resData.setContent(e.cloneContent()) ;
+                else resData.setText(e.getText());
+            }
         }
         return result ;
   }
@@ -1163,7 +1292,36 @@ public class WorkletService extends InterfaceBWebsideController {
          return null ;
    }
 
- //***************************************************************************//
+   //***************************************************************************//
+
+   private String getMITaskInfo(WorkItemRecord wir) {
+      try {
+         return _interfaceBClient.getMITaskAttributes(wir.getSpecificationID(),
+                                                      wir.getTaskID(), _sessionHandle);
+      }
+      catch (IOException ioe) {
+         _log.error("IO Exception in dumpMITaskInfo", ioe) ;
+         return null ;
+      }
+   }
+
+   //***************************************************************************//
+
+   /** writes a summary of substitution outcomes for MI tasks to log */
+   private void logSelectionForMISummary(CheckedOutItem coParent, String taskInfo) {
+       String min = RdrConversionTools.getChildValue(taskInfo, "minimum");
+       String max = RdrConversionTools.getChildValue(taskInfo, "maximum");
+       String thres = RdrConversionTools.getChildValue(taskInfo, "threshold");
+
+       _log.info("Summary result of worklet selections for multi-instance task " +
+                 coParent.getItem().getTaskID() + ":" );
+       _log.info("   Task attributes: Minimum - " + min + ", Maximum - " + max +
+                 ", Threshold - " + thres) ;
+       _log.info("   WorkItems created by engine: " + coParent.getSpawnCount());
+       _log.info("   Worklets launched: " + coParent.getChildCount());
+   }
+
+   //***************************************************************************//
 
    /**
     * DEBUG: writes the list of input params to the log for each 
@@ -1376,7 +1534,8 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     protected boolean connected() {
         try {
-             if (!checkConnection(_sessionHandle))          // if not connected
+            // if not connected
+             if ((_sessionHandle == null) || (!checkConnection(_sessionHandle)))
                 _sessionHandle = connectAsService();
         }
         catch (IOException ioe) {

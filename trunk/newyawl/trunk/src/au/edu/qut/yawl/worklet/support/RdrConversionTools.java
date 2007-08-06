@@ -186,5 +186,16 @@ public class RdrConversionTools {
     }
 
     /******************************************************************************/
+
+    /** returns the String value of a child of the xml string passed */
+    public static String getChildValue(String xmlStr, String child) {
+        Element e = JDOMConversionTools.stringToElement(xmlStr) ;    // reform as Element
+        if (e != null)
+           return e.getChildText(child);
+        else
+           return "null" ;
+    }
+
+    /******************************************************************************/
     /******************************************************************************/
 }
