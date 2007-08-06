@@ -40,6 +40,9 @@ public class CheckedOutItem {
 	private ArrayList _myChildren ;        // list of checked out children
 	private String _specId ;               // specification that task is in
     private CheckedOutItem _me ;           // reference to self
+    private int _spawnCount ;              // original number of items spawned for task
+    private int _miThreshold ;             // Threshold of MI Task (if this is a MI task)
+    private int _completions ;             // count of completed items (used if MI task)
 
     private String _persistID ;            // unique id field for persistence
     private String _wirStr ;               // intermediate string needed for persistence
@@ -112,7 +115,23 @@ public class CheckedOutItem {
 	public void setChildren(List c) {
 		_myChildren = (ArrayList) c ;
 	}
-	
+
+
+    public void setSpawnCount(int count) {
+        _spawnCount = count ;
+    }
+
+    public void setThreshold(int thres) {
+        _miThreshold = thres ;
+    }
+
+
+    public boolean isMultiTask() { return _spawnCount > 1 ; }
+
+    public void incCompletedItems() { _completions++ ; }
+
+    public boolean thresholdReached() { return _completions == _miThreshold ; }
+
 //===========================================================================//
 	
 	// GETTERS //
@@ -134,6 +153,15 @@ public class CheckedOutItem {
 
     public String getParentID() {
        return _persistID ;
+    }
+
+    public int getSpawnCount() {
+        return _spawnCount ;
+    }
+
+    
+    public int getThreshold() {
+        return _miThreshold ;
     }
 
 
@@ -212,11 +240,23 @@ public class CheckedOutItem {
         }
         return -1 ;		
 	}
-	
-	/** returns true if this parent has children */
+
+    /** removes all child records from this parent */
+    public void removeAllChildren() {
+        _myChildren.clear();
+    }
+
+
+    /** returns true if this parent has children */
 	public boolean hasCheckedOutChildItems() {   
 		return (_myChildren.size() > 0) ;
 	}
+
+
+    /** returns true if this parent has the child passed */
+    public boolean hasCheckedOutChildItem(CheckedOutChildItem child) {
+       return (_myChildren.contains(child));
+    }
 	
 //===========================================================================//
 	

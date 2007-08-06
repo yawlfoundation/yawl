@@ -731,6 +731,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         return false ;
     }
 
+
     public boolean suspendWorkItem(String itemID) {
         WorkItemRecord wir = getWorkItemRecord(itemID);
         ArrayList children = new ArrayList();
@@ -1133,12 +1134,14 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     //***************************************************************************//
 
     /**
-     * Moves a workitem from 'fired' to executing
+     * Moves a workitem from suspended to its previous status
      * @param wir - the workitem to unsuspend
      * @return the unsuspended workitem (record)
      */
     private WorkItemRecord unsuspendWorkItem(WorkItemRecord wir) {
         WorkItemRecord result = null ;
+
+        wir = updateWIR(wir);                    // refresh the locally cached wir
 
         if (wir.getStatus().equals(WorkItemRecord.statusSuspended)) {
             try {
@@ -1165,7 +1168,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
            Iterator itr = suspendedItems.iterator();
            while (itr.hasNext()) {
                WorkItemRecord wir = (WorkItemRecord) itr.next() ;
-               wir = updateWIR(wir);                    // refresh the stored wir
+//               wir = updateWIR(wir);                    // refresh the stored wir
                unsuspendWorkItem(wir);
            }
            _log.debug("Completed unsuspend for all suspended work items");
@@ -1846,10 +1849,10 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     // PUSHING & POPPING INITIAL WORKITEM CONSTRAINT EVENT //
 
     /**
-     * There is no defined ordering of constraint events - a workitem check constraint
+     * There is no pre-defined ordering of constraint events - a workitem check constraint
      * event is sometimes received before a start-of-case check constraint event. Since
      * a CaseMonitor object is required by a workitem check, and created by a start-of-
-     * case event, we must ensure that the start-of-case chewck is always done first. Also,
+     * case event, we must ensure that the start-of-case check is always done first. Also,
      * pre-case constraint violations may cause a case cancellation, so that a check
      * item pre-constraint event may come after a case has been cancelled.
      * In the situation where the woritem event is received first, it is stored until
