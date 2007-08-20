@@ -42,7 +42,7 @@ id="staticText.text5"/>
 <assign variable="password" value=" "/>
 </choice>
 
-<choice txt="Existing YAWL PostgreSQL" id="pg" set="true" value="postgresDataSource">
+<choice txt="Existing YAWL Postgres" id="pg" set="true" value="postgresDataSource">
 <assign variable="hibernatedbdialect" value="net.sf.hibernate.dialect.PostgreSQLDialect" />
 <assign variable="hibernatedbdriver" value="org.postgresql.Driver" />
 <assign variable="uri" value="jdbc:postgresql:yawl"/>

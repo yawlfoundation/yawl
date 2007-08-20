@@ -8,7 +8,7 @@
     -->
     <info>
         <appname>YAWL - Worflow System</appname>
-        <appversion>Beta 8.2</appversion>
+        <appversion>(Engine Beta 8.2 + Editor 1.5)</appversion>
         <authors>
             <author name="YAWL Foundation" email="enquiry@yawlfoundation.org"/>
         </authors>
@@ -131,7 +131,7 @@ id="shortcutSpec.xml"/-->
 		
 		<pack name="YAWL Editor" required="no">
             <description>YAWL Workflow Editor</description>
-			<file src="YAWLEditorLite1.4.5.jar" targetdir="$INSTALL_PATH"/>
+			<file src="YAWLEditorLite1.5.jar" targetdir="$INSTALL_PATH"/>
 			<file src="YAWLBeta8.2_Standalone.jar" targetdir="$INSTALL_PATH"/>
 		    <file src="wofyawl0.4.exe" targetdir="$INSTALL_PATH"/>
             <file src="editor_examples" targetdir="$INSTALL_PATH"/>				
