@@ -1,7 +1,7 @@
 <shortcuts>
 
 <skipIfNotSupported/>
-<programGroup defaultName="YAWL Beta 8.2"
+<programGroup defaultName="YAWL Workflow System"
 location="startMenu"/>
 
 <shortcut
@@ -85,7 +85,7 @@ startup="no">
 <shortcut
 name="YAWL Editor"
 target="$JAVA_HOME\bin\javaw"
-commandLine="-jar &quot;$INSTALL_PATH\YAWLEditorLite1.4.5.jar&quot;"
+commandLine="-jar &quot;$INSTALL_PATH\YAWLEditorLite1.5.jar&quot;"
 description="Start YAWL Editor"
 iconFile="$INSTALL_PATH\icons\editor.ico"
 iconIndex="0"
