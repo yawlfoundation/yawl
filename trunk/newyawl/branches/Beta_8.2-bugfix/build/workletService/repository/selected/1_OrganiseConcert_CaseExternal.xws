@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<searchResult>
+  <id />
+  <specid>OrganiseConcert</specid>
+  <taskid />
+  <caseid>1</caseid>
+  <worklet>OrganiseRefreshments</worklet>
+  <runningcaseid>2</runningcaseid>
+  <extype>8</extype>
+  <lastNode>
+    <satisfied>6</satisfied>
+    <tested>6</tested>
+  </lastNode>
+  <casedata>
+    <TicketCost>90</TicketCost>
+    <TicketsSold>0</TicketsSold>
+    <VenueCost>100000.00</VenueCost>
+    <Seating>25000</Seating>
+    <VenueName>ANZ Stadium</VenueName>
+    <trigger>"Band Requests Backstage Refreshments"</trigger>
+  </casedata>
+</searchResult>
+
