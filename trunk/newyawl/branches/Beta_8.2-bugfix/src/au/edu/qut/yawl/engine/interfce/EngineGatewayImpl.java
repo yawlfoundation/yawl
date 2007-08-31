@@ -123,7 +123,7 @@ public class EngineGatewayImpl implements EngineGateway {
             return
                     OPEN_FAILURE + "WorkItem with ID (" +
                     workItemID +
-                    ") not found.<failure><reason>";
+                    ") not found." + CLOSE_FAILURE;
         }
     }
 
@@ -146,12 +146,13 @@ public class EngineGatewayImpl implements EngineGateway {
             return
                     OPEN_FAILURE + "Specification with ID (" +
                     specID +
-                    ") not found.<failure><reason>";
+                    ") not found." + CLOSE_FAILURE;
         }
         List specList = new Vector();
         specList.add(spec);
         try {
-            return YMarshal.marshal(specList);
+            String specString = YMarshal.marshal(specList);
+            return specString.substring(specString.indexOf("\r\n"));
         } catch (Exception e) {
             logger.error("Failed to marshal a specification into XML.", e);
             return "";
