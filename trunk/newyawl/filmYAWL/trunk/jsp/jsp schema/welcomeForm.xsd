@@ -1,0 +1,21 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.yawlfoundation.org/sb/welcomeToProduction"
+	xmlns:tns="http://www.yawlfoundation.org/sb/welcomeToProduction"
+	attributeFormDefault="unqualified" elementFormDefault="unqualified">
+
+	<element name="Welcome_to_Start_Process" type="tns:Welcome_to_Start_ProcessType"/>
+	<complexType name="Welcome_to_Start_ProcessType">
+		<sequence>
+			<element name="generalInfo" type="tns:generalInfoType"/>
+		</sequence>
+	</complexType>
+				
+	<complexType name="generalInfoType">
+		<sequence>
+			<element name="production" type="string"/>
+			<element name="date" type="date"/>
+			<element name="weekday" type="string"/>
+			<element name="shootDayNo" type="integer"/>
+		</sequence>
+	</complexType>
+</schema>
