@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_Schema.xsd">
+  <specification uri="YAWL_Specification2.xml">
+    <metaData />
+    <rootNet id="top">
+      <processControlElements>
+        <inputCondition id="i-top">
+          <name>i</name>
+          <flowsInto>
+            <nextElementRef id="a-top" />
+          </flowsInto>
+        </inputCondition>
+        <task id="a-top">
+          <flowsInto>
+            <nextElementRef id="b-top" />
+            <predicate>random1()</predicate>
+            <isDefaultFlow />
+          </flowsInto>
+          <join code="xor" />
+          <split code="or" />
+          <decomposesTo id="A" />
+        </task>
+        <task id="b-top" xsi:type="MultipleInstanceExternalTaskFactsType">
+          <flowsInto>
+            <nextElementRef id="o-top" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="B" />
+          <minimum>2</minimum>
+          <maximum>7</maximum>
+          <threshold>5</threshold>
+          <creationMode code="dynamic" />
+          <miDataInput>
+            <expression query="null" />
+            <splittingExpression query="null" />
+            <formalInputParam>null</formalInputParam>
+          </miDataInput>
+        </task>
+        <outputCondition id="o-top">
+          <name>o</name>
+        </outputCondition>
+      </processControlElements>
+    </rootNet>
+    <decomposition id="I" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="A" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="F" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="H" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="J" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="B" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="G" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="E" xsi:type="WebServiceGatewayFactsType" />
+  </specification>
+</specificationSet>

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="au.edu.qut.yawl.resourcing">
+
+	<class name="WorkQueue" table="rs_WorkQueue">
+
+        <id name="_id"
+            column="id"
+            type="string" />
+
+        <property name="_ownerID"
+                  column="ownerID"
+                  type="string"/>
+
+    	<property name="_queueType"
+                  column="queueType"
+                  type="int"/>
+
+<!--        <map name="_workitems" table="rs_queueItems">
+             <key column="id"/>
+             <map-key column="itemID" type="string"/>
+             <element column="wir" type="text"/>
+        </map>
+-->
+     </class>
+	
+</hibernate-mapping>
