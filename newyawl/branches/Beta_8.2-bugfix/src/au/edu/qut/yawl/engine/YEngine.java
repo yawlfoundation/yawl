@@ -2044,6 +2044,8 @@ public class YEngine implements InterfaceADesign,
                         throw e;
                     }
                 }
+                
+                _yawlServices.remove(service.getURI());
             }
 
             return service;
