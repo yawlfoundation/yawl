@@ -107,7 +107,7 @@
 <h2>Roles entered into the database:</h2>
 Select a role and click the delete button to delete it.
 <table border="0" bgcolor="lightgrey">
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="deleteroles">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="deleteroles">
 	<input type="hidden" name="which_form" value="deleteroles"/>
 <tr>
 	<td>
@@ -134,7 +134,7 @@ Select a role and click the delete button to delete it.
 <h2>Already Connected Roles:</h2>
 Select a role-role combination and click the delete button to delete it.
 <table border="0" bgcolor="lightgrey"> 
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="deleteconnectedroles">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="deleteconnectedroles">
 	<input type="hidden" name="which_form" value="deleteconnectedroles"/>
 	<tr>
 		<td>
@@ -161,7 +161,7 @@ Select a role-role combination and click the delete button to delete it.
 <h2>Already Connected Roles & Positions:</h2>
 Select a role-position combination and click the delete button to delete it.
 <table border="0" bgcolor="lightgrey"> 
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="deleteroleposition">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="deleteroleposition">
 	<input type="hidden" name="which_form" value="deleteroleposition"/>
 	<tr>
 		<td>

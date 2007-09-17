@@ -127,7 +127,7 @@
 <p>
 Select which data should be included in the XML-file:
 <table width="90%" border="0" bgcolor="#ffffff">
-<form method="post" action="http://localhost:8080/admintool/makeXML" name="makeXML">
+<form method="post" action="http://192.94.227.138:8080/admintool/makeXML" name="makeXML">
 	<tr>
 		<td>Select specification</td>
 		<td><select name="selectspec">
@@ -152,7 +152,7 @@ Select which data should be included in the XML-file:
 </table>
 
 <!--
-<form method="post" action="http://localhost:8080/admintool/launchProM" name="launchProM">
+<form method="post" action="http://192.94.227.138:8080/admintool/launchProM" name="launchProM">
 <table>
 	<tr>
 		<td><input type="submit" value="Start ProM" name="action"/></td>

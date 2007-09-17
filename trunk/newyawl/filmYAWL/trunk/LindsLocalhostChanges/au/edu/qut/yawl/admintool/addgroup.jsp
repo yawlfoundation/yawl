@@ -40,7 +40,7 @@
 %>
 <h2>Adding Organisational Groups</h2>
 <table bgcolor="lightGrey">
-<form method="post" action="http://localhost:8080/admintool/addServlet" name="addGroup">
+<form method="post" action="http://192.94.227.138:8080/admintool/addServlet" name="addGroup">
 	<input type="hidden" name="which_form" value="addGroup"/>
 	<tr>
 		<td>Organisational Group:</td>

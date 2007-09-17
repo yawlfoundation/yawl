@@ -6,7 +6,7 @@ Note: If you used different values you can also change the corresponding Strings
 
 - Copy the JDBC driver of Postgres into the lib folder of Tomcat.
 - Copy the folder web into the webapps of Tomcat
-- Type http://localhost:8080/web into your browser and off you go.
+- Type http://192.94.227.138:8080/web into your browser and off you go.
 
 It is sometimes handy to check the database for the things you entered.
 - Open a command prompt

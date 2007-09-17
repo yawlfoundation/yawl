@@ -36,7 +36,7 @@ public class EditRoleAction extends HttpServlet{
     DatabaseGatewayImpl _model = null;
 
 
-    private InterfaceA_EnvironmentBasedClient iaClient = new InterfaceA_EnvironmentBasedClient("http://localhost:8080/yawl/ia");
+    private InterfaceA_EnvironmentBasedClient iaClient = new InterfaceA_EnvironmentBasedClient("http://192.94.227.138:8080/yawl/ia");
 
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);

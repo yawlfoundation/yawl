@@ -68,7 +68,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     private InterfaceX_ServiceSideClient _ixClient ;    // interface client to engine
     private static ExceptionService _me ;               // reference to self
     private WorkItemConstraintData _pushedItemData;     // see 'pushWIConstraintEvent'
-    private String _exceptionURI = "http://localhost:8080/workletService/ix" ;
+    private String _exceptionURI = "http://192.94.227.138:8080/workletService/ix" ;
     private final Object mutex = new Object();
 
     /**

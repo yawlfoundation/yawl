@@ -24,7 +24,7 @@ public class PDFserver implements InterfaceD_Controller {
     public Element processWorkItem(WorkItemRecord workitem) {
 /*
 	
-	//setUpInterfaceBClient("http://localhost:8080/yawl/ib");
+	//setUpInterfaceBClient("http://192.94.227.138:8080/yawl/ib");
 	
 	try {
 	    //	    if (sessionHandle==null || !checkConnection(sessionHandle)) {	    

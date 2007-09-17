@@ -36,7 +36,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * Constructor.
      * @param backEndURIStr the back end uri of where to find
      * the engine.  A default deployment this value is
-     * http://localhost:8080/yawl/ib
+     * http://192.94.227.138:8080/yawl/ib
      */
     public InterfaceB_EnvironmentBasedClient(String backEndURIStr) {
         _backEndURIStr = backEndURIStr;

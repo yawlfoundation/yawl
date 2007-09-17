@@ -1,5 +1,5 @@
 <%
-	InterfaceA_EnvironmentBasedClient iaClient = new InterfaceA_EnvironmentBasedClient("http://localhost:8080/yawl/ia");
+	InterfaceA_EnvironmentBasedClient iaClient = new InterfaceA_EnvironmentBasedClient("http://192.94.227.138:8080/yawl/ia");
     String sessionHandle = (String)session.getAttribute("sessionHandle");
    
     boolean connectionOK = false;

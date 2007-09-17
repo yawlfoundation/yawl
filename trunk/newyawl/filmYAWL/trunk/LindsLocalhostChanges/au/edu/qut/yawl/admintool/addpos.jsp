@@ -76,7 +76,7 @@ Enter the name of the positions you would like to add and click submit.
 %>
 
 <table bgcolor="lightGrey">
-<form method="post" action="http://localhost:8080/admintool/addServlet" name="addPosition">
+<form method="post" action="http://192.94.227.138:8080/admintool/addServlet" name="addPosition">
 	<input type="hidden" name="which_form" value="addPosition"/>
 	<tr>
 		<td>PositionID:</td>

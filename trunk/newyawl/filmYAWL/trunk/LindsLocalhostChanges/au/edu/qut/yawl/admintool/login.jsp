@@ -65,7 +65,7 @@
 		</center>
         <%
 } else { // request.getMethod().equals(POST)
-	InterfaceA_EnvironmentBasedClient iaClient = new InterfaceA_EnvironmentBasedClient("http://localhost:8080/yawl/ia");
+	InterfaceA_EnvironmentBasedClient iaClient = new InterfaceA_EnvironmentBasedClient("http://192.94.227.138:8080/yawl/ia");
     String userid = request.getParameter("userid");
     String password = request.getParameter("password");
     String sessionHandle = iaClient.connect(userid, password);
