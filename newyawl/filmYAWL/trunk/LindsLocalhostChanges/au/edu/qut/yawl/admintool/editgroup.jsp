@@ -116,7 +116,7 @@ Select the group you want to edit or delete and click submit <i>(GroupName-Type-
 %>
 
 <table border="0">
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="selectgroup">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="selectgroup">
 	<input type="hidden" name="which_form" value="selectgroup"/>
 	<tr>
 		<td>
@@ -154,7 +154,7 @@ Select the group you want to edit or delete and click submit <i>(GroupName-Type-
         String groupends = (String) request.getAttribute("groupends");
 %>
 <table bgcolor="lightgrey">
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="editGroup">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="editGroup">
 	<input type="hidden" name="which_form" value="editgroup"/>
 	<tr>
 		<td>Organisational Group Name:</td>

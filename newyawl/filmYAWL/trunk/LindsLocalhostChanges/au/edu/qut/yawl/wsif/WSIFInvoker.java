@@ -265,7 +265,7 @@ public class WSIFInvoker {
                     "####            the service.  This is either because:                    \n" +
                     "####               a) The authenication settings are not correct.        \n" +
                     "####                    This can be checked by pointing a browser to     \n" +
-                    "####                    http://localhost:8080/yawlWSInvoker and          \n" +
+                    "####                    http://192.94.227.138:8080/yawlWSInvoker and          \n" +
                     "####                    following the on screen instructions.            \n" +
                     "####               b) The WSDL at " + wsdlLocation + " is currently\n" +
                     "####                    unavailable.                                     \n" +

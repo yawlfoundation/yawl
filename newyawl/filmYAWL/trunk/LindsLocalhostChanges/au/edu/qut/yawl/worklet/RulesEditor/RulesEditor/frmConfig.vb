@@ -296,7 +296,7 @@ Public Class frmConfig
     Friend Sub LoadDefaultPaths()
         txtRepository.Text = myPath.Substring(0, myPath.LastIndexOf("\"c))
         txtYAWLEditor.Text = myPath
-        txtServiceURI.Text = "http://localhost:8080/workletService"
+        txtServiceURI.Text = "http://192.94.227.138:8080/workletService"
         txtSpecPaths.Clear()
     End Sub
 

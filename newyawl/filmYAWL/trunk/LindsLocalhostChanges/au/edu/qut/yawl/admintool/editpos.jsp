@@ -104,7 +104,7 @@ Select the position you want to edit or delete and click submit <i>(positionID-p
 %>
 
 <table border="0"> 
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="selectposition">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="selectposition">
 	<input type="hidden" name="which_form" value="selectposition"/>
 	<tr>
 		<td>
@@ -138,7 +138,7 @@ Select the position you want to edit or delete and click submit <i>(positionID-p
 %>
 
 <table bgcolor="lightgrey">
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="editPosition">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="editPosition">
 	<input type="hidden" name="which_form" value="editposition"/>
 	<tr>
 		<td>PositionID:</td>

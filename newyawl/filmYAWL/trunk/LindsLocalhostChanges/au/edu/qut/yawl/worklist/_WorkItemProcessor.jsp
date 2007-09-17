@@ -113,7 +113,7 @@
  						 	String filename = wip.executePDFWorkItemPost( getServletContext(), workItemID, taskInfo.getDecompositionID(),
 						  			sessionHandle, _worklistController, userID );
 	
-							String url = "http://localhost:8080/PDFforms/complete.jsp?filename="+filename;
+							String url = "http://192.94.227.138:8080/PDFforms/complete.jsp?filename="+filename;
   							response.sendRedirect( response.encodeURL(url) );
 
 						}

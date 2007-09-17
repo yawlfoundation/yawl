@@ -107,7 +107,7 @@
 <p>
 <h2>Add substitute for a resource</h2>
 <table bgcolor="lightgrey">
-<form method="post" action="http://localhost:8080/admintool/addServlet" name="addSubRes">
+<form method="post" action="http://192.94.227.138:8080/admintool/addServlet" name="addSubRes">
 	<input type="hidden" name="which_form" value="addSubRes"/>
 <tr>
 	<td>Resource:</td>
@@ -159,7 +159,7 @@
 <p>
 <h2>Add substitute for a position</h2>
 <table bgcolor="lightgrey">
-<form method="post" action="http://localhost:8080/admintool/addServlet" name="addSubPos">
+<form method="post" action="http://192.94.227.138:8080/admintool/addServlet" name="addSubPos">
 	<input type="hidden" name="which_form" value="addSubPos"/>
 <tr>
 	<td>Position:</td>

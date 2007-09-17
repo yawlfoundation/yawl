@@ -109,7 +109,7 @@ Select the resource you want to edit or delete and click submit.
 %>
 
 <table border="0"> 
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="selectresource">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="selectresource">
 	<input type="hidden" name="which_form" value="selectresource"/>
 	<tr>
 		<td>
@@ -147,7 +147,7 @@ Select the resource you want to edit or delete and click submit.
 %>
 
 <table width="90%" bgcolor="lightgrey">
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="editResource">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="editResource">
 <input type="hidden" name="which_form" value="editResource"/>
 <tr>
 							<td width="200"/>
@@ -244,7 +244,7 @@ Select the resource you want to edit or delete and click submit.
 %>
 <h2> The selected resource has the following capabilities:</h2>
 <table>
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="deleteResourceCapability">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="deleteResourceCapability">
 <input type="hidden" name="which_form" value="deleteResourceCapability"/>
 	<tr>
 		<td>Resource ID:</td><td><input type="text" name="resourceID" value="<%=ri %>" readonly="readonly"/></td>
@@ -291,7 +291,7 @@ Select the resource you want to edit or delete and click submit.
 %>
 <h2> The selected human resource has the following positions:</h2>
 <table>
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="deleteResourcePosition">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="deleteResourcePosition">
 <input type="hidden" name="which_form" value="deleteResourcePosition"/>
 	<tr>
 		<td>Resource ID:</td><td><input type="text" name="resourceID" value="<%=ri %>" readonly="readonly"/></td>
@@ -337,7 +337,7 @@ Select the resource you want to edit or delete and click submit.
 <p>
 <h2> The selected human resource performs the following roles:</h2>
 <table>
-<form method="post" action="http://localhost:8080/admintool/editServlet" name="deleteResourceRole">
+<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="deleteResourceRole">
 <input type="hidden" name="which_form" value="deleteResourceRole"/>
 	<tr>
 		<td>Resource ID:</td><td><input type="text" name="resourceID" value="<%=ri %>" readonly="readonly"/></td>

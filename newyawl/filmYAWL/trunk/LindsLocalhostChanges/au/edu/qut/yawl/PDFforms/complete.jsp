@@ -31,7 +31,7 @@
 <p>  
 </p>
 <FORM ENCTYPE='multipart/form-data'
- method='POST' action='http://localhost:8080/worklist/handler'>
+ method='POST' action='http://192.94.227.138:8080/worklist/handler'>
   <INPUT name="file" TYPE='file' id="file">
   <input name="filename" type="hidden" value="<%out.print(filename);%>">
   <INPUT TYPE='submit' VALUE='upload'>
