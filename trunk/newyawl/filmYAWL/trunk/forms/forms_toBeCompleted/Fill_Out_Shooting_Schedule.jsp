@@ -18,7 +18,7 @@
 <head>
 <title>Shooting Schedule</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<script language="javascript">
+<!--<script language="javascript">
 
 var count = 1;
 var table_count = 1;
@@ -819,13 +819,14 @@ document.getElementById("sd" + day_num + "_totalpages").value = excess;
 document.getElementById("sd" + day_num + "_totalpagesnum").value = mod;
 }
 
-</script>
-<link href="graphics/style.css" rel="stylesheet" type="text/css">
-<style type="text/css">
-<!--
-.style1 {font-weight: bold}
--->
-</style>
+</script>-->
+<!-- Stylesheet imports -->
+<link href="../forms_completed/graphics/style.css" rel="stylesheet" type="text/css">
+<link href="../forms_completed/styles/common.css" rel="stylesheet" type="text/css" />
+
+<!-- javascript imports -->
+<script type="text/javascript" src="../scripts/common.js"></script>
+<script type="text/javascript" src="../forms_completed/scripts/filloutShootingSchedule.js"></script>
 </head>
 
 <body>
@@ -1172,6 +1173,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 <tr>
 	<td class="left">&nbsp;</td>
 	<td colspan="4" align="left"><input name="button2" type="button" onClick="addScene(<% out.print("'scenes" +a+ "'," +a);%>);" value="Add Scene"/>
+	<input name="button2" type="button" onClick="deleteScene(<% out.print("'scenes" +a+ "'," +a);%>);" value="Delete Scene"/>
 	<input name="<% out.print("day_number_" + a);%>" type="hidden" id="<% out.print("day_number_" + a);%>" value="<%=a%>">
 	<input name="<% out.print("table_count_" + a);%>" type="hidden" id="<% out.print("table_count_" + a);%>" value="<%=b %>"></td>
 	<td class="right">&nbsp;</td>
@@ -1373,6 +1375,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 	<tr>
 	<td class="left">&nbsp;</td>
 	<td colspan="4" align="left"><input name="button2" type="button" onClick="addScene('scenes1',1);" value="Add Scene"/>
+	  <input name="button23" type="button" onClick="deleteScene('scenes1',1);" value="Delete Scene"/>
 	<input name="day_number_1" type="hidden" id="day_number_1" value="1">
 	<input name="table_count_1" type="hidden" id="table_count_1" value="1"></td>
 	<td class="right">&nbsp;</td>
