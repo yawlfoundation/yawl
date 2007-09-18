@@ -163,10 +163,10 @@
 				      <input name='<% out.print("role_other_" + a); %>' type="text" id='<% out.print("role_other_" + a); %>' value="<% if( !(scit.getRole().equals("1st AD")) && !(scit.getRole().equals("2nd AD")) && !(scit.getRole().equals("Camera Assistant")) && !(scit.getRole().equals("Camera Operator")) && !(scit.getRole().equals("Continuity")) && !(scit.getRole().equals("Director")) && !(scit.getRole().equals("D.O.P.")) && !(scit.getRole().equals("Editor")) && !(scit.getRole().equals("Producer")) && !(scit.getRole().equals("Production Manager"))  && !(scit.getRole().equals("Sound Recordist")) && !(scit.getRole().equals("Supervising Production Mananger"))  ) { out.print(scit.getRole());}else { out.print("[If Other, please specify]");}%>" size="32"> 
 					                   
 			        </td>
-					<td height="30" align="center"><input name='<% out.print("firstname_" + a); %>' type='text' id='<% out.print("firstname_" + a); %>' size="10" value="<%= scit.getFirstName() %>" pattern="^[A-Za-z\s]+$"></td>
-                    <td height="30" align="center"><input name='<% out.print("lastname_" + a); %>' type='text' id='<% out.print("lastname_" + a); %>' size="15" value="<%= scit.getLastName() %>" pattern="^[A-Za-z\s]+$"></td>
-                    <td height="30" align="center"><input name='<% out.print("contactno_" + a); %>' type='text' id='<% out.print("contactno_" + a); %>' size="8" value="<%= scit.getContactNo() %>" pattern="^[\d\s\-\+]+$"></td>
-                    <td align="center"><input name='<% out.print("email_" + a); %>' type='text' id='<% out.print("email_" + a); %>' size="20" value="<%= scit.getEmail() %>" pattern="^((\w)+(\.)*)+\w+@(\w)+(\w\.)*(\.[A-Za-z]+)+$"></td>
+					<td height="30" align="center"><input name='<% out.print("firstname_" + a); %>' type='text' id='<% out.print("firstname_" + a); %>' size="10" value="<%= scit.getFirstName() %>" pattern="text"></td>
+                    <td height="30" align="center"><input name='<% out.print("lastname_" + a); %>' type='text' id='<% out.print("lastname_" + a); %>' size="15" value="<%= scit.getLastName() %>" pattern="text"></td>
+                    <td height="30" align="center"><input name='<% out.print("contactno_" + a); %>' type='text' id='<% out.print("contactno_" + a); %>' size="8" value="<%= scit.getContactNo() %>" pattern="tel"></td>
+                    <td align="center"><input name='<% out.print("email_" + a); %>' type='text' id='<% out.print("email_" + a); %>' size="20" value="<%= scit.getEmail() %>" pattern="email"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <% }
@@ -194,10 +194,10 @@
 				      <input name='role_other_1' type="text" id='role_other_1' value="[If Other, please specify]" size="32"> 
 					                   
 			        </td>
-					<td height="30" align="center"><input name='firstname_1' type='text' id='firstname_1' size="10" value="" pattern="^[A-Za-z\s]+$" title="enter your first name"></td>
-                    <td height="30" align="center"><input name='lastname_1' type='text' id='lastname_1' size="15" value="" pattern="^[A-Za-z\s]+$" title="enter your last name"></td>
-                    <td height="30" align="center"><input name='contactno_1' type='text' id='contactno_1' size="8" value="" pattern="^[\d\s\-\+]+$" title="enter your contact number"></td>
-                    <td align="center"><input name='email_1' type='text' id='email_1' size="20" value="" pattern="^((\w)+(\.)*)+\w+@(\w)+(\w\.)*(\.[A-Za-z]+)+$" title="enter your email address"></td>
+					<td height="30" align="center"><input name='firstname_1' type='text' id='firstname_1' size="10" value="" pattern="text" title="enter your first name"></td>
+                    <td height="30" align="center"><input name='lastname_1' type='text' id='lastname_1' size="15" value="" pattern="text" title="enter your last name"></td>
+                    <td height="30" align="center"><input name='contactno_1' type='text' id='contactno_1' size="8" value="" pattern="tel" title="enter your contact number"></td>
+                    <td align="center"><input name='email_1' type='text' id='email_1' size="20" value="" pattern="email" title="enter your email address"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <%} %>
