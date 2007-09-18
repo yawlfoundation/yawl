@@ -338,7 +338,7 @@
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
 								<td><strong>Estimated Wrap </strong></td>
-								<td align="left"><input name="estimated_wrap" type="text" id="estimated_wrap" value="<%= wtt.getEstWrap() %>" size="15"></td>
+								<td align="left"><input name="estimated_wrap" type="text" id="estimated_wrap" value="<%= wtt.getEstWrap() %>" size="15" pattern="date" title="enter estimated wrap time"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<% int others_count = 0;
@@ -347,8 +347,8 @@
 								others_count ++;%>
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
-								<td align="left"><input name="wrap_<%=others_count%>" type="text" id="wrap_<%=others_count%>" value="<%= owt.getWrap() %>" size="15"></td>
-								<td align="left"><input name="wrap_time_<%=others_count%>" type="text" id="wrap_time_<%=others_count%>" value="<%= owt.getWrapTime() %>" size="15"></td>
+								<td align="left"><input name="wrap_<%=others_count%>" type="text" id="wrap_<%=others_count%>" value="<%= owt.getWrap() %>" size="15" pattern="any_text" title="enter wrap name"></td>
+								<td align="left"><input name="wrap_time_<%=others_count%>" type="text" id="wrap_time_<%=others_count%>" value="<%= owt.getWrapTime() %>" size="15" pattern="date" title="enter wrap time"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>	
 								
@@ -357,8 +357,10 @@
 							</tbody>
 							<tr>
 								<td class="left">&nbsp;</td>
-							    <td colspan="2"><input name="button32" type="button" onClick="addWrapTimesRow();" value="Insert Row">
-                                  <input name="others_count" type="hidden" id="others_count" size="15" value="<%=others_count%>"></td>
+							    <td colspan="1"><input name="button400" type="button" onClick="addWrapTimesRow();" value="Insert Row">
+							        <input name="button401" type="button" onClick="deleteWrapTimesRow();" value="Delete Row">
+                                    <input name="others_count" type="hidden" id="others_count" size="15" value="<%=others_count%>"></td>
+							    <td>&nbsp;</td>
 							    <td class="right">&nbsp;</td>
 							</tr>
 							<tr>
@@ -613,7 +615,7 @@
 							<tr>
 								<td align="center">&nbsp;</td>
 								<td align="left">
-								<input name="button43" type="button" onClick="addDescriptionRow(<%= requirements_count %>);" value="Insert Description">
+								<input name="button500" type="button" onClick="addDescriptionRow(<%= requirements_count %>);" value="Insert Description">
 								<input name="description_count_<%= requirements_count %>" type="hidden" id="description_count_<%= requirements_count %>" size="15" value="<%= description_count %>">								</td>
 							</tr>
 							<% }%>
