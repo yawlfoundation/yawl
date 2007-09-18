@@ -36,10 +36,6 @@ function validateFields(formName) {
                     pattern = telNumberValidation; 
                 }
                 
-				if (pattern == 'email') {
-                    pattern = emailValidation; 
-                }
-				
                 if (element.value.search(pattern) == -1) {
                     element.className = "error";
                     isInError = true;
@@ -204,6 +200,15 @@ function createCheckBox(name, value, checked) {
     return checkbox;
 }
 
+/**
+ * Call this function if you need to delete a single row.
+ * @param tableName The name of the table to delete the row from.
+ * @param countName The name of the counter to update.
+ * @param headerSize The header size of the table. (number of rows above the data).
+ * @param footerSize The footer size of the table (number of rows below the data).
+ * @param addFn The function to add a single new row.
+ * @param paramForFn The parameter for the add function if any.
+  */
 function deleteRows(tableName, countName, headerSize, footerSize, addFn, paramForFn) {
         var table = document.getElementById(tableName);
         var rows = table.rows.length;
@@ -228,6 +233,46 @@ function deleteRows(tableName, countName, headerSize, footerSize, addFn, paramFo
             }
         }
 }
+/**
+ * Call this function if you need to delete more than a single row.
+ * @param tableName The name of the table to delete the row from.
+ * @param countName The name of the counter to update.
+ * @param headerSize The header size of the table. (number of rows above the data).
+ * @param footerSize The footer size of the table (number of rows below the data).
+ * @param addFn The function to add a single new row.
+ * @param paramForFn The parameter for the add function if any.
+ * @param delNum The number of rows to delete, per deletion.
+ */
+function deleteMultipleRows(tableName, countName, headerSize, footerSize, addFn, paramForFn, delNum) {
+        var table = document.getElementById(tableName);
+        var rows = table.rows.length;
+        var count = getCountByName(countName);
+
+        if (rows - (headerSize+footerSize) >= delNum) {
+            //delete from the bottom, removing 1 for the 0-based index.
+
+            for (var x = 0; x < delNum; x++) {
+                table.deleteRow(rows-(footerSize+1));
+                rows = table.rows.length;
+            }
+
+            if (count > 0) {
+                count = decCount(countName);
+            }
+
+            if (count == 0) {
+                //add an empty row after the last row has been deleted. this allows all data-containing rows to be
+                // deleted and for there to be a single empty row at any point in time.
+                //TODO: workaround to avoid adding another function. refactor if possible.
+                if (paramForFn != null) {
+                    addFn(paramForFn);//calls a parametered-function.
+                } else {
+                    addFn();
+                }
+            }
+        }
+}
+
 
 function createHiddenField(id, value) {
     var input =  document.createElement("INPUT");
