@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Input_Crew_List xmlns:ns2="http://www.yawlfoundation.org/sb/crewInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.yawlfoundation.org/sb/crewInfo ../crewInfoType.xsd ">
+  <production>production</production>
+  <crewInfo>
+    <singleCrewInfo>
+      <role>role</role>
+      <firstName>firstName</firstName>
+      <lastName>lastName</lastName>
+      <contactNo>contactNo</contactNo>
+      <email>email</email>
+    </singleCrewInfo>
+  </crewInfo>
+</ns2:Input_Crew_List>

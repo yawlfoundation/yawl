@@ -1,0 +1,16 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.yawlfoundation.org/sb/weather"
+	xmlns:tns="http://www.yawlfoundation.org/sb/weather" attributeFormDefault="unqualified"
+	elementFormDefault="unqualified">
+
+	<element name="Check_Weather" type="tns:Check_WeatherType" />
+
+	<complexType name="Check_WeatherType">
+		<sequence>
+			<element name="dateToCheck" type="date" />	<!--Input Only-->
+			<element name="weather" type="string" />	<!--Output Only-->
+			<element name="sunrise" type="string" />	<!--Output Only-->
+			<element name="sunset" type="string" />		<!--Output Only-->
+		</sequence>
+	</complexType>
+
+</schema>

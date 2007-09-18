@@ -1,0 +1,51 @@
+/* CSS Document */
+/* Header classes for each section*/
+.header-left {
+background-image:url(tabs/left.gif);
+background-position:top left;
+}
+
+.header-right {
+background-image:url(tabs/right.gif);
+background-position:top right;
+}
+
+.header-middle {
+background-image:url(tabs/middle.gif);
+color:#FFFFFF;
+font-family:Geneva, Arial, Helvetica, sans-serif;
+font-weight:bold;
+}
+
+/* Creating the boxes for each section*/
+.right {
+border-color:#3366aa;
+border-width:thin;
+border-style:none solid none none;
+}
+
+.left {
+border-color:#3366aa;
+border-width:thin;
+border-style:none none none solid;
+}
+
+.top {
+border-color:#3366aa;
+border-width:thin;
+border-style:none none solid none;
+}
+
+.bottom {
+border-color:#3366aa;
+border-width:thin;
+border-style:solid none none none;
+}
+
+H1{
+color:#3366aa;
+font:Geneva, Arial, Helvetica, sans-serif;
+font-size:36px;
+}
+
+
