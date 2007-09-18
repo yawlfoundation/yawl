@@ -36,6 +36,10 @@ function validateFields(formName) {
                     pattern = telNumberValidation; 
                 }
                 
+				if (pattern == 'email') {
+                    pattern = emailValidation; 
+                }
+				
                 if (element.value.search(pattern) == -1) {
                     element.className = "error";
                     isInError = true;
