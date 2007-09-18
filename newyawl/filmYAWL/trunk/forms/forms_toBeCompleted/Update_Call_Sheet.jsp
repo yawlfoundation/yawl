@@ -623,7 +623,7 @@
 							</tbody>
 							<tr>
 								<td class="left">&nbsp;								</td>
-							    <td colspan="2"><input name="button4" type="button" onClick="addRequirementsRow();" value="Insert Row">
+							    <td colspan="2"><input name="button502" type="button" onClick="addRequirementsRow();" value="Insert Row">
                                   <input name="requirements_count" type="hidden" id="requirements_count" size="15" value="<%= requirements_count %>"></td>
 							    <td class="right">&nbsp;</td>
 							</tr>
