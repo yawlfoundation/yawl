@@ -1,7 +1,7 @@
-var telNumberValidation = "^[\\d\\s\\+\\-]+$";
+var telNumberValidation = "^[\\d\\s\\+\\-\\(\\)]+$";
 var emailValidation = "^((\\w)+(\\.)*)+\\w+@(\\w)+(\\w\\.)*(\\.[A-Za-z]+)+$";
 var textValidation = "^[A-Za-z\\s]+$";
-var textAreaValidation = "^[A-Za-z\\s,().0-9!\\[\\]\\\\/@\\$%^\\*\\-]+$";
+var textAreaValidation = "^[A-Za-z\\s,().0-9!\\[\\]\\\\/@\\$%^\\*\\-\\_]+$";
 //var dateValidation = "^[0-2][0-3]:[0-5][0-9]:[0-5][0-9]$";
 //var dateValidation = "^\\d{2}:\\d{2}:\\d{2}$";
 var dateValidation = "^((?:[01]\\d)|(?:2[0-3])):([0-5]\\d):([0-5]\\d)$";
@@ -36,6 +36,10 @@ function validateFields(formName) {
                     pattern = telNumberValidation; 
                 }
                 
+				if (pattern == 'email') {
+                    pattern = emailValidation; 
+                }
+				
                 if (element.value.search(pattern) == -1) {
                     element.className = "error";
                     isInError = true;
