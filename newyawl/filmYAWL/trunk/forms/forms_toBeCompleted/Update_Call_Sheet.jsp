@@ -616,7 +616,8 @@
 								<td align="center">&nbsp;</td>
 								<td align="left">
 								<input name="button500" type="button" onClick="addDescriptionRow(<%= requirements_count %>);" value="Insert Description">
-								<input name="description_count_<%= requirements_count %>" type="hidden" id="description_count_<%= requirements_count %>" size="15" value="<%= description_count %>">								</td>
+								<input name="button501" type="button" onClick="deleteDescriptionRow(<%= requirements_count %>);" value="Delete Description">
+								<input name="description_count_<%= requirements_count %>" type="hidden" id="description_count_<%= requirements_count %>" size="15" value="<%= description_count %>"></td>
 							</tr>
 							<% }%>
 							</tbody>
