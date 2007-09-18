@@ -293,50 +293,39 @@ function deleteDescriptionRow(table_num) {
 }
 
 //var requirements_count;
+var requirementsRowHeaderSize = 0;
+var requirementsRowFooterSize = 2;
 function addRequirementsRow() {    
     var requirements_count = incCount("requirements_count");
-    
-    var tbody = document.getElementById("set_requirements").getElementsByTagName("tbody")[0];
-    var row1 = document.createElement("TR");
-    var row2 = document.createElement("TR");
-    var itemCELL = document.createElement("TD");
-    var requirementstableCELL = document.createElement("TD");
-    var blankCELL = document.createElement("TD");
-    var insertDescriptionCELL = document.createElement("TD");
 
+    var table = document.getElementById("set_requirements");
+    var row1 = table.insertRow(table.rows.length - requirementsRowFooterSize);
     row1.vAlign = "top";
-	row2.vAlign = "top";
+    var row2 = table.insertRow(table.rows.length - requirementsRowFooterSize);
+    row2.vAlign = "top";
 
-	itemCELL.appendChild(createBoldLabel("Item"));
-	itemCELL.appendChild(document.createElement("BR"));
-	itemCELL.appendChild(createAnyTextTextBox("sr"+ requirements_count + "_item", 20, "", "enter item"));
-
+    insertPadding(row1, 0, "left", 1, 15);
+    var itemCELL = row1.insertCell(1);
+    var requirementstableCELL = row1.insertCell(2);
+    itemCELL.appendChild(createBoldLabel("Item"));
+    itemCELL.appendChild(document.createElement("BR"));
+    itemCELL.appendChild(createAnyTextTextBox("sr"+ requirements_count + "_item", 20, "", "enter item"));
     requirementstableCELL.appendChild(addRequirementsSubTable(requirements_count));
+    insertPadding(row1, 3, "right", 1, 15);
 
-    var button = createButton("requirementsbutton", "Insert Description");
-    button.onclick = function(){addDescriptionRow(requirements_count);};
+    insertPadding(row2, 0, "left", 1, 15);
+    var blankCELL = row2.insertCell(1);
+    var addButton = createButton("requirementsbutton", "Insert Description");
+    addButton.onclick = function(){addDescriptionRow(requirements_count);};
 
     var deleteButton = createButton("deleteDescription", "Delete Description");
     deleteButton.onclick = function(){deleteDescriptionRow(requirements_count);};
-
-    insertDescriptionCELL.appendChild(button);
+        
+    var insertDescriptionCELL = row2.insertCell(2);
+    insertDescriptionCELL.appendChild(addButton);
     insertDescriptionCELL.appendChild(deleteButton);
-
     insertDescriptionCELL.appendChild(createHiddenField("description_count_"+ requirements_count, 1));
-
-	row1.appendChild(addClass("left", "1"));
-	row1.appendChild(itemCELL);
-	row1.appendChild(requirementstableCELL);
-	row1.appendChild(addClass("right", "1"));
-
-	row2.appendChild(addClass("left", "1"));
-	row2.appendChild(blankCELL);
-	row2.appendChild(insertDescriptionCELL);
-	row2.appendChild(addClass("right", "1"));
-
-
-	tbody.appendChild(row1);
-	tbody.appendChild(row2);
+    insertPadding(row2, 3, "right", 1, 15);
 }
 
 function createButton(id, value) {
