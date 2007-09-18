@@ -2,8 +2,6 @@ var telNumberValidation = "^[\\d\\s\\+\\-\\(\\)]+$";
 var emailValidation = "^((\\w)+(\\.)*)+\\w+@(\\w)+(\\w\\.)*(\\.[A-Za-z]+)+$";
 var textValidation = "^[A-Za-z\\s]+$";
 var textAreaValidation = "^[A-Za-z\\s,().0-9!\\[\\]\\\\/@\\$%^\\*\\-\\_]+$";
-//var dateValidation = "^[0-2][0-3]:[0-5][0-9]:[0-5][0-9]$";
-//var dateValidation = "^\\d{2}:\\d{2}:\\d{2}$";
 var dateValidation = "^((?:[01]\\d)|(?:2[0-3])):([0-5]\\d):([0-5]\\d)$";
 var numberValidation = "^(\\d)+$"
 
@@ -21,25 +19,25 @@ function validateFields(formName) {
                 }
 
                 if (pattern == 'any_text') {
-                    pattern = textAreaValidation;                    
+                    pattern = textAreaValidation;
                 }
 
                 if (pattern == 'text') {
-                    pattern = textValidation;    
+                    pattern = textValidation;
                 }
 
                 if (pattern == 'number') {
-                    pattern = numberValidation;                    
+                    pattern = numberValidation;
                 }
 
                 if (pattern == 'tel') {
-                    pattern = telNumberValidation; 
+                    pattern = telNumberValidation;
                 }
-                
+
 				if (pattern == 'email') {
-                    pattern = emailValidation; 
+                    pattern = emailValidation;
                 }
-				
+
                 if (element.value.search(pattern) == -1) {
                     element.className = "error";
                     isInError = true;
@@ -217,7 +215,6 @@ function deleteRows(tableName, countName, headerSize, footerSize, addFn, paramFo
         var table = document.getElementById(tableName);
         var rows = table.rows.length;
         var count = getCountByName(countName);
-
         if (rows > (headerSize+footerSize)) {
             //delete from the bottom, removing 1 for the 0-based index.
             table.deleteRow(rows-(footerSize+1));
