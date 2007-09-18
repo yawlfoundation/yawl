@@ -284,10 +284,10 @@ function calculate(){
 					  <td><strong>Camera Assistant</strong></td>
 					  <td><input name='camera_assistant' type='text' id='camera_assistant' value='<%=focs.getCameraAssistant()%>' size="15" readonly></td>
 					  <td class='right'>&nbsp;</td>
-				  </tr>
+				  </tr> 
 					<tr height='30'>
 						<td class='left' width='15'>&nbsp;</td>
-						<td><strong>Studios/Locations</strong></td><td colspan="5"><input name="studios_locations" type="text" id="studios_locations" size="50" value="<%=ci.getStudiosLocation() %>" pattern="text"></td>
+						<td><strong>Studios/Locations</strong></td><td colspan="5"><input name="studios_locations" type="text" id="studios_locations" size="50" value="<%=ci.getStudiosLocation() %>" pattern="any_text"></td>
 						<td class='right' width='15'>&nbsp;</td>
 					</tr>
 					<tr height='30'><td colspan='8' class='bottom'>&nbsp;</td>
@@ -308,7 +308,7 @@ function calculate(){
 				<tr>
 					<td width="15" align="right" class="left">&nbsp;</td>
 					<td height="30"><strong>Camera Type and Number</strong></td>
-					<td height="30"><input name="camera_type_number" type="text" id="camera_type_number" size="20" value="<%= ti.getCameraTypeAndNumber()%>" pattern="text"></td>
+					<td height="30"><input name="camera_type_number" type="text" id="camera_type_number" size="20" value="<%= ti.getCameraTypeAndNumber()%>" pattern="any_text"></td>
 					<td height="30"><strong>Emulsion</strong></td>
 					<td height="30"><input name="emulsion" type="text" id="emulsion" size="20" value="<%= ti.getEmulsion()%>"></td>
 					<td width="15" class="right">&nbsp;</td>
