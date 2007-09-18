@@ -9,13 +9,13 @@ function createInput(id, size, type, value) {
 	return input;
 }
 
-//function for dropdown list details
-function createDropdownList(name) {
-	var option = document.createElement("OPTION");
-	option.setAttribute("value", name);
-	option.appendChild(document.createTextNode(name));
-	return option;
-}
+////function for dropdown list details
+//function createDropdownList(name) {
+//	var option = document.createElement("OPTION");
+//	option.setAttribute("value", name);
+//	option.appendChild(document.createTextNode(name));
+//	return option;
+//}
 
 //function for bold text
 function createBoldLabel(text) {
@@ -37,8 +37,8 @@ function insertPadding(row, index, className, colSpan, width){
 	var cell = row.insertCell(index);
 	cell.className = className;
 	cell.appendChild(document.createTextNode("\u00a0"));
-	cell.colSpan = colSpan;
-	cell.setAttribute("width", width);
+    cell.colSpan = (colSpan == null) ? 1 : colSpan;
+	cell.setAttribute("width", (width == null) ?  15 : width);
 	return cell;
 }
 
@@ -102,50 +102,48 @@ function decCount(countName) {
     return countVar;
 }
 
-var catering_count;
+var cateringTable = "catering";
+var cateringCountName = "catering_count";
+var cateringHeaderSize = 2;
+var cateringFooterSize = 2;
 function addCateringRow(){
-	catering_count = document.getElementById("catering_count").value;
-	var cateringTABLE = document.getElementById("catering").getElementsByTagName("tbody")[0];
-	var row = document.createElement("TR");
-	var cateringmealCELL = document.createElement("TD");
-	var cateringtimeCELL = document.createElement("TD");
-	var cateringnumbersCELL = document.createElement("TD");
-	var cateringlocationCELL = document.createElement("TD");
-	var cateringmealDROPDOWN = document.createElement("SELECT");
+	var catering_count = getCountByName(cateringCountName);
 
-	var previous_numbers = document.getElementById("catering_numbers_" + catering_count).value;
+	var table = document.getElementById(cateringTable);
+	var row = table.insertRow(table.rows.length - cateringFooterSize);
+    row.setAttribute("align", "center");
+    row.setAttribute("valign", "top");
+    row.setAttribute("height", "30");
+
+    insertPadding(row, 0, "left");
+    var cateringmealCELL = row.insertCell(1);
+	var cateringtimeCELL = row.insertCell(2);
+	var cateringnumbersCELL = row.insertCell(3);
+	var cateringlocationCELL = row.insertCell(4);    
+    insertPadding(row, 5, "right");
+    var cateringmealDROPDOWN = document.createElement("SELECT");
+
+    var previous_numbers = document.getElementById("catering_numbers_" + catering_count).value;
 	var previous_location = document.getElementById("catering_location_" + catering_count).value;
 
-	catering_count ++;
-	document.getElementById("catering_count").value = catering_count;
+    catering_count = incCount("catering_count");
 
-	row.setAttribute("align", "center");
-	row.setAttribute("valign", "top");
-	row.setAttribute("height", "30");
+    cateringmealCELL.appendChild(createCateringMealDropDown(cateringmealDROPDOWN, catering_count));
+    cateringtimeCELL.appendChild(createDateTextBox("catering_time_" + catering_count, 8, "text", ""));
+	cateringnumbersCELL.appendChild(createNumberTextBox("catering_numbers_" + catering_count, 8, "text", previous_numbers));
+	cateringlocationCELL.appendChild(createAnyTextTextBox("catering_location_" + catering_count, 50, "text", previous_location));
+}
 
-	cateringmealDROPDOWN.setAttribute("name", "catering_meal_" + catering_count);
-	cateringmealDROPDOWN.setAttribute("id", "catering_meal_" + catering_count);
-
-	cateringmealDROPDOWN.appendChild(createDropdownList("Breakfast"));
-	cateringmealDROPDOWN.appendChild(createDropdownList("Morning Tea"));
-	cateringmealDROPDOWN.appendChild(createDropdownList("Lunch"));
-	cateringmealDROPDOWN.appendChild(createDropdownList("Afternoon Tea"));
-	cateringmealDROPDOWN.appendChild(createDropdownList("Dinner"));
-	cateringmealDROPDOWN.appendChild(createDropdownList("Supper"));
-
-	cateringmealCELL.appendChild(cateringmealDROPDOWN);
-	cateringtimeCELL.appendChild(createInput("catering_time_" + catering_count, 8, "text", ""));
-	cateringnumbersCELL.appendChild(createInput("catering_numbers_" + catering_count, 8, "text", previous_numbers));
-	cateringlocationCELL.appendChild(createInput("catering_location_" + catering_count, 50, "text", previous_location));
-
-	row.appendChild(addClass("left", "1"));
-	row.appendChild(cateringmealCELL);
-	row.appendChild(cateringtimeCELL);
-	row.appendChild(cateringnumbersCELL);
-	row.appendChild(cateringlocationCELL);
-	row.appendChild(addClass("right", "1"));
-
-	cateringTABLE.appendChild(row);
+function createCateringMealDropDown(cateringmealDROPDOWN, catering_count) {
+    cateringmealDROPDOWN.setAttribute("name", "catering_meal_" + catering_count);
+    cateringmealDROPDOWN.setAttribute("id", "catering_meal_" + catering_count);
+    cateringmealDROPDOWN.appendChild(createDropdownList("Breakfast"));
+    cateringmealDROPDOWN.appendChild(createDropdownList("Morning Tea"));
+    cateringmealDROPDOWN.appendChild(createDropdownList("Lunch"));
+    cateringmealDROPDOWN.appendChild(createDropdownList("Afternoon Tea"));
+    cateringmealDROPDOWN.appendChild(createDropdownList("Dinner"));
+    cateringmealDROPDOWN.appendChild(createDropdownList("Supper"));
+    return cateringmealDROPDOWN;
 }
 
 var callCountName = "call_count";
