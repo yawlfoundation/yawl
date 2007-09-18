@@ -761,9 +761,9 @@
 								  <option value="Supper" <%if(smt.getMeal().equals("Supper")){out.print("selected"); }%>>Supper</option>
 							      </select>
 							    </td>
-								<td height="30" align="center" valign="top"><input name="catering_time_<%=catering_count %>" type="text" id="catering_time_<%=catering_count %>" value="<%= smt.getBreak() %>" size="8"></td>
-								<td height="30" align="center" valign="top"><input name="catering_numbers_<%=catering_count %>" type="text" id="catering_numbers_<%=catering_count %>" value="<%= smt.getServeNo() %>" size="8"></td>
-								<td height="30" align="center" valign="top"><input name="catering_location_<%=catering_count %>" type="text" id="catering_location_<%=catering_count %>" value="<%= smt.getLocation() %>" size="50"></td>
+								<td height="30" align="center" valign="top"><input name="catering_time_<%=catering_count %>" type="text" id="catering_time_<%=catering_count %>" value="<%= smt.getBreak() %>" size="8" title="enter catering time" pattern="date"></td>
+								<td height="30" align="center" valign="top"><input name="catering_numbers_<%=catering_count %>" type="text" id="catering_numbers_<%=catering_count %>" value="<%= smt.getServeNo() %>" size="8" title="enter catering number" pattern="number"></td>
+								<td height="30" align="center" valign="top"><input name="catering_location_<%=catering_count %>" type="text" id="catering_location_<%=catering_count %>" value="<%= smt.getLocation() %>" size="50" title="enter catering location" pattern="any_text"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 								<% } 
@@ -771,7 +771,9 @@
 							</tbody>
 							<tr>
 								<td class="left">&nbsp;								</td>
-							    <td colspan="4"><input name="button17" type="button" onClick="addCateringRow();" value="Insert Row">
+							    <td colspan="4">
+                                  <input name="button700" type="button" onClick="addCateringRow();" value="Insert Row">
+                                  <input name="button701" type="button" onClick="deleteCateringRow();" value="Delete Row">
                                   <input name="catering_count" type="hidden" id="catering_count" size="15" value="<%= catering_count %>"></td>
 							    <td class="right">&nbsp;</td>
 							</tr>
