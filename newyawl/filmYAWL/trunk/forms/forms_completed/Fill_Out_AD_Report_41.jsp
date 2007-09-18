@@ -249,13 +249,13 @@
 						%>
 						<tr align="center">
 							<td width="14" align="center" class="left" height="30">&nbsp;</td>
-							<td align="center"><input name="<% out.print("artist_" + a); %>" type="text" id="<% out.print("artist_" + a); %>" size="15" value="<%= satA.getArtist()%>"></td>
-							<td align="center"><input name="<% out.print("artist_pu_" + a); %>" type="text" id="<% out.print("artist_pu_" + a); %>" size="6" value="<%= satA.getPU()%>"></td>
-							<td align="center"><input name="<% out.print("artist_muwdcall_scheduled_" + a); %>" type="text" id="<% out.print("artist_muwdcall_scheduled_" + a); %>" size="6" value="<%= satA.getMUWDCallScheduled()%>"></td>
-							<td align="center"><input name="<% out.print("artist_muwdcall_actual_" + a); %>" type="text" id="<% out.print("artist_muwdcall_actual_" + a); %>" size="6" value="<%= satA.getMUWDCallActualArrival()%>"></td>
-							<td align="center"><input name="<% out.print("artist_meal_" + a); %>" type="text" id="<% out.print("artist_meal_" + a); %>" size="6" value="<%= satA.getMealBreak()%>"></td>
-							<td align="center"><input name="<% out.print("artist_wrap_" + a); %>" type="text" id="<% out.print("artist_wrap_" + a); %>" size="6" value="<%= satA.getTimeWrap()%>"></td>
-							<td align="center"><input name="<% out.print("artist_travel_" + a); %>" type="text" id="<% out.print("artist_travel_" + a); %>" size="6" value="<%= satA.getTravel()%>"></td>
+							<td align="center"><input name="<% out.print("artist_" + a); %>" type="text" id="<% out.print("artist_" + a); %>" size="15" value="<%= satA.getArtist()%>" pattern="text"></td>
+							<td align="center"><input name="<% out.print("artist_pu_" + a); %>" type="text" id="<% out.print("artist_pu_" + a); %>" size="6" value="<%= satA.getPU()%>" pattern="text"></td>
+							<td align="center"><input name="<% out.print("artist_muwdcall_scheduled_" + a); %>" type="text" id="<% out.print("artist_muwdcall_scheduled_" + a); %>" size="6" value="<%= satA.getMUWDCallScheduled()%>" pattern="text"></td>
+							<td align="center"><input name="<% out.print("artist_muwdcall_actual_" + a); %>" type="text" id="<% out.print("artist_muwdcall_actual_" + a); %>" size="6" value="<%= satA.getMUWDCallActualArrival()%>" pattern="text"></td>
+							<td align="center"><input name="<% out.print("artist_meal_" + a); %>" type="text" id="<% out.print("artist_meal_" + a); %>" size="6" value="<%= satA.getMealBreak()%>" pattern="text"></td>
+							<td align="center"><input name="<% out.print("artist_wrap_" + a); %>" type="text" id="<% out.print("artist_wrap_" + a); %>" size="6" value="<%= satA.getTimeWrap()%>" pattern="text"></td>
+							<td align="center"><input name="<% out.print("artist_travel_" + a); %>" type="text" id="<% out.print("artist_travel_" + a); %>" size="6" value="<%= satA.getTravel()%>" pattern="text"></td>
                             <td align="center">
                                 <applet code="signature.SignA.class" archive="SignA.jar" width="350" height="60" name="SignA" id="SignA" MAYSCRIPT>
                                     <param name="load_url" value="">
@@ -271,13 +271,13 @@
 						}else{%>
 						<tr align="center">
 							<td width="14" align="center" class="left" height="30">&nbsp;</td>
-							<td align="center"><input name="artist_1" type="text" id="artist_1" size="15"></td>
-							<td align="center"><input name="artist_pu_1" type="text" id="artist_pu_1" size="6"></td>
-							<td align="center"><input name="artist_muwdcall_scheduled_1" type="text" id="artist_muwdcall_scheduled_1" size="6"></td>
-							<td align="center"><input name="artist_muwdcall_actual_1" type="text" id="artist_muwdcall_actual_1" size="6"></td>
-							<td align="center"><input name="artist_meal_1" type="text" id="artist_meal_1" size="6"></td>
-							<td align="center"><input name="artist_wrap_1" type="text" id="artist_wrap_1" size="6"></td>
-							<td align="center"><input name="artist_travel_1" type="text" id="artist_travel_1" size="6"></td>
+							<td align="center"><input name="artist_1" type="text" id="artist_1" size="15" pattern="text"></td>
+							<td align="center"><input name="artist_pu_1" type="text" id="artist_pu_1" size="6" pattern="text"></td>
+							<td align="center"><input name="artist_muwdcall_scheduled_1" type="text" id="artist_muwdcall_scheduled_1" size="6" pattern="text"></td>
+							<td align="center"><input name="artist_muwdcall_actual_1" type="text" id="artist_muwdcall_actual_1" size="6" pattern="text"></td>
+							<td align="center"><input name="artist_meal_1" type="text" id="artist_meal_1" size="6" pattern="text"></td>
+							<td align="center"><input name="artist_wrap_1" type="text" id="artist_wrap_1" size="6" pattern="text"></td>
+							<td align="center"><input name="artist_travel_1" type="text" id="artist_travel_1" size="6" pattern="text"></td>
 							<td align="center">
                                 <applet code="signature.SignA.class" archive="SignA.jar" width="350" height="60" name="SignA" id="SignA" MAYSCRIPT>
                                     <param name="load_url" value="">
@@ -332,13 +332,13 @@
 						%>
 						<tr align="center" height="30">
 							<td width="14" align="center" class="left">&nbsp;</td>
-							<td align="center"><input name="<% out.print("backgroundartist_" + b); %>" type="text" id="<% out.print("backgroundartist_" + b); %>" size="15" value="<%= satE.getArtist()%>"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_pu_" + b); %>" type="text" id="<% out.print("backgroundartist_pu_" + b); %>" size="6" value="<%= satE.getPU()%>"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_muwdcall_scheduled_" + b); %>" type="text" id="<% out.print("backgroundartist_muwdcall_scheduled_" + b); %>" size="6" value="<%= satE.getMUWDCallScheduled()%>"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_muwdcall_actual_" + b); %>" type="text" id="<% out.print("backgroundartist_muwdcall_actual_" + b); %>" size="6" value="<%= satE.getMUWDCallActualArrival()%>"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_meal_" + b); %>" type="text" id="<% out.print("backgroundartist_meal_" + b); %>" size="6" value="<%= satE.getMealBreak()%>"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_wrap_" + b); %>" type="text" id="<% out.print("backgroundartist_wrap_" + b); %>" size="6" value="<%= satE.getTimeWrap()%>"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_travel_" + b); %>" type="text" id="<% out.print("backgroundartist_travel_" + b); %>" size="6" value="<%= satE.getTravel()%>"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_" + b); %>" type="text" id="<% out.print("backgroundartist_" + b); %>" size="15" value="<%= satE.getArtist()%>" pattern="text"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_pu_" + b); %>" type="text" id="<% out.print("backgroundartist_pu_" + b); %>" size="6" value="<%= satE.getPU()%>" pattern="text"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_muwdcall_scheduled_" + b); %>" type="text" id="<% out.print("backgroundartist_muwdcall_scheduled_" + b); %>" size="6" value="<%= satE.getMUWDCallScheduled()%>" pattern="date"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_muwdcall_actual_" + b); %>" type="text" id="<% out.print("backgroundartist_muwdcall_actual_" + b); %>" size="6" value="<%= satE.getMUWDCallActualArrival()%>" pattern="date"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_meal_" + b); %>" type="text" id="<% out.print("backgroundartist_meal_" + b); %>" size="6" value="<%= satE.getMealBreak()%>" pattern="date"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_wrap_" + b); %>" type="text" id="<% out.print("backgroundartist_wrap_" + b); %>" size="6" value="<%= satE.getTimeWrap()%>" pattern="date"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_travel_" + b); %>" type="text" id="<% out.print("backgroundartist_travel_" + b); %>" size="6" value="<%= satE.getTravel()%>" pattern="date"></td>
 							<td>
                                 <applet code="signature.SignA.class" archive="SignA.jar" width="350" height="60" name="SignA" id="SignA" MAYSCRIPT>
                                     <param name="load_url" value="">
@@ -395,8 +395,8 @@
 						%>
 						<tr align="center" valign="top">
 							<td width="14" align="center" class="left" >&nbsp;</td>
-							<td align="center"><input name="<% out.print("children_" + c); %>" type="text" id="<% out.print("children_" + c); %>" size="15" value="<%= sct.getChildren()%>"></td>
-							<td align="center"><input name="<% out.print("children_pu_" + c); %>" type="text" id="<% out.print("children_pu_" + c); %>" size="6" value="<%= sct.getPU()%>"></td>
+							<td align="center"><input name="<% out.print("children_" + c); %>" type="text" id="<% out.print("children_" + c); %>" size="15" value="<%= sct.getChildren()%>" pattern="text"></td>
+							<td align="center"><input name="<% out.print("children_pu_" + c); %>" type="text" id="<% out.print("children_pu_" + c); %>" size="6" value="<%= sct.getPU()%>" pattern="text"></td>
 							<td align="center"><input name="<% out.print("children_muwdcall_scheduled_" + c); %>" type="text" id="<% out.print("children_muwdcall_scheduled_" + c); %>" size="6" value="<%= sct.getMUWDCallScheduled()%>" pattern="date"></td>
 							<td align="center"><input name="<% out.print("children_muwdcall_actual_" + c); %>" type="text" id="<% out.print("children_muwdcall_actual_" + c); %>" size="6" value="<%= sct.getMUWDCallActualArrival()%>" pattern="date"></td>
 							<td align="center"><input name="<% out.print("children_meal_" + c); %>" type="text" id="<% out.print("children_meal_" + c); %>" size="6" value="<%= sct.getMealBreak()%>" pattern="date"></td>
