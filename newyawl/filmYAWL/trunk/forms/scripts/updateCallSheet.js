@@ -292,12 +292,15 @@ function deleteDescriptionRow(table_num) {
                table_num);
 }
 
-var requirementsRowHeaderSize = 0;
+var requirementsRowHeaderSize = 2;
 var requirementsRowFooterSize = 2;
+var requirementsTable = "set_requirements";
+var requirementsCountName = "requirements_count";
+var requirementsRowsToDelete = 2; 
 function addRequirementsRow() {    
     var requirements_count = incCount("requirements_count");
 
-    var table = document.getElementById("set_requirements");
+    var table = document.getElementById(requirementsTable);
     var row1 = table.insertRow(table.rows.length - requirementsRowFooterSize);
     row1.vAlign = "top";
     var row2 = table.insertRow(table.rows.length - requirementsRowFooterSize);
@@ -305,6 +308,11 @@ function addRequirementsRow() {
 
     setRequirementsRow1(row1, requirements_count);
     setRequirementsRow2(row2, requirements_count);
+}
+
+function deleteRequirementsRow() {
+    deleteMultipleRows(requirementsTable, requirementsCountName, requirementsRowHeaderSize, requirementsRowFooterSize,
+            function(){addRequirementsRow();}, null, requirementsRowsToDelete);
 }
 
 function setRequirementsRow2(row2, requirements_count) {
