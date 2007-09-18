@@ -215,7 +215,7 @@ function deleteRows(tableName, countName, headerSize, footerSize, addFn, paramFo
             if (count == 0) {
                 //add an empty row after the last row has been deleted. this allows all data-containing rows to be
                 // deleted and for there to be a single empty row at any point in time.
-                //workaround to avoid adding another function. refactor if possible.
+                //TODO: workaround to avoid adding another function. refactor if possible.
                 if (paramForFn != null) {
                     addFn(paramForFn);//calls a parametered-function.
                 } else {
