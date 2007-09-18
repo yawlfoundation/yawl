@@ -231,6 +231,7 @@ function createHiddenField(id, value) {
     input.setAttribute("name", id);
     input.setAttribute("id", id);
     input.setAttribute("value", value);
+    return input;
 }
 
 function createRadioButton(id, value) {
@@ -239,4 +240,5 @@ function createRadioButton(id, value) {
     input.setAttribute("name", id);
     input.setAttribute("id", id);
     input.setAttribute("value", value);
+    return input;
 }
