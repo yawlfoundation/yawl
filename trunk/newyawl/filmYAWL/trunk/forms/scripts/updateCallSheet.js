@@ -90,7 +90,7 @@ function getCountByName(countName) {
 
 function  incCount(countName) {
     var  countVar = getCountByName(countName);
-    countVar ++;
+    countVar++;
     document.getElementById(countName).value = countVar;
     return countVar;
 }
@@ -107,8 +107,7 @@ var cateringCountName = "catering_count";
 var cateringHeaderSize = 2;
 var cateringFooterSize = 2;
 function addCateringRow(){
-	var catering_count = getCountByName(cateringCountName);
-
+    var catering_count = getCountByName(cateringCountName);
 	var table = document.getElementById(cateringTable);
 	var row = table.insertRow(table.rows.length - cateringFooterSize);
     row.setAttribute("align", "center");
@@ -123,15 +122,24 @@ function addCateringRow(){
     insertPadding(row, 5, "right");
     var cateringmealDROPDOWN = document.createElement("SELECT");
 
-    var previous_numbers = document.getElementById("catering_numbers_" + catering_count).value;
-	var previous_location = document.getElementById("catering_location_" + catering_count).value;
+    var previous_numbers = "";
+    var previous_location = "";
 
-    catering_count = incCount("catering_count");
+    if (catering_count > 1) {
+        previous_numbers = document.getElementById("catering_numbers_" + catering_count).value;
+        previous_location = document.getElementById("catering_location_" + catering_count).value;
+    } 
+
+    catering_count = incCount(cateringCountName);
 
     cateringmealCELL.appendChild(createCateringMealDropDown(cateringmealDROPDOWN, catering_count));
-    cateringtimeCELL.appendChild(createDateTextBox("catering_time_" + catering_count, 8, "text", ""));
-	cateringnumbersCELL.appendChild(createNumberTextBox("catering_numbers_" + catering_count, 8, "text", previous_numbers));
-	cateringlocationCELL.appendChild(createAnyTextTextBox("catering_location_" + catering_count, 50, "text", previous_location));
+    cateringtimeCELL.appendChild(createDateTextBox("catering_time_" + catering_count, 8, "", "enter catering time"));
+	cateringnumbersCELL.appendChild(createNumberTextBox("catering_numbers_" + catering_count, 8, previous_numbers, "enter catering numbers"));
+	cateringlocationCELL.appendChild(createAnyTextTextBox("catering_location_" + catering_count, 50, previous_location, "enter catering location"));
+}
+
+function deleteCateringRow() {
+    deleteRows(cateringTable, cateringCountName, cateringHeaderSize, cateringFooterSize, function(){addCateringRow();});
 }
 
 function createCateringMealDropDown(cateringmealDROPDOWN, catering_count) {
