@@ -1086,7 +1086,9 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 			</td>
 			<td height="30" rowspan="2" class="right">&nbsp;</td>
 		</tr>
-		<tr><td height="15" colspan="3" valign="top"><input name="button3" type="button" onClick="addCharacterRow(<% out.print(a +","+ b); %>);" value="Add Character"/><input name="<% out.print("sd" + a + "_charactercount" + b);%>" type="hidden" id="<% out.print("sd" + a + "_charactercount" + b);%>" value="<% out.print(c);%>"></td></tr>
+		<tr><td height="15" colspan="3" valign="top"><input name="button3" type="button" onClick="addCharacterRow(<% out.print(a +","+ b); %>);" value="Add Character"/>
+		<input name="button3" type="button" onClick="deleteCharacterRow(<% out.print(a +","+ b); %>);" value="Delete Character"/>
+		<input name="<% out.print("sd" + a + "_charactercount" + b);%>" type="hidden" id="<% out.print("sd" + a + "_charactercount" + b);%>" value="<% out.print(c);%>"></td></tr>
 		<tr>
 			<td width="15" height="30" rowspan="2" class="left">&nbsp;</td>
 			<td width="160" height="30" rowspan="2" valign="top"><strong>Set Requirements </strong></td>
@@ -1131,6 +1133,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 		</tr>
 		<tr>
 		<td height="15" colspan="3" valign="top"><input name="requirements1" type="button" id="requirements1" onClick="addRequirementsRow(<% out.print(a +","+ b); %>);" value="Add Set Requirements">
+		<input name="requirements1" type="button" id="requirements1" onClick="deleteRequirementsRow(<% out.print(a +","+ b); %>);" value="Delete Set Requirements">
 		<input name="<% out.print("sd" + a + "_requirementscount" + b);%>" type="hidden" id="<% out.print("sd" + a + "_requirementscount" + b);%>" value="<%if (d==0) {out.print("1");}else{out.print(d);}%>"></td>
 		</tr>
 		<% if(scs.getMealBreak() != null) {
@@ -1317,7 +1320,9 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 			</td>
 			<td height="30" rowspan="2" class="right">&nbsp;</td>
 		</tr>
-		<tr><td height="15" colspan="3" valign="top"><input name="button3" type="button" onClick="addCharacterRow(1,1);" value="Add Character"/><input name="sd1_charactercount1" type="hidden" id="sd1_charactercount1" value="1"></td></tr>
+		<tr><td height="15" colspan="3" valign="top"><input name="button3" type="button" onClick="addCharacterRow(1,1);" value="Add Character"/>
+		<input name="button3" type="button" onClick="deleteCharacterRow(1,1);" value="Delete Character"/>
+		<input name="sd1_charactercount1" type="hidden" id="sd1_charactercount1" value="1"></td></tr>
 		<tr>
 			<td width="15" height="30" rowspan="2" class="left">&nbsp;</td>
 			<td width="160" height="30" rowspan="2" valign="top"><strong>Set Requirements </strong></td>
@@ -1356,6 +1361,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 		</tr>
 		<tr>
 			<td height="15" colspan="3" valign="top"><input name="requirements1" type="button" id="requirements1" onClick="addRequirementsRow(1,1);" value="Add Set Requirements">
+			<input name="requirements1" type="button" id="requirements1" onClick="deleteRequirementsRow(1,1);" value="Delete Set Requirements">
 			<input name="sd1_requirementscount1" type="hidden" id="sd1_requirementscount1" value="1"></td>
 		</tr>
 		<tr>
