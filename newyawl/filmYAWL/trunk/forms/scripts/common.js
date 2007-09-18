@@ -200,11 +200,12 @@ function createCheckBox(name, value, checked) {
     return checkbox;
 }
 
-function deleteRows(tableName, countName, headerSize, footerSize, addFn) {
+function deleteRows(tableName, countName, headerSize, footerSize, addFn, paramForFn) {
         var table = document.getElementById(tableName);
         var rows = table.rows.length;
         var count = getCountByName(countName);
 
+        alert ("rows="+rows+", headerAndFooter="+(headerSize+footerSize)+"count="+count);
         if (rows > (headerSize+footerSize)) {
             //delete from the bottom, removing 1 for the 0-based index.
             table.deleteRow(rows-(footerSize+1));
@@ -213,10 +214,14 @@ function deleteRows(tableName, countName, headerSize, footerSize, addFn) {
             }
 
             if (count == 0) {
-                //add an empty row after the last row has been deleted.
-                //this allows all data-containing rows to be deleted and for there to be a single empty row
-                //at any point in time.
-                addFn();
+                //add an empty row after the last row has been deleted. this allows all data-containing rows to be
+                // deleted and for there to be a single empty row at any point in time.
+                //workaround to avoid adding another function. refactor if possible.
+                if (paramForFn != null) {
+                    addFn(paramForFn);//calls a parametered-function.
+                } else {
+                    addFn();
+                }
             }
         }
 }
