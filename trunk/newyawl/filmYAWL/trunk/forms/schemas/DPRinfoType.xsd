@@ -1,0 +1,213 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.yawlfoundation.org/sb/DPRinfo"
+	xmlns:tns="http://www.yawlfoundation.org/sb/DPRinfo" attributeFormDefault="unqualified"
+	elementFormDefault="unqualified">
+
+	<element name="Create_DPR" type="tns:Create_DPR_Type" />
+
+	<complexType name="Create_DPR_Type">
+		<sequence>
+			<element name="generalInfo" type="tns:generalInfoType" />	<!--Input Only-->
+			<element name="producer" type="string" />	<!--Input Only-->
+			<element name="director" type="string" />	<!--Input Only-->
+			<element name="productionManager" type="string" />	<!--Input Only-->
+			<element name="directorOfPhotography" type="string" />	<!--Input Only-->
+			<element name="DPRinfo" type="tns:DPRinfoType" />	<!--Input/Output-->
+		</sequence>
+	</complexType>
+
+	<complexType name="generalInfoType">
+		<sequence>
+			<element name="production" type="string" />
+			<element name="date" type="date" />
+			<element name="weekday" type="string" />
+			<element name="shootDayNo" type="integer" />
+		</sequence>
+	</complexType>
+
+	<complexType name="DPRinfoType">
+		<sequence>
+			<element name="startDate" type="date" />
+			<element name="scheduledFinish" type="date" />
+			<element name="revisedFinish" type="date" minOccurs="0" />
+			<element name="shootingDaysSchedule" type="tns:shootingDaysScheduleType" />
+			<element name="locationSets" type="tns:locationSetsType" />
+			<element name="slateNOs" type="tns:slateNOs" />
+			<element name="scheduledScenesShot" type="tns:sceneNOsType" />
+			<element name="scheduledScenesNotShot" type="tns:sceneNOsType" />
+			<element name="ScenesNotYetCompleted" type="tns:sceneNOsType" />
+			<element name="ScenesDeleted" type="tns:sceneNOsType" />
+			<element name="ScenesAdded" type="tns:sceneNOsType" />
+			<element name="unscheduledScenesShot" type="tns:sceneNOsType" />
+			<element name="scriptTiming" type="tns:scriptTimingType" />
+			<element name="ratioTimingSpec" type="tns:ratioTimingSpecType" />
+			<element name="stockInfo" type="tns:stockInfoType" />
+			<element name="artistTimeSheet" type="tns:artistTimeSheetType" />
+			<element name="extrasTimeSheet" type="tns:artistTimeSheetType" />
+			<element name="crewTimeSheet" type="tns:crewTimeSheetType" />
+			<element name="majorProps_actionVehicles_additionalEquipment" type="string" />
+			<element name="additionalCrew" type="string" />
+			<element name="livestocks_other" type="string" />
+			<element name="accidents_delays" type="string" />
+			<element name="catering" type="tns:cateringType" />
+			<element name="generalRemarks" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="shootingDaysScheduleType">
+		<sequence>
+			<element name="scheduledDays" type="integer" />
+			<element name="daysToDate" type="integer" />
+			<element name="estdToComplete" type="integer" />
+			<element name="estdTotal" type="integer" />
+		</sequence>
+	</complexType>
+
+	<complexType name="locationSetsType">
+		<sequence>
+			<element name="singleLocation" maxOccurs="unbounded" type="tns:singleLocationType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="singleLocationType">
+		<sequence>
+			<element name="locationName" type="string" />
+			<element name="address" type="string" />
+			<element name="set" type="string" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="slateNOs">
+		<sequence>
+			<element name="slate" type="string" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="sceneNOsType">
+		<sequence>
+			<element name="scene" type="string" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="scriptTimingType">
+		<sequence>
+			<element name="prevShot" type="tns:singleSriptTimingType" />
+			<element name="shotToday" type="tns:singleSriptTimingType" />
+			<element name="shotTodate" type="tns:singleSriptTimingType" />
+			<element name="toBeShot" type="tns:singleSriptTimingType" />
+			<element name="total" type="tns:singleSriptTimingType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="singleSriptTimingType">
+		<sequence>
+			<element name="scenes" type="integer" />
+			<element name="pageTime" type="tns:pageTimeType" />
+			<element name="estTiming" type="time" />
+			<element name="actualTiming" type="time" />
+		</sequence>
+	</complexType>
+
+	<complexType name="pageTimeType">
+		<sequence>
+			<element name="number" type="integer" />
+			<element name="numerator" type="integer" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ratioTimingSpecType">
+		<sequence>
+			<element name="scheduledRatio" type="double" />
+			<element name="dailyRatio" type="double" />
+			<element name="averageRatio" type="double" />
+			<element name="averageTiming" type="time" />
+			<element name="cumulative" type="tns:cumulativeType" />
+			<element name="originalTiming" type="time" />
+		</sequence>
+	</complexType>
+
+	<complexType name="cumulativeType">
+		<sequence>
+			<element name="sign" type="boolean" />
+			<element name="varTime" type="time" />
+		</sequence>
+	</complexType>
+
+	<complexType name="stockInfoType">
+		<sequence>
+			<element name="previously" type="tns:singleStockInfoType" />
+			<element name="today" type="tns:singleStockInfoType" />
+			<element name="totalToDate" type="tns:singleStockInfoType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="singleStockInfoType">
+		<sequence>
+			<element name="loaded" type="integer" />
+			<element name="gross" type="integer" />
+			<element name="exposed" type="integer" />
+			<element name="print" type="integer" />
+			<element name="N_G" type="integer" />
+			<element name="waste" type="integer" />
+			<element name="shortEnds" type="integer" />
+			<element name="soundRolls" type="string" />
+      <element name="camRolls" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="artistTimeSheetType">
+		<sequence>
+			<element name="singleArtist" minOccurs="0" maxOccurs="unbounded" type="tns:singleArtistType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="singleArtistType">
+		<sequence>
+			<element name="artist" type="string" />
+			<element name="character" type="string" />
+			<element name="P_U" type="string" />
+			<element name="MU_WD_Call_scheduled" type="time" />
+			<element name="MU_WD_Call_actualArrival" type="time" />
+			<element name="mealBreak" type="time" />
+			<element name="timeWrap" type="time" />
+			<element name="travel" type="time" />
+			<element name="totalHRs" type="time" />
+    </sequence>
+  </complexType>
+
+  <complexType name="crewTimeSheetType">
+    <sequence>
+      <element name="singleCrew" minOccurs="0" maxOccurs="unbounded" type="tns:singleCrewType" />
+    </sequence>
+  </complexType>
+
+  <complexType name="singleCrewType">
+    <sequence>
+      <element name="crewName" type="string" />
+      <element name="crewRole" type="string" />
+      <element name="crewCall" type="time" />
+      <element name="travelIn" type="time" />
+      <element name="locationCall" type="time" />
+      <element name="mealBreak" type="time" />
+      <element name="wrap" type="time" />
+      <element name="wrapLoc" type="time" />
+      <element name="departLoc" type="time" />
+      <element name="travelOut" type="time" />
+      <element name="totalHRs" type="time" />
+		</sequence>
+	</complexType>
+
+	<complexType name="cateringType">
+		<sequence>
+			<element name="singleMeal" maxOccurs="unbounded" type="tns:singleMealType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="singleMealType">
+		<sequence>
+			<element name="meal" type="string" />
+			<element name="time" type="time" />
+			<element name="numbers" type="integer" />
+			<element name="location" type="string" />
+		</sequence>
+	</complexType>
+</schema>

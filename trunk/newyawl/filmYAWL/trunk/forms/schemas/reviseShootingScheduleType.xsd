@@ -1,0 +1,95 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.yawlfoundation.org/sb/reviseShootingSchedule"
+	xmlns:tns="http://www.yawlfoundation.org/sb/reviseShootingSchedule" attributeFormDefault="unqualified"
+	elementFormDefault="unqualified">
+
+	<element name="Revise_Shooting_Schedule" type="tns:Revise_Shooting_ScheduleType" />
+
+	<complexType name="Revise_Shooting_ScheduleType">
+		<sequence>
+			<element name="production" type="string" />	<!--Input Only-->
+			<element name="shootingSchedule" type="tns:shootingScheduleType" />	<!--Input/Output-->
+			<element name="totalScenes" type="integer" />	<!--Output Only (not shown)-->
+			<element name="totalPageTime" type="tns:pageTimeType" />	<!--Output Only (not shown)-->
+			<element name="originalTiming" type="time" />	<!--Output Only (not shown)-->
+		</sequence>
+	</complexType>
+
+	<complexType name="shootingScheduleType">
+		<sequence>
+			<element name="lastUpdatedDate" type="date" />
+			<element name="director" type="string" />
+			<element name="producer" type="string" />
+			<element name="startDate" type="date" />
+			<element name="scheduledFinish" type="date" />
+			<element name="revisedFinish" type="date" minOccurs="0" />
+			<element name="scheduledShootingDays" type="integer" />
+			<element name="singleDaySchedule" minOccurs="0" maxOccurs="unbounded" type="tns:singleDayScheduleType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="singleDayScheduleType">
+		<sequence>
+			<element name="shootDayNo" type="integer" />
+			<element name="shootDayDate" type="date" />
+			<element name="shootDayWeekday" type="string" />
+			<element name="crewCall" type="time" />
+			<element name="travelToLoc" type="time" />
+			<element name="bumpIn" type="time" minOccurs="0"/>
+			<element name="startDayNotes" type="string" minOccurs="0" />
+			<element name="sceneSchedule" maxOccurs="unbounded" type="tns:sceneScheduleType" />
+			<element name="endDayNotes" type="string" />
+			<element name="totalScriptPages" type="tns:pageTimeType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="sceneScheduleType">
+		<sequence>
+			<element name="scene" type="string" />
+			<element name="pageTime" type="tns:pageTimeType" />
+			<element name="D_N" type="string" />
+			<element name="IN_EX" type="string" />
+			<element name="locationID" type="string" />
+			<element name="set" type="string" />
+			<element name="address" type="string" />
+			<element name="synopsis" type="string" />
+			<element name="characters" type="tns:charactersType" />
+			<element name="estShootTimes" type="string" />
+			<element name="estScriptTiming" type="time" />
+			<element name="setRequirements" type="tns:setRequirementsType" />
+			<element name="mealBreak" minOccurs="0" type="tns:mealBreakType" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="pageTimeType">
+		<sequence>
+			<element name="number" type="integer" />
+			<element name="numerator" type="integer" />
+		</sequence>
+	</complexType>
+
+	<complexType name="charactersType">
+		<sequence>
+			<element name="character" maxOccurs="unbounded" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="setRequirementsType">
+		<sequence>
+			<element name="singleEntry" maxOccurs="unbounded" type="tns:singleEntryType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="singleEntryType">
+		<sequence>
+			<element name="item" type="string" />
+			<element name="requirements" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="mealBreakType">
+		<sequence>
+			<element name="meal" type="string" />
+			<element name="break" type="string" />
+		</sequence>
+	</complexType>
+</schema>

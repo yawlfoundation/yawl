@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Input_Cast_List xmlns:ns2="http://www.yawlfoundation.org/sb/castInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.yawlfoundation.org/sb/castInfo ../castInfoType.xsd ">
+  <production>production</production>
+  <castInfo>
+    <singleCastInfo>
+      <character>character</character>
+      <artist>artist</artist>
+      <agent>agent</agent>
+      <agentContactNo>agentContactNo</agentContactNo>
+    </singleCastInfo>
+  </castInfo>
+</ns2:Input_Cast_List>

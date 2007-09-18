@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Fill_Out_Continuity_Report xmlns:ns2="http://www.yawlfoundation.org/sb/continuityInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.yawlfoundation.org/sb/continuityInfo ../continuityInfoType.xsd ">
+  <generalInfo>
+    <production>production</production>
+    <date>2001-01-01</date>
+    <weekday>weekday</weekday>
+    <shootDayNo>0</shootDayNo>
+  </generalInfo>
+  <producer>producer</producer>
+  <director>director</director>
+  <directorOfPhotography>directorOfPhotography</directorOfPhotography>
+  <editor>editor</editor>
+  <continuity>continuity</continuity>
+  <continuityInfo>
+    <sceneInfo>
+      <scene>scene</scene>
+      <slateInfo>
+        <slate>slate</slate>
+        <takeInfo>
+          <take>0</take>
+          <duration>12:00:00</duration>
+          <print>true</print>
+          <comments>comments</comments>
+          <camRoll>camRoll</camRoll>
+          <soundRoll>soundRoll</soundRoll>
+        </takeInfo>
+      </slateInfo>
+    </sceneInfo>
+  </continuityInfo>
+  <finalSubmission>true</finalSubmission>
+</ns2:Fill_Out_Continuity_Report>

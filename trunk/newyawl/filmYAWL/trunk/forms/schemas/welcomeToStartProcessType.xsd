@@ -1,0 +1,12 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.yawlfoundation.org/sb/start"
+	xmlns:tns="http://www.yawlfoundation.org/sb/start" attributeFormDefault="unqualified"
+	elementFormDefault="unqualified">
+
+	<element name="Welcome_to_Start_Process" type="tns:Welcome_to_Start_ProcessType" />
+
+	<complexType name="Welcome_to_Start_ProcessType">
+		<sequence>
+			<element name="production" type="string" />	<!--Output Only-->
+		</sequence>
+	</complexType>
+</schema>

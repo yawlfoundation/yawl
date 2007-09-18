@@ -1,0 +1,76 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.yawlfoundation.org/sb/soundInfo"
+	xmlns:tns="http://www.yawlfoundation.org/sb/soundInfo" attributeFormDefault="unqualified"
+	elementFormDefault="unqualified">
+
+	<element name="Fill_Out_Sound_Sheets" type="tns:Fill_Out_Sound_SheetsType" />
+
+	<complexType name="Fill_Out_Sound_SheetsType">
+		<sequence>
+			<element name="generalInfo" type="tns:generalInfoType" />	<!--Input Only-->
+			<element name="producer" type="string" />	<!--Input Only-->
+			<element name="director" type="string" />	<!--Input Only-->
+			<element name="editor" type="string" />		<!--Input Only-->
+			<element name="soundRecordist" type="string" />	<!--Input Only-->
+			<element name="soundInfo" type="tns:soundInfoType" />	<!--Input/Output-->
+			<element name="anotherRoll" type="boolean" />	<!--Output Only-->
+			<element name="soundRolls" type="string" />	<!--Input/Output (not shown)-->
+		</sequence>
+	</complexType>
+
+	<complexType name="generalInfoType">
+		<sequence>
+			<element name="production" type="string" />
+			<element name="date" type="date" />
+			<element name="weekday" type="string" />
+			<element name="shootDayNo" type="integer" />
+		</sequence>
+	</complexType>
+
+	<complexType name="soundInfoType">
+		<sequence>
+			<element name="soundRoll" type="string" />
+			<element name="techInfo" minOccurs="0" type="tns:techInfoType" />
+			<element name="sceneInfo" minOccurs="0" maxOccurs="unbounded" type="tns:sceneInfoType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="techInfoType">
+		<sequence>
+			<element name="sampleRate" type="string" />
+			<element name="bitRate" type="string" />
+			<element name="timeCode_DF" type="string" />
+			<element name="timeCodeSource" type="string" />
+			<element name="refTone" type="string" />
+			<element name="userBits" type="boolean" />
+			<element name="soundMixer" type="string" />
+			<element name="cameraFrameRate" type="string" />
+			<element name="mediaFormat" type="string" />
+			<element name="recorder" type="string" />
+			<element name="transferTo" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="sceneInfoType">
+		<sequence>
+			<element name="scene" type="string" />
+			<element name="slateInfo" maxOccurs="unbounded" type="tns:slateInfoType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="slateInfoType">
+		<sequence>
+			<element name="slate" type="string" />
+			<element name="takeInfo" maxOccurs="unbounded" type="tns:takeInfoType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="takeInfoType">
+		<sequence>
+			<element name="take" type="integer" />
+			<element name="timecode" type="time" />
+			<element name="print" type="boolean" />
+			<element name="remarks" type="string" />
+			<element name="camRoll" type="string" />
+		</sequence>
+	</complexType>
+</schema>

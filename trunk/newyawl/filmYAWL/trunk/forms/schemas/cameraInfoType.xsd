@@ -1,0 +1,93 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.yawlfoundation.org/sb/cameraInfo"
+	xmlns:tns="http://www.yawlfoundation.org/sb/cameraInfo" attributeFormDefault="unqualified"
+	elementFormDefault="unqualified">
+
+	<element name="Fill_Out_Camera_Sheets" type="tns:Fill_Out_Camera_SheetsType" />
+
+	<complexType name="Fill_Out_Camera_SheetsType">
+		<sequence>
+			<element name="generalInfo" type="tns:generalInfoType" />	<!--Input Only-->
+			<element name="producer" type="string" />	<!--Input Only-->
+			<element name="director" type="string" />	<!--Input Only-->
+			<element name="directorOfPhotography" type="string" />	<!--Input Only-->
+			<element name="cameraOperator" type="string" />	<!--Input Only-->
+			<element name="cameraAssistant" type="string" />	<!--Input Only-->
+			<element name="cameraInfo" type="tns:cameraInfoType" />	<!--Input/Output-->
+			<element name="anotherRoll" type="boolean" />	<!--Output Only-->
+			<element name="stockInfo" type="tns:stockInfoType" />	<!--Input/Output (not shown)-->
+			<element name="camRolls" type="string" />	<!--Input/Output (not shown)-->
+		</sequence>
+	</complexType>
+
+	<complexType name="generalInfoType">
+		<sequence>
+			<element name="production" type="string" />
+			<element name="date" type="date" />
+			<element name="weekday" type="string" />
+			<element name="shootDayNo" type="integer" />
+		</sequence>
+	</complexType>
+
+	<complexType name="cameraInfoType">
+		<sequence>
+			<element name="sheetNumber" type="integer" />
+			<element name="camRoll" type="string" />
+			<element name="studios_location" type="string" />
+			<element name="techInfo" minOccurs="0" type="tns:techInfoType" />
+			<element name="slateInfo" minOccurs="0" maxOccurs="unbounded" type="tns:slateInfoType" />
+			<element name="shortEndMin" type="integer" />
+			<element name="camInfoSum" minOccurs="0" type="tns:camInfoSumType" />
+			<element name="instructionsToLab" type="string" />
+			<element name="signatureOfCameraAssistant" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="techInfoType">
+		<sequence>
+			<element name="cameraType_and_Number" type="string" />
+			<element name="stockNumber" type="string" />
+			<element name="emulsion" type="string" />
+			<element name="totalCansNumber" type="integer" />
+		</sequence>
+	</complexType>
+
+	<complexType name="slateInfoType">
+		<sequence>
+			<element name="magNumber" type="string" />
+			<element name="slate" type="string" />
+			<element name="takeInfo" maxOccurs="unbounded" type="tns:takeInfoType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="takeInfoType">
+		<sequence>
+			<element name="take" type="integer" />
+			<element name="counter" type="integer" />
+			<element name="length" type="integer" />
+			<element name="print" type="boolean" />
+			<element name="printSetting" type="string" />
+			<element name="essentialInfo" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="camInfoSumType">
+		<sequence>
+			<element name="footageLoaded" type="integer" />
+			<element name="totalExposed" type="integer" />
+			<element name="shortEnds" type="integer" />
+			<element name="waste" type="integer" />
+		</sequence>
+	</complexType>
+
+	<complexType name="stockInfoType">
+		<sequence>
+			<element name="loaded" type="integer" />
+			<element name="gross" type="integer" />
+			<element name="exposed" type="integer" />
+			<element name="print" type="integer" />
+			<element name="N_G" type="integer" />
+			<element name="waste" type="integer" />
+			<element name="shortEnds" type="integer" />
+		</sequence>
+	</complexType>
+</schema>
