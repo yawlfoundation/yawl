@@ -21,7 +21,7 @@ function createDropdownList(name) {
 function createBoldLabel(text) {
 	var label = document.createElement("STRONG");
 	label.appendChild(document.createTextNode(text));
-	return label;
+    return label;
 }
 
 function addClass(name, length){
@@ -292,7 +292,6 @@ function deleteDescriptionRow(table_num) {
                table_num);
 }
 
-//var requirements_count;
 var requirementsRowHeaderSize = 0;
 var requirementsRowFooterSize = 2;
 function addRequirementsRow() {    
@@ -304,15 +303,11 @@ function addRequirementsRow() {
     var row2 = table.insertRow(table.rows.length - requirementsRowFooterSize);
     row2.vAlign = "top";
 
-    insertPadding(row1, 0, "left", 1, 15);
-    var itemCELL = row1.insertCell(1);
-    var requirementstableCELL = row1.insertCell(2);
-    itemCELL.appendChild(createBoldLabel("Item"));
-    itemCELL.appendChild(document.createElement("BR"));
-    itemCELL.appendChild(createAnyTextTextBox("sr"+ requirements_count + "_item", 20, "", "enter item"));
-    requirementstableCELL.appendChild(addRequirementsSubTable(requirements_count));
-    insertPadding(row1, 3, "right", 1, 15);
+    setRequirementsRow1(row1, requirements_count);
+    setRequirementsRow2(row2, requirements_count);
+}
 
+function setRequirementsRow2(row2, requirements_count) {
     insertPadding(row2, 0, "left", 1, 15);
     var blankCELL = row2.insertCell(1);
     var addButton = createButton("requirementsbutton", "Insert Description");
@@ -320,12 +315,23 @@ function addRequirementsRow() {
 
     var deleteButton = createButton("deleteDescription", "Delete Description");
     deleteButton.onclick = function(){deleteDescriptionRow(requirements_count);};
-        
+
     var insertDescriptionCELL = row2.insertCell(2);
     insertDescriptionCELL.appendChild(addButton);
     insertDescriptionCELL.appendChild(deleteButton);
     insertDescriptionCELL.appendChild(createHiddenField("description_count_"+ requirements_count, 1));
-    insertPadding(row2, 3, "right", 1, 15);
+    insertPadding(row2, 3, "right", 1, 15);    
+}
+
+function setRequirementsRow1(row1, requirements_count) {
+    insertPadding(row1, 0, "left", 1, 15);
+    var itemCELL = row1.insertCell(1);
+    var requirementstableCELL = row1.insertCell(2);
+    itemCELL.appendChild(createBoldLabel("Item"));
+    itemCELL.appendChild(document.createElement("BR"));
+    itemCELL.appendChild(createAnyTextTextBox("sr"+ requirements_count + "_item", 20, "", "enter item"));
+    requirementstableCELL.appendChild(addRequirementsSubTable(requirements_count));
+    insertPadding(row1, 3, "right", 1, 15);    
 }
 
 function createButton(id, value) {
@@ -338,41 +344,36 @@ function createButton(id, value) {
 }
 
 function addRequirementsSubTable(requirements_count){
-	var table = document.createElement("TABLE");
-	var tbody = document.createElement("TBODY");
-	var sceneLABEL = document.createElement("TD");
+
+    var table = document.createElement("TABLE");
+
+    var sceneLABEL = document.createElement("TD");
 	var requirementsLABEL = document.createElement("TD");
-	var sceneCELL = document.createElement("TD");
-	var requirementsCELL = document.createElement("TD");
-	var row3 = document.createElement("TR");
-	var row4 = document.createElement("TR");
+    var row3 = table.insertRow(table.rows.length);
+    row3.vAlign = "top";    
+    var row4 = table.insertRow(table.rows.length);
+	row4.vAlign = "top";    
 
-	row3.vAlign = "top";
-	row4.vAlign = "top";
 
-	table.setAttribute("width", "510");
+    var sceneCELL = row4.insertCell(0);
+    var requirementsCELL = row4.insertCell(1);
+
+	sceneLABEL.appendChild(createBoldLabel("Scene"));
+	requirementsLABEL.appendChild(createBoldLabel("Requirements"));
+    row3.appendChild(sceneLABEL);
+    row3.appendChild(requirementsLABEL);
+    
+    sceneCELL.appendChild(createAnyTextTextBox("sr"+ requirements_count + "_scene_1", 20, "", "enter scene"));
+	requirementsCELL.appendChild(createTextArea("sr"+ requirements_count + "_requirements_1", 40, "",
+            "enter requirements"));
+
+    table.setAttribute("width", "510");
 	table.setAttribute("border", "0");
 	table.setAttribute("cellspacing", "0");
 	table.setAttribute("cellpadding", "0");
 	table.setAttribute("id", "description_" + requirements_count);
-
-	sceneLABEL.appendChild(createBoldLabel("Scene"));
-	requirementsLABEL.appendChild(createBoldLabel("Requirements"));
-	sceneCELL.appendChild(createAnyTextTextBox("sr"+ requirements_count + "_scene_1", 20, "", "enter scene"));
-	requirementsCELL.appendChild(createTextArea("sr"+ requirements_count + "_requirements_1", 40, "",
-            "enter requirements"));
-
-	row3.appendChild(sceneLABEL);
-	row3.appendChild(requirementsLABEL);
-	row4.appendChild(sceneCELL);
-	row4.appendChild(requirementsCELL);
-
-	tbody.appendChild(row3);
-	tbody.appendChild(row4);
-
-	table.appendChild(tbody);
-
-	return table;
+    
+    return table;
 }
 
 var scene_count;
