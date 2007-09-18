@@ -591,7 +591,7 @@
 								requirements_count ++;%>
 							<tr>
 								<td rowspan="2" class="left">&nbsp;</td>
-								<td align="left" valign="top"><strong>Item</strong><br><input name="sr<%= requirements_count %>_item" type="text" id="sr<%= requirements_count %>_item" value="<%= set.getItem() %>"></td>
+								<td align="left" valign="top"><strong>Item</strong><br><input name="sr<%= requirements_count %>_item" type="text" id="sr<%= requirements_count %>_item" value="<%= set.getItem() %>" title="enter item" pattern="any_text"></td>
 								<td align="center">
 									<table width="510" border="0" cellpadding="0" cellspacing="0" id="description_<%= requirements_count %>">
 									<tbody>
@@ -603,7 +603,7 @@
 										for (DescriptionType dt : set.getDescription()){ 
 											description_count ++;%>
 										<tr valign="top">
-											<td><input name="sr<%= requirements_count %>_scene_<%= description_count %>" type="text" id="sr<%= requirements_count %>_scene_<%= description_count %>" value="<%= dt.getScene() %>"></td>
+											<td><input name="sr<%= requirements_count %>_scene_<%= description_count %>" type="text" id="sr<%= requirements_count %>_scene_<%= description_count %>" value="<%= dt.getScene() %>" pattern="any_text"></td>
 											<td><textarea name="sr<%= requirements_count %>_requirements_<%= description_count %>" cols="40" id="sr<%= requirements_count %>_requirements_<%= description_count %>"><%= dt.getRequirements() %></textarea></td>
 										</tr>
 										<% }%>
