@@ -484,12 +484,12 @@
 													for(ArtistTimeInfoType atit : sst.getArtistTimeInfo()) {
 														artist_count ++;%>
 													<tr>
-														<td><input name="ss<%=scene_count%>_character_<%=artist_count%>" type="text" id="ss<%=scene_count%>_character_<%=artist_count%>" value="<%=atit.getCharacter()%>" size="15"></td>
-														<td><input name="ss<%=scene_count%>_artist_<%=artist_count%>" type="text" id="ss<%=scene_count%>_artist_<%=artist_count%>" value="<%= atit.getArtist() %>" size="15"></td>
-														<td><input name="ss<%=scene_count%>_pickup_<%=artist_count%>" type="text" id="ss<%=scene_count%>_pickup_<%=artist_count%>" value="<%if (atit.getPickup() != null) {out.print(atit.getPickup());} %>" size="6"></td>
-														<td><input name="ss<%=scene_count%>_makeup_<%=artist_count%>" type="text" id="ss<%=scene_count%>_makeup_<%=artist_count%>" value="<%if (atit.getMakeup() != null) {out.print(atit.getMakeup());} %>" size="6"></td>
-														<td><input name="ss<%=scene_count%>_wardrobe_<%=artist_count%>" type="text" id="ss<%=scene_count%>_wardrobe_<%=artist_count%>" value="<%if (atit.getWardrobe() != null) {out.print(atit.getWardrobe());} %>" size="6"></td>
-														<td><input name="ss<%=scene_count%>_onset_<%=artist_count%>" type="text" id="ss<%=scene_count%>_onset_<%=artist_count%>" value="<%= atit.getOnSet() %>" size="6"></td>
+														<td><input name="ss<%=scene_count%>_character_<%=artist_count%>" type="text" id="ss<%=scene_count%>_character_<%=artist_count%>" value="<%=atit.getCharacter()%>" size="15" title="enter character" pattern="any_text"></td>
+														<td><input name="ss<%=scene_count%>_artist_<%=artist_count%>" type="text" id="ss<%=scene_count%>_artist_<%=artist_count%>" value="<%= atit.getArtist() %>" size="15" title="enter artist" pattern="any_text"></td>
+														<td><input name="ss<%=scene_count%>_pickup_<%=artist_count%>" type="text" id="ss<%=scene_count%>_pickup_<%=artist_count%>" value="<%if (atit.getPickup() != null) {out.print(atit.getPickup());} %>" size="6" title="enter pick up" pattern="any_text"></td>
+														<td><input name="ss<%=scene_count%>_makeup_<%=artist_count%>" type="text" id="ss<%=scene_count%>_makeup_<%=artist_count%>" value="<%if (atit.getMakeup() != null) {out.print(atit.getMakeup());} %>" size="6" title="enter makeup" pattern="any_text"></td>
+														<td><input name="ss<%=scene_count%>_wardrobe_<%=artist_count%>" type="text" id="ss<%=scene_count%>_wardrobe_<%=artist_count%>" value="<%if (atit.getWardrobe() != null) {out.print(atit.getWardrobe());} %>" size="6" title="enter wardrobe" pattern="any_text"></td>
+														<td><input name="ss<%=scene_count%>_onset_<%=artist_count%>" type="text" id="ss<%=scene_count%>_onset_<%=artist_count%>" value="<%= atit.getOnSet() %>" size="6" title="enter onset" pattern="any_text"> </td>
 													</tr>
 													<% }%>
 												</tbody>
@@ -500,8 +500,9 @@
 										<tr>
 										  <td class="left">&nbsp;</td>
 										  <td colspan="6" align="left">
-										    <input type="button" name="Submit152" onclick="addArtistDetailsRow(<%= scene_count %>);" value="Add Artist Details">
-									      <input name="artist_count_<%= scene_count %>" type="hidden" id="artist_count_<%= scene_count %>" size="15" value="<%= artist_count %>">										  
+										    <input type="button" name="button600" onclick="addArtistDetailsRow(<%= scene_count %>);" value="Add Artist Details">
+										    <input type="button" name="button601" onclick="deleteArtistDetailsRow(<%= scene_count %>);" value="Delete Artist Details">
+									      <input name="artist_count_<%= scene_count %>" type="hidden" id="artist_count_<%= scene_count %>" size="15" value="<%= artist_count %>">
 										  </td>
 										  <td class="right">&nbsp;</td>
 									  	</tr>
