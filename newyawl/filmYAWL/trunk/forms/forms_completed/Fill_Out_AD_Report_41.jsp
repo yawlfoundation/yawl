@@ -495,14 +495,14 @@
 				              </select>
                             <br>					      
                           <input name="crew_other_1" type="text" id="crew_other_1" value="[If other, specify]" size="15"></td>
-						  <td align="center" valign="top"><input name="crew_call_1" type="text" id="crew_call_1" size="5"></td>
-						  <td align="center" valign="top"><input name="crew_travelin_1" type="text" id="crew_travelin_1" size="5"></td>
-						  <td align="center" valign="top"><input name="crew_loccall_1" type="text" id="crew_loccall_1" size="5"></td>
-						  <td align="center" valign="top"><input name="crew_meal_1" type="text" id="crew_meal_1" size="5"></td>
-						  <td align="center" valign="top"><input name="crew_wrap_1" type="text" id="crew_wrap_1" size="5"></td>
-						  <td align="center" valign="top"><input name="crew_wraploc_1" type="text" id="crew_wraploc_1" size="5"></td>
-						  <td align="center" valign="top"><input name="crew_departloc_1" type="text" id="crew_departloc_1" size="5"></td>
-						  <td align="center" valign="top"><input name="crew_travelout_1" type="text" id="crew_travelout_1" size="5"></td>
+						  <td align="center" valign="top"><input name="crew_call_1" type="text" id="crew_call_1" size="5" pattern="date"></td>
+						  <td align="center" valign="top"><input name="crew_travelin_1" type="text" id="crew_travelin_1" size="5" pattern="date"></td>
+						  <td align="center" valign="top"><input name="crew_loccall_1" type="text" id="crew_loccall_1" size="5" pattern="date"></td>
+						  <td align="center" valign="top"><input name="crew_meal_1" type="text" id="crew_meal_1" size="5" pattern="date"></td>
+						  <td align="center" valign="top"><input name="crew_wrap_1" type="text" id="crew_wrap_1" size="5" pattern="date"></td>
+						  <td align="center" valign="top"><input name="crew_wraploc_1" type="text" id="crew_wraploc_1" size="5" pattern="date"></td>
+						  <td align="center" valign="top"><input name="crew_departloc_1" type="text" id="crew_departloc_1" size="5" pattern="date"></td>
+						  <td align="center" valign="top"><input name="crew_travelout_1" type="text" id="crew_travelout_1" size="5" pattern="date"></td>
 						  <td align="center" valign="top"><textarea name="crew_remarks_1" cols="8" id="crew_remarks_1"></textarea></td>
 						  <td align="center" class="right">&nbsp;</td>
 					  </tr>
