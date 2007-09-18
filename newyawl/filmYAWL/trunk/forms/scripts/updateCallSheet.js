@@ -292,38 +292,37 @@ function deleteDescriptionRow(table_num) {
                table_num);
 }
 
-var requirements_count;
-function addRequirementsRow() {
-	var tbody = document.getElementById("set_requirements").getElementsByTagName("tbody")[0];
-	var row1 = document.createElement("TR");
-	var row2 = document.createElement("TR");
-	var itemCELL = document.createElement("TD");
-	var requirementstableCELL = document.createElement("TD");
-	var blankCELL = document.createElement("TD");
-	var insertDescriptionCELL = document.createElement("TD");
+//var requirements_count;
+function addRequirementsRow() {    
+    var requirements_count = incCount("requirements_count");
+    
+    var tbody = document.getElementById("set_requirements").getElementsByTagName("tbody")[0];
+    var row1 = document.createElement("TR");
+    var row2 = document.createElement("TR");
+    var itemCELL = document.createElement("TD");
+    var requirementstableCELL = document.createElement("TD");
+    var blankCELL = document.createElement("TD");
+    var insertDescriptionCELL = document.createElement("TD");
 
-	requirements_count = document.getElementById("requirements_count").value;
-	requirements_count ++;
-	document.getElementById("requirements_count").value = requirements_count;
-
-	row1.vAlign = "top";
+    row1.vAlign = "top";
 	row2.vAlign = "top";
 
 	itemCELL.appendChild(createBoldLabel("Item"));
 	itemCELL.appendChild(document.createElement("BR"));
-	itemCELL.appendChild(createInput("sr"+ requirements_count + "_item",20,"text",""));
+	itemCELL.appendChild(createAnyTextTextBox("sr"+ requirements_count + "_item", 20, "", "enter item"));
 
-	requirementstableCELL.appendChild(addRequirementsSubTable(requirements_count));
+    requirementstableCELL.appendChild(addRequirementsSubTable(requirements_count));
 
-	var button = document.createElement("INPUT");
-	button.setAttribute("name", "requirementsbutton");
-	button.setAttribute("id", "requirementsbutton");
-	button.setAttribute("type", "button");
-	button.setAttribute("value", "Insert Description");
-	button.onclick = function(){addDescriptionRow(requirements_count);};
+    var button = createButton("requirementsbutton", "Insert Description");
+    button.onclick = function(){addDescriptionRow(requirements_count);};
 
-	insertDescriptionCELL.appendChild(button);
-	insertDescriptionCELL.appendChild(createInput("description_count_"+ requirements_count,10, "hidden", 1));
+    var deleteButton = createButton("deleteDescription", "Delete Description");
+    deleteButton.onclick = function(){deleteDescriptionRow(requirements_count);};
+
+    insertDescriptionCELL.appendChild(button);
+    insertDescriptionCELL.appendChild(deleteButton);
+
+    insertDescriptionCELL.appendChild(createHiddenField("description_count_"+ requirements_count, 1));
 
 	row1.appendChild(addClass("left", "1"));
 	row1.appendChild(itemCELL);
@@ -339,6 +338,16 @@ function addRequirementsRow() {
 	tbody.appendChild(row1);
 	tbody.appendChild(row2);
 }
+
+function createButton(id, value) {
+    var button = document.createElement("INPUT");
+    button.setAttribute("name", id);
+    button.setAttribute("id", id);
+    button.setAttribute("type", "button");
+    button.setAttribute("value", value);
+    return button;
+}
+
 function addRequirementsSubTable(requirements_count){
 	var table = document.createElement("TABLE");
 	var tbody = document.createElement("TBODY");
@@ -360,8 +369,9 @@ function addRequirementsSubTable(requirements_count){
 
 	sceneLABEL.appendChild(createBoldLabel("Scene"));
 	requirementsLABEL.appendChild(createBoldLabel("Requirements"));
-	sceneCELL.appendChild(createInput("sr"+ requirements_count + "_scene_1",20,"text",""));
-	requirementsCELL.appendChild(createTextArea("sr"+ requirements_count + "_requirements_1",40));
+	sceneCELL.appendChild(createAnyTextTextBox("sr"+ requirements_count + "_scene_1", 20, "", "enter scene"));
+	requirementsCELL.appendChild(createTextArea("sr"+ requirements_count + "_requirements_1", 40, "",
+            "enter requirements"));
 
 	row3.appendChild(sceneLABEL);
 	row3.appendChild(requirementsLABEL);
