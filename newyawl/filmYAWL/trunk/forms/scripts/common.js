@@ -205,7 +205,6 @@ function deleteRows(tableName, countName, headerSize, footerSize, addFn, paramFo
         var rows = table.rows.length;
         var count = getCountByName(countName);
 
-        alert ("rows="+rows+", headerAndFooter="+(headerSize+footerSize)+"count="+count);
         if (rows > (headerSize+footerSize)) {
             //delete from the bottom, removing 1 for the 0-based index.
             table.deleteRow(rows-(footerSize+1));
