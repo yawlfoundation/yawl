@@ -7,9 +7,29 @@ var temp_character_count = 1;
 var temp_requirements_count = 1;
 var days_count = 1;
 //This is the number of rows allocated for the header part of the cast table.
-var headerSize = 1;
-var footerSize = 1;
+var headerSize = 0;
+var footerSize = 0;
 var headerAndFooterSize = headerSize + footerSize;
+
+function deleteRequirementsRow(day, table) {
+	var temp_requirements_count = document.getElementById("sd"+day+"_requirementscount"+table).value;
+    var requirementsTABLE = document.getElementById("sd"+day+"_requirements"+table);
+    var rows = requirementsTABLE.rows.length;
+    if (rows > headerAndFooterSize) {
+        //delete from the bottom, removing 1 for the 0-based index.
+        requirementsTABLE.deleteRow(rows-(footerSize+1));
+        if (temp_requirements_count > 0) {
+            document.getElementById("sd"+day+"_requirementscount"+table).value = -- temp_requirements_count;
+        }
+
+        if (temp_requirements_count == 0) {
+            //add an empty row after the last row has been deleted.
+            //this allows all data-containing rows to be deleted and for there to be a single empty row
+            //at any point in time.
+            addRequirementsRow(day, table);
+        }
+    }
+}
 
 function addRequirementsRow(day, table) { //works
 	var requirementsTABLE = document.getElementById("sd"+day+"_requirements"+table);
@@ -54,9 +74,28 @@ function addRequirementsRow(day, table) { //works
 	requirementsCELL.appendChild(createTextArea("sd"+day+"_requirements"+table+"_"+temp_requirements_count, 20,"", "Enter Requirements Details. [String Value]"));
 }
 
+function deleteCharacterRow(day, table) {
+	var temp_character_count = document.getElementById("sd"+day+"_charactercount"+table).value;
+    var characterTABLE = document.getElementById("sd"+day+"_characters"+table);
+    var rows = characterTABLE.rows.length;
+    if (rows > headerAndFooterSize) {
+        //delete from the bottom, removing 1 for the 0-based index.
+        characterTABLE.deleteRow(rows-(footerSize+1));
+        if (temp_character_count > 0) {
+            document.getElementById("sd"+day+"_charactercount"+table).value = -- temp_character_count;
+        }
+
+        if (temp_character_count == 0) {
+            //add an empty row after the last row has been deleted.
+            //this allows all data-containing rows to be deleted and for there to be a single empty row
+            //at any point in time.
+            addCharacterRow(day, table);
+        }
+    }
+}
 function addCharacterRow(day, table) {//works
 	var characterTABLE= document.getElementById("sd"+day+"_characters"+table);
-	var row = characterTABLE.insertRow(characterTABLE.rows.legth-footerSize);
+	var row = characterTABLE.insertRow(characterTABLE.rows.length-footerSize);
 	var cell = row.insertCell(0);
 	//get the number of CHARACTERS entries
 	temp_character_count = document.getElementById("sd"+day+"_charactercount"+table).value;
@@ -241,7 +280,8 @@ function addShootingDay () {
 	var button_left = button_row.insertCell(0);
 	var button_cell = button_row.insertCell(1);
 	var button_right = button_row.insertCell(2);
-	var button = document.createElement("INPUT");
+	var addBUTTON = document.createElement("INPUT");
+	var deleteBUTTON = document.createElement("INPUT");
 	button_left.className = "left";
     button_left.appendChild(document.createTextNode("\u00a0"));
 	button_right.className = "right";
@@ -250,10 +290,10 @@ function addShootingDay () {
 	addBUTTON.setAttribute("value", "Add Scene");
 	addBUTTON.setAttribute("onClick", "addScene('scenes"+count+"', "+count+");");
 	deleteBUTTON.setAttribute("type", "button");
-	deleteBUTTON.setAttribute("value", "Add Scene");
+	deleteBUTTON.setAttribute("value", "Delete Scene");
 	deleteBUTTON.setAttribute("onClick", "deleteScene('scenes"+count+"', "+count+");");
-	button_cell.appendChild(addButton);
-	button_cell.appendChild(deleteButton);
+	button_cell.appendChild(addBUTTON);
+	button_cell.appendChild(deleteBUTTON);
 	button_cell.colSpan = "4";
 	
 	//the END OF DAY NOTES textbox information
@@ -466,8 +506,9 @@ function createSceneTable () {//done
 	var characterCELL = row7.insertCell(2);
 	var right7CELL = row7.insertCell(3);
 	var addcharacterROW = document.createElement("TR");
-	var addcharacterCELL = document.createElement("TD");
+	var addcharacterCELL = addcharacterROW.insertCell(0);
 	var addcharacterBUTTON = document.createElement("INPUT");
+	var deletecharacterBUTTON = document.createElement("INPUT");
 	left7CELL.className = "left";
     left7CELL.appendChild(document.createTextNode("\u00a0"));
 	right7CELL.className = "right";
@@ -478,6 +519,9 @@ function createSceneTable () {//done
 	addcharacterBUTTON.setAttribute("type", "button");
 	addcharacterBUTTON.setAttribute("value", "Add Character");
 	addcharacterBUTTON.setAttribute("onClick", "addCharacterRow("+temp_day_count+","+temp_table_count+");");
+	deletecharacterBUTTON.setAttribute("type", "button");
+	deletecharacterBUTTON.setAttribute("value", "Delete Character");
+	deletecharacterBUTTON.setAttribute("onClick", "deleteCharacterRow("+temp_day_count+","+temp_table_count+");");
 	var characterTABLE = document.createElement("TABLE");
 	var charactertableROW = characterTABLE.insertRow(characterTABLE.rows.length);
 	var charactertableCELL = charactertableROW.insertCell(0);
@@ -489,8 +533,8 @@ function createSceneTable () {//done
 	characterLABEL.appendChild(createBoldLabel("Characters"));
 	charactertableCELL.appendChild(createTextBox("sd"+temp_day_count+"_charactername" + temp_table_count+"_1", 20, "", "Enter Character Name."));
 	addcharacterCELL.appendChild(addcharacterBUTTON);
+	addcharacterCELL.appendChild(deletecharacterBUTTON);
 	addcharacterCELL.appendChild(createHiddenField("sd"+temp_day_count+"_charactercount" + temp_table_count, 1));
-	addcharacterROW.appendChild(addcharacterCELL);
 	charactertableROW.appendChild(charactertableCELL);
 	characterTABLE.appendChild(charactertableROW);
 	characterCELL.appendChild(characterTABLE);
@@ -504,6 +548,7 @@ function createSceneTable () {//done
 	var addrequirementsBUTTON_row = document.createElement("TR");
 	var addrequirementsBUTTON_cell = addrequirementsBUTTON_row.insertCell(0);
 	var addrequirementsBUTTON = document.createElement("INPUT");
+	var deleterequirementsBUTTON = document.createElement("INPUT");
 	left8CELL.className = "left";
     left8CELL.appendChild(document.createTextNode("\u00a0"));
 	right8CELL.className = "right";
@@ -514,6 +559,9 @@ function createSceneTable () {//done
 	addrequirementsBUTTON.setAttribute("type", "button");
 	addrequirementsBUTTON.setAttribute("value", "Add Requirements");
 	addrequirementsBUTTON.setAttribute("onClick", "addRequirementsRow("+temp_day_count+","+temp_table_count+");");
+	deleterequirementsBUTTON.setAttribute("type", "button");
+	deleterequirementsBUTTON.setAttribute("value", "Delete Requirements");
+	deleterequirementsBUTTON.setAttribute("onClick", "deleteRequirementsRow("+temp_day_count+","+temp_table_count+");");
 	var requirementsTABLE = document.createElement("TABLE");
 	var requirementstableROW = requirementsTABLE.insertRow(requirementsTABLE.rows.length);
 	var table_cell1 = requirementstableROW.insertCell(0);
@@ -549,9 +597,10 @@ function createSceneTable () {//done
 	requirementsDROPDOWN.appendChild(createDropdownList("Miscellaneous"));
 	requirementsDROPDOWN.appendChild(createDropdownList("Notes"));
 	table_cell1.appendChild(requirementsDROPDOWN);
-	table_cell2.appendChild(createTextArea("sd"+temp_day_count+"_requirements"+temp_table_count+"_1", 30, "", "Enter Requirement Description."));
+	table_cell2.appendChild(createTextArea("sd"+temp_day_count+"_requirements"+temp_table_count+"_1", 20, "", "Enter Requirement Description."));
 	requirementsLABEL.appendChild(createBoldLabel("Set Requirements"));
 	addrequirementsBUTTON_cell.appendChild(addrequirementsBUTTON);
+	addrequirementsBUTTON_cell.appendChild(deleterequirementsBUTTON);
 	addrequirementsBUTTON_cell.appendChild(createHiddenField("sd"+temp_day_count+"_requirementscount" + temp_table_count, 1));
 	requirementsCELL.appendChild(requirementsTABLE);
 	requirementsCELL.appendChild(addrequirementsBUTTON_row);
