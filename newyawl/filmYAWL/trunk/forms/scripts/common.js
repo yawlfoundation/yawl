@@ -225,3 +225,19 @@ function deleteRows(tableName, countName, headerSize, footerSize, addFn, paramFo
             }
         }
 }
+
+function createHiddenField(id, value) {
+    var input =  document.createElement("INPUT");
+    input.setAttribute("type", "hidden");
+    input.setAttribute("name", id);
+    input.setAttribute("id", id);
+    input.setAttribute("value", value);
+}
+
+function createRadioButton(id, value) {
+    var input =  document.createElement("INPUT");
+    input.setAttribute("type", "radio");
+    input.setAttribute("name", id);
+    input.setAttribute("id", id);
+    input.setAttribute("value", value);
+}
