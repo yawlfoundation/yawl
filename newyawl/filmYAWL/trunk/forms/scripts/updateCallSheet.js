@@ -604,36 +604,43 @@ function createArtistInfoTable (){
 	return artistTABLE;
 }
 
-var artist_count;
+var artistDetailHeaderSize = 1;
+var artistDetailFooterSize = 0;
+var artistDetailTableRoot = "artist";
+var artistDetailCountNameRoot = "artist_count" 
 function addArtistDetailsRow(scene_num) {
-	var artistTABLE = document.getElementById("artist_"+scene_num).getElementsByTagName("tbody")[0];
-	var row = document.createElement("TR");
-	var characterCELL = document.createElement("TD");
-	var artistCELL = document.createElement("TD");
-	var pickupCELL = document.createElement("TD");
-	var makeupCELL = document.createElement("TD");
-	var wardrobeCELL = document.createElement("TD");
-	var onsetCELL = document.createElement("TD");
+    var artist_count = incCount(artistDetailCountNameRoot + "_" + scene_num)
+    var table = document.getElementById(artistDetailTableRoot + "_"+scene_num);
+    var row = table.insertRow(table.rows.length - artistDetailFooterSize);
 
-	artist_count = document.getElementById("artist_count_" + scene_num).value;
-	artist_count ++;
-	document.getElementById("artist_count_" + scene_num).value = artist_count;
+    var characterCELL = row.insertCell(0);
+    var artistCELL = row.insertCell(1);
+    var pickupCELL = row.insertCell(2);
+    var makeupCELL = row.insertCell(3);
+    var wardrobeCELL = row.insertCell(4);
+    var onsetCELL = row.insertCell(5);
 
-	characterCELL.appendChild(createInput("ss" + scene_num + "_character_" + artist_count, 15, "text", ""));
-	artistCELL.appendChild(createInput("ss" + scene_num + "_artist_" + artist_count, 15, "text", ""));
-	pickupCELL.appendChild(createInput("ss" + scene_num + "_pickup_" + artist_count, 6, "text", ""));
-	makeupCELL.appendChild(createInput("ss" + scene_num + "_makeup_" + artist_count, 6, "text", ""));
-	wardrobeCELL.appendChild(createInput("ss" + scene_num + "_wardrobe_" + artist_count, 6, "text", ""));
-	onsetCELL.appendChild(createInput("ss" + scene_num + "_onset_" + artist_count, 6, "text", ""));
+	characterCELL.appendChild(createAnyTextTextBox("ss" + scene_num + "_character_" + artist_count, 15, "",
+            "enter character"));
+	artistCELL.appendChild(createAnyTextTextBox("ss" + scene_num + "_artist_" + artist_count, 15, "",
+            "enter artist"));
+	pickupCELL.appendChild(createAnyTextTextBox("ss" + scene_num + "_pickup_" + artist_count, 6, "",
+            "enter pickup"));
+	makeupCELL.appendChild(createAnyTextTextBox("ss" + scene_num + "_makeup_" + artist_count, 6, "",
+            "enter makeup"));
+	wardrobeCELL.appendChild(createAnyTextTextBox("ss" + scene_num + "_wardrobe_" + artist_count, 6, "",
+            "enter wardrobe"));
+	onsetCELL.appendChild(createAnyTextTextBox("ss" + scene_num + "_onset_" + artist_count, 6, "",
+            "enter onset"));
+}
 
-	row.appendChild(characterCELL);
-	row.appendChild(artistCELL);
-	row.appendChild(pickupCELL);
-	row.appendChild(makeupCELL);
-	row.appendChild(wardrobeCELL);
-	row.appendChild(onsetCELL);
-
-	artistTABLE.appendChild(row);
+function deleteArtistDetailsRow(scene_num) {
+    deleteRows(artistDetailTableRoot + "_"+scene_num,
+               artistDetailCountNameRoot + "_" + scene_num,
+               artistDetailHeaderSize,
+               artistDetailFooterSize,
+               function() {addArtistDetailsRow(scene_num)},
+               scene_num);
 }
 
 function addMealBreakRow(scene_num){
