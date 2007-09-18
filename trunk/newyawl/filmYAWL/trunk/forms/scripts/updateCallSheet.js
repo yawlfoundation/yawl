@@ -259,11 +259,15 @@ function addAdvancedSceneRow(){
 	advancedsceneTABLE.appendChild(row);
 }
 
-var setReqDescriptionFooter = 0;
+var setReqDescriptionHeaderSize = 1;
+var setReqDescriptionFooterSize = 0;
+var setReqDescriptionHeaderAndFooterSize = setReqDescriptionHeaderSize + setReqDescriptionFooterSize;
+var setReqDescriptionCountRoot = "description_count";
+var setReqDescriptionTableRoot = "description";
 var addDescriptionRowVar = function addDescriptionRow(table_num) {
     var description_count = incCount("description_count_"+table_num);
     var table = document.getElementById("description_"+table_num);
-    var row = table.insertRow(table.rows.length - setReqDescriptionFooter);
+    var row = table.insertRow(table.rows.length - setReqDescriptionFooterSize);
     row.vAlign = "top";
 
     var sceneCELL = row.insertCell(0);
@@ -277,6 +281,15 @@ var addDescriptionRowVar = function addDescriptionRow(table_num) {
 
 function addDescriptionRow(table_num) {
     addDescriptionRowVar(table_num);
+}
+
+function deleteDescriptionRow(table_num) {
+    deleteRows(setReqDescriptionTableRoot + "_" + table_num,
+               setReqDescriptionCountRoot + "_" + table_num,
+               setReqDescriptionHeaderSize,
+               setReqDescriptionFooterSize,
+               addDescriptionRowVar,
+               table_num);
 }
 
 var requirements_count;
