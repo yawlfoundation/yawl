@@ -139,10 +139,10 @@
 							a++;%>
 						   <tr valign="top">
 							<td width="15" height="30" align="center" class="left">&nbsp;</td>
-							<td height="30" align="center"><input name='<% out.print("character_" + a); %>' type="text" id='<% out.print("character_" + a); %>' size="20" value="<%= scit.getCharacter() %>" pattern="^[A-Za-z\s]+$"></td>
-							<td height="30" align="center"><input name='<% out.print("artist_" + a); %>' type='text' id='<% out.print("artist_" + a); %>' size="20" value="<%= scit.getArtist() %>" pattern="^[A-Za-z\s]+$"></td>
-							<td height="30" align="center"><input name='<% out.print("agent_" + a); %>' type='text' id='<% out.print("agent_" + a); %>' size="20" value="<%= scit.getAgent() %>" pattern="^[A-Za-z\s]+$"></td>
-							<td height="30" align="center"><input name='<% out.print("contactno_" + a); %>' type='text' id='<% out.print("contactno_" + a); %>' size="10" value="<%= scit.getAgentContactNo() %>" pattern="^[\d\s\+\-]+$"></td>
+							<td height="30" align="center"><input name='<% out.print("character_" + a); %>' type="text" id='<% out.print("character_" + a); %>' size="20" value="<%= scit.getCharacter() %>" pattern="text"></td>
+							<td height="30" align="center"><input name='<% out.print("artist_" + a); %>' type='text' id='<% out.print("artist_" + a); %>' size="20" value="<%= scit.getArtist() %>" pattern="text"></td>
+							<td height="30" align="center"><input name='<% out.print("agent_" + a); %>' type='text' id='<% out.print("agent_" + a); %>' size="20" value="<%= scit.getAgent() %>" pattern="text"></td>
+							<td height="30" align="center"><input name='<% out.print("contactno_" + a); %>' type='text' id='<% out.print("contactno_" + a); %>' size="10" value="<%= scit.getAgentContactNo() %>" pattern="tel"></td>
 							<td width="15" height="30" class="right">&nbsp;</td>
 						  </tr>
 					  <% }
@@ -151,10 +151,10 @@
 					  <% if (icl.getCastInfo() == null) {%>
 					   <tr valign="top">
 							<td width="15" height="30" align="center" class="left">&nbsp;</td>
-							<td height="30" align="center"><input name='character_1' type="text" id='character_1' size="20" value="" pattern="^[A-Za-z\s]+$" title="enter character name"></td>
-							<td height="30" align="center"><input name='artist_1' type='text' id='artist_1' size="20" value="" pattern="^[A-Za-z\s]+$" title="enter artist name"></td>
-							<td height="30" align="center"><input name='agent_1' type='text' id='agent_1' size="20" value="" pattern="^[A-Za-z\s]+$" title="enter agent name"></td>
-							<td height="30" align="center"><input name='contactno_1' type='text' id='contactno_1' size="10" value="" pattern="^[\d\s\+\-]+$" title="enter contact number"></td>
+							<td height="30" align="center"><input name='character_1' type="text" id='character_1' size="20" value="" pattern="text"" title="enter character name"></td>
+							<td height="30" align="center"><input name='artist_1' type='text' id='artist_1' size="20" value="" pattern="text" title="enter artist name"></td>
+							<td height="30" align="center"><input name='agent_1' type='text' id='agent_1' size="20" value="" pattern="text" title="enter agent name"></td>
+							<td height="30" align="center"><input name='contactno_1' type='text' id='contactno_1' size="10" value="" pattern="tel" title="enter contact number"></td>
 							<td width="15" height="30" class="right">&nbsp;</td>
 						  </tr>
 					 <% }%>
