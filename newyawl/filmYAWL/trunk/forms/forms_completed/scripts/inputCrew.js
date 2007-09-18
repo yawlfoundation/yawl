@@ -63,7 +63,7 @@ function addCrewRow(){
     roleCELL.appendChild(createTextBoxWithNoValidation("role_other_" + count, 32, "[If Other, please specify]"));
     firstnameCELL.appendChild(createTextBox("firstname_" + count, 10, "", "enter your first name"));
     lastnameCELL.appendChild(createTextBox("lastname_" + count, 15, "", "enter your last name"));
-    contactnoCELL.appendChild(createNumberTextBox("contactno_" + count, 8, "", "enter your contact number"));
+    contactnoCELL.appendChild(createTelNumberTextBox("contactno_" + count, 8, "", "enter your contact number"));
     emailCELL.appendChild(createEmailTextBox("email_" + count, 20, "", "enter your email address"));
 }
 
