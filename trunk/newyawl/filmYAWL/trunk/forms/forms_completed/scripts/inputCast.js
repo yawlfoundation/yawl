@@ -52,29 +52,5 @@ function addCastRow(){
 	characterCELL.appendChild(createTextBox("character_" + count, 20, "", "enter character name"));
 	artistCELL.appendChild(createTextBox("artist_" + count, 20, "", "enter artist name"));
 	agentCELL.appendChild(createTextBox("agent_" + count, 20, "", "enter agent name"));
-	contactnoCELL.appendChild(createNumberTextBox("contactno_" + count, 10, "", "enter contact number"));
+	contactnoCELL.appendChild(createTelNumberTextBox("contactno_" + count, 10, "", "enter contact number"));
 }
-
-//function getParam(name){
-//  var start=location.search.indexOf("?"+name+"=");
-//  if (start<0) start=location.search.indexOf("&"+name+"=");
-//  if (start<0) return '';
-//  start += name.length+2;
-//  var end=location.search.indexOf("&",start)-1;
-//  if (end<0) end=location.search.length;
-//  var result='';
-//  for(var i=start;i<=end;i++) {
-//    var c=location.search.charAt(i);
-//    result=result+(c=='+'?' ':c);
-//  }
-//  //window.alert('Result = '+result);
-//  return unescape(result);
-//}
-//
-//function getParameters(){
-//	document.form1.workItemID.value = getParam('workItemID');
-//	document.form1.userID.value = getParam('userID');
-//	document.form1.sessionHandle.value = getParam('sessionHandle');
-//	document.form1.JSESSIONID.value = getParam('JSESSIONID');
-//	document.form1.submit.value = "htmlForm";
-//}
