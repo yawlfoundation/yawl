@@ -520,14 +520,14 @@
 											<input type="button" name="ss$_mealbutton" id="ss$_mealbutton" value="Add Meal Break" onClick="addMealBreakRow();" />
 											</td>
 										  	<td colspan="4" align="left">
-											<table width="400" border="0" cellpadding="0" cellspacing="0" id="mealbreak_$">
+											<table width="400" border="0" cellpadding="0" cellspacing="0" id="mealbreak_$" class="hidden">
 											<tbody>
                                             <tr>
                                               <td><strong>Meal</strong></td>
-                                              <td><input name="ss$_meal" type="text" id="ss$_meal" value=""></td>
+                                              <td><input name="ss$_meal" type="text" id="ss$_meal" value="" pattern="any_text" class="hidden"></td>
                                               <td>&nbsp;</td>
                                               <td><strong>Times</strong></td>
-                                              <td><input name="ss$_times" type="text" id="ss$_times" value=""></td>
+                                              <td><input name="ss$_times" type="text" id="ss$_times" value="" pattern="date" class="hidden"></td>
                                             </tr>
 											</tbody>
                                           	</table>
