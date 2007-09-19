@@ -537,7 +537,7 @@
 										<tr><td colspan="8" class="bottom">&nbsp;</td></tr>
 								</tbody>
                                     <!-- end sample -->
-                                    <tbody>
+                                    <tbody id="<%=scene_count%>">
 										<tr><td colspan="8" class="top">&nbsp;</td></tr>
 										<tr>
 											<td class="left">&nbsp;</td>
@@ -655,7 +655,9 @@
 							  <td class="right">&nbsp;</td>
 						  </tr>
 							<tr><td class="left">&nbsp;</td>
-							  <td colspan="2"><input type="button" name="Submit15" value="Insert Scene" onClick="addSceneRow(<%= scene_count %>)">
+							  <td colspan="2">
+                                <input type="button" name="button700" value="Insert Scene" onClick="addSceneRow();">
+                                <input type="button" name="button701" value="Delete Scene" onClick="deleteSceneRow();">
                                 <input name="scene_count" type="hidden" id="scene_count" size="15" value="<%= scene_count %>"></td>
 							  <td class="right">&nbsp;</td>
 							</tr>
