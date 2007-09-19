@@ -136,6 +136,7 @@ function addCateringRow(){
     cateringtimeCELL.appendChild(createDateTextBox("catering_time_" + catering_count, 8, "", "enter catering time"));
 	cateringnumbersCELL.appendChild(createNumberTextBox("catering_numbers_" + catering_count, 8, previous_numbers, "enter catering numbers"));
 	cateringlocationCELL.appendChild(createAnyTextTextBox("catering_location_" + catering_count, 50, previous_location, "enter catering location"));
+    
 }
 
 function deleteCateringRow() {
@@ -390,164 +391,230 @@ function addRequirementsSubTable(requirements_count){
     return table;
 }
 
-var scene_count;
+var dynamicSceneCountName = "dyn_scene_count";
+function getSceneCount() {
+    var count = getCountByName(dynamicSceneCountName);
+    return ++count;
+}
+
+function updateWithCount(parent, count, token, buttonHandler) {
+        var elements = parent.getElementsByTagName("input");
+        var templateId = null;
+        var updatedId = null;
+        var x = 0;
+        if (elements != null) {
+            for (; x < elements.length; x++) {
+                if (elements[x].id.indexOf(token) != -1) {
+                    updatedId = elements[x].id.replace(token, count);
+                    elements[x].id = updatedId;
+                    elements[x].name = updatedId;
+
+                    if (buttonHandler != null) {
+                        buttonHandler(elements[x], count);
+                    }
+                }
+            }
+        }
+
+        elements = parent.getElementsByTagName("table");
+        if (elements != null) {
+            templateId = null;
+            updatedId = null;
+            for (x = 0; x < elements.length; x++) {
+                if (elements[x].id.indexOf(token) != -1) {
+                    updatedId = elements[x].id.replace(token, count);
+                    elements[x].id = updatedId;         
+                }
+           }
+        }
+}
+
+var buttonHandlersForScene = function handleDynamicButtonClicks(element, count) {
+    if (element.type == 'button') {
+        //check method calls.
+        var functionVar = element.onclick;
+        //TODO: this is a workaround. If you can dynamically insert the count parameter into the
+        //function call do so.
+        if (functionVar.toString().indexOf("addArtistDetailsRow") != -1) {
+            element.onclick = function() {addArtistDetailsRow(count);};
+         } else if (functionVar.toString().indexOf("deleteArtistDetailsRow") != -1) {
+            element.onclick = function() {deleteArtistDetailsRow(count);};
+        } else if (functionVar.toString().indexOf("addMealBreakRow") != -1) {
+            element.onclick = function() {addMealBreakRow(count);};
+        }
+    }
+
+}
+
 function addSceneRow(scene_num) {
-	var tbody = document.getElementById("scene").getElementsByTagName("tbody")[0];
+    var table = document.getElementById("scene");
+    var tableBody = table.getElementsByTagName("tbody")[0];
 
-	scene_count = document.getElementById("scene_count").value;
-	scene_count ++;
-	document.getElementById("scene_count").value = scene_count;
+    var tableBodyClone = tableBody.cloneNode(true);
+    tableBodyClone.className = "valid";
+    table.appendChild(tableBodyClone);
+    updateWithCount(tableBodyClone, getSceneCount(), "$", buttonHandlersForScene);
+    incCount(dynamicSceneCountName);    
+//    var element = document.getElementById("ssx_scene");
+//    element.id = "ss2_scene";
+//    element.name = "ss2_scene";
 
-	//first row
-	var row1 = document.createElement("TR");
-	row1.appendChild(addClass("top","8"));
-
-	//second row
-	var row2 = document.createElement("TR");
-	var sceneLABEL = document.createElement("TD");
-	var pagetimeLABEL = document.createElement("TD");
-	var dnLABEL = document.createElement("TD");
-	var ieLABEL = document.createElement("TD");
-	var setlocationLABEL = document.createElement("TD");
-	var synopsisLABEL = document.createElement("TD");
-
-	sceneLABEL.appendChild(createBoldLabel("Scene"));
-	pagetimeLABEL.appendChild(createBoldLabel("Page Time"));
-	dnLABEL.appendChild(createBoldLabel("D/N"));
-	ieLABEL.appendChild(createBoldLabel("I/E"));
-	setlocationLABEL.appendChild(createBoldLabel("Set/Location"));
-	synopsisLABEL.appendChild(createBoldLabel("Synopsis"));
-
-	row2.appendChild(addClass("left", "1"));
-	row2.appendChild(sceneLABEL);
-	row2.appendChild(pagetimeLABEL);
-	row2.appendChild(dnLABEL);
-	row2.appendChild(ieLABEL);
-	row2.appendChild(setlocationLABEL);
-	row2.appendChild(synopsisLABEL);
-	row2.appendChild(addClass("right", "1"));
-
-	//third row
-	var row3 = document.createElement("TR");
-	var sceneCELL = document.createElement("TD");
-	var pageCELL = document.createElement("TD");
-	var dnCELL = document.createElement("TD");
-	var inexCELL = document.createElement("TD");
-	var setlocationCELL = document.createElement("TD");
-	var synopsisCELL = document.createElement("TD");
-
-	sceneCELL.appendChild(createInput("ss" + scene_count +"_scene", 6, "text", ""));
-	pageCELL.appendChild(createInput("ss" + scene_count +"_pages", 4, "text", ""));
-	pageCELL.appendChild(document.createTextNode("\u00a0"));
-	pageCELL.appendChild(createInput("ss" + scene_count +"_pagesnum",2, "text", ""));
-	pageCELL.appendChild(createBoldLabel(" /8pgs"));
-	dnCELL.appendChild(createInput("ss" + scene_count +"_dn", 6, "text", ""));
-	inexCELL.appendChild(createInput("ss" + scene_count +"_inex", 6, "text", ""));
-	setlocationCELL.appendChild(createInput("ss" + scene_count +"_setlocation", 15, "text", ""));
-	synopsisCELL.appendChild(createInput("ss" + scene_count +"_synopsis", 15, "text", ""));
-
-	row3.appendChild(addClass("left", "1"));
-	row3.appendChild(sceneCELL);
-	row3.appendChild(pageCELL);
-	row3.appendChild(dnCELL);
-	row3.appendChild(inexCELL);
-	row3.appendChild(setlocationCELL);
-	row3.appendChild(synopsisCELL);
-	row3.appendChild(addClass("right", "1"));
-
-	//fourth row
-	var row4 = document.createElement("TR");
-	var artisttableCELL = document.createElement("TD");
-
-	artisttableCELL.colSpan = "6";
-
-	artisttableCELL.appendChild(createArtistInfoTable(scene_count));
-	row4.appendChild(addClass("left", "1"));
-	row4.appendChild(artisttableCELL);
-	row4.appendChild(addClass("right", "1"));
-
-	//fourth row buttons
-	var row4B = document.createElement("TR");
-	var r4Bc2 = document.createElement("TD");
-
-	r4Bc2.colSpan = "6";
-	r4Bc2.setAttribute("align", "left");
-
-	var button = document.createElement("INPUT");
-	button.setAttribute("name", "artistbutton");
-	button.setAttribute("id", "artistbutton");
-	button.setAttribute("type", "button");
-	button.setAttribute("value", "Add Artist Details");
-	button.onclick = function(){addArtistDetailsRow(scene_count);};
-
-	r4Bc2.appendChild(button);
-	r4Bc2.appendChild(createInput("artist_count_" + scene_count,10,"hidden", 1));
-
-	row4B.appendChild(addClass("left", "1"));
-	row4B.appendChild(r4Bc2);
-	row4B.appendChild(addClass("right", "1"));
-
-	//fifth row
-	var row5 = document.createElement("TR");
-	var estshoottimesLABEL = document.createElement("TD");
-	var estshootimesCELL = document.createElement("TD");
-
-	estshoottimesLABEL.colSpan = "2";
-	estshootimesCELL.colSpan = "4";
-	estshootimesCELL.setAttribute("align", "left");
-
-	estshoottimesLABEL.appendChild(createBoldLabel("Est Shoot Times"));
-	estshootimesCELL.appendChild(createInput("ss" + scene_count +"_estshootingtime",20,"text",""));
-
-	row5.appendChild(addClass("left", "1"));
-	row5.appendChild(estshoottimesLABEL);
-	row5.appendChild(estshootimesCELL);
-	row5.appendChild(addClass("right", "1"));
-
-	//sixth row
-	var row6 = document.createElement("TR");
-	var r6c2 = document.createElement("TD");
-	var r6c3 = document.createElement("TD");
-	var r6table = document.createElement("TABLE");
-
-	r6c2.colSpan = "2";
-	r6c3.colSpan = "4";
-
-	r6table.setAttribute("width", "400");
-	r6table.setAttribute("border", "0");
-	r6table.setAttribute("cellspacing", "0");
-	r6table.setAttribute("cellpadding", "0");
-	r6table.setAttribute("id", "mealbreak_" + scene_count);
-
-	r6table.appendChild(document.createElement("TBODY"));
-
-	var button = document.createElement("INPUT");
-	button.setAttribute("name", "ss"+ scene_count + "_mealbutton");
-	button.setAttribute("id", "ss"+ scene_count + "_mealbutton");
-	button.setAttribute("type", "button");
-	button.setAttribute("value", "Add Meal Break");
-	button.onclick = function(){addMealBreakRow(scene_count);};
-
-	r6c2.appendChild(button);
-	r6c3.appendChild(r6table);
-	row6.appendChild(addClass("left", "1"));
-	row6.appendChild(r6c2);
-	row6.appendChild(r6c3);
-	row6.appendChild(addClass("right", "1"));
-
-	//seventh row
-	var row7 = document.createElement("TR");
-	row7.appendChild(addClass("bottom", "8"));
-
-	//compile everything
-	tbody.appendChild(row1);
-	tbody.appendChild(row2);
-	tbody.appendChild(row3);
-	tbody.appendChild(row4);
-	tbody.appendChild(row4B);
-	tbody.appendChild(row5);
-	tbody.appendChild(row6);
-	tbody.appendChild(row7);
+//	var tbody = document.getElementById("scene").getElementsByTagName("tbody")[0];
+//
+//	scene_count = document.getElementById("scene_count").value;
+//	scene_count ++;
+//	document.getElementById("scene_count").value = scene_count;
+//
+//	//first row
+//	var row1 = document.createElement("TR");
+//	row1.appendChild(addClass("top","8"));
+//
+//	//second row
+//	var row2 = document.createElement("TR");
+//	var sceneLABEL = document.createElement("TD");
+//	var pagetimeLABEL = document.createElement("TD");
+//	var dnLABEL = document.createElement("TD");
+//	var ieLABEL = document.createElement("TD");
+//	var setlocationLABEL = document.createElement("TD");
+//	var synopsisLABEL = document.createElement("TD");
+//
+//	sceneLABEL.appendChild(createBoldLabel("Scene"));
+//	pagetimeLABEL.appendChild(createBoldLabel("Page Time"));
+//	dnLABEL.appendChild(createBoldLabel("D/N"));
+//	ieLABEL.appendChild(createBoldLabel("I/E"));
+//	setlocationLABEL.appendChild(createBoldLabel("Set/Location"));
+//	synopsisLABEL.appendChild(createBoldLabel("Synopsis"));
+//
+//	row2.appendChild(addClass("left", "1"));
+//	row2.appendChild(sceneLABEL);
+//	row2.appendChild(pagetimeLABEL);
+//	row2.appendChild(dnLABEL);
+//	row2.appendChild(ieLABEL);
+//	row2.appendChild(setlocationLABEL);
+//	row2.appendChild(synopsisLABEL);
+//	row2.appendChild(addClass("right", "1"));
+//
+//	//third row
+//	var row3 = document.createElement("TR");
+//	var sceneCELL = document.createElement("TD");
+//	var pageCELL = document.createElement("TD");
+//	var dnCELL = document.createElement("TD");
+//	var inexCELL = document.createElement("TD");
+//	var setlocationCELL = document.createElement("TD");
+//	var synopsisCELL = document.createElement("TD");
+//
+//	sceneCELL.appendChild(createInput("ss" + scene_count +"_scene", 6, "text", ""));
+//	pageCELL.appendChild(createInput("ss" + scene_count +"_pages", 4, "text", ""));
+//	pageCELL.appendChild(document.createTextNode("\u00a0"));
+//	pageCELL.appendChild(createInput("ss" + scene_count +"_pagesnum",2, "text", ""));
+//	pageCELL.appendChild(createBoldLabel(" /8pgs"));
+//	dnCELL.appendChild(createInput("ss" + scene_count +"_dn", 6, "text", ""));
+//	inexCELL.appendChild(createInput("ss" + scene_count +"_inex", 6, "text", ""));
+//	setlocationCELL.appendChild(createInput("ss" + scene_count +"_setlocation", 15, "text", ""));
+//	synopsisCELL.appendChild(createInput("ss" + scene_count +"_synopsis", 15, "text", ""));
+//
+//	row3.appendChild(addClass("left", "1"));
+//	row3.appendChild(sceneCELL);
+//	row3.appendChild(pageCELL);
+//	row3.appendChild(dnCELL);
+//	row3.appendChild(inexCELL);
+//	row3.appendChild(setlocationCELL);
+//	row3.appendChild(synopsisCELL);
+//	row3.appendChild(addClass("right", "1"));
+//
+//	//fourth row
+//	var row4 = document.createElement("TR");
+//	var artisttableCELL = document.createElement("TD");
+//
+//	artisttableCELL.colSpan = "6";
+//
+//	artisttableCELL.appendChild(createArtistInfoTable(scene_count));
+//	row4.appendChild(addClass("left", "1"));
+//	row4.appendChild(artisttableCELL);
+//	row4.appendChild(addClass("right", "1"));
+//
+//	//fourth row buttons
+//	var row4B = document.createElement("TR");
+//	var r4Bc2 = document.createElement("TD");
+//
+//	r4Bc2.colSpan = "6";
+//	r4Bc2.setAttribute("align", "left");
+//
+//	var button = document.createElement("INPUT");
+//	button.setAttribute("name", "artistbutton");
+//	button.setAttribute("id", "artistbutton");
+//	button.setAttribute("type", "button");
+//	button.setAttribute("value", "Add Artist Details");
+//	button.onclick = function(){addArtistDetailsRow(scene_count);};
+//
+//	r4Bc2.appendChild(button);
+//	r4Bc2.appendChild(createInput("artist_count_" + scene_count,10,"hidden", 1));
+//
+//	row4B.appendChild(addClass("left", "1"));
+//	row4B.appendChild(r4Bc2);
+//	row4B.appendChild(addClass("right", "1"));
+//
+//	//fifth row
+//	var row5 = document.createElement("TR");
+//	var estshoottimesLABEL = document.createElement("TD");
+//	var estshootimesCELL = document.createElement("TD");
+//
+//	estshoottimesLABEL.colSpan = "2";
+//	estshootimesCELL.colSpan = "4";
+//	estshootimesCELL.setAttribute("align", "left");
+//
+//	estshoottimesLABEL.appendChild(createBoldLabel("Est Shoot Times"));
+//	estshootimesCELL.appendChild(createInput("ss" + scene_count +"_estshootingtime",20,"text",""));
+//
+//	row5.appendChild(addClass("left", "1"));
+//	row5.appendChild(estshoottimesLABEL);
+//	row5.appendChild(estshootimesCELL);
+//	row5.appendChild(addClass("right", "1"));
+//
+//	//sixth row
+//	var row6 = document.createElement("TR");
+//	var r6c2 = document.createElement("TD");
+//	var r6c3 = document.createElement("TD");
+//	var r6table = document.createElement("TABLE");
+//
+//	r6c2.colSpan = "2";
+//	r6c3.colSpan = "4";
+//
+//	r6table.setAttribute("width", "400");
+//	r6table.setAttribute("border", "0");
+//	r6table.setAttribute("cellspacing", "0");
+//	r6table.setAttribute("cellpadding", "0");
+//	r6table.setAttribute("id", "mealbreak_" + scene_count);
+//
+//	r6table.appendChild(document.createElement("TBODY"));
+//
+//	var button = document.createElement("INPUT");
+//	button.setAttribute("name", "ss"+ scene_count + "_mealbutton");
+//	button.setAttribute("id", "ss"+ scene_count + "_mealbutton");
+//	button.setAttribute("type", "button");
+//	button.setAttribute("value", "Add Meal Break");
+//	button.onclick = function(){addMealBreakRow(scene_count);};
+//
+//	r6c2.appendChild(button);
+//	r6c3.appendChild(r6table);
+//	row6.appendChild(addClass("left", "1"));
+//	row6.appendChild(r6c2);
+//	row6.appendChild(r6c3);
+//	row6.appendChild(addClass("right", "1"));
+//
+//	//seventh row
+//	var row7 = document.createElement("TR");
+//	row7.appendChild(addClass("bottom", "8"));
+//
+//	//compile everything
+//	tbody.appendChild(row1);
+//	tbody.appendChild(row2);
+//	tbody.appendChild(row3);
+//	tbody.appendChild(row4);
+//	tbody.appendChild(row4B);
+//	tbody.appendChild(row5);
+//	tbody.appendChild(row6);
+//	tbody.appendChild(row7);
 }
 
 function createArtistInfoTable (){
@@ -673,29 +740,29 @@ function addMealBreakRow(scene_num){
 	document.getElementById("ss"+ scene_num +"_mealbutton").disabled = true;
 }
 
-function getParam(name){
-  var start=location.search.indexOf("?"+name+"=");
-  if (start<0) start=location.search.indexOf("&"+name+"=");
-  if (start<0) return '';
-  start += name.length+2;
-  var end=location.search.indexOf("&",start)-1;
-  if (end<0) end=location.search.length;
-  var result='';
-  for(var i=start;i<=end;i++) {
-    var c=location.search.charAt(i);
-    result=result+(c=='+'?' ':c);
-  }
-  //window.alert('Result = '+result);
-  return unescape(result);
-}
-
-function getParameters(){
-	document.form1.workItemID.value = getParam('workItemID');
-	document.form1.userID.value = getParam('userID');
-	document.form1.sessionHandle.value = getParam('sessionHandle');
-	document.form1.JSESSIONID.value = getParam('JSESSIONID');
-	document.form1.submit.value = "htmlForm";
-}
+//function getParam(name){
+//  var start=location.search.indexOf("?"+name+"=");
+//  if (start<0) start=location.search.indexOf("&"+name+"=");
+//  if (start<0) return '';
+//  start += name.length+2;
+//  var end=location.search.indexOf("&",start)-1;
+//  if (end<0) end=location.search.length;
+//  var result='';
+//  for(var i=start;i<=end;i++) {
+//    var c=location.search.charAt(i);
+//    result=result+(c=='+'?' ':c);
+//  }
+//  //window.alert('Result = '+result);
+//  return unescape(result);
+//}
+//
+//function getParameters(){
+//	document.form1.workItemID.value = getParam('workItemID');
+//	document.form1.userID.value = getParam('userID');
+//	document.form1.sessionHandle.value = getParam('sessionHandle');
+//	document.form1.JSESSIONID.value = getParam('JSESSIONID');
+//	document.form1.submit.value = "htmlForm";
+//}
 
 function calculateMod() {
 	var count = document.getElementById("scene_count").value;
