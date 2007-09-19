@@ -20,7 +20,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 
 <!-- style sheet imports -->
-<link href="graphics/style.css" rel="stylesheet" type="text/css">
+<link href="graphics/style.css" rel="stylesheet" type="text/css" />
 <link href="styles/common.css" rel="stylesheet" type="text/css" />
 
 <!-- javascript imports -->
