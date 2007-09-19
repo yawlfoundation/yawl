@@ -389,6 +389,15 @@ function getNextSceneCount() {
     return ++count;
 }
 
+/**
+ * Updates alls ids of inputs and tables which contain the token with the count supplied.
+ * eg. <input id="something_$_else"> will resolve to <input id="something_10_else"> if the function is called with
+  * updateWithCount(parent, 10, "$", buttonHandler)
+ * @param parent
+ * @param count
+ * @param token
+ * @param buttonHandler
+ */
 function updateWithCount(parent, count, token, buttonHandler) {
         var elements = parent.getElementsByTagName("input");
         var templateId = null;
@@ -402,6 +411,8 @@ function updateWithCount(parent, count, token, buttonHandler) {
                     elements[x].name = updatedId;
 
                     if (buttonHandler != null) {
+                        //the button handles may need dynamic values such as the count..check for that in the passed
+                        //function, buttonHandler.
                         buttonHandler(elements[x], count);
                     }
                 }
@@ -421,6 +432,13 @@ function updateWithCount(parent, count, token, buttonHandler) {
         }
 }
 
+/**
+ * This function wraps the action handlers for the button clicks on the form.
+ * TODO: I was trying to dynamically update the function returned such that we can inject the count dynamically.
+ * I didn't have time do to this so below is the work around. If you come across some code to dynamically update
+ * a called-function then that would be a better solution.
+ * 
+ */
 var buttonHandlersForScene = function handleDynamicButtonClicks(element, count) {
     if (element.type == 'button') {
         //check method calls.
@@ -446,13 +464,18 @@ function deleteSceneRow() {
 
     if (scene_num > 0) {
         for (var x = 0; x < tableBodies.length; x++) {
+            //find the last tbody with the id that matches the scene number.
             if (tableBodies[x].id == scene_num) {
+                //remove that tbody and all its children and then reduce the count.
                 table.removeChild(tableBodies[x]);
                 decCount(dynamicSceneCountName);
 
                 if (scenesAreEmpty()) {
+                    //add a new scene if all the scenes have been deleted.
                     addSceneRow();    
                 }
+
+                return;    //return because we have done what we came here for, no need to keep searching.
             }
         }
     }
@@ -464,176 +487,25 @@ function scenesAreEmpty() {
 
 function addSceneRow() {
     var table = document.getElementById(sceneTable);
-    //sample table body.
+    //sample table body. check the jsp for a tbody with id of "sample
     var tableBody = table.getElementsByTagName("tbody")[0];
 
+    //make a copy of the sample table.
     var tableBodyClone = tableBody.cloneNode(true);
     var scene_num = getNextSceneCount();
+
+    //change its style so it is visible. The sample is "hidden" by default.
     tableBodyClone.className = "valid";
+
+    //update the copies id with a counter. This makes it easy to delete later on.
     tableBodyClone.id = scene_num;
     table.appendChild(tableBodyClone);
-    updateWithCount(tableBodyClone, scene_num, "$", buttonHandlersForScene);
-    incCount(dynamicSceneCountName);    
-//    var element = document.getElementById("ssx_scene");
-//    element.id = "ss2_scene";
-//    element.name = "ss2_scene";
 
-//	var tbody = document.getElementById("scene").getElementsByTagName("tbody")[0];
-//
-//	scene_count = document.getElementById("scene_count").value;
-//	scene_count ++;
-//	document.getElementById("scene_count").value = scene_count;
-//
-//	//first row
-//	var row1 = document.createElement("TR");
-//	row1.appendChild(addClass("top","8"));
-//
-//	//second row
-//	var row2 = document.createElement("TR");
-//	var sceneLABEL = document.createElement("TD");
-//	var pagetimeLABEL = document.createElement("TD");
-//	var dnLABEL = document.createElement("TD");
-//	var ieLABEL = document.createElement("TD");
-//	var setlocationLABEL = document.createElement("TD");
-//	var synopsisLABEL = document.createElement("TD");
-//
-//	sceneLABEL.appendChild(createBoldLabel("Scene"));
-//	pagetimeLABEL.appendChild(createBoldLabel("Page Time"));
-//	dnLABEL.appendChild(createBoldLabel("D/N"));
-//	ieLABEL.appendChild(createBoldLabel("I/E"));
-//	setlocationLABEL.appendChild(createBoldLabel("Set/Location"));
-//	synopsisLABEL.appendChild(createBoldLabel("Synopsis"));
-//
-//	row2.appendChild(addClass("left", "1"));
-//	row2.appendChild(sceneLABEL);
-//	row2.appendChild(pagetimeLABEL);
-//	row2.appendChild(dnLABEL);
-//	row2.appendChild(ieLABEL);
-//	row2.appendChild(setlocationLABEL);
-//	row2.appendChild(synopsisLABEL);
-//	row2.appendChild(addClass("right", "1"));
-//
-//	//third row
-//	var row3 = document.createElement("TR");
-//	var sceneCELL = document.createElement("TD");
-//	var pageCELL = document.createElement("TD");
-//	var dnCELL = document.createElement("TD");
-//	var inexCELL = document.createElement("TD");
-//	var setlocationCELL = document.createElement("TD");
-//	var synopsisCELL = document.createElement("TD");
-//
-//	sceneCELL.appendChild(createInput("ss" + scene_count +"_scene", 6, "text", ""));
-//	pageCELL.appendChild(createInput("ss" + scene_count +"_pages", 4, "text", ""));
-//	pageCELL.appendChild(document.createTextNode("\u00a0"));
-//	pageCELL.appendChild(createInput("ss" + scene_count +"_pagesnum",2, "text", ""));
-//	pageCELL.appendChild(createBoldLabel(" /8pgs"));
-//	dnCELL.appendChild(createInput("ss" + scene_count +"_dn", 6, "text", ""));
-//	inexCELL.appendChild(createInput("ss" + scene_count +"_inex", 6, "text", ""));
-//	setlocationCELL.appendChild(createInput("ss" + scene_count +"_setlocation", 15, "text", ""));
-//	synopsisCELL.appendChild(createInput("ss" + scene_count +"_synopsis", 15, "text", ""));
-//
-//	row3.appendChild(addClass("left", "1"));
-//	row3.appendChild(sceneCELL);
-//	row3.appendChild(pageCELL);
-//	row3.appendChild(dnCELL);
-//	row3.appendChild(inexCELL);
-//	row3.appendChild(setlocationCELL);
-//	row3.appendChild(synopsisCELL);
-//	row3.appendChild(addClass("right", "1"));
-//
-//	//fourth row
-//	var row4 = document.createElement("TR");
-//	var artisttableCELL = document.createElement("TD");
-//
-//	artisttableCELL.colSpan = "6";
-//
-//	artisttableCELL.appendChild(createArtistInfoTable(scene_count));
-//	row4.appendChild(addClass("left", "1"));
-//	row4.appendChild(artisttableCELL);
-//	row4.appendChild(addClass("right", "1"));
-//
-//	//fourth row buttons
-//	var row4B = document.createElement("TR");
-//	var r4Bc2 = document.createElement("TD");
-//
-//	r4Bc2.colSpan = "6";
-//	r4Bc2.setAttribute("align", "left");
-//
-//	var button = document.createElement("INPUT");
-//	button.setAttribute("name", "artistbutton");
-//	button.setAttribute("id", "artistbutton");
-//	button.setAttribute("type", "button");
-//	button.setAttribute("value", "Add Artist Details");
-//	button.onclick = function(){addArtistDetailsRow(scene_count);};
-//
-//	r4Bc2.appendChild(button);
-//	r4Bc2.appendChild(createInput("artist_count_" + scene_count,10,"hidden", 1));
-//
-//	row4B.appendChild(addClass("left", "1"));
-//	row4B.appendChild(r4Bc2);
-//	row4B.appendChild(addClass("right", "1"));
-//
-//	//fifth row
-//	var row5 = document.createElement("TR");
-//	var estshoottimesLABEL = document.createElement("TD");
-//	var estshootimesCELL = document.createElement("TD");
-//
-//	estshoottimesLABEL.colSpan = "2";
-//	estshootimesCELL.colSpan = "4";
-//	estshootimesCELL.setAttribute("align", "left");
-//
-//	estshoottimesLABEL.appendChild(createBoldLabel("Est Shoot Times"));
-//	estshootimesCELL.appendChild(createInput("ss" + scene_count +"_estshootingtime",20,"text",""));
-//
-//	row5.appendChild(addClass("left", "1"));
-//	row5.appendChild(estshoottimesLABEL);
-//	row5.appendChild(estshootimesCELL);
-//	row5.appendChild(addClass("right", "1"));
-//
-//	//sixth row
-//	var row6 = document.createElement("TR");
-//	var r6c2 = document.createElement("TD");
-//	var r6c3 = document.createElement("TD");
-//	var r6table = document.createElement("TABLE");
-//
-//	r6c2.colSpan = "2";
-//	r6c3.colSpan = "4";
-//
-//	r6table.setAttribute("width", "400");
-//	r6table.setAttribute("border", "0");
-//	r6table.setAttribute("cellspacing", "0");
-//	r6table.setAttribute("cellpadding", "0");
-//	r6table.setAttribute("id", "mealbreak_" + scene_count);
-//
-//	r6table.appendChild(document.createElement("TBODY"));
-//
-//	var button = document.createElement("INPUT");
-//	button.setAttribute("name", "ss"+ scene_count + "_mealbutton");
-//	button.setAttribute("id", "ss"+ scene_count + "_mealbutton");
-//	button.setAttribute("type", "button");
-//	button.setAttribute("value", "Add Meal Break");
-//	button.onclick = function(){addMealBreakRow(scene_count);};
-//
-//	r6c2.appendChild(button);
-//	r6c3.appendChild(r6table);
-//	row6.appendChild(addClass("left", "1"));
-//	row6.appendChild(r6c2);
-//	row6.appendChild(r6c3);
-//	row6.appendChild(addClass("right", "1"));
-//
-//	//seventh row
-//	var row7 = document.createElement("TR");
-//	row7.appendChild(addClass("bottom", "8"));
-//
-//	//compile everything
-//	tbody.appendChild(row1);
-//	tbody.appendChild(row2);
-//	tbody.appendChild(row3);
-//	tbody.appendChild(row4);
-//	tbody.appendChild(row4B);
-//	tbody.appendChild(row5);
-//	tbody.appendChild(row6);
-//	tbody.appendChild(row7);
+    //replace any tokens with the appropriate counters.
+    updateWithCount(tableBodyClone, scene_num, "$", buttonHandlersForScene);
+
+    //inc scene count.
+    incCount(dynamicSceneCountName);    
 }
 
 function createArtistInfoTable (){
