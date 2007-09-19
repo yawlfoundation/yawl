@@ -462,15 +462,15 @@
 										<tr>
 											<td class="left">&nbsp;</td>
 											<!--<td><input name="ssx_scene" type="text" id="ssx_scene" value="" size="6"></td>-->
-											<td><input name="ss$_scene" type="text" id="ss$_scene" value="" size="6"></td>
+											<td><input name="ss$_scene" type="text" id="ss$_scene" value="" size="6" pattern="any_text"></td>
 											<td>
-												<input name="ss$_pages" type="text" id="ss$_pages" size="4" value="">
-                                              	<input name="ss$_pagesnum" type="text" id="ss$_pagesnum" size="2" value="">
+												<input name="ss$_pages" type="text" id="ss$_pages" size="4" value="" pattern="number">
+                                              	<input name="ss$_pagesnum" type="text" id="ss$_pagesnum" size="2" value="" pattern="number">
                                               <strong>/8pgs </strong></td>
-											<td><input name="ss$_dn" type="text" id="ss$_dn" value="" size="6"></td>
-											<td><input name="ss$_inex" type="text" id="ss$_inex" value="" size="6"></td>
-											<td><input name="ss$_setlocation" type="text" id="ss$_setlocation" value="" size="15"></td>
-											<td><input name="ss$_synopsis" type="text" id="ss$_synopsis" value="" size="15"></td>
+											<td><input name="ss$_dn" type="text" id="ss$_dn" value="" size="6" pattern="any_text"></td>
+											<td><input name="ss$_inex" type="text" id="ss$_inex" value="" size="6" pattern="any_text"></td>
+											<td><input name="ss$_setlocation" type="text" id="ss$_setlocation" value="" size="15" pattern="any_text"></td>
+											<td><input name="ss$_synopsis" type="text" id="ss$_synopsis" value="" size="15" pattern="any_text"></td>
 											<td class="right">&nbsp;</td>
 										</tr>
 										<tr>
@@ -551,16 +551,16 @@
 										</tr>
 										<tr>
 											<td class="left">&nbsp;</td>
-											<td><input name="ss<%=scene_count%>_scene" type="text" id="ss<%=scene_count%>_scene" value="<%= sst.getScene() %>" size="6"></td>
+											<td><input name="ss<%=scene_count%>_scene" type="text" id="ss<%=scene_count%>_scene" value="<%= sst.getScene() %>" size="6" pattern="any_text"></td>
 											<% PageTimeType ptt1 = sst.getPageTime();%>
 											<td>
-												<input name="ss<%=scene_count%>_pages" type="text" id="ss<%=scene_count%>_pages" size="4" value="<%=ptt1.getNumber() %>">
-                                              	<input name="ss<%=scene_count%>_pagesnum" type="text" id="ss<%=scene_count%>_pagesnum" size="2" value="<%=ptt1.getNumerator() %>">
+												<input name="ss<%=scene_count%>_pages" type="text" id="ss<%=scene_count%>_pages" size="4" value="<%=ptt1.getNumber() %>" pattern="number">
+                                              	<input name="ss<%=scene_count%>_pagesnum" type="text" id="ss<%=scene_count%>_pagesnum" size="2" value="<%=ptt1.getNumerator() %> "pattern="number">
                                               <strong>/8pgs </strong></td>
-											<td><input name="ss<%=scene_count%>_dn" type="text" id="ss<%=scene_count%>_dn" value="<%= sst.getDN() %>" size="6"></td>
-											<td><input name="ss<%=scene_count%>_inex" type="text" id="ss<%=scene_count%>_inex" value="<%= sst.getINEX() %>" size="6"></td>
-											<td><input name="ss<%=scene_count%>_setlocation" type="text" id="ss<%=scene_count%>_setlocation" value="<%= sst.getSetLocation() %>" size="15"></td>
-											<td><input name="ss<%=scene_count%>_synopsis" type="text" id="ss<%=scene_count%>_synopsis" value="<%= sst.getSynopsis() %>" size="15"></td>
+											<td><input name="ss<%=scene_count%>_dn" type="text" id="ss<%=scene_count%>_dn" value="<%= sst.getDN() %>" size="6" pattern="any_text"></td>
+											<td><input name="ss<%=scene_count%>_inex" type="text" id="ss<%=scene_count%>_inex" value="<%= sst.getINEX() %>" size="6" pattern="any_text"></td>
+											<td><input name="ss<%=scene_count%>_setlocation" type="text" id="ss<%=scene_count%>_setlocation" value="<%= sst.getSetLocation() %>" size="15" pattern="any_text"></td>
+											<td><input name="ss<%=scene_count%>_synopsis" type="text" id="ss<%=scene_count%>_synopsis" value="<%= sst.getSynopsis() %>" size="15" pattern="any_text"></td>
 											<td class="right">&nbsp;</td>
 										</tr>
 										<tr>
@@ -620,10 +620,10 @@
 											MealBreakType mbt = sst.getMealBreak(); %>
                                             <tr>
                                               <td><strong>Meal</strong></td>
-                                              <td><input name="ss<%=scene_count%>_meal" type="text" id="ss<%=scene_count%>_meal" value="<%= mbt.getMeal()%>"></td>
+                                              <td><input name="ss<%=scene_count%>_meal" type="text" id="ss<%=scene_count%>_meal" value="<%= mbt.getMeal()%>"  pattern="any_text"></td>
                                               <td>&nbsp;</td>
                                               <td><strong>Times</strong></td>
-                                              <td><input name="ss<%=scene_count%>_times" type="text" id="ss<%=scene_count%>_times" value="<%= mbt.getBreak()%>"></td>
+                                              <td><input name="ss<%=scene_count%>_times" type="text" id="ss<%=scene_count%>_times" value="<%= mbt.getBreak()%>"  pattern="date"></td>
                                             </tr>
 											<%}%>
 											</tbody>
