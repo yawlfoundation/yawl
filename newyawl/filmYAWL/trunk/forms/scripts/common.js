@@ -10,8 +10,10 @@ function validateFields(formName) {
     var elements = form.elements;
     var isInError = false;
     for (var x =0; x < elements.length; x++) {
-        var element = elements[x];
-        if (element.type == 'text' || element.type == 'textarea') {
+        var element = elements[x];        
+        if ((element.type == 'text' || element.type == 'textarea') &&
+            doesNotContainToken(element, "$") &&
+            element.className != 'hidden') {
             var pattern = element.getAttribute("pattern");
             if (pattern != null) {
                 if (pattern == 'date') {
@@ -46,6 +48,10 @@ function validateFields(formName) {
                 }
             }
         }
+   }
+
+   function doesNotContainToken(element, token) {
+       return element.name.indexOf(token) == -1;
    }
 
    if (isInError) {
