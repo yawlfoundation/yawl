@@ -450,10 +450,9 @@ var buttonHandlersForScene = function handleDynamicButtonClicks(element, count) 
          } else if (functionVar.toString().indexOf("deleteArtistDetailsRow") != -1) {
             element.onclick = function() {deleteArtistDetailsRow(count);};
         } else if (functionVar.toString().indexOf("addMealBreakRow") != -1) {
-            element.onclick = function() {addMealBreakRow(count);};
+            element.onclick = function() {addDynamicMealBreakRow(count);};
         }
     }
-
 }
 
 var sceneTable = "scene";
@@ -605,6 +604,13 @@ function deleteArtistDetailsRow(scene_num) {
                artistDetailFooterSize,
                function() {addArtistDetailsRow(scene_num)},
                scene_num);
+}
+
+function addDynamicMealBreakRow(scene_num){
+    document.getElementById("mealbreak_"+scene_num).className = "valid";
+    document.getElementById("ss"+scene_num+"_meal").className = "valid";
+    document.getElementById("ss"+scene_num+"_times").className = "valid";
+    document.getElementById("ss"+ scene_num +"_mealbutton").disabled = true;
 }
 
 function addMealBreakRow(scene_num){
