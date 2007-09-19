@@ -2,8 +2,22 @@ var telNumberValidation = "^[\\d\\s\\+\\-\\(\\)]+$";
 var emailValidation = "^((\\w)+(\\.)*)+\\w+@(\\w)+(\\w\\.)*(\\.[A-Za-z]+)+$";
 var textValidation = "^[A-Za-z\\s]+$";
 var textAreaValidation = "^[A-Za-z\\s,().0-9!\\[\\]\\\\/@\\$%^\\*\\-\\_]+$";
-var dateValidation = "^((?:[01]\\d)|(?:2[0-3])):([0-5]\\d):([0-5]\\d)$";
+var timeValidation = "^((?:[01]\\d)|(?:2[0-3])):([0-5]\\d):([0-5]\\d)$";
 var numberValidation = "^(\\d)+$"
+
+//got this off the internet. It seems to work for all combinations, maybe use a similar one for our purposes.
+//It is way too long, so consider a simpler solution.
+//general format is dd/mm/yyyy.
+var realDateValidation = "^((((0?[1-9]|[12]\\d|3[01])[\\.\\-\/](0?[13578]|1[02])[\\.\\-\/]" +
+                         "((1[6-9]|[2-9]\\d)?\\d{2}))|((0?[1-9]|[12]\\d|30)[\\.\\-\/]" +
+                         "(0?[13456789]|1[012])[\\.\\-\/]((1[6-9]|[2-9]\\d)?\\d{2}))|" +
+                         "((0?[1-9]|1\\d|2[0-8])[\\.\\-\/]0?2[\\.\\-\/]((1[6-9]|[2-9]\\d)?\\d{2}))|" +
+                         "(29[\\.\\-\/]0?2[\\.\\-\/]((1[6-9]|[2-9]\\d)?(0[48]|[2468][048]|[13579][26])|" +
+                         "((16|[2468][048]|[3579][26])00)|00)))|(((0[1-9]|[12]\\d|3[01])(0[13578]|1[02])" +
+                         "((1[6-9]|[2-9]\\d)?\\d{2}))|((0[1-9]|[12]\\d|30)(0[13456789]|1[012])" +
+                         "((1[6-9]|[2-9]\\d)?\\d{2}))|((0[1-9]|1\\d|2[0-8])02((1[6-9]|[2-9]\\d)?\\d{2}))|" +
+                         "(2902((1[6-9]|[2-9]\\d)?(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00)|" +
+                         "00))))$";
 
 function validateFields(formName) {
     var form = document.getElementsByName(formName)[0];
@@ -16,8 +30,9 @@ function validateFields(formName) {
             element.className != 'hidden') {
             var pattern = element.getAttribute("pattern");
             if (pattern != null) {
-                if (pattern == 'date') {
-                    pattern = dateValidation;
+                //this is really time validation. change.
+                if (pattern == 'date' || pattern == 'time') {
+                    pattern = timeValidation;
                 }
 
                 if (pattern == 'any_text') {
@@ -38,6 +53,10 @@ function validateFields(formName) {
 
 				if (pattern == 'email') {
                     pattern = emailValidation;
+                }
+
+                if (pattern == 'real_date') {
+                    pattern = realDateValidation;
                 }
 
                 if (element.value.search(pattern) == -1) {
@@ -100,7 +119,7 @@ function createEmailTextBox(id, size, value, tooltip) {
 }
 
 function createDateTextBox(id, size, value, tooltip) {
-    return createCommonValidationTextBox(id, size, value, tooltip, dateValidation);    
+    return createCommonValidationTextBox(id, size, value, tooltip, timeValidation);
 }
 
 function createNumberTextBox(id, size, value, tooltip) {
