@@ -9,14 +9,6 @@ function createInput(id, size, type, value) {
 	return input;
 }
 
-////function for dropdown list details
-//function createDropdownList(name) {
-//	var option = document.createElement("OPTION");
-//	option.setAttribute("value", name);
-//	option.appendChild(document.createTextNode(name));
-//	return option;
-//}
-
 //function for bold text
 function createBoldLabel(text) {
 	var label = document.createElement("STRONG");
@@ -392,7 +384,7 @@ function addRequirementsSubTable(requirements_count){
 }
 
 var dynamicSceneCountName = "dyn_scene_count";
-function getSceneCount() {
+function getNextSceneCount() {
     var count = getCountByName(dynamicSceneCountName);
     return ++count;
 }
@@ -446,14 +438,41 @@ var buttonHandlersForScene = function handleDynamicButtonClicks(element, count) 
 
 }
 
-function addSceneRow(scene_num) {
-    var table = document.getElementById("scene");
+var sceneTable = "scene";
+function deleteSceneRow() {
+    var table = document.getElementById(sceneTable);
+    var tableBodies = table.getElementsByTagName("tbody");
+    var scene_num = getCountByName(dynamicSceneCountName);
+
+    if (scene_num > 0) {
+        for (var x = 0; x < tableBodies.length; x++) {
+            if (tableBodies[x].id == scene_num) {
+                table.removeChild(tableBodies[x]);
+                decCount(dynamicSceneCountName);
+
+                if (scenesAreEmpty()) {
+                    addSceneRow();    
+                }
+            }
+        }
+    }
+}
+
+function scenesAreEmpty() {
+    return getCountByName(dynamicSceneCountName) == 0;
+}
+
+function addSceneRow() {
+    var table = document.getElementById(sceneTable);
+    //sample table body.
     var tableBody = table.getElementsByTagName("tbody")[0];
 
     var tableBodyClone = tableBody.cloneNode(true);
+    var scene_num = getNextSceneCount();
     tableBodyClone.className = "valid";
+    tableBodyClone.id = scene_num;
     table.appendChild(tableBodyClone);
-    updateWithCount(tableBodyClone, getSceneCount(), "$", buttonHandlersForScene);
+    updateWithCount(tableBodyClone, scene_num, "$", buttonHandlersForScene);
     incCount(dynamicSceneCountName);    
 //    var element = document.getElementById("ssx_scene");
 //    element.id = "ss2_scene";
@@ -739,30 +758,6 @@ function addMealBreakRow(scene_num){
 	mealbreakTABLE.appendChild(row);
 	document.getElementById("ss"+ scene_num +"_mealbutton").disabled = true;
 }
-
-//function getParam(name){
-//  var start=location.search.indexOf("?"+name+"=");
-//  if (start<0) start=location.search.indexOf("&"+name+"=");
-//  if (start<0) return '';
-//  start += name.length+2;
-//  var end=location.search.indexOf("&",start)-1;
-//  if (end<0) end=location.search.length;
-//  var result='';
-//  for(var i=start;i<=end;i++) {
-//    var c=location.search.charAt(i);
-//    result=result+(c=='+'?' ':c);
-//  }
-//  //window.alert('Result = '+result);
-//  return unescape(result);
-//}
-//
-//function getParameters(){
-//	document.form1.workItemID.value = getParam('workItemID');
-//	document.form1.userID.value = getParam('userID');
-//	document.form1.sessionHandle.value = getParam('sessionHandle');
-//	document.form1.JSESSIONID.value = getParam('JSESSIONID');
-//	document.form1.submit.value = "htmlForm";
-//}
 
 function calculateMod() {
 	var count = document.getElementById("scene_count").value;
