@@ -434,14 +434,110 @@
 								<td align="left"><input name='start_day_notes' type='text' id='start_day_notes' value="<%= dst.getStartDayNotes() %>" size="40" ></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
-							<% int scene_count = 0;
-							for(SceneScheduleType sst : dst.getSceneSchedule()) {
-								scene_count ++;%>
+							<%
+                            int scene_count = 0;
+                            int artist_count = 0;                                    
+                            for(SceneScheduleType sst : dst.getSceneSchedule()) {
+								scene_count ++;
+                                sst.getArtistTimeInfo().size();
+                            %>
 							<tr>
 								<td width="15" align="center" class="left">&nbsp;</td>
 								<td colspan="2" align="center" valign="top">
 									<table width="670" border="0" cellpadding="0" cellspacing="0" id="scene">
-									<tbody>
+                                    <input name="dyn_scene_count" type="hidden" id="dyn_scene_count" size="15" value="<%=scene_count%>">
+                                    <!-- start sample, use a unique id to retrieve this table. -->
+                                    <tbody class="hidden" id="sample">
+										<tr><td colspan="8" class="top">&nbsp;</td></tr>
+										<tr>
+											<td class="left">&nbsp;</td>
+											<td><strong>Scene</strong></td>
+											<td><strong>Page Time </strong></td>
+											<td><strong>D/N</strong></td>
+											<td><strong>I/E</strong></td>
+											<td><strong>Set/Location</strong></td>
+											<td><strong>Synopsis</strong></td>
+											<td class="right">&nbsp;</td>
+										</tr>
+										<tr>
+											<td class="left">&nbsp;</td>
+											<!--<td><input name="ssx_scene" type="text" id="ssx_scene" value="" size="6"></td>-->
+											<td><input name="ss$_scene" type="text" id="ss$_scene" value="" size="6"></td>
+											<td>
+												<input name="ss$_pages" type="text" id="ss$_pages" size="4" value="">
+                                              	<input name="ss$_pagesnum" type="text" id="ss$_pagesnum" size="2" value="">
+                                              <strong>/8pgs </strong></td>
+											<td><input name="ss$_dn" type="text" id="ss$_dn" value="" size="6"></td>
+											<td><input name="ss$_inex" type="text" id="ss$_inex" value="" size="6"></td>
+											<td><input name="ss$_setlocation" type="text" id="ss$_setlocation" value="" size="15"></td>
+											<td><input name="ss$_synopsis" type="text" id="ss$_synopsis" value="" size="15"></td>
+											<td class="right">&nbsp;</td>
+										</tr>
+										<tr>
+											<td class="left">&nbsp;</td>
+											<td colspan="6">
+												<table width="640" border="0" align="center" cellpadding="0" cellspacing="0" id="artist_$">
+												<tbody>
+													<tr>
+														<td><strong>Character</strong></td>
+														<td><strong>Artist</strong></td>
+														<td><strong>Pickup</strong></td>
+														<td><strong>Makeup</strong></td>
+														<td><strong>Wardrobe</strong></td>
+														<td><strong>On Set </strong></td>
+													</tr>
+													<tr>
+														<td><input name="ss$_character_1" type="text" id="ss$_character_1" value="" size="15" title="enter character" pattern="any_text"></td>
+														<td><input name="ss$_artist_1" type="text" id="ss$_artist_1" value="" size="15" title="enter artist" pattern="any_text"></td>
+														<td><input name="ss$_pickup_1" type="text" id="ss$_pickup_1" value="" size="6" title="enter pick up" pattern="any_text"></td>
+														<td><input name="ss$_makeup_1" type="text" id="ss$_makeup_1" value="" size="6" title="enter makeup" pattern="any_text"></td>
+														<td><input name="ss$_wardrobe_1" type="text" id="ss$_wardrobe_1" value="" size="6" title="enter wardrobe" pattern="any_text"></td>
+														<td><input name="ss$_onset_1" type="text" id="ss$_onset_1" value="" size="6" title="enter onset" pattern="any_text"> </td>
+													</tr>
+												</tbody>
+												</table>
+											</td>
+											<td class="right">&nbsp;</td>
+										</tr>
+										<tr>
+										  <td class="left">&nbsp;</td>
+										  <td colspan="6" align="left">
+										    <input type="button" name="button600" id="ss$_addArtistRow" onclick="addArtistDetailsRow();" value="Add Artist Details">
+										    <input type="button" name="button601" id="ss$_deleteArtistRow" onclick="deleteArtistDetailsRow();" value="Delete Artist Details">
+									      <input name="artist_count_$" type="hidden" id="artist_count_$" size="15" value="1">
+										  </td>
+										  <td class="right">&nbsp;</td>
+									  	</tr>
+										<tr>
+											<td class="left">&nbsp;</td>
+											<td colspan="2"><strong>Est Shoot Times </strong></td>
+										  	<td colspan="4" align="left"><input name="ss$_estshootingtime" type="text" id="ss$_estshootingtime" value="" size="15"></td>
+											<td class="right">&nbsp;</td>
+										</tr>
+										<tr>
+											<td class="left">&nbsp;</td>
+											<td colspan="2">
+											<input type="button" name="ss$_mealbutton" id="ss$_mealbutton" value="Add Meal Break" onClick="addMealBreakRow();" />
+											</td>
+										  	<td colspan="4" align="left">
+											<table width="400" border="0" cellpadding="0" cellspacing="0" id="mealbreak_$">
+											<tbody>
+                                            <tr>
+                                              <td><strong>Meal</strong></td>
+                                              <td><input name="ss$_meal" type="text" id="ss$_meal" value=""></td>
+                                              <td>&nbsp;</td>
+                                              <td><strong>Times</strong></td>
+                                              <td><input name="ss$_times" type="text" id="ss$_times" value=""></td>
+                                            </tr>
+											</tbody>
+                                          	</table>
+										</td>
+											<td class="right">&nbsp;</td>
+										</tr>
+										<tr><td colspan="8" class="bottom">&nbsp;</td></tr>
+								</tbody>
+                                    <!-- end sample -->
+                                    <tbody>
 										<tr><td colspan="8" class="top">&nbsp;</td></tr>
 										<tr>
 											<td class="left">&nbsp;</td>
@@ -480,7 +576,7 @@
 														<td><strong>Wardrobe</strong></td>
 														<td><strong>On Set </strong></td>
 													</tr>
-													<% int artist_count = 0;
+													<%
 													for(ArtistTimeInfoType atit : sst.getArtistTimeInfo()) {
 														artist_count ++;%>
 													<tr>
@@ -493,7 +589,7 @@
 													</tr>
 													<% }%>
 												</tbody>
-												</table>										  	
+												</table>
 											</td>
 											<td class="right">&nbsp;</td>
 										</tr>
@@ -515,7 +611,7 @@
 										<tr>
 											<td class="left">&nbsp;</td>
 											<td colspan="2">
-											<input type="button" name="ss<%=scene_count%>_mealbutton" id="ss<%=scene_count%>_mealbutton" value="Add Meal Break" onClick="addMealBreakRow(<%= scene_count %>);" <% if (sst.getMealBreak() != null) { out.print("disabled"); }%> >											
+											<input type="button" name="ss<%=scene_count%>_mealbutton" id="ss<%=scene_count%>_mealbutton" value="Add Meal Break" onClick="addMealBreakRow(<%= scene_count %>);" <% if (sst.getMealBreak() != null) { out.print("disabled"); }%> >
 											</td>
 										  	<td colspan="4" align="left">
 											<table width="400" border="0" cellpadding="0" cellspacing="0" id="mealbreak_<%=scene_count%>">
@@ -531,13 +627,13 @@
                                             </tr>
 											<%}%>
 											</tbody>
-                                          	</table>											
+                                          	</table>
 										</td>
 											<td class="right">&nbsp;</td>
 										</tr>
 										<tr><td colspan="8" class="bottom">&nbsp;</td></tr>
 								</tbody>
-							    </table>								</td>
+                                </table>								</td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<% }%>
