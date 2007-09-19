@@ -19,32 +19,12 @@
 <head>
 <title>Continuity Report</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<script language="javascript">
-function getParam(name){
-  var start=location.search.indexOf("?"+name+"=");
-  if (start<0) start=location.search.indexOf("&"+name+"=");
-  if (start<0) return '';
-  start += name.length+2;
-  var end=location.search.indexOf("&",start)-1;
-  if (end<0) end=location.search.length;
-  var result='';
-  for(var i=start;i<=end;i++) {
-    var c=location.search.charAt(i);
-    result=result+(c=='+'?' ':c);
-  }
-  //window.alert('Result = '+result);
-  return unescape(result);
-}
+<!-- style sheet imports -->
+<link href="graphics/style.css" rel="stylesheet" type="text/css" />
+<link href="styles/common.css" rel="stylesheet" type="text/css" />
 
-function getParameters(){
-	document.form1.workItemID.value = getParam('workItemID');
-	document.form1.userID.value = getParam('userID');
-	document.form1.sessionHandle.value = getParam('sessionHandle');
-	document.form1.JSESSIONID.value = getParam('JSESSIONID');
-	document.form1.submit.value = "htmlForm";
-}
-</script>
-<link href="graphics/style.css" rel="stylesheet" type="text/css">
+<!-- javascript imports -->
+<script type="text/javascript" src="scripts/common.js"></script>
 </head>
 
 <body onLoad="getParameters()">
@@ -222,7 +202,7 @@ function getParameters(){
 		</form>
 	
 	<!-- LOAD -->
-    <form method="post" action="Review_Continuity_Report_36.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
+    <form method="post" action="Review_Continuity_Report_3272.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
       <table width="60%" border="0" cellspacing="1" cellpadding="1" align="center" class="style1">
         <tr>
           <td align="left"><strong>Select a file to upload :</strong></td>
