@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="au.edu.qut.yawl.worklet.exception.CaseMonitor" table="Worklet_CaseMonitor">
+
+        <id name="_caseID" type="string" access="field">
+   		    <generator class="assigned"/>
+        </id>
+
+        <property name="_specID" />
+        <property name="_caseDataStr" type="text"/>
+        <property name="_netDataStr" type="text"/>
+        <property name="_liveCase" type="boolean"/>
+        <property name="_hrPreCaseID"/>
+        <property name="_hrPostCaseID"/>
+        <property name="_hrCaseExID" />
+        <property name="_liveItemIDs" type="text"/>
+        <property name="_itemRunnerIDs" type="text"/>
+
+        <!--<many-to-one name="_hrPreCase" class="au.edu.qut.yawl.worklet.exception.HandlerRunner"/>-->
+        <!--<many-to-one name="_hrPostCase" class="au.edu.qut.yawl.worklet.exception.HandlerRunner"/>-->
+
+
+    </class>
+	
+</hibernate-mapping>
