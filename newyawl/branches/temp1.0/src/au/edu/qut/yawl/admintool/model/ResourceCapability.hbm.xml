@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="au.edu.qut.yawl.admintool.model.ResourceCapability" table="ResourceCapability">
+
+        <composite-id>
+            <key-many-to-one name="ResourceID" class="au.edu.qut.yawl.admintool.model.Resource" column="ResourceID"/>
+            <key-many-to-one name="CapabilityDesc" class="au.edu.qut.yawl.admintool.model.Capability" column="CapabilityDesc"/>
+        </composite-id>
+
+    </class>
+
+</hibernate-mapping>

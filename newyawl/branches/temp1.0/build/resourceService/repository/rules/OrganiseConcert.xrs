@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<spec>
+    <constraints>
+        <item>
+            <pre>
+                <task name="DoShow">
+                    <ruleNode>
+                        <id>0</id>
+                        <parent>-1</parent>
+                        <trueChild>1</trueChild>
+                        <falseChild>-1</falseChild>
+                        <condition>True</condition>
+                        <conclusion>null</conclusion>
+                        <cornerstone></cornerstone>
+                        <description>root level default</description>
+                    </ruleNode>
+                    <ruleNode>
+                        <id>1</id>
+                        <parent>0</parent>
+                        <trueChild>2</trueChild>
+                        <falseChild>-1</falseChild>
+                        <condition>TicketsSold &lt; (Seating * 0.75)</condition>
+                        <conclusion>
+                            <_1>
+                                <action>suspend</action>
+                                <target>workitem</target>
+                            </_1>
+                            <_2>
+                                <action>compensate</action>
+                                <target>ChangeToMidVenue</target>
+                            </_2>
+                            <_3>
+                                <action>continue</action>
+                                <target>workitem</target>
+                            </_3>
+                        </conclusion>
+                        <cornerstone>
+                            <TicketsSold>20000</TicketsSold>
+                            <Seating>30000</Seating>
+                        </cornerstone>
+                        <description>Less than 75% capacity sold</description>
+                    </ruleNode>
+                    <ruleNode>
+                        <id>2</id>
+                        <parent>1</parent>
+                        <trueChild>3</trueChild>
+                        <falseChild>-1</falseChild>
+                        <condition>TicketsSold &lt; (Seating * 0.5)</condition>
+                        <conclusion>
+                            <_1>
+                                <action>remove</action>
+                                <target>workitem</target>
+                            </_1>
+                            <_2>
+                                <action>compensate</action>
+                                <target>ChangeToSmallVenue</target>
+                            </_2>
+                            <_3>
+                                <action>complete</action>
+                                <target>workitem</target>
+                            </_3>
+                        </conclusion>
+                        <cornerstone>
+                            <TicketsSold>8000</TicketsSold>
+                            <Seating>20000</Seating>
+                        </cornerstone>
+                        <description>Less than 50% capacity sold</description>
+                    </ruleNode>
+                    <ruleNode>
+                        <id>3</id>
+                        <parent>2</parent>
+                        <trueChild>-1</trueChild>
+                        <falseChild>-1</falseChild>
+                        <condition>TicketsSold &lt; (Seating * 0.2)</condition>
+                        <conclusion>
+                            <_1>
+                                <action>suspend</action>
+                                <target>case</target>
+                            </_1>
+                            <_2>
+                                <action>compensate</action>
+                                <target>CancelShow</target>
+                            </_2>
+                            <_3>
+                                <action>remove</action>
+                                <target>case</target>
+                            </_3>
+                        </conclusion>
+                        <cornerstone>
+                            <TicketsSold>500</TicketsSold>
+                            <Seating>40000</Seating>
+                        </cornerstone>
+                        <description>Less than 20% capacity sold</description>
+                    </ruleNode>
+                </task>
+            </pre>
+        </item>
+    </constraints>
+    <external>
+        <case>
+            <ruleNode>
+                <id>0</id>
+                <parent>-1</parent>
+                <trueChild>1</trueChild>
+                <falseChild>-1</falseChild>
+                <condition>True</condition>
+                <conclusion>null</conclusion>
+                <cornerstone></cornerstone>
+                <description>root level default</description>
+            </ruleNode>
+            <ruleNode>
+                <id>1</id>
+                <parent>0</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>2</falseChild>
+                <condition>trigger="Support Act Breakup"</condition>
+                <conclusion>
+                    <_1>
+                        <action>suspend</action>
+                        <target>case</target>
+                    </_1>
+                    <_2>
+                        <action>compensate</action>
+                        <target>HireSupportAct</target>
+                    </_2>
+                    <_3>
+                        <action>continue</action>
+                        <target>case</target>
+                    </_3>
+                </conclusion>
+                <cornerstone>
+                </cornerstone>
+                <description>Support Act Breakup</description>
+            </ruleNode>
+            <ruleNode>
+                <id>2</id>
+                <parent>1</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>3</falseChild>
+                <condition>trigger="Singer Tired and Emotional"</condition>
+                <conclusion>
+                    <_1>
+                        <action>suspend</action>
+                        <target>case</target>
+                    </_1>
+                    <_2>
+                        <action>compensate</action>
+                        <target>PostponeConcert</target>
+                    </_2>
+                    <_3>
+                        <action>continue</action>
+                        <target>case</target>
+                    </_3>
+                </conclusion>
+                <cornerstone>
+                </cornerstone>
+                <description>Singer Tired and Emotional</description>
+            </ruleNode>
+            <ruleNode>
+                <id>3</id>
+                <parent>2</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>4</falseChild>
+                <condition>trigger="Guitarist Refused Visa"</condition>
+                <conclusion>
+                    <_1>
+                        <action>suspend</action>
+                        <target>case</target>
+                    </_1>
+                    <_2>
+                        <action>compensate</action>
+                        <target>HireNewBandMember</target>
+                    </_2>
+                    <_3>
+                        <action>continue</action>
+                        <target>case</target>
+                    </_3>
+                </conclusion>
+                <cornerstone>
+                </cornerstone>
+                <description>Guitarist Refused Visa</description>
+            </ruleNode>
+            <ruleNode>
+                 <id>4</id>
+                 <parent>3</parent>
+                 <trueChild>-1</trueChild>
+                 <falseChild>5</falseChild>
+                 <condition>trigger="Band Broken Up"</condition>
+                 <conclusion>
+                     <_1>
+                         <action>suspend</action>
+                         <target>case</target>
+                     </_1>
+                     <_2>
+                         <action>compensate</action>
+                         <target>CancelShow</target>
+                     </_2>
+                     <_3>
+                         <action>remove</action>
+                         <target>case</target>
+                     </_3>
+                 </conclusion>
+                 <cornerstone>
+                 </cornerstone>
+                 <description>Band has broken up</description>
+             </ruleNode>
+             <ruleNode>
+                 <id>5</id>
+                 <parent>4</parent>
+                 <trueChild>-1</trueChild>
+                 <falseChild>6</falseChild>
+                 <condition>trigger="Ticket Sales Better than Expected"</condition>
+                 <conclusion>
+                     <_1>
+                         <action>suspend</action>
+                         <target>case</target>
+                     </_1>
+                     <_2>
+                         <action>compensate</action>
+                         <target>ChangeToLargerVenue</target>
+                     </_2>
+                     <_3>
+                         <action>continue</action>
+                         <target>case</target>
+                     </_3>
+                </conclusion>
+                 <cornerstone>
+                 </cornerstone>
+                 <description>Ticket Sales Better than Expected</description>
+             </ruleNode>
+            <ruleNode>
+                <id>6</id>
+                <parent>5</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>-1</falseChild>
+                <condition>trigger="Band Requests Backstage Refreshments"</condition>
+                <conclusion>
+                    <_1>
+                        <action>suspend</action>
+                        <target>case</target>
+                    </_1>
+                    <_2>
+                        <action>compensate</action>
+                        <target>OrganiseRefreshments</target>
+                    </_2>
+                    <_3>
+                        <action>continue</action>
+                        <target>case</target>
+                    </_3>
+               </conclusion>
+                <cornerstone>
+                </cornerstone>
+                <description>Band has requested some refreshments for the show</description>
+            </ruleNode>
+        </case>
+    </external>
+</spec>

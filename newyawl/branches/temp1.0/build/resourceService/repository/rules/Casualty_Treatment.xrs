@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<spec>
+    <selection>
+        <task name="Treat">
+            <ruleNode>
+                <id>0</id>
+                <parent>-1</parent>
+                <trueChild>1</trueChild>
+                <falseChild>-1</falseChild>
+                <condition>True</condition>
+                <conclusion>null</conclusion>
+                <cornerstone></cornerstone>
+                <description>root level default node</description>
+            </ruleNode>
+            <ruleNode>
+                <id>1</id>
+                <parent>0</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>2</falseChild>
+                <condition>Fever = true</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>TreatFever</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <PatientID>3457687</PatientID>
+                    <Sex>M</Sex>
+                    <DiastolicBP>80</DiastolicBP>
+                    <Notes/>
+                    <Height>1.8</Height>
+                    <HeartRate>72</HeartRate>
+                    <Pharmacy/>
+                    <SystolicBP>120</SystolicBP>
+                    <Fracture>false</Fracture>
+                    <Age>21</Age>
+                    <Treatment/>
+                    <Weight>85</Weight>
+                    <Fever>true</Fever>
+                    <Rash>false</Rash>
+                    <Wound>false</Wound>
+                    <Name>Buster Legg</Name>
+                    <AbdominalPain>false</AbdominalPain>
+                </cornerstone>
+                <description>basic worklet for a fever</description>
+            </ruleNode>
+            <ruleNode>
+                <id>2</id>
+                <parent>1</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>3</falseChild>
+                <condition>Wound = true</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>TreatWound</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <PatientID>2375493</PatientID>
+                    <Sex>M</Sex>
+                    <DiastolicBP>95</DiastolicBP>
+                    <Notes/>
+                    <Height>1.65</Height>
+                    <HeartRate>80</HeartRate>
+                    <Pharmacy/>
+                    <SystolicBP>140</SystolicBP>
+                    <Fracture>false</Fracture>
+                    <Age>35</Age>
+                    <Treatment/>
+                    <Weight>72</Weight>
+                    <Fever>false</Fever>
+                    <Rash>false</Rash>
+                    <Wound>true</Wound>
+                    <Name>Ben Dover</Name>
+                    <AbdominalPain>false</AbdominalPain>
+                </cornerstone>
+                <description>basic worklet for a wound</description>
+            </ruleNode>
+            <ruleNode>
+                <id>3</id>
+                <parent>2</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>4</falseChild>
+                <condition>AbdominalPain = true</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>TreatAbPain</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <PatientID>3645748</PatientID>
+                    <Sex>F</Sex>
+                    <DiastolicBP>88</DiastolicBP>
+                    <Notes/>
+                    <Height>1.52</Height>
+                    <HeartRate>75</HeartRate>
+                    <Pharmacy/>
+                    <SystolicBP>130</SystolicBP>
+                    <Fracture>false</Fracture>
+                    <Age>28</Age>
+                    <Treatment/>
+                    <Weight>65</Weight>
+                    <Fever>false</Fever>
+                    <Rash>false</Rash>
+                    <Wound>false</Wound>
+                    <Name>Amanda Reen</Name>
+                    <AbdominalPain>true</AbdominalPain>
+                </cornerstone>
+                <description>basic worklet for a pain in the tummy</description>
+            </ruleNode>
+            <ruleNode>
+                <id>4</id>
+                <parent>3</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>5</falseChild>
+                <condition>Fracture = true</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>TreatFracture</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <PatientID>7392811</PatientID>
+                    <Sex>M</Sex>
+                    <DiastolicBP>80</DiastolicBP>
+                    <Notes/>
+                    <Height>1.98</Height>
+                    <HeartRate>88</HeartRate>
+                    <Pharmacy/>
+                    <SystolicBP>110</SystolicBP>
+                    <Fracture>true</Fracture>
+                    <Age>14</Age>
+                    <Treatment/>
+                    <Weight>105</Weight>
+                    <Fever>false</Fever>
+                    <Rash>false</Rash>
+                    <Wound>false</Wound>
+                    <Name>Albie Bark</Name>
+                    <AbdominalPain>false</AbdominalPain>
+                </cornerstone>
+                <description>basic worklet for a fracture</description>
+            </ruleNode>
+            <ruleNode>
+                <id>5</id>
+                <parent>4</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>-1</falseChild>
+                <condition>Rash = true</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>TreatRash</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <PatientID>2009810</PatientID>
+                    <Sex>F</Sex>
+                    <DiastolicBP>70</DiastolicBP>
+                    <Notes/>
+                    <Height>1.55</Height>
+                    <HeartRate>72</HeartRate>
+                    <Pharmacy/>
+                    <SystolicBP>110</SystolicBP>
+                    <Fracture>false</Fracture>
+                    <Age>73</Age>
+                    <Treatment/>
+                    <Weight>77</Weight>
+                    <Fever>false</Fever>
+                    <Rash>true</Rash>
+                    <Wound>false</Wound>
+                    <Name>Theresa Green</Name>
+                    <AbdominalPain>false</AbdominalPain>
+                </cornerstone>
+                <description>basic worklet for a rash</description>
+            </ruleNode>
+        </task>
+    </selection>
+    <constraints>
+        <case>
+            <pre>
+                <ruleNode>
+                    <id>0</id>
+                    <parent>-1</parent>
+                    <trueChild>1</trueChild>
+                    <falseChild>-1</falseChild>
+                    <condition>True</condition>
+                    <conclusion>null</conclusion>
+                    <cornerstone></cornerstone>
+                    <description>root level default node</description>
+                </ruleNode>
+                <ruleNode>
+                    <id>1</id>
+                    <parent>0</parent>
+                    <trueChild>-1</trueChild>
+                    <falseChild>-1</falseChild>
+                    <condition>Name = smith</condition>
+                    <conclusion>
+                        <_1>
+                            <action>remove</action>
+                            <target>case</target>
+                        </_1>
+                    </conclusion>
+                    <cornerstone>
+                        <PatientID>3457687</PatientID>
+                        <Name>smith</Name>
+                    </cornerstone>
+                    <description>a test only</description>
+                </ruleNode>
+            </pre>
+        </case>
+    </constraints>
+</spec>
