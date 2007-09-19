@@ -211,46 +211,47 @@
 			  </td>
             </tr>
         </table>
-          <table width='700' border='0' cellpadding='10' cellspacing='0'>
-              <tr>
-                  <td width="1%"/>
-                  <td align="left">
-                      <input name="button" type="button" onClick="addCrewRow();" value="Insert Row" />
-                      <input name="button" type="button" onClick="deleteCrewRow();" value="Delete Row" />
-                  </td>
-              </tr>
-              <!--<tr>-->
-                <!--<td class="bottom">&nbsp;</td>-->
-              <!--</tr>-->
-          </table>
+        <table width='700' border='0' cellpadding='10' cellspacing='0'>
+            <tr>
+                <td width="1%"/>
+                <td align="left">
+                    <input name="button" type="button" onClick="addCrewRow();" value="Insert Row" />
+                    <input name="button" type="button" onClick="deleteCrewRow();" value="Delete Row" />
+                </td>
+            </tr>
+            <!--<tr>-->
+				<!--<td class="bottom">&nbsp;</td>-->
+            <!--</tr>-->
+        </table>
 
-            <input name="button2" type="button"  onclick="window.print()" value="Print">
-			<input type="submit" name="Save" value="Save" onclick="return validateFields('form1');">
-			<input type="submit" name="Submission" value="Submission" onclick="return validateFields('form1');">
-			<input type="hidden" name="count" id="count" value="<%if (a==0) {out.print("1");}else{out.print(a);}%>">
-			<input type="hidden" name="workItemID" id="workItemID">
-			<input type="hidden" name="userID" id="userID">
-			<input type="hidden" name="sessionHandle" id="sessionHandle">
-			<input type="hidden" name="JSESSIONID" id="JSESSIONID">
-			<input type="hidden" name="submit" id="submit">
+		<input name="button2" type="button"  onclick="window.print()" value="Print">
+		<input type="submit" name="Save" value="Save" onclick="return validateFields('form1');">
+		<input type="submit" name="Submission" value="Submission" onclick="return validateFields('form1');">
+		
+		<input type="hidden" name="count" id="count" value="<%if (a==0) {out.print("1");}else{out.print(a);}%>">
+		<input type="hidden" name="workItemID" id="workItemID">
+		<input type="hidden" name="userID" id="userID">
+		<input type="hidden" name="sessionHandle" id="sessionHandle">
+		<input type="hidden" name="JSESSIONID" id="JSESSIONID">
+		<input type="hidden" name="submit" id="submit">
 	</form>
-		<!-- LOAD -->
+	
+<!-- LOAD -->
     <form method="post" action="Input_Crew_List_3257.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
       <table width="60%" border="0" cellspacing="1" cellpadding="1" align="center" class="style1">
         <tr>
           <td align="left"><strong>Select a file to upload :</strong></td>
         </tr>
         <tr>
-          <td align="left">
-            <input type="file" name="uploadfile" size="50">
+			<td align="left">
+				<input type="file" name="uploadfile" size="50">
             </td>
         </tr>
         <tr>
-          <td align="left">
-    		<input type="hidden" name="todo" value="upload">
-            <input type="submit" name="Submit" value="Upload">
-            <input type="reset" name="Reset" value="Cancel">
-				
+			<td align="left">
+	    		<input type="hidden" name="todo" value="upload">
+				<input type="submit" name="Submit" value="Upload">
+				<input type="reset" name="Reset" value="Cancel">
             </td>
         </tr>
       </table>
