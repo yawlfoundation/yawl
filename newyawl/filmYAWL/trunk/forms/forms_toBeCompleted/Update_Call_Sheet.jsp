@@ -250,40 +250,40 @@
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Crew  </strong></td>
-								<td height="30" align="center" valign="top"><input name="crew_call_time" type="text" id="crew_call_time" value="<%= ct1.getCallTime() %>" size="25"></td>
-								<td align="center" valign="top"><input name="crew_call_location" type="text" id="crew_call_location" value="<% if(ct1.getCallLoc() != null) { out.print(ct1.getCallLoc());} %>" size="25"></td>
+								<td height="30" align="center" valign="top"><input name="crew_call_time" type="text" id="crew_call_time" value="<%= ct1.getCallTime() %>" size="25" pattern="date"></td>
+								<td align="center" valign="top"><input name="crew_call_location" type="text" id="crew_call_location" value="<% if(ct1.getCallLoc() != null) { out.print(ct1.getCallLoc());} %>" size="25" pattern="any_text"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 							<% CallType ct2 = ctt.getLocationCall();%>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Location  </strong></td>
-								<td height="30" align="center" valign="top"><input name="location_call_time" type="text" id="location_call_time" value="<%= ct2.getCallTime() %>" size="25"></td>
-								<td align="center" valign="top"><input name="location_call_location" type="text" id="location_call_location" value="<% if(ct2.getCallLoc() != null) { out.print(ct2.getCallLoc());} %>" size="25"></td>
+								<td height="30" align="center" valign="top"><input name="location_call_time" type="text" id="location_call_time" value="<%= ct2.getCallTime() %>" size="25" pattern="date"></td>
+								<td align="center" valign="top"><input name="location_call_location" type="text" id="location_call_location" value="<% if(ct2.getCallLoc() != null) { out.print(ct2.getCallLoc());} %>" size="25" pattern="any_text"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 							<% CallType ct3 = ctt.getMakeupHair();%>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Makeup/Hair  </strong></td>
-								<td height="30" align="center" valign="top"><input name="makeup_call_time" type="text" id="makeup_call_time" value="<%= ct3.getCallTime() %>" size="25"></td>
-								<td align="center" valign="top"><input name="makeup_call_location" type="text" id="makeup_call_location" value="<% if(ct3.getCallLoc() != null) { out.print(ct3.getCallLoc());} %>" size="25"></td>
+								<td height="30" align="center" valign="top"><input name="makeup_call_time" type="text" id="makeup_call_time" value="<%= ct3.getCallTime() %>" size="25" pattern="date"></td>
+								<td align="center" valign="top"><input name="makeup_call_location" type="text" id="makeup_call_location" value="<% if(ct3.getCallLoc() != null) { out.print(ct3.getCallLoc());} %>" size="25" pattern="any_text"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 							<% CallType ct4 = ctt.getWardrobe();%>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Wardrobe  </strong></td>
-								<td height="30" align="center" valign="top"><input name="wardrobe_call_time" type="text" id="wardrobe_call_time" value="<%= ct4.getCallTime() %>" size="25"></td>
-								<td align="center" valign="top"><input name="wardrobe_call_location" type="text" id="wardrobe_call_location" value="<% if(ct4.getCallLoc() != null) { out.print(ct4.getCallLoc());} %>" size="25"></td>
+								<td height="30" align="center" valign="top"><input name="wardrobe_call_time" type="text" id="wardrobe_call_time" value="<%= ct4.getCallTime() %>" size="25" pattern="date"></td>
+								<td align="center" valign="top"><input name="wardrobe_call_location" type="text" id="wardrobe_call_location" value="<% if(ct4.getCallLoc() != null) { out.print(ct4.getCallLoc());} %>" size="25" pattern="any_text"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 							<% CallType ct5 = ctt.getUnit();%>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Unit  </strong></td>
-								<td height="30" align="center" valign="top"><input name="unit_call_time" type="text" id="unit_call_time" value="<%= ct5.getCallTime() %>" size="25"></td>
-								<td align="center" valign="top"><input name="unit_call_location" type="text" id="unit_call_location" value="<% if(ct5.getCallLoc() != null) { out.print(ct5.getCallLoc());} %>" size="25"></td>
+								<td height="30" align="center" valign="top"><input name="unit_call_time" type="text" id="unit_call_time" value="<%= ct5.getCallTime() %>" size="25" pattern="date"></td>
+								<td align="center" valign="top"><input name="unit_call_location" type="text" id="unit_call_location" value="<% if(ct5.getCallLoc() != null) { out.print(ct5.getCallLoc());} %>" size="25" pattern="any_text"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
                           <%int call_count = 0;
@@ -1000,11 +1000,11 @@
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
 								<td width="65" align="right"><strong>Day No.</strong></td>
-								<td width="61" align="center"><input name="ad_schedule_day_no" type="text" id="ad_schedule_day_no" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayNo());} %>" size="4"></td>
+								<td width="61" align="center"><input name="ad_schedule_day_no" type="text" id="ad_schedule_day_no" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayNo());} %>" size="4" pattern="number"></td>
 								<td width="104" align="right"><strong>Weekday</strong></td>
-								<td width="194" align="center"><input name="ad_schedule_weekday" type="text" id="ad_schedule_weekday" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayWeekday());} %>"></td>
+								<td width="194" align="center"><input name="ad_schedule_weekday" type="text" id="ad_schedule_weekday" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayWeekday());} %>" pattern="any_text"></td>
 								<td width="66" align="right"><strong>Date</strong></td>
-								<td width="180" align="center"><input name="ad_schedule_date" type="text" id="ad_schedule_date" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayDate());} %>"></td>
+								<td width="180" align="center"><input name="ad_schedule_date" type="text" id="ad_schedule_date" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayDate());} %>" pattern="real_date"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<tr>
