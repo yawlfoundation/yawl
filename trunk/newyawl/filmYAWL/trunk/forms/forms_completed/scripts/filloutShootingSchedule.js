@@ -361,6 +361,26 @@ function updateTableCount(number) {
 	}
 }
 
+function deleteScene(table_name, table_number) {
+	var temp_scene_count = document.getElementById("table_count_"+table_number).value;
+    var scenesTABLE = document.getElementById(table_name);
+    var rows = scenesTABLE.rows.length;
+    if (rows > headerAndFooterSize) {
+        //delete from the bottom, removing 1 for the 0-based index.
+        scenesTABLE.deleteRow(rows-(footerSize+1));
+        if (temp_requirements_count > 0) {
+            document.getElementById("table_count_"+table_number).value = -- temp_scene_count;
+        }
+
+        if (temp_scenes_count == 0) {
+            //add an empty row after the last row has been deleted.
+            //this allows all data-containing rows to be deleted and for there to be a single empty row
+            //at any point in time.
+            addScene(table_name, table_number);
+        }
+    }
+}
+
 function addScene(table_name, table_number){
 	updateTableCount(table_number);
 	var tbody1 = document.getElementById(table_name);
