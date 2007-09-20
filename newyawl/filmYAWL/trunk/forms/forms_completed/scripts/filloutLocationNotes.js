@@ -1,6 +1,6 @@
 var count = 1;
 //This is the number of rows allocated for the header part of the cast table.
-var headerSize = 2;
+var headerSize = 1;
 var footerSize = 0;
 var headerAndFooterSize = headerSize + footerSize;
 function deleteEntry() {
@@ -49,7 +49,8 @@ function createEntry(){
 	entry_top_cell2.colSpan = "4";
 	entry_top_cell2.className = "header-middle";
 	entry_top_cell3.className = "header-right";
-	
+	entry_top_cell1.setAttribute("width", "15");
+	entry_top_cell3.setAttribute("width", "15");
 	//first row - ID and Name
 	var row1 = table.insertRow(table.rows.length-footerSize);
 	var left1CELL = row1.insertCell(0);
@@ -63,6 +64,7 @@ function createEntry(){
 	right1CELL.className = "right";
     right1CELL.appendChild(document.createTextNode("\u00a0"));
 	locationidLABEL.appendChild(createBoldLabel("Location ID"));
+	locationidLABEL.setAttribute("width", "150");
 	locationidCELL.appendChild(createTextBox("location_ID_" + count, 25, "", "Enter Location ID. [String Value - Compulsory]"));
 	locationnameLABEL.appendChild(createBoldLabel("Location Name"));
 	locationnameCELL.appendChild(createTextBox("location_name_" + count, 25, "", "Enter Location Name. [String Value - Compulsory]"));
@@ -80,6 +82,7 @@ function createEntry(){
 	right2CELL.className = "right";
     right2CELL.appendChild(document.createTextNode("\u00a0"));
 	addressLABEL.appendChild(createBoldLabel("Address"));
+	addressLABEL.setAttribute("width", "150");
 	addressCELL.appendChild(createTextBox("address_" + count, 25, "", "Enter Location Address. [String Value - Compulsory]"));
 	ubdLABEL.appendChild(createBoldLabel("UBD Map Ref"));
 	ubdCELL.appendChild(createTextBox("ubd_" + count, 25, "", "Enter UBD Map reference. [String Value - Compulsory]"));
@@ -97,6 +100,7 @@ function createEntry(){
 	right3CELL.className = "right";
     right3CELL.appendChild(document.createTextNode("\u00a0"));
 	policeLABEL.appendChild(createBoldLabel("Police"));
+	policeLABEL.setAttribute("width", "150");
 	policeCELL.appendChild(createTextBox("police_" + count, 25,"", "Enter Police Details. [String Value - Compulsory]"));
 	hospitalLABEL.appendChild(createBoldLabel("Hospital"));
 	hospitalCELL.appendChild(createTextBox("hospital_" + count, 25,"", "Enter Hospital Details. [String Value - Compulsory]"));
@@ -114,6 +118,7 @@ function createEntry(){
 	right4CELL.className = "right";
     right4CELL.appendChild(document.createTextNode("\u00a0"));
 	contactLABEL.appendChild(createBoldLabel("Contact"));
+	contactLABEL.setAttribute("width", "150");
 	contactCELL.appendChild(createTextBox("contact_" + count, 25,"", "Enter Contact Person. [String Value - Compulsory]"));
 	contactnoLABEL.appendChild(createBoldLabel("Contact No."));
 	contactnoCELL.appendChild(createNumberTextBox("phone_" + count, 25,"", "Enter Contact Number. [String Value - Compulsory]"));
@@ -130,6 +135,7 @@ function createEntry(){
     right5CELL.appendChild(document.createTextNode("\u00a0"));
 	parkingCELL.colSpan = "3";
 	parkingLABEL.appendChild(createBoldLabel("Parking"));
+	parkingLABEL.setAttribute("width", "150");
 	parkingCELL.appendChild(createTextBox("parking_" + count, 80,"", "Enter Parking Details. [String Value - Compulsory]"));
 	
 	//sixth row - Unit
@@ -144,6 +150,7 @@ function createEntry(){
     right6CELL.appendChild(document.createTextNode("\u00a0"));
 	unitCELL.colSpan = "3";
 	unitLABEL.appendChild(createBoldLabel("Unit"));
+	unitLABEL.setAttribute("width", "150");
 	unitCELL.appendChild(createTextBox("unit_" + count, 80,"", "Enter Unit Details. [String Value - Compulsory]"));
 	
 	//seven row - notes
@@ -155,10 +162,13 @@ function createEntry(){
 	var right7CELL = row7.insertCell(4);
 	left7CELL.className = "left";
     left7CELL.appendChild(document.createTextNode("\u00a0"));
+	left7CELL.setAttribute("width", "15");
 	right7CELL.className = "right";
     right7CELL.appendChild(document.createTextNode("\u00a0"));
-	locationnotesCELL.colSpan = "3";
+	right7CELL.setAttribute("width", "15");
+	locationnotesCELL.colSpan = "2";
 	locationnotesLABEL.appendChild(createBoldLabel("Location Notes"));
+	locationnotesLABEL.setAttribute("width", "150");
 	locationnotesCELL.appendChild(createTextArea("notes_" + count, 50,"", "Enter Location Notes. [String Value]"));
 	
 	//bottom information
