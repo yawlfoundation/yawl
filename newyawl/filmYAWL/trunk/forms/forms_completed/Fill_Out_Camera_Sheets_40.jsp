@@ -24,146 +24,9 @@
 <link href="styles/common.css" rel="stylesheet" type="text/css" />
 
 <!-- javascript imports -->
-<script type="text/javascript" src="scripts/common.js"></script>
+<script type="text/javascript" src="../scripts/common.js"></script>
+<script type="text/javascript" src="../scripts/fillOutCameraSheets40.js"></script>
 
-<script language="javascript">
-var count = 1;
-var headerSize = 3;
-var footerSize = 1;
-var headerAndFooterSize = headerSize + footerSize;
-
-function deleteRow() {
-    var table = document.getElementById("table1");
-    var rows = table.rows.length;
-
-    if (rows > headerAndFooterSize) {
-        //delete from the bottom, removing 1 for the 0-based index.
-        table.deleteRow(rows-(footerSize+1));
-        if (count > 0) {
-            document.getElementById("count").value = --count;
-        }
-
-        if (count == 0) {
-            //add an empty row after the last row has been deleted.
-            //this allows all data-containing rows to be deleted and for there to be a single empty row
-            //at any point in time.
-            addRow();
-        }
-    }
-}
-
-function addRow(){
-	var tbody = document.getElementById("table1").getElementsByTagName("tbody")[0];
-	var row = document.createElement("TR");
-	var leftCELL = document.createElement("TD");
-	var magCELL = document.createElement("TD");
-	var slateCELL = document.createElement("TD");
-	var takeCELL = document.createElement("TD");
-	var counterreadingCELL = document.createElement("TD");
-	var takelengthCELL = document.createElement("TD");
-	var printCELL = document.createElement("TD");
-	var bwCELL = document.createElement("TD");
-	var colourCELL = document.createElement("TD");
-	var notesCELL = document.createElement("TD");
-	var rightCELL = document.createElement("TD");
-	var printINPUT =  document.createElement("INPUT");
-
-	//var previous_counter_reading = parseInt(document.getElementById("counter_reading_" + count).value);
-	var previous_counter_reading = parseInt(count).value;
-	//var previous_take_length = parseInt(document.getElementById("take_length_" + count).value);
-	var previous_take_length = parseInt(count).value;
-	var current_counter_reading = previous_counter_reading + previous_take_length;
-
-	//count = document.getElementById("count").value;
-	//document.getElementById("count").value = count;
-
-	row.setAttribute("valign", "top");
-	row.setAttribute("align", "center");
-
-	leftCELL.className = "left";
-	leftCELL.appendChild(document.createTextNode("\u00a0"));
-	rightCELL.className = "right";
-	rightCELL.appendChild(document.createTextNode("\u00a0"));
-
-	printINPUT.setAttribute("type", "checkbox");
-	printINPUT.setAttribute("value", "True");
-	printINPUT.setAttribute("name", "print_" + count);
-	printINPUT.setAttribute("id", "print_" + count);
-
-	magCELL.appendChild(createTextBox("mag_number_" + count, 5, ""));
-	slateCELL.appendChild(createTextBox("slate_" + count, 5, ""));
-	takeCELL.appendChild(createTextBox("take_" + count, 5, ""));
-	counterreadingCELL.appendChild(createTextBox("counter_reading_" + count, 6, count));
-	takelengthCELL.appendChild(createTextBox("take_length_" + count, 6, ""));
-	printCELL.appendChild(printINPUT);
-	bwCELL.appendChild(createRadioButton("print_setting_" + count, "B/W"));
-	colourCELL.appendChild(createRadioButton("print_setting_" + count, "Colour"));
-	notesCELL.appendChild(createTextArea("notes_" + count, 30));
-
-	count ++;
-	
-	row.appendChild(leftCELL);
-	row.appendChild(magCELL);
-	row.appendChild(slateCELL);
-	row.appendChild(takeCELL);
-	row.appendChild(counterreadingCELL);
-	row.appendChild(takelengthCELL);
-	row.appendChild(printCELL);
-	row.appendChild(bwCELL);
-	row.appendChild(colourCELL);
-	row.appendChild(notesCELL);
-	row.appendChild(rightCELL);
-	tbody.appendChild(row);
-	//alert(row.innerHTML);
-}
-
-//function for textbox details
-function createTextBox(id, size, value) {
-	var input =  document.createElement("INPUT");
-	input.setAttribute("size", size);
-	input.setAttribute("name", id);
-	input.setAttribute("id", id);
-	input.setAttribute("value", value);
-	return input;
-}
-
-//function for radio button details
-function createRadioButton(id, value) {
-	var input =  document.createElement("INPUT");
-	input.setAttribute("type", "radio");
-	input.setAttribute("name", id);
-	input.setAttribute("id", id);
-	input.setAttribute("value", value);
-	return input;
-}
-
-//function for textarea details
-function createTextArea(id, size) {
-	var input =  document.createElement("TEXTAREA");
-	input.setAttribute("cols", size);
-	input.setAttribute("name", id);
-	input.setAttribute("id", id);
-	return input;
-}
-
-
-function calculate(){
-	var s_ends = null;
-	var t_exposed = parseInt(document.getElementById("counter_reading_"+ count).value) + parseInt(document.getElementById("take_length_"+ count).value);
-	document.getElementById("total_exposed").value = t_exposed;
-	s_ends = parseInt(document.getElementById("footage_loaded").value ) - t_exposed;
-	s_ends_minimum = parseInt(document.getElementById("short_end_minimum").value);
-	if (s_ends < s_ends_minimum){
-		document.getElementById("waste").value = s_ends;
-		document.getElementById("short_ends").value = 0;
-	}else{
-		document.getElementById("waste").value = 0;
-		document.getElementById("short_ends").value = s_ends;
-	}
-}
-
-</script>
-<link href="graphics/style.css" rel="stylesheet" type="text/css">
 </head>
 
 <body onLoad="getParameters()">
@@ -348,15 +211,15 @@ function calculate(){
 	
 	<tr>
 		<td>
-			<table width="700" border="0" cellpadding="0" cellspacing="0" bordercolor="#000000" id="table1">
+			<table width="700" border="0" cellpadding="0" cellspacing="0" bordercolor="#000000" id="cam_roll_info">
 				<tbody>
 					<tr align="center" valign="top">
-					    <td class="header-left">&nbsp;</td>
+					    <td width="15" class="header-left">&nbsp;</td>
 			            <td colspan="9" align="left" class="header-middle">Camera Roll Info </td>
-			            <td class="header-right">&nbsp;</td>
+			            <td width="15" class="header-right">&nbsp;</td>
 					</tr>
 					<tr align="center" valign="top">
-					  <td rowspan="2" class="left">&nbsp;</td>
+					  <td width="15" rowspan="2" class="left">&nbsp;</td>
 						<td rowspan="2"><strong>Mag No.</strong></td>
 						<td rowspan="2"><strong>Slate No.</strong></td>
 						<td rowspan="2"><strong>Take No.</strong></td>
@@ -366,7 +229,7 @@ function calculate(){
 						<td rowspan="2"><strong>Print</strong></td>
 						<td colspan="2"><strong>Print Setting</strong></td>
 						<td><strong>Essential Information/ General Notes</strong></td>
-					    <td rowspan="2" class="right">&nbsp;</td>
+					    <td width="15" rowspan="2" class="right">&nbsp;</td>
 					</tr>
 					<tr valign="top">
 						<th><strong>B/W</strong></th>
@@ -382,7 +245,7 @@ function calculate(){
 								a++;
 					%>
 					<tr align="center" valign="top">
-						<td class="left">&nbsp;</td>
+						<td width="15" class="left">&nbsp;</td>
 						<td><input name="mag_number_<%=a%>" type="text" id="mag_number_<%=a%>" size="5" value="<%= sl.getMagNumber() %>" pattern="text"></td>
 						<td><input name="slate_<%=a%>" type="text" id="slate_<%=a%>" size="5" value="<%= sl.getSlate() %>" pattern="text"></td>
 						<td><input name="take_<%=a%>" type="text" id="take_<%=a%>" size="5" value="<%= ti.getTake() %>" pattern="number"></td>
@@ -392,7 +255,7 @@ function calculate(){
 						<td><input name="print_setting_<%=a%>" id="radio" type="radio" value="B/W" <% if(ti.getPrintSetting().equals("B/W")){out.print("checked");}%>></td>
 						<td><input name="print_setting_<%=a%>" id="radio" type="radio" value="Colour" <% if(ti.getPrintSetting().equals("Colour")){out.print("checked");}%>></td>
 					    <td><textarea name="notes_<%=a%>" cols="30" id="notes_<%=a%>" pattern="any_text"><%= ti.getEssentialInfo() %></textarea></td>
-					    <td align="right" class="right">&nbsp;</td>
+					    <td width="15" align="right" class="right">&nbsp;</td>
 					</tr>
 					<% 
 							}
@@ -400,7 +263,7 @@ function calculate(){
 					}else {
 					%>
 					<tr align="center" valign="top">
-						<td class="left">&nbsp;</td>
+						<td width="15" class="left">&nbsp;</td>
 						<td><input name="mag_number_1" type="text" id="mag_number_1" size="5" pattern="text"></td>
 						<td><input name="slate_1" type="text" id="slate_1" size="5" pattern="text"></td>
 						<td><input name="take_1" type="text" id="take_1" size="5" pattern="number"></td>
@@ -410,7 +273,7 @@ function calculate(){
 						<td><input name="print_setting_1" id="radio" type="radio" value="B/W"></td>
 						<td><input name="print_setting_1" id="radio" type="radio" value="Colour"></td>
 					    <td><textarea name="notes_1" cols="30" id="textarea" pattern="any_text"></textarea></td>
-					    <td align="right" class="right">&nbsp;</td>
+					    <td width="15" align="right" class="right">&nbsp;</td>
 					</tr>
 					<%}%>
 				</tbody>
@@ -427,7 +290,7 @@ function calculate(){
 						<td>
 							<input name="button" type="button" onClick="addRow();" value="Insert Row"/>
 							<input name="button_delete" type="button" onClick="deleteRow();" value="Delete Row"/></td>
-						<td class="right">&nbsp;</td>
+						<td>&nbsp;</td>
 					</tr>
 				</tbody>
 			</table>
