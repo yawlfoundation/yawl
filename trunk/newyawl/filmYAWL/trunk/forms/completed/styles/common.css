@@ -1,0 +1,13 @@
+.error {border-color:red; }
+.valid { }
+.errorCellColor {
+    border-width : 1px;
+    border-style: dashed; 
+    border-top-color:red;
+    border-bottom-color:red;
+    border-left-color:red;
+    border-right-color:red
+}
+.validCellColor { }
+
+.hidden {display:none;}
