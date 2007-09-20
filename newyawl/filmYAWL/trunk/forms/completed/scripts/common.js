@@ -1,7 +1,7 @@
-var telNumberValidation = "^[\\d\\s\\+\\-\\(\\)]+$";
+var telNumberValidation = "^[\\d\\s\\+\\-\\/\\(\\)]+$";
 var emailValidation = "^((\\w)+(\\.)*)+\\w+@(\\w)+(\\w\\.)*(\\.[A-Za-z]+)+$";
 var textValidation = "^[A-Za-z\\s]+$";
-var textAreaValidation = "^[A-Za-z\\s,().0-9!\\[\\]\\\\/@\\$%^\\*\\-\\_]+$";
+var textAreaValidation = "^[A-Za-z\\s,().0-9!\\[\\]\\?\\'\\;\\\\/@\\$%^\\*\\-\\_\\:]+$";
 var timeValidation = "^((?:[01]\\d)|(?:2[0-3])):([0-5]\\d):([0-5]\\d)$";
 var numberValidation = "^(\\d)+$"
 

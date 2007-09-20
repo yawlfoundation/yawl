@@ -104,7 +104,7 @@ function addCharacterRow(day, table) {//works
 	temp_character_count ++;
 	document.getElementById("sd"+day+"_charactercount"+table).value = temp_character_count;
 	//append the new row to the CHARACTERS table
-	cell.appendChild(createTextBox("sd"+day+"_charactername"+table+"_"+temp_character_count, 20, "","Enter Character Name."));
+	cell.appendChild(createAnyTextTextBox("sd"+day+"_charactername"+table+"_"+temp_character_count, 20, "","Enter Character Name."));
 }
 
 function addMealBreak(day, table) {//works
@@ -126,7 +126,7 @@ function addMealBreak(day, table) {//works
 	
 	mealCELL.appendChild(mealDROPDOWN);
 	mealtimesLABEL.appendChild(createBoldLabel("Times"));
-	mealtimesCELL.appendChild(createTextBox("sd"+day+"_break"+table, 25, "", "Enter Meal Break."));
+	mealtimesCELL.appendChild(createAnyTextTextBox("sd"+day+"_break"+table, 25, "", "Enter Meal Break."));
 	
 	document.getElementById("sd"+day+"_mealbreakbutton"+table).disabled = true;
 }
@@ -239,11 +239,11 @@ function addShootingDay () {
 	var weekdayCELL = daydetailROW2.insertCell(3);
 	shootdateLABEL.appendChild(createBoldLabel("Shoot Day Date "));
 	shootdateLABEL.setAttribute("width", "150");
-	shootdateCELL.appendChild(createTextBox("sd"+temp_day_count+"_date", 20, "", "Enter Shoot Date."));
+	shootdateCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_date", 20, "", "Enter Shoot Date."));
 	shootdateCELL.setAttribute("width", "185");
 	weekdayLABEL.appendChild(createBoldLabel("Shoot Day Weekday "));
 	weekdayLABEL.setAttribute("width", "150");
-	weekdayCELL.appendChild(createTextBox("sd"+temp_day_count+"_weekday", 20, "", "Enter Weekday."));
+	weekdayCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_weekday", 20, "", "Enter Weekday."));
 	weekdayCELL.setAttribute("width", "185");
 	//row 3 - weekday and date
 	var daydetailROW3 = generaldaydetailsTABLE.insertRow(generaldaydetailsTABLE.rows.length);
@@ -265,7 +265,7 @@ function addShootingDay () {
 	var bumpinCELL = daydetailROW4.insertCell(1);	
 	bumpinLABEL.appendChild(createBoldLabel("Bump In "));
 	bumpinLABEL.setAttribute("width", "150");
-	bumpinCELL.appendChild(createTextBox("sd"+temp_day_count+"_bumpin", 20, "", "Enter Bump In."));
+	bumpinCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_bumpin", 20, "", "Enter Bump In."));
 	bumpinCELL.setAttribute("width", "185");
 	bumpinCELL.colSpan = "3";
 	//row 5 - start of day notes
@@ -274,7 +274,7 @@ function addShootingDay () {
 	var startCELL = daydetailROW5.insertCell(1);
 	startLABEL.appendChild(createBoldLabel("Start of Day Notes "));
 	startLABEL.setAttribute("width", "150");
-	startCELL.appendChild(createTextBox("sd"+temp_day_count+"_start",73, "", "Enter Start Day Notes"));
+	startCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_start",73, "", "Enter Start Day Notes"));
 	startCELL.colSpan = "3";
 	
 	headerinfo_cell.appendChild(generaldaydetailsTABLE);
@@ -439,7 +439,7 @@ function createSceneTable () {//done
 	scenenoLABEL.setAttribute("width", "160");
 	scenenoCELL.colSpan = "3";
 	scenenoLABEL.appendChild(createBoldLabel("Scene Number"));
-	scenenoCELL.appendChild(createTextBox("sd"+temp_day_count+"_scene" + temp_table_count, 25, "", "Enter Scene Number."));
+	scenenoCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_scene" + temp_table_count, 25, "", "Enter Scene Number."));
 	//row 2
 	var row2 = sceneTABLE.insertRow(sceneTABLE.rows.length-footerSize);
 	var left2CELL = row2.insertCell(0);
@@ -457,9 +457,9 @@ function createSceneTable () {//done
 	synopsisLABEL.setAttribute("width", "160");
 	synopsisCELL.setAttribute("width", "160");
 	setnameLABEL.appendChild(createBoldLabel("Set Name"));
-	setnameCELL.appendChild(createTextBox("sd"+temp_day_count+"_set" + temp_table_count,20, "", "Enter Set Name."));
+	setnameCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_set" + temp_table_count,20, "", "Enter Set Name."));
 	synopsisLABEL.appendChild(createBoldLabel("Synopsis"));
-	synopsisCELL.appendChild(createTextBox("sd"+temp_day_count+"_synopsis" + temp_table_count,20, "", "Enter Synopsis."));
+	synopsisCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_synopsis" + temp_table_count,20, "", "Enter Synopsis."));
 	//row 3
 	var row3 = sceneTABLE.insertRow(sceneTABLE.rows.length);
 	var left3CELL = row3.insertCell(0);
@@ -477,9 +477,9 @@ function createSceneTable () {//done
 	addressLABEL.setAttribute("width", "160");
 	addressCELL.setAttribute("width", "160");
 	locationidLABEL.appendChild(createBoldLabel("Location ID "));
-	locationidCELL.appendChild(createTextBox("sd"+temp_day_count+"_locationID" + temp_table_count, 20, "", "Enter Location ID."));
+	locationidCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_locationID" + temp_table_count, 20, "", "Enter Location ID."));
 	addressLABEL.appendChild(createBoldLabel("Address"));
-	addressCELL.appendChild(createTextBox("sd"+temp_day_count+"_address" + temp_table_count, 20, "", "Enter Address."));
+	addressCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_address" + temp_table_count, 20, "", "Enter Address."));
 	//row 4
 	var row4 = sceneTABLE.insertRow(sceneTABLE.rows.length);
 	var left4CELL = row4.insertCell(0);
@@ -526,7 +526,7 @@ function createSceneTable () {//done
 	scriptpagesCELL.appendChild(createNumberTextBox("sd"+temp_day_count+"_pagesnum" + temp_table_count, 2, "", "Enter Script Pages"));
 	scriptpagesCELL.appendChild(createBoldLabel(" /8 pgs"));
 	shoottimesLABEL.appendChild(createBoldLabel("Est. Shoot Times"));
-	shoottimesCELL.appendChild(createTextBox("sd"+temp_day_count+"_times" + temp_table_count, 20, "", "Enter Est. Shoot Times."));
+	shoottimesCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_times" + temp_table_count, 20, "", "Enter Est. Shoot Times."));
 	//row 6
 	var row6 = sceneTABLE.insertRow(sceneTABLE.rows.length);
 	var left6CELL = row6.insertCell(0);
@@ -574,7 +574,7 @@ function createSceneTable () {//done
 	characterTABLE.setAttribute("cellpadding", "0");
 	characterTABLE.setAttribute("id","sd"+temp_day_count+"_characters" + temp_table_count);
 	characterLABEL.appendChild(createBoldLabel("Characters"));
-	charactertableCELL.appendChild(createTextBox("sd"+temp_day_count+"_charactername" + temp_table_count+"_1", 20, "", "Enter Character Name."));
+	charactertableCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_charactername" + temp_table_count+"_1", 20, "", "Enter Character Name."));
 	addcharacterCELL.appendChild(addcharacterBUTTON);
 	addcharacterCELL.appendChild(deletecharacterBUTTON);
 	addcharacterCELL.appendChild(createHiddenField("sd"+temp_day_count+"_charactercount" + temp_table_count, 1));
