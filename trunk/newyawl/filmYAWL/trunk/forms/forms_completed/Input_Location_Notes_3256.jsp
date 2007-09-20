@@ -25,7 +25,7 @@
 <link href="styles/common.css" rel="stylesheet" type="text/css" />
 
 <!-- javascript imports -->
-<script type="text/javascript" src="scripts/common.js"></script>
+<script type="text/javascript" src="../scripts/common.js"></script>
 <script type="text/javascript" src="scripts/filloutLocationNotes.js"></script>
 
 </head>
@@ -120,11 +120,6 @@
             <tr>
               <td><table width="700" border="0" cellpadding="0" cellspacing="0" id="locations">
 					<tbody>
-				        <tr>
-		                    <td class="header-left">&nbsp;</td>
-		                    <td colspan="4" class="header-middle">Cast Details </td>
-		                    <td class="header-right">&nbsp;</td>
-						</tr>
 				  		<%
 							int a=0;
 							if (iln.getLocationInfo() != null) {
@@ -133,129 +128,126 @@
 									a++;
 						%>
 						  <tr>
-							<td class="header-left">&nbsp;</td>
+							<td width="15" class="header-left">&nbsp;</td>
 							<td colspan="4" class="header-middle"> <% out.print("Location " + a); %> </td>
-							<td class="header-right">&nbsp;</td>
+							<td width="15" class="header-right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Location ID </strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Location ID </strong></td>
 							<td align="left"><input name="<% out.print("location_ID_" + a); %>" type="text" id="<% out.print("location_ID_" + a); %>" value="<%=slit.getLocationID() %>" pattern="text"></td>
 							<td align="left"><strong>Location Name </strong></td>
 							<td align="left"><input name="<% out.print("location_name_" + a); %>" type="text" id="<% out.print("location_name_" + a); %>" value="<%=slit.getLocationName() %>" pattern="text"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Address</strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Address</strong></td>
 							<td align="left"><input name="<% out.print("address_" + a); %>" type="text" id="<% out.print("address_" + a); %>" value="<%=slit.getAddress() %>" pattern="text"></td>
 							<td align="left"><strong>UBD Map Ref</strong></td>
 							<td align="left"><input name="<% out.print("ubd_" + a); %>" type="text" id="<% out.print("ubd_" + a); %>" value="<%=slit.getUBDMapRef() %>" pattern="text"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Police</strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Police</strong></td>
 							<td align="left"><input name="<% out.print("police_" + a); %>" type="text" id="<% out.print("police_" + a); %>" value="<%=slit.getPolice() %>" pattern="text"></td>
 							<td align="left"><strong>Hospital</strong></td>
 							<td align="left"><input name="<% out.print("hospital_" + a); %>" type="text" id="<% out.print("hospital_" + a); %>" value="<%=slit.getHospital() %>" pattern="text"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Contact</strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Contact</strong></td>
 							<td align="left"><input name="<% out.print("contact_" + a); %>" type="text" id="<% out.print("contact_" + a); %>" value="<%=slit.getContact() %>" pattern="text"></td>
 							<td align="left"><strong>Contact No. </strong></td>
 							<td align="left"><input name="<% out.print("phone_" + a); %>" type="text" id="<% out.print("phone_" + a); %>" value="<%=slit.getContactNo() %>" pattern="tel"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Parking</strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Parking</strong></td>
 							<td colspan="3" align="left"><input name="<% out.print("parking_" + a); %>" type="text" id="<% out.print("parking_" + a); %>" size="80" value="<%=slit.getParking() %>" pattern="text"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Unit</strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Unit</strong></td>
 							<td colspan="3" align="left"><input name="<% out.print("unit_" + a); %>" type="text" id="<% out.print("unit_" + a); %>" size="80" value="<%=slit.getUnit() %>" pattern="text"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Location Notes</strong></td>
-							<td colspan="3" align="left"><textarea name="notes_1" cols="50" id="notes_1"><%=slit.getLocationNotes() %></textarea></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Location Notes</strong></td>
+							<td colspan="2" align="left"><textarea name="notes_1" cols="50" id="notes_1"><%=slit.getLocationNotes() %></textarea></td>
+							<td align="left">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
-						  <!-- <tr><td colspan="6" class="bottom">&nbsp;</td></tr> -->
+						  <tr><td colspan="6" class="bottom">&nbsp;</td></tr>
 						  
 						  <% }
 						  }else { %>
 						  
 						  <tr>
 							<td width="15" class="header-left">&nbsp;</td>
-							<td colspan="6" class="header-middle"> Location 1 </td>
+							<td colspan="4" class="header-middle"> Location 1 </td>
 							<td width="15" class="header-right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Location ID </strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Location ID </strong></td>
 							<td align="left"><input name="location_ID_1" type="text" id="location_ID_1" pattern="text"></td>
 							<td align="left"><strong>Location Name </strong></td>
 							<td align="left"><input name="location_name_1" type="text" id="location_name_1" pattern="text"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Address</strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Address</strong></td>
 							<td align="left"><input name="address_1" type="text" id="address_1" pattern="text"></td>
 							<td align="left"><strong>UBD Map Ref</strong></td>
 							<td align="left"><input name="ubd_1" type="text" id="ubd_1" pattern="text"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Police</strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Police</strong></td>
 							<td align="left"><input name="police_1" type="text" id="police_1" pattern="text"></td>
 							<td align="left"><strong>Hospital</strong></td>
 							<td align="left"><input name="hospital_1" type="text" id="hospital_1" pattern="text"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Contact</strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Contact</strong></td>
 							<td align="left"><input name="contact_1" type="text" id="contact_1" pattern="text"></td>
 							<td align="left"><strong>Contact No. </strong></td>
 							<td align="left"><input name="phone_1" type="text" id="phone_1" pattern="tel"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Parking</strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Parking</strong></td>
 							<td colspan="3" align="left"><input name="parking_1" type="text" id="parking_1" size="80" pattern="text"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Unit</strong></td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Unit</strong></td>
 							<td colspan="3" align="left"><input name="unit_1" type="text" id="unit_1" size="80" pattern="text"></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td class="left">&nbsp;</td>
-							<td align="left"><strong>Location Notes</strong></td>
-							<td colspan="3" align="left"><textarea name="notes_1" cols="50" id="notes_1"></textarea></td>
-							<td class="right">&nbsp;</td>
+							<td width="15" class="left">&nbsp;</td>
+							<td width="100" align="left"><strong>Location Notes</strong></td>
+							<td colspan="2" align="left"><textarea name="notes_1" cols="50" id="notes_1"></textarea></td>
+							<td align="left">&nbsp;</td>
+							<td width="15" class="right">&nbsp;</td>
 						  </tr>
-						  <!-- <tr><td colspan="6" class="bottom">&nbsp;</td></tr> -->
+						  <tr><td colspan="6" class="bottom">&nbsp;</td></tr>
 						  <%}%>
 	           
 					</tbody>
-					<!-- <tbody> -->
-	                    <tr valign="top">
-	                        <th class="bottom" colspan="9"> </th>
-						</tr>
-					<!-- </tbody> -->
 				</table></td>
             </tr>
         </table>
