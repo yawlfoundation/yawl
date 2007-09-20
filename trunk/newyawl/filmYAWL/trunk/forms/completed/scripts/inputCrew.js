@@ -68,6 +68,7 @@ function addCrewRow(){
 }
 
 function populateRoles(roleINPUT) {
+	roleINPUT.appendChild(addDropListItem("Production Manager"));
     roleINPUT.appendChild(addDropListItem("1st AD"));
     roleINPUT.appendChild(addDropListItem("2nd AD"));
     roleINPUT.appendChild(addDropListItem("Camera Assistant"));
@@ -77,7 +78,6 @@ function populateRoles(roleINPUT) {
     roleINPUT.appendChild(addDropListItem("D.O.P."));
     roleINPUT.appendChild(addDropListItem("Editor"));
     roleINPUT.appendChild(addDropListItem("Producer"));
-    roleINPUT.appendChild(addDropListItem("Production Manager"));
     roleINPUT.appendChild(addDropListItem("Sound Recordist"));
     roleINPUT.appendChild(addDropListItem("Supervising Production Manager"));
     roleINPUT.appendChild(addDropListItem("Other ..."));
