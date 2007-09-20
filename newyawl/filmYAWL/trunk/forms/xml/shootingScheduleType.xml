@@ -23,8 +23,8 @@
           <number>0</number>
           <numerator>0</numerator>
         </pageTime>
-        <D_N>D_N</D_N>
-        <IN_EX>IN_EX</IN_EX>
+        <D_N>day</D_N>
+        <IN_EX>int</IN_EX>
         <locationID>locationID</locationID>
         <set>set</set>
         <address>address</address>
