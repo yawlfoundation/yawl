@@ -75,11 +75,11 @@
 		}
 	}
 	else{
-		xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Input_Crew_List xmlns:ns2='http://www.yawlfoundation.org/sb/crewInfo' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/crewInfo crewInfoType.xsd '><production>production</production></ns2:Input_Crew_List>";
-		//xml = (String)session.getAttribute("outputData");
+		//xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Input_Crew_List xmlns:ns2='http://www.yawlfoundation.org/sb/crewInfo' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/crewInfo crewInfoType.xsd '><production>production</production></ns2:Input_Crew_List>";
+		xml = (String) session.getAttribute("outputData");
 		xml = xml.replaceAll("<Input_Crew_List", "<ns2:Input_Crew_List xmlns:ns2='http://www.yawlfoundation.org/sb/crewInfo'");
 		xml = xml.replaceAll("</Input_Crew_List","</ns2:Input_Crew_List");
-		//System.out.println("outputData xml: "+xml+" --- ");
+		System.out.println("outputData xml: "+xml+" --- ");
 	}
 	
 	ByteArrayInputStream xmlBA = new ByteArrayInputStream(xml.getBytes());

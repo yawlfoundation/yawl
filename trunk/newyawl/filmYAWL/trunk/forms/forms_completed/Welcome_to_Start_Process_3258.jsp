@@ -29,7 +29,8 @@
 <body onLoad="getParameters()">
 
 <% 
-	String xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Welcome_to_Start_Process xmlns:ns2='http://www.yawlfoundation.org/sb/start' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/start welcomeToStartProcessType.xsd '><production></production></ns2:Welcome_to_Start_Process>";
+	//String xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Welcome_to_Start_Process xmlns:ns2='http://www.yawlfoundation.org/sb/start' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/start welcomeToStartProcessType.xsd '><production></production></ns2:Welcome_to_Start_Process>";
+	String xml = (String) session.getAttribute("outputData");
 	ByteArrayInputStream xmlBA = new ByteArrayInputStream(xml.getBytes());
 	JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.start");
 	Unmarshaller u = jc.createUnmarshaller();
@@ -68,11 +69,12 @@
             <input name="button2" type="button"  onclick="window.print()" value="Print">
             <input type="submit" name="Save" value="Save" onclick="return validateFields('form1');">
             <input type="submit" name="Submission" value="Submission" onclick="return validateFields('form1');">
-				<input type="hidden" name="workItemID" id="workItemID">
-				<input type="hidden" name="userID" id="userID">
-				<input type="hidden" name="sessionHandle" id="sessionHandle">
-				<input type="hidden" name="JSESSIONID" id="JSESSIONID">
-				<input type="hidden" name="submit" id="submit">
+			
+			<input type="hidden" name="workItemID" id="workItemID">
+			<input type="hidden" name="userID" id="userID">
+			<input type="hidden" name="sessionHandle" id="sessionHandle">
+			<input type="hidden" name="JSESSIONID" id="JSESSIONID">
+			<input type="hidden" name="submit" id="submit">
 		  </p>
 	</form>
 		
