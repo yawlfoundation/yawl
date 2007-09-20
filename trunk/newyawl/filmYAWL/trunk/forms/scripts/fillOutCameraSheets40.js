@@ -1,27 +1,33 @@
-//var count = 1;
+var count = 1;
 var headerSize = 2;
-var footerSize = 2;
+var footerSize = 1;
 var headerAndFooterSize = headerSize + footerSize;
+
+function deleteRow() {
+    var table = document.getElementById("cam_roll_info");
+    var rows = table.rows.length;
+
+    if (rows > headerAndFooterSize) {
+        //delete from the bottom, removing 1 for the 0-based index.
+        table.deleteRow(rows-(footerSize+1));
+        if (count > 0) {
+            document.getElementById("count").value = --count;
+        }
+
+        if (count == 0) {
+            //add an empty row after the last row has been deleted.
+            //this allows all data-containing rows to be deleted and for there to be a single empty row
+            //at any point in time.
+            addRow();
+        }
+    }
+}
 
 function addRow(){
 
-//var tbody = document.getElementById("table1").getElementsByTagName("tbody")[0];
-//var row = document.createElement("TR");
-//var leftCELL = document.createElement("TD");
-//var magCELL = document.createElement("TD");
-//var slateCELL = document.createElement("TD");
-//var takeCELL = document.createElement("TD");
-//var counterreadingCELL = document.createElement("TD");
-//var takelengthCELL = document.createElement("TD");
-//var printCELL = document.createElement("TD");
-//var bwCELL = document.createElement("TD");
-//var colourCELL = document.createElement("TD");
-//var notesCELL = document.createElement("TD");
-//var rightCELL = document.createElement("TD");
-//var printINPUT =  document.createElement("INPUT");
 
-    var table = document.getElementById("table1");
-    var row = table.insertCell(table.rows.length - footerSize);
+    var table = document.getElementById("cam_roll_info");
+    var row = table.insertRow(table.rows.length - footerSize);
 
     var leftCELL = row.insertCell(0);
     var magCELL = row.insertCell(1);
@@ -36,13 +42,13 @@ function addRow(){
     var rightCELL = row.insertCell(10);
     
     var printINPUT =  document.createElement("INPUT");
-
+	var count = document.getElementById("count").value;
 
     var previous_counter_reading = parseInt(document.getElementById("counter_reading_" + count).value);
     var previous_take_length = parseInt(document.getElementById("take_length_" + count).value);
     var current_counter_reading = previous_counter_reading + previous_take_length;
 
-    var count = document.getElementById("count").value;
+    
     count ++;
     document.getElementById("count").value = count;
 
@@ -70,30 +76,8 @@ function addRow(){
     colourCELL.appendChild(createRadioButton("print_setting_" + count, "Colour"));
     notesCELL.appendChild(createTextArea("notes_" + count, 30));
 
-//    row.appendChild(leftCELL);
-//    row.appendChild(magCELL);
-//    row.appendChild(slateCELL);
-//    row.appendChild(takeCELL);
-//    row.appendChild(counterreadingCELL);
-//    row.appendChild(takelengthCELL);
-//    row.appendChild(printCELL);
-//    row.appendChild(bwCELL);
-//    row.appendChild(colourCELL);
-//    row.appendChild(notesCELL);
-//    row.appendChild(rightCELL);
-//    tbody.appendChild(row);
-    //alert(row.innerHTML);
 }
 
-//function for textbox details
-//function createTextBox(id, size, value) {
-//var input =  document.createElement("INPUT");
-//input.setAttribute("size", size);
-//input.setAttribute("name", id);
-//input.setAttribute("id", id);
-//input.setAttribute("value", value);
-//return input;
-//}
 
 //function for radio button details
 function createRadioButton(id, value) {
@@ -104,41 +88,6 @@ input.setAttribute("id", id);
 input.setAttribute("value", value);
 return input;
 }
-
-//function for textarea details
-//function createTextArea(id, size) {
-//var input =  document.createElement("TEXTAREA");
-//input.setAttribute("cols", size);
-//input.setAttribute("name", id);
-//input.setAttribute("id", id);
-//return input;
-//}
-
-
-//function getParam(name)
-//{
-//  var start=location.search.indexOf("?"+name+"=");
-//  if (start<0) start=location.search.indexOf("&"+name+"=");
-//  if (start<0) return '';
-//  start += name.length+2;
-//  var end=location.search.indexOf("&",start)-1;
-//  if (end<0) end=location.search.length;
-//  var result='';
-//  for(var i=start;i<=end;i++) {
-//    var c=location.search.charAt(i);
-//    result=result+(c=='+'?' ':c);
-//  }
-//  //window.alert('Result = '+result);
-//  return unescape(result);
-//}
-//
-//function getParameters(){
-//	document.form1.workItemID.value = getParam('workItemID');
-//	document.form1.userID.value = getParam('userID');
-//	document.form1.sessionHandle.value = getParam('sessionHandle');
-//	document.form1.JSESSIONID.value = getParam('JSESSIONID');
-//	document.form1.submit.value = "htmlForm";
-//}
 
 function calculate(){
 	var s_ends = null;
