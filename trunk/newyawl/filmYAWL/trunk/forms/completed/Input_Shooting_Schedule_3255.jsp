@@ -74,8 +74,8 @@
 		}
 	}
 	else{
-		xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Input_Shooting_Schedule xmlns:ns2='http://www.yawlfoundation.org/sb/shootingSchedule' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/shootingSchedule shootingScheduleType.xsd '><production>new</production><shootingSchedule><lastUpdatedDate>2007-07-07</lastUpdatedDate><director>me</director><producer>you</producer><startDate>2006-06-06</startDate><scheduledFinish>2005-05-05</scheduledFinish><revisedFinish>2004-04-04</revisedFinish><scheduledShootingDays>20</scheduledShootingDays></shootingSchedule><totalScenes>0</totalScenes><totalPageTime><number>0</number><numerator>0</numerator></totalPageTime><originalTiming>12:00:00</originalTiming></ns2:Input_Shooting_Schedule>";
-		//xml = (String)session.getAttribute("outputData");
+		//xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Input_Shooting_Schedule xmlns:ns2='http://www.yawlfoundation.org/sb/shootingSchedule' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/shootingSchedule shootingScheduleType.xsd '><production>new</production><shootingSchedule><lastUpdatedDate>2007-07-07</lastUpdatedDate><director>me</director><producer>you</producer><startDate>2006-06-06</startDate><scheduledFinish>2005-05-05</scheduledFinish><revisedFinish>2004-04-04</revisedFinish><scheduledShootingDays>20</scheduledShootingDays></shootingSchedule><totalScenes>0</totalScenes><totalPageTime><number>0</number><numerator>0</numerator></totalPageTime><originalTiming>12:00:00</originalTiming></ns2:Input_Shooting_Schedule>";
+		xml = (String)session.getAttribute("outputData");
 		xml = xml.replaceAll("<Input_Shooting_Schedule", "<ns2:Input_Shooting_Schedule xmlns:ns2='http://www.yawlfoundation.org/sb/shootingSchedule'");
 		xml = xml.replaceAll("</Input_Shooting_Schedule","</ns2:Input_Shooting_Schedule");
 		//System.out.println("outputData xml: "+xml+" --- ");
@@ -107,15 +107,15 @@
 <tr height="30">
 <td width="15" class="left">&nbsp;</td>
 <td><strong>Production</strong></td>
-<td><input name='production' type='text' id='production' value="<%= iss.getProduction() %>" pattern="text" title="Enter Production."></td>
+<td><input name='production' type='text' id='production' value="<%= iss.getProduction() %>" pattern="any_text" title="Enter Production."></td>
 <td><strong>Director</strong></td>
-<td><input name='director' type='text' id='director' value="<%=ss.getDirector() %>" pattern="text" title="Enter Director."></td>
+<td><input name='director' type='text' id='director' value="<%=ss.getDirector() %>" pattern="any_text" title="Enter Director."></td>
 <td width="15" class="right">&nbsp;</td>
 </tr>
 <tr height="30">
 <td class="left">&nbsp;</td>
 <td><strong>Producer</strong></td>
-<td><input name='producer' type='text' id='producer' value="<%=ss.getProducer() %>" pattern="text" title="Enter Producer."></td>
+<td><input name='producer' type='text' id='producer' value="<%=ss.getProducer() %>" pattern="any_text" title="Enter Producer."></td>
 <td><strong>Last Updated Date</strong></td>
 <td><input name='last_updated' type='text' id='last_updated' value="<%=ss.getLastUpdatedDate() %>" title="Enter Last Updated Date."></td>
 <td class="right">&nbsp;</td>
@@ -145,7 +145,7 @@
 <td><strong>Revised Finish </strong></td>
 <td><input name='revised_finish' type='text' id='revised_finish' value="<% if(ss.getRevisedFinish() != null) {out.print(ss.getRevisedFinish());} %>"></td>
 <td><strong>Scheduled Shooting Days </strong></td>
-<td><input name='scheduled_shooting_days' type='text' id='scheduled_shooting_days' value="<%=ss.getScheduledShootingDays() %>" pattern="number" title="Enter Schedule Shooting Days."></td>
+<td><input name='scheduled_shooting_days' type='text' id='scheduled_shooting_days' value="<% if (ss.getScheduledShootingDays().intValue() > 0){ out.print(ss.getScheduledShootingDays()); }%>" pattern="number" title="Enter Schedule Shooting Days."></td>
 <td class="right">&nbsp;</td>
 </tr>
 <tr height="30"><td colspan="10" class='bottom'>&nbsp;</td></tr>
@@ -182,7 +182,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 		<td width="150" align="left"><strong>Shoot Day Date</strong></td>
 		<td width="185" align="left"><input name="<% out.print("sd" + a + "_date");%>" type="text" id="<% out.print("sd" + a + "_date");%>" value="<%=sds.getShootDayDate() %>" title="Enter Shoot Date."></td>
 		<td width="150" align="left"><strong>Shoot Day Weekday</strong></td>
-		<td width="185" align="left"><input name="<% out.print("sd" + a + "_weekday");%>" type="text" id="<% out.print("sd" + a + "_weekday");%>" value="<%=sds.getShootDayWeekday() %>" pattern="text" title="Enter Weekday."></td>
+		<td width="185" align="left"><input name="<% out.print("sd" + a + "_weekday");%>" type="text" id="<% out.print("sd" + a + "_weekday");%>" value="<%=sds.getShootDayWeekday() %>" pattern="any_text" title="Enter Weekday."></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
@@ -225,17 +225,17 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 		<tr>
 			<td height="30" class="left">&nbsp;</td>
 			<td height="30" valign="top"><strong>Set Name</strong></td>
-			<td height="30" valign="top"><input name="<% out.print("sd" + a + "_set" + b);%>" type="text" id="<% out.print("sd" + a + "_set" + b);%>" value="<%= scs.getSet()%>" pattern="text" title="Enter Set Name."></td>
+			<td height="30" valign="top"><input name="<% out.print("sd" + a + "_set" + b);%>" type="text" id="<% out.print("sd" + a + "_set" + b);%>" value="<%= scs.getSet()%>" pattern="any_text" title="Enter Set Name."></td>
 			<td height="30" valign="top"><strong>Synopsis</strong></td>
-			<td height="30" valign="top"><input name="<% out.print("sd" + a + "_synopsis" + b);%>" type="text" id="<% out.print("sd" + a + "_synopsis" + b);%>" value="<%= scs.getSynopsis() %>" pattern="text" title="Enter Synopsis."></td>
+			<td height="30" valign="top"><input name="<% out.print("sd" + a + "_synopsis" + b);%>" type="text" id="<% out.print("sd" + a + "_synopsis" + b);%>" value="<%= scs.getSynopsis() %>" pattern="any_text" title="Enter Synopsis."></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
 			<td width="15" height="30" class="left">&nbsp;</td>
 			<td width="160" height="30" valign="top"><strong>Location ID </strong></td>
-			<td width="160" height="30" valign="top"><input name="<% out.print("sd" + a + "_locationID" + b);%>" type="text" id="<% out.print("sd" + a + "_locationID" + b);%>" value="<%= scs.getLocationID()%>" pattern="text" title="Enter Location ID."></td>
+			<td width="160" height="30" valign="top"><input name="<% out.print("sd" + a + "_locationID" + b);%>" type="text" id="<% out.print("sd" + a + "_locationID" + b);%>" value="<%= scs.getLocationID()%>" pattern="any_text" title="Enter Location ID."></td>
 			<td width="160" height="30" valign="top"><strong>Address</strong></td>
-			<td width="160" height="30" valign="top"><input name="<% out.print("sd" + a + "_address" + b);%>" type="text" id="<% out.print("sd" + a + "_address" + b);%>" value="<%= scs.getAddress()%>" pattern="text" title="Enter Address."></td>
+			<td width="160" height="30" valign="top"><input name="<% out.print("sd" + a + "_address" + b);%>" type="text" id="<% out.print("sd" + a + "_address" + b);%>" value="<%= scs.getAddress()%>" pattern="any_text" title="Enter Address."></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
@@ -256,7 +256,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 			<input name="<% out.print("sd" + a + "_pagesnum" + b);%>" type="text" id="<% out.print("sd" + a + "_pagesnum" + b);%>" size="2" value="<%=pt.getNumerator() %>" pattern="number" title="Enter Script Pages.">
 			<strong>/8 pgs </strong></td>
 			<td height="30" valign="top"><strong>Est. Shoot Times </strong></td>
-			<td height="30" valign="top"><input name="<% out.print("sd" + a + "_shoottimes" + b);%>" type="text" id="<% out.print("sd" + a + "_shoottimes" + b);%>" value="<%= scs.getEstShootTimes()%>" pattern="text" title="Enter Est. Shoot Times."></td>
+			<td height="30" valign="top"><input name="<% out.print("sd" + a + "_shoottimes" + b);%>" type="text" id="<% out.print("sd" + a + "_shoottimes" + b);%>" value="<%= scs.getEstShootTimes()%>" pattern="any_text" title="Enter Est. Shoot Times."></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
@@ -275,7 +275,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 				List<String> characters_list = ct.getCharacter();
 					for(String characters : characters_list) {
 						c ++;%>
-					<tr><td><input name="<% out.print("sd" + a + "_charactername" + b + "_" + c);%>" type="text" id="<% out.print("sd" + a + "_charactername" + b + "_" + c);%>" value="<%=characters%>" pattern="text" title="Enter Character Name."></td></tr>
+					<tr><td><input name="<% out.print("sd" + a + "_charactername" + b + "_" + c);%>" type="text" id="<% out.print("sd" + a + "_charactername" + b + "_" + c);%>" value="<%=characters%>" pattern="any_text" title="Enter Character Name."></td></tr>
 				<% } %>
 			</table>													  
 			</td>
@@ -319,7 +319,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 						<option value="Miscellaneous" <% if(se.getItem().equals("Miscellaneous")) { out.print("selected"); }%>>Miscellaneous</option>
 						<option value="Notes" <% if(se.getItem().equals("Notes")) { out.print("selected"); }%>>Notes</option>
 						</select></td>
-						<td><textarea name="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" id="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" cols="20" pattern="text" title="Enter Set Requirements."><%=se.getRequirements() %></textarea></td>
+						<td><textarea name="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" id="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" cols="20" pattern="any_text" title="Enter Set Requirements."><%=se.getRequirements() %></textarea></td>
 					</tr>
 				<%}%> 
 			</table>														
@@ -346,7 +346,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 			<option value="Dinner" <% if(mb.getMeal().equals("Dinner")) { out.print("selected"); }%>>Dinner</option>
 			<option value="Supper" <% if(mb.getMeal().equals("Supper")) { out.print("selected"); }%>>Supper</option>
 			
-			</select></td><td><strong>Times</strong></td><td><input name="<% out.print("sd" + a + "_break" + b);%>" type="text" id="<% out.print("sd" + a + "_break" + b);%>" value="<%=mb.getBreak()%>" pattern="text" title="Enter Meal Break."></td></tr>
+			</select></td><td><strong>Times</strong></td><td><input name="<% out.print("sd" + a + "_break" + b);%>" type="text" id="<% out.print("sd" + a + "_break" + b);%>" value="<%=mb.getBreak()%>" pattern="any_text" title="Enter Meal Break."></td></tr>
 			
 			</table></td>
 			<td class="right">&nbsp;</td>
@@ -426,7 +426,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 		<td width="150" align="left"><strong>Shoot Day Date</strong></td>
 		<td width="185" align="left"><input name="sd1_date" type="text" id="sd1_date" value="" title="Enter Shoot Date."></td>
 		<td width="150" align="left"><strong>Shoot Day Weekday</strong></td>
-		<td width="185" align="left"><input name="sd1_weekday" type="text" id="sd1_weekday" value="" pattern="text" title="Enter Weekday."></td>
+		<td width="185" align="left"><input name="sd1_weekday" type="text" id="sd1_weekday" value="" pattern="any_text" title="Enter Weekday."></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
@@ -466,17 +466,17 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 		<tr>
 			<td height="30" class="left">&nbsp;</td>
 			<td height="30" valign="top"><strong>Set Name</strong></td>
-			<td height="30" valign="top"><input name="sd1_set1" type="text" id="sd1_set1" value="" pattern="text" title="Enter Set Name."></td>
+			<td height="30" valign="top"><input name="sd1_set1" type="text" id="sd1_set1" value="" pattern="any_text" title="Enter Set Name."></td>
 			<td height="30" valign="top"><strong>Synopsis</strong></td>
-			<td height="30" valign="top"><input name="sd1_synopsis1" type="text" id="sd1_synopsis1" value="" pattern="text" title="Enter Synopsis."></td>
+			<td height="30" valign="top"><input name="sd1_synopsis1" type="text" id="sd1_synopsis1" value="" pattern="any_text" title="Enter Synopsis."></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
 			<td width="15" height="30" class="left">&nbsp;</td>
 			<td width="160" height="30" valign="top"><strong>Location ID </strong></td>
-			<td width="160" height="30" valign="top"><input name="sd1_locationID1" type="text" id="sd1_locationID1" value="" pattern="text" title="Enter Location ID."></td>
+			<td width="160" height="30" valign="top"><input name="sd1_locationID1" type="text" id="sd1_locationID1" value="" pattern="any_text" title="Enter Location ID."></td>
 			<td width="160" height="30" valign="top"><strong>Address</strong></td>
-			<td width="160" height="30" valign="top"><input name="sd1_address1" type="text" id="sd1_address" value="" pattern="text" title="Enter Address."></td>
+			<td width="160" height="30" valign="top"><input name="sd1_address1" type="text" id="sd1_address" value="" pattern="any_text" title="Enter Address."></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
@@ -495,7 +495,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 			<input name="sd1_pagesnum1" type="text" id="sd1_pagesnum1" size="2" value="" pattern="number" title="Enter Script Pages.">
 			<strong>/8 pgs </strong></td>
 			<td height="30" valign="top"><strong>Est. Shoot Times </strong></td>
-			<td height="30" valign="top"><input name="sd1_shoottimes1" type="text" id="sd1_shoottimes1" value="" pattern="text" title="Enter Est. Shoot Times."></td>
+			<td height="30" valign="top"><input name="sd1_shoottimes1" type="text" id="sd1_shoottimes1" value="" pattern="any_text" title="Enter Est. Shoot Times."></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
@@ -509,7 +509,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 			<td height="30" rowspan="2" valign="top"><strong>Characters</strong></td>
 			<td height="15" colspan="3" valign="top">
 			<table width="510" border="0" cellpadding="0" cellspacing="0" id="sd1_characters1">
-				<tr><td><input name="sd1_charactername1_1" type="text" id="sd1_charactername1_1" value="" pattern="text" title="Enter Character Name."></td></tr>
+				<tr><td><input name="sd1_charactername1_1" type="text" id="sd1_charactername1_1" value="" pattern="any_text" title="Enter Character Name."></td></tr>
 			</table>													  
 			</td>
 			<td height="30" rowspan="2" class="right">&nbsp;</td>
@@ -547,7 +547,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 					  <option value="Miscellaneous">Miscellaneous</option>
 					  <option value="Notes">Notes</option>
 					</select></td>
-					<td><textarea name="sd1_requirements1_1" id="sd1_requirements1_1" cols="20" pattern="text" title="Enter Set Requirements."></textarea></td>
+					<td><textarea name="sd1_requirements1_1" id="sd1_requirements1_1" cols="20" pattern="any_text" title="Enter Set Requirements."></textarea></td>
 					</tr>
 				</table>														
 			</td>
@@ -628,6 +628,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 <input type="button" value="Print"  onclick="window.print()">
 <input type="submit" name="Save" value="Save" onclick="return validateFields('form1');">
 <input type="submit" name="Submission" value="Submission" onclick="return validateFields('form1');">
+
 <input type="hidden" name="workItemID" id="workItemID">
 <input type="hidden" name="userID" id="userID">
 <input type="hidden" name="sessionHandle" id="sessionHandle">
@@ -821,7 +822,8 @@ int total_scenes = 0;
     String userID = new String(request.getParameter("userID"));
     String submit = new String(request.getParameter("submit"));
   
-    session.setAttribute("inputData", result);//to be possibly replaced
+    session.setAttribute("inputData", result); //to be possibly replaced
+	System.out.println("INPUTSHOTTINGSCHEDULE SUBMIT: "+submit);
     response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit));
     return;
 }

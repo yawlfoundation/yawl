@@ -77,8 +77,8 @@
 		}
 	}
 	else{
-		xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Input_Location_Notes xmlns:ns2='http://www.yawlfoundation.org/sb/locationInfo' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/locationInfo locationInfoType.xsd '><production>production</production><locationInfo><singleLocationInfo><locationID>locationID</locationID><locationName>locationName</locationName><address>address</address><UBDMapRef>UBDMapRef</UBDMapRef><parking>parking</parking><unit>unit</unit><police>police</police><hospital>hospital</hospital><contact>contact</contact><contactNo>contactNo</contactNo><locationNotes>locationNotes</locationNotes></singleLocationInfo></locationInfo></ns2:Input_Location_Notes>";
-		//xml = (String)session.getAttribute("outputData");
+		//xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Input_Location_Notes xmlns:ns2='http://www.yawlfoundation.org/sb/locationInfo' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/locationInfo locationInfoType.xsd '><production>production</production><locationInfo><singleLocationInfo><locationID>locationID</locationID><locationName>locationName</locationName><address>address</address><UBDMapRef>UBDMapRef</UBDMapRef><parking>parking</parking><unit>unit</unit><police>police</police><hospital>hospital</hospital><contact>contact</contact><contactNo>contactNo</contactNo><locationNotes>locationNotes</locationNotes></singleLocationInfo></locationInfo></ns2:Input_Location_Notes>";
+		xml = (String)session.getAttribute("outputData");
 		xml = xml.replaceAll("<Input_Location_Notes", "<ns2:Input_Location_Notes xmlns:ns2='http://www.yawlfoundation.org/sb/locationInfo'");
 		xml = xml.replaceAll("</Input_Location_Notes","</ns2:Input_Location_Notes");
 		//System.out.println("outputData xml: "+xml+" --- ");
@@ -124,6 +124,7 @@
 							int a=0;
 							if (iln.getLocationInfo() != null) {
 							LocationInfoType lit = iln.getLocationInfo();
+							if (lit.getSingleLocationInfo().isEmpty() == false){
 								for(SingleLocationInfoType slit : lit.getSingleLocationInfo()){
 									a++;
 						%>
@@ -135,31 +136,31 @@
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Location ID </strong></td>
-							<td align="left"><input name="<% out.print("location_ID_" + a); %>" type="text" id="<% out.print("location_ID_" + a); %>" value="<%=slit.getLocationID() %>" pattern="text"></td>
+							<td align="left"><input name="<% out.print("location_ID_" + a); %>" type="text" id="<% out.print("location_ID_" + a); %>" value="<%=slit.getLocationID() %>" pattern="any_text"></td>
 							<td align="left"><strong>Location Name </strong></td>
-							<td align="left"><input name="<% out.print("location_name_" + a); %>" type="text" id="<% out.print("location_name_" + a); %>" value="<%=slit.getLocationName() %>" pattern="text"></td>
+							<td align="left"><input name="<% out.print("location_name_" + a); %>" type="text" id="<% out.print("location_name_" + a); %>" value="<%=slit.getLocationName() %>" pattern="any_text"></td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Address</strong></td>
-							<td align="left"><input name="<% out.print("address_" + a); %>" type="text" id="<% out.print("address_" + a); %>" value="<%=slit.getAddress() %>" pattern="text"></td>
+							<td align="left"><input name="<% out.print("address_" + a); %>" type="text" id="<% out.print("address_" + a); %>" value="<%=slit.getAddress() %>" pattern="any_text"></td>
 							<td align="left"><strong>UBD Map Ref</strong></td>
-							<td align="left"><input name="<% out.print("ubd_" + a); %>" type="text" id="<% out.print("ubd_" + a); %>" value="<%=slit.getUBDMapRef() %>" pattern="text"></td>
+							<td align="left"><input name="<% out.print("ubd_" + a); %>" type="text" id="<% out.print("ubd_" + a); %>" value="<%=slit.getUBDMapRef() %>" pattern="any_text"></td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Police</strong></td>
-							<td align="left"><input name="<% out.print("police_" + a); %>" type="text" id="<% out.print("police_" + a); %>" value="<%=slit.getPolice() %>" pattern="text"></td>
+							<td align="left"><input name="<% out.print("police_" + a); %>" type="text" id="<% out.print("police_" + a); %>" value="<%=slit.getPolice() %>" pattern="any_text"></td>
 							<td align="left"><strong>Hospital</strong></td>
-							<td align="left"><input name="<% out.print("hospital_" + a); %>" type="text" id="<% out.print("hospital_" + a); %>" value="<%=slit.getHospital() %>" pattern="text"></td>
+							<td align="left"><input name="<% out.print("hospital_" + a); %>" type="text" id="<% out.print("hospital_" + a); %>" value="<%=slit.getHospital() %>" pattern="any_text"></td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Contact</strong></td>
-							<td align="left"><input name="<% out.print("contact_" + a); %>" type="text" id="<% out.print("contact_" + a); %>" value="<%=slit.getContact() %>" pattern="text"></td>
+							<td align="left"><input name="<% out.print("contact_" + a); %>" type="text" id="<% out.print("contact_" + a); %>" value="<%=slit.getContact() %>" pattern="any_text"></td>
 							<td align="left"><strong>Contact No. </strong></td>
 							<td align="left"><input name="<% out.print("phone_" + a); %>" type="text" id="<% out.print("phone_" + a); %>" value="<%=slit.getContactNo() %>" pattern="tel"></td>
 							<td width="15" class="right">&nbsp;</td>
@@ -167,13 +168,13 @@
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Parking</strong></td>
-							<td colspan="3" align="left"><input name="<% out.print("parking_" + a); %>" type="text" id="<% out.print("parking_" + a); %>" size="80" value="<%=slit.getParking() %>" pattern="text"></td>
+							<td colspan="3" align="left"><input name="<% out.print("parking_" + a); %>" type="text" id="<% out.print("parking_" + a); %>" size="80" value="<%=slit.getParking() %>" pattern="any_text"></td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Unit</strong></td>
-							<td colspan="3" align="left"><input name="<% out.print("unit_" + a); %>" type="text" id="<% out.print("unit_" + a); %>" size="80" value="<%=slit.getUnit() %>" pattern="text"></td>
+							<td colspan="3" align="left"><input name="<% out.print("unit_" + a); %>" type="text" id="<% out.print("unit_" + a); %>" size="80" value="<%=slit.getUnit() %>" pattern="any_text"></td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
@@ -196,31 +197,31 @@
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Location ID </strong></td>
-							<td align="left"><input name="location_ID_1" type="text" id="location_ID_1" pattern="text"></td>
+							<td align="left"><input name="location_ID_1" type="text" id="location_ID_1" pattern="any_text"></td>
 							<td align="left"><strong>Location Name </strong></td>
-							<td align="left"><input name="location_name_1" type="text" id="location_name_1" pattern="text"></td>
+							<td align="left"><input name="location_name_1" type="text" id="location_name_1" pattern="any_text"></td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Address</strong></td>
-							<td align="left"><input name="address_1" type="text" id="address_1" pattern="text"></td>
+							<td align="left"><input name="address_1" type="text" id="address_1" pattern="any_text"></td>
 							<td align="left"><strong>UBD Map Ref</strong></td>
-							<td align="left"><input name="ubd_1" type="text" id="ubd_1" pattern="text"></td>
+							<td align="left"><input name="ubd_1" type="text" id="ubd_1" pattern="any_text"></td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Police</strong></td>
-							<td align="left"><input name="police_1" type="text" id="police_1" pattern="text"></td>
+							<td align="left"><input name="police_1" type="text" id="police_1" pattern="any_text"></td>
 							<td align="left"><strong>Hospital</strong></td>
-							<td align="left"><input name="hospital_1" type="text" id="hospital_1" pattern="text"></td>
+							<td align="left"><input name="hospital_1" type="text" id="hospital_1" pattern="any_text"></td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Contact</strong></td>
-							<td align="left"><input name="contact_1" type="text" id="contact_1" pattern="text"></td>
+							<td align="left"><input name="contact_1" type="text" id="contact_1" pattern="any_text"></td>
 							<td align="left"><strong>Contact No. </strong></td>
 							<td align="left"><input name="phone_1" type="text" id="phone_1" pattern="tel"></td>
 							<td width="15" class="right">&nbsp;</td>
@@ -228,13 +229,13 @@
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Parking</strong></td>
-							<td colspan="3" align="left"><input name="parking_1" type="text" id="parking_1" size="80" pattern="text"></td>
+							<td colspan="3" align="left"><input name="parking_1" type="text" id="parking_1" size="80" pattern="any_text"></td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Unit</strong></td>
-							<td colspan="3" align="left"><input name="unit_1" type="text" id="unit_1" size="80" pattern="text"></td>
+							<td colspan="3" align="left"><input name="unit_1" type="text" id="unit_1" size="80" pattern="any_text"></td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr>
@@ -245,7 +246,7 @@
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
 						  <tr><td colspan="6" class="bottom">&nbsp;</td></tr>
-						  <%}%>
+						  <%} }%>
 	           
 					</tbody>
 				</table></td>
