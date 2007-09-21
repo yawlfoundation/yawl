@@ -74,8 +74,8 @@
 		}
 	}
 	else{
-		//xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Input_Shooting_Schedule xmlns:ns2='http://www.yawlfoundation.org/sb/shootingSchedule' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/shootingSchedule shootingScheduleType.xsd '><production>new</production><shootingSchedule><lastUpdatedDate>2007-07-07</lastUpdatedDate><director>me</director><producer>you</producer><startDate>2006-06-06</startDate><scheduledFinish>2005-05-05</scheduledFinish><revisedFinish>2004-04-04</revisedFinish><scheduledShootingDays>20</scheduledShootingDays></shootingSchedule><totalScenes>0</totalScenes><totalPageTime><number>0</number><numerator>0</numerator></totalPageTime><originalTiming>12:00:00</originalTiming></ns2:Input_Shooting_Schedule>";
-		xml = (String)session.getAttribute("outputData");
+		xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Input_Shooting_Schedule xmlns:ns2='http://www.yawlfoundation.org/sb/shootingSchedule' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/shootingSchedule shootingScheduleType.xsd '><production>new</production><shootingSchedule><lastUpdatedDate>2007-07-07</lastUpdatedDate><director>me</director><producer>you</producer><startDate>2006-06-06</startDate><scheduledFinish>2005-05-05</scheduledFinish><revisedFinish>2004-04-04</revisedFinish><scheduledShootingDays>20</scheduledShootingDays></shootingSchedule><totalScenes>0</totalScenes><totalPageTime><number>0</number><numerator>0</numerator></totalPageTime><originalTiming>12:00:00</originalTiming></ns2:Input_Shooting_Schedule>";
+		//xml = (String)session.getAttribute("outputData");
 		xml = xml.replaceAll("<Input_Shooting_Schedule", "<ns2:Input_Shooting_Schedule xmlns:ns2='http://www.yawlfoundation.org/sb/shootingSchedule'");
 		xml = xml.replaceAll("</Input_Shooting_Schedule","</ns2:Input_Shooting_Schedule");
 		//System.out.println("outputData xml: "+xml+" --- ");
@@ -196,13 +196,13 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td align="left"><strong>Bump In</strong></td>
-		<td colspan="3" align="left"><input name="<% out.print("sd" + a + "_bumpin");%>" type="text" id="<% out.print("sd" + a + "_bumpin");%>" size="8" value="<%=sds.getBumpIn() %>"></td>
+		<td colspan="3" align="left"><input name="<% out.print("sd" + a + "_bumpin");%>" type="text" id="<% out.print("sd" + a + "_bumpin");%>" size="8" value="<% if(sds.getBumpIn()!= null){out.print(sds.getBumpIn()); }%>"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150" align="left"><strong>Start of Day Notes </strong></td>
-		<td colspan="3" align="left"><input name="<% out.print("sd" + a + "_start");%>" type="text" id="<% out.print("sd" + a + "_start");%>" size="73" value="<%=sds.getStartDayNotes() %>"></td>
+		<td colspan="3" align="left"><input name="<% out.print("sd" + a + "_start");%>" type="text" id="<% out.print("sd" + a + "_start");%>" size="73" value="<% if(sds.getStartDayNotes()!= null){ out.print(sds.getStartDayNotes());} %>"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 <tr>
@@ -240,11 +240,11 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 		</tr>
 		<tr>
 			<td width="15" height="30" class="left">&nbsp;</td>
-			<td width="160" height="30" valign="top"><strong>Interior</strong><input name="<% out.print("sd" + a + "_intext" + b);%>" type="radio" value="int" <% if(scs.getINEX().equals("int")){ out.print("checked"); } %>></td>
-			<td width="160" height="30" valign="top"><strong>Exterior</strong><input name="<% out.print("sd" + a + "_intext" + b);%>" type="radio" value="ext" <% if(scs.getINEX().equals("ext")){ out.print("checked"); } %>></td>
+			<td width="160" height="30" valign="top"><strong>Interior</strong><input name="<% out.print("sd" + a + "_intext" + b);%>" type="radio" value="INT" <% if(scs.getINEX().equals("INT")){ out.print("checked"); } %>></td>
+			<td width="160" height="30" valign="top"><strong>Exterior</strong><input name="<% out.print("sd" + a + "_intext" + b);%>" type="radio" value="EXT" <% if(scs.getINEX().equals("EXT")){ out.print("checked"); } %>></td>
 			<td width="160" height="30" valign="top"><strong>Day</strong>
-			<input name="<% out.print("sd" + a + "_daynight" + b);%>" type="radio" value="day" <% if(scs.getDN().equals("day")){ out.print("checked"); } %>></td>
-			<td width="160" height="30" valign="top"><strong>Night</strong><input name="<% out.print("sd" + a + "_daynight" + b);%>" type="radio" value="night" <% if(scs.getDN().equals("night")){ out.print("checked"); } %>></td>
+			<input name="<% out.print("sd" + a + "_daynight" + b);%>" type="radio" value="Day" <% if(scs.getDN().equals("Day")){ out.print("checked"); } %>></td>
+			<td width="160" height="30" valign="top"><strong>Night</strong><input name="<% out.print("sd" + a + "_daynight" + b);%>" type="radio" value="Night" <% if(scs.getDN().equals("Night")){ out.print("checked"); } %>></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<% PageTimeType pt = scs.getPageTime(); %>
@@ -481,10 +481,11 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 		</tr>
 		<tr>
 			<td width="15" height="30" class="left">&nbsp;</td>
-			<td width="160" height="30" valign="top"><strong>Interior</strong><input name="sd1_intext1" type="radio" value="int"></td>
-			<td width="160" height="30" valign="top"><strong>Exterior</strong><input name="sd1_intext1" type="radio" value="ext"></td>
-			<td width="160" height="30" valign="top"><strong>Day</strong><input name="sd1_daynight1" type="radio" value="day"></td>
-			<td width="160" height="30" valign="top"><strong>Night</strong><input name="sd1_daynight1" type="radio" value="night"></td>
+			<td width="160" height="30" valign="top"><strong>Interior</strong>
+			  <input name="sd1_intext1" type="radio" value="INT"></td>
+			<td width="160" height="30" valign="top"><strong>Exterior</strong><input name="sd1_intext1" type="radio" value="EXT"></td>
+			<td width="160" height="30" valign="top"><strong>Day</strong><input name="sd1_daynight1" type="radio" value="Day"></td>
+			<td width="160" height="30" valign="top"><strong>Night</strong><input name="sd1_daynight1" type="radio" value="Night"></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
@@ -625,10 +626,12 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 <p align="center">
 <input name="button" type="button" onClick="addShootingDay();" value="Add Shooting Day"/>
 <input name="button4" type="button" onClick="deleteShootingDay();" value="Delete Shooting Day"/>
+<br>
 <input type="button" value="Print"  onclick="window.print()">
 <input type="submit" name="Save" value="Save" onclick="return validateFields('form1');">
 <input type="submit" name="Submission" value="Submission" onclick="return validateFields('form1');">
 
+<br>
 <input type="hidden" name="workItemID" id="workItemID">
 <input type="hidden" name="userID" id="userID">
 <input type="hidden" name="sessionHandle" id="sessionHandle">
