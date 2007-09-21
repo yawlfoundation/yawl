@@ -180,7 +180,7 @@
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Location Notes</strong></td>
-							<td colspan="2" align="left"><textarea name="notes_1" cols="50" id="notes_1"><%=slit.getLocationNotes() %></textarea></td>
+							<td colspan="2" align="left"><textarea name="<% out.print("notes_" + a); %>" cols="50" id="<% out.print("notes_" + a); %>"><%=slit.getLocationNotes() %></textarea></td>
 							<td align="left">&nbsp;</td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
