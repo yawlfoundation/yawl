@@ -6,12 +6,14 @@ var table_num = 0;
 var temp_character_count = 1;
 var temp_requirements_count = 1;
 var days_count = 1;
-//This is the number of rows allocated for the header part of the cast table.
+
 var headerSize = 0;
 var footerSize = 0;
 var headerAndFooterSize = headerSize + footerSize;
 
-
+var charheaderSize = 1;
+var charfooterSize = 0;
+var charheaderAndFooterSize = charheaderSize + charfooterSize;
 
 function deleteRequirementsRow(day, table) {
 	var temp_requirements_count = document.getElementById("sd"+day+"_requirementscount"+table).value;
@@ -80,9 +82,9 @@ function deleteCharacterRow(day, table) {
 	var temp_character_count = document.getElementById("sd"+day+"_charactercount"+table).value;
     var characterTABLE = document.getElementById("sd"+day+"_characters"+table);
     var rows = characterTABLE.rows.length;
-    if (rows > headerAndFooterSize) {
+    if (rows > charheaderAndFooterSize) {
         //delete from the bottom, removing 1 for the 0-based index.
-        characterTABLE.deleteRow(rows-(footerSize+1));
+        characterTABLE.deleteRow(rows-(charfooterSize+1));
         if (temp_character_count > 0) {
             document.getElementById("sd"+day+"_charactercount"+table).value = -- temp_character_count;
         }
@@ -97,7 +99,7 @@ function deleteCharacterRow(day, table) {
 }
 function addCharacterRow(day, table) {//works
 	var characterTABLE= document.getElementById("sd"+day+"_characters"+table);
-	var row = characterTABLE.insertRow(characterTABLE.rows.length-footerSize);
+	var row = characterTABLE.insertRow(characterTABLE.rows.length-charfooterSize);
 	var cell = row.insertCell(0);
 	//get the number of CHARACTERS entries
 	temp_character_count = document.getElementById("sd"+day+"_charactercount"+table).value;
@@ -497,13 +499,13 @@ function createSceneTable () {//done
 	dayCELL.setAttribute("width", "160");
 	nightCELL.setAttribute("width", "160");
 	interiorCELL.appendChild(createBoldLabel("Interior "));
-	interiorCELL.appendChild(createRadioButton("sd"+temp_day_count+"_intext" + temp_table_count, "int"));
+	interiorCELL.appendChild(createRadioButton("sd"+temp_day_count+"_intext" + temp_table_count, "INT"));
 	exteriorCELL.appendChild(createBoldLabel("Exterior "));
-	exteriorCELL.appendChild(createRadioButton("sd"+temp_day_count+"_intext" + temp_table_count, "ext"));
+	exteriorCELL.appendChild(createRadioButton("sd"+temp_day_count+"_intext" + temp_table_count, "EXT"));
 	dayCELL.appendChild(createBoldLabel("Day "));
-	dayCELL.appendChild(createRadioButton("sd"+temp_day_count+"_daynight" + temp_table_count, "day"));
+	dayCELL.appendChild(createRadioButton("sd"+temp_day_count+"_daynight" + temp_table_count, "Day"));
 	nightCELL.appendChild(createBoldLabel("Night "));
-	nightCELL.appendChild(createRadioButton("sd"+temp_day_count+"_daynight" + temp_table_count, "night"));
+	nightCELL.appendChild(createRadioButton("sd"+temp_day_count+"_daynight" + temp_table_count, "Night"));
 	//row 5
 	var row5 = sceneTABLE.insertRow(sceneTABLE.rows.length);
 	var left5CELL = row5.insertCell(0);
@@ -565,6 +567,7 @@ function createSceneTable () {//done
 	deletecharacterBUTTON.setAttribute("type", "button");
 	deletecharacterBUTTON.setAttribute("value", "Delete Character");
 	deletecharacterBUTTON.setAttribute("onClick", "deleteCharacterRow("+temp_day_count+","+temp_table_count+");");
+	
 	var characterTABLE = document.createElement("TABLE");
 	var charactertableROW = characterTABLE.insertRow(characterTABLE.rows.length);
 	var charactertableCELL = charactertableROW.insertCell(0);
@@ -573,13 +576,13 @@ function createSceneTable () {//done
 	characterTABLE.setAttribute("cellspacing", "0");
 	characterTABLE.setAttribute("cellpadding", "0");
 	characterTABLE.setAttribute("id","sd"+temp_day_count+"_characters" + temp_table_count);
-	characterLABEL.appendChild(createBoldLabel("Characters"));
 	charactertableCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_charactername" + temp_table_count+"_1", 20, "", "Enter Character Name."));
+	
+	characterLABEL.appendChild(createBoldLabel("Characters"));
 	addcharacterCELL.appendChild(addcharacterBUTTON);
 	addcharacterCELL.appendChild(deletecharacterBUTTON);
 	addcharacterCELL.appendChild(createHiddenField("sd"+temp_day_count+"_charactercount" + temp_table_count, 1));
-	charactertableROW.appendChild(charactertableCELL);
-	characterTABLE.appendChild(charactertableROW);
+	
 	characterCELL.appendChild(characterTABLE);
 	characterCELL.appendChild(addcharacterROW);
 	//row 8
