@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:Input_Cast_List xmlns:ns2="http://www.yawlfoundation.org/sb/castInfo">
+    <production>production</production>
+    <castInfo>
+        <singleCastInfo>
+    <character>1.Vincent</character>
+    <artist>Myles Pollard</artist>
+    <agent>tba</agent>
+    <agentContactNo>111111</agentContactNo>
+</singleCastInfo>
+<singleCastInfo>
+    <character>2.Penelope</character>
+    <artist>Kelly Butler</artist>
+    <agent>tba</agent>
+    <agentContactNo>2222222</agentContactNo>
+</singleCastInfo>
+<singleCastInfo>
+    <character>3.Diana</character>
+    <artist>Krew Boylan</artist>
+    <agent>tba</agent>
+    <agentContactNo>33333333</agentContactNo>
+</singleCastInfo>
+<singleCastInfo>
+    <character>4.Kit</character>
+    <artist>David Lyons</artist>
+    <agent>tba</agent>
+    <agentContactNo>4444444</agentContactNo>
+</singleCastInfo>
+<singleCastInfo>
+    <character>5.Baby</character>
+    <artist>Audrey Atkins</artist>
+    <agent>tba</agent>
+    <agentContactNo>55555555</agentContactNo>
+</singleCastInfo>
+<singleCastInfo>
+    <character>7.R.E.Agent</character>
+    <artist>Don Hany</artist>
+    <agent>tba</agent>
+    <agentContactNo>66666666</agentContactNo>
+</singleCastInfo>
+    </castInfo>
+</ns2:Input_Cast_List>
