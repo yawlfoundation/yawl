@@ -117,7 +117,7 @@
 <td><strong>Producer</strong></td>
 <td><input name='producer' type='text' id='producer' value="<%=ss.getProducer() %>" pattern="any_text" title="Enter Producer."></td>
 <td><strong>Last Updated Date</strong></td>
-<td><input name='last_updated' type='text' id='last_updated' value="<%=ss.getLastUpdatedDate() %>" title="Enter Last Updated Date."></td>
+<td><input name='last_updated' type='text' id='last_updated' value="<%=ss.getLastUpdatedDate().getDay()+"-"+ss.getLastUpdatedDate().getMonth()+"-"+ss.getLastUpdatedDate().getYear() %>" pattern="real_date" title="Enter Last Updated Date."></td>
 <td class="right">&nbsp;</td>
 </tr>
 <tr height="30"><td colspan="10" class='bottom'>&nbsp;</td></tr>
@@ -135,15 +135,15 @@
 <tr height="30">
 <td class="left">&nbsp;</td>
 <td><strong>Start Date </strong></td>
-<td><input name='start_date' type='text' id='start_date' value="<%=ss.getStartDate() %>"  title="Enter Start Date."></td>
+<td><input name='start_date' type='text' id='start_date' value="<%=ss.getStartDate().getDay()+"-"+ss.getStartDate().getMonth()+"-"+ss.getStartDate().getYear() %>"  pattern="real_date" title="Enter Start Date."></td>
 <td><strong>Scheduled Finish</strong></td>
-<td><input name='scheduled_finish' type='text' id='scheduled_finish' value="<%=ss.getScheduledFinish() %>" title="Enter Scheduled Finish Date."></td>
+<td><input name='scheduled_finish' type='text' id='scheduled_finish' value="<%=ss.getScheduledFinish().getDay()+"-"+ss.getScheduledFinish().getMonth()+"-"+ss.getScheduledFinish().getYear() %>" pattern="real_date" title="Enter Scheduled Finish Date."></td>
 <td class="right">&nbsp;</td>
 </tr>
 <tr height="30">
 <td class="left">&nbsp;</td>
 <td><strong>Revised Finish </strong></td>
-<td><input name='revised_finish' type='text' id='revised_finish' value="<% if(ss.getRevisedFinish() != null) {out.print(ss.getRevisedFinish());} %>"></td>
+<td><input name='revised_finish' type='text' id='revised_finish' value="<% if(ss.getRevisedFinish() != null) {out.print(ss.getRevisedFinish().getDay()+"-"+ss.getRevisedFinish().getMonth()+"-"+ss.getRevisedFinish().getYear());} %>"></td>
 <td><strong>Scheduled Shooting Days </strong></td>
 <td><input name='scheduled_shooting_days' type='text' id='scheduled_shooting_days' value="<% if (ss.getScheduledShootingDays().intValue() > 0){ out.print(ss.getScheduledShootingDays()); }%>" pattern="number" title="Enter Schedule Shooting Days."></td>
 <td class="right">&nbsp;</td>
@@ -180,7 +180,7 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150" align="left"><strong>Shoot Day Date</strong></td>
-		<td width="185" align="left"><input name="<% out.print("sd" + a + "_date");%>" type="text" id="<% out.print("sd" + a + "_date");%>" value="<%=sds.getShootDayDate() %>" title="Enter Shoot Date."></td>
+		<td width="185" align="left"><input name="<% out.print("sd" + a + "_date");%>" type="text" id="<% out.print("sd" + a + "_date");%>" value="<%=sds.getShootDayDate().getDay()+"-"+sds.getShootDayDate().getMonth()+"-"+sds.getShootDayDate().getYear() %>" pattern="real_date" title="Enter Shoot Date."></td>
 		<td width="150" align="left"><strong>Shoot Day Weekday</strong></td>
 		<td width="185" align="left"><input name="<% out.print("sd" + a + "_weekday");%>" type="text" id="<% out.print("sd" + a + "_weekday");%>" value="<%=sds.getShootDayWeekday() %>" pattern="any_text" title="Enter Weekday."></td>
 		<td class="right">&nbsp;</td>
@@ -674,7 +674,9 @@ if(ss.getSingleDaySchedule().size() != 0) { %>
 
 <%
 if(request.getParameter("Submission") != null){
-int total_scenes = 0;
+	java.text.SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
+	java.text.SimpleDateFormat df2 = new SimpleDateFormat("dd-MM-yyyy");
+	int total_scenes = 0;
 	int total_pages = 0;
 	int total_pagesnum = 0;
 	String array[] = {"","",""}; 
@@ -686,7 +688,7 @@ int total_scenes = 0;
 	for(int current_day=1; current_day<=days_count; current_day ++) {
 		SingleDayScheduleType sdst = new SingleDayScheduleType();
 		sdst.setShootDayNo(new BigInteger(request.getParameter("sd"+current_day+"_number")));
-		sdst.setShootDayDate(XMLGregorianCalendarImpl.parse(request.getParameter("sd"+current_day+"_date")));
+		sdst.setShootDayDate(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("sd"+current_day+"_date")))));
 		sdst.setShootDayWeekday(request.getParameter("sd"+current_day+"_weekday"));
 		sdst.setCrewCall(XMLGregorianCalendarImpl.parse(request.getParameter("sd"+current_day+"_crew")));
 		sdst.setTravelToLoc(XMLGregorianCalendarImpl.parse(request.getParameter("sd"+current_day+"_traveltoloc")));
@@ -760,13 +762,13 @@ int total_scenes = 0;
 	}// end of singledayschedule loop
 		
 		
-	sst.setLastUpdatedDate(XMLGregorianCalendarImpl.parse(request.getParameter("last_updated")));
+	sst.setLastUpdatedDate(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("last_updated")))));
 	sst.setDirector(request.getParameter("director"));
 	sst.setProducer(request.getParameter("producer"));
-	sst.setStartDate(XMLGregorianCalendarImpl.parse(request.getParameter("start_date")));
-	sst.setScheduledFinish(XMLGregorianCalendarImpl.parse(request.getParameter("scheduled_finish")));
+	sst.setStartDate(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("start_date")))));
+	sst.setScheduledFinish(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("scheduled_finish")))));
 	if(!(request.getParameter("revised_finish").equals(""))){
-		sst.setRevisedFinish(XMLGregorianCalendarImpl.parse(request.getParameter("revised_finish")));
+		sst.setRevisedFinish(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("revised_finish")))));
 	}
 	sst.setScheduledShootingDays(new BigInteger(request.getParameter("scheduled_shooting_days")));
 	
@@ -825,14 +827,15 @@ int total_scenes = 0;
     String userID = new String(request.getParameter("userID"));
     String submit = new String(request.getParameter("submit"));
   
-    session.setAttribute("inputData", result); //to be possibly replaced
-	System.out.println("INPUTSHOTTINGSCHEDULE SUBMIT: "+submit);
+    session.setAttribute("inputData", result);//to be possibly replaced
     response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/yawlFormServlet?workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&userID="+userID+"&submit="+submit));
     return;
 }
 
 else if(request.getParameter("Save") != null){
-int total_scenes = 0;
+	java.text.SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
+	java.text.SimpleDateFormat df2 = new SimpleDateFormat("dd-MM-yyyy");
+	int total_scenes = 0;
 	int total_pages = 0;
 	int total_pagesnum = 0;
 	String array[] = {"","",""}; 
@@ -844,7 +847,7 @@ int total_scenes = 0;
 	for(int current_day=1; current_day<=days_count; current_day ++) {
 		SingleDayScheduleType sdst = new SingleDayScheduleType();
 		sdst.setShootDayNo(new BigInteger(request.getParameter("sd"+current_day+"_number")));
-		sdst.setShootDayDate(XMLGregorianCalendarImpl.parse(request.getParameter("sd"+current_day+"_date")));
+		sdst.setShootDayDate(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("sd"+current_day+"_date")))));
 		sdst.setShootDayWeekday(request.getParameter("sd"+current_day+"_weekday"));
 		sdst.setCrewCall(XMLGregorianCalendarImpl.parse(request.getParameter("sd"+current_day+"_crew")));
 		sdst.setTravelToLoc(XMLGregorianCalendarImpl.parse(request.getParameter("sd"+current_day+"_traveltoloc")));
@@ -917,14 +920,14 @@ int total_scenes = 0;
 		sst.getSingleDaySchedule().add(sdst);
 	}// end of singledayschedule loop
 		
-		
-	sst.setLastUpdatedDate(XMLGregorianCalendarImpl.parse(request.getParameter("last_updated")));
+	
+	sst.setLastUpdatedDate(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("last_updated")))));
 	sst.setDirector(request.getParameter("director"));
 	sst.setProducer(request.getParameter("producer"));
-	sst.setStartDate(XMLGregorianCalendarImpl.parse(request.getParameter("start_date")));
-	sst.setScheduledFinish(XMLGregorianCalendarImpl.parse(request.getParameter("scheduled_finish")));
+	sst.setStartDate(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("start_date")))));
+	sst.setScheduledFinish(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("scheduled_finish")))));
 	if(!(request.getParameter("revised_finish").equals(""))){
-		sst.setRevisedFinish(XMLGregorianCalendarImpl.parse(request.getParameter("revised_finish")));
+		sst.setRevisedFinish(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("revised_finish")))));
 	}
 	sst.setScheduledShootingDays(new BigInteger(request.getParameter("scheduled_shooting_days")));
 	
