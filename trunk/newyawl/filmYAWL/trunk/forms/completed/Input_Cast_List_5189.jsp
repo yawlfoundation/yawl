@@ -24,8 +24,8 @@
 <link href="styles/common.css" rel="stylesheet" type="text/css" />
 
 <!-- javascript imports -->
-<script type="text/javascript" src="scripts/common.js" />
-<script type="text/javascript" src="scripts/inputCast.js" />
+<script type="text/javascript" src="scripts/common.js"></script>
+<script type="text/javascript" src="scripts/inputCast.js"></script>
 </head>
 
 <body onLoad="getParameters()">
@@ -139,20 +139,20 @@
 							a++;%>
 						   <tr valign="top">
 							<td width="15" height="30" align="center" class="left">&nbsp;</td>
-							<td height="30" align="center"><input name='<% out.print("character_" + a); %>' type="text" id='<% out.print("character_" + a); %>' size="20" value="<%= scit.getCharacter() %>" pattern="^[A-Za-z\s]+$"></td>
-							<td height="30" align="center"><input name='<% out.print("artist_" + a); %>' type='text' id='<% out.print("artist_" + a); %>' size="20" value="<%= scit.getArtist() %>" pattern="^[A-Za-z\s]+$"></td>
-							<td height="30" align="center"><input name='<% out.print("agent_" + a); %>' type='text' id='<% out.print("agent_" + a); %>' size="20" value="<%= scit.getAgent() %>" pattern="^[A-Za-z\s]+$"></td>
-							<td height="30" align="center"><input name='<% out.print("contactno_" + a); %>' type='text' id='<% out.print("contactno_" + a); %>' size="10" value="<%= scit.getAgentContactNo() %>" pattern="^[\d\s\+\-]+$"></td>
+							<td height="30" align="center"><input name='<% out.print("character_" + a); %>' type="text" id='<% out.print("character_" + a); %>' size="20" value="<%= scit.getCharacter() %>" pattern="any_text"></td>
+							<td height="30" align="center"><input name='<% out.print("artist_" + a); %>' type='text' id='<% out.print("artist_" + a); %>' size="20" value="<%= scit.getArtist() %>" pattern="any_text"></td>
+							<td height="30" align="center"><input name='<% out.print("agent_" + a); %>' type='text' id='<% out.print("agent_" + a); %>' size="20" value="<%= scit.getAgent() %>" pattern="any_text"></td>
+							<td height="30" align="center"><input name='<% out.print("contactno_" + a); %>' type='text' id='<% out.print("contactno_" + a); %>' size="10" value="<%= scit.getAgentContactNo() %>" pattern="tel"></td>
 							<td width="15" height="30" class="right">&nbsp;</td>
 						  </tr>
 					  <% }
 					  } else {%>
 					   <tr valign="top">
 							<td width="15" height="30" align="center" class="left">&nbsp;</td>
-							<td height="30" align="center"><input name='character_1' type="text" id='character_1' size="20" value="" pattern="^[A-Za-z\s]+$"></td>
-							<td height="30" align="center"><input name='artist_1' type='text' id='artist_1' size="20" value="" pattern="^[A-Za-z\s]+$"></td>
-							<td height="30" align="center"><input name='agent_1' type='text' id='agent_1' size="20" value="" pattern="^[A-Za-z\s]+$"></td>
-							<td height="30" align="center"><input name='contactno_1' type='text' id='contactno_1' size="10" value="" pattern="^[\d\s\+\-]+$"></td>
+							<td height="30" align="center"><input name='character_1' type="text" id='character_1' size="20" value="" pattern="any_text"></td>
+							<td height="30" align="center"><input name='artist_1' type='text' id='artist_1' size="20" value="" pattern="any_text"></td>
+							<td height="30" align="center"><input name='agent_1' type='text' id='agent_1' size="20" value="" pattern="any_text"></td>
+							<td height="30" align="center"><input name='contactno_1' type='text' id='contactno_1' size="10" value="" pattern="tel"></td>
 							<td width="15" height="30" class="right">&nbsp;</td>
 						  </tr>
 					 <% } } %>
@@ -189,7 +189,7 @@
 		  </p>
 	</form>
 		<!-- LOAD -->
-    <form method="post" action="Input_Cast_List.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
+    <form method="post" action="Input_Cast_List_5189.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
       <table width="60%" border="0" cellspacing="1" cellpadding="1" align="center" class="style1">
         <tr>
           <td align="left"><strong>Select a file to upload :</strong></td>

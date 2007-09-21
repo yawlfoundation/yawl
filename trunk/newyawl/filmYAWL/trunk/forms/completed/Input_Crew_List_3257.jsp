@@ -24,8 +24,8 @@
 <link href="styles/common.css" rel="stylesheet" type="text/css" />
 
 <!-- javascript imports -->
-<script type="text/javascript" src="scripts/common.js" />
-<script type="text/javascript" src="scripts/inputCrew.js" />
+<script type="text/javascript" src="scripts/common.js"></script>
+<script type="text/javascript" src="scripts/inputCrew.js"></script>
 </head>
 
 <body onLoad="getParameters()">
@@ -164,7 +164,7 @@
 					                   
 			        </td>
 					<td height="30" align="center"><input name='<% out.print("firstname_" + a); %>' type='text' id='<% out.print("firstname_" + a); %>' size="10" value="<%= scit.getFirstName() %>" pattern="text"></td>
-                    <td height="30" align="center"><input name='<% out.print("lastname_" + a); %>' type='text' id='<% out.print("lastname_" + a); %>' size="15" value="<%= scit.getLastName() %>" pattern="text"></td>
+                    <td height="30" align="center"><input name='<% out.print("lastname_" + a); %>' type='text' id='<% out.print("lastname_" + a); %>' size="15" value="<%= scit.getLastName() %>" pattern="any_text"></td>
                     <td height="30" align="center"><input name='<% out.print("contactno_" + a); %>' type='text' id='<% out.print("contactno_" + a); %>' size="8" value="<%= scit.getContactNo() %>" pattern="tel"></td>
                     <td align="center"><input name='<% out.print("email_" + a); %>' type='text' id='<% out.print("email_" + a); %>' size="20" value="<%= scit.getEmail() %>" pattern="email"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
@@ -235,7 +235,7 @@
 			<input type="hidden" name="submit" id="submit">
 	</form>
 		<!-- LOAD -->
-    <form method="post" action="Input_Crew_List.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
+    <form method="post" action="Input_Crew_List_3257.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
       <table width="60%" border="0" cellspacing="1" cellpadding="1" align="center" class="style1">
         <tr>
           <td align="left"><strong>Select a file to upload :</strong></td>
