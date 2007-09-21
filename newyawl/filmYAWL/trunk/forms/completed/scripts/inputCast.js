@@ -49,9 +49,9 @@ function addCastRow(){
     count ++;
     document.getElementById("count").value = count;
 
-	characterCELL.appendChild(createTextBox("character_" + count, 20, "", "enter character name"));
-	artistCELL.appendChild(createTextBox("artist_" + count, 20, "", "enter artist name"));
-	agentCELL.appendChild(createTextBox("agent_" + count, 20, "", "enter agent name"));
+	characterCELL.appendChild(createAnyTextTextBox("character_" + count, 20, "", "enter character name"));
+	artistCELL.appendChild(createAnyTextTextBox("artist_" + count, 20, "", "enter artist name"));
+	agentCELL.appendChild(createAnyTextTextBox("agent_" + count, 20, "", "enter agent name"));
 	contactnoCELL.appendChild(createTelNumberTextBox("contactno_" + count, 10, "", "enter contact number"));
 }
 
