@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:Input_Shooting_Schedule xmlns:ns2="http://www.yawlfoundation.org/sb/shootingSchedule">
+    <production>wwwww</production>
+    <shootingSchedule>
+<lastUpdatedDate>2007-07-06</lastUpdatedDate>
+<director>Erin White</director>
+<producer>Zyra McAuliffe</producer>
+<startDate>2007-07-09</startDate>
+<scheduledFinish>2007-07-18</scheduledFinish>
+<scheduledShootingDays>8</scheduledShootingDays>
+<singleDaySchedule>
+	<shootDayNo>1</shootDayNo>
+	<shootDayDate>2007-07-09</shootDayDate>
+	<shootDayWeekday>Monday</shootDayWeekday>
+	<crewCall>11:45:00</crewCall>
+	<travelToLoc>12:30:00</travelToLoc>	
+	<sceneSchedule>
+		<scene>10Pta</scene>
+		<pageTime><number>0</number><numerator>3</numerator></pageTime>
+		<D_N>Day</D_N>
+		<IN_EX>EXT</IN_EX>
+		<locationID>Loc.1</locationID>
+		<set>Vincent and Penelope's Front Yard</set>
+		<address>51 Headland Rd Castle Cove</address>
+		<synopsis>Vincent and Penelope sell up</synopsis>
+		<characters>
+			<character>1.Vincent</character>
+			<character>2.Penelope</character>
+			<character>7.Real Estate Agent</character>
+		</characters>
+		<estShootTimes>1245-1330</estShootTimes>
+		<estScriptTiming>00:00:10</estScriptTiming>
+		<setRequirements>
+			<singleEntry>
+				<item>Props</item>
+				<requirements>Sold sticker</requirements>
+			</singleEntry>
+			<singleEntry>
+				<item>Set Dressing</item>
+				<requirements>For sale sign</requirements>
+			</singleEntry>
+			<singleEntry>
+				<item>Vehicles</item>
+				<requirements>Sports Car</requirements>
+			</singleEntry>
+			<singleEntry>
+				<item>Grips</item>
+				<requirements>Dolly req</requirements>
+			</singleEntry>
+		</setRequirements>
+	</sceneSchedule>
+	<sceneSchedule>
+		<scene>55</scene>
+		<pageTime><number>0</number><numerator>1</numerator></pageTime>
+		<D_N>Day</D_N>
+		<IN_EX>EXT</IN_EX>
+		<locationID>Loc.1</locationID>
+		<set>Vincent and Penelope's Front Yard</set>
+		<address>51 Headland Rd Castle Cove</address>
+		<synopsis>Vincent and Penelope let the house</synopsis>
+		<characters>
+			<character>1.Vincent</character>
+			<character>2.Penelope</character>
+			<character>7.Real Estate Agent</character>
+		</characters>
+		<estShootTimes>1330-1415</estShootTimes>
+		<estScriptTiming>00:00:11</estScriptTiming>
+		<setRequirements>
+			<singleEntry>
+				<item>Props</item>
+				<requirements>Tray of Mousses</requirements>
+			</singleEntry>
+			<singleEntry>
+				<item>Set Dressing</item>
+				<requirements>For lease sign</requirements>
+			</singleEntry>
+			<singleEntry>
+				<item>Grips</item>
+				<requirements>Dolly req</requirements>
+			</singleEntry>
+		</setRequirements>
+	</sceneSchedule>
+	<sceneSchedule>
+		<scene>28</scene>
+		<pageTime><number>0</number><numerator>1</numerator></pageTime>
+		<D_N>Day</D_N>
+		<IN_EX>EXT</IN_EX>
+		<locationID>Loc.1</locationID>
+		<set>Vincent and Penelope's Front Yard</set>
+		<address>51 Headland Rd Castle Cove</address>
+		<synopsis>Diana slams the door</synopsis>
+		<characters>
+			<character>2.Penelope</character>
+			<character>3.Diana</character>
+		</characters>
+		<estShootTimes>    -1630</estShootTimes>
+		<estScriptTiming>00:00:12</estScriptTiming>
+		<setRequirements>
+			<singleEntry>
+				<item>Props</item>
+				<requirements>Let sticker; Parking boxes and bags</requirements>
+			</singleEntry>
+		</setRequirements>
+		<mealBreak><meal>Dinnerbreak</meal><break>1630-1715</break></mealBreak>
+	</sceneSchedule>
+	<sceneSchedule>
+		<scene>35</scene>
+		<pageTime><number>0</number><numerator>1</numerator></pageTime>
+		<D_N>Night</D_N>
+		<IN_EX>INT</IN_EX>
+		<locationID>Loc.1</locationID>
+		<set>Vincent's Car</set>
+		<address>51 Headland Rd Castle Cove</address>
+		<synopsis>Vincent and Diana play "backseat drivers"</synopsis>
+		<characters>
+			<character>1.Vincent</character>
+			<character>3.Diana</character>
+		</characters>
+		<estShootTimes>1715-1845</estShootTimes>
+		<estScriptTiming>00:00:13</estScriptTiming>
+		<setRequirements>
+			<singleEntry>
+				<item>Set Dressing</item>
+				<requirements>Poss car seat removal</requirements>
+			</singleEntry>
+			<singleEntry>
+				<item>Costumes</item>
+				<requirements>Dressing Gowns req</requirements>
+			</singleEntry>
+			<singleEntry>
+				<item>Notes</item>
+				<requirements>Poss piggyback w/Sc 37</requirements>
+			</singleEntry>
+			<singleEntry>
+				<item>Vehicles</item>
+				<requirements>Vincent's car</requirements>
+			</singleEntry>
+		</setRequirements>
+	</sceneSchedule>
+	<endDayNotes>Wrap'n pack: 2100-2145/Travel: 2145-2230</endDayNotes>		
+	<totalScriptPages><number>0</number><numerator>6</numerator></totalScriptPages>		
+</singleDaySchedule>
+<singleDaySchedule>
+	<shootDayNo>2</shootDayNo>
+	<shootDayDate>2007-07-10</shootDayDate>
+	<shootDayWeekday>Tuesday</shootDayWeekday>
+	<crewCall>10:15:00</crewCall>
+	<travelToLoc>00:45:00</travelToLoc>	
+	<startDayNotes>1 HOURS OT R</startDayNotes>
+	<sceneSchedule>
+		<scene>50</scene>
+		<pageTime><number>0</number><numerator>3</numerator></pageTime>
+		<D_N>Day</D_N>
+		<IN_EX>EXT</IN_EX>
+		<locationID>Loc.2</locationID>
+		<set>Kit and Diana's Doorstep</set>
+		<address>2 Wareham Cres, French's Forest</address>
+		<synopsis>Penelope at Diana's doorstep</synopsis>
+		<characters>
+			<character>2.Penelope</character>
+			<character>3.Diana</character>
+		</characters>
+		<estShootTimes>1530-1600</estShootTimes>
+		<estScriptTiming>00:00:14</estScriptTiming>
+		<setRequirements>
+			<singleEntry>
+				<item>Props</item>
+				<requirements>Baby clothes suitcase</requirements>
+			</singleEntry>
+		</setRequirements>
+		<mealBreak><meal>Mealbreak</meal><break>1600-1645</break></mealBreak>
+	</sceneSchedule>
+	<sceneSchedule>
+		<scene>15</scene>
+		<pageTime><number>0</number><numerator>1</numerator></pageTime>
+		<D_N>Night</D_N>
+		<IN_EX>INT</IN_EX>
+		<locationID>Loc.2</locationID>
+		<set>Kit's Study</set>
+		<address>2 Wareham Cres, French's Forest</address>
+		<synopsis>Kit and Diana admire his new designs</synopsis>
+		<characters>
+			<character>1.Vincent</character>
+			<character>2.Penelope</character>
+			<character>3.Diana</character>
+			<character>4.Kit</character>
+		</characters>
+		<estShootTimes>1645-1745</estShootTimes>
+		<estScriptTiming>00:00:15</estScriptTiming>
+		<setRequirements>
+			<singleEntry>
+				<item>Props</item>
+				<requirements>Drinks and Cigarettes; New Design</requirements>
+			</singleEntry>
+		</setRequirements>
+	</sceneSchedule>
+	<endDayNotes>Wrap'n pack: 2030-2115/Travel: 2115-2200</endDayNotes>		
+	<totalScriptPages><number>2</number><numerator>6</numerator></totalScriptPages>		
+</singleDaySchedule>
+<singleDaySchedule>
+	<shootDayNo>3</shootDayNo>
+	<shootDayDate>2007-07-11</shootDayDate>
+	<shootDayWeekday>Wednesday</shootDayWeekday>
+	<crewCall>08:30:00</crewCall>
+	<travelToLoc>00:45:00</travelToLoc>	
+	<bumpIn>09:15:00</bumpIn>	
+	<startDayNotes>MOCO Crew to start bumping in from 1100</startDayNotes>
+	<sceneSchedule>
+		<scene>14</scene>
+		<pageTime><number>0</number><numerator>3</numerator></pageTime>
+		<D_N>Day</D_N>
+		<IN_EX>EXT</IN_EX>
+		<locationID>Loc.4</locationID>
+		<set>Kit and Diana's Bedroon</set>
+		<address>AFTRS Studio</address>
+		<synopsis>Kit sketches madly</synopsis>
+		<characters>
+			<character>2.Penelope</character>
+			<character>4.Kit</character>
+		</characters>
+		<estShootTimes>1130-1230</estShootTimes>
+		<estScriptTiming>00:00:16</estScriptTiming>
+		<setRequirements>
+			<singleEntry>
+				<item>Props</item>
+				<requirements>Glass of Scotch; Sketch Pad, pencils</requirements>
+			</singleEntry>
+			<singleEntry>
+				<item>Notes</item>
+				<requirements>Have V and D on standby</requirements>
+			</singleEntry>
+		</setRequirements>
+		<mealBreak><meal>Lunchbreak</meal><break>1230-1315</break></mealBreak>
+	</sceneSchedule>
+	<sceneSchedule>
+		<scene>44</scene>
+		<pageTime><number>0</number><numerator>1</numerator></pageTime>
+		<D_N>Night</D_N>
+		<IN_EX>INT</IN_EX>
+		<locationID>Loc.4</locationID>
+		<set>Kit and Diana's Bedroon</set>
+		<address>AFTRS Studio</address>
+		<synopsis>Kit does some explaining to Diana</synopsis>
+		<characters>
+			<character>3.Diana</character>
+			<character>4.Kit</character>
+		</characters>
+		<estShootTimes>1315-1430</estShootTimes>
+		<estScriptTiming>00:00:17</estScriptTiming>
+		<setRequirements>
+			<singleEntry>
+				<item>Makeup</item>
+				<requirements>Diana's tears</requirements>
+			</singleEntry>
+			<singleEntry>
+				<item>Grips</item>
+				<requirements>Dolly req</requirements>
+			</singleEntry>
+		</setRequirements>
+	</sceneSchedule>
+	<endDayNotes>Hot MOCO Meeting</endDayNotes>		
+	<totalScriptPages><number>2</number><numerator>6</numerator></totalScriptPages>		
+</singleDaySchedule>
+    </shootingSchedule>
+    <totalScenes>1</totalScenes>
+    <totalPageTime>
+        <number>2</number>
+        <numerator>2</numerator>
+    </totalPageTime>
+    <originalTiming>12:00:00</originalTiming>
+</ns2:Input_Shooting_Schedule>
