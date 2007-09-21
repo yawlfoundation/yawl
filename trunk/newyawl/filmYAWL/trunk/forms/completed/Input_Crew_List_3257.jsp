@@ -24,8 +24,8 @@
 <link href="styles/common.css" rel="stylesheet" type="text/css" />
 
 <!-- javascript imports -->
-<script type="text/javascript" src="scripts/common.js"></script>
-<script type="text/javascript" src="scripts/inputCrew.js"></script>
+<script type="text/javascript" src="scripts/common.js" />
+<script type="text/javascript" src="scripts/inputCrew.js" />
 </head>
 
 <body onLoad="getParameters()">
@@ -164,7 +164,7 @@
 					                   
 			        </td>
 					<td height="30" align="center"><input name='<% out.print("firstname_" + a); %>' type='text' id='<% out.print("firstname_" + a); %>' size="10" value="<%= scit.getFirstName() %>" pattern="text"></td>
-                    <td height="30" align="center"><input name='<% out.print("lastname_" + a); %>' type='text' id='<% out.print("lastname_" + a); %>' size="15" value="<%= scit.getLastName() %>" pattern="any_text"></td>
+                    <td height="30" align="center"><input name='<% out.print("lastname_" + a); %>' type='text' id='<% out.print("lastname_" + a); %>' size="15" value="<%= scit.getLastName() %>" pattern="text"></td>
                     <td height="30" align="center"><input name='<% out.print("contactno_" + a); %>' type='text' id='<% out.print("contactno_" + a); %>' size="8" value="<%= scit.getContactNo() %>" pattern="tel"></td>
                     <td align="center"><input name='<% out.print("email_" + a); %>' type='text' id='<% out.print("email_" + a); %>' size="20" value="<%= scit.getEmail() %>" pattern="email"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
