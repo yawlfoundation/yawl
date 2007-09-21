@@ -183,8 +183,6 @@ function deleteShootingDay() {
 }
 
 function addShootingDay () {
-	count ++;
-	updateTableCount(count);
 	//update the day count
 	days_count = document.getElementById("days").value;
 	days_count ++;
@@ -212,7 +210,7 @@ function addShootingDay () {
 	toprightCELL.className = "header-right";
 	topmiddleCELL.colSpan = "4";
 	topmiddleCELL.appendChild(createBoldLabel("Shoot Day # "));
-	topmiddleCELL.appendChild(createNumberTextBox("sd"+temp_day_count+"_number", 5, "", "Enter Shoot Day Number."));
+	topmiddleCELL.appendChild(createNumberTextBox("sd"+days_count+"_number", 5, "", "Enter Shoot Day Number."));
 	
 	//the general DAY DETAILS table information
 	var headerinfo_row = shootingdayTABLE.insertRow(shootingdayTABLE.rows.length);
@@ -231,8 +229,8 @@ function addShootingDay () {
 	//row 1 - hidden counts
 	var daydetailROW1 = generaldaydetailsTABLE.insertRow(generaldaydetailsTABLE.rows.length);
 	var hidden_cell = daydetailROW1.insertCell(0);
-	hidden_cell.appendChild(createHiddenField("day_number_" + count, count));
-	hidden_cell.appendChild(createHiddenField("table_count_" + count, table_count));
+	hidden_cell.appendChild(createHiddenField("day_number_" + days_count, days_count));
+	hidden_cell.appendChild(createHiddenField("table_count_" + days_count, 1));
 	//row 2 - shoot date and shoot weekday
 	var daydetailROW2 = generaldaydetailsTABLE.insertRow(generaldaydetailsTABLE.rows.length);
 	var shootdateLABEL = daydetailROW2.insertCell(0);
@@ -241,11 +239,11 @@ function addShootingDay () {
 	var weekdayCELL = daydetailROW2.insertCell(3);
 	shootdateLABEL.appendChild(createBoldLabel("Shoot Day Date "));
 	shootdateLABEL.setAttribute("width", "150");
-	shootdateCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_date", 20, "", "Enter Shoot Date."));
+	shootdateCELL.appendChild(createCommonValidationTextBox("sd"+days_count+"_date", 20, "", "Enter Shoot Date.", "realDateValidation"));
 	shootdateCELL.setAttribute("width", "185");
 	weekdayLABEL.appendChild(createBoldLabel("Shoot Day Weekday "));
 	weekdayLABEL.setAttribute("width", "150");
-	weekdayCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_weekday", 20, "", "Enter Weekday."));
+	weekdayCELL.appendChild(createAnyTextTextBox("sd"+days_count+"_weekday", 20, "", "Enter Weekday."));
 	weekdayCELL.setAttribute("width", "185");
 	//row 3 - weekday and date
 	var daydetailROW3 = generaldaydetailsTABLE.insertRow(generaldaydetailsTABLE.rows.length);
@@ -255,11 +253,11 @@ function addShootingDay () {
 	var traveltolocCELL = daydetailROW3.insertCell(3);
 	crewcallLABEL.appendChild(createBoldLabel("Crew Call "));
 	crewcallLABEL.setAttribute("width", "150");
-	crewcallCELL.appendChild(createDateTextBox("sd"+temp_day_count+"_crew", 20, "", "Enter Crew Call. [Time Format HH:MM:SS]"));
+	crewcallCELL.appendChild(createDateTextBox("sd"+days_count+"_crew", 20, "", "Enter Crew Call. [Time Format HH:MM:SS]"));
 	crewcallCELL.setAttribute("width", "185");
 	traveltolocLABEL.appendChild(createBoldLabel("Travel to Loc "));
 	traveltolocLABEL.setAttribute("width", "150");
-	traveltolocCELL.appendChild(createDateTextBox("sd"+temp_day_count+"_traveltoloc", 20, "", "Enter Travel to Location. [Time Format HH:MM:SS]"));
+	traveltolocCELL.appendChild(createDateTextBox("sd"+days_count+"_traveltoloc", 20, "", "Enter Travel to Location. [Time Format HH:MM:SS]"));
 	traveltolocCELL.setAttribute("width", "185");
 	//row 4 - bump in
 	var daydetailROW4 = generaldaydetailsTABLE.insertRow(generaldaydetailsTABLE.rows.length);
@@ -267,7 +265,7 @@ function addShootingDay () {
 	var bumpinCELL = daydetailROW4.insertCell(1);	
 	bumpinLABEL.appendChild(createBoldLabel("Bump In "));
 	bumpinLABEL.setAttribute("width", "150");
-	bumpinCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_bumpin", 20, "", "Enter Bump In."));
+	bumpinCELL.appendChild(createAnyTextTextBox("sd"+days_count+"_bumpin", 20, "", "Enter Bump In."));
 	bumpinCELL.setAttribute("width", "185");
 	bumpinCELL.colSpan = "3";
 	//row 5 - start of day notes
@@ -276,7 +274,7 @@ function addShootingDay () {
 	var startCELL = daydetailROW5.insertCell(1);
 	startLABEL.appendChild(createBoldLabel("Start of Day Notes "));
 	startLABEL.setAttribute("width", "150");
-	startCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_start",73, "", "Enter Start Day Notes"));
+	startCELL.appendChild(createAnyTextTextBox("sd"+days_count+"_start",73, "", "Enter Start Day Notes"));
 	startCELL.colSpan = "3";
 	
 	headerinfo_cell.appendChild(generaldaydetailsTABLE);
@@ -295,8 +293,8 @@ function addShootingDay () {
 	sceneTABLE.setAttribute("border", "0");
 	sceneTABLE.setAttribute("cellspacing", "0");
 	sceneTABLE.setAttribute("cellpadding", "0");
-	sceneTABLE.setAttribute("id", "scenes" + count);
-	sceneTABLE.appendChild(createSceneTable());
+	sceneTABLE.setAttribute("id", "scenes" + days_count);
+	sceneTABLE.appendChild(createSceneTable(days_count));
 	cell_middle.appendChild(sceneTABLE);
 	cell_middle.colSpan = "4";
 	
@@ -313,10 +311,10 @@ function addShootingDay () {
     button_right.appendChild(document.createTextNode("\u00a0"));
 	addBUTTON.setAttribute("type", "button");
 	addBUTTON.setAttribute("value", "Add Scene");
-	addBUTTON.setAttribute("onClick", "addScene('scenes"+count+"', "+count+");");
+	addBUTTON.setAttribute("onClick", "addScene('scenes"+days_count+"', '"+days_count+"');");
 	deleteBUTTON.setAttribute("type", "button");
 	deleteBUTTON.setAttribute("value", "Delete Scene");
-	deleteBUTTON.setAttribute("onClick", "deleteScene('scenes"+count+"', "+count+");");
+	deleteBUTTON.setAttribute("onClick", "deleteScene('scenes"+days_count+"', '"+days_count+"');");
 	button_cell.appendChild(addBUTTON);
 	button_cell.appendChild(deleteBUTTON);
 	button_cell.colSpan = "4";
@@ -337,7 +335,7 @@ function addShootingDay () {
 	endday_cell2.colSpan = "3";
 
 	endday_cell1.appendChild(createBoldLabel("End of Day Notes "));
-	endday_cell2.appendChild(createTextArea("sd"+temp_day_count+"_end", 50, "", "Enter End of Day Notes."));
+	endday_cell2.appendChild(createTextArea("sd"+days_count+"_end", 50, "", "Enter End of Day Notes."));
 	
 	// Total Script Pages
 	var totalday_row = shootingdayTABLE.insertRow(shootingdayTABLE.rows.length);
@@ -355,13 +353,13 @@ function addShootingDay () {
 	
 	calculate.setAttribute("type", "button");
 	calculate.setAttribute("value", "Calculate");
-	calculate.setAttribute("onClick", "calculateMod("+count+");");
+	calculate.setAttribute("onClick", "calculateMod("+days_count+");");
 	
 	calculatebuttonCELL.colSpan = "2";
 	totalscriptpagesLABEL.appendChild(createBoldLabel("Total Script Pages"));
-	totalscriptpagesCELL.appendChild(createNumberTextBox("sd"+temp_day_count+"_totalpages", 4, "", "Calculate Script Pages."));
+	totalscriptpagesCELL.appendChild(createNumberTextBox("sd"+days_count+"_totalpages", 4, "", "Calculate Script Pages."));
 	totalscriptpagesCELL.appendChild(document.createTextNode("\u00a0"));
-	totalscriptpagesCELL.appendChild(createNumberTextBox("sd"+temp_day_count+"_totalpagesnum", 2, "", "Calculate Script Pages."));
+	totalscriptpagesCELL.appendChild(createNumberTextBox("sd"+days_count+"_totalpagesnum", 2, "", "Calculate Script Pages."));
 	totalscriptpagesCELL.appendChild(createBoldLabel(" /8 pgs"));
 	calculatebuttonCELL.appendChild(calculate);
 	
@@ -407,16 +405,16 @@ function deleteScene(table_name, table_number) {
 }
 
 function addScene(table_name, table_number){
-	updateTableCount(table_number);
 	var tbody1 = document.getElementById(table_name);
 	var row = tbody1.insertRow(tbody1.rows.length);
 	var cell_middle = row.insertCell(0);
 	cell_middle.colSpan = "6";
 	//append the new SCENE to the DAY table
-	cell_middle.appendChild(createSceneTable());
+	cell_middle.appendChild(createSceneTable(table_number));
 }
 
-function createSceneTable () {//done
+function createSceneTable (table_number) {//done
+	updateTableCount(table_number);
 	var sceneTABLE = document.createElement("TABLE");
 	sceneTABLE.setAttribute("width", "670");
 	sceneTABLE.setAttribute("border", "0");
