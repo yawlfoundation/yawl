@@ -159,14 +159,18 @@ public class NetGraphModel extends DefaultGraphModel {
     );
     cellsAndTheirEdges.addAll(getEdges(this,cells.toArray()));
     removeCellsFromCancellationSets(cellsAndTheirEdges);
-
+    
     super.remove(cellsAndTheirEdges.toArray());
 
-    compressFlowPriorities();
+    compressFlowPriorities(
+      NetUtilities.getTasksRequiringFlowPredicates(
+          cellsAndTheirEdges
+      )
+    );
   }
   
-  private void compressFlowPriorities() {
-    for(YAWLTask task: NetUtilities.getTasksWitSplitDecorators(this)) {
+  private void compressFlowPriorities(Set<YAWLTask> tasksRequiringPredicates) {
+    for(YAWLTask task: tasksRequiringPredicates) {
       task.getSplitDecorator().compressFlowPriorities();
     }
   }

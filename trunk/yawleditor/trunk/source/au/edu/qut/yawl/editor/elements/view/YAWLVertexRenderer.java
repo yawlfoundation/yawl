@@ -97,8 +97,16 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
       } catch (Exception e) {}
     }
     
+    /*
+     * If everything else fails, default to a default broken icon
+     */
+    
     if (icon == null) {
-      return;
+      try {
+        icon = ResourceLoader.getImageAsIcon(
+            "/au/edu/qut/yawl/editor/resources/taskicons/BrokenIcon.png"
+        );
+      } catch (Exception e) {}
     }
     
     icon.paintIcon(

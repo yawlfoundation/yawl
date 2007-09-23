@@ -46,7 +46,9 @@ class JXMLSchemaEditor extends ValidityEditorPane {
 
   public JXMLSchemaEditor() {
     super();
-    setDocument(new XMLSchemaStyledDocument(this));
+    setDocument(
+        new XMLSchemaStyledDocument(this)
+    );
   }
 
   class XMLSchemaStyledDocument extends AbstractXMLStyledDocument {
