@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Update_Call_Sheet xmlns:ns2="http://www.yawlfoundation.org/sb/callSheet"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.yawlfoundation.org/sb/callSheet callSheetType.xsd ">
+<generalInfo>     
+<production>poo2</production>     
+<date>2007-07-09</date>     
+<weekday>Monday</weekday>     
+<shootDayNo>1</shootDayNo>   
+</generalInfo>
+<callSheet>
+    <emergencyInfo>
+      <fireAmbulance>000</fireAmbulance>
+      <hospital>Hospital A Hospital B Hospital C</hospital>
+      <police>Police Station A Police Station B Police Station C</police>
+    </emergencyInfo>
+    <director>Erin White</director>
+    <producer>Zyra McAuliffe</producer>
+    <productionManager>Dan Nicholas</productionManager>
+    <productionManager>Annie Parnell</productionManager>
+    <firstAD>Dimitri Ellerington</firstAD>
+    <callTimes>
+      <crewCall>
+        <callTime>11:45:00</callTime>
+      </crewCall>
+      <locationCall>
+        <callTime>12:30:00</callTime>
+      </locationCall>
+      <makeupHair>
+        <callTime>11:45:00</callTime>
+      </makeupHair>
+      <wardrobe>
+        <callTime>11:45:00</callTime>
+      </wardrobe>
+      <unit>
+        <callTime>11:45:00</callTime>
+      </unit>
+      <breakfast>
+        <from>11:45:00</from>
+        <to>11:45:00</to>
+      </breakfast>
+    </callTimes>
+    <wrapTimes>
+      <estWrap>Estimate the wrap time...</estWrap>
+    </wrapTimes>
+    <location>
+      <singleLocation>
+        <locationName>Location A</locationName>
+        <address>Address A</address>
+        <contact>Contact A</contact>
+        <contactNo>0418668262</contactNo>
+        <UBDMapRef>Map A</UBDMapRef>
+        <locationNotes>Location notes A</locationNotes>
+      </singleLocation>
+      <singleLocation>
+        <locationName>Location B</locationName>
+        <address>Address B</address>
+        <contact>Contact B</contact>
+        <contactNo>0429779373</contactNo>
+        <UBDMapRef>Map B</UBDMapRef>
+        <locationNotes>Location notes B</locationNotes>
+      </singleLocation>
+      <singleLocation>
+        <locationName>Location C</locationName>
+        <address>Address C</address>
+        <contact>Contact C</contact>
+        <contactNo>0430880484</contactNo>
+        <UBDMapRef>Map C</UBDMapRef>
+        <locationNotes>Location notes C</locationNotes>
+      </singleLocation>
+    </location>
+    <dailySchedule>
+      <startDayNotes/>
+      <sceneSchedule>
+        <scene>Scene 1</scene>
+        <pageTime>
+          <number>0</number>
+          <numerator>1</numerator>
+        </pageTime>
+        <D_N>Day</D_N>
+        <IN_EX>EXT</IN_EX>
+        <setLocation>Set a.1 @ Location A</setLocation>
+        <synopsis>Synopsis 1</synopsis>
+        <artistTimeInfo>
+          <character>1.Vincent</character>
+          <artist>Myles Pollard</artist>
+          <onSet/>
+        </artistTimeInfo>
+        <artistTimeInfo>
+          <character>2.Penelope</character>
+          <artist>Kelly Butler</artist>
+          <onSet/>
+        </artistTimeInfo>
+        <estShootTimes>1245-1330</estShootTimes>
+      </sceneSchedule>
+      <sceneSchedule>
+        <scene>Scene 20</scene>
+        <pageTime>
+          <number>0</number>
+          <numerator>1</numerator>
+        </pageTime>
+        <D_N>Day</D_N>
+        <IN_EX>EXT</IN_EX>
+        <setLocation>Set b.20 @ Location C</setLocation>
+        <synopsis>Synopsis 20</synopsis>
+        <artistTimeInfo>
+          <character>7.Real Estate Agent</character>
+          <artist>Don Hany</artist>
+          <onSet/>
+        </artistTimeInfo>
+        <estShootTimes>1330-1415</estShootTimes>
+      </sceneSchedule>
+      <sceneSchedule>
+        <scene>Scene 13</scene>
+        <pageTime>
+          <number>0</number>
+          <numerator>1</numerator>
+        </pageTime>
+        <D_N>Day</D_N>
+        <IN_EX>EXT</IN_EX>
+        <setLocation>Set c.13 @ Location B</setLocation>
+        <synopsis>Synopsis 13</synopsis>
+        <artistTimeInfo>
+          <character>2.Penelope</character>
+          <artist>Kelly Butler</artist>
+          <onSet/>
+        </artistTimeInfo>
+        <artistTimeInfo>
+          <character>3.Diana</character>
+          <artist>Krew Boylan</artist>
+          <onSet/>
+        </artistTimeInfo>
+        <estShootTimes>    -1630</estShootTimes>
+        <mealBreak>
+          <meal>Dinnerbreak</meal>
+          <break>1630-1715</break>
+        </mealBreak>
+      </sceneSchedule>
+      <endDayNotes>Day.1 end day notes </endDayNotes>
+      <totalScriptPages>
+        <number>0</number>
+        <numerator>6</numerator>
+      </totalScriptPages>
+    </dailySchedule>
+    <dailySetRequirements>
+      <singleEntry>
+        <item>Vehicles</item>
+        <description>
+          <scene>Scene 1</scene>
+          <requirements>vehicles</requirements>
+        </description>
+      </singleEntry>
+      <singleEntry>
+        <item>Props</item>
+        <description>
+          <scene>Scene 1</scene>
+          <requirements>props</requirements>
+        </description>
+        <description>
+          <scene>Scene 20</scene>
+          <requirements>props</requirements>
+        </description>
+        <description>
+          <scene>Scene 13</scene>
+          <requirements>props</requirements>
+        </description>
+      </singleEntry>
+      <singleEntry>
+        <item>Set Dressing</item>
+        <description>
+          <scene>Scene 1</scene>
+          <requirements>set dressing</requirements>
+        </description>
+      </singleEntry>
+    </dailySetRequirements>
+    <unit>Loc.1: Unit notes A. Loc.2: Unit notes B. Loc.3: Unit notes C.</unit>
+    <parking>Loc.1: Parking A. Loc.2: Parking B. Loc.3: Parking C.</parking>
+    <catering>
+      <singleMeal>
+        <meal>breakfast</meal>
+        <break>11:45:00-</break>
+        <serveNo/>
+        <location/>
+      </singleMeal>
+      <singleMeal>
+        <meal>Dinnerbreak</meal>
+        <break>1630-1715</break>
+        <serveNo/>
+        <location/>
+      </singleMeal>
+    </catering>
+    <advancedSchedule>
+      <shootDayNo>2</shootDayNo>
+      <shootDayDate>2007-07-10</shootDayDate>
+      <shootDayWeekday>Tuesday</shootDayWeekday>
+      <adSceneSchedule>
+        <scene>Scene 8</scene>
+        <pageTime>
+          <number>0</number>
+          <numerator>3</numerator>
+        </pageTime>
+        <D_N>Day</D_N>
+        <IN_EX>EXT</IN_EX>
+        <setSynopsis>Set d.8 / Synopsis 8</setSynopsis>
+        <location>Loc.2</location>
+        <characters>2.Penelope  3.Diana </characters>
+      </adSceneSchedule>
+      <adSceneSchedule>
+        <scene>Scene 3</scene>
+        <pageTime>
+          <number>0</number>
+          <numerator>1</numerator>
+        </pageTime>
+        <D_N>Night</D_N>
+        <IN_EX>INT</IN_EX>
+        <setSynopsis>Set a.3 / Synopsis 3</setSynopsis>
+        <location>Loc.2</location>
+        <characters>3.Diana  4.Kit </characters>
+      </adSceneSchedule>
+    </advancedSchedule>
+  </callSheet>
+ <finalSubmission/>
+ </ns2:Update_Call_Sheet>

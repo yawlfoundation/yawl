@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:Input_Location_Notes xmlns:ns2="http://www.yawlfoundation.org/sb/locationInfo">
+    <production>FOUR</production>
+    <locationInfo>
+	<singleLocationInfo>
+		<locationID>Loc.1</locationID>
+		<locationName>Location A</locationName>
+		<address>Address A</address>
+		<UBDMapRef>Map A</UBDMapRef>
+		<parking>Parking A</parking>
+		<unit>Unit notes A</unit>
+		<police>Police Station A</police>
+		<hospital>Hospital A</hospital>
+		<contact>Contact A</contact>
+		<contactNo>0418668262</contactNo>
+		<locationNotes>Location notes A</locationNotes>
+	</singleLocationInfo>
+	<singleLocationInfo>
+		<locationID>Loc.2</locationID>
+		<locationName>Location B</locationName>
+		<address>Address B</address>
+		<UBDMapRef>Map B</UBDMapRef>
+		<parking>Parking B</parking>
+		<unit>Unit notes B</unit>
+		<police>Police Station B</police>
+		<hospital>Hospital B</hospital>
+		<contact>Contact B</contact>
+		<contactNo>0429779373</contactNo>
+		<locationNotes>Location notes B</locationNotes>
+	</singleLocationInfo>
+	<singleLocationInfo>
+		<locationID>Loc.3</locationID>
+		<locationName>Location C</locationName>
+		<address>Address C</address>
+		<UBDMapRef>Map C</UBDMapRef>
+		<parking>Parking C</parking>
+		<unit>Unit notes C</unit>
+		<police>Police Station C</police>
+		<hospital>Hospital C</hospital>
+		<contact>Contact C</contact>
+		<contactNo>0430880484</contactNo>
+		<locationNotes>Location notes C</locationNotes>
+	</singleLocationInfo>
+    </locationInfo>
+</ns2:Input_Location_Notes>
