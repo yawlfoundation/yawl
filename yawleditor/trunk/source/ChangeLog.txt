@@ -1,3 +1,14 @@
+Version 1.5.1 (??/??/2007)
+  * LWB: Fixed a bug where multiple-instance tasks were not being initialsed properly and consequently
+    causing a number of dialogs, and behaviours around multiple-instance tasks to fail.
+  * LWB: Changed the ordering of menu items on the vertex popup menu so that the "Cut" action 
+    no longer appears at the top of the menu.
+  * LWB: Fixed a bug where cutting a task with attached flows containing predicates, 
+    then undoing the  cut, would result in a previously correctly validating specification 
+    to stop validating.
+  * LWB: Enhanced the editor so that it shows a broken icon if I cannot find the icon specified
+    (useful for transferring specs between machines with different icon sets plugged in).
+
 Version 1.5 (27/07/2007) 
   * LWB: Atomic tasks have been enhanced so that an icon can be embedded within the task
     to help in user understandability of a net. This includes a plugin mechanism allowing

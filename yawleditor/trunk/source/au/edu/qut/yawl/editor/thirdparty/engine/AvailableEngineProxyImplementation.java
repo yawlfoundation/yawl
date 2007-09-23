@@ -201,6 +201,7 @@ public class AvailableEngineProxyImplementation implements
   }
   
   public LinkedList getSchemaValidationResults(String schema) {
+    LinkedList<String> errorList = new LinkedList<String>();
     try {
       String errors = schemaValidator.validateSchema(schema);
 
@@ -209,15 +210,16 @@ public class AvailableEngineProxyImplementation implements
       }
       
       String[] errorsAsArray = errors.split("\n");
-      LinkedList errorList = new LinkedList();
       
       for(int i = 0; i < errorsAsArray.length; i++) {
         errorList.add(errorsAsArray[i]);
       }
       return errorList;
       
-    } catch (Exception e) {} 
-    return null;
+    } catch (Exception e) {
+      errorList.add(e.toString());
+      return errorList;
+    } 
   }
   
   public void setDataTypeSchema(String schema) {

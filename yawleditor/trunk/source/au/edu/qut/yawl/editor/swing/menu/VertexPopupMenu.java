@@ -78,17 +78,15 @@ public class VertexPopupMenu extends JPopupMenu {
   }
   
   private void addGraphSpecificMenuItems(YAWLVertex vertex) {
-    addCopyableMenuItems(vertex);
-    addRemoveableMenuItems(vertex);
-
-    if (getComponentCount() > 0) {
-      addSeparator();
-    }
-    
     add(new YAWLPopupMenuItem(
         new LabelElementAction(vertex, graph)    
         )
     );
+
+    addSeparator();
+    
+    addCopyableMenuItems(vertex);
+    addRemoveableMenuItems(vertex);
   }
   
   private void addCopyableMenuItems(YAWLVertex vertex) {

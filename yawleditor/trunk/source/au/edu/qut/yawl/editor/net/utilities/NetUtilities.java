@@ -199,6 +199,24 @@ public final class NetUtilities {
     }
     return tasks;
   }
+  
+  /**
+   * Returns all the tasks that have flows requiring predicates from the set of net elements supplied
+   * @param cells
+   * @return
+   */
+  public static Set<YAWLTask> getTasksRequiringFlowPredicates(Set cells) {
+    HashSet<YAWLTask> tasks = new HashSet<YAWLTask>();
+    for(Object cell: cells) {
+      if (cell instanceof YAWLFlowRelation) {
+        YAWLFlowRelation flow = (YAWLFlowRelation) cell;
+        if (flow.requiresPredicate()) {
+          tasks.add(flow.getSourceTask());
+        }
+      }
+    }
+    return tasks;
+  }
 
   /**
    * Returns all flows in the selected net.
