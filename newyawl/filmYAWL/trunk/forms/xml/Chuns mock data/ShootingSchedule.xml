@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:Input_Shooting_Schedule xmlns:ns2="http://www.yawlfoundation.org/sb/shootingSchedule">
+    <production>wwwww</production>
+    <shootingSchedule>
+	<lastUpdatedDate>2007-07-06</lastUpdatedDate>
+	<director>Erin White</director>
+	<producer>Zyra McAuliffe</producer>
+	<startDate>2007-07-09</startDate>
+	<scheduledFinish>2007-07-11</scheduledFinish>
+	<scheduledShootingDays>3</scheduledShootingDays>
+	<singleDaySchedule>
+		<shootDayNo>1</shootDayNo>
+		<shootDayDate>2007-07-09</shootDayDate>
+		<shootDayWeekday>Monday</shootDayWeekday>
+		<crewCall>11:45:00</crewCall>
+		<travelToLoc>12:30:00</travelToLoc>
+		<sceneSchedule>
+			<scene>Scene 1</scene>
+			<pageTime>
+				<number>0</number>
+				<numerator>1</numerator>
+			</pageTime>
+			<D_N>Day</D_N>
+			<IN_EX>EXT</IN_EX>
+			<locationID>Loc.1</locationID>
+			<set>Set a.1</set>
+			<address>Address A</address>
+			<synopsis>Synopsis 1</synopsis>
+			<characters>
+				<character>1.Vincent</character>
+				<character>2.Penelope</character>
+			</characters>
+			<estShootTimes>1245-1330</estShootTimes>
+			<estScriptTiming>00:00:10</estScriptTiming>
+			<setRequirements>
+				<singleEntry>
+					<item>Props</item>
+					<requirements>props</requirements>
+				</singleEntry>
+				<singleEntry>
+					<item>Set Dressing</item>
+					<requirements>set dressing</requirements>
+				</singleEntry>
+				<singleEntry>
+					<item>Vehicles</item>
+					<requirements>vehicles</requirements>
+				</singleEntry>
+				<singleEntry>
+					<item>Grips</item>
+					<requirements>grips</requirements>
+				</singleEntry>
+			</setRequirements>
+		</sceneSchedule>
+		<sceneSchedule>
+			<scene>Scene 20</scene>
+			<pageTime>
+				<number>0</number>
+				<numerator>1</numerator>
+			</pageTime>
+			<D_N>Day</D_N>
+			<IN_EX>EXT</IN_EX>
+			<locationID>Loc.3</locationID>
+			<set>Set b.20</set>
+			<address>Address C</address>
+			<synopsis>Synopsis 20</synopsis>
+			<characters>
+				<character>7.Real Estate Agent</character>
+			</characters>
+			<estShootTimes>1330-1415</estShootTimes>
+			<estScriptTiming>00:00:20</estScriptTiming>
+			<setRequirements>
+				<singleEntry>
+					<item>Props</item>
+					<requirements>props</requirements>
+				</singleEntry>
+				<singleEntry>
+					<item>Grips</item>
+					<requirements>grips</requirements>
+				</singleEntry>
+			</setRequirements>
+		</sceneSchedule>
+		<sceneSchedule>
+			<scene>Scene 13</scene>
+			<pageTime>
+				<number>0</number>
+				<numerator>1</numerator>
+			</pageTime>
+			<D_N>Day</D_N>
+			<IN_EX>EXT</IN_EX>
+			<locationID>Loc.2</locationID>
+			<set>Set c.13</set>
+			<address>Address B</address>
+			<synopsis>Synopsis 13</synopsis>
+			<characters>
+				<character>2.Penelope</character>
+				<character>3.Diana</character>
+			</characters>
+			<estShootTimes>    -1630</estShootTimes>
+			<estScriptTiming>00:00:13</estScriptTiming>
+			<setRequirements>
+				<singleEntry>
+					<item>Props</item>
+					<requirements>props</requirements>
+				</singleEntry>
+			</setRequirements>
+			<mealBreak>
+				<meal>Dinnerbreak</meal>
+				<break>1630-1715</break>
+			</mealBreak>
+		</sceneSchedule>
+		<endDayNotes>Day.1 end day notes </endDayNotes>
+		<totalScriptPages>
+			<number>0</number>
+			<numerator>6</numerator>
+		</totalScriptPages>
+	</singleDaySchedule>
+	<singleDaySchedule>
+		<shootDayNo>2</shootDayNo>
+		<shootDayDate>2007-07-10</shootDayDate>
+		<shootDayWeekday>Tuesday</shootDayWeekday>
+		<crewCall>10:15:00</crewCall>
+		<travelToLoc>11:00:00</travelToLoc>
+		<startDayNotes>Day.2 start day notes</startDayNotes>
+		<sceneSchedule>
+			<scene>Scene 8</scene>
+			<pageTime>
+				<number>0</number>
+				<numerator>3</numerator>
+			</pageTime>
+			<D_N>Day</D_N>
+			<IN_EX>EXT</IN_EX>
+			<locationID>Loc.2</locationID>
+			<set>Set d.8</set>
+			<address>Address B</address>
+			<synopsis>Synopsis 8</synopsis>
+			<characters>
+				<character>2.Penelope</character>
+				<character>3.Diana</character>
+			</characters>
+			<estShootTimes>1530-1600</estShootTimes>
+			<estScriptTiming>00:00:08</estScriptTiming>
+			<setRequirements>
+				<singleEntry>
+					<item>Props</item>
+					<requirements>props</requirements>
+				</singleEntry>
+			</setRequirements>
+			<mealBreak>
+				<meal>Mealbreak</meal>
+				<break>1600-1645</break>
+			</mealBreak>
+		</sceneSchedule>
+		<sceneSchedule>
+			<scene>Scene 3</scene>
+			<pageTime>
+				<number>0</number>
+				<numerator>1</numerator>
+			</pageTime>
+			<D_N>Night</D_N>
+			<IN_EX>INT</IN_EX>
+			<locationID>Loc.2</locationID>
+			<set>Set a.3</set>
+			<address>Address B</address>
+			<synopsis>Synopsis 3</synopsis>
+			<characters>
+				<character>3.Diana</character>
+				<character>4.Kit</character>
+			</characters>
+			<estShootTimes>1645-1745</estShootTimes>
+			<estScriptTiming>00:00:15</estScriptTiming>
+			<setRequirements>
+				<singleEntry>
+					<item>Grips</item>
+					<requirements>grips</requirements>
+				</singleEntry>
+			</setRequirements>
+		</sceneSchedule>
+		<endDayNotes>Day.2 end day notes </endDayNotes>
+		<totalScriptPages>
+			<number>2</number>
+			<numerator>6</numerator>
+		</totalScriptPages>
+	</singleDaySchedule>
+	<singleDaySchedule>
+		<shootDayNo>3</shootDayNo>
+		<shootDayDate>2007-07-11</shootDayDate>
+		<shootDayWeekday>Wednesday</shootDayWeekday>
+		<crewCall>08:30:00</crewCall>
+		<travelToLoc>08:30:00</travelToLoc>
+		<bumpIn>09:15:00</bumpIn>
+		<startDayNotes>Day.3 start day notes</startDayNotes>
+		<sceneSchedule>
+			<scene>Scene 9Pta</scene>
+			<pageTime>
+				<number>0</number>
+				<numerator>3</numerator>
+			</pageTime>
+			<D_N>Day</D_N>
+			<IN_EX>EXT</IN_EX>
+			<locationID>Loc.3</locationID>
+			<set>Set a.9Pta</set>
+			<address>Address C </address>
+			<synopsis>Synopsis 9Pta</synopsis>
+			<characters>
+				<character>2.Penelope</character>
+				<character>4.Kit</character>
+			</characters>
+			<estShootTimes>1130-1230</estShootTimes>
+			<estScriptTiming>00:00:09</estScriptTiming>
+			<setRequirements>
+				<singleEntry>
+					<item>Props</item>
+					<requirements>props</requirements>
+				</singleEntry>
+				<singleEntry>
+					<item>Notes</item>
+					<requirements>notes</requirements>
+				</singleEntry>
+			</setRequirements>
+			<mealBreak>
+				<meal>Lunchbreak</meal>
+				<break>1230-1315</break>
+			</mealBreak>
+		</sceneSchedule>
+		<sceneSchedule>
+			<scene>Scene 11</scene>
+			<pageTime>
+				<number>0</number>
+				<numerator>1</numerator>
+			</pageTime>
+			<D_N>Night</D_N>
+			<IN_EX>INT</IN_EX>
+			<locationID>Loc.3</locationID>
+			<set>Set f.11</set>
+			<address>Address C </address>
+			<synopsis>Synopsis 11</synopsis>
+			<characters>
+				<character>3.Diana</character>
+				<character>4.Kit</character>
+			</characters>
+			<estShootTimes>1315-1430</estShootTimes>
+			<estScriptTiming>00:00:11</estScriptTiming>
+			<setRequirements>
+				<singleEntry>
+					<item>Makeup</item>
+					<requirements>makeup</requirements>
+				</singleEntry>
+				<singleEntry>
+					<item>Grips</item>
+					<requirements>Dolly req</requirements>
+				</singleEntry>
+			</setRequirements>
+		</sceneSchedule>
+		<endDayNotes>Day.3 end day notes </endDayNotes>
+		<totalScriptPages>
+			<number>2</number>
+			<numerator>6</numerator>
+		</totalScriptPages>
+	</singleDaySchedule>
+    </shootingSchedule>
+    <totalScenes>1</totalScenes>
+    <totalPageTime>
+        <number>2</number>
+        <numerator>2</numerator>
+    </totalPageTime>
+    <originalTiming>12:00:00</originalTiming>
+</ns2:Input_Shooting_Schedule>
