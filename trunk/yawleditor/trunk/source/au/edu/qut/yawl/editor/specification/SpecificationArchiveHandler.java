@@ -31,6 +31,7 @@ import java.beans.XMLEncoder;
 import java.beans.ExceptionListener;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import java.io.File;
 import java.io.BufferedInputStream;
@@ -390,12 +391,27 @@ public class SpecificationArchiveHandler {
   
   private void readNets(HashSet nets) {
     Object[] netArray = nets.toArray();
+    LinkedList<NetGraph> rebuiltNets = new LinkedList<NetGraph>();
+    
     for(int i = 0; i < netArray.length; i ++) {
-      readNet((ArchivableNetState) netArray[i]);
+      rebuiltNets.add(
+          readNet((ArchivableNetState) netArray[i])
+      );
+    }
+
+    // now the full set of nets are built and have their internal
+    // framees built, we can specify the net internal frame z-order
+    // without odd z-order reshuffling that would happen with missing nets.
+
+    for(int i = 0; i < netArray.length; i ++) {
+      YAWLEditorDesktop.getInstance().setComponentZOrder(
+          rebuiltNets.get(i).getFrame(), 
+          ((ArchivableNetState) netArray[i]).getZOrder()
+      );
     }
   }
   
-  private void readNet(ArchivableNetState archivedNet) {
+  private NetGraph readNet(ArchivableNetState archivedNet) {
     NetGraph net = new NetGraph(archivedNet.getDecomposition());
     YAWLEditorDesktop.getInstance().openNet(archivedNet.getBounds(), 
                                             archivedNet.getIconified(),
@@ -425,6 +441,8 @@ public class SpecificationArchiveHandler {
     }
     
     net.getNetModel().setIsStartingNet(archivedNet.getStartingNetFlag());
+    
+    return net;
   }
   
   private String getFullNameFromFile(File file) {

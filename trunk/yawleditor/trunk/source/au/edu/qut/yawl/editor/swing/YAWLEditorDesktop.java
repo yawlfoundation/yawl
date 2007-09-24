@@ -30,6 +30,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.LinkedList;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
@@ -150,16 +151,16 @@ public class YAWLEditorDesktop extends JDesktopPane
     JInternalFrame[] frames = getAllFrames();
     for(int i = 0; i < frames.length; i++) {
       try {
-        ((YAWLEditorNetFrame)frames[i]).setIcon(true);
+        frames[i].setIcon(true);
       } catch (Exception e) {}
     }
   }
   
   public void showAllNets() {
     JInternalFrame[] frames = getAllFrames();
-    for(int i = 0; i < frames.length; i++) {
+    for(int i = frames.length - 1; i >= 0; i--){
       try {
-        ((YAWLEditorNetFrame)frames[i]).setIcon(false);
+        frames[i].setIcon(false);
       } catch (Exception e) {}
     }
   }

@@ -57,9 +57,9 @@ class ViewMenu extends JMenu {
     add(buildAntiAliasedItem());
     add(buildNetBackgroundColourItem());
     add(buildFontSizeItem());
+    addSeparator();
     add(buildIconifyAllNetsItem());
     add(buildShowAllNetsItem());
-    
   }
   
   private JMenuItem buildShowToolTipsItem() {
