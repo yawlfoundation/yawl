@@ -24,25 +24,24 @@
 
 package au.edu.qut.yawl.editor.foundations;
 
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.io.Serializable;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
-import java.awt.Color;
-import java.awt.Point;
-import java.awt.Rectangle;
-
-import au.edu.qut.yawl.editor.data.Decomposition;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLPort;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-
+import org.jgraph.graph.ConnectionSet;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.ParentMap;
-import org.jgraph.graph.ConnectionSet;
+
+import au.edu.qut.yawl.editor.data.Decomposition;
+import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
+import au.edu.qut.yawl.editor.elements.model.YAWLPort;
+import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import au.edu.qut.yawl.editor.net.NetGraphModel;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 
 /**
  * @author bradforl
@@ -71,6 +70,7 @@ public class ArchivableNetState implements Serializable {
     setStartingNetFlag(false);
     setIconified(false);
     setMaximised(false);
+    setZOrder(0);
     setBackgroundColor(new Color(SpecificationModel.getInstance().getDefaultNetBackgroundColor()));
   }
 
@@ -80,7 +80,7 @@ public class ArchivableNetState implements Serializable {
     graphModel.getGraph().getGraphLayoutCache().reload();
 
     generateCellData();
-
+    
     setCellViewAttributes(
         GraphConstants.createAttributes(
             getCells(), 
@@ -97,6 +97,11 @@ public class ArchivableNetState implements Serializable {
     	setIconBounds(graphModel.getGraph().getFrame().getDesktopIcon().getBounds());
     }
     setMaximised(graphModel.getGraph().getFrame().isMaximum());
+    setZOrder(
+        YAWLEditorDesktop.getInstance().getIndexOf(  
+          graphModel.getGraph().getFrame()
+        )
+    );
     setTriggeringTaskOfVisibleCancellationSet(
       graphModel.getGraph().getCancellationSetModel().getTriggeringTask()
     );
@@ -264,6 +269,15 @@ public class ArchivableNetState implements Serializable {
   
   public boolean getMaximised() {
     return ((Boolean) serializationProofAttributeMap.get("maximised")).booleanValue();
+  }
+
+  
+  public void setZOrder(int zOrder) {
+    serializationProofAttributeMap.put("zOrder",new Integer(zOrder));
+  }
+  
+  public int getZOrder() {
+    return ((Integer) serializationProofAttributeMap.get("zOrder")).intValue();
   }
 
   public void setTriggeringTaskOfVisibleCancellationSet(YAWLTask task) {
