@@ -27,6 +27,8 @@ package au.edu.qut.yawl.editor.net.utilities;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
+
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
@@ -36,6 +38,7 @@ import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
 import au.edu.qut.yawl.editor.elements.model.InputCondition;
 import au.edu.qut.yawl.editor.elements.model.OutputCondition;
 import au.edu.qut.yawl.editor.elements.model.YAWLCell;
+import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 
 import au.edu.qut.yawl.editor.net.NetGraphModel;
 
@@ -318,5 +321,48 @@ public final class NetUtilities {
     HashSet flows = new HashSet();
     flows.addAll(vertex.getIncomingFlows());
     return flows;
+  }
+
+  public static ImageIcon getStartingNetIcon() {
+    return ResourceLoader.getImageAsIcon(
+        getStartingNetIconPath()    
+    );  
+  }
+  
+  public static String getStartingNetIconPath() {
+    return "/au/edu/qut/yawl/editor/resources/menuicons/StartingNetInternalFrame.gif";
+  }
+
+  public static ImageIcon getSubNetIcon() {
+    return ResourceLoader.getImageAsIcon(
+        getSubNetIconPath()    
+    );  
+  }
+  
+  public static String getSubNetIconPath() {
+    return "/au/edu/qut/yawl/editor/resources/menuicons/SubNetInternalFrame.gif";
+  }
+
+  public static ImageIcon getIconForNetModel(NetGraphModel model) {
+    if (model.isStartingNet()) {
+      return getStartingNetIcon();
+    }
+    return getSubNetIcon();
+  }
+  
+  public static void setNetIconFromModel(NetGraphModel model) {
+    if (model.getGraph().getFrame() != null) {
+      if (model.isStartingNet()) {
+        model.getGraph().getFrame().setClosable(false);
+        model.getGraph().getFrame().setFrameIcon(
+            NetUtilities.getStartingNetIcon()
+        );
+      } else {
+        model.getGraph().getFrame().setClosable(true);
+        model.getGraph().getFrame().setFrameIcon(
+            NetUtilities.getSubNetIcon()
+        );
+      }
+    }
   }
 }

@@ -33,30 +33,37 @@ import au.edu.qut.yawl.editor.specification.SpecificationModel;
 abstract class YAWLOpenNetMenu extends JMenu 
                                 implements SpecificationModelListener {
     
-  private static final SpecificationModel netModel =  
+  private static final SpecificationModel specificationModel =  
     SpecificationModel.getInstance(); 
     
   public YAWLOpenNetMenu(String title, int keyEventCode) {
     super(title);
     setMnemonic(keyEventCode);
     buildInterface();
-    netModel.subscribe(this);
+    specificationModel.subscribe(
+        this,
+        new SpecificationModel.State[] {
+            SpecificationModel.State.NO_NETS_EXIST,
+            SpecificationModel.State.NETS_EXIST
+        }
+        
+    );
   }
   
   protected abstract void buildInterface();
   
-  public void updateState(int state) {
+  public void receiveSpecificationModelNotification(SpecificationModel.State state) {
     switch (state) {
-      case SpecificationModel.NO_NETS_EXIST: {
+      case NO_NETS_EXIST: {
         setEnabled(false);  
         break;    
       }
-      case SpecificationModel.NETS_EXIST: {
+      case NETS_EXIST: {
         setEnabled(true);
         break;   
       }
       default: {
-         assert false: "Invalid state passed to updateState().";   
+         assert false: "Invalid state passed to receiveSpecificationModelNotification().";   
       }    
     }
   }

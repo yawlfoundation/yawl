@@ -46,7 +46,6 @@ import javax.swing.event.TreeSelectionListener;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
@@ -152,9 +151,9 @@ public class Palette extends YAWLToolBar implements SpecificationModelListener {
     super.setEnabled(enabled);
   }
   
-  public void updateState(int state) {
+  public void receiveSpecificationModelNotification(SpecificationModel.State state) {
     switch(state) {
-      case SpecificationModel.NO_NETS_EXIST: {
+      case NO_NETS_EXIST: {
         CONTROL_FLOW_PALETTE.setSelectedState(
             ControlFlowPalette.SelectionState.MARQUEE
         );
@@ -164,20 +163,20 @@ public class Palette extends YAWLToolBar implements SpecificationModelListener {
         );     
         break;    
       }
-      case SpecificationModel.NETS_EXIST: {
+      case NETS_EXIST: {
         YAWLEditor.setStatusBarText(
             "Select a net to continue editing it."
         );     
         break;    
       }
-      case SpecificationModel.NO_NET_SELECTED: {
+      case NO_NET_SELECTED: {
         YAWLEditor.setStatusBarText(
             "Select a net to continue editing it."
         );     
         setEnabled(false);
         break;
       }
-      case SpecificationModel.SOME_NET_SELECTED: {
+      case SOME_NET_SELECTED: {
         YAWLEditor.setStatusBarText(
             "Use the palette toolbar to edit the selected net."
         );     
@@ -185,7 +184,7 @@ public class Palette extends YAWLToolBar implements SpecificationModelListener {
         break;
       }
       default: {
-        assert false : "Invalid state passed to updateState()";   
+        assert false : "Invalid state passed to receiveSpecificationModelNotification()";   
       }    
     }
   }

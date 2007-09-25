@@ -86,22 +86,7 @@ public class NetGraphModel extends DefaultGraphModel {
   
   public void setIsStartingNet(boolean isStartingNet) {
     this.isStartingNet = isStartingNet;
-
-    if (getGraph().getFrame() != null) {
-      if (isStartingNet) {
-        getGraph().getFrame().setClosable(false);
-        getGraph().getFrame().setFrameIcon(
-            ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/menuicons/" +
-                "StartingNetInternalFrame.gif")  
-        );
-      } else {
-        getGraph().getFrame().setClosable(true);
-        getGraph().getFrame().setFrameIcon(
-            ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/menuicons/" +
-                "SubNetInternalFrame.gif")
-        );
-      }
-    }
+    NetUtilities.setNetIconFromModel(this);
   }
     
   public boolean getIsStartingNet() {

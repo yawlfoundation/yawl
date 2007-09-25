@@ -52,17 +52,17 @@ public class RemoveNetAction extends YAWLSelectedNetAction implements TooltipTog
     YAWLEditorDesktop.getInstance().removeActiveNet();
   }
   
-	public void updateState(int state) {
-		if (!(state == SpecificationModel.SOME_NET_SELECTED)){
-			super.updateState(state);
-		} else {
-			if (YAWLEditorDesktop.getInstance().getSelectedGraph().getNetModel().isStartingNet()) {
-	  	  setEnabled(false); 		
-			} else {
-				setEnabled(true);
-			}
-		}
-	}
+  public void receiveSpecificationModelNotification(SpecificationModel.State state) {
+  	if (!(state == SpecificationModel.State.SOME_NET_SELECTED)){
+  	  super.receiveSpecificationModelNotification(state);
+  	} else {
+  	  if (YAWLEditorDesktop.getInstance().getSelectedGraph().getNetModel().isStartingNet()) {
+        setEnabled(false); 		
+      } else {
+        setEnabled(true);
+      }
+    }
+  }
   
   public String getEnabledTooltipText() {
     return " Remove the selected net ";
