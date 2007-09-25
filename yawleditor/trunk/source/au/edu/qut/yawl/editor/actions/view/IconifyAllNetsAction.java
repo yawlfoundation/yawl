@@ -22,12 +22,13 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.specification;
+package au.edu.qut.yawl.editor.actions.view;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 
+import au.edu.qut.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 

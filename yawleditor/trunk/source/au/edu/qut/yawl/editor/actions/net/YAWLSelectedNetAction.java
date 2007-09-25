@@ -30,29 +30,26 @@ import au.edu.qut.yawl.editor.specification.SpecificationModel;
 public class YAWLSelectedNetAction extends YAWLExistingNetAction 
                                 implements SpecificationModelListener {
   
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
 
   public YAWLSelectedNetAction() {
     getSpecificationModel().subscribe(this);   
   }
 
-  public void updateState(int state) {
+  public void receiveSpecificationModelNotification(SpecificationModel.State state) {
     switch(state) {
-      case SpecificationModel.NO_NETS_EXIST: {
+      case NO_NETS_EXIST: {
         setEnabled(false);     
         break;    
       }
-      case SpecificationModel.NETS_EXIST: {
+      case NETS_EXIST: {
         break;    
       }
-      case SpecificationModel.NO_NET_SELECTED: {
+      case NO_NET_SELECTED: {
         setEnabled(false);
         break;
       }
-      case SpecificationModel.SOME_NET_SELECTED: {
+      case SOME_NET_SELECTED: {
         setEnabled(true);
         break;
       }
@@ -63,6 +60,8 @@ public class YAWLSelectedNetAction extends YAWLExistingNetAction
   }
   
   public void refreshState() {
-    updateState(getSpecificationModel().getState());
+    receiveSpecificationModelNotification(
+        getSpecificationModel().getState()
+    );
   }
 }

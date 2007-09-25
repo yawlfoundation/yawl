@@ -25,6 +25,7 @@ package au.edu.qut.yawl.editor.specification;
 
 import java.awt.Color;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,7 +35,6 @@ import au.edu.qut.yawl.editor.data.Decomposition;
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
 import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
 import au.edu.qut.yawl.editor.net.NetGraph;
 
@@ -56,14 +56,18 @@ import au.edu.qut.yawl.editor.elements.model.YAWLMultipleInstanceTask;
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 
 public class SpecificationModel {
-  public static final int NO_NETS_EXIST     = 0;
-  public static final int NETS_EXIST        = 1;
-  public static final int NO_NET_SELECTED   = 2;
-  public static final int SOME_NET_SELECTED = 3;
-
+  
+  public static enum State {
+    NO_NETS_EXIST,
+    NETS_EXIST,
+    NO_NET_SELECTED,
+    SOME_NET_SELECTED,
+    NET_DETAIL_CHANGED
+  };
+  
   private int netCount;
   private HashSet<NetGraphModel> nets;
-  private int state;
+  private State state;
   
   public static final int   DEFAULT_FONT_SIZE = 15;
   public static final int   DEFAULT_NET_BACKGROUND_COLOR = Color.WHITE.getRGB();
@@ -73,8 +77,14 @@ public class SpecificationModel {
   
   private String dataTypeDefinition = DEFAULT_TYPE_DEFINITION;
   
-  private transient LinkedList subscribers = new LinkedList();
   
+  /**
+   * A mapping of possible selection states against subscribers that care to receive
+   * notifications of a particular state.
+   */
+  private transient HashMap<State,LinkedList<SpecificationModelListener>> 
+      stateSubscriberMap = new HashMap<State,LinkedList<SpecificationModelListener>>();
+
   private HashSet<WebServiceDecomposition> webServiceDecompositions = new HashSet<WebServiceDecomposition>();
   private long    uniqueElementNumber = 0;
   private int     fontSize            = DEFAULT_FONT_SIZE;
@@ -97,30 +107,72 @@ public class SpecificationModel {
     return INSTANCE; 
   }
   
+  /**
+   * A convenience legacy method that subscribes the specified 
+   * object to set of more coarse-grained specification model events. 
+   * Namely {@link State.NO_NETS_EXIST},  {@link State.NETS_EXIST},
+   * {@link State.NO_NET_SELECTED}, {@link SOME_NET_SELECTED}.
+   * @param subscriber
+   * @see SpecificationModelListener
+   */
+  
   public void subscribe(final SpecificationModelListener subscriber) {
-    subscribers.add(subscriber);
-    subscriber.updateState(state);
+    subscribe(
+        subscriber, 
+        new State[] {
+            State.NO_NETS_EXIST,
+            State.NETS_EXIST,
+            State.NO_NET_SELECTED,
+            State.SOME_NET_SELECTED,
+        }
+    );
   }
 
-  public void publishState(final int inputState) {
-    state = inputState;
-    for(int i = 0; i < subscribers.size();  i++) {
-      SpecificationModelListener listener = 
-        (SpecificationModelListener) subscribers.get(i);
-      listener.updateState(state);
+  /**
+   * Allows a subscriber to begin receiviing callback notifications for changes of
+   * state that the subscriber has defined as being important to it. The subscriber
+   * must implement the interface {@link SpecificationModelListener}.
+   * @param subscriber
+   * @param statesOfInterest
+   * @see SpecificationModelListener
+   * @see State
+   */
+  
+  public void subscribe(final SpecificationModelListener subscriber, State[] statesOfInterest) {
+    for(State stateOfInterest: statesOfInterest) {
+      LinkedList<SpecificationModelListener> stateSubscribers = stateSubscriberMap.get(stateOfInterest);
+      
+      if (stateSubscribers == null) {
+        stateSubscribers = new LinkedList<SpecificationModelListener>();
+        stateSubscriberMap.put(stateOfInterest, stateSubscribers);
+      }
+      stateSubscribers.add(subscriber);
+      if (stateOfInterest == state) {
+        subscriber.receiveSpecificationModelNotification(state);
+      }
     }
   }
   
-  public void setState(int state) {
-    this.state = state;
+  private void publishState(final State state) {
+    LinkedList<SpecificationModelListener> stateSubscribers =  stateSubscriberMap.get(state);
+    if (stateSubscribers == null) {
+      return;
+    }
+    for(SpecificationModelListener subscriber : stateSubscribers) {
+      subscriber.receiveSpecificationModelNotification(state);
+    }
   }
   
-  public int getState() {
+  public void setState(State state) {
+    this.state = state;
+    publishState(state);
+  }
+  
+  public State getState() {
     return this.state;
   }
   
   public void reset() {
-    state = NO_NETS_EXIST;
     netCount = 0;
     nets = new HashSet();
     webServiceDecompositions = new HashSet();
@@ -139,6 +191,7 @@ public class SpecificationModel {
     setValidFromTimestamp("");
     setValidUntilTimestamp("");
     YAWLEditor.setStatusBarText("Open or create a net to begin.");
+    setState(State.NO_NETS_EXIST);
   }
   
   public void setNetCount(int netCount) {
@@ -193,6 +246,7 @@ public class SpecificationModel {
         )
     );
     SpecificationUndoManager.getInstance().stopCompoundingEdits();
+    publishState(State.NET_DETAIL_CHANGED);
   }
   
 
@@ -258,16 +312,18 @@ public class SpecificationModel {
     final int oldNetCount = netCount;
     netCount++;
     if (oldNetCount == 0) {
-      publishState(NETS_EXIST);    
+      setState(State.NETS_EXIST);    
     }
+    publishState(State.NET_DETAIL_CHANGED);
   }
 
   private void publishNetCountDecrement() {
     final int oldNetCount = netCount;
     netCount--;
     if (oldNetCount == 1)  {
-        publishState(NO_NETS_EXIST);    
+        setState(State.NO_NETS_EXIST);    
     }
+    publishState(State.NET_DETAIL_CHANGED);
   }
   
   public HashSet<YAWLCompositeTask> resetUnfoldingCompositeTasks(NetGraphModel netModel) {
@@ -287,12 +343,12 @@ public class SpecificationModel {
   }
   
   public void somethingSelected() {
-    publishState(SOME_NET_SELECTED);  
+    publishState(State.SOME_NET_SELECTED);  
   }
   
   public void nothingSelected() {
-    if (state != NO_NETS_EXIST) {
-      publishState(NO_NET_SELECTED); 
+    if (state != State.NO_NETS_EXIST) {
+      publishState(State.NO_NET_SELECTED); 
     }
   }
   
@@ -406,6 +462,7 @@ public class SpecificationModel {
     }
 
     SpecificationUndoManager.getInstance().stopCompoundingEdits();
+    this.publishState(State.NET_DETAIL_CHANGED);
   }
   
   public void changeDecompositionInQueries(String oldLabel, String newLabel) {

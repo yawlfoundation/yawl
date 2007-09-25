@@ -24,6 +24,8 @@
 
 package au.edu.qut.yawl.editor.specification;
 
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
+
 public interface SpecificationModelListener {
-  public abstract void updateState(int state);    
+  public abstract void receiveSpecificationModelNotification(SpecificationModel.State state);    
 }

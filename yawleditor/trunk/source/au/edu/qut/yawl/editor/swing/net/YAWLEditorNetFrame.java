@@ -35,6 +35,7 @@ import javax.swing.JOptionPane;
 
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 import au.edu.qut.yawl.editor.net.*;
+import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
 
@@ -52,8 +53,7 @@ public class YAWLEditorNetFrame extends JInternalFrame {
     setBackground(Color.WHITE);
     setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
     setFrameIcon(
-        ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/menuicons/" +
-            "SubNetInternalFrame.gif")
+        NetUtilities.getSubNetIcon()    
     );
     installEventListener();
   }
@@ -68,7 +68,6 @@ public class YAWLEditorNetFrame extends JInternalFrame {
     setLocation(location);
     NetGraph newGraph = new NetGraph();
     newGraph.buildNewGraphContent();
-    setNet(newGraph);
     
     String newTitleString = "";
     boolean validNameFound = false;
@@ -80,7 +79,7 @@ public class YAWLEditorNetFrame extends JInternalFrame {
 				validNameFound = true;
 			}
     }
-    setNetName(newTitleString);
+    setNet(newGraph, newTitleString);
   }
   
   public YAWLEditorNetFrame(Rectangle bounds, String title) {
@@ -99,6 +98,10 @@ public class YAWLEditorNetFrame extends JInternalFrame {
   }
 
   public void setNet(final NetGraph net) {
+    setNet(net, null);
+  }
+  
+  public void setNet(final NetGraph net, final String title) {
     this.net = net;
     scrollPane = new JScrollPane(net);
     net.setFrame(this);
@@ -108,6 +111,8 @@ public class YAWLEditorNetFrame extends JInternalFrame {
     final JComponent contents = (JComponent) getContentPane();
     contents.setPreferredSize(net.getSize());
     setSize(getPreferredSize());
+    setTitle(title);
+    net.setName(title);
     model.addNet(getNet().getNetModel());
   }
   

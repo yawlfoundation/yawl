@@ -169,11 +169,11 @@ public class YAWLEditorDesktop extends JDesktopPane
     updateState();   
   }
 
-	public void internalFrameDeactivated(InternalFrameEvent e) {
+  public void internalFrameDeactivated(InternalFrameEvent e) {
     updateState();   
-	}
+  }
 
-	public void internalFrameClosing(InternalFrameEvent e) {}
+  public void internalFrameClosing(InternalFrameEvent e) {}
 
   public void internalFrameClosed(InternalFrameEvent e) {
     resizeIfNecessary();   
@@ -183,11 +183,13 @@ public class YAWLEditorDesktop extends JDesktopPane
   public void internalFrameDeiconified(InternalFrameEvent e) {
     resizeIfNecessary();
     repositionViewportIfNecessary(e.getInternalFrame());
+    updateState();   
   }
 
   public void internalFrameIconified(InternalFrameEvent e) {
     resizeIfNecessary();
     repositionViewportIfNecessary(e.getInternalFrame());
+    updateState();   
   }
 
   public void internalFrameOpened(InternalFrameEvent e) {
@@ -233,10 +235,10 @@ public class YAWLEditorDesktop extends JDesktopPane
   private void updateState() {
     JInternalFrame frame = getSelectedFrame();
     if (frame == null) {
-      model.nothingSelected();      
-    } else {
-      model.somethingSelected();    
+      model.nothingSelected();
+      return;
     }
+    model.somethingSelected();    
     try {
       getSelectedGraph().getSelectionListener().forceActionUpdate();
       getSelectedGraph().getCancellationSetModel().refresh();
