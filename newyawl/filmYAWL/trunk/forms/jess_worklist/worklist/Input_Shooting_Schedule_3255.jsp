@@ -107,17 +107,17 @@
 	<tr height="30">
 		<td width="15" class="left">&nbsp;</td>
 		<td><strong>Production</strong></td>
-		<td><input name='production' type='text' id='production' value="<%= iss.getProduction() %>" pattern="any_text" title="Enter Production."></td>
+		<td><input name='production' type='text' id='production' value="<%= iss.getProduction() %>" pattern="any_text" title="Enter Production. [String Value]" readonly></td>
 		<td><strong>Director</strong></td>
-		<td><input name='director' type='text' id='director' value="<%=ss.getDirector() %>" pattern="any_text" title="Enter Director."></td>
+		<td><input name='director' type='text' id='director' value="<%=ss.getDirector() %>" pattern="any_text" title="Enter Director. [String Value]" readonly></td>
 		<td width="15" class="right">&nbsp;</td>
 	</tr>
 	<tr height="30">
 		<td class="left">&nbsp;</td>
 		<td><strong>Producer</strong></td>
-		<td><input name='producer' type='text' id='producer' value="<%=ss.getProducer() %>" pattern="any_text" title="Enter Producer."></td>
+		<td><input name='producer' type='text' id='producer' value="<%=ss.getProducer() %>" pattern="any_text" title="Enter Producer. [String Value]" readonly></td>
 		<td><strong>Last Updated Date</strong></td>
-		<td><input name='last_updated' type='text' id='last_updated' value="<%=ss.getLastUpdatedDate().getDay()+"-"+ss.getLastUpdatedDate().getMonth()+"-"+ss.getLastUpdatedDate().getYear() %>" pattern="real_date" title="Enter Last Updated Date."></td>
+		<td><input name='last_updated' type='text' id='last_updated' value="<%=ss.getLastUpdatedDate().getDay()+"-"+ss.getLastUpdatedDate().getMonth()+"-"+ss.getLastUpdatedDate().getYear() %>" pattern="real_date" title="Enter Last Updated Date. [Date Value DD-MM-YYYY]" readonly></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr height="30"><td colspan="10" class='bottom'>&nbsp;</td></tr>
@@ -135,17 +135,17 @@
 		<tr height="30">
 			<td class="left">&nbsp;</td>
 			<td><strong>Start Date </strong></td>
-			<td><input name='start_date' type='text' id='start_date' value="<%=ss.getStartDate().getDay()+"-"+ss.getStartDate().getMonth()+"-"+ss.getStartDate().getYear() %>"  pattern="real_date" title="Enter Start Date."></td>
+			<td><input name='start_date' type='text' id='start_date' value="<%=ss.getStartDate().getDay()+"-"+ss.getStartDate().getMonth()+"-"+ss.getStartDate().getYear() %>"  pattern="real_date" title="Enter Start Date. [Date Value DD-MM-YYYY]"></td>
 			<td><strong>Scheduled Finish</strong></td>
-			<td><input name='scheduled_finish' type='text' id='scheduled_finish' value="<%=ss.getScheduledFinish().getDay()+"-"+ss.getScheduledFinish().getMonth()+"-"+ss.getScheduledFinish().getYear() %>" pattern="real_date" title="Enter Scheduled Finish Date."></td>
+			<td><input name='scheduled_finish' type='text' id='scheduled_finish' value="<%=ss.getScheduledFinish().getDay()+"-"+ss.getScheduledFinish().getMonth()+"-"+ss.getScheduledFinish().getYear() %>" pattern="real_date" title="Enter Scheduled Finish Date. [Date Value DD-MM-YYYY]"></td>
 			<td class="right">&nbsp;</td>
 		</tr>
 		<tr height="30">
 			<td class="left">&nbsp;</td>
 			<td><strong>Revised Finish </strong></td>
-			<td><input name='revised_finish' type='text' id='revised_finish' value="<% if(ss.getRevisedFinish() != null) {out.print(ss.getRevisedFinish().getDay()+"-"+ss.getRevisedFinish().getMonth()+"-"+ss.getRevisedFinish().getYear());} %>"></td>
+			<td><input name='revised_finish' type='text' id='revised_finish' value="<% if(ss.getRevisedFinish() != null) {out.print(ss.getRevisedFinish().getDay()+"-"+ss.getRevisedFinish().getMonth()+"-"+ss.getRevisedFinish().getYear());} %>" title="Enter Revised Finish - If Necessary. [Date Value DD-MM-YYYY]"></td>
 			<td><strong>Scheduled Shooting Days </strong></td>
-			<td><input name='scheduled_shooting_days' type='text' id='scheduled_shooting_days' value="<% if (ss.getScheduledShootingDays().intValue() > 0){ out.print(ss.getScheduledShootingDays()); }%>" pattern="number" title="Enter Schedule Shooting Days."></td>
+			<td><input name='scheduled_shooting_days' type='text' id='scheduled_shooting_days' value="<% if (ss.getScheduledShootingDays().intValue() > 0){ out.print(ss.getScheduledShootingDays()); }%>" pattern="number" title="Enter Schedule Shooting Days. [Number Value]"></td>
 			<td class="right">&nbsp;</td>
 		</tr>
 		<tr height="30"><td colspan="10" class='bottom'>&nbsp;</td></tr>
@@ -479,9 +479,9 @@ if(ss.getSingleDaySchedule().size() != 0) {
 		<tr>
 			<td width="15" height="30" class="left">&nbsp;</td>
 			<td width="160" height="30" valign="top"><strong>Interior</strong>
-			  <input name="sd1_intext1" type="radio" value="INT"></td>
+			  <input name="sd1_intext1" type="radio" value="INT" checked></td>
 			<td width="160" height="30" valign="top"><strong>Exterior</strong><input name="sd1_intext1" type="radio" value="EXT"></td>
-			<td width="160" height="30" valign="top"><strong>Day</strong><input name="sd1_daynight1" type="radio" value="Day"></td>
+			<td width="160" height="30" valign="top"><strong>Day</strong><input name="sd1_daynight1" type="radio" value="Day" checked></td>
 			<td width="160" height="30" valign="top"><strong>Night</strong><input name="sd1_daynight1" type="radio" value="Night"></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>

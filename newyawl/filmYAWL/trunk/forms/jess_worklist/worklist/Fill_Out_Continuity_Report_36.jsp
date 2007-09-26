@@ -298,8 +298,8 @@ if(request.getParameter("Submission") != null){
 		}
 	}
 	for (String key : slates.keySet()){//adds slates to relative scenes
-		StringTokenizer st = new StringTokenizer(key);
-		tempSceneNO=st.nextToken();
+		String[] st = key.split("\t");
+		tempSceneNO = st[0];
 		
 		tempScene=scenes.get(tempSceneNO);
 		if (tempScene==null){
@@ -405,9 +405,10 @@ else if(request.getParameter("Save") != null){
 			tempSlate.getTakeInfo().add(ti);
 		}
 	}
+	
 	for (String key : slates.keySet()){//adds slates to relative scenes
-		StringTokenizer st = new StringTokenizer(key);
-		tempSceneNO=st.nextToken();
+		String[] st = key.split("\t");
+		tempSceneNO = st[0];
 		
 		tempScene=scenes.get(tempSceneNO);
 		if (tempScene==null){
@@ -420,6 +421,9 @@ else if(request.getParameter("Save") != null){
 			tempScene.getSlateInfo().add(slates.get(key));
 		}
 	}
+	
+	
+	
 	List<SceneInfoType> scl = new ArrayList<SceneInfoType>(scenes.values());//creates a list of the scenes and adds it to the continuityInfo facade
 	ContinuityInfoType ci = new ContinuityInfoType();
 	ci.getSceneInfo().addAll(scl);

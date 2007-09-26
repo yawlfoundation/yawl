@@ -17,7 +17,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<title>Continuity Report</title>
+<title>Continuity Daily Report</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 
 <!-- style sheet imports -->
@@ -118,7 +118,7 @@
 							<td><strong>Day</strong></td>
 							<td><input name='weekday' type='text' id='weekday' size="15" value="<%= gi.getWeekday() %>" readonly></td>
 							<td><strong>Date</strong></td>
-							<td><input name='date' type='text' id='date' size="15" value="<%= gi.getDate() %>" readonly></td>
+							<td><input name='date' type='text' id='date' size="15" value="<%=  gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>" readonly></td>
 							<td class='right' width='15'>&nbsp;</td>
 						</tr><tr height='30'><td colspan='6' class='bottom'>&nbsp;</td>
 						</tr>
@@ -160,17 +160,11 @@
 								<%}%>
 								</td><td/>
 								<!-- <td><input name="button83" type="button" onClick="addSet('location_set_<%=a%>');" value="Insert Set"/> -->
-								<!-- <input type="hidden" name="location_set_<%=a%>_count" id="location_set_<%=a%>_count" value="<%=b%>"/></td> -->
+								<input type="hidden" name="location_set_<%=a%>_count" id="location_set_<%=a%>_count" value="<%=b%>"/></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<%}%>
 						</tbody>
-						<tr valign="top">
-						  <th class="left">&nbsp;</th>
-						  <td colspan="4" align="left"></td>
-						  <!-- <td colspan="4" align="left"><input name="button" type="button" id="button" onClick="addLocation();" value="Insert Row"/></td> -->
-						  <td class="right">&nbsp;</td>
-					  </tr>
 						<tr valign="top"><th colspan="6" class="bottom">&nbsp;</th>
 						</tr>
 				  </table>
@@ -188,19 +182,19 @@
                     <tr valign="top">
                       <td align="center" class="left">&nbsp;</td>
                       <td width="121"><strong>Stills</strong></td>
-                      <td><input name='stills' type='text' id='stills'  size="15" value="<%if(cdrt.getStills() != null) {out.print(cdrt.getStills());}%>" readonly></td>
+                      <td><input name='stills' type='text' id='stills'  size="15" value="<%if(cdrt.getStills() != null) {out.print(cdrt.getStills());}%>" ></td>
                       <td class="right">&nbsp;</td>
                     </tr>
                     <tr valign="top">
                       <td align="center" class="left">&nbsp;</td>
                       <td><strong>B/W</strong></td>
-                      <td><input name='b_w' type='text' id='b_w'  size="15" value="<%if(cdrt.getBw() != null) {out.print(cdrt.getBw());}%>" readonly></td>
+                      <td><input name='b_w' type='text' id='b_w'  size="15" value="<%if(cdrt.getBw() != null) {out.print(cdrt.getBw());}%>" ></td>
                       <td class="right">&nbsp;</td>
                     </tr>
                     <tr valign="top">
                       <td align="center" class="left">&nbsp;</td>
                       <td><strong>Colour</strong></td>
-                      <td><input name='colour' type='text' id='colour'  size="15" value="<%if(cdrt.getColour() != null) {out.print(cdrt.getColour());}%>" readonly></td>
+                      <td><input name='colour' type='text' id='colour'  size="15" value="<%if(cdrt.getColour() != null) {out.print(cdrt.getColour());}%>" ></td>
                       <td class="right">&nbsp;</td>
                     </tr>
                     <tr valign="top">
@@ -209,7 +203,6 @@
                       <td><input name='sound_rolls' type='text' id='sound_rolls'  size="15" value="<%= cdrt.getSoundRollsDatTapes()%>" readonly></td>
                       <td width="17" class="right">&nbsp;</td>
                     </tr>
-					<tr><td width="17" align="center" class="left">&nbsp;</td><td/><td/><td width="17" class="right">&nbsp;</td></tr>
                   </tbody>
                   <tr valign="top">
                     <th colspan="4" class="bottom">&nbsp;</th>
@@ -256,11 +249,6 @@
 					  </tr>
 					  <%}%>
 					  </tbody>
-						<tr valign="top">
-						  <th class="left">&nbsp;</th>
-					      <td colspan="3"></td>
-					      <th class="right">&nbsp;</th>
-					  </tr>
 						<tr valign="top"><th colspan="5" class="bottom">&nbsp;</th></tr>
 				  </table>
 				</td>
@@ -281,15 +269,15 @@
 					  <td id="scheduled_scenes">
 					  <% ScenesType s1 = cdrt.getScheduledScenes();
 					  int s_1=0;
-					  if(s1.getScene() != null) {
+					  if(s1.getScene().isEmpty() == false) {
 							List<String> scenes_list1 = s1.getScene();
 								for(String scene1 : scenes_list1) {
 									s_1 ++;
 					  %>
-					  <input name='scheduled_scenes_<%=s_1%>' type='text' id='scheduled_scenes_<%=s_1%>'  size="2" value="<%=scene1 %>" readonly>
+					  <input name='scheduled_scenes_<%=s_1%>' type='text' id='scheduled_scenes_<%=s_1%>'  size="5" value="<%=scene1 %>" readonly>
 					  <%}
 					  }else{%>
-					  <input name='scheduled_scenes_1' type='text' id='scheduled_scenes_1'  size="2" readonly>
+					  <input name='scheduled_scenes_1' type='text' id='scheduled_scenes_1'  size="5" readonly>
 					  <%}%>
 					  </td>
 					  <td></td>
@@ -301,15 +289,15 @@
 					  <td id="scenes_shot">
 					  <% ScenesType s2 = cdrt.getScenesShot();
 					  int s_2=0;
-					  if(s2.getScene() != null) {
+					  if(s2.getScene().isEmpty() == false) {
 							List<String> scenes_list2 = s2.getScene();
 								for(String scene2 : scenes_list2) {
 									s_2 ++;
 					  %>
-					  <input name='scenes_shot_<%=s_2%>' type='text' id='scenes_shot_<%=s_2%>' size="2" value="<%=scene2 %>" readonly>
+					  <input name='scenes_shot_<%=s_2%>' type='text' id='scenes_shot_<%=s_2%>' size="5" value="<%=scene2 %>" readonly>
 					   <%}
 					  }else{%>
-					  <input name='scenes_shot_1' type='text' id='scenes_shot_1'  size="2" readonly>
+					  <input name='scenes_shot_1' type='text' id='scenes_shot_1'  size="5" readonly>
 					  <%}%>
 					  </td>
 					  <td></td>
@@ -326,15 +314,15 @@
 					  <td width="371" id="scheduled_scenes_shot">
 					  <% ScenesType s3 = cdrt.getScheduledScenesShot();
 					  int s_3=0;
-					  if(s3.getScene() != null) {
+					  if(s3.getScene().isEmpty() == false) {
 							List<String> scenes_list3 = s3.getScene();
 								for(String scene3 : scenes_list3) {
 									s_3 ++;
 					  %>
-					  <input name='scheduled_scenes_shot_<%=s_3%>' type='text' id='scheduled_scenes_shot_<%=s_3%>'  size="2" value="<%=scene3 %>" readonly>
+					  <input name='scheduled_scenes_shot_<%=s_3%>' type='text' id='scheduled_scenes_shot_<%=s_3%>'  size="5" value="<%=scene3 %>" readonly>
 					   <%}
 					  }else{%>
-					  <input name='scheduled_scenes_shot_1' type='text' id='scheduled_scenes_shot_1'  size="2" readonly>
+					  <input name='scheduled_scenes_shot_1' type='text' id='scheduled_scenes_shot_1'  size="5" readonly>
 					  <%}%>
 					  </td>
 					  <td width="95">
@@ -347,15 +335,15 @@
 					  <td width="371" id="scenes_scheduled_not_shot">
 					  <% ScenesType s4 = cdrt.getScheduledScenesNotShot();
 					  int s_4=0;
-					  if(s4.getScene() != null) {
+					  if(s4.getScene().isEmpty() == false) {
 							List<String> scenes_list4 = s4.getScene();
 								for(String scene4 : scenes_list4) {
 									s_4 ++;
 					  %>
-					  <input name='scenes_scheduled_not_shot_<%=s_4%>' type='text' id='scenes_scheduled_not_shot_<%=s_4%>'  size="2" value="<%=scene4 %>">
+					  <input name='scenes_scheduled_not_shot_<%=s_4%>' type='text' id='scenes_scheduled_not_shot_<%=s_4%>'  size="5" value="<%=scene4 %>">
 					   <%}
 					  }else{%>
-					  <input name='scenes_scheduled_not_shot_1' type='text' id='scenes_scheduled_not_shot_1'  size="2">
+					  <input name='scenes_scheduled_not_shot_1' type='text' id='scenes_scheduled_not_shot_1'  size="5">
 					  <%}%>
 					  </td>
 					  <td><input name="button2" type="button" onClick="addScenes('scenes_scheduled_not_shot');" value="Insert Scene"/></td>
@@ -367,15 +355,15 @@
 					  <td width="371" id="scenes_not_yet_completed">
 					  <% ScenesType s5 = cdrt.getScenesNotYetCompleted();
 					  int s_5 =0;
-					  if(s5.getScene() != null) {
+					  if(s5.getScene().isEmpty() == false) {
 							List<String> scenes_list5 = s5.getScene();
 								for(String scene5 : scenes_list5) {
 									s_5 ++;
 					  %>
-					  <input name='scenes_not_yet_completed_<%=s_5%>' type='text' id='scenes_not_yet_completed_<%=s_5%>'  size="2" value="<%=scene5 %>">
+					  <input name='scenes_not_yet_completed_<%=s_5%>' type='text' id='scenes_not_yet_completed_<%=s_5%>'  size="5" value="<%=scene5 %>">
 					   <%}
 					  }else{%>
-					  <input name='scenes_not_yet_completed_1' type='text' id='scenes_not_yet_completed_1'  size="2">
+					  <input name='scenes_not_yet_completed_1' type='text' id='scenes_not_yet_completed_1'  size="5">
 					  <%}%>
 					  </td>
 					  <td><input name="button3" type="button" onClick="addScenes('scenes_not_yet_completed');" value="Insert Scene"/></td>
@@ -387,15 +375,15 @@
 					  <td width="371" id="scenes_deleted">
 					  <% ScenesType s6 = cdrt.getScenesDeleted();
 					  int s_6=0;
-					  if(s6.getScene() != null) {
+					  if(s6.getScene().isEmpty() == false) {
 							List<String> scenes_list6 = s6.getScene();
 								for(String scene6 : scenes_list6) {
 									s_6 ++;
 					  %>
-					  <input name='scenes_deleted_<%=s_6%>' type='text' id='scenes_deleted_<%=s_6%>'  size="2" value="<%=scene6 %>">
+					  <input name='scenes_deleted_<%=s_6%>' type='text' id='scenes_deleted_<%=s_6%>'  size="5" value="<%=scene6 %>">
 					   <%}
 					  }else{%>
-					  <input name='scenes_deleted_1' type='text' id='scenes_deleted_1'  size="2">
+					  <input name='scenes_deleted_1' type='text' id='scenes_deleted_1'  size="5">
 					  <%}%>
 					  </td>
 					  <td><input name="button4" type="button" onClick="addScenes('scenes_deleted');" value="Insert Scene"/></td>
@@ -407,15 +395,15 @@
 					  <td width="371" id="scenes_added">
 					  <% ScenesType s7 = cdrt.getScenesAdded();
 					  int s_7=0;
-					  if(s7.getScene() != null) {
+					  if(s7.getScene().isEmpty() == false) {
 							List<String> scenes_list7 = s7.getScene();
 								for(String scene7 : scenes_list7) {
 									s_7 ++;
 					  %>
-					  <input name='scenes_added_<%=s_7%>' type='text' id='scenes_added_<%=s_7%>'  size="2" value="<%=scene7 %>">
+					  <input name='scenes_added_<%=s_7%>' type='text' id='scenes_added_<%=s_7%>'  size="5" value="<%=scene7 %>">
 					   <%}
 					  }else{%>
-					  <input name='scenes_added_1' type='text' id='scenes_added_1'  size="2">
+					  <input name='scenes_added_1' type='text' id='scenes_added_1'  size="5">
 					  <%}%>
 					  </td>
 					  <td><input name="button5" type="button" onClick="addScenes('scenes_added');" value="Insert Scene"/></td>
@@ -427,15 +415,15 @@
 					  <td width="371" id="unscheduled_scenes_shot">
 					  <% ScenesType s8 = cdrt.getUnscheduledScenesShot();
 					  int s_8=0;
-					  if(s8.getScene() != null) {
+					  if(s8.getScene().isEmpty() == false) {
 							List<String> scenes_list8 = s8.getScene();
 								for(String scene8 : scenes_list8) {
 									s_8 ++;
 					  %>
-					  <input name='unscheduled_scenes_shot_<%=s_8%>' type='text' id='unscheduled_scenes_shot_<%=s_8%>'  size="2" value="<%=scene8 %>">
+					  <input name='unscheduled_scenes_shot_<%=s_8%>' type='text' id='unscheduled_scenes_shot_<%=s_8%>'  size="5" value="<%=scene8 %>">
 					   <%}
 					  }else{%>
-					  <input name='unscheduled_scenes_shot_1' type='text' id='unscheduled_scenes_shot_1'  size="2">
+					  <input name='unscheduled_scenes_shot_1' type='text' id='unscheduled_scenes_shot_1'  size="5">
 					  <%}%>
 					  </td>
 					  <td><input name="button6" type="button" onClick="addScenes('unscheduled_scenes_shot');" value="Insert Scene"/></td>
@@ -474,7 +462,7 @@
 						e++;%>
 					<tr valign="top">
 					  <td align="center" class="left">&nbsp;</td>
-					  <td width="90" align="center"><input name='scene_no_<%=e%>' type='text' id='scene_no_<%=e%>'  size="8" value="<%=sst.getScene()%>"></td>
+					  <td width="90" align="center"><input name='scene_no_<%=e%>' type='text' id='scene_no_<%=e%>'  size="8" value="<%=sst.getScene()%>" readonly></td>
 					  <td width="124" align="center">
 					  <% PageTimeType  pt1 = sst.getPageTime(); %>
 						<input name='page_count_<%=e%>' type='text' id='page_count_<%=e%>'  size="4" value="<%=pt1.getNumber()%>">&nbsp;
@@ -486,16 +474,12 @@
 					  <td width="124" align="center">
 					  <% if(sst.getVariance() != null) {
 					  VarianceType  v = sst.getVariance(); %>
-					  <select name="variance_sign_<%=e%>" id="variance_sign_<%=e%>" disabled>
-						<option value="+" <%if(v.isSign() == true) {out.print("selected");}%>>+</option>
-						<option value="-" <%if(v.isSign() == false) {out.print("selected");}%>>-</option>
-					  </select>&nbsp;				  
+					  <input name='variance_sign_<%=e%>' type='text' id='variance_sign_<%=e%>'  size="1" value="<% if(v.isSign() == true) {out.print("+");}else{out.print("-");}%>" readonly>
+					  				  
 					  <input name='variance_<%=e%>' type='text' id='variance_<%=e%>'  size="8" value="<%=v.getVarTime()%>" readonly>
 					  <% }else{%>
-					  <select name="variance_sign_<%=e%>" id="variance_sign_<%=e%>" disabled>
-						<option value="+" >+</option>
-						<option value="-" >-</option>
-					  </select>&nbsp;				  
+					  &nbsp;		
+					  <input name='variance_sign_<%=e%>' type='text' id='variance_sign_<%=e%>'  size="1" value="" readonly>
 					  <input name='variance_<%=e%>' type='text' id='variance_<%=e%>'  size="8" value="" readonly>
 					  <% }%>
 					  </td>
@@ -520,10 +504,8 @@
 					  <td width="109" align="center" class="bottom"><input name='total_est_timing' type='text' id='total_est_timing'  size="8" value="<%= tst.getEstTiming()%>" readonly></td>
 					  <td width="109" align="center" class="bottom"><input name='total_actual_timing' type='text' id='total_actual_timing'  size="8" value="<%= tst.getActualTiming()%>" readonly></td>
 					  <% VarianceType  v2 = tst.getVariance(); %>
-					  <td width="124" align="center" class="bottom"><select name="total_variance_sign" id="total_variance_sign" disabled>
-                        <option value="+" <%if(v2.isSign() == true) {out.print("selected");}%>>+</option>
-                        <option value="-" <%if(v2.isSign() == true) {out.print("selected");}%>>-</option>
-                      </select>&nbsp; <input name='total_variance' type='text' id='total_variance'  size="8" value="<%=v2.getVarTime()%>" readonly> </td>
+					  <td width="124" align="center" class="bottom"><input name='total_variance_sign' type='text' id='total_variance_sign'  size="1" value="<% if(v2.isSign() == true) {out.print("+");}else{out.print("-");}%>" readonly>
+					   <input name='total_variance' type='text' id='total_variance'  size="8" value="<%=v2.getVarTime()%>" readonly> </td>
 					  <td width="114" align="center" class="bottom"><input name='total_cumulative_running' type='text' id='total_cumulative_running'  size="8" value="<%= tst.getCumulative()%>" readonly></td>
 					  <td width="15" class="right">&nbsp;</td>
 					</tr>
@@ -537,10 +519,8 @@
 	/8</td>
 					  <td width="109" align="center" class="bottom"><input name='total_est_timing' type='text' id='total_est_timing'  size="8" readonly></td>
 					  <td width="109" align="center" class="bottom"><input name='total_actual_timing' type='text' id='total_actual_timing'  size="8" readonly></td>
-					  <td width="124" align="center" class="bottom"><select name="total_variance_sign" id="total_variance_sign" disabled>
-                        <option value="+">+</option>
-                        <option value="-">-</option>
-                      </select>&nbsp; <input name='total_variance' type='text' id='total_variance'  size="8" readonly> </td>
+					  <td width="124" align="center" class="bottom"><input name='total_variance_sign' type='text' id='total_variance_sign'  size="1" value="" readonly>
+					    <input name='total_variance' type='text' id='total_variance'  size="8" readonly> </td>
 					  <td width="114" align="center" class="bottom"><input name='total_cumulative_running' type='text' id='total_cumulative_running'  size="8" readonly></td>
 					  <td width="15" class="right">&nbsp;</td>
 					</tr>
@@ -751,10 +731,12 @@
 </table>
 <%
 if(request.getParameter("Submission") != null){
+	java.text.SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
+	java.text.SimpleDateFormat df2 = new SimpleDateFormat("dd-MM-yyyy");
 	ContinuityDailyReportType cdrt1 = new ContinuityDailyReportType();
 	//generalinfo
 	gi.setProduction(request.getParameter("production"));
-	gi.setDate(XMLGregorianCalendarImpl.parse(request.getParameter("date")));
+	gi.setDate(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("date")))));
 	gi.setWeekday(request.getParameter("weekday"));
 	gi.setShootDayNo(new BigInteger(request.getParameter("shoot_day")));
 	
@@ -963,7 +945,7 @@ if(request.getParameter("Submission") != null){
 	ssrtt4.setPageTime(ptt6);
 	ssrtt4.setEstTiming(XMLGregorianCalendarImpl.parse(request.getParameter("remaining_esttiming")));
 	ssrtt4.setActualTiming(XMLGregorianCalendarImpl.parse(request.getParameter("remaining_acttiming")));
-	srtt1.setPrevShot(ssrtt4);
+	srtt1.setToBeShot(ssrtt4);
 	//Script Timing - Total
 	SingleScriptTimingType ssrtt5 = new SingleScriptTimingType();
 	ssrtt5.setScenes(new BigInteger(request.getParameter("total_scenes")));
@@ -1003,10 +985,12 @@ if(request.getParameter("Submission") != null){
 }
 
 else if(request.getParameter("Save") != null){
+	java.text.SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
+	java.text.SimpleDateFormat df2 = new SimpleDateFormat("dd-MM-yyyy");
 	ContinuityDailyReportType cdrt1 = new ContinuityDailyReportType();
 	//generalinfo
 	gi.setProduction(request.getParameter("production"));
-	gi.setDate(XMLGregorianCalendarImpl.parse(request.getParameter("date")));
+	gi.setDate(XMLGregorianCalendarImpl.parse(df1.format(df2.parse(request.getParameter("date")))));
 	gi.setWeekday(request.getParameter("weekday"));
 	gi.setShootDayNo(new BigInteger(request.getParameter("shoot_day")));
 	
@@ -1215,7 +1199,7 @@ else if(request.getParameter("Save") != null){
 	ssrtt4.setPageTime(ptt6);
 	ssrtt4.setEstTiming(XMLGregorianCalendarImpl.parse(request.getParameter("remaining_esttiming")));
 	ssrtt4.setActualTiming(XMLGregorianCalendarImpl.parse(request.getParameter("remaining_acttiming")));
-	srtt1.setPrevShot(ssrtt4);
+	srtt1.setToBeShot(ssrtt4);
 	//Script Timing - Total
 	SingleScriptTimingType ssrtt5 = new SingleScriptTimingType();
 	ssrtt5.setScenes(new BigInteger(request.getParameter("total_scenes")));

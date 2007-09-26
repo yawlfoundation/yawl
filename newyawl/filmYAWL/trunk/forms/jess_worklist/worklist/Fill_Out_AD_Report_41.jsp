@@ -159,8 +159,8 @@
 				  		</tr>
 						
 						<%  int a=0;
-						if(tsi != null){
-							ArtistTimeSheetType atsA = tsi.getArtistTimeSheet();
+						ArtistTimeSheetType atsA = tsi.getArtistTimeSheet();
+						if(tsi !=null){
 							for(SingleArtistType satA : atsA.getSingleArtist()) {
 								a++;
 						%>
@@ -571,11 +571,11 @@
 	          <input name="final_submission" type="checkbox" id="final_submission" value="True" <% if(foadr.isFinalSubmission() == true) {out.print("checked");}%>></td>
 	      </tr>
 	      <tr><td align="center">	
-		<input type="hidden" name="artist_count" id="artist_count" value="<%if (a==0) {out.print("1");}else{out.print(a);}%>">
+		<input type="hidden" name="artist_count" id="artist_count" value="<%if (a==0) {out.print("0");}else{out.print(a);}%>">
 		<input type="hidden" name="extras_count" id="extras_count" value="<%if (b==0) {out.print("0");}else{out.print(b);}%>">
 		<input type="hidden" name="child_count" id="child_count" value="<%if (c==0) {out.print("0");}else{out.print(c);}%>">
-		<input type="hidden" name="crew_count" id="crew_count" value="<%if (d==0) {out.print("1");}else{out.print(d);}%>">
-		<input type="hidden" name="meal_count" id="meal_count" value="<%if (e==0) {out.print("1");}else{out.print(e);}%>">
+		<input type="hidden" name="crew_count" id="crew_count" value="<%if (d==0) {out.print("0");}else{out.print(d);}%>">
+		<input type="hidden" name="meal_count" id="meal_count" value="<%if (e==0) {out.print("0");}else{out.print(e);}%>">
 		<input type="hidden" name="workItemID" id="workItemID">
         <input type="hidden" name="JSESSIONID" id="JSESSIONID">              
         <input type="hidden" name="userID" id="userID">
@@ -628,7 +628,7 @@ if(request.getParameter("Submission") != null){
 	int crew_count = Integer.parseInt(request.getParameter("crew_count"));
 	int meal_count = Integer.parseInt(request.getParameter("meal_count"));
 	
-	ArtistTimeSheetType atsA = new ArtistTimeSheetType();
+	ArtistTimeSheetType atA = new ArtistTimeSheetType();
 	for(int ck1=1; ck1<=artist_count; ck1++){//getting the artist information
 		SingleArtistType saA = new SingleArtistType();
 		saA.setArtist(request.getParameter("artist_"+ ck1));
@@ -639,10 +639,10 @@ if(request.getParameter("Submission") != null){
 		saA.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("artist_meal_"+ ck1)));
 		saA.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("artist_wrap_"+ ck1)));
 		saA.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("artist_travel_"+ ck1)));
-		atsA.getSingleArtist().add(saA);
+		atA.getSingleArtist().add(saA);
 	}
 		
-    ArtistTimeSheetType atsE = new ArtistTimeSheetType();
+    ArtistTimeSheetType atE = new ArtistTimeSheetType();
     for(int ck1=1; ck1<=extras_count; ck1++){//getting the bgartist information
         SingleArtistType saE = new SingleArtistType();
         saE.setArtist(request.getParameter("backgroundartist_"+ ck1));
@@ -653,7 +653,7 @@ if(request.getParameter("Submission") != null){
         saE.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("backgroundartist_meal_"+ ck1)));
         saE.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("backgroundartist_wrap_"+ ck1)));
         saE.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("backgroundartist_travel_"+ ck1)));
-        atsE.getSingleArtist().add(saE);
+        atE.getSingleArtist().add(saE);
     }
 
     ChildrenTimeSheetType chts = new ChildrenTimeSheetType();
@@ -708,8 +708,8 @@ if(request.getParameter("Submission") != null){
 	}
 	
 	TimeSheetInfoType tsit = new TimeSheetInfoType();
-	tsit.setArtistTimeSheet(atsA);
-	tsit.setExtrasTimeSheet(atsE);
+	tsit.setArtistTimeSheet(atA);
+	tsit.setExtrasTimeSheet(atE);
 	tsit.setChildrenTimeSheet(chts);
 	tsit.setCrewTimeSheet(cwts);
 	tsit.setMealInfo(mit);
@@ -772,7 +772,7 @@ else if(request.getParameter("Save") != null){
 	int crew_count = Integer.parseInt(request.getParameter("crew_count"));
 	int meal_count = Integer.parseInt(request.getParameter("meal_count"));
 	
-	ArtistTimeSheetType atsA = new ArtistTimeSheetType();
+	ArtistTimeSheetType atA = new ArtistTimeSheetType();
 	for(int ck1=1; ck1<=artist_count; ck1++){//getting the artist information
 		SingleArtistType saA = new SingleArtistType();
 		saA.setArtist(request.getParameter("artist_"+ ck1));
@@ -783,10 +783,10 @@ else if(request.getParameter("Save") != null){
 		saA.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("artist_meal_"+ ck1)));
 		saA.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("artist_wrap_"+ ck1)));
 		saA.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("artist_travel_"+ ck1)));
-		atsA.getSingleArtist().add(saA);
+		atA.getSingleArtist().add(saA);
 	}
 	
-    ArtistTimeSheetType atsE = new ArtistTimeSheetType();
+    ArtistTimeSheetType atE = new ArtistTimeSheetType();
     for(int ck1=1; ck1<=extras_count; ck1++){//getting the bgartist information
         SingleArtistType saE = new SingleArtistType();
         saE.setArtist(request.getParameter("backgroundartist_"+ ck1));
@@ -797,7 +797,7 @@ else if(request.getParameter("Save") != null){
         saE.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("backgroundartist_meal_"+ ck1)));
         saE.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("backgroundartist_wrap_"+ ck1)));
         saE.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("backgroundartist_travel_"+ ck1)));
-        atsE.getSingleArtist().add(saE);
+        atE.getSingleArtist().add(saE);
     }
 	
     ChildrenTimeSheetType chts = new ChildrenTimeSheetType();
@@ -852,8 +852,8 @@ else if(request.getParameter("Save") != null){
 	}
 	
 	TimeSheetInfoType tsit = new TimeSheetInfoType();
-	tsit.setArtistTimeSheet(atsA);
-	tsit.setExtrasTimeSheet(atsE);
+	tsit.setArtistTimeSheet(atA);
+	tsit.setExtrasTimeSheet(atE);
 	tsit.setChildrenTimeSheet(chts);
 	tsit.setCrewTimeSheet(cwts);
 	tsit.setMealInfo(mit);
