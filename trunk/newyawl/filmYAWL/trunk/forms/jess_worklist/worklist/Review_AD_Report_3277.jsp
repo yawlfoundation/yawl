@@ -12,6 +12,7 @@
 <%@ page import="javazoom.upload.*"%>
 <%@ page import="java.util.*"%>
 <%@ page import="java.io.*"%>
+<%@ page import="au.edu.qut.yawl.forms.InterfaceD_XForm"%>
 <%@ page buffer="1024kb" %>
 
 
@@ -33,6 +34,7 @@
 
 <% 
 	String xml = null;
+	String inputData = null;
 	
 	if (MultipartFormDataRequest.isMultipartFormData(request)) 
 	{
@@ -74,8 +76,8 @@
 		}
 	}
 	else{
-		//xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Review_AD_Report xmlns:ns2='http://www.yawlfoundation.org/sb/reviewTimeSheetInfo' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/reviewTimeSheetInfo reviewTimeSheetInfoType.xsd '><generalInfo><production>production</production><date>2001-01-01</date><weekday>weekday</weekday><shootDayNo>0</shootDayNo></generalInfo><producer>producer</producer><director>director</director><assistantDirector>assistantDirector</assistantDirector><timeSheetInfo><artistTimeSheet><singleArtist><artist>artist</artist><P_U>P_U</P_U><MU_WD_Call_scheduled>12:00:00</MU_WD_Call_scheduled><MU_WD_Call_actualArrival>12:00:00</MU_WD_Call_actualArrival><mealBreak>12:00:00</mealBreak><timeWrap>12:00:00</timeWrap><travel>12:00:00</travel><signature_url>signature_url</signature_url></singleArtist></artistTimeSheet><extrasTimeSheet><singleArtist><artist>artist</artist><P_U>P_U</P_U><MU_WD_Call_scheduled>12:00:00</MU_WD_Call_scheduled><MU_WD_Call_actualArrival>12:00:00</MU_WD_Call_actualArrival><mealBreak>12:00:00</mealBreak><timeWrap>12:00:00</timeWrap><travel>12:00:00</travel><signature_url>signature_url</signature_url></singleArtist></extrasTimeSheet><childrenTimeSheet><singleChildren><children>children</children><P_U>P_U</P_U><MU_WD_Call_scheduled>12:00:00</MU_WD_Call_scheduled><MU_WD_Call_actualArrival>12:00:00</MU_WD_Call_actualArrival><mealBreak>12:00:00</mealBreak><timeWrap>12:00:00</timeWrap><travel>12:00:00</travel><remarks>remarks</remarks></singleChildren></childrenTimeSheet><crewTimeSheet><singleCrew><crew>crew</crew><crewCall>12:00:00</crewCall><travelIn>12:00:00</travelIn><locationCall>12:00:00</locationCall><mealBreak>12:00:00</mealBreak><wrap>12:00:00</wrap><wrapLoc>12:00:00</wrapLoc><departLoc>12:00:00</departLoc><travelOut>12:00:00</travelOut><remarks>remarks</remarks></singleCrew></crewTimeSheet><mealInfo><singleMeal><meal>meal</meal><mealTimes><from>12:00:00</from><to>12:00:00</to></mealTimes><duration>12:00:00</duration><numbers>0</numbers><location>location</location><remarks>remarks</remarks></singleMeal></mealInfo><livestock>livestock</livestock><accidents_delays>accidents_delays</accidents_delays><majorProps_actionVehicles_extraEquipment>majorProps_actionVehicles_extraEquipment</majorProps_actionVehicles_extraEquipment><additionalPersonnel>additionalPersonnel</additionalPersonnel><generalComments>generalComments</generalComments></timeSheetInfo></ns2:Review_AD_Report>";
 		xml = (String)session.getAttribute("outputData");
+		inputData = xml;
 		xml = xml.replaceAll("<Review_AD_Report", "<ns2:Review_AD_Report xmlns:ns2='http://www.yawlfoundation.org/sb/reviewTimeSheetInfo'");
 		xml = xml.replaceAll("</Review_AD_Report","</ns2:Review_AD_Report");
 		//System.out.println("outputData xml: "+xml+" --- ");
@@ -89,6 +91,23 @@
 				
 	GeneralInfoType gi = radr.getGeneralInfo();
 	TimeSheetInfoType tsi = radr.getTimeSheetInfo();
+	
+	// begin partial submission code
+	Map<Object, Object> parameters = Collections.synchronizedMap(new TreeMap<Object, Object>());
+    InterfaceD_XForm idx = new InterfaceD_XForm(getServletContext().getInitParameter("HTMLForms") + "/yawlFormServlet;jsessionid="+request.getParameter("JSESSIONID"));
+	
+    session.setAttribute("inputData", inputData);
+	
+	parameters.put("JSESSIONID", request.getParameter("JSESSIONID"));
+    parameters.put("workItemID", request.getParameter("workItemID"));
+    parameters.put("userID", request.getParameter("userID"));
+    parameters.put("sessionHandle", request.getParameter("sessionHandle"));
+    parameters.put("submit", request.getParameter("submit"));
+	
+    // send (post) data thru interfaceD
+    idx.sendHTMLWorkItemData(parameters);
+    //return;
+%>
 %>
 
 <table width="700" height="100%"  border="0" align="center" cellpadding="0" cellspacing="0">
@@ -468,7 +487,7 @@
 				<input type="hidden" name="workItemID" id="workItemID">
 				<input type="hidden" name="userID" id="userID">
 				<input type="hidden" name="sessionHandle" id="sessionHandle">
-				<input type="hidden" name="specID" id="specID">
+				<input type="hidden" name="JSESSIONID" id="JSESSIONID">
 				<input type="hidden" name="submit" id="submit">
 				<input type="button" value="Print" onclick="window.print()">
 				<input type="submit" name="Save" value="Save">

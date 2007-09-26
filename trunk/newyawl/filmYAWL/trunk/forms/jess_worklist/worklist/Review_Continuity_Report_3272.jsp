@@ -33,6 +33,7 @@
 <body onLoad="getParameters()">
 <% 
 	String xml = null;
+	String inputData = null;
 	
 	if (MultipartFormDataRequest.isMultipartFormData(request)) 
 	{
@@ -77,6 +78,7 @@
 	}
 	else{
 		xml = (String)session.getAttribute("outputData");
+		inputData = xml;
 		xml = xml.replaceAll("<Review_Continuity_Report", "<ns2:Review_Continuity_Report xmlns:ns2='http://www.yawlfoundation.org/sb/reviewContinuityInfo'");
 		xml = xml.replaceAll("</Review_Continuity_Report","</ns2:Review_Continuity_Report");
 		//System.out.println("outputData xml: "+xml+" --- ");
@@ -88,6 +90,21 @@
 	JAXBElement rcrElement = (JAXBElement) u.unmarshal(xmlBA);	//creates the root element from XML file	            
 	ReviewContinuityReportType rcr = (ReviewContinuityReportType) rcrElement.getValue();
 	GeneralInfoType gi = rcr.getGeneralInfo();
+	
+	Map<Object, Object> parameters = Collections.synchronizedMap(new TreeMap<Object, Object>());
+    InterfaceD_XForm idx = new InterfaceD_XForm(getServletContext().getInitParameter("HTMLForms") + "/yawlFormServlet;jsessionid="+request.getParameter("JSESSIONID"));
+	
+    session.setAttribute("inputData", inputData);
+	
+	parameters.put("JSESSIONID", request.getParameter("JSESSIONID"));
+    parameters.put("workItemID", request.getParameter("workItemID"));
+    parameters.put("userID", request.getParameter("userID"));
+    parameters.put("sessionHandle", request.getParameter("sessionHandle"));
+    parameters.put("submit", request.getParameter("submit"));
+	
+    // send (post) data thru interfaceD
+    idx.sendHTMLWorkItemData(parameters);
+    //return;
 %>
 				
 <table width="700" border="0" align="center" cellpadding="0" cellspacing="0">
@@ -197,28 +214,6 @@
 			  <td align="center">&nbsp;</td>
 		  </tr>
 	  </table>
-	  <%
-		/*
-		Map parameters = Collections.synchronizedMap(new TreeMap());
-		// reuse existing InterfaceD. Ignore the XForms reference, in theory it can connect anything.
-		InterfaceD_XForm idx = new InterfaceD_XForm("http://localhost:8080/worklist/yawlFormServlet");
-        
-		session.setAttribute("inputData", xml);
-        
-        parameters.put("workItemID", request.getParameter("workItemID"));
-        parameters.put("sessionHandle", request.getParameter("sessionHandle"));
-        parameters.put("userID", request.getParameter("userID"));
-        parameters.put("submit", request.getParameter("submit"));
-        parameters.put("JSESSIONID", request.getParameter("JSESSIONID"));
-		
-        //String workItemID = new String(request.getParameter("workItemID"));
-		//String sessionHandle = new String(request.getParameter("sessionHandle"));
-		//String userID = new String(request.getParameter("userID"));
-		//String submit = new String(request.getParameter("submit"));
-        // send (post) data to yawlXForms thru interfaceD
-        idx.sendWorkItemData(parameters);
-		*/
-	  %>
 	  <p align="center">
 			<input type="button" value="Print" onclick="window.print()">
 			<input type="submit" name="Save" value="Save">
