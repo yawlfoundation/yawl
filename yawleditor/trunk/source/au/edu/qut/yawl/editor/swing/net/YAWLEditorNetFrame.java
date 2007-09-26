@@ -100,6 +100,9 @@ public class YAWLEditorNetFrame extends JInternalFrame {
   public void setNet(final NetGraph net) {
     setNet(net, null);
   }
+
+  // Specify a title only if the net does not yet have it's own specified,
+  // leave null otherwise.
   
   public void setNet(final NetGraph net, final String title) {
     this.net = net;
@@ -111,8 +114,10 @@ public class YAWLEditorNetFrame extends JInternalFrame {
     final JComponent contents = (JComponent) getContentPane();
     contents.setPreferredSize(net.getSize());
     setSize(getPreferredSize());
-    setTitle(title);
-    net.setName(title);
+    if (title != null) {
+      setTitle(title);
+      net.setName(title);
+    }
     model.addNet(getNet().getNetModel());
   }
   
