@@ -12,6 +12,7 @@
 <%@ page import="javazoom.upload.*"%>
 <%@ page import="java.util.*"%>
 <%@ page import="java.io.*"%>
+<%@ page import="au.edu.qut.yawl.forms.InterfaceD_XForm"%>
 <%@ page buffer="1024kb" %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -19,32 +20,14 @@
 <head>
 <title>Continuity Report</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<script language="javascript">
-function getParam(name){
-  var start=location.search.indexOf("?"+name+"=");
-  if (start<0) start=location.search.indexOf("&"+name+"=");
-  if (start<0) return '';
-  start += name.length+2;
-  var end=location.search.indexOf("&",start)-1;
-  if (end<0) end=location.search.length;
-  var result='';
-  for(var i=start;i<=end;i++) {
-    var c=location.search.charAt(i);
-    result=result+(c=='+'?' ':c);
-  }
-  //window.alert('Result = '+result);
-  return unescape(result);
-}
+	
+<!-- style sheet imports -->
+<link href="graphics/style.css" rel="stylesheet" type="text/css" />
+<link href="styles/common.css" rel="stylesheet" type="text/css" />
 
-function getParameters(){
-	document.form1.workItemID.value = getParam('workItemID');
-	document.form1.userID.value = getParam('userID');
-	document.form1.sessionHandle.value = getParam('sessionHandle');
-	document.form1.JSESSIONID.value = getParam('JSESSIONID');
-	document.form1.submit.value = "htmlForm";
-}
-</script>
-<link href="graphics/style.css" rel="stylesheet" type="text/css">
+<!-- javascript imports -->
+<script type="text/javascript" src="scripts/common.js" ></script>
+
 </head>
 
 <body onLoad="getParameters()">
@@ -214,35 +197,34 @@ function getParameters(){
 			  <td align="center">&nbsp;</td>
 		  </tr>
 	  </table>
+	  <%
+		/*
+		Map parameters = Collections.synchronizedMap(new TreeMap());
+		// reuse existing InterfaceD. Ignore the XForms reference, in theory it can connect anything.
+		InterfaceD_XForm idx = new InterfaceD_XForm("http://localhost:8080/worklist/yawlFormServlet");
+        
+		session.setAttribute("inputData", xml);
+        
+        parameters.put("workItemID", request.getParameter("workItemID"));
+        parameters.put("sessionHandle", request.getParameter("sessionHandle"));
+        parameters.put("userID", request.getParameter("userID"));
+        parameters.put("submit", request.getParameter("submit"));
+        parameters.put("JSESSIONID", request.getParameter("JSESSIONID"));
+		
+        //String workItemID = new String(request.getParameter("workItemID"));
+		//String sessionHandle = new String(request.getParameter("sessionHandle"));
+		//String userID = new String(request.getParameter("userID"));
+		//String submit = new String(request.getParameter("submit"));
+        // send (post) data to yawlXForms thru interfaceD
+        idx.sendWorkItemData(parameters);
+		*/
+	  %>
 	  <p align="center">
-	  <input type="button" value="Print"  onclick="window.print()">
-	  <input type="submit" name="Save" value="Save">
+			<input type="button" value="Print" onclick="window.print()">
+			<input type="submit" name="Save" value="Save">
+			<input type="button" name="Worklist" value="Worklist" onclick="newDoc()">
 	  </p>
-		</form>
-	
-	<!-- LOAD -->
-    <form method="post" action="Review_Continuity_Report_3272.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
-      <table width="60%" border="0" cellspacing="1" cellpadding="1" align="center" class="style1">
-        <tr>
-          <td align="left"><strong>Select a file to upload :</strong></td>
-        </tr>
-        <tr>
-          <td align="left">
-            <input type="file" name="uploadfile" size="50">
-            </td>
-        </tr>
-        <tr>
-          <td align="left">
-    		<input type="hidden" name="todo" value="upload">
-            <input type="submit" name="Submit" value="Upload">
-            <input type="reset" name="Reset" value="Cancel">
-            </td>
-        </tr>
-      </table>
-      <br>
-      <br>
-    </form>
-<!-- END LOAD -->
+	</form>
 
 	</td>
     <td width="14" class="background_right"></td>

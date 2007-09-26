@@ -26,6 +26,7 @@
 
 <!-- javascript imports -->
 <script type="text/javascript" src="scripts/common.js"></script>
+
 </head>
 
 <body onLoad="getParameters()">
@@ -459,18 +460,19 @@
 		      <td align="center">&nbsp;</td>
 	      </tr>
 	      <tr><td align="center">	
-		<input type="hidden" name="artist_count" id="artist_count" value="<%if (a==0) {out.print("1");}else{out.print(a);}%>">
-		<input type="hidden" name="extras_count" id="extras_count" value="<%if (b==0) {out.print("0");}else{out.print(b);}%>">
-		<input type="hidden" name="child_count" id="child_count" value="<%if (c==0) {out.print("0");}else{out.print(c);}%>">
-		<input type="hidden" name="crew_count" id="crew_count" value="<%if (d==0) {out.print("1");}else{out.print(d);}%>">
-		<input type="hidden" name="meal_count" id="meal_count" value="<%if (e==0) {out.print("1");}else{out.print(e);}%>">
-		<input type="hidden" name="workItemID" id="workItemID">
-		<input type="hidden" name="userID" id="userID">
-		<input type="hidden" name="sessionHandle" id="sessionHandle">
-		<input type="hidden" name="specID" id="specID">
-		<input type="hidden" name="submit" id="submit">
-		<input type="button" value="Print"  onclick="window.print()">
-		<input type="submit" name="Save" value="Save">
+				<input type="hidden" name="artist_count" id="artist_count" value="<%if (a==0) {out.print("1");}else{out.print(a);}%>">
+				<input type="hidden" name="extras_count" id="extras_count" value="<%if (b==0) {out.print("0");}else{out.print(b);}%>">
+				<input type="hidden" name="child_count" id="child_count" value="<%if (c==0) {out.print("0");}else{out.print(c);}%>">
+				<input type="hidden" name="crew_count" id="crew_count" value="<%if (d==0) {out.print("1");}else{out.print(d);}%>">
+				<input type="hidden" name="meal_count" id="meal_count" value="<%if (e==0) {out.print("1");}else{out.print(e);}%>">
+				<input type="hidden" name="workItemID" id="workItemID">
+				<input type="hidden" name="userID" id="userID">
+				<input type="hidden" name="sessionHandle" id="sessionHandle">
+				<input type="hidden" name="specID" id="specID">
+				<input type="hidden" name="submit" id="submit">
+				<input type="button" value="Print" onclick="window.print()">
+				<input type="submit" name="Save" value="Save">
+				<input type="button" name="Worklist" value="Worklist" onclick="newDoc()">
         </td>
 		</tr>	
 	</table>
@@ -479,29 +481,7 @@
 	<td width="14" class="background_right">&nbsp;</td>
   </tr>
   <tr><td height="14" colspan="3" class="background_bottom">
-  <!-- LOAD -->
-    <form method="post" action="Review_AD_Report_3277.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
-      <table width="60%" border="0" cellspacing="1" cellpadding="1" align="center" class="style1">
-        <tr>
-          <td align="left"><strong>Select a file to upload :</strong></td>
-        </tr>
-        <tr>
-          <td align="left">
-            <input type="file" name="uploadfile" size="50">
-            </td>
-        </tr>
-        <tr>
-          <td align="left">
-    		<input type="hidden" name="todo" value="upload">
-            <input type="submit" name="Submit" value="Upload">
-            <input type="reset" name="Reset" value="Cancel">
-            </td>
-        </tr>
-      </table>
-      <br>
-      <br>
-    </form>
-<!-- END LOAD --></td></tr>
+</td></tr>
 </table>
 	
 <%
