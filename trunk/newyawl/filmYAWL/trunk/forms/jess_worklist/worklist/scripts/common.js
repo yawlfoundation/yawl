@@ -209,6 +209,7 @@ function createTextArea(id, size, value, tooltip) {
 //    input.setAttribute("pattern", textAreaValidation);
     return input;
 }
+
 function createAnyTextTextArea(id, size, value, tooltip) {
 	var input =  document.createElement("TEXTAREA");
 	input.setAttribute("cols", size);
@@ -273,6 +274,7 @@ function deleteRows(tableName, countName, headerSize, footerSize, addFn, paramFo
             }
         }
 }
+
 /**
  * Call this function if you need to delete more than a single row.
  * @param tableName The name of the table to delete the row from.
@@ -330,4 +332,8 @@ function createRadioButton(id, value) {
     input.setAttribute("id", id);
     input.setAttribute("value", value);
     return input;
+}
+
+function newDoc() {
+  window.location.assign("http://localhost:8080/worklist/_AvailableWork.jsp")
 }
