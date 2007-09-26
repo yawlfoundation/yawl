@@ -1,7 +1,7 @@
 <%	    	    
 	System.out.println("Distribute Call Sheet outputData: "+ (String)session.getAttribute("outputData"));
 	
-	String inputData = (String)session.getAttribute("outputData");
+	String inputData = (String) session.getAttribute("outputData");
 	
    	session.setAttribute("inputData", inputData);
    	

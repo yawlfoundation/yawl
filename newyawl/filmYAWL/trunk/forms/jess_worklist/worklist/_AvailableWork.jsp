@@ -55,13 +55,12 @@
                 SpecificationData specData = _worklistController.getSpecificationData(taskInfo.getSpecificationID(), sessionHandle);
 
 				InstanceBuilder ib = new InstanceBuilder(schema, taskInfo.getDecompositionID(), checkedOutItem.getDataListString());
-				System.out.println("AW ib.getInstance(): "+ib.getInstance());
-				//ib.getInstance();
+
 				
 	        	String form = wip.getHTMLFormName(taskInfo);
 	        	session.setAttribute("outputData", checkedOutItem.getDataListString());
-	        	//response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+checkedOutItem.getID()+"&sessionHandle="+sessionHandle+"&outputData="+checkedOutItem.getDataListString()));
-	        	response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+checkedOutItem.getID()+"&sessionHandle="+sessionHandle+"&submit=htmlForm"));
+				
+	        	response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+checkedOutItem.getID()+"&sessionHandle="+sessionHandle+"&JSESSIONID="+session.getId()+"&submit=htmlForm"));
 	        	return;
 	        }
 	        else {
@@ -140,16 +139,17 @@
                               <td height="30" align="center">&nbsp;&nbsp;</td>
                               <td/>
                               <td align="center"><%= item.getID() %></td>
-                     <% } else { %>
-
-                          <tr>
-                             <td height="30" align="center"><input type="radio" name="workItemID"
-                                 value="<%= item.getID() %>"/></td>
+                    <% 
+						} else { 
+					%>
+                             <td height="30" align="center">&nbsp;&nbsp;</td>
                              <td/>
                              <td align="center">
                                 <a href="<%= contextPath %>/availableWork?workItemID=<%= item.getID() %>&FormType=HTMLform"><%= id %></a>
                              </td>
-                      <% } %>
+                    <% 
+						} 
+					%>
                         <td/>
                         <td align="center"><%= taskInfo.getTaskID() %></td>
                         <td/>
@@ -165,8 +165,6 @@
         </table>
         <table border="0" cellspacing="20">
             <tr>
-                <td><input value=" Check Out " type="submit"
-                    onClick="return isCompletedForm('availableForm', 'workItemID')"/></td>
                 <td><input name=" Clear " type="reset"/></td>
                 <%
                 if (_ixURI != null) {
