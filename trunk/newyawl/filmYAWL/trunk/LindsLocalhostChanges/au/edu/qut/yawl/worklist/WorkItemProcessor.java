@@ -279,7 +279,7 @@ public class WorkItemProcessor {
      * @throws YSchemaBuildingException
      * @throws YSyntaxException
      */
-    private String createSchema(String _workItemID, String _sessionHandle,
+    public String createSchema(String _workItemID, String _sessionHandle,
                                     WorklistController worklistController)
             throws IOException, JDOMException, YSchemaBuildingException, YSyntaxException {
     	
