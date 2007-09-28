@@ -55,5 +55,5 @@ function addCrewRow(){
     firstnameCELL.appendChild(createAnyTextTextBox("firstname_" + count, 10, "", "Enter First Name. [String Value]"));
     lastnameCELL.appendChild(createAnyTextTextBox("lastname_" + count, 15, "", "Enter Last Name. [String Value]"));
     contactnoCELL.appendChild(createAnyTextTextBox("contactno_" + count, 8, "", "Enter Contact Number. [String Value]"));
-    emailCELL.appendChild(createAnyTextTextBox("email_" + count, 20, "", "Enter Email Address. [String Value]"));
+    emailCELL.appendChild(createEmailTextBox("email_" + count, 20, "", "Enter Email Address. [String Value]"));
 }

@@ -65,21 +65,10 @@ function addRow(){
     counterreadingCELL.appendChild(createNumberTextBox("counter_reading_" + count, 6, current_counter_reading, "Enter Counter Reading."));
     takelengthCELL.appendChild(createNumberTextBox("take_length_" + count, 6, "", "Enter Take Length."));
     printCELL.appendChild(printINPUT);
-    bwCELL.appendChild(createRadioButton("print_setting_" + count, "B/W"));
-    colourCELL.appendChild(createRadioButton("print_setting_" + count, "Colour"));
+    bwCELL.appendChild(createRadioButton("print_setting_" + count, "B/W", true));
+    colourCELL.appendChild(createRadioButton("print_setting_" + count, "Colour", false));
     notesCELL.appendChild(createTextArea("notes_" + count, 30, "", "Enter Notes."));
 
-}
-
-
-//function for radio button details
-function createRadioButton(id, value) {
-var input =  document.createElement("INPUT");
-input.setAttribute("type", "radio");
-input.setAttribute("name", id);
-input.setAttribute("id", id);
-input.setAttribute("value", value);
-return input;
 }
 
 function calculate(){
