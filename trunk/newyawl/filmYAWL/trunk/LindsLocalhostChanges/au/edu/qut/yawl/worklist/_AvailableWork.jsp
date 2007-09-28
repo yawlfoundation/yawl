@@ -1,7 +1,8 @@
 <%@ page import="java.util.Iterator,
                  java.util.List,
 				 au.edu.qut.yawl.worklist.model.*,
-				 au.edu.qut.yawl.worklist.WorkItemProcessor"%><%    
+				 au.edu.qut.yawl.worklist.WorkItemProcessor,
+				 au.edu.qut.yawl.forms.InstanceBuilder"%><%    
 	String workItemID = (String) request.getAttribute("workItemID");
     String submitType = (String) request.getAttribute("submit");
 
@@ -49,10 +50,17 @@
 	        //}
 	        else if (request.getParameter("FormType").compareTo("HTMLform") == 0) {
 	        	
+				String schema = wip.createSchema(workItemID, sessionHandle, _worklistController);
+
+                SpecificationData specData = _worklistController.getSpecificationData(taskInfo.getSpecificationID(), sessionHandle);
+
+				InstanceBuilder ib = new InstanceBuilder(schema, taskInfo.getDecompositionID(), checkedOutItem.getDataListString());
+
+				
 	        	String form = wip.getHTMLFormName(taskInfo);
 	        	session.setAttribute("outputData", checkedOutItem.getDataListString());
-	        	//response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+checkedOutItem.getID()+"&sessionHandle="+sessionHandle+"&outputData="+checkedOutItem.getDataListString()));
-	        	response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+checkedOutItem.getID()+"&sessionHandle="+sessionHandle));
+				
+	        	response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+checkedOutItem.getID()+"&sessionHandle="+sessionHandle+"&JSESSIONID="+session.getId()+"&submit=htmlForm"));
 	        	return;
 	        }
 	        else {
@@ -131,21 +139,17 @@
                               <td height="30" align="center">&nbsp;&nbsp;</td>
                               <td/>
                               <td align="center"><%= item.getID() %></td>
-                     <% } else { %>
-
-                          <tr>
-                             <td height="30" align="center"><input type="radio" name="workItemID"
-                                 value="<%= item.getID() %>"/></td>
+                    <% 
+						} else { 
+					%>
+                             <td height="30" align="center">&nbsp;&nbsp;</td>
                              <td/>
                              <td align="center">
-                             <% if (getServletContext().getInitParameter("debug").compareTo("true") == 0){ %>
-                                XForm: <a href="<%= contextPath %>/availableWork?workItemID=<%= item.getID() %>&FormType=Xform"><%= id %></a>
-                                <br/><br/>
-                                <% } %>
                                 <a href="<%= contextPath %>/availableWork?workItemID=<%= item.getID() %>&FormType=HTMLform"><%= id %></a>
-                                <% if (getServletContext().getInitParameter("debug").compareTo("true") == 0){ %> <br/><br/> <% } %>
                              </td>
-                      <% } %>
+                    <% 
+						} 
+					%>
                         <td/>
                         <td align="center"><%= taskInfo.getTaskID() %></td>
                         <td/>
@@ -161,8 +165,6 @@
         </table>
         <table border="0" cellspacing="20">
             <tr>
-                <td><input value=" Check Out " type="submit"
-                    onClick="return isCompletedForm('availableForm', 'workItemID')"/></td>
                 <td><input name=" Clear " type="reset"/></td>
                 <%
                 if (_ixURI != null) {

@@ -54,17 +54,11 @@
                 String id = taskInfo.getTaskName();
             %>
                 <tr>
-                    <td height="30" align="center"><input type="radio" name="workItemID"
-                        value="<%= id %>"/></td>
+                    <td height="30" align="center">&nbsp;&nbsp;</td>
                     <td/>
                     
                     <td align="center">
-                    <% if (getServletContext().getInitParameter("debug").compareTo("true") == 0){ %>
-                    	XForm: <a href="<%= contextPath %>/workItemProcessor?submit=Edit Work Item&workItemID=<%= item.getID() %>&FormType=Xform"><%= id %></a>
-                    	<br/><br/>
-                    	<% } %>
                     	<a href="<%= contextPath %>/workItemProcessor?submit=Edit Work Item&workItemID=<%= item.getID() %>&FormType=HTMLform"><%= id %></a>
-                    	<% if (getServletContext().getInitParameter("debug").compareTo("true") == 0){ %> <br/><br/> <% } %>
                     </td>
                     <td/>
                     
@@ -82,8 +76,6 @@
         </table>
         <br/>
         <p>
-        <input type="submit" name="submit" value="Edit Work Item"
-            onClick="return isCompletedForm('checkedOutForm', 'workItemID')"/>
         <input type="submit" name="submit" value="Add New Instance"
             onClick="return isCompletedForm('checkedOutForm', 'workItemID')"/>
         <input type="submit" name="submit" value="Suspend Task"

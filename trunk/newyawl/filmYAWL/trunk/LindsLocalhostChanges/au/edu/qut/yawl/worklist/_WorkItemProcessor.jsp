@@ -23,9 +23,6 @@
             //String outputData = (String) request.getAttribute("outputData");
             //String inputData = (String) request.getAttribute("inputData");
             
-            //System.out.println("WIP inputData: "+inputData);
-            //System.out.println("WIP outputData: "+outputData);
-            
             Element outputData = (Element) request.getAttribute("outputData");
             Element inputData = (Element) request.getAttribute("inputData");
             sessionHandle = (String) session.getAttribute("sessionHandle");
@@ -107,15 +104,12 @@
                     }
                 } 
                 else if (submitType.equals("Edit Work Item")){
-                	System.out.println("WIP EWI 1");
 					try{
 						String userID = (String) session.getAttribute("userid");
 						WorkItemProcessor wip = new WorkItemProcessor();
 						WorkItemRecord item = _worklistController.getCachedWorkItem(workItemID);
 						TaskInformation taskInfo = _worklistController.getTaskInformation(
 			            	        item.getSpecificationID(), item.getTaskID(), sessionHandle);
-
-						System.out.println("WIP EWI 2");
 						
 						if (request.getParameter("FormType").compareTo("Xform") == 0) {
 				
@@ -127,11 +121,10 @@
 							return;
 						} 
 						else if (request.getParameter("FormType").compareTo("HTMLform") == 0) {
-							System.out.println("WIP HTMLForm");
+
 							String form = wip.getHTMLFormName(taskInfo);
 				        	session.setAttribute("outputData",item.getDataListString());
-							response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+workItemID+"&sessionHandle="+sessionHandle));
-				       		//response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&outputData="+item.getDataListString()));
+							response.sendRedirect(response.encodeURL(getServletContext().getInitParameter("HTMLForms")+"/"+form+"?userID="+userID+"&workItemID="+workItemID+"&sessionHandle="+sessionHandle+"&JSESSIONID="+session.getId()+"&submit=htmlForm"));
 				        	return;
 						}
 						else if (taskInfo.getAttribute("formtype").equalsIgnoreCase("pdf")){
@@ -139,7 +132,7 @@
  						 	String filename = wip.executePDFWorkItemPost( getServletContext(), workItemID, taskInfo.getDecompositionID(),
 						  			sessionHandle, _worklistController, userID );
 	
-							String url = "http://192.94.227.138:8080/PDFforms/complete.jsp?filename="+filename;
+							String url = "http://localhost:8080/PDFforms/complete.jsp?filename="+filename;
   							response.sendRedirect( response.encodeURL(url) );
   							return;
 						}
