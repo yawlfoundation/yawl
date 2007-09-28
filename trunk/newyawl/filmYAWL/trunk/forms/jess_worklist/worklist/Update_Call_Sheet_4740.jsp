@@ -112,19 +112,19 @@
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
 								<td><strong>Fire/Ambulance</strong></td>
-								<td><input name='fire_ambulance' type='text' id='fire_ambulance' value="<%= eit.getFireAmbulance() %>" size="80"></td>
+								<td><input name='fire_ambulance' type='text' id='fire_ambulance' value="<%= eit.getFireAmbulance() %>" size="80" pattern="any_text" title="Enter Fire/Ambulance Details. [String Value]"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
 								<td><strong>Hospital</strong></td>
-								<td><input name='hospital' type='text' id='hospital' value="<%= eit.getHospital() %>" size="80"></td>
+								<td><input name='hospital' type='text' id='hospital' value="<%= eit.getHospital() %>" size="80" pattern="any_text" title="Enter Hospital Details. [String Value]"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
 								<td><strong>Police</strong></td>
-								<td><input name='police' type='text' id='police' value="<%= eit.getPolice() %>" size="80"></td>
+								<td><input name='police' type='text' id='police' value="<%= eit.getPolice() %>" size="80" pattern="any_text" title="Enter Police Details. [String Value]"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan='4' class='bottom'>&nbsp;</td></tr>
@@ -183,7 +183,7 @@
 								<td colspan="3">
 									<table width="510" border="0" cellspacing="0" cellpadding="0">
 										<tr>
-											<td><input name='production_manager' type='text' id='production_manager' size="80" 
+											<td><input name='production_manager' type='text' id='production_manager' size="80"
 												value="<%List<String> pm_list=cst.getProductionManager();int n_pm = pm_list.size();for (String pm : pm_list){out.print(pm);if ((--n_pm)!=0)out.print(" / ");}%> " readonly>											</td>
 										</tr>
 									</table>								
@@ -212,15 +212,15 @@
 							<tr>
 								<td class="left">&nbsp;</td>
 								<td align="center" valign="top"><strong>Sunrise</strong></td>
-								<td valign="top"><input name="sunrise" type="text" id="sunrise" value="<%= cst.getSunrise() %>"></td>
+								<td valign="top"><input name="sunrise" type="text" id="sunrise" value="<%= cst.getSunrise() %>" pattern="any_text" title="Enter Sunrise Time. [String Value]"></td>
 								<td align="center" valign="top"><strong>Sunset </strong></td>
-								<td valign="top"><input name="sunset" type="text" id="sunset" value="<%= cst.getSunset() %>"></td>
+								<td valign="top"><input name="sunset" type="text" id="sunset" value="<%= cst.getSunset() %>" pattern="any_text" title="Enter Sunset Time. [String Value]"></td>
 								<td class="right">&nbsp;</td>
 							</tr>
 							<tr>
 								<td class="left">&nbsp;</td>
 								<td align="center" valign="top"><strong>Forecast</strong></td>
-								<td colspan="3" valign="top"><input name="forecast" type="text" id="forecast" value="<%= cst.getWeather() %>" size="85"></td>
+								<td colspan="3" valign="top"><input name="forecast" type="text" id="forecast" value="<%= cst.getWeather() %>" size="85" pattern="any_text" title="Enter Forecast Information. [String Value]"></td>
 								<td class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="6" class="bottom">&nbsp;</td></tr>
@@ -249,40 +249,40 @@
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Crew  </strong></td>
-								<td height="30" align="center" valign="top"><input name="crew_call_time" type="text" id="crew_call_time" value="<%= ct1.getCallTime() %>" size="25" pattern="date"></td>
-								<td align="center" valign="top"><input name="crew_call_location" type="text" id="crew_call_location" value="<% if(ct1.getCallLoc() != null) { out.print(ct1.getCallLoc());} %>" size="25" pattern="any_text"></td>
+								<td height="30" align="center" valign="top"><input name="crew_call_time" type="text" id="crew_call_time" value="<%= ct1.getCallTime() %>" size="25" pattern="time" title="Enter Crew Call Time. [Time Value HH:MM:SS]"></td>
+								<td align="center" valign="top"><input name="crew_call_location" type="text" id="crew_call_location" value="<% if(ct1.getCallLoc() != null) { out.print(ct1.getCallLoc());} %>" size="25" title="Enter Crew Call Location - If Necessary. [String Value]"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 							<% CallType ct2 = ctt.getLocationCall();%>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Location  </strong></td>
-								<td height="30" align="center" valign="top"><input name="location_call_time" type="text" id="location_call_time" value="<%= ct2.getCallTime() %>" size="25" pattern="date"></td>
-								<td align="center" valign="top"><input name="location_call_location" type="text" id="location_call_location" value="<% if(ct2.getCallLoc() != null) { out.print(ct2.getCallLoc());} %>" size="25" pattern="any_text"></td>
+								<td height="30" align="center" valign="top"><input name="location_call_time" type="text" id="location_call_time" value="<%= ct2.getCallTime() %>" size="25" pattern="time" title="Enter Location Call Time. [Time Value HH:MM:SS]"></td>
+								<td align="center" valign="top"><input name="location_call_location" type="text" id="location_call_location" value="<% if(ct2.getCallLoc() != null) { out.print(ct2.getCallLoc());} %>" size="25" title="Enter Call Location - If Necessary. [String Value]"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 							<% CallType ct3 = ctt.getMakeupHair();%>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Makeup/Hair  </strong></td>
-								<td height="30" align="center" valign="top"><input name="makeup_call_time" type="text" id="makeup_call_time" value="<%= ct3.getCallTime() %>" size="25" pattern="date"></td>
-								<td align="center" valign="top"><input name="makeup_call_location" type="text" id="makeup_call_location" value="<% if(ct3.getCallLoc() != null) { out.print(ct3.getCallLoc());} %>" size="25" pattern="any_text"></td>
+								<td height="30" align="center" valign="top"><input name="makeup_call_time" type="text" id="makeup_call_time" value="<%= ct3.getCallTime() %>" size="25" pattern="time" title="Enter Makeup/Hair Call Time. [Time Value HH:MM:SS]"></td>
+								<td align="center" valign="top"><input name="makeup_call_location" type="text" id="makeup_call_location" value="<% if(ct3.getCallLoc() != null) { out.print(ct3.getCallLoc());} %>" size="25" title="Enter Makeup/Hair Call Location - If Necessary. [String Value]"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 							<% CallType ct4 = ctt.getWardrobe();%>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Wardrobe  </strong></td>
-								<td height="30" align="center" valign="top"><input name="wardrobe_call_time" type="text" id="wardrobe_call_time" value="<%= ct4.getCallTime() %>" size="25" pattern="date"></td>
-								<td align="center" valign="top"><input name="wardrobe_call_location" type="text" id="wardrobe_call_location" value="<% if(ct4.getCallLoc() != null) { out.print(ct4.getCallLoc());} %>" size="25" pattern="any_text"></td>
+								<td height="30" align="center" valign="top"><input name="wardrobe_call_time" type="text" id="wardrobe_call_time" value="<%= ct4.getCallTime() %>" size="25" pattern="time" title="Enter Wardrobe Call Time. [Time Value HH:MM:SS]"></td>
+								<td align="center" valign="top"><input name="wardrobe_call_location" type="text" id="wardrobe_call_location" value="<% if(ct4.getCallLoc() != null) { out.print(ct4.getCallLoc());} %>" size="25" title="Enter Wardrobe Call Location - If Necessary. [String Value]"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 							<% CallType ct5 = ctt.getUnit();%>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Unit  </strong></td>
-								<td height="30" align="center" valign="top"><input name="unit_call_time" type="text" id="unit_call_time" value="<%= ct5.getCallTime() %>" size="25" pattern="date"></td>
-								<td align="center" valign="top"><input name="unit_call_location" type="text" id="unit_call_location" value="<% if(ct5.getCallLoc() != null) { out.print(ct5.getCallLoc());} %>" size="25" pattern="any_text"></td>
+								<td height="30" align="center" valign="top"><input name="unit_call_time" type="text" id="unit_call_time" value="<%= ct5.getCallTime() %>" size="25" pattern="time" title="Enter Unit Call Time. [Time Value HH:MM:SS]"></td>
+								<td align="center" valign="top"><input name="unit_call_location" type="text" id="unit_call_location" value="<% if(ct5.getCallLoc() != null) { out.print(ct5.getCallLoc());} %>" size="25" title="Enter Unit Call Location - If Necessary. [String Value]"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
                           <%int call_count = 0;
@@ -291,9 +291,9 @@
 							%>
 						  <tr>
 							  <td class="left">&nbsp;</td>
-							  <td><input name="call_<%=call_count%>" type="text" id="call_<%=call_count%>" value="<%= oct.getCallTime() %>" size="25" title="call name" pattern="any_text"></td>
-						    <td align="center"><input name="call_time_<%=call_count%>" type="text" id="call_time_<%=call_count%>" value="<%= oct.getCallTime() %>" size="25" title="call time"  pattern="date"> </td>
-							  <td align="center"><input name="call_location_<%=call_count%>" type="text" id="call_location_<%=call_count%>" value="<% if(oct.getCallLoc() != null) { out.print(oct.getCallLoc());} %>" size="25" title="call location"  pattern="any_text"></td>
+							  <td><input name="call_<%=call_count%>" type="text" id="call_<%=call_count%>" value="<%= oct.getCall() %>" size="25"  pattern="any_text" title="Enter Call Name. [String Value]"></td>
+						    <td align="center"><input name="call_time_<%=call_count%>" type="text" id="call_time_<%=call_count%>" value="<%= oct.getCallTime() %>" size="25" pattern="time" title="Enter Call Time. [Time Value HH:MM:SS]"> </td>
+							  <td align="center"><input name="call_location_<%=call_count%>" type="text" id="call_location_<%=call_count%>" value="<% if(oct.getCallLoc() != null) { out.print(oct.getCallLoc());} %>" size="25" title="Enter Call Location - If Necessary. [String Value]"  ></td>
 							  <td class="right">&nbsp;</td>
 						  </tr>
 						  <% }%>
@@ -302,10 +302,10 @@
 							<tr>
 							  <td class="left">&nbsp;</td>
 							  <td><strong>Breakfast</strong></td>
-							  <td align="center"><input name="breakfast_from" type="text" id="breakfast_from" value="<%= ft.getFrom() %>" size="10"> 
+							  <td align="center"><input name="breakfast_from" type="text" id="breakfast_from" value="<%= ft.getFrom() %>" size="10" pattern="time" title="Enter Breakfast Start Time. [Time Value HH:MM:SS]"> 
 							    - 
-					          <input name="breakfast_to" type="text" id="breakfast_to" value="<%= ft.getTo() %>" size="10"></td>
-							  <td align="center"><input name="breakfast_location" type="text" id="breakfast_location>" value="<% if(ft.getCallLoc() != null) { out.print(ft.getCallLoc());} %>" size="25"></td>
+					          <input name="breakfast_to" type="text" id="breakfast_to" value="<%= ft.getTo() %>" size="10" pattern="time" title="Enter Breakfast Finish Time. [Time Value HH:MM:SS]"></td>
+							  <td align="center"><input name="breakfast_location" type="text" id="breakfast_location>" value="<% if(ft.getCallLoc() != null) { out.print(ft.getCallLoc());} %>" size="25" title="Enter Breakfast Location - If Necessary. [String Value]"></td>
 							  <td class="right">&nbsp;</td>
 						  </tr>
 							<tr>
@@ -337,7 +337,7 @@
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
 								<td><strong>Estimated Wrap </strong></td>
-								<td align="left"><input name="estimated_wrap" type="text" id="estimated_wrap" value="<%= wtt.getEstWrap() %>" size="15" pattern="any_text" title="enter estimated wrap time"></td>
+								<td align="left"><input name="estimated_wrap" type="text" id="estimated_wrap" value="<%= wtt.getEstWrap() %>" size="15" pattern="any_text" title="Enter Estimated Wrap Time. [String Value]"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<% int others_count = 0;
@@ -346,8 +346,8 @@
 								others_count ++;%>
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
-								<td align="left"><input name="wrap_<%=others_count%>" type="text" id="wrap_<%=others_count%>" value="<%= owt.getWrap() %>" size="15" pattern="any_text" title="enter wrap name"></td>
-								<td align="left"><input name="wrap_time_<%=others_count%>" type="text" id="wrap_time_<%=others_count%>" value="<%= owt.getWrapTime() %>" size="15" pattern="any_text" title="enter wrap time"></td>
+								<td align="left"><input name="wrap_<%=others_count%>" type="text" id="wrap_<%=others_count%>" value="<%= owt.getWrap() %>" size="15" pattern="any_text" title="Enter Wrap Name. [String Value]"></td>
+								<td align="left"><input name="wrap_time_<%=others_count%>" type="text" id="wrap_time_<%=others_count%>" value="<%= owt.getWrapTime() %>" size="15" pattern="any_text" title="Enter Wrap Time. [String Value]"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>	
 								
@@ -394,12 +394,12 @@
 								locations_count ++;%>
 							<tr valign="top">
 								<td width="15" align="center" class="left">&nbsp;</td>
-								<td align="center"><input name="locations_name_<%=locations_count %>" type="text" id="locations_name_<%=locations_count %>" value="<%= slt.getLocationName() %>" size="15" pattern="any_text" title="location name"></td>
-								<td align="center"><input name="locations_address_<%=locations_count %>" type="text" id="locations_address_<%=locations_count %>" value="<%= slt.getAddress() %>" size="20" pattern="any_text" title="=location address"></td>
-								<td align="center"><input name="locations_contact_<%=locations_count %>" type="text" id="locations_contact_<%=locations_count %>" value="<%= slt.getContact() %>" size="15" pattern="any_text" title="location contact"></td>
-								<td align="center"><input name="locations_contact_no_<%=locations_count %>" type="text" id="locations_contact_no_<%=locations_count %>" value="<%= slt.getContactNo() %>" size="10" pattern="tel" title="location contact number"></td>
-								<td align="center"><input name="locations_UBD_<%=locations_count %>" type="text" id="locations_UBD_<%=locations_count %>" value="<%= slt.getUBDMapRef() %>" size="8" pattern="any_text" title="UBD ref location"></td>
-								<td align="center"><textarea name="locations_notes_<%=locations_count %>" title="location notes" cols="10" id="location_notes_<%=locations_count %>"><% if(slt.getLocationNotes() != null) { out.print(slt.getLocationNotes());} %></textarea></td>
+								<td align="center"><input name="locations_name_<%=locations_count %>" type="text" id="locations_name_<%=locations_count %>" value="<%= slt.getLocationName() %>" size="15" pattern="any_text" title="Enter Location Name. [String Value]"></td>
+								<td align="center"><input name="locations_address_<%=locations_count %>" type="text" id="locations_address_<%=locations_count %>" value="<%= slt.getAddress() %>" size="20" pattern="any_text" title="Enter Address. [String Value]"></td>
+								<td align="center"><input name="locations_contact_<%=locations_count %>" type="text" id="locations_contact_<%=locations_count %>" value="<%= slt.getContact() %>" size="15" pattern="any_text" title="Enter Location Contact. [String Value]"></td>
+								<td align="center"><input name="locations_contact_no_<%=locations_count %>" type="text" id="locations_contact_no_<%=locations_count %>" value="<%= slt.getContactNo() %>" size="10" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+								<td align="center"><input name="locations_UBD_<%=locations_count %>" type="text" id="locations_UBD_<%=locations_count %>" value="<%= slt.getUBDMapRef() %>" size="8" pattern="any_text" title="Enter UBD Map Reference. [String Value]"></td>
+								<td align="center"><textarea name="locations_notes_<%=locations_count %>" cols="10" id="location_notes_<%=locations_count %>" pattern="any_text" title="Enter Location Notes. [String Value]"><% if(slt.getLocationNotes() != null) { out.print(slt.getLocationNotes());} %></textarea></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<%}%>
@@ -430,7 +430,7 @@
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
 								<td width="200" align="left"><strong>Start of Day Notes </strong></td>
-								<td align="left"><input name='start_day_notes' type='text' id='start_day_notes' value="<%= dst.getStartDayNotes() %>" size="40" ></td>
+								<td align="left"><input name='start_day_notes' type='text' id='start_day_notes' value="<%= dst.getStartDayNotes() %>" size="40" pattern="any_text" title="Enter Start of Day Notes. [String Value]"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<%
@@ -457,16 +457,16 @@
 										</tr>
 										<tr>
 											<td class="left">&nbsp;</td>
-											<td><input name="ss<%=scene_count%>_scene" type="text" id="ss<%=scene_count%>_scene" value="<%= sst.getScene() %>" size="6" pattern="any_text" readonly></td>
+											<td><input name="ss<%=scene_count%>_scene" type="text" id="ss<%=scene_count%>_scene" value="<%= sst.getScene() %>" size="6" readonly></td>
 											<% PageTimeType ptt1 = sst.getPageTime();%>
 											<td>
-												<input name="ss<%=scene_count%>_pages" type="text" id="ss<%=scene_count%>_pages" size="4" value="<%=ptt1.getNumber() %>" pattern="number" readonly>
-                                              	<input name="ss<%=scene_count%>_pagesnum" type="text" id="ss<%=scene_count%>_pagesnum" size="2" value="<%=ptt1.getNumerator() %>" pattern="number" readonly>
+												<input name="ss<%=scene_count%>_pages" type="text" id="ss<%=scene_count%>_pages" size="4" value="<%=ptt1.getNumber() %>" readonly>
+                                              	<input name="ss<%=scene_count%>_pagesnum" type="text" id="ss<%=scene_count%>_pagesnum" size="2" value="<%=ptt1.getNumerator() %>" readonly>
                                               <strong>/8pgs </strong></td>
-											<td><input name="ss<%=scene_count%>_dn" type="text" id="ss<%=scene_count%>_dn" value="<%= sst.getDN() %>" size="6" pattern="any_text" readonly></td>
-											<td><input name="ss<%=scene_count%>_inex" type="text" id="ss<%=scene_count%>_inex" value="<%= sst.getINEX() %>" size="6" pattern="any_text" readonly></td>
-											<td><input name="ss<%=scene_count%>_setlocation" type="text" id="ss<%=scene_count%>_setlocation" value="<%= sst.getSetLocation() %>" size="15" pattern="any_text" readonly></td>
-											<td><input name="ss<%=scene_count%>_synopsis" type="text" id="ss<%=scene_count%>_synopsis" value="<%= sst.getSynopsis() %>" size="15" pattern="any_text" readonly></td>
+											<td><input name="ss<%=scene_count%>_dn" type="text" id="ss<%=scene_count%>_dn" value="<%= sst.getDN() %>" size="6" readonly></td>
+											<td><input name="ss<%=scene_count%>_inex" type="text" id="ss<%=scene_count%>_inex" value="<%= sst.getINEX() %>" size="6" readonly></td>
+											<td><input name="ss<%=scene_count%>_setlocation" type="text" id="ss<%=scene_count%>_setlocation" value="<%= sst.getSetLocation() %>" readonly></td>
+											<td><input name="ss<%=scene_count%>_synopsis" type="text" id="ss<%=scene_count%>_synopsis" value="<%= sst.getSynopsis() %>" size="15" readonly></td>
 											<td class="right">&nbsp;</td>
 										</tr>
 										<tr>
@@ -487,12 +487,12 @@
 													for(ArtistTimeInfoType atit : sst.getArtistTimeInfo()) {
 														artist_count ++;%>
 													<tr>
-														<td><input name="ss<%=scene_count%>_character_<%=artist_count%>" type="text" id="ss<%=scene_count%>_character_<%=artist_count%>" value="<%=atit.getCharacter()%>" size="15" title="enter character" pattern="any_text" readonly></td>
-														<td><input name="ss<%=scene_count%>_artist_<%=artist_count%>" type="text" id="ss<%=scene_count%>_artist_<%=artist_count%>" value="<%= atit.getArtist() %>" size="15" title="enter artist" pattern="any_text" readonly></td>
-														<td><input name="ss<%=scene_count%>_pickup_<%=artist_count%>" type="text" id="ss<%=scene_count%>_pickup_<%=artist_count%>" value="<%if (atit.getPickup() != null) {out.print(atit.getPickup());} %>" size="6" title="enter pick up" pattern="any_text"></td>
-														<td><input name="ss<%=scene_count%>_makeup_<%=artist_count%>" type="text" id="ss<%=scene_count%>_makeup_<%=artist_count%>" value="<%if (atit.getMakeup() != null) {out.print(atit.getMakeup());} %>" size="6" title="enter makeup" pattern="any_text"></td>
-														<td><input name="ss<%=scene_count%>_wardrobe_<%=artist_count%>" type="text" id="ss<%=scene_count%>_wardrobe_<%=artist_count%>" value="<%if (atit.getWardrobe() != null) {out.print(atit.getWardrobe());} %>" size="6" title="enter wardrobe" pattern="any_text"></td>
-														<td><input name="ss<%=scene_count%>_onset_<%=artist_count%>" type="text" id="ss<%=scene_count%>_onset_<%=artist_count%>" value="<%= atit.getOnSet() %>" size="6" title="enter onset" pattern="any_text"> </td>
+														<td><input name="ss<%=scene_count%>_character_<%=artist_count%>" type="text" id="ss<%=scene_count%>_character_<%=artist_count%>" value="<%=atit.getCharacter()%>" size="15" readonly></td>
+														<td><input name="ss<%=scene_count%>_artist_<%=artist_count%>" type="text" id="ss<%=scene_count%>_artist_<%=artist_count%>" value="<%= atit.getArtist() %>" size="15" readonly></td>
+														<td><input name="ss<%=scene_count%>_pickup_<%=artist_count%>" type="text" id="ss<%=scene_count%>_pickup_<%=artist_count%>" value="<%if (atit.getPickup() != null) {out.print(atit.getPickup());} %>" size="6" pattern="any_text" title="Enter Pickup. [String Value]"></td>
+														<td><input name="ss<%=scene_count%>_makeup_<%=artist_count%>" type="text" id="ss<%=scene_count%>_makeup_<%=artist_count%>" value="<%if (atit.getMakeup() != null) {out.print(atit.getMakeup());} %>" size="6" pattern="any_text" title="Enter Makeup. [String Value]"></td>
+														<td><input name="ss<%=scene_count%>_wardrobe_<%=artist_count%>" type="text" id="ss<%=scene_count%>_wardrobe_<%=artist_count%>" value="<%if (atit.getWardrobe() != null) {out.print(atit.getWardrobe());} %>" size="6" pattern="any_text" title="Enter Wardrobe. [String Value]"></td>
+														<td><input name="ss<%=scene_count%>_onset_<%=artist_count%>" type="text" id="ss<%=scene_count%>_onset_<%=artist_count%>" value="<%= atit.getOnSet() %>" size="6" pattern="any_text" title="Enter On Set. [String Value]"> </td>
 													</tr>
 													<% }%>
 												</tbody>
@@ -503,7 +503,7 @@
 										<tr>
 										  <td class="left">&nbsp;</td>
 										  <td colspan="6" align="left">
-									      <input name="artist_count_<%= scene_count %>" type="hidden" id="artist_count_<%= scene_count %>" size="15" value="<%= artist_count %>">										  </td>
+									      <input name="artist_count_<%= scene_count %>" type="hidden" id="artist_count_<%= scene_count %>" size="15" value="<%= artist_count %>"></td>
 										  <td class="right">&nbsp;</td>
 									  	</tr>
 										<tr>
@@ -521,10 +521,10 @@
 											MealBreakType mbt = sst.getMealBreak(); %>
                                             <tr>
                                               <td><strong>Meal</strong></td>
-                                              <td><input name="ss<%=scene_count%>_meal" type="text" id="ss<%=scene_count%>_meal" value="<%= mbt.getMeal()%>"  pattern="any_text" readonly></td>
+                                              <td><input name="ss<%=scene_count%>_meal" type="text" id="ss<%=scene_count%>_meal" value="<%= mbt.getMeal()%>" readonly></td>
                                               <td>&nbsp;</td>
                                               <td><strong>Times</strong></td>
-                                              <td><input name="ss<%=scene_count%>_times" type="text" id="ss<%=scene_count%>_times" value="<%= mbt.getBreak()%>"  pattern="any_text" readonly></td>
+                                              <td><input name="ss<%=scene_count%>_times" type="text" id="ss<%=scene_count%>_times" value="<%= mbt.getBreak()%>" readonly></td>
                                             </tr>
 											<%}%>
 											</tbody>
@@ -540,19 +540,19 @@
 							<tr>
 								<td width="15" align="center" class="left">&nbsp;</td>
 								<td width="200" align="left" valign="top"><strong>End of Day Notes </strong></td>
-								<td align="left" valign="top"><input name='end_day_notes' type='text' id='end_day_notes' value="<%= dst.getEndDayNotes() %>" size="40"></td>
+								<td align="left" valign="top"><input name='end_day_notes' type='text' id='end_day_notes' value="<%= dst.getEndDayNotes() %>" size="40" pattern="any_text" title="Enter End of Day Notes. [String Value]"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<%PageTimeType ptt2 = dst.getTotalScriptPages();%>
 							<tr>
 							  <td class="left">&nbsp;</td>
 							  <td width="200"><strong>Total Script Pages </strong></td>
-							  <td><input name="total_script_pages" type="text" id="total_script_pages" size="4" value="<%=ptt2.getNumber() %>">
-                                <input name="total_script_pagesnum" type="text" id="total_script_pagesnum" size="2" value="<%=ptt2.getNumerator() %>">
+							  <td><input name="total_script_pages" type="text" id="total_script_pages" size="4" value="<%=ptt2.getNumber() %>" pattern="number" title="Enter Total Script Pages. [Number Value]">
+                                <input name="total_script_pagesnum" type="text" id="total_script_pagesnum" size="2" value="<%=ptt2.getNumerator() %>" pattern="number" title="Enter Total Script Pages. [Number Value]">
                                 <strong>/8pgs
                                 <input name="button22" type="button" onClick="calculateMod();" value="Calculate"/>
                                 <input name="scene_count" type="hidden" id="scene_count" size="15" value="<%= scene_count %>">
-</strong></td>
+								</strong></td>
 							  <td class="right">&nbsp;</td>
 						  </tr>
 							<tr>
@@ -584,7 +584,7 @@
 								requirements_count ++;%>
 							<tr>
 								<td rowspan="2" class="left">&nbsp;</td>
-								<td align="left" valign="top"><strong>Item</strong><br><input name="sr<%= requirements_count %>_item" type="text" id="sr<%= requirements_count %>_item" value="<%= set.getItem() %>" title="enter item" pattern="any_text"></td>
+								<td align="left" valign="top"><strong>Item</strong><br><input name="sr<%= requirements_count %>_item" type="text" id="sr<%= requirements_count %>_item" value="<%= set.getItem() %>" pattern="any_text" title="Enter Item. [String Value]"></td>
 								<td align="center">
 									<table width="510" border="0" cellpadding="0" cellspacing="0" id="description_<%= requirements_count %>">
 									<tbody>
@@ -596,8 +596,8 @@
 										for (DescriptionType dt : set.getDescription()){ 
 											description_count ++;%>
 										<tr valign="top">
-											<td><input name="sr<%= requirements_count %>_scene_<%= description_count %>" type="text" id="sr<%= requirements_count %>_scene_<%= description_count %>" value="<%= dt.getScene() %>" pattern="any_text"></td>
-											<td><textarea name="sr<%= requirements_count %>_requirements_<%= description_count %>" cols="40" id="sr<%= requirements_count %>_requirements_<%= description_count %>"><%= dt.getRequirements() %></textarea></td>
+											<td><input name="sr<%= requirements_count %>_scene_<%= description_count %>" type="text" id="sr<%= requirements_count %>_scene_<%= description_count %>" value="<%= dt.getScene() %>" pattern="any_text" title="Enter Scene Number. [String Value]"></td>
+											<td><textarea name="sr<%= requirements_count %>_requirements_<%= description_count %>" cols="40" id="sr<%= requirements_count %>_requirements_<%= description_count %>" pattern="any_text" title="Enter Set Requirements. [String Value]"><%= dt.getRequirements() %></textarea></td>
 										</tr>
 										<% }%>
 									</tbody>
@@ -615,7 +615,7 @@
 							<% }%>
 							</tbody>
 							<tr>
-								<td class="left">&nbsp;								</td>
+								<td class="left">&nbsp;</td>
 							    <td colspan="2">
                                   <input name="button502" type="button" onClick="addRequirementsRow();" value="Insert Row">
                                   <input name="button503" type="button" onClick="deleteRequirementsRow();" value="Delete Row">
@@ -639,7 +639,7 @@
 							</tr>
 							<tr align="center">
 								<td width="15" height="90" class="left">&nbsp;</td>
-								<td height="90" align="center" valign="middle"><textarea name="unit" cols="80" id="unit"><% if(cst.getUnit() != null) { out.print(cst.getUnit());} %></textarea></td>
+								<td height="90" align="center" valign="middle"><textarea name="unit" cols="80" id="unit" title="Enter Unit Details - If Necessary. [String Value]"><% if(cst.getUnit() != null) { out.print(cst.getUnit());} %></textarea></td>
 								<td width="15" height="90" valign="top" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
@@ -657,7 +657,7 @@
 							</tr>
 							<tr valign="middle">
 								<td width="15" height="90" class="left">&nbsp;</td>
-								<td height="90" align="center"><textarea name="additional_equipment" cols="80" id="additional_equipment"><% if(cst.getAdditionalEquipment() != null) { out.print(cst.getAdditionalEquipment());} %></textarea></td>
+								<td height="90" align="center"><textarea name="additional_equipment" cols="80" id="additional_equipment" title="Enter Additional Equipment Details - If Necessary. [String Value]"><% if(cst.getAdditionalEquipment() != null) { out.print(cst.getAdditionalEquipment());} %></textarea></td>
 								<td width="15" height="90" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
@@ -675,7 +675,7 @@
 							</tr>
 							<tr valign="middle">
 								<td width="15" height="90" class="left">&nbsp;</td>
-								<td height="90" align="center"><textarea name="additional_crew" cols="80" id="additional_crew"><% if(cst.getAdditionalCrew() != null) { out.print(cst.getAdditionalCrew());} %></textarea></td>
+								<td height="90" align="center"><textarea name="additional_crew" cols="80" id="additional_crew" title="Enter Additional Crew Details - If Necessary. [String Value]"><% if(cst.getAdditionalCrew() != null) { out.print(cst.getAdditionalCrew());} %></textarea></td>
 								<td width="15" height="90" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
@@ -693,7 +693,7 @@
 							</tr>
 							<tr valign="middle">
 								<td width="15" height="90" class="left">&nbsp;</td>
-								<td height="90" align="center"><textarea name="directions" cols="80" id="directions"><% if(cst.getDirections() != null) { out.print(cst.getDirections());} %></textarea></td>
+								<td height="90" align="center"><textarea name="directions" cols="80" id="directions" title="Enter Directions - If Necessary. [String Value]"><% if(cst.getDirections() != null) { out.print(cst.getDirections());} %></textarea></td>
 								<td width="15" height="90" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
@@ -711,7 +711,7 @@
 							</tr>
 							<tr valign="middle">
 								<td width="15" height="90" class="left">&nbsp;</td>
-								<td height="90" align="center"><textarea name="parking" cols="80" id="parking"><% if(cst.getParking() != null) { out.print(cst.getParking());} %></textarea></td>
+								<td height="90" align="center"><textarea name="parking" cols="80" id="parking" title="Enter Parking Details - If Necessary. [String Value]"><% if(cst.getParking() != null) { out.print(cst.getParking());} %></textarea></td>
 								<td width="15" height="90" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
@@ -744,7 +744,7 @@
 							%>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
-								<td height="30" align="center" valign="top"><select name="catering_meal_<%=catering_count %>" id="catering_meal_<%=catering_count %>">
+								<td height="30" align="center" valign="top"><select name="catering_meal_<%=catering_count %>" id="catering_meal_<%=catering_count %>" title="Select a Meal">
 								  <option value="Breakfast" <%if(smt.getMeal().equals("Breakfast")){out.print("selected"); }%>>Breakfast</option>
 								  <option value="Morning Tea" <%if(smt.getMeal().equals("Morning Tea")){out.print("selected"); }%>>Morning Tea</option>
 								  <option value="Lunch" <%if(smt.getMeal().equals("Lunch")){out.print("selected"); }%>>Lunch</option>
@@ -753,16 +753,16 @@
 								  <option value="Supper" <%if(smt.getMeal().equals("Supper")){out.print("selected"); }%>>Supper</option>
 							      </select>
 							    </td>
-								<td height="30" align="center" valign="top"><input name="catering_time_<%=catering_count %>" type="text" id="catering_time_<%=catering_count %>" value="<%= smt.getBreak() %>" size="8" title="enter catering time" pattern="any_text"></td>
-								<td height="30" align="center" valign="top"><input name="catering_numbers_<%=catering_count %>" type="text" id="catering_numbers_<%=catering_count %>" value="<%= smt.getServeNo() %>" size="8" title="enter catering number" pattern="number"></td>
-								<td height="30" align="center" valign="top"><input name="catering_location_<%=catering_count %>" type="text" id="catering_location_<%=catering_count %>" value="<%= smt.getLocation() %>" size="50" title="enter catering location" pattern="any_text"></td>
+								<td height="30" align="center" valign="top"><input name="catering_time_<%=catering_count %>" type="text" id="catering_time_<%=catering_count %>" value="<%= smt.getBreak() %>" size="8"  pattern="any_text" title="Enter Catering Times. [String Value]"></td>
+								<td height="30" align="center" valign="top"><input name="catering_numbers_<%=catering_count %>" type="text" id="catering_numbers_<%=catering_count %>" value="<%= smt.getServeNo() %>" size="8" pattern="any_text" title="Enter Catering Numbers. [String Value]"></td>
+								<td height="30" align="center" valign="top"><input name="catering_location_<%=catering_count %>" type="text" id="catering_location_<%=catering_count %>" value="<%= smt.getLocation() %>" size="50" pattern="any_text" title="Enter Catering Location. [String Value]"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 								<% } 
 							}%>
 							</tbody>
 							<tr>
-								<td class="left">&nbsp;								</td>
+								<td class="left">&nbsp;</td>
 							    <td colspan="4">
                                   <input name="button700" type="button" onClick="addCateringRow();" value="Insert Row">
                                   <input name="button701" type="button" onClick="deleteCateringRow();" value="Delete Row">
@@ -772,7 +772,8 @@
 							<tr>
 							  <td colspan="6" class="bottom">&nbsp;</td>
 						  </tr>
-						</table>					</td>
+						</table>
+					</td>
 				</tr>
 				<%-- Production Notes Table --%>
 				<tr>
@@ -785,7 +786,7 @@
 							</tr>
 							<tr>
 								<td width="15" height="100" class="left">&nbsp;</td>
-								<td height="90" align="center" valign="middle"><textarea name="production_notes" cols="80" id="production_notes"><% if(cst.getProductionNotes() != null) { out.print(cst.getProductionNotes());} %></textarea></td>
+								<td height="90" align="center" valign="middle"><textarea name="production_notes" cols="80" id="production_notes" title="Enter Production Notes - If Necessary. [String Value]"><% if(cst.getProductionNotes() != null) { out.print(cst.getProductionNotes());} %></textarea></td>
 								<td width="15" height="100" valign="top" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
@@ -801,7 +802,7 @@
                     </tr>
                     <tr>
                       <td width="15" height="100" class="left">&nbsp;</td>
-                      <td height="90" align="center" valign="middle"><textarea name="location_crew_notes" cols="80" id="location_crew_notes"><% if(cst.getLocationCrewNotes() != null) { out.print(cst.getLocationCrewNotes());} %>
+                      <td height="90" align="center" valign="middle"><textarea name="location_crew_notes" cols="80" id="location_crew_notes" title="Enter Location/Crew Notes - If Necessary. [String Value]"><% if(cst.getLocationCrewNotes() != null) { out.print(cst.getLocationCrewNotes());} %>
                   </textarea></td>
                       <td width="15" height="100" valign="top" class="right">&nbsp;</td>
                     </tr>
@@ -820,7 +821,7 @@
                     </tr>
                     <tr>
                       <td width="15" height="100" class="left">&nbsp;</td>
-                      <td height="90" align="center" valign="middle"><textarea name="lunch_pickup" cols="80" id="lunch_pickup"><% if(cst.getLunchPickup() != null) { out.print(cst.getLunchPickup());} %>
+                      <td height="90" align="center" valign="middle"><textarea name="lunch_pickup" cols="80" id="lunch_pickup" title="Enter Lunch Pickup Details - If Necessary. [String Value]"><% if(cst.getLunchPickup() != null) { out.print(cst.getLunchPickup());} %>
                   </textarea></td>
                       <td width="15" height="100" valign="top" class="right">&nbsp;</td>
                     </tr>
@@ -840,7 +841,7 @@
 							</tr>
 							<tr valign="middle">
 								<td width="15" height="90" class="left">&nbsp;</td>
-								<td height="90" align="center"><textarea name="exposed_rushes" cols="80" id="exposed_rushes"><% if(cst.getExposedRushes() != null) { out.print(cst.getExposedRushes());} %></textarea></td>
+								<td height="90" align="center"><textarea name="exposed_rushes" cols="80" id="exposed_rushes" title="Enter Exposed Rushes Details - If Necessary. [String Value]"><% if(cst.getExposedRushes() != null) { out.print(cst.getExposedRushes());} %></textarea></td>
 								<td width="15" height="90" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
@@ -857,7 +858,7 @@
 							</tr>
 							<tr valign="middle">
 								<td width="15" height="90" class="left">&nbsp;</td>
-								<td height="90" align="center"><textarea name="rushes_screening" cols="80" id="rushes_screening"><% if(cst.getRushesScreening() != null) { out.print(cst.getRushesScreening());} %></textarea></td>
+								<td height="90" align="center"><textarea name="rushes_screening" cols="80" id="rushes_screening" title="Enter Rushes Screening Details - If Necessary. [String Value]"><% if(cst.getRushesScreening() != null) { out.print(cst.getRushesScreening());} %></textarea></td>
 								<td width="15" height="90" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
@@ -874,7 +875,7 @@
 							</tr>
 							<tr valign="middle">
 								<td width="15" height="90" class="left">&nbsp;</td>
-								<td height="90" align="center"><textarea name="crew_agreements" cols="80" id="crew_agreements"><% if(cst.getCrewAgreements() != null) { out.print(cst.getCrewAgreements());} %></textarea></td>
+								<td height="90" align="center"><textarea name="crew_agreements" cols="80" id="crew_agreements" title="Enter Crew Agreements - If Necessary. [String Value]"><% if(cst.getCrewAgreements() != null) { out.print(cst.getCrewAgreements());} %></textarea></td>
 								<td width="15" height="90" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
@@ -894,11 +895,11 @@
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
 								<td width="65" align="right"><strong>Day No.</strong></td>
-								<td width="61" align="center"><input name="ad_schedule_day_no" type="text" id="ad_schedule_day_no" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayNo());} %>" size="4" pattern="number"></td>
+								<td width="61" align="center"><input name="ad_schedule_day_no" type="text" id="ad_schedule_day_no" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayNo());} %>" size="4" pattern="number" title="Enter Day Number. [Number Value]"></td>
 								<td width="104" align="right"><strong>Weekday</strong></td>
-								<td width="194" align="center"><input name="ad_schedule_weekday" type="text" id="ad_schedule_weekday" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayWeekday());} %>" pattern="any_text"></td>
+								<td width="194" align="center"><input name="ad_schedule_weekday" type="text" id="ad_schedule_weekday" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayWeekday());} %>" pattern="any_text" title="Enter Weekday. [String Value]"></td>
 								<td width="66" align="right"><strong>Date</strong></td>
-								<td width="180" align="center"><input name="ad_schedule_date" type="text" id="ad_schedule_date" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayDate().getDay()+"-"+ast.getShootDayDate().getMonth()+"-"+ast.getShootDayDate().getYear());} %>" pattern="real_date"></td>
+								<td width="180" align="center"><input name="ad_schedule_date" type="text" id="ad_schedule_date" value="<% if(cst.getAdvancedSchedule() != null) {out.print(ast.getShootDayDate().getDay()+"-"+ast.getShootDayDate().getMonth()+"-"+ast.getShootDayDate().getYear());} %>" pattern="real_date" title="Enter Date. [String Value]"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							<tr>
@@ -930,15 +931,15 @@
 										for(AdSceneScheduleType asst : ast.getAdSceneSchedule()) { 
 											ad_scene_count ++;%>
 										<tr valign="top">
-											<td><input name="ad_schedule_scene_<%= ad_scene_count %>" type="text" id="ad_schedule_scene_<%= ad_scene_count %>" size="4" value="<%= asst.getScene() %>"></td>
-											<td><input name="ad_schedule_dn_<%= ad_scene_count %>" type="text" id="ad_schedule_dn_<%= ad_scene_count %>" size="4" value="<%= asst.getDN() %>"> </td>
-											<td><input name="ad_schedule_inex_<%= ad_scene_count %>" type="text" id="ad_schedule_inex_<%= ad_scene_count %>" size="4" value="<%= asst.getINEX() %>"></td>
+											<td><input name="ad_schedule_scene_<%= ad_scene_count %>" type="text" id="ad_schedule_scene_<%= ad_scene_count %>" size="4" value="<%= asst.getScene() %>" pattern="any_text" title="Enter Scene Number. [String Value]"></td>
+											<td><input name="ad_schedule_dn_<%= ad_scene_count %>" type="text" id="ad_schedule_dn_<%= ad_scene_count %>" size="4" value="<%= asst.getDN() %>" pattern="any_text" title="Enter Day or Night. [String Value]"> </td>
+											<td><input name="ad_schedule_inex_<%= ad_scene_count %>" type="text" id="ad_schedule_inex_<%= ad_scene_count %>" size="4" value="<%= asst.getINEX() %>" pattern="any_text" title="Enter INT or EXT. [String Value]"></td>
 											<% PageTimeType ptt3 = asst.getPageTime();%>
-											<td><input name="ad_schedule_pages_<%= ad_scene_count %>" type="text" id="ad_schedule_pages_<%= ad_scene_count %>" size="4" value="<%= ptt3.getNumber() %>"> <input name="ad_schedule_pagesnum_<%= ad_scene_count %>" type="text" id="ad_schedule_pagesnum_<%= ad_scene_count %>" size="2" value="<%= ptt3.getNumerator() %>">
+											<td><input name="ad_schedule_pages_<%= ad_scene_count %>" type="text" id="ad_schedule_pages_<%= ad_scene_count %>" size="4" value="<%= ptt3.getNumber() %>" pattern="number" title="Enter Page Numbers. [Number Value]"> <input name="ad_schedule_pagesnum_<%= ad_scene_count %>" type="text" id="ad_schedule_pagesnum_<%= ad_scene_count %>" size="2" value="<%= ptt3.getNumerator() %>" pattern="number" title="Enter Page Numbers. [Number Value]">
 											  <strong>/8pgs</strong></td>
-											<td><input name="ad_schedule_setsynopsis_<%= ad_scene_count %>" type="text" id="ad_schedule_setsynopsis_<%= ad_scene_count %>" value="<%= asst.getSetSynopsis() %>" size="15"></td>
-											<td><textarea name="ad_schedule_location_<%= ad_scene_count %>" id="ad_schedule_location_<%= ad_scene_count %>" cols="10"><%= asst.getLocation() %></textarea></td>
-											<td><textarea name="ad_schedule_characters_<%= ad_scene_count %>" id="ad_schedule_characters_<%= ad_scene_count %>" cols="10"><%= asst.getCharacters() %></textarea></td>
+											<td><input name="ad_schedule_setsynopsis_<%= ad_scene_count %>" type="text" id="ad_schedule_setsynopsis_<%= ad_scene_count %>" value="<%= asst.getSetSynopsis() %>" size="15" pattern="any_text" title="Enter Set/Synopsis. [String Value]"></td>
+											<td><textarea name="ad_schedule_location_<%= ad_scene_count %>" id="ad_schedule_location_<%= ad_scene_count %>" cols="10" pattern="any_text" title="Enter Location. [String Value]"><%= asst.getLocation() %></textarea></td>
+											<td><textarea name="ad_schedule_characters_<%= ad_scene_count %>" id="ad_schedule_characters_<%= ad_scene_count %>" cols="10" pattern="any_text" title="Enter Characters. [String Value]"><%= asst.getCharacters() %></textarea></td>
 										</tr>
 										<% }
 										}%>
@@ -950,8 +951,7 @@
 							<tr>
 								<td width="15" class="left">&nbsp;</td>
 								<td colspan="6" align="left" valign="top">
-								  <input name="button42" type="button" onClick="addAdvancedSceneRow();" value="Insert Row">
-                                  <input name="ad_scene_count" type="hidden" id="ad_scene_count" size="15" value="<%= ad_scene_count %>">                                </td>
+                              <input name="ad_scene_count" type="hidden" id="ad_scene_count" size="15" value="<%= ad_scene_count %>"></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
 							</tbody>
@@ -972,7 +972,7 @@
 							</tr>
 							<tr valign="middle">
 								<td width="15" height="90" class="left">&nbsp;</td>
-								<td height="90" align="center"><textarea name="additional_notes" cols="80" id="additional_notes"><%= cst.getAdditionalNotes() %></textarea></td>
+								<td height="90" align="center"><textarea name="additional_notes" cols="80" id="additional_notes" pattern="any_text" title="Enter Additional Notes. [String Value]"><%= cst.getAdditionalNotes() %></textarea></td>
 								<td width="15" height="90" class="right">&nbsp;</td>
 							</tr>
 							<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
@@ -980,8 +980,9 @@
 					</td>
 				</tr>
 				<tr>
-			  <td align="center">Final Submission 
-		      <input name="final_submission" type="checkbox" id="final_submission" value="True" <% if(ucst.isFinalSubmission() == true) {out.print("checked");}%>></td>
+			  <td align="center">
+		      Partial Submission<input name="final_submission" id="final_submission" type="radio" value="partial" <% if(ucst.isFinalSubmission() == false) {out.print("checked");}%>>
+		      Final Submission<input name="final_submission" id="final_submission" type="radio" value="final" <% if(ucst.isFinalSubmission() == true) {out.print("checked");}%>></td>
 		  </tr>
 			</table>
 			<p align="center">
@@ -1287,9 +1288,9 @@ if(request.getParameter("Submission") != null){
 	ucst.setCallSheet(cs);
 	
 	
-	if (request.getParameter("final_submission")==null){
+	if (request.getParameter("final_submission").equals("partial")){
 		ucst.setFinalSubmission(false);
-	}else{
+	}else if (request.getParameter("final_submission").equals("final")){
 		ucst.setFinalSubmission(true);
 	}
 	
@@ -1576,9 +1577,9 @@ if(request.getParameter("Submission") != null){
 	ucst.setCallSheet(cs);
 	
 	
-	if (request.getParameter("final_submission")==null){
+	if (request.getParameter("final_submission").equals("partial")){
 		ucst.setFinalSubmission(false);
-	}else{
+	}else if (request.getParameter("final_submission").equals("final")){
 		ucst.setFinalSubmission(true);
 	}
 

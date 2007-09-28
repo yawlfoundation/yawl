@@ -163,14 +163,14 @@
 					%>
                     <tr valign="top">
                       <td width="15" align="center" class="left">&nbsp;</td>
-                      <td align="center"><input name="<% out.print("cam_"+a);%>" type="text" id="<% out.print("cam_"+a);%>" value="<%=tit.getCamRoll()%>" size="5" pattern="any_text"></td>
-                      <td align="center"><input name="<% out.print("sound_"+a);%>" type="text" id="<% out.print("sound_"+a);%>" value="<%=tit.getSoundRoll()%>" size="5" pattern="any_text"></td>
-                      <td align="center"><input name="<% out.print("scene_"+a);%>" type="text" id="<% out.print("scene_"+a);%>" value="<%=sit.getScene()%>" size="5" pattern="any_text"></td>
-                      <td align="center"><input name="<% out.print("slate_"+a);%>" type="text" id="<% out.print("slate_"+a);%>" value="<%=slt.getSlate()%>" size="5" pattern="any_text"></td>
-                      <td align="center"><input name="<% out.print("take_"+a);%>" type="text" id="<% out.print("take_"+a);%>" value="<%=tit.getTake()%>" size="5" pattern="number"></td>
+                      <td align="center"><input name="<% out.print("cam_"+a);%>" type="text" id="<% out.print("cam_"+a);%>" value="<%=tit.getCamRoll()%>" size="5" pattern="any_text" title="Enter Camera Roll. [String Value]"></td>
+                      <td align="center"><input name="<% out.print("sound_"+a);%>" type="text" id="<% out.print("sound_"+a);%>" value="<%=tit.getSoundRoll()%>" size="5" pattern="any_text" title="Enter Sound Roll. [String Value]"></td>
+                      <td align="center"><input name="<% out.print("scene_"+a);%>" type="text" id="<% out.print("scene_"+a);%>" value="<%=sit.getScene()%>" size="5" pattern="any_text" title="Enter Scene Number. [String Value] (make sure this matches a scene number from the shooting schedule)"></td>
+                      <td align="center"><input name="<% out.print("slate_"+a);%>" type="text" id="<% out.print("slate_"+a);%>" value="<%=slt.getSlate()%>" size="5" pattern="any_text" title="Enter Slate. [String Value]"></td>
+                      <td align="center"><input name="<% out.print("take_"+a);%>" type="text" id="<% out.print("take_"+a);%>" value="<%=tit.getTake()%>" size="5" pattern="number" title="Enter Take Number. [Number Value]"></td>
 					  <td align='center'><input name='<% out.print("print_"+a);%>' type='checkbox' id='<% out.print("print_"+a);%>' value='true' <% if(tit.isPrint() == true) {out.print("checked");}%>></td>
-                      <td align="center"><input name="<% out.print("duration_"+a);%>" type="text" id="<% out.print("duration_"+a);%>" value="<%=tit.getDuration()%>"size="8" pattern="date"></td>
-                      <td align="center"><textarea name="<% out.print("comments_"+a);%>" cols="30" id="<% out.print("comments_"+a);%>"><%= tit.getComments()%></textarea></td>
+                      <td align="center"><input name="<% out.print("duration_"+a);%>" type="text" id="<% out.print("duration_"+a);%>" value="<%=tit.getDuration()%>"size="8" pattern="time" title="Enter Take Duration. [Time Value HH:MM:SS]"></td>
+                      <td align="center"><textarea name="<% out.print("comments_"+a);%>" cols="30" id="<% out.print("comments_"+a);%>" pattern="any_text" title="Enter Shot Description. [String Value]"><%= tit.getComments()%></textarea></td>
                       <td width="15" class="right">&nbsp;</td>
                     </tr>
                     <% 
@@ -181,14 +181,14 @@
 					%>
                     <tr valign="top">
                       <td width="15" align="center" class="left">&nbsp;</td>
-                      <td align="center"><input name="cam_1" type="text" id="cam_1" value="" size="5"  pattern="any_text"></td>
-                      <td align="center"><input name="sound_1" type="text" id="sound_1" value="" size="5" pattern="any_text"></td>
-                      <td align="center"><input name="scene_1" type="text" id="scene_1" value="" size="5" pattern="any_text"></td>
-                      <td align="center"><input name="slate_1" type="text" id="slate_1" value="" size="5" pattern="any_text"></td>
-                      <td align="center"><input name="take_1" type="text" id="take_1" value="" size="5" pattern="number"></td>
+                      <td align="center"><input name="cam_1" type="text" id="cam_1" value="" size="5"  pattern="any_text" title="Enter Camera Roll. [String Value]"></td>
+                      <td align="center"><input name="sound_1" type="text" id="sound_1" value="" size="5" pattern="any_text" title="Enter Sound Roll. [String Value]"></td>
+                      <td align="center"><input name="scene_1" type="text" id="scene_1" value="" size="5" pattern="any_text" title="Enter Scene Number. [String Value] (make sure this matches a scene number from the shooting schedule)"></td>
+                      <td align="center"><input name="slate_1" type="text" id="slate_1" value="" size="5" pattern="any_text" title="Enter Slate. [String Value]"></td>
+                      <td align="center"><input name="take_1" type="text" id="take_1" value="" size="5" pattern="number" title="Enter Take Number. [Number Value]"></td>
 					  <td align='center'><input name="print_1" type='checkbox' id="print_1" value='true'></td>
-                      <td align="center"><input name="duration_1" type="text" id="duration_1" value="" size="8" pattern="date"></td>
-                      <td align="center"><textarea name="comments_1" cols="30" id="comments_1"></textarea></td>
+                      <td align="center"><input name="duration_1" type="text" id="duration_1" value="" size="8" pattern="time" title="Enter Take Duration. [Time Value HH:MM:SS]"></td>
+                      <td align="center"><textarea name="comments_1" cols="30" id="comments_1" pattern="any_text" title="Enter Shot Description. [String Value]"></textarea></td>
                       <td width="15" class="right">&nbsp;</td>
                     </tr>
                     <% 

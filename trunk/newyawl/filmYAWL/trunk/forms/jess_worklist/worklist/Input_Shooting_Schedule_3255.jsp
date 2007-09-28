@@ -107,17 +107,17 @@
 	<tr height="30">
 		<td width="15" class="left">&nbsp;</td>
 		<td><strong>Production</strong></td>
-		<td><input name='production' type='text' id='production' value="<%= iss.getProduction() %>" pattern="any_text" title="Enter Production. [String Value]" readonly></td>
+		<td><input name='production' type='text' id='production' value="<%= iss.getProduction() %>" readonly></td>
 		<td><strong>Director</strong></td>
-		<td><input name='director' type='text' id='director' value="<%=ss.getDirector() %>" pattern="any_text" title="Enter Director. [String Value]" readonly></td>
+		<td><input name='director' type='text' id='director' value="<%=ss.getDirector() %>" readonly></td>
 		<td width="15" class="right">&nbsp;</td>
 	</tr>
 	<tr height="30">
 		<td class="left">&nbsp;</td>
 		<td><strong>Producer</strong></td>
-		<td><input name='producer' type='text' id='producer' value="<%=ss.getProducer() %>" pattern="any_text" title="Enter Producer. [String Value]" readonly></td>
+		<td><input name='producer' type='text' id='producer' value="<%=ss.getProducer() %>" readonly></td>
 		<td><strong>Last Updated Date</strong></td>
-		<td><input name='last_updated' type='text' id='last_updated' value="<%=ss.getLastUpdatedDate().getDay()+"-"+ss.getLastUpdatedDate().getMonth()+"-"+ss.getLastUpdatedDate().getYear() %>" pattern="real_date" title="Enter Last Updated Date. [Date Value DD-MM-YYYY]" readonly></td>
+		<td><input name='last_updated' type='text' id='last_updated' value="<%=ss.getLastUpdatedDate().getDay()+"-"+ss.getLastUpdatedDate().getMonth()+"-"+ss.getLastUpdatedDate().getYear() %>" pattern="real_date" title="Enter Last Updated Date. [Date Value DD-MM-YYYY]"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr height="30"><td colspan="10" class='bottom'>&nbsp;</td></tr>
@@ -167,7 +167,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<tr>
 		<td width="15" class="header-left">&nbsp;</td>
 		<td colspan="4" class="header-middle">Shoot Day # 
-		<input name="<% out.print("sd" + a + "_number");%>" type="text" id="<% out.print("sd" + a + "_number");%>" size="5" value="<%=sds.getShootDayNo() %>" pattern="number" title="Enter Shoot Day Number."></td>
+		<input name="<% out.print("sd" + a + "_number");%>" type="text" id="<% out.print("sd" + a + "_number");%>" size="5" value="<%=sds.getShootDayNo() %>" pattern="number" title="Enter Shoot Day Number. [Number Value]"></td>
 		<td width="15" class="header-right">&nbsp;</td>
 	</tr>
 	<tr>
@@ -178,29 +178,29 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150" align="left"><strong>Shoot Day Date</strong></td>
-		<td width="185" align="left"><input name="<% out.print("sd" + a + "_date");%>" type="text" id="<% out.print("sd" + a + "_date");%>" value="<%=sds.getShootDayDate().getDay()+"-"+sds.getShootDayDate().getMonth()+"-"+sds.getShootDayDate().getYear() %>" pattern="real_date" title="Enter Shoot Date."></td>
+		<td width="185" align="left"><input name="<% out.print("sd" + a + "_date");%>" type="text" id="<% out.print("sd" + a + "_date");%>" value="<%=sds.getShootDayDate().getDay()+"-"+sds.getShootDayDate().getMonth()+"-"+sds.getShootDayDate().getYear() %>" pattern="real_date" title="Enter Shoot Day Date. [Date Value DD-MM-YYYY]"></td>
 		<td width="150" align="left"><strong>Shoot Day Weekday</strong></td>
-		<td width="185" align="left"><input name="<% out.print("sd" + a + "_weekday");%>" type="text" id="<% out.print("sd" + a + "_weekday");%>" value="<%=sds.getShootDayWeekday() %>" pattern="any_text" title="Enter Weekday."></td>
+		<td width="185" align="left"><input name="<% out.print("sd" + a + "_weekday");%>" type="text" id="<% out.print("sd" + a + "_weekday");%>" value="<%=sds.getShootDayWeekday() %>" pattern="any_text" title="Enter Weekday. [String Value]"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150" align="left"><strong>Crew Call </strong></td>
-		<td width="185" align="left"><input name="<% out.print("sd" + a + "_crew");%>" type="text" id="<% out.print("sd" + a + "_crew");%>" value="<%=sds.getCrewCall() %>" pattern="time" title="Enter Crew Call. [Time Format HH:MM:SS]"></td>
+		<td width="185" align="left"><input name="<% out.print("sd" + a + "_crew");%>" type="text" id="<% out.print("sd" + a + "_crew");%>" value="<%=sds.getCrewCall() %>" pattern="time" title="Enter Crew Call. [Time Value HH:MM:SS]"></td>
 		<td width="150" align="left"><strong>Travel To Loc </strong></td>
-		<td width="185" align="left"><input name="<% out.print("sd" + a + "_traveltoloc");%>" type="text" id="<% out.print("sd" + a + "_traveltoloc");%>" value="<%=sds.getTravelToLoc() %>" pattern="time" title="Enter Travel to Location. [Time Format HH:MM:SS]"></td>
+		<td width="185" align="left"><input name="<% out.print("sd" + a + "_traveltoloc");%>" type="text" id="<% out.print("sd" + a + "_traveltoloc");%>" value="<%=sds.getTravelToLoc() %>" pattern="time" title="Enter Travel to Location. [Time Value HH:MM:SS]"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td align="left"><strong>Bump In</strong></td>
-		<td colspan="3" align="left"><input name="<% out.print("sd" + a + "_bumpin");%>" type="text" id="<% out.print("sd" + a + "_bumpin");%>" size="8" value="<% if(sds.getBumpIn()!= null){out.print(sds.getBumpIn()); }%>"></td>
+		<td colspan="3" align="left"><input name="<% out.print("sd" + a + "_bumpin");%>" type="text" id="<% out.print("sd" + a + "_bumpin");%>" size="8" value="<% if(sds.getBumpIn()!= null){out.print(sds.getBumpIn()); }%>" title="Enter Bump-In - If Necessary. [Time Value HH:MM:SS]"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150" align="left"><strong>Start of Day Notes </strong></td>
-		<td colspan="3" align="left"><input name="<% out.print("sd" + a + "_start");%>" type="text" id="<% out.print("sd" + a + "_start");%>" size="73" value="<% if(sds.getStartDayNotes()!= null){ out.print(sds.getStartDayNotes());} %>"></td>
+		<td colspan="3" align="left"><input name="<% out.print("sd" + a + "_start");%>" type="text" id="<% out.print("sd" + a + "_start");%>" size="73" value="<% if(sds.getStartDayNotes()!= null){ out.print(sds.getStartDayNotes());} %>" title="Enter Start of Day Notes - If Necessary. [String Value]"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
@@ -218,23 +218,23 @@ if(ss.getSingleDaySchedule().size() != 0) {
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td width="160" height="30" valign="top"><strong>Scene Number</strong></td>
-								<td height="30" colspan="3" valign="top"><input name="<% out.print("sd" + a + "_scene" + b);%>" type="text" id="<% out.print("sd" + a + "_scene" + b);%>" value="<%= scs.getScene() %>" pattern="any_text" title="Enter Scene Number."></td>
+								<td height="30" colspan="3" valign="top"><input name="<% out.print("sd" + a + "_scene" + b);%>" type="text" id="<% out.print("sd" + a + "_scene" + b);%>" value="<%= scs.getScene() %>" pattern="any_text" title="Enter Scene Number. [String Value]"></td>
 								<td width="15" height="30" class="right">&nbsp;</td>
 							</tr>
 							<tr>
 								<td height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Set Name</strong></td>
-								<td height="30" valign="top"><input name="<% out.print("sd" + a + "_set" + b);%>" type="text" id="<% out.print("sd" + a + "_set" + b);%>" value="<%= scs.getSet()%>" pattern="any_text" title="Enter Set Name."></td>
+								<td height="30" valign="top"><input name="<% out.print("sd" + a + "_set" + b);%>" type="text" id="<% out.print("sd" + a + "_set" + b);%>" value="<%= scs.getSet()%>" pattern="any_text" title="Enter Set Name. [String Value]"></td>
 								<td height="30" valign="top"><strong>Synopsis</strong></td>
-								<td height="30" valign="top"><input name="<% out.print("sd" + a + "_synopsis" + b);%>" type="text" id="<% out.print("sd" + a + "_synopsis" + b);%>" value="<%= scs.getSynopsis() %>" pattern="any_text" title="Enter Synopsis."></td>
+								<td height="30" valign="top"><input name="<% out.print("sd" + a + "_synopsis" + b);%>" type="text" id="<% out.print("sd" + a + "_synopsis" + b);%>" value="<%= scs.getSynopsis() %>" pattern="any_text" title="Enter Synopsis. [String Value]"></td>
 								<td height="30" class="right">&nbsp;</td>
 							</tr>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td width="160" height="30" valign="top"><strong>Location ID </strong></td>
-								<td width="160" height="30" valign="top"><input name="<% out.print("sd" + a + "_locationID" + b);%>" type="text" id="<% out.print("sd" + a + "_locationID" + b);%>" value="<%= scs.getLocationID()%>" pattern="any_text" title="Enter Location ID."></td>
+								<td width="160" height="30" valign="top"><input name="<% out.print("sd" + a + "_locationID" + b);%>" type="text" id="<% out.print("sd" + a + "_locationID" + b);%>" value="<%= scs.getLocationID()%>" pattern="any_text" title="Enter Location ID. [String Value] (make sure it matches an id from location notes)"></td>
 								<td width="160" height="30" valign="top"><strong>Address</strong></td>
-								<td width="160" height="30" valign="top"><input name="<% out.print("sd" + a + "_address" + b);%>" type="text" id="<% out.print("sd" + a + "_address" + b);%>" value="<%= scs.getAddress()%>" pattern="any_text" title="Enter Address."></td>
+								<td width="160" height="30" valign="top"><input name="<% out.print("sd" + a + "_address" + b);%>" type="text" id="<% out.print("sd" + a + "_address" + b);%>" value="<%= scs.getAddress()%>" pattern="any_text" title="Enter Address. [String Value]"></td>
 								<td height="30" class="right">&nbsp;</td>
 							</tr>
 							<tr>
@@ -250,17 +250,17 @@ if(ss.getSingleDaySchedule().size() != 0) {
 								<td height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>No. of Script Pages</strong></td>
 								<td height="30" valign="top">
-								<input name="<% out.print("sd" + a + "_pages" + b);%>" type="text" id="<% out.print("sd" + a + "_pages" + b);%>" size="4" value="<%=pt.getNumber() %>" pattern="number" title="Enter Script Pages.">
-								<input name="<% out.print("sd" + a + "_pagesnum" + b);%>" type="text" id="<% out.print("sd" + a + "_pagesnum" + b);%>" size="2" value="<%=pt.getNumerator() %>" pattern="number" title="Enter Script Pages.">
+								<input name="<% out.print("sd" + a + "_pages" + b);%>" type="text" id="<% out.print("sd" + a + "_pages" + b);%>" size="4" value="<%=pt.getNumber() %>" pattern="number" title="Enter Script Pages. [Number Value]">
+								<input name="<% out.print("sd" + a + "_pagesnum" + b);%>" type="text" id="<% out.print("sd" + a + "_pagesnum" + b);%>" size="2" value="<%=pt.getNumerator() %>" pattern="number" title="Enter Script Pages. [Number Value]">
 								<strong>/8 pgs </strong></td>
 								<td height="30" valign="top"><strong>Est. Shoot Times </strong></td>
-								<td height="30" valign="top"><input name="<% out.print("sd" + a + "_shoottimes" + b);%>" type="text" id="<% out.print("sd" + a + "_shoottimes" + b);%>" value="<%= scs.getEstShootTimes()%>" pattern="any_text" title="Enter Est. Shoot Times."></td>
+								<td height="30" valign="top"><input name="<% out.print("sd" + a + "_shoottimes" + b);%>" type="text" id="<% out.print("sd" + a + "_shoottimes" + b);%>" value="<%= scs.getEstShootTimes()%>" pattern="any_text" title="Enter Est. Shoot Times. [String Value]"></td>
 								<td height="30" class="right">&nbsp;</td>
 							</tr>
 							<tr>
 								<td height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Est. Script Timing </strong></td>
-								<td height="30" colspan="3" valign="top"><input name="<% out.print("sd" + a + "_scripttime" + b);%>" type="text" id="<% out.print("sd" + a + "_scripttime" + b);%>" value="<%=scs.getEstScriptTiming() %>" pattern="time" title="Enter Est. Script Timing. [Time Format HH:MM:SS]"></td>
+								<td height="30" colspan="3" valign="top"><input name="<% out.print("sd" + a + "_scripttime" + b);%>" type="text" id="<% out.print("sd" + a + "_scripttime" + b);%>" value="<%=scs.getEstScriptTiming() %>" pattern="time" title="Enter Est. Script Timing. [Time Value HH:MM:SS]"></td>
 								<td height="30" class="right">&nbsp;</td>
 							</tr>
 							<tr>
@@ -273,7 +273,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 										List<String> characters_list = ct.getCharacter();
 										for(String characters : characters_list) {
 										c ++;%>
-										<tr><td><input name="<% out.print("sd" + a + "_charactername" + b + "_" + c);%>" type="text" id="<% out.print("sd" + a + "_charactername" + b + "_" + c);%>" value="<%=characters%>" pattern="any_text" title="Enter Character Name."></td></tr>
+										<tr><td><input name="<% out.print("sd" + a + "_charactername" + b + "_" + c);%>" type="text" id="<% out.print("sd" + a + "_charactername" + b + "_" + c);%>" value="<%=characters%>" pattern="any_text" title="Enter Character Name. [String Value] (make sure it matches a character from cast list)"></td></tr>
 										<% } //end of character loop%>
 									</table>													  
 								</td>
@@ -293,7 +293,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 										d++;
 										%>  
 										<tr valign="top">
-										<td><select name="<% out.print("sd" + a + "_items" + b + "_" + d);%>" id="<% out.print("sd" + a + "_items" + b + "_" + d);%>">
+										<td><select name="<% out.print("sd" + a + "_items" + b + "_" + d);%>" id="<% out.print("sd" + a + "_items" + b + "_" + d);%>" title="Select an Item">
 										<option value="Background Actors" <% if(se.getItem().equals("Background Actors")) { out.print("selected"); }%>>Background Actors</option>
 										<option value="Stunts" <% if(se.getItem().equals("Stunts")) { out.print("selected"); }%>>Stunts</option>
 										<option value="Vehicles" <% if(se.getItem().equals("Vehicles")) { out.print("selected"); }%>>Vehicles</option>
@@ -317,7 +317,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 										<option value="Miscellaneous" <% if(se.getItem().equals("Miscellaneous")) { out.print("selected"); }%>>Miscellaneous</option>
 										<option value="Notes" <% if(se.getItem().equals("Notes")) { out.print("selected"); }%>>Notes</option>
 										</select></td>
-										<td><textarea name="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" id="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" cols="20" pattern="any_text" title="Enter Set Requirements."><%=se.getRequirements() %></textarea></td>
+										<td><textarea name="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" id="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" cols="20" pattern="any_text" title="Enter Set Requirements. [String Value]"><%=se.getRequirements() %></textarea></td>
 										</tr>
 										<%}//end of requirements loop%> 
 									</table>														
@@ -336,14 +336,14 @@ if(ss.getSingleDaySchedule().size() != 0) {
 								<td><input name="<% out.print("sd" + a + "_mealbreakbutton" + b);%>" type="button" id="<% out.print("sd" + a + "_mealbreakbutton" + b);%>" onClick="addMealBreak(<% out.print(a +","+ b); %>);" value="Add Meal Break" disabled></td>
 								<td colspan="3">
 									<table width="510" border="0" cellpadding="0" cellspacing="0" id="<% out.print("sd" + a + "_mealbreak" + b);%>">
-										<tr><td><select name="<% out.print("sd" + a + "_meal" + b);%>" id="<% out.print("sd" + a + "_meal" + b);%>">
+										<tr><td><select name="<% out.print("sd" + a + "_meal" + b);%>" id="<% out.print("sd" + a + "_meal" + b);%>" title="Select a Meal">
 										<option value="Breakfast" <% if(mb.getMeal().equals("Breakfast")) { out.print("selected"); }%>>Breakfast</option>
 										<option value="Morning Tea" <% if(mb.getMeal().equals("Morning Tea")) { out.print("selected"); }%>>Morning Tea</option>
 										<option value="Lunch" <% if(mb.getMeal().equals("Lunch")) { out.print("selected"); }%>>Lunch</option>
 										<option value="Afternoon Tea" <% if(mb.getMeal().equals("Afternoon Tea")) { out.print("selected"); }%>>Afternoon Tea</option>
 										<option value="Dinner" <% if(mb.getMeal().equals("Dinner")) { out.print("selected"); }%>>Dinner</option>
 										<option value="Supper" <% if(mb.getMeal().equals("Supper")) { out.print("selected"); }%>>Supper</option>
-										</select></td><td><strong>Times</strong></td><td><input name="<% out.print("sd" + a + "_break" + b);%>" type="text" id="<% out.print("sd" + a + "_break" + b);%>" value="<%=mb.getBreak()%>" pattern="any_text" title="Enter Meal Break."></td></tr>
+										</select></td><td><strong>Times</strong></td><td><input name="<% out.print("sd" + a + "_break" + b);%>" type="text" id="<% out.print("sd" + a + "_break" + b);%>" value="<%=mb.getBreak()%>" pattern="any_text" title="Enter Meal Times. [String Value]"></td></tr>
 									</table>
 								</td>
 								<td class="right">&nbsp;</td>
@@ -376,7 +376,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150"><strong>End of Day Notes</strong></td>
-		<td colspan="3"><textarea name="<% out.print("sd" + a + "_end");%>" cols="50" id="<% out.print("sd" + a + "_end");%>" pattern="any_text" title="Enter End of Day Notes."><%= sds.getEndDayNotes() %></textarea></td>
+		<td colspan="3"><textarea name="<% out.print("sd" + a + "_end");%>" cols="50" id="<% out.print("sd" + a + "_end");%>" pattern="any_text" title="Enter End of Day Notes. [String Value]"><%= sds.getEndDayNotes() %></textarea></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
@@ -391,8 +391,8 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td><strong>Total Script Pages </strong></td>
-		<td><input name="<% out.print("sd" + a + "_totalpages");%>" type="text" id="<% out.print("sd" + a + "_totalpages");%>" size="4" value="<%= pt2.getNumber() %>" pattern="number" title="Calculate Script Pages.">
-		<input name="<% out.print("sd" + a + "_totalpagesnum");%>" type="text" id="<% out.print("sd" + a + "_totalpagesnum");%>" size="2" value="<%= pt2.getNumerator() %>" pattern="number" title="Calculate Script Pages.">
+		<td><input name="<% out.print("sd" + a + "_totalpages");%>" type="text" id="<% out.print("sd" + a + "_totalpages");%>" size="4" value="<%= pt2.getNumber() %>" pattern="number" title="Calculate Script Pages. [Number Value]">
+		<input name="<% out.print("sd" + a + "_totalpagesnum");%>" type="text" id="<% out.print("sd" + a + "_totalpagesnum");%>" size="2" value="<%= pt2.getNumerator() %>" pattern="number" title="Calculate Script Pages. [Number Value]">
 		<strong>/8 pgs</strong> </td>
 		<td><input name="button22" type="button" onClick="calculateMod(<% out.print(a);%>);" value="Calculate"/></td>
 		<td>&nbsp;</td>
@@ -410,7 +410,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<tr>
 		<td width="15" class="header-left">&nbsp;</td>
 		<td colspan="4" class="header-middle">Shoot Day # 
-		<input name="sd1_number" type="text" id="sd1_number" size="5" value="" pattern="number" title="Enter Shoot Day Number."></td>
+		<input name="sd1_number" type="text" id="sd1_number" size="5" value="" pattern="number" title="Enter Shoot Day Number. [Number Value]"></td>
 		<td width="15" class="header-right">&nbsp;</td>
 	</tr>
 	<tr>
@@ -421,29 +421,29 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150" align="left"><strong>Shoot Day Date</strong></td>
-		<td width="185" align="left"><input name="sd1_date" type="text" id="sd1_date" value="" title="Enter Shoot Date."></td>
+		<td width="185" align="left"><input name="sd1_date" type="text" id="sd1_date" value="" pattern="real_date" title="Enter Shoot Day Date. [Date Value DD-MM-YYYY]"></td>
 		<td width="150" align="left"><strong>Shoot Day Weekday</strong></td>
-		<td width="185" align="left"><input name="sd1_weekday" type="text" id="sd1_weekday" value="" pattern="any_text" title="Enter Weekday."></td>
+		<td width="185" align="left"><input name="sd1_weekday" type="text" id="sd1_weekday" value="" pattern="any_text" title="Enter Weekday. [String Value]"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150" align="left"><strong>Crew Call </strong></td>
-		<td width="185" align="left"><input name="sd1_crew" type="text" id="sd1_crew" pattern="time" title="Enter Crew Call. [Time Format HH:MM:SS]"></td>
+		<td width="185" align="left"><input name="sd1_crew" type="text" id="sd1_crew" pattern="time" title="Enter Crew Call. [Time Value HH:MM:SS]"></td>
 		<td width="150" align="left"><strong>Travel To Loc </strong></td>
-		<td width="185" align="left"><input name="sd1_traveltoloc" type="text" id="sd1_traveltoloc" pattern="time" title="Enter Travel to Location. [Time Format HH:MM:SS]"></td>
+		<td width="185" align="left"><input name="sd1_traveltoloc" type="text" id="sd1_traveltoloc" pattern="time" title="Enter Travel to Location. [Time Value HH:MM:SS]"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td align="left"><strong>Bump In</strong></td>
-		<td colspan="3" align="left"><input name="sd1_bumpin" type="text" id="sd1_bumpin" size="8" value=""></td>
+		<td colspan="3" align="left"><input name="sd1_bumpin" type="text" id="sd1_bumpin" size="8" value="" title="Enter Bump-In - If Necessary. [Time Value HH:MM:SS]"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150" align="left"><strong>Start of Day Notes </strong></td>
-		<td colspan="3" align="left"><input name="sd1_start" type="text" id="sd1_start" size="73" value=""></td>
+		<td colspan="3" align="left"><input name="sd1_start" type="text" id="sd1_start" size="73" value="" title="Enter Start of Day Notes - If Necessary. [Time Value HH:MM:SS]"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
@@ -457,29 +457,28 @@ if(ss.getSingleDaySchedule().size() != 0) {
 		<tr>
 			<td width="15" height="30" class="left">&nbsp;</td>
 			<td width="160" height="30" valign="top"><strong>Scene Number</strong></td>
-			<td height="30" colspan="3" valign="top"><input name="sd1_scene1" type="text" id="sd1_scene" value="" pattern="any_text" title="Enter Scene Number."></td>
+			<td height="30" colspan="3" valign="top"><input name="sd1_scene1" type="text" id="sd1_scene" value="" pattern="any_text" title="Enter Scene Number. [String Value]"></td>
 			<td width="15" height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
 			<td height="30" class="left">&nbsp;</td>
 			<td height="30" valign="top"><strong>Set Name</strong></td>
-			<td height="30" valign="top"><input name="sd1_set1" type="text" id="sd1_set1" value="" pattern="any_text" title="Enter Set Name."></td>
+			<td height="30" valign="top"><input name="sd1_set1" type="text" id="sd1_set1" value="" pattern="any_text" title="Enter Set Name. [String Value]"></td>
 			<td height="30" valign="top"><strong>Synopsis</strong></td>
-			<td height="30" valign="top"><input name="sd1_synopsis1" type="text" id="sd1_synopsis1" value="" pattern="any_text" title="Enter Synopsis."></td>
+			<td height="30" valign="top"><input name="sd1_synopsis1" type="text" id="sd1_synopsis1" value="" pattern="any_text" title="Enter Synopsis. [String Value]"></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
 			<td width="15" height="30" class="left">&nbsp;</td>
 			<td width="160" height="30" valign="top"><strong>Location ID </strong></td>
-			<td width="160" height="30" valign="top"><input name="sd1_locationID1" type="text" id="sd1_locationID1" value="" pattern="any_text" title="Enter Location ID."></td>
+			<td width="160" height="30" valign="top"><input name="sd1_locationID1" type="text" id="sd1_locationID1" value="" pattern="any_text" title="Enter Location ID. [String Value] (make sure it matches an id from location notes)"></td>
 			<td width="160" height="30" valign="top"><strong>Address</strong></td>
-			<td width="160" height="30" valign="top"><input name="sd1_address1" type="text" id="sd1_address" value="" pattern="any_text" title="Enter Address."></td>
+			<td width="160" height="30" valign="top"><input name="sd1_address1" type="text" id="sd1_address" value="" pattern="any_text" title="Enter Address. [String Value]"></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
 			<td width="15" height="30" class="left">&nbsp;</td>
-			<td width="160" height="30" valign="top"><strong>Interior</strong>
-			  <input name="sd1_intext1" type="radio" value="INT" checked></td>
+			<td width="160" height="30" valign="top"><strong>Interior</strong><input name="sd1_intext1" type="radio" value="INT" checked></td>
 			<td width="160" height="30" valign="top"><strong>Exterior</strong><input name="sd1_intext1" type="radio" value="EXT"></td>
 			<td width="160" height="30" valign="top"><strong>Day</strong><input name="sd1_daynight1" type="radio" value="Day" checked></td>
 			<td width="160" height="30" valign="top"><strong>Night</strong><input name="sd1_daynight1" type="radio" value="Night"></td>
@@ -489,17 +488,17 @@ if(ss.getSingleDaySchedule().size() != 0) {
 			<td height="30" class="left">&nbsp;</td>
 			<td height="30" valign="top"><strong>No. of Script Pages</strong></td>
 			<td height="30" valign="top">
-			<input name="sd1_pages1" type="text" id="sd1_pages1" size="4" value="" pattern="number" title="Enter Script Pages.">
-			<input name="sd1_pagesnum1" type="text" id="sd1_pagesnum1" size="2" value="" pattern="number" title="Enter Script Pages.">
+			<input name="sd1_pages1" type="text" id="sd1_pages1" size="4" value="" pattern="number" title="Enter Script Pages. [Number Value]">
+			<input name="sd1_pagesnum1" type="text" id="sd1_pagesnum1" size="2" value="" pattern="number" title="Enter Script Pages. [Number Value]">
 			<strong>/8 pgs </strong></td>
 			<td height="30" valign="top"><strong>Est. Shoot Times </strong></td>
-			<td height="30" valign="top"><input name="sd1_shoottimes1" type="text" id="sd1_shoottimes1" value="" pattern="any_text" title="Enter Est. Shoot Times."></td>
+			<td height="30" valign="top"><input name="sd1_shoottimes1" type="text" id="sd1_shoottimes1" value="" pattern="any_text" title="Enter Est. Shoot Times. [String Value]"></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
 			<td height="30" class="left">&nbsp;</td>
 			<td height="30" valign="top"><strong>Est. Script Timing </strong></td>
-			<td height="30" colspan="3" valign="top"><input name="sd1_scripttime1" type="text" id="sd1_scripttime1" value="" pattern="time" title="Enter Est. Script Timing. [Time Format HH:MM:SS]"></td>
+			<td height="30" colspan="3" valign="top"><input name="sd1_scripttime1" type="text" id="sd1_scripttime1" value="" pattern="time" title="Enter Est. Script Timing. [Time Value HH:MM:SS]"></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
@@ -507,7 +506,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 			<td height="30" rowspan="2" valign="top"><strong>Characters</strong></td>
 			<td height="15" colspan="3" valign="top">
 			<table width="510" border="0" cellpadding="0" cellspacing="0" id="sd1_characters1">
-				<tr><td><input name="sd1_charactername1_1" type="text" id="sd1_charactername1_1" value="" pattern="any_text" title="Enter Character Name."></td></tr>
+				<tr><td><input name="sd1_charactername1_1" type="text" id="sd1_charactername1_1" value="" pattern="any_text" title="Enter Character Name. [String Value] (make sure it matches a character from cast list)"></td></tr>
 			</table>													  
 			</td>
 			<td height="30" rowspan="2" class="right">&nbsp;</td>
@@ -521,7 +520,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 			<td height="15" colspan="3" valign="top">
 				<table width="510" border="0" cellpadding="0" cellspacing="0" id="sd1_requirements1"> 
 					<tr valign="top">
-					<td><select name="sd1_items1_1" id="sd1_items1_1">
+					<td><select name="sd1_items1_1" id="sd1_items1_1" title="Select an Item">
 					  <option value="Background Actors">Background Actors</option>
 					  <option value="Stunts">Stunts</option>
 					  <option value="Vehicles">Vehicles</option>
@@ -545,7 +544,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 					  <option value="Miscellaneous">Miscellaneous</option>
 					  <option value="Notes">Notes</option>
 					</select></td>
-					<td><textarea name="sd1_requirements1_1" id="sd1_requirements1_1" cols="20" pattern="any_text" title="Enter Set Requirements."></textarea></td>
+					<td><textarea name="sd1_requirements1_1" id="sd1_requirements1_1" cols="20" pattern="any_text" title="Enter Set Requirements. [String Value]"></textarea></td>
 					</tr>
 				</table>														
 			</td>
@@ -587,7 +586,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<td width="150"><strong>End of Day Notes</strong></td>
 	<td colspan="3">
 	<p>
-	<textarea name="sd1_end" cols="50" id="sd1_end" pattern="any_text" title="Enter End of Day Notes."></textarea>
+	<textarea name="sd1_end" cols="50" id="sd1_end" pattern="any_text" title="Enter End of Day Notes. [String Value]"></textarea>
 	</p></td>
 	<td class="right">&nbsp;</td>
 	</tr>
@@ -602,8 +601,8 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<tr>
 	<td class="left">&nbsp;</td>
 	<td><strong>Total Script Pages </strong></td>
-	<td><input name="sd1_totalpages" type="text" id="sd1_totalpages" size="4" value="" pattern="number" title="Calculate Script Pages.">
-	<input name="sd1_totalpagesnum" type="text" id="sd1_totalpagesnum" size="2" value="" pattern="number" title="Calculate Script Pages.">
+	<td><input name="sd1_totalpages" type="text" id="sd1_totalpages" size="4" value="" pattern="number" title="Calculate Script Pages. [Number Value]">
+	<input name="sd1_totalpagesnum" type="text" id="sd1_totalpagesnum" size="2" value="" pattern="number" title="Calculate Script Pages. [Number Value]">
 	<strong>/8 pgs</strong> </td>
 	<td><input name="button22" type="button" onClick="calculateMod(1);" value="Calculate"/></td>
 	<td>&nbsp;</td>

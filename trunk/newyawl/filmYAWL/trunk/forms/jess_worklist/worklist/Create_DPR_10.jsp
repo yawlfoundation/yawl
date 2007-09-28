@@ -77,8 +77,8 @@
 		}
 	}
 	else{
-		xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Create_DPR xmlns:ns2='http://www.yawlfoundation.org/sb/DPRinfo' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/DPRinfo DPRinfoType.xsd '><generalInfo><production>production</production><date>2001-01-01</date><weekday>weekday</weekday><shootDayNo>0</shootDayNo></generalInfo><producer>producer</producer><director>director</director><productionManager>productionManager</productionManager><directorOfPhotography>directorOfPhotography</directorOfPhotography><DPRinfo><startDate>2001-01-01</startDate><scheduledFinish>2001-01-01</scheduledFinish><revisedFinish>2001-01-01</revisedFinish><shootingDaysSchedule><scheduledDays>0</scheduledDays><daysToDate>0</daysToDate><estdToComplete>0</estdToComplete><estdTotal>0</estdTotal></shootingDaysSchedule><locationSets><singleLocation><locationName>locationName</locationName><address>address</address><set>set</set></singleLocation></locationSets><slateNOs><slate>0</slate></slateNOs><scheduledScenesShot><scene>scene</scene></scheduledScenesShot><scheduledScenesNotShot><scene>scene</scene></scheduledScenesNotShot><ScenesNotYetCompleted><scene>scene</scene></ScenesNotYetCompleted><ScenesDeleted><scene>scene</scene></ScenesDeleted><ScenesAdded><scene>scene</scene></ScenesAdded><unscheduledScenesShot><scene>scene</scene></unscheduledScenesShot><scriptTiming><prevShot><scenes>0</scenes><pageTime><number>0</number><numerator>0</numerator></pageTime><estTiming>12:00:00</estTiming><actualTiming>12:00:00</actualTiming></prevShot><shotToday><scenes>0</scenes><pageTime><number>0</number><numerator>0</numerator></pageTime><estTiming>12:00:00</estTiming><actualTiming>12:00:00</actualTiming></shotToday><shotTodate><scenes>0</scenes><pageTime><number>0</number><numerator>0</numerator></pageTime><estTiming>12:00:00</estTiming><actualTiming>12:00:00</actualTiming></shotTodate><toBeShot><scenes>0</scenes><pageTime><number>0</number><numerator>0</numerator></pageTime><estTiming>12:00:00</estTiming><actualTiming>12:00:00</actualTiming></toBeShot><total><scenes>0</scenes><pageTime><number>0</number><numerator>0</numerator></pageTime><estTiming>12:00:00</estTiming><actualTiming>12:00:00</actualTiming></total></scriptTiming><ratioTimingSpec><scheduledRatio>0.0</scheduledRatio><dailyRatio>0.0</dailyRatio><averageRatio>0.0</averageRatio><averageTiming>12:00:00</averageTiming><cumulative><sign>true</sign><varTime>12:00:00</varTime></cumulative><originalTiming>12:00:00</originalTiming></ratioTimingSpec><stockInfo><previously><loaded>0</loaded><gross>0</gross><exposed>0</exposed><print>0</print><N_G>0</N_G><waste>0</waste><shortEnds>0</shortEnds><soundRolls>soundRoll</soundRolls><camRolls>camRoll</camRolls></previously><today><loaded>0</loaded><gross>0</gross><exposed>0</exposed><print>0</print><N_G>0</N_G><waste>0</waste><shortEnds>0</shortEnds><soundRolls>soundRoll</soundRolls><camRolls>camRoll</camRolls></today><totalToDate><loaded>0</loaded><gross>0</gross><exposed>0</exposed><print>0</print><N_G>0</N_G><waste>0</waste><shortEnds>0</shortEnds><soundRolls>soundRoll</soundRolls><camRolls>camRoll</camRolls></totalToDate></stockInfo><artistTimeSheet><singleArtist><artist>artist</artist><character>character</character><P_U>P_U</P_U><MU_WD_Call_scheduled>12:00:00</MU_WD_Call_scheduled><MU_WD_Call_actualArrival>12:00:00</MU_WD_Call_actualArrival><mealBreak>12:00:00</mealBreak><timeWrap>12:00:00</timeWrap><travel>12:00:00</travel><totalHRs>12:00:00</totalHRs></singleArtist></artistTimeSheet><extrasTimeSheet><singleArtist><artist>artist</artist><character>character</character><P_U>P_U</P_U><MU_WD_Call_scheduled>12:00:00</MU_WD_Call_scheduled><MU_WD_Call_actualArrival>12:00:00</MU_WD_Call_actualArrival><mealBreak>12:00:00</mealBreak><timeWrap>12:00:00</timeWrap><travel>12:00:00</travel><totalHRs>12:00:00</totalHRs></singleArtist></extrasTimeSheet><crewTimeSheet><singleCrew><crewName>crewName</crewName><crewRole>crewRole</crewRole><crewCall>12:00:00</crewCall><travelIn>12:00:00</travelIn><locationCall>12:00:00</locationCall><mealBreak>12:00:00</mealBreak><wrap>12:00:00</wrap><wrapLoc>12:00:00</wrapLoc><departLoc>12:00:00</departLoc><travelOut>12:00:00</travelOut><totalHRs>12:00:00</totalHRs></singleCrew></crewTimeSheet><majorProps_actionVehicles_additionalEquipment>majorProps_actionVehicles_additionalEquipment</majorProps_actionVehicles_additionalEquipment><additionalCrew>additionalCrew</additionalCrew><livestocks_other>livestocks_other</livestocks_other><accidents_delays>accidents_delays</accidents_delays><catering><singleMeal><meal>meal</meal><time>12:00:00</time><numbers>0</numbers><location>location</location></singleMeal></catering><generalRemarks>generalRemarks</generalRemarks></DPRinfo></ns2:Create_DPR>";
-		//xml = (String)session.getAttribute("outputData");
+		//xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Create_DPR xmlns:ns2='http://www.yawlfoundation.org/sb/DPRinfo' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/DPRinfo DPRinfoType.xsd '><generalInfo><production>production</production><date>2001-01-01</date><weekday>weekday</weekday><shootDayNo>0</shootDayNo></generalInfo><producer>producer</producer><director>director</director><productionManager>productionManager</productionManager><directorOfPhotography>directorOfPhotography</directorOfPhotography><DPRinfo><startDate>2001-01-01</startDate><scheduledFinish>2001-01-01</scheduledFinish><revisedFinish>2001-01-01</revisedFinish><shootingDaysSchedule><scheduledDays>0</scheduledDays><daysToDate>0</daysToDate><estdToComplete>0</estdToComplete><estdTotal>0</estdTotal></shootingDaysSchedule><locationSets><singleLocation><locationName>locationName</locationName><address>address</address><set>set</set></singleLocation></locationSets><slateNOs><slate>0</slate></slateNOs><scheduledScenesShot><scene>scene</scene></scheduledScenesShot><scheduledScenesNotShot><scene>scene</scene></scheduledScenesNotShot><ScenesNotYetCompleted><scene>scene</scene></ScenesNotYetCompleted><ScenesDeleted><scene>scene</scene></ScenesDeleted><ScenesAdded><scene>scene</scene></ScenesAdded><unscheduledScenesShot><scene>scene</scene></unscheduledScenesShot><scriptTiming><prevShot><scenes>0</scenes><pageTime><number>0</number><numerator>0</numerator></pageTime><estTiming>12:00:00</estTiming><actualTiming>12:00:00</actualTiming></prevShot><shotToday><scenes>0</scenes><pageTime><number>0</number><numerator>0</numerator></pageTime><estTiming>12:00:00</estTiming><actualTiming>12:00:00</actualTiming></shotToday><shotTodate><scenes>0</scenes><pageTime><number>0</number><numerator>0</numerator></pageTime><estTiming>12:00:00</estTiming><actualTiming>12:00:00</actualTiming></shotTodate><toBeShot><scenes>0</scenes><pageTime><number>0</number><numerator>0</numerator></pageTime><estTiming>12:00:00</estTiming><actualTiming>12:00:00</actualTiming></toBeShot><total><scenes>0</scenes><pageTime><number>0</number><numerator>0</numerator></pageTime><estTiming>12:00:00</estTiming><actualTiming>12:00:00</actualTiming></total></scriptTiming><ratioTimingSpec><scheduledRatio>0.0</scheduledRatio><dailyRatio>0.0</dailyRatio><averageRatio>0.0</averageRatio><averageTiming>12:00:00</averageTiming><cumulative><sign>true</sign><varTime>12:00:00</varTime></cumulative><originalTiming>12:00:00</originalTiming></ratioTimingSpec><stockInfo><previously><loaded>0</loaded><gross>0</gross><exposed>0</exposed><print>0</print><N_G>0</N_G><waste>0</waste><shortEnds>0</shortEnds><soundRolls>soundRoll</soundRolls><camRolls>camRoll</camRolls></previously><today><loaded>0</loaded><gross>0</gross><exposed>0</exposed><print>0</print><N_G>0</N_G><waste>0</waste><shortEnds>0</shortEnds><soundRolls>soundRoll</soundRolls><camRolls>camRoll</camRolls></today><totalToDate><loaded>0</loaded><gross>0</gross><exposed>0</exposed><print>0</print><N_G>0</N_G><waste>0</waste><shortEnds>0</shortEnds><soundRolls>soundRoll</soundRolls><camRolls>camRoll</camRolls></totalToDate></stockInfo><artistTimeSheet><singleArtist><artist>artist</artist><character>character</character><P_U>P_U</P_U><MU_WD_Call_scheduled>12:00:00</MU_WD_Call_scheduled><MU_WD_Call_actualArrival>12:00:00</MU_WD_Call_actualArrival><mealBreak>12:00:00</mealBreak><timeWrap>12:00:00</timeWrap><travel>12:00:00</travel><totalHRs>12:00:00</totalHRs></singleArtist></artistTimeSheet><extrasTimeSheet><singleArtist><artist>artist</artist><character>character</character><P_U>P_U</P_U><MU_WD_Call_scheduled>12:00:00</MU_WD_Call_scheduled><MU_WD_Call_actualArrival>12:00:00</MU_WD_Call_actualArrival><mealBreak>12:00:00</mealBreak><timeWrap>12:00:00</timeWrap><travel>12:00:00</travel><totalHRs>12:00:00</totalHRs></singleArtist></extrasTimeSheet><crewTimeSheet><singleCrew><crewName>crewName</crewName><crewRole>crewRole</crewRole><crewCall>12:00:00</crewCall><travelIn>12:00:00</travelIn><locationCall>12:00:00</locationCall><mealBreak>12:00:00</mealBreak><wrap>12:00:00</wrap><wrapLoc>12:00:00</wrapLoc><departLoc>12:00:00</departLoc><travelOut>12:00:00</travelOut><totalHRs>12:00:00</totalHRs></singleCrew></crewTimeSheet><majorProps_actionVehicles_additionalEquipment>majorProps_actionVehicles_additionalEquipment</majorProps_actionVehicles_additionalEquipment><additionalCrew>additionalCrew</additionalCrew><livestocks_other>livestocks_other</livestocks_other><accidents_delays>accidents_delays</accidents_delays><catering><singleMeal><meal>meal</meal><time>12:00:00</time><numbers>0</numbers><location>location</location></singleMeal></catering><generalRemarks>generalRemarks</generalRemarks></DPRinfo></ns2:Create_DPR>";
+		xml = (String)session.getAttribute("outputData");
 		xml = xml.replaceAll("<Create_DPR", "<ns2:Create_DPR xmlns:ns2='http://www.yawlfoundation.org/sb/DPRinfo'");
 			xml = xml.replaceAll("</Create_DPR","</ns2:Create_DPR");
 		//System.out.println("outputData xml: "+xml+" --- ");
@@ -368,7 +368,7 @@
 		  ScriptTimingType stt = dprit.getScriptTiming();
 		  SingleSriptTimingType sstt_pr = stt.getPrevShot();
 		  SingleSriptTimingType sstt_today = stt.getShotToday();
-		  SingleSriptTimingType sstt_todate = stt.getShotTodate();
+		  SingleSriptTimingType sstt_todate = stt.getShotToDate();
 		  SingleSriptTimingType sstt_tobe = stt.getToBeShot();
 		  SingleSriptTimingType sstt_total = stt.getTotal();
 		  %>
@@ -822,7 +822,7 @@
 				//do the calculation
 				long c_dif= c_departloc_total - c_crewcall_total - c_meal_total ;
 				if (c_dif <0) {
-					c_dif = c_departloc_total - c_crewcall_total;
+					c_dif = 0;
 					c_meal = "00:00:00";
 				}
 				//convert to HH:MM:SS format
@@ -846,6 +846,7 @@
 					c_seconds_string = "0" +  c_seconds_string;
 				}
 				String c_total_hrs = c_hours_string + ":" + c_minutes_string + ":"+ c_seconds_string;
+				
 				%>	
               <td width="15" class="left">&nbsp;</td>
 			  <td><input name="crew_name_<%=b%>" type="text" id="crew_name_<%=b%>" value="<%= sct.getCrewName() %>" size="10" readonly></td>
@@ -1000,7 +1001,7 @@
                 <input type="hidden" name="scenes_added_count" id="scenes_added_count" value="<%if (s_5==0) {out.print("0");}else{out.print(s_5);}%>">
                 <input type="hidden" name="unscheduled_scenes_shot_count" id="unscheduled_scenes_shot_count" value="<%if (s_6==0) {out.print("0");}else{out.print(s_6);}%>">
 				<input type="hidden" name="artist_count" id="artist_count" value="<%if (d==0) {out.print("1");}else{out.print(d);}%>">
-				<input type="hidden" name="extras_count" id="extras_count" value="<%if (c==0) {out.print("1");}else{out.print(c);}%>">
+				<input type="hidden" name="extras_count" id="extras_count" value="<%if (c==0) {out.print("0");}else{out.print(c);}%>">
 				<input type="hidden" name="crew_count" id="crew_count" value="<%if (b==0) {out.print("1");}else{out.print(b);}%>">
 				<input name="catering_count" type="hidden" id="catering_count" value="<%=a%>">
 				<input type="hidden" name="workItemID" id="workItemID"/>
@@ -1171,7 +1172,7 @@ if(request.getParameter("Submission") != null){
 	sst3.setPageTime(pt3);
 	sst3.setEstTiming(XMLGregorianCalendarImpl.parse(request.getParameter("todate_est")));
 	sst3.setActualTiming(XMLGregorianCalendarImpl.parse(request.getParameter("todate_actual")));
-	st.setShotTodate(sst3);
+	st.setShotToDate(sst3);
 	//Script Timing - To Be Shot
 	SingleSriptTimingType sst4 = new SingleSriptTimingType();
 	sst4.setScenes(new BigInteger(request.getParameter("tobe_scenes")));
@@ -1181,7 +1182,7 @@ if(request.getParameter("Submission") != null){
 	sst4.setPageTime(pt4);
 	sst4.setEstTiming(XMLGregorianCalendarImpl.parse(request.getParameter("tobe_est")));
 	sst4.setActualTiming(XMLGregorianCalendarImpl.parse(request.getParameter("tobe_actual")));
-	st.setPrevShot(sst4);
+	st.setToBeShot(sst4);
 	//Script Timing - Total
 	SingleSriptTimingType sst5 = new SingleSriptTimingType();
 	sst5.setScenes(new BigInteger(request.getParameter("total_scenes")));
@@ -1258,15 +1259,15 @@ if(request.getParameter("Submission") != null){
 	for(int current_artist=1; current_artist<=artist_count; current_artist++){//getting the crew information
 		if(!(request.getParameter("artist_artist_" + current_artist).equals(""))){
 			SingleArtistType sa1 = new SingleArtistType();
-			sa1.setArtist(request.getParameter("extras_artist_" + current_artist));
-			sa1.setCharacter(request.getParameter("extras_character_" + current_artist));
-			sa1.setPU(request.getParameter("extras_pu_"+ current_artist));
-			sa1.setMUWDCallScheduled(XMLGregorianCalendarImpl.parse(request.getParameter("extras_MUWDCall_scheduled_"+ current_artist)));
-			sa1.setMUWDCallActualArrival(XMLGregorianCalendarImpl.parse(request.getParameter("extras_MUWDCall_actual_"+ current_artist)));
-			sa1.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("extras_mealbreak_"+ current_artist)));
-			sa1.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("extras_timewrap_"+ current_artist)));
-			sa1.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("extras_travel_"+ current_artist)));
-			sa1.setTotalHRs(XMLGregorianCalendarImpl.parse(request.getParameter("extras_totalhrs_"+ current_artist)));
+			sa1.setArtist(request.getParameter("artist_artist_" + current_artist));
+			sa1.setCharacter(request.getParameter("artist_character_" + current_artist));
+			sa1.setPU(request.getParameter("artist_pu_"+ current_artist));
+			sa1.setMUWDCallScheduled(XMLGregorianCalendarImpl.parse(request.getParameter("artist_MUWDCall_scheduled_"+ current_artist)));
+			sa1.setMUWDCallActualArrival(XMLGregorianCalendarImpl.parse(request.getParameter("artist_MUWDCall_actual_"+ current_artist)));
+			sa1.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("artist_mealbreak_"+ current_artist)));
+			sa1.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("artist_timewrap_"+ current_artist)));
+			sa1.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("artist_travel_"+ current_artist)));
+			sa1.setTotalHRs(XMLGregorianCalendarImpl.parse(request.getParameter("artist_totalhrs_"+ current_artist)));
 			ats1.getSingleArtist().add(sa1);
 		}
 	}
@@ -1275,8 +1276,8 @@ if(request.getParameter("Submission") != null){
 	//Extras Details
 	ArtistTimeSheetType ats2 = new ArtistTimeSheetType();
 	int extras_count = Integer.parseInt(request.getParameter("extras_count"));
-	for(int current_extras=1; current_extras<=extras_count; current_extras++){//getting the crew information
-		if(!(request.getParameter("extras_artist_" + current_extras).equals(""))){
+	if(extras_count > 0){
+		for(int current_extras=1; current_extras<=extras_count; current_extras++){//getting the crew information
 			SingleArtistType sa2 = new SingleArtistType();
 			sa2.setArtist(request.getParameter("extras_artist_" + current_extras));
 			sa2.setCharacter(request.getParameter("extras_character_" + current_extras));
@@ -1289,8 +1290,10 @@ if(request.getParameter("Submission") != null){
 			sa2.setTotalHRs(XMLGregorianCalendarImpl.parse(request.getParameter("extras_totalhrs_"+ current_extras)));
 			ats2.getSingleArtist().add(sa2);
 		}
-	}
+		dpri.setExtrasTimeSheet(ats2);
+	}else{
 	dpri.setExtrasTimeSheet(ats2);
+	}
 	
 	//Crew Details
 	CrewTimeSheetType cwts = new CrewTimeSheetType();
@@ -1500,7 +1503,7 @@ DPRinfoType dpri = new DPRinfoType();
 	sst3.setPageTime(pt3);
 	sst3.setEstTiming(XMLGregorianCalendarImpl.parse(request.getParameter("todate_est")));
 	sst3.setActualTiming(XMLGregorianCalendarImpl.parse(request.getParameter("todate_actual")));
-	st.setShotTodate(sst3);
+	st.setShotToDate(sst3);
 	//Script Timing - To Be Shot
 	SingleSriptTimingType sst4 = new SingleSriptTimingType();
 	sst4.setScenes(new BigInteger(request.getParameter("tobe_scenes")));
@@ -1510,7 +1513,7 @@ DPRinfoType dpri = new DPRinfoType();
 	sst4.setPageTime(pt4);
 	sst4.setEstTiming(XMLGregorianCalendarImpl.parse(request.getParameter("tobe_est")));
 	sst4.setActualTiming(XMLGregorianCalendarImpl.parse(request.getParameter("tobe_actual")));
-	st.setPrevShot(sst4);
+	st.setToBeShot(sst4);
 	//Script Timing - Total
 	SingleSriptTimingType sst5 = new SingleSriptTimingType();
 	sst5.setScenes(new BigInteger(request.getParameter("total_scenes")));
@@ -1587,15 +1590,15 @@ DPRinfoType dpri = new DPRinfoType();
 	for(int current_artist=1; current_artist<=artist_count; current_artist++){//getting the crew information
 		if(!(request.getParameter("artist_artist_" + current_artist).equals(""))){
 			SingleArtistType sa1 = new SingleArtistType();
-			sa1.setArtist(request.getParameter("extras_artist_" + current_artist));
-			sa1.setCharacter(request.getParameter("extras_character_" + current_artist));
-			sa1.setPU(request.getParameter("extras_pu_"+ current_artist));
-			sa1.setMUWDCallScheduled(XMLGregorianCalendarImpl.parse(request.getParameter("extras_MUWDCall_scheduled_"+ current_artist)));
-			sa1.setMUWDCallActualArrival(XMLGregorianCalendarImpl.parse(request.getParameter("extras_MUWDCall_actual_"+ current_artist)));
-			sa1.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("extras_mealbreak_"+ current_artist)));
-			sa1.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("extras_timewrap_"+ current_artist)));
-			sa1.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("extras_travel_"+ current_artist)));
-			sa1.setTotalHRs(XMLGregorianCalendarImpl.parse(request.getParameter("extras_totalhrs_"+ current_artist)));
+			sa1.setArtist(request.getParameter("artist_artist_" + current_artist));
+			sa1.setCharacter(request.getParameter("artist_character_" + current_artist));
+			sa1.setPU(request.getParameter("artist_pu_"+ current_artist));
+			sa1.setMUWDCallScheduled(XMLGregorianCalendarImpl.parse(request.getParameter("artist_MUWDCall_scheduled_"+ current_artist)));
+			sa1.setMUWDCallActualArrival(XMLGregorianCalendarImpl.parse(request.getParameter("artist_MUWDCall_actual_"+ current_artist)));
+			sa1.setMealBreak(XMLGregorianCalendarImpl.parse(request.getParameter("artist_mealbreak_"+ current_artist)));
+			sa1.setTimeWrap(XMLGregorianCalendarImpl.parse(request.getParameter("artist_timewrap_"+ current_artist)));
+			sa1.setTravel(XMLGregorianCalendarImpl.parse(request.getParameter("artist_travel_"+ current_artist)));
+			sa1.setTotalHRs(XMLGregorianCalendarImpl.parse(request.getParameter("artist_totalhrs_"+ current_artist)));
 			ats1.getSingleArtist().add(sa1);
 		}
 	}
@@ -1604,8 +1607,8 @@ DPRinfoType dpri = new DPRinfoType();
 	//Extras Details
 	ArtistTimeSheetType ats2 = new ArtistTimeSheetType();
 	int extras_count = Integer.parseInt(request.getParameter("extras_count"));
-	for(int current_extras=1; current_extras<=extras_count; current_extras++){//getting the crew information
-		if(!(request.getParameter("extras_artist_" + current_extras).equals(""))){
+	if(extras_count > 0){
+		for(int current_extras=1; current_extras<=extras_count; current_extras++){//getting the crew information
 			SingleArtistType sa2 = new SingleArtistType();
 			sa2.setArtist(request.getParameter("extras_artist_" + current_extras));
 			sa2.setCharacter(request.getParameter("extras_character_" + current_extras));
@@ -1618,8 +1621,11 @@ DPRinfoType dpri = new DPRinfoType();
 			sa2.setTotalHRs(XMLGregorianCalendarImpl.parse(request.getParameter("extras_totalhrs_"+ current_extras)));
 			ats2.getSingleArtist().add(sa2);
 		}
-	}
+		dpri.setExtrasTimeSheet(ats2);
+	}else{
 	dpri.setExtrasTimeSheet(ats2);
+	}
+	
 	
 	//Crew Details
 	CrewTimeSheetType cwts = new CrewTimeSheetType();
