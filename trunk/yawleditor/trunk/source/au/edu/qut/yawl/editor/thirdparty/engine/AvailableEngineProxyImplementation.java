@@ -191,7 +191,10 @@ public class AvailableEngineProxyImplementation implements
   }
   
   private boolean checkConnectionForSessionID(String sessionID) {
-    String simplePing = clientInterfaceA.checkConnection(sessionID);
+    String simplePing = null;
+    try {
+      simplePing = clientInterfaceA.checkConnection(sessionID);
+    } catch (Exception e) {}
     // System.out.println("Checking engine connection. Engine returned \"" + simplePing + "\"");
   
     if (simplePing != null && simplePing.trim().equals("<response>Permission Granted</response>")) {
