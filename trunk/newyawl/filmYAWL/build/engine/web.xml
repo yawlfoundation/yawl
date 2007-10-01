@@ -36,7 +36,7 @@
 
 	<context-param>
 		<param-name>RMIServerName</param-name>
-		<param-value>//localhost/EngineGateway</param-value>
+		<param-value>//192.94.227.138/EngineGateway</param-value>
 		<description>
             The RMI registry name of the RMI gateway into the YAWL Engine.
         </description>
@@ -57,7 +57,7 @@
 
     <context-param>
         <param-name>ExceptionObserverURI</param-name>
-        <param-value>http://localhost:8080/workletService/ix</param-value>
+        <param-value>http://192.94.227.138:8080/workletService/ix</param-value>
         <description>
             This value provides the URI of an Exception Service that monitors
             for process exceptions through Interface X.
@@ -133,7 +133,7 @@
 	<!-- Define the default session timeout for your application,
          in minutes. -->
 	<session-config>
-		<session-timeout>30</session-timeout>
+		<session-timeout>1440</session-timeout>
 		<!-- 30 minutes -->
 	</session-config>
 
