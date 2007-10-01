@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<searchResult>
+  <id>1:DoShow_4</id>
+  <specid>OrganiseConcert</specid>
+  <taskid>DoShow</taskid>
+  <caseid>1</caseid>
+  <worklet>ChangeToMidVenue</worklet>
+  <runningcaseid>3</runningcaseid>
+  <extype>2</extype>
+  <lastNode>
+    <satisfied>1</satisfied>
+    <tested>2</tested>
+  </lastNode>
+  <casedata>
+    <TicketCost>213</TicketCost>
+    <TicketsSold>12600</TicketsSold>
+    <VenueCost>100000.00</VenueCost>
+    <Seating>25000</Seating>
+    <VenueName>ANZ Stadium</VenueName>
+  </casedata>
+</searchResult>
+
