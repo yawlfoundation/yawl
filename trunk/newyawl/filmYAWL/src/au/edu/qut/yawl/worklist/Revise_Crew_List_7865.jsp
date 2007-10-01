@@ -8,7 +8,7 @@
 <%@ page import="javax.xml.bind.JAXBContext" %>
 <%@ page import="javax.xml.bind.Marshaller" %>
 <%@ page import="javax.xml.bind.Unmarshaller" %>
-<%@ page import="org.yawlfoundation.sb.crewinfo.*"%>
+<%@ page import="org.yawlfoundation.sb.revisecrewinfo.*"%>
 <%@ page import="javazoom.upload.*"%>
 <%@ page import="java.util.*"%>
 <%@ page import="java.io.*"%>
@@ -65,27 +65,27 @@
 			}
 			
             int beginOfFile = result.indexOf("<?xml");
-            int endOfFile = result.indexOf("</ns2:Input_Crew_List>");
+            int endOfFile = result.indexOf("</ns2:Revise_Crew_List>");
             if(beginOfFile != -1 && endOfFile != -1){
                 xml = result.substring(
                     beginOfFile,
-                    endOfFile + 23);
+                    endOfFile + 24);
 				//System.out.println("xml: "+xml);
     		}
 		}
 	}
 	else{
 		xml = (String)session.getAttribute("outputData");
-		xml = xml.replaceAll("<Input_Crew_List", "<ns2:Input_Crew_List xmlns:ns2='http://www.yawlfoundation.org/sb/crewInfo'");
-		xml = xml.replaceAll("</Input_Crew_List","</ns2:Input_Crew_List");
+		xml = xml.replaceAll("<Revise_Crew_List", "<ns2:Revise_Crew_List xmlns:ns2='http://www.yawlfoundation.org/sb/reviseCrewInfo'");
+		xml = xml.replaceAll("</Revise_Crew_List","</ns2:Revise_Crew_List");
 		//System.out.println("outputData xml: "+xml+" --- ");
 	}
 	
 	ByteArrayInputStream xmlBA = new ByteArrayInputStream(xml.getBytes());
-	JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.crewinfo");
+	JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.revisecrewinfo");
 	Unmarshaller u = jc.createUnmarshaller();
-	JAXBElement iclElement = (JAXBElement) u.unmarshal(xmlBA);	//creates the root element from XML file	            
-	InputCrewListType icl = (InputCrewListType) iclElement.getValue();
+	JAXBElement rclElement = (JAXBElement) u.unmarshal(xmlBA);	//creates the root element from XML file	            
+	ReviseCrewListType rcl = (ReviseCrewListType) rclElement.getValue();
 	
 %>
 
@@ -108,7 +108,7 @@
                 <tr>
                   <td width="15" class="left">&nbsp;</td>
                   <td><strong>Production</strong></td>
-                  <td><input name="production" type="text" id="production" value="<%=icl.getProduction() %>" readonly></td>
+                  <td><input name="production" type="text" id="production" value="<%=rcl.getProduction() %>" readonly></td>
                   <td width="15" class="right">&nbsp;</td>
                 </tr>
                 <tr>
@@ -134,8 +134,8 @@
                     <td width="15" class="right">&nbsp;</td>
                   </tr>
 				 <%int a=0;
-				 if (icl.getCrewInfo() != null) {
-				 CrewInfoType cit = icl.getCrewInfo();
+				 if (rcl.getCrewInfo() != null) {
+				 CrewInfoType cit = rcl.getCrewInfo();
 				 if (cit.getSingleCrewInfo().isEmpty() == false){
 					for(SingleCrewInfoType scit : cit.getSingleCrewInfo()) {
 						a++;%> 
@@ -284,7 +284,7 @@
 			<input type="hidden" name="submit" id="submit">
 	</form>
 		<!-- LOAD -->
-    <form method="post" action="Input_Crew_List_3257.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
+    <form method="post" action="Revise_Crew_List_7865.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
       <table width="60%" border="0" cellspacing="1" cellpadding="1" align="center" class="style1">
         <tr>
           <td align="left"><strong>Select a file to upload :</strong></td>
@@ -325,16 +325,16 @@ if(request.getParameter("Submission") != null){
 		
 		ci.getSingleCrewInfo().add(scit);
 	}
-	icl.setProduction(request.getParameter("production"));
-	icl.setCrewInfo(ci);
+	rcl.setProduction(request.getParameter("production"));
+	rcl.setCrewInfo(ci);
 	
 	Marshaller m = jc.createMarshaller();
 	m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-	File f = new File("./backup/CrewList_"+new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date())+".xml");
-	m.marshal( iclElement,  f);//output to file
+	File f = new File("./backup/ReviseCrewList_"+new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date())+".xml");
+	m.marshal( rclElement,  f);//output to file
 	
 	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-	m.marshal(iclElement, xmlOS);//out to ByteArray
+	m.marshal(rclElement, xmlOS);//out to ByteArray
 	String result = xmlOS.toString().replaceAll("ns2:", "");
 
 	String workItemID = new String(request.getParameter("workItemID"));
@@ -360,16 +360,16 @@ else if(request.getParameter("Save") != null){
 		
 		ci.getSingleCrewInfo().add(scit);
 	}
-	icl.setProduction(request.getParameter("production"));
-	icl.setCrewInfo(ci);
+	rcl.setProduction(request.getParameter("production"));
+	rcl.setCrewInfo(ci);
 	
 	Marshaller m = jc.createMarshaller();
 	m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
 	
 	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-	m.marshal(iclElement, xmlOS);//out to ByteArray
+	m.marshal(rclElement, xmlOS);//out to ByteArray
 	
-	response.setHeader("Content-Disposition", "attachment;filename=\"CrewList_"+new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date())+"_l.xml\";");
+	response.setHeader("Content-Disposition", "attachment;filename=\"ReviseCrewList_"+new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date())+"_l.xml\";");
 	response.setHeader("Content-Type", "text/xml");
 	
 	ServletOutputStream outs = response.getOutputStream();

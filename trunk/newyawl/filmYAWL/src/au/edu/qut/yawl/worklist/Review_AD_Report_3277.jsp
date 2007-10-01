@@ -115,42 +115,42 @@
   <tr>
     <td width="14" class="background_left">&nbsp;</td>
     <td>
-		<h1 align="center">2nd Assistant Director's Report </h1>      
+		<h1 align="center">2nd Assistant Director"s Report </h1>      
 		<form name="form1" method="post">			
 			
 		<table width="700" border="0" align="center">
 
 			<tr><td>
-				<table width='700' border='0' cellpadding='0' cellspacing='0'>
-					<tr><td align='right' valign='top' class="header-left">&nbsp;</td>
-				      <td colspan='6' valign='top' class="header-middle">General Info</td>
-				      <td align='right' valign='top' class="header-right">&nbsp;</td>
+				<table width="700" border="0" cellpadding="0" cellspacing="0">
+					<tr><td align="right" valign="top" class="header-left">&nbsp;</td>
+				      <td colspan="6" valign="top" class="header-middle">General Info</td>
+				      <td align="right" valign="top" class="header-right">&nbsp;</td>
 				  </tr>
 					<tr>
-						<td class='left' width='14'>&nbsp;</td>
-						<td><strong>Production</strong></td><td><input name='production' type='text' id='production' value='<%=gi.getProduction()%>' size="15" readonly></td>
-						<td><strong>Date</strong></td><td><input name='date' type='text' id='date' value='<%=gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>' size="15" readonly></td>
-						<td><strong>Day</strong></td><td><input name='weekday' type='text' id='weekday' value='<%=gi.getWeekday()%>' size="15" readonly></td>
-						<td class='right' width='14'>&nbsp;</td>
+						<td class="left" width="14">&nbsp;</td>
+						<td><strong>Production</strong></td><td><input name="production" type="text" id="production" value="<%=gi.getProduction()%>" size="15" readonly></td>
+						<td><strong>Date</strong></td><td><input name="date" type="text" id="date" value="<%=gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>" size="15" readonly></td>
+						<td><strong>Day</strong></td><td><input name="weekday" type="text" id="weekday" value="<%=gi.getWeekday()%>" size="15" readonly></td>
+						<td class="right" width="14">&nbsp;</td>
 					</tr>
 					<tr>
-						<td class='left' width='14'>&nbsp;</td>
-						<td><strong>Producer</strong></td><td><input name='producer' type='text' id='producer' value='<%=radr.getProducer()%>' size="15" readonly></td>
-						<td><strong>Director</strong></td><td><input name='director' type='text' id='director' value='<%=radr.getDirector()%>' size="15" readonly></td>
-						<td><strong>Shoot Day </strong></td><td><input name='shoot_day' type='text' id='shoot_day' value='<%=gi.getShootDayNo()%>' size="15" readonly></td>
-						<td class='right' width='14'>&nbsp;</td>
+						<td class="left" width="14">&nbsp;</td>
+						<td><strong>Producer</strong></td><td><input name="producer" type="text" id="producer" value="<%=radr.getProducer()%>" size="15" readonly></td>
+						<td><strong>Director</strong></td><td><input name="director" type="text" id="director" value="<%=radr.getDirector()%>" size="15" readonly></td>
+						<td><strong>Shoot Day </strong></td><td><input name="shoot_day" type="text" id="shoot_day" value="<%=gi.getShootDayNo()%>" size="15" readonly></td>
+						<td class="right" width="14">&nbsp;</td>
 					</tr>
-					<tr height='30'>
-						<td class='left' width='14'>&nbsp;</td>
+					<tr height="30">
+						<td class="left" width="14">&nbsp;</td>
 						<td><strong>Assistant Director</strong></td>
-						<td><input name='assistant_director' type='text' id='assistant_director' value='<%=radr.getAssistantDirector()%>' size="15" readonly></td>
+						<td><input name="assistant_director" type="text" id="assistant_director" value="<%=radr.getAssistantDirector()%>" size="15" readonly></td>
 						<td>&nbsp;</td>
 						<td>&nbsp;</td>
 						<td>&nbsp;</td>
 						<td>&nbsp;</td>
-						<td class='right' width='14'>&nbsp;</td>
+						<td class="right" width="14">&nbsp;</td>
 					</tr>
-					<tr height='30'><td colspan='8' class='bottom'>&nbsp;</td></tr>
+					<tr height="30"><td colspan="8" class="bottom">&nbsp;</td></tr>
 			  </table>
 			</td></tr>
 			<tr><td>

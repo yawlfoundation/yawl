@@ -118,33 +118,33 @@
 		
 			<tr><td>
 			
-				<table width='700' border='0' cellspacing='0' cellpadding='0'>
+				<table width="700" border="0" cellspacing="0" cellpadding="0">
 					<tr><td class="header-left">&nbsp;</td>
-					  <td colspan='6' class="header-middle">General Info </td>
+					  <td colspan="6" class="header-middle">General Info </td>
 					  <td class="header-right">&nbsp;</td>
 					</tr>
 					<tr>
-						<td class='left' width='15'>&nbsp;</td>
-						<td><strong>Production</strong></td><td><input name='production' type='text' id='production' value='<%=gi.getProduction()%>' readonly></td>
-						<td><strong>Date</strong></td><td><input name='date' type='text' id='date' value='<%=gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>' readonly></td>
-						<td><strong>Day</strong></td><td><input name='weekday' type='text' id='weekday' value='<%=gi.getWeekday()%>' readonly></td>
-						<td class='right' width='15'>&nbsp;</td>
+						<td class="left" width="15">&nbsp;</td>
+						<td><strong>Production</strong></td><td><input name="production" type="text" id="production" value="<%=gi.getProduction()%>" readonly></td>
+						<td><strong>Date</strong></td><td><input name="date" type="text" id="date" value="<%=gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>" readonly></td>
+						<td><strong>Day</strong></td><td><input name="weekday" type="text" id="weekday" value="<%=gi.getWeekday()%>" readonly></td>
+						<td class="right" width="15">&nbsp;</td>
 					</tr>
 					<tr>
-						<td class='left' width='15'>&nbsp;</td>
-						<td><strong>Producer</strong></td><td><input name='producer' type='text' id='producer' value='<%=rcr.getProducer()%>' readonly></td>
-						<td><strong>Director</strong></td><td><input name='director' type='text' id='director' value='<%=rcr.getDirector()%>' readonly></td>
-						<td><strong>Shoot Day </strong></td><td><input name='shoot_day' type='text' id='shoot_day' value='<%=gi.getShootDayNo()%>' readonly></td>
-						<td class='right' width='15'>&nbsp;</td>
+						<td class="left" width="15">&nbsp;</td>
+						<td><strong>Producer</strong></td><td><input name="producer" type="text" id="producer" value="<%=rcr.getProducer()%>" readonly></td>
+						<td><strong>Director</strong></td><td><input name="director" type="text" id="director" value="<%=rcr.getDirector()%>" readonly></td>
+						<td><strong>Shoot Day </strong></td><td><input name="shoot_day" type="text" id="shoot_day" value="<%=gi.getShootDayNo()%>" readonly></td>
+						<td class="right" width="15">&nbsp;</td>
 					</tr>
 					<tr>
-						<td class='left' width='15'>&nbsp;</td>
-						<td><strong>D.O.P.</strong></td><td><input name='dop' type='text' id='dop' value='<%=rcr.getDirectorOfPhotography()%>' readonly></td>
-						<td><strong>Editor</strong></td><td><input name='editor' type='text' id='editor' value='<%=rcr.getEditor()%>' readonly></td>
-						<td><strong>Continuity</strong></td><td><input name='continuity' type='text' id='continuity' value='<%=rcr.getContinuity()%>' readonly></td>
-						<td class='right' width='15'>&nbsp;</td>
+						<td class="left" width="15">&nbsp;</td>
+						<td><strong>D.O.P.</strong></td><td><input name="dop" type="text" id="dop" value="<%=rcr.getDirectorOfPhotography()%>" readonly></td>
+						<td><strong>Editor</strong></td><td><input name="editor" type="text" id="editor" value="<%=rcr.getEditor()%>" readonly></td>
+						<td><strong>Continuity</strong></td><td><input name="continuity" type="text" id="continuity" value="<%=rcr.getContinuity()%>" readonly></td>
+						<td class="right" width="15">&nbsp;</td>
 					</tr>	
-					<tr><td colspan='8' class='bottom'>&nbsp;</td>
+					<tr><td colspan="8" class="bottom">&nbsp;</td>
 					</tr>
 			  </table>
 				
@@ -185,7 +185,7 @@
                       <td align="center"><input name="<% out.print("scene_"+a);%>" type="text" id="<% out.print("scene_"+a);%>" value="<%=sit.getScene()%>" size="5" readonly></td>
                       <td align="center"><input name="<% out.print("slate_"+a);%>" type="text" id="<% out.print("slate_"+a);%>" value="<%=slt.getSlate()%>" size="5" readonly></td>
                       <td align="center"><input name="<% out.print("take_"+a);%>" type="text" id="<% out.print("take_"+a);%>" value="<%=tit.getTake()%>" size="5" readonly></td>
-					  <td align='center'><input name='<% out.print("print_"+a);%>' type='checkbox' id='<% out.print("print_"+a);%>' value='true' <% if(tit.isPrint() == true) {out.print("checked");}%> readonly></td>
+					  <td align="center"><input name="<% out.print("print_"+a);%>" type="checkbox" id="<% out.print("print_"+a);%>" value="true" <% if(tit.isPrint() == true) {out.print("checked");}%> readonly></td>
                       <td align="center"><input name="<% out.print("duration_"+a);%>" type="text" id="<% out.print("duration_"+a);%>" value="<%=tit.getDuration()%>"size="8" readonly></td>
                       <td align="center"><textarea name="<% out.print("comments_"+a);%>" cols="30" id="<% out.print("comments_"+a);%>" readonly><%= tit.getComments()%></textarea></td>
                       <td width="15" class="right">&nbsp;</td>

@@ -8,7 +8,7 @@
 <%@ page import="javax.xml.bind.JAXBContext" %>
 <%@ page import="javax.xml.bind.Marshaller" %>
 <%@ page import="javax.xml.bind.Unmarshaller" %>
-<%@ page import="org.yawlfoundation.sb.locationinfo.*"%>
+<%@ page import="org.yawlfoundation.sb.reviselocationinfo.*"%>
 <%@ page import="javazoom.upload.*"%>
 <%@ page import="java.util.*"%>
 <%@ page import="java.io.*"%>
@@ -67,28 +67,28 @@
 			}
 			
             int beginOfFile = result.indexOf("<?xml");
-            int endOfFile = result.indexOf("</ns2:Input_Location_Notes>");
+            int endOfFile = result.indexOf("</ns2:Revise_Location_Notes>");
             if(beginOfFile != -1 && endOfFile != -1){
                 xml = result.substring(
                     beginOfFile,
-                    endOfFile + 27);
+                    endOfFile + 28);
 				//System.out.println("xml: "+xml);
     		}
 		}
 	}
 	else{
-		//xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Input_Location_Notes xmlns:ns2='http://www.yawlfoundation.org/sb/locationInfo' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/locationInfo locationInfoType.xsd '><production>production</production><locationInfo><singleLocationInfo><locationID>locationID</locationID><locationName>locationName</locationName><address>address</address><UBDMapRef>UBDMapRef</UBDMapRef><parking>parking</parking><unit>unit</unit><police>police</police><hospital>hospital</hospital><contact>contact</contact><contactNo>contactNo</contactNo><locationNotes>locationNotes</locationNotes></singleLocationInfo></locationInfo></ns2:Input_Location_Notes>";
+		//xml = "<?xml version='1.0' encoding='UTF-8'?><ns2:Revise_Location_Notes xmlns:ns2='http://www.yawlfoundation.org/sb/reviseLocationInfo' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.yawlfoundation.org/sb/reviseLocationInfo reviseLocationInfoType.xsd '><production>production</production><locationInfo><singleLocationInfo><locationID>locationID</locationID><locationName>locationName</locationName><address>address</address><UBDMapRef>UBDMapRef</UBDMapRef><parking>parking</parking><unit>unit</unit><police>police</police><hospital>hospital</hospital><contact>contact</contact><contactNo>contactNo</contactNo><locationNotes>locationNotes</locationNotes></singleLocationInfo></locationInfo></ns2:Revise_Location_Notes>";
 		xml = (String)session.getAttribute("outputData");
-		xml = xml.replaceAll("<Input_Location_Notes", "<ns2:Input_Location_Notes xmlns:ns2='http://www.yawlfoundation.org/sb/locationInfo'");
-		xml = xml.replaceAll("</Input_Location_Notes","</ns2:Input_Location_Notes");
+		xml = xml.replaceAll("<Revise_Location_Notes", "<ns2:Revise_Location_Notes xmlns:ns2='http://www.yawlfoundation.org/sb/reviseLocationInfo'");
+		xml = xml.replaceAll("</Revise_Location_Notes","</ns2:Revise_Location_Notes");
 		//System.out.println("outputData xml: "+xml+" --- ");
 	}
 	
 	ByteArrayInputStream xmlBA = new ByteArrayInputStream(xml.getBytes());
-	JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.locationinfo");
+	JAXBContext jc = JAXBContext.newInstance("org.yawlfoundation.sb.reviselocationinfo");
 	Unmarshaller u = jc.createUnmarshaller();
-	JAXBElement ilnElement = (JAXBElement) u.unmarshal(xmlBA);	//creates the root element from XML file	            
-	InputLocationNotesType iln = (InputLocationNotesType) ilnElement.getValue();
+	JAXBElement rlnElement = (JAXBElement) u.unmarshal(xmlBA);	//creates the root element from XML file	            
+	ReviseLocationNotesType rln = (ReviseLocationNotesType) rlnElement.getValue();
 %>
 
 <table width="700" border="0" align="center" cellpadding="0" cellspacing="0">
@@ -109,7 +109,7 @@
 					<tr>
 						<td width="15" class="left">&nbsp;</td>
 						<td><strong>Production</strong></td>
-						<td><input name="production" type="text" id="production" value="<%= iln.getProduction() %>" readonly></td>
+						<td><input name="production" type="text" id="production" value="<%= rln.getProduction() %>" readonly></td>
 						<td width="15" class="right">&nbsp;</td>
 					</tr>
 					<tr>
@@ -122,8 +122,8 @@
 					<tbody>
 				  		<%
 							int a=0;
-							if (iln.getLocationInfo() != null) {
-							LocationInfoType lit = iln.getLocationInfo();
+							if (rln.getLocationInfo() != null) {
+							LocationInfoType lit = rln.getLocationInfo();
 							if (lit.getSingleLocationInfo().isEmpty() == false){
 								for(SingleLocationInfoType slit : lit.getSingleLocationInfo()){
 									a++;
@@ -274,7 +274,7 @@
 			<input type="hidden" name="JSESSIONID" id="JSESSIONID">
 			<input type="hidden" name="submit" id="submit"></p></form>
 		<!-- LOAD -->
-    <form method="post" action="Input_Location_Notes_3256.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
+    <form method="post" action="Revise_Location_Notes_7866.jsp?formType=load&workItemID=<%= request.getParameter("workItemID") %>&userID=<%= request.getParameter("userID") %>&sessionHandle=<%= request.getParameter("sessionHandle") %>&JSESSIONID=<%= request.getParameter("JSESSIONID") %>&submit=htmlForm" name="upform" enctype="MULTIPART/FORM-DATA">
       <table width="60%" border="0" cellspacing="1" cellpadding="1" align="center" class="style1">
         <tr>
           <td align="left"><strong>Select a file to upload :</strong></td>
@@ -326,16 +326,16 @@ if(request.getParameter("Submission") != null){
 		
 		li.getSingleLocationInfo().add(slit);
 	}
-	iln.setProduction(request.getParameter("production"));
-	iln.setLocationInfo(li);
+	rln.setProduction(request.getParameter("production"));
+	rln.setLocationInfo(li);
 	
 	Marshaller m = jc.createMarshaller();
 	m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-	File f = new File("./backup/LocationNotes_"+new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date())+".xml");
-	m.marshal( ilnElement,  f);//output to file
+	File f = new File("./backup/ReviseLocationNotes_"+new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date())+".xml");
+	m.marshal( rlnElement,  f);//output to file
 	
 	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-	m.marshal(ilnElement, xmlOS);//out to ByteArray
+	m.marshal(rlnElement, xmlOS);//out to ByteArray
 	String result = xmlOS.toString().replaceAll("ns2:", "");
 
 	String workItemID = new String(request.getParameter("workItemID"));
@@ -369,16 +369,16 @@ else if(request.getParameter("Save") != null){
 		
 		li.getSingleLocationInfo().add(slit);
 	}
-	iln.setProduction(request.getParameter("production"));
-	iln.setLocationInfo(li);
+	rln.setProduction(request.getParameter("production"));
+	rln.setLocationInfo(li);
 	
 	Marshaller m = jc.createMarshaller();
 	m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
 	
 	ByteArrayOutputStream xmlOS = new ByteArrayOutputStream();
-	m.marshal(ilnElement, xmlOS);//out to ByteArray
+	m.marshal(rlnElement, xmlOS);//out to ByteArray
 	
-	response.setHeader("Content-Disposition", "attachment;filename=\"LocationNotes_"+new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date())+"_l.xml\";");
+	response.setHeader("Content-Disposition", "attachment;filename=\"ReviseLocationNotes_"+new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date())+"_l.xml\";");
 	response.setHeader("Content-Type", "text/xml");
 	
 	ServletOutputStream outs = response.getOutputStream();

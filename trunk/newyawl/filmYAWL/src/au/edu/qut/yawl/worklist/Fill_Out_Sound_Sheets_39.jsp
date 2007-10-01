@@ -99,39 +99,39 @@
 %>
 					
 			<tr>
-			  <td align="center"><strong>Sound Roll # <input name='sound_roll' type='text' id='sound_roll' size="15" value="<%=sity_l.getSoundRoll()%>"></strong></td>
+			  <td align="center"><strong>Sound Roll # <input name="sound_roll" type="text" id="sound_roll" size="15" value="<%=sity_l.getSoundRoll()%>" pattern="any_text" title="Enter Sound Roll Number. [String Value]"></strong></td>
 		  </tr>
 			<tr><td>&nbsp;</td></tr>
-			<tr><td colspan='5'>
-				<table width='700' border='0' cellspacing='0' cellpadding='0'>
+			<tr><td colspan="5">
+				<table width="700" border="0" cellspacing="0" cellpadding="0">
 					<tr><td class="header-left">&nbsp;</td>
-					  <td colspan='6' class="header-middle">General Info </td>
+					  <td colspan="6" class="header-middle">General Info </td>
 					  <td class="header-right">&nbsp;</td>
 					</tr>
 					<tr>
-						<td class='left' width='15'>&nbsp; </td>
-						<td><strong>Production</strong></td><td><input name='production' type='text' id='production' value="<%=gi.getProduction()%>" size="15" readonly></td>
+						<td class="left" width="15">&nbsp; </td>
+						<td><strong>Production</strong></td><td><input name="production" type="text" id="production" value="<%=gi.getProduction()%>" size="15" readonly></td>
 						<td><strong>Date</strong></td>
-						<td><input name='date' type='text' id='date' value='<%=gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>' size="15" readonly></td>
-						<td><strong>Day</strong></td><td><input name='weekday' type='text' id='weekday' value='<%=gi.getWeekday()%>' size="15" readonly></td>
-						<td class='right' width='15'>&nbsp;</td>
+						<td><input name="date" type="text" id="date" value="<%=gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>" size="15" readonly></td>
+						<td><strong>Day</strong></td><td><input name="weekday" type="text" id="weekday" value="<%=gi.getWeekday()%>" size="15" readonly></td>
+						<td class="right" width="15">&nbsp;</td>
 					</tr>
 					<tr>
-						<td class='left' width='15'>&nbsp; </td>
-						<td><strong>Producer</strong></td><td><input name='producer' type='text' id='producer' value='<%=foss.getProducer()%>' size="15" readonly></td>
-						<td><strong>Director</strong></td><td><input name='director' type='text' id='director' value='<%=foss.getDirector()%>' size="15" readonly></td>
-						<td><strong>Shoot Day </strong></td><td><input name='shoot_day' type='text' id='shoot_day' value='<%=gi.getShootDayNo()%>' size="15" readonly></td>
-						<td class='right' width='15'>&nbsp;</td>
+						<td class="left" width="15">&nbsp; </td>
+						<td><strong>Producer</strong></td><td><input name="producer" type="text" id="producer" value="<%=foss.getProducer()%>" size="15" readonly></td>
+						<td><strong>Director</strong></td><td><input name="director" type="text" id="director" value="<%=foss.getDirector()%>" size="15" readonly></td>
+						<td><strong>Shoot Day </strong></td><td><input name="shoot_day" type="text" id="shoot_day" value="<%=gi.getShootDayNo()%>" size="15" readonly></td>
+						<td class="right" width="15">&nbsp;</td>
 					</tr>
 					<tr>
-						<td class='left' width='15'>&nbsp; </td>
-						<td><strong>Editor</strong></td><td><input name='editor' type='text' id='editor' value='<%= foss.getEditor() %>' size="15" readonly></td>
-						<td><strong>Sound Recordist</strong></td><td><input name='sound_recordist' type='text' id='sound_recordist' value='<%=foss.getSoundRecordist()%>' size="15" readonly></td>
+						<td class="left" width="15">&nbsp; </td>
+						<td><strong>Editor</strong></td><td><input name="editor" type="text" id="editor" value="<%= foss.getEditor() %>" size="15" readonly></td>
+						<td><strong>Sound Recordist</strong></td><td><input name="sound_recordist" type="text" id="sound_recordist" value="<%=foss.getSoundRecordist()%>" size="15" readonly></td>
 						<td>&nbsp;</td>
 						<td>&nbsp;</td>
-						<td class='right' width='15'>&nbsp;</td>
+						<td class="right" width="15">&nbsp;</td>
 					</tr>
-					<tr><td colspan='8' class='bottom'>&nbsp;</td>
+					<tr><td colspan="8" class="bottom">&nbsp;</td>
 					</tr>
 			  </table>
 			</td></tr>
@@ -169,7 +169,7 @@
 							<input name="timecode" type="radio" value="25 fps" <% if( tity_l.getTimeCodeDF().equals("25 fps")) { out.print("checked"); }%>>25fps<br>
 							<input name="timecode" type="radio" value="29.97 fps" <% if( tity_l.getTimeCodeDF().equals("29.97 fps")) { out.print("checked"); }%>>29.97fps<br>
 							<input name="timecode" type="radio" value="30 fps" <% if( tity_l.getTimeCodeDF().equals("30 fps")) { out.print("checked"); }%>>30fps</td>
-						<td height="30" align="left"><input name="ref_tone" type="text" id="ref_tone" size="5" value="<%=tity_l.getRefTone() %>" pattern="any_text">dBfs</td>
+						<td height="30" align="left"><input name="ref_tone" type="text" id="ref_tone" size="5" value="<%=tity_l.getRefTone() %>" pattern="any_text" title="Enter Reference Tone. [String Value]">dBfs</td>
 						<td height="30" rowspan="3" valign="top" id="sound_mixer_grouping">
 							<input name="sound_mixer" type="radio" value="Mono" <% if( tity_l.getSoundMixer().equals("Mono")) { out.print("checked"); }%>>Mono<br>
 							<input name="sound_mixer" type="radio" value="Stereo" <% if( tity_l.getSoundMixer().equals("Stereo")) { out.print("checked"); }%>>Stereo<br>
@@ -193,13 +193,13 @@
 					</tr>
 					<tr>
 						<td width="15" class="left">&nbsp;</td>
-					  <td height="30" align="center"><input name="timecode_source" type="text" id="timecode_source" size="15" value="<%= tity_l.getTimeCodeSource()%>" pattern="any_text"></td>
-						<td height="30" align="center"><strong><input name="media_format" type="text" id="media_format" size="15" value="<%= tity_l.getMediaFormat()%>" pattern="any_text">
+					  <td height="30" align="center"><input name="timecode_source" type="text" id="timecode_source" size="15" value="<%= tity_l.getTimeCodeSource()%>" pattern="any_text" title="Enter Timecode Source. [String Value]"></td>
+						<td height="30" align="center"><strong><input name="media_format" type="text" id="media_format" size="15" value="<%= tity_l.getMediaFormat()%>" pattern="any_text" title="Enter Media Format. [String Value]">
 					  </strong></td>
-						<td height="30" align="center"><input name="recorder" type="text" id="recorder" size="15" value="<%= tity_l.getRecorder()%>" pattern="any_text"></td>
-						<td height="30" align="center"><strong><input name="transfer_to" type="text" id="transfer_to" size="15" value="<%= tity_l.getTransferTo()%>" pattern="any_text">
+						<td height="30" align="center"><input name="recorder" type="text" id="recorder" size="15" value="<%= tity_l.getRecorder()%>" pattern="any_text" title="Enter Recorder. [String Value]"></td>
+						<td height="30" align="center"><strong><input name="transfer_to" type="text" id="transfer_to" size="15" value="<%= tity_l.getTransferTo()%>" pattern="any_text" title="Enter Transfer To. [String Value]">
 					  </strong></td>
-						<td height="30" align="center"><strong><input name="camera_frame_rate" type="text" id="camera_frame_rate" size="15" value="<%= tity_l.getCameraFrameRate()%>" pattern="any_text">
+						<td height="30" align="center"><strong><input name="camera_frame_rate" type="text" id="camera_frame_rate" size="15" value="<%= tity_l.getCameraFrameRate()%>" pattern="any_text" title="Enter Camera Frame Rate. [String Value]">
 					  </strong></td>
 						<td width="15" class="right">&nbsp;</td>
 					</tr>
@@ -219,7 +219,7 @@
 							<input name="timecode" type="radio" value="25 fps">25fps<br>
 							<input name="timecode" type="radio" value="29.97 fps">29.97fps<br>
 							<input name="timecode" type="radio" value="30 fps">30fps</td>
-						<td height="30" align="left"><input name="ref_tone" type="text" id="ref_tone" size="5">dBfs</td>
+						<td height="30" align="left"><input name="ref_tone" type="text" id="ref_tone" size="5" pattern="any_text" title="Enter Reference Tone. [String Value]">dBfs</td>
 						<td height="30" rowspan="3" valign="top" id="sound_mixer_grouping">
 							<input name="sound_mixer" type="radio" value="Mono">Mono<br>
 							<input name="sound_mixer" type="radio" value="Stereo">Stereo<br>
@@ -243,13 +243,13 @@
 					</tr>
 					<tr>
 						<td width="15" class="left">&nbsp;</td>
-					  <td height="30" align="center"><input name="timecode_source" type="text" id="timecode_source" size="15"></td>
-						<td height="30" align="center"><strong><input name="media_format" type="text" id="media_format" size="15">
+					  <td height="30" align="center"><input name="timecode_source" type="text" id="timecode_source" size="15" pattern="any_text" title="Enter Timecode Source. [String Value]"></td>
+						<td height="30" align="center"><strong><input name="media_format" type="text" id="media_format" size="15" pattern="any_text" title="Enter Media Format. [String Value]">
 					  </strong></td>
-						<td height="30" align="center"><input name="recorder" type="text" id="recorder" size="15" value=""></td>
-						<td height="30" align="center"><strong><input name="transfer_to" type="text" id="transfer_to" size="15">
+						<td height="30" align="center"><input name="recorder" type="text" id="recorder" size="15" value="" pattern="any_text" title="Enter Recorder. [String Value]"></td>
+						<td height="30" align="center"><strong><input name="transfer_to" type="text" id="transfer_to" size="15" pattern="any_text" title="Enter Transfer To. [String Value]">
 					  </strong></td>
-						<td height="30" align="center"><strong><input name="camera_frame_rate" type="text" id="camera_frame_rate" size="15">
+						<td height="30" align="center"><strong><input name="camera_frame_rate" type="text" id="camera_frame_rate" size="15" pattern="any_text" title="Enter Camera Frame Rate. [String Value]">
 					  </strong></td>
 						<td width="15" class="right">&nbsp;</td>
 					</tr>
@@ -286,13 +286,13 @@
 				%>
                 <tr>
                   <td width="15" align="center" class="left">&nbsp;</td>
-                  <td align="center"><input name="<% out.print("cam_roll_"+a);%>" type="text" id="<% out.print("cam_roll_"+a);%>" size="5" value="<%= tit_l.getCamRoll()%>" pattern="any_text"></td>
-                  <td align="center"><input name="<% out.print("scene_"+a);%>" type="text" id="<% out.print("scene_"+a);%>" size="5" value="<%= sit_l.getScene()%>" pattern="any_text"></td>
-                  <td align="center"><input name="<% out.print("slate_"+a);%>" type="text" id="<% out.print("slate_"+a);%>" size="5" value="<%= slt_l.getSlate()%>" pattern="any_text"></td>
-                  <td align="center"><input name="<% out.print("take_"+a);%>" type="text" id="<% out.print("take_"+a);%>" size="5" value="<%= tit_l.getTake()%>" pattern="number"></td>
+                  <td align="center"><input name="<% out.print("cam_roll_"+a);%>" type="text" id="<% out.print("cam_roll_"+a);%>" size="5" value="<%= tit_l.getCamRoll()%>" pattern="any_text" title="Enter Cam Roll. [String Value]"></td>
+                  <td align="center"><input name="<% out.print("scene_"+a);%>" type="text" id="<% out.print("scene_"+a);%>" size="5" value="<%= sit_l.getScene()%>" pattern="any_text" title="Enter Scene Number. [String Value]"></td>
+                  <td align="center"><input name="<% out.print("slate_"+a);%>" type="text" id="<% out.print("slate_"+a);%>" size="5" value="<%= slt_l.getSlate()%>" pattern="any_text" title="Enter Slate. [String Value]"></td>
+                  <td align="center"><input name="<% out.print("take_"+a);%>" type="text" id="<% out.print("take_"+a);%>" size="5" value="<%= tit_l.getTake()%>" pattern="number" title="Enter Take Number. [Number Value]"></td>
                   <td align="center"><input name="<% out.print("print_"+a);%>" type="checkbox" id="<% out.print("print_"+a);%>" value="True" <% if(tit_l.isPrint() == true) {out.print("checked");}%>></td>
-                  <td align="center"><input name="<% out.print("timecode_"+a);%>" type="text" id="<% out.print("timecode_"+a);%>" size="8" value="<%= tit_l.getTimecode()%>" pattern="date"></td>
-                  <td align="center"><textarea name="<% out.print("remarks_"+a);%>" cols="30" id="<% out.print("remarks_"+a);%>"><%= tit_l.getRemarks()%></textarea></td>
+                  <td align="center"><input name="<% out.print("timecode_"+a);%>" type="text" id="<% out.print("timecode_"+a);%>" size="8" value="<%= tit_l.getTimecode()%>" pattern="time" title="Enter Timecode. [Time Value HH:MM:SS]"></td>
+                  <td align="center"><textarea name="<% out.print("remarks_"+a);%>" cols="30" id="<% out.print("remarks_"+a);%>" title="Enter Comment. [String Value]"><%= tit_l.getRemarks()%></textarea></td>
                   <td width="15" align="center" class="right">&nbsp;</td>
                 </tr>
                 <% 
@@ -303,13 +303,13 @@
 				%>
                 <tr>
                   <td width="15" align="center" class="left">&nbsp;</td>
-                  <td align="center"><input name="cam_roll_1" type="text" id="cam_roll_1" size="5" pattern="any_text"></td>
-                  <td align="center"><input name="scene_1" type="text" id="scene_1" size="5" pattern="any_text"></td>
-                  <td align="center"><input name="slate_1" type="text" id="slate_1" size="5" pattern="any_text"></td>
-                  <td align="center"><input name="take_1" type="text" id="take_1" size="5" pattern="number"></td>
+                  <td align="center"><input name="cam_roll_1" type="text" id="cam_roll_1" size="5" pattern="any_text" title="Enter Cam Roll. [String Value]"></td>
+                  <td align="center"><input name="scene_1" type="text" id="scene_1" size="5" pattern="any_text" title="Enter Scene Number. [String Value]"></td>
+                  <td align="center"><input name="slate_1" type="text" id="slate_1" size="5" pattern="any_text" title="Enter Slate. [String Value]"></td>
+                  <td align="center"><input name="take_1" type="text" id="take_1" size="5" pattern="number" title="Enter Take Number. [Number Value]"></td>
                   <td align="center"><input name="print_1" type="checkbox" id="print_1" value="True"></td>
-                  <td align="center"><input name="timecode_1" type="text" id="timecode_1" size="8" pattern="date"></td>
-                  <td align="center"><textarea name="remarks_1" cols="30" id="remarks_1"></textarea></td>
+                  <td align="center"><input name="timecode_1" type="text" id="timecode_1" size="8" pattern="time" title="Enter Timecode. [Time Value HH:MM:SS]"></td>
+                  <td align="center"><textarea name="remarks_1" cols="30" id="remarks_1" title="Enter Comment. [String Value]"></textarea></td>
                   <td width="15" align="center" class="right">&nbsp;</td>
                 </tr>
                 <% } %>

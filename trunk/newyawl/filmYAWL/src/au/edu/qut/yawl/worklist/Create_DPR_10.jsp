@@ -1000,9 +1000,9 @@
                 <input type="hidden" name="scenes_deleted_count" id="scenes_deleted_count" value="<%if (s_4==0) {out.print("0");}else{out.print(s_4);}%>">
                 <input type="hidden" name="scenes_added_count" id="scenes_added_count" value="<%if (s_5==0) {out.print("0");}else{out.print(s_5);}%>">
                 <input type="hidden" name="unscheduled_scenes_shot_count" id="unscheduled_scenes_shot_count" value="<%if (s_6==0) {out.print("0");}else{out.print(s_6);}%>">
-				<input type="hidden" name="artist_count" id="artist_count" value="<%if (d==0) {out.print("1");}else{out.print(d);}%>">
+				<input type="hidden" name="artist_count" id="artist_count" value="<%if (d==0) {out.print("0");}else{out.print(d);}%>">
 				<input type="hidden" name="extras_count" id="extras_count" value="<%if (c==0) {out.print("0");}else{out.print(c);}%>">
-				<input type="hidden" name="crew_count" id="crew_count" value="<%if (b==0) {out.print("1");}else{out.print(b);}%>">
+				<input type="hidden" name="crew_count" id="crew_count" value="<%if (b==0) {out.print("0");}else{out.print(b);}%>">
 				<input name="catering_count" type="hidden" id="catering_count" value="<%=a%>">
 				<input type="hidden" name="workItemID" id="workItemID"/>
 				<input type="hidden" name="userID" id="userID"/>
@@ -1256,8 +1256,9 @@ if(request.getParameter("Submission") != null){
 	//Artist Details
 	ArtistTimeSheetType ats1 = new ArtistTimeSheetType();
 	int artist_count = Integer.parseInt(request.getParameter("artist_count"));
+	if(artist_count >0){
 	for(int current_artist=1; current_artist<=artist_count; current_artist++){//getting the crew information
-		if(!(request.getParameter("artist_artist_" + current_artist).equals(""))){
+		
 			SingleArtistType sa1 = new SingleArtistType();
 			sa1.setArtist(request.getParameter("artist_artist_" + current_artist));
 			sa1.setCharacter(request.getParameter("artist_character_" + current_artist));
@@ -1295,10 +1296,11 @@ if(request.getParameter("Submission") != null){
 	dpri.setExtrasTimeSheet(ats2);
 	}
 	
+	
 	//Crew Details
 	CrewTimeSheetType cwts = new CrewTimeSheetType();
 	int crew_count = Integer.parseInt(request.getParameter("crew_count"));
-	if(!(request.getParameter("crew_name_1").equals(""))){
+	if(crew_count>0){
 		for(int current_crew=1; current_crew<=crew_count; current_crew++){//getting the crew information
 			SingleCrewType scw = new SingleCrewType();
 			scw.setCrewName(request.getParameter("crew_name_" + current_crew));
@@ -1587,8 +1589,9 @@ DPRinfoType dpri = new DPRinfoType();
 	//Artist Details
 	ArtistTimeSheetType ats1 = new ArtistTimeSheetType();
 	int artist_count = Integer.parseInt(request.getParameter("artist_count"));
+	if(artist_count >0){
 	for(int current_artist=1; current_artist<=artist_count; current_artist++){//getting the crew information
-		if(!(request.getParameter("artist_artist_" + current_artist).equals(""))){
+		
 			SingleArtistType sa1 = new SingleArtistType();
 			sa1.setArtist(request.getParameter("artist_artist_" + current_artist));
 			sa1.setCharacter(request.getParameter("artist_character_" + current_artist));
@@ -1630,7 +1633,7 @@ DPRinfoType dpri = new DPRinfoType();
 	//Crew Details
 	CrewTimeSheetType cwts = new CrewTimeSheetType();
 	int crew_count = Integer.parseInt(request.getParameter("crew_count"));
-	if(!(request.getParameter("crew_name_1").equals(""))){
+	if(crew_count>0){
 		for(int current_crew=1; current_crew<=crew_count; current_crew++){//getting the crew information
 			SingleCrewType scw = new SingleCrewType();
 			scw.setCrewName(request.getParameter("crew_name_" + current_crew));
