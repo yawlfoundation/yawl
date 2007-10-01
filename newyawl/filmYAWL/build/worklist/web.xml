@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!DOCTYPE web-app
-    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-    "http://java.sun.com/dtd/web-app_2_3.dtd">
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
 
@@ -39,7 +37,7 @@
 
     <context-param>
         <param-name>InterfaceB_BackEnd</param-name>
-        <param-value>http://localhost:8080/yawl/ib</param-value>
+        <param-value>http://192.94.227.138:8080/yawl/ib</param-value>
         <description>
             The URL location of the REST-ful interface B.
         </description>
@@ -47,7 +45,7 @@
 
     <context-param>
         <param-name>InterfaceA_BackEnd</param-name>
-        <param-value>http://localhost:8080/yawl/ia</param-value>
+        <param-value>http://192.94.227.138:8080/yawl/ia</param-value>
         <description>
             The URL location of the REST-ful interface A.
         </description>
@@ -55,11 +53,27 @@
 
     <context-param>
         <param-name>YAWLXForms</param-name>
-        <param-value>http://localhost:8080/yawlXForms</param-value>
+        <param-value>http://192.94.227.138:8080/yawlXForms</param-value>
         <description>
-            The URL location of YAWLXForms (Chiba). Set to "localhost" by default.
+            The URL location of YAWLXForms (Chiba). Set to "192.94.227.138" by default.
         </description>
     </context-param>
+
+    <context-param>
+        <param-name>HTMLForms</param-name>
+        <param-value>http://192.94.227.138:8080/worklist</param-value>
+        <description>
+            The URL location of HTML forms in YAWL. Set to "192.94.227.138" by default.
+        </description>
+    </context-param>
+
+	<context-param>
+		<param-name>debug</param-name>
+		<param-value>false</param-value>
+		<description>
+			Turns worklist debugging on or off. IE: Shows an Xform link for each workitem if true.
+        </description>
+	</context-param>
 
     <!-- This param, when available, enables the worklet exception service add-ins
          to the worklist. If the exception service is enabled in the engine, then this
@@ -68,7 +82,7 @@
     <!--
     <context-param>
         <param-name>InterfaceX_BackEnd</param-name>
-        <param-value>http://localhost:8080/workletService</param-value>
+        <param-value>http://192.94.227.138:8080/workletService</param-value>
         <description>
             The URL location of the worklet exception service.
         </description>
@@ -121,6 +135,15 @@
             Allows the user to view and edit work items.
         </description>
         <jsp-file>/_ItemViewer.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>LoadFileJSP</servlet-name>
+        <description> 
+        	Loads xml to HTML forms.
+        </description>
+        <jsp-file>/_Load.jsp</jsp-file>
         <load-on-startup>2</load-on-startup>
     </servlet>
 
@@ -238,12 +261,10 @@
         <url-pattern>/logout</url-pattern>
     </servlet-mapping>
 
-<!-- GUY ADDED THIS -->
     <servlet-mapping>
         <servlet-name>YAWLFormServlet</servlet-name>
         <url-pattern>/yawlFormServlet</url-pattern>
     </servlet-mapping>
-<!-- ============== -->
 
     <servlet-mapping>
         <servlet-name>AvailableWorkJSP</servlet-name>
@@ -301,6 +322,11 @@
     </servlet-mapping>
 
     <servlet-mapping>
+        <servlet-name>LoadFileJSP</servlet-name>
+        <url-pattern>/load</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>ProcessAdminJSP</servlet-name>
         <url-pattern>/processAdmin</url-pattern>
     </servlet-mapping>
@@ -333,7 +359,7 @@
 	</servlet-mapping>
 
     <session-config>
-        <session-timeout>30</session-timeout><!-- 30 minutes -->
+        <session-timeout>1440</session-timeout><!-- 30 minutes -->
     </session-config>
 
     <!--
