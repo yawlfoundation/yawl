@@ -447,19 +447,22 @@
         <tr>
           <td class="left">&nbsp;</td>
           <td><strong>Scheduled Ratio</strong></td>
-          <td><input name="scheduled_ratio" type="text" id="scheduled_ratio" value="<%= rtst.getScheduledRatio() %>" size="10" readonly></td>
+          <td><input name="scheduled_ratio" type="text" id="scheduled_ratio" value="<%= rtst.getScheduledRatio() %>" size="10" readonly> 
+          :1</td>
           <td class="right">&nbsp;</td>
         </tr>
         <tr>
           <td class="left">&nbsp;</td>
           <td><strong>Daily Ratio</strong></td>
-          <td><input name="daily_ratio" type="text" id="daily_ratio" value="<%= rtst.getDailyRatio() %>" size="10" readonly></td>
+          <td><input name="daily_ratio" type="text" id="daily_ratio" value="<%= rtst.getDailyRatio() %>" size="10" readonly> 
+          :1 </td>
           <td class="right">&nbsp;</td>
         </tr>
         <tr>
           <td class="left">&nbsp;</td>
           <td><strong>Average Ratio</strong></td>
-          <td><input name="average_ratio" type="text" id="average_ratio" value="<%= rtst.getAverageRatio() %>" size="10" readonly></td>
+          <td><input name="average_ratio" type="text" id="average_ratio" value="<%= rtst.getAverageRatio() %>" size="10" readonly> 
+          :1 </td>
           <td class="right">&nbsp; </td>
         </tr>
         <tr>
