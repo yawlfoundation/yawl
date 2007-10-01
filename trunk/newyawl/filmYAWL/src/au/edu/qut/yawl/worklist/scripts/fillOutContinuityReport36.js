@@ -45,17 +45,15 @@ function addRow(){
     rightCELL.className = "right";
     rightCELL.appendChild(document.createTextNode("\u00a0"));
 
-    camCELL.appendChild(createAnyTextTextBox("cam_" + count, 5, previous_cam));
-    soundCELL.appendChild(createAnyTextTextBox("sound_" + count, 5, previous_sound));
-    sceneCELL.appendChild(createAnyTextTextBox("scene_" + count, 5, previous_scene));
-    slateCELL.appendChild(createAnyTextTextBox("slate_" + count, 5, previous_slate));
-    var take = createNumberTextBox("take_" + count, 5, "")
-    takeCELL.appendChild(take);
+    camCELL.appendChild(createAnyTextTextBox("cam_" + count, 5, previous_cam, "Enter Camera Roll. [String Value]"));
+    soundCELL.appendChild(createAnyTextTextBox("sound_" + count, 5, previous_sound, "Enter Sound Roll. [String Value]"));
+    sceneCELL.appendChild(createAnyTextTextBox("scene_" + count, 5, previous_scene, "Enter Scene Number. [String Value] (make sure this matches a scene number from the call sheet)"));
+    slateCELL.appendChild(createAnyTextTextBox("slate_" + count, 5, previous_slate, "Enter Slate. [String Value]"));
+    takeCELL.appendChild(createNumberTextBox("take_" + count, 5, "", "Enter Take Number. [Number Value]"));
     printCELL.appendChild(createCheckBox("print_" + count, "", false));
-    var duration = createDateTextBox("duration_" + count, 8, "")
-    durationCELL.appendChild(duration);
+    durationCELL.appendChild(createDateTextBox("duration_" + count, 8, "","Enter Take Duration. [Time Value HH:MM:SS]"));
 
-    var inp8 = createTextArea(current_comments, 30, "", "enter a comment");
+    var inp8 = createTextArea(current_comments, 30, "", "Enter Shot Description. [String Value]");
     if (count == 1) {
         take.value = default_take;
         duration.value = default_duration;
