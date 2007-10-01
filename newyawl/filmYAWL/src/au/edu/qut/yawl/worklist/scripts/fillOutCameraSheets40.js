@@ -59,15 +59,15 @@ function addRow(){
     printINPUT.setAttribute("id", "print_" + count);
 
 
-    magCELL.appendChild(createTextBox("mag_number_" + count, 5, ""));
-    slateCELL.appendChild(createTextBox("slate_" + count, 5, ""));
-    takeCELL.appendChild(createNumberTextBox("take_" + count, 5, "", "Enter Take Number."));
-    counterreadingCELL.appendChild(createNumberTextBox("counter_reading_" + count, 6, current_counter_reading, "Enter Counter Reading."));
-    takelengthCELL.appendChild(createNumberTextBox("take_length_" + count, 6, "", "Enter Take Length."));
+    magCELL.appendChild(createAnyTextTextBox("mag_number_" + count, 5, "", "Enter Mag Number. [String Value]"));
+    slateCELL.appendChild(createAnyTextTextBox("slate_" + count, 5, "", "Enter Slate. [String Value]"));
+    takeCELL.appendChild(createNumberTextBox("take_" + count, 5, "", "Enter Take Number. [Number Value]"));
+    counterreadingCELL.appendChild(createNumberTextBox("counter_reading_" + count, 6, current_counter_reading, "Enter Counter Reading. [Number Value]"));
+    takelengthCELL.appendChild(createNumberTextBox("take_length_" + count, 6, "", "Enter Take Length. [Number Value]"));
     printCELL.appendChild(printINPUT);
     bwCELL.appendChild(createRadioButton("print_setting_" + count, "B/W", true));
     colourCELL.appendChild(createRadioButton("print_setting_" + count, "Colour", false));
-    notesCELL.appendChild(createTextArea("notes_" + count, 30, "", "Enter Notes."));
+    notesCELL.appendChild(createTextArea("notes_" + count, 30, "", "Enter Notes. [String Value]"));
 
 }
 
