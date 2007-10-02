@@ -337,7 +337,7 @@ function addShootingDay () {
 	endday_cell2.colSpan = "3";
 
 	endday_cell1.appendChild(createBoldLabel("End of Day Notes "));
-	endday_cell2.appendChild(createTextArea("sd"+days_count+"_end", 50, "", "Enter End of Day Notes. [String Value]"));
+	endday_cell2.appendChild(createAnyTextTextArea("sd"+days_count+"_end", 50, "", "Enter End of Day Notes. [String Value]"));
 	
 	// Total Script Pages
 	var totalday_row = shootingdayTABLE.insertRow(shootingdayTABLE.rows.length);
@@ -645,7 +645,7 @@ function createSceneTable (table_number) {//done
 	requirementsDROPDOWN.appendChild(createDropdownList("Miscellaneous"));
 	requirementsDROPDOWN.appendChild(createDropdownList("Notes"));
 	table_cell1.appendChild(requirementsDROPDOWN);
-	table_cell2.appendChild(createTextArea("sd"+temp_day_count+"_requirements"+temp_table_count+"_1", 20, "", "Enter Set Requirements. [String Value]"));
+	table_cell2.appendChild(createAnyTextTextArea("sd"+temp_day_count+"_requirements"+temp_table_count+"_1", 20, "", "Enter Set Requirements. [String Value]"));
 	requirementsLABEL.appendChild(createBoldLabel("Set Requirements"));
 	addrequirementsBUTTON_cell.appendChild(addrequirementsBUTTON);
 	addrequirementsBUTTON_cell.appendChild(deleterequirementsBUTTON);

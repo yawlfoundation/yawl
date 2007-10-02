@@ -1,5 +1,5 @@
 var count = 1;
-var headerSize = 13;
+var headerSize = 2;
 var footerSize = 1;
 var headerAndFooterSize = headerSize + footerSize;
 function deleteCrewRow() {
@@ -51,9 +51,9 @@ function addCrewRow(){
     document.getElementById("count").value = count;
     
 
-    roleCELL.appendChild(createAnyTextTextBox("role_" + count, 20, "", "Enter Role. [String Value]"));
+    roleCELL.appendChild(createAnyTextTextBox("role_" + count, 32, "", "Enter Role. [String Value]"));
     firstnameCELL.appendChild(createAnyTextTextBox("firstname_" + count, 10, "", "Enter First Name. [String Value]"));
     lastnameCELL.appendChild(createAnyTextTextBox("lastname_" + count, 15, "", "Enter Last Name. [String Value]"));
-    contactnoCELL.appendChild(createAnyTextTextBox("contactno_" + count, 10, "", "Enter Contact Number. [String Value]"));
-    emailCELL.appendChild(createEmailTextBox("email_" + count, 30, "", "Enter Email Address. [String Value]"));
+    contactnoCELL.appendChild(createAnyTextTextBox("contactno_" + count, 8, "", "Enter Contact Number. [String Value]"));
+    emailCELL.appendChild(createEmailTextBox("email_" + count, 20, "", "Enter Email Address. [String Value]"));
 }

@@ -103,36 +103,36 @@
 		<table width="700" border="0" align="center">
 
 			<tr><td>
-				<table width="700" border="0" cellpadding="0" cellspacing="0">
-					<tr><td align="right" valign="top" class="header-left">&nbsp;</td>
-				      <td colspan="6" valign="top" class="header-middle">General Info</td>
-				      <td align="right" valign="top" class="header-right">&nbsp;</td>
+				<table width='700' border='0' cellpadding='0' cellspacing='0'>
+					<tr><td align='right' valign='top' class="header-left">&nbsp;</td>
+				      <td colspan='6' valign='top' class="header-middle">General Info</td>
+				      <td align='right' valign='top' class="header-right">&nbsp;</td>
 				  </tr>
 					<tr>
-						<td class="left" width="14">&nbsp;</td>
-						<td><strong>Production</strong></td><td><input name="production" type="text" id="production" value="<%=gi.getProduction()%>" size="15" readonly></td>
-						<td><strong>Date</strong></td><td><input name="date" type="text" id="date" value="<%=gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>" size="15" readonly></td>
-						<td><strong>Day</strong></td><td><input name="weekday" type="text" id="weekday" value="<%=gi.getWeekday()%>" size="15" readonly></td>
-						<td class="right" width="14">&nbsp;</td>
+						<td class='left' width='14'>&nbsp;</td>
+						<td><strong>Production</strong></td><td><input name='production' type='text' id='production' value='<%=gi.getProduction()%>' size="15" readonly></td>
+						<td><strong>Date</strong></td><td><input name='date' type='text' id='date' value='<%=gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>' size="15" readonly></td>
+						<td><strong>Day</strong></td><td><input name='weekday' type='text' id='weekday' value='<%=gi.getWeekday()%>' size="15" readonly></td>
+						<td class='right' width='14'>&nbsp;</td>
 					</tr>
 					<tr>
-						<td class="left" width="14">&nbsp;</td>
-						<td><strong>Producer</strong></td><td><input name="producer" type="text" id="producer" value="<%=foadr.getProducer()%>" size="15" readonly></td>
-						<td><strong>Director</strong></td><td><input name="director" type="text" id="director" value="<%=foadr.getDirector()%>" size="15" readonly></td>
-						<td><strong>Shoot Day </strong></td><td><input name="shoot_day" type="text" id="shoot_day" value="<%=gi.getShootDayNo()%>" size="15" readonly></td>
-						<td class="right" width="14">&nbsp;</td>
+						<td class='left' width='14'>&nbsp;</td>
+						<td><strong>Producer</strong></td><td><input name='producer' type='text' id='producer' value='<%=foadr.getProducer()%>' size="15" readonly></td>
+						<td><strong>Director</strong></td><td><input name='director' type='text' id='director' value='<%=foadr.getDirector()%>' size="15" readonly></td>
+						<td><strong>Shoot Day </strong></td><td><input name='shoot_day' type='text' id='shoot_day' value='<%=gi.getShootDayNo()%>' size="15" readonly></td>
+						<td class='right' width='14'>&nbsp;</td>
 					</tr>
-					<tr height="30">
-						<td class="left" width="14">&nbsp;</td>
+					<tr height='30'>
+						<td class='left' width='14'>&nbsp;</td>
 						<td><strong>Assistant Director</strong></td>
-						<td><input name="assistant_director" type="text" id="assistant_director" value="<%=foadr.getAssistantDirector()%>" size="15" readonly></td>
+						<td><input name='assistant_director' type='text' id='assistant_director' value='<%=foadr.getAssistantDirector()%>' size="15" readonly></td>
 						<td>&nbsp;</td>
 						<td>&nbsp;</td>
 						<td>&nbsp;</td>
 						<td>&nbsp;</td>
-						<td class="right" width="14">&nbsp;</td>
+						<td class='right' width='14'>&nbsp;</td>
 					</tr>
-					<tr height="30"><td colspan="8" class="bottom">&nbsp;</td></tr>
+					<tr height='30'><td colspan='8' class='bottom'>&nbsp;</td></tr>
 			  </table>
 			</td></tr>
 			<tr><td>
@@ -160,27 +160,50 @@
 						
 						<%  int a=0;
 						ArtistTimeSheetType atsA = tsi.getArtistTimeSheet();
-						for(SingleArtistType satA : atsA.getSingleArtist()) {
-							a++;
+						if(tsi !=null){
+							for(SingleArtistType satA : atsA.getSingleArtist()) {
+								a++;
 						%>
 						<tr align="center">
 							<td width="14" align="center" class="left" height="30">&nbsp;</td>
-							<td align="center"><input name="<% out.print("artist_" + a); %>" type="text" id="<% out.print("artist_" + a); %>" size="15" value="<%= satA.getArtist()%>" title="Enter Artist Name. [String Value] (make sure this matches one of the artists on cast list)"></td>
-							<td align="center"><input name="<% out.print("artist_pu_" + a); %>" type="text" id="<% out.print("artist_pu_" + a); %>" size="6" value="<%= satA.getPU()%>" title="Enter Pickup. [String Value]"></td>
-							<td align="center"><input name="<% out.print("artist_muwdcall_scheduled_" + a); %>" type="text" id="<% out.print("artist_muwdcall_scheduled_" + a); %>" size="6" value="<%= satA.getMUWDCallScheduled()%>" title="Enter Scheduled Time. [Time Value HH:MM:SS]"></td>
-							<td align="center"><input name="<% out.print("artist_muwdcall_actual_" + a); %>" type="text" id="<% out.print("artist_muwdcall_actual_" + a); %>" size="6" value="<%= satA.getMUWDCallActualArrival()%>" title="Enter Actual Time. [Time Value HH:MM:SS]"></td>
-							<td align="center"><input name="<% out.print("artist_meal_" + a); %>" type="text" id="<% out.print("artist_meal_" + a); %>" size="6" value="<%= satA.getMealBreak()%>" title="Enter Meal Break. [Time Value HH:MM:SS] (please enter 00:00:00 if no meal is served)"></td>
-							<td align="center"><input name="<% out.print("artist_wrap_" + a); %>" type="text" id="<% out.print("artist_wrap_" + a); %>" size="6" value="<%= satA.getTimeWrap()%>" title="Enter Time Wrap. [Time Value HH:MM:SS]"></td>
-							<td align="center"><input name="<% out.print("artist_travel_" + a); %>" type="text" id="<% out.print("artist_travel_" + a); %>" size="6" value="<%= satA.getTravel()%>" title="Enter Travel. [Time Value HH:MM:SS]"></td>
+							<td align="center"><input name="<% out.print("artist_" + a); %>" type="text" id="<% out.print("artist_" + a); %>" size="15" value="<%= satA.getArtist()%>"></td>
+							<td align="center"><input name="<% out.print("artist_pu_" + a); %>" type="text" id="<% out.print("artist_pu_" + a); %>" size="6" value="<%= satA.getPU()%>"></td>
+							<td align="center"><input name="<% out.print("artist_muwdcall_scheduled_" + a); %>" type="text" id="<% out.print("artist_muwdcall_scheduled_" + a); %>" size="6" value="<%= satA.getMUWDCallScheduled()%>"></td>
+							<td align="center"><input name="<% out.print("artist_muwdcall_actual_" + a); %>" type="text" id="<% out.print("artist_muwdcall_actual_" + a); %>" size="6" value="<%= satA.getMUWDCallActualArrival()%>"></td>
+							<td align="center"><input name="<% out.print("artist_meal_" + a); %>" type="text" id="<% out.print("artist_meal_" + a); %>" size="6" value="<%= satA.getMealBreak()%>"></td>
+							<td align="center"><input name="<% out.print("artist_wrap_" + a); %>" type="text" id="<% out.print("artist_wrap_" + a); %>" size="6" value="<%= satA.getTimeWrap()%>"></td>
+							<td align="center"><input name="<% out.print("artist_travel_" + a); %>" type="text" id="<% out.print("artist_travel_" + a); %>" size="6" value="<%= satA.getTravel()%>"></td>
                             <td align="center">
                                 <applet code="signature.SignA.class" archive="SignA.jar" width="350" height="60" name="SignA" id="SignA" MAYSCRIPT>
                                     <param name="load_url" value="<%=satA.getSignatureUrl()%>">
                                     <param name="save_url" value="c:/">
                                     <param name="propertyRoot" value="artist" />
-                                    <param name="index" value="<%=a%>" />                                    
+                                    <param name="index" value="<%=a %>" />                                    
                                 </applet>
-                                <input type="hidden" name="<% out.print("artist_signature_" + a); %>" id="<% out.print("artist_signature_" + a); %>" value="<%=satA.getSignatureUrl()%>" />
+                                <input type="hidden" name="<% out.print("artist_signature_" + a); %>" id="<% out.print("artist_signature_" + a); %>" value="" />
                             </td>                            
+                            <td width="15" class="right">&nbsp;</td>
+						</tr> 
+						<% }
+						}else{%>
+						<tr align="center">
+							<td width="14" align="center" class="left" height="30">&nbsp;</td>
+							<td align="center"><input name="artist_1" type="text" id="artist_1" size="15"></td>
+							<td align="center"><input name="artist_pu_1" type="text" id="artist_pu_1" size="6"></td>
+							<td align="center"><input name="artist_muwdcall_scheduled_1" type="text" id="artist_muwdcall_scheduled_1" size="6"></td>
+							<td align="center"><input name="artist_muwdcall_actual_1" type="text" id="artist_muwdcall_actual_1" size="6"></td>
+							<td align="center"><input name="artist_meal_1" type="text" id="artist_meal_1" size="6"></td>
+							<td align="center"><input name="artist_wrap_1" type="text" id="artist_wrap_1" size="6"></td>
+							<td align="center"><input name="artist_travel_1" type="text" id="artist_travel_1" size="6"></td>
+							<td align="center">
+                                <applet code="signature.SignA.class" archive="SignA.jar" width="350" height="60" name="SignA" id="SignA" MAYSCRIPT>
+                                    <param name="load_url" value="">
+                                    <param name="save_url" value="c:/">
+                                    <param name="propertyRoot" value="artist" />
+                                    <param name="index" value="<%= a %>" />                                    
+                                </applet>
+                                <input type="hidden" name="artist_signature_1" value="" />
+                            </td>
                             <td width="15" class="right">&nbsp;</td>
 						</tr> 
 						<% }%>
@@ -226,13 +249,13 @@
 						%>
 						<tr align="center" height="30">
 							<td width="14" align="center" class="left">&nbsp;</td>
-							<td align="center"><input name="<% out.print("backgroundartist_" + b); %>" type="text" id="<% out.print("backgroundartist_" + b); %>" size="15" value="<%= satE.getArtist()%>" ></td>
-							<td align="center"><input name="<% out.print("backgroundartist_pu_" + b); %>" type="text" id="<% out.print("backgroundartist_pu_" + b); %>" size="6" value="<%= satE.getPU()%>" title="Enter Pickup. [String Value]"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_muwdcall_scheduled_" + b); %>" type="text" id="<% out.print("backgroundartist_muwdcall_scheduled_" + b); %>" size="6" value="<%= satE.getMUWDCallScheduled()%>" title="Enter Scheduled Time. [Time Value HH:MM:SS]"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_muwdcall_actual_" + b); %>" type="text" id="<% out.print("backgroundartist_muwdcall_actual_" + b); %>" size="6" value="<%= satE.getMUWDCallActualArrival()%>" title="Enter Actual Time. [Time Value HH:MM:SS]"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_meal_" + b); %>" type="text" id="<% out.print("backgroundartist_meal_" + b); %>" size="6" value="<%= satE.getMealBreak()%>" title="Enter Meal Break. [Time Value HH:MM:SS] (please enter 00:00:00 if no meal is served)"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_wrap_" + b); %>" type="text" id="<% out.print("backgroundartist_wrap_" + b); %>" size="6" value="<%= satE.getTimeWrap()%>" title="Enter Time Wrap. [Time Value HH:MM:SS]"></td>
-							<td align="center"><input name="<% out.print("backgroundartist_travel_" + b); %>" type="text" id="<% out.print("backgroundartist_travel_" + b); %>" size="6" value="<%= satE.getTravel()%>" title="Enter Travel. [Time Value HH:MM:SS]"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_" + b); %>" type="text" id="<% out.print("backgroundartist_" + b); %>" size="15" value="<%= satE.getArtist()%>"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_pu_" + b); %>" type="text" id="<% out.print("backgroundartist_pu_" + b); %>" size="6" value="<%= satE.getPU()%>"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_muwdcall_scheduled_" + b); %>" type="text" id="<% out.print("backgroundartist_muwdcall_scheduled_" + b); %>" size="6" value="<%= satE.getMUWDCallScheduled()%>"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_muwdcall_actual_" + b); %>" type="text" id="<% out.print("backgroundartist_muwdcall_actual_" + b); %>" size="6" value="<%= satE.getMUWDCallActualArrival()%>"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_meal_" + b); %>" type="text" id="<% out.print("backgroundartist_meal_" + b); %>" size="6" value="<%= satE.getMealBreak()%>"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_wrap_" + b); %>" type="text" id="<% out.print("backgroundartist_wrap_" + b); %>" size="6" value="<%= satE.getTimeWrap()%>"></td>
+							<td align="center"><input name="<% out.print("backgroundartist_travel_" + b); %>" type="text" id="<% out.print("backgroundartist_travel_" + b); %>" size="6" value="<%= satE.getTravel()%>"></td>
 							<td>
                                 <applet code="signature.SignA.class" archive="SignA.jar" width="350" height="60" name="SignA" id="SignA" MAYSCRIPT>
                                     <param name="load_url" value="<%=satE.getSignatureUrl()%>">
@@ -289,14 +312,14 @@
 						%>
 						<tr align="center" valign="top">
 							<td width="14" align="center" class="left" >&nbsp;</td>
-							<td align="center"><input name="<% out.print("children_" + c); %>" type="text" id="<% out.print("children_" + c); %>" size="15" value="<%= sct.getChildren()%>" pattern="any_text" title="Enter Child Name. [String Value]"></td>
-							<td align="center"><input name="<% out.print("children_pu_" + c); %>" type="text" id="<% out.print("children_pu_" + c); %>" size="6" value="<%= sct.getPU()%>" pattern="any_text" title="Enter Pickup. [String Value]"></td>
-							<td align="center"><input name="<% out.print("children_muwdcall_scheduled_" + c); %>" type="text" id="<% out.print("children_muwdcall_scheduled_" + c); %>" size="6" value="<%= sct.getMUWDCallScheduled()%>" pattern="time" title="Enter Scheduled Time. [Time Value HH:MM:SS]"></td>
-							<td align="center"><input name="<% out.print("children_muwdcall_actual_" + c); %>" type="text" id="<% out.print("children_muwdcall_actual_" + c); %>" size="6" value="<%= sct.getMUWDCallActualArrival()%>" pattern="time" title="Enter Actual Time. [Time Value HH:MM:SS]"></td>
-							<td align="center"><input name="<% out.print("children_meal_" + c); %>" type="text" id="<% out.print("children_meal_" + c); %>" size="6" value="<%= sct.getMealBreak()%>" pattern="time" title="Enter Meal Break. [Time Value HH:MM:SS] (please enter 00:00:00 if no meal is served)"></td>
-							<td align="center"><input name="<% out.print("children_wrap_" + c); %>" type="text" id="<% out.print("children_wrap_" + c); %>" size="6" value="<%= sct.getTimeWrap()%>" pattern="time" title="Enter Wrap Time. [Time Value HH:MM:SS]"></td>
-							<td align="center"><input name="<% out.print("children_travel_" + c); %>" type="text" id="<% out.print("children_travel_" + c); %>" size="6" value="<%= sct.getTravel()%>" pattern="time" title="Enter Travel Time. [Time Value HH:MM:SS]"></td>
-						    <td align="center"><textarea name="<% out.print("children_remarks_" + c); %>" id="<% out.print("children_remarks_" + c); %>" cols="15" title="Enter Remarks. [String Value]"><%= sct.getRemarks()%></textarea></td>
+							<td align="center"><input name="<% out.print("children_" + c); %>" type="text" id="<% out.print("children_" + c); %>" size="15" value="<%= sct.getChildren()%>"></td>
+							<td align="center"><input name="<% out.print("children_pu_" + c); %>" type="text" id="<% out.print("children_pu_" + c); %>" size="6" value="<%= sct.getPU()%>"></td>
+							<td align="center"><input name="<% out.print("children_muwdcall_scheduled_" + c); %>" type="text" id="<% out.print("children_muwdcall_scheduled_" + c); %>" size="6" value="<%= sct.getMUWDCallScheduled()%>" pattern="date"></td>
+							<td align="center"><input name="<% out.print("children_muwdcall_actual_" + c); %>" type="text" id="<% out.print("children_muwdcall_actual_" + c); %>" size="6" value="<%= sct.getMUWDCallActualArrival()%>" pattern="date"></td>
+							<td align="center"><input name="<% out.print("children_meal_" + c); %>" type="text" id="<% out.print("children_meal_" + c); %>" size="6" value="<%= sct.getMealBreak()%>" pattern="date"></td>
+							<td align="center"><input name="<% out.print("children_wrap_" + c); %>" type="text" id="<% out.print("children_wrap_" + c); %>" size="6" value="<%= sct.getTimeWrap()%>" pattern="date"></td>
+							<td align="center"><input name="<% out.print("children_travel_" + c); %>" type="text" id="<% out.print("children_travel_" + c); %>" size="6" value="<%= sct.getTravel()%>" pattern="date"></td>
+						    <td align="center"><textarea name="<% out.print("children_remarks_" + c); %>" id="<% out.print("children_remarks_" + c); %>" cols="15"  title="enter remark"><%= sct.getRemarks()%></textarea></td>
 							<td width="15" class="right">&nbsp;</td>
 						</tr> 
 						<% }
@@ -334,6 +357,7 @@
 						</tr>
 						
 						<%  int d=0;
+						if(tsi != null){
 							CrewTimeSheetType crts = tsi.getCrewTimeSheet();
 							for(SingleCrewType scrt : crts.getSingleCrew()) {
 								d++;
@@ -357,15 +381,46 @@
                             <br>					      
                           <input name="<% out.print("crew_other_" + d); %>" type="text" id="<% out.print("crew_other_" + d); %>" size="15" value="<% if(!(scrt.getCrew().equals("2nd AD")) && !(scrt.getCrew().equals("Continuity")) && !(scrt.getCrew().equals("Camera")) && !(scrt.getCrew().equals("Sound"))  &&!(scrt.getCrew().equals("Makeup/Hair")) && !(scrt.getCrew().equals("Wardrobe")) && !(scrt.getCrew().equals("Unit")) && !(scrt.getCrew().equals("Grips")) && !(scrt.getCrew().equals("Electrics")) && !(scrt.getCrew().equals("Standby Props"))){ out.print(scrt.getCrew()); }else{out.print("[If other, specify]");} %>"></td>
 						  
-						  <td align="center" valign="top"><input name="<% out.print("crew_call_" + d); %>" type="text" id="<% out.print("crew_call_" + d); %>" size="5" value="<%=scrt.getCrewCall() %>" pattern="time" title="Enter Call Time. [Time Value HH:MM:SS]"></td>
-						  <td align="center" valign="top"><input name="<% out.print("crew_travelin_" + d); %>" type="text" id="<% out.print("crew_travelin_" + d); %>" size="5" value="<%=scrt.getTravelIn() %>" pattern="time" title="Enter Travel In Time. [Time Value HH:MM:SS]"></td>
-						  <td align="center" valign="top"><input name="<% out.print("crew_loccall_" + d); %>" type="text" id="<% out.print("crew_loccall_" + d); %>" size="5" value="<%=scrt.getLocationCall() %>" pattern="time" title="Enter Location Call Time. [Time Value HH:MM:SS]"></td>
-						  <td align="center" valign="top"><input name="<% out.print("crew_meal_" + d); %>" type="text" id="<% out.print("crew_meal_" + d); %>" size="5" value="<%=scrt.getMealBreak() %>" pattern="time" title="Enter Meal Time. [Time Value HH:MM:SS] (please enter 00:00:00 if no meal is served)"></td>
-						  <td align="center" valign="top"><input name="<% out.print("crew_wrap_" + d); %>" type="text" id="<% out.print("crew_wrap_" + d); %>" size="5" value="<%=scrt.getWrap() %>" pattern="time" title="Enter Wrap Time. [Time Value HH:MM:SS]"></td>
-						  <td align="center" valign="top"><input name="<% out.print("crew_wraploc_" + d); %>" type="text" id="<% out.print("crew_wraploc_" + d); %>" size="5" value="<%=scrt.getWrapLoc() %>" pattern="time" title="Enter Wrap Location. [Time Value HH:MM:SS]"></td>
-						  <td align="center" valign="top"><input name="<% out.print("crew_departloc_" + d); %>" type="text" id="<% out.print("crew_departloc_" + d); %>" size="5" value="<%=scrt.getDepartLoc() %>" pattern="time" title="Enter Depart Location Time. [Time Value HH:MM:SS]"></td>
-						  <td align="center" valign="top"><input name="<% out.print("crew_travelout_" + d); %>" type="text" id="<% out.print("crew_travelout_" + d); %>" size="5" value="<%=scrt.getTravelOut() %>" pattern="time" title="Enter Travel Out Time. [Time Value HH:MM:SS]"></td>
-						  <td align="center" valign="top"><textarea name="<% out.print("crew_remarks_" + d); %>" cols="8" id="<% out.print("crew_remarks_" + d); %>" title="Enter Remarks. [String Value]"><%=scrt.getRemarks() %></textarea></td>
+						  <td align="center" valign="top"><input name="<% out.print("crew_call_" + d); %>" type="text" id="<% out.print("crew_call_" + d); %>" size="5" value="<%=scrt.getCrewCall() %>" pattern="date"></td>
+						  <td align="center" valign="top"><input name="<% out.print("crew_travelin_" + d); %>" type="text" id="<% out.print("crew_travelin_" + d); %>" size="5" value="<%=scrt.getTravelIn() %>" pattern="date"></td>
+						  <td align="center" valign="top"><input name="<% out.print("crew_loccall_" + d); %>" type="text" id="<% out.print("crew_loccall_" + d); %>" size="5" value="<%=scrt.getLocationCall() %>" pattern="date"></td>
+						  <td align="center" valign="top"><input name="<% out.print("crew_meal_" + d); %>" type="text" id="<% out.print("crew_meal_" + d); %>" size="5" value="<%=scrt.getMealBreak() %>" pattern="date"></td>
+						  <td align="center" valign="top"><input name="<% out.print("crew_wrap_" + d); %>" type="text" id="<% out.print("crew_wrap_" + d); %>" size="5" value="<%=scrt.getWrap() %>" pattern="date"></td>
+						  <td align="center" valign="top"><input name="<% out.print("crew_wraploc_" + d); %>" type="text" id="<% out.print("crew_wraploc_" + d); %>" size="5" value="<%=scrt.getWrapLoc() %>" pattern="date"></td>
+						  <td align="center" valign="top"><input name="<% out.print("crew_departloc_" + d); %>" type="text" id="<% out.print("crew_departloc_" + d); %>" size="5" value="<%=scrt.getDepartLoc() %>" pattern="date"></td>
+						  <td align="center" valign="top"><input name="<% out.print("crew_travelout_" + d); %>" type="text" id="<% out.print("crew_travelout_" + d); %>" size="5" value="<%=scrt.getTravelOut() %>" pattern="date"></td>
+						  <td align="center" valign="top"><textarea name="<% out.print("crew_remarks_" + d); %>" cols="8" id="<% out.print("crew_remarks_" + d); %>"><%=scrt.getRemarks() %></textarea></td>
+						  <td align="center" class="right">&nbsp;</td>
+					  </tr>
+					  <%}
+					  }else{%>
+					  <tr>
+						  <td align="center" class="left">&nbsp;</td>
+						  <td align="center" valign="top">					        
+						  <select name="crew_1" id="crew_1">
+						        <option value="2nd AD">2nd AD</option>
+						        <option value="Continuity">Continuity</option>
+						        <option value="Camera">Camera</option>
+						        <option value="Sound">Sound</option>
+						        <option value="Makeup/Hair">Makeup/Hair</option>
+						        <option value="Wardrobe">Wardrobe</option>
+						        <option value="Unit">Unit</option>
+						        <option value="Grips">Grips</option>
+						        <option value="Electrics">Electrics</option>
+						        <option value="Standby Props">Standby Props</option>
+						        <option value="Other ...">Other ...</option>
+				              </select>
+                            <br>					      
+                          <input name="crew_other_1" type="text" id="crew_other_1" value="[If other, specify]" size="15"></td>
+						  <td align="center" valign="top"><input name="crew_call_1" type="text" id="crew_call_1" size="5"></td>
+						  <td align="center" valign="top"><input name="crew_travelin_1" type="text" id="crew_travelin_1" size="5"></td>
+						  <td align="center" valign="top"><input name="crew_loccall_1" type="text" id="crew_loccall_1" size="5"></td>
+						  <td align="center" valign="top"><input name="crew_meal_1" type="text" id="crew_meal_1" size="5"></td>
+						  <td align="center" valign="top"><input name="crew_wrap_1" type="text" id="crew_wrap_1" size="5"></td>
+						  <td align="center" valign="top"><input name="crew_wraploc_1" type="text" id="crew_wraploc_1" size="5"></td>
+						  <td align="center" valign="top"><input name="crew_departloc_1" type="text" id="crew_departloc_1" size="5"></td>
+						  <td align="center" valign="top"><input name="crew_travelout_1" type="text" id="crew_travelout_1" size="5"></td>
+						  <td align="center" valign="top"><textarea name="crew_remarks_1" cols="8" id="crew_remarks_1"></textarea></td>
 						  <td align="center" class="right">&nbsp;</td>
 					  </tr>
 					  <%}%>
@@ -422,12 +477,11 @@
 					  	  <option value="Supper" <% if(smt.getMeal().equals("Supper")){out.print("selected"); } %>>Supper</option>
 				  	    </select></td>
 						<% FromToType ft = smt.getMealTimes();%>
-					  	<td align="center" valign="top"><input name="<% out.print("meal_timefrom_" + e); %>" type="text" id="<% out.print("meal_timefrom_" + e); %>" size="6" value="<%=ft.getFrom() %>" pattern="time" title="Enter Start Time. [Time Value HH:MM:SS]"></td>
-					  	<td align="center" valign="top"><input name="<% out.print("meal_timeto_" + e); %>" type="text" id="<% out.print("meal_timeto_" + e); %>" size="6" value="<%=ft.getTo() %>" pattern="time" title="Enter Finish Time. [Time Value HH:MM:SS]"> 
-														<input name="<% out.print("meal_duration_" + e); %>" type="hidden" id="<% out.print("meal_duration_" + e); %>" size="6"></td>
-					  	<td align="center" valign="top"><input name="<% out.print("meal_numbers_" + e); %>" type="text" id="<% out.print("meal_numbers_" + e); %>" size="6" value="<%=smt.getNumbers() %>" pattern="number" title="Enter Number of People. [Number Value]"></td>
-					  	<td align="center" valign="top"><input name="<% out.print("meal_location_" + e); %>" type="text" id="<% out.print("meal_location_" + e); %>"  size="20" value="<%=smt.getLocation() %>" pattern="any_text" title="Enter Meal Location. [String Value]"></td>
-					  	<td align="center" valign="top"><textarea name="<% out.print("meal_remarks_" + e); %>" cols="20" id="<% out.print("meal_remarks_" + e); %>" title="Enter Remarks. [String Value]"><%=smt.getRemarks() %></textarea></td>
+					  	<td align="center" valign="top"><input name="<% out.print("meal_timefrom_" + e); %>" type="text" id="<% out.print("meal_timefrom_" + e); %>" size="6" value="<%=ft.getFrom() %>" pattern="date" ></td>
+					  	<td align="center" valign="top"><input name="<% out.print("meal_timeto_" + e); %>" type="text" id="<% out.print("meal_timeto_" + e); %>" size="6" value="<%=ft.getTo() %>" pattern="date" > <input name="<% out.print("meal_duration_" + e); %>" type="hidden" id="<% out.print("meal_duration_" + e); %>" size="6"></td>
+					  	<td align="center" valign="top"><input name="<% out.print("meal_numbers_" + e); %>" type="text" id="<% out.print("meal_numbers_" + e); %>" size="6" value="<%=smt.getNumbers() %>" pattern="number" ></td>
+					  	<td align="center" valign="top"><input name="<% out.print("meal_location_" + e); %>" type="text" id="<% out.print("meal_location_" + e); %>" pattern="any_text" size="20" value="<%=smt.getLocation() %>"></td>
+					  	<td align="center" valign="top"><textarea name="<% out.print("meal_remarks_" + e); %>" cols="20" id="<% out.print("meal_remarks_" + e); %>"><%=smt.getRemarks() %></textarea></td>
 					  	<td width="15" align="center" class="right"></td>
 					</tr>
 					<% }
@@ -467,7 +521,7 @@
 				      <td class="header-middle">Livestock/Other</td>
 				      <td class="header-right">&nbsp;</td>
 				  </tr>
-					<tr><td width="15" class="left">&nbsp;</td><td align="center"><textarea name="livestock_other" cols="70" id="livestock_other" title="Enter Livestock/Other Information - If Necessary. [String Value]"><% if(tsi.getLivestock() != null){ out.print(tsi.getLivestock()); } %></textarea></td><td width="15" class="right">&nbsp;</td></tr>
+					<tr><td width="15" class="left">&nbsp;</td><td align="center"><textarea name="livestock_other" cols="70" id="livestock_other"><% if(tsi != null){ out.print(tsi.getLivestock()); } %></textarea></td><td width="15" class="right">&nbsp;</td></tr>
 					<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
   			  </table>
 			</td></tr>
@@ -477,7 +531,7 @@
 				      <td class="header-middle">Accidents/Delays</td>
 				      <td class="header-right">&nbsp;</td>
 				  </tr>
-					<tr><td width="15" class="left">&nbsp;</td><td align="center"><textarea name="accidents" cols="70" id="accidents" title="Enter Accidents/Delays Information - If Necessary. [String Value]"><% if(tsi.getAccidentsDelays() != null){ out.print(tsi.getAccidentsDelays()); } %></textarea></td><td width="15" class="right">&nbsp;</td></tr>
+					<tr><td width="15" class="left">&nbsp;</td><td align="center"><textarea name="accidents" cols="70" id="accidents"><% if(tsi != null){ out.print(tsi.getAccidentsDelays()); } %></textarea></td><td width="15" class="right">&nbsp;</td></tr>
 					<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
   			  </table>
 			</td></tr>
@@ -487,7 +541,7 @@
 				      <td class="header-middle">Major Props / Action Vehicles / Extra Equipment</td>
 				      <td class="header-right">&nbsp;</td>
 				  </tr>
-					<tr><td width="15" class="left">&nbsp;</td><td align="center"><textarea name="major_props" cols="70" id="major_props" title="Enter Major Props / Action Vehicles / Extra Equipment Information - If Necessary. [String Value]"><% if(tsi.getMajorPropsActionVehiclesExtraEquipment() != null){ out.print(tsi.getMajorPropsActionVehiclesExtraEquipment()); } %></textarea></td><td width="15" class="right">&nbsp;</td></tr>
+					<tr><td width="15" class="left">&nbsp;</td><td align="center"><textarea name="major_props" cols="70" id="major_props"><% if(tsi != null){ out.print(tsi.getMajorPropsActionVehiclesExtraEquipment()); } %></textarea></td><td width="15" class="right">&nbsp;</td></tr>
 					<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
   			  </table>
 			</td></tr>
@@ -497,7 +551,7 @@
 				      <td class="header-middle">Additional Personnel </td>
 				      <td class="header-right">&nbsp;</td>
 				  </tr>
-					<tr><td width="15" class="left">&nbsp;</td><td height="90" align="center"><textarea name="additional_personnel" cols="70" id="additional_personnel" title="Enter Additional Personnel Information - If Necessary. [String Value]"><% if(tsi.getAdditionalPersonnel() != null){ out.print(tsi.getAdditionalPersonnel()); } %></textarea></td>
+					<tr><td width="15" class="left">&nbsp;</td><td height="90" align="center"><textarea name="additional_personnel" cols="70" id="additional_personnel"><% if(tsi != null){ out.print(tsi.getAdditionalPersonnel()); } %></textarea></td>
 					<td width="15" class="right">&nbsp;</td></tr>
 					<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
   			  </table>
@@ -508,14 +562,13 @@
 					  <td class="header-middle">General Comments<span class="style1"> (cast, delays, injuries, gear failure, late arrivals, etc)</span> </td>
 					  <td class="header-right">&nbsp;</td>
 					</tr>
-					<tr><td width="15" height="90" class="left">&nbsp;</td><td height="90" align="center"><textarea name="general_comments" cols="70" id="general_comments" title="Enter General Comments - If Necessary. [String Value]"><% if(tsi.getGeneralComments() != null){ out.print(tsi.getGeneralComments()); } %></textarea></td><td width="15" height="90" class="right">&nbsp;</td></tr>
+					<tr><td width="15" height="90" class="left">&nbsp;</td><td height="90" align="center"><textarea name="general_comments" cols="70" id="general_comments"><% if(tsi != null){ out.print(tsi.getGeneralComments()); } %></textarea></td><td width="15" height="90" class="right">&nbsp;</td></tr>
 					<tr><td colspan="3" class="bottom">&nbsp;</td></tr>
   			  </table>
 			</td></tr>
 		    <tr>
-		      <td align="center">
-	          	Partial Submission <input name="final_submission" id="radio" type="radio" value="partial" <% if(foadr.isFinalSubmission() == false) {out.print("checked");}%>>
-				Final Submission <input name="final_submission" id="radio" type="radio" value="final" <% if(foadr.isFinalSubmission() == true) {out.print("checked");}%>></td>
+		      <td align="center">Final Submission 
+	          <input name="final_submission" type="checkbox" id="final_submission" value="True" <% if(foadr.isFinalSubmission() == true) {out.print("checked");}%>></td>
 	      </tr>
 	      <tr><td align="center">	
 		<input type="hidden" name="artist_count" id="artist_count" value="<%if (a==0) {out.print("0");}else{out.print(a);}%>">
@@ -532,6 +585,7 @@
 		<input type="button" value="Print"  onclick="window.print()">
 		<input type="submit" name="Save" value="Save" onclick="return validateWithSignatories('form1');">
 		<input type="submit" name="Submission" value="Submission" onclick="return validateWithSignatories('form1');">
+		<input name="testing" type="button" id="testing" value="Testing" onClick="calculateDuration();">
         </td>
 		</tr>	
 	</table>
@@ -684,11 +738,9 @@ if(request.getParameter("Submission") != null){
 	foadr.setDirector(request.getParameter("director"));
 	foadr.setAssistantDirector(request.getParameter("assistant_director"));
 	foadr.setTimeSheetInfo(tsit);
-	
-	
-	if (request.getParameter("final_submission").equals("partial")){
+	if (request.getParameter("final_submission")==null){
 		foadr.setFinalSubmission(false);
-	}else if (request.getParameter("final_submission").equals("final")){
+	}else{
 		foadr.setFinalSubmission(true);
 	}
 	
@@ -830,10 +882,9 @@ else if(request.getParameter("Save") != null){
 	foadr.setDirector(request.getParameter("director"));
 	foadr.setAssistantDirector(request.getParameter("assistant_director"));
 	foadr.setTimeSheetInfo(tsit);
-	
-	if (request.getParameter("final_submission").equals("partial")){
+	if (request.getParameter("final_submission")==null){
 		foadr.setFinalSubmission(false);
-	}else if (request.getParameter("final_submission").equals("final")){
+	}else{
 		foadr.setFinalSubmission(true);
 	}
 	

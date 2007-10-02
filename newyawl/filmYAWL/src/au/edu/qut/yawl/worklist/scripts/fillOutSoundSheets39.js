@@ -56,13 +56,13 @@ function addRow(){
     rightCELL.className = "right";
     rightCELL.appendChild(document.createTextNode("\u00a0"));
 
-    camrollCELL.appendChild(createAnyTextTextBox("cam_roll_" + count, 5, "", "Enter Cam Roll. [String Value]"));
-    sceneCELL.appendChild(createAnyTextTextBox("scene_" + count, 5, "", "Enter Scene Number. [String Value]"));
-    slateCELL.appendChild(createAnyTextTextBox("slate_" + count, 5, "", "Enter Slate. [String Value]"));
-    takeCELL.appendChild(createNumberTextBox("take_" + count, 5, "", "Enter Take Number. [Number Value]"));
+    camrollCELL.appendChild(createTextBox("cam_roll_" + count, 5, "", "camera rol"));
+    sceneCELL.appendChild(createTextBox("scene_" + count, 5, "", "scene number"));
+    slateCELL.appendChild(createTextBox("slate_" + count, 5, "", "slate number"));
+    takeCELL.appendChild(createNumberTextBox("take_" + count, 5, "", "take number"));
     printCELL.appendChild(createCheckBox("print_" + count, "", false));
-    timecodeCELL.appendChild(createDateTextBox("timecode_" + count, 8, "", "Enter Timecode. [Time Value HH:MM:SS]"));
-    remarksCELL.appendChild(createTextArea("remarks_" + count, 30, "", "Enter Comment. [String Value]"));
+    timecodeCELL.appendChild(createDateTextBox("timecode_" + count, 8, "", "time code"));
+    remarksCELL.appendChild(createTextArea("remarks_" + count, 30, "", "enter a comment"));
 }
 
 function deleteRow() {

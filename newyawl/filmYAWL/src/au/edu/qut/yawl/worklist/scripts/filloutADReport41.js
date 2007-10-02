@@ -14,8 +14,8 @@ var childFooterSize = 2;
 var childHeaderAndFooterSize = childHeaderSize + childFooterSize;
 
 var crew_count = 0;
-var crewHeaderSize = 3;
-var crewFooterSize = 2;
+var crewHeaderSize = 2;
+var crewFooterSize = 3;
 var crewHeaderAndFooterSize = crewHeaderSize + crewFooterSize;
 
 var meal_count=0;
@@ -115,13 +115,13 @@ function addArtistRow(){
 	rightCELL.className = "right";
 	rightCELL.appendChild(document.createTextNode("\u00a0"));
 
-	artistCELL.appendChild(createTextBoxWithNoValidation("artist_" + artist_count, 15, "", "Enter Artist Name. [String Value] (make sure this matches one of the artists on cast list)"));
-	puCELL.appendChild(createTextBoxWithNoValidation("artist_pu_" + artist_count, 6, "", "Enter Pickup. [String Value]"));
-	muwdcallscheduledCELL.appendChild(createTextBoxWithNoValidation("artist_muwdcall_scheduled_" + artist_count, 6, "", "Enter Scheduled Time. [Time Value HH:MM:SS]"));
-	muwdcallactualCELL.appendChild(createTextBoxWithNoValidation("artist_muwdcall_actual_" + artist_count, 6, "", "Enter Actual Time. [Time Value HH:MM:SS]"));
-	mealCELL.appendChild(createTextBoxWithNoValidation("artist_meal_" + artist_count, 6, "", "Enter Meal Break. [Time Value HH:MM:SS] (please enter 00:00:00 if no meal is served)"));
-	wrapCELL.appendChild(createTextBoxWithNoValidation("artist_wrap_" + artist_count, 6, "", "Enter Time Wrap. [Time Value HH:MM:SS]"));
-	travelCELL.appendChild(createTextBoxWithNoValidation("artist_travel_" + artist_count, 6, "", "Enter Travel Time. [Time Value HH:MM:SS]"));
+	artistCELL.appendChild(createTextBoxWithNoValidation("artist_" + artist_count, 15, "", "enter artist"));
+	puCELL.appendChild(createTextBoxWithNoValidation("artist_pu_" + artist_count, 6, "", "enter artist pu"));
+	muwdcallscheduledCELL.appendChild(createTextBoxWithNoValidation("artist_muwdcall_scheduled_" + artist_count, 6, "", "enter muwd call"));
+	muwdcallactualCELL.appendChild(createTextBoxWithNoValidation("artist_muwdcall_actual_" + artist_count, 6, "", "enter muwd call actual"));
+	mealCELL.appendChild(createTextBoxWithNoValidation("artist_meal_" + artist_count, 6, "", "enter artist meal time (hh:mm:ss)"));
+	wrapCELL.appendChild(createTextBoxWithNoValidation("artist_wrap_" + artist_count, 6, "", "enter artist wrap time (hh:mm:ss)"));
+	travelCELL.appendChild(createTextBoxWithNoValidation("artist_travel_" + artist_count, 6, "", "enter artist travel time (hh:mm:ss)"));
 
     signatureCELL.appendChild(createSignatureApplet("artist", artist_count));
     var hiddenSignatureUrl = document.createElement("input");
@@ -142,6 +142,13 @@ function deleteArtistRow() {
         if (artist_count > 0) {
             document.getElementById("artist_count").value = --artist_count;
         }
+
+        if (artist_count == 0) {
+            //add an empty row after the last row has been deleted.
+            //this allows all data-containing rows to be deleted and for there to be a single empty row
+            //at any point in time.
+            addArtistRow();
+        }
     }    
 }
 
@@ -157,6 +164,12 @@ function deleteBackgroundArtistRow () {
             document.getElementById("extras_count").value = --extras_count;
         }
 
+        if (extras_count == 0) {
+            //add an empty row after the last row has been deleted.
+            //this allows all data-containing rows to be deleted and for there to be a single empty row
+            //at any point in time.
+            addBackgroundArtistRow();
+        }
     }
 }
 
@@ -189,13 +202,13 @@ function addBackgroundArtistRow(){
 	rightCELL.className = "right";
 	rightCELL.appendChild(document.createTextNode("\u00a0"));
 
-	artistCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_" + extras_count, 15, "", "Enter Background Actor Name. [String Value]"));
-	puCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_pu_" + extras_count, 6, "", "Enter Pickup. [String Value]"));
-	muwdcallscheduledCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_muwdcall_scheduled_" + extras_count, 6, "", "Enter Scheduled Time. [Time Value HH:MM:SS]"));
-	muwdcallactualCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_muwdcall_actual_" + extras_count, 6, "", "Enter Actual Time. [Time Value HH:MM:SS]"));
-	mealCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_meal_" + extras_count, 6, "", "Enter Meal Break. [Time Value HH:MM:SS] (please enter 00:00:00 if no meal is served)"));
-	wrapCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_wrap_" + extras_count, 6, "", "Enter Time Wrap. [Time Value HH:MM:SS]"));
-	travelCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_travel_" + extras_count, 6, "", "Enter Travel Time. [Time Value HH:MM:SS]"));
+	artistCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_" + extras_count, 15, "", "enter background artist"));
+	puCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_pu_" + extras_count, 6, "", "enter pu"));
+	muwdcallscheduledCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_muwdcall_scheduled_" + extras_count, 6, "", "enter scheduled muwdcall"));
+	muwdcallactualCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_muwdcall_actual_" + extras_count, 6, "", "enter actual muwdcallt"));
+	mealCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_meal_" + extras_count, 6, "", "enter meal time"));
+	wrapCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_wrap_" + extras_count, 6, ""), "enter wrap time");
+	travelCELL.appendChild(createTextBoxWithNoValidation("backgroundartist_travel_" + extras_count, 6, "", "enter travel time"));
 
     signatureCELL.appendChild(createSignatureApplet("backgroundartist", extras_count));
     var hiddenSignatureUrl = document.createElement("input");
@@ -233,14 +246,14 @@ function addChildRow(){
 	rightCELL.className = "right";
 	rightCELL.appendChild(document.createTextNode("\u00a0"));
 
-	childrenCELL.appendChild(createAnyTextTextBox("children_" + child_count, 15, "", "Enter Child Name. [String Value]"));
-	puCELL.appendChild(createAnyTextTextBox("children_pu_" + child_count, 6, "", "Enter Pickup. [String Value]"));
-	muwdcallscheduledCELL.appendChild(createDateTextBox("children_muwdcall_scheduled_" + child_count, 6, "", "Enter Scheduled Time. [Time Value HH:MM:SS]"));
-	muwdcallactualCELL.appendChild(createDateTextBox("children_muwdcall_actual_" + child_count, 6, "", "Enter Actual Time. [Time Value HH:MM:SS]"));
-	mealCELL.appendChild(createDateTextBox("children_meal_" + child_count, 6, "", "Enter Meal Break. [Time Value HH:MM:SS] (please enter 00:00:00 if no meal is served)"));
-	wrapCELL.appendChild(createDateTextBox("children_wrap_" + child_count, 6, "", "Enter Wrap Time. [Time Value HH:MM:SS]"));
-	travelCELL.appendChild(createDateTextBox("children_travel_" + child_count, 6, "", "Enter Travel Time. [Time Value HH:MM:SS]"));
-	remarksCELL.appendChild(createTextArea("children_remarks_" + child_count, 15, "", "Enter Remarks. [String Value]"));
+	childrenCELL.appendChild(createTextBox("children_" + child_count, 15, "", "enter child actor"));
+	puCELL.appendChild(createTextBox("children_pu_" + child_count, 6, "", "enter pu"));
+	muwdcallscheduledCELL.appendChild(createDateTextBox("children_muwdcall_scheduled_" + child_count, 6, "", "child muwdcall scheduled"));
+	muwdcallactualCELL.appendChild(createDateTextBox("children_muwdcall_actual_" + child_count, 6, "", "child muwdcall actual"));
+	mealCELL.appendChild(createDateTextBox("children_meal_" + child_count, 6, "", "enter meal time"));
+	wrapCELL.appendChild(createDateTextBox("children_wrap_" + child_count, 6, "", "enter wrap time"));
+	travelCELL.appendChild(createDateTextBox("children_travel_" + child_count, 6, "", "enter travel time"));
+	remarksCELL.appendChild(createTextArea("children_remarks_" + child_count, 15, "", "enter remarks"));
 }
 
 function deleteChildRow () {    
@@ -255,6 +268,12 @@ function deleteChildRow () {
             document.getElementById("child_count").value = --child_count;
         }
 
+        if (child_count == 0) {
+            //add an empty row after the last row has been deleted.
+            //this allows all data-containing rows to be deleted and for there to be a single empty row
+            //at any point in time.
+            addChildRow();
+        }
     }
 }
 
@@ -297,15 +316,15 @@ function addCrewRow(){
 	crewCELL.appendChild(document.createElement("BR"));
 	crewCELL.appendChild(createTextBoxWithNoValidation("crew_other_" + crew_count, 15, "[If other, specify]"));
 
-    callCELL.appendChild(createDateTextBox("crew_call_" + crew_count, 5,"", "Enter Call Time. [Time Value HH:MM:SS]"));
-	travelinCELL.appendChild(createDateTextBox("crew_travelin_" + crew_count, 5,"", "Enter Travel In Time. [Time Value HH:MM:SS]"));
-	loccallCELL.appendChild(createDateTextBox("crew_loccall_" + crew_count, 5,"", "Enter Location Call Time. [Time Value HH:MM:SS]"));
-	mealCELL.appendChild(createDateTextBox("crew_meal_" + crew_count, 5, "", "Enter Meal Time. [Time Value HH:MM:SS] (please enter 00:00:00 if no meal is served)"));
-	wrapCELL.appendChild(createDateTextBox("crew_wrap_" + crew_count, 5, "", "Enter Wrap Time. [Time Value HH:MM:SS]"));
-	wraplocCELL.appendChild(createDateTextBox("crew_wraploc_" + crew_count, 5, "", "Enter Wrap Location. [Time Value HH:MM:SS]"));
-	departlocCELL.appendChild(createDateTextBox("crew_departloc_" + crew_count, 5, "", "Enter Depart Location Time. [Time Value HH:MM:SS]"));
-	traveloutCELL.appendChild(createDateTextBox("crew_travelout_" + crew_count, 5, "", "Enter Travel Out Time. [Time Value HH:MM:SS]"));
-	remarksCELL.appendChild(createTextArea("crew_remarks_" + crew_count, 8,"", "Enter Remarks. [String Value]"));
+    callCELL.appendChild(createDateTextBox("crew_call_" + crew_count, 5,"", "call"));
+	travelinCELL.appendChild(createDateTextBox("crew_travelin_" + crew_count, 5,"", "travel in time"));
+	loccallCELL.appendChild(createDateTextBox("crew_loccall_" + crew_count, 5,"", "local call time"));
+	mealCELL.appendChild(createDateTextBox("crew_meal_" + crew_count, 5, "", "meal time"));
+	wrapCELL.appendChild(createDateTextBox("crew_wrap_" + crew_count, 5, "", "wrapt ime"));
+	wraplocCELL.appendChild(createDateTextBox("crew_wraploc_" + crew_count, 5, "", "wrap local time"));
+	departlocCELL.appendChild(createDateTextBox("crew_departloc_" + crew_count, 5, "", "departure local time"));
+	traveloutCELL.appendChild(createDateTextBox("crew_travelout_" + crew_count, 5, "", "travel out time"));
+	remarksCELL.appendChild(createTextArea("crew_remarks_" + crew_count, 8));
 }
 
 function populateCrewList(inp1) {
@@ -334,6 +353,12 @@ function deleteCrewRow () {
             document.getElementById("crew_count").value = --crew_count;
         }
 
+        if (crew_count == 0) {
+            //add an empty row after the last row has been deleted.
+            //this allows all data-containing rows to be deleted and for there to be a single empty row
+            //at any point in time.
+            addCrewRow();
+        }
     }
 }
 
@@ -369,12 +394,12 @@ function addMealRow(){
     populateMeals(inp1);
 
     mealCELL.appendChild(inp1);
-	fromCELL.appendChild(createDateTextBox("meal_timefrom_" + meal_count, 6, "", "Enter Start Time. [Time Value HH:MM:SS]"));
-	toCELL.appendChild(createDateTextBox("meal_timeto_" + meal_count, 6, "", "Enter Finish Time. [Time Value HH:MM:SS]"));
+	fromCELL.appendChild(createDateTextBox("meal_timefrom_" + meal_count, 6, ""));
+	toCELL.appendChild(createDateTextBox("meal_timeto_" + meal_count, 6, ""));
 	toCELL.appendChild(createHidden("meal_duration_" + meal_count, 6));
-	numbersCELL.appendChild(createNumberTextBox("meal_numbers_" + meal_count, 6, "", "Enter Number of People. [Number Value]"));
-	locationCELL.appendChild(createAnyTextTextBox("meal_location_" + meal_count, 20, "", "Enter Meal Location. [String Value]"));
-	remarksCELL.appendChild(createTextArea("meal_remarks_" + meal_count, 20, "", "Enter Remarks. [String Value]"));
+	numbersCELL.appendChild(createNumberTextBox("meal_numbers_" + meal_count, 6, ""));
+	locationCELL.appendChild(createTextBox("meal_location_" + meal_count, 20, ""));
+	remarksCELL.appendChild(createTextArea("meal_remarks_" + meal_count, 20));
 }
 
 function populateMeals(inp1) {

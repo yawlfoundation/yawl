@@ -97,13 +97,12 @@ function showValidFields(fieldIds) {
     }
 }
 
-function createTextBoxWithNoValidation(id, size, value, tooltip) {
+function createTextBoxWithNoValidation(id, size, value) {
 	var input =  document.createElement("INPUT");
 	input.setAttribute("size", size);
 	input.setAttribute("name", id);
 	input.setAttribute("id", id);
-	input.setAttribute("value", value);  
-	input.title = tooltip;
+	input.setAttribute("value", value);    
     return input;
 }
 
@@ -335,5 +334,5 @@ function createRadioButton(id, value, clicked) {
 }
 
 function newDoc() {
-  window.location.assign("_AvailableWork.jsp")
+  window.location.assign("http://localhost:8080/worklist/_AvailableWork.jsp")
 }

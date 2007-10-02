@@ -98,62 +98,62 @@
 		<form name="form1" method="post">
   		<table width="700"  border="0" align="center">
 			<tr>
-			  <td width="998" colspan="5"><table width="700" border="0" cellspacing="0" cellpadding="0">
+			  <td width="998" colspan='5'><table width='700' border='0' cellspacing='0' cellpadding='0'>
                 <tr>
                   <td class="header-left">&nbsp;</td>
                   <td colspan="4" class="header-middle">Sheet Number </td>
                   <td class="header-right">&nbsp;</td>
                 </tr>
-                <tr height="30">
-                  <td class="left" width="15">&nbsp;</td>
+                <tr height='30'>
+                  <td class='left' width='15'>&nbsp;</td>
                   <td align="center"><strong>Sheet Number 
                   </strong></td>
-                  <td align="center"><input name="sheet_number" type="text" id="sheet_number" value="<%=ci.getSheetNumber() %>" pattern="number" title="Enter Sheet Number. [Number Value]"></td>
+                  <td align="center"><input name="sheet_number" type="text" id="sheet_number" value="<%=ci.getSheetNumber() %>" pattern="number"></td>
                   <td align="center"><strong>Camera Roll </strong></td>
-                  <td align="center"><input name="roll" type="text" id="roll" size="20" value="<%=ci.getCamRoll()%>" pattern="any_text" title="Enter Camera Roll. [String Value]"></td>
-                  <td class="right" width="15">&nbsp;</td>
+                  <td align="center"><input name="roll" type="text" id="roll" size="20" value="<%=ci.getCamRoll()%>" pattern="text"></td>
+                  <td class='right' width='15'>&nbsp;</td>
                 </tr>
-                <tr height="30">
-                  <td colspan="6" class="bottom">&nbsp;</td>
+                <tr height='30'>
+                  <td colspan='6' class='bottom'>&nbsp;</td>
                 </tr>
               </table></td>
 		  </tr>
-			<tr><td colspan="5">
-				<table width="700" border="0" cellspacing="0" cellpadding="0">
+			<tr><td colspan='5'>
+				<table width='700' border='0' cellspacing='0' cellpadding='0'>
 					<tr><td class="header-left">&nbsp;</td>
-					  <td colspan="6" class="header-middle">General Info </td>
+					  <td colspan='6' class="header-middle">General Info </td>
 					  <td class="header-right">&nbsp;</td>
 					</tr>
-					<tr height="30">
-						<td class="left" width="15">&nbsp;</td>
-						<td><strong>Production</strong></td><td><input name="production" type="text" id="production" value="<%= gi.getProduction()%>" size="15" readonly></td>
-						<td><strong>Date</strong></td><td><input name="date" type="text" id="date" value="<%= gi.getDate()%>" size="15" readonly></td>
-						<td><strong>Day</strong></td><td><input name="weekday" type="text" id="weekday" value="<%=gi.getWeekday()%>" size="15" readonly></td>
-						<td class="right" width="15">&nbsp;</td>
+					<tr height='30'>
+						<td class='left' width='15'>&nbsp;</td>
+						<td><strong>Production</strong></td><td><input name='production' type='text' id='production' value='<%= gi.getProduction()%>' size="15" readonly></td>
+						<td><strong>Date</strong></td><td><input name='date' type='text' id='date' value='<%= gi.getDate()%>' size="15" readonly></td>
+						<td><strong>Day</strong></td><td><input name='weekday' type='text' id='weekday' value='<%=gi.getWeekday()%>' size="15" readonly></td>
+						<td class='right' width='15'>&nbsp;</td>
 					</tr>
-					<tr height="30">
-						<td class="left" width="15">&nbsp;</td>
-						<td><strong>Producer</strong></td><td><input name="producer" type="text" id="producer" value="<%=focs.getProducer()%>" size="15" readonly></td>
-						<td><strong>Director</strong></td><td><input name="director" type="text" id="director" value="<%=focs.getDirector()%>" size="15" readonly></td>
-						<td><strong>Shoot Day </strong></td><td><input name="shoot_day" type="text" id="shoot_day" value="<%=gi.getShootDayNo()%>" size="15" readonly></td>
-						<td class="right" width="15">&nbsp;</td>
+					<tr height='30'>
+						<td class='left' width='15'>&nbsp;</td>
+						<td><strong>Producer</strong></td><td><input name='producer' type='text' id='producer' value='<%=focs.getProducer()%>' size="15" readonly></td>
+						<td><strong>Director</strong></td><td><input name='director' type='text' id='director' value='<%=focs.getDirector()%>' size="15" readonly></td>
+						<td><strong>Shoot Day </strong></td><td><input name='shoot_day' type='text' id='shoot_day' value='<%=gi.getShootDayNo()%>' size="15" readonly></td>
+						<td class='right' width='15'>&nbsp;</td>
 					</tr>
-					<tr height="30">
-					  <td class="left">&nbsp;</td>
+					<tr height='30'>
+					  <td class='left'>&nbsp;</td>
 					  <td><strong>Director of Photography</strong></td>
-					  <td><input name="director_photography" type="text" id="director_photography" value="<%= focs.getDirectorOfPhotography() %>" size="15" readonly></td>
+					  <td><input name='director_photography' type='text' id='director_photography' value='<%= focs.getDirectorOfPhotography() %>' size="15" readonly></td>
 					  <td><strong>Camera Operator</strong></td>
-					  <td><input name="camera_operator" type="text" id="camera_operator" value="<%=focs.getCameraOperator()%>" size="15" readonly></td>
+					  <td><input name='camera_operator' type='text' id='camera_operator' value='<%=focs.getCameraOperator()%>' size="15" readonly></td>
 					  <td><strong>Camera Assistant</strong></td>
-					  <td><input name="camera_assistant" type="text" id="camera_assistant" value="<%=focs.getCameraAssistant()%>" size="15" readonly></td>
-					  <td class="right">&nbsp;</td>
+					  <td><input name='camera_assistant' type='text' id='camera_assistant' value='<%=focs.getCameraAssistant()%>' size="15" readonly></td>
+					  <td class='right'>&nbsp;</td>
 				  </tr> 
-					<tr height="30">
-						<td class="left" width="15">&nbsp;</td>
+					<tr height='30'>
+						<td class='left' width='15'>&nbsp;</td>
 						<td><strong>Studios/Locations</strong></td><td colspan="5"><input name="studios_locations" type="text" id="studios_locations" size="50" value="<%=ci.getStudiosLocation() %>" pattern="any_text"></td>
-						<td class="right" width="15">&nbsp;</td>
+						<td class='right' width='15'>&nbsp;</td>
 					</tr>
-					<tr height="30"><td colspan="8" class="bottom">&nbsp;</td>
+					<tr height='30'><td colspan='8' class='bottom'>&nbsp;</td>
 					</tr>
 			  </table>
 			</td></tr>
@@ -171,34 +171,34 @@
 				<tr>
 					<td width="15" align="right" class="left">&nbsp;</td>
 					<td height="30"><strong>Camera Type and Number</strong></td>
-					<td height="30"><input name="camera_type_number" type="text" id="camera_type_number" size="20" value="<%= ti.getCameraTypeAndNumber()%>" pattern="any_text" title="Enter Camera Type and Number. [String Value]"></td>
+					<td height="30"><input name="camera_type_number" type="text" id="camera_type_number" size="20" value="<%= ti.getCameraTypeAndNumber()%>" pattern="any_text"></td>
 					<td height="30"><strong>Emulsion</strong></td>
-					<td height="30"><input name="emulsion" type="text" id="emulsion" size="20" value="<%= ti.getEmulsion()%>" pattern="any_text" title="Enter Emulsion. [String Value]"></td>
+					<td height="30"><input name="emulsion" type="text" id="emulsion" size="20" value="<%= ti.getEmulsion()%>"></td>
 					<td width="15" class="right">&nbsp;</td>
 				</tr>
 				<tr>
 					<td width="15" align="right" class="left">&nbsp;</td>
 				    <td height="30"><strong>Stock Number</strong></td>
-				  	<td height="30"><input name="stock_number" type="text" id="stock_number" size="20" value="<%= ti.getStockNumber()%>" pattern="any_text" title="Enter Stock Number. [String Value]"></td>
+				  	<td height="30"><input name="stock_number" type="text" id="stock_number" size="20" value="<%= ti.getStockNumber()%>" pattern="text"></td>
 					<td height="30"><strong>Total Cans Number</strong></td>
-					<td height="30"><input name="total_cans_number" type="text" id="total_cans_number" size="20" value="<%= ti.getTotalCansNumber()%>" pattern="number" title="Enter Total Cans Number. [Number Value]"></td>
+					<td height="30"><input name="total_cans_number" type="text" id="total_cans_number" size="20" value="<%= ti.getTotalCansNumber()%>" pattern="number"></td>
 				    <td width="15" class="right">&nbsp;</td>
 				</tr>
 				<%}else{%>
 				<tr>
 					<td width="15" align="right" class="left">&nbsp;</td>
 					<td height="30"><strong>Camera Type and Number</strong></td>
-					<td height="30"><input name="camera_type_number" type="text" id="camera_type_number" size="20" pattern="any_text" title="Enter Camera Type and Number. [String Value]"></td>
+					<td height="30"><input name="camera_type_number" type="text" id="camera_type_number" size="20" pattern="text"></td>
 					<td height="30"><strong>Emulsion</strong></td>
-					<td height="30"><input name="emulsion" type="text" id="emulsion" size="20" pattern="any_text" title="Enter Emulsion. [String Value]"></td>
+					<td height="30"><input name="emulsion" type="text" id="emulsion" size="20" pattern="text"></td>
 					<td width="15" class="right">&nbsp;</td>
 				</tr>
 				<tr>
 					<td width="15" align="right" class="left">&nbsp;</td>
 				    <td height="30"><strong>Stock Number</strong></td>
-				  	<td height="30"><input name="stock_number" type="text" id="stock_number" size="20" pattern="any_text" title="Enter Stock Number. [String Value]"></td>
+				  	<td height="30"><input name="stock_number" type="text" id="stock_number" size="20" pattern="text"></td>
 					<td height="30"><strong>Total Cans Number</strong></td>
-					<td height="30"><input name="total_cans_number" type="text" id="total_cans_number" size="20" pattern="number" title="Enter Total Cans Number. [Number Value]"></td>
+					<td height="30"><input name="total_cans_number" type="text" id="total_cans_number" size="20" pattern="number"></td>
 				    <td width="15" class="right">&nbsp;</td>
 				</tr>
 				<%}%>
@@ -248,15 +248,15 @@
 					%>
 					<tr align="center" valign="top">
 						<td width="15" class="left">&nbsp;</td>
-						<td><input name="mag_number_<%=a%>" type="text" id="mag_number_<%=a%>" size="5" value="<%= sl.getMagNumber() %>" pattern="any_text" title="Enter Mag Number. [String Value]"></td>
-						<td><input name="slate_<%=a%>" type="text" id="slate_<%=a%>" size="5" value="<%= sl.getSlate() %>" pattern="any_text" title="Enter Slate. [String Value]"></td>
-						<td><input name="take_<%=a%>" type="text" id="take_<%=a%>" size="5" value="<%= ti.getTake() %>" pattern="number" title="Enter Take Number. [Number Value]"></td>
-						<td><input name="counter_reading_<%=a%>" type="text" id="counter_reading_<%=a%>" size="6" value="<%= ti.getCounter() %>" pattern="number" title="Enter Counter Reading. [Number Value]"></td>
-						<td><input name="take_length_<%=a%>" type="text" id="take_length_<%=a%>" size="6" value="<%= ti.getLength() %>" pattern="number" title="Enter Take Length. [Number Value]"></td>
+						<td><input name="mag_number_<%=a%>" type="text" id="mag_number_<%=a%>" size="5" value="<%= sl.getMagNumber() %>" pattern="text"></td>
+						<td><input name="slate_<%=a%>" type="text" id="slate_<%=a%>" size="5" value="<%= sl.getSlate() %>" pattern="text"></td>
+						<td><input name="take_<%=a%>" type="text" id="take_<%=a%>" size="5" value="<%= ti.getTake() %>" pattern="number" title="Enter Take Number."></td>
+						<td><input name="counter_reading_<%=a%>" type="text" id="counter_reading_<%=a%>" size="6" value="<%= ti.getCounter() %>" pattern="number" title="Enter Counter Reading."></td>
+						<td><input name="take_length_<%=a%>" type="text" id="take_length_<%=a%>" size="6" value="<%= ti.getLength() %>" pattern="number" title="Enter Take Length."></td>
 						<td><input name="print_<%=a%>" type="checkbox" id="print_<%=a%>" value="True" <% if(ti.isPrint() == true) {out.print("checked");}%>></td>
-						<td><input name="print_setting_<%=a%>" id="radio" type="radio" value="B/W" <% if(!(ti.getPrintSetting().equals("Colour"))){out.print("checked");}%>></td>
+						<td><input name="print_setting_<%=a%>" id="radio" type="radio" value="B/W" <% if(ti.getPrintSetting().equals("B/W")){out.print("checked");}%>></td>
 						<td><input name="print_setting_<%=a%>" id="radio" type="radio" value="Colour" <% if(ti.getPrintSetting().equals("Colour")){out.print("checked");}%>></td>
-					    <td><textarea name="notes_<%=a%>" cols="30" id="notes_<%=a%>" title="Enter Notes. [String Value]"><%= ti.getEssentialInfo() %></textarea></td>
+					    <td><textarea name="notes_<%=a%>" cols="30" id="notes_<%=a%>" pattern="any_text" title="Enter Notes."><%= ti.getEssentialInfo() %></textarea></td>
 					    <td width="15" align="right" class="right">&nbsp;</td>
 					</tr>
 					<% 
@@ -266,15 +266,15 @@
 					%>
 					<tr align="center" valign="top">
 						<td width="15" class="left">&nbsp;</td>
-						<td><input name="mag_number_1" type="text" id="mag_number_1" size="5" pattern="any_text" title="Enter Mag Number. [String Value]"></td>
-						<td><input name="slate_1" type="text" id="slate_1" size="5" pattern="any_text" title="Enter Slate. [String Value]"></td>
-						<td><input name="take_1" type="text" id="take_1" size="5" pattern="number" title="Enter Take Number. [Number Value]"></td>
-						<td><input name="counter_reading_1" type="text" id="counter_reading_1" value="0" size="6" pattern="number" title="Enter Counter Reading. [Number Value]"></td>
-						<td><input name="take_length_1" type="text" id="take_length_1" size="6" value="0" pattern="number" title="Enter Take Length. [Number Value]"></td>
+						<td><input name="mag_number_1" type="text" id="mag_number_1" size="5" pattern="text"></td>
+						<td><input name="slate_1" type="text" id="slate_1" size="5" pattern="text"></td>
+						<td><input name="take_1" type="text" id="take_1" size="5" pattern="number" title="Enter Take Number."></td>
+						<td><input name="counter_reading_1" type="text" id="counter_reading_1" value="0" size="6" pattern="number" title="Enter Counter Reading."></td>
+						<td><input name="take_length_1" type="text" id="take_length_1" size="6" value="0" pattern="number" title="Enter Take Length."></td>
 						<td><input name="print_1" type="checkbox" id="print_1" value="True"></td>
-						<td><input name="print_setting_1" id="radio" type="radio" value="B/W" checked></td>
+						<td><input name="print_setting_1" id="radio" type="radio" value="B/W"></td>
 						<td><input name="print_setting_1" id="radio" type="radio" value="Colour"></td>
-					    <td><textarea name="notes_1" cols="30" id="textarea" title="Enter Notes. [String Value]"></textarea></td>
+					    <td><textarea name="notes_1" cols="30" id="textarea" pattern="any_text" title="Enter Notes."></textarea></td>
 					    <td width="15" align="right" class="right">&nbsp;</td>
 					</tr>
 					<%}%>
@@ -285,7 +285,7 @@
 					</tr>
 				</tbody>
 	        </table>
-			<table width="700" border="0" cellpadding="10" cellspacing="0">
+			<table width='700' border='0' cellpadding='10' cellspacing='0'>
 				</tbody>
 					<tr>
 						<td width="1%"/>
@@ -308,7 +308,7 @@
         </tr>
         <tr>
           <td width="15" class="left">&nbsp;</td>
-          <td height="30"><input name="short_end_minimum" type="text" id="short_end_minimum" value="<%=ci.getShortEndMin() %>" pattern="number" title="Enter Short End Minimum. [Number Value]"></td>
+          <td height="30"><input name="short_end_minimum" type="text" id="short_end_minimum" value="<%=ci.getShortEndMin() %>" pattern="number"></td>
           <td width="15" class="right">&nbsp;</td>
         </tr>
         <tr>
@@ -329,7 +329,7 @@
 				<tr>
 					<td width="15" class="left">&nbsp;</td>
 					<td width="100" height="30"><strong>Footage(Loaded)</strong></td>
-				  	<td height="30"><input name="footage_loaded" type="text" id="footage_loaded" size="5" value="<%=cis.getFootageLoaded() %>" pattern="number" title="Enter Footage Loaded. [Number Value]"></td>
+				  	<td height="30"><input name="footage_loaded" type="text" id="footage_loaded" size="5" value="<%=cis.getFootageLoaded() %>" pattern="number"></td>
 					<td width="100" height="30"><strong>Total Exposed</strong></td>
 					<td height="30"><input name="total_exposed_2" type="text" id="total_exposed_2" size="5" readonly></td>
 					<td width="100" height="30"><strong>Total Ftge Prev Drawn</strong></td>
@@ -340,18 +340,18 @@
 				<tr>
 					<td width="15" class="left">&nbsp;</td>
 					<td width="100" height="30"><strong>Total Exposed </strong></td>
-					<td height="30"><input name="total_exposed" type="text" id="total_exposed" size="5" value="<%=cis.getTotalExposed() %>" pattern="number" title="Calculate Total Exposed. [Number Value]"></td>
+					<td height="30"><input name="total_exposed" type="text" id="total_exposed" size="5" value="<%=cis.getTotalExposed() %>" pattern="number"></td>
 					<td width="100" height="30"><strong>Total Developed</strong></td>
 					<td height="30"><input name="total_developed" type="text" id="total_developed" size="5" readonly></td>
 					<td width="100" height="30"><strong>Footage Drn Today</strong></td>
 					<td height="30"><input name="footage_drawn_today" type="text" id="footage_drawn_today" size="5" readonly></td>
-					<td height="30"><textarea name="instructions" cols="20" id="instructions"><%=ci.getInstructionsToLab() %></textarea></td>
+					<td height="30"><textarea name="instructions" cols="20" id="instructions" pattern="any_text"><%=ci.getInstructionsToLab() %></textarea></td>
 				    <td width="15" class="right">&nbsp;</td>
 				</tr>
 				<tr>
 					<td width="15" class="left">&nbsp;</td>
 					<td width="100" height="30"><strong>Short Ends</strong></td>
-				  	<td height="30"><input name="short_ends" type="text" id="short_ends" size="5" value="<%=cis.getShortEnds() %>" pattern="number" title="Calculate Short Ends. [Number Value]"></td>
+				  	<td height="30"><input name="short_ends" type="text" id="short_ends" size="5" value="<%=cis.getShortEnds() %>" pattern="number"></td>
 					<td width="100" height="30"><strong>Total Printed</strong></td>
 					<td height="30"><input name="total_printed" type="text" id="total_printed" size="5" readonly></td>
 					<td width="100" height="30"><strong>Previously Exposed</strong></td>
@@ -362,7 +362,7 @@
 				<tr>
 					<td width="15" class="left">&nbsp;</td>
 					<td width="100" height="30"><strong>Waste</strong></td>
-					<td height="30"><input name="waste" type="text" id="waste" size="5" value="<%=cis.getWaste() %>" pattern="number" title="Calculate Waste. [Number Value]"></td>
+					<td height="30"><input name="waste" type="text" id="waste" size="5" value="<%=cis.getWaste() %>" pattern="number"></td>
 					<td width="100" height="30"><strong>Held or Not Sent</strong></td>
 					<td height="30"><input name="held_notsent" type="text" id="held_notsent" size="5" readonly></td>
 					<td width="100" height="30"><strong>Exposed Today</strong></td>
@@ -374,7 +374,7 @@
 				<tr>
 					<td width="15" class="left">&nbsp;</td>
 					<td width="100" height="30"><strong>Footage(Loaded)</strong></td>
-				  	<td height="30"><input name="footage_loaded" type="text" id="footage_loaded" size="5" pattern="number" title="Enter Footage Loaded. [Number Value]"></td>
+				  	<td height="30"><input name="footage_loaded" type="text" id="footage_loaded" size="5" pattern="number"></td>
 					<td width="100" height="30"><strong>Total Exposed</strong></td>
 					<td height="30"><input name="total_exposed_2" type="text" id="total_exposed_2" size="5" readonly></td>
 					<td width="100" height="30"><strong>Total Ftge Prev Drawn</strong></td>
@@ -385,7 +385,7 @@
 				<tr>
 					<td width="15" class="left">&nbsp;</td>
 					<td width="100" height="30"><strong>Total Exposed </strong></td>
-					<td height="30"><input name="total_exposed" type="text" id="total_exposed" size="5" pattern="number" title="Calculate Total Exposed. [Number Value]"></td>
+					<td height="30"><input name="total_exposed" type="text" id="total_exposed" size="5" pattern="number"></td>
 					<td width="100" height="30"><strong>Total Developed</strong></td>
 					<td height="30"><input name="total_developed" type="text" id="total_developed" size="5" readonly></td>
 					<td width="100" height="30"><strong>Footage Drn Today</strong></td>
@@ -396,7 +396,7 @@
 				<tr>
 					<td width="15" class="left">&nbsp;</td>
 					<td width="100" height="30"><strong>Short Ends</strong></td>
-				  	<td height="30"><input name="short_ends" type="text" id="short_ends" size="5" pattern="number" title="Calculate Short Ends. [Number Value]"></td>
+				  	<td height="30"><input name="short_ends" type="text" id="short_ends" size="5" pattern="number"></td>
 					<td width="100" height="30"><strong>Total Printed</strong></td>
 					<td height="30"><input name="total_printed" type="text" id="total_printed" size="5" readonly></td>
 					<td width="100" height="30"><strong>Previously Exposed</strong></td>
@@ -407,7 +407,7 @@
 				<tr>
 					<td width="15" class="left">&nbsp;</td>
 					<td width="100" height="30"><strong>Waste</strong></td>
-					<td height="30"><input name="waste" type="text" id="waste" size="5" pattern="number" title="Calculate Waste. [Number Value]"></td>
+					<td height="30"><input name="waste" type="text" id="waste" size="5" pattern="number"></td>
 					<td width="100" height="30"><strong>Held or Not Sent</strong></td>
 					<td height="30"><input name="held_notsent" type="text" id="held_notsent" size="5" readonly></td>
 					<td width="100" height="30"><strong>Exposed Today</strong></td>

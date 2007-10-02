@@ -101,33 +101,33 @@
 		
 			<tr><td>
 			
-				<table width="700" border="0" cellspacing="0" cellpadding="0">
+				<table width='700' border='0' cellspacing='0' cellpadding='0'>
 					<tr><td class="header-left">&nbsp;</td>
-					  <td colspan="6" class="header-middle">General Info </td>
+					  <td colspan='6' class="header-middle">General Info </td>
 					  <td class="header-right">&nbsp;</td>
 					</tr>
 					<tr>
-						<td class="left" width="15">&nbsp;</td>
-						<td><strong>Production</strong></td><td><input name="production" type="text" id="production" value="<%=gi.getProduction()%>" readonly></td>
-						<td><strong>Date</strong></td><td><input name="date" type="text" id="date" value="<%=gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>" readonly></td>
-						<td><strong>Day</strong></td><td><input name="weekday" type="text" id="weekday" value="<%=gi.getWeekday()%>" readonly></td>
-						<td class="right" width="15">&nbsp;</td>
+						<td class='left' width='15'>&nbsp;</td>
+						<td><strong>Production</strong></td><td><input name='production' type='text' id='production' value='<%=gi.getProduction()%>' readonly></td>
+						<td><strong>Date</strong></td><td><input name='date' type='text' id='date' value='<%=gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>' readonly></td>
+						<td><strong>Day</strong></td><td><input name='weekday' type='text' id='weekday' value='<%=gi.getWeekday()%>' readonly></td>
+						<td class='right' width='15'>&nbsp;</td>
 					</tr>
 					<tr>
-						<td class="left" width="15">&nbsp;</td>
-						<td><strong>Producer</strong></td><td><input name="producer" type="text" id="producer" value="<%=focr.getProducer()%>" readonly></td>
-						<td><strong>Director</strong></td><td><input name="director" type="text" id="director" value="<%=focr.getDirector()%>" readonly></td>
-						<td><strong>Shoot Day </strong></td><td><input name="shoot_day" type="text" id="shoot_day" value="<%=gi.getShootDayNo()%>" readonly></td>
-						<td class="right" width="15">&nbsp;</td>
+						<td class='left' width='15'>&nbsp;</td>
+						<td><strong>Producer</strong></td><td><input name='producer' type='text' id='producer' value='<%=focr.getProducer()%>' readonly></td>
+						<td><strong>Director</strong></td><td><input name='director' type='text' id='director' value='<%=focr.getDirector()%>' readonly></td>
+						<td><strong>Shoot Day </strong></td><td><input name='shoot_day' type='text' id='shoot_day' value='<%=gi.getShootDayNo()%>' readonly></td>
+						<td class='right' width='15'>&nbsp;</td>
 					</tr>
 					<tr>
-						<td class="left" width="15">&nbsp;</td>
-						<td><strong>D.O.P.</strong></td><td><input name="dop" type="text" id="dop" value="<%=focr.getDirectorOfPhotography()%>" readonly></td>
-						<td><strong>Editor</strong></td><td><input name="editor" type="text" id="editor" value="<%=focr.getEditor()%>" readonly></td>
-						<td><strong>Continuity</strong></td><td><input name="continuity" type="text" id="continuity" value="<%=focr.getContinuity()%>" readonly></td>
-						<td class="right" width="15">&nbsp;</td>
+						<td class='left' width='15'>&nbsp;</td>
+						<td><strong>D.O.P.</strong></td><td><input name='dop' type='text' id='dop' value='<%=focr.getDirectorOfPhotography()%>' readonly></td>
+						<td><strong>Editor</strong></td><td><input name='editor' type='text' id='editor' value='<%=focr.getEditor()%>' readonly></td>
+						<td><strong>Continuity</strong></td><td><input name='continuity' type='text' id='continuity' value='<%=focr.getContinuity()%>' readonly></td>
+						<td class='right' width='15'>&nbsp;</td>
 					</tr>	
-					<tr><td colspan="8" class="bottom">&nbsp;</td>
+					<tr><td colspan='8' class='bottom'>&nbsp;</td>
 					</tr>
 			  </table>
 				
@@ -165,12 +165,12 @@
                       <td width="15" align="center" class="left">&nbsp;</td>
                       <td align="center"><input name="<% out.print("cam_"+a);%>" type="text" id="<% out.print("cam_"+a);%>" value="<%=tit.getCamRoll()%>" size="5" pattern="any_text" title="Enter Camera Roll. [String Value]"></td>
                       <td align="center"><input name="<% out.print("sound_"+a);%>" type="text" id="<% out.print("sound_"+a);%>" value="<%=tit.getSoundRoll()%>" size="5" pattern="any_text" title="Enter Sound Roll. [String Value]"></td>
-                      <td align="center"><input name="<% out.print("scene_"+a);%>" type="text" id="<% out.print("scene_"+a);%>" value="<%=sit.getScene()%>" size="5" pattern="any_text" title="Enter Scene Number. [String Value] (make sure this matches a scene number from the call sheet)"></td>
+                      <td align="center"><input name="<% out.print("scene_"+a);%>" type="text" id="<% out.print("scene_"+a);%>" value="<%=sit.getScene()%>" size="5" pattern="any_text" title="Enter Scene Number. [String Value] (make sure this matches a scene number from the shooting schedule)"></td>
                       <td align="center"><input name="<% out.print("slate_"+a);%>" type="text" id="<% out.print("slate_"+a);%>" value="<%=slt.getSlate()%>" size="5" pattern="any_text" title="Enter Slate. [String Value]"></td>
                       <td align="center"><input name="<% out.print("take_"+a);%>" type="text" id="<% out.print("take_"+a);%>" value="<%=tit.getTake()%>" size="5" pattern="number" title="Enter Take Number. [Number Value]"></td>
-					  <td align="center"><input name="<% out.print("print_"+a);%>" type="checkbox" id="<% out.print("print_"+a);%>" value="true" <% if(tit.isPrint() == true) {out.print("checked");}%>></td>
+					  <td align='center'><input name='<% out.print("print_"+a);%>' type='checkbox' id='<% out.print("print_"+a);%>' value='true' <% if(tit.isPrint() == true) {out.print("checked");}%>></td>
                       <td align="center"><input name="<% out.print("duration_"+a);%>" type="text" id="<% out.print("duration_"+a);%>" value="<%=tit.getDuration()%>"size="8" pattern="time" title="Enter Take Duration. [Time Value HH:MM:SS]"></td>
-                      <td align="center"><textarea name="<% out.print("comments_"+a);%>" cols="30" id="<% out.print("comments_"+a);%>" title="Enter Shot Description. [String Value]"><%= tit.getComments()%></textarea></td>
+                      <td align="center"><textarea name="<% out.print("comments_"+a);%>" cols="30" id="<% out.print("comments_"+a);%>" pattern="any_text" title="Enter Shot Description. [String Value]"><%= tit.getComments()%></textarea></td>
                       <td width="15" class="right">&nbsp;</td>
                     </tr>
                     <% 
@@ -183,12 +183,12 @@
                       <td width="15" align="center" class="left">&nbsp;</td>
                       <td align="center"><input name="cam_1" type="text" id="cam_1" value="" size="5"  pattern="any_text" title="Enter Camera Roll. [String Value]"></td>
                       <td align="center"><input name="sound_1" type="text" id="sound_1" value="" size="5" pattern="any_text" title="Enter Sound Roll. [String Value]"></td>
-                      <td align="center"><input name="scene_1" type="text" id="scene_1" value="" size="5" pattern="any_text" title="Enter Scene Number. [String Value] (make sure this matches a scene number from the call sheet)"></td>
+                      <td align="center"><input name="scene_1" type="text" id="scene_1" value="" size="5" pattern="any_text" title="Enter Scene Number. [String Value] (make sure this matches a scene number from the shooting schedule)"></td>
                       <td align="center"><input name="slate_1" type="text" id="slate_1" value="" size="5" pattern="any_text" title="Enter Slate. [String Value]"></td>
                       <td align="center"><input name="take_1" type="text" id="take_1" value="" size="5" pattern="number" title="Enter Take Number. [Number Value]"></td>
-					  <td align="center"><input name="print_1" type="checkbox" id="print_1" value="true"></td>
+					  <td align='center'><input name="print_1" type='checkbox' id="print_1" value='true'></td>
                       <td align="center"><input name="duration_1" type="text" id="duration_1" value="" size="8" pattern="time" title="Enter Take Duration. [Time Value HH:MM:SS]"></td>
-                      <td align="center"><textarea name="comments_1" cols="30" id="comments_1" title="Enter Shot Description. [String Value]"></textarea></td>
+                      <td align="center"><textarea name="comments_1" cols="30" id="comments_1" pattern="any_text" title="Enter Shot Description. [String Value]"></textarea></td>
                       <td width="15" class="right">&nbsp;</td>
                     </tr>
                     <% 
@@ -212,9 +212,8 @@
 				<input type="hidden" name="submit" id="submit">
 			</td></tr>
 			<tr>
-			  <td align="center">
-		      	Partial Submission<input name="final_submission" id="radio" type="radio" value="partial" <% if(focr.isFinalSubmission() == false) {out.print("checked");}%>>
-				Final Submission<input name="final_submission" id="radio" type="radio" value="final" <% if(focr.isFinalSubmission() == true) {out.print("checked");}%>></td>
+			  <td align="center">Final Submission 
+		      <input name="final_submission" type="checkbox" id="final_submission" value="True" <% if(focr.isFinalSubmission() == true) {out.print("checked");}%>></td>
 		  </tr>
 	  </table>
 	  <p align="center">
@@ -339,10 +338,9 @@ if(request.getParameter("Submission") != null){
 	focr.setEditor(request.getParameter("editor"));
 	focr.setContinuity(request.getParameter("continuity"));
 	focr.setContinuityInfo(ci);
-	
-	if (request.getParameter("final_submission").equals("partial")){
+	if (request.getParameter("final_submission")==null){
 		focr.setFinalSubmission(false);
-	}else if (request.getParameter("final_submission").equals("final")){
+	}else{
 		focr.setFinalSubmission(true);
 	}
 	
@@ -452,10 +450,9 @@ else if(request.getParameter("Save") != null){
 	focr.setEditor(request.getParameter("editor"));
 	focr.setContinuity(request.getParameter("continuity"));
 	focr.setContinuityInfo(ci);
-	
-	if (request.getParameter("final_submission").equals("partial")){
+	if (request.getParameter("final_submission")==null){
 		focr.setFinalSubmission(false);
-	}else if (request.getParameter("final_submission").equals("final")){
+	}else{
 		focr.setFinalSubmission(true);
 	}
 	
