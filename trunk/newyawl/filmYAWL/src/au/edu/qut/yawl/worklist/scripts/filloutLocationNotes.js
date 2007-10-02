@@ -169,7 +169,7 @@ function createEntry(){
 	locationnotesCELL.colSpan = "2";
 	locationnotesLABEL.appendChild(createBoldLabel("Location Notes"));
 	locationnotesLABEL.setAttribute("width", "150");
-	locationnotesCELL.appendChild(createTextArea("notes_" + count, 50,"", "Enter Location Notes. [String Value]"));
+	locationnotesCELL.appendChild(createAnyTextTextArea("notes_" + count, 50,"", "Enter Location Notes. [String Value]"));
 	
 	//bottom information
 	var entry_bottom_row = table.insertRow(table.rows.length-footerSize);

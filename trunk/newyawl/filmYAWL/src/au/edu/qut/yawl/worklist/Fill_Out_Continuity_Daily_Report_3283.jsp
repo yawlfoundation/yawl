@@ -102,25 +102,25 @@
 			<%-- general info --%>
 			<tr>
 				<td>
-					<table width="700" border="0" cellspacing="0" cellpadding="0">
+					<table width='700' border='0' cellspacing='0' cellpadding='0'>
 						<tr><td class="header-left">&nbsp;</td>
-						  <td colspan="4" class="header-middle">General Info </td>
+						  <td colspan='4' class="header-middle">General Info </td>
 						  <td class="header-right">&nbsp;</td>
 						</tr>
-						<tr height="30">
-							<td class="left" width="15">&nbsp;</td>
-							<td><strong>Production</strong></td><td><input name="production" type="text" id="production"  size="15" value="<%= gi.getProduction() %>" readonly></td>
-							<td><strong>Shoot Day </strong></td><td><input name="shoot_day" type="text" id="shoot_day" size="15" value="<%= gi.getShootDayNo() %>" readonly></td>
-							<td class="right" width="15">&nbsp;</td>
+						<tr height='30'>
+							<td class='left' width='15'>&nbsp;</td>
+							<td><strong>Production</strong></td><td><input name='production' type='text' id='production'  size="15" value="<%= gi.getProduction() %>" readonly></td>
+							<td><strong>Shoot Day </strong></td><td><input name='shoot_day' type='text' id='shoot_day' size="15" value="<%= gi.getShootDayNo() %>" readonly></td>
+							<td class='right' width='15'>&nbsp;</td>
 						</tr>
-						<tr height="30">
-							<td class="left" width="15">&nbsp;</td>
+						<tr height='30'>
+							<td class='left' width='15'>&nbsp;</td>
 							<td><strong>Day</strong></td>
-							<td><input name="weekday" type="text" id="weekday" size="15" value="<%= gi.getWeekday() %>" readonly></td>
+							<td><input name='weekday' type='text' id='weekday' size="15" value="<%= gi.getWeekday() %>" readonly></td>
 							<td><strong>Date</strong></td>
-							<td><input name="date" type="text" id="date" size="15" value="<%=  gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>" readonly></td>
-							<td class="right" width="15">&nbsp;</td>
-						</tr><tr height="30"><td colspan="6" class="bottom">&nbsp;</td>
+							<td><input name='date' type='text' id='date' size="15" value="<%=  gi.getDate().getDay()+"-"+gi.getDate().getMonth()+"-"+gi.getDate().getYear()%>" readonly></td>
+							<td class='right' width='15'>&nbsp;</td>
+						</tr><tr height='30'><td colspan='6' class='bottom'>&nbsp;</td>
 						</tr>
 				  </table>
 				</td>
@@ -149,17 +149,17 @@
 							%>
 							<tr valign="top">
 								<td width="15" align="center" class="left">&nbsp;</td>
-								<td><input name="location_name_<%=a%>" type="text" id="location_name_<%=a%>" size="25" value="<%=sl.getLocationName() %>" readonly></td>
-								<td><input name="location_address_<%=a%>" type="text" id="location_address_<%=a%>" size="25" value="<%=sl.getAddress() %>" readonly></td>
+								<td><input name='location_name_<%=a%>' type='text' id='location_name_<%=a%>' size="25" value="<%=sl.getLocationName() %>" readonly></td>
+								<td><input name='location_address_<%=a%>' type='text' id='location_address_<%=a%>' size="25" value="<%=sl.getAddress() %>" readonly></td>
 								<td width="185" id="location_set_<%=a%>">
 								<% int b=0;
 									List<String> set_list = sl.getSet();
 										for(String set : set_list) {
 											b ++;%>
-								<input name="location_set_<%=a%>_<%=b%>" type="text" id="location_set_<%=a%>_<%=b%>" size="25" value="<%=set%>"  readonly>
+								<input name='location_set_<%=a%>_<%=b%>' type='text' id='location_set_<%=a%>_<%=b%>' size="25" value="<%=set%>"  readonly>
 								<%}%>
 								</td><td/>
-								<!-- <td><input name="button83" type="button" onClick="addSet("location_set_<%=a%>");" value="Insert Set"/> -->
+								<!-- <td><input name="button83" type="button" onClick="addSet('location_set_<%=a%>');" value="Insert Set"/> -->
 								<input type="hidden" name="location_set_<%=a%>_count" id="location_set_<%=a%>_count" value="<%=b%>"/></td>
 								<td width="15" class="right">&nbsp;</td>
 							</tr>
@@ -182,25 +182,25 @@
                     <tr valign="top">
                       <td align="center" class="left">&nbsp;</td>
                       <td width="121"><strong>Stills</strong></td>
-                      <td><input name="stills" type="text" id="stills"  size="15" value="<%if(cdrt.getStills() != null) {out.print(cdrt.getStills());}%>" ></td>
+                      <td><input name='stills' type='text' id='stills'  size="15" value="<%if(cdrt.getStills() != null) {out.print(cdrt.getStills());}%>" ></td>
                       <td class="right">&nbsp;</td>
                     </tr>
                     <tr valign="top">
                       <td align="center" class="left">&nbsp;</td>
                       <td><strong>B/W</strong></td>
-                      <td><input name="b_w" type="text" id="b_w"  size="15" value="<%if(cdrt.getBw() != null) {out.print(cdrt.getBw());}%>" ></td>
+                      <td><input name='b_w' type='text' id='b_w'  size="15" value="<%if(cdrt.getBw() != null) {out.print(cdrt.getBw());}%>" ></td>
                       <td class="right">&nbsp;</td>
                     </tr>
                     <tr valign="top">
                       <td align="center" class="left">&nbsp;</td>
                       <td><strong>Colour</strong></td>
-                      <td><input name="colour" type="text" id="colour"  size="15" value="<%if(cdrt.getColour() != null) {out.print(cdrt.getColour());}%>" ></td>
+                      <td><input name='colour' type='text' id='colour'  size="15" value="<%if(cdrt.getColour() != null) {out.print(cdrt.getColour());}%>" ></td>
                       <td class="right">&nbsp;</td>
                     </tr>
                     <tr valign="top">
                       <td width="17" align="center" class="left">&nbsp;</td>
                       <td><strong>Sound Rolls</strong> </td>
-                      <td><input name="sound_rolls" type="text" id="sound_rolls"  size="15" value="<%= cdrt.getSoundRollsDatTapes()%>" readonly></td>
+                      <td><input name='sound_rolls' type='text' id='sound_rolls'  size="15" value="<%= cdrt.getSoundRollsDatTapes()%>" readonly></td>
                       <td width="17" class="right">&nbsp;</td>
                     </tr>
                   </tbody>
@@ -233,14 +233,14 @@
 						<tr valign="top">
 						  <th class="left">&nbsp;</th>
 						  <td width="121"><strong>
-						    <input name="unit<%=c%>_name" type="text" id="unit<%=c%>_name" value="<%=su.getUnit()%>"  size="15" readonly>
+						    <input name='unit<%=c%>_name' type='text' id='unit<%=c%>_name' value="<%=su.getUnit()%>"  size="15" readonly>
 						  </strong></td>
 						  <td width="450" id="unit<%=c%>">
 						  <% int d=0;
 							List<String> slate_list = su.getSlate();
 								for(String slate : slate_list) {
 									d ++;%>
-						  <input name="unit<%=c%>_<%=d%>" type="text" id="unit<%=c%>_<%=d%>" size="2" value="<%=slate%>" readonly>
+						  <input name='unit<%=c%>_<%=d%>' type='text' id='unit<%=c%>_<%=d%>' size="2" value="<%=slate%>" readonly>
 						  <%}%>
 						  </td>
 						  <td width="95">
@@ -274,10 +274,10 @@
 								for(String scene1 : scenes_list1) {
 									s_1 ++;
 					  %>
-					  <input name="scheduled_scenes_<%=s_1%>" type="text" id="scheduled_scenes_<%=s_1%>"  size="5" value="<%=scene1 %>" readonly>
+					  <input name='scheduled_scenes_<%=s_1%>' type='text' id='scheduled_scenes_<%=s_1%>'  size="5" value="<%=scene1 %>" readonly>
 					  <%}
 					  }else{%>
-					  <input name="scheduled_scenes_1" type="text" id="scheduled_scenes_1"  size="5" readonly>
+					  <input name='scheduled_scenes_1' type='text' id='scheduled_scenes_1'  size="5" readonly>
 					  <%}%>
 					  </td>
 					  <td></td>
@@ -294,10 +294,10 @@
 								for(String scene2 : scenes_list2) {
 									s_2 ++;
 					  %>
-					  <input name="scenes_shot_<%=s_2%>" type="text" id="scenes_shot_<%=s_2%>" size="5" value="<%=scene2 %>" readonly>
+					  <input name='scenes_shot_<%=s_2%>' type='text' id='scenes_shot_<%=s_2%>' size="5" value="<%=scene2 %>" readonly>
 					   <%}
 					  }else{%>
-					  <input name="scenes_shot_1" type="text" id="scenes_shot_1"  size="5" readonly>
+					  <input name='scenes_shot_1' type='text' id='scenes_shot_1'  size="5" readonly>
 					  <%}%>
 					  </td>
 					  <td></td>
@@ -319,10 +319,10 @@
 								for(String scene3 : scenes_list3) {
 									s_3 ++;
 					  %>
-					  <input name="scheduled_scenes_shot_<%=s_3%>" type="text" id="scheduled_scenes_shot_<%=s_3%>"  size="5" value="<%=scene3 %>" readonly>
+					  <input name='scheduled_scenes_shot_<%=s_3%>' type='text' id='scheduled_scenes_shot_<%=s_3%>'  size="5" value="<%=scene3 %>" readonly>
 					   <%}
 					  }else{%>
-					  <input name="scheduled_scenes_shot_1" type="text" id="scheduled_scenes_shot_1"  size="5" readonly>
+					  <input name='scheduled_scenes_shot_1' type='text' id='scheduled_scenes_shot_1'  size="5" readonly>
 					  <%}%>
 					  </td>
 					  <td width="95">
@@ -340,10 +340,10 @@
 								for(String scene4 : scenes_list4) {
 									s_4 ++;
 					  %>
-					  <input name="scenes_scheduled_not_shot_<%=s_4%>" type="text" id="scenes_scheduled_not_shot_<%=s_4%>"  size="5" value="<%=scene4 %>">
+					  <input name='scenes_scheduled_not_shot_<%=s_4%>' type='text' id='scenes_scheduled_not_shot_<%=s_4%>'  size="5" value="<%=scene4 %>">
 					   <%}
 					  }else{%>
-					  <input name="scenes_scheduled_not_shot_1" type="text" id="scenes_scheduled_not_shot_1"  size="5">
+					  <input name='scenes_scheduled_not_shot_1' type='text' id='scenes_scheduled_not_shot_1'  size="5">
 					  <%}%>
 					  </td>
 					  <td><input name="button2" type="button" onClick="addScenes('scenes_scheduled_not_shot');" value="Insert Scene"/></td>
@@ -360,10 +360,10 @@
 								for(String scene5 : scenes_list5) {
 									s_5 ++;
 					  %>
-					  <input name="scenes_not_yet_completed_<%=s_5%>" type="text" id="scenes_not_yet_completed_<%=s_5%>"  size="5" value="<%=scene5 %>">
+					  <input name='scenes_not_yet_completed_<%=s_5%>' type='text' id='scenes_not_yet_completed_<%=s_5%>'  size="5" value="<%=scene5 %>">
 					   <%}
 					  }else{%>
-					  <input name="scenes_not_yet_completed_1" type="text" id="scenes_not_yet_completed_1"  size="5">
+					  <input name='scenes_not_yet_completed_1' type='text' id='scenes_not_yet_completed_1'  size="5">
 					  <%}%>
 					  </td>
 					  <td><input name="button3" type="button" onClick="addScenes('scenes_not_yet_completed');" value="Insert Scene"/></td>
@@ -380,10 +380,10 @@
 								for(String scene6 : scenes_list6) {
 									s_6 ++;
 					  %>
-					  <input name="scenes_deleted_<%=s_6%>" type="text" id="scenes_deleted_<%=s_6%>"  size="5" value="<%=scene6 %>">
+					  <input name='scenes_deleted_<%=s_6%>' type='text' id='scenes_deleted_<%=s_6%>'  size="5" value="<%=scene6 %>">
 					   <%}
 					  }else{%>
-					  <input name="scenes_deleted_1" type="text" id="scenes_deleted_1"  size="5">
+					  <input name='scenes_deleted_1' type='text' id='scenes_deleted_1'  size="5">
 					  <%}%>
 					  </td>
 					  <td><input name="button4" type="button" onClick="addScenes('scenes_deleted');" value="Insert Scene"/></td>
@@ -400,10 +400,10 @@
 								for(String scene7 : scenes_list7) {
 									s_7 ++;
 					  %>
-					  <input name="scenes_added_<%=s_7%>" type="text" id="scenes_added_<%=s_7%>"  size="5" value="<%=scene7 %>">
+					  <input name='scenes_added_<%=s_7%>' type='text' id='scenes_added_<%=s_7%>'  size="5" value="<%=scene7 %>">
 					   <%}
 					  }else{%>
-					  <input name="scenes_added_1" type="text" id="scenes_added_1"  size="5">
+					  <input name='scenes_added_1' type='text' id='scenes_added_1'  size="5">
 					  <%}%>
 					  </td>
 					  <td><input name="button5" type="button" onClick="addScenes('scenes_added');" value="Insert Scene"/></td>
@@ -420,10 +420,10 @@
 								for(String scene8 : scenes_list8) {
 									s_8 ++;
 					  %>
-					  <input name="unscheduled_scenes_shot_<%=s_8%>" type="text" id="unscheduled_scenes_shot_<%=s_8%>"  size="5" value="<%=scene8 %>">
+					  <input name='unscheduled_scenes_shot_<%=s_8%>' type='text' id='unscheduled_scenes_shot_<%=s_8%>'  size="5" value="<%=scene8 %>">
 					   <%}
 					  }else{%>
-					  <input name="unscheduled_scenes_shot_1" type="text" id="unscheduled_scenes_shot_1"  size="5">
+					  <input name='unscheduled_scenes_shot_1' type='text' id='unscheduled_scenes_shot_1'  size="5">
 					  <%}%>
 					  </td>
 					  <td><input name="button6" type="button" onClick="addScenes('unscheduled_scenes_shot');" value="Insert Scene"/></td>
@@ -462,29 +462,29 @@
 						e++;%>
 					<tr valign="top">
 					  <td align="center" class="left">&nbsp;</td>
-					  <td width="90" align="center"><input name="scene_no_<%=e%>" type="text" id="scene_no_<%=e%>"  size="8" value="<%=sst.getScene()%>" readonly></td>
+					  <td width="90" align="center"><input name='scene_no_<%=e%>' type='text' id='scene_no_<%=e%>'  size="8" value="<%=sst.getScene()%>" readonly></td>
 					  <td width="124" align="center">
 					  <% PageTimeType  pt1 = sst.getPageTime(); %>
-						<input name="page_count_<%=e%>" type="text" id="page_count_<%=e%>"  size="4" value="<%=pt1.getNumber()%>">&nbsp;
-						<input name="page_count_num_<%=e%>" type="text" id="page_count_num_<%=e%>"  size="2" value="<%=pt1.getNumerator()%>"> 
+						<input name='page_count_<%=e%>' type='text' id='page_count_<%=e%>'  size="4" value="<%=pt1.getNumber()%>">&nbsp;
+						<input name='page_count_num_<%=e%>' type='text' id='page_count_num_<%=e%>'  size="2" value="<%=pt1.getNumerator()%>"> 
 						/8
 					  </td>
-					  <td width="109" align="center"><input name="est_timing_<%=e%>" type="text" id="est_timing_<%=e%>"  size="8" value="<%=sst.getEstTiming()%>"></td>
-					  <td width="109" align="center"><input name="actual_timing_<%=e%>" type="text" id="actual_timing_<%=e%>"  size="8" value="<%=sst.getActualTiming()%>"></td>
+					  <td width="109" align="center"><input name='est_timing_<%=e%>' type='text' id='est_timing_<%=e%>'  size="8" value="<%=sst.getEstTiming()%>"></td>
+					  <td width="109" align="center"><input name='actual_timing_<%=e%>' type='text' id='actual_timing_<%=e%>'  size="8" value="<%=sst.getActualTiming()%>"></td>
 					  <td width="124" align="center">
 					  <% if(sst.getVariance() != null) {
 					  VarianceType  v = sst.getVariance(); %>
-					  <input name="variance_sign_<%=e%>" type="text" id="variance_sign_<%=e%>"  size="1" value="<% if(v.isSign() == true) {out.print("+");}else{out.print("-");}%>" readonly>
+					  <input name='variance_sign_<%=e%>' type='text' id='variance_sign_<%=e%>'  size="1" value="<% if(v.isSign() == true) {out.print("+");}else{out.print("-");}%>" readonly>
 					  				  
-					  <input name="variance_<%=e%>" type="text" id="variance_<%=e%>"  size="8" value="<%=v.getVarTime()%>" readonly>
+					  <input name='variance_<%=e%>' type='text' id='variance_<%=e%>'  size="8" value="<%=v.getVarTime()%>" readonly>
 					  <% }else{%>
 					  &nbsp;		
-					  <input name="variance_sign_<%=e%>" type="text" id="variance_sign_<%=e%>"  size="1" value="" readonly>
-					  <input name="variance_<%=e%>" type="text" id="variance_<%=e%>"  size="8" value="" readonly>
+					  <input name='variance_sign_<%=e%>' type='text' id='variance_sign_<%=e%>'  size="1" value="" readonly>
+					  <input name='variance_<%=e%>' type='text' id='variance_<%=e%>'  size="8" value="" readonly>
 					  <% }%>
 					  </td>
 					  <td width="114" align="center">
-					  <input name="cumulative_running_<%=e%>" type="text" id="cumulative_running_<%=e%>"  size="8" value="<% if(sst.getCumulative()!= null) {out.print(sst.getCumulative());}%>" readonly>
+					  <input name='cumulative_running_<%=e%>' type='text' id='cumulative_running_<%=e%>'  size="8" value="<% if(sst.getCumulative()!= null) {out.print(sst.getCumulative());}%>" readonly>
 					  </td>
 					  <td width="15" class="right">&nbsp;</td>
 					</tr>
@@ -498,15 +498,15 @@
 					  <td width="90" align="center" class="bottom"><input name="button7" type="button" onClick="calculateTotal();" value="Total"/></td>
 					  <td width="124" align="center" class="bottom">
 					  <% PageTimeType  pt2 = tst.getPageTime(); %>
-						<input name="total_page_count" type="text" id="total_page_count"  size="4"  value="<%= pt2.getNumber()%>" readonly>&nbsp;
-						<input name="total_page_count_num" type="text" id="total_page_count_num"  size="2" value="<%= pt2.getNumerator()%>" readonly>
+						<input name='total_page_count' type='text' id='total_page_count'  size="4"  value="<%= pt2.getNumber()%>" readonly>&nbsp;
+						<input name='total_page_count_num' type='text' id='total_page_count_num'  size="2" value="<%= pt2.getNumerator()%>" readonly>
 	/8</td>
-					  <td width="109" align="center" class="bottom"><input name="total_est_timing" type="text" id="total_est_timing"  size="8" value="<%= tst.getEstTiming()%>" readonly></td>
-					  <td width="109" align="center" class="bottom"><input name="total_actual_timing" type="text" id="total_actual_timing"  size="8" value="<%= tst.getActualTiming()%>" readonly></td>
+					  <td width="109" align="center" class="bottom"><input name='total_est_timing' type='text' id='total_est_timing'  size="8" value="<%= tst.getEstTiming()%>" readonly></td>
+					  <td width="109" align="center" class="bottom"><input name='total_actual_timing' type='text' id='total_actual_timing'  size="8" value="<%= tst.getActualTiming()%>" readonly></td>
 					  <% VarianceType  v2 = tst.getVariance(); %>
-					  <td width="124" align="center" class="bottom"><input name="total_variance_sign" type="text" id="total_variance_sign"  size="1" value="<% if(v2.isSign() == true) {out.print("+");}else{out.print("-");}%>" readonly>
-					   <input name="total_variance" type="text" id="total_variance"  size="8" value="<%=v2.getVarTime()%>" readonly> </td>
-					  <td width="114" align="center" class="bottom"><input name="total_cumulative_running" type="text" id="total_cumulative_running"  size="8" value="<%= tst.getCumulative()%>" readonly></td>
+					  <td width="124" align="center" class="bottom"><input name='total_variance_sign' type='text' id='total_variance_sign'  size="1" value="<% if(v2.isSign() == true) {out.print("+");}else{out.print("-");}%>" readonly>
+					   <input name='total_variance' type='text' id='total_variance'  size="8" value="<%=v2.getVarTime()%>" readonly> </td>
+					  <td width="114" align="center" class="bottom"><input name='total_cumulative_running' type='text' id='total_cumulative_running'  size="8" value="<%= tst.getCumulative()%>" readonly></td>
 					  <td width="15" class="right">&nbsp;</td>
 					</tr>
 				  <%}else{%>
@@ -514,14 +514,14 @@
 					  <td width="15" align="center" class="left">&nbsp;</td>
 					  <td width="90" align="center" class="bottom"><input name="button7" type="button" onClick="calculateTotal();" value="Total"/></td>
 					  <td width="124" align="center" class="bottom">
-						<input name="total_page_count" type="text" id="total_page_count"  size="4" readonly>&nbsp;
-						<input name="total_page_count_num" type="text" id="total_page_count_num"  size="2" readonly>
+						<input name='total_page_count' type='text' id='total_page_count'  size="4" readonly>&nbsp;
+						<input name='total_page_count_num' type='text' id='total_page_count_num'  size="2" readonly>
 	/8</td>
-					  <td width="109" align="center" class="bottom"><input name="total_est_timing" type="text" id="total_est_timing"  size="8" readonly></td>
-					  <td width="109" align="center" class="bottom"><input name="total_actual_timing" type="text" id="total_actual_timing"  size="8" readonly></td>
-					  <td width="124" align="center" class="bottom"><input name="total_variance_sign" type="text" id="total_variance_sign"  size="1" value="" readonly>
-					    <input name="total_variance" type="text" id="total_variance"  size="8" readonly> </td>
-					  <td width="114" align="center" class="bottom"><input name="total_cumulative_running" type="text" id="total_cumulative_running"  size="8" readonly></td>
+					  <td width="109" align="center" class="bottom"><input name='total_est_timing' type='text' id='total_est_timing'  size="8" readonly></td>
+					  <td width="109" align="center" class="bottom"><input name='total_actual_timing' type='text' id='total_actual_timing'  size="8" readonly></td>
+					  <td width="124" align="center" class="bottom"><input name='total_variance_sign' type='text' id='total_variance_sign'  size="1" value="" readonly>
+					    <input name='total_variance' type='text' id='total_variance'  size="8" readonly> </td>
+					  <td width="114" align="center" class="bottom"><input name='total_cumulative_running' type='text' id='total_cumulative_running'  size="8" readonly></td>
 					  <td width="15" class="right">&nbsp;</td>
 					</tr>
 				  <%}%>
@@ -565,106 +565,106 @@
                 <tr valign="top">
                   <td width="15" class="left">&nbsp;</td>
                   <td><strong>Prev. Shot </strong></td>
-                  <td><input name="prev_shot_scenes" type="text" id="prev_shot_scenes" size="15" value="<%if(ssct1.getScenes() != null) {out.print(ssct1.getScenes());}%>" readonly></td>
+                  <td><input name='prev_shot_scenes' type='text' id='prev_shot_scenes' size="15" value="<%if(ssct1.getScenes() != null) {out.print(ssct1.getScenes());}%>" readonly></td>
                   <td>
 				  <% if (ssct1.getPageTime() != null) {
 				  	PageTimeType  pt2 = ssct1.getPageTime(); 
 				  	%>
-				  	<input name="prev_shot_pages" type="text" id="prev_shot_pages" size="4" value="<%=pt2.getNumber()%>" readonly>
+				  	<input name='prev_shot_pages' type='text' id='prev_shot_pages' size="4" value="<%=pt2.getNumber()%>" readonly>
 					&nbsp;
-					<input name="prev_shot_pagesnum" type="text" id="prev_shot_pagesnum" size="2" value="<%=pt2.getNumerator()%>" readonly>/8
+					<input name='prev_shot_pagesnum' type='text' id='prev_shot_pagesnum' size="2" value="<%=pt2.getNumerator()%>" readonly>/8
 				  	<%}else{%>
-					<input name="prev_shot_pages" type="text" id="prev_shot_pages" size="4" value="" readonly>
+					<input name='prev_shot_pages' type='text' id='prev_shot_pages' size="4" value="" readonly>
 					&nbsp;
-					<input name="prev_shot_pagesnum" type="text" id="prev_shot_pagesnum" size="2" value="" readonly> /8
+					<input name='prev_shot_pagesnum' type='text' id='prev_shot_pagesnum' size="2" value="" readonly> /8
 					<%}%>
 				  </td>
-                  <td><input name="prev_shot_esttiming" type="text" id="prev_shot_esttiming"  size="15" value="<%if(ssct1.getEstTiming() != null) {out.print(ssct1.getEstTiming());}%>" readonly></td>
-                  <td><input name="prev_shot_acttiming" type="text" id="prev_shot_acttiming"  size="15" value="<%if(ssct1.getActualTiming() != null) {out.print(ssct1.getActualTiming());}%>" readonly></td>
+                  <td><input name='prev_shot_esttiming' type='text' id='prev_shot_esttiming'  size="15" value="<%if(ssct1.getEstTiming() != null) {out.print(ssct1.getEstTiming());}%>" readonly></td>
+                  <td><input name='prev_shot_acttiming' type='text' id='prev_shot_acttiming'  size="15" value="<%if(ssct1.getActualTiming() != null) {out.print(ssct1.getActualTiming());}%>" readonly></td>
                   <td width="15" class="right">&nbsp;</td>
                 </tr>
                 <tr valign="top">
                   <td align="center" class="left">&nbsp;</td>
                   <td><strong>Shot Today </strong></td>
-                  <td><input name="shot_today_scenes" type="text" id="shot_today_scenes" value="<%if(ssct2.getScenes() != null) {out.print(ssct2.getScenes());}%>"  size="15" readonly></td>
+                  <td><input name='shot_today_scenes' type='text' id='shot_today_scenes' value="<%if(ssct2.getScenes() != null) {out.print(ssct2.getScenes());}%>"  size="15" readonly></td>
                   <td>
 				  <% if (ssct2.getPageTime() != null) {
 				  	PageTimeType  pt3 = ssct2.getPageTime(); 
 				  	%>
-				  	<input name="shot_today_pages" type="text" id="shot_today_pages" size="4" value="<%=pt3.getNumber()%>" readonly>
+				  	<input name='shot_today_pages' type='text' id='shot_today_pages' size="4" value="<%=pt3.getNumber()%>" readonly>
 					&nbsp;
-					<input name="shot_today_pagesnum" type="text" id="shot_today_pagesnum" size="2" value="<%=pt3.getNumerator()%>" readonly>/8
+					<input name='shot_today_pagesnum' type='text' id='shot_today_pagesnum' size="2" value="<%=pt3.getNumerator()%>" readonly>/8
 				  	<%}else{%>
-					<input name="shot_today_pages" type="text" id="shot_today_pages" size="4" value="" readonly>
+					<input name='shot_today_pages' type='text' id='shot_today_pages' size="4" value="" readonly>
 					&nbsp;
-					<input name="shot_today_pagesnum" type="text" id="shot_today_pagesnum" size="2" value="" readonly> /8
+					<input name='shot_today_pagesnum' type='text' id='shot_today_pagesnum' size="2" value="" readonly> /8
 					<%}%>
 				  </td>
-                  <td><input name="shot_today_esttiming" type="text" id="shot_today_esttiming"  size="15" value="<%if(ssct2.getEstTiming() != null) {out.print(ssct2.getEstTiming());}%>" readonly></td>
-                  <td><input name="shot_today_acttiming" type="text" id="shot_today_acttiming"  size="15" value="<%if(ssct2.getActualTiming() != null) {out.print(ssct2.getActualTiming());}%>" readonly></td>
+                  <td><input name='shot_today_esttiming' type='text' id='shot_today_esttiming'  size="15" value="<%if(ssct2.getEstTiming() != null) {out.print(ssct2.getEstTiming());}%>" readonly></td>
+                  <td><input name='shot_today_acttiming' type='text' id='shot_today_acttiming'  size="15" value="<%if(ssct2.getActualTiming() != null) {out.print(ssct2.getActualTiming());}%>" readonly></td>
                   <td class="right">&nbsp;</td>
                 </tr>
                 <tr valign="top">
                   <td align="center" class="left">&nbsp;</td>
                   <td><strong>Shot to Date </strong></td>
-                  <td><input name="shot_to_date_scenes" type="text" id="shot_to_date_scenes" value="<%if(ssct3.getScenes() != null) {out.print(ssct3.getScenes());}%>" size="15" readonly></td>
+                  <td><input name='shot_to_date_scenes' type='text' id='shot_to_date_scenes' value="<%if(ssct3.getScenes() != null) {out.print(ssct3.getScenes());}%>" size="15" readonly></td>
                   <td>
 				  <% if (ssct3.getPageTime() != null) {
 				  	PageTimeType  pt4 = ssct3.getPageTime(); 
 				  	%>
-				  	<input name="shot_to_date_pages" type="text" id="shot_to_date_pages" size="4" value="<%=pt4.getNumber()%>" readonly>
+				  	<input name='shot_to_date_pages' type='text' id='shot_to_date_pages' size="4" value="<%=pt4.getNumber()%>" readonly>
 					&nbsp;
-					<input name="shot_to_date_pagesnum" type="text" id="shot_to_date_pagesnum" size="2" value="<%=pt4.getNumerator()%>" readonly>/8
+					<input name='shot_to_date_pagesnum' type='text' id='shot_to_date_pagesnum' size="2" value="<%=pt4.getNumerator()%>" readonly>/8
 				  	<%}else{%>
-					<input name="shot_to_date_pages" type="text" id="shot_to_date_pages" size="4" value="" readonly>
+					<input name='shot_to_date_pages' type='text' id='shot_to_date_pages' size="4" value="" readonly>
 					&nbsp;
-					<input name="shot_to_date_pagesnum" type="text" id="shot_to_date_pagesnum" size="2" value="" readonly> /8
+					<input name='shot_to_date_pagesnum' type='text' id='shot_to_date_pagesnum' size="2" value="" readonly> /8
 					<%}%>
 				  </td>
-                  <td><input name="shot_to_date_esttiming" type="text" id="shot_to_date_esttiming"  size="15" value="<%if(ssct3.getEstTiming() != null) {out.print(ssct3.getEstTiming());}%>" readonly></td>
-                  <td><input name="shot_to_date_acttiming" type="text" id="shot_to_date_acttiming"  size="15" value="<%if(ssct3.getActualTiming() != null) {out.print(ssct3.getActualTiming());}%>" readonly></td>
+                  <td><input name='shot_to_date_esttiming' type='text' id='shot_to_date_esttiming'  size="15" value="<%if(ssct3.getEstTiming() != null) {out.print(ssct3.getEstTiming());}%>" readonly></td>
+                  <td><input name='shot_to_date_acttiming' type='text' id='shot_to_date_acttiming'  size="15" value="<%if(ssct3.getActualTiming() != null) {out.print(ssct3.getActualTiming());}%>" readonly></td>
                   <td class="right">&nbsp;</td>
                 </tr>
                 <tr valign="top">
                   <td align="center" class="left">&nbsp;</td>
                   <td><strong>Remaining</strong></td>
-                  <td><input name="remaining_scenes" type="text" id="remaining_scenes" value="<%if(ssct4.getScenes() != null) {out.print(ssct4.getScenes());}%>"  size="15" readonly></td>
+                  <td><input name='remaining_scenes' type='text' id='remaining_scenes' value="<%if(ssct4.getScenes() != null) {out.print(ssct4.getScenes());}%>"  size="15" readonly></td>
                   <td>
 				  <% if (ssct4.getPageTime() != null) {
 				  	PageTimeType  pt5 = ssct4.getPageTime(); 
 				  	%>
-				  	<input name="remaining_pages" type="text" id="remaining_pages" size="4" value="<%=pt5.getNumber()%>" readonly>
+				  	<input name='remaining_pages' type='text' id='remaining_pages' size="4" value="<%=pt5.getNumber()%>" readonly>
 					&nbsp;
-					<input name="remaining_pagesnum" type="text" id="remaining_pagesnum" size="2" value="<%=pt5.getNumerator()%>" readonly>/8
+					<input name='remaining_pagesnum' type='text' id='remaining_pagesnum' size="2" value="<%=pt5.getNumerator()%>" readonly>/8
 				  	<%}else{%>
-					<input name="remaining_pages" type="text" id="remaining_pages" size="4" value="" readonly>
+					<input name='remaining_pages' type='text' id='remaining_pages' size="4" value="" readonly>
 					&nbsp;
-					<input name="remaining_pagesnum" type="text" id="remaining_pagesnum" size="2" value="" readonly> /8
+					<input name='remaining_pagesnum' type='text' id='remaining_pagesnum' size="2" value="" readonly> /8
 					<%}%>
 				  </td>
-                  <td><input name="remaining_esttiming" type="text" id="remaining_esttiming"  size="15" value="<%if(ssct4.getEstTiming() != null) {out.print(ssct4.getEstTiming());}%>" readonly></td>
-                  <td><input name="remaining_acttiming" type="text" id="remaining_acttiming"  size="15" value="<%if(ssct4.getActualTiming() != null) {out.print(ssct4.getActualTiming());}%>" readonly></td>
+                  <td><input name='remaining_esttiming' type='text' id='remaining_esttiming'  size="15" value="<%if(ssct4.getEstTiming() != null) {out.print(ssct4.getEstTiming());}%>" readonly></td>
+                  <td><input name='remaining_acttiming' type='text' id='remaining_acttiming'  size="15" value="<%if(ssct4.getActualTiming() != null) {out.print(ssct4.getActualTiming());}%>" readonly></td>
                   <td class="right">&nbsp;</td>
                 </tr>
                 <tr valign="top">
                   <td width="15" align="center" class="left">&nbsp;</td>
                   <td><strong>Total</strong></td>
-                  <td><input name="total_scenes" type="text" id="total_scenes" value="<%if(ssct5.getScenes() != null) {out.print(ssct5.getScenes());}%>"  size="15" readonly></td>
+                  <td><input name='total_scenes' type='text' id='total_scenes' value="<%if(ssct5.getScenes() != null) {out.print(ssct5.getScenes());}%>"  size="15" readonly></td>
                   <td>
 				  <% if (ssct5.getPageTime() != null) {
 				  	PageTimeType  pt6 = ssct5.getPageTime(); 
 				  	%>
-				  	<input name="total_pages" type="text" id="total_pages" size="4" value="<%=pt6.getNumber()%>" readonly>
+				  	<input name='total_pages' type='text' id='total_pages' size="4" value="<%=pt6.getNumber()%>" readonly>
 					&nbsp;
-					<input name="total_pagesnum" type="text" id="total_pagesnum" size="2" value="<%=pt6.getNumerator()%>" readonly>/8
+					<input name='total_pagesnum' type='text' id='total_pagesnum' size="2" value="<%=pt6.getNumerator()%>" readonly>/8
 				  	<%}else{%>
-					<input name="total_pages" type="text" id="total_pages" size="4" value="" readonly>
+					<input name='total_pages' type='text' id='total_pages' size="4" value="" readonly>
 					&nbsp;
-					<input name="total_pagesnum" type="text" id="total_pagesnum" size="2" value="" readonly> /8
+					<input name='total_pagesnum' type='text' id='total_pagesnum' size="2" value="" readonly> /8
 					<%}%>
 				  </td>
-                  <td><input name="total_esttiming" type="text" id="total_esttiming"  size="15" value="<%if(ssct5.getEstTiming() != null) {out.print(ssct5.getEstTiming());}%>" readonly></td>
-                  <td><input name="total_acttiming" type="text" id="total_acttiming"  size="15" value="<%if(ssct5.getActualTiming() != null) {out.print(ssct5.getActualTiming());}%>" readonly></td>
+                  <td><input name='total_esttiming' type='text' id='total_esttiming'  size="15" value="<%if(ssct5.getEstTiming() != null) {out.print(ssct5.getEstTiming());}%>" readonly></td>
+                  <td><input name='total_acttiming' type='text' id='total_acttiming'  size="15" value="<%if(ssct5.getActualTiming() != null) {out.print(ssct5.getActualTiming());}%>" readonly></td>
                   <td width="15" class="right">&nbsp;</td>
                 </tr>
               </tbody>

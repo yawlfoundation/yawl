@@ -99,20 +99,20 @@
 		  <table width="700" border="0" align="center" cellpadding="0" cellspacing="0">
             <tr>
               <td>
-                  <table width="700" border="0" cellpadding="0" cellspacing="0">
+                  <table width='700' border='0' cellpadding='0' cellspacing='0'>
                 <tr>
                   <td width="15" align="right" class="header-left">&nbsp;</td>
-                  <td height="20" colspan="2" class="header-middle">General</td>
+                  <td height="20" colspan='2' class="header-middle">General</td>
                   <td width="15" class="header-right">&nbsp;</td>
                 </tr>
                 <tr>
                   <td width="15" class="left">&nbsp;</td>
                   <td><strong>Production</strong></td>
-                  <td><input name="production" type="text" id="production" value="<%=icl.getProduction() %>" readonly></td>
+                  <td><input name='production' type='text' id='production' value="<%=icl.getProduction() %>" readonly></td>
                   <td width="15" class="right">&nbsp;</td>
                 </tr>
                 <tr>
-                  <td colspan="4" class="bottom">&nbsp;</td>
+                  <td colspan='4' class='bottom'>&nbsp;</td>
                 </tr>
               </table></td>
             </tr>
@@ -141,112 +141,112 @@
 						a++;%> 
                   <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_<%=a%>" type="text" id="role_<%=a%>" value="<%=scit.getRole()%>" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_<%=a%>" type="text" id="firstname_<%=a%>" size="10" value="<%= scit.getFirstName() %>" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_<%=a%>" type="text" id="lastname_<%=a%>" size="15" value="<%= scit.getLastName() %>" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_<%=a%>" type="text" id="contactno_<%=a%>" size="10" value="<%= scit.getContactNo() %>" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_<%=a%>" type="text" id="email_<%=a%>" size="30" value="<%= scit.getEmail() %>" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_<%=a%>' type="text" id='role_<%=a%>' value="<%=scit.getRole()%>" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_<%=a%>' type='text' id='firstname_<%=a%>' size="10" value="<%= scit.getFirstName() %>" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_<%=a%>' type='text' id='lastname_<%=a%>' size="15" value="<%= scit.getLastName() %>" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_<%=a%>' type='text' id='contactno_<%=a%>' size="8" value="<%= scit.getContactNo() %>" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_<%=a%>' type='text' id='email_<%=a%>' size="20" value="<%= scit.getEmail() %>" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <% }
 				  } else {%>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_1" type="text" id="role_1" value="Production Manager" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_1" type="text" id="firstname_1" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_1" type="text" id="lastname_1" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_1" type="text" id="contactno_1" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_1" type="text" id="email_1" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_1' type="text" id='role_1' value="Production Manager" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_1' type='text' id='firstname_1' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_1' type='text' id='lastname_1' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_1' type='text' id='contactno_1' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_1' type='text' id='email_1' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_2" type="text" id="role_2" value="1st AD" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_2" type="text" id="firstname_2" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_2" type="text" id="lastname_2" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_2" type="text" id="contactno_2" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_2" type="text" id="email_2" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_2' type="text" id='role_2' value="1st AD" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_2' type='text' id='firstname_2' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_2' type='text' id='lastname_2' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_2' type='text' id='contactno_2' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_2' type='text' id='email_2' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_3" type="text" id="role_3" value="2nd AD" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_3" type="text" id="firstname_3" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_3" type="text" id="lastname_3" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_3" type="text" id="contactno_3" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_3" type="text" id="email_3" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_3' type="text" id='role_3' value="2nd AD" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_3' type='text' id='firstname_3' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_3' type='text' id='lastname_3' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_3' type='text' id='contactno_3' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_3' type='text' id='email_3' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_4" type="text" id="role_4" value="Camera Assistant" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_4" type="text" id="firstname_4" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_4" type="text" id="lastname_4" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_4" type="text" id="contactno_4" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_4" type="text" id="email_4" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_4' type="text" id='role_4' value="Camera Assistant" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_4' type='text' id='firstname_4' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_4' type='text' id='lastname_4' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_4' type='text' id='contactno_4' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_4' type='text' id='email_4' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_5" type="text" id="role_5" value="Camera Operator" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_5" type="text" id="firstname_5" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_5" type="text" id="lastname_5" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_5" type="text" id="contactno_5" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_5" type="text" id="email_5" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_5' type="text" id='role_5' value="Camera Operator" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_5' type='text' id='firstname_5' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_5' type='text' id='lastname_5' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_5' type='text' id='contactno_5' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_5' type='text' id='email_5' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_6" type="text" id="role_6" value="Continuity" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_6" type="text" id="firstname_6" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_6" type="text" id="lastname_6" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_6" type="text" id="contactno_6" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_6" type="text" id="email_6" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_6' type="text" id='role_6' value="Continuity" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_6' type='text' id='firstname_6' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_6' type='text' id='lastname_6' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_6' type='text' id='contactno_6' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_6' type='text' id='email_6' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_7" type="text" id="role_7" value="Director" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_7" type="text" id="firstname_7" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_7" type="text" id="lastname_7" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_7" type="text" id="contactno_7" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_7" type="text" id="email_7" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_7' type="text" id='role_7' value="Director" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_7' type='text' id='firstname_7' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_7' type='text' id='lastname_7' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_7' type='text' id='contactno_7' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_7' type='text' id='email_7' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_8" type="text" id="role_8" value="D.O.P." size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_8" type="text" id="firstname_8" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_8" type="text" id="lastname_8" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_8" type="text" id="contactno_8" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_8" type="text" id="email_8" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_8' type="text" id='role_8' value="D.O.P." size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_8' type='text' id='firstname_8' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_8' type='text' id='lastname_8' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_8' type='text' id='contactno_8' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_8' type='text' id='email_8' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_9" type="text" id="role_9" value="Editor" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_9" type="text" id="firstname_9" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_9" type="text" id="lastname_9" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_9" type="text" id="contactno_9" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_9" type="text" id="email_9" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_9' type="text" id='role_9' value="Editor" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_9' type='text' id='firstname_9' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_9' type='text' id='lastname_9' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_9' type='text' id='contactno_9' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_9' type='text' id='email_9' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_10" type="text" id="role_10" value="Producer" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_10" type="text" id="firstname_10" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_10" type="text" id="lastname_10" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_10" type="text" id="contactno_10" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_10" type="text" id="email_10" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_10' type="text" id='role_10' value="Producer" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_10' type='text' id='firstname_10' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_10' type='text' id='lastname_10' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_10' type='text' id='contactno_10' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_10' type='text' id='email_10' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <tr valign="top">
                     <td width="15" height="30" align="center" class="left">&nbsp;</td>
-					<td height="30" align="center"><input name="role_11" type="text" id="role_11" value="Sound Recordist" size="20" pattern="any_text" title="Enter Role. [String Value]"></td>
-					<td height="30" align="center"><input name="firstname_11" type="text" id="firstname_11" size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="lastname_11" type="text" id="lastname_11" size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
-                    <td height="30" align="center"><input name="contactno_11" type="text" id="contactno_11" size="10" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-                    <td align="center"><input name="email_11" type="text" id="email_11" size="30" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
+					<td height="30" align="center"><input name='role_11' type="text" id='role_11' value="Sound Recordist" size="32" pattern="any_text" title="Enter Role. [String Value]"></td>
+					<td height="30" align="center"><input name='firstname_11' type='text' id='firstname_11' size="10" value="" pattern="any_text" title="Enter First Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='lastname_11' type='text' id='lastname_11' size="15" value="" pattern="any_text" title="Enter Last Name. [String Value]"></td>
+                    <td height="30" align="center"><input name='contactno_11' type='text' id='contactno_11' size="8" value="" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                    <td align="center"><input name='email_11' type='text' id='email_11' size="20" value="" pattern="email" title="Enter Email Address. [String Value]"></td>
                     <td width="15" height="30" class="right">&nbsp;</td>
                   </tr>
 				  <%} } %>
@@ -260,7 +260,7 @@
 			  </td>
             </tr>
         </table>
-          <table width="700" border="0" cellpadding="10" cellspacing="0">
+          <table width='700' border='0' cellpadding='10' cellspacing='0'>
               <tr>
                   <td width="1%"/>
                   <td align="left">

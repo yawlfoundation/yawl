@@ -100,20 +100,20 @@
 	<form name="form1" method="post">
 		<table width="700" border="0" align="center" cellpadding="0" cellspacing="0">
 			<tr>
-				<td><table width="700" border="0" cellspacing="0" cellpadding="0">
+				<td><table width='700' border='0' cellspacing='0' cellpadding='0'>
 					<tr>
 						<td width="15" align="right" class="header-left">&nbsp;</td>
-						<td height="20" colspan="2" class="header-middle">General</td>
+						<td height="20" colspan='2' class="header-middle">General</td>
 						<td width="15" class="header-right">&nbsp;</td>
 					</tr>
 					<tr>
 						<td width="15" class="left">&nbsp;</td>
 						<td><strong>Production</strong></td>
-						<td><input name="production" type="text" id="production" value="<%= iln.getProduction() %>" readonly></td>
+						<td><input name='production' type='text' id='production' value="<%= iln.getProduction() %>" readonly></td>
 						<td width="15" class="right">&nbsp;</td>
 					</tr>
 					<tr>
-						<td colspan="4" class="bottom">&nbsp;</td>
+						<td colspan='4' class='bottom'>&nbsp;</td>
 					</tr>
 				</table></td>
             </tr>
@@ -180,7 +180,7 @@
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Location Notes</strong></td>
-							<td colspan="2" align="left"><textarea name="notes_<%=a%>" cols="50" id="notes_<%=a%>" title="Enter Location Notes. [String Value]"><%=slit.getLocationNotes() %></textarea></td>
+							<td colspan="2" align="left"><textarea name="notes_<%=a%>" cols="50" id="notes_<%=a%>" pattern="any_text" title="Enter Location Notes. [String Value]"><%=slit.getLocationNotes() %></textarea></td>
 							<td align="left">&nbsp;</td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
@@ -241,7 +241,7 @@
 						  <tr>
 							<td width="15" class="left">&nbsp;</td>
 							<td width="100" align="left"><strong>Location Notes</strong></td>
-							<td colspan="2" align="left"><textarea name="notes_1" cols="50" id="notes_1" title="Enter Location Notes. [String Value]"></textarea></td>
+							<td colspan="2" align="left"><textarea name="notes_1" cols="50" id="notes_1" pattern="any_text" title="Enter Location Notes. [String Value]"></textarea></td>
 							<td align="left">&nbsp;</td>
 							<td width="15" class="right">&nbsp;</td>
 						  </tr>
