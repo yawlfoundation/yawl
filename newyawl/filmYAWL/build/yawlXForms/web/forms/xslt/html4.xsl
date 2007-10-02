@@ -27,7 +27,7 @@
     <xsl:param name="sessionKey" select="''"/>
 
     <!-- ### this url will be used to build the form action attribute ### -->
-    <xsl:param name="action-url" select="'http://localhost:8080/chiba-1.0.0/XFormsServlet'"/>
+    <xsl:param name="action-url" select="'http://192.94.227.138:8080/chiba-1.0.0/XFormsServlet'"/>
 
 
     <xsl:param name="form-id" select="'chibaform'"/>

@@ -54,7 +54,7 @@
     <property name="graphics.home" value="${basedir}/graphics"/>
     <property name="dist.home" value="${basedir}/dist"/>
     <property name="docs.home" value="${basedir}/docs"/>
-    <property name="manager.url" value="http://localhost:8080/manager"/><!-- Keep -->
+    <property name="manager.url" value="http://192.94.227.138:8080/manager"/><!-- Keep -->
     <property name="src.home" value="${basedir}/src"/>
     <property file="./build/build.properties"/>
 
@@ -1230,7 +1230,7 @@
     </target>
 
     <!-- AJH - Added Tomcat deployment target -->
-    <target name="deploy_tomcat_localhost"
+    <target name="deploy_tomcat_192.94.227.138"
         depends="buildWebApps"
         description="Deploy the web applications into Tomcat">
         <echo message="Deploying web applications via ${tomcat_manager_url}"/>

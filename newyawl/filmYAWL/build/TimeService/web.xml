@@ -17,7 +17,7 @@
 	</context-param>
 <context-param>
      	<param-name>InterfaceB_BackEnd</param-name>   
- 	<param-value>http://localhost:8080/yawl/ib</param-value>
+ 	<param-value>http://192.94.227.138:8080/yawl/ib</param-value>
 	</context-param>
 
 <servlet>
