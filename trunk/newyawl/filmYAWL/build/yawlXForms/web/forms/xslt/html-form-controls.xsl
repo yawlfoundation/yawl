@@ -12,7 +12,7 @@
     <xsl:variable name="remove-upload-prefix" select="'ru_'"/>
 
     <!-- change this to your ShowAttachmentServlet -->
-    <xsl:variable name="show-attachment-action" select="'http://localhost:8080/chiba-1.0.0/ShowAttachmentServlet'"/>
+    <xsl:variable name="show-attachment-action" select="'http://192.94.227.138:8080/chiba-1.0.0/ShowAttachmentServlet'"/>
     
     <!-- This stylesheet contains a collection of templates which map XForms controls to HTML controls. -->
     <xsl:output method="html" version="4.01" indent="yes"/>
