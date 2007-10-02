@@ -1,21 +1,31 @@
 <%@ page import="java.util.Iterator,
                  au.edu.qut.yawl.elements.YSpecification,
                  au.edu.qut.yawl.worklist.model.SpecificationData,
-                 java.util.List"%><html xmlns="http://www.w3.org/1999/xhtml">
+                 java.util.List"
+%><html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>Active YAWL Specifications</title>
         <!-- Include file to load init method -->
         <%@include file="head.jsp"%>
 	</head>
-	
 	<body>
         <!-- Include check login code -->
         <%@include file="checkLogin.jsp"%>
         <!-- Include YAWL Banner Information -->
-        <%@include file="banner.jsp"%>
+        <%@ include file="banner.jsp"%>
         <h3>Active YAWL Specifications</h3>
+        <%
+        boolean mayAdminister = _worklistController.checkConnectionForAdmin(sessionHandle);
+        if(sessionHandle == null || ! mayAdminister){
+        %>
+        <font color="red">
+        Only the administrator has permission to view this page.
+        </font>
+        <%
+        } else {
+        %>
         <form method="get" action="<%= contextPath %>/launchCase" name="specsForm">
-        <table border="0" cellspacing="2" cellpadding="0">
+        <table border="0" cellspacing="0" cellpadding="0" width="915">
             <tr>
                 <td height="30" width="50" align="center"></td>
                 <td width="1"/>
@@ -51,7 +61,7 @@
                     List caseIDs = _worklistController.getCases(
                             specification.getID(), sessionHandle);
                     String specID = specification.getID();
-
+//System.out.println("_ViewSpecification.jsp:: caseIDs = " + caseIDs);
                     %>
                     <tr>
                         <%
@@ -61,7 +71,9 @@
                             value="<%= specID %>"/></td>
                         <td/>
                         <td align="center">
-                            <a href="<%= contextPath %>/launchCase?specID=<%= specID %>&FormType=HTMLform"><%= specID %></a>
+                            <a
+                              href="<%= contextPath %>/launchCase?specID=<%= specID %>"><%= specID %>
+                            </a>
                         </td>
                         <%
                         } else {
@@ -72,29 +84,29 @@
                         <%
                         }
                         %>
-                        <td/> 
+                        <td/>
                         <td align="center">
                             <table cellpadding="5"><tr><td>
                             <%= specification.getName() %>
-                            </td></tr></table>
+                            </tr></td></table>
                         </td>
                         <td/>
                         <td align="center">
                             <table cellpadding="5"><tr><td>
                             <%= specification.getDocumentation() %></td>
-                            </tr></table>
-                        </td>
+                            </tr></table></td>
                         <td/>
                         <td align="center"><a
                             href="<%= contextPath %>/specBrowser?specID=<%= specID %>"
-                            >View <%= specID %></a></td>
+                            >View <%= specID %></a>
                         <td/>
                         <td align="center">
                         <%
                         for (int i = 0; i < caseIDs.size(); i++) {
                         String caseID = (String) caseIDs.get(i);
                         %>
-                        <a href="<%= contextPath %>/caseViewer?caseID=<%= caseID %>&specID=<%= specID %>">
+                        <a
+                        href="<%= contextPath %>/caseViewer?caseID=<%= caseID %>&specID=<%= specID %>">
                             <%= caseID %></a>,
                         <%
                         }
@@ -102,11 +114,11 @@
                         </td>
                     </tr>
                     <%
+
                 }
             }
             %>
         </table>
-        
         <table border="0" cellspacing="20">
             <tr>
                 <td><input value=" Launch Case " type="submit"
@@ -114,8 +126,10 @@
                 <td><input name=" Clear " type="reset"/></td>
             </tr>
         </table>
-        
         </form>
+        <%
+        }
+        %>
         <%@include file="footer.jsp"%>
     </body>
 </html>
