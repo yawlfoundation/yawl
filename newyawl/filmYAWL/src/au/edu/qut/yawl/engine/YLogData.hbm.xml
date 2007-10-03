@@ -16,7 +16,7 @@
 
     	<property name="port" column="port" type="string" access="field"/>
 
-    	<property name="value" column="value" type="string" access="field"/>
+    	<property name="value" column="value" type="text" access="field"/>
 
     	<property name="io" column="io" type="string" access="field"/>
 
