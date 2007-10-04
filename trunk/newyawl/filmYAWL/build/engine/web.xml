@@ -36,7 +36,7 @@
 
 	<context-param>
 		<param-name>RMIServerName</param-name>
-		<param-value>//192.94.227.138/EngineGateway</param-value>
+		<param-value>//131.181.70.9/EngineGateway</param-value>
 		<description>
             The RMI registry name of the RMI gateway into the YAWL Engine.
         </description>
@@ -57,7 +57,7 @@
 
     <context-param>
         <param-name>ExceptionObserverURI</param-name>
-        <param-value>http://192.94.227.138:8080/workletService/ix</param-value>
+        <param-value>http://131.181.70.9:8080/workletService/ix</param-value>
         <description>
             This value provides the URI of an Exception Service that monitors
             for process exceptions through Interface X.

@@ -117,8 +117,8 @@ public class WorkletService extends InterfaceBWebsideController {
     protected String _adminUser = "admin" ;
     protected String _adminPassword = "YAWL" ;
     protected String _sessionHandle = null ;
-    protected String _engineURI =  "http://192.94.227.138:8080/yawl" ;
-    private String _workletURI = "http://192.94.227.138:8080/workletService/ib" ;
+    protected String _engineURI =  "http://131.181.70.9:8080/yawl" ;
+    private String _workletURI = "http://131.181.70.9:8080/workletService/ib" ;
     private InterfaceA_EnvironmentBasedClient _interfaceAClient ;
 
 
@@ -347,7 +347,7 @@ public class WorkletService extends InterfaceBWebsideController {
         if (observer) paramsMap.put("completionObserverURI", _workletURI);
 
         return _interfaceBClient.executePost(
-                "http://192.94.227.138:8080/yawl/ib/specID/" + specID, paramsMap);
+                "http://131.181.70.9:8080/yawl/ib/specID/" + specID, paramsMap);
     }
 
 //***************************************************************************//

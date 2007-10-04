@@ -126,7 +126,7 @@
 </table>
 <p>
 <b>Delete Specification</b>
-<form method="post" action="http://192.94.227.138:8080/admintool/spec" name="deleteService">
+<form method="post" action="http://131.181.70.9:8080/admintool/spec" name="deleteService">
 <table>	
 	<tr>
 	<td>
@@ -151,7 +151,7 @@
 <table bgcolor="lightgrey">
 <tr>
         <td align="left">
-        <form action="http://192.94.227.138:8080/admintool/spec" enctype="MULTIPART/FORM-DATA" method=post>
+        <form action="http://131.181.70.9:8080/admintool/spec" enctype="MULTIPART/FORM-DATA" method=post>
         Load YAWL Specification : 
         <input type="file" name="filename" />
         <br />

@@ -37,7 +37,7 @@
 
     <context-param>
         <param-name>InterfaceB_BackEnd</param-name>
-        <param-value>http://192.94.227.138:8080/yawl/ib</param-value>
+        <param-value>http://131.181.70.9:8080/yawl/ib</param-value>
         <description>
             The URL location of the REST-ful interface B.
         </description>
@@ -45,7 +45,7 @@
 
     <context-param>
         <param-name>InterfaceA_BackEnd</param-name>
-        <param-value>http://192.94.227.138:8080/yawl/ia</param-value>
+        <param-value>http://131.181.70.9:8080/yawl/ia</param-value>
         <description>
             The URL location of the REST-ful interface A.
         </description>
@@ -53,17 +53,17 @@
 
     <context-param>
         <param-name>YAWLXForms</param-name>
-        <param-value>http://192.94.227.138:8080/yawlXForms</param-value>
+        <param-value>http://131.181.70.9:8080/yawlXForms</param-value>
         <description>
-            The URL location of YAWLXForms (Chiba). Set to "192.94.227.138" by default.
+            The URL location of YAWLXForms (Chiba). Set to "131.181.70.9" by default.
         </description>
     </context-param>
 
     <context-param>
         <param-name>HTMLForms</param-name>
-        <param-value>http://192.94.227.138:8080/worklist</param-value>
+        <param-value>http://131.181.70.9:8080/worklist</param-value>
         <description>
-            The URL location of HTML forms in YAWL. Set to "192.94.227.138" by default.
+            The URL location of HTML forms in YAWL. Set to "131.181.70.9" by default.
         </description>
     </context-param>
 
@@ -82,7 +82,7 @@
     <!--
     <context-param>
         <param-name>InterfaceX_BackEnd</param-name>
-        <param-value>http://192.94.227.138:8080/workletService</param-value>
+        <param-value>http://131.181.70.9:8080/workletService</param-value>
         <description>
             The URL location of the worklet exception service.
         </description>

@@ -16,7 +16,7 @@
 <%@include file="YAWLnavigation.jsp" %>
 <h2>Entries Audit Trail</h2>
 <table>
-<form method="post" action="http://192.94.227.138:8080/admintool/auditPage" name="getAuditTrail">
+<form method="post" action="http://131.181.70.9:8080/admintool/auditPage" name="getAuditTrail">
 	<input type="hidden" name="which_form" value="GetAuditTrail"/>
 	<tr>
 		<td><select name="selecttable" value="select logging table to display">

@@ -6,7 +6,7 @@
 
     <context-param>
         <param-name>FormBase</param-name>
-        <param-value>http://192.94.227.138:8080/yawlXForms/</param-value>
+        <param-value>http://131.181.70.9:8080/yawlXForms/</param-value>
         <description>
             The base value set for dynamically generated xforms (the URL of this webapp).
         </description>
@@ -14,7 +14,7 @@
     
     <context-param>
         <param-name>YAWL</param-name>
-        <param-value>http://192.94.227.138:8080/worklist/yawlFormServlet</param-value>
+        <param-value>http://131.181.70.9:8080/worklist/yawlFormServlet</param-value>
         <description>
             The URL location of the YAWL form servlet.
         </description>

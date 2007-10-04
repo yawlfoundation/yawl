@@ -289,11 +289,11 @@ public class ChibaServlet extends AbstractChibaServlet {
      * 1. The uru of the xform to be displayed can be specified by using a param name of 'form' and a param value
      * of the location of the xform file as follows, which will attempt to load the current xforms file.
      * <p/>
-     * http://192.94.227.138:8080/chiba-0.9.3/XFormsServlet?form=/forms/hello.xhtml
+     * http://131.181.70.9:8080/chiba-0.9.3/XFormsServlet?form=/forms/hello.xhtml
      * <p/>
      * 2. The uri of the XSLT file used to generate the form can be specified using a param name of 'xslt' as follows:
      * <p/>
-     * http://192.94.227.138:8080/chiba-0.9.3/XFormsServlet?form=/forms/hello.xhtml&xslt=/chiba/my.xslt
+     * http://131.181.70.9:8080/chiba-0.9.3/XFormsServlet?form=/forms/hello.xhtml&xslt=/chiba/my.xslt
      * <p/>
      * 3. Besides these special params arbitrary other params can be passed via the GET-string and will be available
      * in the context map of ChibaBean. This means they can be used as instance data (with the help of ContextResolver)

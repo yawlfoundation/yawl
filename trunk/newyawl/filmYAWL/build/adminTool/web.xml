@@ -10,7 +10,7 @@
 	
 	<context-param>
 		<param-name>admintool</param-name>
-		<param-value>http://192.94.227.138:8080/admintool</param-value>
+		<param-value>http://131.181.70.9:8080/admintool</param-value>
 		<description>The name of the admin tool web application.</description>
 	</context-param>
 

@@ -14,7 +14,7 @@
        	<h3>Logout Page</h3>
 
         <p>You have logged out of the administration and monitoring tool.</p>
-        <p>Click <a href="http://192.94.227.138:8080/worklist" target="_top">here</a> to go back to YAWL.</p>
+        <p>Click <a href="http://131.181.70.9:8080/worklist" target="_top">here</a> to go back to YAWL.</p>
         <p>
    		<%@include file="footer.jsp" %>
 </body>

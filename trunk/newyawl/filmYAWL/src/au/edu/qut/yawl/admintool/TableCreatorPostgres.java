@@ -26,7 +26,7 @@ public class TableCreatorPostgres {
         }
 
         Class.forName("org.postgresql.Driver");
-        String url = "jdbc:postgresql://192.94.227.138/" + args[0];
+        String url = "jdbc:postgresql://131.181.70.9/" + args[0];
         Properties props = new Properties();
         props.setProperty("user",args[1]);
         props.setProperty("password",args[2]);
