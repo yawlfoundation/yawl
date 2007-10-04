@@ -134,56 +134,65 @@
 							<td width="15" class="header-right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Location ID </strong></td>
-							<td align="left"><input name="location_ID_<%=a%>" type="text" id="location_ID_<%=a%>" value="<%=slit.getLocationID() %>" pattern="any_text" title="Enter Location ID. [String Value]"></td>
-							<td align="left"><strong>Location Name </strong></td>
-							<td align="left"><input name="location_name_<%=a%>" type="text" id="location_name_<%=a%>" value="<%=slit.getLocationName() %>" pattern="any_text" title="Enter Location Name. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td width="100" align="left"><strong>Location ID </strong></td>
+                            <td align="left"><input name="location_ID_<%=a%>" type="text" id="location_ID_<%=a%>" value="<%=slit.getLocationID() %>" pattern="any_text" title="Enter Location ID. [String Value]"></td>
+                            <td align="left"><strong>Location Name </strong></td>
+                            <td align="left"><input name="location_name_<%=a%>" type="text" id="location_name_<%=a%>" value="<%=slit.getLocationName() %>" pattern="any_text" title="Enter Location Name. [String Value]"></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Address</strong></td>
-							<td align="left"><input name="address_<%=a%>" type="text" id="address_<%=a%>" value="<%=slit.getAddress() %>" pattern="any_text" title="Enter Location Address. [String Value]"></td>
-							<td align="left"><strong>UBD Map Ref</strong></td>
-							<td align="left"><input name="ubd_<%=a%>" type="text" id="ubd_<%=a%>" value="<%=slit.getUBDMapRef() %>" pattern="any_text" title="Enter UBD Reference. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Contact</strong></td>
+                            <td align="left"><input name="contact_<%=a%>" type="text" id="contact_<%=a%>" value="<%=slit.getContact() %>" pattern="any_text" title="Enter Contact Person. [String Value]"></td>
+                            <td align="left"><strong>Contact No. </strong></td>
+                            <td align="left"><input name="phone_<%=a%>" type="text" id="phone_<%=a%>" value="<%=slit.getContactNo() %>" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Police</strong></td>
-							<td align="left"><input name="police_<%=a%>" type="text" id="police_<%=a%>" value="<%=slit.getPolice() %>" pattern="any_text" title="Enter Police Details. [String Value]"></td>
-							<td align="left"><strong>Hospital</strong></td>
-							<td align="left"><input name="hospital_<%=a%>" type="text" id="hospital_<%=a%>" value="<%=slit.getHospital() %>" pattern="any_text" title="Enter Hospital Details. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>UBD Map Ref</strong></td>
+                            <td align="left"><input name="ubd_<%=a%>" type="text" id="ubd_<%=a%>" value="<%=slit.getUBDMapRef() %>" pattern="any_text" title="Enter UBD Reference. [String Value]"></td>
+                            <td align="left">&nbsp;</td>
+                            <td align="left">&nbsp;</td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Contact</strong></td>
-							<td align="left"><input name="contact_<%=a%>" type="text" id="contact_<%=a%>" value="<%=slit.getContact() %>" pattern="any_text" title="Enter Contact Person. [String Value]"></td>
-							<td align="left"><strong>Contact No. </strong></td>
-							<td align="left"><input name="phone_<%=a%>" type="text" id="phone_<%=a%>" value="<%=slit.getContactNo() %>" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Address</strong></td>
+                            <td colspan="3" align="left"><input name="address_<%=a%>" type="text" id="address_<%=a%>" title="Enter Location Address. [String Value]" value="<%=slit.getAddress() %>" size="80" pattern="any_text"></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Parking</strong></td>
-							<td colspan="3" align="left"><input name="parking_<%=a%>" type="text" id="parking_<%=a%>" size="80" value="<%=slit.getParking() %>" pattern="any_text" title="Enter Parking Instructions. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Police</strong></td>
+                            <td colspan="3" align="left"><input name="police_<%=a%>" type="text" id="police_<%=a%>" title="Enter Police Details. [String Value]" value="<%=slit.getPolice() %>" size="80" pattern="any_text"></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Unit</strong></td>
-							<td colspan="3" align="left"><input name="unit_<%=a%>" type="text" id="unit_<%=a%>" size="80" value="<%=slit.getUnit() %>" pattern="any_text" title="Enter Unit Instructions. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Hospital</strong></td>
+                            <td colspan="3" align="left"><input name="hospital_<%=a%>" type="text" id="hospital_<%=a%>" title="Enter Hospital Details. [String Value]" value="<%=slit.getHospital() %>" size="80" pattern="any_text"></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Location Notes</strong></td>
-							<td colspan="2" align="left"><textarea name="notes_<%=a%>" cols="50" id="notes_<%=a%>" title="Enter Location Notes. [String Value]"><%=slit.getLocationNotes() %></textarea></td>
-							<td align="left">&nbsp;</td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Parking</strong></td>
+                            <td colspan="3" align="left"><textarea name="parking_<%=a%>" cols="70" id="parking_<%=a%>" title="Enter Parking Instructions. [String Value]"><%=slit.getParking() %></textarea></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
+						  <tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Unit</strong></td>
+                            <td colspan="3" align="left"><textarea name="unit_<%=a%>" cols="70" id="unit_<%=a%>" title="Enter Unit Instructions. [String Value]"><%=slit.getUnit() %></textarea></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
+						  <tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Location Notes</strong></td>
+                            <td colspan="3" align="left"><textarea name="notes_<%=a%>" cols="70" rows="5" id="notes_<%=a%>" title="Enter Location Notes. [String Value]"><%=slit.getLocationNotes() %></textarea></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr><td colspan="6" class="bottom">&nbsp;</td></tr>
 						  
 						  <% }
@@ -195,56 +204,65 @@
 							<td width="15" class="header-right">&nbsp;</td>
 						  </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Location ID </strong></td>
-							<td align="left"><input name="location_ID_1" type="text" id="location_ID_1" pattern="any_text" title="Enter Location ID. [String Value]"></td>
-							<td align="left"><strong>Location Name </strong></td>
-							<td align="left"><input name="location_name_1" type="text" id="location_name_1" pattern="any_text" title="Enter Location Name. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Location ID </strong></td>
+                            <td align="left"><input name="location_ID_1" type="text" id="location_ID_1" pattern="any_text" title="Enter Location ID. [String Value]"></td>
+                            <td align="left"><strong>Location Name </strong></td>
+                            <td align="left"><input name="location_name_1" type="text" id="location_name_1" pattern="any_text" title="Enter Location Name. [String Value]"></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Address</strong></td>
-							<td align="left"><input name="address_1" type="text" id="address_1" pattern="any_text" title="Enter Location Address. [String Value]"></td>
-							<td align="left"><strong>UBD Map Ref</strong></td>
-							<td align="left"><input name="ubd_1" type="text" id="ubd_1" pattern="any_text" title="Enter UBD Reference. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Contact</strong></td>
+                            <td align="left"><input name="contact_1" type="text" id="contact_1" pattern="any_text" title="Enter Contact Person. [String Value]"></td>
+                            <td align="left"><strong>Contact No. </strong></td>
+                            <td align="left"><input name="phone_1" type="text" id="phone_1" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Police</strong></td>
-							<td align="left"><input name="police_1" type="text" id="police_1" pattern="any_text" title="Enter Police Details. [String Value]"></td>
-							<td align="left"><strong>Hospital</strong></td>
-							<td align="left"><input name="hospital_1" type="text" id="hospital_1" pattern="any_text" title="Enter Hospital Details. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>UBD Map Ref</strong></td>
+                            <td align="left"><input name="ubd_1" type="text" id="ubd_1" pattern="any_text" title="Enter UBD Reference. [String Value]"></td>
+                            <td align="left">&nbsp;</td>
+                            <td align="left">&nbsp;</td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Contact</strong></td>
-							<td align="left"><input name="contact_1" type="text" id="contact_1" pattern="any_text" title="Enter Contact Person. [String Value]"></td>
-							<td align="left"><strong>Contact No. </strong></td>
-							<td align="left"><input name="phone_1" type="text" id="phone_1" pattern="any_text" title="Enter Contact Number. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Address</strong></td>
+                            <td colspan="3" align="left"><input name="address_1" type="text" id="address_1" title="Enter Location Address. [String Value]" size="80" pattern="any_text"></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Parking</strong></td>
-							<td colspan="3" align="left"><input name="parking_1" type="text" id="parking_1" size="80" pattern="any_text" title="Enter Parking Instructions. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Police</strong></td>
+                            <td colspan="3" align="left"><input name="police_1" type="text" id="police_1" title="Enter Police Details. [String Value]" size="80" pattern="any_text"></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Unit</strong></td>
-							<td colspan="3" align="left"><input name="unit_1" type="text" id="unit_1" size="80" pattern="any_text" title="Enter Unit Instructions. [String Value]"></td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Hospital</strong></td>
+                            <td colspan="3" align="left"><input name="hospital_1" type="text" id="hospital_1" title="Enter Hospital Details. [String Value]" size="80" pattern="any_text"></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr>
-							<td width="15" class="left">&nbsp;</td>
-							<td width="100" align="left"><strong>Location Notes</strong></td>
-							<td colspan="2" align="left"><textarea name="notes_1" cols="50" id="notes_1" title="Enter Location Notes. [String Value]"></textarea></td>
-							<td align="left">&nbsp;</td>
-							<td width="15" class="right">&nbsp;</td>
-						  </tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Parking</strong></td>
+                            <td colspan="3" align="left"><textarea name="parking_1" cols="70" id="parking_1" title="Enter Parking Instructions. [String Value]"></textarea></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
+						  <tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Unit</strong></td>
+                            <td colspan="3" align="left"><textarea name="unit_1" cols="70" id="unit_1" title="Enter Unit Instructions. [String Value]"></textarea></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
+						  <tr>
+                            <td class="left">&nbsp;</td>
+                            <td align="left"><strong>Location Notes</strong></td>
+                            <td colspan="3" align="left"><textarea name="notes_1" cols="70" rows="5" id="notes_1" title="Enter Location Notes. [String Value]"></textarea></td>
+                            <td class="right">&nbsp;</td>
+				      </tr>
 						  <tr><td colspan="6" class="bottom">&nbsp;</td></tr>
 						  <%} }%>
 	           
