@@ -98,57 +98,57 @@
 <table width="700" border="0" align="center" cellpadding="0" cellspacing="0">
 <tr>
 <td>
-	<table width='700' border='0' cellspacing='0' cellpadding='0'>
+	<table width="700" border="0" cellspacing="0" cellpadding="0">
 	<tr>
 		<td width="15" align="right" class="header-left">&nbsp;</td>
-		<td height="20" colspan='4' class="header-middle">General Info </td>
+		<td height="20" colspan="4" class="header-middle">General Info </td>
 		<td width="15" class="header-right">&nbsp;</td>
 	</tr>
 	<tr height="30">
 		<td width="15" class="left">&nbsp;</td>
 		<td><strong>Production</strong></td>
-		<td><input name='production' type='text' id='production' value="<%= iss.getProduction() %>" readonly></td>
+		<td><input name="production" type="text" id="production" value="<%= iss.getProduction() %>" readonly></td>
 		<td><strong>Director</strong></td>
-		<td><input name='director' type='text' id='director' value="<%=ss.getDirector() %>" readonly></td>
+		<td><input name="director" type="text" id="director" value="<%=ss.getDirector() %>" readonly></td>
 		<td width="15" class="right">&nbsp;</td>
 	</tr>
 	<tr height="30">
 		<td class="left">&nbsp;</td>
 		<td><strong>Producer</strong></td>
-		<td><input name='producer' type='text' id='producer' value="<%=ss.getProducer() %>" readonly></td>
+		<td><input name="producer" type="text" id="producer" value="<%=ss.getProducer() %>" readonly></td>
 		<td><strong>Last Updated Date</strong></td>
-		<td><input name='last_updated' type='text' id='last_updated' value="<%=ss.getLastUpdatedDate().getDay()+"-"+ss.getLastUpdatedDate().getMonth()+"-"+ss.getLastUpdatedDate().getYear() %>" pattern="real_date" title="Enter Last Updated Date. [Date Value DD-MM-YYYY]"></td>
+		<td><input name="last_updated" type="text" id="last_updated" value="<%=ss.getLastUpdatedDate().getDay()+"-"+ss.getLastUpdatedDate().getMonth()+"-"+ss.getLastUpdatedDate().getYear() %>" pattern="real_date" title="Enter Last Updated Date. [Date Value DD-MM-YYYY]"></td>
 		<td class="right">&nbsp;</td>
 	</tr>
-	<tr height="30"><td colspan="10" class='bottom'>&nbsp;</td></tr>
+	<tr height="30"><td colspan="10" class="bottom">&nbsp;</td></tr>
 	</table>
 </td>
 </tr>
 <tr>
 <td>
-	<table width='700' border='0' cellspacing='0' cellpadding='0'>
+	<table width="700" border="0" cellspacing="0" cellpadding="0">
 		<tr>
 			<td width="15" align="right" class="header-left">&nbsp;</td>
-			<td height="20" colspan='4' class="header-middle">Scheduled Date Brief </td>
+			<td height="20" colspan="4" class="header-middle">Scheduled Date Brief </td>
 			<td width="15" class="header-right">&nbsp;</td>
 		</tr>
 		<tr height="30">
 			<td class="left">&nbsp;</td>
 			<td><strong>Start Date </strong></td>
-			<td><input name='start_date' type='text' id='start_date' value="<%=ss.getStartDate().getDay()+"-"+ss.getStartDate().getMonth()+"-"+ss.getStartDate().getYear() %>"  pattern="real_date" title="Enter Start Date. [Date Value DD-MM-YYYY]"></td>
+			<td><input name="start_date" type="text" id="start_date" value="<% if(ss.getStartDate().compare(XMLGregorianCalendarImpl.parse("0001-01-01")) > 0){out.print(ss.getStartDate().getDay()+"-"+ss.getStartDate().getMonth()+"-"+ss.getStartDate().getYear());} %>"  pattern="real_date" title="Enter Start Date. [Date Value DD-MM-YYYY]"></td>
 			<td><strong>Scheduled Finish</strong></td>
-			<td><input name='scheduled_finish' type='text' id='scheduled_finish' value="<%=ss.getScheduledFinish().getDay()+"-"+ss.getScheduledFinish().getMonth()+"-"+ss.getScheduledFinish().getYear() %>" pattern="real_date" title="Enter Scheduled Finish Date. [Date Value DD-MM-YYYY]"></td>
+			<td><input name="scheduled_finish" type="text" id="scheduled_finish" value="<%if(ss.getScheduledFinish().compare(XMLGregorianCalendarImpl.parse("0001-01-01")) > 0){out.print(ss.getScheduledFinish().getDay()+"-"+ss.getScheduledFinish().getMonth()+"-"+ss.getScheduledFinish().getYear());} %>" pattern="real_date" title="Enter Scheduled Finish Date. [Date Value DD-MM-YYYY]"></td>
 			<td class="right">&nbsp;</td>
 		</tr>
 		<tr height="30">
 			<td class="left">&nbsp;</td>
 			<td><strong>Revised Finish </strong></td>
-			<td><input name='revised_finish' type='text' id='revised_finish' value="<% if(ss.getRevisedFinish() != null) {out.print(ss.getRevisedFinish().getDay()+"-"+ss.getRevisedFinish().getMonth()+"-"+ss.getRevisedFinish().getYear());} %>" title="Enter Revised Finish - If Necessary. [Date Value DD-MM-YYYY]"></td>
+			<td><input name="revised_finish" type="text" id="revised_finish" value="<% if(ss.getRevisedFinish() != null) {out.print(ss.getRevisedFinish().getDay()+"-"+ss.getRevisedFinish().getMonth()+"-"+ss.getRevisedFinish().getYear());} %>" title="Enter Revised Finish - If Necessary. [Date Value DD-MM-YYYY]"></td>
 			<td><strong>Scheduled Shooting Days </strong></td>
-			<td><input name='scheduled_shooting_days' type='text' id='scheduled_shooting_days' value="<% if (ss.getScheduledShootingDays().intValue() > 0){ out.print(ss.getScheduledShootingDays()); }%>" pattern="number" title="Enter Schedule Shooting Days. [Number Value]"></td>
+			<td><input name="scheduled_shooting_days" type="text" id="scheduled_shooting_days" value="<% if (ss.getScheduledShootingDays().intValue() > 0){ out.print(ss.getScheduledShootingDays()); }%>" pattern="number" title="Enter Schedule Shooting Days. [Number Value]"></td>
 			<td class="right">&nbsp;</td>
 		</tr>
-		<tr height="30"><td colspan="10" class='bottom'>&nbsp;</td></tr>
+		<tr height="30"><td colspan="10" class="bottom">&nbsp;</td></tr>
 	</table>					
 </td>
 </tr>
@@ -200,7 +200,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150" align="left"><strong>Start of Day Notes </strong></td>
-		<td colspan="3" align="left"><input name="<% out.print("sd" + a + "_start");%>" type="text" id="<% out.print("sd" + a + "_start");%>" size="73" value="<% if(sds.getStartDayNotes()!= null){ out.print(sds.getStartDayNotes());} %>" title="Enter Start of Day Notes - If Necessary. [String Value]"></td>
+		<td colspan="3" align="left"><textarea name="<% out.print("sd" + a + "_start");%>" id="<% out.print("sd" + a + "_start");%>" cols="60" title="Enter Start of Day Notes - If Necessary. [String Value]"><% if(sds.getStartDayNotes()!= null){ out.print(sds.getStartDayNotes());} %></textarea></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
@@ -225,18 +225,22 @@ if(ss.getSingleDaySchedule().size() != 0) {
 								<td height="30" class="left">&nbsp;</td>
 								<td height="30" valign="top"><strong>Set Name</strong></td>
 								<td height="30" valign="top"><input name="<% out.print("sd" + a + "_set" + b);%>" type="text" id="<% out.print("sd" + a + "_set" + b);%>" value="<%= scs.getSet()%>" pattern="any_text" title="Enter Set Name. [String Value]"></td>
-								<td height="30" valign="top"><strong>Synopsis</strong></td>
-								<td height="30" valign="top"><input name="<% out.print("sd" + a + "_synopsis" + b);%>" type="text" id="<% out.print("sd" + a + "_synopsis" + b);%>" value="<%= scs.getSynopsis() %>" pattern="any_text" title="Enter Synopsis. [String Value]"></td>
+								<td height="30" valign="top"><strong>Location ID </strong></td>
+								<td height="30" valign="top"><input name="<% out.print("sd" + a + "_locationID" + b);%>" type="text" id="<% out.print("sd" + a + "_locationID" + b);%>" value="<%= scs.getLocationID()%>" pattern="any_text" title="Enter Location ID. [String Value] (make sure it matches an id from location notes)"></td>
 								<td height="30" class="right">&nbsp;</td>
 							</tr>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
-								<td width="160" height="30" valign="top"><strong>Location ID </strong></td>
-								<td width="160" height="30" valign="top"><input name="<% out.print("sd" + a + "_locationID" + b);%>" type="text" id="<% out.print("sd" + a + "_locationID" + b);%>" value="<%= scs.getLocationID()%>" pattern="any_text" title="Enter Location ID. [String Value] (make sure it matches an id from location notes)"></td>
 								<td width="160" height="30" valign="top"><strong>Address</strong></td>
-								<td width="160" height="30" valign="top"><input name="<% out.print("sd" + a + "_address" + b);%>" type="text" id="<% out.print("sd" + a + "_address" + b);%>" value="<%= scs.getAddress()%>" pattern="any_text" title="Enter Address. [String Value]"></td>
+								<td height="30" colspan="3" valign="top"><input name="<% out.print("sd" + a + "_address" + b);%>" type="text" id="<% out.print("sd" + a + "_address" + b);%>" title="Enter Address. [String Value]" value="<%= scs.getAddress()%>" size="78" pattern="any_text"></td>
 								<td height="30" class="right">&nbsp;</td>
 							</tr>
+							<tr>
+							  <td height="30" class="left">&nbsp;</td>
+							  <td height="30" valign="top"><strong>Synopsis</strong></td>
+							  <td height="30" colspan="3" valign="top"><input name="<% out.print("sd" + a + "_synopsis" + b);%>" type="text" id="<% out.print("sd" + a + "_synopsis" + b);%>" title="Enter Synopsis. [String Value]" value="<%= scs.getSynopsis() %>" size="78" pattern="any_text"></td>
+							  <td height="30" class="right">&nbsp;</td>
+							  </tr>
 							<tr>
 								<td width="15" height="30" class="left">&nbsp;</td>
 								<td width="160" height="30" valign="top"><strong>Interior</strong><input name="<% out.print("sd" + a + "_intext" + b);%>" type="radio" value="INT" <% if(scs.getINEX().equals("INT")){ out.print("checked"); } %>></td>
@@ -317,7 +321,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 										<option value="Miscellaneous" <% if(se.getItem().equals("Miscellaneous")) { out.print("selected"); }%>>Miscellaneous</option>
 										<option value="Notes" <% if(se.getItem().equals("Notes")) { out.print("selected"); }%>>Notes</option>
 										</select></td>
-										<td><textarea name="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" id="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" cols="20" pattern="any_text" title="Enter Set Requirements. [String Value]"><%=se.getRequirements() %></textarea></td>
+										<td><textarea name="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" cols="40" rows="0" id="<% out.print("sd" + a + "_requirements" + b + "_" + d);%>" title="Enter Set Requirements. [String Value]"><%=se.getRequirements() %></textarea></td>
 										</tr>
 										<%}//end of requirements loop%> 
 									</table>														
@@ -376,7 +380,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150"><strong>End of Day Notes</strong></td>
-		<td colspan="3"><textarea name="<% out.print("sd" + a + "_end");%>" cols="50" id="<% out.print("sd" + a + "_end");%>" pattern="any_text" title="Enter End of Day Notes. [String Value]"><%= sds.getEndDayNotes() %></textarea></td>
+		<td colspan="3"><textarea name="<% out.print("sd" + a + "_end");%>" cols="60" id="<% out.print("sd" + a + "_end");%>" title="Enter End of Day Notes. [String Value]"><%= sds.getEndDayNotes() %></textarea></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
@@ -443,7 +447,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<tr>
 		<td class="left">&nbsp;</td>
 		<td width="150" align="left"><strong>Start of Day Notes </strong></td>
-		<td colspan="3" align="left"><input name="sd1_start" type="text" id="sd1_start" size="73" value="" title="Enter Start of Day Notes - If Necessary. [Time Value HH:MM:SS]"></td>
+		<td colspan="3" align="left"><textarea name="sd1_start" id="sd1_start" cols="60" title="Enter Start of Day Notes - If Necessary. [String Value]"></textarea></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr>
@@ -464,18 +468,22 @@ if(ss.getSingleDaySchedule().size() != 0) {
 			<td height="30" class="left">&nbsp;</td>
 			<td height="30" valign="top"><strong>Set Name</strong></td>
 			<td height="30" valign="top"><input name="sd1_set1" type="text" id="sd1_set1" value="" pattern="any_text" title="Enter Set Name. [String Value]"></td>
-			<td height="30" valign="top"><strong>Synopsis</strong></td>
-			<td height="30" valign="top"><input name="sd1_synopsis1" type="text" id="sd1_synopsis1" value="" pattern="any_text" title="Enter Synopsis. [String Value]"></td>
+			<td height="30" valign="top"><strong>Location ID </strong></td>
+			<td height="30" valign="top"><input name="sd1_locationID1" type="text" id="sd1_locationID1" value="" pattern="any_text" title="Enter Location ID. [String Value] (make sure it matches an id from location notes)"></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
 		<tr>
 			<td width="15" height="30" class="left">&nbsp;</td>
-			<td width="160" height="30" valign="top"><strong>Location ID </strong></td>
-			<td width="160" height="30" valign="top"><input name="sd1_locationID1" type="text" id="sd1_locationID1" value="" pattern="any_text" title="Enter Location ID. [String Value] (make sure it matches an id from location notes)"></td>
 			<td width="160" height="30" valign="top"><strong>Address</strong></td>
-			<td width="160" height="30" valign="top"><input name="sd1_address1" type="text" id="sd1_address" value="" pattern="any_text" title="Enter Address. [String Value]"></td>
+			<td height="30" colspan="3" valign="top"><input name="sd1_address1" type="text" id="sd1_address1" title="Enter Address. [String Value]" value="" size="78" pattern="any_text"></td>
 			<td height="30" class="right">&nbsp;</td>
 		</tr>
+		<tr>
+		  <td height="30" class="left">&nbsp;</td>
+		  <td height="30" valign="top"><strong>Synopsis</strong></td>
+		  <td height="30" colspan="3" valign="top"><input name="sd1_synopsis1" type="text" id="sd1_synopsis1" title="Enter Synopsis. [String Value]" value="" size="78" pattern="any_text"></td>
+		  <td height="30" class="right">&nbsp;</td>
+		  </tr>
 		<tr>
 			<td width="15" height="30" class="left">&nbsp;</td>
 			<td width="160" height="30" valign="top"><strong>Interior</strong><input name="sd1_intext1" type="radio" value="INT" checked></td>
@@ -544,7 +552,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 					  <option value="Miscellaneous">Miscellaneous</option>
 					  <option value="Notes">Notes</option>
 					</select></td>
-					<td><textarea name="sd1_requirements1_1" id="sd1_requirements1_1" cols="20" pattern="any_text" title="Enter Set Requirements. [String Value]"></textarea></td>
+					<td><textarea name="sd1_requirements1_1" id="sd1_requirements1_1" cols="40" title="Enter Set Requirements. [String Value]"></textarea></td>
 					</tr>
 				</table>														
 			</td>
@@ -586,7 +594,7 @@ if(ss.getSingleDaySchedule().size() != 0) {
 	<td width="150"><strong>End of Day Notes</strong></td>
 	<td colspan="3">
 	<p>
-	<textarea name="sd1_end" cols="50" id="sd1_end" pattern="any_text" title="Enter End of Day Notes. [String Value]"></textarea>
+	<textarea name="sd1_end" cols="60" id="sd1_end" title="Enter End of Day Notes. [String Value]"></textarea>
 	</p></td>
 	<td class="right">&nbsp;</td>
 	</tr>

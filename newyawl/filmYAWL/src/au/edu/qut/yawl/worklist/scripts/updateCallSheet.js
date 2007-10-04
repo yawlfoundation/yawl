@@ -61,7 +61,7 @@ var addLocationsRowVar = function addLocationsRow(){
     locationcontactCELL.appendChild(createAnyTextTextBox("locations_contact_" + locations_count, 15, "", "location contact"));
     locationcontactnoCELL.appendChild(createTelNumberTextBox("locations_contact_no_" + locations_count, 10, "", "location contact number"));
     locationubdCELL.appendChild(createAnyTextTextBox("locations_UBD_" + locations_count, 8, "", "UBD ref location"));
-    locationnotesCELL.appendChild(createTextArea("locations_notes_" + locations_count, 10, "", "location notes"));
+    locationnotesCELL.appendChild(createTextArea("locations_notes_" + locations_count, 10,0, "", "location notes"));
 }
 
 function addLocationsRow() {
@@ -244,8 +244,8 @@ function addAdvancedSceneRow(){
 	pagesCELL.appendChild(createInput("ad_schedule_pagesnum_" + ad_scene_count, 2, "text", ""));
 	pagesCELL.appendChild(createBoldLabel(" /8pgs"));
 	setsynopsisCELL.appendChild(createInput("ad_schedule_setsynopsis_" + ad_scene_count, 15, "text", ""));
-	locationCELL.appendChild(createTextArea("ad_schedule_location_" + ad_scene_count, 10));
-	charactersCELL.appendChild(createTextArea("ad_schedule_characters_" + ad_scene_count, 10));
+	locationCELL.appendChild(createTextArea("ad_schedule_location_" + ad_scene_count, 10,0));
+	charactersCELL.appendChild(createTextArea("ad_schedule_characters_" + ad_scene_count, 10,0));
 
 	row.appendChild(sceneCELL);
 	row.appendChild(dnCELL);
@@ -274,8 +274,7 @@ var addDescriptionRowVar = function addDescriptionRow(table_num) {
 
 	sceneCELL.appendChild(createAnyTextTextBox("sr"+ table_num + "_scene_" + description_count, 20, "",
             "enter scene"));
-	requirementsCELL.appendChild(createTextArea("sr"+ table_num + "_requirements_" + description_count, 40, "",
-            "enter description"));
+	requirementsCELL.appendChild(createTextArea("sr"+ table_num + "_requirements_" + description_count, 40,0, "","enter description"));
 }
 
 function addDescriptionRow(table_num) {
@@ -371,8 +370,7 @@ function addRequirementsSubTable(requirements_count){
     row3.appendChild(requirementsLABEL);
     
     sceneCELL.appendChild(createAnyTextTextBox("sr"+ requirements_count + "_scene_1", 20, "", "enter scene"));
-	requirementsCELL.appendChild(createTextArea("sr"+ requirements_count + "_requirements_1", 40, "",
-            "enter requirements"));
+	requirementsCELL.appendChild(createTextArea("sr"+ requirements_count + "_requirements_1", 40, 0, "","enter requirements"));
 
     table.setAttribute("width", "510");
 	table.setAttribute("border", "0");

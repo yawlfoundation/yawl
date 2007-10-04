@@ -52,6 +52,6 @@ function addCastRow(){
 
 	characterCELL.appendChild(createAnyTextTextBox("character_" + count, 20, "", "Enter Character Name. [String Value]"));
 	artistCELL.appendChild(createAnyTextTextBox("artist_" + count, 20, "", "Enter Artist Name. [String Value]"));
-	agentCELL.appendChild(createAnyTextTextBox("agent_" + count, 20, "", "Enter Agent Name. [String Value]"));
+	agentCELL.appendChild(createAnyTextTextBox("agent_" + count, 30, "", "Enter Agent Name. [String Value]"));
 	contactnoCELL.appendChild(createAnyTextTextBox("contactno_" + count, 10, "", "Enter Agent Contact Number. [String Value]"));
 }
