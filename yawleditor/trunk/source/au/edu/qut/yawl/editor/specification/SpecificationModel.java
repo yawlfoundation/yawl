@@ -30,6 +30,8 @@ import java.util.LinkedList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import au.edu.qut.yawl.editor.data.Decomposition;
 import au.edu.qut.yawl.editor.data.DataVariable;
@@ -208,6 +210,12 @@ public class SpecificationModel {
 
   public Set<NetGraphModel> getNets() {
     return nets;
+  }
+  
+  public SortedSet<NetGraphModel> getSortedNets() {
+    TreeSet<NetGraphModel> sortedNets = new TreeSet<NetGraphModel>();
+    sortedNets.addAll(getNets());
+    return sortedNets;
   }
   
   public NetGraphModel getStartingNet() {

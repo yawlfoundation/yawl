@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -37,8 +38,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
-
-
 
 import au.edu.qut.yawl.editor.actions.view.AntiAliasedToggleAction;
 import au.edu.qut.yawl.editor.actions.view.FontSizeAction;
@@ -169,7 +168,7 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
   private void rebuildNetList() {
     removeNetList();
 
-    Set<NetGraphModel> nets = specificationModel.getNets();
+    SortedSet<NetGraphModel> nets = specificationModel.getSortedNets();
     if (nets == null) {
       return;
     }

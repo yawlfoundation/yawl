@@ -56,7 +56,7 @@ import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.ParentMap;
 import org.jgraph.graph.ConnectionSet;
 
-public class NetGraphModel extends DefaultGraphModel {
+public class NetGraphModel extends DefaultGraphModel implements Comparable {
   
   /**
    * 
@@ -690,5 +690,10 @@ public class NetGraphModel extends DefaultGraphModel {
       parentMap.addEntry(vertex, vertexContainer);
     }
     return vertexContainer;
+  }
+  
+  public int compareTo(Object object) throws ClassCastException {
+    NetGraphModel otherModel = (NetGraphModel) object;
+    return this.getName().compareTo(otherModel.getName());
   }
 }
