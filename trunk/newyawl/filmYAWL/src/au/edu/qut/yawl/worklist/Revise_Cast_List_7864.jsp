@@ -141,7 +141,7 @@
 							<td width="15" height="30" align="center" class="left">&nbsp;</td>
 							<td height="30" align="center"><input name="character_<%=a%>" type="text" id="character_<%=a%>" size="20" value="<%= scit.getCharacter() %>" pattern="any_text" title="Enter Character Name. [String Value]"></td>
 							<td height="30" align="center"><input name="artist_<%=a%>" type="text" id="artist_<%=a%>" size="20" value="<%= scit.getArtist() %>" pattern="any_text" title="Enter Artist Name. [String Value]"></td>
-							<td height="30" align="center"><input name="agent_<%=a%>" type="text" id="agent_<%=a%>" size="20" value="<%= scit.getAgent() %>" pattern="any_text" title="Enter Agent Name. [String Value]"></td>
+							<td height="30" align="center"><input name="agent_<%=a%>" type="text" id="agent_<%=a%>" size="30" value="<%= scit.getAgent() %>" pattern="any_text" title="Enter Agent Name. [String Value]"></td>
 							<td height="30" align="center"><input name="contactno_<%=a%>" type="text" id="contactno_<%=a%>" size="10" value="<%= scit.getAgentContactNo() %>" pattern="any_text" title="Enter Agent Contact Number. [String Value]"></td>
 							<td width="15" height="30" class="right">&nbsp;</td>
 						  </tr>
@@ -151,7 +151,7 @@
 							<td width="15" height="30" align="center" class="left">&nbsp;</td>
 							<td height="30" align="center"><input name="character_1" type="text" id="character_1" size="20" value="" pattern="any_text" title="Enter Character Name. [String Value]"></td>
 							<td height="30" align="center"><input name="artist_1" type="text" id="artist_1" size="20" value="" pattern="any_text" title="Enter Artist Name. [String Value]"></td>
-							<td height="30" align="center"><input name="agent_1" type="text" id="agent_1" size="20" value="" pattern="any_text" title="Enter Agent Name. [String Value]"></td>
+							<td height="30" align="center"><input name="agent_1" type="text" id="agent_1" size="30" value="" pattern="any_text" title="Enter Agent Name. [String Value]"></td>
 							<td height="30" align="center"><input name="contactno_1" type="text" id="contactno_1" size="10" value="" pattern="any_text" title="Enter Agent Contact Number. [String Value]"></td>
 							<td width="15" height="30" class="right">&nbsp;</td>
 				  </tr>
