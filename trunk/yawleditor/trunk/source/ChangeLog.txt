@@ -12,7 +12,7 @@ Version 1.5.1 (??/??/2007)
     action and a "Show all" action for the nets of a specfication.
   * LWB: The editor is now closer to (but not perfectly) rebuilding the state of the net 
     frames on a load, as per how the workflow designer left the state on a save.
-  * Fixed a bug where the editor was reacting poorly to an exception being thrown in 
+  * LWB: Fixed a bug where the editor was reacting poorly to an exception being thrown in 
     an engine client-side API call when attempting to connect to a non-existant engine.
 
 Version 1.5 (27/07/2007) 
