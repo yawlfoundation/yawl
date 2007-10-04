@@ -108,26 +108,26 @@
           </tr>
           <tr>
 		  	<td width="15" class="left">&nbsp;</td>
-            <td><strong>Producer</strong></td><td><input name="producer" type="text" id="producer" value="<%= cdprt.getProducer() %>" size="15" readonly></td>
-            <td><strong>Production</strong></td><td><input name="production" type="text" id="production" value="<%= git.getProduction() %>" size="15" readonly></td>
+            <td><strong>Producer</strong></td><td><input name="producer" type="text" id="producer" value="<%= cdprt.getProducer() %>" size="25" readonly></td>
+            <td><strong>Production</strong></td><td><input name="production" type="text" id="production" value="<%= git.getProduction() %>" size="25" readonly></td>
             <td width="15" class="right">&nbsp;</td>
           </tr>
           <tr>
             <td width="15" class="left">&nbsp;</td>
-			<td><strong>Director</strong></td><td><input name="director" type="text" id="director" value="<%= cdprt.getDirector()%>" size="15" readonly></td>
-            <td><strong>Day</strong></td><td><input name="day" type="text" id="day" value="<%= git.getWeekday()%>" size="15" readonly></td>
+			<td><strong>Director</strong></td><td><input name="director" type="text" id="director" value="<%= cdprt.getDirector()%>" size="25" readonly></td>
+            <td><strong>Day</strong></td><td><input name="day" type="text" id="day" value="<%= git.getWeekday()%>" size="25" readonly></td>
             <td width="15" class="right">&nbsp;</td>
           </tr>
           <tr>
             <td width="15" class="left">&nbsp;</td>
-			<td><strong>Prod. Manager</strong></td><td><input name="prod_manager" type="text" id="prod_manager" value="<%= cdprt.getProductionManager()%>" size="15" readonly></td>
-            <td><strong>Date</strong></td><td><input name="date" type="text" id="date" value="<%= git.getDate()%>" size="15" readonly></td>
+			<td><strong>Prod. Manager</strong></td><td><input name="prod_manager" type="text" id="prod_manager" value="<%= cdprt.getProductionManager()%>" size="25" readonly></td>
+            <td><strong>Date</strong></td><td><input name="date" type="text" id="date" value="<%= git.getDate()%>" size="25" readonly></td>
             <td width="15" class="right">&nbsp;</td>
           </tr>
           <tr>
             <td width="15" class="left">&nbsp;</td>
-			<td><strong>D.O.P</strong></td><td><input name="dop" type="text" id="dop" value="<%= cdprt.getDirectorOfPhotography()%>" size="15" readonly></td>
-            <td><strong>Shoot Day No. </strong></td><td><input name="shoot_day_no" type="text" id="shoot_day_no" value="<%= git.getShootDayNo() %>" size="15" readonly></td>
+			<td><strong>D.O.P</strong></td><td><input name="dop" type="text" id="dop" value="<%= cdprt.getDirectorOfPhotography()%>" size="25" readonly></td>
+            <td><strong>Shoot Day No. </strong></td><td><input name="shoot_day_no" type="text" id="shoot_day_no" value="<%= git.getShootDayNo() %>" size="25" readonly></td>
             <td width="15" class="right">&nbsp;</td>
           </tr>
           <tr><td colspan="6" class="bottom">&nbsp;</td>
@@ -192,39 +192,47 @@
 	  <tbody>
         <tr valign="top">
           <td width="15" class="header-left">&nbsp;</td>
-          <td width="530" colspan="4" class="header-middle">Locations/Sets</td>
+          <td width="530" colspan="2" class="header-middle">Locations/Sets</td>
           <td width="15" class="header-right">&nbsp;</td>
         </tr>
-        <tr valign="top">
-          <td class="left">&nbsp;</td>
-          <td><strong>Location Name </strong></td>
-          <td><strong>Address</strong></td>
-          <td><strong>Set</strong></td>
-          <td>&nbsp;</td>
-          <td class="right">&nbsp;</td>
-        </tr>
+        
 		<%	int g=0;
 			LocationSetsType lst = dprit.getLocationSets();
 			for(SingleLocationType slt: lst.getSingleLocation()){
 				g++;%>
+		<tr valign="top">
+          <td class="left">&nbsp;</td>
+          <td><strong>Location Name </strong></td>
+          <td><strong>Address</strong></td>
+          <td class="right">&nbsp;</td>
+        </tr>
         <tr valign="top">
           <td align="center" class="left">&nbsp;</td>
           <td><input name='location_name_<%=g%>' type='text' id='location_name_<%=g%>' size="25" value="<%=slt.getLocationName() %>" readonly></td>
-          <td><input name='location_address_<%=g%>' type='text' id='location_address_<%=g%>' size="25" value="<%=slt.getAddress() %>" readonly></td>
-          <td id="location_set_<%=g%>">
+          <td><input name='location_address_<%=g%>' type='text' id='location_address_<%=g%>' size="70" value="<%=slt.getAddress() %>" readonly></td>
+          <td class="right">&nbsp;</td>
+        </tr>
+        <tr valign="top">
+          <td align="center" class="left">&nbsp;</td>
+          <td><strong>Set(s)</strong></td>
+          <td>
             <% int h=0;
 			List<String> set_list = slt.getSet();
 				for(String set : set_list) {
 					h ++;%>
             <input name='location_set_<%=g%>_<%=h%>' type='text' id='location_set_<%=g%>_<%=h%>' size="25" value="<%=set%>" readonly>
-            <%}%>
-          </td>
-          <td>                <input type="hidden" name="location_set_<%=g%>_count" id="location_set_<%=g%>_count" value="<%out.print(h);%>" readonly></td><td class="right">&nbsp;</td>
+            <%}%><input type="hidden" name="location_set_<%=g%>_count" id="location_set_<%=g%>_count" value="<%out.print(h);%>" readonly></td>
+          <td class="right">&nbsp;</td>
         </tr>
+		<tr valign="top">
+			<td width="15" class="left">&nbsp;</td>
+			<td colspan="2">&nbsp;</td>
+			<td width="15" class="right">&nbsp;</td>
+		</tr>
 		<%}%>
 		</tbody>
         <tr>
-          <td colspan="6" class="bottom">&nbsp;</td>
+          <td colspan="4" class="bottom">&nbsp;</td>
         </tr>
       </table></td>
     </tr>
@@ -447,19 +455,22 @@
         <tr>
           <td class="left">&nbsp;</td>
           <td><strong>Scheduled Ratio</strong></td>
-          <td><input name="scheduled_ratio" type="text" id="scheduled_ratio" value="<%= rtst.getScheduledRatio() %>" size="10" readonly></td>
+          <td><input name="scheduled_ratio" type="text" id="scheduled_ratio" value="<%= rtst.getScheduledRatio() %>" size="10"> 
+          :1</td>
           <td class="right">&nbsp;</td>
         </tr>
         <tr>
           <td class="left">&nbsp;</td>
           <td><strong>Daily Ratio</strong></td>
-          <td><input name="daily_ratio" type="text" id="daily_ratio" value="<%= rtst.getDailyRatio() %>" size="10" readonly></td>
+          <td><input name="daily_ratio" type="text" id="daily_ratio" value="<%= rtst.getDailyRatio() %>" size="10" readonly> 
+          :1 </td>
           <td class="right">&nbsp;</td>
         </tr>
         <tr>
           <td class="left">&nbsp;</td>
           <td><strong>Average Ratio</strong></td>
-          <td><input name="average_ratio" type="text" id="average_ratio" value="<%= rtst.getAverageRatio() %>" size="10" readonly></td>
+          <td><input name="average_ratio" type="text" id="average_ratio" value="<%= rtst.getAverageRatio() %>" size="10" readonly> 
+          :1 </td>
           <td class="right">&nbsp; </td>
         </tr>
         <tr>
@@ -982,7 +993,7 @@
         </tr>
         <tr>
           <td width="15" class="left">&nbsp;</td>
-          <td align="center"><textarea name="general_remarks" cols="80" id="general_remarks"><%= dprit.getGeneralRemarks()%></textarea></td>
+          <td align="center"><textarea name="general_remarks" cols="80" rows="5" id="general_remarks"><%= dprit.getGeneralRemarks()%></textarea></td>
           <td width="15" class="right">&nbsp;</td>
         </tr>
         <tr>
@@ -1000,9 +1011,9 @@
                 <input type="hidden" name="scenes_deleted_count" id="scenes_deleted_count" value="<%if (s_4==0) {out.print("0");}else{out.print(s_4);}%>">
                 <input type="hidden" name="scenes_added_count" id="scenes_added_count" value="<%if (s_5==0) {out.print("0");}else{out.print(s_5);}%>">
                 <input type="hidden" name="unscheduled_scenes_shot_count" id="unscheduled_scenes_shot_count" value="<%if (s_6==0) {out.print("0");}else{out.print(s_6);}%>">
-				<input type="hidden" name="artist_count" id="artist_count" value="<%if (d==0) {out.print("1");}else{out.print(d);}%>">
+				<input type="hidden" name="artist_count" id="artist_count" value="<%if (d==0) {out.print("0");}else{out.print(d);}%>">
 				<input type="hidden" name="extras_count" id="extras_count" value="<%if (c==0) {out.print("0");}else{out.print(c);}%>">
-				<input type="hidden" name="crew_count" id="crew_count" value="<%if (b==0) {out.print("1");}else{out.print(b);}%>">
+				<input type="hidden" name="crew_count" id="crew_count" value="<%if (b==0) {out.print("0");}else{out.print(b);}%>">
 				<input name="catering_count" type="hidden" id="catering_count" value="<%=a%>">
 				<input type="hidden" name="workItemID" id="workItemID"/>
 				<input type="hidden" name="userID" id="userID"/>
@@ -1256,8 +1267,9 @@ if(request.getParameter("Submission") != null){
 	//Artist Details
 	ArtistTimeSheetType ats1 = new ArtistTimeSheetType();
 	int artist_count = Integer.parseInt(request.getParameter("artist_count"));
+	if(artist_count >0){
 	for(int current_artist=1; current_artist<=artist_count; current_artist++){//getting the crew information
-		if(!(request.getParameter("artist_artist_" + current_artist).equals(""))){
+		
 			SingleArtistType sa1 = new SingleArtistType();
 			sa1.setArtist(request.getParameter("artist_artist_" + current_artist));
 			sa1.setCharacter(request.getParameter("artist_character_" + current_artist));
@@ -1295,10 +1307,11 @@ if(request.getParameter("Submission") != null){
 	dpri.setExtrasTimeSheet(ats2);
 	}
 	
+	
 	//Crew Details
 	CrewTimeSheetType cwts = new CrewTimeSheetType();
 	int crew_count = Integer.parseInt(request.getParameter("crew_count"));
-	if(!(request.getParameter("crew_name_1").equals(""))){
+	if(crew_count>0){
 		for(int current_crew=1; current_crew<=crew_count; current_crew++){//getting the crew information
 			SingleCrewType scw = new SingleCrewType();
 			scw.setCrewName(request.getParameter("crew_name_" + current_crew));
@@ -1587,8 +1600,9 @@ DPRinfoType dpri = new DPRinfoType();
 	//Artist Details
 	ArtistTimeSheetType ats1 = new ArtistTimeSheetType();
 	int artist_count = Integer.parseInt(request.getParameter("artist_count"));
+	if(artist_count >0){
 	for(int current_artist=1; current_artist<=artist_count; current_artist++){//getting the crew information
-		if(!(request.getParameter("artist_artist_" + current_artist).equals(""))){
+		
 			SingleArtistType sa1 = new SingleArtistType();
 			sa1.setArtist(request.getParameter("artist_artist_" + current_artist));
 			sa1.setCharacter(request.getParameter("artist_character_" + current_artist));
@@ -1630,7 +1644,7 @@ DPRinfoType dpri = new DPRinfoType();
 	//Crew Details
 	CrewTimeSheetType cwts = new CrewTimeSheetType();
 	int crew_count = Integer.parseInt(request.getParameter("crew_count"));
-	if(!(request.getParameter("crew_name_1").equals(""))){
+	if(crew_count>0){
 		for(int current_crew=1; current_crew<=crew_count; current_crew++){//getting the crew information
 			SingleCrewType scw = new SingleCrewType();
 			scw.setCrewName(request.getParameter("crew_name_" + current_crew));

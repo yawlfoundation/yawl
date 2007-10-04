@@ -194,9 +194,10 @@ function calculateScriptTiming(){
 	
 	var temp_number2 = total_pages - shot_to_date_pages;
 	var temp_numerator2 = total_pagesnum - shot_to_date_pagesnum;
+	var temp_total2 = (temp_number2*8)+temp_numerator2
 	
-	var excess2 = temp_number2 + Math.floor(temp_numerator2/8);
-	var mod2 = temp_numerator2 % 8;
+	var excess2 = Math.floor(temp_total2/8);
+	var mod2 = temp_total2 % 8;
 	
 	var t_est_timing_array = total_esttiming.split(":");
 	var std_est_timing_array = shot_to_date_esttiming.split(":");

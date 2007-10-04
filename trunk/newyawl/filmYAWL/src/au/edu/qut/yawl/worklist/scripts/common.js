@@ -97,12 +97,13 @@ function showValidFields(fieldIds) {
     }
 }
 
-function createTextBoxWithNoValidation(id, size, value) {
+function createTextBoxWithNoValidation(id, size, value, tooltip) {
 	var input =  document.createElement("INPUT");
 	input.setAttribute("size", size);
 	input.setAttribute("name", id);
 	input.setAttribute("id", id);
-	input.setAttribute("value", value);    
+	input.setAttribute("value", value);  
+	input.title = tooltip;
     return input;
 }
 
@@ -198,9 +199,10 @@ function getParameters(){
 }
 
 //function for textarea details
-function createTextArea(id, size, value, tooltip) {
+function createTextArea(id, size, size2, value, tooltip) {
 	var input =  document.createElement("TEXTAREA");
 	input.setAttribute("cols", size);
+	input.setAttribute("rows", size2);
 	input.setAttribute("name", id);
 	input.setAttribute("id", id);
     input.setAttribute("value", value);
@@ -334,5 +336,5 @@ function createRadioButton(id, value, clicked) {
 }
 
 function newDoc() {
-  window.location.assign("http://localhost:8080/worklist/_AvailableWork.jsp")
+  window.location.assign("_AvailableWork.jsp")
 }

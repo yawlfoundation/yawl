@@ -76,7 +76,7 @@ function addRequirementsRow(day, table) { //works
 	requirementsDROPDOWN.appendChild(createDropdownList("Notes"));
 	//append the new row to the REQUIREMENTS table
 	itemCELL.appendChild(requirementsDROPDOWN);
-	requirementsCELL.appendChild(createTextArea("sd"+day+"_requirements"+table+"_"+temp_requirements_count, 20,"", "Enter Set Requirements. [String Value]"));
+	requirementsCELL.appendChild(createTextArea("sd"+day+"_requirements"+table+"_"+temp_requirements_count, 40, 0, "", "Enter Set Requirements. [String Value]"));
 }
 
 function deleteCharacterRow(day, table) {
@@ -210,6 +210,8 @@ function addShootingDay () {
 	topleftCELL.className = "header-left";
 	topmiddleCELL.className = "header-middle";
 	toprightCELL.className = "header-right";
+	topleftCELL.setAttribute("width", "15");
+	toprightCELL.setAttribute("width", "15");
 	topmiddleCELL.colSpan = "4";
 	topmiddleCELL.appendChild(createBoldLabel("Shoot Day # "));
 	topmiddleCELL.appendChild(createNumberTextBox("sd"+days_count+"_number", 5, "", "Enter Shoot Day Number. [Number Value]"));
@@ -276,7 +278,7 @@ function addShootingDay () {
 	var startCELL = daydetailROW5.insertCell(1);
 	startLABEL.appendChild(createBoldLabel("Start of Day Notes "));
 	startLABEL.setAttribute("width", "150");
-	startCELL.appendChild(createTextBoxWithNoValidation("sd"+days_count+"_start",73, "", "Enter Start Day Notes - If Necessary. [String Value]"));
+	startCELL.appendChild(createTextArea("sd"+days_count+"_start", 60,0, "", "Enter Start Day Notes - If Necessary. [String Value]"));
 	startCELL.colSpan = "3";
 	
 	headerinfo_cell.appendChild(generaldaydetailsTABLE);
@@ -327,17 +329,15 @@ function addShootingDay () {
 	var endday_cell1 = endday_row.insertCell(1);
 	var endday_cell2 = endday_row.insertCell(2);
 	var endday_right = endday_row.insertCell(3);
-	
 	endday_left.className = "left";
     endday_left.appendChild(document.createTextNode("\u00a0"));
 	endday_right.className = "right";
     endday_right.appendChild(document.createTextNode("\u00a0"));
-	
 	endday_cell1.setAttribute("width", "150");
 	endday_cell2.colSpan = "3";
 
 	endday_cell1.appendChild(createBoldLabel("End of Day Notes "));
-	endday_cell2.appendChild(createAnyTextTextArea("sd"+days_count+"_end", 50, "", "Enter End of Day Notes. [String Value]"));
+	endday_cell2.appendChild(createTextArea("sd"+days_count+"_end", 60,0, "", "Enter End of Day Notes. [String Value]"));
 	
 	// Total Script Pages
 	var totalday_row = shootingdayTABLE.insertRow(shootingdayTABLE.rows.length);
@@ -447,8 +447,8 @@ function createSceneTable (table_number) {//done
 	var left2CELL = row2.insertCell(0);
 	var setnameLABEL = row2.insertCell(1);
 	var setnameCELL = row2.insertCell(2);
-	var synopsisLABEL = row2.insertCell(3);
-	var synopsisCELL = row2.insertCell(4);
+	var locationidLABEL = row2.insertCell(3);
+	var locationidCELL = row2.insertCell(4);
 	var right2CELL = row2.insertCell(5);
 	left2CELL.className = "left";
     left2CELL.appendChild(document.createTextNode("\u00a0"));
@@ -456,44 +456,53 @@ function createSceneTable (table_number) {//done
     right2CELL.appendChild(document.createTextNode("\u00a0"));
 	setnameLABEL.setAttribute("width", "160");
 	setnameCELL.setAttribute("width", "160");
-	synopsisLABEL.setAttribute("width", "160");
-	synopsisCELL.setAttribute("width", "160");
+	locationidLABEL.setAttribute("width", "160");
+	locationidCELL.setAttribute("width", "160");
 	setnameLABEL.appendChild(createBoldLabel("Set Name"));
 	setnameCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_set" + temp_table_count,20, "", "Enter Set Name. [String Value]"));
-	synopsisLABEL.appendChild(createBoldLabel("Synopsis"));
-	synopsisCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_synopsis" + temp_table_count,20, "", "Enter Synopsis. [String Value]"));
+	locationidLABEL.appendChild(createBoldLabel("Location ID "));
+	locationidCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_locationID" + temp_table_count, 20, "", "Enter Location ID. [String Value] (make sure it matches an id from location notes)"));
 	//row 3
-	var row3 = sceneTABLE.insertRow(sceneTABLE.rows.length);
+	var row3 = sceneTABLE.insertRow(sceneTABLE.rows.length-footerSize);
 	var left3CELL = row3.insertCell(0);
-	var locationidLABEL = row3.insertCell(1);
-	var locationidCELL = row3.insertCell(2);
-	var addressLABEL = row3.insertCell(3);
-	var addressCELL = row3.insertCell(4);
-	var right3CELL = row3.insertCell(5);
+	var synopsisLABEL = row3.insertCell(1);
+	var synopsisCELL = row3.insertCell(2);
+	var right3CELL = row3.insertCell(3);
 	left3CELL.className = "left";
     left3CELL.appendChild(document.createTextNode("\u00a0"));
 	right3CELL.className = "right";
     right3CELL.appendChild(document.createTextNode("\u00a0"));
-	locationidLABEL.setAttribute("width", "160");
-	locationidCELL.setAttribute("width", "160");
-	addressLABEL.setAttribute("width", "160");
-	addressCELL.setAttribute("width", "160");
-	locationidLABEL.appendChild(createBoldLabel("Location ID "));
-	locationidCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_locationID" + temp_table_count, 20, "", "Enter Location ID. [String Value] (make sure it matches an id from location notes)"));
-	addressLABEL.appendChild(createBoldLabel("Address"));
-	addressCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_address" + temp_table_count, 20, "", "Enter Address. [String Value]"));
+	synopsisLABEL.setAttribute("width", "160");
+	synopsisCELL.colSpan="3";
+	synopsisLABEL.appendChild(createBoldLabel("Synopsis"));
+	synopsisCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_synopsis" + temp_table_count,78, "", "Enter Synopsis. [String Value]"));
+	
 	//row 4
 	var row4 = sceneTABLE.insertRow(sceneTABLE.rows.length);
 	var left4CELL = row4.insertCell(0);
-	var interiorCELL = row4.insertCell(1);
-	var exteriorCELL = row4.insertCell(2);
-	var dayCELL = row4.insertCell(3);
-	var nightCELL = row4.insertCell(4);
-	var right4CELL = row4.insertCell(5);
+	var addressLABEL = row4.insertCell(1);
+	var addressCELL = row4.insertCell(2);
+	var right4CELL = row4.insertCell(3);
 	left4CELL.className = "left";
     left4CELL.appendChild(document.createTextNode("\u00a0"));
 	right4CELL.className = "right";
     right4CELL.appendChild(document.createTextNode("\u00a0"));
+	addressLABEL.setAttribute("width", "160");
+	addressCELL.colSpan="3";
+	addressLABEL.appendChild(createBoldLabel("Address"));
+	addressCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_address" + temp_table_count, 78, "", "Enter Address. [String Value]"));
+	//row 5
+	var row5 = sceneTABLE.insertRow(sceneTABLE.rows.length);
+	var left5CELL = row5.insertCell(0);
+	var interiorCELL = row5.insertCell(1);
+	var exteriorCELL = row5.insertCell(2);
+	var dayCELL = row5.insertCell(3);
+	var nightCELL = row5.insertCell(4);
+	var right5CELL = row5.insertCell(5);
+	left5CELL.className = "left";
+    left5CELL.appendChild(document.createTextNode("\u00a0"));
+	right5CELL.className = "right";
+    right5CELL.appendChild(document.createTextNode("\u00a0"));
 	interiorCELL.setAttribute("width", "160");
 	exteriorCELL.setAttribute("width", "160");
 	dayCELL.setAttribute("width", "160");
@@ -502,23 +511,22 @@ function createSceneTable (table_number) {//done
 	interiorCELL.appendChild(createBoldLabel("Interior "));
 	exteriorCELL.appendChild(createRadioButton("sd"+temp_day_count+"_intext" + temp_table_count, "EXT", false));
 	exteriorCELL.appendChild(createBoldLabel("Exterior "));
-	
 	dayCELL.appendChild(createBoldLabel("Day "));
 	dayCELL.appendChild(createRadioButton("sd"+temp_day_count+"_daynight" + temp_table_count, "Day", true));
 	nightCELL.appendChild(createBoldLabel("Night "));
 	nightCELL.appendChild(createRadioButton("sd"+temp_day_count+"_daynight" + temp_table_count, "Night", false));
-	//row 5
-	var row5 = sceneTABLE.insertRow(sceneTABLE.rows.length);
-	var left5CELL = row5.insertCell(0);
-	var scriptpagesLABEL = row5.insertCell(1);
-	var scriptpagesCELL = row5.insertCell(2);
-	var shoottimesLABEL = row5.insertCell(3);
-	var shoottimesCELL = row5.insertCell(4);
-	var right5CELL = row5.insertCell(5);
-	left5CELL.className = "left";
-    left5CELL.appendChild(document.createTextNode("\u00a0"));
-	right5CELL.className = "right";
-    right5CELL.appendChild(document.createTextNode("\u00a0"));
+	//row 6
+	var row6 = sceneTABLE.insertRow(sceneTABLE.rows.length);
+	var left6CELL = row6.insertCell(0);
+	var scriptpagesLABEL = row6.insertCell(1);
+	var scriptpagesCELL = row6.insertCell(2);
+	var shoottimesLABEL = row6.insertCell(3);
+	var shoottimesCELL = row6.insertCell(4);
+	var right6CELL = row6.insertCell(5);
+	left6CELL.className = "left";
+    left6CELL.appendChild(document.createTextNode("\u00a0"));
+	right6CELL.className = "right";
+    right6CELL.appendChild(document.createTextNode("\u00a0"));
 	scriptpagesLABEL.setAttribute("width", "160");
 	scriptpagesCELL.setAttribute("width", "160");
 	shoottimesLABEL.setAttribute("width", "160");
@@ -530,36 +538,36 @@ function createSceneTable (table_number) {//done
 	scriptpagesCELL.appendChild(createBoldLabel(" /8 pgs"));
 	shoottimesLABEL.appendChild(createBoldLabel("Est. Shoot Times"));
 	shoottimesCELL.appendChild(createAnyTextTextBox("sd"+temp_day_count+"_shoottimes" + temp_table_count, 20, "", "Enter Est. Shoot Times. [String Value]"));
-	//row 6
-	var row6 = sceneTABLE.insertRow(sceneTABLE.rows.length);
-	var left6CELL = row6.insertCell(0);
-	var scripttimingLABEL = row6.insertCell(1);
-	var scripttimingCELL = row6.insertCell(2);
-	var right6CELL = row6.insertCell(3);
-	left6CELL.className = "left";
-    left6CELL.appendChild(document.createTextNode("\u00a0"));
-	right6CELL.className = "right";
-    right6CELL.appendChild(document.createTextNode("\u00a0"));
+	//row 7
+	var row7 = sceneTABLE.insertRow(sceneTABLE.rows.length);
+	var left7CELL = row7.insertCell(0);
+	var scripttimingLABEL = row7.insertCell(1);
+	var scripttimingCELL = row7.insertCell(2);
+	var right7CELL = row7.insertCell(3);
+	left7CELL.className = "left";
+    left7CELL.appendChild(document.createTextNode("\u00a0"));
+	right7CELL.className = "right";
+    right7CELL.appendChild(document.createTextNode("\u00a0"));
 	scripttimingLABEL.setAttribute("width", "160");
 	scripttimingLABEL.setAttribute("width", "160");
 	scripttimingCELL.colSpan = "3";
 	scripttimingLABEL.appendChild(createBoldLabel("Est. Script Timing"));
 	scripttimingCELL.appendChild(createDateTextBox("sd"+temp_day_count+"_scripttime" + temp_table_count, 20, "", "Enter Est. Script Timing. [Time Value HH:MM:SS]"));
-	//row 7
-	var row7 = sceneTABLE.insertRow(sceneTABLE.rows.length);
-	var left7CELL = row7.insertCell(0);
-	var characterLABEL = row7.insertCell(1);
-	var characterCELL = row7.insertCell(2);
-	var right7CELL = row7.insertCell(3);
+	//row 8
+	var row8 = sceneTABLE.insertRow(sceneTABLE.rows.length);
+	var left8CELL = row8.insertCell(0);
+	var characterLABEL = row8.insertCell(1);
+	var characterCELL = row8.insertCell(2);
+	var right8CELL = row8.insertCell(3);
 	var addcharacterROW = document.createElement("TR");
 	var addcharacterCELL = addcharacterROW.insertCell(0);
 	var addcharacterBUTTON = document.createElement("INPUT");
 	var deletecharacterBUTTON = document.createElement("INPUT");
-	left7CELL.className = "left";
-    left7CELL.appendChild(document.createTextNode("\u00a0"));
-	right7CELL.className = "right";
-    right7CELL.appendChild(document.createTextNode("\u00a0"));
-	row7.vAlign = "top";
+	left8CELL.className = "left";
+    left8CELL.appendChild(document.createTextNode("\u00a0"));
+	right8CELL.className = "right";
+    right8CELL.appendChild(document.createTextNode("\u00a0"));
+	row8.vAlign = "top";
 	characterLABEL.setAttribute("width", "160");
 	characterCELL.colSpan = "3";
 	addcharacterBUTTON.setAttribute("type", "button");
@@ -586,21 +594,21 @@ function createSceneTable (table_number) {//done
 	
 	characterCELL.appendChild(characterTABLE);
 	characterCELL.appendChild(addcharacterROW);
-	//row 8
-	var row8 = sceneTABLE.insertRow(sceneTABLE.rows.length);
-	var left8CELL = row8.insertCell(0);
-	var requirementsLABEL = row8.insertCell(1);
-	var requirementsCELL = row8.insertCell(2);
-	var right8CELL = row8.insertCell(3);
+	//row 9
+	var row9 = sceneTABLE.insertRow(sceneTABLE.rows.length);
+	var left9CELL = row9.insertCell(0);
+	var requirementsLABEL = row9.insertCell(1);
+	var requirementsCELL = row9.insertCell(2);
+	var right9CELL = row9.insertCell(3);
 	var addrequirementsBUTTON_row = document.createElement("TR");
 	var addrequirementsBUTTON_cell = addrequirementsBUTTON_row.insertCell(0);
 	var addrequirementsBUTTON = document.createElement("INPUT");
 	var deleterequirementsBUTTON = document.createElement("INPUT");
-	left8CELL.className = "left";
-    left8CELL.appendChild(document.createTextNode("\u00a0"));
-	right8CELL.className = "right";
-    right8CELL.appendChild(document.createTextNode("\u00a0"));
-	row8.setAttribute("valign", "top");
+	left9CELL.className = "left";
+    left9CELL.appendChild(document.createTextNode("\u00a0"));
+	right9CELL.className = "right";
+    right9CELL.appendChild(document.createTextNode("\u00a0"));
+	row9.setAttribute("valign", "top");
 	requirementsLABEL.setAttribute("width", "160");
 	requirementsCELL.colSpan = "3";
 	addrequirementsBUTTON.setAttribute("type", "button");
@@ -645,25 +653,25 @@ function createSceneTable (table_number) {//done
 	requirementsDROPDOWN.appendChild(createDropdownList("Miscellaneous"));
 	requirementsDROPDOWN.appendChild(createDropdownList("Notes"));
 	table_cell1.appendChild(requirementsDROPDOWN);
-	table_cell2.appendChild(createAnyTextTextArea("sd"+temp_day_count+"_requirements"+temp_table_count+"_1", 20, "", "Enter Set Requirements. [String Value]"));
+	table_cell2.appendChild(createTextArea("sd"+temp_day_count+"_requirements"+temp_table_count+"_1", 40,0, "", "Enter Set Requirements. [String Value]"));
 	requirementsLABEL.appendChild(createBoldLabel("Set Requirements"));
 	addrequirementsBUTTON_cell.appendChild(addrequirementsBUTTON);
 	addrequirementsBUTTON_cell.appendChild(deleterequirementsBUTTON);
 	addrequirementsBUTTON_cell.appendChild(createHiddenField("sd"+temp_day_count+"_requirementscount" + temp_table_count, 1));
 	requirementsCELL.appendChild(requirementsTABLE);
 	requirementsCELL.appendChild(addrequirementsBUTTON_row);
-	//row 9
-	var row9 = sceneTABLE.insertRow(sceneTABLE.rows.length);
-	var left9CELL = row9.insertCell(0);
-	var buttonCELL = row9.insertCell(1);
-	var tableCELL = row9.insertCell(2);
-	var right9CELL = row9.insertCell(3);
+	//row 10
+	var row10 = sceneTABLE.insertRow(sceneTABLE.rows.length);
+	var left10CELL = row10.insertCell(0);
+	var buttonCELL = row10.insertCell(1);
+	var tableCELL = row10.insertCell(2);
+	var right10CELL = row10.insertCell(3);
 	var mealBUTTON = document.createElement("INPUT");
 	var mealTABLE = document.createElement("TABLE");
-	left9CELL.className = "left";
-    left9CELL.appendChild(document.createTextNode("\u00a0"));
-	right9CELL.className = "right";
-    right9CELL.appendChild(document.createTextNode("\u00a0"));
+	left10CELL.className = "left";
+    left10CELL.appendChild(document.createTextNode("\u00a0"));
+	right10CELL.className = "right";
+    right10CELL.appendChild(document.createTextNode("\u00a0"));
 	tableCELL.colSpan = "3";
 	mealBUTTON.setAttribute("type", "button");
 	mealBUTTON.setAttribute("value", "Add Meal Break");
