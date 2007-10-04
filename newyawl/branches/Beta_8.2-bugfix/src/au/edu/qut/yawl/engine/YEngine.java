@@ -9,31 +9,62 @@
 
 package au.edu.qut.yawl.engine;
 
-import au.edu.qut.yawl.authentication.UserList;
-import au.edu.qut.yawl.elements.*;
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.elements.state.YInternalCondition;
-import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
-import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
-import au.edu.qut.yawl.exceptions.*;
-import au.edu.qut.yawl.logging.YawlLogServletInterface;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.util.YDocumentCleaner;
-import au.edu.qut.yawl.util.YMessagePrinter;
-import au.edu.qut.yawl.util.YVerificationMessage;
-import au.edu.qut.yawl.util.JDOMConversionTools;
-import au.edu.qut.yawl.admintool.model.HumanResource;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.SessionFactory;
+
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.*;
-import java.util.*;
-import java.net.URI;
+import au.edu.qut.yawl.admintool.model.HumanResource;
+import au.edu.qut.yawl.authentication.UserList;
+import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.elements.YCompositeTask;
+import au.edu.qut.yawl.elements.YCondition;
+import au.edu.qut.yawl.elements.YConditionInterface;
+import au.edu.qut.yawl.elements.YDecomposition;
+import au.edu.qut.yawl.elements.YExternalNetElement;
+import au.edu.qut.yawl.elements.YFlow;
+import au.edu.qut.yawl.elements.YNet;
+import au.edu.qut.yawl.elements.YNetElement;
+import au.edu.qut.yawl.elements.YSpecification;
+import au.edu.qut.yawl.elements.YTask;
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.elements.state.YInternalCondition;
+import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
+import au.edu.qut.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
+import au.edu.qut.yawl.exceptions.YAuthenticationException;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.logging.YawlLogServletInterface;
+import au.edu.qut.yawl.unmarshal.YMarshal;
+import au.edu.qut.yawl.util.JDOMConversionTools;
+import au.edu.qut.yawl.util.YDocumentCleaner;
+import au.edu.qut.yawl.util.YMessagePrinter;
+import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  *
@@ -204,58 +235,49 @@ public class YEngine implements InterfaceADesign,
             }
             YawlLogServletInterface.getInstance().setListofcases(map);
 
-            int checkedrunners = 0;
-
             Vector storedrunners = (Vector) runners.clone();
 
-            while (checkedrunners < runners.size()) {
+            // MJF: I eliminated checkedrunners because it seems to serve no
+            //      purpose and rearranged so that runner is always removed
+            //      when the specification is unloaded. Prevents fatal error
+            //      due to NPE.
+            for (int i = 0; i < runners.size(); i++) {
+                YNetRunner runner = (YNetRunner) runners.get(i);
+                YSpecification specification = getSpecification(runner.getYNetID());
+                if (specification == null) {
+                    /* This occurs when a specification has been unloaded, but the case is still there
+                       This case is not persisted, since we must have the specification stored as well.
+                     */
+                    // todo AJH Sort this
+                    pmgr.deleteObject(runner);
+                    storedrunners.remove(runner);
+                    continue;
+                }
+                if (runner.getContainingTaskID() == null) {
+                    //This is a root net runner
+                    YNet net = (YNet) specification.getRootNet().clone();
+                    runner.setNet(net);
 
-                for (int i = 0; i < runners.size(); i++) {
-                    YNetRunner runner = (YNetRunner) runners.get(i);
+                    runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
+                } else {
+                    //This is not a root net, but a decomposition
 
-                    if (runner.getContainingTaskID() == null) {
-
-                        //This is a root net runner
-                        YSpecification specification = getSpecification(runner.getYNetID());
-                        if (specification != null) {
-                            YNet net = (YNet) specification.getRootNet().clone();
-                            runner.setNet(net);
-
-                            runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
-                        } else {
-                            /* This occurs when a specification has been unloaded, but the case is still there
-                               This case is not persisted, since we must have the specification stored as well.
-                             */
-                            // todo AJH Sort this
-                            pmgr.deleteObject(runner);
-                            storedrunners.remove(runner);
-
-                        }
-                        checkedrunners++;
-
-                    } else {
-                        //This is not a root net, but a decomposition
-
-                        // Find the parent runner
-                        String myid = runner.get_standin_caseIDForNet().toString();
-                        String parentid = myid.substring(0, myid.lastIndexOf("."));
+                    // Find the parent runner
+                    String myid = runner.get_standin_caseIDForNet().toString();
+                    String parentid = myid.substring(0, myid.lastIndexOf("."));
 
 
-                        YNetRunner parentrunner = (YNetRunner) runnermap.get(parentid);
+                    YNetRunner parentrunner = (YNetRunner) runnermap.get(parentid);
 
-                        if (parentrunner != null) {
-                            YNet parentnet = parentrunner.getNet();
+                    if (parentrunner != null) {
+                        YNet parentnet = parentrunner.getNet();
 
-                            YCompositeTask task = (YCompositeTask) parentnet.getNetElement(runner.getContainingTaskID());
-                            runner.setTask(task);
+                        YCompositeTask task = (YCompositeTask) parentnet.getNetElement(runner.getContainingTaskID());
+                        runner.setTask(task);
 
-                            YNet net = (YNet) task.getDecompositionPrototype().clone();
-                            runner.setNet(net);
-                            runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
-
-                            checkedrunners++;
-                        }
-
+                        YNet net = (YNet) task.getDecompositionPrototype().clone();
+                        runner.setNet(net);
+                        runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
                     }
                 }
             }
@@ -267,7 +289,6 @@ public class YEngine implements InterfaceADesign,
                 YNetRunner runner = (YNetRunner) runners.get(i);
 
                 YNet net = runner.getNet();
-
 
                 P_YIdentifier pid = runner.get_standin_caseIDForNet();
 
@@ -314,8 +335,14 @@ public class YEngine implements InterfaceADesign,
 
             logger.info("Restoring work items - Starts");
             query = pmgr.createQuery("from au.edu.qut.yawl.engine.YWorkItem");
+            List<YWorkItem> toBeDeleted = new ArrayList<YWorkItem>();
             for (Iterator it = query.iterate(); it.hasNext();) {
-                YWorkItem witem = (YWorkItem) it.next();
+            	YWorkItem witem = (YWorkItem) it.next();
+            	// MJF: if parent is to be deleted, must delete for contraints
+            	if (toBeDeleted.contains(witem.get_parent())) {
+            		toBeDeleted.add(witem);
+            		continue;
+            	}
 
                 if (witem.getStatus().equals(YWorkItem.statusEnabled)) {
                     witem.setStatus(YWorkItem.statusEnabled);
@@ -361,20 +388,38 @@ public class YEngine implements InterfaceADesign,
                 //String caseid =
                 st2.nextToken();
                 String taskid = st.nextToken();
+                String uniqueId = null;
                 // AJH: Strip off unique ID to obtain our taskID
                 {
                     java.util.StringTokenizer st3 = new java.util.StringTokenizer(taskid, "!");
                     taskid = st3.nextToken();
+                    uniqueId = st3.nextToken();
                 }
                 YIdentifier workitemid = (YIdentifier) idtoid.get(caseandid);
+                YWorkItemID witemID;
                 if (workitemid != null) {
-                    witem.setWorkItemID(new YWorkItemID(workitemid, taskid));
+                    // MJF: use the unique id if we have one - stays in synch
+                    if (uniqueId != null) {
+                        witemID = new YWorkItemID(workitemid, taskid, uniqueId);
+                    } else {
+                        witemID = new YWorkItemID(workitemid, taskid);
+                    }
+                    witem.setWorkItemID(witemID);
                     witem.addToRepository();
+
+                    // MJF: for any work items with data, we need to restore to
+                    // netrunner instance
+                    YTask.restoreWorkItemData(witem);
                 } else {
-                    pmgr.deleteObject(witem);
+                    toBeDeleted.add(witem);
                 }
-
-
+            }
+            if (toBeDeleted.size() > 0) {
+            	for (Iterator<YWorkItem> deletes = toBeDeleted.iterator(); deletes.hasNext();) {
+            		YWorkItem deleted = deletes.next();
+            		pmgr.getSession().delete(deleted);
+            	}
+            	pmgr.getSession().flush();
             }
             logger.info("Restoring work items - Ends");
 
@@ -713,7 +758,7 @@ public class YEngine implements InterfaceADesign,
                 Document dirtyDoc;
                 dirtyDoc = builder.build(new StringReader(caseParams));
                 data = YDocumentCleaner.cleanDocument(dirtyDoc).getRootElement();
-                
+
             } catch (Exception e) {
                 YStateException f = new YStateException(e.getMessage());
                 f.setStackTrace(e.getStackTrace());
@@ -724,7 +769,7 @@ public class YEngine implements InterfaceADesign,
         YSpecification specification = (YSpecification) _specifications.get(specID);
         if (specification != null) {
             YNetRunner runner = new YNetRunner(pmgr, specification.getRootNet(), data);
-            
+
             // register exception service with the net runner (MJA 4/4/06)
             if (_exceptionObserver != null) {
                 announceCheckCaseConstraints(_exceptionObserver, specID,

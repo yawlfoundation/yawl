@@ -171,6 +171,12 @@ public class YNetRunner // extends Thread
     private YNetRunner() {
         logger = Logger.getLogger(this.getClass());
         logger.debug("YNetRunner: <init>");
+        // MJF: also needed for persistence
+        try {
+        	_engine = YEngine.getInstance(YEngine.isJournalising());
+        } catch (YPersistenceException e) {
+        	logger.error(getClass().getCanonicalName(), e);
+        }
     }
 
 
@@ -668,7 +674,7 @@ public class YNetRunner // extends Thread
                         if (pmgr != null)
                         {
                             pmgr.deleteObject(wItem);
-                        }                        
+                        }
 //                        YPersistance.getInstance().updateData(this);
                         if (pmgr != null) {
                             pmgr.updateObject(this);
@@ -758,6 +764,8 @@ public class YNetRunner // extends Thread
                     YNetRunner parentRunner = _workItemRepository.getNetRunner(_caseIDForNet.getParent());
                     if (parentRunner != null) {
                         synchronized (parentRunner) {
+                            // MJF: Added below to avoid NPE
+                            parentRunner.setEngine(_engine);
                             if (_containingCompositeTask.t_isBusy()) {
 
                                 if (_net.usesSimpleRootData()) {
