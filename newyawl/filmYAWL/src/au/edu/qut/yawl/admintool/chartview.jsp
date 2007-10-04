@@ -158,7 +158,7 @@
         <p/>
         <% if (request.getParameter("success") != null) {
         %>
-        <img src="http://192.94.227.138:8080/admintool/createChart" alt="Graph" border=0 />
+        <img src="http://131.181.70.9:8080/admintool/createChart" alt="Graph" border=0 />
         <% 
             }
         %>
@@ -181,7 +181,7 @@
         %>
         <p/>
         <hr/>
-        <form method="post" action="http://192.94.227.138:8080/admintool/createChart" name="buildquery">
+        <form method="post" action="http://131.181.70.9:8080/admintool/createChart" name="buildquery">
             <table width="90%" border="0" bgcolor="#eeeeee">
                 <tr>
                     <td>

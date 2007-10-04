@@ -46,7 +46,7 @@ public class DatabaseGatewayImpl {
     public static final int DELETE_OPERATION = 2;
     public static final int SAVE_OPERATION = 3;
 
-    private InterfaceA_EnvironmentBasedClient iaClient = new InterfaceA_EnvironmentBasedClient("http://192.94.227.138:8080/yawl/ia");
+    private InterfaceA_EnvironmentBasedClient iaClient = new InterfaceA_EnvironmentBasedClient("http://131.181.70.9:8080/yawl/ia");
 
     public static final int TIMEFORMAT_STRING = 1;
     public static final int TIMEFORMAT_LONG = 2;

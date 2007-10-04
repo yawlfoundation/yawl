@@ -20,7 +20,7 @@
 
     <context-param>
         <param-name>InterfaceB_BackEnd</param-name>
-        <param-value>http://192.94.227.138:8080/yawl/ib</param-value>
+        <param-value>http://131.181.70.9:8080/yawl/ib</param-value>
         <description>
             The URL location of the REST-ful interface B.
         </description>
@@ -36,7 +36,7 @@
 
     <context-param>
         <param-name>InterfaceA_BackEnd</param-name>
-        <param-value>http://192.94.227.138:8080/yawl/ia</param-value>
+        <param-value>http://131.181.70.9:8080/yawl/ia</param-value>
         <description>
             The URL location of the REST-ful interface A.
         </description>

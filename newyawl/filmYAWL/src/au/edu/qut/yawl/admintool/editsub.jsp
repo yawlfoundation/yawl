@@ -143,7 +143,7 @@ Select the substitution you want to edit or delete and click submit <i>(ResPosID
 %>
 
 <table border="0">
-<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="selectsub">
+<form method="post" action="http://131.181.70.9:8080/admintool/editServlet" name="selectsub">
 	<input type="hidden" name="which_form" value="selectsubstitution"/>
 	<tr>
 		<td>
@@ -181,7 +181,7 @@ Select the substitution you want to edit or delete and click submit <i>(ResPosID
         String substi = (String) request.getAttribute("substi");
 %>
 <table bgcolor="lightgrey">
-<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="editPosition">
+<form method="post" action="http://131.181.70.9:8080/admintool/editServlet" name="editPosition">
 	<input type="hidden" name="which_form" value="editposition"/>
 	<tr>
 		<td>Resource or Position:</td>

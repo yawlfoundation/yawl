@@ -20,7 +20,7 @@
 
     <context-param>
         <param-name>InterfaceB_BackEnd</param-name>
-        <param-value>http://192.94.227.138:8080/yawl/ib</param-value>
+        <param-value>http://131.181.70.9:8080/yawl/ib</param-value>
         <description>
             The URL of the engine's interface B.
         </description>
@@ -104,7 +104,7 @@
          parameters.  With Tomcat, you can also send requests
          to servlets not listed here with a request like this:
 
-           http://192.94.227.138:8080/{context-path}/servlet/{classname}
+           http://131.181.70.9:8080/{context-path}/servlet/{classname}
 
          but this usage is not guaranteed to be portable.  It also
          makes relative references to images and other resources

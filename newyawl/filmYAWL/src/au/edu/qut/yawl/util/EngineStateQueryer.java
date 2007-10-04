@@ -25,7 +25,7 @@ public class EngineStateQueryer {
     public EngineStateQueryer() {
 
         WorklistController wc = new WorklistController();
-        wc.setUpInterfaceBClient("http://192.94.227.138:8080/yawl/ib");
+        wc.setUpInterfaceBClient("http://131.181.70.9:8080/yawl/ib");
         String sessionHandle = null;
         try {
             sessionHandle = wc.connect("admin", "YAWL");

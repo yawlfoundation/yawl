@@ -550,23 +550,23 @@ public class YEngine implements InterfaceADesign,
              */
             YAWLServiceReference ys;
 
-            ys = new YAWLServiceReference("http://192.94.227.138:8080/yawlWSInvoker/", null);
+            ys = new YAWLServiceReference("http://131.181.70.9:8080/yawlWSInvoker/", null);
             ys.setDocumentation("This YAWL Service enables suitably declared" +
                     " workflow tasks to invoke RPC style service on the Web.");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
 
-            ys = new YAWLServiceReference("http://192.94.227.138:8080/workletService/ib", null);
+            ys = new YAWLServiceReference("http://131.181.70.9:8080/workletService/ib", null);
             ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
 
-            ys = new YAWLServiceReference("http://192.94.227.138:8080/yawlSMSInvoker/ib", null);
+            ys = new YAWLServiceReference("http://131.181.70.9:8080/yawlSMSInvoker/ib", null);
             ys.setDocumentation("SMS Message Module. Works if you have an account.");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
 
-            ys = new YAWLServiceReference("http://192.94.227.138:8080/timeService/ib", null);
+            ys = new YAWLServiceReference("http://131.181.70.9:8080/timeService/ib", null);
             ys.setDocumentation("Time service, allows tasks to be a timeout task.");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);

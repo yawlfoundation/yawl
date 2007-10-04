@@ -74,7 +74,7 @@
 <h2>Capabilities entered into the database:</h2>
 Select a capability and click the delete button to delete it.
 <table border="0" bgcolor="lightgrey">
-<form method="post" action="http://192.94.227.138:8080/admintool/editServlet" name="deletecap">
+<form method="post" action="http://131.181.70.9:8080/admintool/editServlet" name="deletecap">
 	<input type="hidden" name="which_form" value="deletecap"/>
 <tr>
 	<td>

@@ -49,39 +49,39 @@
 						<tr>
 							<td bgcolor="#336699" height="20"/>
 							<td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="http://192.94.227.138:8080/admintool/overview.jsp" target="_top" class="level3menu">Overview</a>
+								<a href="http://131.181.70.9:8080/admintool/overview.jsp" target="_top" class="level3menu">Overview</a>
 							</td>
 							<td bgcolor="#336699"/>
                             <td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="http://192.94.227.138:8080/admintool/organizational.jsp" target="_top" class="level3menu">Organizational Data</a>
+								<a href="http://131.181.70.9:8080/admintool/organizational.jsp" target="_top" class="level3menu">Organizational Data</a>
 							</td>
                             <td bgcolor="#336699"/>
 							<td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="http://192.94.227.138:8080/admintool/specification.jsp" target="_top" class="level3menu">Specification Management</a>
+								<a href="http://131.181.70.9:8080/admintool/specification.jsp" target="_top" class="level3menu">Specification Management</a>
 							</td>
 							<td bgcolor="#336699"/>
 							<td align="center" valign="middle" bgcolor="#ffffff">
-								<!--<a href="http://192.94.227.138:8080/admintool/change.jsp" target="_top" class="level3menu">--><font size="1" color="gray">Change Management</font><!--</a>-->
+								<!--<a href="http://131.181.70.9:8080/admintool/change.jsp" target="_top" class="level3menu">--><font size="1" color="gray">Change Management</font><!--</a>-->
 							</td>
 							<td bgcolor="#336699"/>
 							<td align="center" valign="middle" bgcolor="#ffffff">
-								<!--<a href="http://192.94.227.138:8080/admintool/configuration.jsp" target="_top" class="level3menu">--><font size="1" color="gray">Configuration</font><!--</a>-->
+								<!--<a href="http://131.181.70.9:8080/admintool/configuration.jsp" target="_top" class="level3menu">--><font size="1" color="gray">Configuration</font><!--</a>-->
 							</td>
 							<td bgcolor="#336699"/>
 							<td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="http://192.94.227.138:8080/admintool/audit.jsp" target=_top class="level3menu">Audit Trail</a>
+								<a href="http://131.181.70.9:8080/admintool/audit.jsp" target=_top class="level3menu">Audit Trail</a>
 							</td>
 							<td bgcolor="#336699"/>
 							<td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="http://192.94.227.138:8080/admintool/reports.jsp" target="_top" class="level3menu">Reports</a>
+								<a href="http://131.181.70.9:8080/admintool/reports.jsp" target="_top" class="level3menu">Reports</a>
 							</td>
 							<td bgcolor="#336699"/>
 							<td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="http://192.94.227.138:8080/admintool/3rdparty.jsp" target="_top" class="level3menu">Third Party Software</a>
+								<a href="http://131.181.70.9:8080/admintool/3rdparty.jsp" target="_top" class="level3menu">Third Party Software</a>
 							</td>
 							<td bgcolor="#336699"/>
 							<td align="center" valign="middle" bgcolor="#ffffff">
-								<a href="http://192.94.227.138:8080/admintool/logout.jsp" target="_top" class="level3menu">Logout</a>
+								<a href="http://131.181.70.9:8080/admintool/logout.jsp" target="_top" class="level3menu">Logout</a>
 							</td>
 							<td bgcolor="#336699"/>
 						</tr>

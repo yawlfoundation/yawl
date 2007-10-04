@@ -592,7 +592,7 @@ public class WorkItemProcessor {
 		map.put("decompositionID",decompositionID);
 		map.put("workitem",xmlBuff.toString());
 		//map.put("username",_worklistController.getUsername());
-		Interface_Client.executePost("http://192.94.227.138:8080/worklist/handler",map); // TODO: remove 192.94.227.138 reference
+		Interface_Client.executePost("http://131.181.70.9:8080/worklist/handler",map); // TODO: remove 131.181.70.9 reference
 		logger.debug("Calling the pdf handler");
 		
 		return item.getSpecificationID()+item.getTaskID()+item.getUniqueID()+".pdf";

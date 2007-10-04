@@ -182,12 +182,12 @@ public class YAWLServlet extends HttpServlet{
 		
 		builder.setInstanceHref("http://www.w3.org/2001/XMLSchema-instance");
 		
-		// EG: YAWL = "http://192.94.227.138:8080/worklist/yawlFormServlet";
+		// EG: YAWL = "http://131.181.70.9:8080/worklist/yawlFormServlet";
 		builder.setAction(RP.getInitParameter("YAWL")+"?userID="+userID+
 				"&sessionHandle="+sessionHandle+"&specID="+specID+
 				"&workItemID="+workItemID+"&submit=submit");
 		
-		// EG: FormBase = "http://192.94.227.138:8080/YAWLXForms/"
+		// EG: FormBase = "http://131.181.70.9:8080/YAWLXForms/"
 		builder.setBase(RP.getInitParameter("FormBase"));
 		builder.setOutputFile(f); // goes in chiba forms directory
 		builder.setRootTagName(root);
@@ -325,7 +325,7 @@ public class YAWLServlet extends HttpServlet{
 			
 			if (node.getNodeName().compareTo("xforms:submission") == 0 && submissionElementsDone == false){
 				// create cancel button submission node
-				//eg: <xforms:submission id="submission_1" xforms:action="http://192.94.227.138:8080/worklist/yawlFormServlet?userID=admin&amp;sessionHandle=3456218449289224029&amp;specID=null&amp;workItemID=100000.1:Call_for_papers_5&amp;JSESSIONID=D6B01B27183706B536BE90204788DC71&amp;submit=cancel" xforms:method="post"/>
+				//eg: <xforms:submission id="submission_1" xforms:action="http://131.181.70.9:8080/worklist/yawlFormServlet?userID=admin&amp;sessionHandle=3456218449289224029&amp;specID=null&amp;workItemID=100000.1:Call_for_papers_5&amp;JSESSIONID=D6B01B27183706B536BE90204788DC71&amp;submit=cancel" xforms:method="post"/>
 				
 				// if launching a case, don't add suspend or save elements to a form
 				if (launchCase == false){

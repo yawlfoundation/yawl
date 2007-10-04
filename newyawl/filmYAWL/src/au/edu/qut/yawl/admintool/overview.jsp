@@ -54,7 +54,7 @@
 <p/>
 <% if (request.getParameter("success") != null) {
 %>
-	<img src="http://192.94.227.138:8080/admintool/createChart" alt="Graph" width=500 height=300 border=0 />
+	<img src="http://131.181.70.9:8080/admintool/createChart" alt="Graph" width=500 height=300 border=0 />
 <% 
 	}
 %>
@@ -77,7 +77,7 @@ Please select which chart you would like to view below.
 %>
 <p/>
 <hr/>
-<form method="post" action="http://192.94.227.138:8080/admintool/createChart" name="selectquery">
+<form method="post" action="http://131.181.70.9:8080/admintool/createChart" name="selectquery">
 <table width="90%" border="0" bgcolor="#ffffff">
 	<tr>
 		<td>Select Query</td>

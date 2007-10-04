@@ -28,7 +28,7 @@ import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
 */
 public class EditServlet extends HttpServlet{
 
-	private InterfaceA_EnvironmentBasedClient iaClient = new InterfaceA_EnvironmentBasedClient("http://192.94.227.138:8080/yawl/ia");
+	private InterfaceA_EnvironmentBasedClient iaClient = new InterfaceA_EnvironmentBasedClient("http://131.181.70.9:8080/yawl/ia");
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res){
 

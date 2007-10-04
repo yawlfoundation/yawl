@@ -35,7 +35,7 @@ import org.jdom.Element;
 public class PDFHandler extends HttpServlet
 {
     
-    //private InterfaceD_Client idclient = new InterfaceD_Client("http://192.94.227.138:8080/PDFforms/interfaceD");
+    //private InterfaceD_Client idclient = new InterfaceD_Client("http://131.181.70.9:8080/PDFforms/interfaceD");
     
     private HttpSession sess;
 	private HttpServletRequest request;
@@ -219,7 +219,7 @@ public class PDFHandler extends HttpServlet
 		    RequestDispatcher rd = request.getRequestDispatcher("/workItemProcessor");
 		    rd.forward(request, response);		    
 
-		    //InterfaceD_Client.executePost("http://192.94.227.138:8080/PDFforms/interfaceD" + "", queryMap);
+		    //InterfaceD_Client.executePost("http://131.181.70.9:8080/PDFforms/interfaceD" + "", queryMap);
 		    
 		//idclient.sendWorkItem(workitem);
 

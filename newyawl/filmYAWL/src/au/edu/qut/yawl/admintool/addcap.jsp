@@ -43,7 +43,7 @@
 Enter the description of the capability you would like to add and click submit.
 <p/>
 <table bgcolor="lightGrey">
-<form method="post" action="http://192.94.227.138:8080/admintool/addServlet" name="addCapbility">
+<form method="post" action="http://131.181.70.9:8080/admintool/addServlet" name="addCapbility">
 	<input type="hidden" name="which_form" value="addCapability"/>
 	<tr>
 		<td>Capability:</td>

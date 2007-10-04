@@ -80,7 +80,7 @@ hibernate.query.substitutions yes 'Y', no 'N'
 #hibernate.connection.driver_class oracle.jdbc.driver.OracleDriver
 #hibernate.connection.username ora
 #hibernate.connection.password ora
-#hibernate.connection.url jdbc:oracle:thin:@192.94.227.138:1521:test
+#hibernate.connection.url jdbc:oracle:thin:@131.181.70.9:1521:test
 
 
 ## Sybase
@@ -106,7 +106,7 @@ hibernate.query.substitutions yes 'Y', no 'N'
 
 #hibernate.dialect net.sf.hibernate.dialect.SAPDBDialect
 #hibernate.connection.driver_class com.sap.dbtech.jdbc.DriverSapDB
-#hibernate.connection.url jdbc:sapdb://192.94.227.138/TST
+#hibernate.connection.url jdbc:sapdb://131.181.70.9/TST
 #hibernate.connection.username TEST
 #hibernate.connection.password TEST
 #hibernate.query.substitutions yes 'Y', no 'N'
@@ -150,12 +150,12 @@ hibernate.query.substitutions yes 'Y', no 'N'
 ## InterClient
 
 #hibernate.connection.driver_class interbase.interclient.Driver
-#hibernate.connection.url jdbc:interbase://192.94.227.138:3060/C:/firebird/test.gdb
+#hibernate.connection.url jdbc:interbase://131.181.70.9:3060/C:/firebird/test.gdb
 
 ## Pure Java
 
 #hibernate.connection.driver_class org.firebirdsql.jdbc.FBDriver
-#hibernate.connection.url jdbc:firebirdsql:192.94.227.138/3050:/firebird/test.gdb
+#hibernate.connection.url jdbc:firebirdsql:131.181.70.9/3050:/firebird/test.gdb
 
 
 ## Pointbase
@@ -398,5 +398,5 @@ hibernate.cache.provider_class net.sf.hibernate.cache.EhCacheProvider
 
 #WebSphere
 #hibernate.jndi.class com.ibm.websphere.naming.WsnInitialContextFactory
-#hibernate.jndi.url iiop://192.94.227.138:900/
+#hibernate.jndi.url iiop://131.181.70.9:900/
 
