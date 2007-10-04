@@ -11,6 +11,7 @@ package au.edu.qut.yawl.engine;
 
 import au.edu.qut.yawl.elements.state.YIdentifier;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 
 /**
@@ -34,6 +35,23 @@ public class YWorkItemID {
         _taskID = taskID;
     }
 
+    /**
+     * Constructor accepting uniqueID without using UniqueIDGenerator.
+     * Increments the counter up to the value provided if greater.
+     * @access package
+     */
+    YWorkItemID(YIdentifier caseID, String taskID, String uniqueID) {
+        if (uniqueID == null)
+            throw new IllegalArgumentException("uniqueID cannot be null");
+
+        while (compare(_uniqifier, uniqueID.toCharArray()) > 0) {
+            UniqueIDGenerator.nextInOrder(_uniqifier);
+        }
+        _uniqueID = uniqueID.toCharArray();
+        _caseID = caseID;
+        _taskID = taskID;
+    }
+
     public String toString() {
         return _caseID.toString() + ":" + _taskID;
     }
@@ -48,6 +66,13 @@ public class YWorkItemID {
 
     public String getUniqueID() {
         return new String(_uniqueID);
+    }
+
+    private static int compare(char[] first, char[] second) {
+        BigInteger bigInt1 = new BigInteger(String.valueOf(first).getBytes());
+        BigInteger bigInt2 = new BigInteger(String.valueOf(second).getBytes());
+
+        return bigInt2.compareTo(bigInt1);
     }
 }
 

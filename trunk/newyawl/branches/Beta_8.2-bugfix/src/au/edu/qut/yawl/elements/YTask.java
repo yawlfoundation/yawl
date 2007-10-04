@@ -9,19 +9,25 @@
 
 package au.edu.qut.yawl.elements;
 
-import au.edu.qut.yawl.elements.data.YParameter;
-import au.edu.qut.yawl.elements.data.YVariable;
-import au.edu.qut.yawl.elements.e2wfoj.E2WFOJNet;
-import au.edu.qut.yawl.elements.state.YIdentifier;
-import au.edu.qut.yawl.elements.state.YInternalCondition;
-import au.edu.qut.yawl.engine.YEngine;
-import au.edu.qut.yawl.engine.YPersistenceManager;
-import au.edu.qut.yawl.engine.YWorkItemRepository;
-import au.edu.qut.yawl.exceptions.*;
-import au.edu.qut.yawl.schema.Instruction;
-import au.edu.qut.yawl.schema.XMLToolsForYAWL;
-import au.edu.qut.yawl.util.YSaxonOutPutter;
-import au.edu.qut.yawl.util.YVerificationMessage;
+import java.lang.reflect.Method;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.Vector;
+
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamSource;
+
 import net.sf.saxon.Configuration;
 import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.om.NodeInfo;
@@ -30,6 +36,8 @@ import net.sf.saxon.query.QueryProcessor;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.xpath.XPathException;
+
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -37,12 +45,28 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
-import org.apache.log4j.Logger;
 
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamSource;
-import java.io.StringReader;
-import java.util.*;
+import au.edu.qut.yawl.elements.data.YParameter;
+import au.edu.qut.yawl.elements.data.YVariable;
+import au.edu.qut.yawl.elements.e2wfoj.E2WFOJNet;
+import au.edu.qut.yawl.elements.state.YIdentifier;
+import au.edu.qut.yawl.elements.state.YInternalCondition;
+import au.edu.qut.yawl.engine.YEngine;
+import au.edu.qut.yawl.engine.YPersistenceManager;
+import au.edu.qut.yawl.engine.YWorkItem;
+import au.edu.qut.yawl.engine.YWorkItemRepository;
+import au.edu.qut.yawl.exceptions.YAWLException;
+import au.edu.qut.yawl.exceptions.YDataQueryException;
+import au.edu.qut.yawl.exceptions.YDataStateException;
+import au.edu.qut.yawl.exceptions.YDataValidationException;
+import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.exceptions.YQueryException;
+import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
+import au.edu.qut.yawl.exceptions.YStateException;
+import au.edu.qut.yawl.schema.Instruction;
+import au.edu.qut.yawl.schema.XMLToolsForYAWL;
+import au.edu.qut.yawl.util.YSaxonOutPutter;
+import au.edu.qut.yawl.util.YVerificationMessage;
 
 /**
  * A superclass of any type of task in the YAWL paper.
@@ -872,6 +896,26 @@ public abstract class YTask extends YExternalNetElement {
         return childCaseID;
     }
 
+    public static void restoreWorkItemData(YWorkItem item) throws YPersistenceException {
+        if (item.getDataString() != null) {
+            YNet net;
+            try {
+                    net = YWorkItemRepository.getInstance().getNetRunner(item.getCaseID().getParent()).getNet();
+            } catch (Exception e) {
+                    return;
+            }
+            YAtomicTask task = (YAtomicTask) net.getNetElement(item.getTaskID());
+            if (task != null) {
+            	try {
+            		Method m = YTask.class.getDeclaredMethod("prepareDataForInstanceStarting", new Class[]{YIdentifier.class});
+            		m.invoke(task, new Object[]{item.getCaseID()});
+                	net.addNetElement(task);
+            	} catch (Exception e) {
+                	throw new YPersistenceException(e);
+            	}
+            }
+        }
+    }
 
     private void prepareDataForInstanceStarting(YIdentifier childInstanceID) throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException {
         if (null == getDecompositionPrototype()) {
