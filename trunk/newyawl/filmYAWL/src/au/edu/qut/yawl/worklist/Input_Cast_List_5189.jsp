@@ -98,20 +98,20 @@
 	<form name="form1" method="post">
 		  <table width="700" border="0" align="center" cellpadding="0" cellspacing="0">
             <tr>
-              <td><table width='700' border='0' cellpadding='0' cellspacing='0'>
+              <td><table width="700" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td width="15" align="right" class="header-left">&nbsp;</td>
-                  <td height="20" colspan='2' class="header-middle">General</td>
+                  <td height="20" colspan="2" class="header-middle">General</td>
                   <td width="15" class="header-right">&nbsp;</td>
                 </tr>
                 <tr>
                   <td width="15" class="left">&nbsp;</td>
                   <td><strong>Production</strong></td>
-                  <td><input name='production' type='text' id='production' value="<%=icl.getProduction() %>" readonly></td>
+                  <td><input name="production" type="text" id="production" value="<%=icl.getProduction() %>" readonly></td>
                   <td width="15" class="right">&nbsp;</td>
                 </tr>
                 <tr>
-                  <td colspan='4' class='bottom'>&nbsp;</td>
+                  <td colspan="4" class="bottom">&nbsp;</td>
                 </tr>
               </table></td>
             </tr>
@@ -139,20 +139,20 @@
 							a++;%>
 						   <tr valign="top">
 							<td width="15" height="30" align="center" class="left">&nbsp;</td>
-							<td height="30" align="center"><input name='character_<%=a%>' type="text" id='character_<%=a%>' size="20" value="<%= scit.getCharacter() %>" pattern="any_text" title="Enter Character Name. [String Value]"></td>
-							<td height="30" align="center"><input name='artist_<%=a%>' type='text' id='artist_<%=a%>' size="20" value="<%= scit.getArtist() %>" pattern="any_text" title="Enter Artist Name. [String Value]"></td>
-							<td height="30" align="center"><input name='agent_<%=a%>' type='text' id='agent_<%=a%>' size="20" value="<%= scit.getAgent() %>" pattern="any_text" title="Enter Agent Name. [String Value]"></td>
-							<td height="30" align="center"><input name='contactno_<%=a%>' type='text' id='contactno_<%=a%>' size="10" value="<%= scit.getAgentContactNo() %>" pattern="any_text" title="Enter Agent Contact Number. [String Value]"></td>
+							<td height="30" align="center"><input name="character_<%=a%>" type="text" id="character_<%=a%>" size="20" value="<%= scit.getCharacter() %>" pattern="any_text" title="Enter Character Name. [String Value]"></td>
+							<td height="30" align="center"><input name="artist_<%=a%>" type="text" id="artist_<%=a%>" size="20" value="<%= scit.getArtist() %>" pattern="any_text" title="Enter Artist Name. [String Value]"></td>
+							<td height="30" align="center"><input name="agent_<%=a%>" type="text" id="agent_<%=a%>" size="30" value="<%= scit.getAgent() %>" pattern="any_text" title="Enter Agent Name. [String Value]"></td>
+							<td height="30" align="center"><input name="contactno_<%=a%>" type="text" id="contactno_<%=a%>" size="10" value="<%= scit.getAgentContactNo() %>" pattern="any_text" title="Enter Agent Contact Number. [String Value]"></td>
 							<td width="15" height="30" class="right">&nbsp;</td>
 						  </tr>
 					  <% }
 					  } else {%>
 					   <tr valign="top">
 							<td width="15" height="30" align="center" class="left">&nbsp;</td>
-							<td height="30" align="center"><input name='character_1' type="text" id='character_1' size="20" value="" pattern="any_text" title="Enter Character Name. [String Value]"></td>
-							<td height="30" align="center"><input name='artist_1' type='text' id='artist_1' size="20" value="" pattern="any_text" title="Enter Artist Name. [String Value]"></td>
-							<td height="30" align="center"><input name='agent_1' type='text' id='agent_1' size="20" value="" pattern="any_text" title="Enter Agent Name. [String Value]"></td>
-							<td height="30" align="center"><input name='contactno_1' type='text' id='contactno_1' size="10" value="" pattern="any_text" title="Enter Agent Contact Number. [String Value]"></td>
+							<td height="30" align="center"><input name="character_1" type="text" id="character_1" size="20" value="" pattern="any_text" title="Enter Character Name. [String Value]"></td>
+							<td height="30" align="center"><input name="artist_1" type="text" id="artist_1" size="20" value="" pattern="any_text" title="Enter Artist Name. [String Value]"></td>
+							<td height="30" align="center"><input name="agent_1" type="text" id="agent_1" size="30" value="" pattern="any_text" title="Enter Agent Name. [String Value]"></td>
+							<td height="30" align="center"><input name="contactno_1" type="text" id="contactno_1" size="10" value="" pattern="any_text" title="Enter Agent Contact Number. [String Value]"></td>
 							<td width="15" height="30" class="right">&nbsp;</td>
 						  </tr>
 					 <% } } %>
@@ -166,7 +166,7 @@
 			  </td>
             </tr>
         </table>
-          <table width='700' border='0' cellpadding='10' cellspacing='0'>
+          <table width="700" border="0" cellpadding="10" cellspacing="0">
               <tr>
                   <td width="1%"/>
                   <td>
