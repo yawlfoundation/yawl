@@ -1,5 +1,6 @@
 var telNumberValidation = "^[\\d\\s\\+\\-\\/\\(\\)]+$";
-var emailValidation = "^((\\w)+(\\.)*)+\\w+@(\\w)+(\\w\\.)*(\\.[A-Za-z]+)+$";
+//var emailValidation = "^((\\w)+(\\.)*)+\\w+@(\\w)+(\\w\\.)*(\\.[A-Za-z]+)+$";
+var emailValidation = "^([\w\-\.]+)@((\[([0-9]{1,3}\.){3}[0-9]{1,3}\])|(([\w\-]+\.)+)([a-zA-Z]{2,4}))$";
 var textValidation = "^[A-Za-z\\s]+$";
 var textAreaValidation = "^[A-Za-z\\s,().0-9!\\[\\]\\?\\'\\;\\\\/@\\$%^\\*\\-\\_\\:]+$";
 var timeValidation = "^((?:[01]\\d)|(?:2[0-3])):([0-5]\\d):([0-5]\\d)$";
