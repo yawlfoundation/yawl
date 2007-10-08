@@ -1,4 +1,4 @@
-Version 1.5.1 (??/??/2007)
+Version 1.5.1 (08/10/2007)
   * LWB: Fixed a bug where multiple-instance tasks were not being initialsed properly and consequently
     causing a number of dialogs, and behaviours around multiple-instance tasks to fail.
   * LWB: Changed the ordering of menu items on the vertex popup menu so that the "Cut" action 
