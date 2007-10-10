@@ -440,8 +440,12 @@ public class SpecificationArchiveHandler {
       );
     }
     
-    net.getNetModel().setIsStartingNet(archivedNet.getStartingNetFlag());
-    
+    if (archivedNet.getStartingNetFlag()) {
+      SpecificationModel.getInstance().setStartingNet(
+          net.getNetModel()
+      );
+    }
+
     return net;
   }
   
