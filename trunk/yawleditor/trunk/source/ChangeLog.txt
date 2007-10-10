@@ -1,3 +1,6 @@
+Version 2.0
+  * LWB: Fixed a bug where the view menu would occasionally show the wrong icon for a net.
+
 Version 1.5.1 (08/10/2007)
   * LWB: Fixed a bug where multiple-instance tasks were not being initialsed properly and consequently
     causing a number of dialogs, and behaviours around multiple-instance tasks to fail.
