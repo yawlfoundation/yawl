@@ -26,6 +26,7 @@ package au.edu.qut.yawl.editor.swing.menu;
 import au.edu.qut.yawl.editor.actions.CutAction;
 import au.edu.qut.yawl.editor.actions.CopyAction;
 import au.edu.qut.yawl.editor.actions.element.LabelElementAction;
+import au.edu.qut.yawl.editor.actions.element.ManageNewYAWLResourcingAction;
 import au.edu.qut.yawl.editor.actions.element.SetMultipleInstanceDetailAction;
 import au.edu.qut.yawl.editor.actions.element.SetUnfoldingNetAction;
 import au.edu.qut.yawl.editor.actions.element.UpdateParametersAction;
@@ -60,6 +61,8 @@ public class VertexPopupMenu extends JPopupMenu {
   private YAWLPopupMenuItem updateFlowDetailsItem;
   private YAWLPopupMenuItem decompositionDetailItem;
   private YAWLPopupMenuItem manageResourcingItem;
+  private YAWLPopupMenuItem manageNewYAWLResourcingItem;
+
   
   public VertexPopupMenu(YAWLCell cell, NetGraph graph) {
     super();
@@ -158,6 +161,7 @@ public class VertexPopupMenu extends JPopupMenu {
     if (vertex instanceof YAWLAtomicTask) {
       addSeparator();
       add(buildManageResourcingItem());
+      add(buildManageNewYAWLResourcingItem());
     }
   }
   
@@ -190,6 +194,12 @@ public class VertexPopupMenu extends JPopupMenu {
     manageResourcingItem = 
       new YAWLPopupMenuItem(new ManageResourcingAction((YAWLTask) cell, graph));
     return manageResourcingItem;
+  }
+
+  private YAWLPopupMenuItem buildManageNewYAWLResourcingItem() {
+    manageNewYAWLResourcingItem = 
+      new YAWLPopupMenuItem(new ManageNewYAWLResourcingAction((YAWLTask) cell, graph));
+    return manageNewYAWLResourcingItem;
   }
 
   private YAWLPopupMenuItem buildDecompositionDetailItem() {
@@ -248,6 +258,12 @@ public class VertexPopupMenu extends JPopupMenu {
       if (manageResourcingItem != null) {
         manageResourcingItem.setEnabled(
             manageResourcingItem.shouldBeEnabled()
+        );
+      }
+      
+      if (manageNewYAWLResourcingItem != null) {
+        manageNewYAWLResourcingItem.setEnabled(
+            manageNewYAWLResourcingItem.shouldBeEnabled()
         );
       }
     }

@@ -129,7 +129,7 @@ public abstract class AbstractWizardDialog extends JDialog {
     panel.add(Box.createHorizontalStrut(30));
     panel.add(finishButton); 
     
-    LinkedList buttonList = new LinkedList();
+    LinkedList<JButton> buttonList = new LinkedList<JButton>();
 
     buttonList.add(backButton);
     buttonList.add(nextButton);
@@ -185,20 +185,20 @@ public abstract class AbstractWizardDialog extends JDialog {
   
   public void doNext() {
     getCurrentPanel().doNext();
-    if (currentStep >= (panels.length - 1)) {
-      return;
-    }
     currentStep++;
+    while(currentStep < (panels.length - 1) && !shouldDoCurrentStep()) {
+      currentStep++;
+    }
     moveToCurrentStep();
   }
   
   
   public void doBack() {
     getCurrentPanel().doBack();
-    if (currentStep <= 0) {
-      return;
-    }
     currentStep--;
+    while(currentStep > 0 && !shouldDoCurrentStep()) {
+      currentStep--;
+    }
     moveToCurrentStep();
   }
 
@@ -225,6 +225,10 @@ public abstract class AbstractWizardDialog extends JDialog {
   
   public AbstractWizardPanel getCurrentPanel() {
     return panels[currentStep];
+  }
+  
+  public boolean shouldDoCurrentStep() {
+    return getCurrentPanel().shouldDoThisStep();
   }
   
   private void moveToCurrentStep() {
@@ -264,6 +268,10 @@ public abstract class AbstractWizardDialog extends JDialog {
   protected void setPanels(AbstractWizardPanel[] panels) {
     this.panels = panels;
     this.setPanelTitle(panels[0].getWizardStepTitle());
+  }
+  
+  protected AbstractWizardPanel[] getPanels() {
+    return panels;
   }
   
   protected abstract void initialise();

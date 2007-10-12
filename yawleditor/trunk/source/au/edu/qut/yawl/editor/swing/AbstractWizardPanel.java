@@ -29,4 +29,14 @@ public abstract class AbstractWizardPanel extends JPanel {
   
   public abstract void doBack();
   public abstract void doNext();
+  
+  
+  /**
+   * Override this method if a step should be conditional on some 
+   * state.
+   * @return true if this step should be done.
+   */
+  public boolean shouldDoThisStep() {
+    return true;
+  }
 }

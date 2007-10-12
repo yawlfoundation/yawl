@@ -29,9 +29,12 @@ import java.util.Set;
 
 import javax.swing.ImageIcon;
 
+import au.edu.qut.yawl.editor.elements.model.CompositeTask;
+import au.edu.qut.yawl.editor.elements.model.Condition;
 import au.edu.qut.yawl.editor.elements.model.VertexContainer;
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
+import au.edu.qut.yawl.editor.elements.model.YAWLCondition;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
 import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
@@ -41,6 +44,7 @@ import au.edu.qut.yawl.editor.elements.model.YAWLCell;
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 
 import au.edu.qut.yawl.editor.net.NetGraphModel;
+import au.edu.qut.yawl.editor.specification.SpecificationModel;
 
 /**
  * A library of standard utilities that return information on, or manipulate 
@@ -131,6 +135,8 @@ public final class NetUtilities {
     return atomicTasks;
   }
 
+  
+  
   /**
    * Returns a boolean indicating whether given net 
    * contains an atomic task with the given label. 
@@ -301,7 +307,7 @@ public final class NetUtilities {
       return null;
     }
 
-    HashSet flows = new HashSet();
+    HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
     flows.addAll(vertex.getOutgoingFlows());
     return flows;
   }
@@ -312,21 +318,105 @@ public final class NetUtilities {
    * @return A set of incomming flows to the cell
    */
 
-  public static Set<YAWLFlowRelation> getIncomingFlowsFrom(YAWLCell cell) {
+  public static Set<YAWLFlowRelation> getIncomingFlowsTo(YAWLCell cell) {
     YAWLVertex vertex = NetCellUtilities.getVertexFromCell(cell);
     if (vertex == null) { // not interested in anything else
       return null;
     }
 
-    HashSet flows = new HashSet();
+    HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
     flows.addAll(vertex.getIncomingFlows());
     return flows;
   }
-
+  
+  
+  /**
+   * Returns the image icon used for the starting net of a specification
+   * @return
+   */
   public static ImageIcon getStartingNetIcon() {
     return ResourceLoader.getImageAsIcon(
         getStartingNetIconPath()    
     );  
+  }
+
+  /**
+   * Returns the Net that a composite task unfolds to. If the composite
+   * task does not yet unfold to a net, it reutrns null.
+   * @param task
+   * @return
+   */
+  
+  public static NetGraphModel getNetOfCompositeTask(CompositeTask task) {
+    if (task.getDecomposition() == null) {
+      return null;
+    }
+
+    for(NetGraphModel net : SpecificationModel.getInstance().getNets()) {
+      if (net.getDecomposition() == task.getDecomposition()) {
+        return net;
+      }
+    }
+    
+    return null;
+  }
+  
+  public static Set<YAWLAtomicTask> getPreccedingAtomicTasksOf(YAWLVertex thisVertex) {
+    return getPreceedingAtomicTasksOf(thisVertex, null);
+  }
+  
+  private static Set<YAWLAtomicTask> getPreceedingAtomicTasksOf(
+                                         YAWLVertex thisVertex,
+                                         HashSet<YAWLVertex> checkedVertexSet) {
+    
+    HashSet<YAWLAtomicTask> preceedingTasks = new HashSet<YAWLAtomicTask>();
+
+    if (checkedVertexSet == null) {
+      checkedVertexSet = new HashSet<YAWLVertex>();
+    }
+    
+    checkedVertexSet.add(thisVertex);
+    
+    for(YAWLVertex vertex: getPreceedingVertexSetOf(thisVertex)) {
+      if (checkedVertexSet.contains(vertex)) {
+        continue;
+      }
+      
+      if (vertex instanceof YAWLAtomicTask) {
+        preceedingTasks.add((YAWLAtomicTask) vertex);
+      } else if (vertex instanceof CompositeTask) {
+        CompositeTask task = (CompositeTask) vertex;
+        if (task.getDecomposition() != null ) {
+          NetGraphModel netOfTask = getNetOfCompositeTask(task);
+          preceedingTasks.addAll(
+              getAtomicTasks(netOfTask)
+          );
+          checkedVertexSet.addAll(
+              getVertexes(netOfTask)
+          );
+        }
+      }
+
+      preceedingTasks.addAll(
+          getPreceedingAtomicTasksOf(vertex, checkedVertexSet)    
+      );
+    }
+    
+    return preceedingTasks;
+  }
+  
+  public static Set<YAWLVertex> getPreceedingVertexSetOf(YAWLVertex thisVertex) {
+    HashSet<YAWLVertex> preceedingVertexSet = new HashSet<YAWLVertex>();
+    
+    if (getIncomingFlowsTo(thisVertex) != null) {
+      for(YAWLFlowRelation flow : getIncomingFlowsTo(thisVertex)) {
+        preceedingVertexSet.add(
+            flow.getSourceVertex()
+        );
+      }
+    }
+    
+    return preceedingVertexSet;
   }
   
   public static String getStartingNetIconPath() {
