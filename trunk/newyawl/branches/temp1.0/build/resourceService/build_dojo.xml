@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!-- Ant file to build the Dojo jar file.
+     You need to set the "dojo.home" property in a local.build.properties file in the
+     same directory as this file. This property should point to the location where the
+     Dojo sources are available (e.g. dojo.home=/home/foobar/dev/dojotoolkit.org/trunk)
+
+     @version $Id$
+-->
+
+<project name="build-dojo" default="jar">
+
+<!--	<property file="local.build.properties"/> -->
+
+    <property name="dojo-home" value="C:/_Data/PhD/yawl/Subversion/newYAWL/output/dojo-release-0.9.0"/>
+
+    <!-- Set dojo.revision to the date if unspecified -->
+    <target name="check-dojo.revision" unless="dojo.revision">
+		<tstamp>
+	      <format property="dojo.revision" pattern="yyyyMMdd"/>
+		</tstamp>
+	</target>
+
+	<target name="check-dojo.home" unless="dojo.home">
+		<fail>
+Variable "dojo.home" is not set.
+Set it either on the command-line or in your local.build.properties.
+	    </fail>
+    </target>
+
+    <target name="init" depends="check-dojo.home, check-dojo.revision">
+		<echo>dojo.home=${dojo.home}</echo>
+	 	<echo>dojo.revision=${dojo.revision}</echo>
+	</target>
+
+	<target name="jar" depends="init">
+		<ant dir="${dojo.home}/buildscripts" target="release" inheritAll="false">
+			<property name="docless" value="true"/>
+			<property name="release_dir" location="build/org/apache/cocoon/dojo/resources"/>
+			<property name="revision" value="${dojo.revision}"/>
+			<property name="profile" value="widget"/>
+	    </ant>
+
+	    <delete>
+		  <!-- remove demos, useless files and js sources (they're all packed in dojo.js) -->
+		  <fileset dir="build/org/apache/cocoon/dojo/resources"
+			       includes="CHANGELOG, README, build.txt, dojo.js.uncompressed.js"/>
+		  <fileset dir="build/org/apache/cocoon/dojo/resources/demos"/>
+	      <!--
+	      <fileset dir="build/org/apache/cocoon/dojo/resources/src"
+				   includes="*.js, **/*.js"/>
+	      -->
+		</delete>
+
+	    <jar destfile="dojo-rsrc-${dojo.revision}.jar" basedir="build"/>
+
+	    <echo>You can now replace the dojo lib in "lib/optional" with dojo-rsrc-${dojo.revision}.jar</echo>
+    </target>
+</project>
