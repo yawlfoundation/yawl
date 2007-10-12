@@ -193,7 +193,7 @@ public abstract class YAWLTask extends YAWLVertex {
                                getBounds().getY());
   }
 
-  public HashSet<YAWLFlowRelation> getIncommingFlows() {
+  public HashSet<YAWLFlowRelation> getIncomingFlows() {
     if(hasJoinDecorator()) {
       return getJoinDecorator().getFlows();
     }

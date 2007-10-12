@@ -3,6 +3,9 @@ package au.edu.qut.yawl.editor.swing.resourcing;
 import javax.swing.JComboBox;
 
 public class ResourceAllocationComboBox extends JComboBox {
+
+  private static final long serialVersionUID = 1L;
+
   public static final int SYSTEM_ALLOCATION = 0;
   public static final int USER_ALLOCATION   = 1;
   

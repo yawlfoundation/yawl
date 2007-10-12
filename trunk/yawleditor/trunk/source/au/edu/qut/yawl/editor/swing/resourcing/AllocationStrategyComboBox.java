@@ -1,12 +1,12 @@
 package au.edu.qut.yawl.editor.swing.resourcing;
 
-import java.awt.event.ActionListener;
-
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
 public class AllocationStrategyComboBox extends JComboBox {
   
+  private static final long serialVersionUID = 1L;
+
   private JLabel label;
 
   public static final int STRATEGY_RANDOM_SELECTION = 0;

@@ -4,6 +4,8 @@ import javax.swing.JComboBox;
 
 public class ResourceOfferingComboBox extends JComboBox {
 
+  private static final long serialVersionUID = 1L;
+
   public static final int SYSTEM_OFFERS = 0;
   public static final int ADMINISTRATOR_OFFERS = 1;
   
