@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="au.edu.qut.yawl.engine.YLogIdentifier" table="logidentifiers">
+
+       <id name="identifier" column="case_id" type="string" access="field">
+   		<generator class="assigned"/>
+    	</id>
+
+    	<property name="cancelled" column="cancelled" type="long" access="field"/>
+
+    	<property name="created" column="created" type="long" access="field"/>
+
+    	<property name="createdby" column="createdby" access="field"/>
+
+    	<property name="completed" column="completed" type="long" access="field"/>
+
+    	<property name="specification" column="specification" access="field"/>
+
+    	<property name="parent" column="parent" access="field"/>
+
+	</class>
+	
+</hibernate-mapping>
