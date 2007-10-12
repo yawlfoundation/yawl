@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="au.edu.qut.yawl.engine.YWorkItem" table="Work_Items">
+
+       <id name="_thisID" column="id" type="string" access="field">
+   		<generator class="assigned"/>
+    	</id>
+		
+         <property name="_specificationID" column="specs" type="string"  access="field"/>
+
+    	<property name="_enablementTime" column="enablement_time" type="timestamp" access="field"/>
+    	<property name="_firingTime" column="firing_time" type="timestamp" access="field"/>
+    	<property name="_startTime" column="start_time" type="timestamp" access="field"/>
+    	<property name="_status" column="status" type="string" access="field"/>
+    
+	<set name="_children" access="field">
+    		<key column="parent_id"/>
+	    	<one-to-many class="au.edu.qut.yawl.engine.YWorkItem"/>
+	    </set>
+	    <many-to-one name="_parent" column="parent" class="au.edu.qut.yawl.engine.YWorkItem" access="field"/>
+
+	    <property name="_whoStartedMe" column="who_started_me" type="string" access="field"/>
+	    <property name="_allowsDynamicCreation" column="allows_dynamic_creation" type="boolean" access="field"/>
+    	  
+         <property name="_dataString" column="data_string" type="text" access="field"/>
+
+	</class>
+	
+</hibernate-mapping>

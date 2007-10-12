@@ -1,0 +1,26 @@
+This software is OSI Certified Open Source Software.
+
+Release Notes
+=============
+
+Chiba Web version 2.0.0rc1
+--------------------------
+Chiba Web now provides a full AJAX interface in addition to the traditional
+non-scripted mode. While processing is done on server-side the user-experience
+is comparable to a full client-side implementation. The AJAX mode supports
+Firefox/Mozilla, IE6 and Safari 2.
+
+Chiba Web 2 is a complete new generation and this release shouldn't be considered
+production-ready. RC1 serves the purpose of gathering potential outstanding issues
+and preparing the final production release.
+
+
+Chiba Web version 1.0.0
+-----------------------
+This is the first release of the Chiba servlet as a standalone package. The source
+distributions come complete with a Chiba core installed (a set of jar-files, forms
+and resources). Current release contains Chiba version 1.1.1.
+
+Most noteably the ServletAdapter has changed to use a new AbstractChibaAdapter
+class which is provided by Chiba core since 1.1.1. Although the refactoring is not
+still finished in this area, the current version may be considered a solid iterims state ;)
