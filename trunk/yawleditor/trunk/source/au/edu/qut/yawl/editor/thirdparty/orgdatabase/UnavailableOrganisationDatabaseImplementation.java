@@ -66,12 +66,10 @@ public class UnavailableOrganisationDatabaseImplementation implements Organisati
   }
 
   public String getQueryToIdentifyResource(String resourceIdentifier) {
-    return "SELECT * FROM Resource where ResourceId = '" + resourceIdentifier.trim() + "';";
+    return "select rsrcid FROM Resource WHERE Resource_Type = 'Human' and rsrcid='" + resourceIdentifier.trim() + "'";
   }
 
   public String getQueryToIdentifyRole(String roleIdentifier) {
-    return "select Resource.* from Resource,HumanResourcePerformsExtraRole where " +
-           "HumanResourcePerformsExtraRole.RoleName = '" + roleIdentifier.trim() + "' " + 
-           "and HumanResourcePerformsExtraRole.ResourceId = Resource.ResourceId;";
+    return "select HResID from HResPerformsRole where RoleName ='" + roleIdentifier.trim() + "'";
   }
 }
