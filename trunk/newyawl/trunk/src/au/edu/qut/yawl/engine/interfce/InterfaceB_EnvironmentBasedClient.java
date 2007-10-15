@@ -12,6 +12,7 @@ package au.edu.qut.yawl.engine.interfce;
 import au.edu.qut.yawl.worklist.model.Marshaller;
 import au.edu.qut.yawl.worklist.model.TaskInformation;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
+import au.edu.qut.yawl.util.JDOMConversionTools;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -453,4 +454,37 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                 "?action=checkIsAdmin&sessionHandle=" + sessionHandle);
         return result.indexOf("administrator") != -1;
     }
+
+        /**
+     * Gets an XML representation of information the task declaration.
+     * This can be parsed into a copy of a YTask by using the
+     * @param specificationID the spec id.
+     * @param taskID the task id.
+     * @param sessionHandle the session handle
+     * @return an XML Representation of the task information
+     * @throws IOException
+     */
+    public String getMITaskAttributes(String specificationID, String taskID, String sessionHandle) throws IOException {
+        return executeGet(
+                _backEndURIStr + "/task/" + taskID + "?" +
+                "action=getMITaskAttributes" + "&" +
+                "specID=" + specificationID  + "&" +
+                "sessionHandle=" + sessionHandle);
+
+    }
+
+    public Element getResourcingSpecs(String specID, String taskID,
+                                      String sessionHandle) throws IOException {
+        String result = executeGet(_backEndURIStr + "?action=getResourcingSpecs" +
+                "&" +
+                "specID=" + specID +
+                "&" +
+                "taskID=" + taskID +
+                "&" +
+                "sessionHandle=" + sessionHandle);
+        return JDOMConversionTools.stringToElement(result);
+    }
+
+
+    
 }
