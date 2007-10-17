@@ -366,7 +366,7 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
             if (cell instanceof YAWLAtomicTask) {
               YAWLVertex vertex= (YAWLVertex) cell;
               YAWLEditorDesktop.getInstance().getSelectedGraph().setVertexIcon(
-                  vertex, iconNode.getIconPath()
+                  vertex, iconNode.getRelativeIconPath()
               );
             }
           }
@@ -404,7 +404,7 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
   
   public String getSelectedAtomicTaskIconPath() {
     if (isTaskPaletteNodeSelected()){
-      return getSelectedTaskPaletteNode().getIconPath();
+      return getSelectedTaskPaletteNode().getRelativeIconPath();
     }
     return null;
   }
@@ -545,8 +545,8 @@ class TaskIconTreeModel extends DefaultTreeModel {
   
   public TaskIconTreeNode getNodeWithIconPath(String iconPath) {
     for(TaskIconTreeNode node : iconNodes) {
-      if (node.getIconPath() != null && 
-          node.getIconPath().equals(iconPath)) {
+      if (node.getRelativeIconPath() != null && 
+          node.getRelativeIconPath().equals(iconPath)) {
         return node;
       }
     }
@@ -643,7 +643,7 @@ class TaskIconTreeModel extends DefaultTreeModel {
 
     recurseNodeForPluginIcons(
         pluginNode, 
-        new File(FileUtilities.ICON_PLUGIN_DIRECTORY)
+        new File(FileUtilities.ABSOLUTE_TASK_ICON_PATH)
     );
     
     return pluginNode;
@@ -670,8 +670,10 @@ class TaskIconTreeModel extends DefaultTreeModel {
              createExternalIconNode(
                  FileUtilities.stripFileExtension(
                      file.getName()
-                 ), 
-                 file.getPath()
+                 ),
+                 FileUtilities.getRelativeTaskIconPath(
+                     file.getPath()
+                 )
              )
          );
        }
@@ -692,7 +694,7 @@ class TaskIconTreeNode extends DefaultMutableTreeNode {
   private static final long serialVersionUID = 1L;
   
   private Icon nodeIcon;
-  private String iconPath;
+  private String relativeIconPath;
   
   private boolean isInternal = true;
   
@@ -703,31 +705,37 @@ class TaskIconTreeNode extends DefaultMutableTreeNode {
     setInternal(false);
   }
   
-  public TaskIconTreeNode(Object userObject, String iconPath, boolean isInternal) {
+  public TaskIconTreeNode(Object userObject, String relativeIconPath, boolean isInternal) {
     super(userObject);
     setInternal(isInternal);
-    setIconPath(iconPath);
+    setIconPath(relativeIconPath);
   }
   
-  public void setIconPath(String iconPath) {
-    this.iconPath = iconPath;
-    if (iconPath == null) {
+  public void setIconPath(String relativeIconPath) {
+    this.relativeIconPath = relativeIconPath;
+    if (relativeIconPath == null) {
       return;
     }
 
     if (isInternal()) {
       setIcon(
-          ResourceLoader.getImageAsIcon(iconPath)    
+          ResourceLoader.getImageAsIcon(
+              relativeIconPath
+          )    
       );
     } else {
       setIcon(
-          ResourceLoader.getExternalImageAsIcon(iconPath)    
+          ResourceLoader.getExternalImageAsIcon(
+              FileUtilities.getAbsoluteTaskIconPath(
+                  relativeIconPath
+              )
+          )    
       );
     }
   }
 
-  public String getIconPath() {
-    return this.iconPath;
+  public String getRelativeIconPath() {
+    return this.relativeIconPath;
   }
   
   public void setInternal(boolean isInternal) {

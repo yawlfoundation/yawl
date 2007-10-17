@@ -28,19 +28,27 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 
 public class FileUtilities {
-  
-  public static final String PLUGIN_DIRECTORY = 
-    System.getProperty("user.dir") + 
+
+  private static final String USER_DIRECTORY = System.getProperty("user.dir");
+
+  private static final String RELATIVE_PLUGIN_PATH = "YAWLEditorPlugins";
+  private static final String TASK_ICON_PATH = "TaskIcons";
+
+  private static final String RELATIVE_TASK_ICON_PATH = 
+    RELATIVE_PLUGIN_PATH +
     System.getProperty("file.separator") + 
-   "YAWLEditorPlugins";
-
-    
-    public static final String ICON_PLUGIN_DIRECTORY = 
-      PLUGIN_DIRECTORY + 
-      System.getProperty("file.separator") + 
-      "TaskIcons";
+    TASK_ICON_PATH;
   
-
+  public static final String ABSOLUTE_PLUGIN_DIRECTORY = 
+    USER_DIRECTORY + 
+    System.getProperty("file.separator") + 
+    RELATIVE_PLUGIN_PATH;
+    
+    public static final String ABSOLUTE_TASK_ICON_PATH = 
+      USER_DIRECTORY + 
+      System.getProperty("file.separator") + 
+      RELATIVE_TASK_ICON_PATH;
+  
   /**
    * Moves one file to another. Note that if a file already exists with the same
    * name as <code>targetFile</code> this method will overwrite its contents.
@@ -84,6 +92,23 @@ public class FileUtilities {
     return fileName.substring(
        0, 
        fileName.lastIndexOf('.') 
+    );
+  }
+  
+  public static String getAbsoluteTaskIconPath(String relativeIconPath) {
+    return ABSOLUTE_TASK_ICON_PATH + 
+           System.getProperty("file.separator") + 
+           relativeIconPath;
+  }
+  
+  public static String getRelativeTaskIconPath(String absoluteIconPath) {
+    assert absoluteIconPath.startsWith(
+        ABSOLUTE_TASK_ICON_PATH + 
+        System.getProperty("file.separator")
+    );
+
+    return absoluteIconPath.substring(
+      (ABSOLUTE_TASK_ICON_PATH + System.getProperty("file.separator")).length()    
     );
   }
 

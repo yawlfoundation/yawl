@@ -35,6 +35,7 @@ import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.VertexRenderer;
 
 import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import au.edu.qut.yawl.editor.foundations.FileUtilities;
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 
 abstract class YAWLVertexRenderer extends VertexRenderer {
@@ -92,7 +93,9 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
     if (icon == null) {
       try {
         icon = ResourceLoader.getExternalImageAsIcon(
-            ((YAWLVertex) view.getCell()).getIconPath()
+            FileUtilities.getAbsoluteTaskIconPath(
+                ((YAWLVertex) view.getCell()).getIconPath()
+            )
         );
       } catch (Exception e) {}
     }
