@@ -95,11 +95,24 @@ public class FileUtilities {
     );
   }
   
+  /**
+   * Given the relative path of an icon, returns the absolute path
+   * where it will be found in the current environment.
+   * @param relativeIconPath
+   * @return
+   */
   public static String getAbsoluteTaskIconPath(String relativeIconPath) {
     return ABSOLUTE_TASK_ICON_PATH + 
            System.getProperty("file.separator") + 
            relativeIconPath;
   }
+  
+  /**
+   * Given the absolte path of an icon, returns just the relative 
+   * path to the icon that is independant of the absolute task icon plugin path.
+   * @param absoluteIconPath
+   * @return
+   */
   
   public static String getRelativeTaskIconPath(String absoluteIconPath) {
     assert absoluteIconPath.startsWith(

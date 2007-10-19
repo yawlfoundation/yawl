@@ -2,6 +2,7 @@ package au.edu.qut.yawl.editor.swing.resourcing;
 
 import java.awt.BorderLayout;
 
+import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
 import au.edu.qut.yawl.editor.resourcing.NewYawlResourceMapping;
@@ -17,6 +18,8 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
   protected void buildInterface() {
     setLayout(new BorderLayout());
     setBorder(new EmptyBorder(12,12,0,11));
+    
+    add(new JLabel("Both filters and runtime constraints to go here. Constraints first, they'll be easier."));
   }
 
   public String getWizardStepTitle() {

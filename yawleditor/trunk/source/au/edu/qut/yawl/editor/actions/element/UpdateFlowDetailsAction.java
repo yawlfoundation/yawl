@@ -34,6 +34,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import java.util.LinkedList;
+import java.util.List;
 
 
 import javax.swing.event.ListSelectionEvent;
@@ -258,7 +259,7 @@ class FlowDetailTablePanel extends AbstractOrderedTablePanel {
     return (flowTable.getRowCount() > 0);
   }
   
-  public LinkedList<YAWLFlowRelation> getAllFlows() {
+  public List<YAWLFlowRelation> getAllFlows() {
     return  flowTable.getFlowModel().getOrderedRows();
   }
   

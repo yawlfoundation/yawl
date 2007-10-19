@@ -361,7 +361,32 @@ public final class NetUtilities {
     return null;
   }
   
-  public static Set<YAWLAtomicTask> getPreccedingAtomicTasksOf(YAWLVertex thisVertex) {
+  /**
+   * Retuns all possible atomic tasks that could have occurred before the
+   * task specified, that also could have been allocated to a user
+   * via a worklist.
+   * @param task
+   * @return
+   */
+  
+  public static Set<YAWLAtomicTask> getPreceedingResourcingRequiredTasksOf(YAWLAtomicTask task) {
+    HashSet<YAWLAtomicTask> returnTasks = new HashSet<YAWLAtomicTask>();
+    for(YAWLAtomicTask thisTask: getPreceedingAtomicTasksOf((YAWLVertex) task)) {
+      if (thisTask.getWSDecomposition().invokesWorklist()) {
+        returnTasks.add(thisTask);
+      }
+    }
+    return returnTasks;
+  }
+  
+  /**
+   * Returns all atomic tasks that possibly could have occured before the vertex
+   * specified.
+   * @param thisVertex
+   * @return
+   */
+  
+  public static Set<YAWLAtomicTask> getPreceedingAtomicTasksOf(YAWLVertex thisVertex) {
     return getPreceedingAtomicTasksOf(thisVertex, null);
   }
   
@@ -404,6 +429,13 @@ public final class NetUtilities {
     
     return preceedingTasks;
   }
+  
+  /**
+   * Returns the vertex set that all immediately preceed the specified
+   * vertex.
+   * @param thisVertex
+   * @return
+   */
   
   public static Set<YAWLVertex> getPreceedingVertexSetOf(YAWLVertex thisVertex) {
     HashSet<YAWLVertex> preceedingVertexSet = new HashSet<YAWLVertex>();

@@ -118,7 +118,6 @@ public class DataVariableTable extends JOrderedSingleSelectTable {
     return component;
   }
 
-  
   public void setVariableSet(DataVariableSet variableSet) {
     this.variableSet = variableSet;
     updateState();

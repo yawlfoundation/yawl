@@ -53,6 +53,13 @@ public class DataVariable implements Serializable, Cloneable {
   public static final int SCOPE_NET = 0;
   public static final int SCOPE_TASK = 1;
   
+  public static final String XML_SCHEMA_BOOLEAN_TYPE = "boolean";
+  public static final String XML_SCHEMA_DATE_TYPE    = "date";
+  public static final String XML_SCHEMA_DOUBLE_TYPE  = "double";
+  public static final String XML_SCHEMA_LONG_TYPE    = "long";
+  public static final String XML_SCHEMA_STRING_TYPE  = "string";
+  public static final String XML_SCHEMA_TIME_TYPE    = "time";
+  
   /**
    * A string array of base XMLSchema data types that can
    * be used directly in the editor without users needing to 
@@ -60,13 +67,14 @@ public class DataVariable implements Serializable, Cloneable {
    */
   
   private static final String[] BASE_DATA_TYPES = {
-    "boolean",
-    "date",
-    "double",
-    "long",
-    "string",
-    "time"    
+    XML_SCHEMA_BOOLEAN_TYPE,
+    XML_SCHEMA_DATE_TYPE,
+    XML_SCHEMA_DOUBLE_TYPE,
+    XML_SCHEMA_LONG_TYPE,
+    XML_SCHEMA_STRING_TYPE,
+    XML_SCHEMA_TIME_TYPE
   };
+  
   
   private static final int DEFAULT_TYPE = 4; // String
   
@@ -143,7 +151,8 @@ public class DataVariable implements Serializable, Cloneable {
   }
   
   public boolean isNumberType() {
-    return getDataType().equals("double") || getDataType().equals("long");
+    return getDataType().equals(XML_SCHEMA_DOUBLE_TYPE) || 
+           getDataType().equals(XML_SCHEMA_LONG_TYPE);
   }
   
   public static boolean isBaseDataType(String type) {
