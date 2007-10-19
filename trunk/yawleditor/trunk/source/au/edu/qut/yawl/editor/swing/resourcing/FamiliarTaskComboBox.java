@@ -17,7 +17,7 @@ public class FamiliarTaskComboBox extends JComboBox {
 
   public void setTask(YAWLAtomicTask task) {
     this.task = task;
-    this.familiarTasks = NetUtilities.getPreccedingAtomicTasksOf((YAWLVertex) getTask());
+    this.familiarTasks = NetUtilities.getPreceedingResourcingRequiredTasksOf(getTask());
     generateFamiliarTaskItems();
   }
   
@@ -27,8 +27,6 @@ public class FamiliarTaskComboBox extends JComboBox {
   
   private void generateFamiliarTaskItems() {
     removeAllItems();
-    
-    //TODO: Tighten up to be just preceeding atomic tasks with resourcing requirements.
     
     for(YAWLAtomicTask task : familiarTasks) {
       addItem(((YAWLTask) task).getEngineId());      

@@ -1,5 +1,6 @@
 package au.edu.qut.yawl.editor.swing.resourcing;
 
+import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
@@ -25,7 +26,6 @@ public class ManageNewYAWLResourcingDialog extends AbstractWizardDialog {
             new SetSystemOfferBehaviourPanel(this),
             new SpecifyBaseDistributionSetPanel(this),
             new SpecifyDistributionSetFiltersPanel(this),
-            new SpecifyRuntimeConstraintsPanel(this),
             new SetSystemAllocateBehaviourPanel(this),
             new SetRuntimePrivilegesPanel(this)
         }
@@ -55,7 +55,7 @@ public class ManageNewYAWLResourcingDialog extends AbstractWizardDialog {
 
     //TODO: tie into task state.
     
-    this.resourceMapping = new NewYawlResourceMapping();
+    this.resourceMapping = new NewYawlResourceMapping((YAWLAtomicTask) task);
     
     for(AbstractWizardPanel panel : getPanels()) {
       ((ResourcingWizardPanel) panel).refresh();

@@ -1,7 +1,11 @@
 package au.edu.qut.yawl.editor.resourcing;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.HashSet;
 
+import au.edu.qut.yawl.editor.data.DataVariable;
+import au.edu.qut.yawl.editor.data.DataVariableUtilities;
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 
@@ -20,8 +24,13 @@ public class NewYawlResourceMapping {
   
   private YAWLAtomicTask retainFamiliarTask = null;
   
+  private String[] baseUserDistributionList;
+  private String[] baseRoleDistributionList;
+  
   private HashSet<RuntimeUserPrivilege> enabledPrivileges = new HashSet<RuntimeUserPrivilege>();
-
+  
+  private List<DataVariableContent> baseVariableContentList;
+  
   public static enum RuntimeUserPrivilege {
     CAN_SUSPEND,
     CAN_REALLOCATE_STATELESS,
@@ -31,6 +40,70 @@ public class NewYawlResourceMapping {
     CAN_SKIP,
     CAN_PILE
   };
+  
+  private YAWLAtomicTask resourceRequiringTask;
+  
+  public NewYawlResourceMapping(YAWLAtomicTask resourceRequiringTask) {
+    this.resourceRequiringTask = resourceRequiringTask;
+    this.baseVariableContentList = buildDefaultBaseVariableContentList();
+  }
+  
+  private List<DataVariableContent> buildDefaultBaseVariableContentList() {
+    LinkedList<DataVariableContent> list = new LinkedList<DataVariableContent>();
+    
+    List<DataVariable> validPossibleVariables = 
+      DataVariableUtilities.getVariablesOfType(
+          ((YAWLTask) resourceRequiringTask).getVariables().getInputVariables(),
+          DataVariable.XML_SCHEMA_STRING_TYPE
+    );
+    
+    for(DataVariable variable : validPossibleVariables) {
+      
+      list.add(new DataVariableContent(variable));
+    }
+
+    return list;
+  }
+  
+
+  /**
+   * Resynchronises the variable content map with changes that may have been
+   * applied to the task's data perspective definitions. All new variables that
+   * could be used to store resourcing data default to storing plain data initially.
+   */
+  
+  public void syncWithDataPerspective() {
+    LinkedList<DataVariableContent> variablesToRemove = new LinkedList<DataVariableContent>();
+    for(DataVariableContent variableContent : baseVariableContentList) {
+      if (!variableContent.isValidForResourceContainment()) {
+        variablesToRemove.add(variableContent);
+      }
+    }
+    
+    for(DataVariableContent variableContent : variablesToRemove) {
+      baseVariableContentList.remove(variableContent);
+    }
+    
+    LinkedList<DataVariable> variablesToAdd = new LinkedList<DataVariable>();
+    for(DataVariable variable : ((YAWLTask) resourceRequiringTask).getVariables().getInputVariables()) {
+      boolean variableFound = false;
+      for(DataVariableContent variableContent : baseVariableContentList) {
+        if (variableContent.getVariable() == variable) {
+          variableFound = true;
+          break;
+        }
+      }
+      if (!variableFound && DataVariableContent.isValidForResourceContainment(variable)) {
+        variablesToAdd.add(variable);
+      }
+    }
+    
+    for(DataVariable variable: variablesToAdd) {
+      baseVariableContentList.add(
+          new DataVariableContent(variable)
+      );
+    }
+  }
   
   public void setOfferInteractioPoint(InteractionPointSetting setting) {
     offerInteractionPoint = setting;
@@ -80,11 +153,12 @@ public class NewYawlResourceMapping {
 
   //TODO: Stubbed up until we source the list from a running engine.
 
+  public void setBaseUserDistributionList(String[] userList) {
+    baseUserDistributionList = userList;
+  }
+  
   public String[] getBaseUserDistributionList() {
-    return new String[] {
-        "Lindsay Bradford",
-        "David Reynolds"
-    };
+    return baseUserDistributionList;
   }
 
   //TODO: Stubbed up until we source the list from a running engine.
@@ -97,6 +171,24 @@ public class NewYawlResourceMapping {
         "Accountant",
         "Personal Assistant"
     };
+  }
+
+  //TODO: Stubbed up until we source the list from a running engine.
+
+  public void setBaseRoleDistributionList(String[] roles) {
+    this.baseRoleDistributionList = roles;
+  }
+  
+  public String[] getBaseRoleDistributionList() {
+    return baseRoleDistributionList;
+  }
+  
+  public void setBaseVariableContentList(List<DataVariableContent> list) {
+    this.baseVariableContentList = list;
+  }
+  
+  public List<DataVariableContent>  getBaseVariableContentList() {
+    return this.baseVariableContentList;
   }
   
   public String getAllocationMechanism() {
@@ -153,6 +245,42 @@ public class NewYawlResourceMapping {
       );
     }
     
+    StringBuffer baseUserDistribitionListString = new StringBuffer("");
+    if (baseUserDistributionList != null && baseUserDistributionList.length > 0) {
+      baseUserDistribitionListString.append(
+          "Base User Distribution List:\n" + 
+          "---------------------------\n"
+      );
+      for(String user : baseUserDistributionList) {
+        baseUserDistribitionListString.append("  " + user + "\n");
+      }
+    }
+
+    StringBuffer baseRoleDistribitionListString = new StringBuffer("");
+    if (baseRoleDistributionList != null && baseRoleDistributionList.length > 0) {
+      baseRoleDistribitionListString.append(
+          "Base RoleDistribution List:\n" + 
+          "---------------------------\n"
+      );
+      for(String role : baseRoleDistributionList) {
+        baseRoleDistribitionListString.append("  " + role + "\n");
+      }
+    }
+
+    StringBuffer baseVariableContentListString = new StringBuffer("");
+    if (baseVariableContentList != null && baseVariableContentList.size()> 0) {
+      baseVariableContentListString.append(
+          "Variable Content List:\n" + 
+          "----------------------\n"
+      );
+      for(DataVariableContent content: baseVariableContentList) {
+        baseVariableContentListString.append(
+            "  " + content.getVariable().getName() + 
+            " contains " + 
+            content.getContentTypeAsString() + "\n");
+      }
+    }
+    
     StringBuffer retainFamiliarTaskString = new StringBuffer("");
     if(retainFamiliarTask != null) {
       retainFamiliarTaskString.append("Retain Familiar Task = (" 
@@ -179,6 +307,9 @@ public class NewYawlResourceMapping {
         ", Start: " + startInteractionPoint + "\n" +
         systemAllocationMechanism +
         retainFamiliarTaskString +
+        baseUserDistribitionListString +
+        baseRoleDistribitionListString +
+        baseVariableContentListString +
         enabledPrivilegesString;
   }
 }

@@ -24,19 +24,20 @@
 package au.edu.qut.yawl.editor.swing;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 public abstract class AbstractOrderedRowTableModel extends AbstractTableModel {
   private static final long serialVersionUID = 1L;
 
-  private LinkedList orderedRows = new LinkedList();
+  private List orderedRows = new LinkedList();
 
-  public LinkedList getOrderedRows() {
+  public List getOrderedRows() {
     return orderedRows;
   }
   
-  public void setOrderedRows(LinkedList orderedRows) {
+  public void setOrderedRows(List orderedRows) {
     this.orderedRows = orderedRows;
   }
   
