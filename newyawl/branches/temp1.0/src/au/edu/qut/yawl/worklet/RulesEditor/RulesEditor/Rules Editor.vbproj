@@ -1,0 +1,254 @@
+<VisualStudioProject>
+    <VisualBasic
+        ProjectType = "Local"
+        ProductVersion = "7.10.3077"
+        SchemaVersion = "2.0"
+        ProjectGuid = "{35BB6C45-9A81-4759-BEFE-E3ACA0A20F2B}"
+    >
+        <Build>
+            <Settings
+                ApplicationIcon = "worklet2.ico"
+                AssemblyKeyContainerName = ""
+                AssemblyName = "RulesEditor"
+                AssemblyOriginatorKeyFile = ""
+                AssemblyOriginatorKeyMode = "None"
+                DefaultClientScript = "JScript"
+                DefaultHTMLPageLayout = "Grid"
+                DefaultTargetSchema = "IE50"
+                DelaySign = "false"
+                OutputType = "WinExe"
+                OptionCompare = "Binary"
+                OptionExplicit = "On"
+                OptionStrict = "Off"
+                RootNamespace = "RDREditor"
+                StartupObject = ""
+            >
+                <Config
+                    Name = "Debug"
+                    BaseAddress = "285212672"
+                    ConfigurationOverrideFile = ""
+                    DefineConstants = ""
+                    DefineDebug = "true"
+                    DefineTrace = "true"
+                    DebugSymbols = "true"
+                    IncrementalBuild = "true"
+                    Optimize = "false"
+                    OutputPath = "bin\"
+                    RegisterForComInterop = "false"
+                    RemoveIntegerChecks = "false"
+                    TreatWarningsAsErrors = "false"
+                    WarningLevel = "1"
+                />
+                <Config
+                    Name = "Release"
+                    BaseAddress = "285212672"
+                    ConfigurationOverrideFile = ""
+                    DefineConstants = ""
+                    DefineDebug = "false"
+                    DefineTrace = "true"
+                    DebugSymbols = "false"
+                    IncrementalBuild = "false"
+                    Optimize = "true"
+                    OutputPath = "bin\"
+                    RegisterForComInterop = "false"
+                    RemoveIntegerChecks = "false"
+                    TreatWarningsAsErrors = "false"
+                    WarningLevel = "1"
+                />
+            </Settings>
+            <References>
+                <Reference
+                    Name = "System"
+                    AssemblyName = "System"
+                />
+                <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                />
+                <Reference
+                    Name = "System.Drawing"
+                    AssemblyName = "System.Drawing"
+                />
+                <Reference
+                    Name = "System.Windows.Forms"
+                    AssemblyName = "System.Windows.Forms"
+                />
+                <Reference
+                    Name = "System.XML"
+                    AssemblyName = "System.Xml"
+                />
+                <Reference
+                    Name = "System.Web.Services"
+                    AssemblyName = "System.Web.Services"
+                    HintPath = "..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Web.Services.dll"
+                />
+                <Reference
+                    Name = "System.Web"
+                    AssemblyName = "System.Web"
+                    HintPath = "..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Web.dll"
+                />
+            </References>
+            <Imports>
+                <Import Namespace = "Microsoft.VisualBasic" />
+                <Import Namespace = "System" />
+                <Import Namespace = "System.Collections" />
+                <Import Namespace = "System.Data" />
+                <Import Namespace = "System.Drawing" />
+                <Import Namespace = "System.Diagnostics" />
+                <Import Namespace = "System.Windows.Forms" />
+            </Imports>
+        </Build>
+        <Files>
+            <Include>
+                <File
+                    RelPath = "AssemblyInfo.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompositeItem.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ConclusionItem.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "frmAbout.vb"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "frmAbout.resx"
+                    DependentUpon = "frmAbout.vb"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "frmAddRule.vb"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "frmAddRule.resx"
+                    DependentUpon = "frmAddRule.vb"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "frmChooseWorklet.vb"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "frmChooseWorklet.resx"
+                    DependentUpon = "frmChooseWorklet.vb"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "frmConfig.vb"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "frmConfig.resx"
+                    DependentUpon = "frmConfig.vb"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "frmDrawConc.vb"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "frmDrawConc.resx"
+                    DependentUpon = "frmDrawConc.vb"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "frmEdit.vb"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "frmEdit.resx"
+                    DependentUpon = "frmEdit.vb"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "frmNewRule.vb"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "frmNewRule.resx"
+                    DependentUpon = "frmNewRule.vb"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "frmSpecLocator.vb"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "frmSpecLocator.resx"
+                    DependentUpon = "frmSpecLocator.vb"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "Global.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "RuleNode.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "RuleSetMgr.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "RuleTree.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TreeSet.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TreeViewer.vb"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TreeViewer.resx"
+                    DependentUpon = "TreeViewer.vb"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "TreeViewMgr.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "worklet.ico"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "worklet2.ico"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "WorkletService.ico"
+                    BuildAction = "Content"
+                />
+            </Include>
+        </Files>
+    </VisualBasic>
+</VisualStudioProject>
+
