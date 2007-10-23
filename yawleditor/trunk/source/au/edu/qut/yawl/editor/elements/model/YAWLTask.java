@@ -84,8 +84,6 @@ public abstract class YAWLTask extends YAWLVertex {
     setCancellationSet(new CancellationSet(this));
     setParameterLists(new ParameterLists());
     setDecomposition(null);
-    setAllocationResourceMapping((ResourceMapping) ResourceMapping.DEFAULT_ALLOCATION.clone());
-    setAuthorisationResourceMapping((ResourceMapping) ResourceMapping.DEFAULT_AUTHORISATION.clone());
   }
 
   public int hasSplitObjectAt() {
@@ -248,23 +246,15 @@ public abstract class YAWLTask extends YAWLVertex {
   public Decomposition getDecomposition() {
     return (Decomposition) serializationProofAttributeMap.get("decomposition");
   }
+  
+  public void setResourceMapping(ResourceMapping resourceMapping) {
+    serializationProofAttributeMap.put("resourceMapping",resourceMapping);
+  }
+  
+  public ResourceMapping getResourceMapping() {
+    return (ResourceMapping) serializationProofAttributeMap.get("resourceMapping");
+  }
 
-  public void setAllocationResourceMapping(ResourceMapping resourceMapping) {
-    serializationProofAttributeMap.put("allocationResourceMapping",resourceMapping);
-  }
-  
-  public ResourceMapping getAllocationResourceMapping() {
-    return (ResourceMapping) serializationProofAttributeMap.get("allocationResourceMapping");
-  }
-
-  public void setAuthorisationResourceMapping(ResourceMapping resourceMapping) {
-    serializationProofAttributeMap.put("authorisationResourceMapping",resourceMapping);
-  }
-  
-  public ResourceMapping getAuthorisationResourceMapping() {
-    return (ResourceMapping) serializationProofAttributeMap.get("authorisationResourceMapping");
-  }
-  
   public DataVariableSet getVariables() {
     if (getDecomposition() != null) {
       return getDecomposition().getVariables();
@@ -372,8 +362,8 @@ public abstract class YAWLTask extends YAWLVertex {
     clonedCancellationSet.setTriggeringTask(clone);
     
     clone.setParameterLists((ParameterLists) getParameterLists().clone());
-    clone.setAllocationResourceMapping((ResourceMapping) getAllocationResourceMapping().clone());
-    clone.setAuthorisationResourceMapping((ResourceMapping) getAuthorisationResourceMapping().clone());
+
+    // TODO: Clone the resource mapping
     
     return clone;
   }

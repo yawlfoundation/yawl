@@ -1,19 +1,19 @@
 package au.edu.qut.yawl.editor.swing.resourcing;
 
 import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.resourcing.NewYawlResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 import au.edu.qut.yawl.editor.swing.AbstractWizardPanel;
 
 abstract class ResourcingWizardPanel extends AbstractWizardPanel {
-  public ResourcingWizardPanel(ManageNewYAWLResourcingDialog dialog) {
+  public ResourcingWizardPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
   
-  protected ManageNewYAWLResourcingDialog getNewYAWLResourcingDialog() {
-    return (ManageNewYAWLResourcingDialog) getDialog();
+  protected ManageResourcingDialog getNewYAWLResourcingDialog() {
+    return (ManageResourcingDialog) getDialog();
   }
   
-  protected NewYawlResourceMapping getResourceMapping() {
+  protected ResourceMapping getResourceMapping() {
     //TODO: this ultimately needs to be sourced from the task.
     return getNewYAWLResourcingDialog().getResourceMapping();
   }

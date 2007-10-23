@@ -42,7 +42,7 @@ import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
 import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
 import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.swing.ActionAndFocusListener;
-import au.edu.qut.yawl.editor.thirdparty.orgdatabase.OrganisationDatabaseProxy;
+import au.edu.qut.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 public class SetOrganisationDatabaseAction extends YAWLBaseAction {
   /**
@@ -84,10 +84,6 @@ class OrganisationDatabaseDialog extends AbstractDoneDialog {
     Preferences.userNodeForPackage(YAWLEditor.class);
   
   private JTextField databaseURIField;
-  private JTextField databaseNameField;
-  private JTextField databaseUserField;
-  private JPasswordField databasePasswordField;
-  private JPasswordField databaseVerifyPasswordField;
   
   public OrganisationDatabaseDialog() {
     super("Specify Organisation Database Detail", true);
@@ -96,23 +92,8 @@ class OrganisationDatabaseDialog extends AbstractDoneDialog {
     getDoneButton().addActionListener(new ActionListener(){
        public void actionPerformed(ActionEvent e) {
          prefs.put(
-             "organisationDatabaseURI", 
+             "resourcingServiceURI", 
              databaseURIField.getText()
-         );
-
-         prefs.put(
-             "organisationDatabaseName", 
-             databaseNameField.getText()
-         );
-         
-         prefs.put(
-             "organisationDatabaseUserID", 
-             databaseUserField.getText()
-         );
-
-         prefs.put(
-             "organisationDatabaseUserPassword", 
-             new String(databasePasswordField.getPassword())
          );
        }
     });
@@ -145,64 +126,6 @@ class OrganisationDatabaseDialog extends AbstractDoneDialog {
 
     panel.add(getDatabaseURIField(), gbc);
     uriLabel.setLabelFor(databaseURIField);
-
-    gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.insets = new Insets(5,0,5,5);
-    gbc.anchor = GridBagConstraints.EAST;
-
-    JLabel nameLabel = new JLabel("Organisation Database Name:");
-    nameLabel.setDisplayedMnemonic('N');
-    panel.add(nameLabel, gbc);
-
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    panel.add(getDatabaseNameField(), gbc);
-    nameLabel.setLabelFor(databaseNameField);
-    
-    gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.insets = new Insets(5,0,5,5);
-    gbc.anchor = GridBagConstraints.EAST;
-
-    JLabel userLabel = new JLabel("Organisation Database User-id:");
-    userLabel.setDisplayedMnemonic('U');
-    panel.add(userLabel, gbc);
-    
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    panel.add(getDatabaseUserField(), gbc);
-    userLabel.setLabelFor(databaseUserField);
-
-    gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.anchor = GridBagConstraints.EAST;
-
-    JLabel passwordLabel = new JLabel("Organisation Database Password:");
-    passwordLabel.setDisplayedMnemonic('P');
-    panel.add(passwordLabel, gbc);
-    
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    panel.add(getDatabasePasswordField(), gbc);
-    passwordLabel.setLabelFor(databasePasswordField);
-
-    gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.anchor = GridBagConstraints.EAST;
-
-    JLabel verifyPasswordLabel = new JLabel("Verify Password :");
-    verifyPasswordLabel.setDisplayedMnemonic('V');
-    panel.add(verifyPasswordLabel, gbc);
-    
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    panel.add(getDatabaseVerifyPasswordField(), gbc);
-    verifyPasswordLabel.setLabelFor(databaseVerifyPasswordField);
     
     return panel;
   }
@@ -212,92 +135,16 @@ class OrganisationDatabaseDialog extends AbstractDoneDialog {
     return databaseURIField;
   }
 
-  private JTextField getDatabaseNameField() {
-    databaseNameField = new JTextField(10);
-    return databaseNameField;
-  }
-  
-  private JTextField getDatabaseUserField() {
-    databaseUserField = new JTextField(10);
-    return databaseUserField;
-  }
-
-  private JPasswordField getDatabasePasswordField() {
-    databasePasswordField = new JPasswordField(10);
-    return databasePasswordField;
-  }
-
-  private JTextField getDatabaseVerifyPasswordField() {
-    databaseVerifyPasswordField = new JPasswordField(10);
-    
-    new ActionAndFocusListener(databaseVerifyPasswordField) {
-      public void focusGained(FocusEvent event) {} // don't process on focus gain.
-      
-      public void process(Object eventSource) {
-        if (!passwordsMatch(
-                databasePasswordField.getPassword(),
-                databaseVerifyPasswordField.getPassword()
-             )) {
-
-        JOptionPane.showMessageDialog(
-            databaseVerifyPasswordField, 
-            "The password specified does not match it's verification", 
-            "Passwords do not Match", 
-            JOptionPane.ERROR_MESSAGE
-        );
-        
-        databasePasswordField.setText("");
-        databaseVerifyPasswordField.setText("");
-        databasePasswordField.requestFocus();
-      }
-    }};
-    return databaseVerifyPasswordField;
-  }
   
   public void setVisible(boolean visible) {
     if (visible){
       if (databaseURIField.getText().equals("")) {
         databaseURIField.setText(
-            prefs.get("organisationDatabaseURI", 
-            OrganisationDatabaseProxy.DEFAULT_DATABASE_URI)
-        );
-      }
-      if (databaseNameField.getText().equals("")) {
-        databaseNameField.setText(
-            prefs.get("organisationDatabaseName", 
-            OrganisationDatabaseProxy.DEFAULT_DATABASE_NAME)
-        );
-      }
-      if (databaseUserField.getText().equals("")) {
-        databaseUserField.setText(
-            prefs.get("organisationDatabaseUserID", 
-            OrganisationDatabaseProxy.DEFAULT_DATABASE_USER)
-        );
-      }
-      if (databasePasswordField.getPassword().equals("")) {
-        databasePasswordField.setText(
-            prefs.get("organisationDatabaseUserPassword", 
-            OrganisationDatabaseProxy.DEFAULT_DATABASE_USER_PASSWORD)
-        );
-        databaseVerifyPasswordField.setText(
-            prefs.get("organisationDatabaseUserPassword", 
-            OrganisationDatabaseProxy.DEFAULT_DATABASE_USER_PASSWORD)
+            prefs.get("resourcingServiceURI", 
+            ResourcingServiceProxy.DEFAULT_RESOURCING_SERVICE_URI)
         );
       }
     }
     super.setVisible(visible);
-  }
-  
-  private boolean passwordsMatch(char[] password, char[] verifyPassword) {
-    if (password.length != verifyPassword.length) {
-      return false;
-    }
-
-    for(int i = 0; i < password.length; i++) {
-      if (password[i] != verifyPassword[i]) {
-        return false;
-      }
-    }
-    return true;
   }
 }

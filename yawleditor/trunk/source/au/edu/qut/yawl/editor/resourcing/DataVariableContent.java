@@ -1,8 +1,12 @@
 package au.edu.qut.yawl.editor.resourcing;
 
+import java.io.Serializable;
+
 import au.edu.qut.yawl.editor.data.DataVariable;
 
-public class DataVariableContent {
+public class DataVariableContent implements Serializable, Cloneable {
+
+  private static final long serialVersionUID = 1L;
 
   public static enum ContentType {
     DATA,
@@ -14,8 +18,10 @@ public class DataVariableContent {
   private static final String USERS_STRING = "Users";
   private static final String ROLES_STRING = "Roles";
   
-  private DataVariable variable;
-  private ContentType  contentType = ContentType.DATA;
+  protected DataVariable variable;
+  protected ContentType  contentType = ContentType.DATA;
+  
+  public DataVariableContent() {}
   
   public DataVariableContent(DataVariable variable) {
     this.variable = variable;
@@ -27,20 +33,24 @@ public class DataVariableContent {
     this.contentType = contentType;
   }
   
+  public void setVariable(DataVariable variable) {
+    this.variable = variable;
+  }
+  
   public DataVariable getVariable() {
     return this.variable;
   }
-  
-  public ContentType getContentType() {
-    return this.contentType;
-  }
+
   
   public void setContentType(ContentType contentType) {
     this.contentType = contentType;
   }
 
+  public ContentType getContentType() {
+    return this.contentType;
+  }
+
   public void setContentType(String contentTypeString) {
-    System.out.println("Setting content type for variable (" + variable.getName() + ") to " + contentTypeString);
     this.contentType = getContentTypeForString(contentTypeString);
   }
 

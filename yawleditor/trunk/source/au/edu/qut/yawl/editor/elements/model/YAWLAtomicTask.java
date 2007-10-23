@@ -23,6 +23,7 @@
 package au.edu.qut.yawl.editor.elements.model;
 
 import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 
 public interface YAWLAtomicTask {
   public void setWSDecomposition(WebServiceDecomposition decomposition);
@@ -32,4 +33,7 @@ public interface YAWLAtomicTask {
   public String getIconPath();
   
   public String getLabel();
+  
+  public void setResourceMapping(ResourceMapping resourceMapping);
+  public ResourceMapping getResourceMapping();
 }

@@ -13,7 +13,7 @@ import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.resourcing.NewYawlResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 
 public class SetSystemOfferBehaviourPanel extends ResourcingWizardPanel {
 
@@ -24,7 +24,7 @@ public class SetSystemOfferBehaviourPanel extends ResourcingWizardPanel {
   
   private FamiliarTaskComboBox familiarTaskComboBox;
 
-  public SetSystemOfferBehaviourPanel(ManageNewYAWLResourcingDialog dialog) {
+  public SetSystemOfferBehaviourPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
   
@@ -168,6 +168,6 @@ public class SetSystemOfferBehaviourPanel extends ResourcingWizardPanel {
   
   public boolean shouldDoThisStep() {
     return getResourceMapping().getOfferInteractionPoint() == 
-      NewYawlResourceMapping.InteractionPointSetting.SYSTEM;
+      ResourceMapping.InteractionPointSetting.SYSTEM;
   }
 }
