@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="au.edu.qut.yawl.logging">
+
+	<class name="YParentWorkItemEvent" table="log_ParentWorkItemEvent">
+
+        <id name="_parentWorkItemEventID"   column="ParentWorkItemEventID"></id>
+
+    	<property name="_caseEventID" column="CaseEventID"/>
+        <property name="_caseID"      column="CaseID"/>
+        <property name="_taskID"      column="TaskID"/>
+    	<property name="_resourceID"  column="ResourceID"/>
+    	<property name="_eventTime"   column="EventTime"       type="long"/>
+    	<property name="_eventName"   column="EventType"/>
+
+	</class>
+	
+</hibernate-mapping>
