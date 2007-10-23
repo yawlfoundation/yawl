@@ -16,7 +16,7 @@ import javax.swing.event.ListSelectionListener;
 
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.DataVariableUtilities;
-import au.edu.qut.yawl.editor.resourcing.NewYawlResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 import au.edu.qut.yawl.editor.resourcing.DataVariableContent;
 
 public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
@@ -27,7 +27,7 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
   private RolesPanel rolesPanel;
   private TaskInputParameterPanel parameterPanel;
   
-  public SpecifyBaseDistributionSetPanel(ManageNewYAWLResourcingDialog dialog) {
+  public SpecifyBaseDistributionSetPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
   
@@ -113,13 +113,13 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     );
   }
   
-  public ManageNewYAWLResourcingDialog getResourcingDialog() {
-    return (ManageNewYAWLResourcingDialog) getDialog();
+  public ManageResourcingDialog getResourcingDialog() {
+    return (ManageResourcingDialog) getDialog();
   }
   
   public boolean shouldDoThisStep() {
     return getResourceMapping().getOfferInteractionPoint() == 
-      NewYawlResourceMapping.InteractionPointSetting.SYSTEM &&
+      ResourceMapping.InteractionPointSetting.SYSTEM &&
       getResourceMapping().getRetainFamiliarTask() == null;
   }
 }
@@ -183,7 +183,7 @@ class UserPanel extends JPanel implements ListSelectionListener {
      userList.setSelectedIndices(selectedUserIndicies);
   }
   
-  protected NewYawlResourceMapping getResourceMapping() {
+  protected ResourceMapping getResourceMapping() {
     return parent.getResourceMapping();
   }
 
@@ -258,7 +258,7 @@ class RolesPanel extends JPanel implements ListSelectionListener {
     roleList.setSelectedIndices(selectedRoleIndicies);
   }
 
-  protected NewYawlResourceMapping getResourceMapping() {
+  protected ResourceMapping getResourceMapping() {
     return parent.getResourceMapping();
   }
   
@@ -288,7 +288,7 @@ class TaskInputParameterPanel extends JPanel {
     buildInterface();
   }
   
-  protected NewYawlResourceMapping getResourceMapping() {
+  protected ResourceMapping getResourceMapping() {
     return parent.getResourceMapping();
   }
   
@@ -318,7 +318,9 @@ class TaskInputParameterPanel extends JPanel {
    */
   
   public void stopEditing() {
-    resourcingTable.getCellEditor().stopCellEditing();    
+    if (resourcingTable.getCellEditor() != null) {
+      resourcingTable.getCellEditor().stopCellEditing();    
+    }
   }
 
   private JScrollPane buildResourcingTable() {

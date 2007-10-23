@@ -7,7 +7,7 @@ import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.resourcing.NewYawlResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 
 public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
   
@@ -17,7 +17,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
   private InteractionPointPanel allocationPanel;
   private InteractionPointPanel startPanel;
   
-  public SetInteractionPointBehaviourPanel(ManageNewYAWLResourcingDialog dialog) {
+  public SetInteractionPointBehaviourPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
   
@@ -80,14 +80,14 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
       private static final long serialVersionUID = 1L;
 
       protected void doSystemButtonAction() {
-        getResourceMapping().setOfferInteractioPoint(
-          NewYawlResourceMapping.InteractionPointSetting.SYSTEM    
+        getResourceMapping().setOfferInteractionPoint(
+          ResourceMapping.InteractionPointSetting.SYSTEM    
         );
       }
 
       protected void doUserButtonAction() {
-        getResourceMapping().setOfferInteractioPoint(
-            NewYawlResourceMapping.InteractionPointSetting.USER
+        getResourceMapping().setOfferInteractionPoint(
+            ResourceMapping.InteractionPointSetting.USER
           );
       }
     };
@@ -100,14 +100,14 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
       private static final long serialVersionUID = 1L;
 
       protected void doSystemButtonAction() {
-        getResourceMapping().setAllocateInteractioPoint(
-          NewYawlResourceMapping.InteractionPointSetting.SYSTEM    
+        getResourceMapping().setAllocateInteractionPoint(
+          ResourceMapping.InteractionPointSetting.SYSTEM    
         );
       }
 
       protected void doUserButtonAction() {
-        getResourceMapping().setAllocateInteractioPoint(
-            NewYawlResourceMapping.InteractionPointSetting.USER
+        getResourceMapping().setAllocateInteractionPoint(
+            ResourceMapping.InteractionPointSetting.USER
         );
       }
     };
@@ -120,14 +120,14 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
       private static final long serialVersionUID = 1L;
 
       protected void doSystemButtonAction() {
-        getResourceMapping().setStartInteractioPoint(
-          NewYawlResourceMapping.InteractionPointSetting.SYSTEM    
+        getResourceMapping().setStartInteractionPoint(
+          ResourceMapping.InteractionPointSetting.SYSTEM    
         );
       }
 
       protected void doUserButtonAction() {
-        getResourceMapping().setStartInteractioPoint(
-            NewYawlResourceMapping.InteractionPointSetting.USER
+        getResourceMapping().setStartInteractionPoint(
+            ResourceMapping.InteractionPointSetting.USER
         );
       }
     };

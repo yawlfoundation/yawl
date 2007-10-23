@@ -11,7 +11,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.resourcing.NewYawlResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 import au.edu.qut.yawl.editor.swing.resourcing.ResourcingWizardPanel;
 
 public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
@@ -20,7 +20,7 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
 
   private JComboBox mechanismComboBox;
 
-  public SetSystemAllocateBehaviourPanel(ManageNewYAWLResourcingDialog dialog) {
+  public SetSystemAllocateBehaviourPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
   
@@ -109,6 +109,6 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
 
   public boolean shouldDoThisStep() {
     return getResourceMapping().getAllocateInteractionPoint() == 
-      NewYawlResourceMapping.InteractionPointSetting.SYSTEM;
+      ResourceMapping.InteractionPointSetting.SYSTEM;
   }
 }

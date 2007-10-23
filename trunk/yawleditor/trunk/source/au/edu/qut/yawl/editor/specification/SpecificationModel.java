@@ -585,7 +585,7 @@ public class SpecificationModel {
         // longer is done by a person.
         
         if (!task.getDecomposition().invokesWorklist()) {
-          task.setAllocationResourceMapping(null);
+          task.setResourceMapping(null);
         }
       }
     }

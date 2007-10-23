@@ -6,7 +6,7 @@ import java.awt.Insets;
 
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.resourcing.NewYawlResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 
 public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
 
@@ -18,9 +18,8 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel deallocateWorkItemPanel;
   private RuntimePrivilegePanel delegateWorkItemPanel;
   private RuntimePrivilegePanel skipWorkItemPanel;
-  private RuntimePrivilegePanel pileWorkItemPanel;
   
-  public SetRuntimePrivilegesPanel(ManageNewYAWLResourcingDialog dialog) {
+  public SetRuntimePrivilegesPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
   
@@ -65,18 +64,12 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
     
     skipWorkItemPanel = getSkipPanel();
     add(skipWorkItemPanel, gbc);
-
-    gbc.gridy++;
-    gbc.insets = new Insets(0,0,0,0);
-    
-    pileWorkItemPanel = getPilePanel();
-    add(pileWorkItemPanel, gbc);
   }
   
   private RuntimePrivilegePanel getSuspendWorkItemPanel() {
     return new RuntimePrivilegePanel(
         "Can a user suspend a started work item of this task?",
-        NewYawlResourceMapping.RuntimeUserPrivilege.CAN_SUSPEND,
+        ResourceMapping.RuntimeUserPrivilege.CAN_SUSPEND,
         this
     );
   }
@@ -84,7 +77,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getReallocateStatelessPanel() {
     return new RuntimePrivilegePanel(
         "Can a user reallocate a work item of this task to another user, resetting state?",
-        NewYawlResourceMapping.RuntimeUserPrivilege.CAN_REALLOCATE_STATELESS,
+        ResourceMapping.RuntimeUserPrivilege.CAN_REALLOCATE_STATELESS,
         this
     );
   }
@@ -92,7 +85,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getReallocateStatefulPanel() {
     return new RuntimePrivilegePanel(
         "Can a user reallocate a work item of this task to another user, retaining state?",    
-        NewYawlResourceMapping.RuntimeUserPrivilege.CAN_REALLOCATE_STATEFUL,
+        ResourceMapping.RuntimeUserPrivilege.CAN_REALLOCATE_STATEFUL,
         this
     );
   }
@@ -100,7 +93,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getDeallocatePanel() {
     return new RuntimePrivilegePanel(
         "Can a user deallocate themselves from a work item of this task?",
-        NewYawlResourceMapping.RuntimeUserPrivilege.CAN_DEALLOCATE,
+        ResourceMapping.RuntimeUserPrivilege.CAN_DEALLOCATE,
         this
     );
   }
@@ -108,7 +101,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getDelegatePanel() {
     return new RuntimePrivilegePanel(
         "Can a user delegate a work item of this task to some other user?",
-        NewYawlResourceMapping.RuntimeUserPrivilege.CAN_DELEGATE,
+        ResourceMapping.RuntimeUserPrivilege.CAN_DELEGATE,
         this
     );
   }
@@ -116,19 +109,11 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getSkipPanel() {
     return new RuntimePrivilegePanel(
         "Can a user skip a work item of this task?",
-        NewYawlResourceMapping.RuntimeUserPrivilege.CAN_SKIP,
+        ResourceMapping.RuntimeUserPrivilege.CAN_SKIP,
         this
     );
   }
 
-  private RuntimePrivilegePanel getPilePanel() {
-    return new RuntimePrivilegePanel(
-        "Can a user pile work items of this task together?",
-        NewYawlResourceMapping.RuntimeUserPrivilege.CAN_PILE,
-        this
-    );
-  }
-  
   public String getWizardStepTitle() {
     return "Establish Default User Runtime Privileges";
   }
@@ -148,6 +133,5 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
     deallocateWorkItemPanel.refresh();
     delegateWorkItemPanel.refresh();
     skipWorkItemPanel.refresh();
-    pileWorkItemPanel.refresh();
   }
 }

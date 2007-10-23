@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import au.edu.qut.yawl.editor.resourcing.NewYawlResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 
 public class RuntimePrivilegePanel extends JPanel {
 
@@ -20,12 +20,12 @@ public class RuntimePrivilegePanel extends JPanel {
   private JRadioButton noButton;
   private JRadioButton yesButton;
   
-  private NewYawlResourceMapping.RuntimeUserPrivilege privilege;
+  private ResourceMapping.RuntimeUserPrivilege privilege;
   
   private SetRuntimePrivilegesPanel privilegesPanel;
   
   public RuntimePrivilegePanel(String label, 
-                               NewYawlResourceMapping.RuntimeUserPrivilege privilege,
+                               ResourceMapping.RuntimeUserPrivilege privilege,
                                SetRuntimePrivilegesPanel privilegesPanel) {
     super();
     this.privilege = privilege;

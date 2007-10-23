@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import au.edu.qut.yawl.editor.resourcing.NewYawlResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 
 public abstract class InteractionPointPanel extends JPanel {
 
@@ -57,7 +57,7 @@ public abstract class InteractionPointPanel extends JPanel {
     buttons.setSelected(userButton.getModel(), true);
   }
   
-  public void setInteractionPointValue(NewYawlResourceMapping.InteractionPointSetting setting) {
+  public void setInteractionPointValue(ResourceMapping.InteractionPointSetting setting) {
     switch(setting) {
       case SYSTEM: {
         systemButton.setSelected(true);

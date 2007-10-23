@@ -54,13 +54,8 @@ import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 import au.edu.qut.yawl.editor.net.NetElementSummary;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
 
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
-
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
-
-import au.edu.qut.yawl.editor.thirdparty.orgdatabase.OrganisationDatabaseProxy;
-import au.edu.qut.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 import au.edu.qut.yawl.elements.YAWLServiceGateway;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
@@ -744,72 +739,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   }
   
   private static void populateResourceDetail(YTask engineTask, YAWLTask editorTask) {
-    populateResourceAllocationDetail(engineTask, editorTask);
-    populateResourceAuthorisationDetail(engineTask, editorTask);
+    populateResourceMappingDetail(engineTask, editorTask);
   }
   
-  private static void populateResourceAllocationDetail(YTask engineTask, YAWLTask editorTask) {
-    if (editorTask.getAllocationResourceMapping() == null) {
-      return;
-    }
-    
-    if (editorTask.getAllocationResourceMapping().getMappingType() == 
-        ResourceMapping.ALLOCATE_TO_ANYONE) {
-      return;
-    }
-    
-    generateEngineParameter(
-        engineTask.getDecompositionPrototype(),
-        YParameter._ENABLEMENT_PARAM_TYPE,
-        "string",
-        ENGINE_RESOURCE_ALLOCATION_PARAMETER,
-        null,
-        0
-    );
-
-    engineTask.setDataBindingForEnablementParam(
-        XMLUtilities.getTaggedOutputVariableWithContent(
-            ENGINE_RESOURCE_ALLOCATION_PARAMETER,
-            quoteSQLQueryForEngine(
-                OrganisationDatabaseProxy.getInstance().getQueryFromResourceMapping(
-                    editorTask.getAllocationResourceMapping()                
-                )
-            )
-        ), 
-        ENGINE_RESOURCE_ALLOCATION_PARAMETER
-    );
-  }
-
-  private static void populateResourceAuthorisationDetail(YTask engineTask, YAWLTask editorTask) {
-    if (editorTask.getAuthorisationResourceMapping() == null) {
-      return;
-    }
-
-    if (editorTask.getAuthorisationResourceMapping().getMappingType() == 
-        ResourceMapping.AUTHORISATION_UNNECESSARY) {
-      return;
-    }
-    
-    generateEngineParameter(
-        engineTask.getDecompositionPrototype(),
-        YParameter._ENABLEMENT_PARAM_TYPE,
-        "string",
-        ENGINE_RESOURCE_AUTHORISATION_PARAMETER,
-        null,
-        1
-    );
-
-    engineTask.setDataBindingForEnablementParam(
-        XMLUtilities.getTaggedOutputVariableWithContent(
-            ENGINE_RESOURCE_AUTHORISATION_PARAMETER,
-            quoteSQLQueryForEngine(
-                OrganisationDatabaseProxy.getInstance().getQueryFromResourceMapping(
-                    editorTask.getAuthorisationResourceMapping()                
-                )
-            )
-        ), 
-        ENGINE_RESOURCE_AUTHORISATION_PARAMETER
-    );
+  private static void populateResourceMappingDetail(YTask engineTask, YAWLTask editorTask) {
+    //TODO: map to new resourcing model.
   }
 
   private static boolean taskNeedsWebServiceDetail(YAWLTask editorTask) {

@@ -5,19 +5,17 @@ import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 
 import au.edu.qut.yawl.editor.net.NetGraph;
 
-import au.edu.qut.yawl.editor.resourcing.NewYawlResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 
 import au.edu.qut.yawl.editor.swing.AbstractWizardDialog;
 import au.edu.qut.yawl.editor.swing.AbstractWizardPanel;
 import au.edu.qut.yawl.editor.swing.JUtilities;
 
-public class ManageNewYAWLResourcingDialog extends AbstractWizardDialog {
+public class ManageResourcingDialog extends AbstractWizardDialog {
   private static final long serialVersionUID = 1L;
   
   private YAWLTask task;
   private NetGraph net;
-  
-  private NewYawlResourceMapping resourceMapping;
   
   protected void initialise() {
     setPanels(
@@ -53,9 +51,13 @@ public class ManageNewYAWLResourcingDialog extends AbstractWizardDialog {
     this.task = task;
     this.net = net;
 
-    //TODO: tie into task state.
-    
-    this.resourceMapping = new NewYawlResourceMapping((YAWLAtomicTask) task);
+    if (task.getResourceMapping() == null) {
+      task.setResourceMapping(
+          new ResourceMapping(
+              (YAWLAtomicTask) task
+          )
+      );
+    }
     
     for(AbstractWizardPanel panel : getPanels()) {
       ((ResourcingWizardPanel) panel).refresh();
@@ -73,8 +75,16 @@ public class ManageNewYAWLResourcingDialog extends AbstractWizardDialog {
   public YAWLTask getTask() {
     return this.task;
   }
+
+  public void doFirst() {
+    System.out.println("----Start resource mapping----");
+    System.out.println(
+        getResourceMapping()
+    );
+  }
   
   public void doFinish() {
+    System.out.println("----Finish resource mapping----");
     System.out.println(
         getResourceMapping()
     );
@@ -87,7 +97,7 @@ public class ManageNewYAWLResourcingDialog extends AbstractWizardDialog {
     super.setVisible(state);
   }
   
-  public NewYawlResourceMapping getResourceMapping() {
-    return resourceMapping;
+  public ResourceMapping getResourceMapping() {
+    return getTask().getResourceMapping();
   }
 }
