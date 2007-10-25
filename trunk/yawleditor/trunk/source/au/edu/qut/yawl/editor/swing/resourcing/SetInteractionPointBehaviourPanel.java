@@ -81,13 +81,13 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
 
       protected void doSystemButtonAction() {
         getResourceMapping().setOfferInteractionPoint(
-          ResourceMapping.InteractionPointSetting.SYSTEM    
+          ResourceMapping.SYSTEM_INTERACTION_POINT    
         );
       }
 
       protected void doUserButtonAction() {
         getResourceMapping().setOfferInteractionPoint(
-            ResourceMapping.InteractionPointSetting.USER
+            ResourceMapping.USER_INTERACTION_POINT
           );
       }
     };
@@ -101,13 +101,13 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
 
       protected void doSystemButtonAction() {
         getResourceMapping().setAllocateInteractionPoint(
-          ResourceMapping.InteractionPointSetting.SYSTEM    
+          ResourceMapping.SYSTEM_INTERACTION_POINT
         );
       }
 
       protected void doUserButtonAction() {
         getResourceMapping().setAllocateInteractionPoint(
-            ResourceMapping.InteractionPointSetting.USER
+            ResourceMapping.USER_INTERACTION_POINT
         );
       }
     };
@@ -121,13 +121,13 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
 
       protected void doSystemButtonAction() {
         getResourceMapping().setStartInteractionPoint(
-          ResourceMapping.InteractionPointSetting.SYSTEM    
+          ResourceMapping.SYSTEM_INTERACTION_POINT   
         );
       }
 
       protected void doUserButtonAction() {
         getResourceMapping().setStartInteractionPoint(
-            ResourceMapping.InteractionPointSetting.USER
+            ResourceMapping.USER_INTERACTION_POINT
         );
       }
     };

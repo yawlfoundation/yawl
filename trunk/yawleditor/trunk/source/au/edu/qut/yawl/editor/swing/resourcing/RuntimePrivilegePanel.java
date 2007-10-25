@@ -20,12 +20,12 @@ public class RuntimePrivilegePanel extends JPanel {
   private JRadioButton noButton;
   private JRadioButton yesButton;
   
-  private ResourceMapping.RuntimeUserPrivilege privilege;
+  private int privilege;
   
   private SetRuntimePrivilegesPanel privilegesPanel;
   
   public RuntimePrivilegePanel(String label, 
-                               ResourceMapping.RuntimeUserPrivilege privilege,
+                               int privilege,
                                SetRuntimePrivilegesPanel privilegesPanel) {
     super();
     this.privilege = privilege;

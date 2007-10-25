@@ -119,7 +119,7 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
   
   public boolean shouldDoThisStep() {
     return getResourceMapping().getOfferInteractionPoint() == 
-      ResourceMapping.InteractionPointSetting.SYSTEM &&
+      ResourceMapping.SYSTEM_INTERACTION_POINT &&
       getResourceMapping().getRetainFamiliarTask() == null;
   }
 }

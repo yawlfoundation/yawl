@@ -8,27 +8,25 @@ public class DataVariableContent implements Serializable, Cloneable {
 
   private static final long serialVersionUID = 1L;
 
-  public static enum ContentType {
-    DATA,
-    USERS,
-    ROLES
-  }
+  public static final int DATA_CONTENT_TYPE = 0;
+  public static final int USERS_CONTENT_TYPE = 1;
+  public static final int ROLES_CONTENT_TYPE = 2;
   
   private static final String DATA_STRING = "Data";
   private static final String USERS_STRING = "Users";
   private static final String ROLES_STRING = "Roles";
   
   protected DataVariable variable;
-  protected ContentType  contentType = ContentType.DATA;
+  protected int contentType = DATA_CONTENT_TYPE;
   
   public DataVariableContent() {}
   
   public DataVariableContent(DataVariable variable) {
     this.variable = variable;
-    this.contentType = ContentType.DATA;
+    this.contentType = DATA_CONTENT_TYPE;
   }
   
-  public DataVariableContent(DataVariable variable, ContentType contentType) {
+  public DataVariableContent(DataVariable variable, int contentType) {
     this.variable = variable;
     this.contentType = contentType;
   }
@@ -42,11 +40,11 @@ public class DataVariableContent implements Serializable, Cloneable {
   }
 
   
-  public void setContentType(ContentType contentType) {
+  public void setContentType(int contentType) {
     this.contentType = contentType;
   }
 
-  public ContentType getContentType() {
+  public int getContentType() {
     return this.contentType;
   }
 
@@ -67,31 +65,31 @@ public class DataVariableContent implements Serializable, Cloneable {
     return getContentTypeAsString(contentType);
   }
   
-  public static String getContentTypeAsString(ContentType contentType) {
+  public static String getContentTypeAsString(int contentType) {
     switch(contentType) {
-      case DATA: {
+      case DATA_CONTENT_TYPE: {
         return DATA_STRING;
       }
-      case USERS: {
+      case USERS_CONTENT_TYPE: {
         return USERS_STRING;
       }
-      case ROLES: {
+      case ROLES_CONTENT_TYPE: {
         return ROLES_STRING;
       }
     }
     return DATA_STRING;
   }
   
-  public static ContentType getContentTypeForString(String contentTypeString) {
+  public static int getContentTypeForString(String contentTypeString) {
     if (contentTypeString.equals(DATA_STRING)) {
-      return ContentType.DATA;
+      return DATA_CONTENT_TYPE;
     }
     if (contentTypeString.equals(USERS_STRING)) {
-      return ContentType.USERS;
+      return USERS_CONTENT_TYPE;
     }
     if (contentTypeString.equals(ROLES_STRING)) {
-      return ContentType.ROLES;
+      return ROLES_CONTENT_TYPE;
     }
-    return ContentType.DATA;
+    return DATA_CONTENT_TYPE;
   }
 }

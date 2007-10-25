@@ -57,13 +57,13 @@ public abstract class InteractionPointPanel extends JPanel {
     buttons.setSelected(userButton.getModel(), true);
   }
   
-  public void setInteractionPointValue(ResourceMapping.InteractionPointSetting setting) {
+  public void setInteractionPointValue(int setting) {
     switch(setting) {
-      case SYSTEM: {
+      case ResourceMapping.SYSTEM_INTERACTION_POINT: {
         systemButton.setSelected(true);
         break;
       }
-      case USER: {
+      case ResourceMapping.USER_INTERACTION_POINT: {
         userButton.setSelected(true);
         break;
       }

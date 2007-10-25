@@ -69,7 +69,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getSuspendWorkItemPanel() {
     return new RuntimePrivilegePanel(
         "Can a user suspend a started work item of this task?",
-        ResourceMapping.RuntimeUserPrivilege.CAN_SUSPEND,
+        ResourceMapping.CAN_SUSPEND_PRIVILEGE,
         this
     );
   }
@@ -77,7 +77,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getReallocateStatelessPanel() {
     return new RuntimePrivilegePanel(
         "Can a user reallocate a work item of this task to another user, resetting state?",
-        ResourceMapping.RuntimeUserPrivilege.CAN_REALLOCATE_STATELESS,
+        ResourceMapping.CAN_REALLOCATE_STATELESS_PRIVILEGE,
         this
     );
   }
@@ -85,7 +85,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getReallocateStatefulPanel() {
     return new RuntimePrivilegePanel(
         "Can a user reallocate a work item of this task to another user, retaining state?",    
-        ResourceMapping.RuntimeUserPrivilege.CAN_REALLOCATE_STATEFUL,
+        ResourceMapping.CAN_REALLOCATE_STATEFUL_PRIVILEGE,
         this
     );
   }
@@ -93,7 +93,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getDeallocatePanel() {
     return new RuntimePrivilegePanel(
         "Can a user deallocate themselves from a work item of this task?",
-        ResourceMapping.RuntimeUserPrivilege.CAN_DEALLOCATE,
+        ResourceMapping.CAN_DEALLOCATE_PRIVILEGE,
         this
     );
   }
@@ -101,7 +101,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getDelegatePanel() {
     return new RuntimePrivilegePanel(
         "Can a user delegate a work item of this task to some other user?",
-        ResourceMapping.RuntimeUserPrivilege.CAN_DELEGATE,
+        ResourceMapping.CAN_DELEGATE_PRIVILEGE,
         this
     );
   }
@@ -109,7 +109,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   private RuntimePrivilegePanel getSkipPanel() {
     return new RuntimePrivilegePanel(
         "Can a user skip a work item of this task?",
-        ResourceMapping.RuntimeUserPrivilege.CAN_SKIP,
+        ResourceMapping.CAN_SKIP_PRIVILEGE,
         this
     );
   }

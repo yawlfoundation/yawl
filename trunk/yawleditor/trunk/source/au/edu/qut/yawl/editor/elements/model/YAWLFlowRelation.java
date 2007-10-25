@@ -198,6 +198,10 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
   }
   
   public boolean hasSplitAsSource(int type) {
+    if (getSource() == null) {
+      return false;
+    }
+    
     Object source = ((YAWLPort)getSource()).getParent();
     if (source instanceof SplitDecorator) {
       SplitDecorator decorator = (SplitDecorator) source;

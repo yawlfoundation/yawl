@@ -1,6 +1,7 @@
 package au.edu.qut.yawl.editor.resourcing;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,54 +14,90 @@ import au.edu.qut.yawl.editor.elements.model.YAWLTask;
 public class ResourceMapping implements Serializable, Cloneable  {
   
   private static final long serialVersionUID = 1L;
+  
+  public static final int SYSTEM_INTERACTION_POINT = 0;
+  public static final int USER_INTERACTION_POINT = 1;
 
-  public static enum InteractionPointSetting {
-    SYSTEM,
-    USER
-  };
-  
-  protected InteractionPointSetting offerInteractionPoint = InteractionPointSetting.USER;
-  protected InteractionPointSetting allocateInteractionPoint = InteractionPointSetting.USER;
-  protected InteractionPointSetting startInteractionPoint = InteractionPointSetting.USER;
-  
-  protected String allocationMechanism;
-  
-  protected YAWLAtomicTask retainFamiliarTask = null;
-  
-  protected String[] baseUserDistributionList;
-  protected String[] baseRoleDistributionList;
-  
-  protected HashSet<RuntimeUserPrivilege> enabledPrivileges = new HashSet<RuntimeUserPrivilege>();
-  
-  protected List<DataVariableContent> baseVariableContentList;
+  public static final int CAN_SUSPEND_PRIVILEGE              = 100;
+  public static final int CAN_REALLOCATE_STATELESS_PRIVILEGE = 101;
+  public static final int CAN_REALLOCATE_STATEFUL_PRIVILEGE  = 102;
+  public static final int CAN_DEALLOCATE_PRIVILEGE           = 103;
+  public static final int CAN_DELEGATE_PRIVILEGE             = 104;
+  public static final int CAN_SKIP_PRIVILEGE                 = 105;
+  public static final int CAN_PILE_PRIVILEGE                 = 106;
 
-  protected YAWLAtomicTask separationOfDutiesTask = null;
+  /* ALL yawl-specific attributes of this object and its descendants 
+   * are to be stored in serializationProofAttributeMap, meaning we 
+   * won't get problems with incompatible XML serializations as we add 
+   * new attributes in the future. 
+   */
   
-  public static enum RuntimeUserPrivilege {
-    CAN_SUSPEND,
-    CAN_REALLOCATE_STATELESS,
-    CAN_REALLOCATE_STATEFUL,
-    CAN_DEALLOCATE,
-    CAN_DELEGATE,
-    CAN_SKIP,
-    CAN_PILE
-  };
+  protected HashMap serializationProofAttributeMap = new HashMap();
+
+  public ResourceMapping() {
+    super();
+    initialise();
+  }
+
+  private void initialise() {
+    setOfferInteractionPoint(USER_INTERACTION_POINT);
+    setAllocateInteractionPoint(USER_INTERACTION_POINT);
+    setStartInteractionPoint(USER_INTERACTION_POINT);
+    setEnabledPrivileges(new HashSet<Integer>());
+  }
   
-  protected YAWLAtomicTask resourceRequiringTask;
+  public void setSerializationProofAttributeMap(HashMap map) {
+    this.serializationProofAttributeMap = map;
+  }
   
-  public ResourceMapping() {}
+  public HashMap getSerializationProofAttributeMap() {
+    return this.serializationProofAttributeMap;
+  }
   
   public ResourceMapping(YAWLAtomicTask resourceRequiringTask) {
-    this.resourceRequiringTask = resourceRequiringTask;
-    this.baseVariableContentList = buildDefaultBaseVariableContentList();
+    super();
+    initialise();
+    setResourceRequiringTask(
+        resourceRequiringTask
+    );
+    setBaseVariableContentList(
+        buildDefaultBaseVariableContentList()
+    );
   }
   
   public YAWLAtomicTask getResourceRequiringTask() {
-    return this.resourceRequiringTask;
+    return (YAWLAtomicTask) serializationProofAttributeMap.get("resourceRequiringTask");
   }
   
   public void setResourceRequiringTask(YAWLAtomicTask resourceRequiringTask) {
-    this.resourceRequiringTask = resourceRequiringTask;
+    serializationProofAttributeMap.put("resourceRequiringTask",resourceRequiringTask);
+  }
+
+  /* ------ Offer Related Attributes ------ */
+  
+  public void setOfferInteractionPoint(int setting) {
+    serializationProofAttributeMap.put("offerInteractionPoint",new Integer(setting));
+  }
+  
+  public int getOfferInteractionPoint() {
+    return ((Integer) serializationProofAttributeMap.get("offerInteractionPoint")).intValue();
+  }
+  
+  public YAWLAtomicTask getRetainFamiliarTask() {
+    return (YAWLAtomicTask) serializationProofAttributeMap.get("retainFamiliarTask");
+  }
+
+  public void setRetainFamiliarTask(YAWLAtomicTask task) {
+    serializationProofAttributeMap.put("retainFamiliarTask", task);
+  }
+
+  
+  public YAWLAtomicTask getSeparationOfDutiesTask() {
+    return (YAWLAtomicTask) serializationProofAttributeMap.get("separationOfDutiesTask");
+  }
+
+  public void setSeparationOfDutiesTask(YAWLAtomicTask task) {
+    serializationProofAttributeMap.put("separationOfDutiesTask", task);
   }
   
   private List<DataVariableContent> buildDefaultBaseVariableContentList() {
@@ -68,7 +105,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
     
     List<DataVariable> validPossibleVariables = 
       DataVariableUtilities.getVariablesOfType(
-          ((YAWLTask) resourceRequiringTask).getVariables().getInputVariables(),
+          ((YAWLTask) getResourceRequiringTask()).getVariables().getInputVariables(),
           DataVariable.XML_SCHEMA_STRING_TYPE
     );
     
@@ -80,80 +117,6 @@ public class ResourceMapping implements Serializable, Cloneable  {
     return list;
   }
   
-
-  /**
-   * Resynchronises the variable content map with changes that may have been
-   * applied to the task's data perspective definitions. All new variables that
-   * could be used to store resourcing data default to storing plain data initially.
-   */
-  
-  public void syncWithDataPerspective() {
-    LinkedList<DataVariableContent> variablesToRemove = new LinkedList<DataVariableContent>();
-    for(DataVariableContent variableContent : baseVariableContentList) {
-      if (!variableContent.isValidForResourceContainment()) {
-        variablesToRemove.add(variableContent);
-      }
-    }
-    
-    for(DataVariableContent variableContent : variablesToRemove) {
-      baseVariableContentList.remove(variableContent);
-    }
-    
-    LinkedList<DataVariable> variablesToAdd = new LinkedList<DataVariable>();
-    for(DataVariable variable : ((YAWLTask) resourceRequiringTask).getVariables().getInputVariables()) {
-      boolean variableFound = false;
-      for(DataVariableContent variableContent : baseVariableContentList) {
-        if (variableContent.getVariable() == variable) {
-          variableFound = true;
-          break;
-        }
-      }
-      if (!variableFound && DataVariableContent.isValidForResourceContainment(variable)) {
-        variablesToAdd.add(variable);
-      }
-    }
-    
-    for(DataVariable variable: variablesToAdd) {
-      baseVariableContentList.add(
-          new DataVariableContent(variable)
-      );
-    }
-  }
-  
-  public void setOfferInteractionPoint(InteractionPointSetting setting) {
-    offerInteractionPoint = setting;
-  }
-  
-  public InteractionPointSetting getOfferInteractionPoint() {
-    return offerInteractionPoint;
-  }
-
-  public void setAllocateInteractionPoint(InteractionPointSetting setting) {
-    allocateInteractionPoint = setting;
-  }
-  
-  public InteractionPointSetting getAllocateInteractionPoint() {
-    return allocateInteractionPoint;
-  }
-
-  public void setStartInteractionPoint(InteractionPointSetting setting) {
-    startInteractionPoint = setting;
-  }
-  
-  public InteractionPointSetting getStartInteractionPoint() {
-    return startInteractionPoint;
-  }
-  
-  //TODO: Stubbed up until we source the list from a running engine.
-  
-  public String[] getRegisteredAllocationMechanisms() {
-    return new String[] {
-        "Round-Robin", 
-        "Shortest-Queue", 
-        "Random"  
-    };
-  }
-
   //TODO: Stubbed up until we source the list from a running engine.
 
   public String[] getUserList() {
@@ -169,11 +132,11 @@ public class ResourceMapping implements Serializable, Cloneable  {
   //TODO: Stubbed up until we source the list from a running engine.
 
   public void setBaseUserDistributionList(String[] userList) {
-    baseUserDistributionList = userList;
+    serializationProofAttributeMap.put("baseUserDistributionList", userList);
   }
   
   public String[] getBaseUserDistributionList() {
-    return baseUserDistributionList;
+    return (String[]) serializationProofAttributeMap.get("baseUserDistributionList");
   }
 
   //TODO: Stubbed up until we source the list from a running engine.
@@ -191,66 +154,124 @@ public class ResourceMapping implements Serializable, Cloneable  {
   //TODO: Stubbed up until we source the list from a running engine.
 
   public void setBaseRoleDistributionList(String[] roles) {
-    this.baseRoleDistributionList = roles;
+    serializationProofAttributeMap.put("baseRoleDistributionList", roles);
   }
   
   public String[] getBaseRoleDistributionList() {
-    return baseRoleDistributionList;
+    return (String[]) serializationProofAttributeMap.get("baseRoleDistributionList");
   }
   
   public void setBaseVariableContentList(List<DataVariableContent> list) {
-    this.baseVariableContentList = list;
+    serializationProofAttributeMap.put("baseVariableContentList", list);
   }
   
   public List<DataVariableContent>  getBaseVariableContentList() {
-    return this.baseVariableContentList;
+    return (List<DataVariableContent>) serializationProofAttributeMap.get("baseVariableContentList");
+  }
+
+  /**
+   * Resynchronises the variable content map with changes that may have been
+   * applied to the task's data perspective definitions. All new variables that
+   * could be used to store resourcing data default to storing plain data initially.
+   */
+  
+  public void syncWithDataPerspective() {
+    LinkedList<DataVariableContent> variablesToRemove = new LinkedList<DataVariableContent>();
+    for(DataVariableContent variableContent : getBaseVariableContentList()) {
+      if (!variableContent.isValidForResourceContainment()) {
+        variablesToRemove.add(variableContent);
+      }
+    }
+    
+    for(DataVariableContent variableContent : variablesToRemove) {
+      getBaseVariableContentList().remove(variableContent);
+    }
+    
+    LinkedList<DataVariable> variablesToAdd = new LinkedList<DataVariable>();
+    for(DataVariable variable : ((YAWLTask) getResourceRequiringTask()).getVariables().getInputVariables()) {
+      boolean variableFound = false;
+      for(DataVariableContent variableContent : getBaseVariableContentList()) {
+        if (variableContent.getVariable() == variable) {
+          variableFound = true;
+          break;
+        }
+      }
+      if (!variableFound && DataVariableContent.isValidForResourceContainment(variable)) {
+        variablesToAdd.add(variable);
+      }
+    }
+    
+    for(DataVariable variable: variablesToAdd) {
+      getBaseVariableContentList().add(
+          new DataVariableContent(variable)
+      );
+    }
+  }
+
+
+  /* ------ Allocation Related Attributes ------ */
+  
+  public void setAllocateInteractionPoint(int setting) {
+    serializationProofAttributeMap.put("allocateInteractionPoint",new Integer(setting));
   }
   
+  public int getAllocateInteractionPoint() {
+    return ((Integer) serializationProofAttributeMap.get("allocateInteractionPoint")).intValue();
+  }
+
+  //TODO: Stubbed up until we source the list from a running engine.
+  
+  public String[] getRegisteredAllocationMechanisms() {
+    return new String[] {
+        "Round-Robin", 
+        "Shortest-Queue", 
+        "Random"  
+    };
+  }
+
   public String getAllocationMechanism() {
-    if (allocateInteractionPoint == InteractionPointSetting.SYSTEM) {
-      return allocationMechanism;
+    if (getAllocateInteractionPoint() == SYSTEM_INTERACTION_POINT) {
+      return (String) serializationProofAttributeMap.get("allocationMechanism");
     }
     return null;
   }
   
   public void setAllocationMechanism(String allocationMechanism) {
-    this.allocationMechanism = allocationMechanism;
-  }
-  
-  public YAWLAtomicTask getRetainFamiliarTask() {
-    return this.retainFamiliarTask;
+    serializationProofAttributeMap.put("allocationMechanism", allocationMechanism);
   }
 
-  public void setRetainFamiliarTask(YAWLAtomicTask task) {
-    this.retainFamiliarTask = task;
+  /* ------ Start Related Attributes ------ */
+  
+  public void setStartInteractionPoint(int setting) {
+    serializationProofAttributeMap.put("startInteractionPoint",new Integer(setting));
   }
 
-  public YAWLAtomicTask getSeparationOfDutiesTask() {
-    return this.separationOfDutiesTask;
+  
+  public int getStartInteractionPoint() {
+    return ((Integer) serializationProofAttributeMap.get("startInteractionPoint")).intValue();
   }
 
-  public void setSeparationOfDutiesTask(YAWLAtomicTask task) {
-    this.separationOfDutiesTask = task;
+  
+  /* ------ Privilege Related Attributes ------ */
+
+  public void setEnabledPrivileges(HashSet<Integer> privileges) {
+    serializationProofAttributeMap.put("enabledPrivileges", privileges);
   }
   
-  public void setEnabledPrivileges(HashSet<RuntimeUserPrivilege> privileges) {
-    this.enabledPrivileges = privileges;
+  public HashSet<Integer> getEnabledPrivileges() {
+    return (HashSet<Integer>) serializationProofAttributeMap.get("enabledPrivileges");
   }
   
-  public HashSet<RuntimeUserPrivilege> getEnabledPrivileges() {
-    return enabledPrivileges;
-  }
-  
-  public void enablePrivilege(RuntimeUserPrivilege privilege, boolean enabled) {
+  public void enablePrivilege(int privilege, boolean enabled) {
     if (enabled) {
-      enabledPrivileges.add(privilege);
+      getEnabledPrivileges().add(new Integer(privilege));
     } else {
-      enabledPrivileges.remove(privilege);
+      getEnabledPrivileges().remove(new Integer(privilege));
     }
   }
   
-  public boolean isPrivilegeEnabled(RuntimeUserPrivilege privilege) {
-    if (enabledPrivileges.contains(privilege)) {
+  public boolean isPrivilegeEnabled(int  privilege) {
+    if (getEnabledPrivileges().contains(new Integer(privilege))) {
       return true;
     }
     return false;
@@ -260,7 +281,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
     
     StringBuffer systemAllocationMechanism = new StringBuffer("");
     
-    if (allocateInteractionPoint == InteractionPointSetting.SYSTEM) {
+    if (getAllocateInteractionPoint() == SYSTEM_INTERACTION_POINT) {
       systemAllocationMechanism.append(
           "System Allocation Mechanism\n" + 
           "---------------------------\n" + 
@@ -269,34 +290,34 @@ public class ResourceMapping implements Serializable, Cloneable  {
     }
     
     StringBuffer baseUserDistribitionListString = new StringBuffer("");
-    if (baseUserDistributionList != null && baseUserDistributionList.length > 0) {
+    if (getBaseUserDistributionList() != null && getBaseUserDistributionList().length > 0) {
       baseUserDistribitionListString.append(
           "Base User Distribution List:\n" + 
           "---------------------------\n"
       );
-      for(String user : baseUserDistributionList) {
+      for(String user : getBaseUserDistributionList()) {
         baseUserDistribitionListString.append("  " + user + "\n");
       }
     }
 
     StringBuffer baseRoleDistribitionListString = new StringBuffer("");
-    if (baseRoleDistributionList != null && baseRoleDistributionList.length > 0) {
+    if (getBaseRoleDistributionList() != null && getBaseRoleDistributionList().length > 0) {
       baseRoleDistribitionListString.append(
           "Base RoleDistribution List:\n" + 
           "---------------------------\n"
       );
-      for(String role : baseRoleDistributionList) {
+      for(String role : getBaseRoleDistributionList()) {
         baseRoleDistribitionListString.append("  " + role + "\n");
       }
     }
 
     StringBuffer baseVariableContentListString = new StringBuffer("");
-    if (baseVariableContentList != null && baseVariableContentList.size()> 0) {
+    if (getBaseVariableContentList() != null && getBaseVariableContentList().size()> 0) {
       baseVariableContentListString.append(
           "Variable Content List:\n" + 
           "----------------------\n"
       );
-      for(DataVariableContent content: baseVariableContentList) {
+      for(DataVariableContent content: getBaseVariableContentList()) {
         baseVariableContentListString.append(
             "  " + content.getVariable().getName() + 
             " contains " + 
@@ -305,37 +326,37 @@ public class ResourceMapping implements Serializable, Cloneable  {
     }
     
     StringBuffer retainFamiliarTaskString = new StringBuffer("");
-    if(retainFamiliarTask != null) {
+    if(getRetainFamiliarTask() != null) {
       retainFamiliarTaskString.append("Retain Familiar Task = (" 
-          + ((YAWLTask) retainFamiliarTask).getEngineId()
+          + ((YAWLTask) getRetainFamiliarTask()).getEngineId()
           + ").\n"
       );
     }
 
     StringBuffer separationOfDutiesTaskString = new StringBuffer("");
-    if(separationOfDutiesTask != null) {
+    if(getSeparationOfDutiesTask() != null) {
       retainFamiliarTaskString.append("Separation of Duties Task = (" 
-          + ((YAWLTask) separationOfDutiesTask).getEngineId()
+          + ((YAWLTask) getSeparationOfDutiesTask()).getEngineId()
           + ").\n"
       );
     }
 
     StringBuffer enabledPrivilegesString = new StringBuffer("");
     
-    if (enabledPrivileges.size() > 0) {
+    if (getEnabledPrivileges().size() > 0) {
       enabledPrivilegesString.append(
           "Enabled Runtime Privileges:\n" + 
           "---------------------------\n"
       );
-      for(RuntimeUserPrivilege privilege: enabledPrivileges) {
+      for(Integer privilege: getEnabledPrivileges()) {
         enabledPrivilegesString.append("  " + privilege + "\n");
       }
     }
     
     return 
-        "Interaction Points:\n-------------------\n  Offer: " + offerInteractionPoint + 
-        ", Allocate: " + allocateInteractionPoint + 
-        ", Start: " + startInteractionPoint + "\n" +
+        "Interaction Points:\n-------------------\n  Offer: " + getOfferInteractionPoint() + 
+        ", Allocate: " + getAllocateInteractionPoint() + 
+        ", Start: " + getStartInteractionPoint() + "\n" +
         systemAllocationMechanism +
         retainFamiliarTaskString +
         baseUserDistribitionListString +
