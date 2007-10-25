@@ -192,12 +192,12 @@ public class ArchivableSpecificationState implements Serializable {
     return (String) serializationProofAttributeMap.get("author");
   }
 
-  public void setVersionNumber(String versionNumber) {
-    serializationProofAttributeMap.put("versionNumber",versionNumber);
+  public void setVersionNumber(double versionNumber) {
+    serializationProofAttributeMap.put("versionNumber", new Double(versionNumber));
   }
   
-  public String getVersionNumber() {
-    return (String) serializationProofAttributeMap.get("versionNumber");
+  public double getVersionNumber() {
+    return ((Double) serializationProofAttributeMap.get("versionNumber")).doubleValue();
   }
   
   public void setValidFromTimestamp(String timestamp) {

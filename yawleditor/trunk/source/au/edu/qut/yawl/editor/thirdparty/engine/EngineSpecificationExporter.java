@@ -233,14 +233,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           )
       );
     }
-    if (editorSpec.getVersionNumber() != null &&
-        !editorSpec.getVersionNumber().trim().equals("")) {
-      metaData.setVersion(
-          XMLUtilities.quoteSpecialCharacters(
+    metaData.setVersion(
+        Double.toString(
             editorSpec.getVersionNumber()
-          )
-      );
-    }
+        )
+    );
     try {
       if (editorSpec.getValidFromTimestamp() != null &&
           !editorSpec.getValidFromTimestamp().trim().equals("")) {

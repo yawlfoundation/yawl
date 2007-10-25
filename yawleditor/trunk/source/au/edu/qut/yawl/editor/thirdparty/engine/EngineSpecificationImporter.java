@@ -181,7 +181,9 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
     if (metaData.getVersion() != null) {
       SpecificationModel.getInstance().setVersionNumber(
-          metaData.getVersion()
+          Double.valueOf(
+              metaData.getVersion()
+          ).doubleValue()
       );
     }
 
