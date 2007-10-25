@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="au.edu.qut.yawl.resourcing">
+
+	<class name="QueueSet" table="rs_QueueSet">
+
+        <id name="_ownerID"
+            column="ParticipantID"
+            type="string"
+            access="field"/>
+
+    	<property name="_type"
+                  column="SetType"
+                  type="string"/>
+
+ <!--        <one-to-one name="_qOffered" class="WorkQueue"
+                     cascade="all" access="field" />
+
+       <one-to-one name="_qAllocated" class="WorkQueue"
+                     cascade="all" access="field" /> 
+
+        <one-to-one name="_qStarted" class="WorkQueue"
+                     cascade="all" access="field" />
+
+        <one-to-one name="_qSuspended" class="WorkQueue"
+                     cascade="all" access="field" />
+
+       <one-to-one name="_qWorklisted" class="WorkQueue"
+                     cascade="all" access="field" />
+
+        <one-to-one name="_qUnoffered" class="WorkQueue"
+                     cascade="all" access="field" />
+-->
+     </class>
+	
+</hibernate-mapping>
