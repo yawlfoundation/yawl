@@ -55,6 +55,7 @@ import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 
 import au.edu.qut.yawl.editor.swing.JFormattedDateField;
 import au.edu.qut.yawl.editor.swing.JFormattedAlphaNumericField;
+import au.edu.qut.yawl.editor.swing.JFormattedNumberField;
 import au.edu.qut.yawl.editor.swing.JFormattedSafeXMLCharacterField;
 
 public class UpdateSpecificationPropertiesAction extends YAWLOpenSpecificationAction 
@@ -113,7 +114,7 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
 
   // Administration property widgets
   
-  private JFormattedSafeXMLCharacterField versionNumberField;
+  private JFormattedNumberField versionNumberField;
   private TimeStampPanel validFromPanel;
   private TimeStampPanel validUntilPanel;
   
@@ -129,7 +130,7 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
           SpecificationModel.getInstance().setDescription(specificationDescriptionField.getText());
           SpecificationModel.getInstance().setId(specificationIDField.getText());
           SpecificationModel.getInstance().setAuthor(specificationAuthorField.getText());
-          SpecificationModel.getInstance().setVersionNumber(versionNumberField.getText());
+          SpecificationModel.getInstance().setVersionNumber(versionNumberField.getDouble());
           SpecificationModel.getInstance().setValidFromTimestamp(validFromPanel.getTimestamp());
           SpecificationModel.getInstance().setValidUntilTimestamp(validUntilPanel.getTimestamp());
         }
@@ -282,7 +283,7 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
       specificationAuthorField.setText(
           SpecificationModel.getInstance().getAuthor()    
       );
-      versionNumberField.setText(
+      versionNumberField.setDouble(
           SpecificationModel.getInstance().getVersionNumber()    
       );
       validFromPanel.setTimestamp(SpecificationModel.getInstance().getValidFromTimestamp());
@@ -321,8 +322,8 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
     return specificationAuthorField;
   }
   
-  private JFormattedSafeXMLCharacterField getVersionNumberField() {
-    versionNumberField = new JFormattedSafeXMLCharacterField(10);
+  private JFormattedNumberField getVersionNumberField() {
+    versionNumberField = new JFormattedNumberField("###,###,##0.0###",0.1,10);
     versionNumberField.setToolTipText(" Enter a version number for this specification ");
     return versionNumberField;
   }

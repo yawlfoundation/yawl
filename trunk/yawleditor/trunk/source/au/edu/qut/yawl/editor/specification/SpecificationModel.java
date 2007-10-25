@@ -95,7 +95,7 @@ public class SpecificationModel {
   private String  description         = "No description has been given.";
   private String  id                 = "";
   private String  author              = System.getProperty("user.name");
-  private String  versionNumber       = "0.1";
+  private double  versionNumber       = 0.1;
   private String  validFromTimestamp  = "";
   private String  validUntilTimestamp = "";
   
@@ -189,7 +189,7 @@ public class SpecificationModel {
     setDescription("No description has been given.");
     setId("");
     setAuthor(System.getProperty("user.name"));
-    setVersionNumber("0.1");
+    setVersionNumber(0.1);
     setValidFromTimestamp("");
     setValidUntilTimestamp("");
     YAWLEditor.setStatusBarText("Open or create a net to begin.");
@@ -673,11 +673,11 @@ public class SpecificationModel {
     return this.author;
   }
 
-  public void setVersionNumber(String versionNumber) {
+  public void setVersionNumber(double versionNumber) {
     this.versionNumber = versionNumber;
   }
   
-  public String getVersionNumber() {
+  public double getVersionNumber() {
     return this.versionNumber;
   }
   

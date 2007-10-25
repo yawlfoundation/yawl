@@ -1,9 +1,12 @@
-Version 2.0
+Version 2.0 (??/??/????)
   * LWB: Fixed a bug where the view menu would occasionally show the wrong icon for a net.
   * LWB: Fixed a bug where the path of plugin icons was absolute, stopping
          plugin task icons from working on machines where the plugin path is different.
-  * LWB: Upgraded to latest engine, fixing a bug that was causing ouput and enablement parameters
-         to be interleaved in the engine specification, causing engine runtime errors.
+  * LWB: Fixed a bug where the paste of a copied net element would result in the
+         copy having the same engine ID as the original, disrupting correct engine
+         export/validation behaviour.
+  * LWB: Changed the specification version number to be a decimal number instead of a
+         free-form string.
 
 Version 1.5.1 (08/10/2007)
   * LWB: Fixed a bug where multiple-instance tasks were not being initialsed properly and consequently
