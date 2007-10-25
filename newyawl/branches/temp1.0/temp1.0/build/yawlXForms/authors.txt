@@ -1,0 +1,58 @@
+Creators
+--------
+Joern Turner
+Ulrich Nicolas Lissé
+
+Authors
+-------
+William Boyd
+Oliver Charlet
+Mark Dimon
+Brian Dueck
+Terence Jacyno
+Gregor Klinke
+Ronald van Kuijk
+Robert Leftwich
+Peter Mikula
+Eduardo Millán
+Chris Picton
+Sophie Ramel
+Andrzej Jan Taramina
+Péter Varga
+
+Contributors
+------------
+Suhail Ahmed
+Dario Bahena
+Flavio Costa
+Julie Craig
+Thomas Draier
+Jason Eacott
+Alexander Grosse
+Eric Hanson
+Giota Karadimitriou
+Leigh Klotz
+Sabine Krach
+Anselm Kruis
+Anja Lehmann
+Yien Lie
+Pierre-Alexandre Losson
+Murata Makoto
+Lawrence McCay
+Peter Mikhalenko
+Paul Miniato
+Sebastian Ordyniak
+Tanguy Rademakers
+Zach Roberts
+Peter Rodgers
+Olaf Schreck
+Daniel Shane
+Robert Simmons
+Karla Smith
+Paul Sterk
+Torben Vesterager
+Thomas Ziegert
+Stefan Zorn
+
+Note: This list also contains people who contributed to Chiba before it had
+been split into Core and Web modules.

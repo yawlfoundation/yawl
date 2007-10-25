@@ -1,0 +1,108 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+	  <title>The Worklet Service for YAWL</title>
+        <meta name="Pragma" content="no-cache"/>
+        <meta name="Cache-Control" content="no-cache"/>
+        <meta name="Expires" content="0"/>
+        <link rel="stylesheet" href="./graphics/common.css"/>
+        <style type="TEXT/CSS"></style>
+	</head>
+	<body>
+        <!-- Include YAWL Banner Information -->
+     	  <table width="100%" border="0" cellspacing="0" cellpadding="0" background="./graphics/bg01.gif">
+		<tr>
+                <!--  width="116" height="55"  -->
+                <td valign="top" width="35%" bgcolor="#6699cc" />
+
+                <!-- height="55"  -->
+                <td align="center" valign="bottom" bgcolor="#6699cc" >
+                    <OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+                    codebase=
+                    "http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"
+                    WIDTH="209" HEIGHT="47" id="yawlSMS" ALIGN="center">
+                        <PARAM NAME="movie" VALUE="./graphics/yawl.swf" />
+                        <PARAM NAME="quality" VALUE="high" />
+                    </OBJECT>
+                </td>
+
+				<td width="30%" align="right" valign="top" bgcolor="#6699cc" />
+		</tr>
+		<tr>
+                <td bgcolor="#6699cc"/>
+				<td bgcolor="#6699cc" align="center">
+					<img src="./graphics/subtext.jpg"/>
+				</td>
+                <td bgcolor="#6699cc"/>
+		</tr>
+	</table>
+
+	<!-- Start Navigation Banner ->
+	<table width="100%" border="0" bgcolor="#ffffff">
+		<tr align="center">
+			<td>
+                 
+      <!--End top level navigation links and search -->
+
+
+ 	<h3 align="center">Welcome to the Worklet Dynamic Process Selection and Exception Handling Service for YAWL</h3>
+
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+           <tr>
+              <td valign="top" align="left" width="100" height="64"/>
+                  <img src="./graphics/logobig.jpg"/>
+              </td>
+              <td valign="bottom" align="left">
+                <p>This service provides two discrete but related features: A dynamic selection service and
+                   a dynamic exception handling service.</p>
+                <p>The <b>Selection Service</b> provides the ability to substitute a workitem in a YAWL 
+                   process with a dynamically selected "worklet" - a discrete YAWL 
+                   process that acts as a sub-net for the task.</p>
+                <p>A repertoire (or catalog) of worklets is maintained. Each time the service is
+                   invoked for a workitem, a choice is made from the repertoire based on the data passed
+                   with the workitem, using a set of rules to determine the most appropriate substitution.</p>
+                <p>The workitem is checked out of the YAWL engine, then the selected worklet is launched
+                   as a separate case. The data inputs of the original workitem are mapped to the inputs
+                   of the worklet. When the worklet has completed, its output data is mapped back to
+                   the original workitem, which is then checked back into the engine, allowing the original
+                   process to continue.</p>
+              </td>
+          </tr>        
+       </table>   
+
+        
+        <p>Worklets can be substituted for atomic tasks and multiple-atomic tasks. In the case
+           of multiple tasks, a worklet is launched for each child workitem. Because each child 
+           workitem may contain different data, the worklets that substitute for them are individually
+           selected, and so may all be different.</p>
+
+        <p>The <b>Exception Service</b> leverages off the worklet framework to also provide support for the 
+           myriad exceptions that may occur during the execution of any process instance.</p> 
+
+        <p>The service addresses the traditional problems of exception events occurring during the execution of rigidly
+           defined static process instances by allowing you to define worklets that will act as exception 
+           handling processes for parent workflow instances when certain events occur. Rules are defined in much the same 
+           way as for the Selection Service, but with added features that enable you to pause, resume, cancel or restart 
+           the task, case, or all cases of a specification, that triggered the exception.</p>
+
+        <p>Because the service allows you to define exception handlers for all exception events, and even to add new handlers 
+           at runtime, all exception events are able to be captured “on-system”, so that the handler is there for all 
+           future occurrences of a particular event for the same context. And, since the handlers are worklets, the 
+           original parent process model only needs to contain the actual business logic for the process, while the 
+           repertoire of handlers grows as new exceptions arise or different ways of handling exceptions are formulated.</p>
+
+        <p>Note that, while the Selection Service is linked explicitly to tasks as defined in the YAWL process editor, 
+           the Exception Service is either enabled or disabled (on or off); when it is enabled, it manages exception 
+           handling for <i>all</i> instances executed by the engine - there is no need to explicitly link a process 
+           to the service. Also, the Selection and Exception Services can be used in combination within particular case 
+           instances to achieve flexibility and exception handling simultaneously.</p>
+
+        
+        <p>Please read the user manual for more information.</p>
+        
+        <p>  </p>
+        
+        <p align="center">YAWL is distributed under the
+           <a href="http://www.apache.org/licenses/LICENSE-2.0.html">YAWL licence</a>.
+        </p>
+	</body>
+</html>
