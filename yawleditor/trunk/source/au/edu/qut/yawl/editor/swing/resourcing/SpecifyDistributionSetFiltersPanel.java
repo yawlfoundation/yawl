@@ -15,7 +15,6 @@ import javax.swing.border.TitledBorder;
 
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping.RuntimeUserPrivilege;
 
 public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
 
@@ -89,7 +88,7 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
     
   public boolean shouldDoThisStep() {
     return getResourceMapping().getOfferInteractionPoint() == 
-      ResourceMapping.InteractionPointSetting.SYSTEM &&
+      ResourceMapping.SYSTEM_INTERACTION_POINT &&
       getResourceMapping().getRetainFamiliarTask() == null;
   }
 }
@@ -148,7 +147,7 @@ class RuntimeConstraintsPanel extends JPanel {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             filterPanel.getResourceMapping().enablePrivilege(
-                RuntimeUserPrivilege.CAN_PILE, 
+                ResourceMapping.CAN_PILE_PRIVILEGE, 
                 piledExecutionCheckBox.isSelected()
             );
           }
@@ -202,7 +201,7 @@ class RuntimeConstraintsPanel extends JPanel {
     
     piledExecutionCheckBox.setSelected(
       this.getResourceMapping().isPrivilegeEnabled(
-          RuntimeUserPrivilege.CAN_PILE    
+          ResourceMapping.CAN_PILE_PRIVILEGE    
       )    
     );
   }

@@ -109,6 +109,6 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
 
   public boolean shouldDoThisStep() {
     return getResourceMapping().getAllocateInteractionPoint() == 
-      ResourceMapping.InteractionPointSetting.SYSTEM;
+      ResourceMapping.SYSTEM_INTERACTION_POINT;
   }
 }

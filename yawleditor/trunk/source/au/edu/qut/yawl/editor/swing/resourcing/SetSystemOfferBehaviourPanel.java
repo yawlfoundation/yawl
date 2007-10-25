@@ -5,6 +5,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.ButtonGroup;
@@ -91,10 +93,10 @@ public class SetSystemOfferBehaviourPanel extends ResourcingWizardPanel {
     button.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            familiarTaskComboBox.setEnabled(
-              !(button.isSelected())    
-            );
-            getResourceMapping().setRetainFamiliarTask(null);
+            if (button.isSelected()) {
+              getResourceMapping().setRetainFamiliarTask(null);
+              familiarTaskComboBox.setEnabled(false);
+            }
           }
         }
     );
@@ -107,9 +109,12 @@ public class SetSystemOfferBehaviourPanel extends ResourcingWizardPanel {
     button.addActionListener(
       new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-          familiarTaskComboBox.setEnabled(
-            button.isSelected()    
-          );
+          if (button.isSelected()) {
+            familiarTaskComboBox.setEnabled(true);
+            getResourceMapping().setRetainFamiliarTask(
+                familiarTaskComboBox.getSelectedFamiliarTask()    
+            );
+          } 
         }
       }
     );
@@ -121,9 +126,11 @@ public class SetSystemOfferBehaviourPanel extends ResourcingWizardPanel {
     box.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-             getResourceMapping().setRetainFamiliarTask(
-               box.getSelectedFamiliarTask()    
-             );
+            if (retainFamiliarButton.isSelected() && box.isEnabled()) {
+              getResourceMapping().setRetainFamiliarTask(
+                  box.getSelectedFamiliarTask()    
+              );
+            }
           }
         }
     );
@@ -147,27 +154,30 @@ public class SetSystemOfferBehaviourPanel extends ResourcingWizardPanel {
     familiarTaskComboBox.setTask(
         (YAWLAtomicTask) getTask()
     );
-    
-    if (getResourceMapping().getRetainFamiliarTask() != null) {
-      familiarTaskComboBox.setEnabled(true);
-      familiarTaskComboBox.setSelectedFamiliarTask(
-          getResourceMapping().getRetainFamiliarTask()    
-      );
-      retainFamiliarButton.setSelected(true);
-    } else {
-      taskRoutingDetailButton.setSelected(true);
-    }
 
     if (familiarTaskComboBox.getFamiliarTaskNumber() == 0) {
       retainFamiliarButton.setEnabled(false);
       familiarTaskComboBox.setEnabled(false);
-    } else {
+      taskRoutingDetailButton.setSelected(true);
+      return;
+    } 
+    
+    if (getResourceMapping().getRetainFamiliarTask() == null) {
+      taskRoutingDetailButton.setSelected(true);
       retainFamiliarButton.setEnabled(true);
+      familiarTaskComboBox.setEnabled(false);
+    } else {
+      familiarTaskComboBox.setEnabled(true);
+      familiarTaskComboBox.setSelectedFamiliarTask(
+          getResourceMapping().getRetainFamiliarTask()    
+      );
+      retainFamiliarButton.setEnabled(true);
+      retainFamiliarButton.setSelected(true);
     }
   }
   
   public boolean shouldDoThisStep() {
     return getResourceMapping().getOfferInteractionPoint() == 
-      ResourceMapping.InteractionPointSetting.SYSTEM;
+      ResourceMapping.SYSTEM_INTERACTION_POINT;
   }
 }

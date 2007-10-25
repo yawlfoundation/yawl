@@ -81,6 +81,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
     System.out.println(
         getResourceMapping()
     );
+    super.doFirst();
   }
   
   public void doFinish() {
