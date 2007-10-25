@@ -447,6 +447,12 @@ public abstract class YAWLVertex extends DefaultGraphCell
       (HashMap) getSerializationProofAttributeMap().clone()    
     );
     
+    clone.setEngineIdNumber(
+        Long.toString(
+            SpecificationModel.getInstance().getUniqueElementNumber()
+        )
+    );
+    
     return clone;
   }
   
