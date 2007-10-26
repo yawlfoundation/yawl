@@ -86,15 +86,16 @@ public class SpecificationArchiveHandler {
 
   private SpecificationArchiveHandler() {}
 
-  public void save() {
+  public boolean save() {
     if (SpecificationModel.getInstance().getFileName().equals("")) {
       if (!promptForAndSetSaveFileName()) {
-        return;
+        return false;
       }
     }
     saveSpecificationToFile(
         SpecificationModel.getInstance().getFileName()
     );
+    return true;
   }
   
   private boolean promptForAndSetSaveFileName() {
@@ -221,6 +222,9 @@ public class SpecificationArchiveHandler {
   }
   
   private void saveWhilstClosing() {
+    if (!promptForAndSetSaveFileName()) {
+      return;
+    }
     doPreSaveClosingWork();
     save();
     doPostSaveClosingWork();
