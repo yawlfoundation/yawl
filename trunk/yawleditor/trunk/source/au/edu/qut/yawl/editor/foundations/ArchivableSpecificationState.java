@@ -197,7 +197,24 @@ public class ArchivableSpecificationState implements Serializable {
   }
   
   public double getVersionNumber() {
-    return ((Double) serializationProofAttributeMap.get("versionNumber")).doubleValue();
+    /*
+     * We deal with legacy here. For a long time, version number was just
+     * a freeform string. We now store it as double.  The load makes best
+     * efforts to get a number out of previous specifications that 
+     * used to use strings.
+     */
+    Object versionNumber = serializationProofAttributeMap.get("versionNumber");
+    if (versionNumber instanceof String) {
+      try {
+        return Double.valueOf((String) versionNumber).doubleValue();
+      } catch (NumberFormatException nfe) {
+        return 0.1;
+      }
+    }
+    if (versionNumber instanceof Double) {
+      return ((Double) versionNumber).doubleValue();
+    }
+    return 0.1;
   }
   
   public void setValidFromTimestamp(String timestamp) {
