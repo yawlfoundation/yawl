@@ -9,7 +9,10 @@ Version 2.0 (??/??/????)
          free-form string.
   * LWB: Changed the close save-as dialog such that when the workflow designer chooses
          to cancel specifying a file, they are returned to the editor, instead of the
-         older functionality where the editor continued to close.
+         older functionality where the editor continued to close upon pressing the cancel button.
+  * LWB: Fixed a bug where engine validation was failing, claiming that max instances was
+         smaller than min instance on multi-instance tasks when max instances was set to 
+         infinity.
 
 Version 1.5.1 (08/10/2007)
   * LWB: Fixed a bug where multiple-instance tasks were not being initialsed properly and consequently

@@ -25,7 +25,7 @@ package au.edu.qut.yawl.editor.elements.model;
 import au.edu.qut.yawl.editor.data.DataVariable;
 
 public interface YAWLMultipleInstanceTask {
-  public static final long INFINITY = -1;
+  public static final long INFINITY = Long.MAX_VALUE;
 
   public static final int STATIC_INSTANCE_CREATION  = -2;
   public static final int DYNAMIC_INSTANCE_CREATION = -3;
