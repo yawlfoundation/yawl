@@ -34,6 +34,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.border.EmptyBorder;
@@ -43,6 +44,7 @@ import au.edu.qut.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
 import au.edu.qut.yawl.editor.specification.ArchivingThread;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
+import au.edu.qut.yawl.editor.swing.JFormattedNumberField;
 import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
 import au.edu.qut.yawl.editor.thirdparty.engine.EngineSpecificationExporter;
 
@@ -101,7 +103,8 @@ class ExportConfigDialog extends AbstractDoneDialog {
   protected static final Preferences prefs =  Preferences.userNodeForPackage(YAWLEditor.class);
 
   private static final long serialVersionUID = 1L;
-  protected JSpinner labelFontSizeSpinner;
+
+  private JFormattedNumberField versionNumberField;
   
   private JCheckBox verificationCheckBox;
   private JCheckBox analysisCheckBox;
@@ -151,8 +154,24 @@ class ExportConfigDialog extends AbstractDoneDialog {
     gbc.gridx = 0;
     gbc.gridy = 0;
     gbc.insets = new Insets(0,5,5,5);
+    gbc.anchor = GridBagConstraints.EAST;
+    gbc.fill = GridBagConstraints.NONE;
+    
+    JLabel versionNumberLabel = new JLabel("Version Number:");
+    versionNumberLabel.setDisplayedMnemonic('V');
+    panel.add(versionNumberLabel, gbc);
+    
+    gbc.gridx++;
     gbc.anchor = GridBagConstraints.WEST;
 
+    panel.add(getVersionNumberField(), gbc);
+    versionNumberLabel.setLabelFor(versionNumberField);
+
+    gbc.gridx = 0;
+    gbc.gridy++;
+    gbc.gridwidth = 2;
+    gbc.weightx = 1;
+    
     panel.add(getVerifyCheckBox(), gbc);
      
     gbc.gridy++;
@@ -165,6 +184,12 @@ class ExportConfigDialog extends AbstractDoneDialog {
     panel.add(getShowDialogCheckBox(), gbc);
     
     return panel;
+  }
+  
+  private JFormattedNumberField getVersionNumberField() {
+    versionNumberField = new JFormattedNumberField("###,###,##0.0###",0.1,10);
+    versionNumberField.setToolTipText(" Enter a version number for this specification ");
+    return versionNumberField;
   }
   
   private JCheckBox getVerifyCheckBox() {
@@ -196,6 +221,12 @@ class ExportConfigDialog extends AbstractDoneDialog {
   
   public void setVisible(boolean visible) {
     if (visible) {
+      versionNumberField.setDouble(
+          SpecificationModel.getInstance().getVersionNumber()    
+      );
+      versionNumberField.setLowerBound(
+          SpecificationModel.getInstance().getVersionNumber()    
+      );
       verificationCheckBox.setSelected(
           prefs.getBoolean(
               EngineSpecificationExporter.VERIFICATION_WITH_EXPORT_PREFERENCE, 

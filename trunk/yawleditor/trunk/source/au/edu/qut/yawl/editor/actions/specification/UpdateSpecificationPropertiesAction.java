@@ -233,7 +233,7 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
     gbc.anchor = GridBagConstraints.WEST;
 
     panel.add(getVersionNumberField(), gbc);
-    versionNumberLabel.setLabelFor(specificationIDField);
+    versionNumberLabel.setLabelFor(versionNumberField);
 
     gbc.gridx = 0;
     gbc.gridy++;
@@ -284,6 +284,9 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
           SpecificationModel.getInstance().getAuthor()    
       );
       versionNumberField.setDouble(
+          SpecificationModel.getInstance().getVersionNumber()    
+      );
+      versionNumberField.setLowerBound(
           SpecificationModel.getInstance().getVersionNumber()    
       );
       validFromPanel.setTimestamp(SpecificationModel.getInstance().getValidFromTimestamp());
