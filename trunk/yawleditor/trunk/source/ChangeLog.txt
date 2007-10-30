@@ -6,7 +6,9 @@ Version 2.0 (??/??/????)
          copy having the same engine ID as the original, disrupting correct engine
          export/validation behaviour.
   * LWB: Changed the specification version number to be a decimal number instead of a
-         free-form string.
+         free-form string. This includes the export dialog now supplying the specification 
+         version as a convenience to allow a workflow designer to more easily manage 
+         variations the the specifications they export.
   * LWB: Changed the close save-as dialog such that when the workflow designer chooses
          to cancel specifying a file, they are returned to the editor, instead of the
          older functionality where the editor continued to close upon pressing the cancel button.
