@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,6 +55,8 @@ import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 import au.edu.qut.yawl.editor.net.NetElementSummary;
 import au.edu.qut.yawl.editor.net.NetGraphModel;
 
+import au.edu.qut.yawl.editor.resourcing.DataVariableContent;
+import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
 
@@ -74,6 +77,16 @@ import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 
+import au.edu.qut.yawl.resourcing.interactions.AbstractInteraction;
+import au.edu.qut.yawl.resourcing.interactions.OfferInteraction;
+import au.edu.qut.yawl.resourcing.interactions.AllocateInteraction;
+import au.edu.qut.yawl.resourcing.interactions.StartInteraction;
+import au.edu.qut.yawl.resourcing.TaskPrivileges;
+
+import au.edu.qut.yawl.resourcing.constraints.PiledExecution;
+import au.edu.qut.yawl.resourcing.constraints.SeparationOfDuties;
+
+import au.edu.qut.yawl.resourcing.ResourceMap;
 import au.edu.qut.yawl.unmarshal.YMarshal;
 import au.edu.qut.yawl.unmarshal.YMetaData;
 
@@ -614,8 +627,6 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
     }
     
-    // TODO: need somehow to tell the decomposition about enablement params as well.
-
     if (engineParameterType == YParameter._INPUT_PARAM_TYPE) {
       engineDecomposition.setInputParam(engineParameter);
     } else {
@@ -740,9 +751,227 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   }
   
   private static void populateResourceMappingDetail(YTask engineTask, YAWLTask editorTask) {
-    //TODO: map to new resourcing model.
+    if (!(editorTask instanceof YAWLAtomicTask)) {
+      return;
+    }
+    
+    YAWLAtomicTask atomicEditorTask = (YAWLAtomicTask) editorTask;
+    
+    if (!atomicEditorTask.getWSDecomposition().invokesWorklist()) {
+      return;
+    }
+    
+    // Below, we should have specified a resource mapping, but it looks as if
+    // we haven't. We supply a default at this point.
+    
+    if (atomicEditorTask.getResourceMapping() == null) {
+      atomicEditorTask.setResourceMapping(
+          new ResourceMapping()
+      );
+    }
+    
+    //  We create a map below if there isn't one already.
+    
+    ResourceMap engineResourceMapping = engineTask.getResourceMap(true);  
+
+    engineResourceMapping.setOfferInteraction(
+      populateOfferInteractionDetail(
+        atomicEditorTask.getResourceMapping(),
+        engineResourceMapping
+      )    
+    );
+
+    engineResourceMapping.setAllocateInteraction(
+        populateAllocateInteractionDetail(
+          atomicEditorTask.getResourceMapping(),
+          engineResourceMapping
+        )    
+    );
+    
+    engineResourceMapping.setStartInteraction(
+        populateStartInteractionDetail(
+          atomicEditorTask.getResourceMapping(),
+          engineResourceMapping
+        )    
+    );
+
+    engineResourceMapping.setTaskPrivileges(
+      populateTaskPrivileges(
+          atomicEditorTask.getResourceMapping(),
+          engineResourceMapping
+      )
+    );
   }
 
+  private static OfferInteraction populateOfferInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    OfferInteraction interaction = 
+      new OfferInteraction(
+          convertEditorInteractionToEngineInteraction(
+              editorResourceMapping.getOfferInteractionPoint()
+          )
+       );
+
+    if (editorResourceMapping.getOfferInteractionPoint() != ResourceMapping.SYSTEM_INTERACTION_POINT) {
+      return interaction;  
+    }
+
+    //  we care only for specifying system interaction behaviour from now on.
+    
+    if (editorResourceMapping.getRetainFamiliarTask() != null) {
+      interaction.setFamiliarParticipantTask(
+        ((YAWLTask) editorResourceMapping.getRetainFamiliarTask()).getEngineId()   
+      );
+    } else {
+      // TODO: add participants
+      // TODO: add roles
+
+      populateOfferInputParameters(
+          editorResourceMapping,
+          engineResourceMapping
+      );
+      
+      // TODO: add filters
+
+      populateRuntimeConstraints(
+          editorResourceMapping,
+          engineResourceMapping
+      );
+    }
+    
+    return interaction;
+  }
+  
+  private static void populateOfferInputParameters(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    if (editorResourceMapping.getBaseVariableContentList() == null ||
+        editorResourceMapping.getBaseVariableContentList().size() == 0) {
+      return;
+    }
+     
+    for(DataVariableContent content : editorResourceMapping.getBaseVariableContentList()) {
+      if (content.getContentType() == DataVariableContent.DATA_CONTENT_TYPE) {
+        continue;  // skip normal variables. We want just the role and user types to be added.
+      }
+      engineResourceMapping.getOfferInteraction().addInputParam(
+          content.getVariable().getName(),
+          convertVariableContentType(
+            content.getContentType()    
+          )
+      );
+    }
+  }
+
+  private static void populateRuntimeConstraints(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    if (editorResourceMapping.isPrivilegeEnabled(ResourceMapping.CAN_PILE_PRIVILEGE)) {
+       engineResourceMapping.getOfferInteraction().addConstraint(
+           new PiledExecution()  
+       );
+    }
+    
+    if (editorResourceMapping.getSeparationOfDutiesTask() != null) {
+      engineResourceMapping.getOfferInteraction().addConstraint(
+          //TODO: Assuming the constructor string is a task engine ID, but should confirm.
+           new SeparationOfDuties(
+               ((YAWLTask) editorResourceMapping.getSeparationOfDutiesTask()).getEngineId()    
+           ) 
+      );
+    }
+  }
+
+  private static int convertVariableContentType(int contentType) {
+    switch(contentType) {
+      case(DataVariableContent.USERS_CONTENT_TYPE): {
+        return OfferInteraction.USER_PARAM;
+      }
+      case(DataVariableContent.ROLES_CONTENT_TYPE): {
+        return OfferInteraction.ROLE_PARAM;
+      }
+      default: {
+        return OfferInteraction.USER_PARAM;
+      }
+    }
+  }
+
+  private static AllocateInteraction populateAllocateInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    AllocateInteraction interaction = 
+      new AllocateInteraction(
+          convertEditorInteractionToEngineInteraction(
+              editorResourceMapping.getAllocateInteractionPoint()
+          )
+       );
+    
+    if (editorResourceMapping.getAllocateInteractionPoint() == ResourceMapping.SYSTEM_INTERACTION_POINT) {
+      // TODO: allocation mechanism
+    }
+    
+    return interaction;
+  }
+
+  private static StartInteraction populateStartInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    StartInteraction interaction = 
+      new StartInteraction(
+          convertEditorInteractionToEngineInteraction(
+              editorResourceMapping.getStartInteractionPoint()
+          )
+      );
+    
+    return interaction;
+  }
+
+  private static int convertEditorInteractionToEngineInteraction(int editorInteraction)  {
+    switch(editorInteraction) {
+      case ResourceMapping.SYSTEM_INTERACTION_POINT: {
+        return AbstractInteraction.SYSTEM_INITIATED;
+      }
+      case ResourceMapping.USER_INTERACTION_POINT: {
+        return AbstractInteraction.USER_INITIATED;
+      }
+    }
+    return AbstractInteraction.USER_INITIATED;
+  }
+  
+  private static TaskPrivileges populateTaskPrivileges(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    TaskPrivileges enginePrivileges = new TaskPrivileges();
+
+    for(Integer enabledPrivilege : editorResourceMapping.getEnabledPrivileges()) {
+      enginePrivileges.allowAll(
+          convertPrivilege(
+            enabledPrivilege.intValue()    
+          )
+      );      
+    }
+    
+    return enginePrivileges;
+  }
+  
+  private static int convertPrivilege(int editorPrivilege) {
+    switch(editorPrivilege) {
+      case(ResourceMapping.CAN_SUSPEND_PRIVILEGE): {
+        return TaskPrivileges.CAN_SUSPEND;
+      }
+      case(ResourceMapping.CAN_REALLOCATE_STATELESS_PRIVILEGE): {
+        return TaskPrivileges.CAN_REALLOCATE_STATELESS;
+      }
+      case(ResourceMapping.CAN_REALLOCATE_STATEFUL_PRIVILEGE): {
+        return TaskPrivileges.CAN_REALLOCATE_STATEFUL;
+      }
+      case(ResourceMapping.CAN_DEALLOCATE_PRIVILEGE): {
+        return TaskPrivileges.CAN_DEALLOCATE;
+      }
+      case(ResourceMapping.CAN_DELEGATE_PRIVILEGE): {
+        return TaskPrivileges.CAN_DELEGATE;
+      }
+      case(ResourceMapping.CAN_SKIP_PRIVILEGE): {
+        return TaskPrivileges.CAN_SKIP;
+      }
+      case(ResourceMapping.CAN_PILE_PRIVILEGE): {
+        return TaskPrivileges.CAN_PILE;
+      }
+      default: {
+        return TaskPrivileges.CAN_DEALLOCATE;
+      }
+    }
+  }
+  
   private static boolean taskNeedsWebServiceDetail(YAWLTask editorTask) {
     if (!(editorTask.getDecomposition() instanceof WebServiceDecomposition)) {
       return false;
