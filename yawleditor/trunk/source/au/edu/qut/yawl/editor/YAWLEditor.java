@@ -23,7 +23,10 @@
 package au.edu.qut.yawl.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
@@ -32,15 +35,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-
-import javax.swing.WindowConstants;
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
 
 import au.edu.qut.yawl.editor.foundations.ResourceLoader;
 
@@ -57,7 +54,6 @@ import au.edu.qut.yawl.editor.swing.menu.ToolBarMenu;
 import au.edu.qut.yawl.editor.swing.menu.YAWLMenuBar;
 import au.edu.qut.yawl.editor.swing.specification.ProblemMessagePanel;
 import au.edu.qut.yawl.editor.swing.specification.SpecificationBottomPanel;
-import au.edu.qut.yawl.editor.thirdparty.engine.EngineSpecificationValidator;
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 /**
@@ -68,45 +64,45 @@ import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 public class YAWLEditor extends JFrame implements SpecificationFileModelListener {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
   protected final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
-  
+
   private static String loadFileName;
 
   private final Palette paletteBar = Palette.getInstance();
-  
+
   private static JSplitPane splitPane;
   private static SpecificationBottomPanel specificationBottomPanel;
 
   private static YAWLEditor INSTANCE;
-  
+
   private static final JSplashScreen splashScreen = new JSplashScreen();
   private static final JStatusBar statusBar = new JStatusBar();
-  
+
   public static YAWLEditor getInstance() {
     if (INSTANCE == null) {
       INSTANCE = new YAWLEditor();
     }
     return INSTANCE;
-  }  
+  }
 
   public static void main(String[] args) {
 
     startLoading();
 
     validateParameter(args);
-    
+
     getInstance().setVisible(true);
     hideBottomOfSplitPane();  // Yes, I can only move the split pane when the editor is visible.
 
     processParametersAsNecessary();
-    
+
     finishLoading();
   }
-  
+
   private YAWLEditor() {
     super();
     updateLoadProgress(5);
@@ -117,11 +113,11 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private static JSplashScreen getSplashScreen() {
     return splashScreen;
   }
-  
+
   public static void updateLoadProgress(int completionValue) {
     getSplashScreen().updateProgressBar(completionValue);
   }
-  
+
   private static void startLoading() {
     getSplashScreen().setContent(
         "/au/edu/qut/yawl/editor/resources/yawlSplashScreen.jpg",
@@ -130,44 +126,44 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
     getSplashScreen().show();
   }
-  
+
   private static void finishLoading() {
     getSplashScreen().finish();
   }
-  
+
   private static void validateParameter(String[] args) {
     if (args.length > 1) {
       System.out.println("Usage: " + System.getProperty("java.class.path") + " [<EditorSaveFile>]");
       System.exit(1);
     }
-    
+
     if (args.length == 1) {
       loadFileName = args[0];
     }
   }
-  
+
   private static void processParametersAsNecessary() {
     if (loadFileName != null) {
       ArchivingThread.getInstance().open(loadFileName);
     }
   }
-  
+
   private static JStatusBar getStatusBar() {
     return statusBar;
   }
-  
+
   public static void setStatusBarText(String statusString) {
     getStatusBar().setStatusBarText(statusString);
   }
-  
+
   public static void setStatusBarTextToPrevious(){
     getStatusBar().setStatusBarTextToPrevious();
   }
-  
+
   public static void resetStatusBarProgress() {
     getStatusBar().resetStatusBarProgress();
   }
-  
+
   public static void finishStatusBarProgress() {
     getStatusBar().finishStatusBarProgress();
   }
@@ -178,12 +174,12 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private void buildInterface() {
 
-    setJMenuBar(new YAWLMenuBar());  
+    setJMenuBar(new YAWLMenuBar());
     Container pane = this.getContentPane();
 
     pane.setLayout(new BorderLayout());
     pane.add(getToolbarMenuPanel(), BorderLayout.NORTH);
-    
+
     pane.add(getSplitPane(), BorderLayout.CENTER);
     pane.add(getStatusBar(),BorderLayout.SOUTH);
 
@@ -200,12 +196,12 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     ArchivingThread.getInstance().start();
     processPreferences(); 
     installEventListeners();
-    
+
     updateLoadProgress(95);
     attemptEngineConnectionIfApplicable();
   }
 
-		
+
   public void setTitle(String title) {
     String titleSeparator = "";
     if (!title.equals("")) {
@@ -213,7 +209,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     }
     super.setTitle("YAWLEditor" + titleSeparator + title);
   }
-	
+
   private void installEventListeners() {
     setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     addWindowListener(new WindowAdapter() {
@@ -236,8 +232,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
       public void componentResized(ComponentEvent event) {
         rememberLocation();
-        hideBottomOfSplitPane();
-        
+
         prefs.putInt("width", frame.getWidth());
         prefs.putInt("height", frame.getHeight());
       }
@@ -248,7 +243,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       }
     });
   }
-  
+
   private JSplitPane getSplitPane() {
     splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
@@ -256,31 +251,52 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     splitPane.setBottomComponent(getBottomPanel());
 
     splitPane.setDividerSize(10);
-    splitPane.setResizeWeight(1);
+    splitPane.setResizeWeight(0);
     splitPane.setOneTouchExpandable(true);
-    
+
     return splitPane;
   }
-  
-  public void showBottomOfSplitPane() {
-    repaint();
+
+  public void indicateSplitPaneActivity() {
+
+    // We choose an animation here because I have
+    // no control over the colour of the divider
+    // via the Swing interface. 
+
+    final int originalDividerLocation = splitPane.getDividerLocation();
+
     splitPane.setDividerLocation(
-          (int) (splitPane.getHeight() - 
-          splitPane.getDividerSize() -
-          splitPane.getBottomComponent().getPreferredSize().getHeight())
+      originalDividerLocation - 20    
+    );
+    
+    pause(200);
+    
+    splitPane.setDividerLocation(
+        originalDividerLocation    
+    );
+
+    pause(200);
+
+    splitPane.setDividerLocation(
+        originalDividerLocation - 20    
+    );
+      
+    pause(200);
+      
+    splitPane.setDividerLocation(
+        originalDividerLocation    
     );
   }
-  
-  public void showNotesTab() {
+
+  public void selectNotesTab() {
     specificationBottomPanel.selectNotesTab();
-    showBottomOfSplitPane();
   }
 
-  public void showProblemsTab() {
+  public void indicateProblemsTabActivity() {
     specificationBottomPanel.selectProblemsTab();
-    showBottomOfSplitPane();
+    indicateSplitPaneActivity();
   }
-  
+
   public void showProblemList(SpecificationModel editgorSpec, String title, String statusBarText, List problemList) {
     try {
       ProblemMessagePanel.getInstance().setProblemList(
@@ -289,23 +305,23 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       );
 
     } catch (Exception e) {
-      
+
       LinkedList<String> stackMessageList = new LinkedList<String>();
       stackMessageList.add(e.getMessage());
-      
+
       ProblemMessagePanel.getInstance().setProblemList(
           "Programming Exception with problem list generation",
           stackMessageList
       );
-      
+
 //      e.printStackTrace();
     }
   }
 
-  
+
   private JPanel getTopPanel() {
     JPanel topPanel = new JPanel(new BorderLayout());
-    
+
     updateLoadProgress(70);
     topPanel.add(getPalettePanel(), BorderLayout.WEST);
     updateLoadProgress(80);
@@ -321,39 +337,39 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     toolbarMenuPanel.add(Box.createVerticalGlue());
     return toolbarMenuPanel;
   }
-    
+
   private JPanel getPalettePanel() {
     JPanel palettePanel = new JPanel();
     palettePanel.setLayout(new BorderLayout());
     palettePanel.add(this.paletteBar, BorderLayout.NORTH);
     return palettePanel;
   }
-  
+
   private JPanel getBottomPanel() {
     JPanel bottomPanel = new JPanel(new BorderLayout());
-    
+
     specificationBottomPanel = new SpecificationBottomPanel();
 
     bottomPanel.add(
-        specificationBottomPanel, 
+        specificationBottomPanel,
         BorderLayout.CENTER
     );
-    
+
     return bottomPanel;
   }
-  
+
   private JPanel getEditPanel() {
     JPanel editPanel = new JPanel(new BorderLayout());
     YAWLEditorDesktop editDesktop = YAWLEditorDesktop.getInstance();
-    editPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2)); 
+    editPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
     final JScrollPane scrollPane = new JScrollPane(editDesktop);
-    editDesktop.setScrollPane(scrollPane);       
+    editDesktop.setScrollPane(scrollPane);
     editPanel.add(scrollPane, BorderLayout.CENTER);
     return editPanel;
   }
-  
+
   private void processPreferences() {
-    setSize(prefs.getInt("width", 500), 
+    setSize(prefs.getInt("width", 500),
             prefs.getInt("height", 300));
 
     final int posX = prefs.getInt("posX",-1);
@@ -365,12 +381,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       this.setLocation(posX, posY);
     }
   }
-  
+
   public static void hideBottomOfSplitPane() {
-    // modifying divider location only works once the split
-    // pane is visible. The Swing javadocs tell me its true,
-    // and it is... 8(
-    
     if (!YAWLEngineProxy.engineLibrariesAvailable()) {
       // splitPane.setEnabled(false);   Swing bug?
       splitPane.getBottomComponent().setVisible(false);
@@ -378,14 +390,14 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     }
     splitPane.setDividerLocation((double)1);
   }
-  
+
   private static String getSizeDistinction() {
     if (YAWLEngineProxy.engineLibrariesAvailable()) {
-      return "";   
-    } 
+      return "";
+    }
     return "Lite";
   }
-  
+
   private static String getVersionNumber() {
     return "@EditorReleaseNumber@";
   }
@@ -413,6 +425,14 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private void attemptEngineConnectionIfApplicable() {
     if (YAWLEngineProxy.engineLibrariesAvailable())  {
       YAWLEngineProxy.getInstance().connect();
+    }
+  }
+  
+  private static void pause(long milliseconds) {
+    long now = System.currentTimeMillis();
+    long finishTime = now + milliseconds;
+    while (now < finishTime) {
+      now = System.currentTimeMillis();
     }
   }
 }
