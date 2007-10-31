@@ -302,7 +302,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
       editorToEngineNetMap.put(editorNet, engineSubNet);
     }
-  }
+  } 
   
   private static YNet generateEngineNet(YSpecification engineSpec, NetGraphModel editorNet) {
     YNet engineNet = new YNet(XMLUtilities.toValidXMLName(editorNet.getName()),
