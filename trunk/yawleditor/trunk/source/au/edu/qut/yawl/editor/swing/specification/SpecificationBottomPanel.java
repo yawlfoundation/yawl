@@ -16,7 +16,7 @@ public class SpecificationBottomPanel extends JTabbedPane implements Specificati
 
     private static final long serialVersionUID = 1L;
 
-    private static final int DESIGN_NOTES_PAMEL_INDEX = 0;
+    private static final int DESIGN_NOTES_PANEL_INDEX = 0;
     private static final int PROBLEM_PANEL_INDEX = 1;
 
     private DesignNotesPanel designNotesPanel;
@@ -31,7 +31,8 @@ public class SpecificationBottomPanel extends JTabbedPane implements Specificati
       problemMessagePanel = ProblemMessagePanel.getInstance();
       addTab("Problems", problemMessagePanel);
       
-      selectNotesTab();
+      setEnabledAt(DESIGN_NOTES_PANEL_INDEX, false);
+      setSelectedComponent(problemMessagePanel);
 
       SpecificationSelectionListener.getInstance().subscribe(
            this,
@@ -47,11 +48,13 @@ public class SpecificationBottomPanel extends JTabbedPane implements Specificati
       switch(state) {
         case SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED: 
         case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED:{
-          setEnabledAt(DESIGN_NOTES_PAMEL_INDEX, false);
-          setTitleAt(DESIGN_NOTES_PAMEL_INDEX, "Notes");
+          setEnabledAt(DESIGN_NOTES_PANEL_INDEX, false);
+          setTitleAt(DESIGN_NOTES_PANEL_INDEX, "Notes");
 
-          YAWLEditor.getInstance().hideBottomOfSplitPane();
-          designNotesPanel.setVertex(null);
+            designNotesPanel.setVertex(null);
+            designNotesPanel.setVisible(false);
+            setSelectedComponent(problemMessagePanel);
+            designNotesPanel.repaint();
           break;
         }
         default: {
@@ -64,14 +67,14 @@ public class SpecificationBottomPanel extends JTabbedPane implements Specificati
             return;
           }
           
-          setEnabledAt(DESIGN_NOTES_PAMEL_INDEX, true);
+          setEnabledAt(DESIGN_NOTES_PANEL_INDEX, true);
           setTitleAt(
-              DESIGN_NOTES_PAMEL_INDEX, 
+              DESIGN_NOTES_PANEL_INDEX, 
               "Notes (" + vertex.getEngineId()  + ")"
           );
 
           designNotesPanel.setVertex(vertex);
-          YAWLEditor.getInstance().showNotesTab();
+          YAWLEditor.getInstance().selectNotesTab();
           break;
         }
       }

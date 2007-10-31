@@ -755,6 +755,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       return;
     }
     
+    // pure routing tasks also don't have anything to do with resourcing.
+    if (editorTask.getDecomposition() == null) {
+      return;
+    }
+    
     YAWLAtomicTask atomicEditorTask = (YAWLAtomicTask) editorTask;
     
     if (!atomicEditorTask.getWSDecomposition().invokesWorklist()) {

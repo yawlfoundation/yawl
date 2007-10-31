@@ -30,12 +30,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
+import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.specification.ProblemList;
 import au.edu.qut.yawl.editor.specification.ProblemListSubscriber;
 import au.edu.qut.yawl.editor.specification.SpecificationFileModel;
 import au.edu.qut.yawl.editor.specification.SpecificationFileModelListener;
 import au.edu.qut.yawl.editor.swing.ProblemTable;
-import au.edu.qut.yawl.editor.YAWLEditor;
 
 public class ProblemMessagePanel extends JPanel  implements SpecificationFileModelListener, ProblemListSubscriber {
   /**
@@ -122,11 +122,10 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
         } else {
           setVisible(true);
         }
-        YAWLEditor.getInstance().showProblemsTab();
+        YAWLEditor.getInstance().indicateProblemsTabActivity();
         break;
       }
       case NO_ENTRIES: {
-        YAWLEditor.hideBottomOfSplitPane();
         break;
       }
     }

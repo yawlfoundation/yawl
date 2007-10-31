@@ -51,9 +51,12 @@ public class JStatusBar extends JPanel {
     setLayout(new BorderLayout());
     setBorder(BorderFactory.createEmptyBorder(0, 2, 2, 2));
     statusLabel.setForeground(Color.DARK_GRAY);
-    statusLabel.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-        .createLoweredBevelBorder(), BorderFactory
-        .createEmptyBorder(0, 2, 0, 2)));
+    statusLabel.setBorder(
+        BorderFactory.createCompoundBorder(
+            BorderFactory.createLoweredBevelBorder(), 
+            BorderFactory.createEmptyBorder(0, 2, 0, 2)
+        )
+    );
     add(statusLabel, BorderLayout.CENTER);
     add(getProgressBar(), BorderLayout.EAST);
   }
