@@ -30,7 +30,7 @@ import javax.swing.JMenu;
 
 import au.edu.qut.yawl.editor.actions.tools.ConfigureAnalysisToolsAction;
 import au.edu.qut.yawl.editor.actions.tools.SetEngineDetailAction;
-import au.edu.qut.yawl.editor.actions.tools.SetOrganisationDatabaseAction;
+import au.edu.qut.yawl.editor.actions.tools.SetResourcingServiceAction;
 
 import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import au.edu.qut.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
@@ -49,7 +49,7 @@ class ToolsMenu extends JMenu {
   }   
   
   protected void buildInterface() {
-    add(new YAWLMenuItem(new SetOrganisationDatabaseAction()));
+    add(new YAWLMenuItem(new SetResourcingServiceAction()));
     
     if (YAWLEngineProxy.engineLibrariesAvailable()) {
       addSeparator();

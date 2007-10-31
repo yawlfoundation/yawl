@@ -44,25 +44,25 @@ import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.swing.ActionAndFocusListener;
 import au.edu.qut.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
-public class SetOrganisationDatabaseAction extends YAWLBaseAction {
+public class SetResourcingServiceAction extends YAWLBaseAction {
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
 
-  private static final OrganisationDatabaseDialog dialog = new OrganisationDatabaseDialog();
+  private static final ResourcingServiceDialog dialog = new ResourcingServiceDialog();
 
   private boolean invokedAtLeastOnce = false;
   
   {
-    putValue(Action.SHORT_DESCRIPTION, " Specify login detail for a running Organisation Database. ");
-    putValue(Action.NAME, "Set Organisation Database Detail");
-    putValue(Action.LONG_DESCRIPTION, "Specify login detail for a running Organisation Database.");
+    putValue(Action.SHORT_DESCRIPTION, " Specify login detail for a running resourcing service. ");
+    putValue(Action.NAME, "Specify Resourcing Service Detail");
+    putValue(Action.LONG_DESCRIPTION, " Specify login detail for a running resourcing service. ");
 //    putValue(Action.SMALL_ICON, getIconByName("Blank"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_O));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
   }
   
-  public SetOrganisationDatabaseAction() {}
+  public SetResourcingServiceAction() {}
   
   public void actionPerformed(ActionEvent event) {
     if (!invokedAtLeastOnce) {
@@ -73,11 +73,8 @@ public class SetOrganisationDatabaseAction extends YAWLBaseAction {
   }
 }
 
-class OrganisationDatabaseDialog extends AbstractDoneDialog {
+class ResourcingServiceDialog extends AbstractDoneDialog {
   
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
 
   private static final Preferences prefs = 
@@ -85,8 +82,8 @@ class OrganisationDatabaseDialog extends AbstractDoneDialog {
   
   private JTextField databaseURIField;
   
-  public OrganisationDatabaseDialog() {
-    super("Specify Organisation Database Detail", true);
+  public ResourcingServiceDialog() {
+    super("Specify Resourcing Service Detail", true);
     setContentPanel(getDatabaseDetailPanel());
 
     getDoneButton().addActionListener(new ActionListener(){
@@ -117,8 +114,8 @@ class OrganisationDatabaseDialog extends AbstractDoneDialog {
     gbc.insets = new Insets(0,0,5,5);
     gbc.anchor = GridBagConstraints.EAST;
 
-    JLabel uriLabel = new JLabel("Organisation Database Server URI :");
-    uriLabel.setDisplayedMnemonic('U');
+    JLabel uriLabel = new JLabel("Resourcing Service URI :");
+    uriLabel.setDisplayedMnemonic('R');
     panel.add(uriLabel, gbc);
     
     gbc.gridx++;
@@ -131,7 +128,7 @@ class OrganisationDatabaseDialog extends AbstractDoneDialog {
   }
   
   private JTextField getDatabaseURIField() {
-    databaseURIField = new JTextField(20);
+    databaseURIField = new JTextField(30);
     return databaseURIField;
   }
 
