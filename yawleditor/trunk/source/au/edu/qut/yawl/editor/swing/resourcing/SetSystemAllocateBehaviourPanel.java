@@ -13,6 +13,7 @@ import javax.swing.border.EmptyBorder;
 
 import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 import au.edu.qut.yawl.editor.swing.resourcing.ResourcingWizardPanel;
+import au.edu.qut.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
   
@@ -102,7 +103,7 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
 
   public void refresh() {
     mechanismComboBox.removeAllItems();
-    for(String item: getResourceMapping().getRegisteredAllocationMechanisms()) {
+    for(String item: ResourcingServiceProxy.getInstance().getRegisteredAllocationMechanisms()) {
       mechanismComboBox.addItem(item);
     }
   }

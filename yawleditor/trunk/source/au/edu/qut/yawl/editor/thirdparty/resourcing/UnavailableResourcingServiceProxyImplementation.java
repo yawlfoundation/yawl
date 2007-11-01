@@ -23,11 +23,12 @@
 
 package au.edu.qut.yawl.editor.thirdparty.resourcing;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 
-public class UnavailableResourcingServiceProxyImplementation implements ResourcingtServiceProxyInterface {
+import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
+
+public class UnavailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
   public boolean isDatabaseConnectionAvailable() {
     return false;    
   }
@@ -40,11 +41,57 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
     // deliberately does nothing.
   }
   
-  public HashMap getAllHumanResourceNames() {
-    return new HashMap();
+  public List<String>getAllParticipants() {
+    return new LinkedList<String>();
   }
   
-  public List getAllRoles() {
-    return new LinkedList();
+  public List<ResourcingRole> getAllRoles() {
+    
+    LinkedList<ResourcingRole> roles = new LinkedList<ResourcingRole>();
+    
+    roles.add(
+        new ResourcingRole("1", "Rob")
+    );
+    roles.add(
+        new ResourcingRole("2", "Annette")
+    );
+    roles.add(
+        new ResourcingRole("3", "Reuben")
+    );
+    roles.add(
+        new ResourcingRole("4", "Linds")
+    );
+    
+
+    return roles;
+    // return new LinkedList<ResourcingRole>();
+  }
+
+  public boolean testConnection() {
+    return false;
+  }
+  
+  public boolean testConnection(String serviceURI, String userID, String password) {
+    return false;
+  }
+
+  public List<String> getRegisteredAllocationMechanisms() {
+   /*  
+    *  The lables for the standard, guaranteed to be there, allocation
+    *  mechanisms are necessarilly redundant.  If the engine ever 
+    *  changes the name of one of the standard allocation mechanisms,
+    *  the name must also be updated here.
+    */
+    
+    // TODO: Don't understand where/how names are being set on the engine-side
+    
+    
+    LinkedList<String> list = new LinkedList<String>();
+
+    list.add("Round-Robin");
+    list.add("Shortest-Queue");
+    list.add("Random");
+    
+    return list;
   }
 }
