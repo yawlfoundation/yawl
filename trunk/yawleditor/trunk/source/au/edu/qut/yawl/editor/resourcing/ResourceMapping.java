@@ -116,20 +116,6 @@ public class ResourceMapping implements Serializable, Cloneable  {
 
     return list;
   }
-  
-  //TODO: Stubbed up until we source the list from a running engine.
-
-  public String[] getUserList() {
-    return new String[] {
-        "Lindsay Bradford",
-        "John Perkins",
-        "Peter Poulos",
-        "Scott Hariss",
-        "David Reynolds"
-    };
-  }
-
-  //TODO: Stubbed up until we source the list from a running engine.
 
   public void setBaseUserDistributionList(String[] userList) {
     serializationProofAttributeMap.put("baseUserDistributionList", userList);
@@ -139,26 +125,12 @@ public class ResourceMapping implements Serializable, Cloneable  {
     return (String[]) serializationProofAttributeMap.get("baseUserDistributionList");
   }
 
-  //TODO: Stubbed up until we source the list from a running engine.
-
-  public String[] getRoles() {
-    return new String[] {
-        "CEO",
-        "CIO",
-        "Consultant",
-        "Accountant",
-        "Personal Assistant"
-    };
-  }
-
-  //TODO: Stubbed up until we source the list from a running engine.
-
-  public void setBaseRoleDistributionList(String[] roles) {
+  public void setBaseRoleDistributionList(List<ResourcingRole> roles) {
     serializationProofAttributeMap.put("baseRoleDistributionList", roles);
   }
   
-  public String[] getBaseRoleDistributionList() {
-    return (String[]) serializationProofAttributeMap.get("baseRoleDistributionList");
+  public List<ResourcingRole> getBaseRoleDistributionList() {
+    return (List<ResourcingRole>) serializationProofAttributeMap.get("baseRoleDistributionList");
   }
   
   public void setBaseVariableContentList(List<DataVariableContent> list) {
@@ -217,16 +189,6 @@ public class ResourceMapping implements Serializable, Cloneable  {
   
   public int getAllocateInteractionPoint() {
     return ((Integer) serializationProofAttributeMap.get("allocateInteractionPoint")).intValue();
-  }
-
-  //TODO: Stubbed up until we source the list from a running engine.
-  
-  public String[] getRegisteredAllocationMechanisms() {
-    return new String[] {
-        "Round-Robin", 
-        "Shortest-Queue", 
-        "Random"  
-    };
   }
 
   public String getAllocationMechanism() {
@@ -301,13 +263,13 @@ public class ResourceMapping implements Serializable, Cloneable  {
     }
 
     StringBuffer baseRoleDistribitionListString = new StringBuffer("");
-    if (getBaseRoleDistributionList() != null && getBaseRoleDistributionList().length > 0) {
+    if (getBaseRoleDistributionList() != null && getBaseRoleDistributionList().size() > 0) {
       baseRoleDistribitionListString.append(
           "Base RoleDistribution List:\n" + 
           "---------------------------\n"
       );
-      for(String role : getBaseRoleDistributionList()) {
-        baseRoleDistribitionListString.append("  " + role + "\n");
+      for(ResourcingRole role : getBaseRoleDistributionList()) {
+        baseRoleDistribitionListString.append("  " + role.getName() + "\n");
       }
     }
 

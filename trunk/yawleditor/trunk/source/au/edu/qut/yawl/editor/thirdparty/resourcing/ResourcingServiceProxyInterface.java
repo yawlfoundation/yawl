@@ -23,18 +23,30 @@
 
 package au.edu.qut.yawl.editor.thirdparty.resourcing;
 
-import java.util.HashMap;
 import java.util.List;
 
-public interface ResourcingtServiceProxyInterface {
+import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
+
+public interface ResourcingServiceProxyInterface {
   
   public static final String DEFAULT_RESOURCING_SERVICE_URI = 
     "http://localhost:8080/resourceService/gateway";
+
+  public static final String DEFAULT_RESOURCING_SERVICE_USERID = 
+    "admin";
+
+  public static final String DEFAULT_RESOURCING_SERVICE_USER_PASSWORD = 
+    "YAWL";
   
-  public boolean isDatabaseConnectionAvailable();
   public void connect();
   public void disconnect();
+
+  public boolean testConnection();
+  public boolean testConnection(String serviceURI, String userID, String password);
   
-  public HashMap getAllHumanResourceNames();
-  public List getAllRoles();
+  public List<String> getAllParticipants();
+  public List<ResourcingRole> getAllRoles();
+  
+  public List<String> getRegisteredAllocationMechanisms();
+  
 }

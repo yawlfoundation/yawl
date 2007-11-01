@@ -57,6 +57,8 @@ import au.edu.qut.yawl.editor.net.NetGraphModel;
 
 import au.edu.qut.yawl.editor.resourcing.DataVariableContent;
 import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
+
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
 
@@ -827,8 +829,16 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         ((YAWLTask) editorResourceMapping.getRetainFamiliarTask()).getEngineId()   
       );
     } else {
-      // TODO: add participants
-      // TODO: add roles
+      
+      populateOfferParticipants(
+          editorResourceMapping,
+          engineResourceMapping
+      );
+      
+      populateOfferRoles(
+          editorResourceMapping,
+          engineResourceMapping
+      );
 
       populateOfferInputParameters(
           editorResourceMapping,
@@ -844,6 +854,31 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
     
     return interaction;
+  }
+
+  private static void populateOfferParticipants(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    if (editorResourceMapping.getBaseUserDistributionList() == null ||
+        editorResourceMapping.getBaseUserDistributionList().length == 0) {
+      return;
+    }
+
+    for(String participant : editorResourceMapping.getBaseUserDistributionList()) {
+      engineResourceMapping.getOfferInteraction().addParticipant(participant);
+    }
+  }
+
+  
+  private static void populateOfferRoles(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    if (editorResourceMapping.getBaseRoleDistributionList() == null ||
+        editorResourceMapping.getBaseRoleDistributionList().size() == 0) {
+      return;
+    }
+
+    for(ResourcingRole role : editorResourceMapping.getBaseRoleDistributionList()) {
+      engineResourceMapping.getOfferInteraction().addRole(
+          role.getId()
+      );
+    }
   }
   
   private static void populateOfferInputParameters(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {

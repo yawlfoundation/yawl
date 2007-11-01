@@ -24,48 +24,193 @@ package au.edu.qut.yawl.editor.thirdparty.resourcing;
 import java.util.prefs.Preferences;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
+import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 
+import au.edu.qut.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
+import au.edu.qut.yawl.resourcing.allocators.AbstractAllocator;
+import au.edu.qut.yawl.resourcing.resource.Role;
 
-import java.sql.Connection;
-
-public class AvailableResourcingServiceProxyImplementation implements ResourcingtServiceProxyInterface {
+public class AvailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
   
   private static final Preferences prefs = 
     Preferences.userNodeForPackage(YAWLEditor.class);
   
-  private static Connection databaseConnection = null;
+  private static String sessionHandle = null;
 
-  public boolean isDatabaseConnectionAvailable() {
-    try {
-      connect();
-      databaseConnection.close();
-    }catch(Exception e){
-      return false;
-    }
-    return true;
+  private ResourceGatewayClientAdapter gateway;
+  
+  public void connect() {
+    connect(
+        prefs.get(
+            "resourcingServiceURI", 
+            DEFAULT_RESOURCING_SERVICE_URI
+        ),
+        prefs.get(
+            "resourcingServiceUserID", 
+            DEFAULT_RESOURCING_SERVICE_USERID
+        ),    
+        prefs.get(
+            "resourcingServiceUserPassword", 
+            DEFAULT_RESOURCING_SERVICE_USER_PASSWORD
+        )
+    );
   }
   
-  public void connect() {}
+  public boolean connected() {
+    return (sessionHandle != null);
+  }
   
-  public void disconnect() {}
+  public void connect(String serviceURI, String userID, String password) {
+    try {
+      if (!connected()) {
+        tryConnect(serviceURI, userID, password);
+      } 
+    } catch (Exception e) {
+      //e.printStackTrace();
+      sessionHandle = null;
+    }
+  }
   
-  public HashMap getAllHumanResourceNames() {
+  private void tryConnect(String serviceURI, String userID, String password) {
+    if (gateway == null) {
+      gateway = new ResourceGatewayClientAdapter(serviceURI);
+    }
+    sessionHandle = gateway.connect(userID, password);
+  }
+  
+  public void disconnect() {
+    if (gateway != null && sessionHandle != null) {
+      gateway.disconnect(sessionHandle);
+      sessionHandle = null;
+      gateway = null;
+    }
+  }
+  
+  public List<String> getAllParticipants() {
     connect();
     
-    HashMap resultsMap = new HashMap();
+    List engineParticipants;
+    
+    try {
+      engineParticipants = gateway.getParticipants(
+          prefs.get(
+              "resourcingServiceURI", 
+              DEFAULT_RESOURCING_SERVICE_URI
+          )    
+      );
+    } catch (Exception e) {
+      return null;
+    }
+    
+    LinkedList<String> resultsList = new LinkedList<String>();
+    
+    for (Object engineParticipant: engineParticipants) {
+      Role role = (Role) engineParticipant;
 
-    return resultsMap;
+      resultsList.add(
+          role.getName()
+      );
+    }
+    
+    return resultsList;
   }
   
-  public List getAllRoles() {
+  public List<ResourcingRole> getAllRoles() {
+    connect();
+    
+    List engineRoles;
+    
+    try {
+      engineRoles = gateway.getRoles(
+          prefs.get(
+              "resourcingServiceURI", 
+              DEFAULT_RESOURCING_SERVICE_URI
+          )    
+      );
+    } catch (Exception e) {
+      return null;
+    }
+    
+    LinkedList<ResourcingRole> registeredRoles = new LinkedList<ResourcingRole>();
+    
+    for (Object engineRole: engineRoles) {
+      Role role = (Role) engineRole;
+
+      registeredRoles.add(
+          new ResourcingRole(
+              role.getID(),
+              role.getName()
+          )
+      );
+    }
+    
+    return registeredRoles;
+  }
+  
+  public List getReigsteredFilters() {
     connect();
     
     LinkedList resultsList = new LinkedList();
 
+    // TODO: get filter info here
+    
     return resultsList;
+  }
+
+  public List<String> getRegisteredAllocationMechanisms() {
+    connect();
+    
+    List engineAllocators;
+    
+    try {
+      engineAllocators = gateway.getAllocators(        
+          prefs.get(
+              "resourcingServiceURI", 
+              DEFAULT_RESOURCING_SERVICE_URI
+          )    
+      );
+    } catch (Exception e) {
+      return null;
+    }
+    
+    LinkedList<String> resultsList = new LinkedList<String>();
+    
+    for (Object engineAllocator: engineAllocators) {
+      AbstractAllocator allocator = (AbstractAllocator) engineAllocator;
+
+      resultsList.add(
+          allocator.getName()
+      );
+    }
+    
+    return resultsList;
+  }
+  
+  public boolean testConnection() {
+    return testConnection(
+        prefs.get(
+            "resourcingServiceURI", 
+            DEFAULT_RESOURCING_SERVICE_URI
+        ),    
+        prefs.get(
+            "resourcingServiceUserID", 
+            DEFAULT_RESOURCING_SERVICE_USERID
+        ),    
+        prefs.get(
+            "resourcingServiceUserPassword", 
+            DEFAULT_RESOURCING_SERVICE_USER_PASSWORD
+        )
+    );
+  }
+  
+  public boolean testConnection(String serviceURI, String userID, String password) {
+    connect(serviceURI, userID, password);
+    if (sessionHandle != null) {
+      return gateway.checkConnection(sessionHandle);
+    }
+    return false;
   }
 }

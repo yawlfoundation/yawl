@@ -23,16 +23,17 @@
 
 package au.edu.qut.yawl.editor.thirdparty.resourcing;
 
-import java.util.HashMap;
 import java.util.List;
 
-public class ResourcingServiceProxy implements ResourcingtServiceProxyInterface {
+import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
+
+public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
   
   private transient static final ResourcingServiceProxy INSTANCE 
     = new ResourcingServiceProxy();
 
-  private ResourcingtServiceProxyInterface availableImplementation;
-  private ResourcingtServiceProxyInterface unavailableImplementation;
+  private ResourcingServiceProxyInterface availableImplementation;
+  private ResourcingServiceProxyInterface unavailableImplementation;
 
   public static ResourcingServiceProxy getInstance() {
     return INSTANCE; 
@@ -40,29 +41,25 @@ public class ResourcingServiceProxy implements ResourcingtServiceProxyInterface 
     
   private ResourcingServiceProxy() {}
   
-  private ResourcingtServiceProxyInterface getImplementation() {
-    if (getAvailableImplementation().isDatabaseConnectionAvailable()) {
+  private ResourcingServiceProxyInterface getImplementation() {
+    if (getAvailableImplementation().testConnection()) {
       return getAvailableImplementation();
     } 
     return getUnavailableImplementation();
   }
   
-  private ResourcingtServiceProxyInterface getAvailableImplementation() {
+  private ResourcingServiceProxyInterface getAvailableImplementation() {
     if (availableImplementation == null) {
       availableImplementation = new AvailableResourcingServiceProxyImplementation();
     }
     return availableImplementation;
   }
   
-  private ResourcingtServiceProxyInterface getUnavailableImplementation() {
+  private ResourcingServiceProxyInterface getUnavailableImplementation() {
     if (unavailableImplementation == null) {
       unavailableImplementation = new UnavailableResourcingServiceProxyImplementation();
     }
     return unavailableImplementation;
-  }
-
-  public boolean isDatabaseConnectionAvailable() {
-    return getImplementation().isDatabaseConnectionAvailable();
   }
 
   public void connect() {
@@ -73,11 +70,23 @@ public class ResourcingServiceProxy implements ResourcingtServiceProxyInterface 
     getImplementation().disconnect();
   }
   
-  public HashMap getAllHumanResourceNames() {
-    return getImplementation().getAllHumanResourceNames();
+  public List<String> getAllParticipants() {
+    return getImplementation().getAllParticipants();
   }
   
-  public List getAllRoles() {
+  public List<ResourcingRole> getAllRoles() {
     return getImplementation().getAllRoles();
+  }
+
+  public boolean testConnection() {
+    return getImplementation().testConnection();
+  }
+  
+  public boolean testConnection(String serviceURI, String userID, String password) {
+    return getImplementation().testConnection(serviceURI, userID, password);
+  }
+
+  public List<String> getRegisteredAllocationMechanisms() {
+    return getImplementation().getRegisteredAllocationMechanisms();
   }
 }
