@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="au.edu.qut.yawl.engine.YWorkItemEvent" table="workitemevent">
+
+       <id name="rowkey" column="rowkey" type="string" access="field">
+   		<generator class="uuid.hex"/>
+    	</id>
+
+    	<property name="identifier" column="identifier" type="string" access="field"/>
+
+    	<property name="taskid" column="taskid" access="field"/>
+
+    	<property name="resource" column="resource" type="string" access="field"/>
+
+    	<property name="time" column="time" type="long" access="field"/>
+
+    	<property name="event" column="event" access="field"/>
+
+    	<property name="description" column="description" access="field"/>
+
+	</class>
+	
+</hibernate-mapping>
