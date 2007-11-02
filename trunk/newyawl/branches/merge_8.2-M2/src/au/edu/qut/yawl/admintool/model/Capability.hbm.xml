@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="au.edu.qut.yawl.admintool.model.Capability" table="Capability">
+
+        <id name="capabilityName" column="CapabilityDesc" type="string">
+            <generator class="assigned"/>
+        </id>
+
+    </class>
+
+</hibernate-mapping>
