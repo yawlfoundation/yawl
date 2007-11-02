@@ -24,6 +24,8 @@ package au.edu.qut.yawl.editor.thirdparty.resourcing;
 import java.util.prefs.Preferences;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
+import au.edu.qut.yawl.editor.resourcing.AllocationMechanism;
+import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
 import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
 
 import java.util.List;
@@ -32,6 +34,7 @@ import java.util.LinkedList;
 import au.edu.qut.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 import au.edu.qut.yawl.resourcing.allocators.AbstractAllocator;
 import au.edu.qut.yawl.resourcing.resource.Role;
+import au.edu.qut.yawl.resourcing.resource.Participant;
 
 public class AvailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
   
@@ -89,7 +92,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     }
   }
   
-  public List<String> getAllParticipants() {
+  public List<ResourcingParticipant> getAllParticipants() {
     connect();
     
     List engineParticipants;
@@ -105,17 +108,21 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
       return null;
     }
     
-    LinkedList<String> resultsList = new LinkedList<String>();
+    LinkedList<ResourcingParticipant> participantList = new LinkedList<ResourcingParticipant>();
     
     for (Object engineParticipant: engineParticipants) {
-      Role role = (Role) engineParticipant;
+      Participant participant = (Participant) engineParticipant;
 
-      resultsList.add(
-          role.getName()
+      participantList.add(
+          new ResourcingParticipant(
+              participant.getID(),
+              participant.getFullName() + "(" +
+              participant.getUserID() + ")"
+          )
       );
     }
     
-    return resultsList;
+    return participantList;
   }
   
   public List<ResourcingRole> getAllRoles() {
@@ -160,7 +167,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     return resultsList;
   }
 
-  public List<String> getRegisteredAllocationMechanisms() {
+  public List<AllocationMechanism> getRegisteredAllocationMechanisms() {
     connect();
     
     List engineAllocators;
@@ -176,13 +183,17 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
       return null;
     }
     
-    LinkedList<String> resultsList = new LinkedList<String>();
+    LinkedList<AllocationMechanism> resultsList = new LinkedList<AllocationMechanism>();
     
     for (Object engineAllocator: engineAllocators) {
       AbstractAllocator allocator = (AbstractAllocator) engineAllocator;
 
       resultsList.add(
-          allocator.getName()
+          new AllocationMechanism(
+              allocator.getName(),
+              allocator.getDisplayName(),
+              allocator.getDescription()
+          )
       );
     }
     

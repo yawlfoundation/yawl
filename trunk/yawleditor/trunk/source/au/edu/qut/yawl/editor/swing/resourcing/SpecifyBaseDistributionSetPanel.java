@@ -19,6 +19,7 @@ import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.data.DataVariableUtilities;
 import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 import au.edu.qut.yawl.editor.resourcing.DataVariableContent;
+import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
 import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
 import au.edu.qut.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
@@ -130,7 +131,7 @@ class UserPanel extends JPanel implements ListSelectionListener {
   
   private static final long serialVersionUID = 1L;
 
-  private JList userList;
+  private UserList userList;
   
   private SpecifyBaseDistributionSetPanel parent;
   
@@ -159,32 +160,18 @@ class UserPanel extends JPanel implements ListSelectionListener {
   }
   
   private JScrollPane buildUserList() {
-    userList = new JList();
+    userList = new UserList();
     userList.getSelectionModel().addListSelectionListener(this);
 
     return new JScrollPane(userList);
   }
   
-  public void setUserList(List<String> users) {
-    userList.setListData(
-        users.toArray()
-    );
+  public void setUserList(List<ResourcingParticipant> users) {
+    userList.setUsers(users);
   }
   
-  public void setSelectedUsers(String[] selectedUsers) {
-    if (selectedUsers == null) {
-      return;
-    }
-     int[] selectedUserIndicies = new int[selectedUsers.length];
-     for(int i = 0; i < selectedUsers.length; i++) {
-       for(int j = 0; j < userList.getModel().getSize(); j++) {
-         // assumption: we WILL find the current selected user in the list
-         if (userList.getModel().getElementAt(j).equals(selectedUsers[i])) {
-           selectedUserIndicies[i] = j;
-         }
-       }
-     }
-     userList.setSelectedIndices(selectedUserIndicies);
+  public void setSelectedUsers(List<ResourcingParticipant> selectedUsers) {
+    userList.setSelectedUsers(selectedUsers);
   }
   
   protected ResourceMapping getResourceMapping() {
@@ -192,16 +179,61 @@ class UserPanel extends JPanel implements ListSelectionListener {
   }
 
   public void valueChanged(ListSelectionEvent e) {
-    int[] selectedUserIndices = userList.getSelectedIndices();
-    String[] selectedUsers = new String[selectedUserIndices.length];
-    for(int i = 0; i < selectedUserIndices.length; i++) {
-      selectedUsers[i] = (String) userList.getModel().getElementAt(selectedUserIndices[i]);
-    }
     getResourceMapping().setBaseUserDistributionList(
-        selectedUsers
+        userList.getSelectedUsers()
     );
   }
 }
+
+class UserList extends JList {
+  private static final long serialVersionUID = 1L;
+
+  private List<ResourcingParticipant> roles;
+
+  public UserList() {
+    super();
+  }
+  
+  public void setUsers(List<ResourcingParticipant> users) {
+    this.roles = users;
+    String[] roleNames = new String[users.size()];
+    for(int i = 0; i < users.size(); i++) {
+      roleNames[i] = users.get(i).getName();
+    }
+    setListData(roleNames);
+  }
+  
+  public void setSelectedUsers(List<ResourcingParticipant> selectedRoles) {
+    if (selectedRoles == null) {
+      return;
+    }
+    
+    int[] selectedRoleIndicies = new int[selectedRoles.size()];
+
+    int j = 0;
+    for(int i = 0; i < roles.size(); i ++) {
+      for(ResourcingParticipant selectedRole : selectedRoles) {
+        if (roles.get(i).equals(selectedRole)) {
+          selectedRoleIndicies[j] = i;
+          j++;
+        }
+      }
+    }
+    setSelectedIndices(selectedRoleIndicies);
+  }
+  
+  public List<ResourcingParticipant> getSelectedUsers() {
+    int[] selectedRoleIndices = getSelectedIndices();
+    List<ResourcingParticipant> selectedRoles = new LinkedList<ResourcingParticipant>();
+    for(int i = 0; i < selectedRoleIndices.length; i++) {
+      selectedRoles.add(
+        roles.get(selectedRoleIndices[i])    
+      );
+    }
+    return selectedRoles;
+  }
+}
+
 
 class RolesPanel extends JPanel implements ListSelectionListener {
 

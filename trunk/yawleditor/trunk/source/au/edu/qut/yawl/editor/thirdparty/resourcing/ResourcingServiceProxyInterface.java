@@ -25,6 +25,8 @@ package au.edu.qut.yawl.editor.thirdparty.resourcing;
 
 import java.util.List;
 
+import au.edu.qut.yawl.editor.resourcing.AllocationMechanism;
+import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
 import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
 
 public interface ResourcingServiceProxyInterface {
@@ -44,9 +46,8 @@ public interface ResourcingServiceProxyInterface {
   public boolean testConnection();
   public boolean testConnection(String serviceURI, String userID, String password);
   
-  public List<String> getAllParticipants();
+  public List<ResourcingParticipant> getAllParticipants();
   public List<ResourcingRole> getAllRoles();
   
-  public List<String> getRegisteredAllocationMechanisms();
-  
+  public List<AllocationMechanism> getRegisteredAllocationMechanisms();
 }

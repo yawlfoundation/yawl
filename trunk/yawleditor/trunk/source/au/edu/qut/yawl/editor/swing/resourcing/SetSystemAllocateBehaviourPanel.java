@@ -6,11 +6,13 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
+import au.edu.qut.yawl.editor.resourcing.AllocationMechanism;
 import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 import au.edu.qut.yawl.editor.swing.resourcing.ResourcingWizardPanel;
 import au.edu.qut.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
@@ -19,7 +21,7 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
   
   private static final long serialVersionUID = 1L;
 
-  private JComboBox mechanismComboBox;
+  private AllocationMechanismComboBox mechanismComboBox;
 
   public SetSystemAllocateBehaviourPanel(ManageResourcingDialog dialog) {
     super(dialog);
@@ -74,13 +76,16 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
     mechanismLabel.setLabelFor(mechanismComboBox);
   }
   
-  private JComboBox getMechanismComboBox() {
-    JComboBox mechanismBox = new JComboBox();
+  private AllocationMechanismComboBox getMechanismComboBox() {
+    final AllocationMechanismComboBox  mechanismBox = new AllocationMechanismComboBox ();
     mechanismBox.addActionListener(
       new ActionListener() {
         public void actionPerformed(ActionEvent e) {
+          if (!mechanismBox.hasFocus()) {
+            return;
+          }
           getResourceMapping().setAllocationMechanism(
-              (String) ((JComboBox) e.getSource()).getSelectedItem()
+              mechanismBox.getSelectedMechanism()
           );
         }
       }
@@ -102,14 +107,54 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
   public void doNext() {}
 
   public void refresh() {
-    mechanismComboBox.removeAllItems();
-    for(String item: ResourcingServiceProxy.getInstance().getRegisteredAllocationMechanisms()) {
-      mechanismComboBox.addItem(item);
-    }
+    mechanismComboBox.setAllocationMechanisms(
+        ResourcingServiceProxy.getInstance().getRegisteredAllocationMechanisms()
+    );
+    mechanismComboBox.setSelectedAllocationMechanism(
+      getResourceMapping().getAllocationMechanism()    
+    );
   }
 
   public boolean shouldDoThisStep() {
     return getResourceMapping().getAllocateInteractionPoint() == 
       ResourceMapping.SYSTEM_INTERACTION_POINT;
+  }
+}
+
+class AllocationMechanismComboBox extends JComboBox {
+  
+  private static final long serialVersionUID = 1L;
+
+  private List<AllocationMechanism> mechanisms;
+  
+  public void setAllocationMechanisms(List<AllocationMechanism> mechanisms) {
+    removeAllItems();
+    this.mechanisms = mechanisms;
+    for(AllocationMechanism mechanism : mechanisms) {
+      addItem(
+          mechanism.getDisplayName()
+       );
+    }
+  }
+  
+  public AllocationMechanism getSelectedMechanism() {
+    if (getSelectedIndex()== -1) {
+      return null;
+    }
+    return mechanisms.get(
+        getSelectedIndex()
+    );
+  }
+  
+  public void setSelectedAllocationMechanism(AllocationMechanism selectedMechanism) {
+    if (selectedMechanism == null) {
+      return;
+    }
+    for(AllocationMechanism mechanism : mechanisms) {
+      if(selectedMechanism.equals(mechanism)) {
+        setSelectedItem(mechanism.getDisplayName());
+        return;
+      }
+    }
   }
 }

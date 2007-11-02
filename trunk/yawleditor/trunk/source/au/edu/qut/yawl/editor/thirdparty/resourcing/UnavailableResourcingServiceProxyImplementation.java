@@ -26,6 +26,8 @@ package au.edu.qut.yawl.editor.thirdparty.resourcing;
 import java.util.List;
 import java.util.LinkedList;
 
+import au.edu.qut.yawl.editor.resourcing.AllocationMechanism;
+import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
 import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
 
 public class UnavailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
@@ -41,8 +43,25 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
     // deliberately does nothing.
   }
   
-  public List<String>getAllParticipants() {
-    return new LinkedList<String>();
+  public List<ResourcingParticipant>getAllParticipants() {
+    
+    LinkedList<ResourcingParticipant> participants = new LinkedList<ResourcingParticipant>();
+    
+    participants.add(
+        new ResourcingParticipant("1", "Rob Thiem")
+    );
+    participants.add(
+        new ResourcingParticipant("2", "Annette Fraser")
+    );
+    participants.add(
+        new ResourcingParticipant("3", "Reuben Hemls")
+    );
+    participants.add(
+        new ResourcingParticipant("4", "I'm Old Greg!")
+    );
+
+    return participants;
+    // return new LinkedList<ResourcingParticipant>();
   }
   
   public List<ResourcingRole> getAllRoles() {
@@ -50,18 +69,17 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
     LinkedList<ResourcingRole> roles = new LinkedList<ResourcingRole>();
     
     roles.add(
-        new ResourcingRole("1", "Rob")
+        new ResourcingRole("1", "CEO")
     );
     roles.add(
-        new ResourcingRole("2", "Annette")
+        new ResourcingRole("2", "CIO")
     );
     roles.add(
-        new ResourcingRole("3", "Reuben")
+        new ResourcingRole("3", "Accountant")
     );
     roles.add(
-        new ResourcingRole("4", "Linds")
+        new ResourcingRole("4", "Consultant")
     );
-    
 
     return roles;
     // return new LinkedList<ResourcingRole>();
@@ -75,23 +93,43 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
     return false;
   }
 
-  public List<String> getRegisteredAllocationMechanisms() {
+  public List<AllocationMechanism> getRegisteredAllocationMechanisms() {
    /*  
     *  The lables for the standard, guaranteed to be there, allocation
     *  mechanisms are necessarilly redundant.  If the engine ever 
-    *  changes the name of one of the standard allocation mechanisms,
-    *  the name must also be updated here.
+    *  changes the name and/or class name of one of the standard 
+    *  allocation mechanisms, that detail must also be updated here.
     */
     
     // TODO: Don't understand where/how names are being set on the engine-side
     
+    LinkedList<AllocationMechanism> mechanisms = new LinkedList<AllocationMechanism>();
     
-    LinkedList<String> list = new LinkedList<String>();
+    mechanisms.add(
+        new AllocationMechanism(
+            "RandomChoice",
+            "Random Choice",
+            "blah on random choice"
+        )
+    );
 
-    list.add("Round-Robin");
-    list.add("Shortest-Queue");
-    list.add("Random");
+    mechanisms.add(
+        new AllocationMechanism(
+            "RoundRobin",
+            "Round-Robin",
+            "blah on round-robin"
+        )
+    );
+
+    mechanisms.add(
+        new AllocationMechanism(
+            "ShortestQueue",
+            "Shortest-Queue",
+            "blah on shortest-queue"
+        )
+    );
+
     
-    return list;
+    return mechanisms;
   }
 }

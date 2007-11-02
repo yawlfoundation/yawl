@@ -117,12 +117,12 @@ public class ResourceMapping implements Serializable, Cloneable  {
     return list;
   }
 
-  public void setBaseUserDistributionList(String[] userList) {
+  public void setBaseUserDistributionList(List<ResourcingParticipant> userList) {
     serializationProofAttributeMap.put("baseUserDistributionList", userList);
   }
   
-  public String[] getBaseUserDistributionList() {
-    return (String[]) serializationProofAttributeMap.get("baseUserDistributionList");
+  public List<ResourcingParticipant> getBaseUserDistributionList() {
+    return (List<ResourcingParticipant>) serializationProofAttributeMap.get("baseUserDistributionList");
   }
 
   public void setBaseRoleDistributionList(List<ResourcingRole> roles) {
@@ -191,14 +191,14 @@ public class ResourceMapping implements Serializable, Cloneable  {
     return ((Integer) serializationProofAttributeMap.get("allocateInteractionPoint")).intValue();
   }
 
-  public String getAllocationMechanism() {
+  public AllocationMechanism getAllocationMechanism() {
     if (getAllocateInteractionPoint() == SYSTEM_INTERACTION_POINT) {
-      return (String) serializationProofAttributeMap.get("allocationMechanism");
+      return (AllocationMechanism) serializationProofAttributeMap.get("allocationMechanism");
     }
     return null;
   }
   
-  public void setAllocationMechanism(String allocationMechanism) {
+  public void setAllocationMechanism(AllocationMechanism allocationMechanism) {
     serializationProofAttributeMap.put("allocationMechanism", allocationMechanism);
   }
 
@@ -247,18 +247,18 @@ public class ResourceMapping implements Serializable, Cloneable  {
       systemAllocationMechanism.append(
           "System Allocation Mechanism\n" + 
           "---------------------------\n" + 
-          "  " + getAllocationMechanism() + "\n"
+          "  " + getAllocationMechanism().getDisplayName() + "\n"
       );
     }
     
     StringBuffer baseUserDistribitionListString = new StringBuffer("");
-    if (getBaseUserDistributionList() != null && getBaseUserDistributionList().length > 0) {
+    if (getBaseUserDistributionList() != null && getBaseUserDistributionList().size() > 0) {
       baseUserDistribitionListString.append(
           "Base User Distribution List:\n" + 
           "---------------------------\n"
       );
-      for(String user : getBaseUserDistributionList()) {
-        baseUserDistribitionListString.append("  " + user + "\n");
+      for(ResourcingParticipant user : getBaseUserDistributionList()) {
+        baseUserDistribitionListString.append("  " + user.getName() + "\n");
       }
     }
 

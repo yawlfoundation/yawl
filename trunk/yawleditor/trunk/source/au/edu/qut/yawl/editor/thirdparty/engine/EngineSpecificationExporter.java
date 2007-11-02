@@ -58,6 +58,7 @@ import au.edu.qut.yawl.editor.net.NetGraphModel;
 import au.edu.qut.yawl.editor.resourcing.DataVariableContent;
 import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
+import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
 
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
@@ -85,6 +86,7 @@ import au.edu.qut.yawl.resourcing.interactions.AllocateInteraction;
 import au.edu.qut.yawl.resourcing.interactions.StartInteraction;
 import au.edu.qut.yawl.resourcing.TaskPrivileges;
 
+import au.edu.qut.yawl.resourcing.allocators.GenericAllocator;
 import au.edu.qut.yawl.resourcing.constraints.PiledExecution;
 import au.edu.qut.yawl.resourcing.constraints.SeparationOfDuties;
 
@@ -858,12 +860,14 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
   private static void populateOfferParticipants(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
     if (editorResourceMapping.getBaseUserDistributionList() == null ||
-        editorResourceMapping.getBaseUserDistributionList().length == 0) {
+        editorResourceMapping.getBaseUserDistributionList().size() == 0) {
       return;
     }
 
-    for(String participant : editorResourceMapping.getBaseUserDistributionList()) {
-      engineResourceMapping.getOfferInteraction().addParticipant(participant);
+    for(ResourcingParticipant participant : editorResourceMapping.getBaseUserDistributionList()) {
+      engineResourceMapping.getOfferInteraction().addParticipant(
+          participant.getId()
+      );
     }
   }
 
@@ -940,7 +944,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
        );
     
     if (editorResourceMapping.getAllocateInteractionPoint() == ResourceMapping.SYSTEM_INTERACTION_POINT) {
-      // TODO: allocation mechanism
+      engineResourceMapping.getAllocateInteraction().setAllocator(
+        new GenericAllocator(
+            editorResourceMapping.getAllocationMechanism().getName()
+        )    
+      );
     }
     
     return interaction;
