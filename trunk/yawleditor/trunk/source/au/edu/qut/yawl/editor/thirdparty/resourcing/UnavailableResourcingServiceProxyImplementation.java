@@ -23,10 +23,12 @@
 
 package au.edu.qut.yawl.editor.thirdparty.resourcing;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 
 import au.edu.qut.yawl.editor.resourcing.AllocationMechanism;
+import au.edu.qut.yawl.editor.resourcing.ResourcingFilter;
 import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
 import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
 
@@ -84,7 +86,7 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
     return roles;
     // return new LinkedList<ResourcingRole>();
   }
-
+  
   public boolean testConnection() {
     return false;
   }
@@ -131,5 +133,38 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
 
     
     return mechanisms;
+  }
+
+  public List<ResourcingFilter> getRegisteredResourcingFilters() {
+    LinkedList<ResourcingFilter> filters = new LinkedList<ResourcingFilter>();
+    
+    ResourcingFilter orgFilter = new ResourcingFilter("OrgFilter", "Organisational Group");
+
+    HashMap<String,String> orgFilterParams = new HashMap<String, String>();
+    orgFilterParams.put("OrgGroup", "");
+    orgFilterParams.put("Position", "");
+    
+    orgFilter.setParameters(orgFilterParams);
+    
+    filters.add(
+        orgFilter
+    );
+
+    ResourcingFilter capabilityFilter = new ResourcingFilter("CapabilityFilter", "Capability");
+
+    HashMap<String,String> capabilityFilterParams = new HashMap<String, String>();
+    capabilityFilterParams.put("Capability", "");
+
+    capabilityFilter.setParameters(
+      capabilityFilterParams    
+    );
+    
+    filters.add(
+        capabilityFilter
+    );
+
+    return filters;
+    
+    // return new LinkedList<ResourcingFilter>();
   }
 }

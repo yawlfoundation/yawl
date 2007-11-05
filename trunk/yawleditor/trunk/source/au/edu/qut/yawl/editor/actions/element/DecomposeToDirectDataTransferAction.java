@@ -69,7 +69,7 @@ public class DecomposeToDirectDataTransferAction extends YAWLSelectedNetAction
   
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Decompose to Driect Data Transfer...");
+    putValue(Action.NAME, "Decompose to Direct Data Transfer...");
     putValue(Action.LONG_DESCRIPTION, "Decompose task to directly transfer data to and from the net.");
     putValue(Action.SMALL_ICON, getIconByName("Blank"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
