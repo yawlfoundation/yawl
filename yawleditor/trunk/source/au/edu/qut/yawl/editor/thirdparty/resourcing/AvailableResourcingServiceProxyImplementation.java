@@ -25,14 +25,17 @@ import java.util.prefs.Preferences;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.resourcing.AllocationMechanism;
+import au.edu.qut.yawl.editor.resourcing.ResourcingFilter;
 import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
 import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 
 import au.edu.qut.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 import au.edu.qut.yawl.resourcing.allocators.AbstractAllocator;
+import au.edu.qut.yawl.resourcing.filters.AbstractFilter;
 import au.edu.qut.yawl.resourcing.resource.Role;
 import au.edu.qut.yawl.resourcing.resource.Participant;
 
@@ -199,6 +202,39 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     
     return resultsList;
   }
+
+  public List<ResourcingFilter> getRegisteredResourcingFilters() {
+    connect();
+    
+    List engineFilters;
+    
+    try {
+      engineFilters = gateway.getFilters(        
+          prefs.get(
+              "resourcingServiceURI", 
+              DEFAULT_RESOURCING_SERVICE_URI
+          )    
+      );
+    } catch (Exception e) {
+      return null;
+    }
+    
+    LinkedList<ResourcingFilter> resultsList = new LinkedList<ResourcingFilter>();
+    
+    for (Object engineFilter: engineFilters) {
+      AbstractFilter filter = (AbstractFilter) engineFilter;
+
+      resultsList.add(
+          new ResourcingFilter(
+              filter.getName(),
+              filter.getDisplayName(),
+              filter.getParams()
+          )
+      );
+    }
+    return resultsList;
+  }
+
   
   public boolean testConnection() {
     return testConnection(
@@ -224,4 +260,5 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     }
     return false;
   }
+
 }

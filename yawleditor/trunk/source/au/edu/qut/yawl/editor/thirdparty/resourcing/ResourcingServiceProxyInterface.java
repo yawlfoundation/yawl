@@ -26,6 +26,7 @@ package au.edu.qut.yawl.editor.thirdparty.resourcing;
 import java.util.List;
 
 import au.edu.qut.yawl.editor.resourcing.AllocationMechanism;
+import au.edu.qut.yawl.editor.resourcing.ResourcingFilter;
 import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
 import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
 
@@ -48,6 +49,8 @@ public interface ResourcingServiceProxyInterface {
   
   public List<ResourcingParticipant> getAllParticipants();
   public List<ResourcingRole> getAllRoles();
+  
+  public List<ResourcingFilter> getRegisteredResourcingFilters();
   
   public List<AllocationMechanism> getRegisteredAllocationMechanisms();
 }

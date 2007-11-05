@@ -3,7 +3,7 @@ package au.edu.qut.yawl.editor.resourcing;
 import java.io.Serializable;
 import java.util.HashMap;
 
-public class AllocationMechanism implements Serializable {
+public class ResourcingFilter implements Serializable {
 
   /* ALL yawl-specific attributes of this object and its descendants 
    * are to be stored in serializationProofAttributeMap, meaning we 
@@ -15,12 +15,20 @@ public class AllocationMechanism implements Serializable {
   
   protected HashMap serializationProofAttributeMap = new HashMap();
   
-  public AllocationMechanism() {}
+  public ResourcingFilter() {
+    setParameters(new HashMap<String, String>());
+  }
   
-  public AllocationMechanism(String name, String displayName, String description) {
+  public ResourcingFilter(String name, String displayName) {
     setName(name);
     setDisplayName(displayName);
-    setDescription(description);
+    setParameters(new HashMap<String, String>());
+  }
+  
+  public ResourcingFilter(String name, String displayName, HashMap<String, String> parameters) {
+    setName(name);
+    setDisplayName(displayName);
+    setParameters(parameters);
   }
 
   public void setSerializationProofAttributeMap(HashMap map) {
@@ -51,16 +59,20 @@ public class AllocationMechanism implements Serializable {
     serializationProofAttributeMap.put("description", description);
   }
   
-  public String getDescritpion() {
-    return (String) serializationProofAttributeMap.get("description");
+  public void setParameters(HashMap<String, String> parameters) {
+    serializationProofAttributeMap.put("parameters", parameters);
+  }
+  
+  public HashMap<String, String> getParameters() {
+    return (HashMap<String, String>) serializationProofAttributeMap.get("parameters");
   }
   
   public boolean equals(Object otherObject) {
-    if (!(otherObject instanceof AllocationMechanism)) {
+    if (!(otherObject instanceof ResourcingFilter)) {
       return false;
     }
 
-    AllocationMechanism otherMechanism = (AllocationMechanism) otherObject;
+    ResourcingFilter otherMechanism = (ResourcingFilter) otherObject;
     
     if (!getName().equals(otherMechanism.getName())) {
       return false;

@@ -180,7 +180,14 @@ public class ResourceMapping implements Serializable, Cloneable  {
     }
   }
 
-
+  public void setResourcingFilters(List<ResourcingFilter> filters) {
+    serializationProofAttributeMap.put("resourcingFilters", filters);
+  }
+  
+  public List<ResourcingFilter>  getResourcingFilters() {
+    return (List<ResourcingFilter>) serializationProofAttributeMap.get("resourcingFilters");
+  }
+  
   /* ------ Allocation Related Attributes ------ */
   
   public void setAllocateInteractionPoint(int setting) {

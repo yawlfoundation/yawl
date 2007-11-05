@@ -57,6 +57,7 @@ import au.edu.qut.yawl.editor.net.NetGraphModel;
 
 import au.edu.qut.yawl.editor.resourcing.DataVariableContent;
 import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
+import au.edu.qut.yawl.editor.resourcing.ResourcingFilter;
 import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
 import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
 
@@ -80,6 +81,7 @@ import au.edu.qut.yawl.elements.YTask;
 import au.edu.qut.yawl.elements.data.YParameter;
 import au.edu.qut.yawl.elements.data.YVariable;
 
+import au.edu.qut.yawl.resourcing.filters.GenericFilter;
 import au.edu.qut.yawl.resourcing.interactions.AbstractInteraction;
 import au.edu.qut.yawl.resourcing.interactions.OfferInteraction;
 import au.edu.qut.yawl.resourcing.interactions.AllocateInteraction;
@@ -846,8 +848,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           editorResourceMapping,
           engineResourceMapping
       );
-      
-      // TODO: add filters
+
+      populateOfferFilters(
+          editorResourceMapping,
+          engineResourceMapping
+      );
 
       populateRuntimeConstraints(
           editorResourceMapping,
@@ -870,7 +875,6 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       );
     }
   }
-
   
   private static void populateOfferRoles(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
     if (editorResourceMapping.getBaseRoleDistributionList() == null ||
@@ -904,6 +908,19 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
 
+  private static void populateOfferFilters(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    for(ResourcingFilter editorFilter : editorResourceMapping.getResourcingFilters()) {
+      GenericFilter engineFilter = new GenericFilter(editorFilter.getName());
+      engineFilter.setParams(
+          editorFilter.getParameters()
+      );
+      engineResourceMapping.getOfferInteraction().addFilter(
+          engineFilter
+      );
+    }
+  }
+
+  
   private static void populateRuntimeConstraints(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
     if (editorResourceMapping.isPrivilegeEnabled(ResourceMapping.CAN_PILE_PRIVILEGE)) {
        engineResourceMapping.getOfferInteraction().addConstraint(
