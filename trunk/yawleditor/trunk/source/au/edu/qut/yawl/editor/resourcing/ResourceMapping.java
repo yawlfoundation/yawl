@@ -251,11 +251,13 @@ public class ResourceMapping implements Serializable, Cloneable  {
     StringBuffer systemAllocationMechanism = new StringBuffer("");
     
     if (getAllocateInteractionPoint() == SYSTEM_INTERACTION_POINT) {
-      systemAllocationMechanism.append(
-          "System Allocation Mechanism\n" + 
-          "---------------------------\n" + 
-          "  " + getAllocationMechanism().getDisplayName() + "\n"
-      );
+      if (getAllocationMechanism() != null) {
+        systemAllocationMechanism.append(
+            "System Allocation Mechanism\n" + 
+            "---------------------------\n" + 
+            "  " + getAllocationMechanism().getDisplayName() + "\n"
+        );
+      }
     }
     
     StringBuffer baseUserDistribitionListString = new StringBuffer("");
@@ -291,6 +293,19 @@ public class ResourceMapping implements Serializable, Cloneable  {
             "  " + content.getVariable().getName() + 
             " contains " + 
             content.getContentTypeAsString() + "\n");
+      }
+    }
+
+    StringBuffer resourceFiltersString = new StringBuffer("");
+    if (getResourcingFilters() != null && getResourcingFilters().size()> 0) {
+      resourceFiltersString.append(
+          "Resource Filters:\n" + 
+          "----------------------\n"
+      );
+      for(ResourcingFilter filter : getResourcingFilters()) {
+        resourceFiltersString.append(
+            "  " + filter.getDisplayName() +  "\n"
+        );
       }
     }
     
@@ -331,6 +346,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
         baseUserDistribitionListString +
         baseRoleDistribitionListString +
         baseVariableContentListString +
+        resourceFiltersString +
         separationOfDutiesTaskString +
         enabledPrivilegesString;
   }
