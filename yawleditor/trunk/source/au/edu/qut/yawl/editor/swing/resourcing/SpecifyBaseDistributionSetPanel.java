@@ -371,6 +371,7 @@ class TaskInputParameterPanel extends JPanel {
     gbc.gridx = 0;
     gbc.gridy = 0;
     gbc.weighty = 1;
+    gbc.weightx = 1;
     gbc.insets = new Insets(0,5,5,5);
     gbc.fill = GridBagConstraints.BOTH;
     
