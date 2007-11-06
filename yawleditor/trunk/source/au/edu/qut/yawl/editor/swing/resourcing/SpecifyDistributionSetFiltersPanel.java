@@ -1,6 +1,5 @@
 package au.edu.qut.yawl.editor.swing.resourcing;
 
-import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -21,7 +20,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
-import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
 import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
 import au.edu.qut.yawl.editor.resourcing.ResourcingFilter;
@@ -91,6 +89,7 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
     runtimeFiltersPanel.setFilters(
         ResourcingServiceProxy.getInstance().getRegisteredResourcingFilters()
     );
+    
     runtimeFiltersPanel.setTask(
         (YAWLAtomicTask) getTask()
     );
@@ -126,6 +125,11 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
   
   public void setTask(YAWLAtomicTask task) {
     this.task = task;
+    filterTable.setResourceMapping(
+        task.getResourceMapping()
+    );
+    filterTable.clearSelection();
+    filterParamTable.reset();
   }
 
   
@@ -145,10 +149,22 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
     
     gbc.gridx = 0;
     gbc.gridy = 0;
+    gbc.gridwidth = 2;
+    gbc.insets = new Insets(0,5,10,5);
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+
+    add(new JLabel(
+            "<html><body>Tick those filters to be run over the specified "+ 
+            "participant set. Set parameter values for the selected "+
+            "filter as appropriate.</body></html>"
+        ),gbc
+    );
+    
+    gbc.gridy++;
+    gbc.fill = GridBagConstraints.BOTH;
     gbc.insets = new Insets(0,10,0,5);
     gbc.gridwidth = 1;
-    gbc.weightx = 0.40;
-    gbc.fill = GridBagConstraints.BOTH;
+    gbc.weightx = 0.5;
     
     add(buildFilterTable(), gbc);
     
@@ -175,10 +191,13 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
   }
 
   public void valueChanged(ListSelectionEvent e) {
-    System.out.println("slected filter changed.");
-    filterParamTable.setParameters(
-      filterTable.getSelectedFilter().getParameters()
-    );
+    if (filterTable.getSelectedRow() == -1) {
+      filterParamTable.reset();
+    } else {
+      filterParamTable.setParameters(
+          filterTable.getSelectedFilter().getParameters()
+      );
+    }
   }
 }
 
@@ -197,6 +216,12 @@ class SelectableFilterTable extends JSingleSelectTable {
   public SelectableFilterTableModel  getSelectableFilterTableModel() {
     return (SelectableFilterTableModel) getModel();
   }
+
+  public void setResourceMapping(ResourceMapping resourceMapping) {
+    getSelectableFilterTableModel().setResourceMapping(
+        resourceMapping
+    );
+  }
   
   public void setFilters(List<ResourcingFilter> filters){
     getSelectableFilterTableModel().setFilters(filters);
@@ -205,7 +230,11 @@ class SelectableFilterTable extends JSingleSelectTable {
     );
   }
   
+  
   public ResourcingFilter getSelectedFilter() {
+    if (getSelectedRow() == -1) {
+      return null;
+    }
     return getSelectableFilterTableModel().getFilterAtRow(
       getSelectedRow()    
     );
@@ -222,6 +251,8 @@ class SelectableFilterTableModel extends AbstractTableModel {
 
   private List<ResourcingFilter> filters;
   private LinkedList<Boolean> filterListSelection;
+
+  private ResourceMapping resourceMapping;
   
   private static final String[] COLUMN_LABELS = { 
     "",
@@ -234,12 +265,47 @@ class SelectableFilterTableModel extends AbstractTableModel {
   public SelectableFilterTableModel() {
     super();
   }
+
+  public void setResourceMapping(ResourceMapping resourceMapping) {
+    this.resourceMapping = resourceMapping;
+    setFlaggedFilters();
+  }
+  
+  private void setFlaggedFilters() {
+    if (getResourceMapping().getResourcingFilters() == null) {
+      getResourceMapping().setResourcingFilters(new LinkedList<ResourcingFilter>());
+      return; // already defaults to false per filter, so we're done here.
+    }
+    
+    for(int i = 0; i < filters.size(); i++) {
+      for(int j = 0; j < getResourceMapping().getResourcingFilters().size(); j++) {
+        if (getFilterAtRow(i).equals(getResourceMapping().getResourcingFilters().get(j))) {
+
+          // The filters we get off the engine are like classes;  uninstantiated as yet.
+          // The filters stored in ResourceMapping are like instances of the classes.
+          // there is extra information that we should be using instead. We swap
+          // out the engine filter in favour of the instantiated filter at this point.
+          
+          filters.set(i, getResourceMapping().getResourcingFilters().get(j));
+          setFilterSelectionAtRow(i, Boolean.TRUE);
+          fireTableRowsUpdated(i, i);
+        }
+      }
+    }
+  }
+  
+  public ResourceMapping getResourceMapping() {
+    return this.resourceMapping;
+  }
   
   public List<ResourcingFilter> getFilters() {
     return this.filters;
   }
   
   public ResourcingFilter getFilterAtRow(int row) {
+    if (filters == null) {
+      return null;
+    }
     return filters.get(row);
   }
   
@@ -249,6 +315,27 @@ class SelectableFilterTableModel extends AbstractTableModel {
 
   public void setFilterSelectionAtRow(int row, Boolean value) {
     filterListSelection.set(row, value);
+    if (value.booleanValue()) { // true == filter selected
+      boolean filterAlreadySelected = false;
+      for(ResourcingFilter alreadySelectedFilter : getResourceMapping().getResourcingFilters()) {
+        if (getFilterAtRow(row).equals(alreadySelectedFilter)) {
+          filterAlreadySelected = true;
+        }
+        if (!filterAlreadySelected) {
+          getResourceMapping().getResourcingFilters().add(
+              getFilterAtRow(row)    
+            ); 
+        }
+      }
+    } else { // false == filter removed.
+      for(ResourcingFilter alreadySelectedFilter : getResourceMapping().getResourcingFilters()) {
+        if (getFilterAtRow(row).equals(alreadySelectedFilter)) {
+          getResourceMapping().getResourcingFilters().remove(
+              alreadySelectedFilter    
+          ); 
+        }
+      }
+    }
   }
 
   public List<ResourcingFilter> getFlaggedFilters() {
@@ -271,11 +358,7 @@ class SelectableFilterTableModel extends AbstractTableModel {
            new Boolean(false)
        ); 
     }
-    
-    fireTableRowsUpdated(
-        0, 
-        filters.size() - 1
-    );
+    fireTableDataChanged();
   }
   
   public int getColumnCount() {
@@ -341,15 +424,62 @@ class FilterParameterTable extends JSingleSelectTable {
     setModel(new FilterParameterTableModel());
   }
   
+  public void reset() {
+    setModel(new FilterParameterTableModel());
+  }
+  
   public FilterParameterTableModel getFilterParameterTableModel() {
     return (FilterParameterTableModel) getModel();
   }
   
   public void setParameters(Map<String, String> parameters){
     getFilterParameterTableModel().setParameters(parameters);
+    resetFormat();
+  }
+  
+  private void resetFormat() {
+    String paramColumnName = getModel().getColumnName(
+        FilterParameterTableModel.PARAM_NAME_COLUMN    
+    );
+
+    getColumn(paramColumnName).setMinWidth(
+        getMaximumParameterWidth()
+    );
+    getColumn(paramColumnName).setPreferredWidth(
+        getMaximumParameterWidth()
+    );
+    getColumn(paramColumnName).setMaxWidth(
+        getMaximumParameterWidth()
+    );
+    
     setPreferredScrollableViewportSize(
         getPreferredSize()
     );
+  }
+
+  private int getMaximumParameterWidth() {
+    int maxWidth = getMessageWidth(
+        getModel().getColumnName(
+            FilterParameterTableModel.PARAM_NAME_COLUMN    
+        )   
+    );
+    for(int i = 0; i < this.getRowCount(); i++) {
+      maxWidth = Math.max(
+          maxWidth, 
+          getMessageWidth(
+              getParamNameAt(i)
+          )
+      );
+    }
+    return maxWidth;
+  }
+  
+  private int getMessageWidth(String message) {
+    return  getFontMetrics(getFont()).stringWidth(message) + 5;
+  }
+  
+  public String getParamNameAt(int row) {
+    return getFilterParameterTableModel().getParamNameAt(row);
   }
 }
 
@@ -360,6 +490,8 @@ class FilterParameterTableModel extends AbstractTableModel {
   private Map<String, String> parameters;
   private String[][] parameterArray;
 
+  private static final int KEY_INDEX = 0;
+  private static final int VALUE_INDEX = 1;
 
   private static final String[] COLUMN_LABELS = { 
     "Parameter",
@@ -380,10 +512,16 @@ class FilterParameterTableModel extends AbstractTableModel {
   public void setParameters(Map<String, String> parameters) {
     this.parameters = parameters;
     
-    fireTableRowsUpdated(
-        0, 
-        parameters.size() - 1
-    );
+    parameterArray = new String[parameters.size()][2];
+
+    int i = 0;
+    for(String key: parameters.keySet()) {
+      parameterArray[i][KEY_INDEX] = key;
+      parameterArray[i][VALUE_INDEX] = parameters.get(key);
+      i++;
+    }
+    
+    fireTableDataChanged();
   }
   
   public int getColumnCount() {
@@ -411,33 +549,27 @@ class FilterParameterTableModel extends AbstractTableModel {
     }
     return 0;
   }
+  
+  public String getParamNameAt(int row) {
+    return (String) getValueAt(row, KEY_INDEX);
+  }
 
   public Object getValueAt(int row, int col) {
-    switch (col) {
-      case PARAM_NAME_COLUMN:  {
-        return "greebo";
-      }
-      case PARAM_VALUE_COLUMN:  {
-        return "wibble";
-      }
-      default: {
-        return null;
-      }
-    }
+    return parameterArray[row][col];
   }
   
   public void setValueAt(Object value, int row, int col) {
-    switch (col) {
-    case PARAM_VALUE_COLUMN:  {
-        //TODO: value update needed
-        fireTableRowsUpdated(row, row);
-      }
-      default: {
-      }
+    if (col != VALUE_INDEX) {
+      return;
     }
+    parameterArray[row][col] = (String) value;
+    parameters.put(
+        parameterArray[row][KEY_INDEX], 
+        (String) value
+    );
+    fireTableRowsUpdated(row, row);
   }
 }
-
 
 
 class RuntimeConstraintsPanel extends JPanel {
