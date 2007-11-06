@@ -23,7 +23,6 @@
 
 package au.edu.qut.yawl.editor.thirdparty.resourcing;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -46,45 +45,11 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
   }
   
   public List<ResourcingParticipant>getAllParticipants() {
-    
-    LinkedList<ResourcingParticipant> participants = new LinkedList<ResourcingParticipant>();
-    
-    participants.add(
-        new ResourcingParticipant("1", "Rob Thiem")
-    );
-    participants.add(
-        new ResourcingParticipant("2", "Annette Fraser")
-    );
-    participants.add(
-        new ResourcingParticipant("3", "Reuben Hemls")
-    );
-    participants.add(
-        new ResourcingParticipant("4", "I'm Old Greg!")
-    );
-
-    return participants;
-    // return new LinkedList<ResourcingParticipant>();
+    return new LinkedList<ResourcingParticipant>();
   }
   
   public List<ResourcingRole> getAllRoles() {
-    
-    LinkedList<ResourcingRole> roles = new LinkedList<ResourcingRole>();
-    
-    roles.add(
-        new ResourcingRole("1", "CEO")
-    );
-    roles.add(
-        new ResourcingRole("2", "CIO")
-    );
-    roles.add(
-        new ResourcingRole("3", "Accountant")
-    );
-    roles.add(
-        new ResourcingRole("4", "Consultant")
-    );
-
-    return roles;
-    // return new LinkedList<ResourcingRole>();
+   return new LinkedList<ResourcingRole>();
   }
   
   public boolean testConnection() {
@@ -96,46 +61,18 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
   }
 
   public List<AllocationMechanism> getRegisteredAllocationMechanisms() {
-   /*  
-    *  The lables for the standard, guaranteed to be there, allocation
-    *  mechanisms are necessarilly redundant.  If the engine ever 
-    *  changes the name and/or class name of one of the standard 
-    *  allocation mechanisms, that detail must also be updated here.
-    */
-    
-    // TODO: Don't understand where/how names are being set on the engine-side
-    
+
     LinkedList<AllocationMechanism> mechanisms = new LinkedList<AllocationMechanism>();
-    
-    mechanisms.add(
-        new AllocationMechanism(
-            "RandomChoice",
-            "Random Choice",
-            "blah on random choice"
-        )
-    );
 
-    mechanisms.add(
-        new AllocationMechanism(
-            "RoundRobin",
-            "Round-Robin",
-            "blah on round-robin"
-        )
-    );
-
-    mechanisms.add(
-        new AllocationMechanism(
-            "ShortestQueue",
-            "Shortest-Queue",
-            "blah on shortest-queue"
-        )
-    );
-
+    mechanisms.add(AllocationMechanism.RANDOM_MECHANISM);
+    mechanisms.add(AllocationMechanism.ROUND_ROBIN_MECHANISM);
+    mechanisms.add(AllocationMechanism.SHORTEST_QUEUE_MECHANISM);
     
     return mechanisms;
   }
 
   public List<ResourcingFilter> getRegisteredResourcingFilters() {
+    /* -- I've been using this for internal testing. Leaving it here briefly for further testing.
     LinkedList<ResourcingFilter> filters = new LinkedList<ResourcingFilter>();
     
     ResourcingFilter orgFilter = new ResourcingFilter("OrgFilter", "Organisational Group");
@@ -164,7 +101,7 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
     );
 
     return filters;
-    
-    // return new LinkedList<ResourcingFilter>();
+    */
+    return new LinkedList<ResourcingFilter>();
   }
 }

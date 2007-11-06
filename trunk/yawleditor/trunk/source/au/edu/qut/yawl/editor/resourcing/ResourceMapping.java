@@ -192,6 +192,10 @@ public class ResourceMapping implements Serializable, Cloneable  {
   
   public void setAllocateInteractionPoint(int setting) {
     serializationProofAttributeMap.put("allocateInteractionPoint",new Integer(setting));
+    
+    if (getAllocationMechanism() == null) {
+      setAllocationMechanism(AllocationMechanism.DEFAULT_MECHANISM);
+    }
   }
   
   public int getAllocateInteractionPoint() {
