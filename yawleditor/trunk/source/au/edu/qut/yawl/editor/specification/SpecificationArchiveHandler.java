@@ -86,15 +86,20 @@ public class SpecificationArchiveHandler {
 
   private SpecificationArchiveHandler() {}
 
-  public boolean save() {
+  /**
+   *  Processes a user's request to save an open specification.
+   *  This might include prompting for a file name if one has not yet beem
+   *  set for the specification.
+   *  @returns true if the specification was saved, false if the user cancelled the save.
+   */
+
+  public boolean processSaveRequest() {
     if (SpecificationModel.getInstance().getFileName().equals("")) {
       if (!promptForAndSetSaveFileName()) {
         return false;
       }
     }
-    saveSpecificationToFile(
-        SpecificationModel.getInstance().getFileName()
-    );
+    saveUpdatingGUI();
     return true;
   }
   
@@ -118,19 +123,78 @@ public class SpecificationArchiveHandler {
         return false;   
       }
     }
-    SpecificationModel.getInstance().setFileName(getFullNameFromFile(file));
+    SpecificationModel.getInstance().setFileName(
+        getFullNameFromFile(file)
+    );
     return true;
   }
   
-  public void saveAs() {
+  /**
+   *  Processes a user's request to save an open specification.
+   *  This might include prompting for a file name if one has not yet beem
+   *  set for the specification.
+   *  @returns true if the specification was saved, false if the user cancelled the save.
+   */
+  
+  public void processSaveAsRequest() {
     if (promptForAndSetSaveFileName()) {
-      saveSpecificationToFile(
-          SpecificationModel.getInstance().getFileName()
-      );  
+      saveUpdatingGUI();  
     }
   }
   
-  public void saveSpecificationToFile(String fullFileName) {
+  public void save() throws Exception {
+    save(SpecificationModel.getInstance().getFileName());
+  }
+  
+  public void save(String fullFileName) throws Exception {
+    // We write to a temporary file and then copy to the final file JIC
+    // something goes wrong resulting in a crash. Only the temporary copy will
+    // be in a corrupt state. 
+    
+    File temporarySpec = File.createTempFile("tempYAWLSpecification",null);
+    
+    ZipOutputStream outputStream = 
+      new ZipOutputStream(
+          new BufferedOutputStream(
+              new FileOutputStream(
+                  temporarySpec.getName()
+             )
+          )
+      );
+    
+    outputStream.putNextEntry(
+        new ZipEntry(
+            "specification.xml"
+        )
+    );
+
+    XMLEncoder encoder = new XMLEncoder(outputStream);
+
+    encoder.setExceptionListener(
+        new ExceptionListener() {
+          public void exceptionThrown(Exception exception) {
+            exception.printStackTrace();
+          }
+        }
+    );
+    
+    writeSpecification(encoder);
+    encoder.close();
+    outputStream.close();
+    
+    FileUtilities.move(
+        temporarySpec.getName(), 
+        fullFileName
+    );
+  }
+  
+  public void saveUpdatingGUI() {
+    saveUpdatingGUI(
+        SpecificationModel.getInstance().getFileName()
+    );
+  }
+  
+  public void saveUpdatingGUI(String fullFileName) {
     if (fullFileName.trim().equals("")) {
       return;
     }
@@ -139,29 +203,7 @@ public class SpecificationArchiveHandler {
     YAWLEditor.progressStatusBarOverSeconds(2);
     
     try {
-      
-      // We write to a temporary file and then copy to the final file JIC
-      // something goes wrong resulting in a crash. Only the temporary copy will
-      // be in a corrupt state. 
-      
-      File temporarySpec = File.createTempFile("tempYAWLSpecification",null);
-      
-      ZipOutputStream outputStream = 
-        new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temporarySpec.getName())));
-      outputStream.putNextEntry(new ZipEntry("specification.xml"));
-      XMLEncoder encoder = new XMLEncoder(outputStream);
-      encoder.setExceptionListener(new ExceptionListener() {
-        public void exceptionThrown(Exception exception) {
-          exception.printStackTrace();
-        }
-      });
-      
-      writeSpecification(encoder);
-      encoder.close();
-      outputStream.close();
-      
-      FileUtilities.move(temporarySpec.getName(), fullFileName);
-      
+      save(fullFileName);
     } catch (Exception e) {
       JOptionPane.showMessageDialog(
           YAWLEditor.getInstance(), 
@@ -177,15 +219,25 @@ public class SpecificationArchiveHandler {
   }
   
   private void writeSpecification(XMLEncoder encoder) {
-    encoder.writeObject(new ArchivableSpecificationState(SpecificationModel.getInstance()));
+    encoder.writeObject(
+        new ArchivableSpecificationState(
+            SpecificationModel.getInstance()
+        )
+    );
   }
 
-  public void close() {
+  /**
+   *  Processes a user's request to close an open specification.
+   *  This might include prompting for a file name and saving
+   *  the specification before closing it.
+   */
+  
+  public void processCloseRequest() {
     YAWLEditor.setStatusBarText("Closing Specification...");     
     if (SpecificationFileModel.getInstance().getFileCount() == 0) {
      return; 
     }
-    int response = getSaveOnCloseResponse();
+    int response = getSaveOnCloseConfirmation();
     if (response == JOptionPane.CANCEL_OPTION) {
       YAWLEditor.setStatusBarTextToPrevious();
       return;
@@ -197,7 +249,7 @@ public class SpecificationArchiveHandler {
     }
   }
   
-  private int getSaveOnCloseResponse() {
+  private int getSaveOnCloseConfirmation() {
     return JOptionPane.showConfirmDialog(
         YAWLEditor.getInstance(),
         "You have chosen to close this specification.\n"
@@ -221,13 +273,22 @@ public class SpecificationArchiveHandler {
     YAWLEditorDesktop.getInstance().setVisible(true);
   }
   
-  private void saveWhilstClosing() {
-    if (!promptForAndSetSaveFileName()) {
-      return;
+  private boolean saveWhilstClosing() {
+    if (SpecificationModel.getInstance().getFileName().equals("")) {
+      if (!promptForAndSetSaveFileName()) {
+        return false;
+      }
     }
+
     doPreSaveClosingWork();
-    save();
+    try {
+      saveUpdatingGUI();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     doPostSaveClosingWork();
+
+    return true;
   }
   
   private void closeWithoutSaving() {
@@ -235,28 +296,52 @@ public class SpecificationArchiveHandler {
     doPostSaveClosingWork();
   }
   
-  public void exit() {
+  
+  /**
+   *  Processes a user's request to exit the application.
+   *  This might include prompting for a file name and saving
+   *  the specification before closing it.
+   */
+
+  public void processExitRequest() {
     YAWLEditor.setStatusBarText("Exiting YAWLEditor...");
+
+    boolean saveNotCancelled = true;
+
     if (SpecificationFileModel.getInstance().getFileCount() > 0) {
-      int response = getSaveOnCloseResponse();
+      int response = getSaveOnCloseConfirmation();
       if (response == JOptionPane.CANCEL_OPTION) {
         YAWLEditor.setStatusBarTextToPrevious();
         return;
       }
-
-      YAWLEditor.getInstance().setVisible(false);
       
       if (response == JOptionPane.YES_OPTION) {
-        saveWhilstClosing();
+        saveNotCancelled = saveWhilstClosing();
       } else {
         closeWithoutSaving();
       }
     }
 
-    System.exit(0);
+    if (saveNotCancelled) {
+      System.exit(0);
+    }
   }
   
-  public void open(String fileName) {
+  
+  /**
+   *  Processes a user's request to open a specification file.
+   */
+  
+  public void processOpenRequest() {
+    processOpenRequest(null);
+  }
+
+  /**
+   *  Processes a user's request to open a specification file
+   *  @param fileName the specification file to open
+   */
+  
+  public void processOpenRequest(String fileName) {
     File file;
 
     if (fileName == null) { // prompt user for the file
@@ -308,10 +393,7 @@ public class SpecificationArchiveHandler {
     YAWLEditor.resetStatusBarProgress();
     YAWLEditor.setStatusBarTextToPrevious();
   }
-  
-  public void open() {
-    open(null);
-  }
+
   
   public void openSpecificationFromFile(String fullFileName) throws Exception {
     if (fullFileName.equals("")) {
@@ -342,7 +424,7 @@ public class SpecificationArchiveHandler {
       SpecificationUndoManager.getInstance().discardAllEdits();
 
     } catch (Exception e) {
-      close(); 
+      processCloseRequest(); 
       throw e;
     }
   }

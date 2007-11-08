@@ -125,23 +125,27 @@ public class ArchivingThread extends Thread {
     SpecificationFileModel.getInstance().busy();
     switch (request) {
       case CLOSE: {
-        SpecificationArchiveHandler.getInstance().close();
+        SpecificationArchiveHandler.getInstance().processCloseRequest();
         break;
       }
       case SAVE: {
-        SpecificationArchiveHandler.getInstance().save();
+        SpecificationArchiveHandler.getInstance().processSaveRequest();
         break;
       }
       case SAVEAS: {
-        SpecificationArchiveHandler.getInstance().saveAs();
+        SpecificationArchiveHandler.getInstance().processSaveAsRequest();
         break;
       }
       case OPEN: {
-        SpecificationArchiveHandler.getInstance().open();
+        SpecificationArchiveHandler.getInstance().processOpenRequest();
         break;
       }
       case OPEN_FILE: {
-        SpecificationArchiveHandler.getInstance().open(openFileName);
+        SpecificationArchiveHandler.getInstance().processOpenRequest(openFileName);
+        break;
+      }
+      case EXIT: {
+        SpecificationArchiveHandler.getInstance().processExitRequest();
         break;
       }
       case ENGINE_FILE_EXPORT: {
@@ -158,10 +162,6 @@ public class ArchivingThread extends Thread {
       }
       case ANALYSE: {
         YAWLEngineProxy.getInstance().analyse(specification);
-        break;
-      }
-      case EXIT: {
-        SpecificationArchiveHandler.getInstance().exit();
         break;
       }
     }
