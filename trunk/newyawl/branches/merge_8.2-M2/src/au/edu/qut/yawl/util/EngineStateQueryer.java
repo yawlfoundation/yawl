@@ -31,26 +31,15 @@ public class EngineStateQueryer {
             sessionHandle = wc.connect("admin", "YAWL");
 
             List availableWork = wc.getAvailableWork("admin", sessionHandle);
-            /*System.out.println(
-                    "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" +
-                    "\t\tAvailable Work Items\n" +
-                    "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-            */
+
             for (int i = 0; i < availableWork.size(); i++) {
                 WorkItemRecord record = (WorkItemRecord) availableWork.get(i);
-                //System.out.println("record.toXML() = " + record.toXML());
             }
 
             List activeWork = wc.getActiveWork("admin", sessionHandle);
-            /*System.out.println(
-                    "\n\n" +
-                    "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" +
-                    "\t\tActive Work Items\n" +
-                    "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-            */
+
             for (int i = 0; i < activeWork.size(); i++) {
                 WorkItemRecord record = (WorkItemRecord) activeWork.get(i);
-                //System.out.println("record.toXML() = " + record.toXML());
             }
 
 

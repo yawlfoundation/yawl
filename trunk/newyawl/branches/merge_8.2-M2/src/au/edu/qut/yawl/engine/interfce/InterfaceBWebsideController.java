@@ -325,13 +325,14 @@ public abstract class InterfaceBWebsideController {
 
 
     public TaskInformation getTaskInformation(String specificationID, String taskID, String sessionHandle) throws IOException {
-        TaskInformation taskInfo = _model.getTaskInformation(specificationID, taskID);
-        if (taskInfo == null) {
+        TaskInformation taskInfo ;
+        //= _model.getTaskInformation(specificationID, taskID);
+       // if (taskInfo == null) {
             String taskInfoASXML = _interfaceBClient.getTaskInformationStr(
                     specificationID, taskID, sessionHandle);
             taskInfo = _interfaceBClient.parseTaskInformation(taskInfoASXML);
             _model.setTaskInformation(specificationID, taskID, taskInfo);
-        }
+    //    }
         return taskInfo;
     }
 
@@ -358,10 +359,11 @@ public abstract class InterfaceBWebsideController {
      * @param backEndURIStr
      */
     public static void logContactError(IOException e, String backEndURIStr) {
-        System.out.println("[error] problem contacting YAWL engine at URI [" +
+        Logger.getLogger(InterfaceBWebsideController.class).error(
+                "[error] problem contacting YAWL engine at URI [" +
                 backEndURIStr + "]");
         if (e.getStackTrace() != null) {
-            System.out.println("line of code := " +
+            Logger.getLogger(InterfaceBWebsideController.class).error("line of code := " +
                     e.getStackTrace()[0].toString());
         }
     }
@@ -472,9 +474,6 @@ public abstract class InterfaceBWebsideController {
         SpecificationData sdata = getSpecificationData(
                 enabledWorkItem.getSpecificationID(),
                 sessionHandle);
-
-        //System.out.println("_model = " + _model);
-        //System.out.println("enabledWorkItem = " + enabledWorkItem);
 
         TaskInformation taskInfo = getTaskInformation(
                 enabledWorkItem.getSpecificationID(),

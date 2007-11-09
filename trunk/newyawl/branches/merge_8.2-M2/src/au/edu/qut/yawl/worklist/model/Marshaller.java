@@ -95,16 +95,13 @@ public class Marshaller {
             decompositionID = taskInfo.getChildText("decompositionID");
             Element yawlService = taskInfo.getChild("yawlService");
 
-	    Element attributes = taskInfo.getChild("attributes");
-	    if (attributes!=null) {
-		List attributelist = attributes.getChildren();
-		for (int i = 0; i < attributelist.size(); i++) {
-		    Element attribute = (Element) attributelist.get(i);
-		    attributemap.put(attribute.getName(),attributes.getChildText(attribute.getName()));
-		    //System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		    //System.out.println(attribute.getName() + " " + attributes.getChildText(attribute.getName()));
-		    //System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		}
+	        Element attributes = taskInfo.getChild("attributes");
+    	    if (attributes!=null) {
+    		List attributelist = attributes.getChildren();
+	    	for (int i = 0; i < attributelist.size(); i++) {
+		        Element attribute = (Element) attributelist.get(i);
+		        attributemap.put(attribute.getName(),attributes.getChildText(attribute.getName()));
+		    }
 	    }
 
             Element params = taskInfo.getChild("params");
@@ -294,7 +291,6 @@ public class Marshaller {
                     child.detach();
                     //the input data will be removed from the merged doc and
                     //the output data will be added.
-		            //System.out.println(child.getName());
                     mergedDoc.getRootElement().removeChild(child.getName());
                     mergedDoc.getRootElement().addContent(child);
                 }
@@ -306,7 +302,6 @@ public class Marshaller {
             return "";
         }
         String result = new XMLOutputter().outputString(mergedDoc.getRootElement()).trim();
-	    //System.out.println(result);
         return result;
     }
 

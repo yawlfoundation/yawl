@@ -102,20 +102,13 @@
 						TaskInformation taskInfo = _worklistController.getTaskInformation(
 			            	        item.getSpecificationID(), item.getTaskID(), sessionHandle);
 
-						if (taskInfo.getAttribute("formtype")==null || !taskInfo.getAttribute("formtype").equalsIgnoreCase("pdf")) {
+						if (taskInfo.getAttribute("formtype")==null) {
 				
 						 	wip.executeWorkItemPost( getServletContext(), workItemID, 
 								sessionHandle, _worklistController, userID, session.getId() );
 						
 							String url = wip.getRedirectURL(getServletContext(), taskInfo, session.getId());
 							response.sendRedirect(response.encodeURL(url));						
-						} else {
- 						 	String filename = wip.executePDFWorkItemPost( getServletContext(), workItemID, taskInfo.getDecompositionID(),
-						  			sessionHandle, _worklistController, userID );
-	
-							String url = "http://localhost:8080/PDFforms/complete.jsp?filename="+filename;
-  							response.sendRedirect( response.encodeURL(url) );
-
 						}
 
 					} catch(Exception e){

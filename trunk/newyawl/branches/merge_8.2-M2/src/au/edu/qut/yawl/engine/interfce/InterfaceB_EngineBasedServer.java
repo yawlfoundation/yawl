@@ -9,7 +9,9 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
+import au.edu.qut.yawl.engine.YSpecificationID;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -19,13 +21,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.apache.log4j.Logger;
 
 
 /**
@@ -170,10 +170,10 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 } else if (action.equals("checkConnection")) {
                     msg.append(_engine.checkConnection(sessionHandle));
                 } else if (action.equals("taskInformation")) {
-                    String specificationID = request.getParameter("specID");
+                    YSpecificationID specID = makeYSpecificationID(request);
                     String taskID = lastPartOfPath;
                     String results = _engine.getTaskInformation(
-                            specificationID, taskID, sessionHandle);
+                            specID, taskID, sessionHandle);
                     msg.append(results);
                 } else if (action.equals("checkAddInstanceEligible")) {
                     String workItemID = lastPartOfPath;
@@ -183,10 +183,10 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 } else if (action.equals("getSpecificationPrototypesList")) {
                     msg.append(_engine.getSpecificationList(sessionHandle));
                 } else if (action.equals("getSpecification")) {
-                    String specID = request.getParameter("specID");
+                    YSpecificationID specID = makeYSpecificationID(request);
                     msg.append(_engine.getProcessDefinition(specID, sessionHandle));
                 } else if (action.equals("getCasesForSpecification")) {
-                    String specID = lastPartOfPath;
+                    YSpecificationID specID = makeYSpecificationID(request);
                     msg.append(_engine.getCasesForSpecification(specID, sessionHandle));
                 } else if (action.equals("getState")) {
                     String caseID = lastPartOfPath;
@@ -292,5 +292,22 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             }
         }
         return null;
+    }
+
+    private YSpecificationID makeYSpecificationID(HttpServletRequest request) {
+        double version = 0.1 ;
+        String handle = request.getParameter("sessionHandle") ;
+        String id = request.getParameter("specID");
+        String verStr = request.getParameter("version");
+
+        try {
+            if (verStr == null) verStr = _engine.getLatestSpecVersion(id, handle);
+            version = Double.parseDouble(verStr);
+        }
+        catch (Exception e) {
+            version = 0.1 ;       // redundant but the catch block needs something
+        }
+
+        return new YSpecificationID(id, version);
     }
 }

@@ -32,9 +32,7 @@ public class WorkListGUIUtils {
     public static String convertUploadErrorMsg(String errorMsg) {
         StringBuffer html = new StringBuffer();
         try {
-            Document doc;
-            //System.out.println("errorMsg = " + errorMsg); //MLR (02/11/07) code merge: this line was added by M2 for debugging purposes and has been commented out
-            doc = _builder.build(new StringReader(errorMsg));
+            Document doc = _builder.build(new StringReader(errorMsg));
             List errors = doc.getRootElement().getChildren();
             for (int i = 0; i < errors.size(); i++) {
                 html.append("<tr><td><pre>");

@@ -402,4 +402,30 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     public Set getPostsetFlows() {
         return new HashSet(_postsetFlows.values());
     }
+
+        /**
+     * Validates the data against the schema
+     * @param rawDecompositionData the raw decomposition data
+     * @throws au.edu.qut.yawl.exceptions.YDataStateException if data does not pass validation.
+     */
+    public static void validateDataAgainstTypes(String schema, Element rawDecompositionData, String source)
+            throws YDataStateException {
+        XMLValidator validator = new XMLValidator();
+        XMLOutputter output = new XMLOutputter(Format.getPrettyFormat());
+
+        String dataInput = output.outputString(rawDecompositionData);
+
+        String errors = validator.checkSchema(
+                schema,
+                dataInput);
+
+        if (errors.length() > 0) {
+            throw new YDataValidationException(
+                    schema,
+                    rawDecompositionData,
+                    errors,
+                    source,
+                    "Problem with process model.  Schema validation failed");
+        }
+    }
 }

@@ -9,12 +9,13 @@
 
 package au.edu.qut.yawl.elements;
 
+import au.edu.qut.yawl.engine.YSpecificationID;
 import au.edu.qut.yawl.exceptions.YSchemaBuildingException;
 import au.edu.qut.yawl.exceptions.YSyntaxException;
+import au.edu.qut.yawl.schema.XMLToolsForYAWL;
 import au.edu.qut.yawl.schema.YDataValidator;
 import au.edu.qut.yawl.unmarshal.YMetaData;
 import au.edu.qut.yawl.util.YVerificationMessage;
-import au.edu.qut.yawl.engine.YSpecificationID;
 
 import java.util.*;
 
@@ -42,7 +43,6 @@ public final class YSpecification implements Cloneable, YVerifiable {
     public static String _loaded = "loaded";
     public static String _unloaded = "unloaded";
     private YMetaData _metaData;
-
 
     public YSpecification(String specURI) {
         _specURI = specURI;

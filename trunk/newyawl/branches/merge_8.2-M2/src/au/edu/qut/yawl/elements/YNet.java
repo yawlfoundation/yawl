@@ -567,9 +567,9 @@ public final class YNet extends YDecomposition {
                         + new XMLOutputter(Format.getPrettyFormat()).outputString(incomingData).trim());
             }
         }
-        if (getSpecification().isSchemaValidating()) {
-            getSpecification().getDataValidator().validate(getInputParameters().values(), incomingData, getID());
-         }
+        getSpecification().getDataValidator().validate(
+                                   getInputParameters().values(), incomingData, getID());
+
         List actualParams = incomingData.getChildren();
         while (actualParams.size() > 0) {
             Element element = (Element) actualParams.get(0);

@@ -74,7 +74,6 @@
                                 specification.getID(), sessionHandle);
                         String specID = specification.getID();
                         if(specification.getStatus().equals(YSpecification._loaded)){
-//System.out.println("_ViewSpecification.jsp:: caseIDs = " + caseIDs);
                         %>
                         <tr>
                             <td height="30" align="center"><input type="radio" name="specID"
@@ -85,7 +84,7 @@
                             <td align="center">
                                 <table cellpadding="5"><tr><td>
                                 <%= specification.getName() %>
-                                </tr></td></table>
+                                </tr></table>
                             </td>
                             <td/>
                             <td align="center">
@@ -199,6 +198,7 @@
             <tr><td colspan="2"><hr width="70%"/></td></tr>
         <%
         }
+            }
         %>
         <tr><td colspan="2">&nbsp;<br/>&nbsp;</tr>
         <tr><td colspan="2"><hr width="100%"/></td></tr>
@@ -225,26 +225,26 @@
         </form>
         </table>
 
-        <br/>
-        <br/>
-	<br/>
-	<a href="/PDFforms/generate.jsp">Design Form for Task</a>
+        <%--<br/>--%>
+        <%--<br/>--%>
+	<%--<br/>--%>
+	<%--<a href="/PDFforms/generate.jsp">Design Form for Task</a>--%>
 
-        <br/>
-        <br/>
+        <%--<br/>--%>
+        <%--<br/>--%>
 
-        <br/>
-        <%
-            }
-        %>
+        <%--<br/>--%>
+        <%--<%--%>
+            <%--}--%>
+        <%--%>--%>
 
-        <br/>
-        <br/>
-	<br/>
-	<a href="/worklist/createID.jsp">Create Digital ID</a>
+        <%--<br/>--%>
+        <%--<br/>--%>
+	<%--<br/>--%>
+	<%--<a href="/worklist/createID.jsp">Create Digital ID</a>--%>
 
-        <br/>
-        <br/>
-        <%@include file="footer.jsp"%>
+        <%--<br/>--%>
+        <%--<br/>--%>
+     <%@include file="footer.jsp"%>
     </body>
-</html>
+ </html>
