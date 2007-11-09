@@ -9,6 +9,7 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
+import au.edu.qut.yawl.engine.YSpecificationID;
 import au.edu.qut.yawl.worklist.model.Marshaller;
 import au.edu.qut.yawl.worklist.model.TaskInformation;
 import au.edu.qut.yawl.worklist.model.WorkItemRecord;
@@ -128,6 +129,18 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     }
 
+    /** this overload is to handle YSpecificationID objects */
+    public String getSpecification(YSpecificationID specID, String sessionHandle)
+                                                                 throws IOException {
+        return stripOuterElement(executeGet(_backEndURIStr +
+                "?action=getSpecification" +
+                "&" +
+                "specID=" + specID.getSpecID() +
+                "&" +
+                "version=" + specID.getVersion() +
+                "&" +
+                "sessionHandle=" + sessionHandle));
+    }
 
     /**
      * Allows clients to obtain ownership of a unit of work.  This means that the
@@ -156,7 +169,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return an XML Representation of the task information
      * @throws IOException
      */
-    public String getTaskInformationStr(String specificationID, String taskID, String sessionHandle) throws IOException {
+    public String getTaskInformationStr(String specificationID, String taskID,
+                                        String sessionHandle) throws IOException {
         String msg = null;
         msg = executeGet(
                 _backEndURIStr + "/task/" + taskID +
@@ -164,6 +178,23 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                 "action=taskInformation" +
                 "&" +
                 "specID=" + specificationID +
+                "&" +
+                "sessionHandle=" + sessionHandle);
+        return msg;
+    }
+
+    /** this overload handles YSpecificationID objects */
+    public String getTaskInformationStr(YSpecificationID specificationID, String taskID,
+                                        String sessionHandle) throws IOException {
+        String msg = null;
+        msg = executeGet(
+                _backEndURIStr + "/task/" + taskID +
+                "?" +
+                "action=taskInformation" +
+                "&" +
+                "specID=" + specificationID.getSpecID() +
+                "&" +
+                "version=" + specificationID.getVersion() +
                 "&" +
                 "sessionHandle=" + sessionHandle);
         return msg;
@@ -348,13 +379,25 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine cannot be found
      */
     public String getCases(String specID, String sessionHandle) throws IOException {
-        return executeGet(_backEndURIStr + "/specID/" + specID +
-                "?" +
-                "action=getCasesForSpecification" +
+        return executeGet(_backEndURIStr +
+                "?action=getCasesForSpecification" +
+                "&" +
+                "specID=" + specID +
                 "&" +
                 "sessionHandle=" + sessionHandle);
     }
 
+    public String getCases(YSpecificationID specID, String sessionHandle)
+                                                                 throws IOException {
+        return executeGet(_backEndURIStr +
+                "?action=getCasesForSpecification" +
+                "&" +
+                "specID=" + specID.getSpecID() +
+                "&" +
+                "version=" + specID.getVersion() +
+                "&" +
+                "sessionHandle=" + sessionHandle);
+    }
 
     /**
      * Gets the state description of the case

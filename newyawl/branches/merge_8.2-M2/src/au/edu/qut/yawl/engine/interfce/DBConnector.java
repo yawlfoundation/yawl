@@ -75,7 +75,6 @@ public class DBConnector {
         ResultSet rs = executeQuery(query);
         while (rs.next()) {
             String user = rs.getString("hresid");
-            System.out.println("\tuser = " + user);
             if (null == user) {
                 throw new YQueryException("" +
                         "Something Wrong with a query inside the YAWL Process Specification:\n" +

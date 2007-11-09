@@ -36,9 +36,7 @@
             if(_worklistController.successful(instanceAddingPermissionQueryResult)){
                 YParametersSchema paramsSchema = taskInfo.getParamSchema();
                 YParameter formalInputParam = paramsSchema.getFormalInputParam();
-//System.out.println("_InstanceAdder.jsp:: formalInputParam = " + formalInputParam.toXML());
                 String stringToAddTo = Marshaller.presentParam(formalInputParam);
-//System.out.println("_InstanceAdder.jsp:: stringToAddTo = " + stringToAddTo);
                 if(formalInputParam != null){
                     %>
                     <form action="<%= contextPath %>/instanceAdder" method="post">

@@ -35,7 +35,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.*;
 
-import com.firstutility.common.util.StringUtil;
+import au.edu.qut.yawl.util.StringUtil;
 
 /**
  *

@@ -9,6 +9,8 @@
 
 package au.edu.qut.yawl.engine.interfce;
 
+import org.apache.log4j.Logger;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -65,7 +67,8 @@ public class InterfaceD {
             Object key = it.next();
 
             if (debug) {
-                System.out.println("Parameters Map key: " + key.toString() + ", Map value: " + parameters.get(key));
+                Logger.getLogger(InterfaceD.class).debug("Parameters Map key: " +
+                        key.toString() + ", Map value: " + parameters.get(key));
             }
 
             connection.setRequestProperty(key.toString(), parameters.get(key).toString());

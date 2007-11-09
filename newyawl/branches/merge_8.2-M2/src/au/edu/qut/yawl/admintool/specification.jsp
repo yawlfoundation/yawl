@@ -139,7 +139,6 @@
 			<%
 				}
 			%>
-			</select>
 			</td>
 			<td><input type="submit" value="Delete Selected Specification" name="action"/></td>
 			</tr>

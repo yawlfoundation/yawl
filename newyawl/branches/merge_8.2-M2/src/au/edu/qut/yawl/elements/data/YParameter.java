@@ -11,6 +11,7 @@ package au.edu.qut.yawl.elements.data;
 
 import au.edu.qut.yawl.elements.YDecomposition;
 import au.edu.qut.yawl.util.YVerificationMessage;
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -211,13 +212,13 @@ public class YParameter extends YVariable implements Comparable {
             /**
              * AJH: Silent failure here.
              */
-            System.out.println(xml);
+            Logger.getLogger(YParameter.class).error(xml);
             e.printStackTrace();
         } catch (IOException e) {
             /**
              * AJH: Silent failure here.
              */
-            System.out.println(xml);
+            Logger.getLogger(YParameter.class).error(xml);
             e.printStackTrace();
         }
         Element paramElem = doc.getRootElement();

@@ -111,7 +111,6 @@ public class WorkItemProcessor {
      * @param _specID the specid.
      * @param _sessionHandle
      * @param _worklistController
-     * @param context
      * @throws IOException
      * @throws JDOMException
      * @throws YSchemaBuildingException

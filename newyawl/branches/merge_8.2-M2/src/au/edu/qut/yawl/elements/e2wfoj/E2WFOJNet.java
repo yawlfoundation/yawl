@@ -360,7 +360,7 @@ public final class E2WFOJNet {
   {   
       Set markedPlaces = new HashSet();
       Set Ymarked = new HashSet(M.getLocations()); 
-      //System.out.println("restrict size:"+ Ymarked.size());
+
       //Make sure that every condition in M is external
       for (Iterator iterPlace = Ymarked.iterator();iterPlace.hasNext();)
       { YNetElement nextElement = (YNetElement) iterPlace.next();
@@ -408,7 +408,6 @@ public final class E2WFOJNet {
          
       performRestriction(restrictedTrans, restrictedPlaces);
       
-      //System.out.println("Restrict net (Marking) call completed.");
      }
  
    /**
@@ -418,7 +417,6 @@ public final class E2WFOJNet {
     */
      private void performRestriction(Set restrictedTrans,Set restrictedPlaces)
    { 
-   	 // //System.out.println("No.of transitions Before restrict"+_Transitions.size());
       Set irrelevantTrans = new HashSet(_Transitions.values());
       irrelevantTrans.removeAll(restrictedTrans);	
       for (Iterator iterT = irrelevantTrans.iterator();iterT.hasNext();)
@@ -463,7 +461,6 @@ public final class E2WFOJNet {
       }
            
      //Remove places that are not part of restrictedNet
-     // //System.out.println("No.of places Before restrict"+_Places.size());
       Set irrelevantPlaces = new HashSet(_Places.values());
       irrelevantPlaces.removeAll(restrictedPlaces);	
       for (Iterator iterP = irrelevantPlaces.iterator();iterP.hasNext();)
@@ -531,7 +528,6 @@ public final class E2WFOJNet {
     tSet.addMarking(t);
  
     RSetOfMarkings rm = FiniteBasisPred(tSet);
-   //System.out.println("FiniteBasis: " + rm.size());
    RMarking x;
    for (Iterator iter = rm.getMarkings().iterator(); iter.hasNext();)   
     {  x = (RMarking) iter.next();
@@ -737,7 +733,6 @@ public final class E2WFOJNet {
      */
     public boolean orJoinEnabled(YMarking M,YTask orJoin){
    
- //   //System.out.println("before YLocations");
     Set MarkedTasks = new HashSet();
     Map RMap = new HashMap();
     //Need to convert from YAWL to ResetNet
@@ -767,7 +762,7 @@ public final class E2WFOJNet {
                        
         }  //endfor
         
-  //    //System.out.println("Complete YMarking place conversion");    
+
       //To convert the active tasks in the marking into appropriate places  
       for (Iterator placeConvIter = MarkedTasks.iterator(); placeConvIter.hasNext();)  
       {  YTask task = (YTask) placeConvIter.next();
@@ -783,8 +778,7 @@ public final class E2WFOJNet {
   // Equivalent Reset net marking     
       RMarking RM = new RMarking(RMap);
       RMap = null;  
- //   //System.out.println("Complete YMarking conversion");  
-      
+
                 
     // Generate biggerEnabling markings for OJ
    	Set X = orJoin.getPresetElements();
@@ -820,8 +814,7 @@ public final class E2WFOJNet {
        	newMap.remove(qname);
     }
     
-    //System.out.println("Total number of markings: "+ Y.size());
-    for (Iterator i = Y.getMarkings().iterator(); i.hasNext();)   
+    for (Iterator i = Y.getMarkings().iterator(); i.hasNext();)
     {   RMarking M_w = (RMarking) i.next();
         if (Coverable(RM,M_w))
        	{  

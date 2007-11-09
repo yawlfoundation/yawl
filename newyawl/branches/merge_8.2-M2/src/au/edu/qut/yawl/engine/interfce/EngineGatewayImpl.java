@@ -445,13 +445,12 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
         }
-        Set specIDs = _engine.getSpecIDs();
-        Set specs = new HashSet();
-        for (Iterator iterator = specIDs.iterator(); iterator.hasNext();) {
-            String specID = (String) iterator.next();
-            YSpecification spec = _engine.getSpecification(specID);
-            specs.add(spec);
+        Set<YSpecificationID> specIDs = _engine.getSpecIDs();
+        Set<YSpecification> specs = new HashSet<YSpecification>();
+        for (YSpecificationID ySpecID : specIDs) {
+            specs.add(_engine.getSpecification(ySpecID));
         }
+
         return getDataForSpecifications(specs);
     }
 
@@ -675,7 +674,6 @@ public class EngineGatewayImpl implements EngineGateway {
         String codeBaseStr = codeBaseURL.toString();
         codeBaseStr = codeBaseStr.substring(0, codeBaseStr.lastIndexOf("au"));
         System.setProperty("java.rmi.server.codebase", codeBaseStr);
-        System.out.println("EngineGateway bound");
     }
 
 
@@ -1061,4 +1059,19 @@ public class EngineGatewayImpl implements EngineGateway {
             return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
         }
     }
+
+    
+    public String getLatestSpecVersion(String id, String sessionHandle) throws RemoteException {
+        try {
+            _userList.checkConnection(sessionHandle);
+            YSpecification spec = _engine.getSpecification(id) ;
+            return String.valueOf(spec.getSpecificationID().getVersion());
+
+        }
+        catch (YAuthenticationException e) {
+            return OPEN_FAILURE + e.getMessage() + CLOSE_FAILURE;
+        }
+    }
+
 }
+

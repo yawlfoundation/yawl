@@ -10,6 +10,7 @@
 package au.edu.qut.yawl.engine.interfce;
 
 import au.edu.qut.yawl.exceptions.YPersistenceException;
+import au.edu.qut.yawl.engine.YSpecificationID;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -128,13 +129,13 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
         StringBuffer msg = new StringBuffer();
         try {
             if (_debug) {
-                System.out.println("\nInterfaceA_EngineBasedServer:doGet() request.getRequestURL = "
+                logger.debug("\nInterfaceA_EngineBasedServer:doGet() request.getRequestURL = "
                         + request.getRequestURL());
-                System.out.println("InterfaceA_EngineBasedServer::doGet() request.parameters:");
+                logger.debug("InterfaceA_EngineBasedServer::doGet() request.parameters:");
                 Enumeration paramNms = request.getParameterNames();
                 while (paramNms.hasMoreElements()) {
                     String name = (String) paramNms.nextElement();
-                    System.out.println("\trequest.getParameter(" + name + ") = "
+                    logger.debug("\trequest.getParameter(" + name + ") = "
                             + request.getParameter(name));
                 }
             }
@@ -164,10 +165,6 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 }
             }
             String specid = request.getParameter("specid"); //MLR (01/11/07) TODO: check for spec versioning
-            if (specid != null) {
-				msg.append(_engine.getProcessDefinition(specid, sessionHandle));
- 
-            }
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -178,7 +175,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     "</reason></failure>");
         }
         if (_debug) {
-            System.out.println("return = " + msg);
+            logger.debug("return = " + msg);
         }
         return msg.toString();
     }
@@ -188,13 +185,13 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
         StringBuffer msg = new StringBuffer();
         try {
             if (_debug) {
-                System.out.println("\nInterfaceA_EngineBasedServer::doPost() request.getRequestURL = "
+                logger.debug("\nInterfaceA_EngineBasedServer::doPost() request.getRequestURL = "
                         + request.getRequestURL());
-                System.out.println("InterfaceA_EngineBasedServer::doPost() request.parameters:");
+                logger.debug("InterfaceA_EngineBasedServer::doPost() request.parameters:");
                 Enumeration paramNms = request.getParameterNames();
                 while (paramNms.hasMoreElements()) {
                     String name = (String) paramNms.nextElement();
-                    System.out.println("\trequest.getParameter(" + name + ") = "
+                    logger.debug("\trequest.getParameter(" + name + ") = "
                             + request.getParameter(name));
                 }
             }
@@ -240,12 +237,9 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 } else if ("removeYAWLService".equals(action)) {
                     String serviceURI = request.getParameter("serviceURI");
                     msg.append(_engine.removeYAWLService(serviceURI, sessionHandle));
-                }
-               if ("specID".equals(secondLastPartOfPath)) { //MLR (01/11/07) TODO: check for spec versioning
-                    if ("unload".equals(action)) {
-                        String specID = lastPartOfPath;
-                        msg.append(_engine.unloadSpecification(specID, sessionHandle));
-                    }
+                } else if ("unload".equals(action)) {
+                    YSpecificationID specID = makeYSpecificationID(request);
+                    msg.append(_engine.unloadSpecification(specID, sessionHandle));
                 }
 			}
             if (lastPartOfPath.equals("uploader")) {
@@ -273,9 +267,26 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     "</reason></failure>");
         }
         if (_debug) {
-            System.out.println("return = " + msg);
+            logger.debug("return = " + msg);
         }
         return msg.toString();
+    }
+
+    private YSpecificationID makeYSpecificationID(HttpServletRequest request) {
+        double version = 0.1 ;
+        String handle = request.getParameter("sessionHandle") ;
+        String id = request.getParameter("specID");
+        String verStr = request.getParameter("version");
+
+        try {
+            if (verStr == null) verStr = _engine.getLatestSpecVersion(id, handle);
+            version = Double.parseDouble(verStr);
+        }
+        catch (Exception e) {
+            version = 0.1 ;       // redundant but the catch block needs something
+        }
+
+        return new YSpecificationID(id, version);
     }
 }
 

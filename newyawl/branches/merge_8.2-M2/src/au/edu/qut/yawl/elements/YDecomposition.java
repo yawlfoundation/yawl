@@ -289,7 +289,6 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
 
         for (Iterator iterator = outputParamsList.iterator(); iterator.hasNext();) {
             YParameter parameter = (YParameter) iterator.next();
-            //System.out.println("parameter.toXML() = " + parameter.toXML());
             String varElementName =
                     parameter.getName() != null ?
                     parameter.getName() : parameter.getElementName();

@@ -510,11 +510,6 @@ public abstract class YTask extends YExternalNetElement {
             }
             return false;
         } else {
-            System.out.println("This task [" +
-                    getName() != null ? getName() : getID() +
-                    "] is not active, and therefore cannot be completed. "
-            );
-
             throw new RuntimeException(
                     "This task [" +
                     getName() != null ? getName() : getID() +
@@ -1522,14 +1517,11 @@ public abstract class YTask extends YExternalNetElement {
                 result.append(_decompositionPrototype.getID());
                 result.append("</decompositionID>");
 
-		//System.out.println(_decompositionPrototype.getAttributes().keys());
-
-		for (Enumeration atts = _decompositionPrototype.getAttributes().keys(); atts.hasMoreElements() ;) {
+        for (Enumeration atts = _decompositionPrototype.getAttributes().keys(); atts.hasMoreElements() ;) {
 		    result.append("<attributes>");
 		    
 		    String key = (String) atts.nextElement();		    
 		    String value = (String) _decompositionPrototype.getAttributes().get(key);
-		    //System.out.println(key + " : " + value);
 		    result.append("<"+key+">"+value+"</"+key+">");
 		    
 		    result.append("</attributes>");		    

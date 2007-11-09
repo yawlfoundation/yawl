@@ -765,7 +765,7 @@ public class YNetRunner // extends Thread
                                             _net.getOutputData());
                                 }
                                 if (_caseIDForNet == null) {
-                                    System.out.println("YNetRunner::completeTask() finished local task: " +
+                                    logger.debug("YNetRunner::completeTask() finished local task: " +
                                             atomicTask + " composite task: " +
                                             _containingCompositeTask +
                                             " caseid for decomposed net: " +

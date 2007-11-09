@@ -24,6 +24,8 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 
+import org.apache.log4j.Logger;
+
 
 /**
  * 
@@ -35,6 +37,7 @@ import java.util.StringTokenizer;
 public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
     private InterfaceBWebsideController _controller;
     private static final boolean _debug = false;
+    private Logger _logger = Logger.getLogger(InterfaceB_EnvironmentBasedServer.class);
 
 
     public void init(ServletConfig servletConfig) throws ServletException {
@@ -66,13 +69,13 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         if (_debug) {
-            System.out.println("\nInterfaceB_EnvironmentBasedServer " +
+            _logger.debug("\nInterfaceB_EnvironmentBasedServer " +
                     "request.getRequestURL = " + request.getRequestURL());
-            System.out.println("InterfaceB_EnvironmentBasedServer::doGet() request.parameters = ");
+            _logger.debug("InterfaceB_EnvironmentBasedServer::doGet() request.parameters = ");
             Enumeration paramNms = request.getParameterNames();
             while (paramNms.hasMoreElements()) {
                 String name = (String) paramNms.nextElement();
-                System.out.println("\trequest.getParameter(" + name + ") = " +
+                _logger.debug("\trequest.getParameter(" + name + ") = " +
                         request.getParameter(name));
             }
         }
@@ -116,13 +119,13 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
 
     private String processPostQuery(HttpServletRequest request) {
         if (_debug) {
-            System.out.println("\nInterfaceB_Server_WebSide::doPost() " +
+            _logger.debug("\nInterfaceB_Server_WebSide::doPost() " +
                     "request.getRequestURL = " + request.getRequestURL());
-            System.out.println("InterfaceB_EnvironmentBasedServer::doPost() request.parameters = ");
+            _logger.debug("InterfaceB_EnvironmentBasedServer::doPost() request.parameters = ");
             Enumeration paramNms = request.getParameterNames();
             while (paramNms.hasMoreElements()) {
                 String name = (String) paramNms.nextElement();
-                System.out.println("\trequest.getParameter(" + name + ") = " +
+                _logger.debug("\trequest.getParameter(" + name + ") = " +
                         request.getParameter(name));
             }
         }

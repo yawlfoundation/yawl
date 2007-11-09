@@ -80,8 +80,6 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param workItem the parent work item to cancel.
      */
     public void cancelAllWorkItemsInGroupOf(YAWLServiceReference yawlService, YWorkItem workItem) {
-        //System.out.println("Thread::yawlService.getURI() = " + yawlService.getURI());
-        //System.out.println("\rworkItem.toXML() = " + workItem.toXML());
         if(workItem.getParent() == null){
             Handler myHandler = new Handler(yawlService, workItem, "cancelAllInstancesUnderWorkItem");
             myHandler.start();

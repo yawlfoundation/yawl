@@ -11,6 +11,7 @@ package au.edu.qut.yawl.engine.interfce;
 
 import au.edu.qut.yawl.authentication.User;
 import au.edu.qut.yawl.elements.YAWLServiceReference;
+import au.edu.qut.yawl.engine.YSpecificationID;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -231,8 +232,18 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     public String unloadSpecification(String specID, String sessionHandle) throws IOException {
         Map params = new HashMap();
         params.put("action", "unload");
+        params.put("specID", specID);
         params.put("sessionHandle", sessionHandle);
-        return executePost(_backEndURIStr + "/specID/" + specID, params);
+        return executePost(_backEndURIStr, params);
+    }
+
+    public String unloadSpecification(YSpecificationID specID, String sessionHandle) throws IOException {
+        Map params = new HashMap();
+        params.put("action", "unload");
+        params.put("specID", specID.getSpecID());
+        params.put("version", specID.getVersion());
+        params.put("sessionHandle", sessionHandle);
+        return executePost(_backEndURIStr, params);
     }
 
 
