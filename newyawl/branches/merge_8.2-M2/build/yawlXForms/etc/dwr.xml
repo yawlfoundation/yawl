@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 1.0//EN" "dwr10.dtd">
+<dwr>
+    <allow>
+        <create creator="new" javascript="Flux" scope="request">
+            <param name="class" value="org.chiba.web.flux.FluxFacade"/>
+        </create>
+    </allow>
+</dwr>
