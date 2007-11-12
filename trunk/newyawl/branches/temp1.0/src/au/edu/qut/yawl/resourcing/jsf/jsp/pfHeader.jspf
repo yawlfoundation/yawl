@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div style="height: 60px; width: 320px; -rave-layout: grid" xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://www.sun.com/web/ui">
+    <f:subview id="pfHeader">
+        <ui:image binding="#{pfHeader.image1}" id="image1" style="left: 0px; top: 0px; position: absolute" url="/resources/newYAWL.jpg"/>
+    </f:subview>
+</div>
