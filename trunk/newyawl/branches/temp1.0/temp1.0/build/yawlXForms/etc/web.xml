@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/j2ee/dtd/web-app_2_3.dtd">
+<web-app>
+    <display-name>YAWLXForms</display-name>
+
+    <context-param>
+        <param-name>FormBase</param-name>
+        <param-value>http://localhost:8080/yawlXForms/</param-value>
+        <description>
+            The base value set for dynamically generated xforms (the URL of this webapp).
+        </description>
+    </context-param>
+    
+    <context-param>
+        <param-name>YAWL</param-name>
+        <param-value>http://localhost:8080/worklist/yawlFormServlet</param-value>
+        <description>
+            The URL location of the YAWL form servlet.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>chiba.docs</param-name>
+        <param-value>documents</param-value>
+        <description>itentifier for document-instances</description>
+    </context-param>
+    <context-param>
+        <param-name>chiba.forms</param-name>
+        <param-value>forms</param-value>
+        <description>identifier for XForms</description>
+    </context-param>
+    <context-param>
+        <param-name>chiba.upload</param-name>
+        <param-value>upload</param-value>
+        <description>relative path to upload-dir</description>
+    </context-param>
+    <context-param>
+        <param-name>debug</param-name>
+        <param-value>true</param-value>
+        <description>flag for debugging the whole app</description>
+    </context-param>
+    <context-param>
+        <param-name>chiba.useragent.ajax.path</param-name>
+        <param-value>/FluxHelper</param-value>
+        <description>relative path under which AJAX helper servlet is mapped</description>
+    </context-param>
+    <context-param>
+        <param-name>chiba.useragent.plainhtml.path</param-name>
+        <param-value>/PlainHtml</param-value>
+        <description>relative path under which plain html servlet is mapped</description>
+    </context-param>
+
+    <context-param>
+        <param-name>chiba.web.xslt.path</param-name>
+        <param-value>forms/xslt</param-value>
+        <description>XSLT stylesheet path within webapp</description>
+    </context-param>
+    <context-param>
+        <param-name>chiba.web.xslt.default</param-name>
+        <param-value>html4yawl.xsl</param-value>
+        <description>Name of default XSLT stylesheet</description>
+    </context-param>
+    <context-param>
+        <param-name>error.page</param-name>
+        <param-value>jsp/error.jsp</param-value>
+        <description>Name of error page</description>
+    </context-param>
+
+    <!-- startup initialization -->
+    <servlet>
+        <servlet-name>StartupServlet</servlet-name>
+        <servlet-class>org.chiba.web.servlet.StartupServlet</servlet-class>
+
+        <init-param>
+            <param-name>log4j.file</param-name>
+            <param-value>WEB-INF/log4j.xml</param-value>
+        </init-param>
+        <init-param>
+            <param-name>xslt.cache</param-name>
+            <param-value>true</param-value>
+        </init-param>
+
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>XFormsServlet</servlet-name>
+        <servlet-class>org.chiba.web.servlet.ChibaServlet</servlet-class>
+
+         <init-param>
+             <param-name>chiba.config</param-name>
+             <param-value>WEB-INF/default.xml</param-value>
+         </init-param>
+        <init-param>
+            <param-name>scriptPath</param-name>
+            <param-value>/resources/scripts/</param-value>
+        </init-param>
+<!--
+		This entry may be uncommented to use a custom XFormsSessionManager implementation. Please see
+		org.chiba.web.session.impl.DefaultXFormsSessionManagerImpl for a sample.
+        <init-param>
+            <param-name>sessionManager</param-name>
+            <param-value>org.chiba.web.session.impl.DefaultXFormsSessionManagerImpl</param-value>
+        </init-param>
+-->
+        <init-param>
+            <param-name>CSSPath</param-name>
+            <param-value>/forms/styles/</param-value>
+        </init-param>
+<!--
+		wrt to DefaultSessionManagerImpl:
+		setting the value of XFormsSessionChecking to '0' means that no checking for expired sessions will take place.
+		Thus XFormsSessions won't expire with this setting though the Http Session might still time out making the
+		XFormsSession unavailable.
+-->
+		<init-param>
+            <param-name>XFormsSessionChecking</param-name>
+            <param-value>120000</param-value>
+            <description>the amount of time (in millis) between runs of wipe() method checking for expired XForms sessions</description>
+        </init-param>
+        <init-param>
+            <param-name>XFormsSessionTimeout</param-name>
+            <param-value>600000</param-value>
+            <description>the amount of time of inactivity before XFormsSession expires</description>
+        </init-param>
+        <init-param>
+            <param-name>defaultProcessorBase</param-name>
+            <param-value>remote</param-value>
+            <description>optional parameter - 'local' or 'remote' operation of Chiba XForms Processor</description>
+        </init-param>
+    </servlet>
+
+
+    <servlet>
+            <servlet-name>YAWLServlet</servlet-name>
+            <servlet-class>au.edu.qut.yawl.xformsupload.YAWLServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>Flux</servlet-name>
+        <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+            <description>Do we startup in debug mode?</description>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>FluxHelper</servlet-name>
+        <servlet-class>org.chiba.web.servlet.FluxHelperServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>PlainHtml</servlet-name>
+        <servlet-class>org.chiba.web.servlet.PlainHtmlServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ViewServlet</servlet-name>
+        <servlet-class>org.chiba.web.servlet.ViewServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>SubmissionResponse</servlet-name>
+        <servlet-class>org.chiba.web.servlet.SubmissionResponseServlet</servlet-class>
+    </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>YAWLServlet</servlet-name>
+        <url-pattern>/YAWLServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Flux</servlet-name>
+        <url-pattern>/Flux/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>FluxHelper</servlet-name>
+        <url-pattern>/FluxHelper/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>XFormsServlet</servlet-name>
+        <url-pattern>/XFormsServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>PlainHtml</servlet-name>
+        <url-pattern>/PlainHtml/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ViewServlet</servlet-name>
+        <url-pattern>/view</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>SubmissionResponse</servlet-name>
+        <url-pattern>/SubmissionResponse</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>jsp/forms.jsp</welcome-file>
+    </welcome-file-list>
+
+
+    <!--
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Chiba Member Area</web-resource-name>
+            <url-pattern>/jsp/*</url-pattern>
+            <http-method>DELETE</http-method>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>PUT</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>tomcat</role-name>
+            <role-name>role1</role-name>
+        </auth-constraint>
+    </security-constraint>
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <realm-name>Example Form-Based Authentication Area</realm-name>
+        <form-login-config>
+            <form-login-page>/login.jsp</form-login-page>
+            <form-error-page>/login_error.jsp</form-error-page>
+        </form-login-config>
+    </login-config>
+
+    -->
+</web-app>

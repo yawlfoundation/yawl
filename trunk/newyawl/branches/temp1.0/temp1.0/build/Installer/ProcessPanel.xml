@@ -1,0 +1,240 @@
+
+<processing>
+ <job name="Installing Tomcat Web Container">
+  <os family="windows" />
+  <executefile name="$INSTALL_PATH/apache-tomcat-5.5.23.exe">
+  <arg>/S</arg>
+  <arg>/D=$INSTALL_PATH\Tomcat 5.5\</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job>
+
+
+<job name="Installing PostgreSQL Database">
+  <os family="windows" />
+  <executefile name="&quot;$INSTALL_PATH/checkuser.bat&quot;">
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+
+<job name="Installing PostgreSQL Database">
+  <os family="windows" />
+  <executefile name="msiexec">
+  <arg>/i</arg>
+  <arg>&quot;$INSTALL_PATH\postgresql-8.0-int.msi&quot;</arg>
+  <arg>/qn</arg>
+  <arg>INTERNALLAUNCH=1</arg>
+  <arg>ADDLOCAL=server,psql,pgadmin</arg>
+  <arg>SUPERPASSWORD=yawl</arg>
+  <arg>SERVICEPASSWORD=P0StgrEsYawL!</arg>
+  <arg>CREATESERVICEUSER=1</arg>
+  <arg>DOINITDB=0</arg>
+  <arg>BASEDIR=&quot;$INSTALL_PATH\postgres&quot;</arg>
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+
+<job name="Initialising Database">
+  <os family="windows" />
+  <executefile name="$INSTALL_PATH\CPAU.exe">
+  <arg>-u</arg>
+  <arg>postgres</arg>
+  <arg>-p</arg>
+  <arg>P0StgrEsYawL!</arg>
+  <arg>-CWD</arg>
+  <arg>c:</arg>
+  <arg>-ex</arg>
+  <arg>&quot;$INSTALL_PATH\postgres\bin\initdb -D $INSTALL_PATH\postgres\data\yawldatabase&quot;</arg>
+  <arg>-lwp</arg>
+  <arg>-wait</arg>
+  <arg>-hide</arg>
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+
+<job name="Starting Database Server">
+  <os family="windows" />
+  <executefile name="$INSTALL_PATH\CPAU.exe">
+  <arg>-u</arg>
+  <arg>postgres</arg>
+  <arg>-p</arg>
+  <arg>P0StgrEsYawL!</arg>
+  <arg>-CWD</arg>
+  <arg>c:</arg>
+  <arg>-ex</arg>
+  <arg>&quot;$INSTALL_PATH\postgres\bin\pg_ctl start -w -D $INSTALL_PATH\postgres\data\yawldatabase&quot;</arg>
+  <arg>-lwp</arg>
+  <arg>-wait</arg>
+  <arg>-hide</arg>
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+
+  <job name="Initialising Libraries on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\tcnative-1.dll&quot;</arg>
+  <arg>&quot;$INSTALL_PATH\Tomcat 5.5\bin\&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job>
+
+
+ <job name="Initialising YAWL on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\yawl.war&quot;</arg>
+  <arg>&quot;$INSTALL_PATH\Tomcat 5.5\webapps&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job> 
+
+ <job name="Initialising Worklist on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\worklist.war&quot;</arg>
+  <arg>&quot;$INSTALL_PATH\Tomcat 5.5\webapps&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job> 
+
+ <job name="Initialising Time Service on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\timeService.war&quot;</arg>
+  <arg>&quot;$INSTALL_PATH\Tomcat 5.5\webapps&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job> 
+
+ <job name="Initialising Worklet Service on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\workletService.war&quot;</arg>
+  <arg>&quot;$INSTALL_PATH\Tomcat 5.5\webapps&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job>   
+
+ <job name="Initialising XForms container on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\yawlXForms.war&quot;</arg>
+  <arg>&quot;$INSTALL_PATH\Tomcat 5.5\webapps&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job>
+ 
+ <job name="Initialising PDFForms on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\PDFforms.war&quot;</arg>
+  <arg>&quot;$INSTALL_PATH\Tomcat 5.5\webapps&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job>
+
+ <job name="Initialising SMS Service on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\yawlSMSInvoker.war&quot;</arg>
+  <arg>&quot;$INSTALL_PATH\Tomcat 5.5\webapps&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job>
+
+ <job name="Initialising Web Service Invoker on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\yawlWSInvoker.war&quot;</arg>
+  <arg>&quot;$INSTALL_PATH\Tomcat 5.5\webapps&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job>
+ 
+  <job name="Initialising Admintool on Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>move</arg>
+  <arg>&quot;$INSTALL_PATH\admintool.war&quot;</arg>
+  <arg>&quot;$INSTALL_PATH\Tomcat 5.5\webapps&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job>  
+
+ <job name="Initialising YAWL on existing Tomcat Container...Please Wait">
+  <os family="windows" />
+  <executefile name="$INSTALL_PATH\init.bat">
+  </executefile>
+ </job>
+
+<job name="Creating Database">
+  <os family="windows" />
+  <executefile name="$INSTALL_PATH\createdb.bat">
+  <arg>yawl</arg>
+  <arg>-U</arg>
+  <arg>postgres</arg>
+  <arg>-q</arg>
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+
+<job name="Stopping Database Server">
+  <os family="windows" />
+  <executefile name="$INSTALL_PATH\CPAU.exe">
+  <arg>-u</arg>
+  <arg>postgres</arg>
+  <arg>-p</arg>
+  <arg>P0StgrEsYawL!</arg>
+  <arg>-CWD</arg>
+  <arg>c:</arg>
+  <arg>-ex</arg>
+  <arg>&quot;$INSTALL_PATH\postgres\bin\pg_ctl stop -D $INSTALL_PATH\postgres\data\yawldatabase&quot;</arg>
+  <arg>-lwp</arg>
+  <arg>-hide</arg>  
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+ 
+  <job name="Cleanup...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>del</arg>
+  <arg>&quot;$INSTALL_PATH\apache-tomcat-5.5.23.exe&quot;</arg>
+  </executefile>
+  <executeForPack name="Tomcat WebServer"/>
+ </job>
+ 
+   <job name="Cleanup...Please Wait">
+  <os family="windows" />
+  <executefile name="cmd">
+  <arg>/c</arg>
+  <arg>del</arg>
+  <arg>&quot;$INSTALL_PATH\postgresql-8.0-int.msi&quot;</arg>
+  </executefile>
+  <executeForPack name="PostgreSQL Database"/>
+ </job>
+ 
+</processing> 
+
+
