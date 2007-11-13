@@ -305,7 +305,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
     
     public DecoratorPanel(SingleTaskPalette parent) {
       this.parent = parent;
-      setBorder(new EmptyBorder(2,2,2,2));
+      setBorder(new EmptyBorder(3,3,3,3));
       buildContent();
     }
     

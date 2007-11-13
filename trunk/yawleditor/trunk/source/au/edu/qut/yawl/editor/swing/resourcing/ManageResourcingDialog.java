@@ -75,6 +75,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
     return this.task;
   }
 
+  /*
   public void doFirst() {
     System.out.println("----Start resource mapping----");
     System.out.println(
@@ -82,14 +83,17 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
     );
     super.doFirst();
   }
-  
+  */
+
   public void doFinish() {
+  /*
     System.out.println("----Finish resource mapping----");
     System.out.println(
         getResourceMapping()
     );
+  */
   }
-  
+
   public void setVisible(boolean state) {
     if (state == true) {
       JUtilities.centreWindowUnderVertex(net, this, task, 10);

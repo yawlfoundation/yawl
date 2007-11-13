@@ -929,11 +929,14 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
     
     if (editorResourceMapping.getSeparationOfDutiesTask() != null) {
+      SeparationOfDuties constraint = new SeparationOfDuties();
+      constraint.setKeyValue(
+          "familiarTask", 
+          ((YAWLTask) editorResourceMapping.getSeparationOfDutiesTask()).getEngineId()
+      );
+      
       engineResourceMapping.getOfferInteraction().addConstraint(
-          //TODO: Assuming the constructor string is a task engine ID, but should confirm.
-           new SeparationOfDuties(
-               ((YAWLTask) editorResourceMapping.getSeparationOfDutiesTask()).getEngineId()    
-           ) 
+          constraint
       );
     }
   }

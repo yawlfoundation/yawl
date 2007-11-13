@@ -15,6 +15,10 @@ Version 2.0 (??/??/????)
   * LWB: Some refactoring around saving, closing and exiting to ensure that whenever a user
          cancels their desire to save, close or exit, they are returned to the editor
          correctly.
+  * LWB: After numerous requests, the pallet bar can now be resized via a
+         sliding bar, mostly to allow a clear view into a deep icon tree.  However, 
+         given a couple of Swing limitations, the palette bar can no longer be detatched
+         from the base editor window.
 
 Version 1.5.1 (08/10/2007)
   * LWB: Fixed a bug where multiple-instance tasks were not being initialsed properly and consequently
