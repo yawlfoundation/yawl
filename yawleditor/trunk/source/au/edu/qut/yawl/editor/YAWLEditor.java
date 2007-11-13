@@ -180,7 +180,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     pane.setLayout(new BorderLayout());
     pane.add(getToolbarMenuPanel(), BorderLayout.NORTH);
 
-    pane.add(getSplitPane(), BorderLayout.CENTER);
+    pane.add(getVerticalSplitPane(), BorderLayout.CENTER);
     pane.add(getStatusBar(),BorderLayout.SOUTH);
 
     setTitle("");
@@ -244,7 +244,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     });
   }
 
-  private JSplitPane getSplitPane() {
+  private JSplitPane getVerticalSplitPane() {
     splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
     splitPane.setTopComponent(getTopPanel());
@@ -319,15 +319,22 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   }
 
 
-  private JPanel getTopPanel() {
-    JPanel topPanel = new JPanel(new BorderLayout());
+  private JSplitPane getTopPanel() {
+    JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+
+    splitPane.setLeftComponent(getPalette());
 
     updateLoadProgress(70);
-    topPanel.add(getPalettePanel(), BorderLayout.WEST);
-    updateLoadProgress(80);
-    topPanel.add(getEditPanel(), BorderLayout.CENTER);
 
-    return topPanel;
+    splitPane.setRightComponent(getEditPanel());
+
+    updateLoadProgress(80);
+
+    splitPane.setDividerSize(10);
+    splitPane.setResizeWeight(0);
+    splitPane.setOneTouchExpandable(true);
+
+    return splitPane;
   }
 
   private JPanel getToolbarMenuPanel() {
@@ -338,11 +345,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     return toolbarMenuPanel;
   }
 
-  private JPanel getPalettePanel() {
-    JPanel palettePanel = new JPanel();
-    palettePanel.setLayout(new BorderLayout());
-    palettePanel.add(this.paletteBar, BorderLayout.NORTH);
-    return palettePanel;
+  private Palette getPalette() {
+    return this.paletteBar;
   }
 
   private JPanel getBottomPanel() {

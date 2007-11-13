@@ -31,6 +31,7 @@ import java.awt.Insets;
 
 import java.util.LinkedList;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -72,7 +73,7 @@ import au.edu.qut.yawl.editor.swing.JUtilities;
 import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
 import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette.SelectionState;
 
-public class Palette extends YAWLToolBar implements SpecificationModelListener {
+public class Palette extends JPanel implements SpecificationModelListener {
 
   private static final long serialVersionUID = 1L;
 
@@ -87,29 +88,65 @@ public class Palette extends YAWLToolBar implements SpecificationModelListener {
   }  
     
   private Palette() {
-    super("YAWLEditor Palette");
+    super();
+    buildInterface();
   }  
 
   protected void buildInterface() {
-    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    setMargin(new Insets(3,2,2,2));
     
-    add(CONTROL_FLOW_PALETTE);
-    add(TASK_TEMPLATE_PALETTE);
-    add(SINGLE_TASK_PALETTE);
+    GridBagLayout gbl = new GridBagLayout();
+    GridBagConstraints gbc = new GridBagConstraints();
+
+    setLayout(gbl);
+
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.insets = new Insets(3,5,0,5);
     
-    LinkedList<JComponent> palettes = new LinkedList<JComponent>();
-    palettes.add(CONTROL_FLOW_PALETTE);
-    palettes.add(TASK_TEMPLATE_PALETTE);
-    palettes.add(SINGLE_TASK_PALETTE);
+    add(CONTROL_FLOW_PALETTE, gbc);
+
+    gbc.gridy++;
+
+    gbc.weightx = 1;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    add(TASK_TEMPLATE_PALETTE, gbc);
+
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.weightx = 0;
+    gbc.gridy++;
+
+    add(SINGLE_TASK_PALETTE, gbc);
     
-    JUtilities.equalizeComponentWidths(palettes);
+    gbc.gridy++;
+    gbc.weighty = 1;
+    gbc.weightx = 1;
+    gbc.fill = GridBagConstraints.BOTH;
+
+    add(Box.createVerticalGlue(),gbc);
+
+    // split panes will go no further than the minimum size of a compoment.
+    // As we want the splitpane to potentially cover the entire edit space,
+    // we ensure that this component has no minimum height.
+    
+    setMinimumSize(
+        new Dimension(
+            (int) getPreferredSize().getWidth(),
+            0
+        )
+    );
+    
+    SpecificationModel.getInstance().subscribe(this);
     
     CONTROL_FLOW_PALETTE.subscribeForSelectionStateChanges(
         TASK_TEMPLATE_PALETTE    
     );
   }
   
+  
+  public void refresh() {
+    repaint();        
+  } 
   
   public void refreshSelected() {
     /*

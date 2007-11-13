@@ -85,6 +85,7 @@ public class ControlFlowPalette extends JPanel {
   
   public void subscribeForSelectionStateChanges(ControlFlowPaletteListener listener) {
     paletteListeners.add(listener);
+    listener.controlFlowPaletteStateChanged(getSelectedState());
   }
   
   private void publishSelectionState() {
