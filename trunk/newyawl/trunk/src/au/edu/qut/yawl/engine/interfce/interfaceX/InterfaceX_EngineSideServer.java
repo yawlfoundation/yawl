@@ -9,6 +9,7 @@ package au.edu.qut.yawl.engine.interfce.interfaceX;
 
 import au.edu.qut.yawl.engine.interfce.EngineGateway;
 import au.edu.qut.yawl.engine.interfce.EngineGatewayImpl;
+import au.edu.qut.yawl.engine.interfce.ServletUtils;
 import au.edu.qut.yawl.exceptions.YPersistenceException;
 
 import javax.servlet.http.*;
@@ -159,14 +160,14 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
         }
 
         // unpack the params
-        String sessionHandle = request.getParameter("sessionHandle");
-        String workitemID  = request.getParameter("workitemID");
-        String data = request.getParameter("data");
+        String sessionHandle = ServletUtils.urlDecodeData(request.getParameter("sessionHandle"));
+        String workitemID  = ServletUtils.urlDecodeData(request.getParameter("workitemID"));
+        String data = ServletUtils.urlDecodeData(request.getParameter("data"));
 
         // call the specified method
         try {
             if ("setExceptionObserver".equals(lastPartOfPath)) {
-                String observerURI = request.getParameter("observerURI");
+                String observerURI = ServletUtils.urlDecodeData(request.getParameter("observerURI"));
                 msg.append(_engine.setExceptionObserver(observerURI));
             }
             else if ("removeExceptionObserver".equals(lastPartOfPath)) {
@@ -176,7 +177,7 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
                 msg.append(_engine.updateWorkItemData(workitemID, data, sessionHandle));
             }
             else if ("updateCaseData".equals(lastPartOfPath)) {
-                String caseID = request.getParameter("caseID");
+                String caseID = ServletUtils.urlDecodeData(request.getParameter("caseID"));
                 msg.append(_engine.updateCaseData(caseID, data, sessionHandle));
             }
             else if ("completeWorkItem".equals(lastPartOfPath)) {
@@ -195,7 +196,7 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
                 msg.append(_engine.startWorkItem(workitemID, sessionHandle));
             }
             else if ("cancelWorkItem".equals(lastPartOfPath)) {
-                String fail = request.getParameter("fail");
+                String fail = ServletUtils.urlDecodeData(request.getParameter("fail"));
                 msg.append(_engine.cancelWorkItem(workitemID, fail, sessionHandle));
             }
         }

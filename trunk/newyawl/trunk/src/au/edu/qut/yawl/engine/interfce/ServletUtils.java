@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * 
@@ -119,5 +122,41 @@ public class ServletUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /** 
+     * Url-encodes data to make it safe for HTTP transport
+     * 
+     * @param   data    data to be encoded for HTTP transport  
+     * @return  encoded data
+     */
+    public static String urlEncodeData(String data) {
+        String newData = data;
+        if (data != null) {
+            try {
+                newData = URLEncoder.encode(data, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return newData;
+    }
+    
+    /**
+     * Url-decodes data after possible encoding for transport
+     * 
+     * @param   data    data to be decoded from HTTP request
+     * @return  decoded data
+     */
+    public static String urlDecodeData(String data) {
+        String newData = data;
+        if (data != null) {
+            try {
+                newData = URLDecoder.decode(data, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return newData;
     }
 }

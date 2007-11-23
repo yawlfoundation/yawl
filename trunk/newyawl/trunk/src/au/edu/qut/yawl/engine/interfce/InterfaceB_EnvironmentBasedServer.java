@@ -123,7 +123,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
             while (paramNms.hasMoreElements()) {
                 String name = (String) paramNms.nextElement();
                 System.out.println("\trequest.getParameter(" + name + ") = " +
-                        request.getParameter(name));
+                        ServletUtils.urlDecodeData(request.getParameter(name)));
             }
         }
         StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
@@ -140,8 +140,8 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
                 lastPartOfPath = temp;
             }
         }
-        String action = request.getParameter("action");
-        String workItemXML = request.getParameter("workItem");
+        String action = ServletUtils.urlDecodeData(request.getParameter("action"));
+        String workItemXML = ServletUtils.urlDecodeData(request.getParameter("workItem"));
         if ("handleEnabledItem".equals(action)) {
             WorkItemRecord workItem = Marshaller.unmarshalWorkItem(workItemXML);
             _controller.handleEnabledWorkItemEvent(workItem);
@@ -149,8 +149,8 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
             WorkItemRecord workItem = Marshaller.unmarshalWorkItem(workItemXML);
             _controller.handleCancelledWorkItemEvent(workItem);
         } else if (InterfaceB_EngineBasedClient.ANNOUNCE_COMPLETE_CASE_CMD.equals(action)) {
-            String caseID = request.getParameter("caseID");
-            String casedata = request.getParameter("casedata");
+            String caseID = ServletUtils.urlDecodeData(request.getParameter("caseID"));
+            String casedata = ServletUtils.urlDecodeData(request.getParameter("casedata"));
             _controller.handleCompleteCaseEvent(caseID, casedata);
         }
         if (_debug) {
