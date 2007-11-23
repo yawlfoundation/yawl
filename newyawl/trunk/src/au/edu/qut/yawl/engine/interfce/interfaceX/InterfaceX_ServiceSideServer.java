@@ -8,6 +8,7 @@
 
 package au.edu.qut.yawl.engine.interfce.interfaceX;
 
+import au.edu.qut.yawl.engine.interfce.ServletUtils;
 import au.edu.qut.yawl.worklist.model.*;
 
 import javax.servlet.http.*;
@@ -86,20 +87,20 @@ public class InterfaceX_ServiceSideServer extends HttpServlet {
 
         // unpack the stringified parameters
         WorkItemRecord wir = null ;
-        String workItemXML = request.getParameter("workItem");
+        String workItemXML = ServletUtils.urlDecodeData(request.getParameter("workItem"));
         if (workItemXML != null) wir = Marshaller.unmarshalWorkItem(workItemXML);
 
         boolean preCheck = false ;
-        String sPreCheck = request.getParameter("preCheck") ;
+        String sPreCheck = ServletUtils.urlDecodeData(request.getParameter("preCheck"));
         if (sPreCheck != null) preCheck = sPreCheck.equalsIgnoreCase("TRUE");
 
         // unpack the strings
-        String data = request.getParameter("data");
-        String caseID = request.getParameter("caseID");
-        String specID = request.getParameter("specID");
-        String taskList = request.getParameter("taskList");
+        String data = ServletUtils.urlDecodeData(request.getParameter("data"));
+        String caseID = ServletUtils.urlDecodeData(request.getParameter("caseID"));
+        String specID = ServletUtils.urlDecodeData(request.getParameter("specID"));
+        String taskList = ServletUtils.urlDecodeData(request.getParameter("taskList"));
 
-        switch (Integer.parseInt(request.getParameter("action"))) {
+        switch (Integer.parseInt(ServletUtils.urlDecodeData(request.getParameter("action")))) {
             case InterfaceX_EngineSideClient.NOTIFY_CHECK_CASE_CONSTRAINTS:
                _controller.handleCheckCaseConstraintEvent(specID, caseID, data, preCheck);
                break;

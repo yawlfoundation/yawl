@@ -223,7 +223,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 while (paramNms.hasMoreElements()) {
                     String name = (String) paramNms.nextElement();
                     logger.debug("\trequest.getParameter(" + name + ") = " +
-                            request.getParameter(name));
+                            ServletUtils.urlDecodeData(request.getParameter(name)));
                 }
             }
             StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
@@ -237,22 +237,22 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             }
             if (!"ib".equals(lastPartOfPath)) {
                 if ("connect".equals(lastPartOfPath)) {
-                    String userID = request.getParameter("userid");
-                    String password = request.getParameter("password");
+                    String userID = ServletUtils.urlDecodeData(request.getParameter("userid"));
+                    String password = ServletUtils.urlDecodeData(request.getParameter("password"));
                     msg.append(_engine.connect(userID, password));
                 } else {
 
-                    String action = request.getParameter("action");
+                    String action = ServletUtils.urlDecodeData(request.getParameter("action"));
                     String workItemID = lastPartOfPath;
-                    String sessionHandle = request.getParameter("sessionHandle");
+                    String sessionHandle = ServletUtils.urlDecodeData(request.getParameter("sessionHandle"));
                     if ("checkout".equals(action)) {
                         msg.append(_engine.startWorkItem(workItemID, sessionHandle));
                     } else if (action.equals("checkin")) {
-                        String data = request.getParameter("data");
+                        String data = ServletUtils.urlDecodeData(request.getParameter("data"));
                         msg.append(_engine.completeWorkItem(workItemID, data, false, sessionHandle));
                     } else if (action.equals("createInstance")) {
                         String paramValueForMICreation =
-                                request.getParameter("paramValueForMICreation");
+                            ServletUtils.urlDecodeData(request.getParameter("paramValueForMICreation"));
                         msg.append(_engine.createNewInstance(
                                 workItemID,
                                 paramValueForMICreation,
@@ -264,7 +264,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     } else if (action.equals("launchCase")) {
                         String specID = lastPartOfPath;
                         URI completionObserver = getCompletionObserver(request);
-                        String caseParams = request.getParameter("caseParams");
+                        String caseParams = ServletUtils.urlDecodeData(request.getParameter("caseParams"));
                         msg.append(_engine.launchCase(specID, caseParams, completionObserver, sessionHandle));
                     } else if (action.equals("cancelCase")) {
                         String caseID = lastPartOfPath;

@@ -12,7 +12,6 @@ package au.edu.qut.yawl.engine.interfce;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -41,7 +40,7 @@ public class Interface_Client {
         Iterator paramKeys = paramsMap.keySet().iterator();
         while (paramKeys.hasNext()) {
             String paramName = (String) paramKeys.next();
-            out.print(paramName + "=" + paramsMap.get(paramName));
+            out.print(paramName + "=" + ServletUtils.urlEncodeData((String)paramsMap.get(paramName)));
             if (paramKeys.hasNext()) {
                 out.print('&');
             }
@@ -77,12 +76,7 @@ public class Interface_Client {
                 StringTokenizer tokens2 = new StringTokenizer(paramNVal, "=");
                 while (tokens2.hasMoreTokens()) {
                     String param = tokens2.nextToken();
-                    String val = tokens2.nextToken();
-                    try {
-                        val = URLEncoder.encode(val, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+                    String val = ServletUtils.urlEncodeData(tokens2.nextToken());
                     encodedQuery.append(param + "=" + val);
                 }
                 if (tokens.hasMoreTokens()) {
