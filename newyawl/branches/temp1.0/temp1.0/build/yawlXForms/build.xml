@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ================================================== -->
+<!-- BUILDFILE FOR CHIBA-WEB - an webbased integration of the Chiba processor
+
+     call ant with the target as, e.g.
+
+        ant -find build.xml build
+
+
+     the main targets are:
+
+     build
+        compiles all classes
+
+     deploy
+        creates the correct deployment directory structure in build.dir and
+        copies all web (forms, jsp, images, css and xslt) and configuration (web.xml)
+        related data there. The resulting structure is then copied to the webapps dir
+        of the local tomcat installation (the directory the TOMCAT_HOME .
+
+     javadoc
+        creates the javadocumentation for the java classes into doc.dir/api
+
+     distribute
+        creates source distribution files in tar.gz and zip format as well as
+        a war-file for deployment in a webcontainer
+
+
+     And if everything has become dirty and filthy and crap use:
+
+     clean
+        this target removes all compiled java classes from the build.dir,
+        but does not touch the rest (jsp, html, xml, stylesheets etc.)
+
+     clean-all
+        this target removes all - and this means really all!  If you've
+        changed files, like jsp, stylesheets etc. they are simply removed!
+        so using this target means you know what you are doing
+
+  -->
+
+<project name="Chiba web" default="deploy" basedir=".">
+
+    <property name="core.dir" value="../3rdParty/lib"/>
+    <property name="core.name" value="chiba-1.3.0"/>
+    <property name="property.files" value="../properties"/>
+
+    <!-- the setting for TOMCAT_HOME in your environment will be used to locate your tomcat
+         installation. If you like to use a different one, set the value of the property 'webapps.dir'
+         to the absolute path on your disk. -->
+    <property environment="env"/>
+    <property name="webapps.dir" value="${env.TOMCAT_HOME}/webapps"/>
+
+
+    <property name="app.name" value="yawlXForms"/>
+
+    <!--Host address and port for sample files base url-->
+    <property name="tokens.file" value="./tokens.properties"/>
+
+    <!-- directory variables -->
+    <property name="deploy.dir" value="${webapps.dir}/${app.name}"/>
+    <property name="src.dir" value="src"/>
+    <property name="lib.dir" value="../3rdParty/lib"/>
+    <property name="doc.dir" value="doc"/>
+    <property name="etc.dir" value="etc"/>
+    <property name="web.dir" value="web"/>
+    <property name="forms.dir" value="forms"/>
+    <property name="scripts.dir" value="scripts"/>
+    <property name="xslt.dir" value="xslt"/>
+    <property name="build.dir" value="build"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="javadoc.dir" value="${doc.dir}/api"/>
+	<property name="graphics.dir" value="graphics"/>
+
+    <property name="excludes" value="excludes.properties"/>
+
+
+    <!-- ================================================== -->
+    <!--     classpathes                                    -->
+    <!-- ================================================== -->
+    <path id="compile.class.path" description="classpath for compiling core classes">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        <pathelement path="${build.dir}/WEB-INF/classes"/>
+    </path>
+
+    <path id="compile.all.class.path" description="classpath for compiling core plus all extension classes">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        <pathelement path="${build.dir}/WEB-INF/classes"/>
+    </path>
+
+    <!-- todo: really needed ?   -->
+    <path id="jar.compile.class.path">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        <pathelement path="${build.dir}/WEB-INF/classes"/>
+    </path>
+
+    <path id="run.class.path">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        <pathelement path="${build.dir}/WEB-INF/classes"/>
+    </path>
+
+    <!-- ====================================================================== -->
+    <!--    setup                                                               -->
+    <!-- ====================================================================== -->
+
+    <available file="${core.name}-${core.version}-bin.tar.gz" property="core.archive.present"
+        description="check for Chiba Core archive in the root of this src installation"/>
+
+        <available file="${core.dir}/${core.name}.jar" property="installed.core.present"
+        description="check for existence of Chiba Core JAR in the local 'lib/core' directory" />
+
+    <target name="install-core" description="install Chiba core libs, samples and resources">
+        <fail unless="core.archive.present"
+            message="Chiba core binary distribution missing - please download the file ${core.name}-${core.version}-bin.tar.gz from http://sf.net/projects/chiba"/>
+
+        <gunzip src="${core.name}-bin.tar.gz" dest="."/>
+        <untar src="${core.name}-bin.tar" dest="." />
+
+        <mkdir dir="${lib.dir}/core"/>
+        <copy description="install core libs" todir="${lib.dir}/core" filtering="false" flatten="true">
+            <fileset dir="${core.name}-${core.version}" includes="${core.name}-${core.version}.jar lib/*.jar" />
+        </copy>
+
+        <filter filtersfile="${tokens.file}"/>
+
+        <delete dir="${core.name}-${core.version}"/>
+        <delete file="${core.name}-${core.version}-bin.tar"/>
+    </target>
+
+    <target name="uninstall-core" description="remove all core libs and files">
+        <echo>
+            Chiba core libs, forms and resources will be removed ...
+        </echo>
+        <delete dir="${lib.dir}/core"/>
+    </target>
+
+    <!-- ********** for cross-module hackers only ! **************************************************************
+        This target allows to install an up-to-date copy of the Chiba core libs by copying them from
+        a local Chiba sourcetree installation.
+    -->
+
+
+    <available file="${core.dir}" property="core.src.present" description="check for local Chiba Core sources"/>
+
+    <target name="install-from-local-core" description="install from local core sourcecode">
+
+        <fail unless="core.src.present"
+            message="no local Chiba core src installation present"/>
+
+        <ant antfile="${core.dir}/build.xml" target="deploy" dir="${core.dir}" inheritall="false"/>
+        <mkdir dir="${lib.dir}/core"/>
+        <copy todir="${lib.dir}/core">
+            <fileset dir="${core.dir}/${core.name}-${core.version}/lib" includes="**/*.jar"/>
+            <fileset file="${core.dir}/${core.name}-${core.version}/${core.name}-${core.version}.jar"/>
+        </copy>
+    </target>
+
+    <target name="prepare">
+        <fail unless="installed.core.present"
+            message="Chiba Core lib missing - please download the file ${core.name}-${core.version}-bin.tar.gz from http://sf.net/projects/chiba"/>
+
+        <echo message=""/>
+        <echo message="---------- preparing: creating dirs and copying files ----------"/>
+        <echo message=""/>
+
+        <tstamp/>
+        <filter filtersfile="${tokens.file}"/>
+
+        <mkdir dir="${javadoc.dir}"/>
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.dir}/WEB-INF"/>
+        <mkdir dir="${build.dir}/WEB-INF/classes"/>
+
+        <!--
+        copy all xml files in the correct dirs. These include
+        configuration- and test-files which are located in the
+        java src-package structure.
+        -->
+        <delete file="${build.dir}/WEB-INF/classes/org/chiba/adapter/servlet/version.info"/>
+        <copy description="copy resources to package tree" todir="${build.dir}/WEB-INF/classes" filtering="true" includeemptydirs="false">
+            <fileset dir="${src.dir}" excludes="org/**/*.java tools/**/*.*"/>
+        </copy>
+
+<!--        <replace description="update build number" file="${build.dir}/WEB-INF/classes/org/chiba/adapter/servlet/version.info">
+            <replacefilter token="@version.build@" value="${DSTAMP}/${TSTAMP}"/>
+        </replace>
+-->
+    </target>
+
+    <!-- ====================================================================== -->
+    <!--    building                                                            -->
+    <!-- ====================================================================== -->
+    <target name="build" depends="prepare" description="compiling all core and extension classes">
+        <echo message=""/>
+        <echo message="---------- compiling all core and extension classes ----------"/>
+        <echo message=""/>
+
+        <filter filtersfile="${tokens.file}"/>
+
+        <javac description="compiling Chiba Servlet classes"
+            destdir="${build.dir}/WEB-INF/classes"
+            classpathref="compile.all.class.path"
+            debug="on"
+            optimize="off"
+            deprecation="off">
+                <src path="${src.dir}"/>
+                <exclude name="**/test/**"/>
+            </javac>
+    </target>
+
+    <target name="javadoc" depends="build" description="create Chiba JavaDoc">
+        <javadoc sourcepath="${src.dir}"
+            packagenames="org.*"
+            classpathref="compile.all.class.path"
+            destdir="${javadoc.dir}">
+            <fileset dir="${src.dir}"
+                defaultexcludes="yes">
+                <include name="org/chiba/**.java"/>
+                <exclude name="**/test/**"/>
+            </fileset>
+        </javadoc>
+
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- deployment                                                             -->
+    <!-- ====================================================================== -->
+    <target name="deploy-prepare" depends="build">
+        <mkdir dir="${build.dir}/upload"/>
+
+        <copy description="copy web.xml" file="${etc.dir}/web.xml" todir="${build.dir}/WEB-INF"/>
+        <copy description="copy log4j config" file="${etc.dir}/log4j.xml" todir="${build.dir}/WEB-INF"/>
+        <copy description="copy log4j dtd" file="${etc.dir}/log4j.dtd" todir="${build.dir}/WEB-INF"/>
+    	<copy description="copy log4j properties" file="${property.files}/log4j.properties" todir="${build.dir}/WEB-INF/classes"/>
+
+        <copy description="copy dwr dtd" file="${etc.dir}/dwr10.dtd" todir="${build.dir}/WEB-INF"/>
+        <copy description="copy dwr config" file="${etc.dir}/dwr.xml" todir="${build.dir}/WEB-INF"/>
+
+        <copy description="copy jsp pages" todir="${build.dir}/jsp">
+            <fileset dir="${web.dir}/jsp"/>
+        </copy>
+
+        <copy description="copy images without filtering" todir="${build.dir}/${forms.dir}">
+            <fileset dir="${web.dir}/${forms.dir}" includes="**/*.gif **/*.jpg **/*.png"/>
+        </copy>
+
+        <copy description="copy xforms and resources" todir="${build.dir}/${forms.dir}"> <!-- filtering="true"> -->
+            <fileset dir="${web.dir}/${forms.dir}"/>
+        </copy>
+
+        <copy todir="${build.dir}/WEB-INF" filtering="true">
+            <fileset file="${etc.dir}/default.xml" />
+        </copy>
+
+        <copy todir="${build.dir}/WEB-INF/lib" description="copy lib files" flatten="true" >
+            <fileset dir="${lib.dir}" includes="activation.jar ant-1.6.5.jar chiba-1.3.0.jar chiba-schemabuilder.jar commons-codec-1.3.jar commons-fileupload-1.1.jar commons-httpclient-3.0.1.jar commons-io-1.1.jar commons-jxpath-1.2-patched.jar commons-logging-1.1.jar dwr-1.1.1.jar javax-activation-1.0.2.jar javax-mail-1.3.jar log4j*.jar mail.jar serializer.jar xalan-Xforms.jar xercesImpl-2.8.0.jar xml-apis.jar xmlrpc-1.2-b1.jar"/>
+        </copy>
+
+        <copy description="copy YAWL graphics files" todir="${build.dir}/graphics">
+            <fileset dir="${web.dir}/graphics" includes="yawl.swf subtext.jpg yawlbg2.jpg common.css"/>
+        </copy>
+    </target>
+
+    <target name="deploy" depends="deploy-prepare" description="deploy Chiba into your webcontainer">
+        <copy todir="${deploy.dir}" filtering="false">
+            <fileset dir="${build.dir}"/>
+        </copy>
+    </target>
+
+    <target name="build-jar" depends="build">
+        <jar basedir="${build.dir}/WEB-INF/classes"
+             destfile="${build.dir}/yawlXForms.jar" />
+    </target>
+
+    <target name="build-resource-archive" depends="deploy">
+        <zip basedir="${build.dir}"
+            includes="forms/**/**.*"
+
+            zipfile="${build.dir}/yawlXForms-web-resource.zip"/>
+    </target>
+	
+    <!-- ================================================== -->
+    <!--    distribution                                    -->
+    <!-- ================================================== -->
+    <!-- creates three distribution files.
+    [1] chiba-x.y-src.tar.gz - Unix style source-file
+    [2] chiba-x.y-src.zip - Windows style source-file
+        both contain the complete source tree
+    [3] chiba-x.y.war
+        which contains a complete stand alone chiba webarchive (including
+        forms, integrating jsps, images, additional stylesheets for
+        application integration etc.)  This second jar is NOT the jar to use
+        for integration in your application!  Use the target 'build-chiba-jar' for
+        that purpose!
+    -->
+    <target name="distribute" depends="clean-all, build, deploy-prepare">
+        <mkdir dir="${dist.dir}"/>
+
+        <!-- build src dist -->
+        <delete dir="${app.name}"/>
+        <mkdir dir="${app.name}"/>
+        <copy todir="${app.name}">
+            <fileset dir="."
+                includes="${src.dir}/**,${lib.dir}/**,${etc.dir}/**,build*.xml,*.txt,*.properties"
+                excludes="${dist.dir},${build.dir},${doc.dir},${web.dir}/**,**/*~,**/*.SIK,**/*.BAK,**/*.DS_Store"/>
+        </copy>
+        <!-- copy this separately to enable token filtering -->
+        <filter filtersfile="${tokens.file}"/>
+        <copy todir="${app.name}" filtering="true">
+            <fileset dir="." includes="${web.dir}/**" excludes="${web.dir}/images/**"/>
+        </copy>
+        <copy todir="${app.name}" filtering="false">
+            <fileset dir="." includes="${web.dir}/images/**"/>
+        </copy>
+        <copy todir="${app.name}" filtering="false">
+            <fileset dir="." includes="${web.dir}/images/**"/>
+        </copy>
+
+        <delete dir="${app.name}"/>
+
+        <!-- build war dist -->
+        <delete file="${build.dir}/WEB-INF/web.xml"/>
+        <war warfile="${dist.dir}/${app.name}.war"
+            webxml="${etc.dir}/web.xml"
+            basedir="${build.dir}"
+            excludes="**/test/**">
+        </war>
+
+    </target>
+
+
+    <!-- ================================================== -->
+    <!--    cleanup                                         -->
+    <!-- ================================================== -->
+    <target name="clean" description="clean all classes">
+        <delete dir="${build.dir}/WEB-INF/classes">
+            <fileset dir="."
+                includes="*.class"/>
+        </delete>
+    </target>
+
+    <target name="clean-all" description="clean all generated dirs including build, doc and dist">
+        <delete dir="${build.dir}"/>
+        <delete dir="${doc.dir}/api"/>
+        <delete dir="${doc.dir}/test"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+
+
+    <!-- ================================================== -->
+    <!--    compile core distribution                       -->
+    <!-- ================================================== -->
+    <target name="compile-optimized">
+        <mkdir dir="${build.dir}/classes"/>
+        <echo message="---------- optimized compile of core classes without debug info ----------"/>
+
+        <javac srcdir="${src.dir}"
+            destdir="${build.dir}/classes"
+            excludesfile="${excludes}"
+            classpathref="jar.compile.class.path"
+            debug="off"
+            optimize="on"
+            verbose="off"
+            deprecation="off"/>
+
+    </target>
+
+    <!-- ================================================== -->
+    <!--    production helper targets                       -->
+    <!-- ================================================== -->
+
+    <!--
+    This target allows to aggregrate XForms from other XForms. It processes all xhtml files found in 'forms' directory
+    and below and applies the 'include.xsl' on them. See there for more information.
+
+    NOTE: this target forces the transform. Otherwise the execution cannot be completly assured when transforming
+    into the build dir. But cause this target is assumed to be called rarely and is not part of the standard build
+    procedure this should not do any harm.
+    -->
+    <target name="aggregate-forms" description="aggregrates forms from fragments">
+
+        <style basedir="${web.dir}/${forms.dir}"
+               destdir="${build.dir}/${forms.dir}"
+               includes="**/*.xhtml"
+               style="${web.dir}/${forms.dir}/xslt/include.xsl"
+               extension=".xhtml"
+               force="yes"/>
+    </target>
+
+</project>
