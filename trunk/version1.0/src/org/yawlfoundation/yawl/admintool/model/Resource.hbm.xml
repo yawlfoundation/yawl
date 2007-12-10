@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="org.yawlfoundation.yawl.admintool.model.Resource" table="ResSerPosID">
+
+        <id name="rsrcID" column="ID" type="string" >
+            <generator class="assigned"/>
+        </id>
+
+        <discriminator column="IsOfResourceType" type="string"/>
+
+        <property name="IsOfResSerPosType"/>
+        <property name="description" column="ResourceDescription"/>
+
+        <subclass name="org.yawlfoundation.yawl.admintool.model.HumanResource" discriminator-value="Human">
+            <property name="Surname"/>
+            <property name="GivenName"/>
+            <property name="Password"/>
+            <property name="IsAdministrator"/>
+        </subclass>
+        <subclass name="org.yawlfoundation.yawl.admintool.model.NonHumanResource" discriminator-value="Non-Human">
+        </subclass>
+    </class>
+
+</hibernate-mapping>
+
