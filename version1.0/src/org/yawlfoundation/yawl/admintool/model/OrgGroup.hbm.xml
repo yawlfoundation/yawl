@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="org.yawlfoundation.yawl.admintool.model.OrgGroup" table="OrgGroup">
+
+        <id name="OrgGroupName" type="string">
+            <generator class="assigned"/>
+        </id>
+
+        <property name="OrgGroupType" type="string" />
+        <property name="WorkingDayStartsAt" type="integer" />
+        <property name="WorkingDayFinishesAt" type="integer" />
+
+    </class>
+
+</hibernate-mapping>
