@@ -136,7 +136,8 @@ public class TaskDecompositionSelectionDialog extends AbstractTaskDoneDialog {
 
         getGraph().stopUndoableEdits();
 
-        TaskDecompositionUpdateDialog updateDialog = new TaskDecompositionUpdateDialog(decomposition);
+        TaskDecompositionUpdateDialog updateDialog = 
+          new TaskDecompositionUpdateDialog(decomposition, getGraph());
 
         // We have to wait on whether they pressed cancel or not to decide whether to keep the
         // decomposition

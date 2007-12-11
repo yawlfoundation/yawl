@@ -40,7 +40,6 @@ public class JProblemReportingEditorPane extends JSplitPane
   private JScrollPane  problemScrollPane;
   private ProblemTable parseProblemsTable = new ProblemTable();
   
-  
   public JProblemReportingEditorPane(ValidityEditorPane editor) {
     super(JSplitPane.VERTICAL_SPLIT);
     setEditor(editor);    
@@ -132,13 +131,13 @@ public class JProblemReportingEditorPane extends JSplitPane
     }
   }
   
-  public void documentValidityChanged(boolean documentValid) {
-    if (editor.getText().equals("") && documentValid) {
+  public void documentValidityChanged(AbstractXMLStyledDocument.Validity documentValid) {
+    if (editor.getText().equals("") && documentValid == AbstractXMLStyledDocument.Validity.VALID) {
       hideProblemTable();
       return;
     }
     
-    if (documentValid) {
+    if (documentValid == AbstractXMLStyledDocument.Validity.VALID) {
       populateProblemListTable(null);
        hideProblemTable();
     } else {

@@ -75,13 +75,16 @@ class JXMLSchemaEditor extends ValidityEditorPane {
     public void checkValidity() {
       
       if (getEditor().getText().equals("")) {
-        setContentValid(true);
+        setContentValid(AbstractXMLStyledDocument.Validity.VALID);
         return;
       }
       
       List validationResults = getProblemList();
  
-      setContentValid(validationResults == null ? true : false);
+      setContentValid(validationResults == null ? 
+          AbstractXMLStyledDocument.Validity.VALID: 
+          AbstractXMLStyledDocument.Validity.INVALID
+      );
     }
   }
 }

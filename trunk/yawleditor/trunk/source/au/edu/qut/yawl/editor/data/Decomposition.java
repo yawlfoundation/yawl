@@ -26,6 +26,7 @@ package au.edu.qut.yawl.editor.data;
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 
@@ -43,12 +44,15 @@ public class Decomposition implements Serializable {
 
   protected HashMap serializationProofAttributeMap = new HashMap();
   
+  public static final String PROPERTY_LOCATION = "/au/edu/qut/yawl/editor/resources/properties/decompositionAttribProps";
+  
   public static final Decomposition DEFAULT = new Decomposition();
   
   public Decomposition() {
     setLabel("");
     setDescription("The default (empty) decomposition");
     setVariables(new DataVariableSet());
+    setAttributes(null);
   }
 
   public void setLabel(String label) {
@@ -112,6 +116,31 @@ public class Decomposition implements Serializable {
   public int getVariableCount() {
     return getVariables().size();
   }
+  
+  //MLF: BEGIN
+  //LWB: Slight mods on MLF code to make extended attributes part of the typical decomposition attribute set.
+  public void setAttribute(String name, Object value) {
+      getAttributes().put(name, value);
+  }
+
+  public String getAttribute(String name) {
+    //todo MLF: returning empty String when null. is this right?
+    return (getAttributes().get(name) == null ? 
+               "" : getAttributes().get(name).toString());
+  }
+
+  public Hashtable getAttributes() {
+    return (Hashtable) serializationProofAttributeMap.get("extendedAttributes");
+  }
+
+  public void setAttributes(Hashtable attributes) {
+    if (attributes == null) {
+      attributes = new Hashtable();
+    }
+    serializationProofAttributeMap.put("extendedAttributes",attributes);
+  }
+  //MLF: END
+
   
   public boolean invokesWorklist() {
     return false;

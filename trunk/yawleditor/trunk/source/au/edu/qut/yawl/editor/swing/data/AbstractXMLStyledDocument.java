@@ -32,11 +32,18 @@ import javax.swing.text.DefaultStyledDocument;
 
 public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument  {
   
-  private LinkedList subscribers = new LinkedList();
+  public static enum Validity {
+    VALID,
+    INVALID,
+    UNCERTAIN
+  }
+  
+  private LinkedList<AbstractXMLStyledDocumentValidityListener> subscribers 
+       = new LinkedList<AbstractXMLStyledDocumentValidityListener>();
   
   private ValidityEditorPane editor;
   
-  private boolean contentValid = true;
+  private Validity contentValid = Validity.UNCERTAIN;
   
   public AbstractXMLStyledDocument(ValidityEditorPane editor) {
     this.editor = editor;
@@ -83,8 +90,12 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument  {
   public abstract void checkValidity();
   public abstract void setPreAndPostEditorText(String preEditorText, String postEditorText);
   public abstract List getProblemList();
+
+  public boolean isContentValidity() {
+    return getContentValidity() == Validity.VALID;
+  }
   
-  public boolean isContentValid() {
+  public Validity getContentValidity() {
     return contentValid;
   }
   
@@ -92,7 +103,7 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument  {
     return this.editor;
   }
   
-  public void setContentValid(boolean isValid) {
-    this.contentValid = isValid;
+  public void setContentValid(Validity validity) {
+    this.contentValid = validity;
   }
 }

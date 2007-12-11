@@ -25,6 +25,7 @@ package au.edu.qut.yawl.editor.data;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Hashtable;
 
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 
@@ -78,12 +79,15 @@ public class DataVariable implements Serializable, Cloneable {
   
   private static final int DEFAULT_TYPE = 4; // String
   
+  public static final String PROPERTY_LOCATION = "/au/edu/qut/yawl/editor/resources/properties/parameterAttribProps";
+  
   public DataVariable() {
     setName("");
     setDataType(BASE_DATA_TYPES[DEFAULT_TYPE]);
     setInitialValue(""); 
     setUsage(USAGE_INPUT_AND_OUTPUT);
     setUserDefined(true);
+    setAttributes(null);
   }    
 
   public DataVariable(String name, String dataType, String initialValue, int usage) {
@@ -92,6 +96,7 @@ public class DataVariable implements Serializable, Cloneable {
     setInitialValue(initialValue); 
     setUsage(usage);
     setUserDefined(true);
+    setAttributes(null);
   }
   
   public void setName(String name) {
@@ -184,6 +189,31 @@ public class DataVariable implements Serializable, Cloneable {
   public DataVariableSet getScope() {
     return this.scope;
   }
+  
+  //MLF: BEGIN
+  //LWB: Slight mods on MLF code to make extended attributes part of the typical decomposition attribute set.
+  public void setAttribute(String name, Object value) {
+      getAttributes().put(name, value);
+  }
+
+  public String getAttribute(String name) {
+    //todo MLF: returning empty String when null. is this right?
+    return (getAttributes().get(name) == null ? 
+               "" : getAttributes().get(name).toString());
+  }
+
+  public Hashtable getAttributes() {
+    return (Hashtable) serializationProofAttributeMap.get("extendedAttributes");
+  }
+
+  public void setAttributes(Hashtable attributes) {
+    if (attributes == null) {
+      attributes = new Hashtable();
+    }
+    serializationProofAttributeMap.put("extendedAttributes",attributes);
+  }
+  //MLF: END
+
   
   public static String usageToString(int usage) {
     switch(usage) {

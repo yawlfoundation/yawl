@@ -47,6 +47,14 @@ public class JXQueryEditor extends ValidityEditorPane {
   }
   
   public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
-    ((AbstractXMLStyledDocument) getDocument()).setPreAndPostEditorText(preEditorText, postEditorText);
+    getStyledDocument().setPreAndPostEditorText(preEditorText, postEditorText);
+  }
+  
+  public void setValidating(boolean validating) {
+    // TODO: pass down to document.
+  }
+  
+  public AbstractXMLStyledDocument getStyledDocument() {
+    return (AbstractXMLStyledDocument) getDocument();
   }
 }

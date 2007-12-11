@@ -95,6 +95,7 @@
 
     <copy todir="${build.directory}/${root.class.directory}/resources">
       <fileset dir="${source.directory}/${root.class.directory}/resources">
+        <include name="**/*" />
         <include name="**/*.*" />
       </fileset>
     </copy>

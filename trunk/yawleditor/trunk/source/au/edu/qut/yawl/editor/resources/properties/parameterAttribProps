@@ -1,0 +1,26 @@
+#Parameter User Interface Attributes
+#Thu Oct 27 13:35:42 GMT 2005
+#mandatory=attribute${mandatory}
+label=string
+control=enumeration{button,button_cancel,button_submit,chart,check,date,divide,dividered,email,link,link_popup,list,monthyear,mpan,password,radio,rule,select,table,tablelink,tablenested,tablemultiselect,tableradioselect,tableselect,text,textarea,textborderless,userid}
+control-width=enumeration{short,medium,long}
+alert=string
+pattern=string
+sequence=string
+tooltip=string
+mode=attribute${usageString}
+type=attribute${dataType}
+maxLength=string
+hidden=boolean
+hidden-dynamic=xquery
+alignment=enumeration{left,center,right}
+table-header=string
+tableselect-label=string
+textarea-height=string
+textarea-width=string
+tablelink-url=string
+tablelink-params=string
+tablelink-image=string
+tablelink-label=string
+mpan-readonly=string
+style=enumeration{Header1,Header2,boldfont}

@@ -38,9 +38,11 @@ public class ValidityEditorPane extends JEditorPane implements AbstractXMLStyled
   private static final long serialVersionUID = 1L;
   private static final Color VALID_COLOR = Color.GREEN.darker().darker();
   private static final Color INVALID_COLOR = Color.RED.darker();
+  private static final Color UNCERTAIN_COLOR = Color.ORANGE;
   
   private static final Font  COURIER             = new Font("Monospaced", Font.PLAIN, 12);
   private static final Color DISABLED_BACKGROUND = Color.LIGHT_GRAY;  
+  
   
   private Color enabledBackground;
  
@@ -65,7 +67,7 @@ public class ValidityEditorPane extends JEditorPane implements AbstractXMLStyled
   }
   
   public boolean isContentValid() {
-    return ((AbstractXMLStyledDocument) getDocument()).isContentValid();
+    return ((AbstractXMLStyledDocument) getDocument()).isContentValidity();
   }
   
   public void validate() {
@@ -96,7 +98,19 @@ public class ValidityEditorPane extends JEditorPane implements AbstractXMLStyled
     );
   }
   
-  public void documentValidityChanged(boolean documentValid) {
-    setForeground(documentValid ? VALID_COLOR : INVALID_COLOR);
+  public void documentValidityChanged(AbstractXMLStyledDocument.Validity documentValid) {
+    switch(documentValid) {
+      case VALID: {
+        setForeground(VALID_COLOR);
+        break;
+      }
+      case INVALID: {
+        setForeground(INVALID_COLOR);
+        break;
+      }
+      default: {
+        setForeground(UNCERTAIN_COLOR);
+      }
+    }
   }
 }

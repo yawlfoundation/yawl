@@ -23,16 +23,24 @@
 
 package au.edu.qut.yawl.editor.swing.data;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.BorderLayout;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.CompoundBorder;
@@ -42,6 +50,7 @@ import au.edu.qut.yawl.editor.data.DataVariableSet;
 import au.edu.qut.yawl.editor.data.Decomposition;
 import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 
+import au.edu.qut.yawl.editor.net.NetGraph;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.data.YawlServiceComboBox;
 
@@ -60,8 +69,15 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   
   private String cachedYAWLServiceID;
   
-  public TaskDecompositionUpdateDialog(Decomposition decomposition) {
+  protected JPanel attributesPanel; //MLF
+  protected ExtendedAttributesTableModel model; //MLF
+  protected JTabbedPane pane; //MLF
+  
+  protected NetGraph graph;
+  
+  public TaskDecompositionUpdateDialog(Decomposition decomposition, NetGraph graph) {
     super(decomposition);
+    this.graph = graph;
     setTitle(DataVariable.SCOPE_TASK);
     
     getDoneButton().addActionListener(new ActionListener() {
@@ -106,6 +122,11 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   }
   
   
+  protected void setDecomposition(Decomposition decomposition) {
+    super.setDecomposition(decomposition);
+    model.setDecomposition(decomposition);
+  }
+  
   private WebServiceDecomposition getWebServiceDecomposition() {
     return (WebServiceDecomposition) getDecomposition();
   }
@@ -113,10 +134,38 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   protected JPanel getDecompositionPanel() {
     JPanel panel = super.getDecompositionPanel();
     
-    panel.add(getWebServiceDecompositionPanel(), BorderLayout.SOUTH);
+    JPanel innerPanel = new JPanel(new BorderLayout()); //MLF
+
+    innerPanel.add(getWebServiceDecompositionPanel(), BorderLayout.NORTH);
+    innerPanel.add(getExtendedAttributeDisablePanel(), BorderLayout.SOUTH);
+    panel.add(innerPanel, BorderLayout.SOUTH);
+
+    pane = new JTabbedPane();
+    
+    pane.addTab("Standard", panel); //MLF
+
+    panel = new JPanel(new BorderLayout()); //MLF
+    createAttributePanel(panel); //MLF
+
+    pane.addTab("Extended Attributes", panel); //MLF
+
+    panel = new JPanel(); //MLF
+    panel.add(pane); //MLF
 
     return panel;
   }
+  
+  //MLF: adds a panel that allows the disablement of the extended attributes
+  private JPanel getExtendedAttributeDisablePanel() {
+    JPanel panel = new JPanel();
+
+    panel.setBorder(
+        new EmptyBorder(10,10,10,12)
+    );
+
+    return panel;
+  }
+
 
   private JPanel getWebServiceDecompositionPanel() {
 
@@ -220,4 +269,51 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
     return newVariableSet;
   }
+  
+  //BEGIN: MLF
+  private void createAttributePanel(JPanel panel)
+  {
+    try {
+      model = new ExtendedAttributesTableModel(getDecomposition(), graph);
+
+      panel.add(getAttributesPanel(), BorderLayout.NORTH);
+    } catch (IOException e) {     //if the model can't be created we do nothing more.
+      //todo do we report this at all?
+      e.printStackTrace();
+    }
+  }
+
+  //assumes model has been initialised
+  protected JPanel getAttributesPanel() {
+    attributesPanel = new JPanel(new GridLayout(1,1));
+    attributesPanel.setBorder(new EmptyBorder(10,10,10,12));
+
+    JTable table = new JTable() {
+      public Dimension getPreferredScrollableViewportSize() {
+        Dimension defaultPreferredSize = super.getPreferredSize();
+        
+        Dimension preferredSize = new Dimension(
+            (int) defaultPreferredSize.getWidth(),
+            (int) Math.min(
+                defaultPreferredSize.getHeight(),
+                getFontMetrics(getFont()).getHeight() * 10            
+            )
+        );
+        
+        return preferredSize;
+      }
+    };
+
+    table.setModel(model);
+    ExtendedAttributeEditor editor = new ExtendedAttributeEditor(this, DialogMode.TASK);
+    getDoneButton().addActionListener(editor);
+    table.setDefaultEditor(ExtendedAttribute.class, editor);
+    table.setDefaultRenderer(ExtendedAttribute.class, new ExtendedAttributeRenderer());
+
+    attributesPanel.add(new JScrollPane(table));
+    attributesPanel.setVisible(true);
+
+    return attributesPanel;
+  }
+  //END: MLF
 }

@@ -420,7 +420,7 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument{
   private String postEditorText;
   
   private String parseError = null;
-
+  
   private static final IgnoreBadCharactersFilter IGNORE_BAD_CHARACTERS_FILTER 
       = new IgnoreBadCharactersFilter();
   
@@ -437,17 +437,17 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument{
     
   public void checkValidity() {
     if (getEditor().getText().equals("")) {
-      setContentValid(true);
+      setContentValid(AbstractXMLStyledDocument.Validity.INVALID);
       return;
     }
     
     try {
       parser.parse(preEditorText + getEditor().getText() + postEditorText);
-      setContentValid(true);
+      setContentValid(AbstractXMLStyledDocument.Validity.VALID);
       parseError = null;
     } catch (XPathException e) {
       parseError = e.getMessageAndLocation();
-      setContentValid(false);
+      setContentValid(AbstractXMLStyledDocument.Validity.INVALID);
     } 
   }
   
