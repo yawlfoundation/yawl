@@ -59,5 +59,9 @@ public class JXQueryEditorPane extends JProblemReportingEditorPane {
   public JXQueryEditor getXQueryEditor() {
     return (JXQueryEditor) getEditor();
   }
+  
+  public void setValidating(boolean validating) {
+    getXQueryEditor().setValidating(validating);
+  }
 }
 

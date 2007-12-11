@@ -103,7 +103,9 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
   public void checkValidity() {
     if (getEditor().getText().equals("") || 
         getInstanceEditor().getVariableType() == null) {
-      setContentValid(true);
+      setContentValid(
+          AbstractXMLStyledDocument.Validity.VALID
+      );
       return;
     }
 
@@ -117,9 +119,13 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
   private void validateBaseDataTypeInstance() {
     setProblemList(getBaseDataTypeInstanceProblems());
     if (getProblemList().size() == 0) {
-      setContentValid(true);
+      setContentValid(
+          AbstractXMLStyledDocument.Validity.VALID
+      );
     } else {
-      setContentValid(false);
+      setContentValid(
+          AbstractXMLStyledDocument.Validity.VALID
+      );
     }
   }
 
@@ -149,9 +155,13 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
   private void validateUserSuppliedDataTypeInstance() {
     setProblemList(getUserSuppliedDataTypeInstanceProblems());
     if (getProblemList().size() == 0) {
-      setContentValid(true);
+      setContentValid(
+          AbstractXMLStyledDocument.Validity.VALID
+      );
     } else {
-      setContentValid(false);
+      setContentValid(
+          AbstractXMLStyledDocument.Validity.INVALID
+      );
     }
   }
   

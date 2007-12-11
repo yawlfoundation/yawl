@@ -95,7 +95,7 @@ public class UnavailableEngineProxyImplementation implements
   }
 
   public AbstractXMLStyledDocument getXQueryEditorDocument(ValidityEditorPane editor, String extraParseText) {
-    return new AlwaysFalseDocument(editor, extraParseText);
+    return new UncertainValidityDocument(editor, extraParseText);
   }
   
   public LinkedList getEngineParametersForRegisteredService(String registeredYAWLServiceURI) {
@@ -107,19 +107,20 @@ public class UnavailableEngineProxyImplementation implements
   }
 }
 
-class AlwaysFalseDocument extends AbstractXMLStyledDocument{
-  /**
-   * 
-   */
+class UncertainValidityDocument extends AbstractXMLStyledDocument{
+
   private static final long serialVersionUID = 1L;
   private static final List problemList = generateProblemList();
   
-  public AlwaysFalseDocument(ValidityEditorPane editor, String extraParseText) {
+  public UncertainValidityDocument(ValidityEditorPane editor, String extraParseText) {
     super(editor);
+    
   }
     
   public void checkValidity() {
-    setContentValid(false);
+    setContentValid(
+        AbstractXMLStyledDocument.Validity.UNCERTAIN
+    );
   }
   
   private static List generateProblemList() {

@@ -43,9 +43,8 @@ public class DynamicValue implements Serializable
             if (methods[i].getParameterTypes().length == 0) //no parameter methods only
             {
                 String name = methods[i].getName();
-                if (name.toLowerCase().indexOf(property.toLowerCase()) != -1 &&
-                    (name.toLowerCase().indexOf("get") != -1 ||
-                     name.toLowerCase().indexOf("is") != -1))
+                if (name.toLowerCase().equals("get" + property.toLowerCase()) ||
+                    name.toLowerCase().equals("is" + property.toLowerCase()))
                 {
                     try
                     {

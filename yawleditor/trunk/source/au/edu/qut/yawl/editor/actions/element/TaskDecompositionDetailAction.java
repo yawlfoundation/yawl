@@ -80,7 +80,7 @@ public class TaskDecompositionDetailAction extends YAWLSelectedNetAction
     NetDecompositionUpdateDialog dialog;
     if (!invokedAtLeastOnce(task.getDecomposition())) {
       if (task.getDecomposition() instanceof WebServiceDecomposition) {
-        dialog = new TaskDecompositionUpdateDialog(task.getDecomposition());
+        dialog = new TaskDecompositionUpdateDialog(task.getDecomposition(), graph);
       } else {
         dialog = new NetDecompositionUpdateDialog(task.getDecomposition());
       }

@@ -1,0 +1,7 @@
+#Decomposition User Interface Attributes
+#Thu Oct 27 13:35:42 GMT 2005
+help=string
+mode=enumeration{normal,final,pending}
+refresh=string
+description=xquery
+skipOutboundSchemaValidation=boolean

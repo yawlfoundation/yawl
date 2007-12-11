@@ -24,17 +24,27 @@
 package au.edu.qut.yawl.editor.swing.data;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 
 import au.edu.qut.yawl.editor.data.DataVariable;
 import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
@@ -64,6 +74,11 @@ public class TaskDataVariableUpdateDialog extends AbstractDoneDialog {
   private JLabel usageLabel;
   
   private DataVariable variable;
+  
+  protected JButton attributesToggle; //MLF
+  protected JPanel attributesPanel; //MLF
+  protected ExtendedAttributesTableModel model; //MLF
+  protected JTabbedPane pane; //MLF
   
   public TaskDataVariableUpdateDialog(AbstractDoneDialog parent) {
     super("Update Variable", true);
@@ -113,15 +128,34 @@ public class TaskDataVariableUpdateDialog extends AbstractDoneDialog {
   }
   
   protected JPanel getVariablePanel() {
-    JPanel panel = new JPanel(new BorderLayout());
+    JPanel panel = new JPanel(new GridLayout(1,1));
 
-    panel.add(getBaseVariablePanel(), BorderLayout.NORTH);
+    panel.add(buildBaseVariablePanel());
 
     return panel;
   }
 
+  protected JTabbedPane buildBaseVariablePanel() {
+    pane = new JTabbedPane();
+
+    pane.setBorder(
+        new EmptyBorder(5,5,5,5)
+    );
+    
+    pane.addTab(
+        "Standard", 
+        buildStandardPanel()
+    );
+    
+    pane.addTab(
+        "Extended Attributes", 
+        createExtendedAttributePanel()
+    );
+
+    return pane;
+  }
   
-  protected JPanel getBaseVariablePanel() {
+  protected JPanel buildStandardPanel() {
 
     GridBagLayout gbl = new GridBagLayout();
     GridBagConstraints gbc = new GridBagConstraints();
@@ -197,7 +231,7 @@ public class TaskDataVariableUpdateDialog extends AbstractDoneDialog {
 
     panel.add(getVariableUsageComboBox(),gbc);
     usageLabel.setLabelFor(usageComboBox);
-    
+
     return panel;
   }
   
@@ -245,6 +279,52 @@ public class TaskDataVariableUpdateDialog extends AbstractDoneDialog {
     return usageComboBox;
   }
   
+  protected JComponent createExtendedAttributePanel()
+  {
+    try {
+      model = new ExtendedAttributesTableModel(getVariable());
+
+      return getAttributesPanel();
+    } catch (IOException e) {     //if the model can't be created we do nothing more.
+      //todo do we report this at all?
+    }
+      return new JPanel();
+  }
+
+  //assumes model has been initialised
+  protected JPanel getAttributesPanel() {
+    attributesPanel = new JPanel(new GridLayout(1,1));
+    attributesPanel.setBorder(new EmptyBorder(10,11,10,12));
+
+    JTable table = new JTable() {
+      public Dimension getPreferredScrollableViewportSize() {
+        Dimension defaultPreferredSize = super.getPreferredSize();
+        
+        Dimension preferredSize = new Dimension(
+            (int) defaultPreferredSize.getWidth(),
+            (int) Math.min(
+                defaultPreferredSize.getHeight(),
+                getFontMetrics(getFont()).getHeight() * 10           
+            )
+        );
+        
+        return preferredSize;
+      }
+    };
+
+    table.setModel(model);
+    ExtendedAttributeEditor editor = new ExtendedAttributeEditor(this, DialogMode.NET);
+    getDoneButton().addActionListener(editor);
+    table.setDefaultEditor(ExtendedAttribute.class, editor);
+    table.setDefaultRenderer(ExtendedAttribute.class, new ExtendedAttributeRenderer());
+
+    attributesPanel.add(new JScrollPane(table));
+    attributesPanel.setVisible(false);
+
+    return attributesPanel;
+  }
+  //END: MLF
+
   protected void setContent() {
     nameField.setVariable(variable);
     
@@ -260,6 +340,10 @@ public class TaskDataVariableUpdateDialog extends AbstractDoneDialog {
     usageComboBox.setEnabled(false);
     usageComboBox.setSelectedIndex(variable.getUsage());
     usageComboBox.setEnabled(true);
+    
+    if(variable != null && model != null) {
+        model.setVariable(variable);
+    }
   }
   
   class NameFieldDocumentListener implements KeyListener {

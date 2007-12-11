@@ -21,6 +21,7 @@
 
 package au.edu.qut.yawl.editor.swing.data;
 
+import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
 public interface AbstractXMLStyledDocumentValidityListener {
-  public void documentValidityChanged(boolean documentValidity);
+  public void documentValidityChanged(AbstractXMLStyledDocument.Validity documentValidity);
 }

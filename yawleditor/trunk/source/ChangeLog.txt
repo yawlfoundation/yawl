@@ -19,6 +19,8 @@ Version 2.0 (??/??/????)
          sliding bar, mostly to allow a clear view into a deep icon tree.  However, 
          given a couple of Swing limitations, the palette bar can no longer be detatched
          from the base editor window.
+  * LWB/MF: Incorporated the extended attribute concept that has been coded into the
+         M2 branch of the editor.
 
 Version 1.5.1 (08/10/2007)
   * LWB: Fixed a bug where multiple-instance tasks were not being initialsed properly and consequently

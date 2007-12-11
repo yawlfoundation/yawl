@@ -30,6 +30,7 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -158,4 +159,11 @@ public class NetDataVariableUpdateDialog extends TaskDataVariableUpdateDialog {
     initialValueEditor.setVariableType(getVariable().getDataType());  
     enableInitialValueEditorIfAppropriate();
   }
+  
+  //BEGIN MLF
+  protected JComponent createExtendedAttributePanel() {
+      //do nothing -> extended attributes are meaningless at net level
+      return null;
+  }
+  //END MLF
 }
