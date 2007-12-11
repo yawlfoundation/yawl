@@ -21,6 +21,8 @@ Version 2.0 (??/??/????)
          from the base editor window.
   * LWB/MF: Incorporated the extended attribute concept that has been coded into the
          M2 branch of the editor.
+  * DT:  Small change to the pause mechanism used at editor startup to make
+         better usage of system CPU.
 
 Version 1.5.1 (08/10/2007)
   * LWB: Fixed a bug where multiple-instance tasks were not being initialsed properly and consequently
