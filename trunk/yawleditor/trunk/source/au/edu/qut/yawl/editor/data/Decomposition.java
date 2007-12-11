@@ -23,6 +23,7 @@
 
 package au.edu.qut.yawl.editor.data;
 
+import au.edu.qut.yawl.editor.foundations.FileUtilities;
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -44,8 +45,8 @@ public class Decomposition implements Serializable {
 
   protected HashMap serializationProofAttributeMap = new HashMap();
   
-  public static final String PROPERTY_LOCATION = "/au/edu/qut/yawl/editor/resources/properties/decompositionAttribProps";
-  
+  public static final String PROPERTY_LOCATION = FileUtilities.getDecompositionPropertiesExtendeAttributePath();
+
   public static final Decomposition DEFAULT = new Decomposition();
   
   public Decomposition() {

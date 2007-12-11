@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Hashtable;
 
+import au.edu.qut.yawl.editor.foundations.FileUtilities;
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 
 public class DataVariable implements Serializable, Cloneable {
@@ -79,7 +80,7 @@ public class DataVariable implements Serializable, Cloneable {
   
   private static final int DEFAULT_TYPE = 4; // String
   
-  public static final String PROPERTY_LOCATION = "/au/edu/qut/yawl/editor/resources/properties/parameterAttribProps";
+  public static final String PROPERTY_LOCATION = FileUtilities.getVariablePropertiesExtendedAttributePath();
   
   public DataVariable() {
     setName("");

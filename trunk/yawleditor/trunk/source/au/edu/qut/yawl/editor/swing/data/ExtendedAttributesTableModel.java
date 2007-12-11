@@ -6,6 +6,10 @@ import au.edu.qut.yawl.editor.net.NetGraph;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
@@ -48,20 +52,27 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     private void loadProperties() throws IOException
     {
         InputStream stream;
+        String streamPath = null;
 
         if (variable != null)
         {
-            stream = getClass().getResourceAsStream(DataVariable.PROPERTY_LOCATION);
+            streamPath = DataVariable.PROPERTY_LOCATION;
         }
         else
         {
-            stream = getClass().getResourceAsStream(Decomposition.PROPERTY_LOCATION);
+            streamPath = Decomposition.PROPERTY_LOCATION;
         }
 
-        if (stream != null)
-        {
-            props = new Properties();
+        if (streamPath != null) {
+          props = new Properties();
+
+          try {
+            stream = new FileInputStream(streamPath);  
             props.load(stream);
+          } catch (FileNotFoundException fnfe) {
+            // deliberately does nothing.   
+          };
+
         }
     }
 

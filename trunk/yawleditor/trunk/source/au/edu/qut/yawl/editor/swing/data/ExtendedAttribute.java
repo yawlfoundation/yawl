@@ -127,7 +127,7 @@ public class ExtendedAttribute
             }
             else if (type.equalsIgnoreCase("xquery"))
             {
-                component = new XQuery(value);
+                component = new XQueryButton(value);
             }
             else
             {

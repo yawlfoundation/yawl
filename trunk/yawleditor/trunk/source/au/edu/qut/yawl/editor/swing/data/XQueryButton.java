@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
  * @author mfowler
  *         Date: 07-Sep-2007
  */
-public class XQuery extends JButton
+public class XQueryButton extends JButton
 {
     public static final String ACTION_COMMAND = "EDIT_XQUERY";
 
@@ -16,7 +16,7 @@ public class XQuery extends JButton
      *
      * @param text the text of the button
      */
-    public XQuery(String text)
+    public XQueryButton(String text)
     {
         super(text);
         setActionCommand(ACTION_COMMAND);
