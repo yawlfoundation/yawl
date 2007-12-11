@@ -7,7 +7,6 @@ import au.edu.qut.yawl.editor.net.NetGraph;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;

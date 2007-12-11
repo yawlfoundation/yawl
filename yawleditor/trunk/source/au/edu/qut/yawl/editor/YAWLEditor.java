@@ -1,9 +1,9 @@
 /*
  * Created on 23/12/2003, 21:00:38
- * YAWLEditor v1.0 
+ * YAWLEditor v1.0
  *
  * @author Lindsay Bradford
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -194,7 +194,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     updateLoadProgress(90);
 
     ArchivingThread.getInstance().start();
-    processPreferences(); 
+    processPreferences();
     installEventListeners();
 
     updateLoadProgress(95);
@@ -261,30 +261,30 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
     // We choose an animation here because I have
     // no control over the colour of the divider
-    // via the Swing interface. 
+    // via the Swing interface.
 
     final int originalDividerLocation = splitPane.getDividerLocation();
 
     splitPane.setDividerLocation(
-      originalDividerLocation - 20    
-    );
-    
-    pause(200);
-    
-    splitPane.setDividerLocation(
-        originalDividerLocation    
+      originalDividerLocation - 20
     );
 
     pause(200);
 
     splitPane.setDividerLocation(
-        originalDividerLocation - 20    
+        originalDividerLocation
     );
-      
+
     pause(200);
-      
+
     splitPane.setDividerLocation(
-        originalDividerLocation    
+        originalDividerLocation - 20
+    );
+
+    pause(200);
+
+    splitPane.setDividerLocation(
+        originalDividerLocation
     );
   }
 
@@ -409,7 +409,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   public void specificationFileModelStateChanged(int state) {
     switch(state) {
       case SpecificationFileModel.EDITING: {
-        String title = SpecificationFileModel.getInstance().getFileName(); 
+        String title = SpecificationFileModel.getInstance().getFileName();
         if (title != null) {
           setTitle(title);
         }
@@ -425,17 +425,25 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       }
     }
   }
-  
+
   private void attemptEngineConnectionIfApplicable() {
     if (YAWLEngineProxy.engineLibrariesAvailable())  {
       YAWLEngineProxy.getInstance().connect();
     }
   }
-  
+
   private static void pause(long milliseconds) {
+    Object lock = new Object();
     long now = System.currentTimeMillis();
     long finishTime = now + milliseconds;
     while (now < finishTime) {
+      long timeToWait = finishTime - now;
+      synchronized (lock) {
+         try {
+           lock.wait(timeToWait);
+         } catch (InterruptedException ex) {
+         }
+      }
       now = System.currentTimeMillis();
     }
   }
