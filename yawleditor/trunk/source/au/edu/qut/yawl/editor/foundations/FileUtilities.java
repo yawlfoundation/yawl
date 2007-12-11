@@ -29,26 +29,8 @@ import java.nio.channels.FileChannel;
 
 public class FileUtilities {
 
-  private static final String USER_DIRECTORY = System.getProperty("user.dir");
+  // Generic File Utilities
 
-  private static final String RELATIVE_PLUGIN_PATH = "YAWLEditorPlugins";
-  private static final String TASK_ICON_PATH = "TaskIcons";
-
-  private static final String RELATIVE_TASK_ICON_PATH = 
-    RELATIVE_PLUGIN_PATH +
-    System.getProperty("file.separator") + 
-    TASK_ICON_PATH;
-  
-  public static final String ABSOLUTE_PLUGIN_DIRECTORY = 
-    USER_DIRECTORY + 
-    System.getProperty("file.separator") + 
-    RELATIVE_PLUGIN_PATH;
-    
-    public static final String ABSOLUTE_TASK_ICON_PATH = 
-      USER_DIRECTORY + 
-      System.getProperty("file.separator") + 
-      RELATIVE_TASK_ICON_PATH;
-  
   /**
    * Moves one file to another. Note that if a file already exists with the same
    * name as <code>targetFile</code> this method will overwrite its contents.
@@ -60,7 +42,6 @@ public class FileUtilities {
     copy(sourceFile, targetFile);
     new File(sourceFile).delete();
   }
-
   
   /**
    * Copies one file to another. Note that if a file already exists with the same
@@ -78,8 +59,7 @@ public class FileUtilities {
     sourceChannel.close();
     targetChannel.close();
   }
-  
-  
+
   /**
    * Strips the extension from a filename, assuming that extensions follow the
    * standard convention of being the text following the last '.' character
@@ -95,6 +75,31 @@ public class FileUtilities {
     );
   }
   
+  // Basic Plugin Detail
+  
+  private static final String USER_DIRECTORY = System.getProperty("user.dir");
+
+  private static final String RELATIVE_PLUGIN_PATH = "YAWLEditorPlugins";
+
+  public static final String ABSOLUTE_PLUGIN_DIRECTORY = 
+    USER_DIRECTORY + 
+    System.getProperty("file.separator") + 
+    RELATIVE_PLUGIN_PATH;
+
+  // Task Icon Plugin Utilities
+  
+  private static final String TASK_ICON_PATH = "TaskIcons";
+
+  private static final String RELATIVE_TASK_ICON_PATH = 
+    RELATIVE_PLUGIN_PATH +
+    System.getProperty("file.separator") + 
+    TASK_ICON_PATH;
+  
+  public static final String ABSOLUTE_TASK_ICON_PATH = 
+    USER_DIRECTORY + 
+    System.getProperty("file.separator") + 
+    RELATIVE_TASK_ICON_PATH;
+
   /**
    * Given the relative path of an icon, returns the absolute path
    * where it will be found in the current environment.
@@ -124,5 +129,42 @@ public class FileUtilities {
       (ABSOLUTE_TASK_ICON_PATH + System.getProperty("file.separator")).length()    
     );
   }
+  
+  // Extended Attribute Plugin Utilities
+  
+  private static final String EXTENDED_ATTRIBUTE_PATH = "ExtendedAttributeProperties";
+  private static final String DECOMPOSITION_EXTENDED_ATTRIBUTE_PROPERTIES = "DecompositionProperties";
+  private static final String VARIABLE_EXTENDED_ATTRIBUTE_PROPERTIES = "VariableProperties";
+  
+  private static final String RELATIVE_EXTENDED_ATTRIBUTE_PATH = 
+    RELATIVE_PLUGIN_PATH +
+    System.getProperty("file.separator") + 
+    EXTENDED_ATTRIBUTE_PATH;
 
+  public static final String ABSOLUTE_EXTENDED_ATTRIBUTE_PATH = 
+    USER_DIRECTORY + 
+    System.getProperty("file.separator") + 
+    RELATIVE_EXTENDED_ATTRIBUTE_PATH;
+
+  /**
+   * Returns the absolute path of the decomposition extended attribute properties plugin file
+   * @param relativeIconPath
+   * @return
+   */
+  public static String getDecompositionPropertiesExtendeAttributePath() {
+    return ABSOLUTE_EXTENDED_ATTRIBUTE_PATH + 
+           System.getProperty("file.separator") + 
+           DECOMPOSITION_EXTENDED_ATTRIBUTE_PROPERTIES;
+  }
+
+  /**
+   * Returns the absolute path of the variable extended attribute properties plugin file
+   * @param relativeIconPath
+   * @return
+   */
+  public static String getVariablePropertiesExtendedAttributePath() {
+    return ABSOLUTE_EXTENDED_ATTRIBUTE_PATH + 
+           System.getProperty("file.separator") + 
+           VARIABLE_EXTENDED_ATTRIBUTE_PROPERTIES;
+  }
 }

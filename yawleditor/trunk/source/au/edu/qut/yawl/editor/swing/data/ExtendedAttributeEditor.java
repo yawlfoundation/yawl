@@ -43,7 +43,7 @@ public class ExtendedAttributeEditor extends AbstractCellEditor implements Table
         hint = (ExtendedAttribute) value;
         JComponent component = hint.getComponent();
 
-        if(component instanceof XQuery) ((XQuery) component).appendActionListener(this);
+        if(component instanceof XQueryButton) ((XQueryButton) component).appendActionListener(this);
         return component;
     }
 
@@ -52,7 +52,7 @@ public class ExtendedAttributeEditor extends AbstractCellEditor implements Table
      */
     public void actionPerformed(ActionEvent e)
     {
-        if(e.getActionCommand().equals(XQuery.ACTION_COMMAND) && hint.getComponent() instanceof XQuery)
+        if(e.getActionCommand().equals(XQueryButton.ACTION_COMMAND) && hint.getComponent() instanceof XQueryButton)
         {
             //Don't put on a separate thread - the update event fires before the data is acutally
             //captured meaning the table model and the display are out of sync!! (4 hours of debug later...)
