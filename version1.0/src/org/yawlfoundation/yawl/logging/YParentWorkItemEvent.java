@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.logging;
 
+import org.yawlfoundation.yawl.util.StringUtil;
+
 /**
  * An instantiation of this class represents one row of data in the event logging
  * table 'log_ParentWorkItemEvent'. Called by YEventLogger to record a change in status
@@ -35,6 +37,22 @@ public class YParentWorkItemEvent implements java.io.Serializable {
         _resourceID = resourceID;
         _eventName = eventName;
         _eventTime = eventTime;
+    }
+
+
+    /****************************************************************************/
+
+    public String toXML() {
+        StringBuilder xml = new StringBuilder() ;
+        xml.append(String.format("<ParentWorkItemEvent id=\"%s\">", _parentWorkItemEventID)) ;
+        xml.append(StringUtil.wrap(_caseEventID, "caseEventID"));
+        xml.append(StringUtil.wrap(_caseID, "caseID"));
+        xml.append(StringUtil.wrap(_taskID, "taskID"));
+        xml.append(StringUtil.wrap(_resourceID, "resourceID"));
+        xml.append(StringUtil.wrap(_eventName, "eventName"));
+        xml.append(StringUtil.wrap(String.valueOf(_eventTime), "eventTime"));
+        xml.append("</ParentWorkItemEvent>");
+        return xml.toString() ;
     }
 
 

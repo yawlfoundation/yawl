@@ -83,7 +83,7 @@ public class YPersistenceManager {
     /**
      * Constructor
      */
-    protected YPersistenceManager(SessionFactory factory) {
+    public YPersistenceManager(SessionFactory factory) {
         logger = Logger.getLogger(this.getClass());
 
         objectsToStore = new Hashtable(5);        // Arbitary initial size
@@ -116,7 +116,7 @@ public class YPersistenceManager {
      *
      * @throws YPersistenceException
      */
-    protected void startTransactionalSession() throws YPersistenceException {
+    public void startTransactionalSession() throws YPersistenceException {
         try {
             session = getFactory().openSession();
             transaction = session.beginTransaction();
@@ -481,6 +481,55 @@ public class YPersistenceManager {
 //        }
 //    }
 
+     /**
+      * executes a Query object based on the sql string passed
+      * @param queryString - the sql query to execute
+      * @throws YPersistenceException if there's a problem reading the db
+      * @return the List of objects returned
+      */
+     public List execQuery(String queryString) throws YPersistenceException{
+         try {
+              Query query = createQuery(queryString);
+              if (query != null) return query.list();
+         } catch (HibernateException he) {
+              throw new YPersistenceException("Error executing query: " + queryString, he);
+         }
+         return null;
+     }
+
+        /**
+     * returns all the instances currently persisted for the class passed
+     * @param className - the name of the class to retrieve instances of
+     * @throws YPersistenceException if there's a problem reading the db
+     * @return a List of the instances retrieved
+     */
+    public List getObjectsForClass(String className) throws YPersistenceException{
+        return execQuery("from " + className);
+    }
+
+
+    /**
+     * returns all the instances currently persisted for the class passed that
+     * match the condition specified in the where clause
+     * @param className the name of the class to retrieve instances of
+     * @param whereClause the condition (without the 'where' part) e.g. "age=21"
+     * @throws YPersistenceException if there's a problem reading the db
+     * @return a List of the instances retrieved
+     */
+    public List getObjectsForClassWhere(String className, String whereClause)
+                                                      throws YPersistenceException {
+        List result = null;
+        try {
+            String qry = String.format("from %s as tbl where tbl.%s",
+                                        className, whereClause) ;
+            Query query = createQuery(qry);
+            if (query != null) result = query.list();
+        }
+        catch (HibernateException he) {
+            throw new YPersistenceException("Error reading data for class: " + className, he);
+        }
+        return result ;
+    }
 
     private synchronized void doPersistAction(Object obj, boolean update) throws YPersistenceException {
         if (logger.isDebugEnabled()) {
@@ -631,7 +680,7 @@ public class YPersistenceManager {
             // get last started caseid from event logs
             Query query = session.createQuery(
                   "from YCaseEvent as yce " +
-                  "where yce._eventType = 'started' order by yce._eventTime desc");
+                  "where yce._eventName = 'started' order by yce._eventTime desc");
             if (query != null) {
                 if (! query.list().isEmpty()) {
                     YCaseEvent caseEvent = (YCaseEvent) query.iterate().next();

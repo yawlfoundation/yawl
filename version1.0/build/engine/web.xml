@@ -7,8 +7,7 @@
 	<description>
         This is the YAWL Workflow Engine.   It performs the execution of Workflow
         specifications (declared in XML), and it handles
-        org.yawlfoundation.yawl.worklist, and application
-        invokation.
+        worklist, and application invokation.
         Author: Lachlan Aldred
         Date: 24/12/2003
         Time: 16:17:01
@@ -115,6 +114,16 @@
 		<servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+    <servlet>
+        <servlet-name>InterfaceEGateway</servlet-name>
+        <description>
+            Provides an external API to the Engine's process event logs
+        </description>
+        <servlet-class>
+            org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGateway
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
     <!-- Define mappings that are used by the servlet container to
          translate a particular request URI (context-relative) to a
@@ -137,7 +146,11 @@
 		<servlet-name>ErrorServlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
-	<!-- Define the default session timeout for your application,
+    <servlet-mapping>
+        <servlet-name>InterfaceEGateway</servlet-name>
+        <url-pattern>/logGateway</url-pattern>
+    </servlet-mapping>
+    <!-- Define the default session timeout for your application,
          in minutes. -->
 	<session-config>
 		<session-timeout>30</session-timeout>

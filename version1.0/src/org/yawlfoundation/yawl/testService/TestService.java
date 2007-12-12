@@ -1,6 +1,8 @@
 package org.yawlfoundation.yawl.testService;
 
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
+import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
@@ -13,7 +15,6 @@ import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +52,64 @@ public class TestService extends InterfaceBWebsideController {
         output.append("<html><head><title>YAWL Test Service Welcome Page</title>")
               .append("</head><body><H3>Test Output</H3><p>");
 
+  //      output.append(doResourceServiceGatewayTest()) ;
+
+         output.append(doLogGatewayTest()) ;
+
+         output.append("</p></body></html>");
+         outputWriter.write(output.toString());
+         outputWriter.flush();
+         outputWriter.close();
+    }
+
+    private void prn(String s) { System.out.println(s) ; }
+
+    private String doLogGatewayTest() throws IOException {
+        YLogGatewayClient logClient = new YLogGatewayClient(
+                                         "http://localhost:8080/yawl/logGateway") ;
+        String handle = logClient.connect("admin", "YAWL") ;
+
+        prn("handle = " + handle);
+
+        // test all methods
+        prn("getAllSpecIDs:");
+        prn(logClient.getAllSpecIDs(handle));
+
+        prn("");
+        prn("getAllCaseEventIDs");
+        prn(logClient.getAllCaseEventIDs(handle)) ;
+
+        prn("");
+        prn("getllCaseEventIDs - started events only:");
+        prn(logClient.getAllCaseEventIDs("started", handle)) ;
+
+        prn("");
+        prn("getCaseEventIDsForSpec - casualty treatment:") ;
+        prn(logClient.getCaseEventIDsForSpec("Casualty_Treatment", handle)) ;
+
+        prn("");
+        prn("getCaseEventsForSpec(Casualty_Treatment):");
+        prn(logClient.getCaseEventsForSpec("Casualty_Treatment", handle));
+
+        prn("");
+        prn("getChildWorkItemEventsForParent - 3 events returned:");
+        prn(logClient.getChildWorkItemEventsForParent(
+                          "caa94661-056a-4025-b53a-b50a09f09ea7", handle)) ;
+
+        prn("");
+        prn("getParentWorkItemEventsForCase:");
+        prn(logClient.getParentWorkItemEventsForCase(
+                          "2d807928-85c3-41b6-80bf-76ae1de72491", handle)) ;
+
+        prn("");
+        prn("getParentWorkItemEventsForCaseID - 3:");
+        prn(logClient.getParentWorkItemEventsForCaseID("3", handle)) ;
+
+        return "" ;
+    }
+
+
+    private String doResourceServiceGatewayTest() throws IOException {
         /******* TEST CODE STARTS HERE ***********************************************/
 
         // testing the resourceService gateway
@@ -186,22 +245,16 @@ public class TestService extends InterfaceBWebsideController {
         /** task.setResourceMap(rMap);  */
 
         // out to xml
-        String xmlout = rMap.toXML() ;
+      //  String xmlout = rMap.toXML() ;
 
         // this is here to test the output to a file
        /**  Document doc = JDOMUtil.stringToDocument(xmlout);
          JDOMUtil.documentToFile(doc, "c:/temp/resourcingout.xml"); */
 
-        output.append(xmlout) ;
-
+        return rMap.toXML() ;
+    }
         /******* TEST CODE ENDS HERE *************************************************/
 
-        output.append("</p></body></html>");
-        outputWriter.write(output.toString());
-        outputWriter.flush();
-        outputWriter.close();
-
-    }
 
 
 }

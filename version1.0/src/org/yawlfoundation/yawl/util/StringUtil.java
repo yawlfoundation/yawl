@@ -250,4 +250,14 @@ public class StringUtil
         string = string.replaceAll(" ", "&nbsp;");
         return string;
     }
+
+    /** encases a string with a pair of xml tags
+     *
+     * @param core the text to encase
+     * @param wrapTag the name of the tag to encase the text
+     * @return the encased string (e.g. "<wrapTag>core</wrapTag>")
+     */
+    public static String wrap(String core, String wrapTag) {
+        return String.format("<%s>%s</%s>", wrapTag, core, wrapTag) ;
+    }
 }

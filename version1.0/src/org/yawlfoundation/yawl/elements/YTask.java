@@ -1048,7 +1048,6 @@ public abstract class YTask extends YExternalNetElement {
         Element result = evaluateTreeQuery(expression, _net.getInternalDataDocument());
 
 //        TODO: REVIEW THIS BIT OF CODE: (i) is xforms assumption correct in all cases?
-//        TODO:                          (ii) how is mandatory marked?
 //        /**
 //         * AJH: If we have an empty element and the element is not mandatory and the task is not destined for
 //         * an XForm (assumed here if there are no UI meta-data attributes), don't pass the element out to the

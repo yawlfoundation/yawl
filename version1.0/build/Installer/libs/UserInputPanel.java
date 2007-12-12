@@ -2284,7 +2284,7 @@ public class UserInputPanel extends IzPanel
 
     /*--------------------------------------------------------------------------*/
     /**
-     * Retreives the alignment setting for the <code>XMLElement</code>. The default value in case
+     * retrieves the alignment setting for the <code>XMLElement</code>. The default value in case
      * the <code>ALIGNMENT</code> attribute is not found or the value is illegal is
      * <code>TwoColumnConstraints.LEFT</code>.
      * 

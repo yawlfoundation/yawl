@@ -89,7 +89,7 @@ public final class YCompositeTask extends YTask {
     }
 
 
-    @Override public synchronized void cancel(YPersistenceManager pmgr, YIdentifier caseID) throws YPersistenceException {
+    public synchronized void cancel(YPersistenceManager pmgr) throws YPersistenceException {
         if (_i != null) {
             List activeChildIdentifiers = _mi_active.getIdentifiers();
             Iterator iter = activeChildIdentifiers.iterator();
@@ -101,6 +101,6 @@ public final class YCompositeTask extends YTask {
                 }
             }
         }
-        super.cancel(pmgr, caseID);
+        super.cancel(pmgr);
     }
 }

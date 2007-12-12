@@ -8,6 +8,8 @@
 
 package org.yawlfoundation.yawl.logging;
 
+import org.yawlfoundation.yawl.util.StringUtil;
+
 /**
  * An instantiation of this class represents one row of data in the event logging
  * table 'log_WorkItemEvent'. Called by YEventLogger to record a change in status
@@ -42,6 +44,19 @@ public class YChildWorkItemEvent implements java.io.Serializable {
         _eventTime = eventTime;
     }
 
+    /*****************************************************************************/
+
+    public String toXML() {
+        StringBuilder xml = new StringBuilder() ;
+        xml.append(String.format("<ChildWorkItemEvent id=\"%s\">", _childWorkItemEventID)) ;
+        xml.append(StringUtil.wrap(_parentWorkItemEventID, "parentWorkItemEventID"));
+        xml.append(StringUtil.wrap(_caseID, "caseID"));
+        xml.append(StringUtil.wrap(_resourceID, "resourceID"));
+        xml.append(StringUtil.wrap(_eventName, "eventName"));
+        xml.append(StringUtil.wrap(String.valueOf(_eventTime), "eventTime"));
+        xml.append("</ChildWorkItemEvent>");
+        return xml.toString() ;
+    }
 
     // GETTERS AND SETTERS FOR HIBERNATE //
 

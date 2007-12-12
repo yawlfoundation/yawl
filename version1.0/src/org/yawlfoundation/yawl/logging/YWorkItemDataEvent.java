@@ -8,6 +8,8 @@
 
 package org.yawlfoundation.yawl.logging;
 
+import org.yawlfoundation.yawl.util.StringUtil;
+
 /**
  * An instantiation of this class represents one row of data in the event logging
  * table 'log_WorkItemDataEvent'. Called by YEventLogger to record input values when
@@ -38,6 +40,19 @@ public class YWorkItemDataEvent {
         _param = param;
         _value = value;
         _io = io;
+    }
+
+    /********************************************************************************/
+
+    public String toXML() {
+        StringBuilder xml = new StringBuilder() ;
+        xml.append(String.format("<WorkItemDataEvent id=\"%s\">", _rowkey)) ;
+        xml.append(StringUtil.wrap(_childWorkItemEventID, "childWorkItemEventID"));
+        xml.append(StringUtil.wrap(_param, "param"));
+        xml.append(StringUtil.wrap(_value, "value"));
+        xml.append(StringUtil.wrap(String.valueOf(_io), "io"));
+        xml.append("</WorkItemDataEvent>");
+        return xml.toString() ;
     }
 
     

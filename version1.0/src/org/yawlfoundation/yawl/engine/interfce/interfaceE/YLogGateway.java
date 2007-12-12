@@ -61,6 +61,7 @@ public class YLogGateway extends HttpServlet {
            "</body></html>";
        }
        else if (action.equalsIgnoreCase("connect")) {
+           System.out.println("**** doGet connect") ;
            String userid = req.getParameter("userid");
            String password = req.getParameter("password");
            if (_engine != null)
@@ -88,7 +89,7 @@ public class YLogGateway extends HttpServlet {
            }
            else if (action.equalsIgnoreCase("getParentWorkItemEventsForCaseID")) {
                String caseID = req.getParameter("caseid") ;
-               result = _logMgr.getParentWorkItemEventsForCase(caseID) ;
+               result = _logMgr.getParentWorkItemEventsForCaseID(caseID) ;
            }
            else if (action.equalsIgnoreCase("getChildWorkItemEventsForParent")) {
                String parentEventID = req.getParameter("eventid") ;
@@ -119,13 +120,11 @@ public class YLogGateway extends HttpServlet {
 
 
     public void doPost(HttpServletRequest req, HttpServletResponse res)
-                                throws IOException, ServletException {
-
-    }
+                                throws IOException, ServletException { }
 
 
     private boolean validConnection(String handle) {
         String result = _engine.checkConnectionForAdmin(handle) ;
-        return result.equalsIgnoreCase("true");
+        return result.equalsIgnoreCase("Permission Granted");
     }
 }
