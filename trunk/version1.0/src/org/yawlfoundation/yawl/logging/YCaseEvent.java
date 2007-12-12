@@ -8,6 +8,8 @@
 
 package org.yawlfoundation.yawl.logging;
 
+import org.yawlfoundation.yawl.util.StringUtil;
+
 /**
  * An instantiation of this class represents one row of data in the event logging
  * table 'log_CaseEvent'. Called by YEventLogger to record the event and time when
@@ -22,7 +24,7 @@ public class YCaseEvent {
     private String _caseEventID ;                         // primary key for hibernate
     private String _caseID;
     private long _eventTime;                              // when the event occurred
-    private String _eventType;                            // what type of event it was
+    private String _eventName;                            // what type of event it was
     private String _resourceID;                           // who triggered the event
     private String _specID;                               // specification of the case
     private String _parentSpecID;                         // if this is a sub-net
@@ -38,15 +40,30 @@ public class YCaseEvent {
     public YCaseEvent() {}                                // required for persistence
 
 
-    public YCaseEvent(String eventID, String caseID, long eventTime, String eventType,
+    public YCaseEvent(String eventID, String caseID, long eventTime, String eventName,
                       String resourceID, String specID, String parentSpecID) {
         _caseEventID = eventID ;
         _caseID = caseID;
         _eventTime = eventTime;
-        _eventType = eventType;
+        _eventName = eventName;
         _resourceID = resourceID;
         _specID = specID;
         _parentSpecID = parentSpecID;
+    }
+
+    /****************************************************************************/
+
+    public String toXML() {
+        StringBuilder xml = new StringBuilder() ;
+        xml.append(String.format("<CaseEvent id=\"%s\">", _caseEventID)) ;
+        xml.append(StringUtil.wrap(_caseID, "caseID"));
+        xml.append(StringUtil.wrap(String.valueOf(_eventTime), "eventTime"));
+        xml.append(StringUtil.wrap(_eventName, "eventName"));
+        xml.append(StringUtil.wrap(_resourceID, "resourceID"));
+        xml.append(StringUtil.wrap(_specID, "specID"));
+        xml.append(StringUtil.wrap(_parentSpecID, "parentSpecID"));
+        xml.append("</CaseEvent>");
+        return xml.toString() ;
     }
 
 
@@ -67,9 +84,9 @@ public class YCaseEvent {
     public void set_eventTime(long eventTime) { _eventTime = eventTime; }
 
 
-    public String get_eventType() { return _eventType; }
+    public String get_eventName() { return _eventName; }
 
-    public void set_eventType(String eventType) { _eventType = eventType; }
+    public void set_eventName(String eventType) { _eventName = eventType; }
 
 
     public String get_resourceID() { return _resourceID; }

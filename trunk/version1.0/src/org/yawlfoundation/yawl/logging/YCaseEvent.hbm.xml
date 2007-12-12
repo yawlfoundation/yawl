@@ -11,7 +11,7 @@
 
     	<property name="_caseID"       column="CaseID"/>
     	<property name="_eventTime"    column="EventTime"         type="long"/>
-    	<property name="_eventType"    column="EventType"/>
+    	<property name="_eventName"    column="EventName"/>
     	<property name="_resourceID"   column="ResourceID"/>
     	<property name="_specID"       column="SpecID"/>
     	<property name="_parentSpecID" column="ParentSpecID"/>

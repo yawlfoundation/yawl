@@ -289,7 +289,7 @@ public class YEventLogger {
             if (pmgr != null) {
                 try {
                     String qStr = String.format("from YCaseEvent as yce where " +
-                            "yce._caseID = '%s' and yce._eventType = 'started'", caseID);
+                            "yce._caseID = '%s' and yce._eventName = 'started'", caseID);
 
                     Query qry = pmgr.createQuery(qStr) ;
                     if ((qry != null) && (! qry.list().isEmpty())) {

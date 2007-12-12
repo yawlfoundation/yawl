@@ -2640,7 +2640,7 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
         return _workItemRepository;
     }
 
-    private static SessionFactory getPMSessionFactory() {
+    public static SessionFactory getPMSessionFactory() {
         return factory;
     }
 
