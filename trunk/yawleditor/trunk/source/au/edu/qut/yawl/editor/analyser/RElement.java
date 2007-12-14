@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import au.edu.qut.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
 
 /**
  *

@@ -22,9 +22,9 @@
 
 package au.edu.qut.yawl.editor.analyser;
 
-import au.edu.qut.yawl.elements.*;
-import au.edu.qut.yawl.exceptions.*;
-import au.edu.qut.yawl.elements.state.*;
+import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.elements.state.*;
 
 import java.util.HashMap;
 import java.util.HashSet;

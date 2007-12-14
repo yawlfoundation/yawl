@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import au.edu.qut.yawl.editor.YAWLEditor;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.elements.YSpecification;
 
 public abstract class AnalysisResultsParser {
   // added this flag to allow the temp file to be inspected in case of error - MJF

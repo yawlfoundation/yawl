@@ -64,37 +64,37 @@ import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
 
-import au.edu.qut.yawl.elements.YAWLServiceGateway;
-import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.YAtomicTask;
-import au.edu.qut.yawl.elements.YCompositeTask;
-import au.edu.qut.yawl.elements.YCondition;
-import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YFlow;
-import au.edu.qut.yawl.elements.YInputCondition;
-import au.edu.qut.yawl.elements.YMultiInstanceAttributes;
-import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YOutputCondition;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.data.YParameter;
-import au.edu.qut.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YAtomicTask;
+import org.yawlfoundation.yawl.elements.YCompositeTask;
+import org.yawlfoundation.yawl.elements.YCondition;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YFlow;
+import org.yawlfoundation.yawl.elements.YInputCondition;
+import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YOutputCondition;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 
-import au.edu.qut.yawl.resourcing.filters.GenericFilter;
-import au.edu.qut.yawl.resourcing.interactions.AbstractInteraction;
-import au.edu.qut.yawl.resourcing.interactions.OfferInteraction;
-import au.edu.qut.yawl.resourcing.interactions.AllocateInteraction;
-import au.edu.qut.yawl.resourcing.interactions.StartInteraction;
-import au.edu.qut.yawl.resourcing.TaskPrivileges;
+import org.yawlfoundation.yawl.resourcing.filters.GenericFilter;
+import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
+import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
+import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
+import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
+import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 
-import au.edu.qut.yawl.resourcing.allocators.GenericAllocator;
-import au.edu.qut.yawl.resourcing.constraints.PiledExecution;
-import au.edu.qut.yawl.resourcing.constraints.SeparationOfDuties;
+import org.yawlfoundation.yawl.resourcing.allocators.GenericAllocator;
+import org.yawlfoundation.yawl.resourcing.constraints.PiledExecution;
+import org.yawlfoundation.yawl.resourcing.constraints.SeparationOfDuties;
 
-import au.edu.qut.yawl.resourcing.ResourceMap;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.unmarshal.YMetaData;
+import org.yawlfoundation.yawl.resourcing.ResourceMap;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.unmarshal.YMetaData;
 
 public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
@@ -252,11 +252,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           )
       );
     }
-    metaData.setVersion(
-        Double.toString(
-            editorSpec.getVersionNumber()
-        )
-    );
+    metaData.setVersion(editorSpec.getVersionNumber());
     try {
       if (editorSpec.getValidFromTimestamp() != null &&
           !editorSpec.getValidFromTimestamp().trim().equals("")) {

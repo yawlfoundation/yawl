@@ -71,6 +71,19 @@ public final class SpecificationUtilities {
       );
     }
   }
+
+  public static void setSpecificationFontSizeNoUndo(SpecificationModel specification, int fontSize) {
+    specification.setFontSize(fontSize);
+
+    for (NetGraphModel net : specification.getNets()) {
+      NetCellUtilities.propogateFontChangeAcrossNetNoUndo(
+          net.getGraph(), 
+          net.getGraph().getFont().deriveFont(
+              (float) fontSize
+          )
+      );
+    }
+  }
   
   public static HashSet<WebServiceDecomposition> getUsedWebServiceDecompositions(SpecificationModel specification) {
     HashSet<WebServiceDecomposition> usedDecompositions = new HashSet<WebServiceDecomposition>();
