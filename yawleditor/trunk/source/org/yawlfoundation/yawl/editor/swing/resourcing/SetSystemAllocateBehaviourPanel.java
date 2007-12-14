@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.resourcing;
+package org.yawlfoundation.yawl.editor.swing.resourcing;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -12,10 +12,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.resourcing.AllocationMechanism;
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
-import au.edu.qut.yawl.editor.swing.resourcing.ResourcingWizardPanel;
-import au.edu.qut.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.swing.resourcing.ResourcingWizardPanel;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
   

@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 
 import java.awt.Point;
@@ -30,14 +30,14 @@ import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 import java.util.Map;
 
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
-import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
-import au.edu.qut.yawl.editor.specification.ArchivingThread;
-import au.edu.qut.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 
 import javax.swing.Action;
 import javax.swing.ButtonGroup;

@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.view;
+package org.yawlfoundation.yawl.editor.actions.view;
 
 import java.awt.event.ActionEvent;
 import java.util.prefs.Preferences;
@@ -28,10 +28,10 @@ import java.util.prefs.Preferences;
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
 
 public class AntiAliasedToggleAction extends YAWLBaseAction {
   /**

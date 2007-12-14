@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.net.utilities;
+package org.yawlfoundation.yawl.editor.net.utilities;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -50,10 +50,10 @@ import javax.print.attribute.DocAttributeSet;
 import javax.print.attribute.HashDocAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.net.PrettyOutputStateManager;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.PrettyOutputStateManager;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 import java.io.IOException;
 

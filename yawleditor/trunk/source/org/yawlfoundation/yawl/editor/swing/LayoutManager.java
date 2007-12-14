@@ -20,26 +20,26 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 import java.util.Set;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.HashSet;
 
-import au.edu.qut.yawl.editor.elements.model.Decorator;
-import au.edu.qut.yawl.editor.elements.model.InputCondition;
-import au.edu.qut.yawl.editor.elements.model.OutputCondition;
-import au.edu.qut.yawl.editor.elements.model.YAWLCell;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.Decorator;
+import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
-import au.edu.qut.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 
-import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
-import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
 
 import org.jgraph.graph.GraphCell;
 

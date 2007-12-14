@@ -22,15 +22,15 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.event.KeyEvent;
 
 import javax.swing.JMenu;
 
-import au.edu.qut.yawl.editor.actions.ShowCopyrightDetailAction;
-import au.edu.qut.yawl.editor.actions.ShowAcknowledgementsAction;
-import au.edu.qut.yawl.editor.actions.ShowAboutEditorAction;
+import org.yawlfoundation.yawl.editor.actions.ShowCopyrightDetailAction;
+import org.yawlfoundation.yawl.editor.actions.ShowAcknowledgementsAction;
+import org.yawlfoundation.yawl.editor.actions.ShowAboutEditorAction;
 
 class HelpMenu extends JMenu {
 

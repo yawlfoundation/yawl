@@ -20,7 +20,7 @@
  *
 */
 
-package au.edu.qut.yawl.editor.elements.model;
+package org.yawlfoundation.yawl.editor.elements.model;
 
 import java.awt.Color;
 
@@ -29,7 +29,7 @@ import java.util.HashMap;
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 /**
  * @author bradforl

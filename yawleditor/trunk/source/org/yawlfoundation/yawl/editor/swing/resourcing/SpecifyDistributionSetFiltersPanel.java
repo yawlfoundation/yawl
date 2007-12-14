@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.resourcing;
+package org.yawlfoundation.yawl.editor.swing.resourcing;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -20,11 +20,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
-import au.edu.qut.yawl.editor.resourcing.ResourcingFilter;
-import au.edu.qut.yawl.editor.swing.JSingleSelectTable;
-import au.edu.qut.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
+import org.yawlfoundation.yawl.editor.swing.JSingleSelectTable;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
 

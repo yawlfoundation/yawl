@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.view;
+package org.yawlfoundation.yawl.editor.elements.view;
 
 import java.awt.BasicStroke;
 import java.awt.Dimension;
@@ -34,9 +34,9 @@ import javax.swing.Icon;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.VertexRenderer;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.foundations.FileUtilities;
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
 abstract class YAWLVertexRenderer extends VertexRenderer {
   
@@ -107,7 +107,7 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
     if (icon == null) {
       try {
         icon = ResourceLoader.getImageAsIcon(
-            "/au/edu/qut/yawl/editor/resources/taskicons/BrokenIcon.png"
+            "/org/yawlfoundation/yawl/editor/resources/taskicons/BrokenIcon.png"
         );
       } catch (Exception e) {}
     }

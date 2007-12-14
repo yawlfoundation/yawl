@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.thirdparty.engine;
+package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import org.xml.sax.XMLReader;
 import org.xml.sax.SAXException;

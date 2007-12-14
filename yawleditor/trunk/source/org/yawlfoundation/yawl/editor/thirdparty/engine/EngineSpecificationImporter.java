@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.thirdparty.engine;
+package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import java.awt.Point;
 import java.io.File;
@@ -31,43 +31,43 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.data.Decomposition;
-import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
-import au.edu.qut.yawl.editor.elements.model.Decorator;
-import au.edu.qut.yawl.editor.elements.model.InputCondition;
-import au.edu.qut.yawl.editor.elements.model.JoinDecorator;
-import au.edu.qut.yawl.editor.elements.model.OutputCondition;
-import au.edu.qut.yawl.editor.elements.model.AtomicTask;
-import au.edu.qut.yawl.editor.elements.model.MultipleAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.MultipleCompositeTask;
-import au.edu.qut.yawl.editor.elements.model.CompositeTask;
-import au.edu.qut.yawl.editor.elements.model.Condition;
-import au.edu.qut.yawl.editor.elements.model.SplitDecorator;
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLMultipleInstanceTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLPort;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.elements.model.Decorator;
+import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.MultipleAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.MultipleCompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.CompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.Condition;
+import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
 
 
-import au.edu.qut.yawl.editor.net.CancellationSet;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.net.CancellationSet;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 
-import au.edu.qut.yawl.editor.specification.SpecificationFileModel;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationUndoManager;
-import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
-import au.edu.qut.yawl.editor.swing.LayoutManager;
+import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.LayoutManager;
 
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 
 import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;

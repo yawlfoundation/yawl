@@ -22,12 +22,12 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.palette;
+package org.yawlfoundation.yawl.editor.actions.palette;
 
 import javax.swing.Action;
 
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.menu.ControlFlowPalette;
 
 public class CompositeTaskAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
 

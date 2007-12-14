@@ -22,9 +22,9 @@
  *
  */
 
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 
 public interface CancellationSetModelListener {
   public abstract void notify(int notificationType, YAWLTask task);    

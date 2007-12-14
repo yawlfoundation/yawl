@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.view;
+package org.yawlfoundation.yawl.editor.elements.view;
 
 import java.awt.Dimension;
 import java.awt.Graphics;

@@ -22,14 +22,14 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.undo;
+package org.yawlfoundation.yawl.editor.swing.undo;
 
 import java.util.HashSet;
 import java.util.Iterator;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 
 import javax.swing.undo.AbstractUndoableEdit;
 

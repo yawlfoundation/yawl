@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.foundations.xmlschema;
+package org.yawlfoundation.yawl.editor.foundations.xmlschema;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.SAXParseException;

@@ -22,16 +22,16 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.event.KeyEvent;
 
-import au.edu.qut.yawl.editor.actions.CopyAction;
-import au.edu.qut.yawl.editor.actions.CutAction;
-import au.edu.qut.yawl.editor.actions.PasteAction;
-import au.edu.qut.yawl.editor.actions.RedoAction;
-import au.edu.qut.yawl.editor.actions.UndoAction;
-import au.edu.qut.yawl.editor.actions.net.DeleteAction;
+import org.yawlfoundation.yawl.editor.actions.CopyAction;
+import org.yawlfoundation.yawl.editor.actions.CutAction;
+import org.yawlfoundation.yawl.editor.actions.PasteAction;
+import org.yawlfoundation.yawl.editor.actions.RedoAction;
+import org.yawlfoundation.yawl.editor.actions.UndoAction;
+import org.yawlfoundation.yawl.editor.actions.net.DeleteAction;
 
 class EditMenu extends YAWLOpenSpecificationMenu {
     

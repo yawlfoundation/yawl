@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -37,7 +37,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
 public class AbstractOrderedTablePanel extends JPanel implements ListSelectionListener {
 
@@ -199,7 +199,7 @@ public class AbstractOrderedTablePanel extends JPanel implements ListSelectionLi
   
   private ImageIcon getIconByName(String iconName) {
     return ResourceLoader.getImageAsIcon(
-           "/au/edu/qut/yawl/editor/resources/menuicons/" 
+           "/org/yawlfoundation/yawl/editor/resources/menuicons/" 
            + iconName + "24.gif");
   }
 }

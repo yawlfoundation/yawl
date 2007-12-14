@@ -22,15 +22,15 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.model;
+package org.yawlfoundation.yawl.editor.elements.model;
 
-import au.edu.qut.yawl.editor.data.DataVariableSet;
-import au.edu.qut.yawl.editor.data.ParameterLists;
-import au.edu.qut.yawl.editor.data.Parameter;
-import au.edu.qut.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.DataVariableSet;
+import org.yawlfoundation.yawl.editor.data.ParameterLists;
+import org.yawlfoundation.yawl.editor.data.Parameter;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
 
-import au.edu.qut.yawl.editor.net.CancellationSet;
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.net.CancellationSet;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;

@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.view;
+package org.yawlfoundation.yawl.editor.actions.view;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -37,10 +37,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class FontSizeAction extends YAWLBaseAction {
   

@@ -1,13 +1,13 @@
-package au.edu.qut.yawl.editor.net.utilities;
+package org.yawlfoundation.yawl.editor.net.utilities;
 
 import java.awt.geom.Point2D;
 
-import au.edu.qut.yawl.editor.elements.model.AtomicTask;
-import au.edu.qut.yawl.editor.elements.model.CompositeTask;
-import au.edu.qut.yawl.editor.elements.model.Condition;
-import au.edu.qut.yawl.editor.elements.model.MultipleAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.MultipleCompositeTask;
-import au.edu.qut.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.CompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.Condition;
+import org.yawlfoundation.yawl.editor.elements.model.MultipleAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.MultipleCompositeTask;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 
 /**
  * A Factory class, responsible for creating new net elements and inserting

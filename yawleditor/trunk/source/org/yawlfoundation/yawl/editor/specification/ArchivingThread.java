@@ -22,12 +22,12 @@
  *
  */
 
-package au.edu.qut.yawl.editor.specification;
+package org.yawlfoundation.yawl.editor.specification;
 
 import java.awt.Cursor;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 public class ArchivingThread extends Thread {
 

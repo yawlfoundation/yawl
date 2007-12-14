@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor;
+package org.yawlfoundation.yawl.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -39,22 +39,22 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
-import au.edu.qut.yawl.editor.specification.ArchivingThread;
-import au.edu.qut.yawl.editor.specification.SpecificationFileModel;
-import au.edu.qut.yawl.editor.specification.SpecificationFileModelListener;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.swing.JSplashScreen;
-import au.edu.qut.yawl.editor.swing.JStatusBar;
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
-import au.edu.qut.yawl.editor.swing.menu.Palette;
-import au.edu.qut.yawl.editor.swing.menu.ToolBarMenu;
-import au.edu.qut.yawl.editor.swing.menu.YAWLMenuBar;
-import au.edu.qut.yawl.editor.swing.specification.ProblemMessagePanel;
-import au.edu.qut.yawl.editor.swing.specification.SpecificationBottomPanel;
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.JSplashScreen;
+import org.yawlfoundation.yawl.editor.swing.JStatusBar;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.menu.Palette;
+import org.yawlfoundation.yawl.editor.swing.menu.ToolBarMenu;
+import org.yawlfoundation.yawl.editor.swing.menu.YAWLMenuBar;
+import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
+import org.yawlfoundation.yawl.editor.swing.specification.SpecificationBottomPanel;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 /**
  * The core executable class of the YAWL Editor, responsible for  bootstrapping the editor
@@ -120,7 +120,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private static void startLoading() {
     getSplashScreen().setContent(
-        "/au/edu/qut/yawl/editor/resources/yawlSplashScreen.jpg",
+        "/org/yawlfoundation/yawl/editor/resources/yawlSplashScreen.jpg",
         "YAWLEditor" + getSizeDistinction() + " v " +
         getVersionNumber() + " - (c) 2007 The YAWL Foundation");
 
@@ -187,7 +187,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
     setIconImage(
       ResourceLoader.getImageAsIcon(
-        "/au/edu/qut/yawl/editor/resources/applicationIcon.gif"
+        "/org/yawlfoundation/yawl/editor/resources/applicationIcon.gif"
       ).getImage()
     );
 

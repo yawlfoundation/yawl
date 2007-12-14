@@ -21,14 +21,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import java.util.Arrays;
 
 import javax.swing.JComboBox;
 
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class DataTypeComboBox extends JComboBox {
   

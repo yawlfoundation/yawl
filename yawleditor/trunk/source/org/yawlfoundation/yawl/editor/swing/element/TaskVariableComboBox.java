@@ -21,10 +21,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.element;
+package org.yawlfoundation.yawl.editor.swing.element;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.swing.data.DataVariableComboBox;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableComboBox;
 
 public class TaskVariableComboBox extends DataVariableComboBox {
   

@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.thirdparty.engine;
+package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -34,35 +34,35 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.data.Decomposition;
-import au.edu.qut.yawl.editor.data.Parameter;
-import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.Parameter;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 
-import au.edu.qut.yawl.editor.elements.model.Condition;
-import au.edu.qut.yawl.editor.elements.model.Decorator;
-import au.edu.qut.yawl.editor.elements.model.JoinDecorator;
-import au.edu.qut.yawl.editor.elements.model.SplitDecorator;
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLMultipleInstanceTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.Condition;
+import org.yawlfoundation.yawl.editor.elements.model.Decorator;
+import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
-import au.edu.qut.yawl.editor.net.NetElementSummary;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.net.NetElementSummary;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 
-import au.edu.qut.yawl.editor.resourcing.DataVariableContent;
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
-import au.edu.qut.yawl.editor.resourcing.ResourcingFilter;
-import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
-import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
+import org.yawlfoundation.yawl.editor.resourcing.DataVariableContent;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
 
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;

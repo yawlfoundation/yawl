@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

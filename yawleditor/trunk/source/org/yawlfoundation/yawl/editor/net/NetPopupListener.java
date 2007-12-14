@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -31,19 +31,19 @@ import javax.swing.SwingUtilities;
 
 import java.util.Hashtable;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLCell;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLCondition;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCondition;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
-import au.edu.qut.yawl.editor.swing.menu.FlowPopupMenu;
-import au.edu.qut.yawl.editor.swing.menu.PalettePopupMenu;
-import au.edu.qut.yawl.editor.swing.menu.VertexPopupMenu;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
+import org.yawlfoundation.yawl.editor.swing.menu.FlowPopupMenu;
+import org.yawlfoundation.yawl.editor.swing.menu.PalettePopupMenu;
+import org.yawlfoundation.yawl.editor.swing.menu.VertexPopupMenu;
 
 public class NetPopupListener extends MouseAdapter {
   private static final PalettePopupMenu palettePopup = new PalettePopupMenu();

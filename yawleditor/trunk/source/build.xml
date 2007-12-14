@@ -6,9 +6,9 @@
 
   <property name="root.class.name" value="YAWLEditor" />
   <property name="root.source.file" value="${root.class.name}.java" />
-  <property name="root.class.directory" value="au/edu/qut/yawl/editor" />
+  <property name="root.class.directory" value="org/yawlfoundation/yawl/editor" />
   <property name="source.file.class.path"
-            value="au.edu.qut.yawl.editor.${root.class.name}" />
+            value="org.yawlfoundation.yawl.editor.${root.class.name}" />
 
   <property name="source.directory" value="${basedir}/source" />
   <property name="source.file"
@@ -27,7 +27,6 @@
   <property name="javadoc.directory" value="${basedir}/javadoc" />
 
   <property name="source.release" value="1.5" />
-
 
   <property name="editor.jar.file.base"
             value="${distribution.directory}/${root.class.name}${editor.release.number}" />
@@ -265,7 +264,7 @@
           depends="initialize"
           description="Generate Javadocs for the source-code">
     <mkdir dir="${javadoc.directory}" />
-    <javadoc packagenames="au.edu.qut.yawl.editor.*"
+    <javadoc packagenames="org.yawleditor.yawl.editor.*"
              sourcepath="${source.directory}"
              source="${source.release}"
              classpath="${engine.jar.file}"

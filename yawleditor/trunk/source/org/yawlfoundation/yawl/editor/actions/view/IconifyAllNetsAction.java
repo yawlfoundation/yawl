@@ -22,15 +22,15 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.view;
+package org.yawlfoundation.yawl.editor.actions.view;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 
-import au.edu.qut.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
 public class IconifyAllNetsAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
   /**

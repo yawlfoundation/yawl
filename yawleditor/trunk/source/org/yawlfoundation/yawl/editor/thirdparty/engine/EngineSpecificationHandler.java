@@ -21,18 +21,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.thirdparty.engine;
+package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.swing.FileChooserFactory;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.FileChooserFactory;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
 import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 public class EngineSpecificationHandler {
   

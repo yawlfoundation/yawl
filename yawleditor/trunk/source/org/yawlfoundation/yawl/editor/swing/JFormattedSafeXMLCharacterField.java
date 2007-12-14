@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 import javax.swing.JFormattedTextField;
 import javax.swing.JFormattedTextField.AbstractFormatter;
@@ -29,7 +29,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DocumentFilter;
 
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 /**
  * This class is an extension of {@link JFormattedSelectField} that allows

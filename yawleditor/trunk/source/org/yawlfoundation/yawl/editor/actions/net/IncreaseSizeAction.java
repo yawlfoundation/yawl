@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.net;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -33,10 +33,10 @@ import javax.swing.KeyStroke;
 
 import org.jgraph.event.GraphSelectionEvent;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
 public class IncreaseSizeAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber  {
 

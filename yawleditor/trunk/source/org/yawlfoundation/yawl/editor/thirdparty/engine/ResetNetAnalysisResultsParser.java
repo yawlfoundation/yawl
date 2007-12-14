@@ -1,12 +1,12 @@
-package au.edu.qut.yawl.editor.thirdparty.engine;
+package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import au.edu.qut.yawl.editor.analyser.YAWLResetAnalyser;
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 public class ResetNetAnalysisResultsParser extends AnalysisResultsParser {
   private static final YAWLResetAnalyser ANALYSER = new YAWLResetAnalyser();

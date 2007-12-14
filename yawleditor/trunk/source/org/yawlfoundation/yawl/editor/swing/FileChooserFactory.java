@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 
 import java.awt.Component;
@@ -32,7 +32,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 public class FileChooserFactory {
   

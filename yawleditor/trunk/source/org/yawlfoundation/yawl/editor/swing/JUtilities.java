@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 
 import java.awt.Dimension;
@@ -39,8 +39,8 @@ import java.util.List;
 
 import java.awt.Component;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 
 import javax.swing.JComponent;
 

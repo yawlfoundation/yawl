@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.data;
+package org.yawlfoundation.yawl.editor.data;
 
 import java.util.LinkedList;
 import java.util.List;

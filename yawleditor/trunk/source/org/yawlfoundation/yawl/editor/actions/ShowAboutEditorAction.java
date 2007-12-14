@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions;
+package org.yawlfoundation.yawl.editor.actions;
 
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -34,8 +34,8 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 
 
 public class ShowAboutEditorAction extends YAWLBaseAction {

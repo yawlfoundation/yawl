@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.net;
 
 import java.awt.event.ActionEvent;
 
@@ -35,9 +35,9 @@ import java.awt.Point;
 import java.awt.Dimension;
 
 
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 
 public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements SpecificationSelectionSubscriber  {
 

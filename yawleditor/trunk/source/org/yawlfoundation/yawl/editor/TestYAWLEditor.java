@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor; 
+package org.yawlfoundation.yawl.editor; 
 
 import junit.framework.*;
 
@@ -46,17 +46,17 @@ public class TestYAWLEditor extends TestCase {
   }
 
   private static void addMicroSuite(TestSuite parentSuite) {
-    parentSuite.addTest(au.edu.qut.yawl.editor.foundations.TestXMLUtilities.suite()); 
+    parentSuite.addTest(org.yawlfoundation.yawl.editor.foundations.TestXMLUtilities.suite()); 
     
-    parentSuite.addTest(au.edu.qut.yawl.editor.net.TestNetElementSummary.suite());
-    parentSuite.addTest(au.edu.qut.yawl.editor.specification.TestSpecificationModel.suite());
+    parentSuite.addTest(org.yawlfoundation.yawl.editor.net.TestNetElementSummary.suite());
+    parentSuite.addTest(org.yawlfoundation.yawl.editor.specification.TestSpecificationModel.suite());
 
-    parentSuite.addTest(au.edu.qut.yawl.editor.swing.data.TestJXMLSchemaEditorPane.suite()); 
-    parentSuite.addTest(au.edu.qut.yawl.editor.swing.data.TestJXMLSchemaInstanceEditor.suite()); 
+    parentSuite.addTest(org.yawlfoundation.yawl.editor.swing.data.TestJXMLSchemaEditorPane.suite()); 
+    parentSuite.addTest(org.yawlfoundation.yawl.editor.swing.data.TestJXMLSchemaInstanceEditor.suite()); 
   }
 
   private static void addMacroSuite(TestSuite parentSuite) {
-    parentSuite.addTest(au.edu.qut.yawl.editor.thirdparty.engine.TestSpecificationEngineHandler.suite());
-    parentSuite.addTest(au.edu.qut.yawl.editor.thirdparty.engine.TestAvailableEngineProxyImplementation.suite());
+    parentSuite.addTest(org.yawlfoundation.yawl.editor.thirdparty.engine.TestSpecificationEngineHandler.suite());
+    parentSuite.addTest(org.yawlfoundation.yawl.editor.thirdparty.engine.TestAvailableEngineProxyImplementation.suite());
   }
 }

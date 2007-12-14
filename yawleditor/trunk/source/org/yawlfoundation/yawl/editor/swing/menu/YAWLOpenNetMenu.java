@@ -22,13 +22,13 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 
 import javax.swing.JMenu;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModelListener;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 abstract class YAWLOpenNetMenu extends JMenu 
                                 implements SpecificationModelListener {

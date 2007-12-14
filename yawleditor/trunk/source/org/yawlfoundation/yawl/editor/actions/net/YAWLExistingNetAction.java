@@ -22,11 +22,11 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.net;
 
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-import au.edu.qut.yawl.editor.specification.SpecificationModelListener;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 class YAWLExistingNetAction extends YAWLBaseAction 
                             implements SpecificationModelListener {

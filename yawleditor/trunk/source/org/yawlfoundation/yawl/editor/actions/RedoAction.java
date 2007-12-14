@@ -20,15 +20,15 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions;
+package org.yawlfoundation.yawl.editor.actions;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import au.edu.qut.yawl.editor.actions.specification.*;
-import au.edu.qut.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.actions.specification.*;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 
 public class RedoAction extends YAWLActiveOpenSpecificationAction {
 

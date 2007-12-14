@@ -22,23 +22,23 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.event.KeyEvent;
 import javax.swing.JMenu;
 
-import au.edu.qut.yawl.editor.actions.net.DecreaseSizeAction;
-import au.edu.qut.yawl.editor.actions.net.IncreaseSizeAction;
+import org.yawlfoundation.yawl.editor.actions.net.DecreaseSizeAction;
+import org.yawlfoundation.yawl.editor.actions.net.IncreaseSizeAction;
 
-import au.edu.qut.yawl.editor.actions.net.AlignLeftAction;
-import au.edu.qut.yawl.editor.actions.net.AlignRightAction;
-import au.edu.qut.yawl.editor.actions.net.AlignCentreAction;
-import au.edu.qut.yawl.editor.actions.net.AlignTopAction;
-import au.edu.qut.yawl.editor.actions.net.AlignMiddleAction;
-import au.edu.qut.yawl.editor.actions.net.AlignBottomAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignLeftAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignRightAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignCentreAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignTopAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignMiddleAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignBottomAction;
 
-import au.edu.qut.yawl.editor.actions.net.AddToVisibleCancellationSetAction;
-import au.edu.qut.yawl.editor.actions.net.RemoveFromVisibleCancellationSetAction;
+import org.yawlfoundation.yawl.editor.actions.net.AddToVisibleCancellationSetAction;
+import org.yawlfoundation.yawl.editor.actions.net.RemoveFromVisibleCancellationSetAction;
 
 
 class ElementsMenu extends YAWLOpenSpecificationMenu {

@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.resourcing;
+package org.yawlfoundation.yawl.editor.resourcing;
 
 import java.io.Serializable;
 import java.util.HashMap;

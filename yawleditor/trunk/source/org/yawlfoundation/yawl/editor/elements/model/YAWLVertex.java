@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.model;
+package org.yawlfoundation.yawl.editor.elements.model;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -41,8 +41,8 @@ import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
 
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public abstract class YAWLVertex extends DefaultGraphCell 
                                  implements YAWLCell {

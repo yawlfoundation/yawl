@@ -22,15 +22,15 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.palette;
+package org.yawlfoundation.yawl.editor.actions.palette;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
-import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.swing.menu.ControlFlowPalette;
 
 public abstract class ControlFlowPaletteAction extends AbstractAction {
   
@@ -55,7 +55,7 @@ public abstract class ControlFlowPaletteAction extends AbstractAction {
   }
   
   protected ImageIcon getPaletteIconByName(String iconName) {
-    return ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/menuicons/" 
+    return ResourceLoader.getImageAsIcon("/org/yawlfoundation/yawl/editor/resources/menuicons/" 
            + iconName + "24.gif");
   }
   

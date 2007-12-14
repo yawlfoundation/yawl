@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.element;
+package org.yawlfoundation.yawl.editor.swing.element;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,9 +32,9 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.swing.JFormattedSafeXMLCharacterField;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.swing.JFormattedSafeXMLCharacterField;
 
 public class LabelElementDialog extends AbstractVertexDoneDialog {
 

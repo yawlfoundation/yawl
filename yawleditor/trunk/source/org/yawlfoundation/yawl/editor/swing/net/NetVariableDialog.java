@@ -20,23 +20,23 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package au.edu.qut.yawl.editor.swing.net;
+package org.yawlfoundation.yawl.editor.swing.net;
 
 import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
 
-import au.edu.qut.yawl.editor.swing.data.DataVariableTable;
-import au.edu.qut.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableTable;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
 
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
-import au.edu.qut.yawl.editor.swing.AbstractTableUpdateDialog;
-import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.data.TaskDataVariableUpdateDialog;
-import au.edu.qut.yawl.editor.swing.data.DataVariableTableModel;
-import au.edu.qut.yawl.editor.swing.data.DataVariableUpdateDialogFactory;
+import org.yawlfoundation.yawl.editor.swing.AbstractTableUpdateDialog;
+import org.yawlfoundation.yawl.editor.swing.JOrderedSingleSelectTable;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.data.TaskDataVariableUpdateDialog;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableTableModel;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableUpdateDialogFactory;
 
 
 public class NetVariableDialog extends AbstractTableUpdateDialog {

@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.specification;
+package org.yawlfoundation.yawl.editor.specification;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.CompoundEdit;
@@ -31,9 +31,9 @@ import javax.swing.undo.UndoableEdit;
 import org.jgraph.graph.GraphUndoManager;
 import org.jgraph.graph.DefaultGraphModel;
 
-import au.edu.qut.yawl.editor.actions.RedoAction;
-import au.edu.qut.yawl.editor.actions.UndoAction;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.actions.RedoAction;
+import org.yawlfoundation.yawl.editor.actions.UndoAction;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 
 /**
  * The <code>SpecificationUndoManager</code> is a special case of an <code>UndoManager</code> 
@@ -127,8 +127,8 @@ public class SpecificationUndoManager extends GraphUndoManager {
    * refreshes the enabled states of the
    * UndoAction and RedoAction singletons.
    *
-   * @see au.edu.qut.yawl.editor.actions.UndoAction
-   * @see au.edu.qut.yawl.editor.actions.RedoAction
+   * @see org.yawlfoundation.yawl.editor.actions.UndoAction
+   * @see org.yawlfoundation.yawl.editor.actions.RedoAction
    */
 
 	public void undo() {
@@ -142,8 +142,8 @@ public class SpecificationUndoManager extends GraphUndoManager {
    * resets the enabled states of the
    * UndoAction and RedoAction singletons.
    *
-   * @see au.edu.qut.yawl.editor.actions.UndoAction
-   * @see au.edu.qut.yawl.editor.actions.RedoAction
+   * @see org.yawlfoundation.yawl.editor.actions.UndoAction
+   * @see org.yawlfoundation.yawl.editor.actions.RedoAction
    */
 
   public void redo() {
@@ -157,8 +157,8 @@ public class SpecificationUndoManager extends GraphUndoManager {
 	 * resets the enabled states of the
 	 * UndoAction and RedoAction singletons.
 	 *
-	 * @see au.edu.qut.yawl.editor.actions.UndoAction
-	 * @see au.edu.qut.yawl.editor.actions.RedoAction
+	 * @see org.yawlfoundation.yawl.editor.actions.UndoAction
+	 * @see org.yawlfoundation.yawl.editor.actions.RedoAction
 	 */
   
   public void discardAllEdits() {

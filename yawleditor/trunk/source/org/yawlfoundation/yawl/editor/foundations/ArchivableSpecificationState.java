@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.foundations;
+package org.yawlfoundation.yawl.editor.foundations;
 
 import java.io.Serializable;
 
@@ -32,11 +32,11 @@ import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.HashMap;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
 public class ArchivableSpecificationState implements Serializable {
 

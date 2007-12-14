@@ -21,21 +21,21 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.thirdparty.engine;
+package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import java.util.List;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
-import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.data.AbstractXMLStyledDocument;
+import org.yawlfoundation.yawl.editor.swing.data.ValidityEditorPane;
 
-import au.edu.qut.yawl.editor.swing.specification.ProblemMessagePanel;
+import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 
-import au.edu.qut.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 public class YAWLEngineProxy implements YAWLEngineProxyInterface {
   

@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.element;
+package org.yawlfoundation.yawl.editor.swing.element;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -36,18 +36,18 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
-import au.edu.qut.yawl.editor.swing.data.NetDecompositionUpdateDialog;
-import au.edu.qut.yawl.editor.swing.net.YAWLEditorNetFrame;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.data.NetDecompositionUpdateDialog;
+import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
 
 public class SelectUnfoldingNetDialog extends AbstractDoneDialog {
   /**

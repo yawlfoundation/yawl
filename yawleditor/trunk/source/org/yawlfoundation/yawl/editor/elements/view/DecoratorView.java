@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.view;
+package org.yawlfoundation.yawl.editor.elements.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -32,10 +32,10 @@ import java.util.prefs.Preferences;
 import org.jgraph.graph.VertexView;
 import org.jgraph.graph.CellViewRenderer;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.elements.model.Decorator;
-import au.edu.qut.yawl.editor.elements.model.JoinDecorator;
-import au.edu.qut.yawl.editor.elements.model.SplitDecorator;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.elements.model.Decorator;
+import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
 
 public class DecoratorView extends VertexView {
   

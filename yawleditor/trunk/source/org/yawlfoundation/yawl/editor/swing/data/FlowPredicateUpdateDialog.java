@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -38,12 +38,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-import au.edu.qut.yawl.editor.data.DataVariableSet;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
-import au.edu.qut.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.data.DataVariableSet;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 
 public class FlowPredicateUpdateDialog extends AbstractDoneDialog {
   /**

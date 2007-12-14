@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions;
+package org.yawlfoundation.yawl.editor.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -30,10 +30,10 @@ import javax.swing.TransferHandler;
 
 import org.jgraph.event.GraphSelectionEvent;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
 /**
  * @author Lindsay Bradford

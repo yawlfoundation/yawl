@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.thirdparty.engine;
+package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -7,8 +7,8 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public abstract class AnalysisResultsParser {
   // added this flag to allow the temp file to be inspected in case of error - MJF

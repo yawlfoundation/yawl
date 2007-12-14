@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.Insets;
 import java.awt.Point;
@@ -31,7 +31,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.Action;
 import javax.swing.JButton;
 
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
 public class YAWLToolBarButton extends JButton {
   /**

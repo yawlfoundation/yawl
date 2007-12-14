@@ -22,14 +22,14 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.net;
 
 import java.awt.event.ActionEvent;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 
 import java.awt.event.ActionListener;
 
@@ -46,7 +46,7 @@ import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 public class SetStartingNetAction extends YAWLExistingNetAction {
   /**

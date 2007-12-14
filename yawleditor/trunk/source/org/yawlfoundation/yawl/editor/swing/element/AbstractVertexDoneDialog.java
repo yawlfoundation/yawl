@@ -22,14 +22,14 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.element;
+package org.yawlfoundation.yawl.editor.swing.element;
 
 import javax.swing.JPanel;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
-import au.edu.qut.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
 
 public abstract class AbstractVertexDoneDialog extends AbstractDoneDialog {
   

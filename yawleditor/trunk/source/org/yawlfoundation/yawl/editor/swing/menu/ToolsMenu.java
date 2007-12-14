@@ -22,18 +22,18 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.event.KeyEvent;
 
 import javax.swing.JMenu;
 
-import au.edu.qut.yawl.editor.actions.tools.ConfigureAnalysisToolsAction;
-import au.edu.qut.yawl.editor.actions.tools.SetEngineDetailAction;
-import au.edu.qut.yawl.editor.actions.tools.SetResourcingServiceAction;
+import org.yawlfoundation.yawl.editor.actions.tools.ConfigureAnalysisToolsAction;
+import org.yawlfoundation.yawl.editor.actions.tools.SetEngineDetailAction;
+import org.yawlfoundation.yawl.editor.actions.tools.SetResourcingServiceAction;
 
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import au.edu.qut.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 class ToolsMenu extends JMenu {
     

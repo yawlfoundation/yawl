@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.foundations;
+package org.yawlfoundation.yawl.editor.foundations;
 
 import java.io.File;
 import java.io.FileInputStream;

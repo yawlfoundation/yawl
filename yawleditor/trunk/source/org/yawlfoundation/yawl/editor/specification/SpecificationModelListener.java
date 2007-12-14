@@ -22,9 +22,9 @@
  *
  */
 
-package au.edu.qut.yawl.editor.specification;
+package org.yawlfoundation.yawl.editor.specification;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public interface SpecificationModelListener {
   public abstract void receiveSpecificationModelNotification(SpecificationModel.State state);    

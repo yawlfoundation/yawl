@@ -22,18 +22,18 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.net;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 
 
-import au.edu.qut.yawl.editor.net.CancellationSetModel;
-import au.edu.qut.yawl.editor.net.CancellationSetModelListener;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.net.CancellationSetModel;
+import org.yawlfoundation.yawl.editor.net.CancellationSetModelListener;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
 import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;

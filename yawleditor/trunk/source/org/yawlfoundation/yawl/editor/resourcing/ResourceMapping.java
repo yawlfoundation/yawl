@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.resourcing;
+package org.yawlfoundation.yawl.editor.resourcing;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -6,10 +6,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.data.DataVariableUtilities;
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.DataVariableUtilities;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 
 public class ResourceMapping implements Serializable, Cloneable  {
   

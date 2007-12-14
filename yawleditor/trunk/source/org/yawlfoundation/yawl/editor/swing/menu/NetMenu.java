@@ -22,20 +22,20 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.event.KeyEvent;
 
-import au.edu.qut.yawl.editor.actions.net.PrintNetAction;
-import au.edu.qut.yawl.editor.actions.net.NetBackgroundColourAction;
-import au.edu.qut.yawl.editor.actions.net.RemoveNetAction;
-import au.edu.qut.yawl.editor.actions.net.SetStartingNetAction;
-import au.edu.qut.yawl.editor.actions.net.ExportNetToPngAction;
-import au.edu.qut.yawl.editor.actions.net.NetDecompositionDetailAction;
+import org.yawlfoundation.yawl.editor.actions.net.PrintNetAction;
+import org.yawlfoundation.yawl.editor.actions.net.NetBackgroundColourAction;
+import org.yawlfoundation.yawl.editor.actions.net.RemoveNetAction;
+import org.yawlfoundation.yawl.editor.actions.net.SetStartingNetAction;
+import org.yawlfoundation.yawl.editor.actions.net.ExportNetToPngAction;
+import org.yawlfoundation.yawl.editor.actions.net.NetDecompositionDetailAction;
 
-import au.edu.qut.yawl.editor.actions.specification.CreateNetAction;
+import org.yawlfoundation.yawl.editor.actions.specification.CreateNetAction;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 class NetMenu extends YAWLOpenSpecificationMenu {
     

@@ -20,11 +20,11 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.swing.AbstractOrderedRowTableModel;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.swing.AbstractOrderedRowTableModel;
 
 
 public class FlowPriorityTableModel extends AbstractOrderedRowTableModel {

@@ -1,8 +1,8 @@
-package au.edu.qut.yawl.editor.resourcing;
+package org.yawlfoundation.yawl.editor.resourcing;
 
 import java.io.Serializable;
 
-import au.edu.qut.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
 
 public class DataVariableContent implements Serializable, Cloneable {
 

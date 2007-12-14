@@ -22,9 +22,9 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
-import au.edu.qut.yawl.editor.actions.palette.*;
+import org.yawlfoundation.yawl.editor.actions.palette.*;
 
 import javax.swing.JPopupMenu;
 

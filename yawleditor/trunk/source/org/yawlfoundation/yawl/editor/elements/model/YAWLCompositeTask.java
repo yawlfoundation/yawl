@@ -20,9 +20,9 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.model;
+package org.yawlfoundation.yawl.editor.elements.model;
 
-import au.edu.qut.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
 
 public interface YAWLCompositeTask {
   public String getUnfoldingNetName();

@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.view;
+package org.yawlfoundation.yawl.editor.actions.view;
 
 import java.awt.Color;
 
@@ -29,10 +29,10 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import javax.swing.JColorChooser;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 
 public class DefaultNetBackgroundColourAction extends YAWLBaseAction {
   

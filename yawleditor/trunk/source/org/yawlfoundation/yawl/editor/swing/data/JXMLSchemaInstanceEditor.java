@@ -21,13 +21,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
  
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import java.util.List;
 import java.util.LinkedList;
 
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 public class JXMLSchemaInstanceEditor extends ValidityEditorPane {
 

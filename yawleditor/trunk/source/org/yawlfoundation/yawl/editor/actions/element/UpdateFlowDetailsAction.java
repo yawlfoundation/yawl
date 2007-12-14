@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.element;
+package org.yawlfoundation.yawl.editor.actions.element;
 
 
 import java.awt.Color;
@@ -43,16 +43,16 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 
-import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
-import au.edu.qut.yawl.editor.elements.model.Decorator;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.swing.AbstractOrderedTablePanel;
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.element.AbstractTaskDoneDialog;
-import au.edu.qut.yawl.editor.swing.data.FlowPriorityTable;
+import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.elements.model.Decorator;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.swing.AbstractOrderedTablePanel;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.data.FlowPriorityTable;
 
 public class UpdateFlowDetailsAction extends YAWLSelectedNetAction 
                                      implements TooltipTogglingWidget {

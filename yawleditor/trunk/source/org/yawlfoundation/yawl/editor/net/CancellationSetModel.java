@@ -21,15 +21,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  */
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLCell;
-import au.edu.qut.yawl.editor.elements.model.InputCondition;
-import au.edu.qut.yawl.editor.elements.model.OutputCondition;
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
 
 
 import org.jgraph.event.GraphSelectionEvent;

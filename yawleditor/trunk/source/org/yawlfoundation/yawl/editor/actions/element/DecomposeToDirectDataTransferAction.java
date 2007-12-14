@@ -19,22 +19,22 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.actions.element;
+package org.yawlfoundation.yawl.editor.actions.element;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
-import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.data.DataVariableSet;
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
+import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.DataVariableSet;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.swing.JSingleSelectTable;
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.data.DecompositionLabelField;
-import au.edu.qut.yawl.editor.swing.element.AbstractTaskDoneDialog;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.JSingleSelectTable;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.data.DecompositionLabelField;
+import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;

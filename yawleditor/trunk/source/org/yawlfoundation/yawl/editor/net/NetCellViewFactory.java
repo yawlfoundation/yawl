@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.DefaultCellViewFactory;
@@ -31,26 +31,26 @@ import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.PortView;
 import org.jgraph.graph.VertexView;
 
-import au.edu.qut.yawl.editor.elements.model.AtomicTask;
-import au.edu.qut.yawl.editor.elements.model.CompositeTask;
-import au.edu.qut.yawl.editor.elements.model.Condition;
-import au.edu.qut.yawl.editor.elements.model.Decorator;
-import au.edu.qut.yawl.editor.elements.model.InputCondition;
-import au.edu.qut.yawl.editor.elements.model.MultipleAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.MultipleCompositeTask;
-import au.edu.qut.yawl.editor.elements.model.OutputCondition;
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLPort;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.CompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.Condition;
+import org.yawlfoundation.yawl.editor.elements.model.Decorator;
+import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.MultipleAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.MultipleCompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
 
-import au.edu.qut.yawl.editor.elements.view.AtomicTaskView;
-import au.edu.qut.yawl.editor.elements.view.CompositeTaskView;
-import au.edu.qut.yawl.editor.elements.view.ConditionView;
-import au.edu.qut.yawl.editor.elements.view.DecoratorView;
-import au.edu.qut.yawl.editor.elements.view.InputConditionView;
-import au.edu.qut.yawl.editor.elements.view.MultipleAtomicTaskView;
-import au.edu.qut.yawl.editor.elements.view.MultipleCompositeTaskView;
-import au.edu.qut.yawl.editor.elements.view.OutputConditionView;
+import org.yawlfoundation.yawl.editor.elements.view.AtomicTaskView;
+import org.yawlfoundation.yawl.editor.elements.view.CompositeTaskView;
+import org.yawlfoundation.yawl.editor.elements.view.ConditionView;
+import org.yawlfoundation.yawl.editor.elements.view.DecoratorView;
+import org.yawlfoundation.yawl.editor.elements.view.InputConditionView;
+import org.yawlfoundation.yawl.editor.elements.view.MultipleAtomicTaskView;
+import org.yawlfoundation.yawl.editor.elements.view.MultipleCompositeTaskView;
+import org.yawlfoundation.yawl.editor.elements.view.OutputConditionView;
 
 public class NetCellViewFactory extends DefaultCellViewFactory {
   

@@ -22,29 +22,29 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.event.KeyEvent;
 
 import javax.swing.JMenu;
 
 import javax.swing.AbstractAction;
-import au.edu.qut.yawl.editor.actions.ExitAction;
-import au.edu.qut.yawl.editor.actions.specification.AnalyseSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.CloseSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.CreateSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.OpenSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.SaveSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.SaveSpecificationAsAction;
-import au.edu.qut.yawl.editor.actions.specification.ExportToEngineFormatAction;
-import au.edu.qut.yawl.editor.actions.specification.ImportFromEngineFormatAction;
-import au.edu.qut.yawl.editor.actions.specification.UpdateDataTypeDefinitionsAction;
-import au.edu.qut.yawl.editor.actions.specification.UpdateSpecificationPropertiesAction;
-import au.edu.qut.yawl.editor.actions.specification.ValidateSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.PrintSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.ExitAction;
+import org.yawlfoundation.yawl.editor.actions.specification.AnalyseSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.CloseSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.CreateSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.OpenSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.SaveSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.SaveSpecificationAsAction;
+import org.yawlfoundation.yawl.editor.actions.specification.ExportToEngineFormatAction;
+import org.yawlfoundation.yawl.editor.actions.specification.ImportFromEngineFormatAction;
+import org.yawlfoundation.yawl.editor.actions.specification.UpdateDataTypeDefinitionsAction;
+import org.yawlfoundation.yawl.editor.actions.specification.UpdateSpecificationPropertiesAction;
+import org.yawlfoundation.yawl.editor.actions.specification.ValidateSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.PrintSpecificationAction;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 class SpecificationMenu extends JMenu {
     

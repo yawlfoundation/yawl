@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.resourcing;
+package org.yawlfoundation.yawl.editor.swing.resourcing;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -7,7 +7,7 @@ import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 
 public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
   

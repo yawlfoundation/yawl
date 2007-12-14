@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -39,17 +39,17 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
-import au.edu.qut.yawl.editor.actions.view.AntiAliasedToggleAction;
-import au.edu.qut.yawl.editor.actions.view.FontSizeAction;
-import au.edu.qut.yawl.editor.actions.view.DefaultNetBackgroundColourAction;
-import au.edu.qut.yawl.editor.actions.view.IconifyAllNetsAction;
-import au.edu.qut.yawl.editor.actions.view.ShowAllNetsAction;
-import au.edu.qut.yawl.editor.actions.view.ShowGridToggleAction;
-import au.edu.qut.yawl.editor.actions.view.ToolTipToggleAction;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.actions.view.AntiAliasedToggleAction;
+import org.yawlfoundation.yawl.editor.actions.view.FontSizeAction;
+import org.yawlfoundation.yawl.editor.actions.view.DefaultNetBackgroundColourAction;
+import org.yawlfoundation.yawl.editor.actions.view.IconifyAllNetsAction;
+import org.yawlfoundation.yawl.editor.actions.view.ShowAllNetsAction;
+import org.yawlfoundation.yawl.editor.actions.view.ShowGridToggleAction;
+import org.yawlfoundation.yawl.editor.actions.view.ToolTipToggleAction;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModelListener;
 
 
 class ViewMenu extends JMenu implements SpecificationModelListener {

@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.model;
+package org.yawlfoundation.yawl.editor.elements.model;
 
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
@@ -37,7 +37,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D;
 
 import javax.swing.ImageIcon;
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
 public abstract class Decorator extends DefaultGraphCell 
                                 implements YAWLCell {
@@ -342,7 +342,7 @@ public abstract class Decorator extends DefaultGraphCell
  
  
   protected static ImageIcon getIconByName(String iconName) {
-    return ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/elements/decorators/" 
+    return ResourceLoader.getImageAsIcon("/org/yawlfoundation/yawl/editor/resources/elements/decorators/" 
            + iconName + ".gif");
   }
   

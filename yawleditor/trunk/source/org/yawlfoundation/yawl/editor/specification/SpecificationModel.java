@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.specification;
+package org.yawlfoundation.yawl.editor.specification;
 
 import java.awt.Color;
 
@@ -33,29 +33,29 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import au.edu.qut.yawl.editor.data.Decomposition;
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
-import au.edu.qut.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.swing.undo.UndoableDecompositionLabelChange;
-import au.edu.qut.yawl.editor.swing.undo.UndoableNetFrameTitleChange;
-import au.edu.qut.yawl.editor.swing.undo.UndoableFontSizeChange;
-import au.edu.qut.yawl.editor.swing.undo.UndoableNetDeletion;
-import au.edu.qut.yawl.editor.swing.undo.UndoableNetAddition;
-import au.edu.qut.yawl.editor.swing.undo.UndoableStartingNetChange;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.swing.undo.UndoableDecompositionLabelChange;
+import org.yawlfoundation.yawl.editor.swing.undo.UndoableNetFrameTitleChange;
+import org.yawlfoundation.yawl.editor.swing.undo.UndoableFontSizeChange;
+import org.yawlfoundation.yawl.editor.swing.undo.UndoableNetDeletion;
+import org.yawlfoundation.yawl.editor.swing.undo.UndoableNetAddition;
+import org.yawlfoundation.yawl.editor.swing.undo.UndoableStartingNetChange;
 
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
-import au.edu.qut.yawl.editor.elements.model.SplitDecorator;
-import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLMultipleInstanceTask;
+import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
 
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 public class SpecificationModel {
   

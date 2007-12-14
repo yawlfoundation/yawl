@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 
 import java.awt.Component;
@@ -55,23 +55,23 @@ import org.jgraph.event.GraphSelectionEvent;
 
 import java.io.File;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 
-import au.edu.qut.yawl.editor.foundations.FileUtilities;
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModelListener;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
-import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette.SelectionState;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.menu.ControlFlowPalette.SelectionState;
 
 public class Palette extends JPanel implements SpecificationModelListener {
 
@@ -560,7 +560,7 @@ class TaskIconTreeModel extends DefaultTreeModel {
     if (iconName == null) {
       return null;
     }
-    return "/au/edu/qut/yawl/editor/resources/taskicons/" + iconName + ".png";
+    return "/org/yawlfoundation/yawl/editor/resources/taskicons/" + iconName + ".png";
   }
   
   public TaskIconTreeNode getDefaultNode() {

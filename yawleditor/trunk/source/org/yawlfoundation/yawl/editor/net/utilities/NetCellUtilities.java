@@ -20,7 +20,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package au.edu.qut.yawl.editor.net.utilities;
+package org.yawlfoundation.yawl.editor.net.utilities;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -45,23 +45,23 @@ import org.jgraph.graph.PortView;
 import org.jgraph.graph.VertexView;
 
 
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
-import au.edu.qut.yawl.editor.elements.model.Decorator;
-import au.edu.qut.yawl.editor.elements.model.InputCondition;
-import au.edu.qut.yawl.editor.elements.model.OutputCondition;
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLCondition;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLPort;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.elements.model.Decorator;
+import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCondition;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class NetCellUtilities {
 

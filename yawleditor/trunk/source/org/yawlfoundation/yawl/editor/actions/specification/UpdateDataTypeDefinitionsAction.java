@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.actions.specification;
+package org.yawlfoundation.yawl.editor.actions.specification;
 
 import java.awt.BorderLayout;
 
@@ -30,10 +30,10 @@ import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
-import au.edu.qut.yawl.editor.swing.data.JXMLSchemaEditorPane;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.data.JXMLSchemaEditorPane;
 
 public class UpdateDataTypeDefinitionsAction extends YAWLOpenSpecificationAction {
   /**

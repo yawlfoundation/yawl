@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.specification;
+package org.yawlfoundation.yawl.editor.specification;
 
 public interface SpecificationFileModelListener {
   public abstract void specificationFileModelStateChanged(int state);    

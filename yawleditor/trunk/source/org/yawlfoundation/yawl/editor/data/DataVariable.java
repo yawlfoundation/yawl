@@ -21,14 +21,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.data;
+package org.yawlfoundation.yawl.editor.data;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Hashtable;
 
-import au.edu.qut.yawl.editor.foundations.FileUtilities;
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 public class DataVariable implements Serializable, Cloneable {
   

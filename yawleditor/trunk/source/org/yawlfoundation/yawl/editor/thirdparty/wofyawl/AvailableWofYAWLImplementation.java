@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.thirdparty.wofyawl;
+package org.yawlfoundation.yawl.editor.thirdparty.wofyawl;
 
 import java.io.File;
 import java.io.BufferedReader;
@@ -32,9 +32,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.thirdparty.engine.AnalysisResultsParser;
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.AnalysisResultsParser;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 public class AvailableWofYAWLImplementation extends AnalysisResultsParser implements WofYAWLProxyInterface {
 

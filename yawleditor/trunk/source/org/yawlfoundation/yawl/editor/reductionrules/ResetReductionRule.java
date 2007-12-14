@@ -19,9 +19,9 @@
  *
  */
  
-package au.edu.qut.yawl.editor.reductionrules;
-import au.edu.qut.yawl.editor.analyser.ResetWFNet;
-import au.edu.qut.yawl.editor.analyser.RElement;
+package org.yawlfoundation.yawl.editor.reductionrules;
+import org.yawlfoundation.yawl.editor.analyser.ResetWFNet;
+import org.yawlfoundation.yawl.editor.analyser.RElement;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;

@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.net;
 
 import java.awt.event.ActionEvent;
 
@@ -43,8 +43,8 @@ import javax.print.attribute.standard.OrientationRequested;
 import javax.print.attribute.standard.Chromaticity;
 import javax.print.attribute.standard.JobName;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.net.utilities.NetPrintUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.net.utilities.NetPrintUtilities;
 
 public class PrintNetAction extends YAWLSelectedNetAction {
   /**

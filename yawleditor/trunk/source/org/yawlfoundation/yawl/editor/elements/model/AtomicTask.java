@@ -22,11 +22,11 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.model;
+package org.yawlfoundation.yawl.editor.elements.model;
 
 import java.awt.geom.Point2D;
 
-import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 
 public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
   /**

@@ -20,17 +20,17 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions;
+package org.yawlfoundation.yawl.editor.actions;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
 
-import au.edu.qut.yawl.editor.specification.ArchivingThread;
-import au.edu.qut.yawl.editor.specification.SpecificationFileModel;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
+import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
 
 public class ExitAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
   /**

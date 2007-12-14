@@ -20,11 +20,11 @@
  */
 
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import java.util.List;
 
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 public class JXMLSchemaEditorPane extends JProblemReportingEditorPane {
   

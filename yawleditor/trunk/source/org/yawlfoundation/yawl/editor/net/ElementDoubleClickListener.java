@@ -22,17 +22,17 @@
  *
  */
 
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 
-import au.edu.qut.yawl.editor.swing.element.LabelElementDialog;
+import org.yawlfoundation.yawl.editor.swing.element.LabelElementDialog;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 
 public class ElementDoubleClickListener extends MouseAdapter {
   private NetGraph net;

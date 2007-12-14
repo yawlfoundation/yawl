@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -14,16 +14,16 @@ import org.jgraph.graph.CellView;
 import org.jgraph.graph.Port;
 import org.jgraph.graph.PortView;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLCell;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLPort;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.net.utilities.NetCellFactory;
-import au.edu.qut.yawl.editor.swing.CursorFactory;
-import au.edu.qut.yawl.editor.swing.menu.ControlFlowPalette;
-import au.edu.qut.yawl.editor.swing.menu.Palette;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.net.utilities.NetCellFactory;
+import org.yawlfoundation.yawl.editor.swing.CursorFactory;
+import org.yawlfoundation.yawl.editor.swing.menu.ControlFlowPalette;
+import org.yawlfoundation.yawl.editor.swing.menu.Palette;
 
 
 public class NetMarqueeHandler extends BasicMarqueeHandler {
