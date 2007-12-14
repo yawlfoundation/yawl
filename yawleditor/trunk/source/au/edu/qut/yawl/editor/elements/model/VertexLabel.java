@@ -53,6 +53,16 @@ public class VertexLabel extends DefaultGraphCell {
 
   public VertexLabel(YAWLVertex vertex, String label) {
     initialize(vertex, label);
+    setFontSizeOffSpecification();    
+  }
+  
+  private void setFontSizeOffSpecification() {
+    HashMap map = new HashMap();
+
+    int size = SpecificationModel.getInstance().getFontSize();
+    GraphConstants.setFont(map, GraphConstants.getFont(map).deriveFont((float) size));
+
+    getAttributes().applyMap(map);
   }
   
   public void refreshLabelView() {
@@ -85,9 +95,6 @@ public class VertexLabel extends DefaultGraphCell {
     GraphConstants.setAutoSize(map, true);
     GraphConstants.setForeground(map, Color.BLACK);
     GraphConstants.setResize(map,false);
-    
-    int size = SpecificationModel.getInstance().getFontSize();
-    GraphConstants.setFont(map, GraphConstants.getFont(map).deriveFont((float) size));
     
     getAttributes().applyMap(map);
   }

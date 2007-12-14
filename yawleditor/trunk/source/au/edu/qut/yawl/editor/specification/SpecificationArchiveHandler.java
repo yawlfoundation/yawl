@@ -441,9 +441,10 @@ public class SpecificationArchiveHandler {
       );
     }
     SpecificationModel.getInstance().setWebServiceDecompositions(state.getDecompositions());
-    readNets(state.getNets());
-    SpecificationModel.getInstance().undoableSetFontSize(0,state.getFontSize());
+    SpecificationModel.getInstance().setFontSize(state.getFontSize());
 
+    readNets(state.getNets());
+    
     try {
       SpecificationModel.getInstance().setDefaultNetBackgroundColor(
           state.getDefaultNetBackgroundColor()

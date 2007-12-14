@@ -22,15 +22,15 @@
 
 package au.edu.qut.yawl.editor.analyser;
 
-import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YCondition;
-import au.edu.qut.yawl.elements.YInputCondition;
-import au.edu.qut.yawl.elements.YOutputCondition;
-import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.YNetElement;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YCondition;
+import org.yawlfoundation.yawl.elements.YInputCondition;
+import org.yawlfoundation.yawl.elements.YOutputCondition;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.YNetElement;
 
-import au.edu.qut.yawl.elements.state.YMarking;
+import org.yawlfoundation.yawl.elements.state.YMarking;
 
 import java.util.ArrayList;
 import java.util.HashMap;

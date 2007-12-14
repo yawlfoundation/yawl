@@ -46,14 +46,14 @@ import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import au.edu.qut.yawl.editor.swing.data.ValidityEditorPane;
-import au.edu.qut.yawl.engine.interfce.InterfaceA_EnvironmentBasedClient;
-import au.edu.qut.yawl.engine.interfce.InterfaceB_EngineBasedClient;
-import au.edu.qut.yawl.schema.XMLToolsForYAWL;
-import au.edu.qut.yawl.schema.ElementCreationInstruction;
-import au.edu.qut.yawl.unmarshal.SchemaForSchemaValidator;
+import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
+import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
+import org.yawlfoundation.yawl.schema.ElementCreationInstruction;
+import org.yawlfoundation.yawl.unmarshal.SchemaForSchemaValidator;
 
-import au.edu.qut.yawl.elements.YAWLServiceReference;
-import au.edu.qut.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 
 public class AvailableEngineProxyImplementation implements
   YAWLEngineProxyInterface {

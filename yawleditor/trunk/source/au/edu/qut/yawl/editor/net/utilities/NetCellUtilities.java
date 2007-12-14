@@ -66,7 +66,6 @@ import au.edu.qut.yawl.editor.specification.SpecificationModel;
 public class NetCellUtilities {
 
   public static void propogateFontChangeAcrossNet(NetGraph net, Font font) {
-    net.setFont(font);
     
     if (net.getNetModel() == null) {
      return; 
@@ -74,6 +73,15 @@ public class NetCellUtilities {
     
     net.getNetModel().beginUpdate();
       
+    propogateFontChangeAcrossNetNoUndo(net,font);
+    
+    net.getNetModel().endUpdate();
+  }
+
+  public static void propogateFontChangeAcrossNetNoUndo(NetGraph net, Font font) {
+
+    net.setFont(font);
+
     List cells = NetGraphModel.getDescendants(
         net.getNetModel(), 
         NetGraphModel.getRoots(net.getNetModel())
@@ -98,9 +106,8 @@ public class NetCellUtilities {
       }
     }
 
-    net.getNetModel().endUpdate();
   }
-  
+
   public static void translateView(NetGraph net, CellView view, double x, double y) {
     translateViews(net, new CellView[] { view }, x, y);
   }

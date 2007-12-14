@@ -1,9 +1,9 @@
 package au.edu.qut.yawl.editor.reductionrules;
 
 
-import au.edu.qut.yawl.elements.*;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.exceptions.*;
+import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.exceptions.*;
 import au.edu.qut.yawl.editor.analyser.ResetWFNet;
 
 import java.io.File;

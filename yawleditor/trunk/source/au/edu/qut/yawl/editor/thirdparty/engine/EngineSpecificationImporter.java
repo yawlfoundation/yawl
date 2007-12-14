@@ -70,25 +70,25 @@ import au.edu.qut.yawl.editor.swing.LayoutManager;
 import au.edu.qut.yawl.editor.foundations.XMLUtilities;
 
 
-import au.edu.qut.yawl.elements.YMultiInstanceAttributes;
-import au.edu.qut.yawl.elements.YNet;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.elements.YAWLServiceGateway;
-import au.edu.qut.yawl.elements.YInputCondition;
-import au.edu.qut.yawl.elements.YOutputCondition;
-import au.edu.qut.yawl.elements.YAtomicTask;
-import au.edu.qut.yawl.elements.YCondition;
-import au.edu.qut.yawl.elements.YFlow;
-import au.edu.qut.yawl.elements.YExternalNetElement;
-import au.edu.qut.yawl.elements.YTask;
-import au.edu.qut.yawl.elements.YCompositeTask;
+import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
+import org.yawlfoundation.yawl.elements.YInputCondition;
+import org.yawlfoundation.yawl.elements.YOutputCondition;
+import org.yawlfoundation.yawl.elements.YAtomicTask;
+import org.yawlfoundation.yawl.elements.YCondition;
+import org.yawlfoundation.yawl.elements.YFlow;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.YCompositeTask;
 
-import au.edu.qut.yawl.elements.data.YParameter;
-import au.edu.qut.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.unmarshal.YMetaData;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.unmarshal.YMetaData;
 
 public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
@@ -179,13 +179,10 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       );
     }
 
-    if (metaData.getVersion() != null) {
-      SpecificationModel.getInstance().setVersionNumber(
-          Double.valueOf(
-              metaData.getVersion()
-          ).doubleValue()
-      );
-    }
+    
+    SpecificationModel.getInstance().setVersionNumber(
+          metaData.getVersion()
+    );
 
     if (metaData.getValidFrom() != null) {
       SpecificationModel.getInstance().setValidFromTimestamp(
@@ -202,7 +199,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private static void convertEngineDataTypeDefinition(YSpecification engineSpecification) {
     SpecificationModel.getInstance().setDataTypeDefinition(
-      engineSpecification.getToolsForYAWL().getSchemaString().trim()
+      engineSpecification.getDataValidator().getSchema().trim()
     );
   }
   

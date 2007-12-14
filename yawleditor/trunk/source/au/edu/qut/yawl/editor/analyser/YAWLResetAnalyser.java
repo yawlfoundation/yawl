@@ -22,11 +22,11 @@
 
 package au.edu.qut.yawl.editor.analyser;
 
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.elements.*;
-import au.edu.qut.yawl.unmarshal.YMarshal;
-import au.edu.qut.yawl.elements.YDecomposition;
-import au.edu.qut.yawl.exceptions.*;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.exceptions.*;
 
 import java.io.IOException;
 import java.util.*;

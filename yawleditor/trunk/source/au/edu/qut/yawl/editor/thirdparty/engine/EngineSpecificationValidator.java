@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.elements.YSpecification;
-import au.edu.qut.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 /**
  * A class whose sole responsibility is to provide engine validation results of the current specification.

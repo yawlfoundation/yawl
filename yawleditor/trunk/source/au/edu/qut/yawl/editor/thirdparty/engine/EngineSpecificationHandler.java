@@ -26,10 +26,8 @@ package au.edu.qut.yawl.editor.thirdparty.engine;
 import au.edu.qut.yawl.editor.specification.SpecificationModel;
 import au.edu.qut.yawl.editor.swing.FileChooserFactory;
 import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
-import au.edu.qut.yawl.editor.swing.specification.ProblemMessagePanel;
 
 import java.io.File;
-import java.util.LinkedList;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;

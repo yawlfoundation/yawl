@@ -22,7 +22,7 @@
  
 package au.edu.qut.yawl.editor.reductionrules;
 
-import au.edu.qut.yawl.elements.*;
+import org.yawlfoundation.yawl.elements.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
