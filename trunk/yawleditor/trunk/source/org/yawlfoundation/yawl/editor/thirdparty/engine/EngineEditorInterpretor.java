@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.thirdparty.engine;
+package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;

@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -32,9 +32,9 @@ import javax.swing.JLabel;
 
 import javax.swing.table.TableCellRenderer;
 
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.data.DataVariableSet;
-import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.DataVariableSet;
+import org.yawlfoundation.yawl.editor.swing.JOrderedSingleSelectTable;
 
 public class DataVariableTable extends JOrderedSingleSelectTable {
 

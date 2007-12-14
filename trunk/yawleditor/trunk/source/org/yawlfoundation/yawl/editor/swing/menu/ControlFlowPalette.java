@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,13 +11,13 @@ import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 
-import au.edu.qut.yawl.editor.actions.palette.AtomicTaskAction;
-import au.edu.qut.yawl.editor.actions.palette.CompositeTaskAction;
-import au.edu.qut.yawl.editor.actions.palette.ConditionAction;
-import au.edu.qut.yawl.editor.actions.palette.MarqueeAction;
-import au.edu.qut.yawl.editor.actions.palette.MultipleAtomicTaskAction;
-import au.edu.qut.yawl.editor.actions.palette.MultipleCompositeTaskAction;
-import au.edu.qut.yawl.editor.actions.palette.NetDragAction;
+import org.yawlfoundation.yawl.editor.actions.palette.AtomicTaskAction;
+import org.yawlfoundation.yawl.editor.actions.palette.CompositeTaskAction;
+import org.yawlfoundation.yawl.editor.actions.palette.ConditionAction;
+import org.yawlfoundation.yawl.editor.actions.palette.MarqueeAction;
+import org.yawlfoundation.yawl.editor.actions.palette.MultipleAtomicTaskAction;
+import org.yawlfoundation.yawl.editor.actions.palette.MultipleCompositeTaskAction;
+import org.yawlfoundation.yawl.editor.actions.palette.NetDragAction;
 
 public class ControlFlowPalette extends JPanel {
   private static final long serialVersionUID = 1L;

@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.Insets;
 import java.awt.Point;
@@ -32,8 +32,8 @@ import javax.swing.Action;
 import javax.swing.JMenuItem;
 
 
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 
 public class YAWLPopupMenuItem extends JMenuItem {
   /**

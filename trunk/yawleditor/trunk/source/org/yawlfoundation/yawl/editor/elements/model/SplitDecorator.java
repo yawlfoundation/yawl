@@ -20,13 +20,13 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.model;
+package org.yawlfoundation.yawl.editor.elements.model;
 
 import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.SortedSet;
 
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 public class SplitDecorator extends Decorator {
   /**

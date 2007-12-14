@@ -22,14 +22,14 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
 public class CursorFactory {
   public static final int SELECTION               = 0;
@@ -63,7 +63,7 @@ public class CursorFactory {
 
   private static Cursor buildCustomCursor(String cursorFileName, Point hotspot, String name) {
     Image image = 
-      ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/cursors/" + 
+      ResourceLoader.getImageAsIcon("/org/yawlfoundation/yawl/editor/resources/cursors/" + 
       cursorFileName + ".gif").getImage();
     assert image != null : "Image is null!";
     return Toolkit.getDefaultToolkit().createCustomCursor(image, hotspot, name);  

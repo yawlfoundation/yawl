@@ -21,7 +21,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;

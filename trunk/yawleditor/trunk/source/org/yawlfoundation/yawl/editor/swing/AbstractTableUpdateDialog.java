@@ -21,12 +21,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.swing.AbstractTableUpdatePanel;
+import org.yawlfoundation.yawl.editor.swing.AbstractTableUpdatePanel;
 
 public abstract class AbstractTableUpdateDialog extends AbstractDoneDialog {
   

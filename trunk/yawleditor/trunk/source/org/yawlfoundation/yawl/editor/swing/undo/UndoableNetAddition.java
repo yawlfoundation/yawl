@@ -22,10 +22,10 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.undo;
+package org.yawlfoundation.yawl.editor.swing.undo;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 
 import javax.swing.undo.AbstractUndoableEdit;
 

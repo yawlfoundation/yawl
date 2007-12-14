@@ -21,16 +21,16 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.text.Document;
 
-import au.edu.qut.yawl.editor.data.Decomposition;
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
 
 public class DecompositionLabelField extends XMLElementField {
   

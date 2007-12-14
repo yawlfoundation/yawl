@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.tools;
+package org.yawlfoundation.yawl.editor.actions.tools;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -43,12 +43,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
 
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.swing.ActionAndFocusListener;
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import au.edu.qut.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 public class SetResourcingServiceAction extends YAWLBaseAction {
   /**

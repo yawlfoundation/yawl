@@ -22,9 +22,9 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.undo;
+package org.yawlfoundation.yawl.editor.swing.undo;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 import javax.swing.undo.AbstractUndoableEdit;
 

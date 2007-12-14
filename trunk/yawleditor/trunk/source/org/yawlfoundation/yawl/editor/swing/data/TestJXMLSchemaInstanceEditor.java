@@ -22,10 +22,10 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import junit.framework.*;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class TestJXMLSchemaInstanceEditor extends TestCase {
   JXMLSchemaInstanceEditor testSimpleInstancePane;

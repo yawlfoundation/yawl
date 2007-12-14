@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.resourcing;
+package org.yawlfoundation.yawl.editor.swing.resourcing;
 
 import javax.swing.JComboBox;
 

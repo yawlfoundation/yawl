@@ -20,13 +20,13 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 
-import au.edu.qut.yawl.editor.data.ParameterList;
-import au.edu.qut.yawl.editor.data.Parameter;
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.swing.AbstractOrderedRowTableModel;
+import org.yawlfoundation.yawl.editor.data.ParameterList;
+import org.yawlfoundation.yawl.editor.data.Parameter;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.swing.AbstractOrderedRowTableModel;
 
 public class TaskParameterTableModel extends AbstractOrderedRowTableModel {
 

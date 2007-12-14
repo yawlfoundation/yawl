@@ -22,14 +22,14 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.specification;
+package org.yawlfoundation.yawl.editor.actions.specification;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 
-import au.edu.qut.yawl.editor.specification.ArchivingThread;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
 public class ImportFromEngineFormatAction extends YAWLNoOpenSpecificationAction implements TooltipTogglingWidget {
 

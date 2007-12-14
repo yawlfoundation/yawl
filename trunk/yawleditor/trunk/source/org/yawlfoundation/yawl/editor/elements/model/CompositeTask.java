@@ -22,10 +22,10 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.model;
+package org.yawlfoundation.yawl.editor.elements.model;
 
 import java.awt.geom.Point2D;
-import au.edu.qut.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
 
 public class CompositeTask extends YAWLTask implements YAWLCompositeTask {
 

@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.foundations;
+package org.yawlfoundation.yawl.editor.foundations;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

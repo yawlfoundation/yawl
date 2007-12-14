@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -46,18 +46,18 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
-import au.edu.qut.yawl.editor.data.Parameter;
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.data.DataVariableSet;
-import au.edu.qut.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.Parameter;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.DataVariableSet;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
 
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.data.JXQueryEditorPane;
-import au.edu.qut.yawl.editor.swing.data.DataVariableComboBox;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.data.JXQueryEditorPane;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableComboBox;
 
 public class ParameterUpdateDialog extends AbstractDoneDialog {
   /**
@@ -261,7 +261,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
     inputVariableQueryElementButton.setDisplayedMnemonicIndex(7);
 
     inputVariableQueryElementButton.setIcon(
-        ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/menuicons/Warning16.gif")    
+        ResourceLoader.getImageAsIcon("/org/yawlfoundation/yawl/editor/resources/menuicons/Warning16.gif")    
     );
     inputVariableQueryElementButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {

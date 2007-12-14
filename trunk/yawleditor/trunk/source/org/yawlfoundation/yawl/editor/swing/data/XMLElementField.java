@@ -21,11 +21,11 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 
-import au.edu.qut.yawl.editor.swing.JFormattedAlphaNumericField;
-import au.edu.qut.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.swing.JFormattedAlphaNumericField;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
 
 public class XMLElementField extends JFormattedAlphaNumericField {
   

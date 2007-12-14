@@ -22,15 +22,15 @@
  *
  */
 
-package au.edu.qut.yawl.editor.thirdparty.engine;
+package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import java.util.LinkedList;
 import java.util.Iterator;
 
 import junit.framework.*;
 
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class TestAvailableEngineProxyImplementation extends TestCase {
   

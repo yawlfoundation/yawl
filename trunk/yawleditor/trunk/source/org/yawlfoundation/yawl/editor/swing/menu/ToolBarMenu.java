@@ -22,41 +22,41 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.Insets;
 
-import au.edu.qut.yawl.editor.actions.RedoAction;
-import au.edu.qut.yawl.editor.actions.UndoAction;
-import au.edu.qut.yawl.editor.actions.net.DecreaseSizeAction;
-import au.edu.qut.yawl.editor.actions.net.DeleteAction;
-import au.edu.qut.yawl.editor.actions.net.IncreaseSizeAction;
-import au.edu.qut.yawl.editor.actions.net.AlignTopAction;
-import au.edu.qut.yawl.editor.actions.net.AlignBottomAction;
-import au.edu.qut.yawl.editor.actions.net.AlignMiddleAction;
-import au.edu.qut.yawl.editor.actions.net.AlignLeftAction;
-import au.edu.qut.yawl.editor.actions.net.AlignCentreAction;
-import au.edu.qut.yawl.editor.actions.net.AlignRightAction;
-import au.edu.qut.yawl.editor.actions.net.AddToVisibleCancellationSetAction;
-import au.edu.qut.yawl.editor.actions.net.RemoveFromVisibleCancellationSetAction;
-import au.edu.qut.yawl.editor.actions.net.ZoomActualSizeAction;
-import au.edu.qut.yawl.editor.actions.net.ZoomOutAction;
-import au.edu.qut.yawl.editor.actions.net.ZoomInAction;
-import au.edu.qut.yawl.editor.actions.net.ZoomSelectedElementsAction;
+import org.yawlfoundation.yawl.editor.actions.RedoAction;
+import org.yawlfoundation.yawl.editor.actions.UndoAction;
+import org.yawlfoundation.yawl.editor.actions.net.DecreaseSizeAction;
+import org.yawlfoundation.yawl.editor.actions.net.DeleteAction;
+import org.yawlfoundation.yawl.editor.actions.net.IncreaseSizeAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignTopAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignBottomAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignMiddleAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignLeftAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignCentreAction;
+import org.yawlfoundation.yawl.editor.actions.net.AlignRightAction;
+import org.yawlfoundation.yawl.editor.actions.net.AddToVisibleCancellationSetAction;
+import org.yawlfoundation.yawl.editor.actions.net.RemoveFromVisibleCancellationSetAction;
+import org.yawlfoundation.yawl.editor.actions.net.ZoomActualSizeAction;
+import org.yawlfoundation.yawl.editor.actions.net.ZoomOutAction;
+import org.yawlfoundation.yawl.editor.actions.net.ZoomInAction;
+import org.yawlfoundation.yawl.editor.actions.net.ZoomSelectedElementsAction;
 
-import au.edu.qut.yawl.editor.actions.specification.CreateNetAction;
-import au.edu.qut.yawl.editor.actions.net.RemoveNetAction;
-import au.edu.qut.yawl.editor.actions.specification.CreateSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.OpenSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.SaveSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.SaveSpecificationAsAction;
-import au.edu.qut.yawl.editor.actions.specification.CloseSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.ValidateSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.AnalyseSpecificationAction;
-import au.edu.qut.yawl.editor.actions.specification.ExportToEngineFormatAction;
-import au.edu.qut.yawl.editor.actions.specification.ImportFromEngineFormatAction;
+import org.yawlfoundation.yawl.editor.actions.specification.CreateNetAction;
+import org.yawlfoundation.yawl.editor.actions.net.RemoveNetAction;
+import org.yawlfoundation.yawl.editor.actions.specification.CreateSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.OpenSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.SaveSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.SaveSpecificationAsAction;
+import org.yawlfoundation.yawl.editor.actions.specification.CloseSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.ValidateSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.AnalyseSpecificationAction;
+import org.yawlfoundation.yawl.editor.actions.specification.ExportToEngineFormatAction;
+import org.yawlfoundation.yawl.editor.actions.specification.ImportFromEngineFormatAction;
 
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 public class ToolBarMenu extends YAWLToolBar {
 

@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -39,9 +39,9 @@ import javax.swing.JViewport;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
-import au.edu.qut.yawl.editor.net.*;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.swing.net.YAWLEditorNetFrame;
+import org.yawlfoundation.yawl.editor.net.*;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
 
 public class YAWLEditorDesktop extends JDesktopPane 
                                implements InternalFrameListener {

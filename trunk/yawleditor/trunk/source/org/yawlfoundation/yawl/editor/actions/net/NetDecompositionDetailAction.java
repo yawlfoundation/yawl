@@ -22,15 +22,15 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.net;
 
 import java.util.HashMap;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
-import au.edu.qut.yawl.editor.swing.data.NetDecompositionUpdateDialog;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.swing.data.NetDecompositionUpdateDialog;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 
 import java.awt.event.ActionEvent;
 

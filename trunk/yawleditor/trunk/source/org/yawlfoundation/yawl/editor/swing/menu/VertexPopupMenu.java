@@ -21,31 +21,31 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
-import au.edu.qut.yawl.editor.actions.CutAction;
-import au.edu.qut.yawl.editor.actions.CopyAction;
-import au.edu.qut.yawl.editor.actions.element.LabelElementAction;
-import au.edu.qut.yawl.editor.actions.element.ManageResourcingAction;
-import au.edu.qut.yawl.editor.actions.element.SetMultipleInstanceDetailAction;
-import au.edu.qut.yawl.editor.actions.element.SetUnfoldingNetAction;
-import au.edu.qut.yawl.editor.actions.element.UpdateParametersAction;
-import au.edu.qut.yawl.editor.actions.element.UpdateFlowDetailsAction;
-import au.edu.qut.yawl.editor.actions.element.ViewCancellationSetAction;
-import au.edu.qut.yawl.editor.actions.element.DecomposeToDirectDataTransferAction;
-import au.edu.qut.yawl.editor.actions.element.SelectTaskDecompositionAction;
-import au.edu.qut.yawl.editor.actions.element.TaskDecompositionDetailAction;
+import org.yawlfoundation.yawl.editor.actions.CutAction;
+import org.yawlfoundation.yawl.editor.actions.CopyAction;
+import org.yawlfoundation.yawl.editor.actions.element.LabelElementAction;
+import org.yawlfoundation.yawl.editor.actions.element.ManageResourcingAction;
+import org.yawlfoundation.yawl.editor.actions.element.SetMultipleInstanceDetailAction;
+import org.yawlfoundation.yawl.editor.actions.element.SetUnfoldingNetAction;
+import org.yawlfoundation.yawl.editor.actions.element.UpdateParametersAction;
+import org.yawlfoundation.yawl.editor.actions.element.UpdateFlowDetailsAction;
+import org.yawlfoundation.yawl.editor.actions.element.ViewCancellationSetAction;
+import org.yawlfoundation.yawl.editor.actions.element.DecomposeToDirectDataTransferAction;
+import org.yawlfoundation.yawl.editor.actions.element.SelectTaskDecompositionAction;
+import org.yawlfoundation.yawl.editor.actions.element.TaskDecompositionDetailAction;
 
-import au.edu.qut.yawl.editor.actions.net.DeleteAction;
+import org.yawlfoundation.yawl.editor.actions.net.DeleteAction;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.elements.model.YAWLCell;
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLMultipleInstanceTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 
 import javax.swing.JPopupMenu;
 

@@ -1,16 +1,16 @@
-package au.edu.qut.yawl.editor.swing.specification;
+package org.yawlfoundation.yawl.editor.swing.specification;
 
 import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 
 import org.jgraph.event.GraphSelectionEvent;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
 public class SpecificationBottomPanel extends JTabbedPane implements SpecificationSelectionSubscriber {
 

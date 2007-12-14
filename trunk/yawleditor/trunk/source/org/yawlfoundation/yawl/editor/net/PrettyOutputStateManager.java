@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
 public class PrettyOutputStateManager {
   private NetGraph net;

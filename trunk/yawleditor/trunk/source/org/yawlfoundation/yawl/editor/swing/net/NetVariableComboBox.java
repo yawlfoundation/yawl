@@ -21,10 +21,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.net;
+package org.yawlfoundation.yawl.editor.swing.net;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.swing.data.DataVariableComboBox;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableComboBox;
 
 public class NetVariableComboBox extends DataVariableComboBox {
   

@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -24,21 +24,21 @@ import javax.swing.border.EmptyBorder;
 
 import org.jgraph.event.GraphSelectionEvent;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-import au.edu.qut.yawl.editor.elements.model.AtomicTask;
-import au.edu.qut.yawl.editor.elements.model.CompositeTask;
-import au.edu.qut.yawl.editor.elements.model.Decorator;
-import au.edu.qut.yawl.editor.elements.model.MultipleAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.MultipleCompositeTask;
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionSubscriber;
-import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.CompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.Decorator;
+import org.yawlfoundation.yawl.editor.elements.model.MultipleAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.MultipleCompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
 
 public class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSubscriber{
 
@@ -383,7 +383,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
     private JLabel buildTaskLabel() {
       taskLabel = new JLabel(
           ResourceLoader.getImageAsIcon(
-              "/au/edu/qut/yawl/editor/resources/menuicons/" 
+              "/org/yawlfoundation/yawl/editor/resources/menuicons/" 
               + "PaletteAtomicTask" + "24.gif"
           )
       );
@@ -537,7 +537,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
     private void setTaskLabel(String labelImageName) {
       taskLabel.setIcon(
           ResourceLoader.getImageAsIcon(
-              "/au/edu/qut/yawl/editor/resources/menuicons/" 
+              "/org/yawlfoundation/yawl/editor/resources/menuicons/" 
               + labelImageName + "24.gif"
           )
       );
@@ -591,7 +591,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
         putValue(Action.LONG_DESCRIPTION, " No " + getDecoratorString() + " ");
         putValue(Action.SMALL_ICON, 
             ResourceLoader.getImageAsIcon(
-                "/au/edu/qut/yawl/editor/resources/menuicons/" 
+                "/org/yawlfoundation/yawl/editor/resources/menuicons/" 
                 + getNoDecorationIconName() + "16.gif"
             )
         );
@@ -612,7 +612,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
         putValue(Action.LONG_DESCRIPTION, " AND " + getDecoratorString() + " ");
         putValue(Action.SMALL_ICON, 
             ResourceLoader.getImageAsIcon(
-                "/au/edu/qut/yawl/editor/resources/menuicons/" 
+                "/org/yawlfoundation/yawl/editor/resources/menuicons/" 
                 + getAndDecorationIconName() + "16.gif"
             )
         );
@@ -633,7 +633,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
         putValue(Action.LONG_DESCRIPTION, " XOR " + getDecoratorString() + " ");
         putValue(Action.SMALL_ICON, 
             ResourceLoader.getImageAsIcon(
-                "/au/edu/qut/yawl/editor/resources/menuicons/" 
+                "/org/yawlfoundation/yawl/editor/resources/menuicons/" 
                 + getXorDecorationIconName() + "16.gif"
             )
         );
@@ -654,7 +654,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
         putValue(Action.LONG_DESCRIPTION, "OR " + getDecoratorString());
         putValue(Action.SMALL_ICON, 
             ResourceLoader.getImageAsIcon(
-                "/au/edu/qut/yawl/editor/resources/menuicons/" 
+                "/org/yawlfoundation/yawl/editor/resources/menuicons/" 
                 + getOrDecorationIconName() + "16.gif"
             )
         );

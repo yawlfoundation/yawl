@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -54,36 +54,36 @@ import org.jgraph.graph.GraphConstants;
 
 import org.jgraph.graph.Port;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.data.Decomposition;
-import au.edu.qut.yawl.editor.elements.model.InputCondition;
-import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
-import au.edu.qut.yawl.editor.elements.model.OutputCondition;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
 
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLCell;
-import au.edu.qut.yawl.editor.elements.model.YAWLPort;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.elements.model.VertexLabel;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.Decorator;
-import au.edu.qut.yawl.editor.elements.model.JoinDecorator;
-import au.edu.qut.yawl.editor.elements.model.SplitDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.VertexLabel;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.Decorator;
+import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
 
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
-import au.edu.qut.yawl.editor.specification.*;
-import au.edu.qut.yawl.editor.swing.net.YAWLEditorNetFrame;
-import au.edu.qut.yawl.editor.swing.undo.UndoableTaskDecompositionChange;
-import au.edu.qut.yawl.editor.swing.undo.UndoableTaskIconChange;
+import org.yawlfoundation.yawl.editor.specification.*;
+import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
+import org.yawlfoundation.yawl.editor.swing.undo.UndoableTaskDecompositionChange;
+import org.yawlfoundation.yawl.editor.swing.undo.UndoableTaskIconChange;
 
-import au.edu.qut.yawl.editor.actions.net.MoveElementsDownAction;
-import au.edu.qut.yawl.editor.actions.net.MoveElementsLeftAction;
-import au.edu.qut.yawl.editor.actions.net.MoveElementsRightAction;
-import au.edu.qut.yawl.editor.actions.net.MoveElementsUpAction;
+import org.yawlfoundation.yawl.editor.actions.net.MoveElementsDownAction;
+import org.yawlfoundation.yawl.editor.actions.net.MoveElementsLeftAction;
+import org.yawlfoundation.yawl.editor.actions.net.MoveElementsRightAction;
+import org.yawlfoundation.yawl.editor.actions.net.MoveElementsUpAction;
 
-import au.edu.qut.yawl.editor.net.utilities.NetCellUtilities;
+import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
 
 import java.awt.event.KeyEvent;
 import java.awt.Color;
@@ -95,9 +95,9 @@ import javax.swing.InputMap;
 import javax.swing.KeyStroke;
 import javax.swing.ToolTipManager;
 
-import au.edu.qut.yawl.editor.actions.net.AddToVisibleCancellationSetAction;
-import au.edu.qut.yawl.editor.actions.net.RemoveFromVisibleCancellationSetAction;
-import au.edu.qut.yawl.editor.actions.net.SelectAllNetElementsAction;
+import org.yawlfoundation.yawl.editor.actions.net.AddToVisibleCancellationSetAction;
+import org.yawlfoundation.yawl.editor.actions.net.RemoveFromVisibleCancellationSetAction;
+import org.yawlfoundation.yawl.editor.actions.net.SelectAllNetElementsAction;
 
 public class NetGraph extends JGraph {
   
@@ -327,7 +327,7 @@ public class NetGraph extends JGraph {
   }
 
   protected ImageIcon getIconByName(String iconName) {
-    return ResourceLoader.getImageAsIcon("/au/edu/qut/yawl/editor/resources/yawlElements/" 
+    return ResourceLoader.getImageAsIcon("/org/yawlfoundation/yawl/editor/resources/yawlElements/" 
            + iconName + ".gif");
   }
   

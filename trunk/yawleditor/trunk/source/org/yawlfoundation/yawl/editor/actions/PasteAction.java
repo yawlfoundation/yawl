@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions;
+package org.yawlfoundation.yawl.editor.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -28,8 +28,8 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 
-import au.edu.qut.yawl.editor.specification.SpecificationUndoManager;
-import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 
 public class PasteAction extends YAWLBaseAction {
 

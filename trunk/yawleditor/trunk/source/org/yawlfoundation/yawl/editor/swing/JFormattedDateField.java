@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 import java.text.*;
 import java.text.SimpleDateFormat;

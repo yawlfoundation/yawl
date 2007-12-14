@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;

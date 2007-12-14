@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.element;
+package org.yawlfoundation.yawl.editor.actions.element;
 
 import javax.swing.Action;
 
@@ -30,12 +30,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
 
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 
-import au.edu.qut.yawl.editor.net.CancellationSetModel;
-import au.edu.qut.yawl.editor.net.CancellationSetModelListener;
-import au.edu.qut.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.CancellationSetModel;
+import org.yawlfoundation.yawl.editor.net.CancellationSetModelListener;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 
 import javax.swing.JCheckBoxMenuItem;
 

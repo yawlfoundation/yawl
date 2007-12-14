@@ -20,10 +20,10 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.model;
+package org.yawlfoundation.yawl.editor.elements.model;
 
-import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 
 public interface YAWLAtomicTask {
   public void setWSDecomposition(WebServiceDecomposition decomposition);

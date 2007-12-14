@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.net;
+package org.yawlfoundation.yawl.editor.swing.net;
 
 import javax.swing.JInternalFrame;
 import javax.swing.event.InternalFrameAdapter;
@@ -33,11 +33,11 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
 
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
-import au.edu.qut.yawl.editor.net.*;
-import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.net.*;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
 
 public class YAWLEditorNetFrame extends JInternalFrame {
 

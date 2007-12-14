@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
@@ -36,10 +36,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
-import au.edu.qut.yawl.editor.swing.ActionAndFocusListener;
-import au.edu.qut.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
 
 public class NetDataVariableUpdateDialog extends TaskDataVariableUpdateDialog {
   

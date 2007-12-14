@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.specification;
+package org.yawlfoundation.yawl.editor.actions.specification;
 
 import java.awt.event.ActionEvent;
 
@@ -48,9 +48,9 @@ import javax.print.attribute.standard.JobName;
 import javax.print.MultiDocPrintService;
 import javax.print.attribute.standard.MultipleDocumentHandling;
 */
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.net.utilities.NetPrintUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.utilities.NetPrintUtilities;
 
 public class PrintSpecificationAction extends YAWLOpenSpecificationAction {
   /**

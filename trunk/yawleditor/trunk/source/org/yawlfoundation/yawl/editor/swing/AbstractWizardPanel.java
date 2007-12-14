@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;

@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -30,7 +30,7 @@ import java.util.Iterator;
 
 import javax.swing.JComboBox;
 
-import au.edu.qut.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 public class YawlServiceComboBox extends JComboBox {
   

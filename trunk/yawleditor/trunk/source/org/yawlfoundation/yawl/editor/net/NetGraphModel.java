@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -28,26 +28,26 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 
-import au.edu.qut.yawl.editor.data.DataVariableSet;
-import au.edu.qut.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.DataVariableSet;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLCell;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.JoinDecorator;
-import au.edu.qut.yawl.editor.elements.model.SplitDecorator;
-import au.edu.qut.yawl.editor.elements.model.DecoratorPort;
-import au.edu.qut.yawl.editor.elements.model.ElementUtilities;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.DecoratorPort;
+import org.yawlfoundation.yawl.editor.elements.model.ElementUtilities;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLCondition;
-import au.edu.qut.yawl.editor.elements.model.InputCondition;
-import au.edu.qut.yawl.editor.elements.model.OutputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCondition;
+import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
-import au.edu.qut.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 
 import org.jgraph.graph.Port;
 import org.jgraph.graph.Edge;

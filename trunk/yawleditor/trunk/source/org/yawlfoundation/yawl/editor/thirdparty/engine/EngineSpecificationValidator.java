@@ -1,9 +1,9 @@
-package au.edu.qut.yawl.editor.thirdparty.engine;
+package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 

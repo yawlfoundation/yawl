@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.element;
+package org.yawlfoundation.yawl.editor.swing.element;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -33,15 +33,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.data.Decomposition;
-import au.edu.qut.yawl.editor.data.WebServiceDecomposition;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.swing.ActionAndFocusListener;
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.data.WebServiceDecompositionComboBox;
-import au.edu.qut.yawl.editor.swing.data.TaskDecompositionUpdateDialog;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.data.WebServiceDecompositionComboBox;
+import org.yawlfoundation.yawl.editor.swing.data.TaskDecompositionUpdateDialog;
 
 public class TaskDecompositionSelectionDialog extends AbstractTaskDoneDialog {
   /**

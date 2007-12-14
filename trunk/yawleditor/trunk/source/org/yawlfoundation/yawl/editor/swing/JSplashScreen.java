@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing; 
+package org.yawlfoundation.yawl.editor.swing; 
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -37,7 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JWindow;
 
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
 /** 
  *  JSplashScreen is a simple window object that displays a splash screen 

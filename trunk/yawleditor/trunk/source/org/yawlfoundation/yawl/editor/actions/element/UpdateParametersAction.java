@@ -22,22 +22,22 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.element;
+package org.yawlfoundation.yawl.editor.actions.element;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.swing.element.AbstractTaskDoneDialog;
-import au.edu.qut.yawl.editor.swing.AbstractTableUpdatePanel;
-import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.data.ParameterUpdateDialog;
-import au.edu.qut.yawl.editor.swing.data.TaskParameterTable;
-import au.edu.qut.yawl.editor.swing.data.TaskParameterTableModel;
-import au.edu.qut.yawl.editor.swing.data.DataVariableTable;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.AbstractTableUpdatePanel;
+import org.yawlfoundation.yawl.editor.swing.JOrderedSingleSelectTable;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.data.ParameterUpdateDialog;
+import org.yawlfoundation.yawl.editor.swing.data.TaskParameterTable;
+import org.yawlfoundation.yawl.editor.swing.data.TaskParameterTableModel;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableTable;
 
-import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
-import au.edu.qut.yawl.editor.data.ParameterList;
+import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.data.ParameterList;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 
 
 import java.awt.BorderLayout;

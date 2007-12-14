@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;

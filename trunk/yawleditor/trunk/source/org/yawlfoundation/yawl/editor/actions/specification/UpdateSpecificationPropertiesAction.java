@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.specification;
+package org.yawlfoundation.yawl.editor.actions.specification;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -46,17 +46,17 @@ import javax.swing.ButtonGroup;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.Document;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
-import au.edu.qut.yawl.editor.foundations.XMLUtilities;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
-import au.edu.qut.yawl.editor.swing.JFormattedDateField;
-import au.edu.qut.yawl.editor.swing.JFormattedAlphaNumericField;
-import au.edu.qut.yawl.editor.swing.JFormattedNumberField;
-import au.edu.qut.yawl.editor.swing.JFormattedSafeXMLCharacterField;
+import org.yawlfoundation.yawl.editor.swing.JFormattedDateField;
+import org.yawlfoundation.yawl.editor.swing.JFormattedAlphaNumericField;
+import org.yawlfoundation.yawl.editor.swing.JFormattedNumberField;
+import org.yawlfoundation.yawl.editor.swing.JFormattedSafeXMLCharacterField;
 
 public class UpdateSpecificationPropertiesAction extends YAWLOpenSpecificationAction 
                                                  implements TooltipTogglingWidget {

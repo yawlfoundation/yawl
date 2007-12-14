@@ -22,13 +22,13 @@
  *
  */
 
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
 import org.jgraph.event.GraphSelectionEvent;
 import org.jgraph.event.GraphSelectionListener;
 import org.jgraph.graph.GraphSelectionModel;
 
-import au.edu.qut.yawl.editor.specification.SpecificationSelectionListener;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 
 public class NetSelectionListener implements GraphSelectionListener {
   private GraphSelectionModel model;

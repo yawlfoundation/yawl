@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -31,8 +31,8 @@ import javax.swing.JLabel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import au.edu.qut.yawl.editor.specification.ProblemList;
-import au.edu.qut.yawl.editor.specification.ProblemListSubscriber;
+import org.yawlfoundation.yawl.editor.specification.ProblemList;
+import org.yawlfoundation.yawl.editor.specification.ProblemListSubscriber;
 
 public class ProblemTable extends JSingleSelectTable {
   

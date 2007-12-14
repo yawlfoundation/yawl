@@ -22,11 +22,11 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.specification;
+package org.yawlfoundation.yawl.editor.actions.specification;
 
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-import au.edu.qut.yawl.editor.specification.SpecificationFileModel;
-import au.edu.qut.yawl.editor.specification.SpecificationFileModelListener;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListener;
 
 /**
  * This class is an abstract class that supplies a basic Action for concrete Action classes

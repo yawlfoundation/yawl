@@ -21,9 +21,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 
 public class DataVariableUpdateDialogFactory {
    public static TaskDataVariableUpdateDialog getNetDialog(AbstractDoneDialog parent) {

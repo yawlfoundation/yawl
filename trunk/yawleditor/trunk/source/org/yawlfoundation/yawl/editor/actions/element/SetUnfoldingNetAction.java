@@ -22,15 +22,15 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.element;
+package org.yawlfoundation.yawl.editor.actions.element;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
-import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
 
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
-import au.edu.qut.yawl.editor.swing.element.SelectUnfoldingNetDialog;
+import org.yawlfoundation.yawl.editor.swing.element.SelectUnfoldingNetDialog;
 
 import java.awt.event.ActionEvent;
 

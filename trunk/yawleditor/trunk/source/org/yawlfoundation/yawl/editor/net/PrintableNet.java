@@ -1,7 +1,7 @@
 /*
  * Created on 27/09/2004
  */
-package au.edu.qut.yawl.editor.net;
+package org.yawlfoundation.yawl.editor.net;
 
 import java.awt.Graphics;
 import java.awt.print.PageFormat;

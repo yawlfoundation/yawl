@@ -1,10 +1,10 @@
-package au.edu.qut.yawl.editor.reductionrules;
+package org.yawlfoundation.yawl.editor.reductionrules;
 
 
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.exceptions.*;
-import au.edu.qut.yawl.editor.analyser.ResetWFNet;
+import org.yawlfoundation.yawl.editor.analyser.ResetWFNet;
 
 import java.io.File;
 import java.io.IOException;

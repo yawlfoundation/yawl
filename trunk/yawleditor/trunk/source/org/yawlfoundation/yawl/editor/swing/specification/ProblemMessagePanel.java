@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.specification;
+package org.yawlfoundation.yawl.editor.swing.specification;
 
 import java.awt.BorderLayout;
 import java.util.List;
@@ -30,12 +30,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.specification.ProblemList;
-import au.edu.qut.yawl.editor.specification.ProblemListSubscriber;
-import au.edu.qut.yawl.editor.specification.SpecificationFileModel;
-import au.edu.qut.yawl.editor.specification.SpecificationFileModelListener;
-import au.edu.qut.yawl.editor.swing.ProblemTable;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.specification.ProblemList;
+import org.yawlfoundation.yawl.editor.specification.ProblemListSubscriber;
+import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListener;
+import org.yawlfoundation.yawl.editor.swing.ProblemTable;
 
 public class ProblemMessagePanel extends JPanel  implements SpecificationFileModelListener, ProblemListSubscriber {
   /**

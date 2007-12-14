@@ -21,17 +21,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.thirdparty.wofyawl;
+package org.yawlfoundation.yawl.editor.thirdparty.wofyawl;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class UnavailableWofYAWLImplementation implements WofYAWLProxyInterface {
 
   /* (non-Javadoc)
-   * @see au.edu.qut.yawl.editor.thirdparty.wofyawl.WofYAWLProxyInterface#getAnalysisResults()
+   * @see org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxyInterface#getAnalysisResults()
    */
   public List getAnalysisResults(SpecificationModel editorSpec) {
     List resultsList = new LinkedList();

@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 import java.awt.Insets;
 import java.awt.Point;
@@ -28,9 +28,9 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JToggleButton;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.actions.palette.ControlFlowPaletteAction;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.palette.ControlFlowPaletteAction;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
 public class ControlFlowPaletteButton extends JToggleButton {
 

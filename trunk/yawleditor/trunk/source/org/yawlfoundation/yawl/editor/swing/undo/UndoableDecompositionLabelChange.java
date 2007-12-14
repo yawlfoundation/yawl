@@ -22,11 +22,11 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.undo;
+package org.yawlfoundation.yawl.editor.swing.undo;
 
 import javax.swing.undo.AbstractUndoableEdit;
-import au.edu.qut.yawl.editor.data.Decomposition;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class UndoableDecompositionLabelChange extends AbstractUndoableEdit {
   /**

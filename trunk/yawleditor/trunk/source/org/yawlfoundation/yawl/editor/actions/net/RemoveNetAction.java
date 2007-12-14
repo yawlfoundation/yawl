@@ -22,16 +22,16 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.net;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class RemoveNetAction extends YAWLSelectedNetAction implements TooltipTogglingWidget {
   /**

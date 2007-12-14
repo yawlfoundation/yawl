@@ -22,13 +22,13 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.net;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 
 public class SelectAllNetElementsAction extends YAWLSelectedNetAction {
 

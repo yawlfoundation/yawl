@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.resourcing;
+package org.yawlfoundation.yawl.editor.swing.resourcing;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -15,13 +15,13 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.data.DataVariableUtilities;
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
-import au.edu.qut.yawl.editor.resourcing.DataVariableContent;
-import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
-import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
-import au.edu.qut.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.DataVariableUtilities;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.resourcing.DataVariableContent;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
 

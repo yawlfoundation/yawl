@@ -21,15 +21,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.thirdparty.resourcing;
+package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
 import java.util.List;
 import java.util.LinkedList;
 
-import au.edu.qut.yawl.editor.resourcing.AllocationMechanism;
-import au.edu.qut.yawl.editor.resourcing.ResourcingFilter;
-import au.edu.qut.yawl.editor.resourcing.ResourcingParticipant;
-import au.edu.qut.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
 
 public class UnavailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
   public boolean isDatabaseConnectionAvailable() {

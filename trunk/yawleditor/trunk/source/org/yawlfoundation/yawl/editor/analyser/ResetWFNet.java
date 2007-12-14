@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.analyser;
+package org.yawlfoundation.yawl.editor.analyser;
 
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YExternalNetElement;

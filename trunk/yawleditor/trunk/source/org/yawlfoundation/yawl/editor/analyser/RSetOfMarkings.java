@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.analyser;
+package org.yawlfoundation.yawl.editor.analyser;
 
 import java.util.Set;
 import java.util.Iterator;

@@ -22,11 +22,11 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.undo;
+package org.yawlfoundation.yawl.editor.swing.undo;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
-import au.edu.qut.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 
 public class UndoableStartingNetChange extends AbstractUndoableEdit {
   /**

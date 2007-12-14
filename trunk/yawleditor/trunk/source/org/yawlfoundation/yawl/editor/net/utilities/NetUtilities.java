@@ -22,29 +22,29 @@
  *
  */
 
-package au.edu.qut.yawl.editor.net.utilities;
+package org.yawlfoundation.yawl.editor.net.utilities;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
 
-import au.edu.qut.yawl.editor.elements.model.CompositeTask;
-import au.edu.qut.yawl.editor.elements.model.Condition;
-import au.edu.qut.yawl.editor.elements.model.VertexContainer;
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLCondition;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.InputCondition;
-import au.edu.qut.yawl.editor.elements.model.OutputCondition;
-import au.edu.qut.yawl.editor.elements.model.YAWLCell;
-import au.edu.qut.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.elements.model.CompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.Condition;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCondition;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 /**
  * A library of standard utilities that return information on, or manipulate 
@@ -84,7 +84,7 @@ public final class NetUtilities {
    * all those verticies in the net that conform to the <code>YAWLVertex</code> interface.
    * @param net The net to search within.
    * @return The set of <code>YAWLVertex</code> objects within the selected net.
-   * @see au.edu.qut.yawl.editor.elements.model.YAWLVertex
+   * @see org.yawlfoundation.yawl.editor.elements.model.YAWLVertex
    */
   public static Set<YAWLVertex> getVertexes(NetGraphModel net) {
     HashSet<YAWLVertex> vertexList = new HashSet<YAWLVertex>();
@@ -102,7 +102,7 @@ public final class NetUtilities {
    * all those verticies in the net that conform to the <code>YAWLTask</code> interface.
    * @param net The net to search within.
    * @return The set of <code>YAWLTask</code> objects within the selected net.
-   * @see au.edu.qut.yawl.editor.elements.model.YAWLTask
+   * @see org.yawlfoundation.yawl.editor.elements.model.YAWLTask
    */
   
   public static Set<YAWLTask> getAllTasks(NetGraphModel net) {
@@ -122,7 +122,7 @@ public final class NetUtilities {
    * all those verticies in the net that conform to the <code>YAWLAtomicTask</code> interface.
    * @param net ThSe net to search within.
    * @return The set of <code>YAWLAtomicTask</code> objects within the selected net.
-   * @see au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask
+   * @see org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask
    */
   public static Set<YAWLAtomicTask> getAtomicTasks(NetGraphModel net) {
     HashSet<YAWLAtomicTask> atomicTasks = new HashSet<YAWLAtomicTask>();
@@ -143,7 +143,7 @@ public final class NetUtilities {
    * @param net   The net to search within.
    * @param label The label to searh for.
    * @return <code>true</code> when a net has a task with the given label, <code>false</code> otherwise.
-   * @see au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask
+   * @see org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask
    */
   public static boolean hasAtomicTaskWithLabel(NetGraphModel net, String label) {
     for (Object netRoot : NetGraphModel.getRoots(net)) {
@@ -162,7 +162,7 @@ public final class NetUtilities {
    * all those verticies in the net that conform to the <code>YAWLCompositeTask</code> interface.
    * @param net The net to search within.
    * @return The set of <code>YAWLCompositeTask</code> objects within the selected net.
-   * @see au.edu.qut.yawl.editor.elements.model.YAWLCompositeTask
+   * @see org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask
    */
   public static Set<YAWLCompositeTask> getCompositeTasks(NetGraphModel net) {
     HashSet<YAWLCompositeTask> compositeTasks = new HashSet<YAWLCompositeTask>();
@@ -179,7 +179,7 @@ public final class NetUtilities {
    * Returns those tasks in the selected net that trigger cancellation set behaviour. 
    * @param net The net to search within.
    * @return The set of tasks that trigger cancellation set behaviour.
-   * @see au.edu.qut.yawl.editor.net.CancellationSet
+   * @see org.yawlfoundation.yawl.editor.net.CancellationSet
    */
   public static Set<YAWLTask> getTasksWithCancellationSets(NetGraphModel net) {
     HashSet<YAWLTask> tasks = new HashSet<YAWLTask>();
@@ -196,7 +196,7 @@ public final class NetUtilities {
    * Returns those tasks in the selected net with split decorators.
    * @param net The net to search within.
    * @return The set of tasks with split decorators.
-   * @see au.edu.qut.yawl.editor.elements.model.SplitDecorator
+   * @see org.yawlfoundation.yawl.editor.elements.model.SplitDecorator
    */
   public static Set<YAWLTask> getTasksWitSplitDecorators(NetGraphModel net) {
     HashSet<YAWLTask> tasks = new HashSet<YAWLTask>();
@@ -231,7 +231,7 @@ public final class NetUtilities {
    * Returns all flows in the selected net.
    * @param net The net to search within.
    * @return The set of flows within that net.
-   * @see au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation
+   * @see org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation
    */
 
   public static Set<YAWLFlowRelation> getAllFlows(NetGraphModel net) {
@@ -452,7 +452,7 @@ public final class NetUtilities {
   }
   
   public static String getStartingNetIconPath() {
-    return "/au/edu/qut/yawl/editor/resources/menuicons/StartingNetInternalFrame.gif";
+    return "/org/yawlfoundation/yawl/editor/resources/menuicons/StartingNetInternalFrame.gif";
   }
 
   public static ImageIcon getSubNetIcon() {
@@ -462,7 +462,7 @@ public final class NetUtilities {
   }
   
   public static String getSubNetIconPath() {
-    return "/au/edu/qut/yawl/editor/resources/menuicons/SubNetInternalFrame.gif";
+    return "/org/yawlfoundation/yawl/editor/resources/menuicons/SubNetInternalFrame.gif";
   }
 
   public static ImageIcon getIconForNetModel(NetGraphModel model) {

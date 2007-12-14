@@ -21,14 +21,14 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 
-import au.edu.qut.yawl.editor.swing.JFormattedAlphaNumericField;
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.data.DataVariableSet;
+import org.yawlfoundation.yawl.editor.swing.JFormattedAlphaNumericField;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 
 public class DataVariableField extends JFormattedAlphaNumericField {
   

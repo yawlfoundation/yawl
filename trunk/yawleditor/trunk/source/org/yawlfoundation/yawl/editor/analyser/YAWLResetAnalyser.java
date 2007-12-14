@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.analyser;
+package org.yawlfoundation.yawl.editor.analyser;
 
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.*;
@@ -36,7 +36,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
-import au.edu.qut.yawl.editor.reductionrules.*;
+import org.yawlfoundation.yawl.editor.reductionrules.*;
 
 public class YAWLResetAnalyser{
 

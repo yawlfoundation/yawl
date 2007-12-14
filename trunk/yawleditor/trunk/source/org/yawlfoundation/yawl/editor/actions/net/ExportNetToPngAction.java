@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.net;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -32,9 +32,9 @@ import javax.swing.JOptionPane;
 
 import javax.swing.Action;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.net.utilities.NetPrintUtilities;
-import au.edu.qut.yawl.editor.swing.FileChooserFactory;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.net.utilities.NetPrintUtilities;
+import org.yawlfoundation.yawl.editor.swing.FileChooserFactory;
 
 
 public class ExportNetToPngAction extends YAWLSelectedNetAction {

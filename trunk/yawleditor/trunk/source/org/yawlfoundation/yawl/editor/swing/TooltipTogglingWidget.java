@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.swing;
+package org.yawlfoundation.yawl.editor.swing;
 
 /**
  * @author Lindsay Bradford

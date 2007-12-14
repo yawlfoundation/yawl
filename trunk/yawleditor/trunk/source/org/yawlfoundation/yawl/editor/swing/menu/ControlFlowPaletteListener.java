@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.swing.menu;
 
 public interface ControlFlowPaletteListener {
 

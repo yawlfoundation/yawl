@@ -20,10 +20,10 @@
  *
  */
  
-package au.edu.qut.yawl.editor.reductionrules;
+package org.yawlfoundation.yawl.editor.reductionrules;
 
 import org.yawlfoundation.yawl.elements.*;
-import au.edu.qut.yawl.editor.analyser.*;
+import org.yawlfoundation.yawl.editor.analyser.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;

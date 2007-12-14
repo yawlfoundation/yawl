@@ -19,14 +19,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
  
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
 import java.util.List;
 
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
 
-import au.edu.qut.yawl.editor.swing.ProblemTable;
+import org.yawlfoundation.yawl.editor.swing.ProblemTable;
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;

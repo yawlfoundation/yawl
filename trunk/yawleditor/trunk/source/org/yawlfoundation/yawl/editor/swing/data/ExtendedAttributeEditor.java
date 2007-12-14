@@ -1,6 +1,6 @@
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;

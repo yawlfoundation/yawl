@@ -1,15 +1,15 @@
-package au.edu.qut.yawl.editor.swing.resourcing;
+package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 
-import au.edu.qut.yawl.editor.swing.AbstractWizardDialog;
-import au.edu.qut.yawl.editor.swing.AbstractWizardPanel;
-import au.edu.qut.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.AbstractWizardDialog;
+import org.yawlfoundation.yawl.editor.swing.AbstractWizardPanel;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
 
 public class ManageResourcingDialog extends AbstractWizardDialog {
   private static final long serialVersionUID = 1L;

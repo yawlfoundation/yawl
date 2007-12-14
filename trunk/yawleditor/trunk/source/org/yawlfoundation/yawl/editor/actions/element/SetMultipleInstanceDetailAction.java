@@ -21,26 +21,26 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.actions.element;
+package org.yawlfoundation.yawl.editor.actions.element;
 
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.actions.net.YAWLSelectedNetAction;
-import au.edu.qut.yawl.editor.data.DataVariable;
-import au.edu.qut.yawl.editor.elements.model.YAWLMultipleInstanceTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 
-import au.edu.qut.yawl.editor.swing.ActionAndFocusListener;
-import au.edu.qut.yawl.editor.swing.JUtilities;
-import au.edu.qut.yawl.editor.swing.TooltipTogglingWidget;
-import au.edu.qut.yawl.editor.swing.net.NetVariableComboBox;
-import au.edu.qut.yawl.editor.swing.data.JXQueryEditor;
-import au.edu.qut.yawl.editor.swing.data.JXQueryPanel;
-import au.edu.qut.yawl.editor.swing.data.TaskDataVariableUpdateDialog;
-import au.edu.qut.yawl.editor.swing.element.TaskVariableComboBox;
+import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.net.NetVariableComboBox;
+import org.yawlfoundation.yawl.editor.swing.data.JXQueryEditor;
+import org.yawlfoundation.yawl.editor.swing.data.JXQueryPanel;
+import org.yawlfoundation.yawl.editor.swing.data.TaskDataVariableUpdateDialog;
+import org.yawlfoundation.yawl.editor.swing.element.TaskVariableComboBox;
 
-import au.edu.qut.yawl.editor.swing.element.AbstractTaskDoneDialog;
-import au.edu.qut.yawl.editor.swing.element.MultipleInstanceBoundsPanel;
-import au.edu.qut.yawl.editor.swing.data.DataVariableUpdateDialogFactory;
+import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.element.MultipleInstanceBoundsPanel;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableUpdateDialogFactory;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;

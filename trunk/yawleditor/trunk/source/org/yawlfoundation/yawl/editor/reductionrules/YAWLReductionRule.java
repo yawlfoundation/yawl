@@ -19,7 +19,7 @@
  *
  */
  
-package au.edu.qut.yawl.editor.reductionrules;
+package org.yawlfoundation.yawl.editor.reductionrules;
 import org.yawlfoundation.yawl.elements.*;
 import java.util.Map;
 import java.util.Set;

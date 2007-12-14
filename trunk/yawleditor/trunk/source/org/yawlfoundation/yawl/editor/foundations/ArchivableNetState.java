@@ -22,7 +22,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.foundations;
+package org.yawlfoundation.yawl.editor.foundations;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -35,13 +35,13 @@ import org.jgraph.graph.ConnectionSet;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.ParentMap;
 
-import au.edu.qut.yawl.editor.data.Decomposition;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.elements.model.YAWLPort;
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.net.NetGraphModel;
-import au.edu.qut.yawl.editor.specification.SpecificationModel;
-import au.edu.qut.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
 /**
  * @author bradforl

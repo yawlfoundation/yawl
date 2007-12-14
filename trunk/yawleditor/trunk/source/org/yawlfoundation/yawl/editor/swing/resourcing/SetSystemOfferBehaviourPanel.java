@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.resourcing;
+package org.yawlfoundation.yawl.editor.swing.resourcing;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -14,8 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLAtomicTask;
-import au.edu.qut.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 
 public class SetSystemOfferBehaviourPanel extends ResourcingWizardPanel {
 

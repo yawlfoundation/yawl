@@ -21,14 +21,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package au.edu.qut.yawl.editor.swing.data;
+package org.yawlfoundation.yawl.editor.swing.data;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLTask;
-import au.edu.qut.yawl.editor.elements.model.YAWLFlowRelation;
-import au.edu.qut.yawl.editor.net.NetGraph;
-import au.edu.qut.yawl.editor.swing.JOrderedSingleSelectTable;
-import au.edu.qut.yawl.editor.swing.data.FlowPredicateUpdateDialog;
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.swing.JOrderedSingleSelectTable;
+import org.yawlfoundation.yawl.editor.swing.data.FlowPredicateUpdateDialog;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 
 public class FlowPriorityTable extends JOrderedSingleSelectTable {
 

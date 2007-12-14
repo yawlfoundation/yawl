@@ -1,4 +1,4 @@
-package au.edu.qut.yawl.editor.swing.specification;
+package org.yawlfoundation.yawl.editor.swing.specification;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -12,7 +12,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import au.edu.qut.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 
 public class DesignNotesPanel extends JPanel {
 

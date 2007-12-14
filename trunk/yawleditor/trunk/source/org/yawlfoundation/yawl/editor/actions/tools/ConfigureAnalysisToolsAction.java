@@ -20,7 +20,7 @@
  *
  */
 
-package au.edu.qut.yawl.editor.actions.tools;
+package org.yawlfoundation.yawl.editor.actions.tools;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -43,12 +43,12 @@ import javax.swing.JTabbedPane;
 
 import javax.swing.border.EmptyBorder;
 
-import au.edu.qut.yawl.editor.YAWLEditor;
-import au.edu.qut.yawl.editor.actions.YAWLBaseAction;
-import au.edu.qut.yawl.editor.analyser.YAWLResetAnalyser;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
 
-import au.edu.qut.yawl.editor.swing.AbstractDoneDialog;
-import au.edu.qut.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 
 public class ConfigureAnalysisToolsAction extends YAWLBaseAction {

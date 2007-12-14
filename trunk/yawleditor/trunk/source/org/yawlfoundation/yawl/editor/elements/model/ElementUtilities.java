@@ -20,11 +20,11 @@
  *
  */
 
-package au.edu.qut.yawl.editor.elements.model;
+package org.yawlfoundation.yawl.editor.elements.model;
 
 import org.jgraph.graph.Edge;
 
-import au.edu.qut.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 
 /**
  * @author linds
