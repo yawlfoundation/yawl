@@ -25,6 +25,7 @@ package org.yawlfoundation.yawl.editor.thirdparty.engine;
 import java.awt.Point;
 import java.io.File;
 
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -252,7 +253,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           DataVariable.USAGE_LOCAL, 
           engineVariable.getDataTypeName(),
           engineVariable.getName(),
-          engineVariable.getInitialValue()
+          engineVariable.getInitialValue(),
+          new Hashtable()  // LWB: engine local variables do not have extended attributes, apparently.
       );
     }
   }
@@ -281,7 +283,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           DataVariable.USAGE_INPUT_ONLY, 
           engineParameter.getDataTypeName(),
           engineParameter.getName(),
-          engineParameter.getInitialValue()
+          engineParameter.getInitialValue(),
+          engineParameter.getAttributes()
       );
       
     }
@@ -301,7 +304,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           DataVariable.USAGE_OUTPUT_ONLY,
           engineParameter.getDataTypeName(), 
           engineParameter.getName(),
-          engineParameter.getInitialValue()
+          engineParameter.getInitialValue(),
+          engineParameter.getAttributes()
       );
     }
   }
@@ -310,7 +314,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
                                            int editorUsage,
                                            String dataType, 
                                            String paramName, 
-                                           String initialValue) {
+                                           String initialValue,
+                                           Hashtable attributes) {
     
     DataVariable editorVariable = new DataVariable();
 
@@ -319,6 +324,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     editorVariable.setDataType(dataType);
     editorVariable.setInitialValue(initialValue);
     editorVariable.setUserDefined(true);
+    editorVariable.setAttributes(attributes);
     
     editorDecomposition.getVariables().add(editorVariable);
  }

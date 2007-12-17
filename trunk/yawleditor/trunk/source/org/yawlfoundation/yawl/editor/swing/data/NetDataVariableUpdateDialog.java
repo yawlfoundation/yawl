@@ -33,6 +33,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
@@ -111,9 +112,14 @@ public class NetDataVariableUpdateDialog extends TaskDataVariableUpdateDialog {
   
   protected JPanel getVariablePanel() {
     JPanel panel = super.getVariablePanel();
-    
-    panel.add(getInitialValuePanel(), BorderLayout.CENTER);
+    JTabbedPane tabbedPane = (JTabbedPane) panel.getComponent(0);
 
+    JPanel standardPanel = (JPanel) tabbedPane.getComponent(0);
+    
+    standardPanel.add(getInitialValuePanel(), BorderLayout.CENTER);
+
+    tabbedPane.setEnabledAt(1, false);
+    
     return panel;
   }
   

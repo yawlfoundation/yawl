@@ -27,8 +27,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -566,6 +568,18 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       return;
     }
     
+    //BEGIN: MLF merge extended decomposition attributes
+    for(Enumeration enumer = editorDecomposition.getAttributes().keys(); enumer.hasMoreElements();) {
+      String key = enumer.nextElement().toString();
+      engineDecomposition.setAttribute(
+          key, 
+          XMLUtilities.quoteSpecialCharacters(
+              editorDecomposition.getAttribute(key)
+          )
+      );
+    }
+    //END: MLF
+    
     generateDecompositionInputParameters(engineDecomposition, editorDecomposition);
     generateDecompositionOutputParameters(engineDecomposition, editorDecomposition);
   }
@@ -592,7 +606,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           editorInputVariable.getDataType(),
           editorInputVariable.getName(),
           editorInputVariable.getInitialValue(),
-          ordering++
+          editorInputVariable.getAttributes(),
+          ordering++    
+          
       );
     }  
   }
@@ -602,6 +618,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
                                               String dataType, 
                                               String paramName, 
                                               String initialValue,
+                                              Hashtable attributes,
                                               int ordering) {
 
     YParameter engineParameter = 
@@ -615,6 +632,19 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       paramName,
       XML_SCHEMA_URI
     );
+    
+    //MLF: transfer extended attributes to engine parameter
+    for(Enumeration enumer = attributes.keys(); enumer.hasMoreElements();)
+    {
+      String key = enumer.nextElement().toString();
+      engineParameter.addAttribute(
+          key, 
+          XMLUtilities.quoteSpecialCharacters(
+              attributes.get(key).toString()
+           )
+       );
+    }
+
     
     engineParameter.setOrdering(ordering);
     
@@ -658,6 +688,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           editorOutputVariable.getDataType(),
           editorOutputVariable.getName(),
           editorOutputVariable.getInitialValue(),
+          editorOutputVariable.getAttributes(),
           ordering++
       );
     }
