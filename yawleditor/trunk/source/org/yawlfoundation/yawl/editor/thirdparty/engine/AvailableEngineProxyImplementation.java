@@ -163,6 +163,11 @@ public class AvailableEngineProxyImplementation implements
       while(servicesIterator.hasNext()) {
         YAWLServiceReference serviceReference = (YAWLServiceReference) servicesIterator.next();
         
+        
+        if (!serviceReference.canBeAssignedToTask()) {
+          continue;  // ignore services that are not for tasks.
+        }
+        
         // Short and sweet description for the editor.
         
         if (serviceReference.getDocumentation().equals(
