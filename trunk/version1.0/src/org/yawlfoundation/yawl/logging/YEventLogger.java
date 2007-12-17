@@ -157,7 +157,6 @@ public class YEventLogger {
                 eventStr = eventName.toString();
 
             // remove key mapping from cache on completion
-            System.out.println("logparent, caseid = " + caseID + ", taskID = " + taskID + ",eventname = " + eventName.toString() + ", eventID = " + eventID);
             if (workItem.hasFinishedStatus()) _parentEventIDMap.remove(caseID) ;
 
             // persist the event row

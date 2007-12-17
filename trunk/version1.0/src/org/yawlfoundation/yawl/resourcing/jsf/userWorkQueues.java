@@ -6,13 +6,16 @@
  */
 package org.yawlfoundation.yawl.resourcing.jsf;
 
-import org.yawlfoundation.yawl.resourcing.WorkQueue;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.model.Option;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import javax.faces.FacesException;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -466,35 +469,91 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
     private int populateQueue(int queueType) {
+        System.out.println("%%%%%%%%%%%% in populateQueue, qtype = " + queueType);
         Participant p = getSessionBean().getParticipant();
         Set<WorkItemRecord> queue = p.getWorkQueues().getQueuedWorkItems(queueType);
-        pfQueueUI itemsInsert = (pfQueueUI) getBean("pfQueueUI");
-        Listbox lbx = itemsInsert.getLbxItems();
-     //   lbx.
-        return -1 ;
+        pfQueueUI itemsSubPage = (pfQueueUI) getBean("pfQueueUI");
+        Listbox lbx = itemsSubPage.getLbxItems();
+        itemsSubPage.clearQueueGUI();
+        if (queue != null) {
+            System.out.println("%%%%%%%%%%% in populateQueue, set is not null");
+            if (!queue.isEmpty()) {
+                System.out.println("%%%%%%%%%%% in populateQueue, set is not empty");
+                WorkItemRecord firstWir = addItemsToListOptions(queue) ;
+                WorkItemRecord choice = getSessionBean().getListChoice() ;
+                if (choice == null) {
+                    lbx.setSelected(firstWir);
+                    itemsSubPage.populateTextBoxes(firstWir) ;
+                }
+                else {
+                    System.out.println("&&&&&&&& choice not null &&&&&&&&");
+                    System.out.println("&&&&&&&&&&&& choice = " + choice) ;
+   //                 for (WorkItemRecord wir : queue) {
+   //                     System.out.println("&&&&&&&&&&&& wir id = " + wir.getID()) ;
+   //                     if (choice.equals(wir.getID())) {
+                            itemsSubPage.populateTextBoxes(choice) ;
+   //                         break ;
+   //                     }
+   //                 }
+                }
+            }
+            return queue.size() ;
+        }
+        else {
+            System.out.println("%%%%%%% populatequeue, queue is null");
+            return -1 ;    // null queue
+        }
+    }
+
+
+    private WorkItemRecord addItemsToListOptions(Set<WorkItemRecord> queue) {
+        Option[] options = new Option[queue.size()] ;
+        WorkItemRecord result = null;
+        int i = 0 ;
+        for (WorkItemRecord wir : queue) {
+            if (i==0) result = wir ;         // return first listed
+            options[i++] = new Option(wir, wir.getID()) ;
+        }
+        getSessionBean().setListOptions(options);
+        return result ;
     }
 
     public String tabOffered_action() {
         int itemCount = populateQueue(WorkQueue.OFFERED);
-        getTabStarted().setText(String.format("Offered (%s)", itemCount));
+        if (itemCount > -1)
+            getTabOffered().setText(String.format("Offered (%s)", itemCount));
+        else
+            getTabOffered().setText("Offered");
         return null;
     }
 
 
     public String tabAllocated_action() {
-        populateQueue(WorkQueue.ALLOCATED);
+        int itemCount = populateQueue(WorkQueue.ALLOCATED);
+        if (itemCount > -1)
+            getTabAllocated().setText(String.format("Allocated (%s)", itemCount));
+        else
+            getTabAllocated().setText("Allocated");
         return null;
     }
 
 
     public String tabStarted_action() {
-        populateQueue(WorkQueue.STARTED);
+        int itemCount = populateQueue(WorkQueue.STARTED);
+        if (itemCount > -1)
+            getTabStarted().setText(String.format("Started (%s)", itemCount));
+        else
+            getTabStarted().setText("Started");
         return null;
     }
 
 
     public String tabSuspended_action() {
-        populateQueue(WorkQueue.SUSPENDED);
+        int itemCount = populateQueue(WorkQueue.SUSPENDED);
+        if (itemCount > -1)
+            getTabSuspended().setText(String.format("Suspended (%s)", itemCount));
+        else
+            getTabSuspended().setText("Suspended");
         return null;
     }
 

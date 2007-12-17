@@ -36,6 +36,7 @@ public class YAWLServiceReference implements YVerifiable{
     public String _yawlServiceID;
     private YAWLServiceGateway _webServiceGateway;
     public String _documentation;
+    public boolean _assignable = true ;            // default: can be assigned to a task
 
     /*****************************
       INSERTED FOR PERSISTANCE
@@ -58,6 +59,10 @@ public class YAWLServiceReference implements YVerifiable{
     public String get_documentation() {
 	return _documentation;
     }
+
+    public void set_assignable(boolean b) { _assignable = b ; }
+
+    public boolean get_assignable() { return _assignable ; }
 
     /***************************************/
 
@@ -99,6 +104,7 @@ public class YAWLServiceReference implements YVerifiable{
             result.append(_documentation);
             result.append("</documentation>");
         }
+        result.append("<assignable>").append(_assignable).append("</assignable>");
         result.append("</yawlService>");
         return result.toString();
     }
@@ -115,8 +121,11 @@ public class YAWLServiceReference implements YVerifiable{
             Document doc = builder.build(new StringReader(serialisedService));
             String uri = doc.getRootElement().getAttributeValue("id");
             String docStr = doc.getRootElement().getChildText("documentation");
+            String assignable = doc.getRootElement().getChildText("assignable");
             YAWLServiceReference service =  new YAWLServiceReference(uri, null);
             service.setDocumentation(docStr);
+            if (assignable != null)
+                service.set_assignable(assignable.equalsIgnoreCase("true"));
             return service;
         } catch (JDOMException e) {
             e.printStackTrace();
@@ -143,6 +152,9 @@ public class YAWLServiceReference implements YVerifiable{
     public void setDocumentation(String documentation) {
         this._documentation = documentation;
     }
+
+
+    public boolean canBeAssignedToTask() { return _assignable ; }
 
 
     /**

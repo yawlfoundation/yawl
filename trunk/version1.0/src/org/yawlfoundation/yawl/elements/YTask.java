@@ -284,6 +284,8 @@ public abstract class YTask extends YExternalNetElement {
 
     public synchronized List t_fire(YPersistenceManager pmgr) throws YStateException, YDataStateException, YQueryException, YPersistenceException, YSchemaBuildingException {
         YIdentifier id = getI();
+
+        System.out.println("############## t_fire, id=" + id.toString());
         if (!t_enabled(id)) {
             throw new YStateException(
                     this + " cannot fire due to not being enabled");
