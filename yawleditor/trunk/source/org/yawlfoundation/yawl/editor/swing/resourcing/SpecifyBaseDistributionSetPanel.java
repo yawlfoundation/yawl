@@ -3,13 +3,21 @@ package org.yawlfoundation.yawl.editor.swing.resourcing;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -17,10 +25,12 @@ import javax.swing.event.ListSelectionListener;
 
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableUtilities;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 import org.yawlfoundation.yawl.editor.resourcing.DataVariableContent;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
@@ -30,6 +40,10 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
   private UserPanel userPanel;
   private RolesPanel rolesPanel;
   private TaskInputParameterPanel parameterPanel;
+  
+  private JCheckBox retainFamiliarButton;
+  
+  private FamiliarTaskComboBox familiarTaskComboBox;
   
   public SpecifyBaseDistributionSetPanel(ManageResourcingDialog dialog) {
     super(dialog);
@@ -45,10 +59,45 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     
     gbc.gridx = 0;
     gbc.gridy = 0;
+    gbc.gridwidth = 3;
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.insets = new Insets(0,0,15,0);
+
+    JLabel discussion = new JLabel(
+        "<html><body>The offer process involves choossing a number of users that should be " +
+        "informed of the existance of the work item, one of whom should eventually do this " +
+        "work. As you have asked that the system automatically do this, you must now specify " +
+        "how the system should automatically go about offering the work item. Begin by" +
+        "specifying a set of users to distribute offers of work to.</body></html>"
+    );
+    
+    add(discussion,gbc);
+
+    gbc.gridy++;
+    gbc.gridwidth = 1;
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.EAST;
+    gbc.insets = new Insets(0,0,10,5);
+
+    retainFamiliarButton = buildRetainFamiliarButton();
+
+    add(retainFamiliarButton, gbc);
+    
+    gbc.gridx++;
+    gbc.anchor = GridBagConstraints.WEST;
+
+    familiarTaskComboBox = buildFamiliarTaskComboBox();
+
+    add(familiarTaskComboBox, gbc);
+
+    gbc.gridx = 0;
+    gbc.gridy++;
     gbc.weightx = 0.333;
     gbc.weighty = 1;
-    gbc.insets = new Insets(0,5,0,5);
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.CENTER;
     gbc.fill = GridBagConstraints.BOTH;
+    gbc.insets = new Insets(0,5,0,5);
     
     add(buildUserPanel(), gbc);
 
@@ -59,10 +108,14 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     gbc.gridx++;
 
     add(buildTaskInputParameterPanel(), gbc);
+    
+
+    LinkedList<JComponent> panels = new LinkedList<JComponent>();
+
   }
 
   public String getWizardStepTitle() {
-    return "Specify Base Distribution Set";
+    return "Specify System Behaviour when Offering a Work Item";
   }
   
   private JPanel buildUserPanel() {
@@ -79,6 +132,44 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
   private JPanel buildTaskInputParameterPanel() {
     parameterPanel = new TaskInputParameterPanel(this);
     return parameterPanel;
+  }
+  
+  private JCheckBox buildRetainFamiliarButton() {
+    final JCheckBox button = new JCheckBox("Retain user from a familiar task: ");
+    button.setHorizontalTextPosition(SwingConstants.RIGHT);
+    button.setMnemonic(KeyEvent.VK_R);
+    button.addActionListener(
+      new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          if (button.isSelected()) {
+            familiarTaskComboBox.setEnabled(true);
+            getResourceMapping().setRetainFamiliarTask(
+                familiarTaskComboBox.getSelectedFamiliarTask()    
+            );
+          } else {
+            familiarTaskComboBox.setEnabled(false);
+          }
+        }
+      }
+    );
+    return button;
+  }
+
+  private FamiliarTaskComboBox buildFamiliarTaskComboBox() {
+    final FamiliarTaskComboBox box = new FamiliarTaskComboBox();
+    box.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            if (retainFamiliarButton.isSelected() && box.isEnabled()) {
+              getResourceMapping().setRetainFamiliarTask(
+                  box.getSelectedFamiliarTask()    
+              );
+            }
+          }
+        }
+    );
+    
+    return box;
   }
 
   protected void initialise() {
@@ -114,6 +205,30 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     parameterPanel.setVariableContentList(
         getResourceMapping().getBaseVariableContentList()
     );
+    
+    
+    familiarTaskComboBox.setTask(
+        (YAWLAtomicTask) getTask()
+    );
+
+    if (familiarTaskComboBox.getFamiliarTaskNumber() == 0) {
+      retainFamiliarButton.setEnabled(false);
+      familiarTaskComboBox.setEnabled(false);
+      return;
+    }
+    
+    retainFamiliarButton.setEnabled(true);
+    
+    if (getResourceMapping().getRetainFamiliarTask() == null) {
+      retainFamiliarButton.setSelected(false);
+      familiarTaskComboBox.setEnabled(false);
+    } else {
+      familiarTaskComboBox.setEnabled(true);
+      familiarTaskComboBox.setSelectedFamiliarTask(
+          getResourceMapping().getRetainFamiliarTask()    
+      );
+      retainFamiliarButton.setSelected(true);
+    }
   }
   
   public ManageResourcingDialog getResourcingDialog() {
@@ -122,8 +237,7 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
   
   public boolean shouldDoThisStep() {
     return getResourceMapping().getOfferInteractionPoint() == 
-      ResourceMapping.SYSTEM_INTERACTION_POINT &&
-      getResourceMapping().getRetainFamiliarTask() == null;
+      ResourceMapping.SYSTEM_INTERACTION_POINT;
   }
 }
 

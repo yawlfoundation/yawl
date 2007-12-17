@@ -137,6 +137,7 @@ public class TaskDataVariableUpdateDialog extends AbstractDoneDialog {
 
   protected JTabbedPane buildBaseVariablePanel() {
     pane = new JTabbedPane();
+    pane.setFocusable(false);
 
     pane.setBorder(
         new EmptyBorder(5,5,5,5)

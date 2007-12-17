@@ -859,33 +859,32 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       interaction.setFamiliarParticipantTask(
         ((YAWLTask) editorResourceMapping.getRetainFamiliarTask()).getEngineId()   
       );
-    } else {
+    } 
       
-      populateOfferParticipants(
-          editorResourceMapping,
-          engineResourceMapping
-      );
-      
-      populateOfferRoles(
-          editorResourceMapping,
-          engineResourceMapping
-      );
+    populateOfferParticipants(
+        editorResourceMapping,
+        engineResourceMapping
+    );
+    
+    populateOfferRoles(
+        editorResourceMapping,
+        engineResourceMapping
+    );
 
-      populateOfferInputParameters(
-          editorResourceMapping,
-          engineResourceMapping
-      );
+    populateOfferInputParameters(
+        editorResourceMapping,
+        engineResourceMapping
+    );
 
-      populateOfferFilters(
-          editorResourceMapping,
-          engineResourceMapping
-      );
+    populateOfferFilters(
+        editorResourceMapping,
+        engineResourceMapping
+    );
 
-      populateRuntimeConstraints(
-          editorResourceMapping,
-          engineResourceMapping
-      );
-    }
+    populateRuntimeConstraints(
+        editorResourceMapping,
+        engineResourceMapping
+    );
     
     return interaction;
   }
