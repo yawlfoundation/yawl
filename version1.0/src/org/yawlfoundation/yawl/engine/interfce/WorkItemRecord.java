@@ -61,6 +61,12 @@ public class WorkItemRecord {
     private String _startTime;
     private String _completionTime;
 
+    // ... and their millisecond equivalents
+    private long _enablementTimeMs = 0;
+    private long _firingTimeMs = 0;
+    private long _startTimeMs = 0 ;
+    private long _completionTimeMs = 0 ;
+
     // current statuses
     private String _status;
     private String _resourceStatus ;
@@ -140,6 +146,14 @@ public class WorkItemRecord {
 
     public void setCompletionTime(String time) { _completionTime = time; }
 
+    public void setEnablementTimeMs(long time) { _enablementTimeMs = time; }
+
+    public void setFiringTimeMs(long time) { _firingTimeMs = time; }
+
+    public void setStartTimeMs(long time) { _startTimeMs = time; }
+
+    public void setCompletionTimeMs(long time) {_completionTimeMs = time; }
+    
 
     public void setStatus(String status) {_status = status; }
     
@@ -191,6 +205,13 @@ public class WorkItemRecord {
 
     public String getCompletionTime() { return _completionTime; }
 
+    public long getEnablementTimeMs() { return _enablementTimeMs; }
+
+    public long getFiringTimeMs() { return _firingTimeMs; }
+
+    public long getStartTimeMs() { return _startTimeMs; }
+
+    public long getCompletionTimeMs() { return _completionTimeMs; }
 
     public String getStatus() { return _status; }
 

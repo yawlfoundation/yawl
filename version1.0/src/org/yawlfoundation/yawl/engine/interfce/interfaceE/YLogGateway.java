@@ -61,7 +61,6 @@ public class YLogGateway extends HttpServlet {
            "</body></html>";
        }
        else if (action.equalsIgnoreCase("connect")) {
-           System.out.println("**** doGet connect") ;
            String userid = req.getParameter("userid");
            String password = req.getParameter("password");
            if (_engine != null)

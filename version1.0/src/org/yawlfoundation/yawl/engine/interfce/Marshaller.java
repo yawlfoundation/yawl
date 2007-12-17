@@ -239,6 +239,18 @@ public class Marshaller {
             workItem.setFiringTime(firingTime);
             String startTime = workItemElement.getChildText("startTime");
             workItem.setStartTime(startTime);
+            String enableTimeMs = workItemElement.getChildText("enablementTimeMs");
+            if (enableTimeMs != null)
+            workItem.setEnablementTimeMs(Long.parseLong(enableTimeMs));
+            String fireTimeMs = workItemElement.getChildText("firingTimeMs");
+            if (fireTimeMs != null)
+                workItem.setFiringTimeMs(Long.parseLong(fireTimeMs));
+            String startTimeMs = workItemElement.getChildText("startTimeMs");
+            if (startTimeMs != null)
+                workItem.setStartTimeMs(Long.parseLong(startTimeMs));
+            String completeTimeMs = workItemElement.getChildText("completionTimeMs");
+            if (completeTimeMs != null)
+                workItem.setCompletionTimeMs(Long.parseLong(completeTimeMs));
             String user = workItemElement.getChildText("assignedTo");
             workItem.setStartedBy(user);
             Element data = workItemElement.getChild("data");

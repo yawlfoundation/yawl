@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <div style="height: 200px; width: 500px; -rave-layout: grid" xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://www.sun.com/web/ui">
     <f:subview id="pfQueueUI">
-        <ui:listbox binding="#{pfQueueUI.lbxItems}" id="lbxItems" items="#{pfQueueUI.lbxItemsDefaultOptions.options}" style="border: 2px inset rgb(204, 204, 255); height: 156px; left: 12px; top: 36px; position: absolute; width: 144px"/>
-        <ui:label binding="#{pfQueueUI.lblSepcID}" for="txtSpecID" id="lblSepcID" style="left: 180px; top: 18px; position: absolute" text="Specification"/>
+        <ui:listbox binding="#{pfQueueUI.lbxItems}" id="lbxItems" items="#{SessionBean.listOptions}"
+                    selected="#{SessionBean.listChoice}" onChange="common_timeoutSubmitForm(this.form, 'lbxItems');"
+                    style="border: 2px inset rgb(204, 204, 255); height: 156px; left: 12px; top: 36px; position: absolute; width: 144px"
+                    valueChangeListener="#{pfQueueUI.lbxItems_processValueChange}"/>
+        <ui:label binding="#{pfQueueUI.lblSpecID}" for="txtSpecID" id="lblSpecID" style="left: 180px; top: 18px; position: absolute" text="Specification"/>
         <ui:textField binding="#{pfQueueUI.txtSpecID}" id="txtSpecID" readOnly="true"
-            style="border: 2px inset #ccccff; padding: 2px; color: rgb(102, 102, 102); left: 180px; top: 36px; position: absolute; width: 136px"
+            style="border: 2px inset #ccccff; padding: 2px; background-color: white; color: rgb(102, 102, 102); left: 180px; top: 36px; position: absolute; width: 136px"
             text="OrganiseConcert" trim="false"/>
         <ui:label binding="#{pfQueueUI.lblCaseID}" for="txtCaseID" id="lblCaseID" style="left: 180px; top: 84px; position: absolute" text="Case"/>
         <ui:label binding="#{pfQueueUI.lblCreated}" for="txtCreated" id="lblCreated" style="left: 180px; top: 150px; position: absolute" text="Created"/>
         <ui:textField binding="#{pfQueueUI.txtCreated}" id="txtCreated" readOnly="true"
-            style="border: 2px inset rgb(204, 204, 255); padding: 2px; color: rgb(102, 102, 102); left: 180px; top: 168px; position: absolute; width: 136px"
+            style="border: 2px inset rgb(204, 204, 255); padding: 2px; background-color: white; color: rgb(102, 102, 102); left: 180px; top: 168px; position: absolute; width: 136px"
             text="11:41am 21/10/2007" trim="false"/>
         <ui:textField binding="#{pfQueueUI.txtCaseID}" id="txtCaseID" readOnly="true"
-            style="border: 2px inset rgb(204, 204, 255); padding: 2px; color: rgb(102, 102, 102); left: 180px; top: 102px; position: absolute; width: 136px"
+            style="border: 2px inset rgb(204, 204, 255); padding: 2px; background-color: white; color: rgb(102, 102, 102); left: 180px; top: 102px; position: absolute; width: 136px"
             text="217" trim="false"/>
         <ui:textField binding="#{pfQueueUI.txtAge}" id="txtAge" readOnly="true"
-            style="border: 2px inset rgb(204, 204, 255); padding: 2px; color: rgb(102, 102, 102); left: 342px; top: 168px; position: absolute; width: 136px"
+            style="border: 2px inset rgb(204, 204, 255); padding: 2px; background-color: white; color: rgb(102, 102, 102); left: 342px; top: 168px; position: absolute; width: 136px"
             text="3:21:25:11" trim="false"/>
         <ui:textField binding="#{pfQueueUI.txtStatus}" id="txtStatus" readOnly="true"
-            style="border: 2px inset rgb(204, 204, 255); padding: 2px; color: rgb(102, 102, 102); left: 342px; top: 102px; position: absolute; width: 136px"
+            style="border: 2px inset rgb(204, 204, 255); padding: 2px; background-color: white; color: rgb(102, 102, 102); left: 342px; top: 102px; position: absolute; width: 136px"
             text="Enabled" trim="false"/>
         <ui:textField binding="#{pfQueueUI.txtTaskID}" id="txtTaskID" readOnly="true"
-            style="border: 2px inset rgb(204, 204, 255); padding: 2px; color: rgb(102, 102, 102); left: 342px; top: 36px; position: absolute; width: 136px"
+            style="border: 2px inset rgb(204, 204, 255); padding: 2px; background-color: white; color: rgb(102, 102, 102); left: 342px; top: 36px; position: absolute; width: 136px"
             text="DoShow" trim="false"/>
         <ui:label binding="#{pfQueueUI.lblTaskID}" for="txtTaskID" id="lblTaskID" style="left: 342px; top: 18px; position: absolute" text="Task"/>
         <ui:label binding="#{pfQueueUI.lblAge}" for="txtAge" id="lblAge" style="height: 17px; left: 342px; top: 150px; position: absolute" text="Age"/>

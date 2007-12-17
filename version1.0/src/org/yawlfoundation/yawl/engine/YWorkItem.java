@@ -475,11 +475,14 @@ public class YWorkItem {
             xmlBuff.append(wrap(getDataString(), "data"));
         }
         xmlBuff.append(wrap(_df.format(getEnablementTime()), "enablementTime"));
+        xmlBuff.append(wrap(String.valueOf(getEnablementTime().getTime()), "enablementTimeMs")) ;
         if (getFiringTime() != null) {
             xmlBuff.append(wrap(_df.format(getFiringTime()), "firingTime"));
+            xmlBuff.append(wrap(String.valueOf(getFiringTime().getTime()), "firingTimeMs")) ;
         }
         if (getStartTime() != null) {
             xmlBuff.append(wrap(_df.format(getStartTime()), "startTime"));
+            xmlBuff.append(wrap(String.valueOf(getStartTime().getTime()), "startTimeMs")) ;
             xmlBuff.append(wrap(getUserWhoIsExecutingThisItem(), "assignedTo"));
         }
         xmlBuff.append("</workItem>");

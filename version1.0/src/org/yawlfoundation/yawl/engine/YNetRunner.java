@@ -577,12 +577,23 @@ public class YNetRunner // extends Thread
             logger.debug("Aborting runner continuation as case is currently suspending/suspended");
             return true;
         }
-        
-		List tasks = new ArrayList(_net.getNetElements().values());
+
+        System.out.println("**** CIP:") ;
+
+        List tasks = new ArrayList(_net.getNetElements().values());
 
         Iterator tasksIter = tasks.iterator();
         while (tasksIter.hasNext()) {
             YExternalNetElement netElement = (YExternalNetElement) tasksIter.next();
+
+          System.out.println("****** top of loop") ;
+            System.out.println(netElement.toXML()) ;
+            System.out.println("");
+            System.out.println("****** _net:");
+            System.out.println(_net.getID())  ;
+            System.out.println("***********************************************");
+            System.out.println("");
+
             if (netElement instanceof YTask) {
                 YTask task = (YTask) netElement;
 
@@ -594,6 +605,8 @@ public class YNetRunner // extends Thread
                     if (!taskRecordedAsEnabled && !taskRecordedAsBusy) {
 
                         if (task instanceof YAtomicTask) {
+                            System.out.println("***** TASK IS ATOMIC *****") ;
+                            System.out.println("***** " + task.getID()) ;
                             YAtomicTask atomicTask = (YAtomicTask) task;
                             YAWLServiceGateway wsgw = (YAWLServiceGateway) atomicTask.getDecompositionPrototype();
                             //if its not an empty task
@@ -628,6 +641,10 @@ public class YNetRunner // extends Thread
                                     completeTask(pmgr, null, atomicTask, id, null);//atomicTask.t_complete(id);
                                 }
                         } else {
+
+                            System.out.println("***** TASK IS COMPOSITE *****") ;
+                            System.out.println("***** " + task.getID()) ;
+
                             //fire the composite task
                             _busyTasks.add(task);
 
@@ -644,7 +661,9 @@ public class YNetRunner // extends Thread
                                 caseIDs = task.t_fire(pmgr).iterator();
                             while (caseIDs.hasNext()) {
                                 YIdentifier id = (YIdentifier) caseIDs.next();
+                                System.out.println("**** while: caseid = " + id.toString()) ;
                                     task.t_start(pmgr, id);
+                                System.out.println("**** while: task started");
                                 }
                             }
                         }

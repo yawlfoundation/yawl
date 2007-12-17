@@ -601,6 +601,7 @@ public class YEngine implements InterfaceADesign,
 
             ys = new YAWLServiceReference("http://localhost:8080/resourceService/ib", null);
             ys.setDocumentation("Resource Service, assigns workitems to resources.");
+            ys.set_assignable(false);                            // don't show in editor
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
             _myInstance.setResourceService(ys);

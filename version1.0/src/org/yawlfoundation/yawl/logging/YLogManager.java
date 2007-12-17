@@ -42,13 +42,15 @@ public class YLogManager {
     // CONSTRUCTOR - called from getInstance() //
 
     private YLogManager() {
-        _pmgr = new YPersistenceManager(YEngine.getPMSessionFactory());
         _log = Logger.getLogger(this.getClass());
-        try {
-             _pmgr.startTransactionalSession();
-        }
-        catch (YPersistenceException ype) {
-             _log.error("Could not initialise connection to log tables.", ype) ;
+        if (YEngine.isPersisting()) {
+            _pmgr = new YPersistenceManager(YEngine.getPMSessionFactory());
+            try {
+                 _pmgr.startTransactionalSession();
+            }
+            catch (YPersistenceException ype) {
+                 _log.error("Could not initialise connection to log tables.", ype) ;
+            }
         }
     }
 

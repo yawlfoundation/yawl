@@ -6,8 +6,9 @@
  */
 package org.yawlfoundation.yawl.resourcing.jsf;
 
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import javax.faces.FacesException;
 
@@ -169,4 +170,51 @@ public class SessionBean extends AbstractSessionBean {
     public Participant getParticipant() { return participant ; }
 
     public void setParticipant(Participant p) { participant = p ; }
+
+
+    /**
+     * Holds value of property listOptions.
+     */
+    private com.sun.rave.web.ui.model.Option[] listOptions;
+
+    /**
+     * Getter for property listOptions.
+     * @return Value of property listOptions.
+     */
+    public com.sun.rave.web.ui.model.Option[] getListOptions() {
+
+        return this.listOptions;
+    }
+
+    /**
+     * Setter for property listOptions.
+     * @param listOptions New value of property listOptions.
+     */
+    public void setListOptions(com.sun.rave.web.ui.model.Option[] listOptions) {
+
+        this.listOptions = listOptions;
+    }
+
+    /**
+     * Holds value of property listChoice.
+     */
+    private WorkItemRecord listChoice;
+
+    /**
+     * Getter for property listChoice.
+     * @return Value of property listChoice.
+     */
+    public WorkItemRecord getListChoice() {
+
+        return this.listChoice;
+    }
+
+    /**
+     * Setter for property listChoice.
+     * @param listChoice New value of property listChoice.
+     */
+    public void setListChoice(WorkItemRecord listChoice) {
+
+        this.listChoice = listChoice;
+    }
 }
