@@ -21,7 +21,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
     setPanels(
         new AbstractWizardPanel[] {
             new SetInteractionPointBehaviourPanel(this),
-            new SetSystemOfferBehaviourPanel(this),
+//            new SetSystemOfferBehaviourPanel(this),
             new SpecifyBaseDistributionSetPanel(this),
             new SpecifyDistributionSetFiltersPanel(this),
             new SetSystemAllocateBehaviourPanel(this),

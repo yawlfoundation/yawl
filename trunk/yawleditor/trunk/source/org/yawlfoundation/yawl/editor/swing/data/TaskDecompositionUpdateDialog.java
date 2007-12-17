@@ -142,6 +142,8 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
     pane = new JTabbedPane();
     
+    pane.setFocusable(false);
+    
     pane.addTab("Standard", panel); //MLF
 
     panel = new JPanel(new BorderLayout()); //MLF
