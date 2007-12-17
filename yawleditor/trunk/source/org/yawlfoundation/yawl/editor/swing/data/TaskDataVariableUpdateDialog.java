@@ -128,9 +128,9 @@ public class TaskDataVariableUpdateDialog extends AbstractDoneDialog {
   }
   
   protected JPanel getVariablePanel() {
-    JPanel panel = new JPanel(new GridLayout(1,1));
+    JPanel panel = new JPanel(new BorderLayout());
 
-    panel.add(buildBaseVariablePanel());
+    panel.add(buildBaseVariablePanel(), BorderLayout.CENTER);
 
     return panel;
   }
@@ -156,6 +156,15 @@ public class TaskDataVariableUpdateDialog extends AbstractDoneDialog {
   }
   
   protected JPanel buildStandardPanel() {
+    JPanel panel = new JPanel(new BorderLayout());
+
+    panel.add(buildCoreStandardPanel(), BorderLayout.NORTH);
+
+    return panel;
+  }
+  
+  
+  protected JPanel buildCoreStandardPanel() {
 
     GridBagLayout gbl = new GridBagLayout();
     GridBagConstraints gbc = new GridBagConstraints();
