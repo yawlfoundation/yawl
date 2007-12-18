@@ -105,11 +105,19 @@ public class Palette extends JPanel implements SpecificationModelListener {
     
     add(CONTROL_FLOW_PALETTE, gbc);
 
+    CONTROL_FLOW_PALETTE.setMinimumSize(
+        CONTROL_FLOW_PALETTE.getPreferredSize()    
+    );
+
     gbc.gridy++;
 
     gbc.weightx = 1;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     add(TASK_TEMPLATE_PALETTE, gbc);
+    
+    TASK_TEMPLATE_PALETTE.setMinimumSize(
+        TASK_TEMPLATE_PALETTE.getPreferredSize()    
+    );
 
     gbc.fill = GridBagConstraints.NONE;
     gbc.anchor = GridBagConstraints.CENTER;
@@ -132,7 +140,7 @@ public class Palette extends JPanel implements SpecificationModelListener {
     setMinimumSize(
         new Dimension(
             (int) getPreferredSize().getWidth(),
-            0
+            (int) getPreferredSize().getHeight()
         )
     );
     
