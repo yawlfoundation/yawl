@@ -120,7 +120,7 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
     // assumption: If we can find YSpecification, we can find everything we
     //             need from the engine libraries.
     try {
-      Class.forName("au.edu.qut.yawl.elements.YSpecification");
+      Class.forName("org.yawlfoundation.yawl.elements.YSpecification");
       return true;
     } catch (Exception e) {
       return false;

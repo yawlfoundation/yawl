@@ -1,20 +1,11 @@
 Version 2.0 (??/??/????)
-  * LWB: Fixed a bug where the view menu would occasionally show the wrong icon for a net.
-  * LWB: Fixed a bug where the path of plugin icons was absolute, stopping
-         plugin task icons from working on machines where the plugin path is different.
-  * LWB: Fixed a bug where the paste of a copied net element would result in the
-         copy having the same engine ID as the original, disrupting correct engine
-         export/validation behaviour.
+  * LWB: Upgaded the editor to use version 1.0 of the engine.  This includes a complete
+         renaming of the source package hierarchy, and breaks save-file compatibility
+         with previous versions of the editor.
   * LWB: Changed the specification version number to be a decimal number instead of a
          free-form string. This includes the export dialog now supplying the specification 
          version as a convenience to allow a workflow designer to more easily manage 
          variations the the specifications they export.
-  * LWB: Fixed a bug where engine validation was failing, claiming that max instances was
-         smaller than min instance on multi-instance tasks when max instances was set to 
-         infinity.
-  * LWB: Some refactoring around saving, closing and exiting to ensure that whenever a user
-         cancels their desire to save, close or exit, they are returned to the editor
-         correctly.
   * LWB: After numerous requests, the pallet bar can now be resized via a
          sliding bar, mostly to allow a clear view into a deep icon tree.  However, 
          given a couple of Swing limitations, the palette bar can no longer be detatched
@@ -23,6 +14,20 @@ Version 2.0 (??/??/????)
          M2 branch of the editor.
   * DT:  Small change to the pause mechanism used at editor startup to make
          better usage of system CPU.
+  * LWB: Fixed a bug where the path of plugin icons was absolute, stopping
+         plugin task icons from working on machines where the plugin path is different.
+  * LWB: Fixed a bug where the view menu would occasionally show the wrong icon for a net.
+  * LWB: Fixed a bug where the paste of a copied net element would result in the
+         copy having the same engine ID as the original, disrupting correct engine
+         export/validation behaviour.
+  * LWB: Fixed a bug where engine validation was failing, claiming that max instances was
+         smaller than min instance on multi-instance tasks when max instances was set to 
+         infinity.
+  * LWB: Some refactoring around saving, closing and exiting to ensure that whenever a user
+         cancels their desire to save, close or exit, they are returned to the editor
+         correctly.
+  * LWB: Fixed a bug where predicates and flow priorities were occasionally being reset on
+         tasks with XOR/OR splits.
 
 Version 1.5.1 (08/10/2007)
   * LWB: Fixed a bug where multiple-instance tasks were not being initialsed properly and consequently
