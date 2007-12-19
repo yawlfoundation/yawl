@@ -38,7 +38,7 @@ public class ValidityEditorPane extends JEditorPane implements AbstractXMLStyled
   private static final long serialVersionUID = 1L;
   private static final Color VALID_COLOR = Color.GREEN.darker().darker();
   private static final Color INVALID_COLOR = Color.RED.darker();
-  private static final Color UNCERTAIN_COLOR = Color.ORANGE;
+  private static final Color UNCERTAIN_COLOR = Color.ORANGE.darker();
   
   private static final Font  COURIER             = new Font("Monospaced", Font.PLAIN, 12);
   private static final Color DISABLED_BACKGROUND = Color.LIGHT_GRAY;  

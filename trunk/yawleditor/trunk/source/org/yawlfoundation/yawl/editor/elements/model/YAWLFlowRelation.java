@@ -28,11 +28,13 @@ import java.lang.Comparable;
 import java.lang.ClassCastException;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.jgraph.graph.DefaultEdge;
 import org.jgraph.graph.GraphConstants;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
-public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparable { 
+public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparable, Cloneable { 
   
   /* ALL attributes of this object are to be stored in 
    * serializationProofAttributeMap, meaning we won't get problems
@@ -45,12 +47,12 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
    */
   private static final long serialVersionUID = 1L;
   private HashMap serializationProofAttributeMap = new HashMap();
-
+  
   public YAWLFlowRelation() {
     super();
     buildContent(); 
   }
-  
+
   private void buildContent() {
     HashMap map = new HashMap();
 
@@ -125,12 +127,28 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
     return false;
   }
 
+  public void setSerializationProofAttributeMap(HashMap map) {
+    this.serializationProofAttributeMap = map;
+  }
+  
+  public HashMap getSerializationProofAttributeMap() {
+    return this.serializationProofAttributeMap;
+  }
+  
   public void setPriority(int priority) {
     serializationProofAttributeMap.put("priority",new Integer(priority));
   }
   
   public int getPriority() {
     return ((Integer) serializationProofAttributeMap.get("priority")).intValue();
+  }
+
+  public String getPredicate() {
+    return (String) serializationProofAttributeMap.get("predicate");
+  }
+
+  public void setPredicate(String predicate) {
+    serializationProofAttributeMap.put("predicate",predicate);
   }
   
   public void incrementPriority() {
@@ -139,14 +157,6 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
   
   public void decrementPriority() {
     setPriority(getPriority()-1);
-  }
-  
-  public String getPredicate() {
-    return (String) serializationProofAttributeMap.get("predicate");
-  }
-
-  public void setPredicate(String predicate) {
-    serializationProofAttributeMap.put("predicate",predicate);
   }
   
   public int compareTo(Object object) throws ClassCastException {
@@ -273,4 +283,19 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
     }
     return null;
   }
+  
+  public Object clone() {
+    YAWLFlowRelation clone = (YAWLFlowRelation) super.clone();
+
+    Map map = new HashMap();
+
+    getAttributes().applyMap(map);
+    
+    clone.setSerializationProofAttributeMap(
+      (HashMap) getSerializationProofAttributeMap().clone()    
+    );
+    
+    return clone;
+  }
+
 }
