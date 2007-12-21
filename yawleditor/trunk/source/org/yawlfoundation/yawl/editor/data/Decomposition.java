@@ -53,7 +53,7 @@ public class Decomposition implements Serializable {
     setLabel("");
     setDescription("The default (empty) decomposition");
     setVariables(new DataVariableSet());
-    setAttributes(null);
+    setAttributes(new Hashtable());
   }
 
   public void setLabel(String label) {
