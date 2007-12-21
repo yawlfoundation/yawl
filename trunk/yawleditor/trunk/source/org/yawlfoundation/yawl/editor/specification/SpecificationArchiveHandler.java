@@ -490,11 +490,15 @@ public class SpecificationArchiveHandler {
     // framees built, we can specify the net internal frame z-order
     // without odd z-order reshuffling that would happen with missing nets.
 
-    for(int i = 0; i < netArray.length; i ++) {
-      YAWLEditorDesktop.getInstance().setComponentZOrder(
-          rebuiltNets.get(i).getFrame(), 
-          ((ArchivableNetState) netArray[i]).getZOrder()
-      );
+    try {
+      for(int i = 0; i < netArray.length; i ++) {
+        YAWLEditorDesktop.getInstance().setComponentZOrder(
+            rebuiltNets.get(i).getFrame(), 
+            ((ArchivableNetState) netArray[i]).getZOrder()
+        );
+      }
+    } catch (Exception e) {
+      // Older spec save files did not save zOrder, leave as-is if this is the case.
     }
   }
   
