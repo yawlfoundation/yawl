@@ -41,10 +41,6 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
   private RolesPanel rolesPanel;
   private TaskInputParameterPanel parameterPanel;
   
-  private JCheckBox retainFamiliarButton;
-  
-  private FamiliarTaskComboBox familiarTaskComboBox;
-  
   public SpecifyBaseDistributionSetPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
@@ -73,23 +69,6 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     
     add(discussion,gbc);
 
-    gbc.gridy++;
-    gbc.gridwidth = 1;
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.EAST;
-    gbc.insets = new Insets(0,0,10,5);
-
-    retainFamiliarButton = buildRetainFamiliarButton();
-
-    add(retainFamiliarButton, gbc);
-    
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    familiarTaskComboBox = buildFamiliarTaskComboBox();
-
-    add(familiarTaskComboBox, gbc);
-
     gbc.gridx = 0;
     gbc.gridy++;
     gbc.weightx = 0.333;
@@ -108,10 +87,8 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     gbc.gridx++;
 
     add(buildTaskInputParameterPanel(), gbc);
-    
 
     LinkedList<JComponent> panels = new LinkedList<JComponent>();
-
   }
 
   public String getWizardStepTitle() {
@@ -134,43 +111,6 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     return parameterPanel;
   }
   
-  private JCheckBox buildRetainFamiliarButton() {
-    final JCheckBox button = new JCheckBox("Retain user from a familiar task: ");
-    button.setHorizontalTextPosition(SwingConstants.RIGHT);
-    button.setMnemonic(KeyEvent.VK_R);
-    button.addActionListener(
-      new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          if (button.isSelected()) {
-            familiarTaskComboBox.setEnabled(true);
-            getResourceMapping().setRetainFamiliarTask(
-                familiarTaskComboBox.getSelectedFamiliarTask()    
-            );
-          } else {
-            familiarTaskComboBox.setEnabled(false);
-          }
-        }
-      }
-    );
-    return button;
-  }
-
-  private FamiliarTaskComboBox buildFamiliarTaskComboBox() {
-    final FamiliarTaskComboBox box = new FamiliarTaskComboBox();
-    box.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            if (retainFamiliarButton.isSelected() && box.isEnabled()) {
-              getResourceMapping().setRetainFamiliarTask(
-                  box.getSelectedFamiliarTask()    
-              );
-            }
-          }
-        }
-    );
-    
-    return box;
-  }
 
   protected void initialise() {
     // TODO: Initialise widgets
@@ -207,28 +147,6 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     );
     
     
-    familiarTaskComboBox.setTask(
-        (YAWLAtomicTask) getTask()
-    );
-
-    if (familiarTaskComboBox.getFamiliarTaskNumber() == 0) {
-      retainFamiliarButton.setEnabled(false);
-      familiarTaskComboBox.setEnabled(false);
-      return;
-    }
-    
-    retainFamiliarButton.setEnabled(true);
-    
-    if (getResourceMapping().getRetainFamiliarTask() == null) {
-      retainFamiliarButton.setSelected(false);
-      familiarTaskComboBox.setEnabled(false);
-    } else {
-      familiarTaskComboBox.setEnabled(true);
-      familiarTaskComboBox.setSelectedFamiliarTask(
-          getResourceMapping().getRetainFamiliarTask()    
-      );
-      retainFamiliarButton.setSelected(true);
-    }
   }
   
   public ManageResourcingDialog getResourcingDialog() {

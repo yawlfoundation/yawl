@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -576,11 +578,14 @@ class RuntimeConstraintsPanel extends JPanel {
 
   private static final long serialVersionUID = 1L;
 
-  private FamiliarTaskComboBox familiarTaskBox; 
+  private FamiliarTaskComboBox separationOfDutiesFamiliarTaskBox; 
   
   private SpecifyDistributionSetFiltersPanel  filterPanel;
   private JCheckBox separationOfDutiesCheckBox;
   private JCheckBox piledExecutionCheckBox;
+  
+  private JCheckBox retainFamiliarCheckBox;
+  private FamiliarTaskComboBox familiarTaskComboBox;
   
   public RuntimeConstraintsPanel(SpecifyDistributionSetFiltersPanel filterPanel) {
     super();
@@ -604,7 +609,7 @@ class RuntimeConstraintsPanel extends JPanel {
     
     gbc.gridx = 0;
     gbc.gridy = 0;
-    gbc.insets = new Insets(10,5,10,5);
+    gbc.insets = new Insets(5,5,5,5);
     gbc.gridwidth = 2;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     
@@ -612,12 +617,63 @@ class RuntimeConstraintsPanel extends JPanel {
     
     gbc.gridy++;
     gbc.gridwidth = 1;
-    gbc.insets = new Insets(10,5,10,5);
-    
-    add(buildSeparationOfDutiesCheckBox(), gbc);
+    gbc.insets = new Insets(5,5,5,5);
+  
+    retainFamiliarCheckBox = buildRetainFamiliarButton();
+
+    add(retainFamiliarCheckBox, gbc);
     
     gbc.gridx++;
+
+    familiarTaskComboBox = buildFamiliarTaskComboBox();
+
+    add(familiarTaskComboBox, gbc);
+
+    gbc.gridy++;
+    gbc.gridx = 0;
+    
+    add(buildSeparationOfDutiesCheckBox(), gbc);
+
+    gbc.gridx++;
     add(buildSeparationOfDutiesFamilarTaskBox(), gbc);
+  }
+  
+  private JCheckBox buildRetainFamiliarButton() {
+    final JCheckBox button = new JCheckBox("Retain user from a familiar task: ");
+    button.setHorizontalTextPosition(SwingConstants.RIGHT);
+    button.setMnemonic(KeyEvent.VK_R);
+    button.addActionListener(
+      new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          if (button.isSelected()) {
+            familiarTaskComboBox.setEnabled(true);
+            getResourceMapping().setRetainFamiliarTask(
+                familiarTaskComboBox.getSelectedFamiliarTask()    
+            );
+          } else {
+            familiarTaskComboBox.setEnabled(false);
+          }
+        }
+      }
+    );
+    return button;
+  }
+
+  private FamiliarTaskComboBox buildFamiliarTaskComboBox() {
+    final FamiliarTaskComboBox box = new FamiliarTaskComboBox();
+    box.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            if (retainFamiliarCheckBox.isSelected() && box.isEnabled()) {
+              getResourceMapping().setRetainFamiliarTask(
+                  box.getSelectedFamiliarTask()    
+              );
+            }
+          }
+        }
+    );
+    
+    return box;
   }
   
   private JCheckBox buildPiledExecutionCheckBox() {
@@ -641,9 +697,14 @@ class RuntimeConstraintsPanel extends JPanel {
     separationOfDutiesCheckBox.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            familiarTaskBox.setEnabled(
-                separationOfDutiesCheckBox.isSelected()    
-            );
+            if (separationOfDutiesCheckBox.isSelected()) {
+              separationOfDutiesFamiliarTaskBox.setEnabled(true);
+              getResourceMapping().setSeparationOfDutiesTask(
+                  separationOfDutiesFamiliarTaskBox.getSelectedFamiliarTask()    
+              );
+            } else {
+              separationOfDutiesFamiliarTaskBox.setEnabled(false);
+            }
           }
         }
     );
@@ -652,36 +713,81 @@ class RuntimeConstraintsPanel extends JPanel {
   }
   
   private JComboBox buildSeparationOfDutiesFamilarTaskBox() {
-    familiarTaskBox = new FamiliarTaskComboBox();
+    separationOfDutiesFamiliarTaskBox = new FamiliarTaskComboBox();
+    separationOfDutiesFamiliarTaskBox .addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            if (separationOfDutiesCheckBox.isSelected() && separationOfDutiesFamiliarTaskBox.isEnabled()) {
+              getResourceMapping().setSeparationOfDutiesTask(
+                  separationOfDutiesFamiliarTaskBox.getSelectedFamiliarTask()    
+              );
+            }
+          }
+        }
+    );
     
-    return familiarTaskBox;
+    return separationOfDutiesFamiliarTaskBox;
   }
   
   public void setTask(YAWLAtomicTask task) {
-    familiarTaskBox.setTask(task);
 
-    if (familiarTaskBox.getFamiliarTaskNumber() == 0) {
-      separationOfDutiesCheckBox.setEnabled(false);
-      familiarTaskBox.setEnabled(false);
-    } else {
-      if (getResourceMapping().getSeparationOfDutiesTask()!= null) {
-        separationOfDutiesCheckBox.setEnabled(true);
-        separationOfDutiesCheckBox.setSelected(true);
-        familiarTaskBox.setEnabled(true);
-        familiarTaskBox.setSelectedFamiliarTask(
-            getResourceMapping().getSeparationOfDutiesTask()    
-        );
-      } else {
-        separationOfDutiesCheckBox.setEnabled(true);
-        separationOfDutiesCheckBox.setSelected(false);
-        familiarTaskBox.setEnabled(false);
-      }
-    }
-    
     piledExecutionCheckBox.setSelected(
-      this.getResourceMapping().isPrivilegeEnabled(
-          ResourceMapping.CAN_PILE_PRIVILEGE    
-      )    
+        this.getResourceMapping().isPrivilegeEnabled(
+            ResourceMapping.CAN_PILE_PRIVILEGE    
+        )    
+      );
+    
+    separationOfDutiesFamiliarTaskBox.setTask(
+        task
     );
+
+    familiarTaskComboBox.setTask(
+        task
+    );
+
+
+    separationOfDutiesCheckBox.setEnabled(true);
+    separationOfDutiesFamiliarTaskBox.setEnabled(true);
+
+    retainFamiliarCheckBox.setEnabled(true);
+    familiarTaskComboBox.setEnabled(true);
+
+    
+    // if there are no familiar tasks possible, shut both widget sets down.
+    // Either task box will tell us how many tasks can be used as a familiar task.
+    
+    if (separationOfDutiesFamiliarTaskBox.getFamiliarTaskNumber() == 0) {
+      separationOfDutiesCheckBox.setEnabled(false);
+      separationOfDutiesFamiliarTaskBox.setEnabled(false);
+
+      retainFamiliarCheckBox.setEnabled(false);
+      familiarTaskComboBox.setEnabled(false);
+      
+      return;
+    } 
+        
+    if (getResourceMapping().getSeparationOfDutiesTask()== null) {
+      separationOfDutiesCheckBox.setSelected(false);
+      separationOfDutiesFamiliarTaskBox.setEnabled(false);
+    } else {
+      separationOfDutiesFamiliarTaskBox.setEnabled(true);
+      separationOfDutiesFamiliarTaskBox.setSelectedFamiliarTask(
+          getResourceMapping().getSeparationOfDutiesTask()    
+      );
+      separationOfDutiesCheckBox.setSelected(true);
+      separationOfDutiesCheckBox.setEnabled(true);
+    } 
+    
+    if (getResourceMapping().getRetainFamiliarTask() == null) {
+      retainFamiliarCheckBox.setSelected(false);
+      familiarTaskComboBox.setEnabled(false);
+    } else {
+      familiarTaskComboBox.setEnabled(true);
+      familiarTaskComboBox.setSelectedFamiliarTask(
+          getResourceMapping().getRetainFamiliarTask()    
+      );
+      retainFamiliarCheckBox.setSelected(true);
+      retainFamiliarCheckBox.setEnabled(true);
+    }
   }
 }
