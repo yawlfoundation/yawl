@@ -29,6 +29,9 @@ import org.yawlfoundation.yawl.resourcing.rsInterface.Docket;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.engine.interfce.Marshaller;
+import org.yawlfoundation.yawl.elements.YSpecification;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -95,7 +98,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     private String _adminUser = "admin" ;
     private String _adminPassword = "YAWL" ;
     private String _engineSessionHandle = null ;
-    private String _engineURI ;            
+    private String _engineURI ;
+    private String _xformsURI ;
     private Namespace _yNameSpace =
             Namespace.getNamespace("http://www.yawlfoundation.org/yawlschema");
 
@@ -142,6 +146,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                                                  _engineURI.replaceFirst("/ib", "/ia"));
         _ieClient = new YLogGatewayClient(_engineURI.replaceFirst("/ib", "/logGateway"));
     }
+
+    public void setXFormsURI(String uri) { _xformsURI = uri ; }
+
+    public String getXFormsURI() { return _xformsURI ; }
 
     public void finaliseInitialisation() {
         EventLogger.setLogging(
@@ -648,6 +656,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String getFullNameForUserID(String userID) {
+        if (userID.equals("admin")) return "Administrator" ;
+
         Participant p = getParticipantFromUserID(userID) ;
         if (p != null)
            return p.getFullName();
@@ -723,6 +733,40 @@ public class ResourceManager extends InterfaceBWebsideController {
             return null ;
     }
 
+    /**
+     * Gets the complete set of Participants that ultimately report to the
+     * position(s) held by a Participant
+     * @param pid the id of the 'manager' Participant
+     * @return the set of Particpants 'managed' by this Participant
+     */
+    public Set<Participant> getParticipantsReportingTo(String pid) {
+        Set<Participant> result = new HashSet<Participant>() ;
+        Set<Position> posSet = getParticipantPositions(pid) ;
+        for (Position pos : posSet) {
+            result.addAll(getParticipantsReportingToPosition(pos)) ;
+        }
+        if (result.isEmpty()) result = null ;
+        return result ;
+    }
+
+    /**
+     * Gets the set of Participants the ultimately report to the Position passed
+     * @param manager the 'manager' Position
+     * @return the set of Particpants 'managed' by this Position
+     */
+    public Set<Participant> getParticipantsReportingToPosition(Position manager) {
+        Set<Participant> result = new HashSet<Participant>() ;
+        Set<Position> posSet = getPositions();
+        for (Position pos : posSet) {
+            if (pos.ultimatelyReportsTo(manager)) {
+                Set temp = pos.getResources() ;
+                for (Object o : temp)
+                    result.add((Participant) o) ;
+            }
+        }
+        return result ;
+    }
+
     public Participant getParticpant(String pid) {
         return _ds.participantMap.get(pid);
     }
@@ -786,11 +830,12 @@ public class ResourceManager extends InterfaceBWebsideController {
      *
      * @param p the participant starting the workitem
      * @param wir the item to start
+     * @param handle the user's current sessionhandle
      */
-    public void start(Participant p, WorkItemRecord wir) {
+    public void start(Participant p, WorkItemRecord wir, String handle) {
         WorkItemRecord oneToStart ;
 
-        if (checkOutWorkItem(wir)) {
+        if (checkOutWorkItem(wir, handle)) {
 
             // get all the child instances of this workitem
             List children = getChildren(wir.getID(), _engineSessionHandle);
@@ -831,11 +876,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String getQueuedItems(String id, int queue, String format) {
-      //  if (format.equalsIgnoreCase("json"))
-        return  "{identifier: 'id', label: 'label', items: [" +
-                "   { type: 'address', id: 'adam', label: \"Adam Arlen\" }, " +
-                "   { type: 'address', id: 'bob', label: \"Bob Baxter\" }, " +
-                "   { type: 'address', id: 'carrie', label: \"Carrie Crow\" } ]}" ;
+        return null ;    // stub - needed?
     }
 
     // USER - TASK PRIVILEGE ACTIONS //
@@ -1037,7 +1078,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     public Set<Participant> getWhoCompletedTask(String taskID, WorkItemRecord wir) {
         Set<Participant> result ; 
 
-        // BUILD ADAPATER CLASS FOR LOG IE
+        // BUILD ADAPTER CLASS FOR LOG IE
         try {
             _ieClient.getParentWorkItemEventsForCaseID(wir.getCaseID(),
                       _engineSessionHandle) ;
@@ -1084,12 +1125,13 @@ public class ResourceManager extends InterfaceBWebsideController {
     /**
      *  Check the workitem out of the engine
      *  @param wir - the workitem to check out
+     *  @param handle - the user's current sessionhandle
      *  @return true if checkout was successful
      */
-    protected boolean checkOutWorkItem(WorkItemRecord wir) {
+    protected boolean checkOutWorkItem(WorkItemRecord wir, String handle) {
         if (connected()) {
             try {
-                if (null != checkOut(wir.getID(), _engineSessionHandle)) {
+                if (null != checkOut(wir.getID(), handle)) {
                      _log.info("   checkout successful: " + wir.getID());
                      return true ;
                 }
@@ -1125,7 +1167,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
            // if its 'fired' check it out
            if (WorkItemRecord.statusFired.equals(itemRec.getStatus()))
-              checkOutWorkItem(itemRec);
+              checkOutWorkItem(itemRec, null);
         }
 
         // update child item list after checkout (to capture status changes) & return
@@ -1157,12 +1199,8 @@ public class ResourceManager extends InterfaceBWebsideController {
             
             Participant p = getParticipantFromUserID(userid) ;
             if (p != null) {
-                System.out.println("in login, p != null") ;
-                System.out.println("p-pass: " + p.getPassword() + "j-pass: " + password);
-                System.out.println("equals: " + p.getPassword().equals(password));
                 if (p.getPassword().equals(password)) {
                     result = connectParticipant(userid, password) ;
-                    System.out.println("result = " + result);
                     if (successful(result)) _liveSessions.put(result, p) ;
                 }
                 else
@@ -1189,6 +1227,15 @@ public class ResourceManager extends InterfaceBWebsideController {
         return handle ;
     }
 
+    // pseudo-logout by removing session handle from map of live users
+    public void logout(String handle) {
+        _liveSessions.remove(handle);
+    }
+
+    public boolean isValidSession(String handle) {
+        return _liveSessions.containsKey(handle) ;
+    }
+
 
     /** Checks if there is a connection to the engine, and
      *  if there isn't, attempts to connect
@@ -1211,7 +1258,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private String connectParticipant(String userid, String password) {
         String handle = null ;
-        System.out.println("in connectPart") ;
         try {
             // create new user for service if necessary
             if (! isRegisteredUser(userid))
@@ -1312,4 +1358,88 @@ public class ResourceManager extends InterfaceBWebsideController {
     public boolean checkServiceConnection(String handle) {
         return _connections.checkConnection(handle);
     }
-}
+
+    public Set<SpecificationData> getLoadedSpecs(String handle) {
+        Set<SpecificationData> result = getSpecList(handle) ;
+        if (result != null) {
+            for (SpecificationData specData : result) {
+                if (! specData.getStatus().equals(YSpecification._loaded))
+                   result.remove(specData) ;
+            }
+        }
+        return result ;
+    }
+    
+
+    public Set<SpecificationData> getSpecList(String handle) {
+        Set<SpecificationData> result = new HashSet<SpecificationData>() ;
+        try {
+            Iterator itr = getSpecificationPrototypesList(handle).iterator() ;
+            while (itr.hasNext()) result.add((SpecificationData) itr.next()) ;
+        }
+        catch (IOException ioe) {
+            _log.error("IO Exception retrieving specification list", ioe) ;
+            result = null ;
+        }
+        return result ;
+    }
+
+    public SpecificationData getSpecData(String specID, String handle) {
+        try {
+            return getSpecificationData(specID, handle) ;
+        }
+        catch (IOException ioe) {
+            _log.error("IO Exception retrieving specification data", ioe) ;
+            return null ;
+        }        
+    }
+
+
+    public List<String> getRunningCases(String specID, String handle) {
+        try {
+            String casesAsXML = _interfaceBClient.getCases(specID, handle);
+            if (_interfaceBClient.successful(casesAsXML))
+                return Marshaller.unmarshalCaseIDs(casesAsXML);
+        }
+        catch (IOException ioe) {
+            _log.error("IO Exception retrieving running cases list", ioe) ;
+        }
+        return null;
+    }
+
+    public String uploadSpecification(String fileContents, String fileName, String handle) {
+        return _interfaceAClient.uploadSpecification(fileContents, fileName, handle);         
+    }
+
+    public String cancelCase(String caseID, String handle) throws IOException {
+        List<WorkItemRecord> liveItems = null ;
+
+        // get the live items for this case
+        try {
+            liveItems = _interfaceBClient.getLiveWorkItemsForIdentifier("case", caseID,
+                                                                         handle) ;
+        }
+        catch (Exception e) {  }
+        String result =  _interfaceBClient.cancelCase(caseID, handle);
+
+        // remove live items for case
+        if (successful(result)) {
+            if (liveItems != null) {
+                for (WorkItemRecord wir : liveItems) {
+                    removeFromAll(wir) ;                   
+                    _workItemCache.remove(wir);
+                }
+            }
+        }
+        return result ;
+    }
+
+    public String unloadSpecification(String specID, String handle) throws IOException {
+        return _interfaceAClient.unloadSpecification(specID, handle);
+    }
+    
+    public String launchCase(String specID, String caseData, String handle) throws IOException {
+        return _interfaceBClient.launchCase(specID, caseData, handle) ;
+    }
+
+}                                                                                  

@@ -85,12 +85,22 @@ public class Position extends AbstractResourceAttribute {
     }
 
     public boolean reportsTo(Position boss) {
-        return (_reportsTo != null) && (_reportsTo == boss);
+        boolean result = false ;
+        if (_reportsTo != null) result = _reportsTo.equals(boss);
+        return result;
     }
 
+
     public boolean ultimatelyReportsTo(Position manager) {
-        return reportsTo(manager) ||
-               ((_reportsTo != null) && _reportsTo.ultimatelyReportsTo(manager)) ;
+        boolean result = reportsTo(manager);
+        if (! result)
+             result = ((_reportsTo != null) && _reportsTo.ultimatelyReportsTo(manager)) ;
+        return result ;
+    }
+
+    // two Position objects are equal if they have the same id
+    public boolean equals(Object o) {
+        return (o instanceof Position) && ((Position) o).getID().equals(_id);
     }
 
 

@@ -85,6 +85,10 @@ public class OrgGroup extends AbstractResourceAttribute {
         _groupType = GroupType.valueOf(name);
     }
 
+    public boolean equals(Object o) {
+        return (o instanceof OrgGroup) && ((OrgGroup) o).getID().equals(_id);
+    }
+
 
     public String getSummaryXML() {
         StringBuilder xml = new StringBuilder() ;

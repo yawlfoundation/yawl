@@ -75,7 +75,10 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> {
 
             if (wirList != null) {
                 Iterator itr = wirList.iterator();
-                while (itr.hasNext()) add((WorkItemRecord) itr.next());
+                while (itr.hasNext()) {
+                    WorkItemRecord wir = (WorkItemRecord) itr.next() ;
+                    super.put(wir.getID(), wir);
+                }
             }
         }
     }

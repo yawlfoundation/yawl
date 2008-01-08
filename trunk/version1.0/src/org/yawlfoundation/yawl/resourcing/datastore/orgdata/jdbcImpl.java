@@ -910,7 +910,7 @@ public class jdbcImpl extends DataSource {
         // load capabilties first - they have no cyclical dependencies
         ds.capabilityMap = loadCapabilities() ;
 
-        // do org groups first (lowest in the hierarchy)
+        // do org groups next (lowest in the hierarchy)
         ds.orgGroupMap = loadOrgGroups() ;
 
         // then do Positions using the org group mapping returned above

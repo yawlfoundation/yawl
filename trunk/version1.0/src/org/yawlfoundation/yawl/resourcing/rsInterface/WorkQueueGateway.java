@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import javax.servlet.ServletException;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -84,32 +86,20 @@ public class WorkQueueGateway  {          // extends HttpServlet
          }
     }
 
-
-
-    public List<String> getQueuedItems() {
-        ArrayList<String> x = new ArrayList<String>();
-        x.add("List Item 1");
-        x.add("List Item 2");
-        x.add("List Item 77");
-        return  x;
-    }
-
-
     public String login(String userid, String password) {
         return rm.login(userid, password);
     }
 
+    public void logout(String handle) {
+        rm.logout(handle);
+    }
 
-    public boolean checkConnection(String sessionHandle) {
-        boolean result = false ;
-        try {
-            result = rm.checkConnection(sessionHandle) ;
-        }
-        catch (IOException ioe) {
-            _log.error("IOException occurred when checking connection to YAWL Engine",
-                        ioe);
-        }
-        return result ;
+    public boolean isValidSession(String handle) {
+        return rm.isValidSession(handle) ;
+    }
+
+    public boolean checkConnection(String sessionHandle) throws IOException{
+        return rm.checkConnection(sessionHandle) ;
     }
 
     public Participant getParticipantFromUserID(String userid) {
@@ -118,12 +108,7 @@ public class WorkQueueGateway  {          // extends HttpServlet
     
     public String getFullNameForUserID(String userID) {
         String result = null ;
-        if (userID != null) {
-            if (userID.equals("admin"))
-                result = "Administrator" ;
-            else
-               result = rm.getFullNameForUserID(userID);
-        }
+        if (userID != null) result = rm.getFullNameForUserID(userID);
         return result;                                           
     }
 
@@ -136,37 +121,107 @@ public class WorkQueueGateway  {          // extends HttpServlet
     }
 
 
-    public void acceptOffer(Participant p, WorkItemRecord wir) {
-        rm.acceptOffer(p, wir) ;
+    public void acceptOffer(Participant p, WorkItemRecord wir, String handle) throws IOException {
+        if (checkConnection(handle))
+            rm.acceptOffer(p, wir) ;
     }
 
-    public void startItem(Participant p, WorkItemRecord wir) {
-        rm.start(p, wir) ;
+    public void startItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
+        if (checkConnection(handle))
+            rm.start(p, wir, handle) ;
     }
 
-    public String getTestJSON() {
-        return "";
+    public void deallocateItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
+        if (checkConnection(handle))
+            rm.deallocateWorkItem(p, wir) ;
     }
 
-    public String getDojoMenuTree(String userID) {
-        StringBuilder items = new StringBuilder(
-                "{ label: 'name', identifier: 'name', items: [");
-
-        items.append("{ name:'Work Queues', type:'category',")
-             .append(" children: [")
-             .append("{_reference:'Offered'},")
-             .append("{_reference:'Allocated'},")
-             .append("{_reference:'Started/Suspended'}]},")
-             .append("{ name:'Offered', type:'workqueue'},")
-             .append("{ name:'Allocated', type:'workqueue'},")
-             .append("{ name:'Started/Suspended', type:'workqueue'},")
-             .append("{ name:'Admin Tasks', type: 'category'}");
-             
-        items.append("]}");
-
-        return items.toString();
+    public void delegateItem(Participant pFrom, Participant pTo, WorkItemRecord wir,
+                             String handle) throws IOException {
+        if (checkConnection(handle))
+            rm.delegateWorkItem(pFrom, pTo, wir) ;
     }
 
+    public void skipItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
+        if (checkConnection(handle))
+            rm.skipWorkItem(p, wir) ;
+    }
+
+    public void pileItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
+        rm.pileWorkItem(p, wir) ;
+    }
+
+    public void viewItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
+ //       if (checkConnection(handle))
+//        rm.viewStartedItem(p, wir) ;
+    }
+
+    public void suspendItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
+        if (checkConnection(handle))
+            rm.suspendWorkItem(p, wir) ;
+    }
+
+    public void reallocateItem(Participant pFrom, Participant pTo, WorkItemRecord wir,
+                               boolean stateful, String handle) throws IOException {
+        if (checkConnection(handle))  {
+            if (stateful)
+               rm.reallocateStatefulWorkItem(pFrom, pTo, wir) ;
+            else
+               rm.reallocateStatelessWorkItem(pFrom, pTo, wir) ;
+        }
+    }
+
+    public void completeItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
+  //      if (checkConnection(handle))
+ //       rm.completeWorkItem(p, wir) ;
+    }
+
+    public void unsuspendItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
+ //       if (checkConnection(handle))
+//        rm.unsuspendWorkItem(p, wir) ;
+    }
+
+    public Set<SpecificationData> getLoadedSpecs(String handle) {
+        return rm.getLoadedSpecs(handle) ;
+    }
+
+    public Set<SpecificationData> getSpecList(String handle) {
+        return rm.getSpecList(handle) ;
+    }
+
+    public SpecificationData getSpecData(String specID, String handle) {
+        return rm.getSpecData(specID, handle) ;
+    }
+
+    public List<String> getRunningCases(String specID, String handle) {
+        return rm.getRunningCases(specID, handle) ;
+    }
+
+    public String uploadSpecification(String fileContents, String fileName, String handle) {
+        return rm.uploadSpecification(fileContents, fileName, handle) ;
+    }
+
+    public String cancelCase(String caseID, String handle) throws IOException {
+        return rm.cancelCase(caseID, handle);
+    }
+
+    public String unloadSpecification(String specID, String handle) throws IOException {
+        return rm.unloadSpecification(specID, handle);
+    }
+
+    public String launchCase(String specID, String caseData, String handle) throws IOException {
+        return rm.launchCase(specID, caseData, handle) ;
+    }
+
+    public Set<Participant> getReportingToParticipant(String pid) {
+        return rm.getParticipantsReportingTo(pid) ;
+    }
+
+    public Participant getParticipant(String pid) {
+        return rm.getParticipant(pid) ;
+    }
+
+    public String getXFormsURI() { return rm.getXFormsURI() ; }
 
 
 }

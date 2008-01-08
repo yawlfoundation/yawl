@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <div style="height: 270px; width: 160px; -rave-layout: grid" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://www.sun.com/web/ui">
     <f:subview id="pfMenu">
-        <h:panelGrid binding="#{pfMenu.gridPanel1}" id="gridPanel1" style="height: 270px; left: 0px; top: 0px; position: absolute" width="156">
-            <ui:tree binding="#{pfMenu.tree1}" id="tree1" style="height: 263px; left: 0px; top: 0px; position: relative; width: 150px" text="Menu">
+        <h:panelGrid binding="#{pfMenu.gridPanel1}" id="gridPanel1"
+            style="border: 2px solid gray; padding: 0px 2px 2px 1px; height: 300px; left: 0px; top: 0px; position: absolute" width="156">
+            <ui:tree binding="#{pfMenu.tree1}" id="tree1" style="color: blue; height: 263px; left: 0px; top: 0px; position: relative; width: 150px" text="Menu">
                 <ui:treeNode binding="#{pfMenu.mnuUser}" id="mnuUser" text="User">
                     <f:facet name="image">
                         <ui:image binding="#{pfMenu.image1}" icon="TREE_FOLDER" id="image1"/>
@@ -52,6 +53,11 @@
                             <ui:image binding="#{pfMenu.image10}" icon="TREE_DOCUMENT" id="image10"/>
                         </f:facet>
                     </ui:treeNode>
+                </ui:treeNode>
+                <ui:treeNode action="#{pfMenu.mnuLogout_action}" binding="#{pfMenu.mnuLogout}" id="mnuLogout" style="color: blue" text="Logout">
+                    <f:facet name="image">
+                        <ui:image binding="#{pfMenu.image11}" icon="TREE_DOCUMENT" id="image11"/>
+                    </f:facet>
                 </ui:treeNode>
             </ui:tree>
         </h:panelGrid>

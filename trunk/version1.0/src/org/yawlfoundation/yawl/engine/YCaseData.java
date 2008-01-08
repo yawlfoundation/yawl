@@ -41,6 +41,8 @@ public class YCaseData {
     public YCaseData() {
     }
 
+    public YCaseData(String caseID) { id = caseID ; }
+
     public String getData() {
         return data;
     }

@@ -112,6 +112,10 @@
 			}
 
             String result = _worklistController.launchCase(specID, caseData, sessionHandle);
+//                System.out.println("launchcase: " + result ) ;
+//               String url = "http://localhost:8080/resourceService/faces/caseMgt.jsp" ;
+//                response.sendRedirect(response.encodeURL(url));
+                
             if(_worklistController.successful(result)){
             %>
                 <b>You successfully started a case (id := <%= result %>).</b>

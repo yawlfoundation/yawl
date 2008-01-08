@@ -135,7 +135,7 @@ public class HibernateImpl extends DataSource {
             Participant p = (Participant) obj ;
             p.setID(id);
 
-            // pre-insert the particpant's user privileges
+            // pre-insert the participant's user privileges
             _db.exec(p.getUserPrivileges(), _INSERT);
 
         }

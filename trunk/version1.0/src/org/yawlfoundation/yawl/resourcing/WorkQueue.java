@@ -220,6 +220,26 @@ public class WorkQueue {
         for (String id : _itemIDs) _workitems.put(id, cache.get(id)) ;
     }
 
+    /** returns the apropriate String identifier for the queue type passed */
+    public static String getQueueName(int qType) {
+        String result ;
+        switch (qType) {
+            case OFFERED    : result = "Offered" ; break ;
+            case ALLOCATED  : result = "Allocated" ; break ;
+            case STARTED    : result = "Started" ; break ;
+            case SUSPENDED  : result = "Suspended" ; break ;
+            case UNOFFERED  : result = "Unoffered" ; break ;
+            case WORKLISTED : result = "Worklisted" ; break ;
+            default : result = "Invalid Queue Type" ;
+        }
+        return result ;
+    }
+
+    /** returns the name of this queue */
+    public String getQueueName() {
+        return getQueueName(_queueType) ;
+    }
+
 
     // hibernate mappings
 

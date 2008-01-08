@@ -74,18 +74,18 @@ public class QueueSet {
     // Between Queue Actions //
 
     public void movetoSuspend(WorkItemRecord wir) {
-        _qStarted.remove(wir);
-        _qSuspended.add(wir);
+        removeFromQueue(wir, WorkQueue.STARTED);
+        addToQueue(wir, WorkQueue.SUSPENDED) ;
     }
 
     public void movetoStarted(WorkItemRecord wir) {
-        _qAllocated.remove(wir);
-        _qStarted.add(wir) ;
+        removeFromQueue(wir, WorkQueue.ALLOCATED);
+        addToQueue(wir, WorkQueue.STARTED);
     }
 
     public void movetoUnsuspend(WorkItemRecord wir) {
-        _qSuspended.remove(wir);
-        _qStarted.add(wir);
+        removeFromQueue(wir, WorkQueue.SUSPENDED);
+        addToQueue(wir, WorkQueue.STARTED);
     }
 
 
@@ -97,7 +97,6 @@ public class QueueSet {
     
     /** instantiates the queue if it is not yet instantiated */
     private void checkQueueExists(int queue) {
-        System.out.println("checkQueueExists");
         if (isNullQueue(queue)) {
             switch (queue) {
                 case WorkQueue.OFFERED    :
@@ -117,7 +116,7 @@ public class QueueSet {
     }
 
 
-    private WorkQueue getQueue(int queue) {
+    public WorkQueue getQueue(int queue) {
         switch (queue) {
             case WorkQueue.OFFERED    : return _qOffered;
             case WorkQueue.ALLOCATED  : return _qAllocated;

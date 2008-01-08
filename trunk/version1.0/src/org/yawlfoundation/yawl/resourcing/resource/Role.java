@@ -42,7 +42,11 @@ public class Role extends AbstractResourceAttribute {
     public Role getOwnerRole() { return _belongsTo; }
 
     public void setOwnerRole(Role owner) { _belongsTo = owner; }
-    
+
+    public boolean equals(Object o) {
+        return (o instanceof Role) && ((Role) o).getID().equals(_id);
+    }
+   
 
     public String getSummaryXML() {
         StringBuilder xml = new StringBuilder() ;
