@@ -22,71 +22,52 @@ public class TestDB extends TestCase {
         rm.initOrgDataSource("HibernateImpl", -1) ;
         DataSource odb = rm.getOrgDataSource() ;
         Persister pdb = rm.getPersister();
-        System.out.println(1) ;
         Random rand = new Random();
 
         String[] f = {"Bob", "Bill", "George", "Henry", "John", "Mary", "Sue", "Ann",
                       "May", "Kate"} ;
         String[] l = {"Smith", "Jones", "Brown", "Black", "Roberts", "Lewis", "Johns",
                       "Green", "Gold", "Davies" } ;
-        System.out.println(2) ;
 
         Role r2 = new Role("a larger role") ;
         Role r = new Role("a shared role");
         r.setOwnerRole(r2);
-        System.out.println(3) ;
 
         OrgGroup o = new OrgGroup("mega", OrgGroup.GroupType.DIVISION, null, "mega") ;
         OrgGroup o2 = new OrgGroup("minor", OrgGroup.GroupType.TEAM, o, "minor") ;
-        System.out.println(4) ;
         Position po = new Position("a position");
         Position p2 = new Position("manager") ;
         po.setReportsTo(p2);
         po.setOrgGroup(o2);
         p2.setOrgGroup(o2);
         Capability c = new Capability("a capability", "some description") ;
-        System.out.println(5) ;
+
 
         o.setID(odb.insert(o));
-        System.out.println(6) ;
         o2.setID(odb.insert(o2));
-        System.out.println(7) ;
         p2.setID(odb.insert(p2));
-        System.out.println(8) ;
         po.setID(odb.insert(po));
-        System.out.println(9) ;
         c.setID(odb.insert(c));
-        System.out.println(10) ;
         r2.setID(odb.insert(r2));
-        System.out.println(11) ;
         r.setID(odb.insert(r));
 
-        System.out.println(12) ;
 
         for (int i=0; i<20; i++) {
             String first = f[rand.nextInt(10)] ;
             String last = l[rand.nextInt(10)] ;
             String user = last + first.substring(0,1) ;
-            System.out.println(13) ;
             Participant p = new Participant(last, first, user) ;
-            System.out.println(14) ;
             p.setAdministrator(rand.nextBoolean());
-            System.out.println(15) ;
+            p.setPassword("apple");
 
             p.addPosition(po);
-            System.out.println(16) ;
             p.addCapability(c);
-            System.out.println(17) ;
             p.addRole(r);
-            System.out.println(18) ;
             p.getUserPrivileges().setCanReorder(true);
-            System.out.println(19) ;
 
-//            pdb.insert(p.getUserPrivileges());
-//            p.setID(odb.insert(p));
-//              odb.insert(p);
+
             rm.addParticipant(p);
-            System.out.println(20) ;
+
         }
 
 ////        List res = odb.selectRoleParticipants("RO-60ee7015-94eb-4ccc-930f-20c05a5d5259") ;
