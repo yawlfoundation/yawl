@@ -44,11 +44,11 @@ public abstract class AbstractResourceAttribute {
 
     public String getNotes() { return _notes; }
 
-    public void setNotes(String notes) {  _notes = notes; }
+    public void setNotes(String notes) { _notes = notes; }
 
     public String getDescription() { return _description;  }
 
-    public void setDescription(String desc) {_description = desc; }
+    public void setDescription(String desc) { _description = desc; }
 
     public void addResource(AbstractResource resource) { _resources.add(resource); }
 

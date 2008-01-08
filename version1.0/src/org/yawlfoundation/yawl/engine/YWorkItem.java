@@ -37,7 +37,7 @@ import java.util.Set;
 public class YWorkItem {
 
     private static final double INITIAL_VERSION = 0.1; //MLR (30/10/07): added after merge
-    private static DateFormat _df = new SimpleDateFormat("MMM:dd H:mm:ss");
+    private static DateFormat _df = new SimpleDateFormat("MMM:dd, yyyy H:mm:ss");
     private static YWorkItemRepository _workItemRepository =
                                              YWorkItemRepository.getInstance();
     private YWorkItemID _workItemID;

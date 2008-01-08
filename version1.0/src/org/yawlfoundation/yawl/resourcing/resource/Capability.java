@@ -37,6 +37,11 @@ public class Capability extends AbstractResourceAttribute {
 
     public void setCapability(String capability) { _capability = capability; }
 
+    public boolean equals(Object o) {
+        return (o instanceof Capability) && ((Capability) o).getID().equals(_id);
+    }
+
+    
     public String getSummaryXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<capability id=\"%s\">", _id)) ;

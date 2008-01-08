@@ -7,7 +7,9 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 
@@ -19,6 +21,9 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.validator.LengthValidator;
 import javax.faces.validator.ValidatorException;
+import java.util.Set;
+import java.util.Iterator;
+import java.util.HashSet;
 
 /**
  * <p>Page bean that corresponds to a similarly named JSP page.  This
@@ -349,17 +354,31 @@ public class Login extends AbstractPageBean {
     }
     
     private boolean validateUser(String u, String p) {
-        String handle = getApplicationBean().getWorkQueueGateway().login(u, p);
-        if (Interface_Client.successful(handle)) {
-            WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway();
-            SessionBean sb = getSessionBean();
-            sb.setSessionhandle(handle);
-            sb.setParticipant(wqg.getParticipantFromUserID(u));
-            return true ;
+        WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway();
+        if (wqg != null) {
+            String handle = wqg.login(u, p);
+            if (Interface_Client.successful(handle)) {
+                initSession(wqg, u, handle) ;
+                return true ;
+            }
+            else return false ;
         }
-        else {
-   //         throw new ValidatorException(new FacesMessage("Not a valid value!"));
-            return false ;
+        else throw new ValidatorException(new FacesMessage("Could not connect to work queue"));
+    }
+
+    private void initSession(WorkQueueGateway wqg, String userid, String handle) {
+        SessionBean sb = getSessionBean();
+        sb.setSessionhandle(handle);
+        sb.setUserid(userid);
+        sb.setParticipant(wqg.getParticipantFromUserID(userid));
+        Set<WorkItemRecord> wirSet = getSessionBean().getQueue(WorkQueue.OFFERED);
+
+        if (wirSet != null) {
+            Iterator i = wirSet.iterator() ;
+            while (i.hasNext()) {
+                WorkItemRecord wir =  (WorkItemRecord) i.next() ;
+                sb.setChosenWIR(wir); break ;
+            }
         }
     }
 }

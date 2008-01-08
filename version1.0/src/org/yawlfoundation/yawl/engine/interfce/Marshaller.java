@@ -241,16 +241,16 @@ public class Marshaller {
             workItem.setStartTime(startTime);
             String enableTimeMs = workItemElement.getChildText("enablementTimeMs");
             if (enableTimeMs != null)
-            workItem.setEnablementTimeMs(Long.parseLong(enableTimeMs));
+                workItem.setEnablementTimeMs(enableTimeMs);
             String fireTimeMs = workItemElement.getChildText("firingTimeMs");
             if (fireTimeMs != null)
-                workItem.setFiringTimeMs(Long.parseLong(fireTimeMs));
+                workItem.setFiringTimeMs(fireTimeMs);
             String startTimeMs = workItemElement.getChildText("startTimeMs");
             if (startTimeMs != null)
-                workItem.setStartTimeMs(Long.parseLong(startTimeMs));
+                workItem.setStartTimeMs(startTimeMs);
             String completeTimeMs = workItemElement.getChildText("completionTimeMs");
             if (completeTimeMs != null)
-                workItem.setCompletionTimeMs(Long.parseLong(completeTimeMs));
+                workItem.setCompletionTimeMs(completeTimeMs);
             String user = workItemElement.getChildText("assignedTo");
             workItem.setStartedBy(user);
             Element data = workItemElement.getChild("data");
@@ -264,8 +264,8 @@ public class Marshaller {
     }
 
 
-    public static List unmarshalCaseIDs(String casesAsXML) {
-        List cases = new ArrayList();
+    public static List<String> unmarshalCaseIDs(String casesAsXML) {
+        List<String> cases = new ArrayList<String>();
         try {
             SAXBuilder builder = new SAXBuilder();
             StringReader reader = new StringReader(casesAsXML);

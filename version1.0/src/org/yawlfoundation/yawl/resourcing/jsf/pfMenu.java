@@ -8,7 +8,10 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractFragmentBean;
 import javax.faces.FacesException;
+import javax.faces.context.FacesContext;
 import javax.faces.component.html.HtmlPanelGrid;
+import javax.servlet.http.HttpSession;
+
 import com.sun.rave.web.ui.component.Tree;
 import com.sun.rave.web.ui.component.TreeNode;
 import com.sun.rave.web.ui.component.ImageComponent;
@@ -251,6 +254,27 @@ public class pfMenu extends AbstractFragmentBean {
     public void setImage10(ImageComponent ic) {
         this.image10 = ic;
     }
+
+    private TreeNode mnuLogout = new TreeNode();
+
+    public TreeNode getMnuLogout() {
+        return mnuLogout;
+    }
+
+    public void setMnuLogout(TreeNode tn) {
+        this.mnuLogout = tn;
+    }
+
+    private ImageComponent image11 = new ImageComponent();
+
+    public ImageComponent getImage11() {
+        return image11;
+    }
+
+    public void setImage11(ImageComponent ic) {
+        this.image11 = ic;
+    }
+    
     // </editor-fold>
     
     public pfMenu() {
@@ -326,7 +350,7 @@ public class pfMenu extends AbstractFragmentBean {
     public String mnuUserWorkQueues_action() {
         // TODO: Replace with your code
         
-        return null;
+        return "showUserQueues";
     }
 
 
@@ -340,7 +364,7 @@ public class pfMenu extends AbstractFragmentBean {
     public String mnuCaseMgt_action() {
         // TODO: Replace with your code
         
-        return null;
+        return "showCaseMgt";
     }
 
 
@@ -377,4 +401,14 @@ public class pfMenu extends AbstractFragmentBean {
         
         return null;
     }
+
+
+    public String mnuLogout_action() {
+        getSessionBean().doLogout();
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
+        session.invalidate();
+        return "loginPage";
+    }
+
 }

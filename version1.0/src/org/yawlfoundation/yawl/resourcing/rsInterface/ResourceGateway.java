@@ -22,10 +22,9 @@ import java.io.PrintWriter;
  *
  *  @author Michael Adams
  *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 13/08/2007
  *
- *  Last Date: 20/09/2007
+ *  Last Date: 03/01/2008
  */
 
 public class ResourceGateway extends HttpServlet {
@@ -45,6 +44,9 @@ public class ResourceGateway extends HttpServlet {
 
                 // set the engine uri
                 rm.initEngineURI(context.getInitParameter("InterfaceB_BackEnd"));
+
+                // set the xforms uri
+                rm.setXFormsURI(context.getInitParameter("YAWLXForms")) ;
 
                 // enable/or disable persistence
                 String persist = context.getInitParameter("EnablePersistence");

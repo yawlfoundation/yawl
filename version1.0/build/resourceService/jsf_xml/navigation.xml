@@ -9,4 +9,56 @@
             <to-view-id>/userWorkQueues.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
+    <navigation-rule>
+        <from-view-id>/userWorkQueues.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>showCaseMgt</from-outcome>
+            <to-view-id>/caseMgt.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>loginPage</from-outcome>
+            <to-view-id>/Login.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showDynForm</from-outcome>
+            <to-view-id>/dynForm.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>userSelect</from-outcome>
+            <to-view-id>/selectUser.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+        <from-view-id>/caseMgt.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>showUserQueues</from-outcome>
+            <to-view-id>/userWorkQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>loginPage</from-outcome>
+            <to-view-id>/Login.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showDynForm</from-outcome>
+            <to-view-id>/dynForm.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+        <from-view-id>/dynForm.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>showUserQueues</from-outcome>
+            <to-view-id>/userWorkQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showCaseMgt</from-outcome>
+            <to-view-id>/caseMgt.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+        <from-view-id>/selectUser.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>showUserQueues</from-outcome>
+            <to-view-id>/userWorkQueues.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
 </faces-config>

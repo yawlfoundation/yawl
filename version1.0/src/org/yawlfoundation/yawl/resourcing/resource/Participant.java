@@ -221,6 +221,10 @@ public class Participant extends AbstractResource {
         _qSet.restoreWorkQueue(q, cache) ;
     }
 
+    public boolean equals(Object o) {
+        return (o instanceof Participant) && ((Participant) o).getID().equals(_resourceID);
+    }
+
     public String getSummaryXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<participant id=\"%s\">", _resourceID)) ;

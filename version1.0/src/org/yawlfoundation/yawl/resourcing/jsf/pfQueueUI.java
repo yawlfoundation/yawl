@@ -12,15 +12,9 @@ import com.sun.rave.web.ui.component.Listbox;
 import com.sun.rave.web.ui.component.TextField;
 import com.sun.rave.web.ui.model.DefaultOptionsList;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import javax.faces.FacesException;
-import javax.faces.event.ValueChangeEvent;
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Set;
 
 /**
  * <p>Fragment bean that corresponds to a similarly named JSP page
@@ -261,29 +255,14 @@ public class pfQueueUI extends AbstractFragmentBean {
     public void destroy() {
     }
 
-
-    public void lbxItems_processValueChange(ValueChangeEvent event) {
-        System.out.println("&&&&&&&& in process value changed &&&&&&&&");
-        String itemID = (String) lbxItems.getSelected() ;
-        if (itemID != null) {
-            Participant p = getSessionBean().getParticipant();
-            Set<WorkItemRecord> queue = p.getWorkQueues().getQueuedWorkItems(0);
-            if (queue != null) {
-                for (WorkItemRecord wir : queue) {
-                    if (itemID.equals(wir.getID())) {
-                        populateTextBoxes(wir) ;
-                        break ;
-                    }
-                }
-            }
-            else System.out.println("%%%%%%% processValueChanged, queue is null");
-        }    
-    }
+//
+//    public void lbxItems_processValueChange(ValueChangeEvent event) {
+//        WorkItemRecord wir = getSessionBean().getChosenWIR(0);
+//        populateTextBoxes(wir);
+//    }
 
     
     protected void populateTextBoxes(WorkItemRecord wir) {
-        System.out.println("&&&&&&&&&&&& popTextBoxes with = " + wir.getID()) ;
-
         String enabledStr ;
 
         txtCaseID.setText(wir.getCaseID());
@@ -291,16 +270,22 @@ public class pfQueueUI extends AbstractFragmentBean {
         txtTaskID.setText(wir.getTaskID());
         txtStatus.setText(wir.getStatus());
 
-        long enabled = wir.getEnablementTimeMs();
-        long age = System.currentTimeMillis() - enabled ;
-        txtAge.setText(formatAge(age));
-        enabledStr = DateFormat.getDateTimeInstance(
-                            DateFormat.SHORT, DateFormat.SHORT).format(enabled);
-        txtCreated.setText(enabledStr);
+        try {
+            long enabled = Long.parseLong(wir.getEnablementTimeMs());
+            long age = System.currentTimeMillis() - enabled ;
+            txtAge.setText(getApplicationBean().formatAge(age));
+        }
+        catch (NumberFormatException nfe) {
+            txtAge.setText("<unavailable>") ;
+        }
+//        enabledStr = DateFormat.getDateTimeInstance(
+//                            DateFormat.SHORT, DateFormat.SHORT).format(enabled);
+//        txtCreated.setText(enabledStr);
+        txtCreated.setText(wir.getEnablementTime()) ;
     }
 
     protected void clearQueueGUI() {
-        getSessionBean().setListOptions(null);
+        getSessionBean().setWorklistOptions(null);
         txtCaseID.setText(" ");
         txtSpecID.setText(" ");
         txtTaskID.setText(" ");
@@ -310,18 +295,4 @@ public class pfQueueUI extends AbstractFragmentBean {
 
     }
 
-
-    private String formatAge(long age) {
-        long secsPerHour = 60 * 60 ;
-        long secsPerDay = 24 * secsPerHour ;
-        age = age / 1000 ;                             // ignore the milliseconds
-
-        long days = age / secsPerDay ;
-        age %= secsPerDay ;
-        long hours = age / secsPerHour ;
-        age %= secsPerHour ;
-        long mins = age / 60 ;
-        age %= 60 ;                                    // seconds leftover
-        return String.format("%d:%02d:%02d:%02d", days, hours, mins, age) ;
-    }
 }

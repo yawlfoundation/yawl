@@ -57,7 +57,7 @@ public class RequestBean extends AbstractRequestBean {
 
 
 
-    /** 
+    /**
      * <p>This method is called when this bean is initially added to
      * request scope.  Typically, this occurs as a result of evaluating
      * a value binding or method binding expression, which utilizes the
@@ -101,4 +101,60 @@ public class RequestBean extends AbstractRequestBean {
      */
     public void destroy() {
     }
+
+    private String specID ;
+    private String caseID ;
+    private String taskID ;
+    private String status ;
+    private String createdDate ;
+    private String age ;
+
+    public String getSpecID() {
+        return specID;
+    }
+
+    public void setSpecID(String specID) {
+        this.specID = specID;
+    }
+
+    public String getCaseID() {
+        return caseID;
+    }
+
+    public void setCaseID(String caseID) {
+        this.caseID = caseID;
+    }
+
+    public String getTaskID() {
+        return taskID;
+    }
+
+    public void setTaskID(String taskID) {
+        this.taskID = taskID;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(String createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
+    
 }

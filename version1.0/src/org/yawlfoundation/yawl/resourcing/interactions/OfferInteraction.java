@@ -217,16 +217,30 @@ public class OfferInteraction extends AbstractInteraction {
             // distributionSet.add(getWhoCompletedTask(_familiarParticipantTask)) ;
         }
         else {
+            // make sure each participant is added only once
+            ArrayList<String> uniqueIDs = new ArrayList<String>() ;
 
-            distributionSet.addAll(_participants) ;
+            // add Participants
+            for (Participant p : _participants) {
+                uniqueIDs.add(p.getID()) ;
+                distributionSet.add(p) ;
+            }
 
             // add roles
-            for (Role role : _roles)
-                distributionSet.addAll(role.getResources()) ;
+            for (Role role : _roles) {
+                Set<Participant> pSet = role.getResources();
+                for (Participant p : pSet) {
+                    addParticipantToDistributionSet(distributionSet, uniqueIDs, p) ;
+                }
+            }
 
             // add dynamic params
-            for (DynParam param : _dynParams)
-                distributionSet.addAll(param.evaluate(wir)) ;
+            for (DynParam param : _dynParams) {
+                Set<Participant> pSet = param.evaluate(wir);
+                for (Participant p : pSet) {
+                    addParticipantToDistributionSet(distributionSet, uniqueIDs, p) ;
+                }
+            }
 
             // apply each filter
             for (AbstractFilter filter : _filters)
@@ -256,6 +270,15 @@ public class OfferInteraction extends AbstractInteraction {
             _log.warn("Workitem '" + wir.getID() + "' does not have 'Offered' status");
     }
 
+
+    private void addParticipantToDistributionSet(HashSet<Participant> distributionSet,
+                                                 ArrayList<String> uniqueIDs,
+                                                 Participant p) {
+        if (! uniqueIDs.contains(p.getID())) {
+             uniqueIDs.add(p.getID()) ;
+             distributionSet.add(p) ;
+        }
+    }
 
     /********************************************************************************/
 

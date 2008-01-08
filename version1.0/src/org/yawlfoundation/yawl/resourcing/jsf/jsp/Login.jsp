@@ -7,7 +7,7 @@
                 <ui:head binding="#{Login.head1}" id="head1">
                     <ui:link binding="#{Login.link1}" id="link1" url="/resources/stylesheet.css"/>
                 </ui:head>
-                <ui:body binding="#{Login.body1}" id="body1" style="background-color: rgb(241, 249, 249); -rave-layout: grid">
+                <ui:body binding="#{Login.body1}" id="body1" style="-rave-layout: grid">
                     <br/>
                     <ui:form binding="#{Login.form1}" id="form1">
                         <br/>
@@ -25,7 +25,7 @@
                             style="font-size: 18px; left: 383px; top: 264px; position: absolute" text="Login"/>
                         <ui:message binding="#{Login.message1}" for="txtUserName" id="message1" showDetail="false" showSummary="true" style="left: 552px; top: 144px; position: absolute"/>
                         <ui:message binding="#{Login.message2}" for="txtPassword" id="message2" showDetail="false" showSummary="true" style="left: 552px; top: 192px; position: absolute"/>
-                        <div style="height: 70px; left: 252px; top: 24px; position: absolute">
+                        <div style="height: 70px; left: 216px; top: 24px; position: absolute">
                             <jsp:directive.include file="pfHeader.jspf"/>
                         </div>
                     </ui:form>

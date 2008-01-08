@@ -22,7 +22,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
  * Date: 2/02/2004
  * Time: 18:30:18
  *
- * Last Date: 14/09/2007 extended & refactored for version 1.0 MJA
+ * Last Date: 04/01/2008 extended & refactored for version 2.0 MJA
  * 
  */
 
@@ -62,10 +62,10 @@ public class WorkItemRecord {
     private String _completionTime;
 
     // ... and their millisecond equivalents
-    private long _enablementTimeMs = 0;
-    private long _firingTimeMs = 0;
-    private long _startTimeMs = 0 ;
-    private long _completionTimeMs = 0 ;
+    private String _enablementTimeMs;
+    private String _firingTimeMs;
+    private String _startTimeMs ;
+    private String _completionTimeMs ;
 
     // current statuses
     private String _status;
@@ -146,13 +146,13 @@ public class WorkItemRecord {
 
     public void setCompletionTime(String time) { _completionTime = time; }
 
-    public void setEnablementTimeMs(long time) { _enablementTimeMs = time; }
+    public void setEnablementTimeMs(String time) { _enablementTimeMs = time; }
 
-    public void setFiringTimeMs(long time) { _firingTimeMs = time; }
+    public void setFiringTimeMs(String time) { _firingTimeMs = time; }
 
-    public void setStartTimeMs(long time) { _startTimeMs = time; }
+    public void setStartTimeMs(String time) { _startTimeMs = time; }
 
-    public void setCompletionTimeMs(long time) {_completionTimeMs = time; }
+    public void setCompletionTimeMs(String time) {_completionTimeMs = time; }
     
 
     public void setStatus(String status) {_status = status; }
@@ -205,13 +205,13 @@ public class WorkItemRecord {
 
     public String getCompletionTime() { return _completionTime; }
 
-    public long getEnablementTimeMs() { return _enablementTimeMs; }
+    public String getEnablementTimeMs() { return _enablementTimeMs; }
 
-    public long getFiringTimeMs() { return _firingTimeMs; }
+    public String getFiringTimeMs() { return _firingTimeMs; }
 
-    public long getStartTimeMs() { return _startTimeMs; }
+    public String getStartTimeMs() { return _startTimeMs; }
 
-    public long getCompletionTimeMs() { return _completionTimeMs; }
+    public String getCompletionTimeMs() { return _completionTimeMs; }
 
     public String getStatus() { return _status; }
 

@@ -3,24 +3,9 @@
                               "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
 <faces-config>
     <managed-bean>
-        <managed-bean-name>SessionBean1</managed-bean-name>
-        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.SessionBean1</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-    </managed-bean>
-    <managed-bean>
         <managed-bean-name>Login</managed-bean-name>
         <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.Login</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-    <managed-bean>
-        <managed-bean-name>RequestBean1</managed-bean-name>
-        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.RequestBean1</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-    <managed-bean>
-        <managed-bean-name>ApplicationBean1</managed-bean-name>
-        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean1</managed-bean-class>
-        <managed-bean-scope>application</managed-bean-scope>
     </managed-bean>
     <managed-bean>
         <managed-bean-name>SessionBean</managed-bean-name>
@@ -57,4 +42,19 @@
         <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.pfMenu</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
+    <managed-bean>
+        <managed-bean-name>caseMgt</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.caseMgt</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
+        <managed-bean-name>dynForm</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.dynForm</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
+        <managed-bean-name>selectUser</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.selectUser</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>    
 </faces-config>

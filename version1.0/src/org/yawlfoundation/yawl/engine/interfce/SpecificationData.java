@@ -97,6 +97,10 @@ public class SpecificationData {
         return params;
     }
 
+    public Map getInputParamMap() {
+        return _inputParams ;
+    }
+
 
     public void setDataType(String nameSpaceURI, String typeName, String typeSpecification) {
         _dataTypes.put(nameSpaceURI + "#" + typeName, typeSpecification);

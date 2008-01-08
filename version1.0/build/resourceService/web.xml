@@ -37,6 +37,13 @@
         </description>
     </context-param>
 
+    <context-param>
+        <param-name>YAWLXForms</param-name>
+        <param-value>http://localhost:8080/yawlXForms</param-value>
+        <description>
+            The URL location of YAWLXForms (Chiba). Set to "localhost" by default.
+        </description>
+    </context-param>
     <!--<context-param>-->
         <!--<param-name>UserName</param-name>-->
         <!--<param-value></param-value>-->

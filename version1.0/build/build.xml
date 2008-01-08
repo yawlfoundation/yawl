@@ -1126,6 +1126,7 @@
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/exceptions"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/schema" />
+        <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/forms" />
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/unmarshal"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/util"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/worklist"/>
@@ -1171,12 +1172,18 @@
         </copy>
         <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/exceptions">
            <fileset dir="${classes}/org/yawlfoundation/yawl/exceptions"
-                    includes="YSchemaBuildingException.class
+                    includes="YSchemaBuildingException.class YDataStateException.class
                               YSyntaxException.class YAWLException.class" />
         </copy>
+
+        <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/forms">
+           <fileset dir="${classes}/org/yawlfoundation/yawl/forms" includes="*.class" />
+        </copy>
+
         <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/schema">
            <fileset dir="${classes}/org/yawlfoundation/yawl/schema" includes="*.class" />
         </copy>
+
         <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/unmarshal">
             <fileset dir="${classes}/org/yawlfoundation/yawl/unmarshal"
                      includes="YDecompositionParser.class SchemaValidator.class
@@ -1276,7 +1283,7 @@
            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jdom.jar
                     log4j*.jar postgresql-8.0-311.jdbc3.jar ${jsf.libs}
                     commons-digester.jar commons-beanutils.jar commons-fileupload-1.0.jar
-                    standard.jar jstl.jar"/>
+                    standard.jar jstl.jar xercesImpl.jar"/>
         </copy>
 
         <copy todir="${yawl.resource.app.name}/WEB-INF">
