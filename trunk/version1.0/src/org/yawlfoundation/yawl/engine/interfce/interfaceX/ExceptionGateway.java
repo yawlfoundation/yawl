@@ -18,8 +18,6 @@ import java.util.List;
  * process 'points' to be checked for exceptions.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  04/07/2006
  *
  * Based heavily on the ObserverGateway interface writtem by Andrew Hastie

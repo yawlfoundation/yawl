@@ -22,8 +22,6 @@ import java.io.*;
  * to Strings and files & vice versa.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  04/07/2006
  */
 

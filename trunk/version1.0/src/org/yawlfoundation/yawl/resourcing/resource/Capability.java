@@ -14,8 +14,6 @@ import org.jdom.Element;
  * Represents a capability that may be held by a resource.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/08/2007
  */
 

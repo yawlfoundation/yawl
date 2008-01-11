@@ -20,8 +20,6 @@ import java.util.Iterator;
  * A workitem record hashmap with added persistence.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 15/09/2007
  */
 
@@ -77,6 +75,7 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> {
                 Iterator itr = wirList.iterator();
                 while (itr.hasNext()) {
                     WorkItemRecord wir = (WorkItemRecord) itr.next() ;
+                    wir.restoreDataList();
                     super.put(wir.getID(), wir);
                 }
             }
@@ -97,8 +96,11 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> {
     }
 
     public WorkItemRecord remove(String id) {
-        if (_persistOn) _persister.delete(get(id)) ;
-        return super.remove(id);
+        if (containsKey(id)) {
+           if (_persistOn) _persister.delete(get(id)) ;
+           return super.remove(id);
+        }
+        else return null ;
     }
 
 }

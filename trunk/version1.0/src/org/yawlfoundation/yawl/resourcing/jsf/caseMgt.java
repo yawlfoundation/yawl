@@ -14,22 +14,16 @@ import javax.faces.FacesException;
 import javax.faces.event.ValueChangeEvent;
 
 import com.sun.rave.web.ui.model.UploadedFile;
-import com.sun.rave.web.ui.model.DefaultOptionsList;
 import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.component.*;
 
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import org.jdom.Element;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.io.IOException;
 
 /**
@@ -234,6 +228,7 @@ public class caseMgt extends AbstractPageBean {
         }
         updateRunningCaseList();
         updateLoadedSpecList() ;
+        getSessionBean().setActivePage("caseMgt");        
     }
 
     private String stripPath(String fileName) {
@@ -350,10 +345,15 @@ public class caseMgt extends AbstractPageBean {
         if (specData != null) {
             List inputParams = specData.getInputParams();
             if (! inputParams.isEmpty()) {
-                getSessionBean().setDynFormHeaderText(
+                SessionBean sb = getSessionBean();
+                sb.setDynFormHeaderText(
                         "Starting an Instance of Specification '" + specID + "'" );
-                getSessionBean().setDynFormParams(specData.getInputParamMap());
-                initDynForm(inputParams, "Launch Case") ;
+                Map<String, FormParameter> paramMap =
+                        getApplicationBean().yParamListToFormParamMap(inputParams) ;
+                sb.setDynFormParams(paramMap);
+                sb.setDynFormLevel("case");
+                sb.initDynForm(new ArrayList<FormParameter>(paramMap.values()),
+                               "YAWL Case Management - Launch Case") ;
                 return "showDynForm" ;
             }
             else {
@@ -361,53 +361,6 @@ public class caseMgt extends AbstractPageBean {
             }
         }
         return null ;
-    }
-
-    private void initDynForm(List inputParams, String title) {
-        dynForm df = (dynForm) getBean("dynForm") ;
-        PanelLayout dynPanel = df.getCompPanel() ;
-        df.getHead1().setTitle("YAWL Case Management - " + title);
-        // create a component to be used put some space between fields
-
-        Iterator itr = inputParams.iterator();
-        while (itr.hasNext()) {
-            YParameter param = (YParameter) itr.next() ;
-            String pName = param.getName();
-            Label label = new Label() ;
-            label.setId("lbl" + pName);
-            label.setText(pName + ": ");
-            dynPanel.getChildren().add(label);
-            if (param.getDataTypeName().equals("boolean")) {
-                Checkbox cbox = new Checkbox();
-                cbox.setId("cbx" + pName);
-                cbox.setSelected(param.getInitialValue().equals("true")) ;
-                dynPanel.getChildren().add(cbox);
-            }
-            else {
-                TextField textField = new TextField() ;
-                textField.setId("txt" + pName);
-                textField.setRequired(param.isMandatory());
-                dynPanel.getChildren().add(textField);
-            }
-            StaticText space = new StaticText();
-            space.setId("staticText" + dynPanel.getChildCount());
-            space.setText("---------------------------------------------------------");
-            space.setStyle("color: #eceaea");
-
-            dynPanel.getChildren().add(space) ;      // insert some space between inputs
-        }
-
-        // resize page for the number of fields added
-        int height = dynPanel.getChildCount() * 10 ;
-        dynPanel.setStyle("border-style: inset; border-color: gray; padding: 10px; " +
-                          "background-color: #eceaea; left: 138px; top: 186px; " +
-                          "position: absolute; width: 220px; height: " + height + "px");
-        Button btnOK = df.getBtnOK();
-        Button btnCancel = df.getBtnCancel();
-        btnOK.setStyle("font-size: 14px; height: 30px; left: 270px; " +
-                       "position: absolute; width: 66px; top: " + (186 + height + 30) + "px");
-        btnCancel.setStyle("font-size: 14px; height: 30px; left: 170px; " +
-                       "position: absolute; width: 66px; top: " + (186 + height + 30) + "px");
     }
 
 
@@ -419,9 +372,9 @@ public class caseMgt extends AbstractPageBean {
             if (! paramMap.isEmpty()) {
                 Element data = new Element(specID) ;
                 for (Object o : paramMap.values()) {
-                    YParameter param = (YParameter) o ;
+                    FormParameter param = (FormParameter) o ;
                     Element child = new Element(param.getName());
-                    child.setText(param.getInitialValue());
+                    child.setText(param.getValue());
                     data.addContent(child);
                 }
                 caseData = JDOMUtil.elementToStringDump(data) ;
@@ -448,7 +401,8 @@ public class caseMgt extends AbstractPageBean {
             int i = 0 ;
             for (SpecificationData specData : specDataSet) {
                 
-                String spec = rPad(specData.getID(), 25) + ":\t" + specData.getDocumentation() ;
+                String spec = getApplicationBean().rPad(specData.getID(), 25) + ":\t" +
+                              specData.getDocumentation() ;
                 options[i++] = new Option(spec) ;
             }
             getSessionBean().setLoadedSpecListOptions(options);
@@ -475,17 +429,7 @@ public class caseMgt extends AbstractPageBean {
         }
     }
 
-    private String rPad (String str, int padlen) {
-        int len = padlen - str.length();
-        if (len < 1) return str ;
 
-        StringBuilder padded = new StringBuilder(str);
-        char[] spaces  = new char[len] ;
-        for (int i = 0; i < len; i++) spaces[i] = ' ';
-        padded.append(spaces) ;
-        return padded.toString();
-
-    }
 
 
 }

@@ -18,8 +18,6 @@ import java.util.HashSet;
  * Provides resource administration capabilties to authorised participants
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/09/2007
  */
 

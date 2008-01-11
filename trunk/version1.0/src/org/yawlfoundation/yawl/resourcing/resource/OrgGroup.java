@@ -16,8 +16,6 @@ import org.jdom.Element;
  * org group may contain a number of smaller org groups).
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/08/2007
  */
 

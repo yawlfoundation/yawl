@@ -28,8 +28,6 @@ import org.apache.log4j.Logger;
  *  allocating resources.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 02/08/2007
  */
 
@@ -264,6 +262,7 @@ public class OfferInteraction extends AbstractInteraction {
         if (offeredSet != null) {
             for (Participant p : offeredSet) {
                 p.getWorkQueues().removeFromQueue(wir, WorkQueue.OFFERED);
+                _rm.announceModifiedQueue(p.getID()) ;
             }
         }
         else

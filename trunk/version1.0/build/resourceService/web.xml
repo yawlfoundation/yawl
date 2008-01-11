@@ -15,7 +15,7 @@
     <description>
         This custom YAWL Service handles all workitem resource allocations, based on the
         resource patterns.
-        Copyright 2007 Queensland University of Technology. All rights reserved.
+        Copyright 2007 yawlfoundation.org. All rights reserved.
         Author: Michael Adams
         For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads'
         section at http://www.yawlfoundation.org/.
@@ -299,7 +299,7 @@
           value is 4096.
         </description>
       <param-name>sizeThreshold</param-name>
-      <param-value>4096</param-value>
+      <param-value>65536</param-value>
     </init-param>
   </filter>
   <filter-mapping>

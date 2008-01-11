@@ -15,18 +15,17 @@ import org.jdom.Element;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.io.Serializable;
 
 /**
  * Represents a single participant (i.e. human) resource. Also manages the participant's
  * work queues.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/08/2007
  */
 
-public class Participant extends AbstractResource {
+public class Participant extends AbstractResource implements Serializable {
 
     // participant descriptive data
     private String _lastname ;

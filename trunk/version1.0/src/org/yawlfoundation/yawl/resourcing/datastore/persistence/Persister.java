@@ -12,8 +12,6 @@ import java.util.HashMap;
  *  This class implements methods for Organisational Data CRUD.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/08/2007
  */
 

@@ -20,8 +20,6 @@ import java.util.Set;
  * Extended by Role, Capability, Position and OrgGroup classes.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 21/08/2007
  */
 

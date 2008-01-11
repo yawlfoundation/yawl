@@ -48,6 +48,8 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
         this._mandatory = _mandatory;
     }
 
+    public YVariable() {}
+
     /**
      * old method
      * @param dec
@@ -135,6 +137,13 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
         return _name;
     }
 
+    public YDecomposition getParentDecomposition() {
+        return _parentDecomposition;
+    }
+
+    public void setParentDecomposition(YDecomposition parentDecomposition) {
+        _parentDecomposition = parentDecomposition;
+    }
 
     public String getInitialValue() {
         return _initialValue;

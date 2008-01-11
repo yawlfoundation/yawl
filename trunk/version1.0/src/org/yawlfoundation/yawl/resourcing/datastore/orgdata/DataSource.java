@@ -18,8 +18,6 @@ import java.util.UUID;
  * provide organisational data to the resourcing classes in a uniform and expected manner.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/08/2007
  */
 

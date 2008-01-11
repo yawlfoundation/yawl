@@ -9,10 +9,15 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.jsf.FormParameter;
+import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.apache.log4j.Logger;
+import org.jdom.JDOMException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,8 +34,6 @@ import java.io.PrintWriter;
  *  Service and the participant workqueue jsps.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 13/08/2007
  *
  *  Last Date: 20/09/2007
@@ -151,10 +154,6 @@ public class WorkQueueGateway  {          // extends HttpServlet
         rm.pileWorkItem(p, wir) ;
     }
 
-    public void viewItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
- //       if (checkConnection(handle))
-//        rm.viewStartedItem(p, wir) ;
-    }
 
     public void suspendItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
         if (checkConnection(handle))
@@ -171,9 +170,9 @@ public class WorkQueueGateway  {          // extends HttpServlet
         }
     }
 
-    public void completeItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
-  //      if (checkConnection(handle))
- //       rm.completeWorkItem(p, wir) ;
+    public void completeItem(Participant p,WorkItemRecord wir, String handle) throws IOException {
+        if (checkConnection(handle))
+        rm.checkinItem(p, wir, handle) ;
     }
 
     public void unsuspendItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
@@ -219,6 +218,26 @@ public class WorkQueueGateway  {          // extends HttpServlet
 
     public Participant getParticipant(String pid) {
         return rm.getParticipant(pid) ;
+    }
+
+    public Map<String, FormParameter> getWorkItemParams(WorkItemRecord wir, String handle)
+                                                     throws IOException, JDOMException {
+        if (checkConnection(handle)) {
+            return rm.getWorkItemParamsForPost(wir, handle);
+        }
+        return null ;
+    }
+
+    public void updateWIRCache(WorkItemRecord wir) {
+        rm.getWorkItemCache().update(wir) ;
+    }
+
+    public String getDecompID(WorkItemRecord wir) {
+        return rm.getDecompID(wir) ;
+    }
+
+    public void registerJSFApplicationReference(ApplicationBean app) {
+        rm.registerJSFApplicationReference(app);
     }
 
     public String getXFormsURI() { return rm.getXFormsURI() ; }

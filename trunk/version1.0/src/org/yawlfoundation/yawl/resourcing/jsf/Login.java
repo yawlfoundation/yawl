@@ -370,15 +370,17 @@ public class Login extends AbstractPageBean {
         SessionBean sb = getSessionBean();
         sb.setSessionhandle(handle);
         sb.setUserid(userid);
-        sb.setParticipant(wqg.getParticipantFromUserID(userid));
-        Set<WorkItemRecord> wirSet = getSessionBean().getQueue(WorkQueue.OFFERED);
+        if (! userid.equals("admin")) {
+            sb.setParticipant(wqg.getParticipantFromUserID(userid));
+            Set<WorkItemRecord> wirSet = getSessionBean().getQueue(WorkQueue.OFFERED);
 
-        if (wirSet != null) {
-            Iterator i = wirSet.iterator() ;
-            while (i.hasNext()) {
-                WorkItemRecord wir =  (WorkItemRecord) i.next() ;
-                sb.setChosenWIR(wir); break ;
-            }
+            if (wirSet != null) {
+                Iterator i = wirSet.iterator() ;
+                while (i.hasNext()) {
+                    WorkItemRecord wir =  (WorkItemRecord) i.next() ;
+                    sb.setChosenWIR(wir); break ;
+                }
+            }    
         }
     }
 }

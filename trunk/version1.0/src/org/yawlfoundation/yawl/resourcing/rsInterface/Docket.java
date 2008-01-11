@@ -13,8 +13,6 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
  * service
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 12/09/2007
  */
 

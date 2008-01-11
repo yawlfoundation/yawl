@@ -17,8 +17,6 @@ import java.io.PrintWriter;
  *  The Log Gateway class acts as a gateway between YAWL and its process logs.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 29/10/2007
  *
  *  Last Date: 29/10/2007
@@ -104,6 +102,10 @@ public class YLogGateway extends HttpServlet {
            else if (action.equalsIgnoreCase("getAllCaseEventIDs")) {
                String eventType = req.getParameter("eventtype");
                result = _logMgr.getAllCaseEventIDs(eventType);
+           }
+           else if (action.equalsIgnoreCase("getWorkItemDataForChildWorkItemEventID")) {
+               String childEventID = req.getParameter("eventid") ;
+               result = _logMgr.getChildWorkItemData(childEventID) ;
            }
        }
        else throw new IOException("Invalid or disconnected session handle.");

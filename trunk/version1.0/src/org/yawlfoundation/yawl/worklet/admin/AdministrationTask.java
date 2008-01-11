@@ -18,8 +18,6 @@ import org.yawlfoundation.yawl.worklet.support.Library;
  *  The AdminTasksManager maintains a set of these AdministrationTask instances.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  @version 0.8, 04-09/2006
  */
 

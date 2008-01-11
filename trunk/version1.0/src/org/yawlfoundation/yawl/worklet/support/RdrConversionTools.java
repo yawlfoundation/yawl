@@ -20,8 +20,6 @@ import java.util.*;
  *  vice versa. It supports the stringifying of some objects for persistence purposes.
 
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.8, 04-09/2006
  */
 

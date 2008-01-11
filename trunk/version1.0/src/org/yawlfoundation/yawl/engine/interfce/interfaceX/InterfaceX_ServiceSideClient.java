@@ -40,8 +40,6 @@ import org.jdom.Element;
  *                            SERVER        |         CLIENT
  *                                          |
  *  @author Michael Adams                   |
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  @version 0.8, 04/07/2006
  */
 

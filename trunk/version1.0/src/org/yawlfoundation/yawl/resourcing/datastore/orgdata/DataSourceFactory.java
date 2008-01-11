@@ -16,8 +16,6 @@ import java.io.*;
  * classes found in this package.
  *
  * @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 10/07/2007
  */
 

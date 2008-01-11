@@ -26,8 +26,6 @@ import org.jdom.Namespace;
  * task.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/08/2007
  */
 
@@ -117,7 +115,9 @@ public class ResourceMap {
 
     public void ignore(Participant p) { _ignoreSet.add(p) ; }
     
-
+    public HashSet<Participant> getOfferedParticipants(String itemID) {
+        return _offered.get(itemID) ;
+    }
     /****************************************************************************/
 
     
@@ -179,6 +179,7 @@ public class ResourceMap {
                QueueSet qs = p.getWorkQueues() ;
                if (qs == null) qs = p.createWorkQueues(rm.getPersisting());
                qs.addToQueue(wir, WorkQueue.OFFERED);
+               rm.announceModifiedQueue(p.getID()) ;
            }
            _offered.put(wir.getID(), pSet) ; 
         }

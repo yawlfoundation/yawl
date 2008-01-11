@@ -28,8 +28,6 @@ import org.apache.log4j.Logger;
  *  sequential set of exception handling primitives for this particular handler.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  @version 0.8, 04-09/2006
  */
 

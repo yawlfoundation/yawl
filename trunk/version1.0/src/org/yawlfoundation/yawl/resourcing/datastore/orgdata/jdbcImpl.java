@@ -19,8 +19,6 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
  * A vanilla JDBC implementation of the DataSource abstraction
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 28/08/2007
  */
 

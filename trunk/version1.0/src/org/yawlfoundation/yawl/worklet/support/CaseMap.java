@@ -17,8 +17,6 @@ import java.util.*;
  * It is used exclusively by the WorkletRecord class.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  @version 0.8, 04-09/2006
  */
 

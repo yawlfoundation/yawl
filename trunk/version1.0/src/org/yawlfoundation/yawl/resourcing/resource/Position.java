@@ -14,8 +14,6 @@ import org.jdom.Element;
  * Represents an organisational position that may be held by a participant.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 09/08/2007
  */
 

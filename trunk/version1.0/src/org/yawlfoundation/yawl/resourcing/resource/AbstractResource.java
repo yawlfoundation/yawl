@@ -12,8 +12,6 @@ package org.yawlfoundation.yawl.resourcing.resource;
  * An abstract class representing a resource entity.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/08/2007
  */
 

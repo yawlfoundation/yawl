@@ -22,8 +22,6 @@ import org.jdom.Namespace;
  * certain Role or Roles.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 13/08/2007
  *
  *  Last Date: 20/09/2007

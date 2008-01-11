@@ -14,8 +14,6 @@ import org.jdom.Element;
  * A role that a resource might perform.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 21/08/2007
  */
 

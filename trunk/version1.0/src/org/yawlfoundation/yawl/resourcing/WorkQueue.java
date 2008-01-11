@@ -20,8 +20,6 @@ import java.util.*;
  * Administrator - each instance representing a single queue
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/08/2007
  */
 
