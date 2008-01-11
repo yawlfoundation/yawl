@@ -26,15 +26,19 @@ import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
 import org.yawlfoundation.yawl.resourcing.rsInterface.Docket;
+import org.yawlfoundation.yawl.resourcing.jsf.FormParameter;
+import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.jdom.JDOMException;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -50,8 +54,6 @@ import java.util.*;
  * participants.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/08/2007
  */
 
@@ -82,6 +84,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private boolean _serviceEnabled = true ;          // will disable if no participants
     public static boolean serviceInitialised = false ;    // flag for init on restore
+
+    private ApplicationBean _jsfApplicationReference ;   // ref to jsf app manager bean
 
     public boolean _logOffers ;
 
@@ -161,6 +165,10 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public WorkItemCache getWorkItemCache() { return _workItemCache ; }
 
+    public void registerJSFApplicationReference(ApplicationBean app) {
+        _jsfApplicationReference = app;
+    }
+
     /*********************************************************************************/
 
     // Interface B implemented methods //
@@ -170,7 +178,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (_serviceEnabled) {
             ResourceMap rMap = getResourceMap(wir) ;
             if (rMap != null)
-                wir = rMap.distribute(wir) ;
+                wir = rMap.distribute(wir) ;            
             else
                 wir = offerToAll(wir) ;        // only when no resourcing spec for item
         }
@@ -178,7 +186,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         // service disabled, so route directly to admin's unoffered
         else _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
 
-        _workItemCache.add(wir);
+        _workItemCache.add(wir);        
     }
 
 
@@ -186,6 +194,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (_serviceEnabled) {
             removeFromAll(wir) ;
             _workItemCache.remove(wir);
+            if (wir.getStatus().equals(WorkItemRecord.statusIsParent))
+                removeChildItems(wir.getID()) ;
         }
     }
 
@@ -535,6 +545,18 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public String getParticipantRolesAsXML(String pid) {
+        Set<Role> roles = getParticipantRoles(pid);
+        if (roles != null) {
+            StringBuilder xml = new StringBuilder("<roles participantid=" + pid + ">") ;
+            for (Role r : roles) xml.append(r.getSummaryXML()) ;
+            xml.append("</roles>");
+            return xml.toString() ;
+        }
+        else return("<roles/>") ;   
+    }
+
+
     public String getCapabilitiesAsXML() {
         StringBuilder xml = new StringBuilder("<capabilities>") ;
         for (Capability c : _ds.capabilityMap.values()) xml.append(c.getSummaryXML()) ;
@@ -799,24 +821,38 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public WorkItemRecord offerToAll(WorkItemRecord wir) {
-        for (Participant p : _ds.participantMap.values())
+        for (Participant p : _ds.participantMap.values()) {
             p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
+            announceModifiedQueue(p.getID()) ;
+        }
         wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
         return wir ;
     }
 
+    public void withdrawOfferFromAll(WorkItemRecord wir) {
+        for (Participant p : _ds.participantMap.values()) {
+            p.getWorkQueues().removeFromQueue(wir, WorkQueue.OFFERED);
+            announceModifiedQueue(p.getID()) ;
+        }
+    }
+
 
     public void removeFromAll(WorkItemRecord wir) {
-        for (Participant p : _ds.participantMap.values())
+        for (Participant p : _ds.participantMap.values()) {
             p.getWorkQueues().removeFromAllQueues(wir);
-
+            announceModifiedQueue(p.getID()) ;
+        }
         _resAdmin.removeFromAllQueues(wir);
     }
 
 
     public void acceptOffer(Participant p, WorkItemRecord wir) {
         ResourceMap rMap = getResourceMap(wir);
-        rMap.withdrawOffer(wir);
+        if (rMap != null)
+            rMap.withdrawOffer(wir);
+        else
+           withdrawOfferFromAll(wir);        // beta version spec
+
         wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
         p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
     }
@@ -856,7 +892,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             _workItemCache.remove(wir) ;
             _workItemCache.add(oneToStart);
 
-            p.getWorkQueues().movetoStarted(oneToStart);
+            p.getWorkQueues().movetoStarted(wir, oneToStart);
         }
         else _log.error("Could not start workitem: " + wir.getID()) ;
     }
@@ -1153,7 +1189,57 @@ public class ResourceManager extends InterfaceBWebsideController {
         return false ;
 
     }
-    
+
+  //***************************************************************************//
+
+    // re-adds checkedout item to local cache after a restore (if required)
+    private void checkCacheForWorkItem(WorkItemRecord wir) {
+        WorkItemRecord wiTemp = getCachedWorkItem(wir.getID());
+        if (wiTemp == null) {
+
+            // if the item is not locally cached, it means a restore has occurred
+            // after a checkout & the item is still checked out, so lets put it back
+            // so that it can be checked back in
+            getModel().addWorkItem(wir);
+        }
+    }
+
+
+    /**
+     *  Checks a (checked out) workitem back into the engine
+     *
+     *  @param p - the participant checking in the item
+     *  @param wir - workitem to check into the engine
+     *  @param handle - the sessionHndle of the current user
+     *  @return true id checkin is successful
+     */
+    public boolean checkinItem(Participant p, WorkItemRecord wir, String handle) {
+
+        try {
+            wir = _workItemCache.get(wir.getID()) ;   // refresh wir
+
+            if (wir != null) {
+                Element outData = wir.getUpdatedData();
+                if (outData == null) outData = wir.getDataList();
+                checkCacheForWorkItem(wir);
+                String result = checkInWorkItem(wir.getID(), wir.getDataList(),
+                                                outData, handle) ;
+                if (successful(result)) {
+                    p.getWorkQueues().getQueue(WorkQueue.STARTED).remove(wir);
+                    _workItemCache.remove(wir) ;
+                    return true ;
+                }
+            }
+        }
+        catch (IOException ioe) {
+            _log.error("checkinItem method caused java IO Exception", ioe) ;
+        }
+        catch (JDOMException jde) {
+            _log.error("checkinItem method caused JDOM Exception", jde) ;
+        }
+        return false ;                                 // check-in unsucessful
+    }
+
 //***************************************************************************//
 
     /**
@@ -1428,10 +1514,24 @@ public class ResourceManager extends InterfaceBWebsideController {
                 for (WorkItemRecord wir : liveItems) {
                     removeFromAll(wir) ;                   
                     _workItemCache.remove(wir);
+                    if (wir.getStatus().equals(WorkItemRecord.statusIsParent))
+                        removeChildItems(wir.getID()) ;
                 }
             }
         }
         return result ;
+    }
+
+    private void removeChildItems(String parentID) {
+        if (connected()) {
+            List children = getChildren(parentID, _engineSessionHandle) ;
+            for (Object obj : children) {
+                WorkItemRecord wir = (WorkItemRecord) obj ;
+                removeFromAll(wir) ;
+                _workItemCache.remove(wir);
+            }
+        }
+        else _log.error("Unable to remove workitems for Cancelled Case") ;
     }
 
     public String unloadSpecification(String specID, String handle) throws IOException {
@@ -1440,6 +1540,67 @@ public class ResourceManager extends InterfaceBWebsideController {
     
     public String launchCase(String specID, String caseData, String handle) throws IOException {
         return _interfaceBClient.launchCase(specID, caseData, handle) ;
+    }
+
+    public Map<String, FormParameter> getWorkItemParamsForPost(WorkItemRecord wir, String handle)
+           throws IOException, JDOMException {
+        Map<String, FormParameter> inputs, outputs;
+        TaskInformation taskInfo = getTaskInformation(
+                                   wir.getSpecificationID(), wir.getTaskID(), handle);
+
+        // map the params
+        inputs  = mapParamList(taskInfo.getParamSchema().getInputParams()) ;
+        outputs = mapParamList(taskInfo.getParamSchema().getOutputParams()) ;
+
+        // if param is only in input list, mark it as input-only
+        for (String name : inputs.keySet()) {
+            if (! outputs.containsKey(name)) {
+                inputs.get(name).setInputOnly(true);
+            }
+        }
+
+        outputs.putAll(inputs);                             // combine the two maps
+
+        // now map data values to params
+        Element itemData ;
+        if (wir.isEdited()) {
+            wir = _workItemCache.get(wir);              // refresh data list if required
+            itemData = wir.getUpdatedData() ;
+        }
+        else
+            itemData = JDOMUtil.stringToElement(wir.getDataListString());
+
+        for (String name : outputs.keySet()) {
+            outputs.get(name).setValue(itemData.getChildText(name));
+        }
+
+        return outputs;
+    }
+
+    private Map<String, FormParameter> mapParamList(List params) {
+        Map<String, FormParameter> result = new HashMap<String, FormParameter>();
+        for (Object obj : params) {
+            YParameter param = (YParameter) obj ;
+            FormParameter fp = new FormParameter(param);
+            result.put(param.getName(), fp) ;
+        }
+       // if (result.isEmpty()) result = null ;
+        return result ;
+    }
+
+    private WorkItemRecord refreshWIRFromEngine(WorkItemRecord wir, String handle)
+                                                    throws IOException, JDOMException {
+
+            wir = getEngineStoredWorkItem(wir.getID(), handle);
+            _workItemCache.update(wir) ;
+            return wir ;
+
+    }
+
+    public void announceModifiedQueue(String pid) {
+        if (_jsfApplicationReference != null) {
+            _jsfApplicationReference.refreshUserWorkQueues(pid);
+        }
     }
 
 }                                                                                  

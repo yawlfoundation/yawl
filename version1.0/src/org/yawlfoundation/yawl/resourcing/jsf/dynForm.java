@@ -225,6 +225,7 @@ public class dynForm extends AbstractPageBean {
      * this page.</p>
      */
     public void prerender() {
+        getSessionBean().setActivePage("dynForm");        
     }
 
     /** 
@@ -246,37 +247,50 @@ public class dynForm extends AbstractPageBean {
 
 
     public String btnOK_action() {
+        String result = null;
         List compList = compPanel.getChildren() ;
         if (compList != null) {
-            Map params = getSessionBean().getDynFormParams();
+            Map<String, FormParameter> params = getSessionBean().getDynFormParams();
             for (Object o : compList) {
                 String name ;
-                YParameter param ;
+                FormParameter param ;
                 if (o instanceof TextField) {
                     TextField textField = (TextField) o ;
                     name = textField.getId().substring(3);
-                    param = (YParameter) params.get(name) ;
-                    param.setInitialValue((String) textField.getText());
+                    param = params.get(name) ;
+                    param.setValue((String) textField.getText());
                     params.put(name, param) ;
                 }
                 else if (o instanceof Checkbox) {
                     Checkbox cbox = (Checkbox) o ;
                     name = cbox.getId().substring(3);
-                    param = (YParameter) params.get(name) ;
-                    param.setInitialValue(String.valueOf(cbox.getSelected()));
+                    param = params.get(name) ;
+                    param.setValue(String.valueOf(cbox.getSelected()));
                     params.put(name, param) ;
                 }
             }
             getSessionBean().setDynFormParams(params) ;
-            getSessionBean().setCaseLaunch(true);
+
+            if (getSessionBean().getDynFormLevel().equals("case")) {
+                getSessionBean().setCaseLaunch(true);
+                result = "showCaseMgt";
+            }
+            else {
+                getSessionBean().setWirEdit(true) ;   // temp flag for post action
+                result = "showUserQueues";
+            }
         }
-        return "showCaseMgt";
+        return result;
     }
 
 
     public String btnCancel_action() {
-        return "showCaseMgt";
+        if (getSessionBean().getDynFormLevel().equals("case"))
+           return "showCaseMgt";
+        else
+           return "showUserQueues";
     }
+
 }
 
 

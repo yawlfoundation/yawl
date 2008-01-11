@@ -100,8 +100,6 @@ import java.util.List;
  * -------------------------------------------------------------------------- *
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.8, 09/10/2006
  */
 

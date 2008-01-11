@@ -235,6 +235,7 @@ public class selectUser extends AbstractPageBean {
      * this page.</p>
      */
     public void prerender() {
+        getSessionBean().setActivePage("selectUser");        
     }
 
     /** 

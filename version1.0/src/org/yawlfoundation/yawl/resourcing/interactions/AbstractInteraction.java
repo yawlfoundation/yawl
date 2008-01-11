@@ -11,8 +11,6 @@ import java.util.HashMap;
  *  Base class for the Offer, Allocate and Start interaction points.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 02/08/2007
  */
 

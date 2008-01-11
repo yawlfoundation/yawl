@@ -1,8 +1,6 @@
 <%@ page import="org.yawlfoundation.yawl.worklet.WorkletService"%>
 
 <!-- *  author Michael Adams
-     *  BPM Group, QUT Australia
-     *  m3.adams@qut.edu.au
      *  version 0.8, 04-09/2006  -->
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0" background="./graphics/bg01.gif">

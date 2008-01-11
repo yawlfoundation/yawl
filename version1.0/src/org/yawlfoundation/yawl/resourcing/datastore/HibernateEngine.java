@@ -15,8 +15,6 @@ import java.sql.Statement;
  *  This class provides db & persistence support via Hibernate.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 03/08/2007
  */
 

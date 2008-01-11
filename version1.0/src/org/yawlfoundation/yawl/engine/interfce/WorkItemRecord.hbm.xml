@@ -26,12 +26,14 @@
         <property name="_resourceStatus" column="resourceStatus" access="field"/>
         <property name="_startedBy" column="startedBy" access="field"/>
         <property name="_completedBy" column="completedBy" access="field"/>
-        <property name="_dataList" column="dataList"/>
+        <property name="_dataList" column="dataList" type="text"/>
+        <property name="_dataListUpdated" column="dataListUpdated" type="text"/>
         <property name="_enablementTimeMs" column="enabledTimeMS" access="field"/>
         <property name="_firingTimeMs" column="firingTimeMS" access="field"/>
         <property name="_startTimeMs" column="startTimeMS" access="field"/>
         <property name="_completionTimeMs" column="completionTimeMS" access="field"/>
-        
+        <property name="_edited" column="edited" type="boolean" access="field"/>
+
      </class>
 	
 </hibernate-mapping>

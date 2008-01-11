@@ -44,6 +44,7 @@ public class YParameter extends YVariable implements Comparable {
     private Hashtable attributes;
 
 
+    public YParameter() { }
 
     /**
      * creates a parameter
@@ -163,6 +164,8 @@ public class YParameter extends YVariable implements Comparable {
     public void setOrdering(int ordering) {
         _ordering = ordering;
     }
+
+    public int getOrdering() { return _ordering; }
 
 
     public String getDirection() {
@@ -300,6 +303,8 @@ public class YParameter extends YVariable implements Comparable {
     public static String getTypeForEnablement() {
         return _paramTypes[_ENABLEMENT_PARAM_TYPE];
     }
+
+    public String getParamType() { return _paramType; }
     /**
      * Return table of attributes associated with this variable.<P>
      *
@@ -319,4 +324,9 @@ public class YParameter extends YVariable implements Comparable {
             attributes = new Hashtable();
         }
         attributes.put(id, value);
-    }}
+    }
+
+    public void setAttributes(Hashtable attributes) {
+        this.attributes = attributes;
+    }
+}

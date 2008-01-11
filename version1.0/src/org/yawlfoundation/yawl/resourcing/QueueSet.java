@@ -18,8 +18,6 @@ import java.util.Set;
  * A repository of work queues belonging to a participant
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 23/08/2007
  */
 
@@ -78,9 +76,12 @@ public class QueueSet {
         addToQueue(wir, WorkQueue.SUSPENDED) ;
     }
 
-    public void movetoStarted(WorkItemRecord wir) {
-        removeFromQueue(wir, WorkQueue.ALLOCATED);
-        addToQueue(wir, WorkQueue.STARTED);
+    // moving from allocated to start occurs when workitem moves from enabled to
+    // executing. Therefore, the allocated queue contains the parent; the started
+    // queue must receive the child
+    public void movetoStarted(WorkItemRecord parent, WorkItemRecord child) {
+        removeFromQueue(parent, WorkQueue.ALLOCATED);
+        addToQueue(child, WorkQueue.STARTED);
     }
 
     public void movetoUnsuspend(WorkItemRecord wir) {

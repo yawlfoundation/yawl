@@ -9,8 +9,12 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import com.sun.rave.web.ui.appbase.AbstractApplicationBean;
 import javax.faces.FacesException;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Application scope data bean for the worklist and admin pages.
@@ -46,11 +50,12 @@ public class ApplicationBean extends AbstractApplicationBean {
         try {
             _init();
         } catch (Exception e) {
-            log("ApplicationBean1 Initialization Failure", e);
+            log("ApplicationBean Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
 
         // Add init code here that must complete *after* managed components are initialized
+        _wqg.registerJSFApplicationReference(this) ;
     }
 
     public void destroy() { }
@@ -68,6 +73,27 @@ public class ApplicationBean extends AbstractApplicationBean {
 
 
     public WorkQueueGateway getWorkQueueGateway() { return _wqg ; }
+
+    public int getDefaultJSFRefreshRate() { return 5 ; }
+
+    private Map<String, SessionBean> sessionReference = new HashMap<String, SessionBean>();
+
+    public void addSessionReference(String participantID, SessionBean sBean) {
+        sessionReference.put(participantID, sBean) ;
+    }
+
+    public SessionBean getSessionReference(String participantID) {
+        return sessionReference.get(participantID) ;
+    }
+
+    public void removeSessionReference(String participantID) {
+        sessionReference.remove(participantID) ;
+    }
+
+   public void refreshUserWorkQueues(String participantID) {
+       SessionBean sessionBean = sessionReference.get(participantID) ;
+       if (sessionBean != null) sessionBean.refreshUserWorkQueues();
+   }
 
     /**
      * formats a long time value into a string of the form 'ddd:hh:mm:ss'
@@ -87,5 +113,26 @@ public class ApplicationBean extends AbstractApplicationBean {
         age %= 60 ;                                    // seconds leftover
         return String.format("%d:%02d:%02d:%02d", days, hours, mins, age) ;
     }
-    
+
+
+    public Map<String, FormParameter> yParamListToFormParamMap(List params) {
+        Map<String, FormParameter> result = new HashMap<String, FormParameter>();
+        for (Object obj : params) {
+            YParameter param = (YParameter) obj ;
+            result.put(param.getName(), new FormParameter(param)) ;
+        }
+        if (result.isEmpty()) result = null ;
+        return result ;
+    }
+
+    public String rPad (String str, int padlen) {
+        int len = padlen - str.length();
+        if (len < 1) return str ;
+
+        StringBuilder padded = new StringBuilder(str);
+        char[] spaces  = new char[len] ;
+        for (int i = 0; i < len; i++) spaces[i] = ' ';
+        padded.append(spaces) ;
+        return padded.toString();
+    }
 }

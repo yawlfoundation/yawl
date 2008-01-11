@@ -17,8 +17,6 @@ import java.util.HashMap;
  * An API to be used by clients that want to converse with the Resource Service.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  14/08/2007
  *
  *  Last Date: 24/10/2007
@@ -141,6 +139,13 @@ public class ResourceGatewayClient extends Interface_Client {
         return executeGet(_serviceURI + "?action=getParticipant&id=" + id +
                                         "&handle=" + handle) ;
     }
+
+    public String getParticipantRoles(String id, String handle) throws IOException {
+        return executeGet(_serviceURI + "?action=getParticipantRoles&id=" + id +
+                                        "&handle=" + handle) ;
+    }
+
+
 
     /**
      * Connects an external entity to the resource service

@@ -31,8 +31,6 @@ import org.jdom.Element;
  * Currently only a STUB with a couple of examples
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.8 04-097/2006
  */
 public class RdrConditionFunctions {

@@ -253,6 +253,11 @@ public class Marshaller {
                 workItem.setCompletionTimeMs(completeTimeMs);
             String user = workItemElement.getChildText("assignedTo");
             workItem.setStartedBy(user);
+            String edited = workItemElement.getChildText("edited") ;
+            if (edited != null)
+                workItem.setEdited(edited.equalsIgnoreCase("true"));
+            else
+                workItem.setEdited(false);
             Element data = workItemElement.getChild("data");
             workItem.setUniqueID(uniqueID);
             if (null != data) {

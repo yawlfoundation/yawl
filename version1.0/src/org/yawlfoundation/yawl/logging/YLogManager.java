@@ -322,4 +322,9 @@ public class YLogManager {
 
         return result ;
     }
+
+    public String getChildWorkItemData(String childEventID) {
+        return null ;
+    }
+
 }

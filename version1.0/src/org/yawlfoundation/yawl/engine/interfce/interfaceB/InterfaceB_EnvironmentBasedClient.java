@@ -564,16 +564,16 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     }
 
-    public Element getResourcingSpecs(String specID, String taskID,
+    public String getResourcingSpecs(String specID, String taskID,
                                       String sessionHandle) throws IOException {
         String result = executeGet(_backEndURIStr + "?action=getResourcingSpecs" +
-                "&" +
-                "specID=" + specID +
-                "&" +
-                "taskID=" + taskID +
-                "&" +
-                "sessionHandle=" + sessionHandle);
-        return JDOMUtil.stringToElement(result);
+                "&specID=" + specID +
+                "&taskID=" + taskID +
+                "&sessionHandle=" + sessionHandle);
+        if (successful(result))
+            return stripOuterElement(result) ;
+        else
+            return result ;
     }
 
 

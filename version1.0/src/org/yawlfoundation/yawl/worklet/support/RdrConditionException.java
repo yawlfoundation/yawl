@@ -17,8 +17,6 @@ package org.yawlfoundation.yawl.worklet.support;
  *  to a boolean result.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.7, 10/12/2005
  */
 

@@ -28,8 +28,6 @@ import java.io.*;
  * It is implemented by selection.CheckedOutChildItem and exception.HandlerRunner
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  @version 0.8, 04-09/2006
  */
 

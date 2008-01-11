@@ -2,8 +2,6 @@
 <%@ page import="org.yawlfoundation.yawl.engine.interfce.WorkItemRecord"%>
 
 <!-- *  author Michael Adams
-     *  BPM Group, QUT Australia
-     *  m3.adams@qut.edu.au
      *  version 0.8, 04-09/2006  -->
 
 <%

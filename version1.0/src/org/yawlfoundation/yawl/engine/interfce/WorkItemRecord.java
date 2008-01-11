@@ -15,6 +15,8 @@ import org.jdom.output.XMLOutputter;
 
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
+import java.io.Serializable;
+
 /**
  * A 'stringified' record of a workitem for passing across various HTTP interfaces
  *
@@ -22,11 +24,12 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
  * Date: 2/02/2004
  * Time: 18:30:18
  *
- * Last Date: 04/01/2008 extended & refactored for version 2.0 MJA
+ * Extended & refactored for version 2.0 by Michael Adams
+ * Last Date: 09/01/2008
  * 
  */
 
-public class WorkItemRecord {
+public class WorkItemRecord implements Serializable {
 
     // workitem execution statuses
     public static final String statusEnabled = "Enabled";
@@ -75,13 +78,17 @@ public class WorkItemRecord {
     private String _startedBy;
     private String _completedBy ;
 
+    // initial data params and values
     private Element _dataList;
     private String _dataListString;
 
-    private String _tag;                                   // for user-defined values
+    // interim data store - for use by custome services for temp storage
+    private Element _dataListUpdated ;
+    private String _dataListUpdatedString ;
 
-    private XMLOutputter outPretty = new XMLOutputter(Format.getPrettyFormat());
-    private XMLOutputter outCompact = new XMLOutputter(Format.getCompactFormat());
+    private boolean _edited ;                       // for use on custom service side
+
+    private String _tag;                                   // for user-defined values
 
     /********************************************************************************/
 
@@ -122,6 +129,12 @@ public class WorkItemRecord {
         _dataListString = dataListString;
     }
 
+    public void restoreDataList() {
+        if (_dataListString != null)
+            _dataList = JDOMUtil.stringToElement(_dataListString) ;
+        if (_dataListUpdatedString != null)
+            _dataListUpdated = JDOMUtil.stringToElement(_dataListUpdatedString) ;
+    }
 
     /********************************************************************************/
 
@@ -169,7 +182,7 @@ public class WorkItemRecord {
 
     public void setDataList(Element dataList) {
         _dataList = dataList;
-        _dataListString = outCompact.outputString(_dataList) ;
+        _dataListString = JDOMUtil.elementToStringDump(_dataList) ;
     }
 
     public void setDataListString(String dataStr) {
@@ -179,6 +192,12 @@ public class WorkItemRecord {
 
     public void setTag(String tag) { _tag = tag ; }
 
+    public void setEdited(boolean edited) { _edited = edited ; }
+
+    public void setUpdatedData(Element dataListUpdated) {
+        _dataListUpdated = dataListUpdated;
+        _dataListUpdatedString = JDOMUtil.elementToString(dataListUpdated);
+    }
 
     /********************************************************************************/
 
@@ -218,10 +237,10 @@ public class WorkItemRecord {
     public String getResourceStatus() { return _resourceStatus; }
 
 
-    /** @deprecated */
+    /** @deprecated - use getStartedBy() */
     public String getAssignedTo() { return getStartedBy(); }
 
-    /** @deprecated */
+    /** @deprecated - use getStartedBy() */
     public String getWhoStartedMe() { return getStartedBy(); }
 
     public String getStartedBy() { return _startedBy; }
@@ -229,7 +248,7 @@ public class WorkItemRecord {
     public String getCompletedBy() { return _completedBy; }
 
 
-    /** @deprecated */
+    /** @deprecated - use getDataList() */
     public Element getWorkItemData() { return getDataList(); }
 
     public Element getDataList() { return _dataList; }
@@ -237,6 +256,10 @@ public class WorkItemRecord {
     public String getDataListString() { return _dataListString; }
 
     public String getTag() { return _tag ; }
+
+    public Element getUpdatedData() { return _dataListUpdated; }
+
+    public boolean isEdited() { return _edited; }
 
     public boolean hasLiveStatus() {
         return _status.equals(statusFired) || _status.equals(statusEnabled) ||
@@ -260,8 +283,9 @@ public class WorkItemRecord {
            .append(wrap(_resourceStatus, "resourceStatus"))
            .append(wrap(_startedBy, "startedBy"))
            .append(wrap(_completedBy, "completedBy"))
+           .append(wrap(String.valueOf(_edited), "edited"))
            .append("<data>")
-           .append(_dataList != null? outCompact.outputString(_dataList) : "")
+           .append(_dataList != null? JDOMUtil.elementToStringDump(_dataList) : "")
            .append("</data>")
            .append("</itemRecord>");
         return xml.toString() ;
@@ -274,13 +298,20 @@ public class WorkItemRecord {
  
     /********************************************************************************/
 
-    // hibernate mapping
+    // hibernate mappings
 
     private void set_dataList(String data) { _dataListString = data; }
 
     private String get_dataList() { return _dataListString ; }
 
+    private void set_dataListUpdated(String data) { _dataListUpdatedString = data; }
+
+    private String get_dataListUpdated() { return _dataListUpdatedString ; }
+
     private void set_id(long id) { _id = id; }
 
     private long get_id() { return _id; }
+
+    /********************************************************************************/
+
 }

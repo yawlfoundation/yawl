@@ -25,8 +25,6 @@ import org.apache.log4j.Logger;
   *  implementations may extend this gateway for other purposes.
   *
   *  @author Michael Adams
-  *  BPM Group, QUT Australia
-  *  m3.adams@yawlfoundation.org
   *  v0.8, 13/08/2006
   */
 

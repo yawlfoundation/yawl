@@ -16,8 +16,6 @@ import java.io.IOException;
  * An API to be used by clients that want to retrieve data from the YAWL process logs.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  29/10/2007
  *
  *  Last Date: 06/11/2007
@@ -148,6 +146,13 @@ public class YLogGatewayClient extends Interface_Client {
                                                                      throws IOException {
         return performGet("getParentWorkItemEventsForCaseID", "caseid", caseID, handle) ;
     }
+
+    public String getChildWorkItemData(String childEventID, String handle)
+                                                                     throws IOException {
+        return performGet("getParentWorkItemEventsForCaseID", "eventid", childEventID, handle) ;
+   }
+
+    
 
     /*****************************************************************************/
 

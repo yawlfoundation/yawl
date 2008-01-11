@@ -22,8 +22,6 @@ import org.jdom.Namespace;
  *  allocating resources.
  *
  *  @author Michael Adams
- *  BPM Group, QUT Australia
- *  m3.adams@yawlfoundation.org
  *  v0.1, 02/08/2007
  */
 

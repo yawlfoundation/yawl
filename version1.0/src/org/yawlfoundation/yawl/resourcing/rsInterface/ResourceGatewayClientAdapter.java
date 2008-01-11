@@ -482,7 +482,11 @@ public class ResourceGatewayClientAdapter {
         return result ;
     }
 
-     public Set getParticipantRoles(Participant p) { return null ; }
-    // for available parts get the role set
+
+    public List getParticipantRoles(String pid, String handle) throws IOException {
+        String rStr = _rgclient.getParticipantRoles(pid, handle) ;
+        return xmlStringToResourceAttributeList(rStr, "Role") ;
+    }    
+
     
 }

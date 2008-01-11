@@ -357,13 +357,10 @@ public class YEngine implements InterfaceADesign,
             for (Iterator it = query.iterate(); it.hasNext();) {
                 YWorkItem witem = (YWorkItem) it.next();
 
-
-                if (witem.getDataString() != null) {
-                    StringReader reader = new StringReader(witem.getDataString());
-                    SAXBuilder builder = new SAXBuilder();
-                    Document data = builder.build(reader);
-                    witem.setInitData(data.getRootElement());
-                }
+                String data = witem.getDataString();
+                if (data != null)
+                    witem.setInitData(JDOMUtil.stringToElement(data));
+                
 
                 java.util.StringTokenizer st = new java.util.StringTokenizer(witem.get_thisID(), ":");
                 String caseandid = st.nextToken();
@@ -2278,7 +2275,10 @@ public class YEngine implements InterfaceADesign,
          * SYNC'D External interface
          */
         synchronized (mutex) {
-            return _workItemRepository.getChildrenOf(workItem.getIDString());
+            if (workItem != null)
+                return _workItemRepository.getChildrenOf(workItem.getIDString());
+            else
+                return null ;
         }
     }
 

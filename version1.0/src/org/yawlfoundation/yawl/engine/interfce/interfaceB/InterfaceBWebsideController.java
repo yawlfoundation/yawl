@@ -19,6 +19,7 @@ import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.WorklistModel;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -492,6 +493,10 @@ public abstract class InterfaceBWebsideController {
 
     protected Element getResourcingSpecs(String specID, String taskID,
                                          String sessionHandle) throws IOException {
-            return _interfaceBClient.getResourcingSpecs(specID, taskID, sessionHandle) ;
+        String result = _interfaceBClient.getResourcingSpecs(specID, taskID, sessionHandle) ;
+        if ((result != null) && (! result.equals("")) && (! result.equals("null")))
+            return JDOMUtil.stringToElement(result);
+        else
+            return null ;
     }
 }

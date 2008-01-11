@@ -9,7 +9,7 @@
                 </ui:head>
                 <ui:body binding="#{userWorkQueues.body1}" id="body1" style="-rave-layout: grid">
                     <ui:form binding="#{userWorkQueues.form1}" id="form1">
-                        <ui:tabSet binding="#{userWorkQueues.tabSet}" id="tabSet" selected="tabOffered" style="border-width: 1px; border-style: solid; border-color: rgb(0, 0, 0) rgb(0, 0, 0) rgb(0, 0, 0) rgb(0, 0, 0); height: 262px; left: 168px; top: 150px; position: absolute; width: 694px">
+                        <ui:tabSet binding="#{userWorkQueues.tabSet}" id="tabSet" style="border-width: 1px; border-style: solid; border-color: rgb(0, 0, 0) rgb(0, 0, 0) rgb(0, 0, 0) rgb(0, 0, 0); height: 262px; left: 168px; top: 150px; position: absolute; width: 694px">
                             <ui:tab action="#{userWorkQueues.tabOffered_action}" binding="#{userWorkQueues.tabOffered}" id="tabOffered" style="" text="#{SessionBean.initOfferedTabText}">
                                 <ui:panelLayout binding="#{userWorkQueues.lpOffered}" id="lpOffered" style="border-width: 2px; border-style: solid; border-color: rgb(204, 204, 204) rgb(204, 204, 204) rgb(204, 204, 204) rgb(204, 204, 204); padding: 10px; background-color: rgb(227, 240, 252); height: 206px; position: relative; width: 669px; -rave-layout: grid">
                                     <ui:button action="#{userWorkQueues.btnAccept_action}" binding="#{userWorkQueues.btnAccept}" id="btnAccept" primary="true"
@@ -39,7 +39,7 @@
                                     <ui:button action="#{userWorkQueues.btnComplete_action}" binding="#{userWorkQueues.btnComplete}" id="btnComplete"
                                         style="font-size: 14px; left: 557px; top: 138px; position: absolute; width: 100px" text="Complete"/>
                                     <ui:button action="#{userWorkQueues.btnView_action}" binding="#{userWorkQueues.btnView}" id="btnView"
-                                        style="font-size: 14px; left: 557px; top: 30px; position: absolute; width: 100px" text="View"/>
+                                        style="font-size: 14px; left: 557px; top: 30px; position: absolute; width: 100px" text="View/Edit"/>
                                 </ui:panelLayout>
                             </ui:tab>
                             <ui:tab action="#{userWorkQueues.tabSuspended_action}" binding="#{userWorkQueues.tabSuspended}" id="tabSuspended" text="#{SessionBean.initSuspendedTabText}">
@@ -58,6 +58,7 @@
                          <div style="height: 268px; left: 6px; top: 150px; position: absolute; width: 154px">
                             <jsp:directive.include file="pfMenu.jspf"/>
                         </div>
+                        <ui:meta binding="#{userWorkQueues.metaRefresh}" httpEquiv="refresh" id="metaRefresh" />
                     </ui:form>
                 </ui:body>
             </ui:html>
