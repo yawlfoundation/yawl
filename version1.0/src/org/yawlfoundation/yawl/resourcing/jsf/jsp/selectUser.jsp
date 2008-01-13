@@ -5,23 +5,42 @@
         <ui:page binding="#{selectUser.page1}" id="page1">
             <ui:html binding="#{selectUser.html1}" id="html1">
                 <ui:head binding="#{selectUser.head1}" id="head1">
-                    <ui:link binding="#{selectUser.link1}" id="link1" url="/resources/stylesheet.css"/>
+                    <ui:link binding="#{selectUser.link1}" id="link1"
+                             url="/resources/stylesheet.css"/>
                 </ui:head>
-                <ui:body binding="#{selectUser.body1}" id="body1" style="-rave-layout: grid">
+                <ui:body binding="#{selectUser.body1}" id="body1"
+                         style="-rave-layout: grid">
                     <ui:form binding="#{selectUser.form1}" id="form1">
-                        <ui:listbox binding="#{selectUser.lbxUserList}" id="lbxUserList"
+
+                         <div style="left: 192px; top: 36px; position: absolute">
+                            <jsp:directive.include file="pfHeader.jspf"/>
+                        </div>
+
+                        <ui:listbox binding="#{selectUser.lbxUserList}"
+                                    id="lbxUserList"
                                     items="#{SessionBean.selectUserListOptions}"
                                     selected="#{SessionBean.selectUserListChoice}"
                                     style="border: 2px solid blue; height: 150px; left: 102px; top: 180px; position: absolute; width: 210px"/>
-                        <div style="left: 192px; top: 36px; position: absolute">
-                            <jsp:directive.include file="pfHeader.jspf"/>
-                        </div>
-                        <ui:staticText binding="#{selectUser.staticText1}" id="staticText1" text="#{SessionBean.userListFormHeaderText}"
-                                       style="color: blue; font-size: 14px; left: 102px; top: 150px; position: absolute"/>
-                        <ui:button action="#{selectUser.btnOK_action}" binding="#{selectUser.btnOK}" id="btnOK"
-                            style="height: 30px; left: 215px; top: 348px; position: absolute; width: 71px" text="OK"/>
-                        <ui:button action="#{selectUser.btnCancel_action}" binding="#{selectUser.btnCancel}" id="btnCancel"
-                            style="height: 30px; left: 125px; top: 348px; position: absolute; width: 71px" text="Cancel"/>
+
+                        <ui:staticText binding="#{selectUser.staticText1}"
+                                       id="staticText1"
+                                       text="#{SessionBean.userListFormHeaderText}"
+                                       styleClass="pageSubheading"
+                                       style="left: 102px; top: 150px"/>
+
+                        <ui:button action="#{selectUser.btnOK_action}"
+                                   binding="#{selectUser.btnOK}"
+                                   id="btnOK"
+                                   styleClass="selectUserButton"
+                                   style="left: 215px"
+                                   text="OK"/>
+
+                        <ui:button action="#{selectUser.btnCancel_action}"
+                                   binding="#{selectUser.btnCancel}"
+                                   id="btnCancel"
+                                   styleClass="selectUserButton"
+                                   style="left: 125px"
+                                   text="Cancel"/>
                     </ui:form>
                 </ui:body>
             </ui:html>

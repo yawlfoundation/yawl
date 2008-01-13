@@ -8,6 +8,8 @@
 
 package org.yawlfoundation.yawl.resourcing.resource;
 
+import java.io.Serializable;
+
 /**
  * Simple repository for participant privileges
  *
@@ -15,7 +17,7 @@ package org.yawlfoundation.yawl.resourcing.resource;
  *  v0.1, 03/08/2007
  */
 
-public class UserPrivileges {
+public class UserPrivileges implements Serializable {
 
     private String _participantID ;
 
@@ -28,6 +30,7 @@ public class UserPrivileges {
     private boolean canViewTeamItems ;
     private boolean canViewOrgGroupItems ;
     private boolean canChainExecution ;
+    private boolean canManageCases ;
 
 
     public UserPrivileges() {}                             // for Hibernate persistence
@@ -39,7 +42,7 @@ public class UserPrivileges {
                           boolean canReorder, boolean canViewAllOffered,
                           boolean canViewAllAllocated, boolean canViewAllExecuting,
                           boolean canViewTeamItems, boolean canViewOrgGroupItems,
-                          boolean canChainExecution) {
+                          boolean canChainExecution, boolean canManageCases) {
 
         setID(pid);
         setCanChooseItemToStart(canChooseItemToStart) ;
@@ -51,6 +54,7 @@ public class UserPrivileges {
         setCanViewTeamItems(canViewTeamItems) ;
         setCanViewOrgGroupItems(canViewOrgGroupItems);
         setCanChainExecution(canChainExecution) ;
+        setCanManageCases(canManageCases) ;
     }
 
 
@@ -98,6 +102,10 @@ public class UserPrivileges {
         return canViewTeamItems;
     }
 
+    public boolean canManageCases() {
+        return canManageCases;
+    }
+
     public void setCanChooseItemToStart(boolean canChooseItemToStart) {
         this.canChooseItemToStart = canChooseItemToStart;
     }
@@ -133,5 +141,9 @@ public class UserPrivileges {
     public void setCanChainExecution(boolean canChainExecution) {
         this.canChainExecution = canChainExecution;
     }
+
+    public void setCanManageCases(boolean canManageCases) {
+         this.canManageCases = canManageCases;
+     }
 
 }

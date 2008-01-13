@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * A role that a resource might perform.
@@ -49,8 +50,8 @@ public class Role extends AbstractResourceAttribute {
     public String getSummaryXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<role id=\"%s\">", _id)) ;
-        xml.append(wrap(_role, "name"));
-        xml.append(wrap(_description, "description"));
+        xml.append(StringUtil.wrap(_role, "name"));
+        xml.append(StringUtil.wrap(_description, "description"));
         xml.append("</role>");
         return xml.toString() ;
     }

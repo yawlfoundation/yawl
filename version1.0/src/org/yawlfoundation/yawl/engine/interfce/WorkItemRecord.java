@@ -14,6 +14,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.Serializable;
 
@@ -270,20 +271,20 @@ public class WorkItemRecord implements Serializable {
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<itemRecord>");
-        xml.append(wrap(getID(), "id"))
-           .append(wrap(_specificationID, "specid"))
-           .append(wrap(_caseID, "caseid"))
-           .append(wrap(_taskID, "taskid"))
-           .append(wrap(_uniqueID, "uniqueID"))
-           .append(wrap(_enablementTime, "enablementTime"))
-           .append(wrap(_firingTime, "firingTime"))
-           .append(wrap(_startTime, "startTime"))
-           .append(wrap(_completionTime, "completionTime"))
-           .append(wrap(_status, "status"))
-           .append(wrap(_resourceStatus, "resourceStatus"))
-           .append(wrap(_startedBy, "startedBy"))
-           .append(wrap(_completedBy, "completedBy"))
-           .append(wrap(String.valueOf(_edited), "edited"))
+        xml.append(StringUtil.wrap(getID(), "id"))
+           .append(StringUtil.wrap(_specificationID, "specid"))
+           .append(StringUtil.wrap(_caseID, "caseid"))
+           .append(StringUtil.wrap(_taskID, "taskid"))
+           .append(StringUtil.wrap(_uniqueID, "uniqueID"))
+           .append(StringUtil.wrap(_enablementTime, "enablementTime"))
+           .append(StringUtil.wrap(_firingTime, "firingTime"))
+           .append(StringUtil.wrap(_startTime, "startTime"))
+           .append(StringUtil.wrap(_completionTime, "completionTime"))
+           .append(StringUtil.wrap(_status, "status"))
+           .append(StringUtil.wrap(_resourceStatus, "resourceStatus"))
+           .append(StringUtil.wrap(_startedBy, "startedBy"))
+           .append(StringUtil.wrap(_completedBy, "completedBy"))
+           .append(StringUtil.wrap(String.valueOf(_edited), "edited"))
            .append("<data>")
            .append(_dataList != null? JDOMUtil.elementToStringDump(_dataList) : "")
            .append("</data>")
@@ -292,9 +293,6 @@ public class WorkItemRecord implements Serializable {
     }
 
 
-    private String wrap(String core, String tag) {
-        return String.format("<%s>%s</%s>", tag, core, tag) ;
-    }
  
     /********************************************************************************/
 

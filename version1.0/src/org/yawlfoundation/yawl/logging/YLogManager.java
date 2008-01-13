@@ -324,7 +324,33 @@ public class YLogManager {
     }
 
     public String getChildWorkItemData(String childEventID) {
-        return null ;
-    }
+        String result ;
+        List rows ;
+        if (_pmgr != null) {
+            try {
+                rows = _pmgr.getObjectsForClassWhere("YWorkItemDataEvent",
+                            String.format("_childWorkItemEventID='%s'", childEventID)) ;
+                if (rows != null) {
+                    StringBuilder xml = new StringBuilder() ;
+                    xml.append(String.format("<WorkItemDataEvents childWorkItemEventID=\"%s\">",
+                                                                    childEventID));
+                    Iterator itr = rows.iterator();
+                    while (itr.hasNext()) {
+                        YWorkItemDataEvent dEvent = (YWorkItemDataEvent) itr.next() ;
+                        xml.append(dEvent.toXML()) ;
+                    }
+                    xml.append("</WorkItemDataEvents>");
+                    result = xml.toString();
+                }
+                else result = _noRowsStr ;
+            }
+            catch (YPersistenceException ype) {
+               result = _exErrStr ;
+            }
+        }
+        else result = _pmErrStr ;
+
+        return result ;
+    }    
 
 }

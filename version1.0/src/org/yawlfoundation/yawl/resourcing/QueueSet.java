@@ -13,6 +13,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 
 import java.util.Set;
+import java.io.Serializable;
 
 /**
  * A repository of work queues belonging to a participant
@@ -21,7 +22,7 @@ import java.util.Set;
  *  v0.1, 23/08/2007
  */
 
-public class QueueSet {
+public class QueueSet implements Serializable {
 
     // participant queues
     private WorkQueue _qOffered ;

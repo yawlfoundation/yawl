@@ -9,18 +9,32 @@
                 </ui:head>
                 <ui:body binding="#{dynForm.body1}" id="body1" style="-rave-layout: grid">
                     <ui:form binding="#{dynForm.form1}" id="form1">
+
                         <div style="left: 204px; top: 30px; position: absolute">
                             <jsp:directive.include file="pfHeader.jspf"/>
                         </div>
-                        <ui:staticText binding="#{dynForm.txtHeader}" id="txtHeader"  text="#{SessionBean.dynFormHeaderText}" 
-                            style="color: blue; font-size: 18px; left: 138px; top: 144px; position: absolute"/>
-                        <ui:panelLayout binding="#{dynForm.compPanel}" id="compPanel" panelLayout="flow"/>
-                                <!--style="border-style: inset; border-color: gray; padding: 10px; background-color: #eceaea; -->
-                                       <!--height: 340px; left: 138px; top: 186px; position: absolute; width: 220px"/>-->
-                        <ui:button action="#{dynForm.btnOK_action}" binding="#{dynForm.btnOK}" id="btnOK" text="OK"/>
-                            <!--style="font-size: 14px; height: 30px; left: 347px; top: 546px; position: absolute; width: 66px" />-->
-                        <ui:button action="#{dynForm.btnCancel_action}" binding="#{dynForm.btnCancel}" id="btnCancel" text="Cancel"/>
-                            <!--style="font-size: 14px; height: 30px; left: 251px; top: 546px; position: absolute; width: 66px" />-->
+                        
+                        <ui:staticText binding="#{dynForm.txtHeader}"
+                                       id="txtHeader"
+                                       text="#{SessionBean.dynFormHeaderText}" 
+                                       styleClass="pageHeading"/>
+
+                        <ui:panelLayout binding="#{dynForm.compPanel}"
+                                        id="compPanel"
+                                        panelLayout="flow"
+                                        styleClass="dynformPanel"/>
+
+                        <ui:button action="#{dynForm.btnOK_action}"
+                                   binding="#{dynForm.btnOK}"
+                                   id="btnOK"
+                                   text="OK"
+                                   styleClass="dynformButton"/>
+
+                        <ui:button action="#{dynForm.btnCancel_action}"
+                                   binding="#{dynForm.btnCancel}"
+                                   id="btnCancel"
+                                   text="Cancel"
+                                   styleClass="dynformButton"/>
                     </ui:form>
                 </ui:body>
             </ui:html>

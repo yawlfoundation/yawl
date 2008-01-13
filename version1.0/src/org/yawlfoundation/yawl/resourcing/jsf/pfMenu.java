@@ -348,8 +348,7 @@ public class pfMenu extends AbstractFragmentBean {
 
 
     public String mnuUserWorkQueues_action() {
-        // TODO: Replace with your code
-        
+        getSessionBean().checkLogon();
         return "showUserQueues";
     }
 
@@ -362,8 +361,7 @@ public class pfMenu extends AbstractFragmentBean {
 
 
     public String mnuCaseMgt_action() {
-        // TODO: Replace with your code
-        
+        getSessionBean().checkLogon();
         return "showCaseMgt";
     }
 
@@ -405,9 +403,6 @@ public class pfMenu extends AbstractFragmentBean {
 
     public String mnuLogout_action() {
         getSessionBean().doLogout();
-        FacesContext context = FacesContext.getCurrentInstance();
-        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
-        session.invalidate();
         return "loginPage";
     }
 

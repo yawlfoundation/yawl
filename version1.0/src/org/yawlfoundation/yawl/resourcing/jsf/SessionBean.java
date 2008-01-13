@@ -12,8 +12,10 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 
 import javax.faces.FacesException;
+import javax.faces.application.NavigationHandler;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
@@ -215,7 +217,10 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public int getQueueSize(int qType) {
-        return queueSet.getQueueSize(qType) ;
+        if (queueSet != null)
+            return queueSet.getQueueSize(qType) ;
+        else
+            return 0;
     }
 
     public Set<WorkItemRecord> refreshQueue(int qType) {
@@ -328,20 +333,30 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public void doLogout() {
-        getApplicationBean().getWorkQueueGateway().logout(sessionhandle) ;
+        getGateway().logout(sessionhandle) ;
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
+        session.invalidate();
     }
 
     public void checkLogon() {
-        boolean isActiveSession = getApplicationBean().getWorkQueueGateway()
-                                                      .isValidSession(sessionhandle) ;
-        if (! isActiveSession) {
-            try {
-                FacesContext.getCurrentInstance().getExternalContext().redirect("Login.jsp");
-            }
-            catch (IOException ioe) {
-                // do something here
-            }
+        if (! getGateway().isValidSession(sessionhandle)) {
+            doLogout();
+            gotoPage("Login");
         }
+    }
+
+        /**
+     * redirects to the specified page
+      * @param page the name of the page to go to
+     */
+    public void gotoPage(String page) {
+        NavigationHandler navigator = getApplication().getNavigationHandler();
+        navigator.handleNavigation(getFacesContext(), null, page);
+    }
+
+    private WorkQueueGateway getGateway() {
+        return getApplicationBean().getWorkQueueGateway() ;
     }
 
     private Map<String, FormParameter> dynFormParams ;
@@ -459,9 +474,8 @@ public class SessionBean extends AbstractSessionBean {
         dynForm df = (dynForm) getBean("dynForm") ;
         PanelLayout dynPanel = df.getCompPanel() ;
         df.getHead1().setTitle(title);
-
-
         boolean focusSet = false ;
+        
         for (FormParameter param : params) {
             String pName = param.getName();
             Label label = new Label() ;
@@ -502,26 +516,24 @@ public class SessionBean extends AbstractSessionBean {
                     }                    
                 }
             }
-            
+
+            // insert some space between inputs
             StaticText space = new StaticText();
             space.setId("staticText" + dynPanel.getChildCount());
             space.setText("---------------------------------------------------------");
-            space.setStyle("color: #eceaea");
-
-            dynPanel.getChildren().add(space) ;      // insert some space between inputs
+            space.setStyle("color: #eceaea");             // same colour as background
+            dynPanel.getChildren().add(space) ;
         }
 
-        // resize page for the number of fields added
+        // resize page panel for the number of fields added
         int height = dynPanel.getChildCount() * 10 ;
-        dynPanel.setStyle("border-style: inset; border-color: gray; padding: 10px; " +
-                          "background-color: #eceaea; left: 138px; top: 186px; " +
-                          "position: absolute; width: 220px; height: " + height + "px");
-        Button btnOK = df.getBtnOK();
-        Button btnCancel = df.getBtnCancel();
-        btnOK.setStyle("font-size: 14px; height: 30px; left: 270px; " +
-                       "position: absolute; width: 66px; top: " + (186 + height + 30) + "px");
-        btnCancel.setStyle("font-size: 14px; height: 30px; left: 170px; " +
-                       "position: absolute; width: 66px; top: " + (186 + height + 30) + "px");
+        String heightStyle = String.format("height: %dpx", height);
+        dynPanel.setStyle(heightStyle);
+
+        // reposition buttons to go directly under resized panel
+        String topStyle = String.format("top: %dpx", 216 + height) ;
+        df.getBtnOK().setStyle("left: 270px; " + topStyle);
+        df.getBtnCancel().setStyle("left: 170px; " + topStyle);
     }
 
 
