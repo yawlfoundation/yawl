@@ -24,7 +24,7 @@
 /* Style rules for message severity levels */
 
 .infoMessage {
-  color: black;
+  color: green;
 }
 
 .warnMessage {
@@ -43,3 +43,73 @@
   font-weight: bold;
 }
 
+.menuButton {
+   position: absolute;
+}
+
+.pageHeading {
+   color: blue; 
+   font-size: 18px; 
+   left: 138px; 
+   top: 144px; 
+   position: absolute;
+}
+
+.pageSubheading {
+    color: blue;
+    font-size: 14px;
+    font-weight: bold;
+    position: absolute;    
+}
+
+.dynformPanel {
+   border-style: inset; 
+   border-color: gray; 
+   padding: 10px;
+   background-color: #eceaea; 
+   left: 138px; 
+   top: 186px;
+   position: absolute; 
+   width: 220px;
+}
+
+.dynformButton {
+   font-size: 14px; 
+   height: 30px; 
+   position: absolute; 
+   width: 66px;
+}
+
+.caseMgtPanel {
+   border: 2px solid gray;
+   left: 186px;
+   position: absolute;
+   width: 600px;
+}
+
+.caseMgtButton {
+    height: 30px;
+    position: absolute;
+    width: 95px;
+}
+
+.caseMgtListbox {
+    left: 12px;
+    top: 36px;
+    position: absolute;
+    width: 570px;
+}
+
+.fileUpload {
+    border: 1px solid black;
+    margin: 2px;
+    padding: 4px;
+    position: absolute;
+}
+
+.selectUserButton {
+    height: 30px;
+    top: 348px;
+    position: absolute;
+    width: 71px;
+}

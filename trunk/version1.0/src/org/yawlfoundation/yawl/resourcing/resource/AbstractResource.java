@@ -43,8 +43,4 @@ public abstract class AbstractResource {
 
     public void setDescription(String desc) {_description = desc; }
 
-    protected String wrap(String core, String tag) {
-       return String.format("<%s>%s</%s>", tag, core, tag) ;
-   }
-    
 }

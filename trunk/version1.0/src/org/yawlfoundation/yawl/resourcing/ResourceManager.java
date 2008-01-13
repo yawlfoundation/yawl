@@ -108,7 +108,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             Namespace.getNamespace("http://www.yawlfoundation.org/yawlschema");
 
     private InterfaceA_EnvironmentBasedClient _interfaceAClient ;
-    private YLogGatewayClient _ieClient;
+    private YLogGatewayClient _interfaceEClient;
 
 
     // Constructor - initialises references to engine and database(s), and loads org data
@@ -148,7 +148,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         _engineURI = uri ;
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(
                                                  _engineURI.replaceFirst("/ib", "/ia"));
-        _ieClient = new YLogGatewayClient(_engineURI.replaceFirst("/ib", "/logGateway"));
+        _interfaceEClient = new YLogGatewayClient(
+                                         _engineURI.replaceFirst("/ib", "/logGateway"));
     }
 
     public void setXFormsURI(String uri) { _xformsURI = uri ; }
@@ -548,7 +549,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getParticipantRolesAsXML(String pid) {
         Set<Role> roles = getParticipantRoles(pid);
         if (roles != null) {
-            StringBuilder xml = new StringBuilder("<roles participantid=" + pid + ">") ;
+            String header = String.format("<roles participantid=\"%s\">", pid);
+            StringBuilder xml = new StringBuilder(header) ;
             for (Role r : roles) xml.append(r.getSummaryXML()) ;
             xml.append("</roles>");
             return xml.toString() ;
@@ -1063,12 +1065,17 @@ public class ResourceManager extends InterfaceBWebsideController {
         _specTaskResMap.put(specID, taskMap) ;
     }
 
-
+    // removes a resource map for a particular task of a specification
     public void removeResourceMap(ResourceMap rMap) {
         String specID = rMap.getSpecID() ;
         HashMap<String,ResourceMap> taskMap = _specTaskResMap.get(specID) ;
         taskMap.remove(rMap.getTaskID()) ;
         _specTaskResMap.put(specID, taskMap) ;
+    }
+
+    // removes all resource maps for a specification
+    public void removeResourceMapsForSpec(String specID) {
+        _specTaskResMap.remove(specID) ;
     }
 
     public ResourceMap getResourceMap(WorkItemRecord wir) {
@@ -1090,9 +1097,9 @@ public class ResourceManager extends InterfaceBWebsideController {
                          successful(JDOMUtil.elementToString(resElem))) {
                         // if (schemaValidate(resElem))
 
-                        // strip 'response' tags
-                        resElem = resElem.getChild("resourcing", _yNameSpace);
-                        System.out.println("getResourceMap, got xml" );
+                        // strip 'response' tags - NOW DONE IN INT B
+                      //  resElem = resElem.getChild("resourcing", _yNameSpace);
+                      //  System.out.println("getResourceMap, got xml" );
 
                         result = new ResourceMap(specID, taskID, resElem) ;
                         addResourceMap(specID, taskID, result) ;
@@ -1116,7 +1123,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
         // BUILD ADAPTER CLASS FOR LOG IE
         try {
-            _ieClient.getParentWorkItemEventsForCaseID(wir.getCaseID(),
+            _interfaceEClient.getParentWorkItemEventsForCaseID(wir.getCaseID(),
                       _engineSessionHandle) ;
         }
         catch (IOException ioe) {
@@ -1535,7 +1542,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     public String unloadSpecification(String specID, String handle) throws IOException {
-        return _interfaceAClient.unloadSpecification(specID, handle);
+        String result = _interfaceAClient.unloadSpecification(specID, handle);
+        if (successful(result)) removeResourceMapsForSpec(specID) ;
+        return result ;
     }
     
     public String launchCase(String specID, String caseData, String handle) throws IOException {

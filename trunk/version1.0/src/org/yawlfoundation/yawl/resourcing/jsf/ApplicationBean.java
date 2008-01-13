@@ -12,6 +12,9 @@ import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import com.sun.rave.web.ui.appbase.AbstractApplicationBean;
 import javax.faces.FacesException;
+import javax.faces.context.FacesContext;
+import javax.faces.application.NavigationHandler;
+import javax.faces.application.Application;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -90,10 +93,11 @@ public class ApplicationBean extends AbstractApplicationBean {
         sessionReference.remove(participantID) ;
     }
 
-   public void refreshUserWorkQueues(String participantID) {
-       SessionBean sessionBean = sessionReference.get(participantID) ;
-       if (sessionBean != null) sessionBean.refreshUserWorkQueues();
-   }
+    public void refreshUserWorkQueues(String participantID) {
+        SessionBean sessionBean = sessionReference.get(participantID) ;
+        if (sessionBean != null) sessionBean.refreshUserWorkQueues();
+    }
+
 
     /**
      * formats a long time value into a string of the form 'ddd:hh:mm:ss'

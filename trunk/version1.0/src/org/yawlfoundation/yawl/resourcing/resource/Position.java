@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * Represents an organisational position that may be held by a participant.
@@ -105,8 +106,8 @@ public class Position extends AbstractResourceAttribute {
     public String getSummaryXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<position id=\"%s\">", _id)) ;
-        xml.append(wrap(_positionID, "positionID"));
-        xml.append(wrap(_description, "description"));
+        xml.append(StringUtil.wrap(_positionID, "positionID"));
+        xml.append(StringUtil.wrap(_description, "description"));
         xml.append("</position>");
         return xml.toString() ;
     }

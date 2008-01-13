@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.exceptions.YEngineStateException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -84,7 +85,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * @return the encase message
      */
     private String failureMessage(String msg) {
-        return  wrap(wrap(msg, "reason"), "failure");
+        return  StringUtil.wrap(StringUtil.wrap(msg, "reason"), "failure");
     }
 
     /** encases a message in "<success>...</success>
@@ -93,18 +94,9 @@ public class EngineGatewayImpl implements EngineGateway {
      * @return the encase message
      */
     private String successMessage(String msg) {
-        return wrap(msg, "success");
+        return StringUtil.wrap(msg, "success");
     }
 
-    /** encases a string with a pair of xml tags
-     *
-     * @param core the text to encase
-     * @param wrapTag the name of the tag to encase the text
-     * @return the encased string (e.g. "<wrapTag>core</wrapTag>")
-     */
-    private String wrap(String core, String wrapTag) {
-        return String.format("<%s>%s</%s>", wrapTag, core, wrapTag) ;
-    }
 
     //**************************************************//
     

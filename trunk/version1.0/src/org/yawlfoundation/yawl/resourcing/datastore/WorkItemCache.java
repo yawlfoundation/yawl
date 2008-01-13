@@ -14,6 +14,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
+import java.io.Serializable;
 
 
 /**
@@ -23,7 +24,7 @@ import java.util.Iterator;
  *  v0.1, 15/09/2007
  */
 
-public class WorkItemCache extends HashMap<String, WorkItemRecord> {
+public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Serializable {
 
     private Persister _persister;
     private WorkItemCache _me ;

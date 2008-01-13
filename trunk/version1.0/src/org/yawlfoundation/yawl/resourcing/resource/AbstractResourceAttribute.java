@@ -58,10 +58,6 @@ public abstract class AbstractResourceAttribute {
 
     public Set getResources() { return _resources ; }
 
-    protected String wrap(String core, String tag) {
-       return String.format("<%s>%s</%s>", tag, core, tag) ;
-    }
-
     public void reconstitute(Element e) {
         setID(e.getAttributeValue("id"));
         setDescription(e.getChildText("description"));

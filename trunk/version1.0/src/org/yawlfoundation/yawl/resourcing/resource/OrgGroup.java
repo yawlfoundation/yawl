@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * Represents an organisation group to which a position (occupied by a participant) may
@@ -91,9 +92,9 @@ public class OrgGroup extends AbstractResourceAttribute {
     public String getSummaryXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<orggroup id=\"%s\">", _id)) ;
-        xml.append(wrap(_groupName, "groupName"));
-        xml.append(wrap(get_groupType(), "groupType"));
-        xml.append(wrap(_description, "description"));
+        xml.append(StringUtil.wrap(_groupName, "groupName"));
+        xml.append(StringUtil.wrap(get_groupType(), "groupType"));
+        xml.append(StringUtil.wrap(_description, "description"));
         xml.append("</orggroup>");
         return xml.toString() ;
     }

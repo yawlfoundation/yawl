@@ -14,6 +14,7 @@ import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -465,34 +466,31 @@ public class YWorkItem {
 
     public String toXML() {
         StringBuilder xmlBuff = new StringBuilder("<workItem>");
-        xmlBuff.append(wrap(getTaskID(), "taskID"));
-        xmlBuff.append(wrap(getCaseID().toString(), "caseID"));
-        xmlBuff.append(wrap(getUniqueID(), "uniqueID"));
-        xmlBuff.append(wrap(_specID.getSpecName(), "specID"));
-        xmlBuff.append(wrap(String.valueOf(_specID.getVersion()), "specVersion"));
-        xmlBuff.append(wrap(_status.toString(), "status"));
+        xmlBuff.append(StringUtil.wrap(getTaskID(), "taskID"));
+        xmlBuff.append(StringUtil.wrap(getCaseID().toString(), "caseID"));
+        xmlBuff.append(StringUtil.wrap(getUniqueID(), "uniqueID"));
+        xmlBuff.append(StringUtil.wrap(_specID.getSpecName(), "specID"));
+        xmlBuff.append(StringUtil.wrap(String.valueOf(_specID.getVersion()), "specVersion"));
+        xmlBuff.append(StringUtil.wrap(_status.toString(), "status"));
         if (_dataList != null) {
-            xmlBuff.append(wrap(getDataString(), "data"));
+            xmlBuff.append(StringUtil.wrap(getDataString(), "data"));
         }
-        xmlBuff.append(wrap(_df.format(getEnablementTime()), "enablementTime"));
-        xmlBuff.append(wrap(String.valueOf(getEnablementTime().getTime()), "enablementTimeMs")) ;
+        xmlBuff.append(StringUtil.wrap(_df.format(getEnablementTime()), "enablementTime"));
+        xmlBuff.append(StringUtil.wrap(String.valueOf(getEnablementTime().getTime()),
+                       "enablementTimeMs")) ;
         if (getFiringTime() != null) {
-            xmlBuff.append(wrap(_df.format(getFiringTime()), "firingTime"));
-            xmlBuff.append(wrap(String.valueOf(getFiringTime().getTime()), "firingTimeMs")) ;
+            xmlBuff.append(StringUtil.wrap(_df.format(getFiringTime()), "firingTime"));
+            xmlBuff.append(StringUtil.wrap(String.valueOf(getFiringTime().getTime()),
+                       "firingTimeMs")) ;
         }
         if (getStartTime() != null) {
-            xmlBuff.append(wrap(_df.format(getStartTime()), "startTime"));
-            xmlBuff.append(wrap(String.valueOf(getStartTime().getTime()), "startTimeMs")) ;
-            xmlBuff.append(wrap(getUserWhoIsExecutingThisItem(), "assignedTo"));
+            xmlBuff.append(StringUtil.wrap(_df.format(getStartTime()), "startTime"));
+            xmlBuff.append(StringUtil.wrap(String.valueOf(getStartTime().getTime()),
+                         "startTimeMs")) ;
+            xmlBuff.append(StringUtil.wrap(getUserWhoIsExecutingThisItem(), "assignedTo"));
         }
         xmlBuff.append("</workItem>");
         return xmlBuff.toString();
     }
-
-    /** encases a string with a pair of xml tags */
-    private String wrap(String core, String wrapTag) {
-        return String.format("<%s>%s</%s>", wrapTag, core, wrapTag) ;
-    }
-
 
 }

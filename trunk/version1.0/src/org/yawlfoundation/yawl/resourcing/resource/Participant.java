@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing.resource;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.jdom.Element;
 
 import java.util.HashSet;
@@ -227,10 +228,10 @@ public class Participant extends AbstractResource implements Serializable {
     public String getSummaryXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<participant id=\"%s\">", _resourceID)) ;
-        xml.append(wrap(_userID, "userid"));
-        xml.append(wrap(_firstname, "firstname"));
-        xml.append(wrap(_lastname, "lastname"));
-        xml.append(wrap(String.valueOf(_isAdministrator), "isAdministrator")) ;
+        xml.append(StringUtil.wrap(_userID, "userid"));
+        xml.append(StringUtil.wrap(_firstname, "firstname"));
+        xml.append(StringUtil.wrap(_lastname, "lastname"));
+        xml.append(StringUtil.wrap(String.valueOf(_isAdministrator), "isAdministrator")) ;
         xml.append("</participant>");
         return xml.toString() ;
     }

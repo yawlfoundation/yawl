@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * Represents a capability that may be held by a resource.
@@ -43,8 +44,8 @@ public class Capability extends AbstractResourceAttribute {
     public String getSummaryXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<capability id=\"%s\">", _id)) ;
-        xml.append(wrap(_capability, "name"));
-        xml.append(wrap(_description, "description"));
+        xml.append(StringUtil.wrap(_capability, "name"));
+        xml.append(StringUtil.wrap(_description, "description"));
         xml.append("</capability>");
         return xml.toString() ;
     }
