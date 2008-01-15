@@ -9,6 +9,8 @@
 package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,25 +34,51 @@ public abstract class AbstractResourceAttribute {
     // the set of resources that have this attribute
     protected HashSet<AbstractResource> _resources = new HashSet<AbstractResource>() ;
 
+    private ResourceManager _resMgr = ResourceManager.getInstance() ;
+
+    protected boolean _persisting ;
 
     protected AbstractResourceAttribute() {}
 
+    protected void updateThis() {
+        if (_persisting) _resMgr.updateResourceAttribute(this);
+    }
+
+    public void setPersisting(boolean persisting) {
+        _persisting = persisting ;
+    }
+
+    public boolean isPersisting() { return _persisting; }
 
     public String getID() { return _id; }
 
-    public void setID(String id) { _id = id ; }
+    public void setID(String id) {
+        _id = id ;
+    }
 
     public String getNotes() { return _notes; }
 
-    public void setNotes(String notes) { _notes = notes; }
+    public void setNotes(String notes) {
+        _notes = notes;
+        updateThis();
+    }
 
     public String getDescription() { return _description;  }
 
-    public void setDescription(String desc) { _description = desc; }
+    public void setDescription(String desc) {
+        _description = desc;
+        updateThis();
+    }
 
-    public void addResource(AbstractResource resource) { _resources.add(resource); }
+    public void addResource(AbstractResource resource) {
+        _resources.add(resource);
+        updateThis();
+    }
 
-    public void removeResource(AbstractResource resource) { _resources.remove(resource); }
+    public void removeResource(AbstractResource resource) {
+        _resources.remove(resource);
+        updateThis();
+    }
 
     public boolean hasResource(AbstractResource resource) {
         return _resources.contains(resource);

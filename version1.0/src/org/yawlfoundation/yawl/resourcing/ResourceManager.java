@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -57,7 +58,8 @@ import java.util.*;
  *  v0.1, 03/08/2007
  */
 
-public class ResourceManager extends InterfaceBWebsideController {
+public class ResourceManager extends InterfaceBWebsideController
+                             implements Serializable {
 
     // store of organisational resources and their attributes
     private DataSource.ResourceDataSet _ds ;
@@ -193,10 +195,18 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public void handleCancelledWorkItemEvent(WorkItemRecord wir) {
         if (_serviceEnabled) {
-            removeFromAll(wir) ;
-            _workItemCache.remove(wir);
+            List<WorkItemRecord> itemsToRemove = new ArrayList<WorkItemRecord>() ;
+            itemsToRemove.add(wir) ;
+
+            // add list of child items (if any) to parent (if necessary)
             if (wir.getStatus().equals(WorkItemRecord.statusIsParent))
-                removeChildItems(wir.getID()) ;
+                itemsToRemove.addAll(getChildren(wir.getID())) ;
+
+            // remove items from all queues and cache
+            for (WorkItemRecord item : itemsToRemove) {
+                removeFromAll(item) ;
+                _workItemCache.remove(item);
+            }
         }
     }
 
@@ -324,7 +334,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
         // rebuild a work queue set and userid keymap for each participant
         for (Participant p : _ds.participantMap.values()) {
-            p.createWorkQueues(_persisting) ;
+            p.createQueueSet(_persisting) ;
             _userKeys.put(p.getUserID(), p.getID()) ;
         }
 
@@ -404,9 +414,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
         // persist it to the data store
         String newID = _orgdb.insert(p) ;
-//        p.getUserPrivileges().setID(newID);
-//        p.getWorkQueues().setID(newID);
-        p.createWorkQueues(_persisting) ;
+        p.setPersisting(_persisting);
+        p.createQueueSet(_persisting) ;
 
         // cleanup for non-default db
         if (_isNonDefaultOrgDB) {
@@ -424,6 +433,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addRole(Role r) {
+        r.setPersisting(_persisting);
         String newID = _orgdb.insert(r) ;             // persist it
         if (_isNonDefaultOrgDB) r.setID(newID);       // cleanup for non-default db
         _ds.roleMap.put(newID, r) ;                   // ...and add it to the data set
@@ -431,6 +441,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addCapability(Capability c) {
+        c.setPersisting(_persisting);
         String newID = _orgdb.insert(c) ;             // persist it
         if (_isNonDefaultOrgDB) c.setID(newID);       // cleanup for non-default db
         _ds.capabilityMap.put(newID, c) ;             // ...and add it to the data set
@@ -438,6 +449,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addPosition(Position p) {
+        p.setPersisting(_persisting);
         String newID = _orgdb.insert(p) ;             // persist it
         if (_isNonDefaultOrgDB) p.setID(newID);       // cleanup for non-default db
         _ds.positionMap.put(newID, p) ;               // ...and add it to the data set
@@ -445,6 +457,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addOrgGroup(OrgGroup o) {
+        o.setPersisting(_persisting);
         String newID = _orgdb.insert(o) ;             // persist it
         if (_isNonDefaultOrgDB) o.setID(newID);       // cleanup for non-default db
         _ds.orgGroupMap.put(newID, o) ;               // ...and add it to the data set
@@ -462,6 +475,12 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
+    public void updateResourceAttribute(Object obj) {
+        if (obj instanceof Role) updateRole((Role) obj);
+        else if (obj instanceof Capability) updateCapability((Capability) obj);
+        else if (obj instanceof Position) updatePosition((Position) obj);
+        else if (obj instanceof OrgGroup) updateOrgGroup((OrgGroup) obj);
+    }
 
     public void updateRole(Role r) {
         _orgdb.update(r) ;                             // persist it
@@ -913,10 +932,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public String getQueuedItems(String id, int queue, String format) {
-        return null ;    // stub - needed?
-    }
-
     // USER - TASK PRIVILEGE ACTIONS //
 
     public boolean suspendWorkItem(Participant p, WorkItemRecord wir) {
@@ -937,22 +952,37 @@ public class ResourceManager extends InterfaceBWebsideController {
         return success ;
     }
 
+    public boolean unsuspendWorkItem(Participant p, WorkItemRecord wir) {
+
+        // if user can suspend they also have unsuspend privileges
+        boolean success = false;
+        try {
+
+            // reset status before polling engine
+            if (successful(
+                _interfaceBClient.unsuspendWorkItem(wir.getID(), _engineSessionHandle))) {
+                wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
+                p.getWorkQueues().movetoUnsuspend(wir);
+                success = true ;
+            }
+        }
+        catch (IOException ioe) {
+            _log.error("Exception trying to unsuspend work item: " + wir.getID(), ioe);
+        }
+        return success ;
+    }
+
+
 
     public boolean reallocateStatelessWorkItem(Participant pFrom, Participant pTo,
                                                WorkItemRecord wir) {
         boolean success = false ;
         if (hasUserTaskPrivilege(pFrom, wir, TaskPrivileges.CAN_REALLOCATE_STATELESS)) {
 
-            // restart item
-            try {
-                _interfaceBClient.rollbackWorkItem(wir.getID(), _engineSessionHandle) ;
-                pFrom.getWorkQueues().removeFromQueue(wir, WorkQueue.STARTED);
-                pTo.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
-                success = true ;
-            }
-            catch (IOException ioe) {
-                _log.error("Exception trying to reset work item: " + wir.getID(), ioe);
-            }
+            // reset the item's data params to original values
+            wir.setUpdatedData(wir.getDataList());
+            reallocateWorkItem(pFrom, pTo, wir);
+            success = true ;
         }
         return success ;
     }
@@ -962,11 +992,17 @@ public class ResourceManager extends InterfaceBWebsideController {
                                                WorkItemRecord wir) {
         boolean success = false ;
         if (hasUserTaskPrivilege(pFrom, wir, TaskPrivileges.CAN_REALLOCATE_STATEFUL)) {
-            pFrom.getWorkQueues().removeFromQueue(wir, WorkQueue.STARTED);
-            pTo.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+            reallocateWorkItem(pFrom, pTo, wir);
             success = true ;
         }
         return success ;
+    }
+
+
+    private void reallocateWorkItem(Participant pFrom, Participant pTo,
+                                               WorkItemRecord wir) {
+        pFrom.getWorkQueues().removeFromQueue(wir, WorkQueue.STARTED);
+        pTo.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
     }
 
 
@@ -1504,41 +1540,49 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _interfaceAClient.uploadSpecification(fileContents, fileName, handle);         
     }
 
+    
     public String cancelCase(String caseID, String handle) throws IOException {
-        List<WorkItemRecord> liveItems = null ;
+        List<WorkItemRecord> liveItems = getLiveWorkItemsForCase(caseID, handle) ;
 
-        // get the live items for this case
-        try {
-            liveItems = _interfaceBClient.getLiveWorkItemsForIdentifier("case", caseID,
-                                                                         handle) ;
-        }
-        catch (Exception e) {  }
+        // cancel the case in the engine
         String result =  _interfaceBClient.cancelCase(caseID, handle);
 
-        // remove live items for case
+        // remove live items for case from workqueues and cache
         if (successful(result)) {
-            if (liveItems != null) {
-                for (WorkItemRecord wir : liveItems) {
-                    removeFromAll(wir) ;                   
-                    _workItemCache.remove(wir);
-                    if (wir.getStatus().equals(WorkItemRecord.statusIsParent))
-                        removeChildItems(wir.getID()) ;
-                }
-            }
-        }
-        return result ;
-    }
-
-    private void removeChildItems(String parentID) {
-        if (connected()) {
-            List children = getChildren(parentID, _engineSessionHandle) ;
-            for (Object obj : children) {
-                WorkItemRecord wir = (WorkItemRecord) obj ;
+            for (WorkItemRecord wir : liveItems) {
                 removeFromAll(wir) ;
                 _workItemCache.remove(wir);
             }
         }
         else _log.error("Unable to remove workitems for Cancelled Case") ;
+
+        return result ;
+    }
+
+
+    private List<WorkItemRecord> getLiveWorkItemsForCase(String caseID, String handle) {
+        List<WorkItemRecord> result = null ;
+        try {
+            result = _interfaceBClient.getLiveWorkItemsForIdentifier("case", caseID,
+                                                                         handle) ;
+
+            // the above method only gets parents, so get any child items too
+            for (WorkItemRecord wir : result) {
+                List<WorkItemRecord> children = getChildren(wir.getID()) ;
+                result.addAll(children) ;
+            }
+        }
+        catch (Exception e) {
+            _log.error("Exception attempting to retrieve work item list from engine");
+        }
+        return result;
+    }
+
+    private List<WorkItemRecord> getChildren(String parentID) {
+        List<WorkItemRecord> result = new ArrayList<WorkItemRecord>();
+        List children = getChildren(parentID, _engineSessionHandle) ;
+        for (Object obj : children) result.add((WorkItemRecord) obj) ;
+        return result ;
     }
 
     public String unloadSpecification(String specID, String handle) throws IOException {

@@ -32,6 +32,8 @@ public class UserPrivileges implements Serializable {
     private boolean canChainExecution ;
     private boolean canManageCases ;
 
+    private boolean carteblanche ;                // if true, overrides all privileges
+
 
     public UserPrivileges() {}                             // for Hibernate persistence
 
@@ -57,6 +59,10 @@ public class UserPrivileges implements Serializable {
         setCanManageCases(canManageCases) ;
     }
 
+    public void allowAll() { carteblanche = true ; }
+
+    public void disallowAll() { carteblanche = false ; }
+
 
     public String getID() {
         return _participantID;
@@ -67,43 +73,43 @@ public class UserPrivileges implements Serializable {
     }
 
     public boolean canChooseItemToStart() {
-        return canChooseItemToStart;
+        return carteblanche || canChooseItemToStart;
     }
 
     public boolean canStartConcurrent() {
-        return canStartConcurrent;
+        return carteblanche || canStartConcurrent;
     }
 
     public boolean canReorder() {
-        return canReorder;
+        return carteblanche || canReorder;
     }
 
     public boolean canViewAllOffered() {
-        return canViewAllOffered;
+        return carteblanche || canViewAllOffered;
     }
 
     public boolean canViewAllAllocated() {
-        return canViewAllAllocated;
+        return carteblanche || canViewAllAllocated;
     }
 
     public boolean canViewAllExecuting() {
-        return canViewAllExecuting;
+        return carteblanche || canViewAllExecuting;
     }
 
     public boolean canChainExecution() {
-        return canChainExecution;
+        return carteblanche || canChainExecution;
     }
 
     public boolean canViewOrgGroupItems() {
-        return canViewOrgGroupItems;
+        return carteblanche || canViewOrgGroupItems;
     }
 
     public boolean canViewTeamItems() {
-        return canViewTeamItems;
+        return carteblanche || canViewTeamItems;
     }
 
     public boolean canManageCases() {
-        return canManageCases;
+        return carteblanche || canManageCases;
     }
 
     public void setCanChooseItemToStart(boolean canChooseItemToStart) {

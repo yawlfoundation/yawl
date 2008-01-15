@@ -10,7 +10,14 @@
                 <ui:body binding="#{Login.body1}" id="body1" style="-rave-layout: grid">
                     <br/>
                     <ui:form binding="#{Login.form1}" id="form1">
-                        <br/>
+                        <ui:panelLayout binding="#{SessionBean.topPanel}"
+                                        id="topPanel"
+                                        panelLayout="flow"
+                                        styleClass="topPanel"/>
+                        <div style="left: 0px; top: 0px; position: absolute">
+                             <jsp:directive.include file="pfHeader.jspf"/>
+                        </div>
+
                         <ui:panelGroup binding="#{Login.groupPanel1}" id="groupPanel1" style="border-style: outset; border-color: rgb(153, 204, 255) rgb(153, 204, 255) rgb(153, 204, 255) rgb(153, 204, 255); padding: 6px; background-color: rgb(204, 204, 204); height: 94px; left: 288px; top: 120px; position: absolute; text-indent: 8px; width: 238px">
                             <h:panelGrid binding="#{Login.gridPanel1}" columns="2" id="gridPanel1" style="height: 48px" width="240">
                                 <ui:label binding="#{Login.label2}" for="txtUserName" id="label2" text="User Name:"/>
@@ -25,9 +32,7 @@
                             style="font-size: 18px; left: 383px; top: 264px; position: absolute" text="Login"/>
                         <ui:message binding="#{Login.message1}" for="txtUserName" id="message1" showDetail="false" showSummary="true" style="left: 552px; top: 144px; position: absolute"/>
                         <ui:message binding="#{Login.message2}" for="txtPassword" id="message2" showDetail="false" showSummary="true" style="left: 552px; top: 192px; position: absolute"/>
-                        <div style="height: 70px; left: 216px; top: 24px; position: absolute">
-                            <jsp:directive.include file="pfHeader.jspf"/>
-                        </div>
+
                     </ui:form>
                 </ui:body>
             </ui:html>

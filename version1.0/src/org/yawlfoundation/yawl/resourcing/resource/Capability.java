@@ -31,10 +31,17 @@ public class Capability extends AbstractResourceAttribute {
         _description = description;
     }
 
+    public Capability(String capability, String description, boolean persisting) {
+        this(capability, description) ;
+        _persisting = persisting ;
+    }
 
     public String getCapability() { return _capability; }
 
-    public void setCapability(String capability) { _capability = capability; }
+    public void setCapability(String capability) {
+        _capability = capability;
+        updateThis();
+    }
 
     public boolean equals(Object o) {
         return (o instanceof Capability) && ((Capability) o).getID().equals(_id);

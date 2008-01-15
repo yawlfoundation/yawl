@@ -10,8 +10,12 @@
                 <ui:body binding="#{dynForm.body1}" id="body1" style="-rave-layout: grid">
                     <ui:form binding="#{dynForm.form1}" id="form1">
 
-                        <div style="left: 204px; top: 30px; position: absolute">
-                            <jsp:directive.include file="pfHeader.jspf"/>
+                        <ui:panelLayout binding="#{SessionBean.topPanel}"
+                                        id="topPanel"
+                                        panelLayout="flow"
+                                        styleClass="topPanel"/>
+                        <div style="left: 0px; top: 0px; position: absolute">
+                             <jsp:directive.include file="pfHeader.jspf"/>
                         </div>
                         
                         <ui:staticText binding="#{dynForm.txtHeader}"

@@ -42,6 +42,11 @@ public class OrgGroup extends AbstractResourceAttribute {
         _description = description ;
     }
 
+    public OrgGroup(String groupName, GroupType groupType,
+                    OrgGroup belongsTo, String description, boolean persisting) {
+        this(groupName, groupType, belongsTo, description);
+        _persisting = persisting ;
+    }
 
 
     public String getGroupName() {
@@ -50,6 +55,7 @@ public class OrgGroup extends AbstractResourceAttribute {
 
     public void setGroupName(String groupName) {
         _groupName = groupName;
+        updateThis();
     }
 
     public GroupType getGroupType() {
@@ -58,6 +64,7 @@ public class OrgGroup extends AbstractResourceAttribute {
 
     public void setGroupType(GroupType groupType) {
         _groupType = groupType;
+        updateThis();
     }
 
 
@@ -67,6 +74,7 @@ public class OrgGroup extends AbstractResourceAttribute {
 
     public void setBelongsTo(OrgGroup belongsTo) {
         _belongsTo = belongsTo;
+        updateThis();
     }
 
     public boolean hasResourceInHierarchy(AbstractResource resource) {

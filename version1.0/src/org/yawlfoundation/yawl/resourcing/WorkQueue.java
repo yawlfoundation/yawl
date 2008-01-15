@@ -14,6 +14,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 
 import java.util.*;
+import java.io.Serializable;
 
 /**
  * Convenience class that encapsulates the various work queues for a Participant and/or
@@ -23,7 +24,7 @@ import java.util.*;
  *  v0.1, 03/08/2007
  */
 
-public class WorkQueue {
+public class WorkQueue implements Serializable {
 
     // different queue types
     public final static int OFFERED = 0 ;

@@ -321,7 +321,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Suspneds a work item.
+     * Suspends a work item.
      * @param workItemID the work item id.
      * @param sessionHandle the sessoin handle
      * @return diagnostic XML message
@@ -334,6 +334,22 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         return executePost(_backEndURIStr + "/workItem/" + workItemID,
                 paramsMap);
     }
+
+
+    /**
+      * Unuspends a work item.
+      * @param workItemID the work item id.
+      * @param sessionHandle the sessoin handle
+      * @return diagnostic XML message
+      * @throws IOException if the engine can't be found.
+      */
+     public String unsuspendWorkItem(String workItemID, String sessionHandle) throws IOException {
+          Map paramsMap = new HashMap();
+         paramsMap.put("sessionHandle", sessionHandle);
+         paramsMap.put("action", "unsuspend");
+         return executePost(_backEndURIStr + "/workItem/" + workItemID,
+                 paramsMap);
+     }
 
 
     /**

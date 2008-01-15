@@ -17,56 +17,64 @@ public class TestDB extends TestCase {
 
 
     public void testDB() {
+
+        int HOW_MANY_PARTICIPANTS_TO_CREATE = 20 ;
+
         ResourceManager rm = ResourceManager.getInstance();
         rm.setPersisting(true);
         rm.initOrgDataSource("HibernateImpl", -1) ;
-        DataSource odb = rm.getOrgDataSource() ;
-        Persister pdb = rm.getPersister();
         Random rand = new Random();
 
-        String[] f = {"Bob", "Bill", "George", "Henry", "John", "Mary", "Sue", "Ann",
-                      "May", "Kate"} ;
+        String[] f = {"Alex", "Bill", "Carol", "Diane", "Errol", "Frank", "George",
+                      "Hilary", "Irene", "Joanne"} ;
         String[] l = {"Smith", "Jones", "Brown", "Black", "Roberts", "Lewis", "Johns",
-                      "Green", "Gold", "Davies" } ;
+                      "Green", "Gold", "Davies"} ;
 
         Role r2 = new Role("a larger role") ;
+        r2.setPersisting(true);
         Role r = new Role("a shared role");
+        r.setPersisting(true);
+
+        rm.addRole(r2);
+        rm.addRole(r);
         r.setOwnerRole(r2);
 
         OrgGroup o = new OrgGroup("mega", OrgGroup.GroupType.DIVISION, null, "mega") ;
+        o.setPersisting(true);
+        rm.addOrgGroup(o);
+
         OrgGroup o2 = new OrgGroup("minor", OrgGroup.GroupType.TEAM, o, "minor") ;
+        o2.setPersisting(true);
+        rm.addOrgGroup(o2);
+
         Position po = new Position("a position");
+        po.setPersisting(true);
         Position p2 = new Position("manager") ;
+        p2.setPersisting(true);
+        rm.addPosition(p2);
+        rm.addPosition(po);
         po.setReportsTo(p2);
         po.setOrgGroup(o2);
         p2.setOrgGroup(o2);
-        Capability c = new Capability("a capability", "some description") ;
+
+        Capability c = new Capability("a capability", "some description", true) ;
+        rm.addCapability(c);
 
 
-        o.setID(odb.insert(o));
-        o2.setID(odb.insert(o2));
-        p2.setID(odb.insert(p2));
-        po.setID(odb.insert(po));
-        c.setID(odb.insert(c));
-        r2.setID(odb.insert(r2));
-        r.setID(odb.insert(r));
-
-
-        for (int i=0; i<20; i++) {
+        for (int i=0; i < HOW_MANY_PARTICIPANTS_TO_CREATE; i++) {
             String first = f[rand.nextInt(10)] ;
             String last = l[rand.nextInt(10)] ;
             String user = last + first.substring(0,1) ;
-            Participant p = new Participant(last, first, user) ;
+            Participant p = new Participant(last, first, user, true) ;
+            rm.addParticipant(p);
+
             p.setAdministrator(rand.nextBoolean());
             p.setPassword("apple");
-
+ 
             p.addPosition(po);
             p.addCapability(c);
             p.addRole(r);
-            p.getUserPrivileges().setCanReorder(true);
-
-
-            rm.addParticipant(p);
+            p.getUserPrivileges().allowAll();
 
         }
 

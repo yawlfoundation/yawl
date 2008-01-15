@@ -101,7 +101,7 @@ public class YPersistenceManager {
         return transaction;
     }
 
-    private void closeSession(Session session) {
+    public void closeSession() {
         try {
             if ((session != null) && (session.isOpen())) {
                 session.close();

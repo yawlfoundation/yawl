@@ -100,19 +100,14 @@ public class QueueSet implements Serializable {
     /** instantiates the queue if it is not yet instantiated */
     private void checkQueueExists(int queue) {
         if (isNullQueue(queue)) {
+            WorkQueue newQueue = new WorkQueue(_ownerID, queue, _persisting) ;
             switch (queue) {
-                case WorkQueue.OFFERED    :
-                    _qOffered  = new WorkQueue(_ownerID, queue, _persisting); break;
-                case WorkQueue.ALLOCATED  :
-                    _qAllocated = new WorkQueue(_ownerID, queue, _persisting); break;
-                case WorkQueue.STARTED    :
-                    _qStarted = new WorkQueue(_ownerID, queue, _persisting); break;
-                case WorkQueue.SUSPENDED  :
-                    _qSuspended = new WorkQueue(_ownerID, queue, _persisting); break;
-                case WorkQueue.WORKLISTED :
-                    _qWorklisted = new WorkQueue(_ownerID, queue, _persisting); break;
-                case WorkQueue.UNOFFERED  :
-                    _qUnoffered = new WorkQueue(_ownerID, queue, _persisting);
+                case WorkQueue.OFFERED    : _qOffered  = newQueue; break;
+                case WorkQueue.ALLOCATED  : _qAllocated = newQueue; break;
+                case WorkQueue.STARTED    : _qStarted = newQueue; break;
+                case WorkQueue.SUSPENDED  : _qSuspended = newQueue; break;
+                case WorkQueue.WORKLISTED : _qWorklisted = newQueue; break;
+                case WorkQueue.UNOFFERED  : _qUnoffered = newQueue;
             }
         }
     }
@@ -178,14 +173,19 @@ public class QueueSet implements Serializable {
     
     public void restoreWorkQueue(WorkQueue q, WorkItemCache cache) {
         q.restore(cache) ;
-        switch (q.getQueueType()) {
-            case WorkQueue.OFFERED    : _qOffered = q; break;
-            case WorkQueue.ALLOCATED  : _qAllocated = q; break;
-            case WorkQueue.STARTED    : _qStarted = q; break;
-            case WorkQueue.SUSPENDED  : _qSuspended = q; break;
-            case WorkQueue.WORKLISTED : _qWorklisted = q; break;
-            case WorkQueue.UNOFFERED  : _qUnoffered = q;
+
+        // add queue only if it has items in it
+        if (! q.isEmpty()) {
+            switch (q.getQueueType()) {
+                case WorkQueue.OFFERED    : _qOffered = q; break;
+                case WorkQueue.ALLOCATED  : _qAllocated = q; break;
+                case WorkQueue.STARTED    : _qStarted = q; break;
+                case WorkQueue.SUSPENDED  : _qSuspended = q; break;
+                case WorkQueue.WORKLISTED : _qWorklisted = q; break;
+                case WorkQueue.UNOFFERED  : _qUnoffered = q;
+            }
         }
+        else _persist.delete(q);                 // remove empty queue from persistence
     }
 
 

@@ -16,6 +16,7 @@ import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 
 import javax.faces.FacesException;
 import javax.faces.application.NavigationHandler;
+import javax.faces.application.Application;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
@@ -130,6 +131,14 @@ public class SessionBean extends AbstractSessionBean {
         getApplicationBean().removeSessionReference(participant.getID()) ;
     }
 
+    private PanelLayout topPanel = new PanelLayout();
+
+    public PanelLayout getTopPanel() { return topPanel; }
+
+    public void setTopPanel(PanelLayout pl) { this.topPanel = pl; }
+
+    
+
     /**
      * Holds value of property userid.
      */
@@ -172,7 +181,6 @@ public class SessionBean extends AbstractSessionBean {
      * @param sessionhandle New value of property sessionhandle.
      */
     public void setSessionhandle(String sessionhandle) {
-
         this.sessionhandle = sessionhandle;
     }
 
@@ -335,8 +343,10 @@ public class SessionBean extends AbstractSessionBean {
     public void doLogout() {
         getGateway().logout(sessionhandle) ;
         FacesContext context = FacesContext.getCurrentInstance();
-        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
-        session.invalidate();
+        if (context != null) {             // if null, session already destroyed
+            HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
+            session.invalidate();
+        }
     }
 
     public void checkLogon() {
@@ -351,8 +361,21 @@ public class SessionBean extends AbstractSessionBean {
       * @param page the name of the page to go to
      */
     public void gotoPage(String page) {
-        NavigationHandler navigator = getApplication().getNavigationHandler();
-        navigator.handleNavigation(getFacesContext(), null, page);
+        Application app = getApplication() ;
+        if (app != null) {
+            NavigationHandler navigator = app.getNavigationHandler();
+            navigator.handleNavigation(getFacesContext(), null, page);
+        }
+
+        // if app is null, session has been destroyed
+        else {
+            try {
+                FacesContext.getCurrentInstance().getExternalContext().redirect("Login.jsp");
+            }
+            catch (IOException ioe) {
+                // message about destroyed app
+            }
+        }
     }
 
     private WorkQueueGateway getGateway() {
@@ -469,6 +492,8 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public void setInitTabText(String s) {}
+
+    public String getInitTabStyle() { return "color: blue" ; }
 
     public void initDynForm(List<FormParameter> params, String title) {
         dynForm df = (dynForm) getBean("dynForm") ;

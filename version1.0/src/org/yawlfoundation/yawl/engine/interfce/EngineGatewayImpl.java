@@ -959,12 +959,13 @@ public class EngineGatewayImpl implements EngineGateway {
 
     private String describeWorkItems(Set workItems) {
         StringBuffer result = new StringBuffer();
-        Iterator iter = workItems.iterator();
-        while (iter.hasNext()) {
-            YWorkItem workitem = (YWorkItem) iter.next();
-
-            result.append(workitem.toXML());
-        }
+        if (workItems != null) {
+            Iterator iter = workItems.iterator();
+            while (iter.hasNext()) {
+                YWorkItem workitem = (YWorkItem) iter.next();
+                result.append(workitem.toXML());
+            }
+        }    
         return result.toString();
     }
 

@@ -12,9 +12,13 @@
                          style="-rave-layout: grid">
                     <ui:form binding="#{caseMgt.form1}" id="form1">
 
-                        <div style="left: 240px; top: 36px; position: absolute">
-                            <jsp:directive.include file="pfHeader.jspf"/>
-                        </div>
+                        <ui:panelLayout binding="#{SessionBean.topPanel}"
+                                        id="topPanel"
+                                        panelLayout="flow"
+                                        styleClass="topPanel"/>
+                        <div style="left: 0px; top: 0px; position: absolute">
+                             <jsp:directive.include file="pfHeader.jspf"/>
+                        </div>                        
 
                         <div style="left: 12px; top: 138px; position: absolute">
                             <jsp:directive.include file="pfMenu.jspf"/>
@@ -30,8 +34,8 @@
                             <ui:staticText binding="#{caseMgt.staticText1}"
                                            id="staticText1"
                                            styleClass="pageSubheading"
-                                           style="left: 12px; top: 6px"
-                                           text="Upload Specification:"/>
+                                           style="left: 12px; top: 12px"
+                                           text="Upload Specification"/>
 
                             <ui:upload binding="#{caseMgt.fileUpload1}"
                                        columns="70" id="fileUpload1"
@@ -52,7 +56,7 @@
                                         id="layoutPanel2"
                                         panelLayout="flow"
                                         styleClass="caseMgtPanel"
-                                        style="height: 194px; top: 264px">
+                                        style="height: 194px; top: 265px">
 
                             <ui:button action="#{caseMgt.btnLaunch_action}"
                                        binding="#{caseMgt.btnLaunch}"
@@ -65,7 +69,7 @@
                                            id="staticText2"
                                            styleClass="pageSubheading"
                                            style="left: 12px; top: 12px"
-                                           text="Loaded Specifications:"/>
+                                           text="Loaded Specifications"/>
                             
                             <ui:listbox binding="#{caseMgt.lbxLoadedSpecs}"
                                         id="lbxLoadedSpec1"
@@ -87,7 +91,7 @@
                                         id="layoutPanel3"
                                         panelLayout="flow"
                                         styleClass="caseMgtPanel"
-                                        style="height: 194px; top: 468px">
+                                        style="height: 194px; top: 467px">
                             
                             <ui:button action="#{caseMgt.btnCancelCase_action}"
                                        binding="#{caseMgt.btnCancelCase}"
@@ -106,8 +110,8 @@
                             <ui:staticText binding="#{caseMgt.staticText3}"
                                            id="staticText3"
                                            styleClass="pageSubheading"
-                                           style="left: 12px; top: 6px"
-                                           text="Running Cases:"/>
+                                           style="left: 12px; top: 12px"
+                                           text="Running Cases"/>
                         </ui:panelLayout>
 
                         <ui:messageGroup binding="#{caseMgt.msgBox}"

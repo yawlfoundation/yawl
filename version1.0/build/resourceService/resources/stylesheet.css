@@ -1,3 +1,4 @@
+
 /* Style rules to make data tables look better */
 
 .list-header {
@@ -48,7 +49,7 @@
 }
 
 .pageHeading {
-   color: blue; 
+   color: #3277ba; 
    font-size: 18px; 
    left: 138px; 
    top: 144px; 
@@ -56,7 +57,7 @@
 }
 
 .pageSubheading {
-    color: blue;
+    color: #3277ba;
     font-size: 14px;
     font-weight: bold;
     position: absolute;    
@@ -82,6 +83,7 @@
 
 .caseMgtPanel {
    border: 2px solid gray;
+   background-color: #97cbfd;
    left: 186px;
    position: absolute;
    width: 600px;
@@ -112,4 +114,42 @@
     top: 348px;
     position: absolute;
     width: 71px;
+}
+
+.topPanel {
+    background-image: url(headbg.jpg);
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    height: 70px;
+    left: 0px;
+    top: 0px;
+    position: absolute;
+    width: 100%;
+}
+
+.queuesTabSet {
+    border: 1px solid black;
+    height: 262px;
+    left: 168px;
+    top: 150px;
+    position: absolute;
+    width: 694px;
+}
+
+.queuesTabPanel {
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgb(204, 204, 204); 
+    padding: 10px;
+    height: 203px;
+    position: relative;
+    width: 670px;
+    -rave-layout: grid;
+}
+
+.queuesButton {
+    position: absolute;
+    left: 565px;
+    height: 30px;
+    width: 95px;
 }
