@@ -35,12 +35,18 @@ public class Role extends AbstractResourceAttribute {
 
     public String getName() { return _role; }
 
-    public void setName(String role) { _role = role; }
+    public void setName(String role) {
+        _role = role;
+        updateThis();
+    }
 
 
     public Role getOwnerRole() { return _belongsTo; }
 
-    public void setOwnerRole(Role owner) { _belongsTo = owner; }
+    public void setOwnerRole(Role owner) {
+        _belongsTo = owner;
+        updateThis();
+    }
 
     public boolean equals(Object o) {
         return (o instanceof Role) && ((Role) o).getID().equals(_id);

@@ -563,6 +563,7 @@ public class YEngine implements InterfaceADesign,
                     _myInstance.restore(pmgr);
                     pmgr.commit();
                     pmgr.setRestoring(false);
+                    pmgr.closeSession();
                 } catch (YPersistenceException e) {
                     logger.fatal("Failure to restart engine from persistence image", e);
                     throw new YPersistenceException("Failure to restart engine from persistence image");
@@ -1996,6 +1997,7 @@ public class YEngine implements InterfaceADesign,
                     workItem.setStatusToSuspended(pmgr);  //added
             }
         }
+        if (pmgr != null) pmgr.closeSession();
         return workItem ;
     }
    }
@@ -2014,6 +2016,7 @@ public class YEngine implements InterfaceADesign,
                 if (workItem.getStatus().equals(YWorkItemStatus.statusSuspended))
                     workItem.setStatusToUnsuspended(pmgr);  //added
             }
+            if (pmgr != null) pmgr.closeSession();
 
             return workItem ;
         }

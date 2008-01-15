@@ -21,6 +21,8 @@
         <property name="canViewOrgGroupItems" type="boolean" access="field"/>
         <property name="canChainExecution"    type="boolean" access="field"/>
         <property name="canManageCases"       type="boolean" access="field"/>
+        <property name="carteblanche"         type="boolean" access="field"
+                                              column="allowAll" />
 
      </class>
 

@@ -10,6 +10,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import java.util.Iterator;
 import java.util.List;
 import java.sql.Statement;
+import java.io.Serializable;
 
 /**
  *  This class provides db & persistence support via Hibernate.
@@ -18,7 +19,7 @@ import java.sql.Statement;
  *  v0.1, 03/08/2007
  */
 
-public class HibernateEngine {
+public class HibernateEngine implements Serializable {
 
     // persistence actions
     public static final int DB_UPDATE = 0;

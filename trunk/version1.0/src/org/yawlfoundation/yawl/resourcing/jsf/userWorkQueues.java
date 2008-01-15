@@ -405,9 +405,10 @@ public class userWorkQueues extends AbstractPageBean {
         if (getSessionBean().isDelegating()) postDelegate();
         else if (getSessionBean().isWirEdit()) postEditWIR() ;
         
-        String selTab = tabSet.getSelected() ;
+        String selTabName = tabSet.getSelected() ;
+        Tab selTab = null;
 
-        if (selTab == null) {
+        if (selTabName == null) {
 
             // this is the first rendering of the page in this session
             WorkItemRecord wir = getSessionBean().getChosenWIR(WorkQueue.OFFERED) ;
@@ -415,23 +416,28 @@ public class userWorkQueues extends AbstractPageBean {
             
        //     setRefreshRate(0) ;               // get default refresh rate from web.xml
             tabSet.setSelected("tabOffered");
+            selTab = tabOffered;
             tabOffered_action() ;           // default
         }    
         else {
-            if (selTab.equals("tabOffered")) {
+            if (selTabName.equals("tabOffered")) {
                 tabOffered_action() ;
+                selTab = tabOffered;
             }
-            else if (selTab.equals("tabAllocated")) {
+            else if (selTabName.equals("tabAllocated")) {
                 tabAllocated_action() ;
+                selTab = tabAllocated;
             }
-            else if (selTab.equals("tabStarted")) {
+            else if (selTabName.equals("tabStarted")) {
                 tabStarted_action() ;
+                selTab = tabStarted;
             }
-            else if (selTab.equals("tabSuspended")) {
+            else if (selTabName.equals("tabSuspended")) {
                 tabSuspended_action() ;
+                selTab = tabSuspended;
             }
         }
-        updateTabHeaders() ;
+        updateTabHeaders(selTab) ;
         getSessionBean().setActivePage("userWorkQueues");
     }
 
@@ -651,7 +657,13 @@ public class userWorkQueues extends AbstractPageBean {
         return doAction(WorkQueue.STARTED, "complete") ;
     }
 
-    private void updateTabHeaders() {
+    private void updateTabHeaders(Tab selected) {
+        tabOffered.setStyle("");
+        tabAllocated.setStyle("");
+        tabStarted.setStyle("");
+        tabSuspended.setStyle("");
+        if (selected != null) selected.setStyle("color: blue");
+        
         int[] itemCount = new int[4] ;
         for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
             itemCount[queue] = getSessionBean().getQueueSize(queue) ;
@@ -747,8 +759,11 @@ public class userWorkQueues extends AbstractPageBean {
     private WorkItemRecord addItemsToListOptions(Set<WorkItemRecord> queue) {
         Option[] options = new Option[queue.size()] ;
         WorkItemRecord result = null;
+        SortedSet<WorkItemRecord> qSorted =
+                               new TreeSet<WorkItemRecord>(new WorkItemAgeComparator());
+        qSorted.addAll(queue);
         int i = 0 ;
-        for (WorkItemRecord wir : queue) {
+        for (WorkItemRecord wir : qSorted) {
             if (i==0) {
                 getSessionBean().setChosenWIR(wir);          // return first listed
                 result = wir;

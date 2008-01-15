@@ -69,13 +69,7 @@ public class WorkQueueGateway  {          // extends HttpServlet
                     "(it isn't meant to be browsed to directly).</p>" +
                 "</body></html>";
             }
-            else if (action.equalsIgnoreCase("getQueuedItems")) {
-                String id = req.getParameter("id");
-                int queue = Integer.parseInt(req.getParameter("queue"));
-                String format = req.getParameter("format");
 
-                result = rm.getQueuedItems(id, queue, format) ;
-            }
 
             // generate the output
             res.setContentType("text/html");
@@ -172,12 +166,12 @@ public class WorkQueueGateway  {          // extends HttpServlet
 
     public void completeItem(Participant p,WorkItemRecord wir, String handle) throws IOException {
         if (checkConnection(handle))
-        rm.checkinItem(p, wir, handle) ;
+            rm.checkinItem(p, wir, handle) ;
     }
 
     public void unsuspendItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
- //       if (checkConnection(handle))
-//        rm.unsuspendWorkItem(p, wir) ;
+        if (checkConnection(handle))
+            rm.unsuspendWorkItem(p, wir) ;
     }
 
     public Set<SpecificationData> getLoadedSpecs(String handle) {

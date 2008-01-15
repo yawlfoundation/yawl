@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 import java.util.List;
 import java.util.HashMap;
+import java.io.Serializable;
 
 /**
  *  This class implements methods for Organisational Data CRUD.
@@ -15,7 +16,7 @@ import java.util.HashMap;
  *  v0.1, 03/08/2007
  */
 
-public class Persister {
+public class Persister implements Serializable {
 
     private HibernateEngine _db ;
     private static Persister _me;

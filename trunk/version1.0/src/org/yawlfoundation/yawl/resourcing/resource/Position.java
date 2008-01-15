@@ -55,6 +55,7 @@ public class Position extends AbstractResourceAttribute {
 
     public void setPositionID(String positionID) {
         _positionID = positionID;
+        updateThis();
     }
 
     public String getTitle() {
@@ -63,6 +64,7 @@ public class Position extends AbstractResourceAttribute {
 
     public void setTitle(String title) {
         _title = title;
+        updateThis();
     }
 
 
@@ -72,6 +74,7 @@ public class Position extends AbstractResourceAttribute {
 
     public void setReportsTo(Position reportsTo) {
         _reportsTo = reportsTo;
+        updateThis();
     }
 
 
@@ -81,6 +84,7 @@ public class Position extends AbstractResourceAttribute {
 
     public void setOrgGroup(OrgGroup orgGroup) {
         _orgGroup = orgGroup;
+        updateThis();
     }
 
     public boolean reportsTo(Position boss) {
