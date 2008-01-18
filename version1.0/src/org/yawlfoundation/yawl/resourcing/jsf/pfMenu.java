@@ -8,13 +8,8 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractFragmentBean;
 import javax.faces.FacesException;
-import javax.faces.context.FacesContext;
-import javax.faces.component.html.HtmlPanelGrid;
-import javax.servlet.http.HttpSession;
 
-import com.sun.rave.web.ui.component.Tree;
-import com.sun.rave.web.ui.component.TreeNode;
-import com.sun.rave.web.ui.component.ImageComponent;
+import com.sun.rave.web.ui.component.*;
 
 /**
  * <p>Fragment bean that corresponds to a similarly named JSP page
@@ -35,246 +30,65 @@ public class pfMenu extends AbstractFragmentBean {
     private void _init() throws Exception {
     }
 
-    private HtmlPanelGrid gridPanel1 = new HtmlPanelGrid();
+    private PanelLayout layoutPanel1 = new PanelLayout();
 
-    public HtmlPanelGrid getGridPanel1() {
-        return gridPanel1;
+    public PanelLayout getLayoutPanel1() {
+        return layoutPanel1;
     }
 
-    public void setGridPanel1(HtmlPanelGrid hpg) {
-        this.gridPanel1 = hpg;
+    public void setLayoutPanel1(PanelLayout pl) {
+        this.layoutPanel1 = pl;
     }
 
-    private Tree tree1 = new Tree();
+    private ImageHyperlink mnuLogout = new ImageHyperlink();
 
-    public Tree getTree1() {
-        return tree1;
-    }
-
-    public void setTree1(Tree t) {
-        this.tree1 = t;
-    }
-
-    private TreeNode mnuUser = new TreeNode();
-
-    public TreeNode getMnuUser() {
-        return mnuUser;
-    }
-
-    public void setMnuUser(TreeNode tn) {
-        this.mnuUser = tn;
-    }
-
-    private ImageComponent image1 = new ImageComponent();
-
-    public ImageComponent getImage1() {
-        return image1;
-    }
-
-    public void setImage1(ImageComponent ic) {
-        this.image1 = ic;
-    }
-
-    private TreeNode mnuUserWorkQueues = new TreeNode();
-
-    public TreeNode getMnuUserWorkQueues() {
-        return mnuUserWorkQueues;
-    }
-
-    public void setMnuUserWorkQueues(TreeNode tn) {
-        this.mnuUserWorkQueues = tn;
-    }
-
-    private ImageComponent image2 = new ImageComponent();
-
-    public ImageComponent getImage2() {
-        return image2;
-    }
-
-    public void setImage2(ImageComponent ic) {
-        this.image2 = ic;
-    }
-
-    private TreeNode mnuUserProfile = new TreeNode();
-
-    public TreeNode getMnuUserProfile() {
-        return mnuUserProfile;
-    }
-
-    public void setMnuUserProfile(TreeNode tn) {
-        this.mnuUserProfile = tn;
-    }
-
-    private ImageComponent image3 = new ImageComponent();
-
-    public ImageComponent getImage3() {
-        return image3;
-    }
-
-    public void setImage3(ImageComponent ic) {
-        this.image3 = ic;
-    }
-
-    private TreeNode mnuAdmin1 = new TreeNode();
-
-    public TreeNode getMnuAdmin1() {
-        return mnuAdmin1;
-    }
-
-    public void setMnuAdmin1(TreeNode tn) {
-        this.mnuAdmin1 = tn;
-    }
-
-    private ImageComponent image4 = new ImageComponent();
-
-    public ImageComponent getImage4() {
-        return image4;
-    }
-
-    public void setImage4(ImageComponent ic) {
-        this.image4 = ic;
-    }
-
-    private TreeNode mnuCaseMgt = new TreeNode();
-
-    public TreeNode getMnuCaseMgt() {
-        return mnuCaseMgt;
-    }
-
-    public void setMnuCaseMgt(TreeNode tn) {
-        this.mnuCaseMgt = tn;
-    }
-
-    private ImageComponent image5 = new ImageComponent();
-
-    public ImageComponent getImage5() {
-        return image5;
-    }
-
-    public void setImage5(ImageComponent ic) {
-        this.image5 = ic;
-    }
-
-    private TreeNode mnuAddService = new TreeNode();
-
-    public TreeNode getMnuAddService() {
-        return mnuAddService;
-    }
-
-    public void setMnuAddService(TreeNode tn) {
-        this.mnuAddService = tn;
-    }
-
-    private ImageComponent image6 = new ImageComponent();
-
-    public ImageComponent getImage6() {
-        return image6;
-    }
-
-    public void setImage6(ImageComponent ic) {
-        this.image6 = ic;
-    }
-
-    private TreeNode mnuAdminQueues = new TreeNode();
-
-    public TreeNode getMnuAdminQueues() {
-        return mnuAdminQueues;
-    }
-
-    public void setMnuAdminQueues(TreeNode tn) {
-        this.mnuAdminQueues = tn;
-    }
-
-    private ImageComponent image7 = new ImageComponent();
-
-    public ImageComponent getImage7() {
-        return image7;
-    }
-
-    public void setImage7(ImageComponent ic) {
-        this.image7 = ic;
-    }
-
-    private TreeNode mnuUserMgt = new TreeNode();
-
-    public TreeNode getMnuUserMgt() {
-        return mnuUserMgt;
-    }
-
-    public void setMnuUserMgt(TreeNode tn) {
-        this.mnuUserMgt = tn;
-    }
-
-    private ImageComponent image8 = new ImageComponent();
-
-    public ImageComponent getImage8() {
-        return image8;
-    }
-
-    public void setImage8(ImageComponent ic) {
-        this.image8 = ic;
-    }
-
-    private TreeNode mnuAdUserQueues = new TreeNode();
-
-    public TreeNode getMnuAdUserQueues() {
-        return mnuAdUserQueues;
-    }
-
-    public void setMnuAdUserQueues(TreeNode tn) {
-        this.mnuAdUserQueues = tn;
-    }
-
-    private ImageComponent image9 = new ImageComponent();
-
-    public ImageComponent getImage9() {
-        return image9;
-    }
-
-    public void setImage9(ImageComponent ic) {
-        this.image9 = ic;
-    }
-
-    private TreeNode mnuTeamQueues = new TreeNode();
-
-    public TreeNode getMnuTeamQueues() {
-        return mnuTeamQueues;
-    }
-
-    public void setMnuTeamQueues(TreeNode tn) {
-        this.mnuTeamQueues = tn;
-    }
-
-    private ImageComponent image10 = new ImageComponent();
-
-    public ImageComponent getImage10() {
-        return image10;
-    }
-
-    public void setImage10(ImageComponent ic) {
-        this.image10 = ic;
-    }
-
-    private TreeNode mnuLogout = new TreeNode();
-
-    public TreeNode getMnuLogout() {
+    public ImageHyperlink getMnuLogout() {
         return mnuLogout;
     }
 
-    public void setMnuLogout(TreeNode tn) {
-        this.mnuLogout = tn;
+    public void setMnuLogout(ImageHyperlink ih) {
+        this.mnuLogout = ih;
     }
 
-    private ImageComponent image11 = new ImageComponent();
+    private ImageHyperlink mnuMyProfile = new ImageHyperlink();
 
-    public ImageComponent getImage11() {
-        return image11;
+    public ImageHyperlink getMnuMyProfile() {
+        return mnuMyProfile;
     }
 
-    public void setImage11(ImageComponent ic) {
-        this.image11 = ic;
+    public void setMnuMyProfile(ImageHyperlink ih) {
+        this.mnuMyProfile = ih;
     }
-    
+
+    private ImageHyperlink mnuUserWorkQueues = new ImageHyperlink();
+
+    public ImageHyperlink getMnuUserWorkQueues() {
+        return mnuUserWorkQueues;
+    }
+
+    public void setMnuUserWorkQueues(ImageHyperlink ih) {
+        this.mnuUserWorkQueues = ih;
+    }
+
+    private ImageHyperlink mnuCaseMgt = new ImageHyperlink();
+
+    public ImageHyperlink getMnuCaseMgt() {
+        return mnuCaseMgt;
+    }
+
+    public void setMnuCaseMgt(ImageHyperlink ih) {
+        this.mnuCaseMgt = ih;
+    }
+
+    private ImageComponent imgSelected = new ImageComponent();
+
+    public ImageComponent getImgSelected() {
+        return imgSelected;
+    }
+
+    public void setImgSelected(ImageComponent ic) {
+        this.imgSelected = ic;
+    }
     // </editor-fold>
     
     public pfMenu() {
@@ -349,11 +163,12 @@ public class pfMenu extends AbstractFragmentBean {
 
     public String mnuUserWorkQueues_action() {
         getSessionBean().checkLogon();
+        getSessionBean().setMnuSelectorStyle("top: 72px");
         return "showUserQueues";
     }
 
 
-    public String mnuUserProfile_action() {
+    public String mnuMyProfile_action() {
         // TODO: Replace with your code
         
         return null;
@@ -362,6 +177,7 @@ public class pfMenu extends AbstractFragmentBean {
 
     public String mnuCaseMgt_action() {
         getSessionBean().checkLogon();
+        getSessionBean().setMnuSelectorStyle("top: 100px");
         return "showCaseMgt";
     }
 

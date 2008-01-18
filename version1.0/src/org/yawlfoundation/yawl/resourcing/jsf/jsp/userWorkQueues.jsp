@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jsp:root version="1.2" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:ui="http://www.sun.com/web/ui">
+<jsp:root version="1.2"
+          xmlns:f="http://java.sun.com/jsf/core"
+          xmlns:h="http://java.sun.com/jsf/html"
+          xmlns:jsp="http://java.sun.com/JSP/Page"
+          xmlns:ui="http://www.sun.com/web/ui">
+
     <jsp:directive.page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"/>
     <f:view>
         <ui:page binding="#{userWorkQueues.page1}" id="page1">
@@ -123,13 +128,20 @@
                                                id="btnStateless"
                                                styleClass="queuesButton"
                                                style="top: 100px"
-                                               text="Reallocate"/>
+                                               text="Reallocate s/l"/>
+
+                                    <ui:button action="#{userWorkQueues.btnStateful_action}"
+                                               binding="#{userWorkQueues.btnStateful}"
+                                               id="btnStateful"
+                                               styleClass="queuesButton"
+                                               style="top: 140px"
+                                               text="Reallocate s/f"/>
 
                                     <ui:button action="#{userWorkQueues.btnComplete_action}"
                                                binding="#{userWorkQueues.btnComplete}"
                                                id="btnComplete"
                                                styleClass="queuesButton"
-                                               style="top: 140px"
+                                               style="top: 180px"
                                                text="Complete"/>
 
                                 </ui:panelLayout>
@@ -156,11 +168,11 @@
                             </ui:tab>
                         </ui:tabSet>
 
-                        <div style="height: 202px; left: 168px; top: 192px; position: absolute; width: 502px">
+                        <div style="height: 202px; left: 126px; top: 118px; position: absolute; width: 502px">
                             <jsp:directive.include file="pfQueueUI.jspf"/>
                         </div>
 
-                         <div style="height: 268px; left: 6px; top: 150px; position: absolute; width: 154px">
+                         <div style="left: 0px; top: 72px; position: absolute">
                             <jsp:directive.include file="pfMenu.jspf"/>
                         </div>
 

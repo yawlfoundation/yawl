@@ -1002,7 +1002,7 @@ public class ResourceManager extends InterfaceBWebsideController
     private void reallocateWorkItem(Participant pFrom, Participant pTo,
                                                WorkItemRecord wir) {
         pFrom.getWorkQueues().removeFromQueue(wir, WorkQueue.STARTED);
-        pTo.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+        pTo.getWorkQueues().addToQueue(wir, WorkQueue.STARTED);
     }
 
 
@@ -1032,14 +1032,21 @@ public class ResourceManager extends InterfaceBWebsideController
     }
 
 
-    public boolean skipWorkItem(Participant p, WorkItemRecord wir) {
-        boolean success = false ;
+    public boolean skipWorkItem(Participant p, WorkItemRecord wir, String handle) {
+        String result ;
         if (hasUserTaskPrivilege(p, wir, TaskPrivileges.CAN_SKIP)) {
-            p.getWorkQueues().removeFromQueue(wir, WorkQueue.ALLOCATED);
-            // force complete and checkin workitem (& remove from handled items)
-            success = true ;
+            try {
+                result = _interfaceBClient.skipWorkItem(wir.getID(), handle) ;
+                if (successful(result)) {
+                    p.getWorkQueues().removeFromQueue(wir, WorkQueue.ALLOCATED);
+                    return true ;
+                }
+            }
+            catch (IOException ioe) {
+                return false ;
+            }
         }
-        return success ;
+        return false ;
     }
 
     // ASSUMPTION: Piling applies to this task in this case instance only (not all cases)
@@ -1055,7 +1062,11 @@ public class ResourceManager extends InterfaceBWebsideController
 
     public boolean hasUserTaskPrivilege(Participant p, WorkItemRecord wir,
                                         int privilege) {
-        return getResourceMap(wir).getTaskPrivileges().hasPrivilege(p, privilege) ;
+        ResourceMap rMap = getResourceMap(wir);
+        if (rMap != null)
+            return rMap.getTaskPrivileges().hasPrivilege(p, privilege) ;
+        else
+           return false ;
     }
 
 
@@ -1612,7 +1623,11 @@ public class ResourceManager extends InterfaceBWebsideController
             }
         }
 
-        outputs.putAll(inputs);                             // combine the two maps
+        // combine the two maps
+        if (outputs != null)
+            outputs.putAll(inputs);
+        else
+            outputs = inputs ;
 
         // now map data values to params
         Element itemData ;

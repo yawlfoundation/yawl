@@ -20,7 +20,7 @@
                              <jsp:directive.include file="pfHeader.jspf"/>
                         </div>                        
 
-                        <div style="left: 12px; top: 138px; position: absolute">
+                        <div style="left: 0px; top: 72px; position: absolute">
                             <jsp:directive.include file="pfMenu.jspf"/>
                         </div>
 
@@ -29,7 +29,7 @@
                                         id="layoutPanel1"
                                         panelLayout="flow"
                                         styleClass="caseMgtPanel"
-                                        style="height: 120px; top: 138px">
+                                        style="height: 120px; top: 77px">
 
                             <ui:staticText binding="#{caseMgt.staticText1}"
                                            id="staticText1"
@@ -56,7 +56,7 @@
                                         id="layoutPanel2"
                                         panelLayout="flow"
                                         styleClass="caseMgtPanel"
-                                        style="height: 194px; top: 265px">
+                                        style="height: 194px; top: 204px">
 
                             <ui:button action="#{caseMgt.btnLaunch_action}"
                                        binding="#{caseMgt.btnLaunch}"
@@ -91,7 +91,7 @@
                                         id="layoutPanel3"
                                         panelLayout="flow"
                                         styleClass="caseMgtPanel"
-                                        style="height: 194px; top: 467px">
+                                        style="height: 194px; top: 405px">
                             
                             <ui:button action="#{caseMgt.btnCancelCase_action}"
                                        binding="#{caseMgt.btnCancelCase}"

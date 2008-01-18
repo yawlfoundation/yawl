@@ -322,6 +322,36 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+        /**
+     *
+     * @param workItemID
+     * @param sessionHandle
+     * @return
+     * @throws RemoteException
+     */
+    public String skipWorkItem(String workItemID, String sessionHandle) throws RemoteException {
+        try {
+            _userList.checkConnection(sessionHandle);
+
+            YWorkItem item = _engine.getWorkItem(workItemID);
+            if (item != null) {
+                String userID = _userList.getUserID(sessionHandle);
+                YWorkItem child = _engine.skipWorkItem(item, userID);
+                if( child == null ) {
+                	throw new YAWLException(
+                			"Engine failed to skip work item " + item.toString() );
+                }
+                return successMessage(child.toXML());
+            }
+            return failureMessage("No work item with id = " + workItemID);
+        } catch (YAWLException e) {
+            if (e instanceof YPersistenceException) {
+                enginePersistenceFailure = true;
+            }
+            return failureMessage(e.getMessage());
+        }
+    }
+
     /**
      * Creates a workitem sibling of of the workitemid param.  It will only do this
      * if:

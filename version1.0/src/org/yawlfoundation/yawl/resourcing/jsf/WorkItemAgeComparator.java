@@ -25,7 +25,7 @@ public class WorkItemAgeComparator implements Comparator {
             long wir2EnableTime = Long.parseLong(wir2.getEnablementTimeMs());
 
             // return +ve means first wir is younger
-            if ((wir1EnableTime==0) && (wir2EnableTime==0 ))
+            if ((wir1EnableTime==0) && (wir2EnableTime==0))
                 return compareCaseIDs(wir1, wir2);
             else
                 return (int) (wir1EnableTime - wir2EnableTime);

@@ -12,6 +12,7 @@ package org.yawlfoundation.yawl.engine;
 import org.yawlfoundation.yawl.admintool.model.HumanResource;
 import org.yawlfoundation.yawl.authentication.UserList;
 import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
@@ -1510,7 +1511,10 @@ public class YEngine implements InterfaceADesign,
      *                             states.
      * @throws YDataStateException
      */
-    public YWorkItem startWorkItem(YWorkItem workItem, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException {
+    public YWorkItem startWorkItem(YWorkItem workItem, String userID)
+                                    throws YStateException, YDataStateException, 
+                                           YQueryException, YSchemaBuildingException,
+                                           YPersistenceException, YEngineStateException {
         /**
          * SYNC'D External interface
          */
@@ -1698,7 +1702,8 @@ public class YEngine implements InterfaceADesign,
         }
     }
 
-    // MLR (31/10/07): stub added to keep backwards compatibility with custom services that do not support the status ForcedComplete
+    // MLR (31/10/07): stub added to keep backwards compatibility with custom services
+    // that do not support the status ForcedComplete
     public void completeWorkItem(YWorkItem workItem, String data)
                                      throws YStateException, YDataStateException,
                                             YQueryException, YSchemaBuildingException,
@@ -1716,7 +1721,8 @@ public class YEngine implements InterfaceADesign,
      * @throws YStateException
      */
     public void completeWorkItem(YWorkItem workItem, String data, boolean force)
-            throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException{
+            throws YStateException, YDataStateException, YQueryException,
+                   YSchemaBuildingException, YPersistenceException, YEngineStateException{
         /**
          * SYNC'D External interface
          */
@@ -1856,6 +1862,65 @@ public class YEngine implements InterfaceADesign,
         }
     }
 
+
+    public YWorkItem skipWorkItem(YWorkItem workItem, String userID)
+                                   throws YStateException, YDataStateException,
+                                          YQueryException, YSchemaBuildingException,
+                                          YPersistenceException, YEngineStateException {
+
+        // start item, get output data, get children, complete each child
+        YWorkItem startedItem = startWorkItem(workItem, userID) ;
+        if (startedItem != null) {
+            String data = mapOutputDataForSkippedWorkItem(startedItem) ;
+            Set<YWorkItem> children = workItem.getChildren() ;
+            for (YWorkItem child : children)
+                completeWorkItem(child, data, false) ;
+        }
+        else {
+            throw new YStateException("Could not skip workitem: " + workItem.getIDString()) ;
+        }
+        return startedItem ;
+    }
+
+
+    private String mapOutputDataForSkippedWorkItem(YWorkItem workItem) {
+
+        // get input and output params for task
+        YSpecificationID specID = workItem.getSpecificationID();
+        String taskID = workItem.getTaskID();
+        YTask task = getTaskDefinition(specID, taskID) ;
+
+        Map<String, YParameter> inputs =
+                                 task.getDecompositionPrototype().getInputParameters();
+        Map<String, YParameter> outputs =
+                                 task.getDecompositionPrototype().getOutputParameters();
+
+        // map data values to params
+        Element itemData = JDOMUtil.stringToElement(workItem.getDataString());
+        Element outputData = (Element) itemData.clone();
+
+        // remove the input-only params from output data
+        for (String name : inputs.keySet())
+            if (outputs.get(name) == null) outputData.removeChild(name);
+
+        // for each output param
+        for (String name : outputs.keySet()) {
+
+            // if the output param has no corresponding input param, add an emelent
+            if (inputs.get(name) == null) {
+                Element outData = new Element(name) ;
+                YParameter outParam = outputs.get(name);
+                String defaultValue = outParam.getInitialValue();
+                if (defaultValue != null)
+                    outData.setText(defaultValue) ;
+                else
+                    outData.setText(JDOMUtil.getDefaultValueForType(outParam.getDataTypeName()));
+
+                outputData.addContent(outData);
+            }
+        }
+        return JDOMUtil.elementToStringDump(outputData);
+    }
 
     /**
      * Determines whether or not a task will allow a dynamically

@@ -15,6 +15,7 @@ import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.jdom.Element;
+import org.richfaces.component.html.HtmlModalPanel;
 
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
@@ -271,6 +272,16 @@ public class userWorkQueues extends AbstractPageBean {
         this.btnStateless = b;
     }
 
+    private Button btnStateful = new Button();
+
+    public Button getBtnStateful() {
+        return btnStateful;
+    }
+
+    public void setBtnStateful(Button b) {
+        this.btnStateful = b;
+    }
+
     private Button btnUnsuspend = new Button();
 
     public Button getBtnUnsuspend() {
@@ -403,6 +414,7 @@ public class userWorkQueues extends AbstractPageBean {
         }
         
         if (getSessionBean().isDelegating()) postDelegate();
+        else if (getSessionBean().isReallocating()) postReallocate();
         else if (getSessionBean().isWirEdit()) postEditWIR() ;
         
         String selTabName = tabSet.getSelected() ;
@@ -503,25 +515,13 @@ public class userWorkQueues extends AbstractPageBean {
                // show connection error or timeout
             }
             sb.setDelegating(false);
-            ApplicationBean ab = getApplicationBean() ;
         }
         
     }
 
 
     public String btnSkip_action() {
-        ExternalContext externalContext = getFacesContext().getExternalContext();
-        if (externalContext != null) {
-            Map s = externalContext.getSessionMap() ;
-            Map a = externalContext.getApplicationMap();
-            System.out.println(s) ;
-            System.out.println(a) ;
-        }
-
-
-
-  //      return doAction(WorkQueue.ALLOCATED, "skip") ;
-        return null;
+        return doAction(WorkQueue.ALLOCATED, "skip") ;
     }
 
     public void forceRefresh() {
@@ -590,21 +590,61 @@ public class userWorkQueues extends AbstractPageBean {
 
 
     public String btnStateless_action() {
-        // TODO: Process the button click action. Return value is a navigation
-        // case name where null will return to the same page.
-        Participant pFrom = getSessionBean().getParticipant();
-        Participant pTo = null ;     //todo - get to part
-        boolean stateful = false; //todo - get stateful/stateless
+        return reallocateItem(false) ;
+    }
+
+    private String reallocateItem(boolean stateful) {
         String handle = getSessionBean().getSessionhandle() ;
-        WorkItemRecord wir = getSessionBean().getChosenWIR(WorkQueue.ALLOCATED);
+
         try {
-            getGateway().reallocateItem(pFrom, pTo, wir, stateful, handle);
+            Set<Participant> pSet = getGateway().getAllParticipants(handle);
+
+            if (pSet != null) {
+                // build the option list
+                Option[] options = new Option[pSet.size()];
+                int i = 0 ;
+                for (Participant p : pSet) {
+                    options[i++] = new Option(p.getID(), p.getFullName());
+                }
+                getSessionBean().setReallocatingStateful(stateful);
+                getSessionBean().setSelectUserListOptions(options);
+                getSessionBean().setUserListFormHeaderText("Reallocate workitem to:") ;
+                return "userSelect" ;
+            }
+            else return null ;
+        }
+        catch (IOException ioe) {
             return null;
         }
-        catch (Exception e) {
-           // show connection error or timeout
-            return "loginPage" ;
-        }        
+
+    }
+
+
+
+    private void postReallocate() {
+        SessionBean sb = getSessionBean();
+        if (sb.isReallocating()) {
+            WorkQueueGateway wqg = getGateway();
+            Participant pFrom = sb.getParticipant();
+            String userIDTo = sb.getSelectUserListChoice() ;        // this is the p-id
+            Participant pTo = wqg.getParticipant(userIDTo) ;
+            WorkItemRecord wir = sb.getChosenWIR(WorkQueue.STARTED);
+            String handle = sb.getSessionhandle() ;
+            boolean stateful = sb.isReallocatingStateful();
+
+            try {
+                wqg.reallocateItem(pFrom, pTo, wir, stateful, handle);
+            }
+            catch (Exception e) {
+               // show connection error or timeout
+            }
+            sb.setReallocating(false);
+        }
+    }
+
+
+    public String btnStateful_action() {
+        return reallocateItem(true);
     }
 
     public String btnView_action() {

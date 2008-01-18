@@ -23,6 +23,8 @@ import java.io.*;
  *
  *  @author Michael Adams
  *  04/07/2006
+ *
+ *  Last date: 18/01/08
  */
 
  public class JDOMUtil {
@@ -112,5 +114,11 @@ import java.io.*;
    }
 
     /****************************************************************************/
+
+    public static String getDefaultValueForType(String dataType) {
+        if (dataType.equalsIgnoreCase("boolean")) return "false" ;
+        else if (dataType.equalsIgnoreCase("string")) return "" ;
+        else return "0";
+    }
 
 } //ends
