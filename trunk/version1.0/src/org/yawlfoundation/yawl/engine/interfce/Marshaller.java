@@ -292,10 +292,7 @@ public class Marshaller {
 
 
     public static String getMergedOutputData(Element inputData, Element outputData) {
-        SAXBuilder builder = new SAXBuilder();
-        Document mergedDoc = null;
-        //Document outputDataDoc = null;
-        boolean exception = false;
+        Document mergedDoc;
         try {
             mergedDoc = new Document();//
             mergedDoc.setRootElement((Element) inputData.clone());
@@ -315,15 +312,12 @@ public class Marshaller {
                 }
             }
         } catch (Exception e) {
-            exception = true;
-        }
-        if (exception || mergedDoc == null) {
             return "";
         }
-        String result = new XMLOutputter().outputString(mergedDoc.getRootElement()).trim();
-        return result;
+        return new XMLOutputter().outputString(mergedDoc.getRootElement()).trim();
     }
 
+    
     public static String filterDataAgainstOutputParams(String mergedOutputData,
                                                        List outputParams) throws JDOMException, IOException {
         //build the merged output data document

@@ -397,13 +397,19 @@ public class caseMgt extends AbstractPageBean {
         String handle = getSessionBean().getSessionhandle() ;
         Set<SpecificationData> specDataSet = wqg.getLoadedSpecs(handle) ;
         if (specDataSet != null) {
-            Option[] options = new Option[specDataSet.size()] ;
+            
+            // put the items into a treeset so they are sorted
+            TreeSet<String> specInfo = new TreeSet<String>();
+            for (SpecificationData specData : specDataSet) {                
+                String spec = specData.getID() + " :\t" + specData.getDocumentation() ;
+                specInfo.add(spec) ;
+            }
+
+            // now add them to the listbox
+            Option[] options = new Option[specInfo.size()] ;
             int i = 0 ;
-            for (SpecificationData specData : specDataSet) {
-                
-                String spec = getApplicationBean().rPad(specData.getID(), 25) + ":\t" +
-                              specData.getDocumentation() ;
-                options[i++] = new Option(spec) ;
+            for (String specStr : specInfo) {
+                options[i++] = new Option(specStr) ;
             }
             getSessionBean().setLoadedSpecListOptions(options);
         }
@@ -417,7 +423,10 @@ public class caseMgt extends AbstractPageBean {
             ArrayList<Option> caseList = new ArrayList<Option>();
             for (SpecificationData specData : specDataSet) {
                 List<String> caseIDs = wqg.getRunningCases(specData.getID(), handle);
-                for (String caseID : caseIDs)
+
+                // srt the list using a treeset
+                TreeSet<String> caseTree = new TreeSet<String>(caseIDs) ;
+                for (String caseID : caseTree)
                     caseList.add(new Option(caseID + ": " + specData.getID())) ;
             }
 

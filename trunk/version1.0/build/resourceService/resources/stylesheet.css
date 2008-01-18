@@ -67,7 +67,7 @@
    border-style: inset; 
    border-color: gray; 
    padding: 10px;
-   background-color: #eceaea; 
+   background-color: #97cbfd; 
    left: 138px; 
    top: 186px;
    position: absolute; 
@@ -84,7 +84,7 @@
 .caseMgtPanel {
    border: 2px solid gray;
    background-color: #97cbfd;
-   left: 186px;
+   left: 126px;
    position: absolute;
    width: 600px;
 }
@@ -130,8 +130,8 @@
 .queuesTabSet {
     border: 1px solid black;
     height: 262px;
-    left: 168px;
-    top: 150px;
+    left: 126px;
+    top: 76px;
     position: absolute;
     width: 694px;
 }
@@ -152,4 +152,9 @@
     left: 565px;
     height: 30px;
     width: 95px;
+}
+
+.mnuSelector {
+    left: 99px;
+    position: absolute;
 }

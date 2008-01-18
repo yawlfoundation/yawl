@@ -13,12 +13,16 @@
     <property name="backup" value="backup"/>
     <property name="thirdParty.home" value="${build.home}/thirdParty"/>
     <property name="libs" value="./build/3rdParty/lib"/>
-    <property name="persistence.libs" value="cglib-2.1_3.jar commons-collections-2.1.jar commons-logging-1.1.jar dom4j-1.4.jar ehcache-1.3.0.jar hibernate3.jar hibernate.cfg.xml jta.jar odmg-3.0.jar asm.jar antlr-2.7.6.jar"/>
+    <property name="persistence.libs" value="cglib-2.1_3.jar commons-collections-3.2.jar
+                    commons-logging-1.1.jar dom4j-1.4.jar ehcache-1.3.0.jar hibernate3.jar
+                    hibernate.cfg.xml jta.jar odmg-3.0.jar asm.jar antlr-2.7.6.jar"/>
 	<property name="xsd.libs" value="common.jar ecore.jar xsd.jar xsd.resources.jar"/>
     <property name="jsf.libs" value="appbase.jar jsf-api.jar jsf-impl.jar jsfcl.jar
                     webui.jar commons-digester.jar commons-beanutils.jar
                     commons-fileupload-1.0.jar standard.jar jstl.jar
-                    rowset.jar dataprovider.jar errorhandler.jar defaulttheme-gray.jar"/>
+                    rowset.jar dataprovider.jar errorhandler.jar defaulttheme-gray.jar
+                    richfaces-api-3.1.3.GA.jar richfaces-ui-3.1.3.GA.jar
+                    richfaces-impl-3.1.3.GA.jar"/>
     <property name="xforms.dist" value="./build/yawlXForms/dist"/>
     <!--property name="extra.libs" value="./build/extras"/-->        <!-- AJH -->
     <property name="property.files" value="./build/properties"/>     <!-- AJH -->
@@ -162,17 +166,29 @@
     <property name="bcprov" value="${libs}/bcprov-jdk14-130.jar"/>
     <property name="fileupload" value="${libs}/commons-fileupload-1.1.jar"/>
 
-    <property name="appbase" value="${libs}/appbase.jar"/>
+    <!--
+    JSF Dependencies
+    -->
+    <property name="jsf-appbase" value="${libs}/appbase.jar"/>
     <property name="jsf-api" value="${libs}/jsf-api.jar"/>
     <property name="jsf-cl" value="${libs}/jsf-cl.jar"/>
     <property name="jsf-impl" value="${libs}/jsf-impl.jar"/>
-    <property name="webui" value="${libs}/webui.jar"/>
-    
+    <property name="jsf-webui" value="${libs}/webui.jar"/>
+    <property name="jsf-standard" value="${libs}/standard.jar"/>
+    <property name="jsfl" value="${libs}/jstl.jar"/>
+    <property name="jsf-rowset" value="${libs}/rowset.jar"/>
+    <property name="jsf-dataprovider" value="${libs}/dataprovider.jar"/>
+    <property name="jsf-errorhandler" value="${libs}/errorhandler.jar"/>
+    <property name="jsf-defaulttheme-gray" value="${libs}/defaulttheme-gray.jar"/>
+    <property name="jsf-richfaces-api" value="${libs}/richfaces-api-3.1.3.GA.jar"/>
+    <property name="jsf-richfaces-ui" value="${libs}/richfaces-ui-3.1.3.GA.jar"/>
+    <property name="jsf-richfaces-impl" value="${libs}/richfaces-impl-3.1.3.GA.jar"/>
+
     <!-- apache commons libs -->
     <property name="beanutils" value="${libs}/commons-beanutils.jar"/>
     <property name="langutils" value="${libs}/commons-lang-2.3.jar"/>
-
-
+    <property name="digester" value="${libs}/commons-digester.jar"/>
+    <property name="fileupload" value="${libs}/commons-fileupload-1.0.jar"/>
 
     <!-- Log4J Logging Library -->
     <property name="log4j" value="${libs}/log4j-1.2.14.jar"/>
@@ -263,15 +279,26 @@
     <path id="cp.apachecommons">
         <pathelement location="${beanutils}"/>
         <pathelement location="${langutils}"/>
+        <pathelement location="${digester}"/>
+        <pathelement location="${fileupload}"/>
     </path>
 
+
     <path id="cp.jsf">
-        <pathelement location="${appbase}"/>
+        <pathelement location="${jsf-appbase}"/>
         <pathelement location="${jsf-api}"/>
         <pathelement location="${jsf-cl}"/>
         <pathelement location="${jsf-impl}"/>
-        <pathelement location="${webui}"/>
-        
+        <pathelement location="${jsf-webui}"/>
+        <pathelement location="${jsf-standard}"/>
+        <pathelement location="${jsfl}"/>
+        <pathelement location="${jsf-rowset}"/>
+        <pathelement location="${jsf-dataprovider}"/>
+        <pathelement location="${jsf-errorhandler}"/>
+        <pathelement location="${jsf-defaulttheme-gray}"/>
+        <pathelement location="${jsf-richfaces-api}"/>
+        <pathelement location="${jsf-richfaces-ui}"/>
+        <pathelement location="${jsf-richfaces-impl}"/>
     </path>
 
     <!--
@@ -766,19 +793,19 @@
     </target>
 
     <!-- invoke the external YAWLXforms build script -->
-    <target name="build_yawlXForms.war">
-        <echo>Building YAWLXForms.war</echo>
+    <!--<target name="build_yawlXForms.war">-->
+        <!--<echo>Building YAWLXForms.war</echo>-->
 
-      	<mkdir dir="${xforms.dist}"/>
+      	<!--<mkdir dir="${xforms.dist}"/>-->
 
-        <ant target="distribute" dir="./build/yawlXForms" antfile="build.xml" inheritAll="false" inheritRefs="false"/>
+        <!--<ant target="distribute" dir="./build/yawlXForms" antfile="build.xml" inheritAll="false" inheritRefs="false"/>-->
 
-        <copy todir="${output}">
-            <fileset file="${xforms.dist}/${yawl.xforms.app.name}.war"/>
-        </copy>
+        <!--<copy todir="${output}">-->
+            <!--<fileset file="${xforms.dist}/${yawl.xforms.app.name}.war"/>-->
+        <!--</copy>-->
 
-    	<delete dir="${xforms.dist}"/>
-    </target>
+    	<!--<delete dir="${xforms.dist}"/>-->
+    <!--</target>-->
 
     <!--
     Build the application jar/war files
@@ -1287,7 +1314,7 @@
            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jdom.jar
                     log4j*.jar postgresql-8.0-311.jdbc3.jar ${jsf.libs}
                     commons-digester.jar commons-beanutils.jar commons-fileupload-1.0.jar
-                    standard.jar jstl.jar xercesImpl.jar"/>
+                    commons-lang-2.3.jar standard.jar jstl.jar xercesImpl.jar"/>            
         </copy>
 
         <copy todir="${yawl.resource.app.name}/WEB-INF">
@@ -1449,7 +1476,6 @@
         build_yawlWSInvoker.war,
         build_TimeService.war,
         build_admintool.war,
-        build_yawlXForms.war,
         build_admintool.war,
         build_workletService.war,
         build_resourceService.war"
@@ -1507,13 +1533,13 @@
         <antcall target="cleanup"/>
     </target>
 
-    <target name="deployXForms" depends="build_yawlXForms.war">
+    <!--<target name="deployXForms" depends="build_yawlXForms.war">-->
         <!-- Deploy XForms -->
-        <copy todir="${env.CATALINA_HOME}/webapps">
-            <fileset file="${output}/${yawl.xforms.app.name}.war"/>
-        </copy>
-        <antcall target="cleanup"/>
-    </target>
+        <!--<copy todir="${env.CATALINA_HOME}/webapps">-->
+            <!--<fileset file="${output}/${yawl.xforms.app.name}.war"/>-->
+        <!--</copy>-->
+        <!--<antcall target="cleanup"/>-->
+    <!--</target>-->
 
     <target name="deployWorkletService" depends="build_workletService.war">
         <!-- Deploy Worklet Selection Service -->
@@ -1547,7 +1573,6 @@
         deployWsInvoker,
         deploySMS,
         deployTimeService,
-        deployXForms,
         deployAdminTool,
         deployWorkletService,
         deployResourceService"
@@ -1574,7 +1599,6 @@
         build_worklist.war,
         build_yawlWSInvoker.war,
         build_yawlSMSInvoker.war,
-    	build_yawlXForms.war,
         build_TimeService.war,
         build_admintool.war,
         build_workletService.war,
@@ -1672,13 +1696,13 @@
         description="Deploy the web applications into Tomcat">
         <echo message="Deploying web applications via ${tomcat_manager_url}"/>
 
-        <echo message="Deploying ${yawl.xforms.app.name}"/>
-        <deploy url="${tomcat_manager_url}"
-            username="${tomcat.manager.username}"
-            password="${tomcat.manager.password}"
-            path="/${yawl.xforms.app.name}"
-            war="../${output}/${yawl.xforms.app.name}.war"
-            update="true"/>
+        <!--<echo message="Deploying ${yawl.xforms.app.name}"/>-->
+        <!--<deploy url="${tomcat_manager_url}"-->
+            <!--username="${tomcat.manager.username}"-->
+            <!--password="${tomcat.manager.password}"-->
+            <!--path="/${yawl.xforms.app.name}"-->
+            <!--war="../${output}/${yawl.xforms.app.name}.war"-->
+            <!--update="true"/>-->
 
         <echo message="Deploying ${yawl.eng.app.name}"/>
         <deploy url="${tomcat_manager_url}"

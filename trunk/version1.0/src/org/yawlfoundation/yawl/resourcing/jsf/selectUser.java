@@ -252,7 +252,10 @@ public class selectUser extends AbstractPageBean {
 
     public String btnOK_action() {
         if (lbxUserList.getSelected() != null)  {
-            getSessionBean().setDelegating(true);
+            if (getSessionBean().getUserListFormHeaderText().startsWith("Delegate"))
+                getSessionBean().setDelegating(true);
+            else
+                getSessionBean().setReallocating(true);
             return "showUserQueues";
         }
         else {

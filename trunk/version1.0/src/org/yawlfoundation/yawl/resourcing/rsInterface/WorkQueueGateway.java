@@ -141,7 +141,7 @@ public class WorkQueueGateway  {          // extends HttpServlet
 
     public void skipItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
         if (checkConnection(handle))
-            rm.skipWorkItem(p, wir) ;
+            rm.skipWorkItem(p, wir, handle) ;
     }
 
     public void pileItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
@@ -212,6 +212,13 @@ public class WorkQueueGateway  {          // extends HttpServlet
 
     public Participant getParticipant(String pid) {
         return rm.getParticipant(pid) ;
+    }
+
+    public Set<Participant> getAllParticipants(String handle) throws IOException {
+        if (checkConnection(handle)) {
+            return rm.getParticipants() ;
+        }
+        else return null ;        
     }
 
     public Map<String, FormParameter> getWorkItemParams(WorkItemRecord wir, String handle)

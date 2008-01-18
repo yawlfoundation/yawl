@@ -91,6 +91,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         return workItems;
     }
 
+    public String getCompleteListOfLiveWorkItemsAsXML(String sessionHandle)
+                                                throws IOException, JDOMException {
+        return executeGet(_backEndURIStr +
+                          "?action=verbose&sessionHandle=" + sessionHandle);
+    }
+
 
     /**
      * Retrieves a List of live workitems for the case or spec id passed
@@ -126,6 +132,21 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
          return result ;
      }
 
+    public String getLiveWorkItemsForIdentifierAsXML(String idType, String id,
+                                                     String sessionHandle)
+                                               throws IOException, JDOMException {
+        List<WorkItemRecord> wirList = getLiveWorkItemsForIdentifier(idType, id,
+                                                                     sessionHandle) ;
+        if (! wirList.isEmpty()) {
+            StringBuilder xml = new StringBuilder("<itemrecords");
+            for (WorkItemRecord wir : wirList) {
+                xml.append(wir.toXML());
+            }
+            xml.append("</itemrecords");
+            return xml.toString();
+        }
+        return null ;
+    }
 
     /**
      * Creates a list of SpecificationData objects loaded into the engine.
@@ -321,6 +342,23 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
+     * Skips a work item.
+     * @param workItemID the work item id.
+     * @param sessionHandle the sessoin handle
+     * @return diagnostic XML message
+     * @throws IOException if the engine can't be found.
+     */
+    public String skipWorkItem(String workItemID, String sessionHandle) throws IOException {
+        Map paramsMap = new HashMap();
+        paramsMap.put("sessionHandle", sessionHandle);
+        paramsMap.put("action", "skip");
+        return executePost(_backEndURIStr + "/workItem/" + workItemID,
+                paramsMap);
+    }
+
+
+
+    /**
      * Suspends a work item.
      * @param workItemID the work item id.
      * @param sessionHandle the sessoin handle
@@ -470,14 +508,18 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     public Document getCaseData(String caseID, String sessionHandle) throws IOException {
-        String result = executeGet(_backEndURIStr + "/caseID/" + caseID +
+        String result = getCaseDataAsXML(caseID, sessionHandle) ;
+        if (successful(result)) return JDOMUtil.stringToDocument(result) ;
+        else return null ;
+    }
+
+
+    public String getCaseDataAsXML(String caseID, String sessionHandle) throws IOException {
+        return executeGet(_backEndURIStr + "/caseID/" + caseID +
                 "?" +
                 "action=getCaseData" +
                 "&" +
                 "sessionHandle=" + sessionHandle);
-
-        if (successful(result)) return JDOMUtil.stringToDocument(result) ;
-        else return null ;
     }
 
 

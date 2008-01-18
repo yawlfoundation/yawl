@@ -1,65 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<div style="height: 270px; width: 160px; -rave-layout: grid" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://www.sun.com/web/ui">
-    <f:subview id="pfMenu">
-        <h:panelGrid binding="#{pfMenu.gridPanel1}" id="gridPanel1"
-            style="border: 2px solid gray; padding: 0px 2px 2px 1px; height: 300px; left: 0px; top: 0px; position: absolute" width="156">
-            <ui:tree binding="#{pfMenu.tree1}" id="tree1" style="color: blue; height: 263px; left: 0px; top: 0px; position: relative; width: 150px" text="Menu">
-                <ui:treeNode binding="#{pfMenu.mnuUser}" id="mnuUser" text="User">
-                    <f:facet name="image">
-                        <ui:image binding="#{pfMenu.image1}" icon="TREE_FOLDER" id="image1"/>
-                    </f:facet>
-                    <ui:treeNode action="#{pfMenu.mnuUserWorkQueues_action}" binding="#{pfMenu.mnuUserWorkQueues}" id="mnuUserWorkQueues" text="Work Queues">
-                        <f:facet name="image">
-                            <ui:image binding="#{pfMenu.image2}" icon="TREE_DOCUMENT" id="image2"/>
-                        </f:facet>
-                    </ui:treeNode>
-                    <ui:treeNode action="#{pfMenu.mnuUserProfile_action}" binding="#{pfMenu.mnuUserProfile}" expanded="true" id="mnuUserProfile" text="Change Profile">
-                        <f:facet name="image">
-                            <ui:image binding="#{pfMenu.image3}" icon="TREE_DOCUMENT" id="image3"/>
-                        </f:facet>
-                    </ui:treeNode>
-                </ui:treeNode>
-                <ui:treeNode binding="#{pfMenu.mnuAdmin1}" id="mnuAdmin1" style="height: 24px" text="Administration">
-                    <f:facet name="image">
-                        <ui:image binding="#{pfMenu.image4}" icon="TREE_FOLDER" id="image4"/>
-                    </f:facet>
-                    <ui:treeNode action="#{pfMenu.mnuCaseMgt_action}" binding="#{pfMenu.mnuCaseMgt}" id="mnuCaseMgt" text="Case Mgt">
-                        <f:facet name="image">
-                            <ui:image binding="#{pfMenu.image5}" icon="TREE_DOCUMENT" id="image5"/>
-                        </f:facet>
-                    </ui:treeNode>
-                    <ui:treeNode action="#{pfMenu.mnuAddService_action}" binding="#{pfMenu.mnuAddService}" expanded="true" id="mnuAddService" text="Add Service">
-                        <f:facet name="image">
-                            <ui:image binding="#{pfMenu.image6}" icon="TREE_DOCUMENT" id="image6"/>
-                        </f:facet>
-                    </ui:treeNode>
-                    <ui:treeNode action="#{pfMenu.mnuAdminQueues_action}" binding="#{pfMenu.mnuAdminQueues}" expanded="true" id="mnuAdminQueues" text="Admin Queues">
-                        <f:facet name="image">
-                            <ui:image binding="#{pfMenu.image7}" icon="TREE_DOCUMENT" id="image7"/>
-                        </f:facet>
-                    </ui:treeNode>
-                    <ui:treeNode action="#{pfMenu.mnuUserMgt_action}" binding="#{pfMenu.mnuUserMgt}" id="mnuUserMgt" text="User Mgt">
-                        <f:facet name="image">
-                            <ui:image binding="#{pfMenu.image8}" icon="TREE_DOCUMENT" id="image8"/>
-                        </f:facet>
-                    </ui:treeNode>
-                    <ui:treeNode action="#{pfMenu.mnuAdUserQueues_action}" binding="#{pfMenu.mnuAdUserQueues}" id="mnuAdUserQueues" text="User Queues">
-                        <f:facet name="image">
-                            <ui:image binding="#{pfMenu.image9}" icon="TREE_DOCUMENT" id="image9"/>
-                        </f:facet>
-                    </ui:treeNode>
-                    <ui:treeNode action="#{pfMenu.mnuTeamQueues_action}" binding="#{pfMenu.mnuTeamQueues}" id="mnuTeamQueues" text="Team Queues">
-                        <f:facet name="image">
-                            <ui:image binding="#{pfMenu.image10}" icon="TREE_DOCUMENT" id="image10"/>
-                        </f:facet>
-                    </ui:treeNode>
-                </ui:treeNode>
-                <ui:treeNode action="#{pfMenu.mnuLogout_action}" binding="#{pfMenu.mnuLogout}" id="mnuLogout" style="color: blue" text="Logout">
-                    <f:facet name="image">
-                        <ui:image binding="#{pfMenu.image11}" icon="TREE_DOCUMENT" id="image11"/>
-                    </f:facet>
-                </ui:treeNode>
-            </ui:tree>
-        </h:panelGrid>
+<div style="height: 480px; width: 160px; -rave-layout: grid" xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://www.sun.com/web/ui">
+    <f:subview id="pfMenu2">
+        <ui:panelLayout binding="#{pfMenu.layoutPanel1}"
+                        id="layoutPanel1"
+                        panelLayout="flow"
+                        style="background-color: rgb(240, 240, 240); border-right-style: solid; border-bottom-style: solid; border-right-width: 2px; border-bottom-width: 2px; height: 398px; left: 0px; top: 0px; position: absolute; width: 120px">
+
+            <ui:image binding="#{pfMenu.imgSelected}"
+                      id="image1"
+                      styleClass="mnuSelector"
+                      style="#{SessionBean.mnuSelectorStyle}"
+                      url="/resources/mnuSelectedIcon.png"/>
+
+            <ui:imageHyperlink action="#{pfMenu.mnuLogout_action}"
+                               binding="#{pfMenu.mnuLogout}"
+                               id="mnuLogout"
+                               imageURL="/resources/mnuLogout.png"
+                               style="left: 0px; top: 12px; position: absolute"/>
+
+            <ui:imageHyperlink action="#{pfMenu.mnuMyProfile_action}"
+                               binding="#{pfMenu.mnuMyProfile}"
+                               id="mnuMyProfile"
+                               imageURL="/resources/mnuEditProfile.png"
+                               style="left: 0px; top: 40px; position: absolute"/>
+
+            <ui:imageHyperlink action="#{pfMenu.mnuUserWorkQueues_action}"
+                               binding="#{pfMenu.mnuUserWorkQueues}"
+                               id="mnuWorkQueues"
+                               imageURL="/resources/mnuUserWorkQueues.png"
+                               style="left: 0px; top: 68px; position: absolute"/>
+
+            <ui:imageHyperlink action="#{pfMenu.mnuCaseMgt_action}"
+                               binding="#{pfMenu.mnuCaseMgt}"
+                               id="mnuCaseMgt"
+                               imageURL="/resources/mnuCaseMgt.png"
+                               style="left: 0px; top: 96px; position: absolute"/>
+        </ui:panelLayout>
     </f:subview>
 </div>

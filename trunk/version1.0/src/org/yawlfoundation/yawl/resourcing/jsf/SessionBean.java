@@ -128,7 +128,8 @@ public class SessionBean extends AbstractSessionBean {
      * at any later time during the lifetime of the application.</p>
      */
     public void destroy() {
-        getApplicationBean().removeSessionReference(participant.getID()) ;
+        ApplicationBean app = getApplicationBean();
+        if (app != null) app.removeSessionReference(participant.getID()) ;
     }
 
     private PanelLayout topPanel = new PanelLayout();
@@ -404,6 +405,32 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setDelegating(boolean delegating) { this.delegating = delegating; }
 
+    private boolean reallocating = false ;
+
+    public boolean isReallocating() { return reallocating; }
+
+    public void setReallocating(boolean reallocating) { this.reallocating = reallocating; }
+
+    private boolean reallocatingStateful ;
+
+    public boolean isReallocatingStateful() {
+        return reallocatingStateful;
+    }
+
+    public void setReallocatingStateful(boolean reallocatingStateful) {
+        this.reallocatingStateful = reallocatingStateful;
+    }
+
+    private String mnuSelectorStyle = "top: 72px";            // on workqueues initially
+
+    public String getMnuSelectorStyle() {
+        return mnuSelectorStyle;
+    }
+
+    public void setMnuSelectorStyle(String mnuSelectorStyle) {
+        this.mnuSelectorStyle = mnuSelectorStyle;
+    }
+
     private String userListFormHeaderText ;
 
     public String getUserListFormHeaderText() {
@@ -546,7 +573,7 @@ public class SessionBean extends AbstractSessionBean {
             StaticText space = new StaticText();
             space.setId("staticText" + dynPanel.getChildCount());
             space.setText("---------------------------------------------------------");
-            space.setStyle("color: #eceaea");             // same colour as background
+            space.setStyle("color: #97cbfd");             // same colour as background
             dynPanel.getChildren().add(space) ;
         }
 
