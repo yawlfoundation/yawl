@@ -44,6 +44,7 @@ import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
 
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
@@ -86,7 +87,7 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
 
   protected void makeLastAdjustments() {
     pack();
-    this.setResizable(false);
+    JUtilities.setMinSizeToCurrent(this);
   }
   
   public void setVisible(boolean visible) {

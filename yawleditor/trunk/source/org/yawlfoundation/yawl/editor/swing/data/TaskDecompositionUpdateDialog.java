@@ -151,8 +151,9 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
     pane.addTab("Extended Attributes", panel); //MLF
 
-    panel = new JPanel(); //MLF
-    panel.add(pane); //MLF
+    panel = new JPanel(new BorderLayout()); //MLF
+    panel.setBorder(new EmptyBorder(5,5,5,5));
+    panel.add(pane, BorderLayout.CENTER); //MLF
 
     return panel;
   }
