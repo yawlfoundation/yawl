@@ -2,6 +2,10 @@ Version 2.0 (??/??/????)
   * LWB: Upgaded the editor to use version 1.0 of the engine.  This includes a complete
          renaming of the source package hierarchy, and breaks save-file compatibility
          with previous versions of the editor.
+  * LWB: Also included in the move to the 1.0 engine is a powerful replacement of the
+         resource perspective. The previous YAWL environment support 9 of the 43 identified
+         resource patterns.  This release supports 38. We have no plans to support
+         the remaining five patterns at this time.
   * LWB: Changed the specification version number to be a decimal number instead of a
          free-form string. This includes the export dialog now supplying the specification 
          version as a convenience to allow a workflow designer to more easily manage 
@@ -11,7 +15,10 @@ Version 2.0 (??/??/????)
          given a couple of Swing limitations, the palette bar can no longer be detatched
          from the base editor window.
   * LWB/MF: Incorporated the extended attribute concept that has been coded into the
-         M2 branch of the editor.
+         M2 branch of the editor. Via the plugin mechanism, workflow designers can now
+         specify extra attributes to be stored on variables and decompositions which
+         will be exported into the engine specification, and used as required for their own
+         custom services.
   * DT:  Small change to the pause mechanism used at editor startup to make
          better usage of system CPU.
   * LWB: Fixed a bug where the path of plugin icons was absolute, stopping

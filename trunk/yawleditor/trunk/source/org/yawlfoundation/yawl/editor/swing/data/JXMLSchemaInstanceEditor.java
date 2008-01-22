@@ -124,7 +124,7 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
       );
     } else {
       setContentValid(
-          AbstractXMLStyledDocument.Validity.VALID
+          AbstractXMLStyledDocument.Validity.INVALID
       );
     }
   }
