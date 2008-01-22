@@ -226,7 +226,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   private static void generateEngineMetaData(SpecificationModel editorSpec, 
                                              YSpecification engineSpec) {
     
-    engineSpec.setBetaVersion(YSpecification._Beta6);
+    engineSpec.setVersion(YSpecification._Version1_0);
     
     YMetaData metaData = new YMetaData();
 
