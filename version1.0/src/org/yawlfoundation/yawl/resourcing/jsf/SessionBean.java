@@ -331,15 +331,15 @@ public class SessionBean extends AbstractSessionBean {
         return null ;
     }
 
+    private String dynFormLevel;
+
+    public String getDynFormLevel() { return dynFormLevel; }
+
+    public void setDynFormLevel(String level) { dynFormLevel = level; }
+
+
+
     public void setChosenWIR(WorkItemRecord wir) { chosenWIR = wir ; }
-
-    private String dynFormHeaderText ;
-
-    public String getDynFormHeaderText() { return dynFormHeaderText ; }
-
-    public void setDynFormHeaderText(String headerText) {
-        dynFormHeaderText = headerText ;
-    }
 
     public void doLogout() {
         getGateway().logout(sessionhandle) ;
@@ -392,6 +392,8 @@ public class SessionBean extends AbstractSessionBean {
     public void setDynFormParams(Map<String, FormParameter> dynFormParams) {
         this.dynFormParams = dynFormParams;
     }
+
+    public void resetDynFormParams() { dynFormParams = null ; }
 
     private boolean caseLaunch = false ;
 
@@ -522,82 +524,6 @@ public class SessionBean extends AbstractSessionBean {
 
     public String getInitTabStyle() { return "color: blue" ; }
 
-    public void initDynForm(List<FormParameter> params, String title) {
-        dynForm df = (dynForm) getBean("dynForm") ;
-        PanelLayout dynPanel = df.getCompPanel() ;
-        df.getHead1().setTitle(title);
-        boolean focusSet = false ;
-        
-        for (FormParameter param : params) {
-            String pName = param.getName();
-            Label label = new Label() ;
-            label.setId("lbl" + pName);
-            label.setText(pName + ": ");
-            dynPanel.getChildren().add(label);
-            if (param.getDataTypeName().equals("boolean")) {
-                Checkbox cbox = new Checkbox();
-                cbox.setId("cbx" + pName);
-                String val = param.getValue() ;
-                if (val == null) val = "false" ;
-                cbox.setSelected(val.equalsIgnoreCase("true")) ;
-                cbox.setReadOnly(param.isInputOnly());
-                dynPanel.getChildren().add(cbox);
-                if (! focusSet) {
-                    df.getBody1().setFocus("form1:" + cbox.getId());
-                    focusSet = true ;
-                }
-            }
-            else {
-                if (param.isInputOnly()) {
-                    StaticText roText = new StaticText() ;
-                    roText.setId("stt" + pName);
-                    roText.setText(getApplicationBean().rPad(param.getValue(), 40));
-                    roText.setStyle("border: 1px solid black; padding: 3px; " +
-                            "background-color: white; color: gray; font-style: italic");
-                    dynPanel.getChildren().add(roText);
-                }
-                else {
-                    TextField textField = new TextField() ;
-                    textField.setId("txt" + pName);
-                    textField.setText(param.getValue());
-                    textField.setRequired(param.isMandatory() || param.isRequired());
-                    dynPanel.getChildren().add(textField);
-                    if (! focusSet) {
-                        df.getBody1().setFocus("form1:" + textField.getId());
-                        focusSet = true ;
-                    }                    
-                }
-            }
-
-            // insert some space between inputs
-            StaticText space = new StaticText();
-            space.setId("staticText" + dynPanel.getChildCount());
-            space.setText("---------------------------------------------------------");
-            space.setStyle("color: #97cbfd");             // same colour as background
-            dynPanel.getChildren().add(space) ;
-        }
-
-        // resize page panel for the number of fields added
-        int height = dynPanel.getChildCount() * 10 ;
-        String heightStyle = String.format("height: %dpx", height);
-        dynPanel.setStyle(heightStyle);
-
-        // reposition buttons to go directly under resized panel
-        String topStyle = String.format("top: %dpx", 216 + height) ;
-        df.getBtnOK().setStyle("left: 270px; " + topStyle);
-        df.getBtnCancel().setStyle("left: 170px; " + topStyle);
-    }
-
-
-    private String dynFormLevel;
-
-    public String getDynFormLevel() {
-        return dynFormLevel;
-    }
-
-    public void setDynFormLevel(String dynFormLevel) {
-        this.dynFormLevel = dynFormLevel;
-    }
 
     private boolean wirEdit ;
 
@@ -631,6 +557,20 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setSourceTab(String sourceTab) {
         this.sourceTab = sourceTab;
+    }
+
+    private String activeTab;
+
+    public String getActiveTab() {
+        return activeTab;
+    }
+
+    public void setActiveTab(String activeTab) {
+        this.activeTab = activeTab;
+    }    
+
+    public void setSourceTabAfterListboxSelection() {
+        sourceTab = activeTab;
     }
 
     private String activePage ;

@@ -194,6 +194,13 @@ public class caseMgt extends AbstractPageBean {
         return (ApplicationBean)getBean("ApplicationBean");
     }
 
+    /** @return a reference to the session scoped factory bean. */
+    private DynFormFactory getDynFormFactory() {
+        return (DynFormFactory) getBean("DynFormFactory");
+    }
+
+    
+
     public void init() {
         super.init();
 
@@ -248,7 +255,6 @@ public class caseMgt extends AbstractPageBean {
             String uploadedFileName = stripPath(uploadedFile.getOriginalName());
             String fileAsString = uploadedFile.getAsString() ;
             uploadSpec(uploadedFileName, fileAsString) ;
-   //         updateLoadedSpecList() ;
         }
         return null;
     }
@@ -275,7 +281,6 @@ public class caseMgt extends AbstractPageBean {
             choice = choice.substring(0, choice.indexOf(' ')) ;
 
             refPage = startCase(choice) ;
- //           updateRunningCaseList();
         }
         return refPage;
     }
@@ -288,7 +293,6 @@ public class caseMgt extends AbstractPageBean {
         if (choice != null) {
             choice = choice.substring(0, choice.indexOf(':')) ;
             cancelCase(choice) ;
-     //       updateRunningCaseList() ;
         }    
         return null;
     }
@@ -345,14 +349,16 @@ public class caseMgt extends AbstractPageBean {
         if (specData != null) {
             List inputParams = specData.getInputParams();
             if (! inputParams.isEmpty()) {
-                SessionBean sb = getSessionBean();
-                sb.setDynFormHeaderText(
-                        "Starting an Instance of Specification '" + specID + "'" );
                 Map<String, FormParameter> paramMap =
                         getApplicationBean().yParamListToFormParamMap(inputParams) ;
-                sb.setDynFormParams(paramMap);
-                sb.setDynFormLevel("case");
-                sb.initDynForm(new ArrayList<FormParameter>(paramMap.values()),
+
+                getSessionBean().setDynFormParams(paramMap);
+                getSessionBean().setDynFormLevel("case");
+
+                DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
+                df.setHeaderText(
+                        "Starting an Instance of Specification '" + specID + "'" );
+                df.initDynForm(new ArrayList<FormParameter>(paramMap.values()),
                                "YAWL Case Management - Launch Case") ;
                 return "showDynForm" ;
             }
@@ -369,7 +375,9 @@ public class caseMgt extends AbstractPageBean {
         String result = null ;
         if (getSessionBean().isCaseLaunch()) {
             Map paramMap = getSessionBean().getDynFormParams();
-            if (! paramMap.isEmpty()) {
+
+            if ((paramMap != null) && (! paramMap.isEmpty())) {
+                paramMap = getDynFormFactory().updateValues(paramMap) ;
                 Element data = new Element(specID) ;
                 for (Object o : paramMap.values()) {
                     FormParameter param = (FormParameter) o ;
@@ -379,6 +387,7 @@ public class caseMgt extends AbstractPageBean {
                 }
                 caseData = JDOMUtil.elementToStringDump(data) ;
             }
+            getSessionBean().resetDynFormParams();
             getSessionBean().setCaseLaunch(false);
         }
         try {

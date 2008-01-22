@@ -50,9 +50,9 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * The ResourceManager manages all aspects of the resource perspective, including the
- * loading & maintenance of the org model, and overseeing the distribution of tasks to
- * participants.
+ * The ResourceManager singleton manages all aspects of the resource perspective,
+ * including the loading & maintenance of the org model, and overseeing the distribution
+ * of tasks to participants.
  *
  *  @author Michael Adams
  *  v0.1, 03/08/2007
@@ -113,8 +113,9 @@ public class ResourceManager extends InterfaceBWebsideController
     private YLogGatewayClient _interfaceEClient;
 
 
-    // Constructor - initialises references to engine and database(s), and loads org data
-    public ResourceManager() {
+    // Constructor - initialises references to engine and database(s), and loads org data.
+    // Called exclusively by getInstance()
+    private ResourceManager() {
         super();
         _resAdmin = ResourceAdministrator.getInstance() ;
         _log = Logger.getLogger(getClass());

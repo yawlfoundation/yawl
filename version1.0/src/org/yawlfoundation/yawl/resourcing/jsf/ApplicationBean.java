@@ -129,6 +129,19 @@ public class ApplicationBean extends AbstractApplicationBean {
         return result ;
     }
 
+
+    public String rPadSp(String str, int padlen) {
+        int len = padlen - str.length();
+        if (len < 1) return str ;
+
+        StringBuilder result = new StringBuilder(str) ;
+        for (int i = 0; i < len; i++) {
+            result.append("&nbsp;");
+        }
+        return result.toString();
+    }
+
+    
     public String rPad (String str, int padlen) {
         int len = padlen - str.length();
         if (len < 1) return str ;

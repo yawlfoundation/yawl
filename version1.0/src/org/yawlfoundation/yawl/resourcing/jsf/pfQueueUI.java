@@ -14,6 +14,7 @@ import com.sun.rave.web.ui.model.DefaultOptionsList;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 import javax.faces.FacesException;
+import javax.faces.event.ValueChangeEvent;
 import java.text.DateFormat;
 
 /**
@@ -255,11 +256,10 @@ public class pfQueueUI extends AbstractFragmentBean {
     public void destroy() {
     }
 
-//
-//    public void lbxItems_processValueChange(ValueChangeEvent event) {
-//        WorkItemRecord wir = getSessionBean().getChosenWIR(0);
-//        populateTextBoxes(wir);
-//    }
+
+    public void lbxItems_processValueChange(ValueChangeEvent event) {
+        getSessionBean().setSourceTabAfterListboxSelection();
+    }
 
     
     protected void populateTextBoxes(WorkItemRecord wir) {

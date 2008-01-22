@@ -15,7 +15,6 @@ import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.jdom.Element;
-import org.richfaces.component.html.HtmlModalPanel;
 
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
@@ -353,6 +352,12 @@ public class userWorkQueues extends AbstractPageBean {
         return (SessionBean)getBean("SessionBean");
     }
 
+    /** @return a reference to the session scoped factory bean. */
+    private DynFormFactory getDynFormFactory() {
+        return (DynFormFactory) getBean("DynFormFactory");
+    }
+
+    
 
     /** 
      * <p>Callback method that is called whenever a page is navigated to,
@@ -450,6 +455,7 @@ public class userWorkQueues extends AbstractPageBean {
             }
         }
         updateTabHeaders(selTab) ;
+        getSessionBean().setActiveTab(tabSet.getSelected());
         getSessionBean().setActivePage("userWorkQueues");
     }
 
@@ -655,11 +661,16 @@ public class userWorkQueues extends AbstractPageBean {
             Map<String, FormParameter> params = wqg.getWorkItemParams(wir, handle) ;
             if (params != null) {
                 SessionBean sb = getSessionBean();
-                sb.setDynFormHeaderText("Edit Work Item '" + wir.getID() + "'" );
                 sb.setDynFormParams(params);
                 sb.setDynFormLevel("item");
                 sb.setSourceTab("tabStarted");
-                sb.initDynForm(new ArrayList<FormParameter>(params.values()), "Edit Work Item") ;
+
+                DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
+                df.setHeaderText("Edit Work Item '" + wir.getID() + "'" );
+                df.initDynForm(new ArrayList<FormParameter>(params.values()), "Edit Work Item") ;
+                ((dynForm) getBean("dynForm")).destroy();
+
+                ((dynForm) getBean("dynForm")).init();
                 return "showDynForm" ;
             }
             else {
@@ -673,7 +684,9 @@ public class userWorkQueues extends AbstractPageBean {
     private void postEditWIR() {
         if (getSessionBean().isWirEdit()) {
             Map<String, FormParameter> paramMap = getSessionBean().getDynFormParams();
-            if (! paramMap.isEmpty()) {
+
+            if ((paramMap != null) && (! paramMap.isEmpty())) {
+                paramMap = getDynFormFactory().updateValues(paramMap) ;
                 WorkItemRecord wir = getSessionBean().getChosenWIR(WorkQueue.STARTED);
                 Element data = new Element(getGateway().getDecompID(wir)) ;
                 for (FormParameter param : paramMap.values()) {
