@@ -81,6 +81,35 @@
    width: 66px;
 }
 
+.dynformLabel {
+    position: absolute;
+    left: 6px;
+}
+
+.dynformInput {
+    position: absolute;
+    left: 100px;
+}
+
+.dynformReadOnlyPanel {
+    border: 2px inset rgb(204, 204, 255);
+    background-color: #e0e0e0;
+    height: 14px;
+    left: 100px;
+    position: absolute;
+    width: 128px;
+}
+
+.dynformReadOnlyText {
+    /*position: absolute;*/
+    /*border: 1px solid black;*/
+    /*padding: 3px;*/
+    /*background-color: white;*/
+    /*color: gray;*/
+    font-style: italic;
+    /*left: 100px;*/
+}
+
 .caseMgtPanel {
    border: 2px solid gray;
    background-color: #97cbfd;

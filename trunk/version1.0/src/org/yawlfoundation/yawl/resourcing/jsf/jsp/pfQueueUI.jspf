@@ -3,7 +3,8 @@
     <f:subview id="pfQueueUI">
         <ui:listbox binding="#{pfQueueUI.lbxItems}" id="lbxItems" items="#{SessionBean.worklistOptions}"
                     selected="#{SessionBean.worklistChoice}" onChange="common_timeoutSubmitForm(this.form, 'lbxItems');"
-                    style="border: 2px inset rgb(204, 204, 255); height: 156px; left: 12px; top: 36px; position: absolute; width: 144px" />
+                    style="border: 2px inset rgb(204, 204, 255); height: 156px; left: 12px; top: 36px; position: absolute; width: 144px"
+                    valueChangeListener="#{pfQueueUI.lbxItems_processValueChange}"/>
         <ui:label binding="#{pfQueueUI.lblSpecID}" for="txtSpecID" id="lblSpecID" style="left: 180px; top: 18px; position: absolute" text="Specification"/>
         <ui:textField binding="#{pfQueueUI.txtSpecID}" id="txtSpecID" readOnly="true"
             style="border: 2px inset #ccccff; padding: 2px; background-color: white; color: rgb(102, 102, 102); left: 180px; top: 36px; position: absolute; width: 136px"

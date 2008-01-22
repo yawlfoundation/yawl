@@ -1062,8 +1062,10 @@
                      includes="YDecompositionParser.class SchemaValidator.class
                                SchemaForSchemaValidator.class"/>
         </copy>
-        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/util"
-              file="${classes}/org/yawlfoundation/yawl/util/JDOMUtil.class"/>
+        <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/util">
+              <fileset dir="${classes}/org/yawlfoundation/yawl/util"
+                       includes="JDOMUtil.class StringUtil.class"/>
+        </copy>
         <copy todir="${yawl.worklet.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/worklist">
             <fileset dir="${classes}/org/yawlfoundation/yawl/worklist"
                      includes="*.class"/>
