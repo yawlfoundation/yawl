@@ -1393,13 +1393,13 @@ public abstract class YTask extends YExternalNetElement {
             }
             xml.append("</enablementMappings>");
         }
+        if (_resourceMap != null) {
+            xml.append(_resourceMap.toXML()) ;
+        }
         if (_decompositionPrototype != null) {
             xml.append("<decomposesTo id=\"").
                     append(_decompositionPrototype.getID()).
                     append("\"/>");
-        }
-        if (_resourceMap != null) {
-            xml.append(_resourceMap.toXML()) ;
         }
         if (isMultiInstance()) {
             xml.append(_multiInstAttr.toXML());
