@@ -504,9 +504,8 @@ public class SpecificationArchiveHandler {
   
   private NetGraph readNet(ArchivableNetState archivedNet) {
     NetGraph net = new NetGraph(archivedNet.getDecomposition());
+    
     YAWLEditorDesktop.getInstance().openNet(archivedNet.getBounds(), 
-                                            archivedNet.getIconified(),
-                                            archivedNet.getIconBounds(),
                                             archivedNet.getMaximised(),
                                             net);
                                             

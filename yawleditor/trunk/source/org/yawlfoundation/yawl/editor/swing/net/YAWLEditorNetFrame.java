@@ -63,7 +63,7 @@ public class YAWLEditorNetFrame extends JInternalFrame {
           true, //resizable
           true, //closable
           true, //maximizable
-          true);//iconifiable
+          false);//iconifiable
 
     setLocation(location);
     NetGraph newGraph = new NetGraph();
@@ -87,7 +87,7 @@ public class YAWLEditorNetFrame extends JInternalFrame {
           true, //resizable
           true, //closable
           true, //maximizable
-          true);//iconifiable
+          false);//iconifiable
 
     setBounds(bounds);
     setNetName(title);

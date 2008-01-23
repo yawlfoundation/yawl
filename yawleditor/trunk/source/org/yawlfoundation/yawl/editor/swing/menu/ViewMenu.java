@@ -42,8 +42,6 @@ import javax.swing.KeyStroke;
 import org.yawlfoundation.yawl.editor.actions.view.AntiAliasedToggleAction;
 import org.yawlfoundation.yawl.editor.actions.view.FontSizeAction;
 import org.yawlfoundation.yawl.editor.actions.view.DefaultNetBackgroundColourAction;
-import org.yawlfoundation.yawl.editor.actions.view.IconifyAllNetsAction;
-import org.yawlfoundation.yawl.editor.actions.view.ShowAllNetsAction;
 import org.yawlfoundation.yawl.editor.actions.view.ShowGridToggleAction;
 import org.yawlfoundation.yawl.editor.actions.view.ToolTipToggleAction;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
@@ -61,7 +59,7 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
   private static final SpecificationModel specificationModel =  
     SpecificationModel.getInstance(); 
   
-  private static final int NET_LIST_START_INDEX = 6;
+  private static final int NET_LIST_START_INDEX = 4;
   
   private boolean noNetList = true;
   
@@ -86,9 +84,6 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
     add(buildAntiAliasedItem());
     add(buildNetBackgroundColourItem());
     add(buildFontSizeItem());
-    addSeparator();
-    add(buildIconifyAllNetsItem());
-    add(buildShowAllNetsItem());
   }
   
   private JMenuItem buildShowToolTipsItem() {
@@ -125,15 +120,6 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
   
   private JMenuItem buildNetBackgroundColourItem() {
     return new JMenuItem(new DefaultNetBackgroundColourAction());
-  }
-
-  
-  private JMenuItem buildIconifyAllNetsItem() {
-    return new JMenuItem(new IconifyAllNetsAction());
-  }
-
-  private JMenuItem buildShowAllNetsItem() {
-    return new JMenuItem(new ShowAllNetsAction());
   }
 
   public void receiveSpecificationModelNotification(SpecificationModel.State state) {
