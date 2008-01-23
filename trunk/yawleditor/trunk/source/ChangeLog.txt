@@ -35,6 +35,9 @@ Version 2.0 (??/??/????)
          correctly.
   * LWB: Fixed a bug where predicates and flow priorities were occasionally being reset on
          tasks with XOR/OR splits.
+  * LWB: After a request from an industry collaborator, the behaviour to iconify nets
+         has been removed. This is mostly due to occasional odd behaviour witnessed
+         with Swing that is outside the control of the programmer, causing undue grief.
 
 Version 1.5.1 (08/10/2007)
   * LWB: Fixed a bug where multiple-instance tasks were not being initialsed properly and consequently

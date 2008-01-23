@@ -84,26 +84,19 @@ public class YAWLEditorDesktop extends JDesktopPane
     openNet(
        new Rectangle(10,10,200,200),
        false,
-       null,
-       false,
        graph
     );
   }
   
   public void openNet(Rectangle bounds, 
-                      boolean iconified, 
-                      Rectangle iconBounds,
                       boolean maximised,
                       NetGraph graph) {
     YAWLEditorNetFrame frame = new YAWLEditorNetFrame(bounds, graph.getName());
     bindFrame(frame);
     graph.setSize(frame.getContentPane().getSize());
     frame.setNet(graph);
+   
     try {
-      frame.setIcon(iconified);
-      if (iconified) {
-				frame.getDesktopIcon().setBounds(iconBounds);
-      }
       frame.setMaximum(maximised);
     } catch (Exception e) {};
   }
