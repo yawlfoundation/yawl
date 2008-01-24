@@ -16,6 +16,11 @@ public class WorkItemAgeComparator implements Comparator {
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
 	public int compare(Object obj1, Object obj2)	{
+
+        // if one object is null, ignore it and return the other as having precedence
+        if (obj1 == null) return -1;
+        if (obj2 == null) return 1;
+
         WorkItemRecord wir1 = (WorkItemRecord) obj1 ;
         WorkItemRecord wir2 = (WorkItemRecord) obj2 ;
 

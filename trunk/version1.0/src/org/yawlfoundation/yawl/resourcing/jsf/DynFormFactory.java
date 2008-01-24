@@ -9,6 +9,10 @@ import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.*;
 
 import javax.faces.component.UIComponent;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.el.MethodBinding;
+import javax.faces.application.Application;
+import javax.faces.context.FacesContext;
 import java.util.List;
 import java.util.Map;
 
@@ -40,10 +44,7 @@ public class DynFormFactory extends AbstractSessionBean {
 
     public PanelLayout getCompPanel() { return compPanel; }
 
-    public void setCompPanel(PanelLayout pl) {
-        // compPanel = pl;
-        System.out.println("nothing");
-         }
+    public void setCompPanel(PanelLayout pl) { compPanel = pl; }
 
 
 //    private Button btnOK = new Button();
@@ -163,6 +164,27 @@ public class DynFormFactory extends AbstractSessionBean {
         this.focus = focus;
     }
 
+
+    boolean dynFormPost ;
+
+    public boolean isDynFormPost() {
+        return dynFormPost;
+    }
+
+    public void setDynFormPost(boolean dynFormPost) {
+        this.dynFormPost = dynFormPost;
+    }
+
+    private List fieldList ;
+
+    public List getFieldList() {
+        return compPanel.getChildren();
+    }
+
+    public void setFieldList(List fieldList) {
+        this.fieldList = fieldList;
+    }
+
     private long instance = System.currentTimeMillis();
 
     public long getX() { return instance; }
@@ -175,7 +197,7 @@ public class DynFormFactory extends AbstractSessionBean {
 
         setTitle(title);
 
-        compPanel = new PanelLayout();                     // start with clean panel
+        compPanel.getChildren().clear();                     // start with clean panel
  
         for (FormParameter param : params) {
 
@@ -224,22 +246,25 @@ public class DynFormFactory extends AbstractSessionBean {
                 TextField textField = (TextField) o ;
                 name = textField.getId().substring(3);
                 param = params.get(name) ;
-                param.setValue((String) textField.getText());
-                params.put(name, param) ;
+                if (param != null) {
+                    param.setValue((String) textField.getValue());
+                }
             }
             else if (o instanceof Checkbox) {
                 Checkbox cbox = (Checkbox) o ;
                 name = cbox.getId().substring(3);
                 param = params.get(name) ;
-                param.setValue(String.valueOf(cbox.getSelected()));
-                params.put(name, param) ;
+                if (param != null) {
+                    Boolean selected = (Boolean) cbox.getValue() ;
+                    param.setValue(selected.toString());
+                }    
             }
         }
         return params;
     }
 
 
-    private String rPadSp(String str, int padlen) {
+    public String rPadSp(String str, int padlen) {
         int len = padlen - str.length();
         if (len < 1) return str ;
 
@@ -251,7 +276,7 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
-    private Label makeLabel(FormParameter param, String topStyle) {
+    public Label makeLabel(FormParameter param, String topStyle) {
         String pName = param.getName();
         Label label = new Label() ;
         label.setId("lbl" + pName);
@@ -262,7 +287,7 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
-    private Checkbox makeCheckbox(FormParameter param, String topStyle) {
+    public Checkbox makeCheckbox(FormParameter param, String topStyle) {
         Checkbox cbox = new Checkbox();
         cbox.setId("cbx" + param.getName());
         String val = param.getValue() ;
@@ -271,6 +296,7 @@ public class DynFormFactory extends AbstractSessionBean {
         cbox.setReadOnly(param.isInputOnly());
         cbox.setStyleClass("dynformInput");
         cbox.setStyle(topStyle) ;
+  //      cbox.setValueChangeListener(bindListener());
         return cbox ;
     }
 
@@ -281,12 +307,13 @@ public class DynFormFactory extends AbstractSessionBean {
      * @param topStyle a setting for the Y-coord
      * @return the 'faked' readonly textField component (actually a PanelLayout)
      */
-    private PanelLayout makeReadOnlyTextField(FormParameter param, String topStyle) {
+    public PanelLayout makeReadOnlyTextField(FormParameter param, String topStyle) {
         PanelLayout panel = new PanelLayout();
         panel.setId("pnl" + param.getName());
         panel.setPanelLayout("flow");
         panel.setStyleClass("dynformReadOnlyPanel");
         panel.setStyle(topStyle);
+   //     panel.setTransient(true);
 
         StaticText roText = new StaticText() ;
         roText.setId("stt" + param.getName());
@@ -297,19 +324,26 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
-    private TextField makeTextField(FormParameter param, String topStyle) {
+    public TextField makeTextField(FormParameter param, String topStyle) {
         TextField textField = new TextField() ;
         textField.setId("txt" + param.getName());
         textField.setText(param.getValue());
         textField.setRequired(param.isMandatory() || param.isRequired());
         textField.setStyleClass("dynformInput");
         textField.setStyle(topStyle);
+  //      textField.setValueChangeListener(bindListener());
+
         return textField ;
     }
 
+    private MethodBinding bindListener() {
+        Application app = FacesContext.getCurrentInstance().getApplication();
+        return app.createMethodBinding("#{dynForm.saveValueChange}",
+                                                  new Class[]{ValueChangeEvent.class});
+    }
 
 
-    private boolean setFocus(UIComponent component){
+    public boolean setFocus(UIComponent component){
         if (component instanceof PanelLayout) return false ;
         setFocus("form1:" + component.getId());
         return true ;

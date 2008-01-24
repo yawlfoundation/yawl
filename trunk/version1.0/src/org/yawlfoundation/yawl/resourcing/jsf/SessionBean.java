@@ -423,6 +423,7 @@ public class SessionBean extends AbstractSessionBean {
         this.reallocatingStateful = reallocatingStateful;
     }
 
+
     private String mnuSelectorStyle = "top: 72px";            // on workqueues initially
 
     public String getMnuSelectorStyle() {

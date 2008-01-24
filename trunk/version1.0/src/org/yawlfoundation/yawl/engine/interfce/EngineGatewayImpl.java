@@ -743,7 +743,7 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return failureMessage(e.getMessage());
         }
-        File temp = new File(fileName);
+        File temp = new File(fileName + ".tmp");
         if( temp.exists() ) {
         	temp.delete();
         }

@@ -575,6 +575,8 @@ public class userWorkQueues extends AbstractPageBean {
                 }
                 wqg.completeItem(p, wir, handle);
                 getSessionBean().removeDirtyFlag(wir.getID());
+                getSessionBean().resetDynFormParams();
+                
             }
             
             return null ;
@@ -655,22 +657,25 @@ public class userWorkQueues extends AbstractPageBean {
 
     public String btnView_action() {
         WorkQueueGateway wqg = getGateway() ;
-        String handle = getSessionBean().getSessionhandle() ;
-        WorkItemRecord wir = getSessionBean().getChosenWIR(WorkQueue.STARTED);
+        SessionBean sb = getSessionBean();
+        String handle = sb.getSessionhandle() ;
+        WorkItemRecord wir = sb.getChosenWIR(WorkQueue.STARTED);
         try {
-            Map<String, FormParameter> params = wqg.getWorkItemParams(wir, handle) ;
-            if (params != null) {
-                SessionBean sb = getSessionBean();
+            Map<String, FormParameter> params ;
+            if (sb.isDirty(wir.getID()))
+                params = sb.getDynFormParams() ;
+            else {
+                params = wqg.getWorkItemParams(wir, handle) ;
                 sb.setDynFormParams(params);
+            }
+            if (params != null) {
                 sb.setDynFormLevel("item");
                 sb.setSourceTab("tabStarted");
 
                 DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
                 df.setHeaderText("Edit Work Item '" + wir.getID() + "'" );
                 df.initDynForm(new ArrayList<FormParameter>(params.values()), "Edit Work Item") ;
-                ((dynForm) getBean("dynForm")).destroy();
 
-                ((dynForm) getBean("dynForm")).init();
                 return "showDynForm" ;
             }
             else {
@@ -687,6 +692,7 @@ public class userWorkQueues extends AbstractPageBean {
 
             if ((paramMap != null) && (! paramMap.isEmpty())) {
                 paramMap = getDynFormFactory().updateValues(paramMap) ;
+                getSessionBean().setDynFormParams(paramMap);
                 WorkItemRecord wir = getSessionBean().getChosenWIR(WorkQueue.STARTED);
                 Element data = new Element(getGateway().getDecompID(wir)) ;
                 for (FormParameter param : paramMap.values()) {
@@ -696,6 +702,7 @@ public class userWorkQueues extends AbstractPageBean {
                 }
                 wir.setUpdatedData(data);
                 getGateway().updateWIRCache(wir) ;
+                getSessionBean().setDirtyFlag(wir.getID());
             }
             getSessionBean().setWirEdit(false);
         }
