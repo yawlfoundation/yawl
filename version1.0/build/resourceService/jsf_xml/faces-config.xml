@@ -13,6 +13,7 @@
   <!-- Set default locale and add supported locales here... -->
   <application>
     <message-bundle>org.yawlfoundation.yawl.resourcing.jsf.YawlUI</message-bundle>
+
 <!--    <locale-config>
       <default-locale>en</default-locale>
       <supported-locale>de</supported-locale>
@@ -20,6 +21,14 @@
       <supported-locale>es</supported-locale>
     </locale-config> -->
   </application>
-  
+    
+  <lifecycle>
+      <phase-listener>
+          org.yawlfoundation.yawl.resourcing.jsf.CachePhaseListener
+      </phase-listener>
+
+    <!--<phase-listener>org.yawlfoundation.yawl.resourcing.jsf.LifeCycleListener</phase-listener>-->
+
+  </lifecycle>
 
 </faces-config>

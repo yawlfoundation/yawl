@@ -11,9 +11,10 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 
 import javax.faces.FacesException;
-import javax.faces.context.FacesContext;
-import javax.faces.component.UIViewRoot;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.component.UIComponent;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class dynForm extends AbstractPageBean {
@@ -26,6 +27,11 @@ public class dynForm extends AbstractPageBean {
 
     private void _init() throws Exception { }
 
+    /** @return a reference to the application scoped data bean. */
+    protected ApplicationBean getApplicationBean() {
+        return (ApplicationBean) getBean("ApplicationBean");
+    }
+
     /** @return a reference to the session scoped data bean. */
     protected SessionBean getSessionBean() {
         return (SessionBean) getBean("SessionBean");
@@ -35,6 +41,8 @@ public class dynForm extends AbstractPageBean {
     private DynFormFactory getDynFormFactory() {
         return (DynFormFactory) getBean("DynFormFactory");
     }
+
+    private DynFormFactory dff = getDynFormFactory();
 
     public void init() {
         super.init();
@@ -46,6 +54,8 @@ public class dynForm extends AbstractPageBean {
             log("dynForm Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
+ //       initDynForm();
+//        compPanel.getChildren().addAll(getDynFormFactory().getFieldList());
     }
 
     /****** Abstract Method Implementations *************************************/
@@ -55,7 +65,10 @@ public class dynForm extends AbstractPageBean {
 
     public void prerender() {
  //       compPanel = getDynFormFactory().getCompPanel();
-         getSessionBean().setActivePage("dynForm");
+        getSessionBean().setActivePage("dynForm");
+//       if (getDynFormFactory().isDynFormPost()) {
+//            postOKAction() ;
+//        }
     }
 
     public void destroy() { }
@@ -135,17 +148,106 @@ public class dynForm extends AbstractPageBean {
 
     /****** Custom Methods ******************************************************/
 
+//    private String title = "test";
+//
+//    public String getTitle() {
+//        return title;
+//    }
+//
+//    public void setTitle(String title) {
+//        this.title = title;
+//    }
+
+
+//    public void initDynForm() {
+//        int lineHeight = 25 ;                      // nbr of pixels between each row
+//        int startingYPos = 10 ;
+//        int line = 0 ;
+//        boolean focusSet = false ;
+//
+////        setTitle(title);
+//
+//        List<FormParameter> params = new ArrayList(getSessionBean().getDynFormParams().values());
+//
+//        compPanel.getChildren().clear();                     // start with clean panel
+// //       compPanel.setTransient(true);
+//
+//        for (FormParameter param : params) {
+//
+//            // increment y-coord for each line
+//            String topStyle = String.format("top: %dpx",
+//                                             line++ * lineHeight + startingYPos) ;
+//
+//            // create and add a label for the parameter
+//            compPanel.getChildren().add(dff.makeLabel(param, topStyle));
+//
+//            // create and add the appropriate input field
+//            UIComponent field ;
+//            if (param.getDataTypeName().equals("boolean"))
+//                field = dff.makeCheckbox(param, topStyle);
+//            else {
+//                if (param.isInputOnly())
+//                    field = dff.makeReadOnlyTextField(param, topStyle);
+//                else
+//                    field = dff.makeTextField(param, topStyle);
+//            }
+//            compPanel.getChildren().add(field);
+//            if (! focusSet) focusSet = dff.setFocus(field) ;
+//        }
+//
+//        // resize page panel for the number of fields added
+//        int height = (compPanel.getChildCount() * lineHeight + startingYPos) / 2;
+//        String heightStyle = String.format("height: %dpx", height);
+//        compPanel.setStyle(heightStyle);
+//
+//        // reposition buttons to go directly under resized panel
+//        int btnOrigYPos = 225;
+//        String topStyle = String.format("top: %dpx", btnOrigYPos + height) ;
+//        btnOK.setStyle("left: 270px; " + topStyle);
+//        btnCancel.setStyle("left: 170px; " + topStyle);
+//    }
+
+
+
     /**
      * Updates workitem parameters with values added by user
      * @return a reference to the referring page
      */
     public String btnOK_action() {
+//        getDynFormFactory().setDynFormPost(true) ;
+//        return null ;
+//    }
+//
+//    public void postOKAction() {
+ //       getDynFormFactory().setFieldList(compPanel.getChildren());
         String referringPage;
         SessionBean sb = getSessionBean();
 
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIViewRoot root = facesContext.getViewRoot();
-        root.processUpdates(facesContext);
+//        FacesContext facesContext = FacesContext.getCurrentInstance();
+//        UIViewRoot root = facesContext.getViewRoot();
+//        root.
+//            FacesContext context = FacesContext.getCurrentInstance();
+//  //       context.renderResponse();
+//
+//        context.getExternalContext().getSessionMap(). ;
+        
+//     Application application = context.getApplication() ;
+//     UIViewRoot root = context.getViewRoot();
+//     UIComponent comp = (UIComponent) root.getChildren().get(0);
+//            ViewHandler viewHandler = application.getViewHandler();
+//    UIViewRoot newRoot = viewHandler.createView(context, root.getViewId());
+//     newRoot.getChildren().add(comp);
+//    context.setViewRoot(newRoot);
+ //  application.getStateManager().saveSerializedView(context);
+        
+//        root.getChildren();
+//
+//        List l = body1.getChildren();
+//        l.remove(0) ;
+
+//         List l = form1.getChildren();
+//        l.clear();
+//        root.processUpdates(facesContext);
 
         // map the updated values back to the params
 //        getDynFormFactory().setCompPanel(compPanel);
@@ -153,6 +255,17 @@ public class dynForm extends AbstractPageBean {
 //        params = getDynFormFactory().updateValues(params) ;
 //        sb.setDynFormParams(params) ;
 
+//        List l = form1.getChildren();
+//        Iterator itr = l.iterator() ;
+//        while (itr.hasNext()) {
+//            UIComponent uic = (UIComponent) itr.next();
+//            if (uic.getId().equals("compPanel")) {
+//                getDynFormFactory().setFieldList(uic.getChildren()) ;
+//                break;
+//            }
+//        }
+
+ //       compPanel.setTransient(true);
         if (sb.getDynFormLevel().equals("case")) {
             sb.setCaseLaunch(true);                        // temp flag for post action
             referringPage = "showCaseMgt";
@@ -161,6 +274,8 @@ public class dynForm extends AbstractPageBean {
             sb.setWirEdit(true) ;
             referringPage = "showUserQueues";
         }
+        getDynFormFactory().setDynFormPost(false);
+   //     getSessionBean().gotoPage(referringPage);
         return referringPage;
     }
 
@@ -176,6 +291,20 @@ public class dynForm extends AbstractPageBean {
            return "showUserQueues";
     }
 
+    private Map<String, String> updateMap = new HashMap<String, String>();
+
+
+    public void saveValueChange(ValueChangeEvent event) {
+        String value ;
+        UIComponent source = event.getComponent() ;
+
+        if (source instanceof Checkbox)
+            value = event.getNewValue().toString();
+        else
+            value = (String) event.getNewValue() ;
+
+        updateMap.put(source.getId(), value);
+    }
 }
 
 
