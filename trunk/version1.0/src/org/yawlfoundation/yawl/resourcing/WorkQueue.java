@@ -83,7 +83,6 @@ public class WorkQueue implements Serializable {
     /** called when this workqueue contents have changed */
     private void persistThis() {
         if (_persisting) {
-            System.out.println(_id + ", " + _ownerID + ", " + _queueType) ;
             Persister.getInstance().update(this);
         }    
     }

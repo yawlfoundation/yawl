@@ -11,7 +11,8 @@
    		<generator class="assigned"/>
     	</id>
 
-    	<property name="_documentation" column="documentation" access="field"/>
+        <property name="_serviceName" column="serviceName" access="field"/>
+        <property name="_documentation" column="documentation" access="field"/>
         <property name="_assignable" column="assignable" type="boolean" access="field"/>
 
 	</class>

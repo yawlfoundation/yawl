@@ -9,10 +9,12 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.*;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
 import javax.faces.FacesException;
 import javax.faces.application.NavigationHandler;
@@ -128,8 +130,16 @@ public class SessionBean extends AbstractSessionBean {
      * at any later time during the lifetime of the application.</p>
      */
     public void destroy() {
-        ApplicationBean app = getApplicationBean();
-        if (app != null) app.removeSessionReference(participant.getID()) ;
+
+        // getApplicationBean() will throw a NPE if the session has already
+        // timed out due to inactivity
+        try {
+            ApplicationBean app = getApplicationBean();
+            if (app != null) app.removeSessionReference(participant.getID()) ;
+        }
+        catch (Exception e) {
+            // write to log that session has already expired
+        }
     }
 
     private PanelLayout topPanel = new PanelLayout();
@@ -443,6 +453,79 @@ public class SessionBean extends AbstractSessionBean {
     public void setUserListFormHeaderText(String userListFormHeaderText) {
         this.userListFormHeaderText = userListFormHeaderText;
     }
+
+
+    /****** This section used by the 'Service Mgt' form ***************************/
+
+    List<YAWLServiceReference> registeredServices;
+
+
+    public List<YAWLServiceReference> getRegisteredServices() {
+        if (registeredServices == null) refreshRegisteredServices() ;
+
+        return registeredServices;
+    }
+
+
+    public void setRegisteredServices(List<YAWLServiceReference> services) {
+        registeredServices = services ;
+    }
+
+
+    public String removeRegisteredService(int listIndex) {
+        String result = null;
+        try {
+            YAWLServiceReference service = registeredServices.get(listIndex);
+            result = getGateway().removeRegisteredService(service.get_yawlServiceID(),
+                                                                         sessionhandle);
+            if (Interface_Client.successful(result)) refreshRegisteredServices();
+        }
+        catch (IOException ioe) {
+            // message ...
+        }
+        return result ;
+    }
+
+
+    public String addRegisteredService(String name, String uri, String doco) {
+        String result = null;
+        try {
+            YAWLServiceReference service = new YAWLServiceReference(uri, null, name);
+            service.set_documentation(doco);
+            result = getGateway().addRegisteredService(service, sessionhandle);
+            if (Interface_Client.successful(result)) refreshRegisteredServices();
+        }
+        catch (IOException ioe) {
+            // message ...
+        }
+        return result ;
+    }
+
+    
+    public void refreshRegisteredServices() {
+        try {
+            Set services = getGateway().getRegisteredServices(sessionhandle);
+            if (services != null) {
+
+                // sort the items using a treeset
+                List<YAWLServiceReference> servList =
+                                                   new ArrayList<YAWLServiceReference>();
+                for (Object obj : services) {
+                    YAWLServiceReference service = (YAWLServiceReference) obj;
+                    if (service.isAssignable())
+                        servList.add(service) ;
+                }
+                registeredServices = servList;
+                Collections.sort(registeredServices, new YAWLServiceComparator());
+            }
+            else
+                registeredServices = null ;
+        }
+        catch (IOException ioe) {
+            registeredServices = null ;
+        }
+    }
+
 
     /******************************************************************************/
 

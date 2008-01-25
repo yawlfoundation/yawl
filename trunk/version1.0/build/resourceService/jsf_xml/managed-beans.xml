@@ -62,5 +62,10 @@
         <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.DynFormFactory</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
     </managed-bean>
+    <managed-bean>
+        <managed-bean-name>customServices</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.customServices</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
 
 </faces-config>

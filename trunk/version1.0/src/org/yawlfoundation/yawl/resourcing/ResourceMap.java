@@ -211,10 +211,6 @@ public class ResourceMap {
      * within a specification file.
      */
     public void parse(Element eleSpec) {
-        System.out.println("resmap parse") ;
-        System.out.println(JDOMUtil.elementToString(eleSpec)) ;
-
-
         if (eleSpec != null) {
             Namespace nsYawl = eleSpec.getNamespace() ;
             _offer.parse(eleSpec.getChild("offer", nsYawl), nsYawl) ;

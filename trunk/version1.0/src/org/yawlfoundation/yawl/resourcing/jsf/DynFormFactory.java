@@ -283,6 +283,7 @@ public class DynFormFactory extends AbstractSessionBean {
         label.setText(pName + ": ");
         label.setStyleClass("dynformLabel");
         label.setStyle(topStyle) ;
+        label.setRequiredIndicator(param.isMandatory() || param.isRequired());
         return label;
     }
 

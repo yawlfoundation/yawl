@@ -1,28 +1,37 @@
 
-/* Style rules to make data tables look better */
+/* Rules for data tables */
 
-.list-header {
+.dataTable {
+    border: 2px solid gray;
+    left: 12px;
+    top: 36px;
+    position: absolute;    
+}
+
+.dataTableHeader {
   background-color: #eeeeee;
   font-size: larger;
   font-weight: bold;
 }
 
-.list-paging-header {
+.dataTablePagingHeader {
   background-color: white;
 }
 
-.list-paging-footer {
+.dataTablePagingFooter {
   background-color: white;
 }
 
-.list-row-even { 
+.dataTableRowEven {
+    background-color: white;
 }
 
-.list-row-odd { 
-  background-color: #eeeeee;
+.dataTableRowOdd {
+  background-color: #e6f0fd;
 }
 
-/* Style rules for message severity levels */
+
+/* Rules for message severity levels */
 
 .infoMessage {
   color: green;
@@ -44,8 +53,46 @@
   font-weight: bold;
 }
 
+
+/* Rules for menu sidebar */
+
+.menuPanel {
+    background-color: #f0f0f0;
+    border-right-style: solid;
+    border-bottom-style: solid;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-right-color: gray;
+    border-bottom-color: gray;
+    height: 398px;
+    left: 0px;
+    top: 0px;
+    position: absolute;
+    width: 121px;
+}
+
+.menuSelector {
+    left: 100px;
+    position: absolute;
+}
+
 .menuButton {
-   position: absolute;
+    left: 0px;
+    position: absolute;
+}
+
+
+/* General Rules used by several pages */
+
+.topPanel {
+    background-image: url(headbg.jpg);
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    height: 70px;
+    left: 0px;
+    top: 0px;
+    position: absolute;
+    width: 100%;
 }
 
 .pageHeading {
@@ -62,6 +109,9 @@
     font-weight: bold;
     position: absolute;    
 }
+
+
+/* Rules for dynamic forms */
 
 .dynformPanel {
    border-style: inset; 
@@ -101,13 +151,17 @@
 }
 
 .dynformReadOnlyText {
-    /*position: absolute;*/
-    /*border: 1px solid black;*/
-    /*padding: 3px;*/
-    /*background-color: white;*/
-    /*color: gray;*/
     font-style: italic;
-    /*left: 100px;*/
+}
+
+
+/* Rules for Case Mgt Page */
+
+.fileUpload {
+    border: 1px solid black;
+    margin: 2px;
+    padding: 4px;
+    position: absolute;
 }
 
 .caseMgtPanel {
@@ -131,12 +185,38 @@
     width: 570px;
 }
 
-.fileUpload {
-    border: 1px solid black;
-    margin: 2px;
-    padding: 4px;
+
+/* Rules for Services Mgt Page */
+
+.servicesPanel {
+    border: 2px solid gray;
+    background-color: #97cbfd;    
+    left: 126px;
     position: absolute;
+    width: 664px;
+    -rave-layout: grid;
 }
+
+.servicesButton {
+    height: 30px;
+    position: absolute;
+    width: 95px;
+}
+
+.servicesNameCol {
+    width: 60px;
+}
+
+.servicesURICol {
+    width: 160px;
+}
+
+.servicesDescCol {
+    width: 416px;
+}
+
+
+/* Rules for User Selection Page */
 
 .selectUserButton {
     height: 30px;
@@ -145,16 +225,8 @@
     width: 71px;
 }
 
-.topPanel {
-    background-image: url(headbg.jpg);
-    border-bottom-style: solid;
-    border-bottom-width: 2px;
-    height: 70px;
-    left: 0px;
-    top: 0px;
-    position: absolute;
-    width: 100%;
-}
+
+/* Rules for Work Queues Pages */
 
 .queuesTabSet {
     border: 1px solid black;
@@ -183,7 +255,31 @@
     width: 95px;
 }
 
-.mnuSelector {
-    left: 99px;
+.queuesListbox {
+    border: 2px inset rgb(204, 204, 255);
+    height: 156px;
+    left: 12px;
+    top: 36px;
+    position: absolute;
+    width: 144px;
+}
+
+.queuesTextField {
+    border: 2px inset #ccccff;
+    padding: 2px;
+    background-color: white;
+    color: rgb(102, 102, 102);
+    position: absolute;
+    width: 136px;
+}
+
+.queuesLabelLeft  {
+    left: 180px;
     position: absolute;
 }
+
+.queuesLabelRight  {
+    left: 342px;
+    position: absolute;
+}
+
