@@ -16,6 +16,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
 
@@ -240,6 +241,31 @@ public class WorkQueueGateway  {          // extends HttpServlet
     public void registerJSFApplicationReference(ApplicationBean app) {
         rm.registerJSFApplicationReference(app);
     }
+
+    public Set getRegisteredServices(String handle) throws IOException {
+        if (checkConnection(handle)) 
+            return rm.getRegisteredServices(handle);
+        else
+            return null ;
+    }
+
+    public String removeRegisteredService(String id, String handle) throws IOException {
+        if (checkConnection(handle))
+            return rm.removeRegisteredService(id, handle);
+        else
+            return null;
+    }
+
+
+    public String addRegisteredService(YAWLServiceReference service, String handle)
+                                                                    throws IOException {
+        if (checkConnection(handle))
+            return rm.addRegisteredService(service, handle);
+        else
+            return null;
+
+    }
+    
 
     public String getXFormsURI() { return rm.getXFormsURI() ; }
 

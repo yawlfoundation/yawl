@@ -398,7 +398,7 @@ public class caseMgt extends AbstractPageBean {
             // something
         }
         // show result to user
-        System.out.println(result) ;
+
     }
 
     private void updateLoadedSpecList() {

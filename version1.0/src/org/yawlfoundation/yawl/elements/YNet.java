@@ -573,10 +573,6 @@ public final class YNet extends YDecomposition {
                         + new XMLOutputter(Format.getPrettyFormat()).outputString(incomingData).trim());
             }
         }
-        System.out.println("getSpecification is null: " + (getSpecification() == null));
-        System.out.println("getDataValidator is null: " + (getSpecification().getDataValidator() == null));
-        System.out.println("getInputParameters is null: " + (getInputParameters() == null));
-
 
         getSpecification().getDataValidator().validate(
                                    getInputParameters().values(), incomingData, getID());

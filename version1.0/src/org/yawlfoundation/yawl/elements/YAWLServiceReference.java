@@ -36,6 +36,7 @@ public class YAWLServiceReference implements YVerifiable{
     public String _yawlServiceID;
     private YAWLServiceGateway _webServiceGateway;
     public String _documentation;
+    private String _serviceName ;
     public boolean _assignable = true ;            // default: can be assigned to a task
 
     /*****************************
@@ -60,9 +61,19 @@ public class YAWLServiceReference implements YVerifiable{
 	return _documentation;
     }
 
+    public String get_serviceName() {
+        return _serviceName;
+    }
+
+    public void set_serviceName(String name) {
+        _serviceName = name;
+    }
+
     public void set_assignable(boolean b) { _assignable = b ; }
 
     public boolean get_assignable() { return _assignable ; }
+
+    public boolean isAssignable() { return _assignable ; }
 
     /***************************************/
 
@@ -71,6 +82,11 @@ public class YAWLServiceReference implements YVerifiable{
         this._webServiceGateway = webServiceGateway;
     }
 
+    public YAWLServiceReference(String yawlServiceID, YAWLServiceGateway webServiceGateway,
+                                String serviceName) {
+        this(yawlServiceID, webServiceGateway);
+        _serviceName = serviceName ;
+    }
 
     public String getURI() {
         return _yawlServiceID;
@@ -99,6 +115,7 @@ public class YAWLServiceReference implements YVerifiable{
     public String toXML() {
         StringBuffer result = new StringBuffer();
         result.append("<yawlService id=\"" + _yawlServiceID + "\">");
+        result.append("<servicename>").append(_serviceName).append("</servicename>");
         if(_documentation != null) {
             result.append("<documentation>");
             result.append(_documentation);
@@ -120,9 +137,10 @@ public class YAWLServiceReference implements YVerifiable{
         try {
             Document doc = builder.build(new StringReader(serialisedService));
             String uri = doc.getRootElement().getAttributeValue("id");
+            String name = doc.getRootElement().getChildText("servicename");
             String docStr = doc.getRootElement().getChildText("documentation");
             String assignable = doc.getRootElement().getChildText("assignable");
-            YAWLServiceReference service =  new YAWLServiceReference(uri, null);
+            YAWLServiceReference service =  new YAWLServiceReference(uri, null, name);
             service.setDocumentation(docStr);
             if (assignable != null)
                 service.set_assignable(assignable.equalsIgnoreCase("true"));

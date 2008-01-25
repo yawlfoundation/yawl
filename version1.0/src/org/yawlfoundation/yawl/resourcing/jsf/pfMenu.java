@@ -11,6 +11,8 @@ import javax.faces.FacesException;
 
 import com.sun.rave.web.ui.component.*;
 
+import java.util.Set;
+
 /**
  * <p>Fragment bean that corresponds to a similarly named JSP page
  * fragment.  This class contains component definitions (and initialization
@@ -78,6 +80,16 @@ public class pfMenu extends AbstractFragmentBean {
 
     public void setMnuCaseMgt(ImageHyperlink ih) {
         this.mnuCaseMgt = ih;
+    }
+
+    private ImageHyperlink mnuServiceMgt = new ImageHyperlink();
+
+    public ImageHyperlink getMnuServiceMgt() {
+        return mnuServiceMgt;
+    }
+
+    public void setMnuServiceMgt(ImageHyperlink ih) {
+        this.mnuServiceMgt = ih;
     }
 
     private ImageComponent imgSelected = new ImageComponent();
@@ -182,10 +194,10 @@ public class pfMenu extends AbstractFragmentBean {
     }
 
 
-    public String mnuAddService_action() {
-        // TODO: Replace with your code
-        
-        return null;
+    public String mnuServiceMgt_action() {
+        getSessionBean().checkLogon();
+        getSessionBean().setMnuSelectorStyle("top: 128px");
+        return "showServiceMgt";
     }
 
 

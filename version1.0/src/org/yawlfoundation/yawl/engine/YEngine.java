@@ -580,26 +580,31 @@ public class YEngine implements InterfaceADesign,
             ys = new YAWLServiceReference("http://localhost:8080/yawlWSInvoker/", null);
             ys.setDocumentation("This YAWL Service enables suitably declared" +
                     " workflow tasks to invoke RPC style service on the Web.");
+            ys.set_serviceName("yawlWSInvoker");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
 
             ys = new YAWLServiceReference("http://localhost:8080/workletService/ib", null);
             ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
+            ys.set_serviceName("workletService");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
 
             ys = new YAWLServiceReference("http://localhost:8080/yawlSMSInvoker/ib", null);
             ys.setDocumentation("SMS Message Module. Works if you have an account.");
+            ys.set_serviceName("yawlSMSInvoker");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
 
             ys = new YAWLServiceReference("http://localhost:8080/timeService/ib", null);
             ys.setDocumentation("Time service, allows tasks to be a timeout task.");
+            ys.set_serviceName("timeService");
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
 
             ys = new YAWLServiceReference("http://localhost:8080/resourceService/ib", null);
             ys.setDocumentation("Resource Service, assigns workitems to resources.");
+            ys.set_serviceName("resourceService");
             ys.set_assignable(false);                            // don't show in editor
             _myInstance.removeYawlService(ys.getURI());
             _myInstance.addYawlService(ys);
@@ -2585,7 +2590,7 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
             /*
               INSERTED FOR PERSISTANCE
              */
-            YAWLServiceReference service = (YAWLServiceReference) _yawlServices.get(serviceURI);
+            YAWLServiceReference service = (YAWLServiceReference) _yawlServices.remove(serviceURI);
 
             if (service != null) {
                 if (isPersisting()) {

@@ -34,6 +34,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -178,7 +179,6 @@ public class ResourceManager extends InterfaceBWebsideController
     // Interface B implemented methods //
 
     public void handleEnabledWorkItemEvent(WorkItemRecord wir) {
-        System.out.println(wir.toXML());
         if (_serviceEnabled) {
             ResourceMap rMap = getResourceMap(wir) ;
             if (rMap != null)
@@ -629,10 +629,6 @@ public class ResourceManager extends InterfaceBWebsideController
 
 
     public String getParticipantIDFromUserID(String userID) {
-        System.out.println("getIDs: " + userID) ;
-        for (String s : _userKeys.keySet())
-            System.out.println("ID: " + s + " PID: " + _userKeys.get(s)) ;
-
         return _userKeys.get(userID) ;
     }
 
@@ -1666,10 +1662,26 @@ public class ResourceManager extends InterfaceBWebsideController
 
     }
 
+
     public void announceModifiedQueue(String pid) {
         if (_jsfApplicationReference != null) {
             _jsfApplicationReference.refreshUserWorkQueues(pid);
         }
     }
 
+
+    public Set getRegisteredServices(String handle) {
+        return _interfaceAClient.getRegisteredYAWLServices(handle);
+    }
+
+
+    public String addRegisteredService(YAWLServiceReference service, String handle)
+                                                                    throws IOException {
+        return _interfaceAClient.setYAWLService(service, handle);
+    }
+
+
+    public String removeRegisteredService(String id, String handle) throws IOException {
+        return _interfaceAClient.removeYAWLService(id, handle);
+    }
 }                                                                                  

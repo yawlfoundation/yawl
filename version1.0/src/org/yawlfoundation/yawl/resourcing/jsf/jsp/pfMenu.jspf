@@ -4,11 +4,11 @@
         <ui:panelLayout binding="#{pfMenu.layoutPanel1}"
                         id="layoutPanel1"
                         panelLayout="flow"
-                        style="background-color: rgb(240, 240, 240); border-right-style: solid; border-bottom-style: solid; border-right-width: 2px; border-bottom-width: 2px; height: 398px; left: 0px; top: 0px; position: absolute; width: 120px">
+                        styleClass="menuPanel">
 
             <ui:image binding="#{pfMenu.imgSelected}"
                       id="image1"
-                      styleClass="mnuSelector"
+                      styleClass="menuSelector"
                       style="#{SessionBean.mnuSelectorStyle}"
                       url="/resources/mnuSelectedIcon.png"/>
 
@@ -16,25 +16,37 @@
                                binding="#{pfMenu.mnuLogout}"
                                id="mnuLogout"
                                imageURL="/resources/mnuLogout.png"
-                               style="left: 0px; top: 12px; position: absolute"/>
+                               styleClass="menuButton"
+                               style="top: 12px"/>
 
             <ui:imageHyperlink action="#{pfMenu.mnuMyProfile_action}"
                                binding="#{pfMenu.mnuMyProfile}"
                                id="mnuMyProfile"
                                imageURL="/resources/mnuEditProfile.png"
-                               style="left: 0px; top: 40px; position: absolute"/>
+                               styleClass="menuButton"
+                               style="top: 40px"/>
 
             <ui:imageHyperlink action="#{pfMenu.mnuUserWorkQueues_action}"
                                binding="#{pfMenu.mnuUserWorkQueues}"
                                id="mnuWorkQueues"
                                imageURL="/resources/mnuUserWorkQueues.png"
-                               style="left: 0px; top: 68px; position: absolute"/>
+                               styleClass="menuButton"
+                               style="top: 68px"/>
 
             <ui:imageHyperlink action="#{pfMenu.mnuCaseMgt_action}"
                                binding="#{pfMenu.mnuCaseMgt}"
                                id="mnuCaseMgt"
                                imageURL="/resources/mnuCaseMgt.png"
-                               style="left: 0px; top: 96px; position: absolute"/>
+                               styleClass="menuButton"
+                               style="top: 96px"/>
+
+            <ui:imageHyperlink action="#{pfMenu.mnuServiceMgt_action}"
+                               binding="#{pfMenu.mnuServiceMgt}"
+                               id="mnuServiceMgt"
+                               imageURL="/resources/mnuServiceMgt.png"
+                               styleClass="menuButton"
+                               style="top: 124px"/>
+
         </ui:panelLayout>
     </f:subview>
 </div>
