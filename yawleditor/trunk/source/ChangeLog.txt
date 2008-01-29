@@ -1,5 +1,5 @@
 Version 2.0 (??/??/????)
-  * LWB: Upgaded the editor to use version 1.0 of the engine.  This includes a complete
+  * LWB: Upgraded the editor to use version 1.0 of the engine.  This includes a complete
          renaming of the source package hierarchy, and breaks save-file compatibility
          with previous versions of the editor.
   * LWB: Also included in the move to the 1.0 engine is a powerful replacement of the
@@ -9,10 +9,10 @@ Version 2.0 (??/??/????)
   * LWB: Changed the specification version number to be a decimal number instead of a
          free-form string. This includes the export dialog now supplying the specification 
          version as a convenience to allow a workflow designer to more easily manage 
-         variations the the specifications they export.
+         variations the specifications they export.
   * LWB: After numerous requests, the pallet bar can now be resized via a
          sliding bar, mostly to allow a clear view into a deep icon tree.  However, 
-         given a couple of Swing limitations, the palette bar can no longer be detatched
+         given a couple of Swing limitations, the palette bar can no longer be detached
          from the base editor window.
   * LWB/MF: Incorporated the extended attribute concept that has been coded into the
          M2 branch of the editor. Via the plugin mechanism, workflow designers can now
@@ -26,7 +26,7 @@ Version 2.0 (??/??/????)
   * LWB: Fixed a bug where the view menu would occasionally show the wrong icon for a net.
   * LWB: Fixed a bug where the paste of a copied net element would result in the
          copy having the same engine ID as the original, disrupting correct engine
-         export/validation behaviour.
+         export/validation behaviour.	
   * LWB: Fixed a bug where engine validation was failing, claiming that max instances was
          smaller than min instance on multi-instance tasks when max instances was set to 
          infinity.
@@ -164,7 +164,7 @@ Version 1.4.3 (25/08/2006) "Deltapoint"
 Version 1.4.2 (13/07/2006) "Ironforge"
   * Fixed a bug where the "Set Label" dialog box was remembering the last thing
     typed into it, and refusing to set the text of a new element if the newly
-    typed text matched the the last stored memory.
+    typed text matched the last stored memory.
   * Changed the default double-click behaviour on all net elements to be that of
     the label element dialog (rational being that control flow, and description
     of that flow for people, should be the first design task.   After the 
