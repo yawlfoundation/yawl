@@ -49,7 +49,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   
   public void connect() {
     connect(
-        prefs.get(
+        prefs.get(  
             "resourcingServiceURI", 
             DEFAULT_RESOURCING_SERVICE_URI
         ),
@@ -71,7 +71,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   public void connect(String serviceURI, String userID, String password) {
     try {
       if (!connected()) {
-        tryConnect(serviceURI, userID, password);
+        sessionHandle = tryConnect(serviceURI, userID, password);
       } 
     } catch (Exception e) {
       //e.printStackTrace();
@@ -79,11 +79,13 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     }
   }
   
-  private void tryConnect(String serviceURI, String userID, String password) {
+  private String tryConnect(String serviceURI, String userID, String password) {
     if (gateway == null) {
       gateway = new ResourceGatewayClientAdapter(serviceURI);
     }
-    sessionHandle = gateway.connect(userID, password);
+    String thisSessionHandle = gateway.connect(userID, password);
+    //System.out.println("Session Handle on connect attempt = " + thisSessionHandle);
+    return thisSessionHandle;
   }
   
   public void disconnect() {
@@ -100,13 +102,9 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     List engineParticipants;
     
     try {
-      engineParticipants = gateway.getParticipants(
-          prefs.get(
-              "resourcingServiceURI", 
-              DEFAULT_RESOURCING_SERVICE_URI
-          )    
-      );
+      engineParticipants = gateway.getParticipants(sessionHandle);
     } catch (Exception e) {
+      e.printStackTrace();
       return null;
     }
     
@@ -118,33 +116,31 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
       participantList.add(
           new ResourcingParticipant(
               participant.getID(),
-              participant.getFullName() + "(" +
+              participant.getFullName() + " (" +
               participant.getUserID() + ")"
           )
       );
     }
-    
+
+    disconnect();
+
     return participantList;
   }
   
   public List<ResourcingRole> getAllRoles() {
     connect();
-    
+   
     List engineRoles;
     
     try {
-      engineRoles = gateway.getRoles(
-          prefs.get(
-              "resourcingServiceURI", 
-              DEFAULT_RESOURCING_SERVICE_URI
-          )    
-      );
+      engineRoles = gateway.getRoles(sessionHandle);
     } catch (Exception e) {
+      e.printStackTrace();
       return null;
     }
     
     LinkedList<ResourcingRole> registeredRoles = new LinkedList<ResourcingRole>();
-    
+
     for (Object engineRole: engineRoles) {
       Role role = (Role) engineRole;
 
@@ -155,33 +151,21 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
           )
       );
     }
+
+    disconnect();
     
     return registeredRoles;
   }
   
-  public List getReigsteredFilters() {
-    connect();
-    
-    LinkedList resultsList = new LinkedList();
-
-    // TODO: get filter info here
-    
-    return resultsList;
-  }
-
   public List<AllocationMechanism> getRegisteredAllocationMechanisms() {
     connect();
     
     List engineAllocators;
     
     try {
-      engineAllocators = gateway.getAllocators(        
-          prefs.get(
-              "resourcingServiceURI", 
-              DEFAULT_RESOURCING_SERVICE_URI
-          )    
-      );
+      engineAllocators = gateway.getAllocators(sessionHandle);
     } catch (Exception e) {
+      e.printStackTrace();
       return null;
     }
     
@@ -199,6 +183,8 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
       );
     }
     
+    disconnect();
+
     return resultsList;
   }
 
@@ -208,13 +194,9 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     List engineFilters;
     
     try {
-      engineFilters = gateway.getFilters(        
-          prefs.get(
-              "resourcingServiceURI", 
-              DEFAULT_RESOURCING_SERVICE_URI
-          )    
-      );
+      engineFilters = gateway.getFilters(sessionHandle);
     } catch (Exception e) {
+      e.printStackTrace();
       return null;
     }
     
@@ -231,6 +213,8 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
           )
       );
     }
+    disconnect();
+
     return resultsList;
   }
 
@@ -253,11 +237,14 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   }
   
   public boolean testConnection(String serviceURI, String userID, String password) {
-    connect(serviceURI, userID, password);
-    if (sessionHandle != null) {
-      return gateway.checkConnection(sessionHandle);
-    }
-    return false;
+    String testSessionID = "";
+     try {
+       testSessionID = tryConnect(serviceURI, userID, password);
+       gateway.disconnect(testSessionID);
+     } catch (Exception e) {
+       e.printStackTrace();
+       testSessionID = "";
+     }
+     return (!testSessionID.startsWith("<failure>"));
   }
-
 }

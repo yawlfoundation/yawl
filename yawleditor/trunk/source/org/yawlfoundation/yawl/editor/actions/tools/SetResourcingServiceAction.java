@@ -99,12 +99,12 @@ class ResourceServiceDialog extends AbstractDoneDialog {
   
   public ResourceServiceDialog() {
     super("Specify Resourcing Service", true);
-    setContentPanel(getEngineDetailPanel());
+    setContentPanel(buildResourcingServiceDetailPanel());
 
     getDoneButton().addActionListener(new ActionListener(){
        public void actionPerformed(ActionEvent e) {
 
-         YAWLEngineProxy.getInstance().disconnect(); 
+         ResourcingServiceProxy.getInstance().disconnect();
          
          prefs.put(
              "resourcingServiceURI", 
@@ -129,7 +129,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
     setResizable(false);
   }
   
-  private JPanel getEngineDetailPanel() {
+  private JPanel buildResourcingServiceDetailPanel() {
 
     GridBagLayout gbl = new GridBagLayout();
     GridBagConstraints gbc = new GridBagConstraints();
