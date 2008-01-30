@@ -145,8 +145,6 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     parameterPanel.setVariableContentList(
         getResourceMapping().getBaseVariableContentList()
     );
-    
-    
   }
   
   public ManageResourcingDialog getResourcingDialog() {
