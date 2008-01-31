@@ -694,6 +694,7 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:VariableBaseType">
 				<xs:sequence>
+                    <xs:element name="defaultValue" type="xs:string" minOccurs="0"/>
 					<xs:element name="mandatory" minOccurs="0"/>
 					<xs:element name="isCutThroughParam" minOccurs="0"/>
 				</xs:sequence>

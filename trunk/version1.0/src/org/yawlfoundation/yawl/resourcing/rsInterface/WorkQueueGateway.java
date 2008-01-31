@@ -267,6 +267,15 @@ public class WorkQueueGateway  {          // extends HttpServlet
     }
     
 
+    public String getCaseData(String caseID, String handle) throws IOException {
+        if (checkConnection(handle))
+            return rm.getCaseData(caseID, handle);
+        else
+            return null;
+
+    }
+
+
     public String getXFormsURI() { return rm.getXFormsURI() ; }
 
 

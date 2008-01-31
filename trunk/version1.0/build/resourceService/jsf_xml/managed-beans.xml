@@ -67,5 +67,14 @@
         <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.customServices</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
-
+    <managed-bean>
+        <managed-bean-name>participantData</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.participantData</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
+        <managed-bean-name>pfAddRemove</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.pfAddRemove</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
 </faces-config>

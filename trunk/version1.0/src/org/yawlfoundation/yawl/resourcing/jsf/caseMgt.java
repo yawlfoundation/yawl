@@ -11,6 +11,9 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 
 import javax.faces.FacesException;
+import javax.faces.component.html.HtmlDataTable;
+import javax.faces.component.html.HtmlOutputText;
+import javax.faces.component.UIColumn;
 import javax.faces.event.ValueChangeEvent;
 
 import com.sun.rave.web.ui.model.UploadedFile;
@@ -19,6 +22,7 @@ import com.sun.rave.web.ui.component.*;
 
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import org.jdom.Element;
@@ -114,11 +118,11 @@ public class caseMgt extends AbstractPageBean {
 
     public void setBtnCancelCase(Button b) { this.btnCancelCase = b; }
 
-    private Listbox lbxLoadedSpecs = new Listbox();
-
-    public Listbox getLbxLoadedSpecs() { return lbxLoadedSpecs; }
-
-    public void setLbxLoadedSpecs(Listbox l) { this.lbxLoadedSpecs = l; }
+//    private Listbox lbxLoadedSpecs = new Listbox();
+//
+//    public Listbox getLbxLoadedSpecs() { return lbxLoadedSpecs; }
+//
+//    public void setLbxLoadedSpecs(Listbox l) { this.lbxLoadedSpecs = l; }
 
     private StaticText staticText2 = new StaticText();
 
@@ -167,6 +171,108 @@ public class caseMgt extends AbstractPageBean {
     public PanelLayout getLayoutPanel3() { return layoutPanel3; }
 
     public void setLayoutPanel3(PanelLayout pl) { this.layoutPanel3 = pl; }
+
+    private HtmlDataTable dataTable1 = new HtmlDataTable();
+
+    public HtmlDataTable getDataTable1() {
+        return dataTable1;
+    }
+
+    public void setDataTable1(HtmlDataTable hdt) {
+        this.dataTable1 = hdt;
+    }
+
+    private UIColumn colName = new UIColumn();
+
+    public UIColumn getColName() {
+        return colName;
+    }
+
+    public void setColName(UIColumn uic) {
+        this.colName = uic;
+    }
+
+    private HtmlOutputText colNameRows = new HtmlOutputText();
+
+    public HtmlOutputText getColNameRows() {
+        return colNameRows;
+    }
+
+    public void setColNameRows(HtmlOutputText hot) {
+        this.colNameRows = hot;
+    }
+
+    private HtmlOutputText colNameHeader = new HtmlOutputText();
+
+    public HtmlOutputText getColNameHeader() {
+        return colNameHeader;
+    }
+
+    public void setColNameHeader(HtmlOutputText hot) {
+        this.colNameHeader = hot;
+    }
+
+    private UIColumn colDescription = new UIColumn();
+
+    public UIColumn getColDescription() {
+        return colDescription;
+    }
+
+    public void setColDescription(UIColumn uic) {
+        this.colDescription = uic;
+    }
+
+    private HtmlOutputText colDescriptionRows = new HtmlOutputText();
+
+    public HtmlOutputText getColDescriptionRows() {
+        return colDescriptionRows;
+    }
+
+    public void setColDescriptionRows(HtmlOutputText hot) {
+        this.colDescriptionRows = hot;
+    }
+
+    private HtmlOutputText colDescriptionHeader = new HtmlOutputText();
+
+    public HtmlOutputText getColDescriptionHeader() {
+        return colDescriptionHeader;
+    }
+
+    public void setColDescriptionHeader(HtmlOutputText hot) {
+        this.colDescriptionHeader = hot;
+    }
+
+    private UIColumn colSBar = new UIColumn();
+
+    public UIColumn getColSBar() {
+        return colSBar;
+    }
+
+    public void setColSBar(UIColumn uic) {
+        this.colSBar = uic;
+    }
+
+    
+    private HiddenField hdnRowIndex = new HiddenField();
+
+    public HiddenField getHdnRowIndex() {
+        return hdnRowIndex;
+    }
+
+    public void setHdnRowIndex(HiddenField hf) {
+        this.hdnRowIndex = hf;
+    }
+
+    private Script script1 = new Script();
+
+    public Script getScript1() {
+        return script1;
+    }
+
+    public void setScript1(Script s) {
+        this.script1 = s;
+    }
+    
 
     /** Constructor */
     public caseMgt() { }
@@ -227,14 +333,12 @@ public class caseMgt extends AbstractPageBean {
 
     public void prerender() {
         if (getSessionBean().isCaseLaunch()) {
-            String choice = getSessionBean().getLoadedSpecListChoice() ;
-            if (choice != null) {
-                String specID = choice.substring(0, choice.indexOf(' ')) ;
-                beginCase(specID, getSessionBean().getSessionhandle());
-            }    
+            String specID = getSessionBean().getLoadedSpecListChoice() ;
+            if (specID != null)
+                beginCase(specID, getSessionBean().getSessionhandle());    
         }
         updateRunningCaseList();
-        updateLoadedSpecList() ;
+   //     updateLoadedSpecList() ;
         getSessionBean().setActivePage("caseMgt");        
     }
 
@@ -268,6 +372,8 @@ public class caseMgt extends AbstractPageBean {
             String handle = getSessionBean().getSessionhandle() ;
             String htmlErr = "";
             String result = wqg.uploadSpecification(fileContents, fileName, handle);
+            if (Interface_Client.successful(result))
+                getSessionBean().refreshLoadedSpecs();
         //    if(_worklistController.successful(replyFromYAWL)){}
         }
     }
@@ -275,13 +381,16 @@ public class caseMgt extends AbstractPageBean {
     public String btnLaunch_action() {
 
         // get selected spec
-        String choice = getSessionBean().getLoadedSpecListChoice() ;
-        String refPage = null;
-        if (choice != null) {
-            choice = choice.substring(0, choice.indexOf(' ')) ;
-
-            refPage = startCase(choice) ;
+        String refPage = null ;
+        try {
+            Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
+            SpecificationData spec = getSessionBean().getLoadedSpec(selectedRowIndex - 1);
+            refPage = startCase(spec) ;
         }
+        catch (NumberFormatException nfe) {
+            // message about row not selected
+        }
+
         return refPage;
     }
 
@@ -325,27 +434,26 @@ public class caseMgt extends AbstractPageBean {
     public String btnUnload_action() {
 
         // get selected spec
-        String choice = getSessionBean().getLoadedSpecListChoice() ;
-        if (choice != null) {
-            choice = choice.substring(0, choice.indexOf(' ')) ;
-
-            String result = unloadSpec(choice) ;
+        try {
+            Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
+            SpecificationData spec = getSessionBean().getLoadedSpec(selectedRowIndex - 1);
+            String result = unloadSpec(spec.getID()) ;
             if (result.indexOf("success") == -1) {
-
+                error("An info message about this action");
             }
-            updateLoadedSpecList();
+            else {
+                getSessionBean().refreshLoadedSpecs();
+            }
         }
-        else {
-            error("An info message about this action");
+        catch (NumberFormatException nfe) {
+            // message about row not selected
         }
         return null;
     }
 
 
-    private String startCase(String specID) {
-        WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway() ;
-        String handle = getSessionBean().getSessionhandle() ;
-        SpecificationData specData = wqg.getSpecData(specID, handle);
+    private String startCase(SpecificationData specData) {
+
         if (specData != null) {
             List inputParams = specData.getInputParams();
             if (! inputParams.isEmpty()) {
@@ -354,16 +462,19 @@ public class caseMgt extends AbstractPageBean {
 
                 getSessionBean().setDynFormParams(paramMap);
                 getSessionBean().setDynFormLevel("case");
+                getSessionBean().setLoadedSpecListChoice(specData.getID());
 
                 DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
                 df.setHeaderText(
-                        "Starting an Instance of Specification '" + specID + "'" );
+                        "Starting an Instance of Specification '" + specData.getID() + "'" );
                 df.initDynForm(new ArrayList<FormParameter>(paramMap.values()),
                                "YAWL Case Management - Launch Case") ;
                 return "showDynForm" ;
             }
             else {
-                beginCase(specID, handle);             // no case params to worry about
+
+                // no case params to worry about
+                beginCase(specData.getID(), getSessionBean().getSessionhandle());
             }
         }
         return null ;
@@ -372,7 +483,7 @@ public class caseMgt extends AbstractPageBean {
 
     private void beginCase(String specID, String handle) {
         String caseData = null ;
-        String result = null ;
+        String result ;
         if (getSessionBean().isCaseLaunch()) {
             Map paramMap = getSessionBean().getDynFormParams();
 
@@ -393,6 +504,7 @@ public class caseMgt extends AbstractPageBean {
         try {
             result = getApplicationBean().getWorkQueueGateway()
                                          .launchCase(specID, caseData, handle);
+            if (Interface_Client.successful(result)) updateRunningCaseList();
         }
         catch (IOException ioe) {
             // something
@@ -401,28 +513,28 @@ public class caseMgt extends AbstractPageBean {
 
     }
 
-    private void updateLoadedSpecList() {
-        WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway() ;
-        String handle = getSessionBean().getSessionhandle() ;
-        Set<SpecificationData> specDataSet = wqg.getLoadedSpecs(handle) ;
-        if (specDataSet != null) {
-            
-            // put the items into a treeset so they are sorted
-            TreeSet<String> specInfo = new TreeSet<String>();
-            for (SpecificationData specData : specDataSet) {                
-                String spec = specData.getID() + " :\t" + specData.getDocumentation() ;
-                specInfo.add(spec) ;
-            }
-
-            // now add them to the listbox
-            Option[] options = new Option[specInfo.size()] ;
-            int i = 0 ;
-            for (String specStr : specInfo) {
-                options[i++] = new Option(specStr) ;
-            }
-            getSessionBean().setLoadedSpecListOptions(options);
-        }
-    }
+//    private void updateLoadedSpecList() {
+//        WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway() ;
+//        String handle = getSessionBean().getSessionhandle() ;
+//        Set<SpecificationData> specDataSet = wqg.getLoadedSpecs(handle) ;
+//        if (specDataSet != null) {
+//
+//            // put the items into a treeset so they are sorted
+//            TreeSet<String> specInfo = new TreeSet<String>();
+//            for (SpecificationData specData : specDataSet) {
+//                String spec = specData.getID() + " :\t" + specData.getDocumentation() ;
+//                specInfo.add(spec) ;
+//            }
+//
+//            // now add them to the listbox
+//            Option[] options = new Option[specInfo.size()] ;
+//            int i = 0 ;
+//            for (String specStr : specInfo) {
+//                options[i++] = new Option(specStr) ;
+//            }
+//            getSessionBean().setLoadedSpecListOptions(options);
+//        }
+//    }
 
     private void updateRunningCaseList() {
         WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway() ;

@@ -91,6 +91,7 @@ public class Interface_Client {
             }
             urlStr = firstHalf + encodedQuery;
         }
+
         StringBuffer result = new StringBuffer();
 
         URL url = new URL(urlStr);

@@ -145,7 +145,7 @@
     <property name="asm" value="${libs}/asm.jar"/>
     <property name="antlr" value="${libs}/antlr-2.7.6.jar"/>
     <property name="cglib" value="${libs}/cglib-2.1_3.jar"/>
-    <property name="commonsCollections" value="${libs}/commons-collections-2.1.jar"/>
+    <property name="commonsCollections" value="${libs}/commons-collections-3.2.jar"/>
     <property name="commonsLogging" value="${libs}/commons-logging-1.1.jar"/>
     <property name="dom4j" value="${libs}/dom4j-1.4.jar"/>
     <property name="ehcache" value="${libs}/ehcache-1.3.0.jar"/>
@@ -1174,6 +1174,7 @@
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/resource"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/rsInterface"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/jsf"/>
+        <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/jsf/comparator"/>
 
         <!-- 1b. Make the dirs for welcome.htm & the jsps -->
         <mkdir dir="${yawl.resource.app.name}/graphics"/>
@@ -1281,6 +1282,10 @@
         <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/jsf">
             <fileset dir="${classes}/org/yawlfoundation/yawl/resourcing/jsf"
                      includes="*.class *.properties"/>
+        </copy>
+        <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/jsf/comparator">
+            <fileset dir="${classes}/org/yawlfoundation/yawl/resourcing/jsf/comparator"
+                     includes="*.class"/>
         </copy>
 
         <!-- 2b. Copy required resourcing support files into dir root -->

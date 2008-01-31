@@ -92,6 +92,28 @@ public class pfMenu extends AbstractFragmentBean {
         this.mnuServiceMgt = ih;
     }
 
+    private ImageHyperlink mnuOrgDataMgt = new ImageHyperlink();
+
+    public ImageHyperlink getMnuOrgDataMgt() {
+        return mnuOrgDataMgt;
+    }
+
+    public void setMnuOrgDataMgt(ImageHyperlink ih) {
+        this.mnuOrgDataMgt = ih;
+    }
+
+    private ImageHyperlink mnuTest = new ImageHyperlink();
+
+    public ImageHyperlink getMnuTest() {
+        return mnuTest;
+    }
+
+    public void setMnuTest(ImageHyperlink ih) {
+        this.mnuTest = ih;
+    }
+
+
+
     private ImageComponent imgSelected = new ImageComponent();
 
     public ImageComponent getImgSelected() {
@@ -208,10 +230,10 @@ public class pfMenu extends AbstractFragmentBean {
     }
 
 
-    public String mnuUserMgt_action() {
-        // TODO: Replace with your code
-        
-        return null;
+    public String mnuOrgDataMgt_action() {
+        getSessionBean().checkLogon();
+        getSessionBean().setMnuSelectorStyle("top: 152px");
+        return "showEditOrgData";
     }
 
 

@@ -281,6 +281,16 @@ public class customServices extends AbstractPageBean {
         this.colDescriptionHeader = hot;
     }
 
+    private UIColumn colSBar = new UIColumn();
+
+    public UIColumn getColSBar() {
+        return colSBar;
+    }
+
+    public void setColSBar(UIColumn uic) {
+        this.colSBar = uic;
+    }
+
     private Button btnRemove = new Button();
 
     public Button getBtnRemove() {
@@ -330,16 +340,7 @@ public class customServices extends AbstractPageBean {
     public void setScript1(Script s) {
         this.script1 = s;
     }
-    
-    private Script script2 = new Script();
 
-    public Script getScript2() {
-        return script2;
-    }
-
-    public void setScript2(Script s) {
-        this.script2 = s;
-    }
 
 
     private List<YAWLServiceReference> dataList ;

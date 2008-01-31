@@ -33,6 +33,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
     protected String _name;
     protected String _elementName;
     protected String _initialValue;
+    protected String _defaultValue;
     protected String _namespaceURI;
     protected boolean _isUntyped = false;
     private String _documentation;
@@ -149,6 +150,13 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
         return _initialValue;
     }
 
+    public String getDefaultValue() {
+        return _defaultValue;
+    }
+
+    public void setDefaultValue(String value) {
+        _defaultValue = value;
+    }
 
     public String toXML() {
         StringBuffer xml = new StringBuffer();
@@ -188,6 +196,11 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
             xml.append("<initialValue>" +
                     YTask.marshal(_initialValue) +
                     "</initialValue>");
+        }
+        if (_defaultValue != null) {
+            xml.append("<defaultValue>" +
+                    YTask.marshal(_defaultValue) +
+                    "</defaultValue>");
         }
         return xml.toString();
     }

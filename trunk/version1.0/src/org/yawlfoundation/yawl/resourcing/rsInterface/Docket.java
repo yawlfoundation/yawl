@@ -19,7 +19,7 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 public class Docket {
 
     private static String _fileRoot = "";
-    private static String _headPackageDir = "/WEB-INF/classes/org/org/yawlfoundation/yawl/resourcing/";
+    private static String _headPackageDir = "WEB-INF/classes/org/yawlfoundation/yawl/resourcing/";
 
     public static void setServiceRootDir(String path) {
        path = path.replace('\\', '/' );             // switch slashes

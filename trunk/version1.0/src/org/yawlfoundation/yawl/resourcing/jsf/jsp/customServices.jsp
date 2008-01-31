@@ -52,8 +52,10 @@
                             <h:dataTable binding="#{customServices.dataTable1}"
                                          headerClass="dataTableHeader"
                                          id="dataTable1"
-                                         columnClasses="servicesNameCol,servicesURICol,servicesDescCol"
-                                         rows="5"
+                                         columnClasses="servicesNameCol,
+                                                        servicesURICol,
+                                                        servicesDescCol,
+                                                        dataTableScrollBarCol"
                                          cellpadding="3"
                                          styleClass="dataTable"
                                          value="#{SessionBean.registeredServices}"
@@ -100,6 +102,10 @@
                                                       value="Description"/>
                                     </f:facet>
                                 </h:column>
+
+                                <h:column binding="#{customServices.colSBar}"
+                                          id="colSBar"/>
+
                             </h:dataTable>
 
 
@@ -132,9 +138,9 @@
 
                             <ui:textField binding="#{customServices.txtURL}"
                                           id="txtURL"
-                                          label="URL:"
+                                          label="URI:"
                                           columns="40"
-                                          style="left: 58px; top: 70px; position: absolute"/>
+                                          style="left: 59px; top: 70px; position: absolute"/>
 
                             <ui:textArea binding="#{customServices.txtDescription}"
                                          id="txtDescription"

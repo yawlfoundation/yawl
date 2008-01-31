@@ -7,6 +7,10 @@
                 <ui:head binding="#{caseMgt.head1}" id="head1">
                     <ui:link binding="#{caseMgt.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
+
+                    <ui:script binding="#{SessionBean.script1}" id="script1"
+                               url="/resources/script.js"/>
+
                 </ui:head>
                 <ui:body binding="#{caseMgt.body1}" id="body1"
                          style="-rave-layout: grid">
@@ -27,7 +31,6 @@
                         <!-- Upload Panel -->
                         <ui:panelLayout binding="#{caseMgt.layoutPanel1}"
                                         id="layoutPanel1"
-                                        panelLayout="flow"
                                         styleClass="caseMgtPanel"
                                         style="height: 120px; top: 77px">
 
@@ -54,15 +57,14 @@
                         <!-- Loaded Specs Panel -->
                         <ui:panelLayout binding="#{caseMgt.layoutPanel2}"
                                         id="layoutPanel2"
-                                        panelLayout="flow"
                                         styleClass="caseMgtPanel"
-                                        style="height: 194px; top: 204px">
+                                        style="height: 240px; top: 204px">
 
                             <ui:button action="#{caseMgt.btnLaunch_action}"
                                        binding="#{caseMgt.btnLaunch}"
                                        id="btnLaunch"
                                        styleClass="caseMgtButton"
-                                       style="left: 11px; top: 156px"
+                                       style="left: 11px; top: 200px"
                                        text="Launch Case"/>
 
                             <ui:staticText binding="#{caseMgt.staticText2}"
@@ -70,28 +72,66 @@
                                            styleClass="pageSubheading"
                                            style="left: 12px; top: 12px"
                                            text="Loaded Specifications"/>
-                            
-                            <ui:listbox binding="#{caseMgt.lbxLoadedSpecs}"
-                                        id="lbxLoadedSpec1"
-                                        items="#{SessionBean.loadedSpecListOptions}"
-                                        rows="8"
-                                        selected="#{SessionBean.loadedSpecListChoice}"
-                                        styleClass="caseMgtListbox"/>
+
+                            <h:dataTable binding="#{caseMgt.dataTable1}"
+                                         headerClass="dataTableHeader"
+                                         id="dataTable1"
+                                         cellpadding="3"
+                                         styleClass="dataTable"
+                                         columnClasses="specsNameCol,
+                                                        specsDescCol,
+                                                        dataTableScrollBarCol"                                    
+                                         value="#{SessionBean.loadedSpecs}"
+                                         var="currentRow"
+                                         width="570">
+
+                                <h:column binding="#{caseMgt.colName}"
+                                          id="colName">
+
+                                    <h:outputText binding="#{caseMgt.colNameRows}"
+                                                  id="colNameRows"
+                                                  value="#{currentRow.ID}"/>
+
+                                    <f:facet name="header">
+                                        <h:outputText binding="#{caseMgt.colNameHeader}"
+                                                      id="colNameHeader"
+                                                      value="Name"/>
+                                    </f:facet>
+                                </h:column>
+
+
+                                <h:column binding="#{caseMgt.colDescription}"
+                                          id="colDescription">
+                                    <h:outputText binding="#{caseMgt.colDescriptionRows}"
+                                                  id="colDescriptionRows"
+                                                  value="#{currentRow.documentation}"/>
+
+                                    <f:facet name="header">
+                                        <h:outputText binding="#{caseMgt.colDescriptionHeader}"
+                                                      id="colDescriptionHeader"
+                                                      value="Description"/>
+                                    </f:facet>
+                                </h:column>
+
+                                <h:column binding="#{caseMgt.colSBar}"
+                                          id="colSBar"/>
+
+                            </h:dataTable>
+
 
                             <ui:button action="#{caseMgt.btnUnload_action}"
                                        binding="#{caseMgt.btnUnload}"
                                        id="btnUnload"
                                        styleClass="caseMgtButton"
-                                       style="left: 119px; top: 156px"
+                                       style="left: 119px; top: 200px"
                                        text="Unload Spec"/>
                         </ui:panelLayout>
 
                         <!-- Running Cases Panel -->
                         <ui:panelLayout binding="#{caseMgt.layoutPanel3}"
                                         id="layoutPanel3"
-                                        panelLayout="flow"
                                         styleClass="caseMgtPanel"
-                                        style="height: 194px; top: 405px">
+                                        style="height: 194px; top: 451px">
                             
                             <ui:button action="#{caseMgt.btnCancelCase_action}"
                                        binding="#{caseMgt.btnCancelCase}"
@@ -118,7 +158,15 @@
                                          id="msgBox"
                                          showGlobalOnly="true"
                                          style="left: 198px; top: 690px; position: absolute; width: 568px"/>
+
+                        <ui:hiddenField binding="#{caseMgt.hdnRowIndex}" id="hdnRowIndex"/>
+
                     </ui:form>
+
+                    <ui:script>
+                        addOnclickToDatatableRows();
+                    </ui:script>
+
                 </ui:body>
             </ui:html>
         </ui:page>

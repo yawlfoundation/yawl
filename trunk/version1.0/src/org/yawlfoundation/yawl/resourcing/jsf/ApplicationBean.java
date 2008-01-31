@@ -9,6 +9,8 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGateway;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import com.sun.rave.web.ui.appbase.AbstractApplicationBean;
 import javax.faces.FacesException;
@@ -74,8 +76,12 @@ public class ApplicationBean extends AbstractApplicationBean {
     // reference of gateway to resourceService
     private WorkQueueGateway _wqg = WorkQueueGateway.getInstance();
 
+    private ResourceManager _rm = ResourceManager.getInstance();
+
 
     public WorkQueueGateway getWorkQueueGateway() { return _wqg ; }
+
+    public ResourceManager getResourceManager() { return _rm; }
 
     public int getDefaultJSFRefreshRate() { return 5 ; }
 
