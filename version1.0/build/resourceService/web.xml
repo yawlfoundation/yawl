@@ -9,13 +9,15 @@
                        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
                                          http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
+ <!--  <distributable/>  - does this stop the session from persisting?? -->
+
     <!-- General description of your web application -->
 
     <display-name>YAWL Resource Service</display-name>
     <description>
         This custom YAWL Service handles all workitem resource allocations, based on the
         resource patterns.
-        Copyright 2007 yawlfoundation.org. All rights reserved.
+        Copyright 2008 yawlfoundation.org. All rights reserved.
         Author: Michael Adams
         For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads'
         section at http://www.yawlfoundation.org/.

@@ -705,6 +705,26 @@ public class ResourceManager extends InterfaceBWebsideController
            return null ;
     }
 
+    public HashMap<String, Participant> getParticipantMap() {
+        return _ds.participantMap ;
+    }
+   
+    public HashMap<String, Role> getRoleMap() {
+        return _ds.roleMap ;
+    }
+
+    public HashMap<String, Position> getPositionMap() {
+        return _ds.positionMap ;
+    }
+
+    public HashMap<String, Capability> getCapabilityMap() {
+        return _ds.capabilityMap ;
+    }
+
+    public HashMap<String, OrgGroup> getOrgGroupMap() {
+        return _ds.orgGroupMap ;
+    }
+
     public HashSet<Role> getRoles() {
         if (_ds.roleMap == null) return null ;
         return new HashSet<Role>(_ds.roleMap.values()) ;
@@ -1683,5 +1703,9 @@ public class ResourceManager extends InterfaceBWebsideController
 
     public String removeRegisteredService(String id, String handle) throws IOException {
         return _interfaceAClient.removeYAWLService(id, handle);
+    }
+
+    public String getCaseData(String caseID, String handle) throws IOException {
+        return _interfaceBClient.getCaseDataAsXML(caseID, handle) ;
     }
 }                                                                                  

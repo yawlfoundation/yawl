@@ -1,6 +1,5 @@
-package org.yawlfoundation.yawl.resourcing.jsf;
+package org.yawlfoundation.yawl.resourcing.jsf.comparator;
 
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
 import java.util.Comparator;

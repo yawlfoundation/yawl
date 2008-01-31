@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<div style="height: 480px; width: 160px; -rave-layout: grid" xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://www.sun.com/web/ui">
+<div style="height: 480px; width: 160px; -rave-layout: grid"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://www.sun.com/web/ui">
+
     <f:subview id="pfMenu2">
         <ui:panelLayout binding="#{pfMenu.layoutPanel1}"
                         id="layoutPanel1"
-                        panelLayout="flow"
                         styleClass="menuPanel">
 
             <ui:image binding="#{pfMenu.imgSelected}"
@@ -46,6 +48,13 @@
                                imageURL="/resources/mnuServiceMgt.png"
                                styleClass="menuButton"
                                style="top: 124px"/>
+
+            <ui:imageHyperlink action="#{pfMenu.mnuOrgDataMgt_action}"
+                               binding="#{pfMenu.mnuOrgDataMgt}"
+                               id="mnuOrgDataMgt"
+                               imageURL="/resources/mnuOrgDataMgt.png"
+                               styleClass="menuButton"
+                               style="top: 152px"/>
 
         </ui:panelLayout>
     </f:subview>

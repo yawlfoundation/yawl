@@ -12,6 +12,7 @@ import com.sun.rave.web.ui.model.Option;
 
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.jdom.Element;
@@ -722,7 +723,7 @@ public class userWorkQueues extends AbstractPageBean {
         tabAllocated.setStyle("");
         tabStarted.setStyle("");
         tabSuspended.setStyle("");
-        if (selected != null) selected.setStyle("color: blue");
+        if (selected != null) selected.setStyle("color: #3277ba");
         
         int[] itemCount = new int[4] ;
         for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)

@@ -138,11 +138,11 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         List<WorkItemRecord> wirList = getLiveWorkItemsForIdentifier(idType, id,
                                                                      sessionHandle) ;
         if (! wirList.isEmpty()) {
-            StringBuilder xml = new StringBuilder("<itemrecords");
+            StringBuilder xml = new StringBuilder("<itemrecords>");
             for (WorkItemRecord wir : wirList) {
                 xml.append(wir.toXML());
             }
-            xml.append("</itemrecords");
+            xml.append("</itemrecords>");
             return xml.toString();
         }
         return null ;

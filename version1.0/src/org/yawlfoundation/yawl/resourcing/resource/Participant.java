@@ -180,10 +180,23 @@ public class Participant extends AbstractResource implements Serializable {
         }
     }
 
+    public void addRole(String rid) {
+        addRole(_resMgr.getRole(rid));
+    }
+
     public void removeRole(Role role) {
         if (_roles.remove(role)) {
             role.removeResource(this);
             updateThis();
+        }
+    }
+
+    public void removeRole(String rid) {
+        for (Role r : _roles) {
+            if (r.getID().equals(rid)) {
+                removeRole(r);
+                break;
+            }
         }
     }
 
@@ -206,12 +219,26 @@ public class Participant extends AbstractResource implements Serializable {
         }
     }
 
+    public void addCapability(String cid) {
+        addCapability(_resMgr.getCapability(cid));
+    }
+
     public void removeCapability(Capability cap) {
         if (_capabilities.remove(cap)) {
             cap.removeResource(this);
             updateThis();
         }
     }
+
+    public void removeCapability(String cid) {
+        for (Capability c : _capabilities) {
+            if (c.getID().equals(cid)) {
+                removeCapability(c);
+                break;
+            }
+        }
+    }
+
 
     public boolean hasCapability(Capability cap) { return _capabilities.contains(cap) ; }
 
@@ -232,12 +259,27 @@ public class Participant extends AbstractResource implements Serializable {
         }
     }
 
+    public void addPosition(String pid) {
+        addPosition(_resMgr.getPosition(pid));
+    }
+
+
     public void removePosition(Position pos) {
         if (_positions.remove(pos)) {
             pos.removeResource(this);
             updateThis();
         }
     }
+
+    public void removePosition(String pid) {
+        for (Position p : _positions) {
+            if (p.getID().equals(pid)) {
+                removePosition(p);
+                break;
+            }
+        }
+    }
+
 
     public boolean hasPosition(Position pos) { return _positions.contains(pos) ; }
 

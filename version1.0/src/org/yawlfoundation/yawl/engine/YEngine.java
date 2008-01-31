@@ -1915,7 +1915,7 @@ public class YEngine implements InterfaceADesign,
             if (inputs.get(name) == null) {
                 Element outData = new Element(name) ;
                 YParameter outParam = outputs.get(name);
-                String defaultValue = outParam.getInitialValue();
+                String defaultValue = outParam.getDefaultValue();
                 if (defaultValue != null)
                     outData.setText(defaultValue) ;
                 else

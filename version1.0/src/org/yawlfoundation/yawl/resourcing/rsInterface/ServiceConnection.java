@@ -30,7 +30,7 @@ public class ServiceConnection {
      * Starts a timer task to timeout the connection after 60 mins inactivity
      */
     private void startActivityTimer() {
-        long interval = 30000 ;                          // set timeout to 30 min
+        long interval = 3600000 ;                              // 60 min in millisecs
         _activityTimer = new Timer() ;
         TimerTask tTask = new TimeOut();
         _activityTimer.schedule(tTask, interval);

@@ -8,11 +8,17 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.model.Option;
+
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
@@ -22,6 +28,7 @@ import javax.faces.application.Application;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
+
 import java.util.*;
 import java.text.DateFormat;
 import java.io.IOException;
@@ -148,7 +155,15 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setTopPanel(PanelLayout pl) { this.topPanel = pl; }
 
-    
+    private Script script1 = new Script();
+
+    public Script getScript1() {
+        return script1;
+    }
+
+    public void setScript1(Script s) {
+        this.script1 = s;
+    }
 
     /**
      * Holds value of property userid.
@@ -255,6 +270,24 @@ public class SessionBean extends AbstractSessionBean {
     private com.sun.rave.web.ui.model.Option[] loadedSpecListOptions;
     private com.sun.rave.web.ui.model.Option[] runningCaseListOptions;
     private com.sun.rave.web.ui.model.Option[] selectUserListOptions;
+    private com.sun.rave.web.ui.model.Option[] ownedResourceAttributes;
+    private com.sun.rave.web.ui.model.Option[] availableResourceAttributes;
+
+    public Option[] getOwnedResourceAttributes() {
+        return ownedResourceAttributes;
+    }
+
+    public void setOwnedResourceAttributes(Option[] ownedResourceAttributes) {
+        this.ownedResourceAttributes = ownedResourceAttributes;
+    }
+
+    public Option[] getAvailableResourceAttributes() {
+        return availableResourceAttributes;
+    }
+
+    public void setAvailableResourceAttributes(Option[] availableResourceAttributes) {
+        this.availableResourceAttributes = availableResourceAttributes;
+    }
 
     /**
      * Getter for property worklistOptions.
@@ -393,6 +426,10 @@ public class SessionBean extends AbstractSessionBean {
         return getApplicationBean().getWorkQueueGateway() ;
     }
 
+    private ResourceManager getResourceManager() {
+        return getApplicationBean().getResourceManager();
+    }
+
     private Map<String, FormParameter> dynFormParams ;
 
     public Map<String, FormParameter> getDynFormParams() {
@@ -455,7 +492,7 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    /****** This section used by the 'Service Mgt' form ***************************/
+    /****** This section used by the 'Service Mgt' Page ***************************/
 
     List<YAWLServiceReference> registeredServices;
 
@@ -507,7 +544,7 @@ public class SessionBean extends AbstractSessionBean {
             Set services = getGateway().getRegisteredServices(sessionhandle);
             if (services != null) {
 
-                // sort the items using a treeset
+                // sort the items
                 List<YAWLServiceReference> servList =
                                                    new ArrayList<YAWLServiceReference>();
                 for (Object obj : services) {
@@ -526,6 +563,234 @@ public class SessionBean extends AbstractSessionBean {
         }
     }
 
+
+    /****** This section used by the 'Case Mgt' Page ***************************/
+
+    List<SpecificationData> loadedSpecs ;
+
+    public List<SpecificationData> getLoadedSpecs() {
+        if (loadedSpecs == null) refreshLoadedSpecs() ;
+
+        return loadedSpecs;
+    }
+
+
+    public void setLoadedSpecs(List<SpecificationData> specs) {
+        loadedSpecs = specs ;
+    }
+    
+
+    public void refreshLoadedSpecs() {
+        Set<SpecificationData> specDataSet = getGateway().getLoadedSpecs(sessionhandle) ;
+
+        if (specDataSet != null) {
+            loadedSpecs = new ArrayList<SpecificationData>(specDataSet);
+            Collections.sort(loadedSpecs, new SpecificationDataComparator());
+        }
+        else
+            loadedSpecs = null ;
+    }
+
+
+    public SpecificationData getLoadedSpec(int listIndex) {
+        return loadedSpecs.get(listIndex);
+    }
+
+
+    /****** This section used by the 'Org Data Mgt' Page ***************************/
+
+    private Option[] orgDataParticipantList ;
+    private HashMap<String, Participant> participantMap ;
+
+
+    public Option[] getOrgDataParticipantList() {
+        if (orgDataParticipantList == null) refreshOrgDataParticipantList() ;
+        return orgDataParticipantList;
+    }
+
+    private HashMap<String, Participant> getParticipantMap() {
+        if (participantMap == null)
+            participantMap = getResourceManager().getParticipantMap();
+        return participantMap;
+    }
+
+
+
+    public void setOrgDataParticipantList(Option[] list) {
+        orgDataParticipantList = list ;
+    }
+
+
+
+    public void refreshOrgDataParticipantList() {
+        HashMap<String, Participant> pMap = getParticipantMap();
+
+        if (pMap != null) {
+            orgDataParticipantList = new Option[pMap.size()];
+            int i = 0 ;
+            for (String id : pMap.keySet()) {
+                Participant p = pMap.get(id);
+                orgDataParticipantList[i++] = new Option(id,
+                                            p.getLastName() + ", " + p.getFirstName()) ;
+            }
+        }
+        else
+            orgDataParticipantList = null ;
+    }
+
+
+    private Participant editedParticipant ;
+
+    public Participant getEditedParticipant() {
+        return editedParticipant;
+    }
+
+    public void setEditedParticipant(Participant editedParticipant) {
+        this.editedParticipant = editedParticipant;
+    }
+
+    public Participant setEditedParticipant(String pid) {
+        editedParticipant = getParticipantMap().get(pid);
+        return editedParticipant;
+    }
+
+    public Option[] getFullResourceAttributeList(String tab) {
+        Option[] options = null;
+        if (tab.equals("tabRoles")) {
+            options = getRoleList(getResourceManager().getRoleMap());
+        }
+        else if (tab.equals("tabPosition")) {
+            options = getPositionList(getResourceManager().getPositionMap());
+
+        }
+        else if (tab.equals("tabCapability"))  {
+            options = getCapabilityList(getResourceManager().getCapabilityMap());
+        }
+        availableResourceAttributes = options ;                    // set session member
+        return options ;
+    }
+
+    public Option[] getParticipantAttributeList(String tab, Participant p) {
+        Option[] options = null;
+        if (tab.equals("tabRoles")) {
+            Set<Role> roleSet = p.getRoles() ;
+            HashMap<String, Role> roleMap = new HashMap<String, Role>();
+            for (Role r : roleSet) roleMap.put(r.getID(), r) ;
+            options = getRoleList(roleMap);
+        }
+        else if (tab.equals("tabPosition")) {
+            Set<Position> posSet = p.getPositions() ;
+            HashMap<String, Position> posMap = new HashMap<String, Position>();
+            for (Position pos : posSet) posMap.put(pos.getID(), pos) ;
+            options = getPositionList(posMap);
+        }
+        else if (tab.equals("tabCapability"))  {
+            Set<Capability> capSet = p.getCapabilities() ;
+            HashMap<String, Capability> capMap = new HashMap<String, Capability>();
+            for (Capability c : capSet) capMap.put(c.getID(), c) ;
+            options = getCapabilityList(capMap);
+        }
+        ownedResourceAttributes = options;
+        return options ;
+
+    }
+
+
+    private Option[] getRoleList(HashMap<String, Role> roleMap) {
+        if (roleMap != null) {
+            Option[] result = new Option[roleMap.size()];
+            int i = 0 ;
+            for (String id : roleMap.keySet()) {
+                Role r = roleMap.get(id);
+                result[i++] = new Option(id, r.getName()) ;
+            }
+            return result ;
+        }
+        else return null ;
+
+    }
+
+    private Option[] getPositionList(HashMap<String, Position> positionMap) {
+        if (positionMap != null) {
+            Option[] result = new Option[positionMap.size()];
+            int i = 0 ;
+            for (String id : positionMap.keySet()) {
+                Position p = positionMap.get(id);
+                result[i++] = new Option(id, p.getTitle()) ;
+            }
+            return result ;
+        }
+        else return null ;
+
+    }
+
+    private Option[] getCapabilityList(HashMap<String, Capability> capabilityMap) {
+        if (capabilityMap != null) {
+            Option[] result = new Option[capabilityMap.size()];
+            int i = 0 ;
+            for (String id : capabilityMap.keySet()) {
+                Capability c = capabilityMap.get(id);
+                result[i++] = new Option(id, c.getCapability()) ;
+            }
+            return result ;
+        }
+        else return null ;
+
+    }
+
+    private Option[] getOrgGroupList(HashMap<String, OrgGroup> orgGroupMap) {
+        if (orgGroupMap != null) {
+            Option[] result = new Option[orgGroupMap.size()];
+            int i = 0 ;
+            for (String id : orgGroupMap.keySet()) {
+                OrgGroup o = orgGroupMap.get(id);
+                result[i++] = new Option(id, o.getGroupName()) ;
+            }
+            return result ;
+        }
+        else return null ;
+
+    }
+
+    private String activeResourceAttributeTab = "tabRoles";           // start value
+
+    public String getActiveResourceAttributeTab() {
+        return activeResourceAttributeTab;
+    }
+
+    public void setActiveResourceAttributeTab(String activeResourceAttributeTab) {
+        this.activeResourceAttributeTab = activeResourceAttributeTab;
+    }
+
+    public void unselectResourceAttribute(String id) {
+        if (activeResourceAttributeTab.equals("tabRoles"))
+            editedParticipant.removeRole(id);
+        else if (activeResourceAttributeTab.equals("tabPosition"))
+            editedParticipant.removePosition(id);
+        else if (activeResourceAttributeTab.equals("tabCapability"))
+            editedParticipant.removeCapability(id);
+
+        // refresh the 'owned' list
+        getParticipantAttributeList(activeResourceAttributeTab, editedParticipant) ;
+    }
+
+        public void selectResourceAttribute(String id) {
+        if (activeResourceAttributeTab.equals("tabRoles"))
+            editedParticipant.addRole(id);
+        else if (activeResourceAttributeTab.equals("tabPosition"))
+            editedParticipant.addPosition(id);
+        else if (activeResourceAttributeTab.equals("tabCapability"))
+            editedParticipant.addCapability(id);
+
+        // refresh the 'owned' list
+        getParticipantAttributeList(activeResourceAttributeTab, editedParticipant) ;
+    }
+
+    // resets all edits by reloading participant from org database
+    public Participant restoreParticipant() {
+ //       editedParticipant = getResourceManager().restoreParticipant(editedParticipant.getID());
+        return editedParticipant ;
+    }
 
     /******************************************************************************/
 
@@ -606,7 +871,7 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setInitTabText(String s) {}
 
-    public String getInitTabStyle() { return "color: blue" ; }
+    public String getInitTabStyle() { return "color: #3277ba" ; }
 
 
     private boolean wirEdit ;

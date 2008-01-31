@@ -52,9 +52,9 @@ public class TestService extends InterfaceBWebsideController {
         output.append("<html><head><title>YAWL Test Service Welcome Page</title>")
               .append("</head><body><H3>Test Output</H3><p>");
 
-  //      output.append(doResourceServiceGatewayTest()) ;
+        output.append(doResourceServiceGatewayTest()) ;
 
-         output.append(doLogGatewayTest()) ;
+   //      output.append(doLogGatewayTest()) ;
 
          output.append("</p></body></html>");
          outputWriter.write(output.toString());
@@ -121,6 +121,16 @@ public class TestService extends InterfaceBWebsideController {
         // get full sets of filters, constraints and allocators
         String handle = resClient.connect("admin", "YAWL");
 
+        // get full sets of Org Data
+        List participants = resClient.getParticipants(handle);
+        List roles = resClient.getRoles(handle);
+
+
+        // not used here - shown for example only
+        List capabilities = resClient.getCapabilities(handle);
+        List positions = resClient.getPositions(handle);
+        List orgGroups = resClient.getOrgGroups(handle);
+
         List constraints = resClient.getConstraints(handle);
 
         List filters = resClient.getFilters(handle);
@@ -155,16 +165,6 @@ public class TestService extends InterfaceBWebsideController {
         }
 
 
-
-        // get full sets of Org Data
-        List participants = resClient.getParticipants(handle);
-        List roles = resClient.getRoles(handle);
-
-
-        // not used here - shown for example only
-        List capabilities = resClient.getCapabilities(handle);
-        List positions = resClient.getPositions(handle);
-        List orgGroups = resClient.getOrgGroups(handle);
 
         // STEP 2: Present data to designer - designer makes choices
         //         We'll simulate some choices here - assume designer chooses the

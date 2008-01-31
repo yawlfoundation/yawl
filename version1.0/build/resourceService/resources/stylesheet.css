@@ -8,6 +8,13 @@
     position: absolute;    
 }
 
+.dataTable tbody {
+    overflow-x:hidden;
+    overflow-y:scroll;
+    width:95%;
+    height:120px;
+}
+
 .dataTableHeader {
   background-color: #eeeeee;
   font-size: larger;
@@ -30,6 +37,9 @@
   background-color: #e6f0fd;
 }
 
+.dataTableScrollBarCol {
+    width: 10px;
+}
 
 /* Rules for message severity levels */
 
@@ -72,13 +82,17 @@
 }
 
 .menuSelector {
-    left: 100px;
+    left: 0px;
     position: absolute;
+    width: 20px;
+    height: 20px;
 }
 
 .menuButton {
-    left: 0px;
+    left: 20px;
     position: absolute;
+    width: 100px;
+    height: 24px
 }
 
 
@@ -108,6 +122,13 @@
     font-size: 14px;
     font-weight: bold;
     position: absolute;    
+}
+
+/* Rules for Org Data Page */
+
+.orgDataPrivCheckBox {
+    left: 24px;
+    position: absolute;
 }
 
 
@@ -204,15 +225,23 @@
 }
 
 .servicesNameCol {
-    width: 60px;
+    width: 110px;
 }
 
 .servicesURICol {
-    width: 160px;
+    width: 220px;
 }
 
 .servicesDescCol {
-    width: 416px;
+    width: 296px;
+}
+
+.specsNameCol {
+    width: 150px;
+}
+
+.specsDescCol {
+    width: 410px;
 }
 
 
@@ -243,7 +272,7 @@
     border-color: rgb(204, 204, 204); 
     padding: 10px;
     height: 203px;
-    position: relative;
+    position: absolute;
     width: 670px;
     -rave-layout: grid;
 }
@@ -281,5 +310,26 @@
 .queuesLabelRight  {
     left: 342px;
     position: absolute;
+}
+
+.orgDataPanel {
+    border: 2px solid gray;
+    background-color: #97cbfd;
+    position: absolute;
+    width: 406px;
+    -rave-layout: grid;
+}
+
+.orgDataButton {
+    height: 30px;
+    left: 605px;
+    position: absolute;
+    width: 100px;
+}
+
+.orgDataTabPanel {
+    height: 165px;
+    width: 100%;
+    background-color: #97cbfd;
 }
 
