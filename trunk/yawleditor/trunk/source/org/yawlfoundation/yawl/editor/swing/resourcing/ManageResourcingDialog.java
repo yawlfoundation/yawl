@@ -41,8 +41,8 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
   }
   
   protected void makeLastAdjustments() {
-    setSize(800,450);
-    setResizable(false);
+    setSize(800,500);
+    JUtilities.setMinSizeToCurrent(this);
   }
   
   public void setTask(YAWLTask task, NetGraph net) {
