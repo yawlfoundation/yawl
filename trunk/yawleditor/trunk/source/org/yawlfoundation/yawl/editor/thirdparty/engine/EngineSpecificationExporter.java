@@ -896,7 +896,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
 
     for(ResourcingParticipant participant : editorResourceMapping.getBaseUserDistributionList()) {
-      engineResourceMapping.getOfferInteraction().addParticipant(
+      System.out.println("exporting participant: " + participant.getName());
+      engineResourceMapping.getOfferInteraction().addParticipantUnchecked(
           participant.getId()
       );
     }
@@ -909,7 +910,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
 
     for(ResourcingRole role : editorResourceMapping.getBaseRoleDistributionList()) {
-      engineResourceMapping.getOfferInteraction().addRole(
+      System.out.println("exporting role: " + role.getName());
+      engineResourceMapping.getOfferInteraction().addRoleUnchecked(
           role.getId()
       );
     }
