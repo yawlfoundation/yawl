@@ -15,7 +15,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  * table 'log_CaseEvent'. Called by YEventLogger to record the event and time when
  * a case is started and when it completes or is cancelled.
  *
- * Refactored for v1.0 by Michael Adams
+ * Refactored for v2.0 by Michael Adams
  * 09/10/2007
  */
 

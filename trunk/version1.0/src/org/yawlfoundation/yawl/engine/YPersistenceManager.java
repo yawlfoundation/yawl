@@ -17,6 +17,8 @@ import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.YChildWorkItemEvent;
 import org.yawlfoundation.yawl.logging.YCaseEvent;
 import org.yawlfoundation.yawl.logging.YWorkItemDataEvent;
+import org.yawlfoundation.yawl.logging.YParentWorkItemEvent;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
@@ -601,11 +603,12 @@ public class YPersistenceManager {
                 cfg.addClass(YWorkItem.class);
                 cfg.addClass(P_YIdentifier.class);
                 cfg.addClass(YCaseData.class);
-                cfg.addClass(org.yawlfoundation.yawl.logging.YWorkItemDataEvent.class);
-                cfg.addClass(org.yawlfoundation.yawl.logging.YChildWorkItemEvent.class);
-                cfg.addClass(org.yawlfoundation.yawl.logging.YParentWorkItemEvent.class);
-                cfg.addClass(org.yawlfoundation.yawl.logging.YCaseEvent.class);
+                cfg.addClass(YWorkItemDataEvent.class);
+                cfg.addClass(YChildWorkItemEvent.class);
+                cfg.addClass(YParentWorkItemEvent.class);
+                cfg.addClass(YCaseEvent.class);
                 cfg.addClass(YAWLServiceReference.class);
+                cfg.addClass(YWorkItemTimer.class);
 
 //                cfg.addClass(org.yawlfoundation.yawl.admintool.model.Resource.class);
 //                cfg.addClass(org.yawlfoundation.yawl.admintool.model.Role.class);

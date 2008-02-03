@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 /**
  * Handles all logging of case, workitem and workitem data events to the process logs.
  *
- * Completely refactored for v1.0 by Michael Adams
+ * Completely refactored for v2.0 by Michael Adams
  * 09/10/2007
  */
 

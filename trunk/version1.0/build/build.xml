@@ -583,8 +583,10 @@
         <copy file="${property.files}/log4j.properties"
               todir="${yawl.worklist.app.name}/WEB-INF/classes"/>
 
-        <copy file="${classes}/org/yawlfoundation/yawl/util/JDOMUtil.class"
-              todir="${yawl.worklist.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/util"/>
+        <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/util">
+            <fileset dir="${classes}/org/yawlfoundation/yawl/util"
+                     includes= "JDOMUtil.class StringUtil.class"/>
+        </copy>
 
         <copy todir="${yawl.worklist.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce/interfaceA">
             <fileset dir="${classes}/org/yawlfoundation/yawl/engine/interfce/interfaceA"/>

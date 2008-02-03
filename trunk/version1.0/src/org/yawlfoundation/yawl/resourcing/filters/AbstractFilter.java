@@ -22,7 +22,7 @@ import org.jdom.Element;
  *  Create Date: 03/08/2007. Last Date: 12/11/2007
  *
  *  @author Michael Adams (BPM Group, QUT Australia)
- *  @version 1.0
+ *  @version 2.0
  */
 
 public abstract class AbstractFilter extends AbstractSelector {

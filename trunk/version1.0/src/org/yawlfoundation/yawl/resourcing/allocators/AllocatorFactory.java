@@ -23,7 +23,7 @@ import java.io.FilenameFilter;
  * Create Date: 10/07/2007. Last Date 09/11/2007
  *
  * @author Michael Adams {BPM Group, QUT Australia)
- * @version 1.0
+ * @version 2.0
  */
 
 public class AllocatorFactory {

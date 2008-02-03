@@ -15,7 +15,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  * table 'log_WorkItemEvent'. Called by YEventLogger to record a change in status
  * by a 'live' workitem.
  *
- * Refactored for v1.0 by Michael Adams
+ * Refactored for v2.0 by Michael Adams
  * 09/10/2007
  */
 

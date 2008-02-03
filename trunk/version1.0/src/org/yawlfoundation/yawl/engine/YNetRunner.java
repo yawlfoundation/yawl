@@ -621,12 +621,21 @@ public class YNetRunner // extends Thread
 
         //creating a new work item puts it into the work item
         //repository automatically.
-        YWorkItem workItem = new YWorkItem(pmgr, atomicTask.getNet().getSpecification().getSpecificationID(),
+        YWorkItem workItem = new YWorkItem(pmgr,
+                atomicTask.getNet().getSpecification().getSpecificationID(),
                 new YWorkItemID(caseIDForNet, atomicTask.getID()),
                 allowDynamicCreation, false);
+
         if (atomicTask.getDataMappingsForEnablement().size() > 0) {
             Element data = atomicTask.prepareEnablementData();            
 			workItem.setData(pmgr, data);
+        }
+
+        // set timer params and start timer if required
+        Map timerParams = atomicTask.getTimeParameters();
+        if (timerParams != null) {
+            workItem.setTimerParameters(timerParams);
+            workItem.checkStartTimer(pmgr, casedata);
         }
     }
 

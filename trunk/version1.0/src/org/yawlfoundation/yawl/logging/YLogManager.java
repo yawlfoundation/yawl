@@ -24,7 +24,7 @@ import java.util.List;
  * Create Date: 29/10/2007. Last Date: 12/12/2007
  *
  *  @author Michael Adams (BPM Group, QUT Australia)
- *  @version 1.0
+ *  @version 2.0
  */
 
 public class YLogManager {

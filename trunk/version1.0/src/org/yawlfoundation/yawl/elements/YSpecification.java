@@ -45,7 +45,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
     public static final String _Beta4 = "Beta 4";
     public static final String _Beta6 = "Beta 6";
     public static final String _Beta7_1 = "Beta 7.1"; 
-    public static final String _Version1_0 = "1.0";
+    public static final String _Version2_0 = "2.0";
 
     public static String _loaded = "loaded";
     public static String _unloaded = "unloaded";
@@ -68,7 +68,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
 
     /**
-     * @deprecated since v1.0: use getVersion() instead
+     * @deprecated since v2.0: use getVersion() instead
      * Gets the version number of this specification.
      * @return the version of the engine that this specification works for.
      */
@@ -94,7 +94,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
     /**
      * Sets the version number of the specification.
      * @param version
-     * @deprecated since v1.0: use setVersion() instead.
+     * @deprecated since v2.0: use setVersion() instead.
      */
     public void setBetaVersion(String version) { setVersion(version) ; }
 
@@ -104,7 +104,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
                 _Beta4.equals(version) ||
                 _Beta6.equals(version) ||
                 _Beta7_1.equals(version) ||
-                _Version1_0.equals(version)) {
+                _Version2_0.equals(version)) {
             this._version = version;
         } else if ("beta3".equals(version)) {
             this._version = _Beta3;

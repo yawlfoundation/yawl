@@ -108,14 +108,14 @@ public class YMarshal {
                  "d:/yawl/schema/YAWL_SchemaBeta7.1.xsd\">");
         }
 
-        // else if version 1.0 or greater
+        // else if version 2.0 or greater
         else {
             xml.append("<specificationSet " +
-                "version=\"" + YSpecification._Version1_0 + "\" " +
+                "version=\"" + YSpecification._Version2_0 + "\" " +
                 "xmlns=\"http://www.yawlfoundation.org/yawlschema\" " +
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
                 "xsi:schemaLocation=\"http://www.yawlfoundation.org/yawlschema " +
-                "c:/temp/YAWL_Schema1.0.xsd\">");
+                "c:/temp/YAWL_Schema2.0.xsd\">");
         }
         for (int i = 0; i < specificationList.size(); i++) {
             YSpecification specification = (YSpecification) specificationList.get(i);

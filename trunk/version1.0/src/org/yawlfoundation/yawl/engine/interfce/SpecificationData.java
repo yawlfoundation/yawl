@@ -125,7 +125,7 @@ public class SpecificationData {
         Element yawlSpecSetElement = document.getRootElement();
 
         String ns ;
-        if (_betaFormat.equals("1.0"))
+        if (_betaFormat.equals("2.0"))
             ns = "http://www.yawlfoundation.org/yawlschema" ;
         else
             ns = "http://www.citi.qut.edu.au/yawl" ;

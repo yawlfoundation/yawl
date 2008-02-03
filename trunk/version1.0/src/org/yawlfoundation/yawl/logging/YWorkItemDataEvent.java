@@ -15,7 +15,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  * table 'log_WorkItemDataEvent'. Called by YEventLogger to record input values when
  * a workitem is enabled, and output values when a workitem completes.
  *
- * Refactored for v1.0 by Michael Adams
+ * Refactored for v2.0 by Michael Adams
  * 09/10/2007
  */
 

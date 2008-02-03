@@ -17,11 +17,14 @@ import org.yawlfoundation.yawl.elements.state.YInternalCondition;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YWorkItemRepository;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.util.YSaxonOutPutter;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.StringUtil;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.om.NodeInfo;
@@ -103,6 +106,9 @@ public abstract class YTask extends YExternalNetElement {
     // task resourcing mappings
     private ResourceMap _resourceMap ;
     private Element _resourcingSpec ;
+
+    // optional timer params [name, value]
+    private Map<String, Object> _timerParams ;
 
     /**
      * AJH: Extensions to cater for task level XML attributes.
@@ -1392,6 +1398,9 @@ public abstract class YTask extends YExternalNetElement {
             }
             xml.append("</enablementMappings>");
         }
+        if (_timerParams != null) {
+            xml.append(timerParamsToXML());
+        }
         if (_resourceMap != null) {
             xml.append(_resourceMap.toXML()) ;
         }
@@ -1833,4 +1842,70 @@ public abstract class YTask extends YExternalNetElement {
     public void setResourcingSpecs(Element resSpec) {
         _resourcingSpec = resSpec ;
     }
+
+    /*** TIMER SETTINGS ***/
+
+    public void setTimerParameters(String netParamName) {
+        _timerParams = new HashMap<String, Object>() ;
+        _timerParams.put("netparam", netParamName) ;
+    }
+
+
+    public void setTimerParameters(YWorkItemTimer.Trigger trigger, Date expiryTime) {
+        _timerParams = new HashMap<String, Object>() ;
+        _timerParams.put("trigger", trigger) ;
+        _timerParams.put("expiry", expiryTime) ;
+    }
+
+
+    public void setTimerParameters(YWorkItemTimer.Trigger trigger, long ticks,
+                                   YTimer.TimeUnit timeUnit) {
+        _timerParams = new HashMap<String, Object>() ;
+        _timerParams.put("trigger", trigger) ;
+        _timerParams.put("ticks", ticks) ;
+
+        if (timeUnit == null) timeUnit = YTimer.TimeUnit.MSEC ;
+
+        _timerParams.put("interval", timeUnit);
+    }
+
+
+    public Map getTimeParameters() { return _timerParams; }
+
+
+    public String timerParamsToXML() {
+        if (_timerParams == null) return null ;
+
+        StringBuilder xml = new StringBuilder("<timer>") ;
+
+        // if there's a net-level param specified, that's all we need
+        String netParam = (String) _timerParams.get("netparam");
+        if (netParam != null) {
+            xml.append(StringUtil.wrap(netParam, "netparam")) ;
+        }
+        else {
+            YWorkItemTimer.Trigger trigger =
+                                  (YWorkItemTimer.Trigger) _timerParams.get("trigger") ;
+            xml.append(StringUtil.wrap(trigger.name(), "trigger"));
+
+            // if there's an expiry time, get it and we're done
+            Date expiry = (Date) _timerParams.get("expiry") ;
+            if (expiry != null) {
+                xml.append(StringUtil.wrap(expiry.toString(), "expiry"));
+            }
+            else {
+
+                // this is a duration timer
+                xml.append("<duration>");
+                Long ticks = (Long) _timerParams.get("ticks") ;
+                YTimer.TimeUnit interval = (YTimer.TimeUnit) _timerParams.get("interval") ;
+                xml.append(StringUtil.wrap(ticks.toString(), "ticks"));
+                xml.append(StringUtil.wrap(interval.name(), "interval"));
+                xml.append("</duration>");
+            }
+        }
+        xml.append("</timer>") ;
+        return xml.toString();
+    }
+
 }
