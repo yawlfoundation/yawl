@@ -812,25 +812,25 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     
     ResourceMap engineResourceMapping = engineTask.getResourceMap(true);  
 
-    engineResourceMapping.setOfferInteraction(
+//    engineResourceMapping.setOfferInteraction(
       populateOfferInteractionDetail(
         atomicEditorTask.getResourceMapping(),
         engineResourceMapping
-      )    
+//      )
     );
 
     engineResourceMapping.setAllocateInteraction(
         populateAllocateInteractionDetail(
           atomicEditorTask.getResourceMapping(),
           engineResourceMapping
-        )    
+        )
     );
     
     engineResourceMapping.setStartInteraction(
         populateStartInteractionDetail(
           atomicEditorTask.getResourceMapping(),
           engineResourceMapping
-        )    
+        )
     );
 
     engineResourceMapping.setTaskPrivileges(
@@ -853,10 +853,13 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       return interaction;  
     }
 
+    engineResourceMapping.getOfferInteraction().setInitiator(AbstractInteraction.SYSTEM_INITIATED);
+
     //  we care only for specifying system interaction behaviour from now on.
     
     if (editorResourceMapping.getRetainFamiliarTask() != null) {
-      interaction.setFamiliarParticipantTask(
+      engineResourceMapping.getOfferInteraction().setFamiliarParticipantTask(
+//      interaction.setFamiliarParticipantTask(
         ((YAWLTask) editorResourceMapping.getRetainFamiliarTask()).getEngineId()   
       );
     } 
@@ -992,7 +995,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
        );
     
     if (editorResourceMapping.getAllocateInteractionPoint() == ResourceMapping.SYSTEM_INTERACTION_POINT) {
-      engineResourceMapping.getAllocateInteraction().setAllocator(
+//      engineResourceMapping.getAllocateInteraction().setAllocator(
+        interaction.setAllocator(
         new GenericAllocator(
             editorResourceMapping.getAllocationMechanism().getName()
         )    
