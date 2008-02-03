@@ -12,11 +12,14 @@ package org.yawlfoundation.yawl.unmarshal;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.Attribute;
 
 import java.util.*;
+import java.text.DateFormat;
 
 /**
  * Builds decomposition objects from XML doclets.
@@ -207,8 +210,10 @@ public class YDecompositionParser {
         parseExternalTaskRoles(taskElem, task);
         parseNameAndDocumentation(task, taskElem);
 
-        if ((task != null) && (_version.equals(YSpecification._Version1_0)))
+        if ((task != null) && (_version.equals(YSpecification._Version2_0))) {
             task.setResourcingSpecs(taskElem.getChild("resourcing", _yawlNS));
+            parseTimerParameters(task, taskElem) ;
+        }
         
         return task;
     }
@@ -361,6 +366,38 @@ public class YDecompositionParser {
     }
 
 
+    private void parseTimerParameters(YTask task, Element taskElem) {
+        Element timerElem = taskElem.getChild("timer", _yawlNS);
+        if (timerElem != null) {
+            String netParam = timerElem.getChildText("netParam", _yawlNS) ;
+
+            // net-level param holds values at runtime
+            if (netParam != null)
+                task.setTimerParameters(netParam);
+            else {
+                // get the triggering event
+                String triggerStr = timerElem.getChildText("trigger", _yawlNS) ;
+                YWorkItemTimer.Trigger trigger = YWorkItemTimer.Trigger.valueOf(triggerStr) ;
+
+                String expiry = timerElem.getChildText("expiry", _yawlNS) ;
+
+                // expiry is a stringified long value representing a specific datetime
+                if (expiry != null)
+                    task.setTimerParameters(trigger, new Date(new Long(expiry)));
+                else {
+
+                    // duration type
+                    Element durationElem = timerElem.getChild("duration", _yawlNS);
+                    String tickStr = durationElem.getChildText("ticks", _yawlNS);
+                    String intervalStr = durationElem.getChildText("interval", _yawlNS);
+                    YTimer.TimeUnit interval = YTimer.TimeUnit.valueOf(intervalStr);
+                    task.setTimerParameters(trigger, new Long(tickStr), interval);
+                }
+            }
+        }
+    }
+
+
     private List parsePostset(Element netElementElem) {
         List postsetFlowStructs = new Vector();
         List flowsIntoElems = netElementElem.getChildren("flowsInto", _yawlNS);
@@ -490,6 +527,8 @@ public class YDecompositionParser {
         boolean mandatory = paramElem.getChild("mandatory", ns) != null;
         parameter.setMandatory(mandatory);
 
+        String defaultValue = paramElem.getChildText("defaultValue", ns);
+        if (defaultValue != null) parameter.setDefaultValue(defaultValue);
 
         /**
          * Store any attributes defined against the parameter

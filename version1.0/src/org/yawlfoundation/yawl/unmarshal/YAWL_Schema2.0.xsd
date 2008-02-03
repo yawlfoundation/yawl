@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:yawl="http://www.yawlfoundation.org/yawlschema" targetNamespace="http://www.yawlfoundation.org/yawlschema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:yawl="http://www.yawlfoundation.org/yawlschema"
+           targetNamespace="http://www.yawlfoundation.org/yawlschema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="2.0">
 	<!--	
 	##########################################################################################
 		DECLARE ROOT ELEMENT - YAWL_Specification
@@ -96,7 +101,26 @@
 			<xs:enumeration value="role"/>
 		</xs:restriction>
 	</xs:simpleType>
-	<xs:simpleType name="URIType">
+    <xs:simpleType name="TimerTriggerType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="OnEnabled"/>
+            <xs:enumeration value="OnExecuting"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="TimerIntervalType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="YEAR"/>
+            <xs:enumeration value="MONTH"/>
+            <xs:enumeration value="WEEK"/>
+            <xs:enumeration value="DAY"/>
+            <xs:enumeration value="HOUR"/>
+            <xs:enumeration value="MIN"/>
+            <xs:enumeration value="SEC"/>
+            <xs:enumeration value="MSEC"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="URIType">
 		<xs:restriction base="xs:anyURI"/>
 	</xs:simpleType>
 	<xs:simpleType name="VariableNameType">
@@ -274,7 +298,8 @@
 							<xs:field xpath="yawl:mapsTo"/>
 						</xs:key>
 					</xs:element>
-					<xs:element name="resourcing" type="yawl:ResourcingFactsType" minOccurs="0"/>
+                    <xs:element name="timer" type="yawl:TimerType" minOccurs="0"/>
+                    <xs:element name="resourcing" type="yawl:ResourcingFactsType" minOccurs="0"/>
 					<xs:element name="decomposesTo" type="yawl:DecompositionType" minOccurs="0"/>
 				</xs:sequence>
 			</xs:extension>
@@ -470,9 +495,11 @@
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="name" type="yawl:ResourcingPrivilegeType"/>
-						<xs:element name="allowall" type="xs:boolean" minOccurs="0"/>
-						<xs:element name="set" type="yawl:ResourcingSetFactsType"/>
-					</xs:sequence>
+                        <xs:choice>
+                             <xs:element name="allowall" type="xs:boolean"/>
+				  		     <xs:element name="set" type="yawl:ResourcingSetFactsType"/>
+                        </xs:choice>
+                    </xs:sequence>
 				</xs:complexType>
 				<xs:unique name="uniqueSetParticipant">
 					<xs:selector xpath="yawl:set"/>
@@ -516,7 +543,31 @@
 	<!--  
 		### END RESOURCING TYPES ###
     -->
-	<!--
+    <!--
+	#### TYPE #### TimerType
+	-->
+    <xs:complexType name="TimerType">
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="netparam" type="xs:string"/>
+                <xs:sequence>
+                    <xs:element name="trigger" type="yawl:TimerTriggerType"/>
+                    <xs:choice>
+                        <xs:element name="expiry" type="xs:long"/>
+                        <xs:element name="duration" type="yawl:TimerDurationFactsType"/>
+                    </xs:choice>
+                </xs:sequence>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TimerDurationFactsType">
+        <xs:sequence>
+            <xs:element name="ticks" type="xs:long"/>
+            <xs:element name="interval" type="yawl:TimerIntervalType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!--
 	#### TYPE #### VarMappingAndTransformType
 	-->
 	<xs:complexType name="VarMappingSetType">
@@ -642,7 +693,7 @@
 				<xs:attribute name="version" use="required">
 					<xs:simpleType>
 						<xs:restriction base="xs:string">
-							<xs:enumeration value="1.0"/>
+							<xs:enumeration value="2.0"/>
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:attribute>
@@ -694,7 +745,7 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:VariableBaseType">
 				<xs:sequence>
-                    <xs:element name="defaultValue" type="xs:string" minOccurs="0"/>
+                    <xs:element name="defaultValue" minOccurs="0"/>
 					<xs:element name="mandatory" minOccurs="0"/>
 					<xs:element name="isCutThroughParam" minOccurs="0"/>
 				</xs:sequence>

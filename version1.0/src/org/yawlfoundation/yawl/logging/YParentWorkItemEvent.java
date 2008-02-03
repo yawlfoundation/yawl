@@ -7,7 +7,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  * table 'log_ParentWorkItemEvent'. Called by YEventLogger to record a change in status
  * by a parent workitem.
  *
- * Refactored for v1.0 by Michael Adams
+ * Refactored for v2.0 by Michael Adams
  * 09/10/2007
  */
 

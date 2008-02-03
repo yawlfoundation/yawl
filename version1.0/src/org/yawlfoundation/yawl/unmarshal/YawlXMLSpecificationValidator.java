@@ -127,10 +127,10 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
         } else if (YSpecification._Beta7_1.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                     "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta7.1.xsd"));
-        } else if (YSpecification._Version1_0.equals(version)) {
+        } else if (YSpecification._Version2_0.equals(version)) {
              parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                     "http://www.yawlfoundation.org/yawlschema " +
-                    getClass().getResource("YAWL_Schema1.0.xsd"));
+                    getClass().getResource("YAWL_Schema2.0.xsd"));
         } else {
             throw new RuntimeException("Version [" + version + "] is not valid version.");
         }

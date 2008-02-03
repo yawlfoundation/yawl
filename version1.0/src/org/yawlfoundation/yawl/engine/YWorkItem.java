@@ -11,8 +11,11 @@ package org.yawlfoundation.yawl.engine;
 
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.apache.log4j.Logger;
@@ -21,10 +24,7 @@ import org.jdom.Element;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 
@@ -32,7 +32,7 @@ import java.util.Set;
  * Date: 28/05/2003
  * Time: 15:29:33
  *
- * Refactored for v1.0 by Michael Adams 11/10/2007
+ * Refactored for v2.0 by Michael Adams 11/10/2007
  * 
  */
 public class YWorkItem {
@@ -60,6 +60,8 @@ public class YWorkItem {
     private Set _children;                                 // this item's kids (if any)
     private Element _dataList;
     private String _dataString = null;                  // persisted version of datalist
+    private Map _timerParameters ;                         // timer extensions
+    private boolean _timerStarted ;
 
     private YEventLogger _eventLog = YEventLogger.getInstance();
     private Logger _log = Logger.getLogger(YWorkItem.class);
@@ -121,6 +123,7 @@ public class YWorkItem {
         _allowsDynamicCreation = allowsDynamicInstanceCreation;
         _status = status ;
         set_thisID(_workItemID.toString() + "!" + _workItemID.getUniqueID());
+        
         _workItemRepository.addNewWorkItem(this);
     }
 
@@ -165,6 +168,38 @@ public class YWorkItem {
         if (parentcomplete) {
             _eventLog.logParentWorkItemEvent(pmgr, _parent, _status, _whoStartedMe);
             if (pmgr != null) pmgr.deleteObject(_parent);
+        }
+    }
+
+
+    private boolean unpackTimerParams(String param, YCaseData data) {
+        if (data == null)
+            data = YEngine.getInstance().getCaseData(_workItemID.getCaseID());
+
+        Element eData = JDOMUtil.stringToElement(data.getData());
+
+        Element timerParams = eData.getChild(param) ;
+        if (timerParams == null) return false ;            // no var with param's name
+
+        String trigger = timerParams.getChildText("trigger");
+        if (trigger == null) return false ;                // no trigger value set
+
+        _timerParameters.put("trigger", YWorkItemTimer.Trigger.valueOf(trigger));
+
+        String expiry = timerParams.getChildText("expiry");
+        if (expiry != null) {
+            _timerParameters.put("expiry", new Date(new Long(expiry)));
+            return true ;                                 // OK - trigger & expiry set
+        }
+        else {
+            String ticks = timerParams.getChildText("ticks") ;
+            String interval = timerParams.getChildText("interval") ;
+            if ((ticks != null) && (interval != null)) {
+                _timerParameters.put("ticks", new Long(ticks)) ;
+                _timerParameters.put("interval", YTimer.TimeUnit.valueOf(interval)) ;
+                return true ;                       // OK - trigger, ticks & i'val set
+            }
+            else return false ;                      // not all values valid
         }
     }
 
@@ -235,6 +270,45 @@ public class YWorkItem {
     }
 
 
+    public void checkStartTimer(YPersistenceManager pmgr, YCaseData data) {
+        if (_timerParameters != null) {
+
+            // get values from net-level var if necessary
+            String netParam = (String) _timerParameters.get("netparam") ;
+            if (netParam != null)
+                if (!unpackTimerParams(netParam, data)) return ;
+
+            YWorkItemTimer.Trigger trigger =
+                          (YWorkItemTimer.Trigger) _timerParameters.get("trigger") ;
+
+            // if current workitem status equals trigger status, start the timer
+            if (((trigger == YWorkItemTimer.Trigger.OnEnabled) &&
+                                (_status.equals(statusEnabled))) ||
+                ((trigger == YWorkItemTimer.Trigger.OnExecuting) &&
+                                (_status.equals(statusExecuting)))) {
+                String expiry = (String) _timerParameters.get("expiry");
+                if (expiry != null) {
+                    Date expiryTime = new Date(new Long(expiry)) ;
+                    new YWorkItemTimer(_workItemID.toString(), expiryTime, (pmgr != null)) ;
+                    _timerStarted = true ;
+                }
+                else {
+                    long ticks = (Long) _timerParameters.get("ticks");
+                    if (ticks > 0) {
+                        YTimer.TimeUnit interval = (YTimer.TimeUnit)
+                                                      _timerParameters.get("interval") ;
+
+                        if (interval == null) interval = YTimer.TimeUnit.MSEC ;
+                        new YWorkItemTimer(_workItemID.toString(),
+                                                       ticks, interval, (pmgr != null)) ;
+                        _timerStarted = true ;
+                    }    
+                }
+            }
+        }
+    }
+
+
     /** @return true if workitem is 'live' */
     public boolean hasLiveStatus() {
         return _status.equals(statusFired) ||
@@ -243,7 +317,7 @@ public class YWorkItem {
     }
 
 
-    /** @return true if workitem is finsihed */
+    /** @return true if workitem is finsished */
     public boolean hasFinishedStatus() {
         return _status.equals(statusComplete) ||
                _status.equals(statusDeleted)  ||
@@ -279,6 +353,7 @@ public class YWorkItem {
         _status = statusExecuting;
         _startTime = new Date();
         _whoStartedMe = userName;
+        if (! _timerStarted) checkStartTimer(pmgr, null) ;
         if (pmgr != null) pmgr.updateObject(this);
         _startEventID = _eventLog.logWorkItemEvent(pmgr, this, _status, _whoStartedMe);
     }
@@ -441,7 +516,13 @@ public class YWorkItem {
     public String getSpecName() { return _specID.getSpecName(); }
 
     public YSpecificationID getSpecificationID() { return _specID ; }
-    
+
+    public Map getTimerParameters() { return _timerParameters; }
+
+    public void setTimerParameters(Map params) {
+        _timerParameters = params;
+    }
+
     public boolean allowsDynamicCreation() { return _allowsDynamicCreation; }
 
     public String toString() {

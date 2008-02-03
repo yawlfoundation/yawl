@@ -25,6 +25,8 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagementOb
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.ObserverGatewayController;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
@@ -97,7 +99,7 @@ public class YEngine implements InterfaceADesign,
     private static boolean restoring;
     private static int _nextCaseNbr = 1;
     private static SessionFactory factory = null;
-    private static final String _yawlVersion = "1.0" ;
+    private static final String _yawlVersion = "2.0" ;
 
     /**
      * AJH: Switch indicating if we generate user interface attributes with a tasks output XML doclet.
@@ -383,6 +385,28 @@ public class YEngine implements InterfaceADesign,
                 }
             }
             logger.info("Restoring work items - Ends");
+
+            logger.info("Restoring work item timers - Starts");
+            query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.time.YWorkItemTimer");
+            for (Iterator it = query.iterate(); it.hasNext();) {
+                YWorkItemTimer witemTimer = (YWorkItemTimer) it.next();
+
+                // check to see if workitem still exists
+                YWorkItem witem = getWorkItem(witemTimer.getOwnerID()) ;
+                if (witem == null)
+                    deleteObject(witemTimer) ;          // remove from persistence
+                else {
+                     long endTime = witemTimer.getEndTime();
+
+                    // if the deadline has passed, time the workitem out
+                    if (endTime < System.currentTimeMillis())
+                        witemTimer.handleTimerExpiry();
+                    else
+                        // reschedule the workitem's timer
+                        YTimer.getInstance().schedule(witemTimer, new Date(endTime));
+                }
+            }    
+            logger.info("Restoring work item timers - Ends");
 
             /*
               Start net runners. This is a restart of a NetRunner not a clean start, therefore, the net runner should not create any new work items, if they have already been created.
@@ -1751,6 +1775,8 @@ public class YEngine implements InterfaceADesign,
                     pmgr.startTransactionalSession();
                 }
 
+                if (force) data = mapOutputDataForSkippedWorkItem(workItem);
+
                 Document doc;
                 if (workItem != null) {
                     if (workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
@@ -2740,6 +2766,21 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
         }
     }
 
+    public void deleteObject(Object obj) throws YPersistenceException {
+        /**
+         * SYNC'D External interface
+         */
+        synchronized (mutex) {
+
+            if (isPersisting()) {
+                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
+                pmgr.startTransactionalSession();
+                pmgr.deleteObject(obj);
+                pmgr.commit();
+            }
+        }
+    }
+
     /**
      *
      *
@@ -3072,6 +3113,15 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
         return runner.getCasedata().getExecutionState();
     }
 
+    public YCaseData getCaseData(YIdentifier id)
+    {
+        YNetRunner runner = (YNetRunner)_caseIDToNetRunnerMap.get(id);
+        if (runner != null)
+            return runner.getCasedata();
+        else return null ;
+    }
+
+
     /**
      * Helper routine which returns a vector of all net runners for a top level caseID.
      *
@@ -3251,6 +3301,10 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
         logger.debug("Announcing Time Out for item " + item.getWorkItemID() +
                      " on client " + ixClient.toString());
             ixClient.announceTimeOut(item, timeOutTaskIds);
+    }
+
+    public void announceTimerExpiryToExceptionService(YWorkItem item) {
+        if (_exceptionObserver != null) _exceptionObserver.announceTimeOut(item, null);
     }
 
     /** updates the workitem with the data passed after completion of an exception handler */
