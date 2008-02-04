@@ -214,7 +214,9 @@ class DecomposeToDirectDataTransferDialog extends AbstractTaskDoneDialog  {
   public void setTask(YAWLTask task, NetGraph net) {
     super.setTask(task, net);
     
-    decompositionField.setText(task.getLabel());
+    decompositionField.setText(
+        task.getLabel()
+    );
     
     getDoneButton().setEnabled(
       SpecificationModel.getInstance().isValidNewDecompositionName(

@@ -92,7 +92,7 @@ public class JFormattedSelectField extends JFormattedTextField {
   }
   
   public void setText(String text) {
-    super.setText(text);
+    super.setText(text == null ? "" : text);
     setCaretPosition(0);
   }
 
