@@ -226,7 +226,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   private static void generateEngineMetaData(SpecificationModel editorSpec, 
                                              YSpecification engineSpec) {
     
-    engineSpec.setVersion(YSpecification._Version1_0);
+    engineSpec.setVersion(YSpecification._Version2_0);
     
     YMetaData metaData = new YMetaData();
 
@@ -842,24 +842,23 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   }
 
   private static OfferInteraction populateOfferInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
-    OfferInteraction interaction = 
-      new OfferInteraction(
-          convertEditorInteractionToEngineInteraction(
-              editorResourceMapping.getOfferInteractionPoint()
-          )
-       );
 
-    if (editorResourceMapping.getOfferInteractionPoint() != ResourceMapping.SYSTEM_INTERACTION_POINT) {
-      return interaction;  
-    }
+    engineResourceMapping.setOfferInteraction(
+       new OfferInteraction(
+           convertEditorInteractionToEngineInteraction(
+               editorResourceMapping.getOfferInteractionPoint()
+           )
+       )
+    );
 
-    engineResourceMapping.getOfferInteraction().setInitiator(AbstractInteraction.SYSTEM_INITIATED);
+   if (editorResourceMapping.getOfferInteractionPoint() != ResourceMapping.SYSTEM_INTERACTION_POINT) {
+     return engineResourceMapping.getOfferInteraction();  
+   }
 
     //  we care only for specifying system interaction behaviour from now on.
     
     if (editorResourceMapping.getRetainFamiliarTask() != null) {
       engineResourceMapping.getOfferInteraction().setFamiliarParticipantTask(
-//      interaction.setFamiliarParticipantTask(
         ((YAWLTask) editorResourceMapping.getRetainFamiliarTask()).getEngineId()   
       );
     } 
@@ -889,7 +888,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         engineResourceMapping
     );
     
-    return interaction;
+    return engineResourceMapping.getOfferInteraction();
   }
 
   private static void populateOfferParticipants(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
