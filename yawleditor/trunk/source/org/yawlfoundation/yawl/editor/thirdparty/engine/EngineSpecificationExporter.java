@@ -812,36 +812,28 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     
     ResourceMap engineResourceMapping = engineTask.getResourceMap(true);  
 
-//    engineResourceMapping.setOfferInteraction(
-      populateOfferInteractionDetail(
-        atomicEditorTask.getResourceMapping(),
-        engineResourceMapping
-//      )
+    populateOfferInteractionDetail(
+      atomicEditorTask.getResourceMapping(),
+      engineResourceMapping
     );
 
-    engineResourceMapping.setAllocateInteraction(
-        populateAllocateInteractionDetail(
-          atomicEditorTask.getResourceMapping(),
-          engineResourceMapping
-        )
+    populateAllocateInteractionDetail(
+      atomicEditorTask.getResourceMapping(),
+      engineResourceMapping
     );
     
-    engineResourceMapping.setStartInteraction(
-        populateStartInteractionDetail(
-          atomicEditorTask.getResourceMapping(),
-          engineResourceMapping
-        )
+    populateStartInteractionDetail(
+      atomicEditorTask.getResourceMapping(),
+      engineResourceMapping
     );
 
-    engineResourceMapping.setTaskPrivileges(
-      populateTaskPrivileges(
-          atomicEditorTask.getResourceMapping(),
-          engineResourceMapping
-      )
+    populateTaskPrivileges(
+      atomicEditorTask.getResourceMapping(),
+      engineResourceMapping
     );
   }
 
-  private static OfferInteraction populateOfferInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+  private static void populateOfferInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
 
     engineResourceMapping.setOfferInteraction(
        new OfferInteraction(
@@ -852,7 +844,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     );
 
    if (editorResourceMapping.getOfferInteractionPoint() != ResourceMapping.SYSTEM_INTERACTION_POINT) {
-     return engineResourceMapping.getOfferInteraction();  
+     return;  
    }
 
     //  we care only for specifying system interaction behaviour from now on.
@@ -887,8 +879,6 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         editorResourceMapping,
         engineResourceMapping
     );
-    
-    return engineResourceMapping.getOfferInteraction();
   }
 
   private static void populateOfferParticipants(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
@@ -898,7 +888,6 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
 
     for(ResourcingParticipant participant : editorResourceMapping.getBaseUserDistributionList()) {
-      System.out.println("exporting participant: " + participant.getName());
       engineResourceMapping.getOfferInteraction().addParticipantUnchecked(
           participant.getId()
       );
@@ -912,7 +901,6 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
 
     for(ResourcingRole role : editorResourceMapping.getBaseRoleDistributionList()) {
-      System.out.println("exporting role: " + role.getName());
       engineResourceMapping.getOfferInteraction().addRoleUnchecked(
           role.getId()
       );
@@ -985,35 +973,32 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
 
-  private static AllocateInteraction populateAllocateInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
-    AllocateInteraction interaction = 
+  private static void populateAllocateInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    engineResourceMapping.setAllocateInteraction(
       new AllocateInteraction(
           convertEditorInteractionToEngineInteraction(
               editorResourceMapping.getAllocateInteractionPoint()
           )
-       );
+       )
+    );
     
     if (editorResourceMapping.getAllocateInteractionPoint() == ResourceMapping.SYSTEM_INTERACTION_POINT) {
-//      engineResourceMapping.getAllocateInteraction().setAllocator(
-        interaction.setAllocator(
-        new GenericAllocator(
+        engineResourceMapping.getAllocateInteraction().setAllocator(
+          new GenericAllocator(
             editorResourceMapping.getAllocationMechanism().getName()
-        )    
+          )    
       );
     }
-    
-    return interaction;
   }
 
-  private static StartInteraction populateStartInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
-    StartInteraction interaction = 
+  private static void populateStartInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+    engineResourceMapping.setStartInteraction(
       new StartInteraction(
           convertEditorInteractionToEngineInteraction(
               editorResourceMapping.getStartInteractionPoint()
           )
-      );
-    
-    return interaction;
+      )
+    );
   }
 
   private static int convertEditorInteractionToEngineInteraction(int editorInteraction)  {
@@ -1028,7 +1013,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     return AbstractInteraction.USER_INITIATED;
   }
   
-  private static TaskPrivileges populateTaskPrivileges(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+  private static void populateTaskPrivileges(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
     TaskPrivileges enginePrivileges = new TaskPrivileges();
 
     for(Integer enabledPrivilege : editorResourceMapping.getEnabledPrivileges()) {
@@ -1038,8 +1023,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           )
       );      
     }
-    
-    return enginePrivileges;
+
+    engineResourceMapping.setTaskPrivileges(
+        enginePrivileges
+    );
   }
   
   private static int convertPrivilege(int editorPrivilege) {
