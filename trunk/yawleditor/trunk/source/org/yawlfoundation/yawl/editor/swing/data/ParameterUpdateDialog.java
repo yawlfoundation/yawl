@@ -382,8 +382,8 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
           variableUpdateDialog = DataVariableUpdateDialogFactory.getTaskDialog(parent);
         }
         
-        variableUpdateDialog.setVariable(variable);
         outputVariableScope.addVariable(variable);
+        variableUpdateDialog.setVariable(variable);
         variableUpdateDialog.setVisible(true);
 
         if (variableUpdateDialog.cancelButtonSelected()) {

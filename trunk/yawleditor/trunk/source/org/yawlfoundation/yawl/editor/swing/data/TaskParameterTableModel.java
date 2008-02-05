@@ -91,6 +91,10 @@ public class TaskParameterTableModel extends AbstractOrderedRowTableModel {
     }
   }
   
+  public DataVariable getVariableAt(int row) {
+    return parameterList.getVariableAt(row);
+  }
+  
   public String getVariableNameAt(int row) {
     return parameterList.getVariableNameAt(row);
   }
