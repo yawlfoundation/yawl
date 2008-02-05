@@ -56,7 +56,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
           )
       );
     }
-    
+
     for(AbstractWizardPanel panel : getPanels()) {
       ((ResourcingWizardPanel) panel).refresh();
     }

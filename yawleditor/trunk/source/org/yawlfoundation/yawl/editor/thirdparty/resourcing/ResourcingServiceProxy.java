@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
   
@@ -45,10 +46,21 @@ public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
   private ResourcingServiceProxy() {}
   
   private ResourcingServiceProxyInterface getImplementation() {
-    if (getAvailableImplementation().testConnection()) {
+    if (serviceLibrariesAvailable() && getAvailableImplementation().testConnection() ) {
       return getAvailableImplementation();
     } 
     return getUnavailableImplementation();
+  }
+  
+  public static boolean serviceLibrariesAvailable() {
+    // assumption: If we can find ResourceGatewayClientAdapter, we can find everything we
+    //             need from the resource service libraries.
+    try {
+      Class.forName("org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter");
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
   
   private ResourcingServiceProxyInterface getAvailableImplementation() {

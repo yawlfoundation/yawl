@@ -209,47 +209,57 @@ class UserPanel extends JPanel implements ListSelectionListener {
   }
 
   public void valueChanged(ListSelectionEvent e) {
-    getResourceMapping().setBaseUserDistributionList(
-        userList.getSelectedUsers()
-    );
+    if (userList.isEnabled()) {
+      getResourceMapping().setBaseUserDistributionList(
+          userList.getSelectedUsers()
+      );
+    }
   }
 }
 
 class UserList extends JList {
   private static final long serialVersionUID = 1L;
 
-  private List<ResourcingParticipant> roles;
+  private List<ResourcingParticipant> users;
 
   public UserList() {
     super();
   }
   
   public void setUsers(List<ResourcingParticipant> users) {
-    this.roles = users;
-    String[] roleNames = new String[users.size()];
+   setEnabled(false);
+    
+    this.users = users;
+    String[] userNames = new String[users.size()];
     for(int i = 0; i < users.size(); i++) {
-      roleNames[i] = users.get(i).getName();
+      userNames[i] = users.get(i).getName();
     }
-    setListData(roleNames);
+    setListData(userNames);
+    setEnabled(true);
   }
   
-  public void setSelectedUsers(List<ResourcingParticipant> selectedRoles) {
-    if (selectedRoles == null) {
+  public void setSelectedUsers(List<ResourcingParticipant> selectedUsers) {
+    setEnabled(false);
+    clearSelection();
+
+    if (selectedUsers == null) {
+      setEnabled(true);
       return;
     }
     
-    int[] selectedRoleIndicies = new int[selectedRoles.size()];
+    int[] selectedUserIndicies = new int[selectedUsers.size()];
 
     int j = 0;
-    for(int i = 0; i < roles.size(); i ++) {
-      for(ResourcingParticipant selectedRole : selectedRoles) {
-        if (roles.get(i).equals(selectedRole)) {
-          selectedRoleIndicies[j] = i;
+    for(int i = 0; i < users.size(); i ++) {
+      for(ResourcingParticipant selectedUser : selectedUsers) {
+        if (users.get(i).equals(selectedUser)) {
+          selectedUserIndicies[j] = i;
           j++;
         }
       }
     }
-    setSelectedIndices(selectedRoleIndicies);
+    setSelectedIndices(selectedUserIndicies);
+    setEnabled(true);
   }
   
   public List<ResourcingParticipant> getSelectedUsers() {
@@ -257,7 +267,7 @@ class UserList extends JList {
     List<ResourcingParticipant> selectedRoles = new LinkedList<ResourcingParticipant>();
     for(int i = 0; i < selectedRoleIndices.length; i++) {
       selectedRoles.add(
-        roles.get(selectedRoleIndices[i])    
+        users.get(selectedRoleIndices[i])    
       );
     }
     return selectedRoles;
@@ -317,9 +327,11 @@ class RolesPanel extends JPanel implements ListSelectionListener {
   }
   
   public void valueChanged(ListSelectionEvent e) {
-    getResourceMapping().setBaseRoleDistributionList(
-        roleList.getSelectedRoles()
-    );
+    if (roleList.isEnabled())  {
+      getResourceMapping().setBaseRoleDistributionList(
+          roleList.getSelectedRoles()
+      );
+    }
   }
 }
 
@@ -333,16 +345,22 @@ class RoleList extends JList {
   }
   
   public void setRoles(List<ResourcingRole> roles) {
+    setEnabled(false);
     this.roles = roles;
     String[] roleNames = new String[roles.size()];
     for(int i = 0; i < roles.size(); i++) {
       roleNames[i] = roles.get(i).getName();
     }
     setListData(roleNames);
+    setEnabled(true);
   }
   
   public void setSelectedRoles(List<ResourcingRole> selectedRoles) {
+    setEnabled(false);
+    clearSelection();
+    
     if (selectedRoles == null) {
+      setEnabled(true);
       return;
     }
     
@@ -358,6 +376,7 @@ class RoleList extends JList {
       }
     }
     setSelectedIndices(selectedRoleIndicies);
+    setEnabled(true);
   }
   
   public List<ResourcingRole> getSelectedRoles() {
