@@ -254,6 +254,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           engineVariable.getDataTypeName(),
           engineVariable.getName(),
           engineVariable.getInitialValue(),
+          engineVariable.getDefaultValue(),
           new Hashtable()  // LWB: engine local variables do not have extended attributes, apparently.
       );
     }
@@ -284,6 +285,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           engineParameter.getDataTypeName(),
           engineParameter.getName(),
           engineParameter.getInitialValue(),
+          engineParameter.getInitialValue(),
           engineParameter.getAttributes()
       );
       
@@ -305,6 +307,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           engineParameter.getDataTypeName(), 
           engineParameter.getName(),
           engineParameter.getInitialValue(),
+          engineParameter.getDefaultValue(),
           engineParameter.getAttributes()
       );
     }
@@ -315,6 +318,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
                                            String dataType, 
                                            String paramName, 
                                            String initialValue,
+                                           String defaultValue,
                                            Hashtable attributes) {
     
     DataVariable editorVariable = new DataVariable();

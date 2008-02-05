@@ -33,6 +33,7 @@ import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.net.NetVariableComboBox;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableUpdateDialog;
 import org.yawlfoundation.yawl.editor.swing.data.JXQueryEditor;
 import org.yawlfoundation.yawl.editor.swing.data.JXQueryPanel;
 import org.yawlfoundation.yawl.editor.swing.data.TaskDataVariableUpdateDialog;
@@ -180,8 +181,8 @@ class MultipleInstanceInstanceParamaterPanel extends JPanel {
   private JButton createTaskVariableButton;
   private JButton createNetVariableButton;
   
-  private final TaskDataVariableUpdateDialog taskVariableUpdateDialog;
-  private final TaskDataVariableUpdateDialog netVariableUpdateDialog;
+  private final DataVariableUpdateDialog taskVariableUpdateDialog;
+  private final DataVariableUpdateDialog netVariableUpdateDialog;
   
   public MultipleInstanceInstanceParamaterPanel(AbstractTaskDoneDialog dialog) {
     super();

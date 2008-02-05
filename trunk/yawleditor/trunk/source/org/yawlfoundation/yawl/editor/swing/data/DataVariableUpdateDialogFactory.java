@@ -26,11 +26,11 @@ package org.yawlfoundation.yawl.editor.swing.data;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 
 public class DataVariableUpdateDialogFactory {
-   public static TaskDataVariableUpdateDialog getNetDialog(AbstractDoneDialog parent) {
+   public static DataVariableUpdateDialog getNetDialog(AbstractDoneDialog parent) {
      return new NetDataVariableUpdateDialog(parent);
    }
    
-   public static TaskDataVariableUpdateDialog getTaskDialog(AbstractDoneDialog parent) {
+   public static DataVariableUpdateDialog getTaskDialog(AbstractDoneDialog parent) {
      return new TaskDataVariableUpdateDialog(parent);
    }
 }

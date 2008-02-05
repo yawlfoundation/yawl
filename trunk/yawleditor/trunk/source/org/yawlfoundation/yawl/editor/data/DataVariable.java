@@ -55,12 +55,13 @@ public class DataVariable implements Serializable, Cloneable {
   public static final int SCOPE_NET = 0;
   public static final int SCOPE_TASK = 1;
   
-  public static final String XML_SCHEMA_BOOLEAN_TYPE = "boolean";
-  public static final String XML_SCHEMA_DATE_TYPE    = "date";
-  public static final String XML_SCHEMA_DOUBLE_TYPE  = "double";
-  public static final String XML_SCHEMA_LONG_TYPE    = "long";
-  public static final String XML_SCHEMA_STRING_TYPE  = "string";
-  public static final String XML_SCHEMA_TIME_TYPE    = "time";
+  public static final String XML_SCHEMA_BOOLEAN_TYPE  = "boolean";
+  public static final String XML_SCHEMA_DATE_TYPE     = "date";
+  public static final String XML_SCHEMA_DOUBLE_TYPE   = "double";
+  public static final String XML_SCHEMA_LONG_TYPE     = "long";
+  public static final String XML_SCHEMA_STRING_TYPE   = "string";
+  public static final String XML_SCHEMA_TIME_TYPE     = "time";
+  public static final String XML_SCHEMA_DURATION_TYPE = "duration";
   
   /**
    * A string array of base XMLSchema data types that can
@@ -74,7 +75,8 @@ public class DataVariable implements Serializable, Cloneable {
     XML_SCHEMA_DOUBLE_TYPE,
     XML_SCHEMA_LONG_TYPE,
     XML_SCHEMA_STRING_TYPE,
-    XML_SCHEMA_TIME_TYPE
+    XML_SCHEMA_TIME_TYPE,
+    XML_SCHEMA_DURATION_TYPE
   };
   
   
@@ -122,6 +124,14 @@ public class DataVariable implements Serializable, Cloneable {
   
   public String getInitialValue() {
     return (String) serializationProofAttributeMap.get("initialValue");
+  }
+  
+  public void setDefaultValue(String initialValue) {
+    serializationProofAttributeMap.put("defaultValue",initialValue);
+  }
+  
+  public String getDefaultValue() {
+    return (String) serializationProofAttributeMap.get("defaultValue");
   }
 
   public void setUsage(int usage) {
@@ -256,6 +266,7 @@ public class DataVariable implements Serializable, Cloneable {
 
     variable.setDataType(getDataType());
     variable.setInitialValue(getInitialValue());
+    variable.setDefaultValue(getDefaultValue());
     variable.setName(getName());
     variable.setUsage(getUsage());
     

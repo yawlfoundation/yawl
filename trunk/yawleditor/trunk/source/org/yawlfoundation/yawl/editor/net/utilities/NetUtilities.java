@@ -372,7 +372,8 @@ public final class NetUtilities {
   public static Set<YAWLAtomicTask> getPreceedingResourcingRequiredTasksOf(YAWLAtomicTask task) {
     HashSet<YAWLAtomicTask> returnTasks = new HashSet<YAWLAtomicTask>();
     for(YAWLAtomicTask thisTask: getPreceedingAtomicTasksOf((YAWLVertex) task)) {
-      if (thisTask.getWSDecomposition().invokesWorklist()) {
+      if (thisTask.getWSDecomposition() != null && 
+          thisTask.getWSDecomposition().invokesWorklist()) {
         returnTasks.add(thisTask);
       }
     }
