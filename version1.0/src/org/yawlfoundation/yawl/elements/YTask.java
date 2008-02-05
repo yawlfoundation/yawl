@@ -45,6 +45,7 @@ import org.jdom.output.XMLOutputter;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.datatype.Duration;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1583,6 +1584,7 @@ public abstract class YTask extends YExternalNetElement {
                 result.append(paramAsXML);
             }
             result.append("</params>");
+
             result.append("</taskInfo>");
             return result.toString();
         } catch (ClassCastException e) {
@@ -1597,7 +1599,7 @@ public abstract class YTask extends YExternalNetElement {
      * @return the specification version.
      */
     public String getSpecVersion() {
-        return _net.getSpecification().getBetaVersion();
+        return _net.getSpecification().getVersion();
     }
 
 
@@ -1869,6 +1871,12 @@ public abstract class YTask extends YExternalNetElement {
         _timerParams.put("interval", timeUnit);
     }
 
+    public void setTimerParameters(YWorkItemTimer.Trigger trigger, Duration duration) {
+        _timerParams = new HashMap<String, Object>() ;
+        _timerParams.put("trigger", trigger) ;
+        _timerParams.put("duration", duration) ;        
+    }
+
 
     public Map getTimeParameters() { return _timerParams; }
 
@@ -1894,14 +1902,20 @@ public abstract class YTask extends YExternalNetElement {
                 xml.append(StringUtil.wrap(expiry.toString(), "expiry"));
             }
             else {
-
                 // this is a duration timer
-                xml.append("<duration>");
-                Long ticks = (Long) _timerParams.get("ticks") ;
-                YTimer.TimeUnit interval = (YTimer.TimeUnit) _timerParams.get("interval") ;
-                xml.append(StringUtil.wrap(ticks.toString(), "ticks"));
-                xml.append(StringUtil.wrap(interval.name(), "interval"));
-                xml.append("</duration>");
+                Duration duration = (Duration) _timerParams.get("duration");
+                if (duration != null) {
+                    xml.append(StringUtil.wrap(duration.toString(), "duration"));
+                }
+                else {
+                    // duration supplied as ticks / interval params
+                    xml.append("<durationparams>");
+                    Long ticks = (Long) _timerParams.get("ticks") ;
+                    YTimer.TimeUnit interval = (YTimer.TimeUnit) _timerParams.get("interval") ;
+                    xml.append(StringUtil.wrap(ticks.toString(), "ticks"));
+                    xml.append(StringUtil.wrap(interval.name(), "interval"));
+                    xml.append("</durationparams>");
+                }
             }
         }
         xml.append("</timer>") ;

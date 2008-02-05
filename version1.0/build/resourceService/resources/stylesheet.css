@@ -1,4 +1,27 @@
 
+.loginPanel {
+    border-style: outset;
+    border-color: #99ccff;
+    padding: 6px;
+    background-color: #cccccc;
+    height: 94px;
+    left: 288px;
+    top: 120px;
+    position: absolute;
+    text-indent: 8px;
+    width: 238px;
+}
+
+.loginButton {
+    font-size: 18px;
+    left: 383px;
+    top: 264px;
+    position: absolute;
+    height: 30px;
+    width: 80px;
+}
+
+
 /* Rules for data tables */
 
 .dataTable {

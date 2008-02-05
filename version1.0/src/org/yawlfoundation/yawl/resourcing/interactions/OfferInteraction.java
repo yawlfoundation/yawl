@@ -281,154 +281,226 @@ public class OfferInteraction extends AbstractInteraction {
 
     /********************************************************************************/
 
-    public void parse(Element e, Namespace nsYawl) {
-        if (e != null) {
-            System.out.println("offer parse");
+    // Resource Specification Offer Parsing Methods //
 
-            parseInitiator(e, nsYawl) ;
+    public void parse(Element e, Namespace nsYawl) throws ResourceParseException {
 
-            Element eDistSet = e.getChild("distributionSet", nsYawl) ;
-            Element eInitialSet = eDistSet.getChild("initialSet", nsYawl) ;
-            Iterator itr ;
-            // from the specified initial set, add all participants
-            List participants = eInitialSet.getChildren("participant", nsYawl) ;
-            itr = participants.iterator();
-            while (itr.hasNext()) {
-                Element eParticipant = (Element) itr.next() ;
-                String participant = eParticipant.getText() ;
-                if (participant.indexOf(',') > -1)
-                    addParticipantsByID(participant) ;
-                else
-                    addParticipant(participant) ;
-            }
+        parseInitiator(e, nsYawl);
 
-            // ... and roles
-            List roles = eInitialSet.getChildren("role", nsYawl) ;
-            itr = roles.iterator();
-            while (itr.hasNext()) {
-                Element eRole = (Element) itr.next() ;
-                String role = eRole.getText() ;
-                if (role.indexOf(',') > -1)
-                    addRoles(role) ;
-                else
-                    addRole(role) ;
-            }
+        // if offer is not system-initiated, there's no more to do
+        if (! isSystemInitiated()) return ;
 
-            // ... and input parameters
-            List params = eInitialSet.getChildren("param", nsYawl) ;
-            itr = params.iterator();
-            while (itr.hasNext()) {
-                Element eParam = (Element) itr.next() ;
-                String name = eParam.getChildText("name", nsYawl) ;
-                String refers = eParam.getChildText("refers", nsYawl) ;
-                int pType = refers.equals("role")? ROLE_PARAM : USER_PARAM ;
-                addInputParam(name, pType) ;
-            }
+        parseDistributionSet(e, nsYawl) ;
+        parseFamiliarTask(e, nsYawl) ;
+    }
 
-            // get the Filters
-            Element eFilters = eDistSet.getChild("filters", nsYawl) ;
-            if (eFilters != null) {
-                List filters = eFilters.getChildren("filter", nsYawl) ;
-                itr = filters.iterator() ;
-                while (itr.hasNext()) {
-                    Element eFilter = (Element) itr.next() ;
-                    String filterClassName = eFilter.getChildText("name", nsYawl) ;
-                    if (filterClassName != null) {
-                        AbstractFilter filter = FilterFactory.getInstance(filterClassName);
-                        if (filter != null) {
-                            filter.setParams(parseParams(eFilter, nsYawl));
-                            _filters.add(filter) ;
-                        }
-                    }
-                }    
-            }
 
-            // get the Constraints
-            Element eConstraints = eDistSet.getChild("constraints", nsYawl) ;
-            if (eConstraints != null) {
-                List constraints = eConstraints.getChildren("constraint", nsYawl) ;
-                itr = constraints.iterator() ;
-                while (itr.hasNext()) {
-                    Element eConstraint = (Element) itr.next() ;
-                    String constraintClassName = eConstraint.getChildText("name", nsYawl) ;
-                    if (constraintClassName != null) {
-                        AbstractConstraint constraint =
-                                     ConstraintFactory.getInstance(constraintClassName);
-                        if (constraint != null) {
-                            constraint.setParams(parseParams(eConstraint, nsYawl));
-                            _constraints.add(constraint) ;
-                        }
-                    }
-                }
-            }
+    private void parseDistributionSet(Element e, Namespace nsYawl)
+                                                       throws ResourceParseException {
+        Element eDistSet = e.getChild("distributionSet", nsYawl);
+        if (eDistSet != null) {
+            parseInitialSet(eDistSet, nsYawl) ;
+            parseFilters(eDistSet, nsYawl) ;
+            parseConstraints(eDistSet, nsYawl) ;
+        }
+        else
+            throw new ResourceParseException(
+                    "Missing required element in Offer block: distributionSet") ;
+    }
 
-            // finally, get the familiar participant task
-            Element eFamTask = e.getChild("familiarParticipant", nsYawl) ;
-            if (eFamTask != null)
-                _familiarParticipantTask = eFamTask.getAttributeValue("taskID") ;
+
+    private void parseInitialSet(Element e, Namespace nsYawl) throws ResourceParseException {
+
+        Element eInitialSet = e.getChild("initialSet", nsYawl);
+        if (eInitialSet != null) {
+            parseParticipants(eInitialSet, nsYawl);
+            parseRoles(eInitialSet, nsYawl);
+            parseDynParams(eInitialSet, nsYawl);
+        }
+        else throw new ResourceParseException(
+            "Missing required distributionSet child element in Offer block: initialSet") ;
+    }
+
+
+    private void parseParticipants(Element e, Namespace nsYawl) {
+
+        // from the specified initial set, add all participants
+        List participants = e.getChildren("participant", nsYawl);
+        Iterator itr = participants.iterator();
+        while (itr.hasNext()) {
+            Element eParticipant = (Element) itr.next();
+            String participant = eParticipant.getText();
+            if (participant.indexOf(',') > -1)
+                addParticipantsByID(participant);
+            else
+                addParticipant(participant);
         }
     }
 
 
+    private void parseRoles(Element e, Namespace nsYawl) {
+
+        // ... and roles
+        List roles = e.getChildren("role", nsYawl);
+        Iterator itr = roles.iterator();
+        while (itr.hasNext()) {
+            Element eRole = (Element) itr.next();
+            String role = eRole.getText();
+            if (role.indexOf(',') > -1)
+                addRoles(role);
+            else
+                addRole(role);
+        }
+    }
+
+
+    private void parseDynParams(Element e, Namespace nsYawl) {
+
+        // ... and input parameters
+        List params = e.getChildren("param", nsYawl);
+        Iterator itr = params.iterator();
+        while (itr.hasNext()) {
+            Element eParam = (Element) itr.next();
+            String name = eParam.getChildText("name", nsYawl);
+            String refers = eParam.getChildText("refers", nsYawl);
+            int pType = refers.equals("role") ? ROLE_PARAM : USER_PARAM;
+            addInputParam(name, pType);
+        }
+    }
+
+
+    private void parseFilters(Element e, Namespace nsYawl) throws ResourceParseException {
+
+        // get the Filters
+        Element eFilters = e.getChild("filters", nsYawl);
+        if (eFilters != null) {
+            List filters = eFilters.getChildren("filter", nsYawl);
+            if (filters == null)
+                throw new ResourceParseException(
+                        "No filter elements found in filters element");
+
+            Iterator itr = filters.iterator();
+            while (itr.hasNext()) {
+                Element eFilter = (Element) itr.next();
+                String filterClassName = eFilter.getChildText("name", nsYawl);
+                if (filterClassName != null) {
+                    AbstractFilter filter = FilterFactory.getInstance(filterClassName);
+                    if (filter != null) {
+                        filter.setParams(parseParams(eFilter, nsYawl));
+                        _filters.add(filter);
+                    }
+                    else throw new ResourceParseException("Unknown filter name: " +
+                                                                   filterClassName);
+                }
+                else throw new ResourceParseException("Missing filter element: name");
+            }
+        }
+    }
+
+    private void parseConstraints(Element e, Namespace nsYawl)
+                                                        throws ResourceParseException {
+        // get the Constraints
+        Element eConstraints = e.getChild("constraints", nsYawl);
+        if (eConstraints != null) {
+            List constraints = eConstraints.getChildren("constraint", nsYawl);
+            if (constraints == null)
+                throw new ResourceParseException(
+                        "No constraint elements found in constraints element");
+
+            Iterator itr = constraints.iterator();
+            while (itr.hasNext()) {
+                Element eConstraint = (Element) itr.next();
+                String constraintClassName = eConstraint.getChildText("name", nsYawl);
+                if (constraintClassName != null) {
+                    AbstractConstraint constraint =
+                            ConstraintFactory.getInstance(constraintClassName);
+                    if (constraint != null) {
+                        constraint.setParams(parseParams(eConstraint, nsYawl));
+                        _constraints.add(constraint);
+                    }
+                    else throw new ResourceParseException("Unknown constraint name: " +
+                                                                   constraintClassName);
+                }
+                else throw new ResourceParseException("Missing constraint element: name");
+            }
+        }
+    }
+
+
+    private void parseFamiliarTask(Element e, Namespace nsYawl) {
+
+        // finally, get the familiar participant task
+        Element eFamTask = e.getChild("familiarParticipant", nsYawl);
+        if (eFamTask != null)
+            _familiarParticipantTask = eFamTask.getAttributeValue("taskID");
+
+    }
+
+    /********************************************************************************/
+    
     public String toXML() {
         Iterator itr ;
         StringBuilder xml = new StringBuilder("<offer>");
 
         xml.append("<initiator>").append(getInitiatorString()).append("</initiator>");
-        xml.append("<distributionSet>") ;
-        xml.append("<initialSet>");
 
-        if (_participants != null) {
-            itr = _participants.iterator();
-            while (itr.hasNext()) {
-                Participant p = (Participant) itr.next();
-                xml.append("<participant>").append(p.getID()).append("</participant>");
+        // the rest of the xml is only needed if it's system intiated
+        if (isSystemInitiated()) {
+            xml.append("<distributionSet>") ;
+            xml.append("<initialSet>");
+
+            if (_participants != null) {
+                itr = _participants.iterator();
+                while (itr.hasNext()) {
+                    Participant p = (Participant) itr.next();
+                    xml.append("<participant>").append(p.getID()).append("</participant>");
+                }
+            }
+            if (_roles != null) {
+                itr = _roles.iterator() ;
+                while (itr.hasNext()) {
+                    Role r = (Role) itr.next();
+                    xml.append("<role>").append(r.getID()).append("</role>");
+                }
+            }
+            if (_dynParams != null) {
+                itr = _dynParams.iterator() ;
+                while (itr.hasNext()) {
+                    DynParam p = (DynParam) itr.next();
+                    xml.append(p.toXML());
+                }
+            }
+
+            xml.append("</initialSet>");
+
+            if ((_filters != null) && (! _filters.isEmpty())) {
+                xml.append("<filters>") ;
+                itr = _filters.iterator() ;
+                while (itr.hasNext()) {
+                    AbstractFilter filter = (AbstractFilter) itr.next();
+                    xml.append(filter.toXML());
+                }
+                xml.append("</filters>") ;
+            }
+
+            if ((_constraints != null) && (! _constraints.isEmpty())) {
+                xml.append("<constraints>") ;
+                itr = _constraints.iterator() ;
+                while (itr.hasNext()) {
+                    AbstractConstraint constraint = (AbstractConstraint) itr.next();
+                    xml.append(constraint.toXML());
+                }
+                xml.append("</constraints>") ;
+            }
+
+            xml.append("</distributionSet>") ;
+
+            if (_familiarParticipantTask != null) {
+                xml.append("<familiarParticipant taskID=\"");
+                xml.append(_familiarParticipantTask).append("\"/>");
             }
         }
-        if (_roles != null) {
-            itr = _roles.iterator() ;
-            while (itr.hasNext()) {
-                Role r = (Role) itr.next();
-                xml.append("<role>").append(r.getID()).append("</role>");
-            }
-        }
-        if (_dynParams != null) {
-            itr = _dynParams.iterator() ;
-            while (itr.hasNext()) {
-                DynParam p = (DynParam) itr.next();
-                xml.append(p.toXML());
-            }
-        }
-
-        xml.append("</initialSet>");
-
-        xml.append("<filters>") ;
-        if (_filters != null) {
-            itr = _filters.iterator() ;
-            while (itr.hasNext()) {
-                AbstractFilter filter = (AbstractFilter) itr.next();
-                xml.append(filter.toXML());
-            }
-        }
-        xml.append("</filters>") ;
-
-        xml.append("<constraints>") ;
-        if (_constraints != null) {
-            itr = _constraints.iterator() ;
-            while (itr.hasNext()) {
-                AbstractConstraint constraint = (AbstractConstraint) itr.next();
-                xml.append(constraint.toXML());
-            }
-        }
-        xml.append("</constraints>") ;
-
-        xml.append("</distributionSet>") ;
-
-        if (_familiarParticipantTask != null) {
-            xml.append("<familiarParticipant taskID=\"");
-            xml.append(_familiarParticipantTask).append("\"/>");
-        }
-
+        
         xml.append("</offer>");
         return xml.toString();
     }

@@ -12,47 +12,49 @@
                       id="image1"
                       styleClass="menuSelector"
                       style="#{SessionBean.mnuSelectorStyle}"
-                      url="/resources/mnuSelectedIcon.png"/>
+                      url="/resources/mnuSelectedIcon.gif"/>
+
+            <!-- all menu hyperlink images are spaced 28px apart (via 'top') --> 
 
             <ui:imageHyperlink action="#{pfMenu.mnuLogout_action}"
                                binding="#{pfMenu.mnuLogout}"
                                id="mnuLogout"
-                               imageURL="/resources/mnuLogout.png"
+                               imageURL="/resources/mnuLogout.gif"
                                styleClass="menuButton"
                                style="top: 12px"/>
 
             <ui:imageHyperlink action="#{pfMenu.mnuMyProfile_action}"
                                binding="#{pfMenu.mnuMyProfile}"
                                id="mnuMyProfile"
-                               imageURL="/resources/mnuEditProfile.png"
+                               imageURL="/resources/mnuEditProfile.gif"
                                styleClass="menuButton"
                                style="top: 40px"/>
 
             <ui:imageHyperlink action="#{pfMenu.mnuUserWorkQueues_action}"
                                binding="#{pfMenu.mnuUserWorkQueues}"
                                id="mnuWorkQueues"
-                               imageURL="/resources/mnuUserWorkQueues.png"
+                               imageURL="/resources/mnuUserWorkQueues.gif"
                                styleClass="menuButton"
                                style="top: 68px"/>
 
             <ui:imageHyperlink action="#{pfMenu.mnuCaseMgt_action}"
                                binding="#{pfMenu.mnuCaseMgt}"
                                id="mnuCaseMgt"
-                               imageURL="/resources/mnuCaseMgt.png"
+                               imageURL="/resources/mnuCaseMgt.gif"
                                styleClass="menuButton"
                                style="top: 96px"/>
 
             <ui:imageHyperlink action="#{pfMenu.mnuServiceMgt_action}"
                                binding="#{pfMenu.mnuServiceMgt}"
                                id="mnuServiceMgt"
-                               imageURL="/resources/mnuServiceMgt.png"
+                               imageURL="/resources/mnuServiceMgt.gif"
                                styleClass="menuButton"
                                style="top: 124px"/>
 
             <ui:imageHyperlink action="#{pfMenu.mnuOrgDataMgt_action}"
                                binding="#{pfMenu.mnuOrgDataMgt}"
                                id="mnuOrgDataMgt"
-                               imageURL="/resources/mnuOrgDataMgt.png"
+                               imageURL="/resources/mnuOrgDataMgt.gif"
                                styleClass="menuButton"
                                style="top: 152px"/>
 

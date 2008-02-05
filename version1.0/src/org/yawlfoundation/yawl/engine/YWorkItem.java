@@ -22,6 +22,9 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -175,7 +178,6 @@ public class YWorkItem {
     private boolean unpackTimerParams(String param, YCaseData data) {
         if (data == null)
             data = YEngine.getInstance().getCaseData(_workItemID.getCaseID());
-
         Element eData = JDOMUtil.stringToElement(data.getData());
 
         Element timerParams = eData.getChild(param) ;
@@ -183,7 +185,7 @@ public class YWorkItem {
 
         String trigger = timerParams.getChildText("trigger");
         if (trigger == null) return false ;                // no trigger value set
-
+        
         _timerParameters.put("trigger", YWorkItemTimer.Trigger.valueOf(trigger));
 
         String expiry = timerParams.getChildText("expiry");
@@ -192,14 +194,29 @@ public class YWorkItem {
             return true ;                                 // OK - trigger & expiry set
         }
         else {
-            String ticks = timerParams.getChildText("ticks") ;
-            String interval = timerParams.getChildText("interval") ;
-            if ((ticks != null) && (interval != null)) {
-                _timerParameters.put("ticks", new Long(ticks)) ;
-                _timerParameters.put("interval", YTimer.TimeUnit.valueOf(interval)) ;
-                return true ;                       // OK - trigger, ticks & i'val set
+            String durationStr = timerParams.getChildText("duration");
+
+            if (durationStr != null) {
+                try {
+                    Duration duration = DatatypeFactory.newInstance()
+                                                       .newDuration(durationStr) ;
+                    _timerParameters.put("duration", duration);
+                    return true ;                        // OK - trigger & duration set
+                }
+                catch (DatatypeConfigurationException dce) {
+                    return false ;   // invalid duration value - timer won't be set
+                }
             }
-            else return false ;                      // not all values valid
+            else {
+                String ticks = timerParams.getChildText("ticks") ;
+                String interval = timerParams.getChildText("interval") ;
+                if ((ticks != null) && (interval != null)) {
+                    _timerParameters.put("ticks", new Long(ticks)) ;
+                    _timerParameters.put("interval", YTimer.TimeUnit.valueOf(interval)) ;
+                    return true ;                      // OK - trigger, ticks & i'val set
+                }
+                return false ;                         // not all values valid
+            }    
         }
     }
 
@@ -286,6 +303,8 @@ public class YWorkItem {
                                 (_status.equals(statusEnabled))) ||
                 ((trigger == YWorkItemTimer.Trigger.OnExecuting) &&
                                 (_status.equals(statusExecuting)))) {
+
+                // try expiry type first
                 String expiry = (String) _timerParameters.get("expiry");
                 if (expiry != null) {
                     Date expiryTime = new Date(new Long(expiry)) ;
@@ -293,15 +312,24 @@ public class YWorkItem {
                     _timerStarted = true ;
                 }
                 else {
-                    long ticks = (Long) _timerParameters.get("ticks");
-                    if (ticks > 0) {
-                        YTimer.TimeUnit interval = (YTimer.TimeUnit)
+                    // try duration type
+                    Duration duration = (Duration) _timerParameters.get("duration");
+                    if (duration != null) {
+                        new YWorkItemTimer(_workItemID.toString(), duration, (pmgr != null));
+                        _timerStarted = true ;
+                    }
+                    else {
+                        // other duration settings
+                        long ticks = (Long) _timerParameters.get("ticks");
+                        if (ticks > 0) {
+                            YTimer.TimeUnit interval = (YTimer.TimeUnit)
                                                       _timerParameters.get("interval") ;
 
-                        if (interval == null) interval = YTimer.TimeUnit.MSEC ;
-                        new YWorkItemTimer(_workItemID.toString(),
+                            if (interval == null) interval = YTimer.TimeUnit.MSEC ;
+                            new YWorkItemTimer(_workItemID.toString(),
                                                        ticks, interval, (pmgr != null)) ;
-                        _timerStarted = true ;
+                            _timerStarted = true ;
+                        }
                     }    
                 }
             }
@@ -522,6 +550,10 @@ public class YWorkItem {
     public void setTimerParameters(Map params) {
         _timerParameters = params;
     }
+
+    public boolean isTimerStarted() { return _timerStarted; }
+
+    public void setTimerStarted(boolean started) { _timerStarted = started; }
 
     public boolean allowsDynamicCreation() { return _allowsDynamicCreation; }
 

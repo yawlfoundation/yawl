@@ -566,7 +566,11 @@ public class SessionBean extends AbstractSessionBean {
 
     /****** This section used by the 'Case Mgt' Page ***************************/
 
+    // a list of all specs loaded into the engine
     List<SpecificationData> loadedSpecs ;
+
+    // a list of schema libraries (user defined types) for each spec
+    Hashtable<String, String> schemaLibraries;
 
     public List<SpecificationData> getLoadedSpecs() {
         if (loadedSpecs == null) refreshLoadedSpecs() ;
@@ -586,6 +590,7 @@ public class SessionBean extends AbstractSessionBean {
         if (specDataSet != null) {
             loadedSpecs = new ArrayList<SpecificationData>(specDataSet);
             Collections.sort(loadedSpecs, new SpecificationDataComparator());
+            refreshSchemaLibraries() ;
         }
         else
             loadedSpecs = null ;
@@ -594,6 +599,23 @@ public class SessionBean extends AbstractSessionBean {
 
     public SpecificationData getLoadedSpec(int listIndex) {
         return loadedSpecs.get(listIndex);
+    }
+
+
+    private void refreshSchemaLibraries() {
+        schemaLibraries = new Hashtable<String, String>();
+        for (SpecificationData spec : loadedSpecs) {
+            try {
+                schemaLibraries.put(spec.getID(), spec.getSchemaLibrary()) ;
+            }
+            catch (Exception e) {
+                // some kind of io or jdom exception
+            }
+        }
+    }
+
+    public String getSchemaLibrary(String specID) {
+        return schemaLibraries.get(specID);
     }
 
 

@@ -11,14 +11,15 @@ package org.yawlfoundation.yawl.resourcing;
 import org.yawlfoundation.yawl.resourcing.interactions.*;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.allocators.ShortestQueue;
+import org.yawlfoundation.yawl.resourcing.interactions.ResourceParseException;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.HashSet;
 import java.util.HashMap;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -51,6 +52,7 @@ public class ResourceMap {
     private HashMap<String, HashSet<Participant>> _offered = new
             HashMap<String, HashSet<Participant>>() ;
 
+    private Logger _log = Logger.getLogger(this.getClass()) ;
 
     public ResourceMap(String taskID) {
         _taskID = taskID ;
@@ -213,13 +215,19 @@ public class ResourceMap {
     public void parse(Element eleSpec) {
         if (eleSpec != null) {
             Namespace nsYawl = eleSpec.getNamespace() ;
-            _offer.parse(eleSpec.getChild("offer", nsYawl), nsYawl) ;
-            _allocate.parse(eleSpec.getChild("allocate", nsYawl), nsYawl) ;
-            _start.parse(eleSpec.getChild("start", nsYawl), nsYawl) ;
-            _privileges.parse(eleSpec.getChild("privileges", nsYawl), nsYawl) ;
+            try {
+                _offer.parse(eleSpec.getChild("offer", nsYawl), nsYawl) ;
+                _allocate.parse(eleSpec.getChild("allocate", nsYawl), nsYawl) ;
+                _start.parse(eleSpec.getChild("start", nsYawl), nsYawl) ;
+                _privileges.parse(eleSpec.getChild("privileges", nsYawl), nsYawl) ;
+                _log.info("Resourcing specification successfully parsed for task: " + _taskID);
+            }
+            catch (ResourceParseException rpe) {
+                _log.error(
+                     "Error parsing resourcing specification for task: " + _taskID, rpe);
+            }
         }
     }
-
 
     
     public String toXML() {
@@ -227,7 +235,7 @@ public class ResourceMap {
         xml.append(_offer.toXML()) ;
         xml.append(_allocate.toXML()) ;
         xml.append(_start.toXML()) ;
-        if (_privileges != null) xml.append(_privileges.toXML()) ;
+        xml.append(_privileges.toXML()) ;
         xml.append("</resourcing>");
         return xml.toString() ;
     }

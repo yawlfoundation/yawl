@@ -10,6 +10,7 @@ package org.yawlfoundation.yawl.resourcing.interactions;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.yawlfoundation.yawl.resourcing.interactions.ResourceParseException;
 
 /**
  *  This class describes the requirements of a task at the start phase of
@@ -30,7 +31,7 @@ public class StartInteraction extends AbstractInteraction {
     public StartInteraction(String ownerTaskID) { super(ownerTaskID) ; }
 
 
-    public void parse(Element e, Namespace nsYawl) {
+    public void parse(Element e, Namespace nsYawl) throws ResourceParseException {
         if (e != null) parseInitiator(e, nsYawl) ;
     }
 

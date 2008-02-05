@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.resourcing.interactions;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.yawlfoundation.yawl.resourcing.interactions.ResourceParseException;
 
 import java.util.Map;
 import java.util.List;
@@ -61,19 +62,25 @@ public abstract class AbstractInteraction {
 
 
     public String getInitiatorString() {
-        if (_initiator == SYSTEM_INITIATED) return "system" ;
+        if (isSystemInitiated()) return "system" ;
         else return "user" ;
     }
 
+    public boolean isSystemInitiated() { return _initiator == SYSTEM_INITIATED; }
 
-    public void parseInitiator(Element e, Namespace nsYawl) {
+
+    public void parseInitiator(Element e, Namespace nsYawl) throws ResourceParseException {
+        if (e == null)
+            throw new ResourceParseException("Missing resource specification.");
+
         String init = e.getChildText("initiator", nsYawl) ;
-        if (init != null) {
-            if (init.equals("system"))
-                _initiator = SYSTEM_INITIATED;
-        }    
+        if (init == null)
+            throw new ResourceParseException("Missing resource initiator.");
+
+        if (init.equals("system"))  _initiator = SYSTEM_INITIATED;
     }
 
+    
     public Map parseParams(Element e, Namespace nsYawl) {
         HashMap result = new HashMap() ;
         Element eParams = e.getChild("params", nsYawl);

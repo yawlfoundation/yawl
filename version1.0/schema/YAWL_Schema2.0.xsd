@@ -465,7 +465,7 @@
 	<xs:complexType name="ResourcingOfferFactsType">
 		<xs:sequence>
 			<xs:element name="initiator" type="yawl:ResourcingInitiatorType"/>
-			<xs:element name="distributionSet" type="yawl:ResourcingDistributionSetFactsType"/>
+			<xs:element name="distributionSet" type="yawl:ResourcingDistributionSetFactsType" minOccurs="0"/>
 			<xs:element name="familiarParticipant" minOccurs="0">
 				<xs:complexType>
 					<xs:attribute name="taskID" type="yawl:NameType" use="required"/>
@@ -554,13 +554,19 @@
                     <xs:element name="trigger" type="yawl:TimerTriggerType"/>
                     <xs:choice>
                         <xs:element name="expiry" type="xs:long"/>
-                        <xs:element name="duration" type="yawl:TimerDurationFactsType"/>
+                        <xs:choice>
+                            <xs:element name="duration" type="xs:duration"/>
+                            <xs:element name="durationparams"
+                                        type="yawl:TimerDurationFactsType"/>
+                        </xs:choice>    
                     </xs:choice>
                 </xs:sequence>
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
-
+	<!--
+	#### TYPE #### TimerDurationFactsType
+	-->
     <xs:complexType name="TimerDurationFactsType">
         <xs:sequence>
             <xs:element name="ticks" type="xs:long"/>

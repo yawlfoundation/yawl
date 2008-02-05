@@ -372,6 +372,10 @@ public class TaskPrivileges {
     public void parse(Element e, Namespace nsYawl) {
         if (e != null) {
             List ePrivileges = e.getChildren("privilege", nsYawl);
+
+            // if no privileges element to deal with, we're done
+            if (ePrivileges == null) return;
+
             Iterator itr = ePrivileges.iterator() ;
             while (itr.hasNext()) {
                 Element ePrivilege = (Element) itr.next();
@@ -421,7 +425,12 @@ public class TaskPrivileges {
            xml.append(buildXMLForPrivilege(i)) ;
 
         xml.append("</privileges>");
-        return xml.toString();
+
+        // output xml only if the element isn't empty 
+        if (xml.length() > 26)
+            return xml.toString();
+        else
+            return "" ;                        // returns "" because null gives "null"
     }
     
 

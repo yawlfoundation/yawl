@@ -15,6 +15,14 @@ import javax.faces.application.Application;
 import javax.faces.context.FacesContext;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
+import java.util.Iterator;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import org.jdom.Element;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 public class DynFormFactory extends AbstractSessionBean {
 
@@ -24,92 +32,13 @@ public class DynFormFactory extends AbstractSessionBean {
     private void _init() throws Exception { }
 
 
-    // the are components of the form that are managed by this object
-
-//    private Head head = new Head();
-//
-//    public Head getHead() { return head; }
-//
-//    public void setHead(Head h) { head = h; }
-//
-//
-//    private Body body = new Body();
-//
-//    public Body getBody() { return body; }
-//
-//    public void setBody(Body b) { body = b; }
-
+    // these are components of the dynamic form that are managed by this object
 
     private PanelLayout compPanel = new PanelLayout();
 
     public PanelLayout getCompPanel() { return compPanel; }
 
     public void setCompPanel(PanelLayout pl) { compPanel = pl; }
-
-
-//    private Button btnOK = new Button();
-//
-//    public Button getBtnOK() { return btnOK; }
-//
-//    public void setBtnOK(Button b) { btnOK = b; }
-//
-//
-//    private Button btnCancel = new Button();
-//
-//    public Button getBtnCancel() { return btnCancel; }
-//
-//    public void setBtnCancel(Button b) { btnCancel = b; }
-//
-//
-//    private Page page1 = new Page();
-//
-//    public Page getPage1() { return page1; }
-//
-//    public void setPage1(Page p) { page1 = p; }
-//
-//
-//    private Html html1 = new Html();
-//
-//    public Html getHtml1() { return html1; }
-//
-//    public void setHtml1(Html h) { html1 = h; }
-//
-//
-//    private Head head1 = new Head();
-//
-//    public Head getHead1() { return head1; }
-//
-//    public void setHead1(Head h) { head1 = h; }
-//
-//
-//    private Link link1 = new Link();
-//
-//    public Link getLink1() { return link1; }
-//
-//    public void setLink1(Link l) { link1 = l; }
-//
-//
-//    private Body body1 = new Body();
-//
-//    public Body getBody1() { return body1; }
-//
-//    public void setBody1(Body b) { body1 = b; }
-//
-//
-//    private Form form1 = new Form();
-//
-//    public Form getForm1() { return form1; }
-//
-//    public void setForm1(Form f) { form1 = f; }
-//
-//
-//    private StaticText txtHeader = new StaticText();
-//
-//    public StaticText getTxtHeader() { return txtHeader; }
-//
-//    public void setTxtHeader(StaticText st) { txtHeader = st; }
-//
-//
 
 
     /****************************************************************************/
@@ -210,8 +139,12 @@ public class DynFormFactory extends AbstractSessionBean {
 
             // create and add the appropriate input field
             UIComponent field ;
-            if (param.getDataTypeName().equals("boolean"))
+            if (!isPrimitiveType(param.getDataTypeName()))
+                field = makeComplexType(param, topStyle) ;
+            else if (param.getDataTypeName().equals("boolean"))
                 field = makeCheckbox(param, topStyle);
+            else if (param.getDataTypeName().equals("date"))
+                field = makeCalendar(param, topStyle);            
             else {
                 if (param.isInputOnly())
                     field = makeReadOnlyTextField(param, topStyle);
@@ -259,6 +192,16 @@ public class DynFormFactory extends AbstractSessionBean {
                     param.setValue(selected.toString());
                 }    
             }
+            else if (o instanceof Calendar) {
+                Calendar cal = (Calendar) o ;
+                name = cal.getId().substring(3);
+                param = params.get(name) ;
+                if (param != null) {
+                    String val = new SimpleDateFormat("yyyy-MM-dd")
+                                     .format(cal.getSelectedDate());
+                    param.setValue(val);
+                }
+            }
         }
         return params;
     }
@@ -276,14 +219,96 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
+    private Element getTypeDef(FormParameter param) {
+        Element result = null ;
+
+        // get schema library for the spec this param is a member of
+        String library = ((SessionBean) getBean("SessionBean"))
+                                            .getSchemaLibrary("dummyID");
+        Element eLibrary = JDOMUtil.stringToElement(library);
+
+        // search the library for the definition of this param's type
+        String dataType = param.getDataTypeName();
+        Iterator libItr = eLibrary.getChildren().iterator();
+        while (libItr.hasNext()) {
+            Element schema = (Element) libItr.next() ;
+            if (schema.getAttributeValue("name").equals(dataType)) {
+                result = schema ;
+                break ;                               // found & done
+            }
+        }
+        return result;
+    }
+
+
+    public PanelLayout makeComplexType(FormParameter param, String topStyle) {
+        PanelLayout result = null;
+        Element schema = getTypeDef(param);
+
+        if (schema != null) {
+            result = composeComplexType(schema, param) ;
+            // parse the data type schema
+
+            // each element can be:
+            // - another complex type - recurse
+            // - sequence with min & max - affects the following elements
+            // - element withe name, min & max - affects the following elements
+            // - element with name and type
+            //    - if type is complex, recurse to top
+            //    - if type is primitive, render it
+        }
+        return result ;
+    }
+
+
+    private PanelLayout composeComplexType(Element schema, FormParameter param) {
+        PanelLayout result = new PanelLayout();
+        int seqMin, seqMax, eleMin, eleMax ;
+
+        String name = schema.getAttributeValue("name");
+        Label headLabel = makeSimpleLabel(name);
+        result.getChildren().add(headLabel);               // todo: style for position
+
+        Iterator itr = schema.getChildren().iterator();
+        while (itr.hasNext()) {
+            Element child = (Element) itr.next();
+            String eleName = child.getName();
+            if (eleName.equals("complexType"))
+                composeComplexType(child, param);           // recurse for inner type
+            else if (eleName.equals("sequence")) {
+                seqMin = new Integer(child.getAttributeValue("minOccurs"));
+                seqMax = new Integer(child.getAttributeValue("maxOccurs"));
+            }
+            else if (eleName.equals("element")) {
+                String dataType = child.getAttributeValue("type");
+                if (dataType != null) {
+                    if (isPrimitiveType(dataType)) {
+                        // build component
+                    }
+                    else makeComplexType(param, null);       // todo: build component
+                }
+            }
+
+            
+        }
+
+        return result ;
+    }
+
+
     public Label makeLabel(FormParameter param, String topStyle) {
-        String pName = param.getName();
-        Label label = new Label() ;
-        label.setId("lbl" + pName);
-        label.setText(pName + ": ");
+        Label label = makeSimpleLabel(param.getName()) ;
         label.setStyleClass("dynformLabel");
         label.setStyle(topStyle) ;
         label.setRequiredIndicator(param.isMandatory() || param.isRequired());
+        return label;
+    }
+
+
+    public Label makeSimpleLabel(String text) {
+        Label label = new Label() ;
+        label.setId("lbl" + text);
+        label.setText(text + ": ");
         return label;
     }
 
@@ -301,6 +326,20 @@ public class DynFormFactory extends AbstractSessionBean {
         return cbox ;
     }
 
+
+    public Calendar makeCalendar(FormParameter param, String topStyle) {
+        Calendar cal = new Calendar();
+        cal.setId("cal" + param.getName());
+        cal.setSelectedDate(createDate(param.getValue()));
+        cal.setDateFormatPatternHelp("");        
+        cal.setReadOnly(param.isInputOnly());
+        cal.setColumns(15);
+        cal.setStyleClass("dynformInput");
+        cal.setStyle(topStyle) ;
+        return cal;
+    }
+
+    
     /**
      * Readonly textFields are rendered to look like labels - so this method fakes
      * a textfield's visuals, but with a grayed background and italic text
@@ -314,7 +353,6 @@ public class DynFormFactory extends AbstractSessionBean {
         panel.setPanelLayout("flow");
         panel.setStyleClass("dynformReadOnlyPanel");
         panel.setStyle(topStyle);
-   //     panel.setTransient(true);
 
         StaticText roText = new StaticText() ;
         roText.setId("stt" + param.getName());
@@ -349,5 +387,33 @@ public class DynFormFactory extends AbstractSessionBean {
         setFocus("form1:" + component.getId());
         return true ;
     }
+
+    private Date createDate(String dateStr) {
+        // set the date to the param's input value if possible, else default to today
+        Date result = new Date() ;
+
+        if (dateStr != null) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                result = sdf.parse(dateStr) ;
+            }
+            catch (ParseException pe) {
+                // nothing to do - accept new Date default of today
+            }
+        }
+        return result ;
+    }
+
+    
+    private boolean isPrimitiveType(String type) {
+        return (type.equals("string")  ||
+                type.equals("double")  ||
+                type.equals("long")    ||
+                type.equals("boolean") ||
+                type.equals("date")    ||
+                type.equals("time")    ||
+                type.equals("duration"));
+    }
+
 
 }
