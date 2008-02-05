@@ -46,25 +46,31 @@ public class AllocateInteraction extends AbstractInteraction {
         return _allocator.performAllocation(offerSet) ;
     }
 
-    public void parse(Element e, Namespace nsYawl) {
-        if (e != null) {
-            parseInitiator(e, nsYawl) ;
-            Element eAllocator = e.getChild("allocator", nsYawl) ;
-            if (eAllocator != null) {
-                String allocatorClassName = eAllocator.getChildText("name", nsYawl) ;
-                if (allocatorClassName != null) {
-                    _allocator = AllocatorFactory.getInstance(allocatorClassName);
+    public void parse(Element e, Namespace nsYawl) throws ResourceParseException {
+        parseInitiator(e, nsYawl) ;
+
+        Element eAllocator = e.getChild("allocator", nsYawl) ;
+        if (eAllocator != null) {
+            String allocatorClassName = eAllocator.getChildText("name", nsYawl) ;
+            if (allocatorClassName != null) {
+                _allocator = AllocatorFactory.getInstance(allocatorClassName);
+                if (_allocator != null)
                     _allocator.setParams(parseParams(eAllocator, nsYawl));
-                }
-            }    
+                else
+                    throw new ResourceParseException("Unknown allocator name: " +
+                                                               allocatorClassName);
+            }
+            else throw new ResourceParseException("Missing allocator element: name") ;
         }
     }
+
 
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<allocate>");
         xml.append("<initiator>").append(getInitiatorString()).append("</initiator>");
-        if (_allocator != null) xml.append(_allocator.toXML()) ;
+        if (isSystemInitiated())
+             if (_allocator != null) xml.append(_allocator.toXML()) ;
         xml.append("</allocate>");
         return xml.toString();
     }

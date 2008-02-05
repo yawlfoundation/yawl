@@ -18,6 +18,9 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.Attribute;
 
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.*;
 import java.text.DateFormat;
 
@@ -379,19 +382,31 @@ public class YDecompositionParser {
                 String triggerStr = timerElem.getChildText("trigger", _yawlNS) ;
                 YWorkItemTimer.Trigger trigger = YWorkItemTimer.Trigger.valueOf(triggerStr) ;
 
-                String expiry = timerElem.getChildText("expiry", _yawlNS) ;
-
                 // expiry is a stringified long value representing a specific datetime
+                String expiry = timerElem.getChildText("expiry", _yawlNS) ;
                 if (expiry != null)
                     task.setTimerParameters(trigger, new Date(new Long(expiry)));
                 else {
-
-                    // duration type
-                    Element durationElem = timerElem.getChild("duration", _yawlNS);
-                    String tickStr = durationElem.getChildText("ticks", _yawlNS);
-                    String intervalStr = durationElem.getChildText("interval", _yawlNS);
-                    YTimer.TimeUnit interval = YTimer.TimeUnit.valueOf(intervalStr);
-                    task.setTimerParameters(trigger, new Long(tickStr), interval);
+                    // duration type - specified as a Duration?
+                    String durationStr = timerElem.getChildText("duration", _yawlNS);
+                    if (durationStr != null) {
+                        try {
+                            Duration duration = DatatypeFactory.newInstance()
+                                                               .newDuration(durationStr) ;
+                            task.setTimerParameters(trigger, duration);
+                        }
+                        catch (DatatypeConfigurationException dce) {
+                            // nothing to do - timer won't be set
+                        }
+                    }
+                    else {
+                        // ticks / interval durationparams type
+                        Element durationElem = timerElem.getChild("durationparams", _yawlNS);
+                        String tickStr = durationElem.getChildText("ticks", _yawlNS);
+                        String intervalStr = durationElem.getChildText("interval", _yawlNS);
+                        YTimer.TimeUnit interval = YTimer.TimeUnit.valueOf(intervalStr);
+                        task.setTimerParameters(trigger, new Long(tickStr), interval);
+                    }
                 }
             }
         }

@@ -133,6 +133,10 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
         return _namespaceURI;
     }
 
+    public boolean isUserDefinedType() {
+        return (_namespaceURI == null);
+    }
+
 
     public String getName() {
         return _name;

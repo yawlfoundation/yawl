@@ -169,7 +169,7 @@ public abstract class AbstractSelector {
     protected String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append("<name>").append(_name).append("</name>");
-        if (_params != null) {
+        if ((_params != null) && (! _params.isEmpty())) {
             xml.append("<params>");
             String key ;
             Iterator itr = _params.keySet().iterator();

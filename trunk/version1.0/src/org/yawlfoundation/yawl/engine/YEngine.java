@@ -401,9 +401,11 @@ public class YEngine implements InterfaceADesign,
                     // if the deadline has passed, time the workitem out
                     if (endTime < System.currentTimeMillis())
                         witemTimer.handleTimerExpiry();
-                    else
+                    else {
                         // reschedule the workitem's timer
                         YTimer.getInstance().schedule(witemTimer, new Date(endTime));
+                        witem.setTimerStarted(true);
+                    }
                 }
             }    
             logger.info("Restoring work item timers - Ends");

@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.engine.time;
 
+import javax.xml.datatype.Duration;
 import java.util.*;
 
 /**
@@ -35,6 +36,13 @@ public class YTimer extends Timer {
         schedule(new TimeKeeper(timee), expiryTime) ;
         return expiryTime.getTime();
     }
+    
+
+    public long schedule(YTimedObject timee, Duration duration) {
+        long durationAsMilliseconds = duration.getTimeInMillis(new Date());
+        return schedule(timee, durationAsMilliseconds);
+    }
+
 
     public long schedule(YTimedObject timee, long count, TimeUnit unit) {
         long msecFactor = 1;
