@@ -23,153 +23,45 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
-import org.yawlfoundation.yawl.editor.swing.JUtilities;
 
-public class NetDataVariableUpdateDialog extends TaskDataVariableUpdateDialog {
-  
-  /**
-   * 
-   */
+public class NetDataVariableUpdateDialog extends DataVariableUpdateDialog {
+
   private static final long serialVersionUID = 1L;
 
-  protected JXMLSchemaInstanceEditorPane initialValueEditor;
-  
-  private JLabel initialValueLabel;
-  
   public NetDataVariableUpdateDialog(AbstractDoneDialog parent) {
     super(parent);
-
-    getDoneButton().addActionListener(
-      new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          getVariable().setInitialValue(initialValueEditor.getText());
-        }
-      }
+    getVariableValueEditorLabel().setText(
+        "Initial " +
+        getVariableValueEditorLabel().getText()
     );
-    
-    addExtraEventListeners();
   }
 
-  protected void makeLastAdjustments() {
-    setSize(400,300);
-    JUtilities.setMinSizeToCurrent(this);
-  }
-  
-  public void setVariable(DataVariable variable) {
-    super.setVariable(variable);
-    setTitle(DataVariable.SCOPE_NET);
-  }
-  
-  private void addExtraEventListeners() {
-    new ActionAndFocusListener(getTypeComboBox()) {
-      protected void process(Object eventSource) {
-        DataTypeComboBox thisBox = (DataTypeComboBox) eventSource;
-        if (thisBox.isEnabled()) {
-          initialValueEditor.setVariableType((String) thisBox.getSelectedItem());   
-        }
-      }
-    };
-    new ActionAndFocusListener(getNameField()) {
-      protected void process(Object eventSource) {
-        JTextField thisField = (JTextField) eventSource;
-        initialValueEditor.setVariableName(thisField.getText()); 
-      }
-    };
-    new ActionAndFocusListener(getUsageComboBox()) {
-      protected void process(Object eventSource) {
-        enableInitialValueEditorIfAppropriate();
-      }
-    };
-    getUsageComboBox().setScope(DataVariable.SCOPE_NET);
-  }
-  
-  private void enableInitialValueEditorIfAppropriate() {
+  protected void enableVariableValueEditorIfAppropriate() {
     if (getUsageComboBox().isEnabled() && getUsageComboBox().getSelectedItem() != null) {
-      if (((String)getUsageComboBox().getSelectedItem()).equals("Local")) {
-        initialValueEditor.setEnabled(true);
+      if (((String)getUsageComboBox().getSelectedItem()).equals(
+          DataVariable.usageToString(DataVariable.USAGE_LOCAL))) {
+        getVariableValueEditor().setEnabled(true);
       } else {
-        initialValueEditor.setEnabled(false);
+        getVariableValueEditor().setEnabled(false);
       }
     }
   }
-  
-  protected JPanel getVariablePanel() {
-    JPanel panel = super.getVariablePanel();
-    JTabbedPane tabbedPane = (JTabbedPane) panel.getComponent(0);
 
-    JPanel standardPanel = (JPanel) tabbedPane.getComponent(0);
-    
-    standardPanel.add(getInitialValuePanel(), BorderLayout.CENTER);
-
-    tabbedPane.setEnabledAt(1, false);
-    
-    return panel;
+  protected void setEditorValueFromVariable() {
+    getVariableValueEditor().setText(
+        getVariable().getInitialValue()
+    );
   }
-  
-  protected JPanel getInitialValuePanel() {
 
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    JPanel panel = new JPanel(gbl);
-    panel.setBorder(new EmptyBorder(12,12,0,11));
-
-    gbc.insets = new Insets(0,0,5,5);
-    gbc.anchor = GridBagConstraints.NORTHEAST;
-
-    initialValueLabel = new JLabel("Initial Value:");
-    initialValueLabel.setDisplayedMnemonic('V');
-    
-    panel.add(initialValueLabel, gbc);
-
-    gbc.gridwidth = 5;
-    gbc.weightx = 1;
-    gbc.weighty = 1;
-    gbc.fill = GridBagConstraints.BOTH;
-    
-    panel.add(buildInitialValueEditor(),gbc);
-    initialValueLabel.setLabelFor(initialValueEditor);
-    
-    return panel;
+  protected void setVariableValueFromEditorContent() {
+    getVariable().setInitialValue(
+        getVariableValueEditor().getText()
+    );
   }
-  
-  private JXMLSchemaInstanceEditorPane buildInitialValueEditor() {
-    initialValueEditor = new JXMLSchemaInstanceEditorPane();
-    return initialValueEditor;
+
+  protected int getVariableScope() {
+    return DataVariable.SCOPE_NET;
   }
-  
-  protected void setContent() {
-    super.setContent();
-    
-    initialValueLabel.setVisible(true);
-    initialValueEditor.setVisible(true);
-    initialValueEditor.setText(getVariable().getInitialValue());
-    initialValueEditor.setVariableName(getVariable().getName());  
-    initialValueEditor.setVariableType(getVariable().getDataType());  
-    enableInitialValueEditorIfAppropriate();
-  }
-  
-  //BEGIN MLF
-  protected JComponent createExtendedAttributePanel() {
-      //do nothing -> extended attributes are meaningless at net level
-      return null;
-  }
-  //END MLF
 }

@@ -39,7 +39,7 @@ public class DataVariableTablePanel extends AbstractTableUpdatePanel {
    */
   private static final long serialVersionUID = 1L;
   private AbstractDoneDialog parent;
-  protected TaskDataVariableUpdateDialog updateDialog;
+  protected DataVariableUpdateDialog updateDialog;
 
   public DataVariableTablePanel(AbstractDoneDialog dialog) {
     super();

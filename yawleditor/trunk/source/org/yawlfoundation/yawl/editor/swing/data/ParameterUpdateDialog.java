@@ -374,7 +374,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
       public void actionPerformed(ActionEvent event) {
         DataVariable variable = new DataVariable();
 
-        TaskDataVariableUpdateDialog variableUpdateDialog;
+        DataVariableUpdateDialog variableUpdateDialog;
 
         if (outputType == DataVariable.SCOPE_NET) {
           variableUpdateDialog = DataVariableUpdateDialogFactory.getNetDialog(parent);

@@ -34,6 +34,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.AbstractTableUpdateDialog;
 import org.yawlfoundation.yawl.editor.swing.JOrderedSingleSelectTable;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableUpdateDialog;
 import org.yawlfoundation.yawl.editor.swing.data.TaskDataVariableUpdateDialog;
 import org.yawlfoundation.yawl.editor.swing.data.DataVariableTableModel;
 import org.yawlfoundation.yawl.editor.swing.data.DataVariableUpdateDialogFactory;
@@ -46,7 +47,7 @@ public class NetVariableDialog extends AbstractTableUpdateDialog {
    */
   private static final long serialVersionUID = 1L;
 
-  protected final TaskDataVariableUpdateDialog updateDialog;
+  protected final DataVariableUpdateDialog updateDialog;
   
   protected JComboBox netComboBox;
   

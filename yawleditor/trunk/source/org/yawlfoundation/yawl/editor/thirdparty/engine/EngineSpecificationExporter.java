@@ -606,6 +606,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           editorInputVariable.getDataType(),
           editorInputVariable.getName(),
           editorInputVariable.getInitialValue(),
+          null,  // default value for input params not possible.
           editorInputVariable.getAttributes(),
           ordering++    
           
@@ -618,6 +619,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
                                               String dataType, 
                                               String paramName, 
                                               String initialValue,
+                                              String defaultValue,
                                               Hashtable attributes,
                                               int ordering) {
 
@@ -658,6 +660,16 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         );
       }
     }
+
+    if (engineParameterType == YParameter._OUTPUT_PARAM_TYPE) {
+      if (!(defaultValue == null) && !defaultValue.equals("")) {
+        engineParameter.setDefaultValue(
+            XMLUtilities.quoteSpecialCharacters(
+                defaultValue
+            )
+        );
+      }
+    }
     
     if (engineParameterType == YParameter._INPUT_PARAM_TYPE) {
       engineDecomposition.setInputParam(engineParameter);
@@ -687,7 +699,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           YParameter._OUTPUT_PARAM_TYPE,
           editorOutputVariable.getDataType(),
           editorOutputVariable.getName(),
-          editorOutputVariable.getInitialValue(),
+          null,  // intial value for output params not possible
+          editorOutputVariable.getDefaultValue(),
           editorOutputVariable.getAttributes(),
           ordering++
       );
@@ -810,7 +823,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     
     //  We create a map below if there isn't one already.
     
-    ResourceMap engineResourceMapping = engineTask.getResourceMap(true);  
+    ResourceMap engineResourceMapping = engineTask.getResourceMap(true);
+    
+    engineTask.getDecompositionPrototype().setExternalInteraction(true);
 
     populateOfferInteractionDetail(
       atomicEditorTask.getResourceMapping(),
