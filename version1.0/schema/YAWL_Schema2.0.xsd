@@ -101,26 +101,26 @@
 			<xs:enumeration value="role"/>
 		</xs:restriction>
 	</xs:simpleType>
-    <xs:simpleType name="TimerTriggerType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="OnEnabled"/>
-            <xs:enumeration value="OnExecuting"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="TimerIntervalType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="YEAR"/>
-            <xs:enumeration value="MONTH"/>
-            <xs:enumeration value="WEEK"/>
-            <xs:enumeration value="DAY"/>
-            <xs:enumeration value="HOUR"/>
-            <xs:enumeration value="MIN"/>
-            <xs:enumeration value="SEC"/>
-            <xs:enumeration value="MSEC"/>
-        </xs:restriction>
-    </xs:simpleType>
+	<xs:simpleType name="TimerTriggerType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="OnEnabled"/>
+			<xs:enumeration value="OnExecuting"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TimerIntervalType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="YEAR"/>
+			<xs:enumeration value="MONTH"/>
+			<xs:enumeration value="WEEK"/>
+			<xs:enumeration value="DAY"/>
+			<xs:enumeration value="HOUR"/>
+			<xs:enumeration value="MIN"/>
+			<xs:enumeration value="SEC"/>
+			<xs:enumeration value="MSEC"/>
+		</xs:restriction>
+	</xs:simpleType>
 
-    <xs:simpleType name="URIType">
+	<xs:simpleType name="URIType">
 		<xs:restriction base="xs:anyURI"/>
 	</xs:simpleType>
 	<xs:simpleType name="VariableNameType">
@@ -185,6 +185,9 @@
 				<xs:attribute name="ordering" type="xs:integer"/>
 			</xs:extension>
 		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="ResourcingInteractionInitiatorType">
+		<xs:attribute name="initiator" type="yawl:ResourcingInitiatorType" use="required"/>
 	</xs:complexType>
 	<xs:complexType name="TypeNameType">
 		<xs:attribute name="ncname" type="yawl:NCNameType"/>
@@ -298,8 +301,8 @@
 							<xs:field xpath="yawl:mapsTo"/>
 						</xs:key>
 					</xs:element>
-                    <xs:element name="timer" type="yawl:TimerType" minOccurs="0"/>
-                    <xs:element name="resourcing" type="yawl:ResourcingFactsType" minOccurs="0"/>
+					<xs:element name="timer" type="yawl:TimerType" minOccurs="0"/>
+					<xs:element name="resourcing" type="yawl:ResourcingFactsType" minOccurs="0"/>
 					<xs:element name="decomposesTo" type="yawl:DecompositionType" minOccurs="0"/>
 				</xs:sequence>
 			</xs:extension>
@@ -389,10 +392,13 @@
 	#### RESOURCING TYPES
 	-->
 	<xs:complexType name="ResourcingAllocateFactsType">
-		<xs:sequence>
-			<xs:element name="initiator" type="yawl:ResourcingInitiatorType"/>
-			<xs:element name="allocator" type="yawl:ResourcingSelectorFactsType" minOccurs="0"/>
-		</xs:sequence>
+		<xs:complexContent>
+			<xs:extension base="yawl:ResourcingInteractionInitiatorType">
+				<xs:sequence>
+					<xs:element name="allocator" type="yawl:ResourcingSelectorFactsType" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	<!--
     -->
@@ -451,7 +457,7 @@
 		<xs:sequence>
 			<xs:element name="offer" type="yawl:ResourcingOfferFactsType"/>
 			<xs:element name="allocate" type="yawl:ResourcingAllocateFactsType"/>
-			<xs:element name="start" type="yawl:ResourcingStartFactsType"/>
+			<xs:element name="start" type="yawl:ResourcingInteractionInitiatorType"/>
 			<xs:element name="privileges" type="yawl:ResourcingPrivilegesFactsType" minOccurs="0">
 				<xs:unique name="uniquePrivilege">
 					<xs:selector xpath="yawl:privilege"/>
@@ -463,15 +469,18 @@
 	<!--
     -->
 	<xs:complexType name="ResourcingOfferFactsType">
-		<xs:sequence>
-			<xs:element name="initiator" type="yawl:ResourcingInitiatorType"/>
-			<xs:element name="distributionSet" type="yawl:ResourcingDistributionSetFactsType" minOccurs="0"/>
-			<xs:element name="familiarParticipant" minOccurs="0">
-				<xs:complexType>
-					<xs:attribute name="taskID" type="yawl:NameType" use="required"/>
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
+		<xs:complexContent>
+			<xs:extension base="yawl:ResourcingInteractionInitiatorType">
+				<xs:sequence>
+					<xs:element name="distributionSet" type="yawl:ResourcingDistributionSetFactsType" minOccurs="0"/>
+					<xs:element name="familiarParticipant" minOccurs="0">
+						<xs:complexType>
+							<xs:attribute name="taskID" type="yawl:NameType" use="required"/>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	<!--
     -->
@@ -495,11 +504,11 @@
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="name" type="yawl:ResourcingPrivilegeType"/>
-                        <xs:choice>
-                             <xs:element name="allowall" type="xs:boolean"/>
-				  		     <xs:element name="set" type="yawl:ResourcingSetFactsType"/>
-                        </xs:choice>
-                    </xs:sequence>
+						<xs:choice>
+							<xs:element name="allowall" type="xs:boolean"/>
+							<xs:element name="set" type="yawl:ResourcingSetFactsType"/>
+						</xs:choice>
+					</xs:sequence>
 				</xs:complexType>
 				<xs:unique name="uniqueSetParticipant">
 					<xs:selector xpath="yawl:set"/>
@@ -809,9 +818,9 @@
 	#### TYPE #### VersionType
 	-->	
 	<xs:simpleType name="VersionType">
-	  <xs:restriction base="xs:decimal">
-	    <xs:minInclusive value="0.1"/>
-	  </xs:restriction>
+		<xs:restriction base="xs:decimal">
+			<xs:minInclusive value="0.1"/>
+		</xs:restriction>
 	</xs:simpleType>
 	<!--
 	#### TYPE #### IndividualOrOrganisationType

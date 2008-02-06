@@ -15,6 +15,7 @@ import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
+import org.jdom.Document;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -52,8 +53,8 @@ public class TestService extends InterfaceBWebsideController {
         output.append("<html><head><title>YAWL Test Service Welcome Page</title>")
               .append("</head><body><H3>Test Output</H3><p>");
 
-        output.append(doResourceServiceGatewayTest()) ;
-
+   //     output.append(doResourceServiceGatewayTest()) ;
+        output.append(ibTest());
    //      output.append(doLogGatewayTest()) ;
 
          output.append("</p></body></html>");
@@ -255,6 +256,13 @@ public class TestService extends InterfaceBWebsideController {
     }
         /******* TEST CODE ENDS HERE *************************************************/
 
-
+    private String ibTest() {
+        try {
+            String handle = _interfaceBClient.connect("admin", "YAWL");
+           Document doc = _interfaceBClient.getCaseData("246", handle);
+        }
+        catch (Exception e) {}
+            return "";
+    }
 
 }

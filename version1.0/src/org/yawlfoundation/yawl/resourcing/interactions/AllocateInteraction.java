@@ -67,8 +67,9 @@ public class AllocateInteraction extends AbstractInteraction {
 
 
     public String toXML() {
-        StringBuilder xml = new StringBuilder("<allocate>");
-        xml.append("<initiator>").append(getInitiatorString()).append("</initiator>");
+        StringBuilder xml = new StringBuilder("<allocate ");
+        xml.append("initiator=\"").append(getInitiatorString()).append("\">");
+        
         if (isSystemInitiated())
              if (_allocator != null) xml.append(_allocator.toXML()) ;
         xml.append("</allocate>");
