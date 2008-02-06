@@ -440,9 +440,9 @@ public class OfferInteraction extends AbstractInteraction {
     
     public String toXML() {
         Iterator itr ;
-        StringBuilder xml = new StringBuilder("<offer>");
+        StringBuilder xml = new StringBuilder("<offer ");
 
-        xml.append("<initiator>").append(getInitiatorString()).append("</initiator>");
+        xml.append("initiator=\"").append(getInitiatorString()).append("\">");
 
         // the rest of the xml is only needed if it's system intiated
         if (isSystemInitiated()) {

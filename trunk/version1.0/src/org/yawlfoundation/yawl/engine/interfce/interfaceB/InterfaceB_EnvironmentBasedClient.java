@@ -515,11 +515,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     public String getCaseDataAsXML(String caseID, String sessionHandle) throws IOException {
-        return executeGet(_backEndURIStr + "/caseID/" + caseID +
-                "?" +
-                "action=getCaseData" +
-                "&" +
-                "sessionHandle=" + sessionHandle);
+        return stripOuterElement(executeGet(_backEndURIStr + "/caseID/" + caseID +
+                "?action=getCaseData&sessionHandle=" + sessionHandle));
     }
 
 

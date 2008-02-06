@@ -2,7 +2,6 @@ package org.yawlfoundation.yawl.resourcing.interactions;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
-import org.yawlfoundation.yawl.resourcing.interactions.ResourceParseException;
 
 import java.util.Map;
 import java.util.List;
@@ -73,11 +72,12 @@ public abstract class AbstractInteraction {
         if (e == null)
             throw new ResourceParseException("Missing resource specification.");
 
-        String init = e.getChildText("initiator", nsYawl) ;
-        if (init == null)
-            throw new ResourceParseException("Missing resource initiator.");
+        String initiator = e.getAttributeValue("initiator") ;
+        if (initiator == null)
+            throw new ResourceParseException(
+                  "Missing attribute 'initiator' on resourcing element: " + e.getName());
 
-        if (init.equals("system"))  _initiator = SYSTEM_INITIATED;
+        if (initiator.equals("system"))  _initiator = SYSTEM_INITIATED;
     }
 
     

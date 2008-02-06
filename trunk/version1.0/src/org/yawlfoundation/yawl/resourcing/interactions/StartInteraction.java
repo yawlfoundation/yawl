@@ -37,8 +37,8 @@ public class StartInteraction extends AbstractInteraction {
 
 
     public String toXML() {
-        StringBuilder xml = new StringBuilder("<start>");
-        xml.append("<initiator>").append(getInitiatorString()).append("</initiator>");
+        StringBuilder xml = new StringBuilder("<start ");
+        xml.append("initiator=\"").append(getInitiatorString()).append("\">");
         xml.append("</start>");
         return xml.toString();
     }
