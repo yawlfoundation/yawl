@@ -27,7 +27,7 @@ public class YCaseEvent {
     private String _eventName;                            // what type of event it was
     private String _resourceID;                           // who triggered the event
     private String _specID;                               // specification of the case
-    private String _parentSpecID;                         // if this is a sub-net
+    private String _subnetID;                             // if this is a sub-net
 
     // constants for the case events logged
     public static String START = "started" ;
@@ -41,14 +41,14 @@ public class YCaseEvent {
 
 
     public YCaseEvent(String eventID, String caseID, long eventTime, String eventName,
-                      String resourceID, String specID, String parentSpecID) {
+                      String resourceID, String specID, String subnetID) {
         _caseEventID = eventID ;
         _caseID = caseID;
         _eventTime = eventTime;
         _eventName = eventName;
         _resourceID = resourceID;
         _specID = specID;
-        _parentSpecID = parentSpecID;
+        _subnetID = subnetID;
     }
 
     /****************************************************************************/
@@ -61,7 +61,7 @@ public class YCaseEvent {
         xml.append(StringUtil.wrap(_eventName, "eventName"));
         xml.append(StringUtil.wrap(_resourceID, "resourceID"));
         xml.append(StringUtil.wrap(_specID, "specID"));
-        xml.append(StringUtil.wrap(_parentSpecID, "parentSpecID"));
+        xml.append(StringUtil.wrap(_subnetID, "subnetID"));
         xml.append("</CaseEvent>");
         return xml.toString() ;
     }
@@ -99,8 +99,8 @@ public class YCaseEvent {
     public void set_specID(String specID) { _specID = specID; }
 
 
-    public String get_parentSpecID() { return _parentSpecID; }
+    public String get_subnetID() { return _subnetID; }
 
-    public void set_parentSpecID(String parentSpecID) { _parentSpecID = parentSpecID; }
+    public void set_subnetID(String subnetID) { _subnetID = subnetID; }
 
 }

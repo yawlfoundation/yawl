@@ -18,6 +18,7 @@ import org.yawlfoundation.yawl.exceptions.YQueryException;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.logging.YEventLogger;
 
 import java.util.Iterator;
 import java.util.List;
@@ -83,6 +84,10 @@ public final class YCompositeTask extends YTask {
          */
         //todo AJH Do we actually need this call here ????
 //        YPersistance.getInstance().storeData(netRunner);
+
+        // log sub-case start event
+        YEventLogger.getInstance().logSubNetCreated(pmgr, netRunner.getCaseID(), this.getID());
+
 
         netRunner.continueIfPossible(pmgr);
         netRunner.start(pmgr);

@@ -118,6 +118,10 @@ public class WorkQueueGateway  {          // extends HttpServlet
         return p.getWorkQueues().getQueuedWorkItems(queue) ;
     }
 
+    public Set getParticipantsAssignedWorkItem(String workItemID, int queueType) {
+        return rm.getParticipantsAssignedWorkItem(workItemID, queueType) ;
+    }
+
 
     public void acceptOffer(Participant p, WorkItemRecord wir, String handle) throws IOException {
         if (checkConnection(handle))

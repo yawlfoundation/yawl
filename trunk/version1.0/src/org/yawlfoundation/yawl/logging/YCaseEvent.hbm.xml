@@ -9,12 +9,12 @@
 
         <id name="_caseEventID"        column="CaseEventID"></id>
 
-    	<property name="_caseID"       column="CaseID"/>
-    	<property name="_eventTime"    column="EventTime"         type="long"/>
-    	<property name="_eventName"    column="EventName"/>
-    	<property name="_resourceID"   column="ResourceID"/>
-    	<property name="_specID"       column="SpecID"/>
-    	<property name="_parentSpecID" column="ParentSpecID"/>
+    	<property name="_caseID"      column="CaseID"/>
+    	<property name="_eventTime"   column="EventTime"         type="long"/>
+    	<property name="_eventName"   column="EventName"/>
+    	<property name="_resourceID"  column="ResourceID"/>
+    	<property name="_specID"      column="SpecID"/>
+    	<property name="_subnetID"    column="SubnetID"/>
 
 	</class>
 	

@@ -687,7 +687,9 @@ public class YPersistenceManager {
             if (query != null) {
                 if (! query.list().isEmpty()) {
                     YCaseEvent caseEvent = (YCaseEvent) query.iterate().next();
-                    lastCaseNbr = Integer.parseInt(caseEvent.get_caseID());
+
+                    // only want integral case numbers
+                    lastCaseNbr = new Double(caseEvent.get_caseID()).intValue();
                 }    
             }
             session.close();

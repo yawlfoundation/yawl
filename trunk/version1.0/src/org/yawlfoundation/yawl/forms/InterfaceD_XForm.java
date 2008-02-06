@@ -67,4 +67,11 @@ public class InterfaceD_XForm extends InterfaceD_Client{
 		queryMap.put("sessionHandle", sessionHandle);
 		return executePost(_interfaceDServerURI, queryMap, workItem);
 	}
+
+
+	public String sendHTMLWorkItemData(Map queryMap)
+		throws IOException, JDOMException {
+
+		return executePost(_interfaceDServerURI, queryMap);
+	}
 }

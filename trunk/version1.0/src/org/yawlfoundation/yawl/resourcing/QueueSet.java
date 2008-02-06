@@ -155,6 +155,10 @@ public class QueueSet implements Serializable {
         return result ;
     }
 
+    public boolean hasWorkItemInQueue(String itemID, int queue) {
+        return !isNullQueue(queue) && (getQueue(queue).get(itemID) != null);
+    }
+
 
     public void removeFromAllQueues(WorkItemRecord wir) {
         int max, min;

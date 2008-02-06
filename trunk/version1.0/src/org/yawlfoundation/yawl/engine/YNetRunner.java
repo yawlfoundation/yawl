@@ -545,8 +545,7 @@ public class YNetRunner // extends Thread
                             }
                             /****************************/
 
-                            Iterator caseIDs = null;
-                            caseIDs = task.t_fire(pmgr).iterator();
+                            Iterator caseIDs = task.t_fire(pmgr).iterator();
                             while (caseIDs.hasNext()) {
                                 YIdentifier id = (YIdentifier) caseIDs.next();
                                 task.t_start(pmgr, id);
