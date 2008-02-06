@@ -110,6 +110,7 @@ public class ResourceManager extends InterfaceBWebsideController
     private Namespace _yNameSpace =
             Namespace.getNamespace("http://www.yawlfoundation.org/yawlschema");
 
+    // interface client references - IBClient is inherited from WebSideController
     private InterfaceA_EnvironmentBasedClient _interfaceAClient ;
     private YLogGatewayClient _interfaceEClient;
 
@@ -654,6 +655,18 @@ public class ResourceManager extends InterfaceBWebsideController
         if (qs != null)
            return qs.getQueuedWorkItems(queue) ;
         else return null ;
+    }
+
+    public Set<Participant> getParticipantsAssignedWorkItem(String workItemID,
+                                                            int queueType) {
+        Set<Participant> result = new HashSet<Participant>();
+        for (Participant p : _ds.participantMap.values()) {
+            QueueSet qSet = p.getWorkQueues();
+            if ((qSet != null) && (qSet.hasWorkItemInQueue(workItemID, queueType)))            
+                 result.add(p);
+        }
+        if (result.isEmpty()) result = null;
+        return result;
     }
 
 

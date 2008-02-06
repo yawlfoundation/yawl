@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.logging;
 import org.yawlfoundation.yawl.engine.*;
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.hibernate.Query;
 import org.hibernate.HibernateException;
 
@@ -69,11 +70,12 @@ public class YEventLogger {
      * @param resourceID the userid of the user started the case (used only for starting)
      * @param eventType one of 'started', 'cancelled' or 'completed'
      * @param specID the case's specification id
+     * @param subCaseID the id of a subnet
      * @throws YPersistenceException if row cannot be created in the log
      */
     public void logCaseEvent(YPersistenceManager pmgr, String caseID, String resourceID,
-                          String eventType, String specID) throws YPersistenceException {
-
+                             String eventType, String specID, String subtaskID)
+                                                        throws YPersistenceException {
         if ((pmgr != null) && enabled) {
 
              // get new primary key value for this event row
@@ -87,7 +89,7 @@ public class YEventLogger {
 
             // persist the event row
             YCaseEvent caseEvent = new YCaseEvent(eventID, caseID, now(), eventType,
-                                                  resourceID, specID, null);
+                                                  resourceID, specID, subtaskID);
             pmgr.storeObjectFromExternal(caseEvent);
         }
     }
@@ -95,13 +97,19 @@ public class YEventLogger {
 
     public void logCaseCreated(YPersistenceManager pmgr, String caseID, String resourceID,
                                String specID) throws YPersistenceException {
-        logCaseEvent(pmgr, caseID, resourceID, YCaseEvent.START, specID) ;
+        logCaseEvent(pmgr, caseID, resourceID, YCaseEvent.START, specID, null) ;
+    }
+
+
+    public void logSubNetCreated(YPersistenceManager pmgr, YIdentifier subnetID,
+                                 String taskID) throws YPersistenceException {
+        logCaseEvent(pmgr, subnetID.toString(),  null, YCaseEvent.START, null, taskID);
     }
 
 
     public void logCaseCancelled(YPersistenceManager pmgr, String caseID)
                                                      throws YPersistenceException {
-        logCaseEvent(pmgr, caseID, null, YCaseEvent.CANCEL, null) ;
+        logCaseEvent(pmgr, caseID, null, YCaseEvent.CANCEL, null, null) ;
         _cancelledCaseSet.add(caseID) ;                     // remember cancellation
     }
 
@@ -111,7 +119,7 @@ public class YEventLogger {
 
         // prevent double logging of cancellation and completion
         if (! _cancelledCaseSet.contains(caseID))
-            logCaseEvent(pmgr, caseID, null, YCaseEvent.COMPLETE, null);
+            logCaseEvent(pmgr, caseID, null, YCaseEvent.COMPLETE, null, null);
         else
             _cancelledCaseSet.remove(caseID) ;               // done with this one
     }
@@ -325,17 +333,13 @@ public class YEventLogger {
      */
     private String getParentEventID(YPersistenceManager pmgr, String caseID,
                                     String taskID) {
-        System.out.println("getparentid, caseid = " + caseID + ", taskId = " + taskID);
 
-        // strip off minor part of id (i.e. truncate decimals)
-        if (caseID.indexOf('.') > -1) caseID = caseID.substring(0, caseID.indexOf('.'));
-
-        System.out.println("getparentid after strip, caseid = " + caseID);
+        // strip off child index part of caseid to get parent caseid
+        if (caseID.lastIndexOf('.') > -1)
+            caseID = caseID.substring(0, caseID.lastIndexOf('.'));
 
         // try the case id map first
         String result = getParentEventIDFromCache(caseID, taskID) ;
-
-        System.out.println("getparentid, result = " + result);
 
         // if it's not in the map, try getting it from the event logs
         if (result == null) {

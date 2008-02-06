@@ -23,7 +23,7 @@ import java.util.List;
  *
  * Create Date: 29/10/2007. Last Date: 12/12/2007
  *
- *  @author Michael Adams (BPM Group, QUT Australia)
+ *  @author Michael Adams 
  *  @version 2.0
  */
 
