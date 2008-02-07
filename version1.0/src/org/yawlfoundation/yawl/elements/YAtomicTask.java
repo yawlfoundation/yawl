@@ -131,6 +131,7 @@ public class YAtomicTask extends YTask {
             }
             if (null != workItem) {
                 _workItemRepository.removeWorkItemFamily(workItem);
+                workItem.cancel(pmgr);
                 //if applicable cancel yawl service
                 YAWLServiceGateway wsgw = (YAWLServiceGateway) getDecompositionPrototype();
                 if (wsgw != null) {

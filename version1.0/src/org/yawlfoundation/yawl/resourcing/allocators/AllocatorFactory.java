@@ -8,7 +8,7 @@
 
 package org.yawlfoundation.yawl.resourcing.allocators;
 
-import org.yawlfoundation.yawl.resourcing.rsInterface.Docket;
+import org.yawlfoundation.yawl.resourcing.util.Docket;
 
 import java.util.HashMap;
 import java.util.HashSet;

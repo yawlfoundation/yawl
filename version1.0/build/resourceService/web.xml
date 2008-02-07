@@ -130,6 +130,22 @@
         </description>
     </context-param>
 
+    <context-param>
+        <param-name>GenerateRandomOrgData</param-name>
+        <param-value>-1</param-value>
+        <description>
+            Set the param-value to a +ve integer up to 100 to randomly generate that
+            number of participants and associated org data. This feature can be used to
+            create data to test or demonstrate the YAWL resource service.
+            A value of -1 (the default) disables data generation; a value greater than
+            100 is treated as 100.
+            Some conditions apply:
+                1. The default YAWL database is selected (via an 'OrgDataSource'
+                   param-value of 'HibernateImpl' above); and
+                2. The org data tables must be empty; and
+                3. Persistence must be enabled (via the 'EnablePersistence' param above).
+        </description>
+    </context-param>
 
 
     <!-- Servlet definitions for the servlets that make up

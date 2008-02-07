@@ -65,10 +65,10 @@ public class Participant extends AbstractResource implements Serializable {
         _resourceID = id ;
     }
 
-    public Participant(String lastName, String firstName, String userid) {
+    public Participant(String lastName, String firstName, String userID) {
 //        this(true);
         super();
-        _userID = userid ;
+        setUserID(userID) ;
         _lastname = lastName ;
         _firstname = firstName ;
     }
@@ -84,7 +84,7 @@ public class Participant extends AbstractResource implements Serializable {
         this(true) ;
         _lastname = lastname;
         _firstname = firstname;
-        _userID = userID;
+        setUserID(userID) ;
         _isAdministrator = isAdministrator;
         _positions = positions;
         _roles = roles;
@@ -131,7 +131,7 @@ public class Participant extends AbstractResource implements Serializable {
     public String getUserID() { return _userID; }
 
     public void setUserID(String id) {
-        _userID = id ;
+        _userID = id.replaceAll(" ", "_") ;   // replace spaces with underscrores
         updateThis();
     }
 

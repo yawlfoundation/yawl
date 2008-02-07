@@ -18,16 +18,17 @@
     	<property name="_startTime" column="start_time" type="timestamp" access="field"/>
     	<property name="_status" column="status" type="string"/>
     
-	<set name="_children" access="field">
+	    <set name="_children" access="field" lazy="false">
     		<key column="parent_id"/>
 	    	<one-to-many class="org.yawlfoundation.yawl.engine.YWorkItem"/>
-	    </set>
-	    <many-to-one name="_parent" column="parent" class="org.yawlfoundation.yawl.engine.YWorkItem" access="field"/>
+        </set>
+	    <many-to-one name="_parent" column="parent"
+                     class="org.yawlfoundation.yawl.engine.YWorkItem" access="field" lazy="false"/>
 
 	    <property name="_whoStartedMe" column="who_started_me" type="string" access="field"/>
 	    <property name="_allowsDynamicCreation" column="allows_dynamic_creation" type="boolean" access="field"/>
     	  
-         <property name="_dataString" column="data_string" type="text" access="field"/>
+        <property name="_dataString" column="data_string" type="text" access="field"/>
 
 	</class>
 	

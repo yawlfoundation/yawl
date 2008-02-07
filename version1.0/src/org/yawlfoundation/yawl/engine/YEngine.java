@@ -545,7 +545,7 @@ public class YEngine implements InterfaceADesign,
                 if (element instanceof YTask) {
                     ((YTask) element).setI(id);
                     ((YTask) element).prepareDataDocsForTaskOutput();
-
+                    id.addLocation(pmgr, (YTask) element);
                 } else if (element instanceof YCondition) {
 
                    ((YConditionInterface) element).add(pmgr, id);
