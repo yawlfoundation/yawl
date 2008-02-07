@@ -48,7 +48,7 @@
                                            styleClass="pageSubheading"
                                            style="left: 12px; top: 12px"
                                            text="Registered Services"/>
-
+                            
                             <h:dataTable binding="#{customServices.dataTable1}"
                                          headerClass="dataTableHeader"
                                          id="dataTable1"

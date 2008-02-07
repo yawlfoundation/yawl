@@ -25,7 +25,8 @@ import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
-import org.yawlfoundation.yawl.resourcing.rsInterface.Docket;
+import org.yawlfoundation.yawl.resourcing.util.Docket;
+import org.yawlfoundation.yawl.resourcing.util.RandomOrgDataGenerator;
 import org.yawlfoundation.yawl.resourcing.jsf.FormParameter;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -157,15 +158,20 @@ public class ResourceManager extends InterfaceBWebsideController
                                          _engineURI.replaceFirst("/ib", "/logGateway"));
     }
 
-    public void setXFormsURI(String uri) { _xformsURI = uri ; }
-
-    public String getXFormsURI() { return _xformsURI ; }
 
     public void finaliseInitialisation() {
         EventLogger.setLogging(
             HibernateEngine.getInstance(false).isAvailable(HibernateEngine.tblEventLog));
         _workItemCache.setPersist(_persisting) ;
         if (_persisting) restoreWorkQueues() ;
+    }
+
+    
+    public void initRandomOrgDataGeneration(int count) {
+        if (count > 0) {
+            RandomOrgDataGenerator rodg = new RandomOrgDataGenerator();
+            rodg.generate(count);
+        }
     }
 
 
@@ -326,6 +332,10 @@ public class ResourceManager extends InterfaceBWebsideController
        return false ;                                      // should not be reachable
    }
 
+
+    public boolean isDefaultOrgDB() {
+        return ! _isNonDefaultOrgDB;
+    }
 
     /** Loads all the org data from db into the ResourceDataSet mappings */
     public void loadResources() {
@@ -716,6 +726,10 @@ public class ResourceManager extends InterfaceBWebsideController
            return p.getFullName();
         else
            return null ;
+    }
+
+    public int getParticipantCount() {
+        return _ds.participantMap.size();
     }
 
     public HashMap<String, Participant> getParticipantMap() {

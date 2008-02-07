@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletContext;
 
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.util.Docket;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 
 import java.io.IOException;
@@ -45,18 +46,22 @@ public class ResourceGateway extends HttpServlet {
                 // set the engine uri
                 rm.initEngineURI(context.getInitParameter("InterfaceB_BackEnd"));
 
-                // set the xforms uri
-                rm.setXFormsURI(context.getInitParameter("YAWLXForms")) ;
-
                 // enable/or disable persistence
                 String persist = context.getInitParameter("EnablePersistence");
                 rm.setPersisting(persist.equalsIgnoreCase("TRUE"));
 
                 // set the org data source and refresh rate
                 String orgDataSource = context.getInitParameter("OrgDataSource");
-                int orgDataRefreshRate = Integer.parseInt(
-                                  context.getInitParameter("OrgDataRefreshRate"));
-
+                String refreshRate = context.getInitParameter("OrgDataRefreshRate") ;
+                int orgDataRefreshRate = -1;
+                try {
+                     orgDataRefreshRate = Integer.parseInt(refreshRate);
+                }
+                catch (Exception e) {
+                    _log.warn("ResourceGateway: Invalid integer value in web.xml" +
+                              " for OrgDataRefreshRate; value '" +
+                               refreshRate + "' will be ignored.");
+                }
                 rm.initOrgDataSource(orgDataSource, orgDataRefreshRate);
 
                 // enable/disable logging of all offers
@@ -65,6 +70,20 @@ public class ResourceGateway extends HttpServlet {
 
                 // now that we have all the settings, complete the init
                 rm.finaliseInitialisation() ;
+
+                // and generate random test data if required
+                String randomOrgData = context.getInitParameter("GenerateRandomOrgData");
+                int generateOrgDataCount = -1;
+                try {
+                    generateOrgDataCount = Integer.parseInt(randomOrgData);
+                }
+                catch (Exception e) {
+                    _log.warn("ResourceGateway: Invalid integer value in web.xml" +
+                              " for GenerateRandomOrgData; value '" +
+                               generateOrgDataCount + "' will be ignored.");
+                }
+                if (generateOrgDataCount > 0)
+                    rm.initRandomOrgDataGeneration(generateOrgDataCount);
             }
             catch (Exception e) {
                 _log.error("Gateway Initialisation Exception", e);

@@ -265,8 +265,5 @@ public class Persister implements Serializable {
     public void delete(Object obj) { _db.exec(obj, _DELETE); }
 
     public void insert(Object obj) { _db.exec(obj, _INSERT); }
-//
-//
-//
-//
+
 }

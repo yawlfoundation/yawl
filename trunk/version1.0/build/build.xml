@@ -1182,6 +1182,7 @@
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/rsInterface"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/jsf"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/jsf/comparator"/>
+        <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/util"/>
 
         <!-- 1b. Make the dirs for welcome.htm & the jsps -->
         <mkdir dir="${yawl.resource.app.name}/graphics"/>
@@ -1293,6 +1294,10 @@
         </copy>
         <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/jsf/comparator">
             <fileset dir="${classes}/org/yawlfoundation/yawl/resourcing/jsf/comparator"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/util">
+            <fileset dir="${classes}/org/yawlfoundation/yawl/resourcing/util"
                      includes="*.class"/>
         </copy>
 

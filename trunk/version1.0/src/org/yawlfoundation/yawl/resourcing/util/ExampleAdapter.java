@@ -1,7 +1,9 @@
-package org.yawlfoundation.yawl.resourcing.rsInterface;
+package org.yawlfoundation.yawl.resourcing.util;
 
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClient;
 
 import java.io.IOException;
 import java.util.Iterator;

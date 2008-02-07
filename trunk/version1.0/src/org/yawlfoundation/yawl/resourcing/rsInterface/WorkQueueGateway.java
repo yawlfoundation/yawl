@@ -280,7 +280,4 @@ public class WorkQueueGateway  {          // extends HttpServlet
     }
 
 
-    public String getXFormsURI() { return rm.getXFormsURI() ; }
-
-
 }

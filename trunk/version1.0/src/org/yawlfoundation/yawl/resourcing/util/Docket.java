@@ -6,7 +6,7 @@
  * workflow technology.
  */
 
-package org.yawlfoundation.yawl.resourcing.rsInterface;
+package org.yawlfoundation.yawl.resourcing.util;
 
 /**
  * A static "psuedo post-it note" class to store bits 'n' pieces used throughout the

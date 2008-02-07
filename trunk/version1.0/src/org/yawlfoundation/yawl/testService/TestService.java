@@ -5,6 +5,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideContr
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
@@ -12,8 +13,7 @@ import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.resourcing.resource.Role;
+import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 import org.jdom.Document;
 
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by IntelliJ IDEA. User: Default Date: 17/09/2007 Time: 17:48:13 To change this
@@ -54,7 +55,7 @@ public class TestService extends InterfaceBWebsideController {
               .append("</head><body><H3>Test Output</H3><p>");
 
    //     output.append(doResourceServiceGatewayTest()) ;
-        output.append(ibTest());
+       output.append(createDummyOrgData());
    //      output.append(doLogGatewayTest()) ;
 
          output.append("</p></body></html>");
@@ -255,6 +256,72 @@ public class TestService extends InterfaceBWebsideController {
         return rMap.toXML() ;
     }
         /******* TEST CODE ENDS HERE *************************************************/
+
+        private String createDummyOrgData() {
+
+            int HOW_MANY_PARTICIPANTS_TO_CREATE = 20;
+
+            ResourceManager rm = ResourceManager.getInstance();
+            rm.setPersisting(true);
+            rm.initOrgDataSource("HibernateImpl", -1);
+            Random rand = new Random();
+
+            String[] f = {"Alex", "Bill", "Carol", "Diane", "Errol", "Frank", "George",
+                    "Hilary", "Irene", "Joanne"};
+            String[] l = {"Smith", "Jones", "Brown", "Black", "Roberts", "Lewis", "Johns",
+                    "Green", "Gold", "Davies"};
+
+            Role r2 = new Role("a larger role");
+            r2.setPersisting(true);
+            Role r = new Role("a shared role");
+            r.setPersisting(true);
+
+            rm.addRole(r2);
+            rm.addRole(r);
+            r.setOwnerRole(r2);
+
+            OrgGroup o = new OrgGroup("mega", OrgGroup.GroupType.DIVISION, null, "mega");
+            o.setPersisting(true);
+            rm.addOrgGroup(o);
+
+            OrgGroup o2 = new OrgGroup("minor", OrgGroup.GroupType.TEAM, o, "minor");
+            o2.setPersisting(true);
+            rm.addOrgGroup(o2);
+
+            Position po = new Position("a position");
+            po.setPersisting(true);
+            Position p2 = new Position("manager");
+            p2.setPersisting(true);
+            rm.addPosition(p2);
+            rm.addPosition(po);
+            po.setReportsTo(p2);
+            po.setOrgGroup(o2);
+            p2.setOrgGroup(o2);
+
+            Capability c = new Capability("a capability", "some description", true);
+            rm.addCapability(c);
+
+
+            for (int i = 0; i < HOW_MANY_PARTICIPANTS_TO_CREATE; i++) {
+                String first = f[rand.nextInt(10)];
+                String last = l[rand.nextInt(10)];
+                String user = last + first.substring(0, 1);
+                Participant p = new Participant(last, first, user, true);
+                rm.addParticipant(p);
+
+                p.setAdministrator(rand.nextBoolean());
+                p.setPassword("apple");
+
+                p.addPosition(po);
+                p.addCapability(c);
+                p.addRole(r);
+                p.getUserPrivileges().allowAll();
+
+            }
+
+            return "Successfully created dummy org data";
+        }
+
 
     private String ibTest() {
         try {

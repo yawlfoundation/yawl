@@ -8,7 +8,7 @@
 
 package org.yawlfoundation.yawl.resourcing.filters;
 
-import org.yawlfoundation.yawl.resourcing.rsInterface.Docket;
+import org.yawlfoundation.yawl.resourcing.util.Docket;
 
 import java.util.HashMap;
 import java.util.HashSet;

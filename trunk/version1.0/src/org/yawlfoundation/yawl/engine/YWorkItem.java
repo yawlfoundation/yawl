@@ -287,6 +287,21 @@ public class YWorkItem {
     }
 
 
+    /** removes workitems from persistence when cancelled **/
+    public void cancel(YPersistenceManager pmgr) throws YPersistenceException {
+        if (pmgr != null) {
+
+            //remove the children first
+            Set children = getChildren();
+            if (children != null) {
+                for(Object o : getChildren()) pmgr.deleteObject(o);
+            }
+
+            pmgr.deleteObject(this);
+        }
+    }
+
+
     public void checkStartTimer(YPersistenceManager pmgr, YCaseData data) {
         if (_timerParameters != null) {
 
