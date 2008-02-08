@@ -18,8 +18,8 @@ import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YEngine;
-import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.jdom.Document;
 
 /**
  * This class allows access to all of the engines capabilities using Strings and
@@ -1183,7 +1184,14 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return failureMessage(e.getMessage());
         }
-
-        return JDOMUtil.documentToString(_engine.getCaseDataDocument(caseID));
+        if (_engine.getCaseID(caseID) != null) {
+            Document caseData = _engine.getCaseDataDocument(caseID);
+            if (caseData != null)
+                return JDOMUtil.elementToString(caseData.getRootElement());
+            else
+                return failureMessage("Could not retrieve case data from engine or " +
+                                      "case data has a null value");
+        }
+        else return failureMessage("There is no active case with id: " + caseID);
     }
 }
