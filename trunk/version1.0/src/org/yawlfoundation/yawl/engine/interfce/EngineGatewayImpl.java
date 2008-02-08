@@ -869,7 +869,7 @@ public class EngineGatewayImpl implements EngineGateway {
         StringBuffer result = new StringBuffer();
         for (Iterator iterator = yawlServices.iterator(); iterator.hasNext();) {
             YAWLServiceReference service = (YAWLServiceReference) iterator.next();
-            result.append(service.toXML());
+            result.append(service.toXMLComplete());
         }
         return result.toString();
     }
@@ -927,8 +927,7 @@ public class EngineGatewayImpl implements EngineGateway {
                 }
             } else {
                 return failureMessage("Engine has already registered a service with " +
-                        "the same URI [" +
-                        service.toXML() + "]");
+                        "the same URI [" + service.getURI() + "]");
             }
         } else {
             return failureMessage("Failed to parse yawl service from [" +

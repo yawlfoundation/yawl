@@ -158,7 +158,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if something goes awry.
      */
     public String setYAWLService(YAWLServiceReference service, String sessionHandle) throws IOException {
-        String serialisedYAWLService = service.toXML();
+        String serialisedYAWLService = service.toXMLComplete();
         Map queryMap = new HashMap();
         queryMap.put("sessionHandle", sessionHandle);
         queryMap.put("action", "newYAWLService");
