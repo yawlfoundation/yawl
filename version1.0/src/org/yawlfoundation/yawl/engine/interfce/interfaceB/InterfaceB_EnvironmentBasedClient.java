@@ -507,14 +507,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
-    public Document getCaseData(String caseID, String sessionHandle) throws IOException {
-        String result = getCaseDataAsXML(caseID, sessionHandle) ;
-        if (successful(result)) return JDOMUtil.stringToDocument(result) ;
-        else return null ;
-    }
-
-
-    public String getCaseDataAsXML(String caseID, String sessionHandle) throws IOException {
+    public String getCaseData(String caseID, String sessionHandle) throws IOException {
         return stripOuterElement(executeGet(_backEndURIStr + "/caseID/" + caseID +
                 "?action=getCaseData&sessionHandle=" + sessionHandle));
     }

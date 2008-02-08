@@ -1733,6 +1733,6 @@ public class ResourceManager extends InterfaceBWebsideController
     }
 
     public String getCaseData(String caseID, String handle) throws IOException {
-        return _interfaceBClient.getCaseDataAsXML(caseID, handle) ;
+        return _interfaceBClient.getCaseData(caseID, handle) ;
     }
 }                                                                                  

@@ -55,8 +55,9 @@ public class TestService extends InterfaceBWebsideController {
               .append("</head><body><H3>Test Output</H3><p>");
 
    //     output.append(doResourceServiceGatewayTest()) ;
-       output.append(createDummyOrgData());
+   //    output.append(createDummyOrgData());
    //      output.append(doLogGatewayTest()) ;
+        output.append(ibTest());
 
          output.append("</p></body></html>");
          outputWriter.write(output.toString());
@@ -326,7 +327,8 @@ public class TestService extends InterfaceBWebsideController {
     private String ibTest() {
         try {
             String handle = _interfaceBClient.connect("admin", "YAWL");
-           Document doc = _interfaceBClient.getCaseData("246", handle);
+            String doc = _interfaceBClient.getCaseData("2", handle);
+            System.out.println(doc);
         }
         catch (Exception e) {}
             return "";
