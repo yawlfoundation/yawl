@@ -148,6 +148,10 @@ public class ResourceMapping implements Serializable, Cloneable  {
    */
   
   public void syncWithDataPerspective() {
+    if (getBaseVariableContentList() == null) {
+      return;  // nothing to do if none have been specified.
+    }
+    
     LinkedList<DataVariableContent> variablesToRemove = new LinkedList<DataVariableContent>();
     for(DataVariableContent variableContent : getBaseVariableContentList()) {
       if (!variableContent.isValidForResourceContainment()) {
