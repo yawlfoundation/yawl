@@ -112,15 +112,26 @@ public class YAWLServiceReference implements YVerifiable{
         return messages;
     }
 
+    // called during spec output to xml
     public String toXML() {
         StringBuffer result = new StringBuffer();
-        result.append("<yawlService id=\"" + _yawlServiceID + "\">");
-        result.append("<servicename>").append(_serviceName).append("</servicename>");
-        if(_documentation != null) {
-            result.append("<documentation>");
-            result.append(_documentation);
-            result.append("</documentation>");
+        result.append("<yawlService id=\"").append(_yawlServiceID).append("\">");
+        if (_documentation != null) {
+            result.append("<documentation>").append(_documentation)
+                  .append("</documentation>");
         }
+        result.append("</yawlService>");
+        return result.toString();
+    }
+
+    // called when adding, editing, or getting serivce across interfaces A & B
+    public String toXMLComplete() {
+        // trim off closing tag
+        String simpleXML = toXML();
+        simpleXML = simpleXML.substring(0, simpleXML.lastIndexOf("<"));
+        
+        StringBuffer result = new StringBuffer(simpleXML);
+        result.append("<servicename>").append(_serviceName).append("</servicename>");
         result.append("<assignable>").append(_assignable).append("</assignable>");
         result.append("</yawlService>");
         return result.toString();

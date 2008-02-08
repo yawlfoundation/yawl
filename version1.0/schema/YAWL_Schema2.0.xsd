@@ -608,15 +608,18 @@
 				<xs:sequence>
 					<xs:element name="enablementParam" type="yawl:InputParameterFactsType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="yawlService" minOccurs="0">
-						<xs:complexType>
-							<xs:choice>
-								<xs:sequence>
-									<xs:element name="wsdlLocation" type="xs:anyURI"/>
-									<xs:element name="operationName" type="xs:NMTOKEN"/>
-								</xs:sequence>
-								<xs:sequence/>
-							</xs:choice>
-							<xs:attribute name="id" type="yawl:YAWLServiceIDType" use="required"/>
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="documentation" type="xs:string" minOccurs="0"/>
+							    <xs:choice>
+								    <xs:sequence>
+									    <xs:element name="wsdlLocation" type="xs:anyURI"/>
+									    <xs:element name="operationName" type="xs:NMTOKEN"/>
+								    </xs:sequence>
+								    <xs:sequence/>
+							    </xs:choice>
+                            </xs:sequence>
+                            <xs:attribute name="id" type="yawl:YAWLServiceIDType" use="required"/>
 						</xs:complexType>
 					</xs:element>
 				</xs:sequence>
