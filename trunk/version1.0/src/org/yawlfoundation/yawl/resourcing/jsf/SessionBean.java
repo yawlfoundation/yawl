@@ -19,6 +19,8 @@ import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantUserIDComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
@@ -260,6 +262,10 @@ public class SessionBean extends AbstractSessionBean {
     public Set<WorkItemRecord> refreshQueue(int qType) {
         queueSet = participant.getWorkQueues() ;
         return getQueue(qType) ;
+    }
+
+    public boolean isUniqueUserID(String id) {
+        return (getGateway().getParticipantFromUserID(id) == null) ;
     }
 
 
@@ -648,11 +654,16 @@ public class SessionBean extends AbstractSessionBean {
         HashMap<String, Participant> pMap = getParticipantMap();
 
         if (pMap != null) {
-            orgDataParticipantList = new Option[pMap.size()];
-            int i = 0 ;
-            for (String id : pMap.keySet()) {
-                Participant p = pMap.get(id);
-                orgDataParticipantList[i++] = new Option(id,
+            orgDataParticipantList = new Option[pMap.size() + 1];
+
+            // make the first option blank (for initial screen & add users)
+            orgDataParticipantList[0] = new Option("", "");
+            
+            int i = 1 ;
+            ArrayList<Participant> pList = new ArrayList<Participant>(pMap.values());
+            Collections.sort(pList, new ParticipantNameComparator());
+            for (Participant p : pList) {
+                orgDataParticipantList[i++] = new Option(p.getID(),
                                             p.getLastName() + ", " + p.getFirstName()) ;
             }
         }
@@ -660,6 +671,30 @@ public class SessionBean extends AbstractSessionBean {
             orgDataParticipantList = null ;
     }
 
+    private boolean addParticipantMode = false ;
+
+    public boolean isAddParticipantMode() {
+        return addParticipantMode;
+    }
+
+    public void setAddParticipantMode(boolean addParticipantMode) {
+        this.addParticipantMode = addParticipantMode;
+    }
+
+    private Participant addedParticipant;
+
+    public Participant getAddedParticipant() {
+        return addedParticipant;
+    }
+
+    public void setAddedParticipant(Participant p) {
+
+        // if done with temp partiicipant (add mode is over) cleanup references
+        if ((p == null) && (addedParticipant != null))
+            addedParticipant.removeAttributeReferences();
+
+        addedParticipant = p;
+    }
 
     private Participant editedParticipant ;
 
@@ -672,8 +707,15 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public Participant setEditedParticipant(String pid) {
-        editedParticipant = getParticipantMap().get(pid);
+        editedParticipant = getParticipantMap().get(pid).clone();
         return editedParticipant;
+    }
+
+    public void saveParticipantUpdates(Participant temp) {
+        Participant p = getParticipantMap().get(temp.getID());
+        p.merge(temp);
+        editedParticipant = temp ;
+        p.save();
     }
 
     public Option[] getFullResourceAttributeList(String tab) {
@@ -796,22 +838,45 @@ public class SessionBean extends AbstractSessionBean {
         getParticipantAttributeList(activeResourceAttributeTab, editedParticipant) ;
     }
 
-        public void selectResourceAttribute(String id) {
+    public void selectResourceAttribute(String id) {
+        selectResourceAttribute(id, getParticipantForCurrentMode());
+    }
+
+    public Participant getParticipantForCurrentMode() {
+        return isAddParticipantMode() ? addedParticipant : editedParticipant ;
+    }
+
+    private void selectResourceAttribute(String id, Participant p) {
         if (activeResourceAttributeTab.equals("tabRoles"))
-            editedParticipant.addRole(id);
+            p.addRole(id);
         else if (activeResourceAttributeTab.equals("tabPosition"))
-            editedParticipant.addPosition(id);
+            p.addPosition(id);
         else if (activeResourceAttributeTab.equals("tabCapability"))
-            editedParticipant.addCapability(id);
+            p.addCapability(id);
 
         // refresh the 'owned' list
-        getParticipantAttributeList(activeResourceAttributeTab, editedParticipant) ;
+        getParticipantAttributeList(activeResourceAttributeTab, p) ;
     }
 
     // resets all edits by reloading participant from org database
-    public Participant restoreParticipant() {
- //       editedParticipant = getResourceManager().restoreParticipant(editedParticipant.getID());
+    public Participant resetParticipant() {
+        if (editedParticipant != null)
+            editedParticipant = setEditedParticipant(editedParticipant.getID());
         return editedParticipant ;
+    }
+
+    public String addParticipant(Participant p) {
+        String newID = getResourceManager().addParticipant(p);
+        refreshOrgDataParticipantList();
+        editedParticipant = p ;
+        return newID;
+    }
+
+    public void removeParticipant(Participant p) {
+        Participant pToRemove = participantMap.get(p.getID());
+        getResourceManager().removeParticipant(pToRemove);
+        refreshOrgDataParticipantList();
+        editedParticipant = null ;
     }
 
     /******************************************************************************/

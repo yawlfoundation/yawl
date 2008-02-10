@@ -71,7 +71,7 @@
 }
 
 .warnMessage {
-  color: orange;
+  color: gold;
   font-weight: bold;
 }
 
@@ -84,6 +84,10 @@
   color: red;
   font-style: italic;
   font-weight: bold;
+}
+
+.errHighlight {
+    background-color: #ffcccc ;
 }
 
 
@@ -345,7 +349,6 @@
 
 .orgDataButton {
     height: 30px;
-    left: 605px;
     position: absolute;
     width: 100px;
 }

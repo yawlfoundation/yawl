@@ -107,7 +107,6 @@ public class ResourceManager extends InterfaceBWebsideController
     private String _adminPassword = "YAWL" ;
     private String _engineSessionHandle = null ;
     private String _engineURI ;
-    private String _xformsURI ;
     private Namespace _yNameSpace =
             Namespace.getNamespace("http://www.yawlfoundation.org/yawlschema");
 
@@ -422,7 +421,7 @@ public class ResourceManager extends InterfaceBWebsideController
      * Adds a new participant to the Resource DataSet, and persists it also
      * @param p the new Participant
      */
-    public void addParticipant(Participant p) {
+    public String addParticipant(Participant p) {
 
         // persist it to the data store
         String newID = _orgdb.insert(p) ;
@@ -441,6 +440,7 @@ public class ResourceManager extends InterfaceBWebsideController
 
         // ...and add it to the data set
         _ds.participantMap.put(newID, p) ;
+        return newID;
     }
 
 
@@ -521,6 +521,8 @@ public class ResourceManager extends InterfaceBWebsideController
     // REMOVE ORG DATA OBJECTS //
 
     public void removeParticipant(Participant p) {
+        handleWorkQueuesOnRemoval(p);    
+        p.removeAttributeReferences() ;
         _ds.participantMap.remove(p.getID()) ;
         _orgdb.delete(p);
         if (_isNonDefaultOrgDB) {
@@ -920,6 +922,64 @@ public class ResourceManager extends InterfaceBWebsideController
 
         wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
         p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+    }
+
+    // Deals with live workitems in a participant's queues when the participant is
+    // removed. An admin is advised to manually reallocate items before removing this p.,
+    // but this is the default behaviour if there are still items in the queue.
+    // The strategy is:
+    //  - Offered: if this is the only p. that has received this offer, give it back to
+    //             the admin for re-offering. If others have been offered the same item,
+    //             there's nothing more to do.
+    //  - Allocated: give it back to admin for reallocating
+    //  - Started: forceComplete items (since we need another p. to reallocate to)
+    //  - Suspended: same as Started.
+    //
+    public void handleWorkQueuesOnRemoval(Participant p) {
+        QueueSet qs = p.getWorkQueues() ;
+
+        if (qs == null) return ;    // no queues = nothing to do
+
+        // offered queue
+        WorkQueue qOffer = qs.getQueue(WorkQueue.OFFERED);
+        if ((qOffer != null) && (! qOffer.isEmpty())) {
+            Set<WorkItemRecord> wirSet = qOffer.getAll();
+
+            // get all items on all offered queues, except this part's queue
+            Set<WorkItemRecord> offerSet = new HashSet<WorkItemRecord>();
+            Set<Participant> allParticipants = getParticipants() ;
+            for (Participant temp : allParticipants) {
+                if (! temp.getID().equals(p.getID())) {
+                    WorkQueue q = temp.getWorkQueues().getQueue(WorkQueue.OFFERED) ;
+                    if (q != null) offerSet.addAll(q.getAll());
+                }
+            }
+
+            // compare each item in this part's queue to the complete set
+            for (WorkItemRecord wir : wirSet) {
+                 if (! offerSet.contains(wir))
+                     _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+            }
+        }
+
+        // allocated queue - all allocated go back to admin's unoffered
+        WorkQueue qAlloc = qs.getQueue(WorkQueue.ALLOCATED);
+        if ((qAlloc != null) && (! qAlloc.isEmpty()))
+            _resAdmin.getWorkQueues().addToQueue(WorkQueue.UNOFFERED, qAlloc);
+
+        // started & suspended queues
+        WorkQueue qStart = qs.getQueue(WorkQueue.STARTED);
+        if (qStart != null) {
+            Set<WorkItemRecord> startSet = qStart.getAll();
+            for (WorkItemRecord wir : startSet)
+                checkinItem(p, wir, _engineSessionHandle);
+        }
+        WorkQueue qSusp = qs.getQueue(WorkQueue.SUSPENDED);
+        if (qSusp != null) {
+            Set<WorkItemRecord> suspSet = qSusp.getAll();
+            for (WorkItemRecord wir : suspSet)
+                checkinItem(p, wir, _engineSessionHandle);
+        }
     }
 
 

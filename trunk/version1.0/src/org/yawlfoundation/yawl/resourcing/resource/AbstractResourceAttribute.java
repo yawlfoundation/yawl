@@ -44,6 +44,8 @@ public abstract class AbstractResourceAttribute {
         if (_persisting) _resMgr.updateResourceAttribute(this);
     }
 
+    public void save() { _resMgr.updateResourceAttribute(this); }
+
     public void setPersisting(boolean persisting) {
         _persisting = persisting ;
     }

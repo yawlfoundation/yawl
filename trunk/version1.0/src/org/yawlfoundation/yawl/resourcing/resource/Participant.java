@@ -12,7 +12,6 @@ import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
-import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.jdom.Element;
 
@@ -91,9 +90,44 @@ public class Participant extends AbstractResource implements Serializable {
         _capabilities = capabilities;
     }
 
+
+    public Participant clone() {
+
+        // create a new Participant with persistence OFF
+        Participant result = new Participant(_lastname, _firstname, _userID, false);
+        result.setAdministrator(_isAdministrator);
+        result.setUserPrivileges(_privileges.clone());
+        result.setPassword(_password);
+        result.setID(_resourceID);
+        result.setNotes(_notes);
+        result.setDescription(_description);
+        for (Role r : _roles) result.addRole(r);
+        for (Position p : _positions ) result.addPosition(p) ;
+        for (Capability c : _capabilities) result.addCapability(c);
+        return result ;
+    }
+
+    // copies values from p to this (does NOT change id)
+    public void merge(Participant p) {
+        _lastname = p.getLastName();
+        _firstname = p.getFirstName();
+        setUserID(p.getUserID());
+        _isAdministrator = p.isAdministrator();
+        _password = p.getPassword();
+        _notes = p.getNotes();
+        _description = p.getDescription();
+        setRoles(p.getRoles());
+        setPositions(p.getPositions());
+        setCapabilities(p.getCapabilities());
+        _privileges.merge(p.getUserPrivileges());
+    }
+
+
     private void updateThis() {
         if (_persisting) _resMgr.updateParticipant(this);
     }
+
+    public void save() { _resMgr.updateParticipant(this); }
 
     public void setPersisting(boolean persisting) {
         _persisting = persisting;
@@ -168,7 +202,7 @@ public class Participant extends AbstractResource implements Serializable {
     public Set<Role> getRoles() { return _roles ; }
 
     public void setRoles(Set<Role> roleSet) {
-        _roles.clear();
+        removeRoles();
         for (Role role : roleSet) addRole(role)  ;
     }
 
@@ -200,6 +234,11 @@ public class Participant extends AbstractResource implements Serializable {
         }
     }
 
+    public void removeRoles() {
+        for (Role r : _roles) r.removeResource(this);
+        _roles.clear();
+    }
+
     public boolean hasRole(Role role) { return _roles.contains(role) ; }
 
 
@@ -207,7 +246,7 @@ public class Participant extends AbstractResource implements Serializable {
     public Set<Capability> getCapabilities() { return _capabilities ; }
 
     public void setCapabilities(Set<Capability> capSet) {
-        _capabilities.clear();
+        removeCapabilities();
         for (Capability cap : capSet) addCapability(cap) ;
     }
 
@@ -239,6 +278,11 @@ public class Participant extends AbstractResource implements Serializable {
         }
     }
 
+    public void removeCapabilities() {
+        for (Capability c : _capabilities) c.removeResource(this);
+        _capabilities.clear();
+    }
+
 
     public boolean hasCapability(Capability cap) { return _capabilities.contains(cap) ; }
 
@@ -247,7 +291,7 @@ public class Participant extends AbstractResource implements Serializable {
     public Set<Position> getPositions() { return _positions ; }
 
     public void setPositions(Set<Position> posSet) {
-        _positions.clear();
+        removePositions();
         for (Position pos : posSet) addPosition(pos)  ;
     }
 
@@ -280,9 +324,20 @@ public class Participant extends AbstractResource implements Serializable {
         }
     }
 
+    public void removePositions() {
+        for (Position p : _positions) p.removeResource(this);
+        _positions.clear();
+    }
+
 
     public boolean hasPosition(Position pos) { return _positions.contains(pos) ; }
 
+
+    public void removeAttributeReferences() {
+        removeRoles();
+        removePositions();
+        removeCapabilities();
+    }
 
     public QueueSet getWorkQueues() { return _qSet ; }
 

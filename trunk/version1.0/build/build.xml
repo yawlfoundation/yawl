@@ -826,6 +826,7 @@
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce"/>
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce/interfaceB"/>
         <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/timeService"/>
+        <mkdir dir="${yawl.TimeService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/util"/>
         <!-- start copying files into war directory -->
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/elements/data">
             <fileset
@@ -857,6 +858,10 @@
              <fileset
                  dir="${classes}/org/yawlfoundation/yawl/engine/interfce/interfaceB"/>
          </copy>
+        <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/util">
+              <fileset
+                  dir="${classes}/org/yawlfoundation/yawl/util"/>
+          </copy>
         <!-- copy all supportive jsps & graphis into webapp -->
         <copy todir="${yawl.TimeService.app.name}">
             <fileset dir="${classes}/org/yawlfoundation/yawl/timeService">

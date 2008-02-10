@@ -21,9 +21,10 @@
                   type="text"
                   access="field"/>
 
-        <set name="_resources" table="rs_Participant_Capability" inverse="true">
+        <set name="_resources" table="rs_Participant_Capability"
+                               inverse="true" lazy="false">
             <key column="CapabilityID"/>
-            <many-to-many class="Participant" column="ParticipantID"/>
+            <many-to-many class="Participant" column="ParticipantID" lazy="false"/>
         </set>
 
     </class>

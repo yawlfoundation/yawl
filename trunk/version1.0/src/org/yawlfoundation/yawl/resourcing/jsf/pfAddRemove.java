@@ -223,7 +223,8 @@ public class pfAddRemove extends AbstractFragmentBean {
         if (id != null) {
             SessionBean sb = getSessionBean();
             sb.selectResourceAttribute(id) ;
-            populateLists(sb.getActiveResourceAttributeTab(), sb.getEditedParticipant());
+            populateLists(sb.getActiveResourceAttributeTab(),
+                          sb.getParticipantForCurrentMode());
         }
         return null;
     }
@@ -234,7 +235,8 @@ public class pfAddRemove extends AbstractFragmentBean {
         if (id != null) {
             SessionBean sb = getSessionBean();
             sb.unselectResourceAttribute(id) ;
-            populateLists(sb.getActiveResourceAttributeTab(), sb.getEditedParticipant());
+            populateLists(sb.getActiveResourceAttributeTab(),
+                          sb.getParticipantForCurrentMode());
         }
         return null;
     }
@@ -243,5 +245,20 @@ public class pfAddRemove extends AbstractFragmentBean {
         if (selTab == null) selTab = "tabRoles" ;
         lbxAvailable.setItems(getSessionBean().getFullResourceAttributeList(selTab)) ;
         lbxOwns.setItems(getSessionBean().getParticipantAttributeList(selTab, p));
+    }
+
+    public void clearLists() {
+        lbxAvailable.setItems(null);
+        lbxOwns.setItems(null);
+    }
+
+    public void clearOwnsList() {
+        lbxOwns.setItems(null);
+    }
+
+    public void populateAvailableList() {
+        String selTab = getSessionBean().getActiveResourceAttributeTab();
+        if (selTab != null) selTab = "tabRoles" ;
+        lbxAvailable.setItems(getSessionBean().getFullResourceAttributeList(selTab)) ;        
     }
 }

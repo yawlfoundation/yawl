@@ -59,6 +59,29 @@ public class UserPrivileges implements Serializable {
         setCanManageCases(canManageCases) ;
     }
 
+    public UserPrivileges clone() {
+        return new UserPrivileges(_participantID,
+                                  canChooseItemToStart, canStartConcurrent,
+                                  canReorder, canViewAllOffered,
+                                  canViewAllAllocated, canViewAllExecuting,
+                                  canViewTeamItems, canViewOrgGroupItems,
+                                  canChainExecution, canManageCases);
+    }
+
+    // copies values from up to this (does NOT change id)   
+    public void merge(UserPrivileges up) {
+        setCanChooseItemToStart(up.canChooseItemToStart()) ;
+        setCanStartConcurrent(up.canStartConcurrent()) ;
+        setCanReorder(up.canReorder()) ;
+        setCanViewAllOffered(up.canViewAllOffered()) ;
+        setCanViewAllAllocated(up.canViewAllAllocated()) ;
+        setCanViewAllExecuting(up.canViewAllExecuting()) ;
+        setCanViewTeamItems(up.canViewTeamItems()) ;
+        setCanViewOrgGroupItems(up.canViewOrgGroupItems());
+        setCanChainExecution(up.canChainExecution()) ;
+        setCanManageCases(up.canManageCases()) ;
+    }
+
     public void allowAll() { carteblanche = true ; }
 
     public void disallowAll() { carteblanche = false ; }

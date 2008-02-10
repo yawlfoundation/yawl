@@ -40,7 +40,7 @@
 
         <set name="_resources" table="rs_Participant_Position" inverse="true">
             <key column="ID"/>
-            <many-to-many class="Participant" column="ParticipantID"/>
+            <many-to-many class="Participant" column="ParticipantID" lazy="false"/>
         </set>
 
      </class>

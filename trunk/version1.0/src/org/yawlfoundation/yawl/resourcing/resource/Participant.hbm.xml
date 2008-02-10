@@ -53,21 +53,21 @@
 
          <set name="_positions" table="rs_Participant_Position" access="field">
     		 <key column="ParticipantID"/>
-             <many-to-many class="Position" column="ID"/>
+             <many-to-many class="Position" column="ID" lazy="false"/>
 	     </set>
 
          <set name="_roles" table="rs_Participant_Role" access="field">
             <key column="ParticipantID"/>
-            <many-to-many class="Role" column="RoleID"/>
+            <many-to-many class="Role" column="RoleID" lazy="false"/>
          </set>
 
          <set name="_capabilities" table="rs_Participant_Capability" access="field">
             <key column="ParticipantID"/>
-            <many-to-many class="Capability" column="CapabilityID"/>
+            <many-to-many class="Capability" column="CapabilityID" lazy="false"/>
          </set>
 
          <one-to-one name="_privileges" class="UserPrivileges"
-                     cascade="all" access="field" />
+                     cascade="all" access="field" lazy="false"/>
 
      </class> 
 	
