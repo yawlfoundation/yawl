@@ -174,6 +174,17 @@ public class QueueSet implements Serializable {
             removeFromQueue(wir, queue);
     }
 
+
+    public void purgeQueue(int queue) {
+        if (! isNullQueue(queue)) getQueue(queue).clear();        
+    }
+
+    
+    public void purgeAllQueues() {
+        for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
+            purgeQueue(queue);
+    }
+
     
     public void restoreWorkQueue(WorkQueue q, WorkItemCache cache) {
         q.restore(cache) ;

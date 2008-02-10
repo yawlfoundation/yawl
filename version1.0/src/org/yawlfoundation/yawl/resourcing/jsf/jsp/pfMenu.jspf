@@ -54,7 +54,7 @@
             <ui:imageHyperlink action="#{pfMenu.mnuOrgDataMgt_action}"
                                binding="#{pfMenu.mnuOrgDataMgt}"
                                id="mnuOrgDataMgt"
-                               imageURL="/resources/mnuOrgDataMgt.gif"
+                               imageURL="/resources/mnuUserMgt.gif"
                                styleClass="menuButton"
                                style="top: 152px"/>
 

@@ -28,7 +28,7 @@
 
         <set name="_resources" table="rs_Participant_Role" inverse="true">
             <key column="RoleID"/>
-            <many-to-many class="Participant" column="ParticipantID"/>
+            <many-to-many class="Participant" column="ParticipantID" lazy="false"/>
         </set>
 
      </class>

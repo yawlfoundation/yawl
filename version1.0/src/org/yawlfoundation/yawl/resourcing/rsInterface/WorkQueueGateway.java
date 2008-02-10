@@ -169,7 +169,7 @@ public class WorkQueueGateway  {          // extends HttpServlet
         }
     }
 
-    public void completeItem(Participant p,WorkItemRecord wir, String handle) throws IOException {
+    public void completeItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
         if (checkConnection(handle))
             rm.checkinItem(p, wir, handle) ;
     }

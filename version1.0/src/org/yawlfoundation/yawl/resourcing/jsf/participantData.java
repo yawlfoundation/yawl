@@ -7,25 +7,12 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
-import com.sun.rave.web.ui.component.Body;
-import com.sun.rave.web.ui.component.Form;
-import com.sun.rave.web.ui.component.Head;
-import com.sun.rave.web.ui.component.Html;
-import com.sun.rave.web.ui.component.Link;
-import com.sun.rave.web.ui.component.Page;
+
 import javax.faces.FacesException;
-import com.sun.rave.web.ui.component.PanelLayout;
-import com.sun.rave.web.ui.component.StaticText;
-import com.sun.rave.web.ui.component.Checkbox;
 import javax.faces.event.ValueChangeEvent;
-import com.sun.rave.web.ui.component.TextField;
-import com.sun.rave.web.ui.component.TextArea;
-import com.sun.rave.web.ui.component.TabSet;
-import com.sun.rave.web.ui.component.Tab;
-import com.sun.rave.web.ui.component.DropDown;
+
 import com.sun.rave.web.ui.model.SingleSelectOptionsList;
-import com.sun.rave.web.ui.component.Label;
-import com.sun.rave.web.ui.component.Button;
+import com.sun.rave.web.ui.component.*;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 
@@ -126,6 +113,36 @@ public class participantData extends AbstractPageBean {
 
     public void setStaticText1(StaticText st) {
         this.staticText1 = st;
+    }
+
+    private StaticText sttPassword = new StaticText();
+
+    public StaticText getSttPassword() {
+        return sttPassword;
+    }
+
+    public void setSttPassword(StaticText st) {
+        this.sttPassword = st;
+    }
+
+    private PasswordField txtNewPassword ;
+
+    private PasswordField txtConfirmPassword ;
+
+    public PasswordField getTxtNewPassword() {
+        return txtNewPassword;
+    }
+
+    public void setTxtNewPassword(PasswordField txtNewPassword) {
+        this.txtNewPassword = txtNewPassword;
+    }
+
+    public PasswordField getTxtConfirmPassword() {
+        return txtConfirmPassword;
+    }
+
+    public void setTxtConfirmPassword(PasswordField txtConfirmPassword) {
+        this.txtConfirmPassword = txtConfirmPassword;
     }
 
     private Checkbox cbxChooseItemToStart = new Checkbox();
@@ -378,6 +395,17 @@ public class participantData extends AbstractPageBean {
         this.pnlSelectUser = pl;
     }
 
+    private PanelLayout pnlNewPassword = new PanelLayout();
+
+    public PanelLayout getPnlNewPassword() {
+        return pnlNewPassword;
+    }
+
+    public void setPnlNewPassword(PanelLayout pl) {
+        this.pnlNewPassword = pl;
+    }
+
+
     private DropDown cbbParticipants = new DropDown();
 
     public DropDown getCbbParticipants() {
@@ -438,17 +466,35 @@ public class participantData extends AbstractPageBean {
         this.btnClose = b;
     }
 
-    private Button btnEditStructure = new Button();
+    private Button btnRemove = new Button();
 
-    public Button getBtnEditStructure() {
-        return btnEditStructure;
+    public Button getBtnRemove() {
+        return btnRemove;
     }
 
-    public void setBtnEditStructure(Button b) {
-        this.btnEditStructure = b;
+    public void setBtnRemove(Button b) {
+        this.btnRemove = b;
     }
 
+    private Button btnAdd = new Button();
 
+    public Button getBtnAdd() {
+        return btnAdd;
+    }
+
+    public void setBtnAdd(Button b) {
+        this.btnAdd = b;
+    }
+
+    private MessageGroup msgGroup = new MessageGroup();
+
+    public MessageGroup getMsgGroup() {
+        return msgGroup;
+    }
+
+    public void setMsgGroup(MessageGroup msgGroup) {
+        this.msgGroup = msgGroup;
+    }
 
     // </editor-fold>
 
@@ -537,6 +583,13 @@ public class participantData extends AbstractPageBean {
      * this page.</p>
      */
     public void prerender() {
+        // a null tooltip indicates the first rendering of this page
+        if (btnAdd.getToolTip() == null) {
+            setMode(Mode.edit);
+            btnSave.setDisabled(true);
+            btnRemove.setDisabled(true);
+            btnReset.setDisabled(true);
+        }
     }
 
     /** 
@@ -550,29 +603,97 @@ public class participantData extends AbstractPageBean {
     public void destroy() {
     }
 
+    private enum Mode {add, edit}
 
     public String btnSave_action() {
-        Participant p = getSessionBean().getEditedParticipant() ;
-        saveChanges(p);
+        if (checkValidPasswordChange()) {
+            Participant p = getSessionBean().getEditedParticipant() ;
+            saveChanges(p);
+            getSessionBean().saveParticipantUpdates(p);
+            info("INFO: Participant changes successfully saved.");
+        }
         return null;
     }
 
 
     public String btnReset_action() {
-//        Participant p = getSessionBean().restoreParticipant();
-//        populateFields(p) ;
+
+        // if in 'add new' mode, discard inputs and go back to edit mode
+        if (btnAdd.getText().equals("Add")) {
+            setMode(Mode.edit);
+        }
+        else {
+            // if already in edit mode, discard edits
+            Participant p = getSessionBean().resetParticipant();
+            populateFields(p) ;
+        }
+        return null;   
+    }
+
+
+    public String btnRemove_action() {
+        Participant p = getSessionBean().getEditedParticipant() ;
+        getSessionBean().removeParticipant(p);
+        cbbParticipants.setSelected("");
+        clearFields();
+        btnSave.setDisabled(true);
+        btnRemove.setDisabled(true);
+        btnReset.setDisabled(true);
+        info("INFO: Chosen participant successfully removed.");
         return null;
     }
 
 
-    public String btnEditStructure_action() {
-        // TODO: Replace with your code
-
+    public String btnAdd_action() {
+        // if 'new', we're in edit mode - move to add mode
+        if (btnAdd.getText().equals("New")) {
+            setMode(Mode.add) ;
+        }
+        else {
+            // we're in add mode - add new participant and go back to edit mode
+            if (validateNewData()) {
+                Participant p = createParticipant();
+                String newID = getSessionBean().addParticipant(p);
+                cbbParticipants.setSelected(newID);
+                setMode(Mode.edit);
+                info("INFO: New participant added successfully.");
+            }
+        }
         return null;
+    }
+
+    private void setMode(Mode mode) {
+        if (mode == Mode.add) {
+            btnAdd.setText("Add");
+            btnAdd.setToolTip("Save input data to create a new participant");
+            btnReset.setToolTip("Discard data and revert to edit mode");
+            btnSave.setDisabled(true);
+            btnRemove.setDisabled(true);
+            btnReset.setDisabled(false);
+            clearFields();
+            cbbParticipants.setSelected("");
+            cbbParticipants.setDisabled(true);
+            ((pfAddRemove) getBean("pfAddRemove")).clearOwnsList();
+            ((pfAddRemove) getBean("pfAddRemove")).populateAvailableList();
+            getSessionBean().setAddParticipantMode(true);
+            getSessionBean().setAddedParticipant(new Participant());
+        }
+        else {   // edit mode
+            btnAdd.setText("New");
+            btnAdd.setToolTip("Add a new participant");
+            btnReset.setToolTip("Discard changes for the current participant");
+            btnSave.setDisabled(false);
+            btnRemove.setDisabled(false);
+            btnReset.setDisabled(false);
+            cbbParticipants.setDisabled(false);
+            ((pfAddRemove) getBean("pfAddRemove")).clearLists();            
+            getSessionBean().setAddParticipantMode(false);
+            getSessionBean().setAddedParticipant(null);
+        }
     }
 
     public String tabRoles_action() {
-        Participant p = getSessionBean().getEditedParticipant() ;
+        Participant p = getSessionBean().getParticipantForCurrentMode() ;
         ((pfAddRemove) getBean("pfAddRemove")).populateLists("tabRoles", p);
         getSessionBean().setActiveResourceAttributeTab("tabRoles") ;
         return null;
@@ -580,7 +701,7 @@ public class participantData extends AbstractPageBean {
 
 
     public String tabPosition_action() {
-        Participant p = getSessionBean().getEditedParticipant() ;
+        Participant p = getSessionBean().getParticipantForCurrentMode() ;
         ((pfAddRemove) getBean("pfAddRemove")).populateLists("tabPosition", p);
         getSessionBean().setActiveResourceAttributeTab("tabPosition") ;
         return null;
@@ -588,7 +709,7 @@ public class participantData extends AbstractPageBean {
 
 
     public String tabCapability_action() {
-        Participant p = getSessionBean().getEditedParticipant() ;
+        Participant p = getSessionBean().getParticipantForCurrentMode() ;
         ((pfAddRemove) getBean("pfAddRemove")).populateLists("tabCapability", p);
         getSessionBean().setActiveResourceAttributeTab("tabCapability") ;
         return null;
@@ -596,8 +717,18 @@ public class participantData extends AbstractPageBean {
 
 
     public void cbbParticipants_processValueChange(ValueChangeEvent event) {
-        Participant p = getSessionBean().setEditedParticipant((String) event.getNewValue());
-        populateFields(p) ;
+        String pid = (String) event.getNewValue();
+        if (pid.length() > 0) {
+            Participant p = getSessionBean().setEditedParticipant(pid);
+            populateFields(p) ;
+            setMode(Mode.edit);
+        }
+        else {
+            clearFields();                    // blank (first) option selected
+            btnSave.setDisabled(true);
+            btnRemove.setDisabled(true);
+            btnReset.setDisabled(true);
+        }
     }
 
     
@@ -611,6 +742,10 @@ public class participantData extends AbstractPageBean {
         txtNotes.setText(p.getNotes());
         cbxAdmin.setValue(p.isAdministrator());
 
+        // clear any leftover passwords
+        txtNewPassword.setPassword("");
+        txtConfirmPassword.setPassword("");
+        
         // set privileges
         UserPrivileges up = p.getUserPrivileges();
         cbxChooseItemToStart.setValue(up.canChooseItemToStart());
@@ -630,6 +765,35 @@ public class participantData extends AbstractPageBean {
     }
 
 
+    private void clearFields() {
+
+        // clear simple fields
+        txtFirstName.setText("");
+        txtLastName.setText("");
+        txtUserID.setText("");
+        txtDesc.setText("");
+        txtNotes.setText("");
+        cbxAdmin.setValue("");
+        txtNewPassword.setPassword("");
+        txtConfirmPassword.setPassword("");
+
+        // clear privileges
+        cbxChooseItemToStart.setSelected(false);
+        cbxChainItems.setSelected(false);
+        cbxManageCases.setSelected(false);
+        cbxReorderItems.setSelected(false);
+        cbxStartConcurrent.setSelected(false);
+        cbxViewAllAllocated.setSelected(false);
+        cbxViewAllExecuting.setSelected(false);
+        cbxViewAllOffered.setSelected(false);
+        cbxViewOrgGroupItems.setSelected(false);
+        cbxViewTeamItems.setSelected(false);
+
+        // clear Resource Attributes
+        ((pfAddRemove) getBean("pfAddRemove")).clearLists();
+    }
+
+
     private void saveChanges(Participant p) {
 
         // update fields     
@@ -639,6 +803,12 @@ public class participantData extends AbstractPageBean {
         p.setDescription((String) txtDesc.getText());
         p.setNotes((String) txtNotes.getText());
         p.setAdministrator((Boolean) cbxAdmin.getValue());
+
+        // only change password if a new one is entered and after its been validated
+        String password = (String) txtNewPassword.getPassword();
+        if (password.length() > 0) p.setPassword(password);
+        txtNewPassword.setPassword("");
+        txtConfirmPassword.setPassword("");
 
         // set privileges
         UserPrivileges up = p.getUserPrivileges();
@@ -652,10 +822,95 @@ public class participantData extends AbstractPageBean {
         up.setCanViewAllOffered((Boolean) cbxViewAllOffered.getValue());
         up.setCanViewOrgGroupItems((Boolean) cbxViewOrgGroupItems.getValue());
         up.setCanViewTeamItems((Boolean) cbxViewTeamItems.getValue());
-
-
     }
 
+
+    private boolean checkValidPasswordChange() {
+        String password = (String) txtNewPassword.getPassword();
+        if (password.length() > 0) {
+            if (password.indexOf(" ") > -1)
+                return false;                // no spaces allowed
+            String confirm = (String) txtConfirmPassword.getPassword();
+            return password.equals(confirm);
+        }
+        return true ;
+    }
+
+
+    private Participant createParticipant() {
+        Participant p = new Participant(true);
+        Participant temp = getSessionBean().getAddedParticipant();
+        saveChanges(p);
+        p.setRoles(temp.getRoles());
+        p.setPositions(temp.getPositions());
+        p.setCapabilities(temp.getCapabilities());
+        return p;
+    }
+
+    private boolean validateNewData() {
+
+        // all required text inputs there?
+        boolean result = checkForRequiredValues();
+
+        // unique id?
+        if (hasText(txtUserID)) {
+            if (! getSessionBean().isUniqueUserID((String) txtUserID.getText())) {
+                error("ERROR: That User ID is already in use - please try another");
+                result = false;
+            }    
+        }
+
+        // password check
+        if (! checkValidPasswordChange()) {
+            error("ERROR: Password and comfirmation are different");
+            result = false;
+        }
+
+        // warn if no attributes
+        Participant p = getSessionBean().getAddedParticipant();
+        if (p.getRoles().isEmpty())
+            warn("WARNING: No role specified for participant") ;
+        if (p.getPositions().isEmpty())
+            warn("WARNING: No position specified for participant") ;
+        if (p.getCapabilities().isEmpty())
+            warn("WARNING: No capability specified for participant") ;
+
+        return result ;
+    }
+
+
+    private boolean checkForRequiredValues() {
+        boolean result = true;
+        if (! hasText(txtLastName)) {
+            error("ERROR: A last name is required");
+            result = false;
+        }
+        if (! hasText(txtFirstName)) {
+            error("ERROR: A first name is required");
+            result = false;
+        }
+        if (! hasText(txtUserID)) {
+            error("ERROR: A userid is required");
+            result = false;
+        }
+        if (! hasText(txtNewPassword)) {
+            error("ERROR: A password is required");
+            result = false;
+        }
+        if (! hasText(txtConfirmPassword)) {
+            error("ERROR: A 'confirm' password is required");
+            result = false;
+        }
+        return result ;
+    }
+
+    private boolean hasText(TextField field) {
+        return ((String) field.getText()).length() > 0 ;
+    }
+
+    private boolean hasText(PasswordField field) {
+        return ((String) field.getPassword()).length() > 0 ;
+    }
 
 }
 

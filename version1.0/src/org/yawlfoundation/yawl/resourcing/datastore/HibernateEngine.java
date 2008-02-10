@@ -17,6 +17,8 @@ import java.io.Serializable;
  *
  *  @author Michael Adams
  *  v0.1, 03/08/2007
+ *
+ *  last update: 09/02/2008
  */
 
 public class HibernateEngine implements Serializable {
@@ -30,6 +32,7 @@ public class HibernateEngine implements Serializable {
     private static Logger _log = null;
     private Configuration _cfg = null;
     private static SessionFactory _factory = null;
+    private static Session _session = null;
     private static HibernateEngine _me;
 
     // shortened table names
@@ -74,9 +77,8 @@ public class HibernateEngine implements Serializable {
 
             _factory = _cfg.buildSessionFactory();
 
-            // build tables if necessary
-//            if (! allTablesExist())
-                new SchemaUpdate(_cfg).execute(false, true);
+            new SchemaUpdate(_cfg).execute(false, true);
+            _session = _factory.openSession();
         }
         catch (MappingException me) {
             _log.error("Could not initialise database connection.", me);
@@ -119,29 +121,21 @@ public class HibernateEngine implements Serializable {
         Transaction tx = null;
         boolean result = false ;
 
+        //  Execute a select statement to see if tables are there
         try {
-            Session session = _factory.openSession();
+            tx = _session.beginTransaction();
+            st = _session.connection().createStatement();
+            st.executeQuery("select * from " + tableName);
+            tx.commit();
+            result = true;
+        }
+        catch (Exception e) {
+            _log.error("Table does not exist or cannot be reached: " + tableName, e);
+            if (tx != null) {
+                tx.rollback();
+            }
+        }
 
-            //  Execute a select statement to see if tables are there
-            try {
-                tx = session.beginTransaction();
-                st = session.connection().createStatement();
-                st.executeQuery("select * from " + tableName);
-                tx.commit();
-                result = true ;
-            }
-            catch (Exception e) {
-                if (tx != null) {
-                    tx.rollback();
-                }
-            }
-            finally {
-                session.close();
-            }
-        }
-        catch (HibernateException he) {
-            _log.error("Table does not exist or cannot be reached: " + tableName, he);
-        }
         return result ;
     }
 
@@ -164,20 +158,24 @@ public class HibernateEngine implements Serializable {
      * @param action - type type of action performed
      */
     public void exec(Object obj, int action) {
-       try {
-            Session session = _factory.openSession();
-            Transaction tx = session.beginTransaction();
-            switch (action) {
-                case DB_UPDATE: session.update(obj); break;
-                case DB_DELETE: session.delete(obj); break;
-                case DB_INSERT: session.save(obj);   break;
-            }
-            session.flush();
-            tx.commit();
-            session.close();
-        } catch (HibernateException he) {
-            _log.error("Error persisting object (" + actionToString(action) +
+        Transaction tx = null;
+        try {
+            if ((_session != null) && (! _session.isOpen())) _factory.openSession();
+
+             tx = _session.beginTransaction();
+             switch (action) {
+                 case DB_UPDATE: _session.update(obj); break;
+                 case DB_DELETE: _session.delete(obj); break;
+                 case DB_INSERT: _session.save(obj);   break;
+             }
+             _session.flush();
+             tx.commit();
+        }
+        catch (HibernateException he) {
+             _log.error("Error persisting object (" + actionToString(action) +
                            "): " + obj.toString(), he);
+
+            if (tx != null) tx.rollback();
         }
     }
 
@@ -198,13 +196,21 @@ public class HibernateEngine implements Serializable {
      * @return the List of objects returned
      */
     private List execQuery(String queryString) {
+        List result = null;
         try {
-             Query query = createQuery(queryString);
-             if (query != null) return query.list();
-        } catch (HibernateException he) {
+            if ((_session != null) && (! _session.isOpen())) _factory.openSession();
+            Query query = _session.createQuery(queryString);
+            if (query != null) result = query.list();
+        }
+        catch (HibernateException he) {
              _log.error("Error executing query: " + queryString, he);
         }
-        return null;
+        finally {
+            if ((_session != null) && (_session.isOpen())) {
+                _session.flush();
+            }
+        }
+        return result;
     }
 
     /**
@@ -264,8 +270,8 @@ public class HibernateEngine implements Serializable {
         try {
             String qry = String.format("from %s as tbl where tbl.%s",
                                         className, whereClause) ;
-            Query query = createQuery(qry);
-            if (query != null) result = query.list();
+            result = execQuery(qry);
+ //           if (query != null) result = query.list();
         }
         catch (HibernateException he) {
             _log.error("Error reading data for class: " + className, he);

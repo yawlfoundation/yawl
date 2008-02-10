@@ -10,11 +10,17 @@
     <f:view>
         <ui:page binding="#{participantData.page1}" id="page1">
             <ui:html binding="#{participantData.html1}" id="html1">
-                <ui:head binding="#{participantData.head1}" id="head1">
+                <ui:head binding="#{participantData.head1}" id="head1"
+                         title="YAWL 2.0: Org Data Maintenance">
                     <ui:link binding="#{participantData.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
+
+                    <ui:script binding="#{SessionBean.script1}" id="script1"
+                               url="/resources/script.js"/>
+
                 </ui:head>
-                <ui:body binding="#{participantData.body1}" id="body1" style="-rave-layout: grid">
+                <ui:body binding="#{participantData.body1}" id="body1"
+                         style="-rave-layout: grid">
                     <ui:form binding="#{participantData.form1}" id="form1">
 
                         <ui:panelLayout binding="#{SessionBean.topPanel}"
@@ -39,8 +45,8 @@
                                          id="cbbParticipants"
                                          items="#{SessionBean.orgDataParticipantList}"
                                          onChange="common_timeoutSubmitForm(this.form, 'cbbParticipants');"
-
-                                         style="left: 102px; top: 6px; position: absolute; width: 288px"
+                                         toolTip="Select a participant to view, edit or remove"
+                                         style="left: 102px; top: 8px; position: absolute; width: 288px"
                                          valueChangeListener="#{participantData.cbbParticipants_processValueChange}"/>
 
                             <ui:label binding="#{participantData.label1}"
@@ -58,7 +64,7 @@
                             <ui:staticText binding="#{participantData.staticText1}"
                                            id="staticText1"
                                            styleClass="pageSubheading"
-                                           style="left: 30px; top: 12px"
+                                           style="left: 12px; top: 12px"
                                            text="Privileges"/>
 
                             <ui:checkbox binding="#{participantData.cbxChooseItemToStart}"
@@ -180,7 +186,7 @@
                         <ui:tabSet binding="#{participantData.tabSetAttributes}"
                                    id="tabSetAttributes"
                                    selected="tabRoles"
-                                   style="border: 2px solid gray; height: 200px; left: 125px; top: 415px; position: absolute; width: 405px">
+                                   style="border: 2px solid gray; height: 200px; left: 124px; top: 413px; position: absolute; width: 406px">
 
                             <ui:tab binding="#{participantData.tabRoles}"
                                     action="#{participantData.tabRoles_action}"
@@ -216,26 +222,71 @@
                         </ui:tabSet>
 
 
+                        <!-- Password Panel -->
+
+                        <ui:panelLayout binding="#{participantData.pnlNewPassword}"
+                                        id="pnlNewPassword"
+                                        styleClass="orgDataPanel"
+                                        style="height: 110px; top: 413px; left: 535px; width: 255px">
+
+                            <ui:staticText binding="#{participantData.sttPassword}"
+                                           id="sttPassword"
+                                           styleClass="pageSubheading"
+                                           style="left: 12px; top: 12px"
+                                           text="Password"/>
+                            
+                            <ui:passwordField binding="#{participantData.txtNewPassword}"
+                                              columns="20"
+                                              id="txtNewPassword"
+                                              label="New:"
+                                              style="left: 39px; top: 40px; position: absolute"/>
+
+                            <ui:passwordField binding="#{participantData.txtConfirmPassword}"
+                                              columns="20"
+                                              id="txtConfirmPassword"
+                                              label="Confirm:"
+                                              style="left: 18px; top: 76px; position: absolute"/>
+
+                        </ui:panelLayout>
+
+                        <!-- Buttons -->
+
                         <ui:button action="#{participantData.btnSave_action}"
                                    binding="#{participantData.btnSave}"
                                    id="btnSave"
                                    styleClass="orgDataButton"
-                                   style="top: 506px"
+                                   style="left: 555px; top: 540px"
+                                   toolTip="Save changes for the current participant"
                                    text="Save"/>
+
+                        <ui:button action="#{participantData.btnAdd_action}"
+                                   binding="#{participantData.btnAdd}"
+                                   id="btnAdd"
+                                   styleClass="orgDataButton"
+                                   style="left: 675px; top: 540px"
+                                   text="New"/>
 
                         <ui:button action="#{participantData.btnReset_action}"
                                    binding="#{participantData.btnReset}"
                                    id="btnReset"
                                    styleClass="orgDataButton"
-                                   style="top: 556px"
+                                   style="left:555px; top: 583px"
                                    text="Reset"/>
                         
-                        <ui:button action="#{participantData.btnEditStructure_action}"
-                                   binding="#{participantData.btnEditStructure}"
-                                   id="btnEditStructure"
+                        <ui:button action="#{participantData.btnRemove_action}"
+                                   binding="#{participantData.btnRemove}"
+                                   id="btnRemove"
                                    styleClass="orgDataButton"
-                                   style="top: 456px"
-                                   text="Edit Structure..."/>
+                                   style="left: 675px;top: 583px"
+                                   toolTip="Permanently remove the current participant"
+                                   onClick="return confirmDelete()"
+                                   text="Remove"/>
+
+                        <ui:messageGroup binding="#{participantData.msgGroup}"
+                                         id="msgGroup" 
+                                         showGlobalOnly="true"
+                                         style="position: absolute; left: 124px; top: 610px"/>
+
 
                         <div style="left: 123px; top: 458px; position: absolute">
                             <jsp:directive.include file="pfAddRemove.jspf"/>
