@@ -107,9 +107,23 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
   public void doNext() {}
 
   public void refresh() {
+    mechanismComboBox.reset();
+    
+    // JIC the option is currently not delivered (say the resourcing service is down)
+    // but the setting was previously allowed.   
+
+    if (!ResourcingServiceProxy.getInstance().getRegisteredAllocationMechanisms().contains(
+            getResourceMapping().getAllocationMechanism())) {
+
+      ResourcingServiceProxy.getInstance().getRegisteredAllocationMechanisms().add(
+          getResourceMapping().getAllocationMechanism()    
+      );
+    }
+    
     mechanismComboBox.setAllocationMechanisms(
         ResourcingServiceProxy.getInstance().getRegisteredAllocationMechanisms()
     );
+    
     mechanismComboBox.setSelectedAllocationMechanism(
       getResourceMapping().getAllocationMechanism()    
     );
@@ -128,12 +142,24 @@ class AllocationMechanismComboBox extends JComboBox {
   private List<AllocationMechanism> mechanisms;
   
   public void setAllocationMechanisms(List<AllocationMechanism> mechanisms) {
-    removeAllItems();
     this.mechanisms = mechanisms;
     for(AllocationMechanism mechanism : mechanisms) {
       addItem(
           mechanism.getDisplayName()
        );
+    }
+  }
+  
+  public void reset() {
+    setSelectedIndex(-1);
+    removeAllItems();
+    mechanisms = null;
+  }
+  
+  public void addAllocationMechanism(AllocationMechanism mechanism) {
+    if (!mechanisms.contains(mechanism)) {
+      mechanisms.add(mechanism);
+      addItem(mechanism.getDisplayName());
     }
   }
   

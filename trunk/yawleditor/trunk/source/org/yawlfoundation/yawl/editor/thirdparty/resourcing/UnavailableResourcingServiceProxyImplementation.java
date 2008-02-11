@@ -61,11 +61,10 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
   }
 
   public List<AllocationMechanism> getRegisteredAllocationMechanisms() {
-
     LinkedList<AllocationMechanism> mechanisms = new LinkedList<AllocationMechanism>();
 
     mechanisms.add(AllocationMechanism.RANDOM_MECHANISM);
-    mechanisms.add(AllocationMechanism.ROUND_ROBIN_MECHANISM);
+    //mechanisms.add(AllocationMechanism.ROUND_ROBIN_MECHANISM);
     mechanisms.add(AllocationMechanism.SHORTEST_QUEUE_MECHANISM);
     
     return mechanisms;

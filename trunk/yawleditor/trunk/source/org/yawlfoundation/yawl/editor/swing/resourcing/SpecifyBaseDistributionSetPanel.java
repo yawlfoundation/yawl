@@ -128,6 +128,17 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     userPanel.setUserList(
         ResourcingServiceProxy.getInstance().getAllParticipants()
     );
+
+    /* 
+     * We got nothing back, but we still have a list of users already
+     * recorded. Use this recorded list as the base list.
+     */
+    if (ResourcingServiceProxy.getInstance().getAllParticipants().size() == 0 &&
+        getResourceMapping().getBaseUserDistributionList().size() > 0) {
+      userPanel.setUserList(
+          getResourceMapping().getBaseUserDistributionList()    
+      );
+    }
     
     userPanel.setSelectedUsers(
       getResourceMapping().getBaseUserDistributionList()    
@@ -137,6 +148,19 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
         ResourcingServiceProxy.getInstance().getAllRoles()
     );
 
+
+    /* 
+     * We got nothing back, but we still have a list of roles already
+     * recorded. Use this recorded list as the base list.
+     */
+
+    if (ResourcingServiceProxy.getInstance().getAllRoles().size() == 0 &&
+        getResourceMapping().getBaseRoleDistributionList().size() > 0) {
+      rolesPanel.setRoles(
+          getResourceMapping().getBaseRoleDistributionList()    
+      );
+    }
+    
     rolesPanel.setSelectedRoles(
         getResourceMapping().getBaseRoleDistributionList()    
     );
