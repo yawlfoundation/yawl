@@ -30,49 +30,32 @@ import javax.swing.JComboBox;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 
-public class DataVariableComboBox extends JComboBox {
+/**
+ * A Data variable combo-box that shows only variables in the given
+ * decomposition scope and usage type that are of the XMLSchema 'duration' tupe.
+ * @author bradforl
+ *
+ */
 
-  /**
-   * 
-   */
+public class DurationDataVariableComboBox extends DataVariableComboBox {
+
   private static final long serialVersionUID = 1L;
-  private Decomposition decomposition;
-  private int validUsageType;
   
-  public DataVariableComboBox() {
+  public DurationDataVariableComboBox() {
     super();
   }
   
-  public DataVariableComboBox(int validUsageType) {
+  public DurationDataVariableComboBox(int validUsageType) {
     super();
     initialise(validUsageType);
   }
   
-  protected void initialise(int usage) {
-    setValidUsageType(usage);
-    refresh();
-  }
-  
-  public void setValidUsageType(int validUsageType) {
-    this.validUsageType = validUsageType;
-  }
-   
-  public int getValidUsageType() {
-    return this.validUsageType;
-  }
-  
-  public void setDecomposition(Decomposition decomposition) {
-    this.decomposition = decomposition;
-    refresh();
-  }
-  
-  public Decomposition getDecomposition() {
-    return this.decomposition;
-  }
-  
-  protected void refresh() {
-    removeAllItems();
-    addDataVariables();
+  public void setEnabled(boolean enabled) {
+    if (enabled && getItemCount() > 0 ) {
+      super.setEnabled(enabled);
+    } else if (!enabled) {
+      super.setEnabled(enabled);
+    }
   }
   
   protected void addDataVariables() {
@@ -85,19 +68,10 @@ public class DataVariableComboBox extends JComboBox {
     while(variableIterator.hasNext()) {
       DataVariable variable = 
         (DataVariable) variableIterator.next();
-      addItem(variable.getName());
+      if (variable.getDataType().equals(DataVariable.XML_SCHEMA_DURATION_TYPE)) {
+        addItem(variable.getName());
+      }
     }
   }
   
-  protected Iterator getUsageBasedIterator() {
-    return getDecomposition().getVariables().getVariablesWithValidUsage(getValidUsageType()).iterator();
-  }
-  
-  public DataVariable getSelectedVariable() {
-    String selectedVariableName = (String) getSelectedItem();
-    if (getDecomposition() != null) {
-      return getDecomposition().getVariableWithName(selectedVariableName);
-    }
-    return null;
-  }
 }

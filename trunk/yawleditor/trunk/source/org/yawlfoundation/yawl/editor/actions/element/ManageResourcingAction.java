@@ -48,7 +48,7 @@ public class ManageResourcingAction extends YAWLSelectedNetAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Manage Resourcing");
     putValue(Action.LONG_DESCRIPTION, "Manage the resourcing requirements of this task.");
-    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getIconByName("ResourcingWizard"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_N));
   }
   
