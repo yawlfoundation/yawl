@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.editor.actions.element.LabelElementAction;
 import org.yawlfoundation.yawl.editor.actions.element.ManageResourcingAction;
 import org.yawlfoundation.yawl.editor.actions.element.SetMultipleInstanceDetailAction;
 import org.yawlfoundation.yawl.editor.actions.element.SetUnfoldingNetAction;
+import org.yawlfoundation.yawl.editor.actions.element.TaskTimeoutDetailAction;
 import org.yawlfoundation.yawl.editor.actions.element.UpdateParametersAction;
 import org.yawlfoundation.yawl.editor.actions.element.UpdateFlowDetailsAction;
 import org.yawlfoundation.yawl.editor.actions.element.ViewCancellationSetAction;
@@ -38,6 +39,7 @@ import org.yawlfoundation.yawl.editor.actions.element.TaskDecompositionDetailAct
 
 import org.yawlfoundation.yawl.editor.actions.net.DeleteAction;
 
+import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
@@ -112,6 +114,16 @@ public class VertexPopupMenu extends JPopupMenu {
     
     if (vertex instanceof YAWLTask) {
       add(buildViewCancellationSetItem());
+    }
+    
+    if (vertex instanceof AtomicTask) {
+      add(
+          new YAWLPopupMenuItem(
+              new TaskTimeoutDetailAction(
+                  (AtomicTask) vertex, graph
+              )
+          )
+      );
     }
   }
 
