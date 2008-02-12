@@ -1,24 +1,36 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.datastore;
 
 import org.apache.log4j.Logger;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.*;
-import org.hibernate.mapping.PersistentClass;
-import org.hibernate.tool.hbm2ddl.SchemaUpdate;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
-import java.util.Iterator;
-import java.util.List;
-import java.sql.Statement;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.HibernateException;
+import org.hibernate.MappingException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.tool.hbm2ddl.SchemaUpdate;
+
 import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
+
 
 /**
- *  This class provides db & persistence support via Hibernate.
+ *  This singleton class provides db & persistence support via Hibernate.
  *
  *  @author Michael Adams
  *  v0.1, 03/08/2007
  *
- *  last update: 09/02/2008
+ *  last update: 11/02/2008 (for v2.0)
  */
 
 public class HibernateEngine implements Serializable {
@@ -28,14 +40,22 @@ public class HibernateEngine implements Serializable {
     public static final int DB_DELETE = 1;
     public static final int DB_INSERT = 2;
 
-    private static boolean _persistOn = false;
-    private static Logger _log = null;
-    private Configuration _cfg = null;
+    // bulk transaction options
+    private List bulkInserts = new ArrayList();
+    private List bulkUpdates = new ArrayList();
+    private List bulkDeletes = new ArrayList();
+    private boolean bulkMode = false;
+
+    // referrence to Hibernate objects
     private static SessionFactory _factory = null;
-    private static Session _session = null;
+
+    // instance reference
     private static HibernateEngine _me;
 
-    // shortened table names
+    private static boolean _persistOn = false;
+    private static Logger _log = null;
+
+    // table name abbreviations
     private static final String _pkg = "org.yawlfoundation.yawl.resourcing." ;
     public static final String tblParticipant = _pkg + "resource.Participant";
     public static final String tblRole = _pkg + "resource.Role";
@@ -46,6 +66,11 @@ public class HibernateEngine implements Serializable {
     public static final String tblWorkQueue = _pkg + "WorkQueue";
     public static final String tblEventLog = _pkg + "datastore.eventlog.ResourceEvent";
 
+    /*********************************************************************************/
+
+    // Constructors and Initialisation //
+    /***********************************/
+
     /** The constuctor - called from getInstance() */
     private HibernateEngine(boolean persistenceOn) throws HibernateException {
         _persistOn = persistenceOn;
@@ -53,40 +78,11 @@ public class HibernateEngine implements Serializable {
         initialise();
     }
 
-    public HibernateEngine() {
-        getInstance(true) ;
-    }
 
-    /** initialises the tables in the database */
-     public void initialise() throws HibernateException {
-        try {
-            _cfg = new Configuration();
-
-            // add each persisted resources class to config
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Participant.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Role.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Capability.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Position.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.OrgGroup.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.UserPrivileges.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.WorkQueue.class);
-            _cfg.addClass(WorkItemRecord.class);
-            _cfg.addClass(
-                    org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent.class);
+    public HibernateEngine() { getInstance(true) ; }
 
 
-            _factory = _cfg.buildSessionFactory();
-
-            new SchemaUpdate(_cfg).execute(false, true);
-            _session = _factory.openSession();
-        }
-        catch (MappingException me) {
-            _log.error("Could not initialise database connection.", me);
-        }
-    }
-
-
-    /** returns the current DBManager instance */
+    /** returns the current HibernateEngine instance */
     public static HibernateEngine getInstance(boolean persistenceOn) {
         if (_me == null) {
             try {
@@ -101,56 +97,52 @@ public class HibernateEngine implements Serializable {
     }
 
 
-    /** iterates through all tables in cfg, tests that they physically exist */
-    private boolean allTablesExist() {
-
-        Iterator itr = _cfg.getClassMappings() ;
-        while (itr.hasNext()) {
-            PersistentClass pClass = (PersistentClass) itr.next() ;
-            if (! tableExists(pClass.getTable().getName())) return false ;
-        }
-        return true;
-    }
-
-
-    /** tests that a table exists by trying to select some data from it
-     *  @return true if the table exists
-     */
-    private boolean tableExists(String tableName) {
-        Statement st ;
-        Transaction tx = null;
-        boolean result = false ;
-
-        //  Execute a select statement to see if tables are there
+    /** initialises hibernate and the required tables */
+    public void initialise() throws HibernateException {
         try {
-            tx = _session.beginTransaction();
-            st = _session.connection().createStatement();
-            st.executeQuery("select * from " + tableName);
-            tx.commit();
-            result = true;
-        }
-        catch (Exception e) {
-            _log.error("Table does not exist or cannot be reached: " + tableName, e);
-            if (tx != null) {
-                tx.rollback();
-            }
-        }
+            Configuration _cfg = new Configuration();
 
-        return result ;
+            // add each persisted class to config
+            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Participant.class);
+            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Role.class);
+            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Capability.class);
+            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Position.class);
+            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.OrgGroup.class);
+            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.UserPrivileges.class);
+            _cfg.addClass(org.yawlfoundation.yawl.resourcing.WorkQueue.class);
+            _cfg.addClass(org.yawlfoundation.yawl.engine.interfce.WorkItemRecord.class);
+            _cfg.addClass(
+                    org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent.class);
+
+           // get a session context
+            _factory = _cfg.buildSessionFactory();
+
+            // check tables exist and are of a matching format to the persisted objects
+            new SchemaUpdate(_cfg).execute(false, true);
+
+        }
+        catch (MappingException me) {
+            _log.error("Could not initialise database connection.", me);
+        }
     }
 
 
+    /** @return true if a table of 'tableName' currently exists */
     public boolean isAvailable(String tableName) {
         return (getObjectsForClass(tableName) != null);
     }
 
 
-    /** returns true if this instance is persisting */
+    /** @return true if this instance is persisting */
     public boolean isPersisting() {
         return _persistOn;
     }
 
 
+    /******************************************************************************/
+
+    // Persistence Methods //
+    /***********************/
 
     /**
      * persists the object instance passed
@@ -158,61 +150,59 @@ public class HibernateEngine implements Serializable {
      * @param action - type type of action performed
      */
     public void exec(Object obj, int action) {
+
         Transaction tx = null;
         try {
-            if ((_session != null) && (! _session.isOpen())) _factory.openSession();
+            Session session = _factory.getCurrentSession();
+            tx = session.beginTransaction();
 
-             tx = _session.beginTransaction();
-             switch (action) {
-                 case DB_UPDATE: _session.update(obj); break;
-                 case DB_DELETE: _session.delete(obj); break;
-                 case DB_INSERT: _session.save(obj);   break;
-             }
-             _session.flush();
-             tx.commit();
+            if (action == DB_INSERT) session.save(obj);
+            else if (action == DB_UPDATE) updateOrMerge(session, obj);
+            else if (action == DB_DELETE) session.delete(obj);
+
+            tx.commit();
         }
         catch (HibernateException he) {
              _log.error("Error persisting object (" + actionToString(action) +
                            "): " + obj.toString(), he);
-
             if (tx != null) tx.rollback();
         }
     }
 
 
-    /**
-     * creates a Query object based on the sql string passed
-     * @param queryString - the sql query to execute
-     * @return the created Query
-     */
-    private Query createQuery(String queryString) throws HibernateException {
-        return _factory.openSession().createQuery(queryString);
+    /* a workaround for a hibernate 'feature' */
+    private void updateOrMerge(Session session, Object obj) {
+        try {
+            session.saveOrUpdate(obj);
+        }
+        catch (Exception e) {
+              session.merge(obj);
+       }
     }
 
 
     /**
      * executes a Query object based on the sql string passed
      * @param queryString - the sql query to execute
-     * @return the List of objects returned
+     * @return the List of objects returned, or null if the query has some problem
      */
     private List execQuery(String queryString) {
         List result = null;
+        Transaction tx = null;
         try {
-            if ((_session != null) && (! _session.isOpen())) _factory.openSession();
-            Query query = _session.createQuery(queryString);
+            Session session = _factory.getCurrentSession();
+            tx = session.beginTransaction();
+            Query query = session.createQuery(queryString);
             if (query != null) result = query.list();
         }
         catch (HibernateException he) {
              _log.error("Error executing query: " + queryString, he);
-        }
-        finally {
-            if ((_session != null) && (_session.isOpen())) {
-                _session.flush();
-            }
+            if (tx != null) tx.rollback();
         }
         return result;
     }
 
+    
     /**
      * executes a join query. For example, passing ("car", "part", "pid") will
      * return a list of 'car' objects that have in their 'part' property (a Set) a
@@ -222,7 +212,7 @@ public class HibernateEngine implements Serializable {
      * @param field the property name of the [Set] column in the parent table
      * @param value the id of the child object in the set to match
      * @return a List of objects of class 'table' that have, in their [Set] property
-     *         called 'field', an obejct with an key field value of 'value'
+     *         called 'field', an object with an key field value of 'value'
      */
     public List execJoinQuery(String table, String field, String value) {
         String qry = String.format("from %s parent where '%s' in elements(parent.%s)",
@@ -231,11 +221,12 @@ public class HibernateEngine implements Serializable {
     }
 
 
-
     /**
-     * creates a Query object based on the sql string passed
-     * @param className - the sql query to execute
-     * @return the created Query
+     * gets a scalar value (as an object) based on the sql string passed
+     * @param className - the type of object to select
+     * @param field - the column name which contains the queried value
+     * @param value - the value to find in the 'field' column
+     * @return the first (or only) object matching 'where [field] = [value]'
      */
     public Object selectScalar(String className, String field, String value) {
         String qry = String.format("from %s as tbl where tbl.%s = '%s'",
@@ -271,13 +262,13 @@ public class HibernateEngine implements Serializable {
             String qry = String.format("from %s as tbl where tbl.%s",
                                         className, whereClause) ;
             result = execQuery(qry);
- //           if (query != null) result = query.list();
         }
         catch (HibernateException he) {
             _log.error("Error reading data for class: " + className, he);
         }
         return result ;
     }
+
 
     /**
      * returns a String representation of the action passed

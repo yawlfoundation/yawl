@@ -1677,6 +1677,7 @@ public class ResourceManager extends InterfaceBWebsideController
 
     private List<WorkItemRecord> getLiveWorkItemsForCase(String caseID, String handle) {
         List<WorkItemRecord> result = null ;
+        List<WorkItemRecord> childList = new ArrayList<WorkItemRecord>();
         try {
             result = _interfaceBClient.getLiveWorkItemsForIdentifier("case", caseID,
                                                                          handle) ;
@@ -1684,8 +1685,9 @@ public class ResourceManager extends InterfaceBWebsideController
             // the above method only gets parents, so get any child items too
             for (WorkItemRecord wir : result) {
                 List<WorkItemRecord> children = getChildren(wir.getID()) ;
-                result.addAll(children) ;
+                childList.addAll(children) ;
             }
+            result.addAll(childList) ;
         }
         catch (Exception e) {
             _log.error("Exception attempting to retrieve work item list from engine");
