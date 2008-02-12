@@ -5,7 +5,7 @@
     padding: 6px;
     background-color: #cccccc;
     height: 94px;
-    left: 288px;
+    left: 120px;
     top: 120px;
     position: absolute;
     text-indent: 8px;
@@ -14,7 +14,7 @@
 
 .loginButton {
     font-size: 18px;
-    left: 383px;
+    left: 215px;
     top: 264px;
     position: absolute;
     height: 30px;
@@ -87,7 +87,7 @@
 }
 
 .errHighlight {
-    background-color: #ffcccc ;
+    color: red ;
 }
 
 

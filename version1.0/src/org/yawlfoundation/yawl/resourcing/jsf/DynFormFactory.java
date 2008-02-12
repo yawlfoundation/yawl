@@ -134,23 +134,13 @@ public class DynFormFactory extends AbstractSessionBean {
             String topStyle = String.format("top: %dpx",
                                              line++ * lineHeight + startingYPos) ;
 
-            // create and add a label for the parameter
-            compPanel.getChildren().add(makeLabel(param, topStyle));
-
             // create and add the appropriate input field
             UIComponent field ;
-            if (!isPrimitiveType(param.getDataTypeName()))
+            if (! isPrimitiveType(param.getDataTypeName()))
                 field = makeComplexType(param, topStyle) ;
-            else if (param.getDataTypeName().equals("boolean"))
-                field = makeCheckbox(param, topStyle);
-            else if (param.getDataTypeName().equals("date"))
-                field = makeCalendar(param, topStyle);            
-            else {
-                if (param.isInputOnly())
-                    field = makeReadOnlyTextField(param, topStyle);
-                else
-                    field = makeTextField(param, topStyle);
-            }
+            else
+                field = makeSimpleType(param, topStyle) ;
+
             compPanel.getChildren().add(field);
             if (! focusSet) focusSet = setFocus(field) ;
         }
@@ -241,6 +231,26 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
+    public UIComponent makeSimpleType(FormParameter param, String topStyle) {
+        UIComponent field ;
+
+        // create and add a label for the parameter
+        compPanel.getChildren().add(makeLabel(param, topStyle));
+
+        if (param.getDataTypeName().equals("boolean"))
+            field = makeCheckbox(param, topStyle);
+        else if (param.getDataTypeName().equals("date"))
+            field = makeCalendar(param, topStyle);
+        else {
+            if (param.isInputOnly())
+                field = makeReadOnlyTextField(param, topStyle);
+            else
+                field = makeTextField(param, topStyle);
+        }
+        return field ;
+    }
+
+
     public PanelLayout makeComplexType(FormParameter param, String topStyle) {
         PanelLayout result = null;
         Element schema = getTypeDef(param);
@@ -263,34 +273,58 @@ public class DynFormFactory extends AbstractSessionBean {
 
     private PanelLayout composeComplexType(Element schema, FormParameter param) {
         PanelLayout result = new PanelLayout();
-        int seqMin, seqMax, eleMin, eleMax ;
 
-        String name = schema.getAttributeValue("name");
-        Label headLabel = makeSimpleLabel(name);
-        result.getChildren().add(headLabel);               // todo: style for position
+        Element sequence = schema.getChild("sequence");
 
-        Iterator itr = schema.getChildren().iterator();
+        // assume all children are 'element' types
+        Iterator itr = sequence.getChildren().iterator();
         while (itr.hasNext()) {
-            Element child = (Element) itr.next();
-            String eleName = child.getName();
-            if (eleName.equals("complexType"))
-                composeComplexType(child, param);           // recurse for inner type
-            else if (eleName.equals("sequence")) {
-                seqMin = new Integer(child.getAttributeValue("minOccurs"));
-                seqMax = new Integer(child.getAttributeValue("maxOccurs"));
-            }
-            else if (eleName.equals("element")) {
-                String dataType = child.getAttributeValue("type");
-                if (dataType != null) {
-                    if (isPrimitiveType(dataType)) {
-                        // build component
-                    }
-                    else makeComplexType(param, null);       // todo: build component
-                }
-            }
+            Element element = (Element) itr.next();
+            String dataType = element.getAttributeValue("type");
+            UIComponent component;
+            if (dataType != null) {
+                if (! isPrimitiveType(dataType))
+                   component = makeComplexType(param, null) ;
+                else
+                   component = makeSimpleType(param, null) ;
 
-            
+                result.getChildren().add(component) ;
+            }
         }
+
+
+
+//        int seqMin, seqMax, eleMin, eleMax ;
+//
+//        String name = schema.getAttributeValue("name");
+//        Label headLabel = makeSimpleLabel(name);
+//        result.getChildren().add(headLabel);               // todo: style for position
+//
+//        Iterator itr = schema.getChildren().iterator();
+//        while (itr.hasNext()) {
+//            Element child = (Element) itr.next();
+//            String eleName = child.getName();
+//            if (eleName.equals("complexType"))
+//                composeComplexType(child, param);           // recurse for inner type
+//            else if (eleName.equals("sequence")) {
+//                seqMin = new Integer(child.getAttributeValue("minOccurs"));
+//                seqMax = new Integer(child.getAttributeValue("maxOccurs"));
+//            }
+//            else if (eleName.equals("element")) {
+//                String dataType = child.getAttributeValue("type");
+//                if (dataType != null) {
+//                    if (isPrimitiveType(dataType))
+//                        makeSimpleType(param, null);
+//                    else
+//                        makeComplexType(param, null);       // todo: build component
+//                }
+//                else {    // element with no type def
+//                    eleMin = new Integer(child.getAttributeValue("minOccurs"));
+//                    eleMax = new Integer(child.getAttributeValue("maxOccurs"));
+//                    // get name
+//                }
+//            }
+//        }
 
         return result ;
     }

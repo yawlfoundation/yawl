@@ -825,11 +825,13 @@ public class userWorkQueues extends AbstractPageBean {
         qSorted.addAll(queue);
         int i = 0 ;
         for (WorkItemRecord wir : qSorted) {
-            if (i==0) {
-                getSessionBean().setChosenWIR(wir);          // return first listed
-                result = wir;
+            if (wir != null) {
+                if (i==0) {
+                    getSessionBean().setChosenWIR(wir);          // return first listed
+                    result = wir;
+                }
+                options[i++] = new Option(wir.getID()) ;
             }
-            options[i++] = new Option(wir.getID()) ;
         }
         getSessionBean().setWorklistOptions(options);
         return result ;

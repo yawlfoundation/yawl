@@ -35,7 +35,7 @@ hibernate.connection.driver_class org.postgresql.Driver
 hibernate.connection.url jdbc:postgresql:yawl
 hibernate.connection.username postgres
 hibernate.connection.password yawl
-hibernate.query.substitutions yes 'Y', no 'N'
+#hibernate.query.substitutions yes 'Y', no 'N'
 
 
 ## DB2
@@ -280,8 +280,10 @@ hibernate.connection.pool_size 5
 ##############################
 
 ## print all generated SQL to the console
-
 hibernate.show_sql false
+
+## enable automatic session context management
+hibernate.current_session_context_class thread
 
 
 ## auto schema export

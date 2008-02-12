@@ -369,10 +369,12 @@ public class SessionBean extends AbstractSessionBean {
             Set<WorkItemRecord> items = participant.getWorkQueues().getQueuedWorkItems(qType);
             if (items != null) {
                 for (WorkItemRecord wir : items) {
-                    if (wir.getID().equals(worklistChoice)) {
-                        chosenWIR = wir ;
-                        break ;
-                    }
+                    if (wir != null) {
+                        if (wir.getID().equals(worklistChoice)) {
+                            chosenWIR = wir ;
+                            break ;
+                        }
+                    }    
                 }
                 return chosenWIR ;
             }

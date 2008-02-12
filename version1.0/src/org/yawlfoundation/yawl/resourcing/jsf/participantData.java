@@ -608,8 +608,10 @@ public class participantData extends AbstractPageBean {
     public String btnSave_action() {
         if (checkValidPasswordChange()) {
             Participant p = getSessionBean().getEditedParticipant() ;
+            boolean nameChange = ! ((String) txtLastName.getText()).equals(p.getLastName());
             saveChanges(p);
             getSessionBean().saveParticipantUpdates(p);
+            if (nameChange) getSessionBean().refreshOrgDataParticipantList();
             info("INFO: Participant changes successfully saved.");
         }
         return null;
