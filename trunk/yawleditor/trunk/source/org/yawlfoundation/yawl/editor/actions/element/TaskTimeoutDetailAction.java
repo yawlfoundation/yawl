@@ -27,6 +27,7 @@ package org.yawlfoundation.yawl.editor.actions.element;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
+import org.yawlfoundation.yawl.editor.elements.model.TaskTimeoutDetail;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 
 import org.yawlfoundation.yawl.editor.data.DataVariable;
@@ -36,6 +37,7 @@ import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.data.DurationDataVariableComboBox;
+import org.yawlfoundation.yawl.editor.swing.data.JXMLSchemaDurationEditorPane;
 import org.yawlfoundation.yawl.editor.swing.data.TaskDecompositionUpdateDialog;
 import org.yawlfoundation.yawl.editor.swing.data.NetDecompositionUpdateDialog;
 import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
@@ -117,24 +119,68 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
   private JRadioButton viaStaticDurationRadioButton;
   
   private DurationDataVariableComboBox durationVariableComboBox;
+  private JXMLSchemaDurationEditorPane durationValueEditor;
   
   public TaskTimeoutDialog() {
-    super("Set Timeout Detail for Task", true, true);
+    super(null, true, true);
     setContentPanel(buildPanel());
     
     getDoneButton().addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
-        System.out.println("done button pressed.");
+        
+        if (!timeoutNeededCheckBox.isSelected()) {
+          if (getAtomicTask().getTimeoutDetail() != null) {
+            getAtomicTask().setTimeoutDetail(null);
+          }
+          return;
+        }
+        
+        // From this point on, we need timeout detail, so we build
+        // a new encoding of it from the current state of the widgets.
+        
+        TaskTimeoutDetail detail = new TaskTimeoutDetail();
+        
+        if (onEnablementRadioButton.isSelected()) {
+          detail.setTrigger(TaskTimeoutDetail.TRIGGER_ON_ENABLEMENT);
+        }
+        if (onStartingRadioButton.isSelected()) {
+          detail.setTrigger(TaskTimeoutDetail.TRIGGER_ON_STARTING);
+        }
+        
+        if (viaNetVariableRadioButton.isSelected()) {
+          detail.setTimeoutVariable(
+            durationVariableComboBox.getSelectedVariable()    
+          );
+        }
+        if (viaStaticDurationRadioButton.isSelected()) {
+          detail.setTimeoutValue(
+            durationValueEditor.getText()    
+          );
+        }
+        
+        getAtomicTask().setTimeoutDetail(
+            detail
+        );
       }
     });
   }
 
   protected void makeLastAdjustments() {
-    pack();
-//    JUtilities.setMinSizeToCurrent(this); 
-//    setResizable(true);
+    setSize(500,300);
+//    pack();
+    JUtilities.setMinSizeToCurrent(this); 
+    setResizable(true);
   } 
   
+  
+  public AtomicTask getAtomicTask() {
+    return (AtomicTask) getTask();
+  }
+  
+  public String getTitlePrefix() {
+    return "Set Timeout Detail for ";
+  }
+
   public void setTask(YAWLTask task, NetGraph graph) {
     super.setTask(task, graph);
     
@@ -142,8 +188,39 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
       getGraph().getNetModel().getDecomposition()    
     );
     
+    if (getAtomicTask().getTimeoutDetail() == null) {
+      resetToDefault();
+    } else {
+      // Populate widget settings from TaskTimeoutDetail already available.
+
+      timeoutNeededCheckBox.setSelected(true);
+      if (getAtomicTask().getTimeoutDetail().getTrigger() == TaskTimeoutDetail.TRIGGER_ON_ENABLEMENT) {
+        onEnablementRadioButton.setSelected(true);
+      }
+      if (getAtomicTask().getTimeoutDetail().getTrigger() == TaskTimeoutDetail.TRIGGER_ON_STARTING) {
+        onStartingRadioButton.setSelected(true);
+      }
+      if (getAtomicTask().getTimeoutDetail().getTimeoutValue() != null) {
+        this.viaStaticDurationRadioButton.setSelected(true);
+        this.durationValueEditor.setText(
+            getAtomicTask().getTimeoutDetail().getTimeoutValue()
+        );
+      }
+      if (getAtomicTask().getTimeoutDetail().getTimeoutVariable() != null) {
+        this.viaNetVariableRadioButton.setSelected(true);
+        this.durationVariableComboBox.setSelectedItem(
+            getAtomicTask().getTimeoutDetail().getTimeoutVariable()
+        );
+      }
+    }
+    
     enableWidgetsAsRequired();
-    pack();
+  }
+  
+  private void resetToDefault() {
+    timeoutNeededCheckBox.setSelected(false);
+    onEnablementRadioButton.setSelected(true);
+    viaStaticDurationRadioButton.setSelected(true);
   }
   
   private JPanel buildPanel() {
@@ -156,6 +233,7 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
 
     gbc.gridx = 0;
     gbc.gridy = 0;
+    gbc.weightx = 1;
     gbc.gridwidth = 3;
     gbc.insets = new Insets(0,0,5,0);
     gbc.anchor = GridBagConstraints.CENTER;
@@ -218,9 +296,10 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
     gbc.gridx++;
     panel.add(buildDurationDataVariableComboBox(), gbc);
 
-    gbc.insets = new Insets(0,2,0,0);
+    gbc.insets = new Insets(2,2,0,0);
     gbc.gridy++;
     gbc.gridx--;
+    gbc.anchor = GridBagConstraints.NORTHWEST;
 
     panel.add(buildViaStaticDurationRadioButton(), gbc);
     
@@ -229,7 +308,13 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
     timesViaGroup.add(viaStaticDurationRadioButton);
     
     viaStaticDurationRadioButton.setSelected(true);
-    
+
+    gbc.gridx++;
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.weighty = 1;
+
+    panel.add(buildDurationValueEditor(), gbc);
+
     return panel;
   }
   
@@ -281,6 +366,9 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
           durationVariableComboBox.setEnabled(
               viaNetVariableRadioButton.isSelected()
           );
+          durationValueEditor.setEnabled(
+              viaStaticDurationRadioButton.isSelected()
+          );
         }
       }
     );
@@ -299,6 +387,12 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
             durationVariableComboBox.setEnabled(
                 viaNetVariableRadioButton.isSelected()
             );
+            durationValueEditor.setEnabled(
+                viaStaticDurationRadioButton.isSelected()
+            );
+            if (viaStaticDurationRadioButton.isSelected()) {
+              durationValueEditor.requestFocus();
+            }
           }
         }
       );
@@ -316,6 +410,14 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
     return durationVariableComboBox;
   }
   
+  private JXMLSchemaDurationEditorPane buildDurationValueEditor() {
+    durationValueEditor = new JXMLSchemaDurationEditorPane();
+    
+    durationValueEditor.hideProblemTable();
+    
+    return durationValueEditor;
+  }
+  
   private void enableWidgetsAsRequired() {
     boolean timeoutNeeded = timeoutNeededCheckBox.isSelected();
     
@@ -325,10 +427,15 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
     viaNetVariableRadioButton.setEnabled(timeoutNeeded);
 
     durationVariableComboBox.setEnabled(
-      viaNetVariableRadioButton.isEnabled() &&
-      viaNetVariableRadioButton.isSelected()
+        viaNetVariableRadioButton.isEnabled() &&
+        viaNetVariableRadioButton.isSelected()
     );
-    
+
     viaStaticDurationRadioButton.setEnabled(timeoutNeeded);
+    
+    durationValueEditor.setEnabled(
+        viaStaticDurationRadioButton.isEnabled() &&
+        viaStaticDurationRadioButton.isSelected()
+    );
   }
 }

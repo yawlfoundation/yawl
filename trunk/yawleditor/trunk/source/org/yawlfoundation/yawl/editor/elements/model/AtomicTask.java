@@ -75,4 +75,12 @@ public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
   public WebServiceDecomposition getWSDecomposition() {
     return (WebServiceDecomposition) super.getDecomposition();
   }
+  
+  public void setTimeoutDetail(TaskTimeoutDetail timeoutDetail) {
+    getSerializationProofAttributeMap().put("timeoutDetail", timeoutDetail);
+  }
+  
+  public TaskTimeoutDetail getTimeoutDetail() {
+    return (TaskTimeoutDetail) getSerializationProofAttributeMap().get("timeoutDetail");
+  }
 }

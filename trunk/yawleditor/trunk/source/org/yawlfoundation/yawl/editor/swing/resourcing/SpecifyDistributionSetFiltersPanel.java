@@ -88,8 +88,18 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
   public void doNext() {}     
 
   void refresh() {
+    
+    // If we get no registered filters returned, but the editor has previously allowed
+    // filters, use these cached filters in leu of ones from an engine connection.
+    
+    List<ResourcingFilter> filters = ResourcingServiceProxy.getInstance().getRegisteredResourcingFilters();
+
+    if (filters.size() == 0 && getTask().getResourceMapping().getResourcingFilters().size() > 0) {
+      filters = getTask().getResourceMapping().getResourcingFilters();      
+    }
+    
     runtimeFiltersPanel.setFilters(
-        ResourcingServiceProxy.getInstance().getRegisteredResourcingFilters()
+        filters
     );
     
     runtimeFiltersPanel.setTask(
@@ -103,8 +113,7 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
     
   public boolean shouldDoThisStep() {
     return getResourceMapping().getOfferInteractionPoint() == 
-      ResourceMapping.SYSTEM_INTERACTION_POINT &&
-      getResourceMapping().getRetainFamiliarTask() == null;
+      ResourceMapping.SYSTEM_INTERACTION_POINT;
   }
 }
 

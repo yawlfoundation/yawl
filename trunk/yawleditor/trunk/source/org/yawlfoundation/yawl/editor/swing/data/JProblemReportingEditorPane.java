@@ -60,6 +60,10 @@ public class JProblemReportingEditorPane extends JSplitPane
   private JScrollPane buildEditorPanel() {
     return new JScrollPane(editor);
   }
+  
+  public void requestFocus() {
+    editor.requestFocus();
+  }
 
   private JScrollPane buildProblemPanel() {
     problemScrollPane = new JScrollPane(parseProblemsTable);
