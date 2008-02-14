@@ -204,7 +204,7 @@ class DateFilter extends DocumentFilter {
   }
 
   protected boolean isValidText(String text) {
-    return validateText("0123456789/", text);
+    return validateText("0123456789/:", text);
   }
 
   protected boolean validateText(String validCharacters, String text) {

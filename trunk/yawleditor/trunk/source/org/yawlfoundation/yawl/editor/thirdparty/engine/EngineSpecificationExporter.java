@@ -36,16 +36,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.Parameter;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 
+import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.Condition;
 import org.yawlfoundation.yawl.editor.elements.model.Decorator;
 import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
 import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
+import org.yawlfoundation.yawl.editor.elements.model.TaskTimeoutDetail;
 import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
@@ -82,6 +87,7 @@ import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 
 import org.yawlfoundation.yawl.resourcing.filters.GenericFilter;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
@@ -505,6 +511,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
            )
        );
      }
+     
+     generateTimeoutDetailForAtomicTask(engineAtomicTask, editorTask);
 
       if (editorTask.getDecomposition() != null) {
         YAWLServiceGateway engineDecomposition = 
@@ -535,6 +543,67 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
   
+  private static void generateTimeoutDetailForAtomicTask(YTask engineTask, YAWLTask editorTask) {
+    if (!(editorTask instanceof AtomicTask)) {
+      return;
+    }
+    
+    AtomicTask editorAtomicTask = (AtomicTask) editorTask;
+    
+    if (editorAtomicTask.getTimeoutDetail() == null ) {
+      return;
+    }
+    
+    if (editorAtomicTask.getTimeoutDetail().getTimeoutValue() != null) {
+      Duration duration = null;
+      try {
+        duration = DatatypeFactory.newInstance().newDuration(
+            editorAtomicTask.getTimeoutDetail().getTimeoutValue()
+        );
+      } catch (Exception e) {}
+      
+      if (duration != null) {
+        engineTask.setTimerParameters(
+            getEngineTimerTriggerForEditorTrigger(
+              editorAtomicTask.getTimeoutDetail().getTrigger()
+            ),
+            duration
+        );
+      }
+    }
+    
+    if (editorAtomicTask.getTimeoutDetail().getTimeoutDate() != null) {
+      engineTask.setTimerParameters(
+          getEngineTimerTriggerForEditorTrigger(
+            editorAtomicTask.getTimeoutDetail().getTrigger()
+          ),
+          editorAtomicTask.getTimeoutDetail().getTimeoutDate()
+      );
+    }
+    
+    if (editorAtomicTask.getTimeoutDetail().getTimeoutVariable() != null) {
+      // TODO: How come I can't set a trigger for the net variable?
+      // Answer: specified in the variable. must be a complex type, known by the editor.
+      engineTask.setTimerParameters(
+        editorAtomicTask.getTimeoutDetail().getTimeoutVariable().getName()    
+      );
+    }
+  }
+  
+  private static YWorkItemTimer.Trigger getEngineTimerTriggerForEditorTrigger(int editorTrigger) {
+    switch(editorTrigger) {
+      case TaskTimeoutDetail.TRIGGER_ON_ENABLEMENT: {
+        return YWorkItemTimer.Trigger.OnEnabled;
+      }
+      case TaskTimeoutDetail.TRIGGER_ON_STARTING: {
+        return YWorkItemTimer.Trigger.OnExecuting;
+      }
+      default: {
+        return YWorkItemTimer.Trigger.OnEnabled;
+      }
+    }
+  }
+    
   private static YAWLServiceGateway generateAtomicDecompositionFor(YSpecification engineSpec, 
                                                                    YAWLTask editorTask) {
 
