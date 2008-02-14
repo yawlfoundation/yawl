@@ -53,5 +53,8 @@ public class JXMLSchemaInstanceEditorPane extends JProblemReportingEditorPane {
     getEditor().setText(text);
   }
   
+  public void setToolTipText(String tooltipText) {
+    getEditor().setToolTipText(tooltipText);
+  }
 }
 

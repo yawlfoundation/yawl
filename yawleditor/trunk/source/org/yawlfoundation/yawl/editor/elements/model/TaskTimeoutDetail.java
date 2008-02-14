@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.editor.elements.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.yawlfoundation.yawl.editor.data.DataVariable;
@@ -27,6 +28,37 @@ public class TaskTimeoutDetail  implements Serializable {
   public HashMap getSerializationProofAttributeMap() {
     return this.serializationProofAttributeMap;
   }
+
+  public void setTimeoutVariable(DataVariable variable) {
+    serializationProofAttributeMap.put("timeoutValue", null);
+    serializationProofAttributeMap.put("timeoutDate", null);
+    serializationProofAttributeMap.put("timeoutVariable", variable);
+  }
+
+  public DataVariable getTimeoutVariable() {
+    return (DataVariable) serializationProofAttributeMap.get("timeoutVariable");
+  }
+  
+  public void setTimeoutValue(String timeoutValue) {
+    serializationProofAttributeMap.put("timeoutValue", timeoutValue);
+    serializationProofAttributeMap.put("timeoutDate", null);
+    serializationProofAttributeMap.put("timeoutVariable", null);
+    
+  }
+  
+  public String getTimeoutValue() {
+    return (String) serializationProofAttributeMap.get("timeoutValue");
+  }
+
+  public void setTimeoutDate(Date timeoutDate) {
+    serializationProofAttributeMap.put("timeoutDate", timeoutDate);
+    serializationProofAttributeMap.put("timeoutValue", null);
+    serializationProofAttributeMap.put("timeoutVariable", null);
+  }
+  
+  public Date getTimeoutDate() {
+    return (Date) serializationProofAttributeMap.get("timeoutDate");
+  }
   
   public void setTrigger(int trigger) {
     serializationProofAttributeMap.put("trigger", new Integer(trigger));
@@ -35,22 +67,5 @@ public class TaskTimeoutDetail  implements Serializable {
   public int getTrigger() {
     return ((Integer) serializationProofAttributeMap.get("trigger")).intValue();
   }
-  
-  public void setTimeoutValue(String timeoutValue) {
-    serializationProofAttributeMap.put("timeoutValue", timeoutValue);
-    serializationProofAttributeMap.put("timeoutVariable", null);
-  }
-  
-  public String getTimeoutValue() {
-    return (String) serializationProofAttributeMap.get("timeoutValue");
-  }
 
-  public void setTimeoutVariable(DataVariable variable) {
-    serializationProofAttributeMap.put("timeoutValue", null);
-    serializationProofAttributeMap.put("timeoutVariable", variable);
-  }
-
-  public DataVariable getTimeoutVariable() {
-    return (DataVariable) serializationProofAttributeMap.get("timeoutVariable");
-  }
 }
