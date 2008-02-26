@@ -9,19 +9,21 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
-
+import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
-import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.jdom.Element;
+import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
-
-import java.util.*;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * <p>Page bean that corresponds to a similarly named JSP page.  This
@@ -674,8 +676,9 @@ public class userWorkQueues extends AbstractPageBean {
                 sb.setSourceTab("tabStarted");
 
                 DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
-                df.setHeaderText("Edit Work Item '" + wir.getID() + "'" );
-                df.initDynForm(new ArrayList<FormParameter>(params.values()), "Edit Work Item") ;
+                df.setHeaderText("Edit Work Item: " + wir.getID());
+                df.setDisplayedWIR(wir);
+                df.initDynForm("YAWL 2.0 - Edit Work Item") ;
 
                 return "showDynForm" ;
             }
@@ -689,22 +692,23 @@ public class userWorkQueues extends AbstractPageBean {
 
     private void postEditWIR() {
         if (getSessionBean().isWirEdit()) {
-            Map<String, FormParameter> paramMap = getSessionBean().getDynFormParams();
-
-            if ((paramMap != null) && (! paramMap.isEmpty())) {
-                paramMap = getDynFormFactory().updateValues(paramMap) ;
-                getSessionBean().setDynFormParams(paramMap);
+//            Map<String, FormParameter> paramMap = getSessionBean().getDynFormParams();
+//
+//            if ((paramMap != null) && (! paramMap.isEmpty())) {
+//   //             paramMap = getDynFormFactory().updateValues(paramMap) ;
+//                getSessionBean().setDynFormParams(paramMap);
                 WorkItemRecord wir = getSessionBean().getChosenWIR(WorkQueue.STARTED);
-                Element data = new Element(getGateway().getDecompID(wir)) ;
-                for (FormParameter param : paramMap.values()) {
-                    Element child = new Element(param.getName());
-                    child.setText(param.getValue());
-                    data.addContent(child);
-                }
+                Element data = JDOMUtil.stringToElement(getDynFormFactory().getDataList());
+//                for (FormParameter param : paramMap.values()) {
+//                    Element child = new Element(param.getName());
+//                    child.setText(param.getValue());
+//                    data.addContent(child);
+//                }
+
                 wir.setUpdatedData(data);
                 getGateway().updateWIRCache(wir) ;
                 getSessionBean().setDirtyFlag(wir.getID());
-            }
+
             getSessionBean().setWirEdit(false);
         }
 

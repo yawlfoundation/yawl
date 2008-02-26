@@ -13,6 +13,11 @@
                          title="#{DynFormFactory.title}">
                     <ui:link binding="#{dynForm.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
+
+                    <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"
+                             rel="shortcut icon"
+                            type="image/x-icon" url="/resources/favicon.ico"/>
+                    
                 </ui:head>
                 <ui:body binding="#{dynForm.body1}" id="body1"
                          focus="#{DynFormFactory.focus}"
@@ -35,12 +40,11 @@
 
                         <ui:panelLayout binding="#{DynFormFactory.compPanel}"
                                         id="compPanel"
-                                        styleClass="dynformPanel"/>
+                                        styleClass="dynformOuterPanel"/>
 
                         <ui:button action="#{dynForm.btnOK_action}"
                                    binding="#{dynForm.btnOK}"
                                    id="btnOK"
-                                   text="OK"
                                    styleClass="dynformButton"
                                    style="#{DynFormFactory.btnOKStyle}"/>
 

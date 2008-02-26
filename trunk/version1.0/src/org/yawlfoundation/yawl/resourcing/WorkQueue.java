@@ -215,7 +215,11 @@ public class WorkQueue implements Serializable {
 
     /** rebuilds the queue's workitem list after restart of service */
     public void restore(WorkItemCache cache) {
-        for (String id : _itemIDs) _workitems.put(id, cache.get(id)) ;
+        for (String id : _itemIDs) {
+            WorkItemRecord wir = cache.get(id) ;
+            if (wir != null)
+                _workitems.put(id, wir) ;
+        }
     }
 
     /** returns the apropriate String identifier for the queue type passed */

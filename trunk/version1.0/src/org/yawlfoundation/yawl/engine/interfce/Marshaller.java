@@ -16,10 +16,6 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
-import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
-import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -165,7 +161,7 @@ public class Marshaller {
                 Element specElement = (Element) specSummaryElements.get(i);
                 String specID = specElement.getChildText("id");
                 String specName = specElement.getChildText("name");
-                String specDodo = specElement.getChildText("documentation");
+                String specDoco = specElement.getChildText("documentation");
                 String specStatus = specElement.getChildText("status");
                 String version = specElement.getChildText("version");
                 String rootNetID = specElement.getChildText("rootNetID");
@@ -174,7 +170,7 @@ public class Marshaller {
                     specData = new SpecificationData(
                             specID,
                             specName,
-                            specDodo,
+                            specDoco,
                             specStatus,
                             version);
                     specData.setRootNetID(rootNetID);

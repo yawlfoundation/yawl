@@ -18,56 +18,54 @@ import java.util.*;
  * @author Lachlan Aldred
  * Date: 5/11/2003
  * Time: 12:18:37
+ *
+ * updated for v2.0 by Michael Adams
+ * last date: 14/02/2008
  * 
  */
 public class YParametersSchema {
-    private Map _inputParams = new HashMap();
-    private Map _outputParams = new HashMap();
+    private Map<String, YParameter> _inputParams = new HashMap<String, YParameter>();
+    private Map<String, YParameter> _outputParams = new HashMap<String, YParameter>();
     private String _formalInputParam;
 
 
-    public List getInputParams() {
-        List r = new ArrayList(_inputParams.values());
-        Collections.sort(r);
-        return r;
+    public List<YParameter> getInputParams() {
+        List<YParameter> list = new ArrayList<YParameter>(_inputParams.values());
+        Collections.sort(list);
+        return list;
     }
 
 
-    public List getOutputParams() {
-        List r = new ArrayList(_outputParams.values());
-        Collections.sort(r);
-        return r;
+    public List<YParameter> getOutputParams() {
+        List<YParameter> list = new ArrayList<YParameter>(_outputParams.values());
+        Collections.sort(list);
+        return list;
     }
 
 
     public void setInputParam(YParameter parameter) {
-        if (!YParameter.getTypeForInput().
-                equals(parameter.getDirection())) {
+        if (YParameter.getTypeForInput().equals(parameter.getDirection()))
+            _inputParams.put(parameter.getName(), parameter);
+        else
             throw new IllegalArgumentException();
-        }
-        _inputParams.put(parameter.getName(), parameter);
     }
 
 
     public void setOutputParam(YParameter parameter) {
-        if (!YParameter.getTypeForOutput().
-                equals(parameter.getDirection())) {
+        if (YParameter.getTypeForOutput().equals(parameter.getDirection()))
+            _outputParams.put(parameter.getName(), parameter);
+        else
             throw new IllegalArgumentException();
-        }
-        _outputParams.put(parameter.getName(), parameter);
     }
 
 
     public String toString() {
-        StringBuffer result = new StringBuffer();
-        for (Iterator iterator = _inputParams.values().iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
+        StringBuilder result = new StringBuilder();
+        for (YParameter parameter : _inputParams.values())
             result.append(parameter.toSummaryXML());
-        }
-        for (Iterator iterator = _outputParams.values().iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
+        for (YParameter parameter : _outputParams.values())
             result.append(parameter.toSummaryXML());
-        }
+       
         return result.toString();
     }
 
@@ -78,7 +76,6 @@ public class YParametersSchema {
 
 
     public YParameter getFormalInputParam() {
-        return _formalInputParam != null ?
-                (YParameter) _inputParams.get(_formalInputParam) : null;
+        return _formalInputParam != null ? _inputParams.get(_formalInputParam) : null;
     }
 }

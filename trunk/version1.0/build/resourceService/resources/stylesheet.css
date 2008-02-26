@@ -139,8 +139,8 @@
 .pageHeading {
    color: #3277ba; 
    font-size: 18px; 
-   left: 138px; 
-   top: 144px; 
+   left: 50px; 
+   top: 90px; 
    position: absolute;
 }
 
@@ -161,15 +161,29 @@
 
 /* Rules for dynamic forms */
 
-.dynformPanel {
+.dynformOuterPanel {
    border-style: inset; 
    border-color: gray; 
-   padding: 10px;
+/*   padding: 10px; */
    background-color: #97cbfd; 
-   left: 138px; 
-   top: 186px;
+   left: 50px; 
+   top: 130px;
    position: absolute; 
-   width: 220px;
+/*   width: 220px; */
+}
+
+.dynformSubPanel {
+    border: 1px solid gray;
+/*    padding: 10px; */
+    background-color: #97cbfd;
+    position: absolute;
+}
+
+.dynformSubPanelAlt {
+    border: 1px solid gray;
+/*    padding: 10px;     */
+    background-color: rgb(227, 240, 252);
+    position: absolute;
 }
 
 .dynformButton {
@@ -179,14 +193,33 @@
    width: 66px;
 }
 
+.dynformOccursButton {
+    font-size: 10px;
+    font-weight: bold;
+    top: 0px ;
+    height: 18px ;
+    width: 20px;
+    position: absolute;
+}
+
+.dynFormPanelHeader {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    color: #3277ba;
+  /*  background-color: white; */
+    font-size: 14px;
+    font-weight: bold;
+}
+
 .dynformLabel {
     position: absolute;
-    left: 6px;
+    left: 10px;
 }
 
 .dynformInput {
     position: absolute;
-    left: 100px;
+    left: 125px;
 }
 
 .dynformReadOnlyPanel {

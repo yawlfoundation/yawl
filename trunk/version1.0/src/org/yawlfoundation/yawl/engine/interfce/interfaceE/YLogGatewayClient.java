@@ -149,7 +149,8 @@ public class YLogGatewayClient extends Interface_Client {
 
     public String getChildWorkItemData(String childEventID, String handle)
                                                                      throws IOException {
-        return performGet("getParentWorkItemEventsForCaseID", "eventid", childEventID, handle) ;
+        return performGet("getWorkItemDataForChildWorkItemEventID", "eventid",
+                             childEventID, handle) ;
    }
 
     

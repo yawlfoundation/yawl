@@ -7,33 +7,32 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
-import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.component.PanelLayout;
+import com.sun.rave.web.ui.component.Script;
 import com.sun.rave.web.ui.model.Option;
-
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
-import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
-import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantUserIDComparator;
-import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
+import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
-import javax.faces.application.NavigationHandler;
 import javax.faces.application.Application;
+import javax.faces.application.NavigationHandler;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
-
-import java.util.*;
-import java.text.DateFormat;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.util.*;
 
 /**
  * <p>Session scope data bean for your application.  Create properties
@@ -610,20 +609,56 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    public String getCaseSchema() {
+        return getResourceManager().getDataSchema(getLoadedSpecListChoice()) ;    
+    }
+
+    public String getInstanceData(String schema) {
+        return getResourceManager().getInstanceData(schema, getLoadedSpecListChoice()) ;
+    }
+
+
+    public String getTaskSchema(WorkItemRecord wir) {
+        return getResourceManager().getDataSchema(wir) ;
+    }
+
+    public String getInstanceData(String schema, WorkItemRecord wir) {
+        if (isDirty(wir.getID()))
+            return JDOMUtil.elementToStringDump(wir.getUpdatedData());
+        else
+            return getResourceManager().getInstanceData(schema, wir) ;
+    }
+
+
+    
+
     private void refreshSchemaLibraries() {
-        schemaLibraries = new Hashtable<String, String>();
-        for (SpecificationData spec : loadedSpecs) {
-            try {
-                schemaLibraries.put(spec.getID(), spec.getSchemaLibrary()) ;
-            }
-            catch (Exception e) {
-                // some kind of io or jdom exception
-            }
-        }
+//        schemaLibraries = new Hashtable<String, String>();
+//        for (SpecificationData spec : loadedSpecs) {
+//            try {
+//                String schema = getResourceManager().getSchemaLibrary(spec.getID(),
+//                                                                      sessionhandle) ;
+//                if (schema != null)
+//                    schemaLibraries.put(spec.getID(), schema) ;
+//            }
+//            catch (Exception e) {
+//                // some kind of io or jdom exception
+//            }
+//        }
     }
 
     public String getSchemaLibrary(String specID) {
-        return schemaLibraries.get(specID);
+        String result = schemaLibraries.get(specID) ;
+
+        // not in local cache, try getting it from engine
+        if (result == null) {
+            result = getResourceManager().getDataSchema(specID) ;
+
+            // not in engine = problem or not loaded
+            if (result != null) schemaLibraries.put(specID, result) ;
+        }
+
+        return result ;
     }
 
 

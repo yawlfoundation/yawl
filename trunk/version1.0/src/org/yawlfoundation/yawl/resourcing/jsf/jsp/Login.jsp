@@ -13,6 +13,9 @@
                 <ui:head binding="#{Login.head1}" id="head1">
                     <ui:link binding="#{Login.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
+                    <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"
+                             rel="shortcut icon"
+                            type="image/x-icon" url="/resources/favicon.ico"/>
                 </ui:head>
 
                 <ui:body binding="#{Login.body1}" id="body1" style="-rave-layout: grid">

@@ -402,6 +402,13 @@ public class XMLToolsForYAWL {
         return null;
     }
 
+    public String createYAWLSchema(List<Instruction> instructions, String rootElementName)
+                                                      throws YSchemaBuildingException {
+
+        return createYAWLSchema(instructions.toArray(new Instruction[instructions.size()]),
+                                rootElementName);        
+    }
+
 
     private String[][] convertFormat(Instruction[] instructions) {
         List formattedInstructions = new ArrayList();

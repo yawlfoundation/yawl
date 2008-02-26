@@ -4,7 +4,7 @@
 
 <hibernate-mapping package="org.yawlfoundation.yawl.resourcing">
 
-	<class name="WorkQueue" table="rs_WorkQueue">
+	<class name="WorkQueue" table="rs_WorkQueue" select-before-update="true">
 
         <id name="_id"
             column="id"
@@ -25,27 +25,6 @@
             <element column="itemid" type="string"/>
         </set>
 
-
-<!--        <map name="_workitems" table="rs_queueItems" access="field">
-             <key column="id"/>
-             <index column="itemID" type="string"/>
-             <composite-element class="org.yawlfoundation.yawl.engine.interfce.WorkItemRecord">
-                 <property name="_specificationID" column="specID" access="field"/>
-                 <property name="_caseID" column="caseID" access="field"/>
-                 <property name="_taskID" column="taskID" access="field"/>
-                 <property name="_uniqueID" column="uniqueID" access="field"/>
-                 <property name="_firingTime" column="firingTime" access="field"/>
-                 <property name="_enablementTime" column="enablementTime" access="field"/>
-                 <property name="_startTime" column="startTime" access="field"/>
-                 <property name="_completionTime" column="completionTime" access="field"/>
-                 <property name="_status" column="status" access="field"/>
-                 <property name="_resourceStatus" column="resourceStatus" access="field"/>
-                 <property name="_startedBy" column="startedBy" access="field"/>
-                 <property name="_completedBy" column="completedBy" access="field"/>
-                 <property name="_dataList" column="dataList"/>
-             </composite-element>
-        </map>
--->
      </class>
 	
 </hibernate-mapping>

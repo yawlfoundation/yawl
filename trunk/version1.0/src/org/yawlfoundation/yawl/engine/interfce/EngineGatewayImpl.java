@@ -9,6 +9,8 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
+import org.apache.log4j.Logger;
+import org.jdom.Document;
 import org.yawlfoundation.yawl.authentication.User;
 import org.yawlfoundation.yawl.authentication.UserList;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -23,28 +25,20 @@ import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YEngineStateException;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URI;
+import java.net.URL;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
-
-import org.apache.log4j.Logger;
-import org.jdom.Document;
+import java.util.*;
 
 /**
  * This class allows access to all of the engines capabilities using Strings and
@@ -188,6 +182,17 @@ public class EngineGatewayImpl implements EngineGateway {
             logger.error("Failed to marshal a specification into XML.", e);
             return "";
         }
+    }
+
+
+    public String getSpecificationDataSchema(YSpecificationID specID, String sessionHandle)
+                                                   throws RemoteException {
+        try {
+            _userList.checkConnection(sessionHandle);
+        } catch (YAuthenticationException e) {
+            return failureMessage(e.getMessage());
+        }
+        return _engine.getSpecificationDataSchema(specID);
     }
 
 
@@ -1031,7 +1036,7 @@ public class EngineGatewayImpl implements EngineGateway {
                     append(spec.getRootNet().getID()).
                     append("</rootNetID>");
             specs.append("<version>").
-                    append(spec.getBetaVersion()).
+                    append(spec.getVersion()).
                     append("</version>");
 
             specs.append("<status>").

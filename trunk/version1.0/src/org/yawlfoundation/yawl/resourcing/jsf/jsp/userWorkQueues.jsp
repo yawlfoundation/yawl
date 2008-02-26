@@ -10,8 +10,14 @@
         <ui:page binding="#{userWorkQueues.page1}" id="page1">
             <ui:html binding="#{userWorkQueues.html1}" id="html1">
                 <ui:head binding="#{userWorkQueues.head1}" id="head1" title="YAWL Worklist">
+
                     <ui:link binding="#{userWorkQueues.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
+
+                    <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"
+                             rel="shortcut icon"
+                            type="image/x-icon" url="/resources/favicon.ico"/>
+ 
                 </ui:head>
                 <ui:body binding="#{userWorkQueues.body1}" id="body1"
                          style="-rave-layout: grid">

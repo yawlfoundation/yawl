@@ -14,6 +14,10 @@
                     <ui:link binding="#{customServices.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
 
+                    <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"
+                             rel="shortcut icon"
+                            type="image/x-icon" url="/resources/favicon.ico"/>
+                    
                     <ui:script binding="#{customServices.script1}" id="script1"
                                url="/resources/script.js"/>
 

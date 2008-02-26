@@ -43,6 +43,7 @@ public class SpecificationData {
     private Map _dataTypes = new HashMap();
     private String _betaFormat;
     private String _rootNetID;
+    private String _schema ;
 
 
     public SpecificationData(String specificationID, String specificationName,
@@ -86,13 +87,21 @@ public class SpecificationData {
     }
 
 
+    public String getSchema() {
+        return _schema;
+    }
+
+    public void setSchema(String schema) {
+        _schema = schema;
+    }
+
     public void addInputParam(YParameter parameter) {
         _inputParams.put(parameter.getName(), parameter);
     }
 
 
-    public List getInputParams() {
-        List params = new ArrayList(_inputParams.values());
+    public List<YParameter> getInputParams() {
+        List<YParameter> params = new ArrayList(_inputParams.values());
         Collections.sort(params);
         return params;
     }
