@@ -1521,7 +1521,7 @@
     <target name="deployEngine" depends="build_engine.war">
         <!-- Deploy YAWL Engine -->
         <copy todir="${env.CATALINA_HOME}/webapps">
-            <fileset file="${output}/yawl.war"/>
+            <fileset file="${output}/_yawl.war"/>
         </copy>
         <antcall target="cleanup"/>
     </target>
