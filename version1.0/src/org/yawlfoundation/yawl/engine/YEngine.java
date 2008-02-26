@@ -9,41 +9,38 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import org.apache.log4j.Logger;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.admintool.model.HumanResource;
 import org.yawlfoundation.yawl.authentication.UserList;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClient;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClientObserver;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBInterop;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceADesign;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagement;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagementObserver;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClientObserver;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBInterop;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
-import org.yawlfoundation.yawl.engine.ObserverGateway;
-import org.yawlfoundation.yawl.engine.ObserverGatewayController;
-import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.engine.time.YTimer;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
+import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.hibernate.Query;
-import org.hibernate.SessionFactory;
-import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.yawlfoundation.yawl.util.*;
 
 import java.io.*;
 import java.net.URI;
 import java.util.*;
-
-import org.yawlfoundation.yawl.util.*;
 
 /**
  *
@@ -1482,6 +1479,22 @@ public class YEngine implements InterfaceADesign,
 
             return _specifications.getSpecification(specID);
         }
+    }
+
+
+    public String getSpecificationDataSchema(YSpecificationID specID) {
+        String result = null;
+
+        synchronized (mutex) {
+            YSpecification spec = _specifications.getSpecification(specID);
+            if (spec != null) {
+                YDataValidator validator = spec.getDataValidator() ;
+                if (validator != null) {
+                   result = validator.getSchema();
+                }
+            }
+        }
+        return result;
     }
 
 

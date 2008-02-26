@@ -344,7 +344,7 @@
     Compiles main project source into ${classes}.
     -->
     <target name="compile" depends="init">
-        <javac srcdir="${src}" debug="true" destdir="${classes}" excludes="org/org/yawlfoundation/yawl/xformsupload/**">
+        <javac srcdir="${src}" debug="true" destdir="${classes}" excludes="org/yawlfoundation/yawl/xformsupload/**">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
@@ -479,7 +479,7 @@
             <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar jfreechart-1.0.0-rc1.jar log4j*.jar postgresql-8.0-311.jdbc3.jar saxon7.jar saxpath.jar xercesImpl.jar"/>
         </copy>
         <antcall target="decidePostgresVersion"/>
-        <jar destfile="${output}/yawl.war">
+        <jar destfile="${output}/_yawl.war">
             <fileset dir="${yawl.eng.app.name}"/>
         </jar>
         <delete dir="${yawl.eng.app.name}"/>

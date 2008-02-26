@@ -8,18 +8,20 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf;
 
-import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
-import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGateway;
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 import com.sun.rave.web.ui.appbase.AbstractApplicationBean;
+import com.sun.rave.web.ui.component.Link;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
+
 import javax.faces.FacesException;
-import javax.faces.context.FacesContext;
-import javax.faces.application.NavigationHandler;
 import javax.faces.application.Application;
+import javax.faces.application.ViewHandler;
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Application scope data bean for the worklist and admin pages.
@@ -72,6 +74,14 @@ public class ApplicationBean extends AbstractApplicationBean {
     /*******************************************************************************/
     /**************** END Creator auto generated code  *****************************/
     /*******************************************************************************/
+
+    // the favicon link - for all pages
+    private Link favIcon = new Link() ;
+
+    public Link getFavIcon() { return favIcon; }
+
+    public void setFavIcon(Link link) { favIcon = link; }
+
 
     // reference of gateway to resourceService
     private WorkQueueGateway _wqg = WorkQueueGateway.getInstance();
@@ -158,4 +168,15 @@ public class ApplicationBean extends AbstractApplicationBean {
         padded.append(spaces) ;
         return padded.toString();
     }
+
+    public void refresh() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        Application application = context.getApplication();
+        ViewHandler viewHandler = application.getViewHandler();
+        UIViewRoot viewRoot = viewHandler.createView(context, context
+             .getViewRoot().getViewId());
+        context.setViewRoot(viewRoot);
+      //  context.renderResponse(); //Optional
+  }
+
 }

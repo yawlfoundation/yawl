@@ -8,7 +8,18 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.Namespace;
 import org.yawlfoundation.yawl.authentication.User;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.interfce.Marshaller;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
@@ -23,24 +34,14 @@ import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSourceFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.HibernateImpl;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
+import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
+import org.yawlfoundation.yawl.resourcing.jsf.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
+import org.yawlfoundation.yawl.resourcing.util.DataSchemaProcessor;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
 import org.yawlfoundation.yawl.resourcing.util.RandomOrgDataGenerator;
-import org.yawlfoundation.yawl.resourcing.jsf.FormParameter;
-import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.JDOMException;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -66,11 +67,18 @@ public class ResourceManager extends InterfaceBWebsideController
     // store of organisational resources and their attributes
     private DataSource.ResourceDataSet _ds ;
 
+    // cache of 'live' workitems
     private WorkItemCache _workItemCache = new WorkItemCache();
+
+    // map of userid -> participant id
     private HashMap<String,String> _userKeys = new HashMap<String,String>();
 
     // a cache of connections directly to the service - not to the engine
     private ConnectionCache _connections = ConnectionCache.getInstance();
+
+    // local cache of specificiations: id -> SpecificationData
+    private HashMap<String, SpecificationData> _specCache =
+            new HashMap<String, SpecificationData>();
 
     // currently logged on participants: <sessionHandle, Participant>
     private HashMap<String,Participant> _liveSessions =
@@ -134,6 +142,8 @@ public class ResourceManager extends InterfaceBWebsideController
 
 
     public void initOrgDataSource(String dataSourceClassName, int refreshRate) {
+        _log.info("Loading Org Data, please wait...");
+
         // get correct ref to org data backend
         _orgdb = DataSourceFactory.getInstance(dataSourceClassName);
 
@@ -397,6 +407,7 @@ public class ResourceManager extends InterfaceBWebsideController
 
 
     private void restoreWorkQueues() {
+        _log.info("Restoring persisted work queue data, please wait...");
         _workItemCache.restore() ;
 
         // restore the queues to their owners
@@ -1629,13 +1640,22 @@ public class ResourceManager extends InterfaceBWebsideController
     }
 
     public SpecificationData getSpecData(String specID, String handle) {
-        try {
-            return getSpecificationData(specID, handle) ;
+        SpecificationData result = _specCache.get(specID);
+        if (result == null) {
+            try {
+                result = getSpecificationData(specID, handle) ;
+                if (result != null) _specCache.put(result.getID(), result) ;
+            }
+            catch (IOException ioe) {
+                _log.error("IO Exception retrieving specification data", ioe) ;
+                result = null ;
+            }
         }
-        catch (IOException ioe) {
-            _log.error("IO Exception retrieving specification data", ioe) ;
-            return null ;
-        }        
+        return result;
+    }
+
+    public SpecificationData getSpecData(String specID) {
+        return this.getSpecData(specID, _engineSessionHandle);
     }
 
 
@@ -1745,7 +1765,13 @@ public class ResourceManager extends InterfaceBWebsideController
             itemData = JDOMUtil.stringToElement(wir.getDataListString());
 
         for (String name : outputs.keySet()) {
-            outputs.get(name).setValue(itemData.getChildText(name));
+            Element data = itemData.getChild(name);
+            if (data != null) {
+                if (data.getContentSize() > 0)         // complex type
+                    outputs.get(name).setValue(JDOMUtil.elementToStringDump(data));
+                else                                   // simple type
+                   outputs.get(name).setValue(itemData.getText());
+            }
         }
 
         return outputs;
@@ -1797,4 +1823,68 @@ public class ResourceManager extends InterfaceBWebsideController
     public String getCaseData(String caseID, String handle) throws IOException {
         return _interfaceBClient.getCaseData(caseID, handle) ;
     }
+
+    public String getSchemaLibrary(String specID, String handle) throws IOException {
+        return _interfaceBClient.getSpecificationDataSchema(specID, handle) ;
+    }
+
+    public String getDataSchema(String specID) {
+        String result = null ;
+        try {
+            SpecificationData specData = getSpecData(specID, _engineSessionHandle);
+            result = new DataSchemaProcessor().createSchema(specData);
+        }
+        catch (Exception e) {
+            _log.error("Could not retrieve schema for case parameters", e)  ;
+        }
+        return result ;
+    }
+
+
+    public String getDataSchema(WorkItemRecord wir) {
+        String result = null ;
+        try {
+            SpecificationData specData = getSpecData(wir.getSpecificationID(),
+                                                        _engineSessionHandle);
+            TaskInformation taskInfo = getTaskInformation(wir.getSpecificationID(),
+                                                          wir.getTaskID(),
+                                                          _engineSessionHandle);
+            result = new DataSchemaProcessor().createSchema(specData, taskInfo, wir);
+        }
+        catch (Exception e) {
+            _log.error("Could not retrieve schema for workitem parameters", e)  ;
+        }
+        return result ;
+    }
+
+
+    public String getInstanceData(String schema, String specID) {
+        String result = null;
+        SpecificationData specData = getSpecData(specID);
+        if (specData != null) {
+            result = new DataSchemaProcessor()
+                                .getInstanceData(schema, specData.getRootNetID(), null);
+        }
+        return result ;
+    }
+
+    
+    public String getInstanceData(String schema, WorkItemRecord wir) {
+        String result = null;
+        try {
+            TaskInformation taskInfo = getTaskInformation(wir.getSpecificationID(),
+                                                          wir.getTaskID(),
+                                                          _engineSessionHandle);
+            if (taskInfo != null)
+               result = new DataSchemaProcessor()
+                                .getInstanceData(schema, taskInfo.getDecompositionID(),
+                                                 wir.getDataListString());
+        }
+        catch (IOException ioe) {
+            result = null ;
+        }
+        return result ;
+    }
+
+
 }                                                                                  

@@ -11,9 +11,9 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 
 import javax.faces.FacesException;
-import javax.faces.event.ValueChangeEvent;
 import javax.faces.component.UIComponent;
-
+import javax.faces.event.ActionEvent;
+import javax.faces.event.ValueChangeEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +62,7 @@ public class dynForm extends AbstractPageBean {
 
     public void prerender() {
         getSessionBean().setActivePage("dynForm");
+        setOKText();
     }
 
     public void destroy() { }
@@ -150,7 +151,6 @@ public class dynForm extends AbstractPageBean {
             sb.setWirEdit(true) ;
             referringPage = "showUserQueues";
         }
-        getDynFormFactory().setDynFormPost(false);
         return referringPage;
     }
 
@@ -185,6 +185,24 @@ public class dynForm extends AbstractPageBean {
 
         updateMap.put(source.getId(), value);
     }
+
+    private void setOKText() {
+        SessionBean sb = getSessionBean() ;
+        if (sb.getDynFormLevel().equals("case"))
+            btnOK.setText("Start");
+        else
+            btnOK.setText("Save");
+    }
+
+    public String btnOccursAction(ActionEvent event) {
+        Button source = (Button) event.getComponent() ;
+        SubPanel parent = (SubPanel) source.getParent();
+        String btnType = (String) source.getText();
+        getApplicationBean().refresh();
+        getDynFormFactory().processOccursAction(parent, btnType);
+        return null;
+    }
+
 }
 
 

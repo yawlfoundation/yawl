@@ -86,6 +86,10 @@ public interface EngineGateway extends Remote {
 
     public String getSpecificationList(String sessionHandle) throws RemoteException;
 
+    public String getSpecificationDataSchema(YSpecificationID specID, String sessionHandle)
+                                                   throws RemoteException ;
+
+
 //	MLR (02/11/07) code merge: added method launchCase which also accepts caseID as second-last param, to comply with the new YEngine (which features two methods launchCase). 
     public String launchCase(String specID, String caseParams, URI completionObserverURI, String caseID, String sessionHandle) throws RemoteException;    
     

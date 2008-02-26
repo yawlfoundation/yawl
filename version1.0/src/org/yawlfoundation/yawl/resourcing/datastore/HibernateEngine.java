@@ -53,6 +53,7 @@ public class HibernateEngine implements Serializable {
     private static HibernateEngine _me;
 
     private static boolean _persistOn = false;
+    private final Object _mutex = new Object();
     private static Logger _log = null;
 
     // table name abbreviations
@@ -151,22 +152,24 @@ public class HibernateEngine implements Serializable {
      */
     public void exec(Object obj, int action) {
 
-        Transaction tx = null;
-        try {
-            Session session = _factory.getCurrentSession();
-            tx = session.beginTransaction();
+   //     synchronized(_mutex) {
+            Transaction tx = null;
+            try {
+                Session session = _factory.getCurrentSession();
+                tx = session.beginTransaction();
 
-            if (action == DB_INSERT) session.save(obj);
-            else if (action == DB_UPDATE) updateOrMerge(session, obj);
-            else if (action == DB_DELETE) session.delete(obj);
+                if (action == DB_INSERT) session.save(obj);
+                else if (action == DB_UPDATE) updateOrMerge(session, obj);
+                else if (action == DB_DELETE) session.delete(obj);
 
-            tx.commit();
-        }
-        catch (HibernateException he) {
-             _log.error("Error persisting object (" + actionToString(action) +
+                tx.commit();
+            }
+            catch (HibernateException he) {
+                _log.error("Error persisting object (" + actionToString(action) +
                            "): " + obj.toString(), he);
-            if (tx != null) tx.rollback();
-        }
+                if (tx != null) tx.rollback();
+            }    
+  //      }
     }
 
 
@@ -187,19 +190,22 @@ public class HibernateEngine implements Serializable {
      * @return the List of objects returned, or null if the query has some problem
      */
     private List execQuery(String queryString) {
-        List result = null;
-        Transaction tx = null;
-        try {
-            Session session = _factory.getCurrentSession();
-            tx = session.beginTransaction();
-            Query query = session.createQuery(queryString);
-            if (query != null) result = query.list();
-        }
-        catch (HibernateException he) {
-             _log.error("Error executing query: " + queryString, he);
-            if (tx != null) tx.rollback();
-        }
-        return result;
+
+//        synchronized(_mutex) {
+            List result = null;
+            Transaction tx = null;
+            try {
+                Session session = _factory.getCurrentSession();
+                tx = session.beginTransaction();
+                Query query = session.createQuery(queryString);
+                if (query != null) result = query.list();
+            }
+            catch (HibernateException he) {
+                _log.error("Error executing query: " + queryString, he);
+                if (tx != null) tx.rollback();
+            }
+            return result;
+ //       }
     }
 
     

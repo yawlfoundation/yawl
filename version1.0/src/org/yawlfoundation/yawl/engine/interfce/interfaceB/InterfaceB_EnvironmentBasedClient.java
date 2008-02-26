@@ -9,16 +9,15 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -198,6 +197,18 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                 "version=" + specID.getVersion() +
                 "&" +
                 "sessionHandle=" + sessionHandle));
+    }
+
+
+    public String getSpecificationDataSchema(String specID, String sessionHandle)
+                                                                 throws IOException {
+        return stripOuterElement(executeGet(_backEndURIStr +
+                "?action=getSpecificationDataSchema" +
+                "&" +
+                "specID=" + specID +
+                "&" +
+                "sessionHandle=" + sessionHandle));
+
     }
 
     /**

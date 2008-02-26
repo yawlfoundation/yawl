@@ -190,7 +190,7 @@ public class QueueSet implements Serializable {
         q.restore(cache) ;
 
         // add queue only if it has items in it
-        if (! q.isEmpty()) {
+//        if (! q.isEmpty()) {
             switch (q.getQueueType()) {
                 case WorkQueue.OFFERED    : _qOffered = q; break;
                 case WorkQueue.ALLOCATED  : _qAllocated = q; break;
@@ -199,8 +199,8 @@ public class QueueSet implements Serializable {
                 case WorkQueue.WORKLISTED : _qWorklisted = q; break;
                 case WorkQueue.UNOFFERED  : _qUnoffered = q;
             }
-        }
-        else _persist.delete(q);                 // remove empty queue from persistence
+  //      }
+//        else _persist.delete(q);                 // remove empty queue from persistence
     }
 
 

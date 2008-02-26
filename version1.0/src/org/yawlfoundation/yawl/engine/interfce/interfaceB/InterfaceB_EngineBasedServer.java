@@ -196,6 +196,9 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 } else if (action.equals("getSpecification")) {
                     YSpecificationID specID = makeYSpecificationID(request);
                     msg.append(_engine.getProcessDefinition(specID, sessionHandle));
+                } else if (action.equals("getSpecificationDataSchema")) {
+                    YSpecificationID specID = makeYSpecificationID(request);
+                    msg.append(_engine.getSpecificationDataSchema(specID, sessionHandle));                   
                 } else if (action.equals("getCasesForSpecification")) {
                     YSpecificationID specID = makeYSpecificationID(request);
                     msg.append(_engine.getCasesForSpecification(specID, sessionHandle));

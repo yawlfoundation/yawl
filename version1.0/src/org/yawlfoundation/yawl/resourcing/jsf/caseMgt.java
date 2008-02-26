@@ -9,26 +9,20 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
+import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.model.Option;
+import com.sun.rave.web.ui.model.UploadedFile;
+import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 
 import javax.faces.FacesException;
+import javax.faces.component.UIColumn;
 import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
-import javax.faces.component.UIColumn;
 import javax.faces.event.ValueChangeEvent;
-
-import com.sun.rave.web.ui.model.UploadedFile;
-import com.sun.rave.web.ui.model.Option;
-import com.sun.rave.web.ui.component.*;
-
-import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
-import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-
-import org.jdom.Element;
-
-import java.util.*;
 import java.io.IOException;
+import java.util.*;
 
 /**
  *  Backing bean that corresponds to a similarly named JSP page.
@@ -465,10 +459,8 @@ public class caseMgt extends AbstractPageBean {
                 getSessionBean().setLoadedSpecListChoice(specData.getID());
 
                 DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
-                df.setHeaderText(
-                        "Starting an Instance of Specification '" + specData.getID() + "'" );
-                df.initDynForm(new ArrayList<FormParameter>(paramMap.values()),
-                               "YAWL Case Management - Launch Case") ;
+                df.setHeaderText("Starting an Instance of: " + specData.getID());
+                df.initDynForm("YAWL 2.0 Case Management - Launch Case") ;
                 return "showDynForm" ;
             }
             else {
@@ -485,20 +477,21 @@ public class caseMgt extends AbstractPageBean {
         String caseData = null ;
         String result ;
         if (getSessionBean().isCaseLaunch()) {
-            Map paramMap = getSessionBean().getDynFormParams();
+//            Map paramMap = getSessionBean().getDynFormParams();
 
-            if ((paramMap != null) && (! paramMap.isEmpty())) {
-                paramMap = getDynFormFactory().updateValues(paramMap) ;
-                Element data = new Element(specID) ;
-                for (Object o : paramMap.values()) {
-                    FormParameter param = (FormParameter) o ;
-                    Element child = new Element(param.getName());
-                    child.setText(param.getValue());
-                    data.addContent(child);
-                }
-                caseData = JDOMUtil.elementToStringDump(data) ;
-            }
-            getSessionBean().resetDynFormParams();
+//            if ((paramMap != null) && (! paramMap.isEmpty())) {
+ //               paramMap = getDynFormFactory().updateValues(paramMap) ;
+ //               Element data = new Element(specID) ;
+//                for (Object o : paramMap.values()) {
+//                    FormParameter param = (FormParameter) o ;
+//                    Element child = new Element(param.getName());
+//                    child.setText(param.getValue());
+//                    data.addContent(child);
+//                }
+//                caseData = JDOMUtil.elementToStringDump(data) ;
+//            }
+//            getSessionBean().resetDynFormParams();
+            caseData = getDynFormFactory().getDataList();
             getSessionBean().setCaseLaunch(false);
         }
         try {
@@ -554,7 +547,7 @@ public class caseMgt extends AbstractPageBean {
             // convert to options array
             Option[] options = new Option[caseList.size()] ;
             int i = 0 ;
-            for (Option option : caseList ) options[i++] = option ;          
+            for (Option option : caseList) options[i++] = option ;          
             getSessionBean().setRunningCaseListOptions(options);
         }
     }

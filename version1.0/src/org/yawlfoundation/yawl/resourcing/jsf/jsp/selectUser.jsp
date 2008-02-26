@@ -7,6 +7,11 @@
                 <ui:head binding="#{selectUser.head1}" id="head1">
                     <ui:link binding="#{selectUser.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
+
+                    <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"
+                             rel="shortcut icon"
+                            type="image/x-icon" url="/resources/favicon.ico"/>
+
                 </ui:head>
                 <ui:body binding="#{selectUser.body1}" id="body1"
                          style="-rave-layout: grid">
