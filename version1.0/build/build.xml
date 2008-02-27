@@ -479,7 +479,7 @@
             <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar jfreechart-1.0.0-rc1.jar log4j*.jar postgresql-8.0-311.jdbc3.jar saxon7.jar saxpath.jar xercesImpl.jar"/>
         </copy>
         <antcall target="decidePostgresVersion"/>
-        <jar destfile="${output}/_yawl.war">
+        <jar destfile="${output}/yawl.war">
             <fileset dir="${yawl.eng.app.name}"/>
         </jar>
         <delete dir="${yawl.eng.app.name}"/>
@@ -1521,7 +1521,7 @@
     <target name="deployEngine" depends="build_engine.war">
         <!-- Deploy YAWL Engine -->
         <copy todir="${env.CATALINA_HOME}/webapps">
-            <fileset file="${output}/_yawl.war"/>
+            <fileset file="${output}/yawl.war"/>
         </copy>
         <antcall target="cleanup"/>
     </target>
