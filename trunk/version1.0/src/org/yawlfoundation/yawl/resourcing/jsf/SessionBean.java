@@ -228,7 +228,9 @@ public class SessionBean extends AbstractSessionBean {
         queueSet = p.getWorkQueues() ;
         userFullName = p.getFullName() ;
         getApplicationBean().addSessionReference(p.getID(), this) ;
+        if (p.isAdministrator()) adminQueueSet = getGateway().getAdminQueues();
     }
+
 
     private String userFullName ;
 
@@ -236,6 +238,15 @@ public class SessionBean extends AbstractSessionBean {
 
     public String getUserName() { return userFullName ; }
 
+    private QueueSet adminQueueSet = null;
+
+    public QueueSet getAdminQueueSet() {
+        return adminQueueSet;
+    }
+
+    public void setAdminQueueSet(QueueSet qSet) {
+        adminQueueSet = qSet;
+    }
 
     private QueueSet queueSet ;
 
@@ -245,21 +256,19 @@ public class SessionBean extends AbstractSessionBean {
 
     public Set<WorkItemRecord> getQueue(int qType) {
         Set<WorkItemRecord> result = null ;
-        if (queueSet != null) {
-            result = queueSet.getQueuedWorkItems(qType) ;
-        }
+        QueueSet qSet = (qType < WorkQueue.UNOFFERED) ? queueSet : adminQueueSet ;
+        if (qSet != null) result = qSet.getQueuedWorkItems(qType) ;
         return result ;
     }
 
     public int getQueueSize(int qType) {
-        if (queueSet != null)
-            return queueSet.getQueueSize(qType) ;
-        else
-            return 0;
+        QueueSet qSet = (qType < WorkQueue.UNOFFERED) ? queueSet : adminQueueSet ;
+        return ( (qSet != null) ? qSet.getQueueSize(qType) : 0 ) ;
     }
 
     public Set<WorkItemRecord> refreshQueue(int qType) {
         queueSet = participant.getWorkQueues() ;
+        if (participant.isAdministrator()) adminQueueSet = getGateway().getAdminQueues();
         return getQueue(qType) ;
     }
 
@@ -365,7 +374,7 @@ public class SessionBean extends AbstractSessionBean {
 
     public WorkItemRecord getChosenWIR(int qType) {
         if (participant != null) {
-            Set<WorkItemRecord> items = participant.getWorkQueues().getQueuedWorkItems(qType);
+            Set<WorkItemRecord> items = getQueue(qType);
             if (items != null) {
                 for (WorkItemRecord wir : items) {
                     if (wir != null) {
@@ -661,6 +670,78 @@ public class SessionBean extends AbstractSessionBean {
         return result ;
     }
 
+    /****** This section used by the 'Admin Queues' Page ***************************/
+
+    private Option[] adminQueueAssignedList ;
+
+
+    public Option[] getAdminQueueAssignedList() {
+        return adminQueueAssignedList;
+    }
+
+    public void setAdminQueueAssignedList(Option[] list) {
+        adminQueueAssignedList = list ;
+    }
+
+    public void populateAdminQueueAssignedList(WorkItemRecord wir) {
+        adminQueueAssignedList = null ;
+        Set<Participant> pSet = getResourceManager().getParticipantsAssignedWorkItem(wir) ;
+
+        if (pSet != null) {
+            adminQueueAssignedList = new Option[pSet.size()];
+            ArrayList<Participant> pList = new ArrayList<Participant>(pSet);
+            Collections.sort(pList, new ParticipantNameComparator());
+            int i = 0 ;
+
+            for (Participant p : pList) {
+                adminQueueAssignedList[i++] = new Option(p.getID(),
+                                            p.getLastName() + ", " + p.getFirstName()) ;
+            }
+        }
+    }
+
+    public String getAssignedToText() {
+        return "Assigned To (" + adminQueueAssignedList.length + ")" ;
+    }
+
+    private String adminQueueAction ;
+
+    public String getAdminQueueAction() {
+        return adminQueueAction;
+    }
+
+    public void setAdminQueueAction(String adminQueueAction) {
+        this.adminQueueAction = adminQueueAction;
+    }
+
+    public void performAdminQueueAction() {
+        if (getAdminQueueAction() != null)
+            performAdminQueueAction(getAdminQueueAction());
+    }
+
+    public void performAdminQueueAction(String action) {
+        String participantID = getSelectUserListChoice() ;        // this is the p-id
+        WorkItemRecord wir ;
+        if (action.startsWith("Re")) {
+            wir = getChosenWIR(WorkQueue.WORKLISTED);
+            getResourceManager().reassignWorklistedItem(wir, participantID, action) ;
+        }    
+        else  {
+            wir = getChosenWIR(WorkQueue.UNOFFERED);
+            getResourceManager().assignUnofferedItem(wir, participantID, action) ;
+        }
+    }
+
+
+    String navigateTo ;
+
+    public String getNavigateTo() {
+        return navigateTo;
+    }
+
+    public void setNavigateTo(String navigateTo) {
+        this.navigateTo = navigateTo;
+    }
 
     /****** This section used by the 'Org Data Mgt' Page ***************************/
 
@@ -991,6 +1072,10 @@ public class SessionBean extends AbstractSessionBean {
     public String getInitStartedTabText() { return getInitTabText(WorkQueue.STARTED) ; }
 
     public String getInitSuspendedTabText() { return getInitTabText(WorkQueue.SUSPENDED) ; }
+
+    public String getInitUnOfferedTabText() { return getInitTabText(WorkQueue.UNOFFERED) ; }
+
+    public String getInitWorklistedTabText() { return getInitTabText(WorkQueue.WORKLISTED) ; }
 
 
     public void setInitTabText(String s) {}

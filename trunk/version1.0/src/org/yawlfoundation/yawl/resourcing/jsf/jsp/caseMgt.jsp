@@ -161,7 +161,7 @@
                         <ui:messageGroup binding="#{caseMgt.msgBox}"
                                          id="msgBox"
                                          showGlobalOnly="true"
-                                         style="left: 198px; top: 690px; position: absolute; width: 568px"/>
+                                         style="left: 126px; top: 642px; position: absolute; width: 600px"/>
 
                         <ui:hiddenField binding="#{caseMgt.hdnRowIndex}" id="hdnRowIndex"/>
 

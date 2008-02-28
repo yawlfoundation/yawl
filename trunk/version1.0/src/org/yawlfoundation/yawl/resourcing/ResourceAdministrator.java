@@ -8,9 +8,9 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.HashSet;
 
@@ -28,9 +28,8 @@ public class ResourceAdministrator {
 
     private static ResourceAdministrator _me ;
 
-    public ResourceAdministrator() {
+    private ResourceAdministrator() {
 //        _qSet = new QueueSet("", QueueSet.setType.adminSet, false);
-        _me = this ;
     }
 
     public static ResourceAdministrator getInstance() {
@@ -38,7 +37,10 @@ public class ResourceAdministrator {
         return _me;
     }
 
-    public QueueSet getWorkQueues() { return _qSet ; }
+    public QueueSet getWorkQueues() {
+        refreshWorklistedQueue();
+        return _qSet ;
+    }
 
     public void removeFromAllQueues(WorkItemRecord wir) {
         _qSet.removeFromQueue(wir, WorkQueue.UNOFFERED);
@@ -46,7 +48,27 @@ public class ResourceAdministrator {
     }
 
     public void createWorkQueues(boolean persisting) {
-        _qSet = new QueueSet("", QueueSet.setType.adminSet, persisting) ;
+        _qSet = new QueueSet(null, QueueSet.setType.adminSet, persisting) ;
+    }
+
+
+    public void assignUnofferedItem(WorkItemRecord wir, Participant p, String action) {
+        WorkQueue unoffered = _qSet.getQueue(WorkQueue.UNOFFERED) ;
+        if (unoffered != null) {
+            if (action.equals("Offer")) {
+                wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
+                p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
+            }
+            else if (action.equals("Allocate")) {
+                wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+                p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+            }
+            else if (action.equals("Start")) {
+                wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
+                p.getWorkQueues().addToQueue(wir, WorkQueue.STARTED);
+            }
+            unoffered.remove(wir);
+        }
     }
 
 
@@ -55,20 +77,13 @@ public class ResourceAdministrator {
         _qSet.restoreWorkQueue(q, cache) ;
     }
 
-//    public void persistWorkQueues() {
-//        _qSet.persistAdminQueues() ;
-//    }
 
     private void refreshWorklistedQueue() {
-        _qSet.getQueuedWorkItems(WorkQueue.WORKLISTED).clear();
+        _qSet.purgeQueue(WorkQueue.WORKLISTED);
 
         HashSet<Participant> pSet = ResourceManager.getInstance().getParticipants();
-
-        for (Participant p : pSet) {
+        for (Participant p : pSet)
             _qSet.addToQueue(WorkQueue.WORKLISTED, p.getWorkQueues().getCombinedQueues());
-        }
     }
-
-
 
 }

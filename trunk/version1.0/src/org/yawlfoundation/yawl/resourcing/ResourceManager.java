@@ -693,6 +693,19 @@ public class ResourceManager extends InterfaceBWebsideController
     }
 
 
+    public Set<Participant> getParticipantsAssignedWorkItem(WorkItemRecord wir) {
+        Set<Participant> result = new HashSet<Participant>();
+        for (Participant p : _ds.participantMap.values()) {
+            QueueSet qSet = p.getWorkQueues();
+            if ((qSet != null) && (qSet.hasWorkItemInAnyQueue(wir)))
+                 result.add(p);
+        }
+        if (result.isEmpty()) result = null;
+        return result;
+    }
+
+
+
     public HashSet<Participant> getParticipants() {
         if (_ds.participantMap == null) return null ;
         return new HashSet<Participant>(_ds.participantMap.values()) ;
@@ -923,6 +936,9 @@ public class ResourceManager extends InterfaceBWebsideController
         _resAdmin.removeFromAllQueues(wir);
     }
 
+    public QueueSet getAdminQueues() {
+        return _resAdmin.getWorkQueues();
+    }
 
     public void acceptOffer(Participant p, WorkItemRecord wir) {
         ResourceMap rMap = getResourceMap(wir);
@@ -1884,6 +1900,42 @@ public class ResourceManager extends InterfaceBWebsideController
             result = null ;
         }
         return result ;
+    }
+
+
+    public void assignUnofferedItem(WorkItemRecord wir, String participantID,
+                                        String action) {
+        if (action.equals("Start") &&
+                   wir.getStatus().equals(WorkItemRecord.statusEnabled))
+            start(getParticipant(participantID), wir, _engineSessionHandle);
+
+        _resAdmin.assignUnofferedItem(wir, getParticipant(participantID), action) ;
+    }
+
+
+    public void reassignWorklistedItem(WorkItemRecord wir, String participantID,
+                                                           String action) {
+        Participant p = getParticipant(participantID);
+        removeFromAll(wir) ;
+
+        if (action.equals("Reoffer")) {
+            wir.resetDataState();
+            p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
+            wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
+        }
+        else if (action.equals("Reallocate")) {
+            wir.resetDataState();
+            p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+            wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+        }
+        else if (action.equals("Restart")) {
+            if (wir.getStatus().equals(WorkItemRecord.statusEnabled))
+                start(p, wir, _engineSessionHandle);
+            else {
+                p.getWorkQueues().addToQueue(wir, WorkQueue.STARTED);
+                wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
+            }
+        }
     }
 
 

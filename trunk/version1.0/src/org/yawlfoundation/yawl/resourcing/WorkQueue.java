@@ -53,7 +53,11 @@ public class WorkQueue implements Serializable {
     public WorkQueue() {}
 
     public WorkQueue(String ownerID, int qType, boolean persisting) {
-        _ownerID = ownerID ;
+        if (ownerID != null)
+            _ownerID = ownerID ;
+        else
+            _ownerID = "admin";
+
         _persisting = persisting ;
         _queueType = qType ;
         if (_persisting) Persister.getInstance().insert(this);

@@ -58,6 +58,14 @@
                                styleClass="menuButton"
                                style="top: 152px"/>
 
+            <ui:imageHyperlink action="#{pfMenu.mnuAdminQueues_action}"
+                               binding="#{pfMenu.mnuAdminQueues}"
+                               id="mnuAdminQueues"
+                               imageURL="/resources/mnuAdminQueues.gif"
+                               styleClass="menuButton"
+                               style="top: 180px"/>
+
+
         </ui:panelLayout>
     </f:subview>
 </div>

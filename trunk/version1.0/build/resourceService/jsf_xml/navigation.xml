@@ -35,6 +35,10 @@
             <from-outcome>showEditOrgData</from-outcome>
             <to-view-id>/participantData.jsp</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>showAdminQueues</from-outcome>
+            <to-view-id>/adminQueues.jsp</to-view-id>
+        </navigation-case>
     </navigation-rule>
     <navigation-rule>
         <from-view-id>/caseMgt.jsp</from-view-id>
@@ -58,6 +62,10 @@
             <from-outcome>showEditOrgData</from-outcome>
             <to-view-id>/participantData.jsp</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>showAdminQueues</from-outcome>
+            <to-view-id>/adminQueues.jsp</to-view-id>
+        </navigation-case>
     </navigation-rule>
     <navigation-rule>
         <from-view-id>/dynForm.jsp</from-view-id>
@@ -75,6 +83,10 @@
         <navigation-case>
             <from-outcome>showUserQueues</from-outcome>
             <to-view-id>/userWorkQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showAdminQueues</from-outcome>
+            <to-view-id>/adminQueues.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
     <navigation-rule>
@@ -95,6 +107,10 @@
             <from-outcome>showEditOrgData</from-outcome>
             <to-view-id>/participantData.jsp</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>showAdminQueues</from-outcome>
+            <to-view-id>/adminQueues.jsp</to-view-id>
+        </navigation-case>
     </navigation-rule>
     <navigation-rule>
         <from-view-id>/participantData.jsp</from-view-id>
@@ -113,6 +129,37 @@
         <navigation-case>
             <from-outcome>showUserQueues</from-outcome>
             <to-view-id>/userWorkQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showAdminQueues</from-outcome>
+            <to-view-id>/adminQueues.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+        <from-view-id>/adminQueues.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>userSelect</from-outcome>
+            <to-view-id>/selectUser.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showServiceMgt</from-outcome>
+            <to-view-id>/customServices.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>loginPage</from-outcome>
+            <to-view-id>/Login.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showCaseMgt</from-outcome>
+            <to-view-id>/caseMgt.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showUserQueues</from-outcome>
+            <to-view-id>/userWorkQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showEditOrgData</from-outcome>
+            <to-view-id>/participantData.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
 </faces-config>

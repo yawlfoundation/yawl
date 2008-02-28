@@ -7,14 +7,13 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
+import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.model.SingleSelectOptionsList;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 
 import javax.faces.FacesException;
 import javax.faces.event.ValueChangeEvent;
-
-import com.sun.rave.web.ui.model.SingleSelectOptionsList;
-import com.sun.rave.web.ui.component.*;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 
 /**
  * <p>Page bean that corresponds to a similarly named JSP page.  This
@@ -864,7 +863,7 @@ public class participantData extends AbstractPageBean {
 
         // password check
         if (! checkValidPasswordChange()) {
-            error("ERROR: Password and comfirmation are different");
+            error("ERROR: Password and confirmation are different");
             result = false;
         }
 

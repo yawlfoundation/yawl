@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.component.Calendar;
@@ -11,34 +19,54 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
+ * Packages the set of input data on a dynamic form to allow for systematic feeding
+ * of data to translate it to the xml expected by the engine on checkin
+ *
  * Author: Michael Adams
- * Creation Date: 23/02/2008
+ * Date: 23/02/2008
  */
+
 public class DynFormDataFormatter {
 
-    private String _header;
-    private Map<String, ComplexAttributes> _attributes ;
-    private Set<SubPanelController> _subPanelSet;
+    private String _header;                                    // the outermost tag
+    private Map<String, ComplexAttributes> _attributes ;       // set of attrib-value
+    private Set<SubPanelController> _controllerSet;              // set of nested panels
 
+    // CONSTRUCTOR //
     public DynFormDataFormatter(PanelLayout form) {
         _attributes = new Hashtable<String, ComplexAttributes>() ;
-        _subPanelSet = new HashSet<SubPanelController>();
+        _controllerSet = new HashSet<SubPanelController>();
         deconstructComponentList(form) ;
     }
 
+    /**
+     * Called by the constructor to organise the form's data
+     * @param form the outermost panel of the dynamic form
+     */
     private void deconstructComponentList(PanelLayout form) {
         List components = form.getChildren();
+
+        // for each component of the dynamic form
         for (Object o : components) {
+
+            // the StaticText header becomes this panel's 'tag'
             if (o instanceof StaticText)
                 _header = (String) ((StaticText) o).getText();
+
+            // each subpanel contains its own components. Panel controllers are
+            // stored to save confusion between cloned panels and non-cloned ones
             else if (o instanceof SubPanel) {
                 SubPanelController controller = ((SubPanel) o).getController() ;
-                _subPanelSet.add(controller);
+                _controllerSet.add(controller);
             }
+
+            // ordinary fields - all have an associated label
             else if (o instanceof Label) {
                 Label label = (Label) o ;
                 String tag = (String) label.getText();
-                tag = tag.trim().replaceFirst(":", "");
+                tag = tag.trim().replaceFirst(":", "");               // remove prompt
+
+                // get the component this label is 'for', then get its value
                 String forID = label.getFor();
                 String value = "";
                 UIComponent field = form.findComponent(forID);
@@ -55,8 +83,15 @@ public class DynFormDataFormatter {
     }
 
 
+    /**
+     * Add a value to an associated name (a name may have several values)
+     * @param tag the 'name' of the component
+     * @param value its value (as read from the dyn form)
+     */
     private void addAttribute(String tag, String value) {
         ComplexAttributes ca = _attributes.get(tag);
+
+        // if this tag already mapped, add another value
         if (ca != null)
             ca.addValue(value);
         else
@@ -64,11 +99,15 @@ public class DynFormDataFormatter {
     }
 
 
+    /** @return an opening XML'd tag that will enclose this form's data */
     public String getHeaderOpen() { return "<" + _header + ">" ; }
 
+
+    /** @return a closing XML'd tag for this form's data */
     public String getHeaderClose() { return "</" + _header + ">" ; }
 
 
+    /** @return the attribute-value sets as XML */
     public String getBody() {
         StringBuilder result = new StringBuilder();
         for (ComplexAttributes ca : _attributes.values())
@@ -77,45 +116,58 @@ public class DynFormDataFormatter {
     }
 
 
-    public Set<SubPanelController> getSubPanels() {
-        return _subPanelSet;
+    /** @return the controllers of the subpanels on this form */
+    public Set<SubPanelController> getSubPanelControllers() {
+        return _controllerSet;
     }
 
 
+    /**
+     *  Reformats an xml string, removing inner duplicates of the outer tag
+     * @param tag the outer tag name
+     * @param toClean the String to clean
+     * @return the cleaned String
+     */
     public String cleanPanelSetOutput(String tag, String toClean) {
+        Element output = new Element(tag);
+
+        // wrap string to allow a parent element to be created
         toClean = StringUtil.wrap(toClean, "temp");
         Element input = JDOMUtil.stringToElement(toClean);
-        Element output = new Element(tag);
+
+        // split the original string into child elements
         Iterator itr = input.getChildren().iterator();
         while (itr.hasNext()) {
             Element child = (Element) itr.next();
-//            Iterator grandItr = child.getChildren().iterator();
-//            while (grandItr.hasNext()) {
-//                Element grandChild = (Element) grandItr.next();
-                output.addContent(child.cloneContent());
-            }
-//        }
+            output.addContent(child.cloneContent());               // add its content
+        }
         return JDOMUtil.elementToStringDump(output);
     }
 
+    
     /******************************************************************************/
 
-    private class ComplexAttributes {
+    /**
+     * Provides the storage of multiple values for a single attribute
+     */
+    private class ComplexAttributes extends ArrayList<String> {
 
         private String _tag ;
-        private List<String> _values;
 
+        // Constructor //
         ComplexAttributes(String tag, String value) {
+            super() ;
             _tag = tag ;
-            _values = new ArrayList<String>() ;
             addValue(value);
         }
 
-        protected void addValue(String value) { _values.add(value); }
 
+        protected void addValue(String value) { add(value); }
+
+        
         protected String toXML() {
             StringBuilder result = new StringBuilder() ;
-            for (String value : _values)
+            for (String value : this)
                 result.append(StringUtil.wrap(value, _tag));
             return result.toString() ;
         }

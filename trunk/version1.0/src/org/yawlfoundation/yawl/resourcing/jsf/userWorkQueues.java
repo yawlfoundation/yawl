@@ -498,6 +498,7 @@ public class userWorkQueues extends AbstractPageBean {
             }
             getSessionBean().setSelectUserListOptions(options);
             getSessionBean().setUserListFormHeaderText("Delegate workitem to:") ;
+            getSessionBean().setNavigateTo("showUserQueues");
             return "userSelect" ;
         }
         else {
@@ -620,6 +621,7 @@ public class userWorkQueues extends AbstractPageBean {
                 getSessionBean().setReallocatingStateful(stateful);
                 getSessionBean().setSelectUserListOptions(options);
                 getSessionBean().setUserListFormHeaderText("Reallocate workitem to:") ;
+                getSessionBean().setNavigateTo("showUserQueues");
                 return "userSelect" ;
             }
             else return null ;
@@ -795,7 +797,7 @@ public class userWorkQueues extends AbstractPageBean {
     /******************************************************************************/
 
     private int populateQueue(int queueType) {
-        Set<WorkItemRecord> queue = getSessionBean().getQueue(queueType);
+        Set<WorkItemRecord> queue = getSessionBean().refreshQueue(queueType);
         pfQueueUI itemsSubPage = (pfQueueUI) getBean("pfQueueUI");
         Listbox lbx = itemsSubPage.getLbxItems();
         itemsSubPage.clearQueueGUI();

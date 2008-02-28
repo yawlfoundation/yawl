@@ -10,9 +10,6 @@
 package org.yawlfoundation.yawl.engine.interfce;
 
 import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -26,7 +23,7 @@ import java.io.Serializable;
  * Time: 18:30:18
  *
  * Extended & refactored for version 2.0 by Michael Adams
- * Last Date: 09/01/2008
+ * Last Date: 28/02/2008
  * 
  */
 
@@ -73,7 +70,7 @@ public class WorkItemRecord implements Serializable {
 
     // current statuses
     private String _status;
-    private String _resourceStatus ;
+    private String _resourceStatus = statusResourceUnresourced;
 
     // who performed the workitem
     private String _startedBy;
@@ -135,6 +132,11 @@ public class WorkItemRecord implements Serializable {
             _dataList = JDOMUtil.stringToElement(_dataListString) ;
         if (_dataListUpdatedString != null)
             _dataListUpdated = JDOMUtil.stringToElement(_dataListUpdatedString) ;
+    }
+
+    public void resetDataState() {
+        _dataListUpdatedString = null;
+        _dataListUpdated = null ; 
     }
 
     /********************************************************************************/

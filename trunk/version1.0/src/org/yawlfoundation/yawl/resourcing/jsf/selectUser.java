@@ -7,17 +7,10 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
-import com.sun.rave.web.ui.component.Body;
-import com.sun.rave.web.ui.component.Form;
-import com.sun.rave.web.ui.component.Head;
-import com.sun.rave.web.ui.component.Html;
-import com.sun.rave.web.ui.component.Link;
-import com.sun.rave.web.ui.component.Page;
-import javax.faces.FacesException;
-import com.sun.rave.web.ui.component.Listbox;
+import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.DefaultOptionsList;
-import com.sun.rave.web.ui.component.StaticText;
-import com.sun.rave.web.ui.component.Button;
+
+import javax.faces.FacesException;
 
 /**
  * <p>Page bean that corresponds to a similarly named JSP page.  This
@@ -256,7 +249,7 @@ public class selectUser extends AbstractPageBean {
                 getSessionBean().setDelegating(true);
             else
                 getSessionBean().setReallocating(true);
-            return "showUserQueues";
+            return getSessionBean().getNavigateTo();
         }
         else {
             // message  - select a user
@@ -268,7 +261,7 @@ public class selectUser extends AbstractPageBean {
 
 
     public String btnCancel_action() {
-        return "showUserQueues";
+        return getSessionBean().getNavigateTo();
     }
 }
 

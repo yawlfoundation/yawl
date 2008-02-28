@@ -15,6 +15,7 @@ import com.sun.rave.web.ui.model.UploadedFile;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
 import javax.faces.component.UIColumn;
@@ -364,11 +365,13 @@ public class caseMgt extends AbstractPageBean {
             fileContents = fileContents.substring(BOF, EOF + 19) ;
             WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway() ;
             String handle = getSessionBean().getSessionhandle() ;
-            String htmlErr = "";
             String result = wqg.uploadSpecification(fileContents, fileName, handle);
             if (Interface_Client.successful(result))
                 getSessionBean().refreshLoadedSpecs();
-        //    if(_worklistController.successful(replyFromYAWL)){}
+            else {
+                result = JDOMUtil.formatXMLString(result);
+                error("ERROR: The specification could not be loaded.\n\n" + result);
+             }
         }
     }
 
@@ -382,7 +385,7 @@ public class caseMgt extends AbstractPageBean {
             refPage = startCase(spec) ;
         }
         catch (NumberFormatException nfe) {
-            // message about row not selected
+            error("ERROR: No specification selected to launch.") ;
         }
 
         return refPage;
@@ -395,8 +398,12 @@ public class caseMgt extends AbstractPageBean {
         String choice = getSessionBean().getRunningCaseListChoice() ;
         if (choice != null) {
             choice = choice.substring(0, choice.indexOf(':')) ;
-            cancelCase(choice) ;
-        }    
+            String result = cancelCase(choice) ;
+            if (! Interface_Client.successful(result))
+                error("ERROR: Could not cancel case.\n\n" + JDOMUtil.formatXMLString(result)) ;
+        }
+        else error("ERROR: No case selected to cancel.");
+        
         return null;
     }
 
@@ -407,7 +414,7 @@ public class caseMgt extends AbstractPageBean {
             return wqg.cancelCase(caseID, handle);           
         }
         catch (IOException ioe) {
-            return null ;
+            return "<error>IOException when attempting to cancel case</error>" ;
         }
     }
 
@@ -433,14 +440,15 @@ public class caseMgt extends AbstractPageBean {
             SpecificationData spec = getSessionBean().getLoadedSpec(selectedRowIndex - 1);
             String result = unloadSpec(spec.getID()) ;
             if (result.indexOf("success") == -1) {
-                error("An info message about this action");
+                result = JDOMUtil.formatXMLString(result);
+                error("ERROR: Could not unload specification.\n\n" + result);
             }
             else {
                 getSessionBean().refreshLoadedSpecs();
             }
         }
         catch (NumberFormatException nfe) {
-            // message about row not selected
+            error("No specification selected to unload.");
         }
         return null;
     }

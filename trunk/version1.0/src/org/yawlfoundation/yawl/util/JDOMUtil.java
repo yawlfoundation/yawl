@@ -121,4 +121,10 @@ import java.io.*;
         else return "0";
     }
 
+    /****************************************************************************/
+
+    public static String formatXMLString(String s) {
+        return elementToString(stringToElement(s));
+    }
+
 } //ends
