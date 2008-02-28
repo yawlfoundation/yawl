@@ -8,27 +8,25 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.jsf.FormParameter;
-import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.QueueSet;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
+import org.yawlfoundation.yawl.resourcing.jsf.FormParameter;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *  The WorkQueue Gateway provides a gateway (or a set of API) between the Resource
@@ -108,6 +106,10 @@ public class WorkQueueGateway  {          // extends HttpServlet
         String result = null ;
         if (userID != null) result = rm.getFullNameForUserID(userID);
         return result;                                           
+    }
+
+    public QueueSet getAdminQueues() {
+        return rm.getAdminQueues();
     }
 
     public boolean successful(String test) {

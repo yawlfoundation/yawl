@@ -159,6 +159,12 @@ public class QueueSet implements Serializable {
         return !isNullQueue(queue) && (getQueue(queue).get(itemID) != null);
     }
 
+    public boolean hasWorkItemInAnyQueue(WorkItemRecord wir) {
+        for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++) {
+            if (hasWorkItemInQueue(wir.getID(), queue)) return true ;
+        }
+        return false ;
+    }
 
     public void removeFromAllQueues(WorkItemRecord wir) {
         int max, min;

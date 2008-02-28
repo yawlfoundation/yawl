@@ -15,7 +15,6 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 import javax.faces.FacesException;
 import javax.faces.event.ValueChangeEvent;
-import java.text.DateFormat;
 
 /**
  * <p>Fragment bean that corresponds to a similarly named JSP page
@@ -278,11 +277,10 @@ public class pfQueueUI extends AbstractFragmentBean {
         catch (NumberFormatException nfe) {
             txtAge.setText("<unavailable>") ;
         }
-//        enabledStr = DateFormat.getDateTimeInstance(
-//                            DateFormat.SHORT, DateFormat.SHORT).format(enabled);
-//        txtCreated.setText(enabledStr);
+
         txtCreated.setText(wir.getEnablementTime()) ;
     }
+
 
     protected void clearQueueGUI() {
         getSessionBean().setWorklistOptions(null);

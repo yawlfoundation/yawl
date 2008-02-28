@@ -6,12 +6,13 @@
  */
 package org.yawlfoundation.yawl.resourcing.jsf;
 
-import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
-import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
+import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
 import javax.faces.application.FacesMessage;
@@ -21,9 +22,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.validator.LengthValidator;
 import javax.faces.validator.ValidatorException;
-import java.util.Set;
 import java.util.Iterator;
-import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>Page bean that corresponds to a similarly named JSP page.  This
@@ -227,6 +227,14 @@ public class Login extends AbstractPageBean {
     public void setMessage2(Message m) {
         this.message2 = m;
     }
+
+    private MessageGroup msgBox = new MessageGroup();
+
+    public MessageGroup getMsgBox() { return msgBox; }
+
+    public void setMsgBox(MessageGroup mg) { this.msgBox = mg; }
+
+    
     
     // </editor-fold>
 
@@ -361,7 +369,10 @@ public class Login extends AbstractPageBean {
                 initSession(wqg, u, handle) ;
                 return true ;
             }
-            else return false ;
+            else {
+                error("LOGIN ERROR:\n\n" + JDOMUtil.formatXMLString(handle));
+                return false ;
+            }    
         }
         else throw new ValidatorException(new FacesMessage("Could not connect to work queue"));
     }

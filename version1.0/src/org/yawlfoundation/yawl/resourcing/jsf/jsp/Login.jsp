@@ -87,6 +87,12 @@
                                     showSummary="true"
                                     style="left: 552px; top: 192px; position: absolute"/>
 
+                        <ui:messageGroup binding="#{Login.msgBox}"
+                                         id="msgBox"
+                                         showGlobalOnly="true"
+                                         style="left: 120px; top: 310px; position: absolute; width: 300px"/>
+
+
                     </ui:form>
                 </ui:body>
             </ui:html>

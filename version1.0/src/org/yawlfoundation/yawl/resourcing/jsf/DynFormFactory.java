@@ -814,7 +814,7 @@ public class DynFormFactory extends AbstractSessionBean {
         result.append(formatter.getBody());
 
         // process subpanels recursively
-        Set<SubPanelController> controllerSet = formatter.getSubPanels();
+        Set<SubPanelController> controllerSet = formatter.getSubPanelControllers();
         for (SubPanelController controller : controllerSet) {
             String name = controller.getName();
             StringBuilder subResult = new StringBuilder();

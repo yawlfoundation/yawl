@@ -7,11 +7,11 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractFragmentBean;
+import com.sun.rave.web.ui.component.ImageComponent;
+import com.sun.rave.web.ui.component.ImageHyperlink;
+import com.sun.rave.web.ui.component.PanelLayout;
+
 import javax.faces.FacesException;
-
-import com.sun.rave.web.ui.component.*;
-
-import java.util.Set;
 
 /**
  * <p>Fragment bean that corresponds to a similarly named JSP page
@@ -102,16 +102,15 @@ public class pfMenu extends AbstractFragmentBean {
         this.mnuOrgDataMgt = ih;
     }
 
-    private ImageHyperlink mnuTest = new ImageHyperlink();
+    private ImageHyperlink mnuAdminQueues = new ImageHyperlink();
 
-    public ImageHyperlink getMnuTest() {
-        return mnuTest;
+    public ImageHyperlink getMnuAdminQueues() {
+        return mnuAdminQueues;
     }
 
-    public void setMnuTest(ImageHyperlink ih) {
-        this.mnuTest = ih;
+    public void setMnuAdminQueues(ImageHyperlink ih) {
+        this.mnuAdminQueues = ih;
     }
-
 
 
     private ImageComponent imgSelected = new ImageComponent();
@@ -223,17 +222,17 @@ public class pfMenu extends AbstractFragmentBean {
     }
 
 
-    public String mnuAdminQueues_action() {
-        // TODO: Replace with your code
-        
-        return null;
-    }
-
-
     public String mnuOrgDataMgt_action() {
         getSessionBean().checkLogon();
         getSessionBean().setMnuSelectorStyle("top: 152px");
         return "showEditOrgData";
+    }
+
+
+    public String mnuAdminQueues_action() {
+        getSessionBean().checkLogon();
+        getSessionBean().setMnuSelectorStyle("top: 180px");
+        return "showAdminQueues";
     }
 
 
