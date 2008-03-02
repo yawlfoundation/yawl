@@ -12,7 +12,6 @@ import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
 import javax.faces.application.FacesMessage;
@@ -228,14 +227,6 @@ public class Login extends AbstractPageBean {
         this.message2 = m;
     }
 
-    private MessageGroup msgBox = new MessageGroup();
-
-    public MessageGroup getMsgBox() { return msgBox; }
-
-    public void setMsgBox(MessageGroup mg) { this.msgBox = mg; }
-
-    
-    
     // </editor-fold>
 
 
@@ -324,6 +315,7 @@ public class Login extends AbstractPageBean {
      * this page.</p>
      */
     public void prerender() {
+        msgPanel.show();
     }
 
     /** 
@@ -370,7 +362,7 @@ public class Login extends AbstractPageBean {
                 return true ;
             }
             else {
-                error("LOGIN ERROR:\n\n" + JDOMUtil.formatXMLString(handle));
+                msgPanel.error(msgPanel.format(handle));
                 return false ;
             }    
         }
@@ -394,5 +386,7 @@ public class Login extends AbstractPageBean {
             }    
         }
     }
+
+    private MessagePanel msgPanel = getSessionBean().getMessagePanel() ;
 }
 
