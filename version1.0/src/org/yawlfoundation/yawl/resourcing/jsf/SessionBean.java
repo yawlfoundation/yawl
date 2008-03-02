@@ -1148,6 +1148,26 @@ public class SessionBean extends AbstractSessionBean {
 //        }
     }
 
+    private PanelLayout messageParent = new PanelLayout();
+
+     public PanelLayout getMessageParent() {
+         return messageParent;
+     }
+
+     public void setMessageParent(PanelLayout messageParent) {
+         this.messageParent = messageParent;
+     }
+
+    
+    private MessagePanel messagePanel = new MessagePanel() ;
+
+    public MessagePanel getMessagePanel() {
+        return messagePanel;
+    }
+
+    public void setMessagePanel(MessagePanel messagePanel) {
+        this.messagePanel = messagePanel;
+    }
 }
 
 

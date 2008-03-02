@@ -33,6 +33,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideC
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.logging.YCaseEvent;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
@@ -94,7 +95,8 @@ public class YEngine implements InterfaceADesign,
 
     private static boolean persisting;
     private static boolean restoring;
-    private static int _nextCaseNbr = 1;
+//    private static int _nextCaseNbr = 1;
+    private static YCaseNbrStore _caseNbrStore;
     private static SessionFactory factory = null;
     private static final String _yawlVersion = "2.0" ;
 
@@ -219,20 +221,26 @@ public class YEngine implements InterfaceADesign,
                 runners.add(runner);
             }
 
-            _nextCaseNbr = pmgr.getNextCaseNbr();
+            // restore next available case number
+            query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.YCaseNbrStore");
+            if ((query != null) && (! query.list().isEmpty())) {
+                _caseNbrStore = (YCaseNbrStore) query.iterate().next();
+                _caseNbrStore.setPersisted(true);               // flag to update only
+            }
+            else {
+                
+                // secondary attempt: if there's no case number stored (as will be
+                // the case if this is the first restart after upgrade to v2.0)
+                query = pmgr.createQuery("from YCaseEvent as yce " +
+                        "where yce._eventName = 'started' order by yce._eventTime desc");
+                if ((query != null) && (! query.list().isEmpty())) {
+                    YCaseEvent caseEvent = (YCaseEvent) query.iterate().next();
 
-//            HashMap map = new HashMap();
-//            for (int i = 0; i < runners.size(); i++) {
-//                YNetRunner runner = (YNetRunner) runners.get(i);
-//                String id = runner.get_caseID();
-//                query = pmgr.createQuery("select from org.yawlfoundation.yawl.logging.YCaseEvent where case_id = '" + id + "'");
-//                for (Iterator it = query.iterate(); it.hasNext();) {
-//                    YCaseEvent ylogid = (YCaseEvent) it.next();
-//                    map.put(ylogid.get_caseID(), ylogid);
-//                }
-//            }
-//            YEventLogger.getInstance().setListofcases(map);
-
+                    // only want integral case numbers
+                    _caseNbrStore.setCaseNbr(new Double(caseEvent.get_caseID()).intValue());
+                }
+            }
+            
             int checkedrunners = 0;
 
             Vector storedrunners = (Vector) runners.clone();
@@ -578,6 +586,7 @@ public class YEngine implements InterfaceADesign,
 
             _userList = UserList.getInstance();
             _workItemRepository = YWorkItemRepository.getInstance();
+            _caseNbrStore = YCaseNbrStore.getInstance();
 
             if (isPersisting()) {
                 YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
@@ -655,13 +664,10 @@ public class YEngine implements InterfaceADesign,
             try {
                 _myInstance = getInstance(ENGINE_PERSISTS_BY_DEFAULT);
             } catch (Exception e) {
-                throw new RuntimeException("Failure to instanciate an engine");
+                throw new RuntimeException("Failure to instantiate an engine");
             }
-
-            return _myInstance;
-        } else {
-            return _myInstance;
         }
+        return _myInstance;
     }
 
 
@@ -2781,6 +2787,21 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
         }
     }
 
+    public void updateObject(Object obj) throws YPersistenceException {
+        /**
+         * SYNC'D External interface
+         */
+        synchronized (mutex) {
+
+            if (isPersisting()) {
+                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
+                pmgr.startTransactionalSession();
+                pmgr.updateObject(obj);
+                pmgr.commit();
+            }
+        }
+    }
+
     public void deleteObject(Object obj) throws YPersistenceException {
         /**
          * SYNC'D External interface
@@ -2874,10 +2895,9 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
      * Note: This method replaces that previously included within YPersistance.
      *
      */
+    
     public String getNextCaseNbr() {
-        String result = String.valueOf(_nextCaseNbr);
-        _nextCaseNbr++;
-        return result;
+        return _caseNbrStore.getNextCaseNbr();
     }
 
     /**
@@ -2932,7 +2952,7 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
             }
             else
             {
-                caseID = getNextCaseNbr();
+                caseID =  YCaseNbrStore.getInstance().getNextCaseNbr();
             }
 
             return caseID;

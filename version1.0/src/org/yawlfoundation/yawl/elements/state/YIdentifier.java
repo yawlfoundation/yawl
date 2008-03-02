@@ -9,14 +9,14 @@
 
 package org.yawlfoundation.yawl.elements.state;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.YCondition;
 import org.yawlfoundation.yawl.elements.YConditionInterface;
 import org.yawlfoundation.yawl.elements.YInputCondition;
 import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YEngine;
+import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -84,7 +84,6 @@ public class YIdentifier {
 
     public YIdentifier() {
         _idString = YEngine.getInstance().getNextCaseNbr();
-        //_idString = "" + _count++;
     }
 
 

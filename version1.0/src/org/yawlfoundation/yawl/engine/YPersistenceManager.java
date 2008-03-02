@@ -609,6 +609,7 @@ public class YPersistenceManager {
                 cfg.addClass(YCaseEvent.class);
                 cfg.addClass(YAWLServiceReference.class);
                 cfg.addClass(YWorkItemTimer.class);
+                cfg.addClass(YCaseNbrStore.class);
 
 //                cfg.addClass(org.yawlfoundation.yawl.admintool.model.Resource.class);
 //                cfg.addClass(org.yawlfoundation.yawl.admintool.model.Role.class);
@@ -675,29 +676,41 @@ public class YPersistenceManager {
 
 
 
-    public int getNextCaseNbr() {
-        int lastCaseNbr = 0 ;                                 // default starting case
-        try {
-            Session session = factory.openSession();
-
-            // get last started caseid from event logs
-            Query query = session.createQuery(
-                  "from YCaseEvent as yce " +
-                  "where yce._eventName = 'started' order by yce._eventTime desc");
-            if (query != null) {
-                if (! query.list().isEmpty()) {
-                    YCaseEvent caseEvent = (YCaseEvent) query.iterate().next();
-
-                    // only want integral case numbers
-                    lastCaseNbr = new Double(caseEvent.get_caseID()).intValue();
-                }    
-            }
-            session.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ++lastCaseNbr ;
-    }
+//    public int getNextCaseNbr() {
+//        int lastCaseNbr = 0 ;                                 // default starting case
+//        try {
+//            Session session = factory.openSession();
+//
+//            // get the last persisted case number
+//            Query query = session.createQuery("from YCaseNbrStore");
+//
+//            if (query != null) {
+//                if (! query.list().isEmpty()) {
+//                    YCaseNbrStore store = (YCaseNbrStore) query.iterate().next();
+//                    lastCaseNbr = store.getCaseNbr() ;
+//                }
+//            }
+//            else {
+//
+//                // secondary attempt: if there's no case number stored (as will be
+//                // the case if this is the first restart after upgrade to v2.0)
+//                query = session.createQuery("from YCaseEvent as yce " +
+//                        "where yce._eventName = 'started' order by yce._eventTime desc");
+//                if (query != null) {
+//                    if (! query.list().isEmpty()) {
+//                        YCaseEvent caseEvent = (YCaseEvent) query.iterate().next();
+//
+//                        // only want integral case numbers
+//                        lastCaseNbr = new Double(caseEvent.get_caseID()).intValue();
+//                    }
+//                }
+//            }
+//            session.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return ++lastCaseNbr ;
+//    }
 
     public SessionFactory getFactory() {
         return factory;

@@ -21,6 +21,12 @@
     width: 80px;
 }
 
+.messagePanel {
+    width: 400px;
+    height: 100px;
+    background-color: #f0f0f0;
+    border: 2px solid gray;
+}
 
 /* Rules for data tables */
 
